@@ -75,25 +75,8 @@ describe("board moves", () => {
     ]);
   });
 
-  it("keeps number-sorted moves append-only when a sorted override is active", () => {
-    const original = board();
-    original.columns[1].tasks.push({
-      id: "d",
-      status: "doing",
-      position: 1,
-    } as (typeof original.columns)[number]["tasks"][number]);
-    const moved = moveBoardTask(original, "a", "c", true, true)!;
-
-    expect(moved.project.columns[1].tasks.map((task) => task.id)).toEqual([
-      "c",
-      "d",
-      "a",
-    ]);
-    expect(moved.tasks).toEqual([{ id: "a", position: 2, status: "doing" }]);
-  });
-
   it("can insert before a cross-column target for a visual drag preview", () => {
-    const moved = moveBoardTask(board(), "a", "c", false, true, false)!;
+    const moved = moveBoardTask(board(), "a", "c", false, false)!;
 
     expect(moved.project.columns[1].tasks.map((task) => task.id)).toEqual([
       "a",
@@ -102,13 +85,13 @@ describe("board moves", () => {
   });
 
   it("derives the persisted position from the visual preview neighbors", () => {
-    const preview = moveBoardTask(board(), "a", "c", false, true, false)!;
+    const preview = moveBoardTask(board(), "a", "c", false, false)!;
     expect(getVisualTaskPlacement(preview.project, "a")).toEqual({
       overId: "c",
       insertAfterTarget: false,
     });
 
-    const bottomPreview = moveBoardTask(board(), "a", "c", false, true, true)!;
+    const bottomPreview = moveBoardTask(board(), "a", "c", false, true)!;
     expect(getVisualTaskPlacement(bottomPreview.project, "a")).toEqual({
       overId: "c",
       insertAfterTarget: true,
@@ -120,14 +103,7 @@ describe("board moves", () => {
       status: "doing",
       position: 1,
     } as (typeof middleBoard.columns)[number]["tasks"][number]);
-    const middlePreview = moveBoardTask(
-      middleBoard,
-      "a",
-      "d",
-      false,
-      true,
-      false,
-    )!;
+    const middlePreview = moveBoardTask(middleBoard, "a", "d", false, false)!;
     expect(
       middlePreview.project.columns[1].tasks.map((task) => task.id),
     ).toEqual(["c", "a", "d"]);

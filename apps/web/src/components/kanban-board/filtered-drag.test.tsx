@@ -17,9 +17,6 @@ const mocks = vi.hoisted(() => ({
   setProject: vi.fn(),
   reorder: vi.fn(),
   setQueryData: vi.fn(),
-  updatePriority: vi.fn(),
-  mutationIndex: 0,
-  modifierKey: "Ctrl",
   invalidateQueries: vi.fn(),
   success: undefined as
     | ((
@@ -29,28 +26,24 @@ const mocks = vi.hoisted(() => ({
     | undefined,
 }));
 vi.mock("@tanstack/react-query", () => ({
-  useQueryClient: () => {
-    // The board calls useQueryClient before its mutations on every render.
-    mocks.mutationIndex = 0;
-    return {
-      setQueryData: mocks.setQueryData,
-      invalidateQueries: mocks.invalidateQueries,
-      getQueryData: () => mocks.project,
-      getQueryState: () => undefined,
-    };
-  },
+  useQueryClient: () => ({
+    setQueryData: mocks.setQueryData,
+    invalidateQueries: mocks.invalidateQueries,
+    getQueryData: () => mocks.project,
+    getQueryState: () => undefined,
+  }),
   useMutation: ({ onSuccess }: { onSuccess: typeof mocks.success }) => {
-    if (mocks.mutationIndex++ === 0) {
-      mocks.success = onSuccess;
-      return { mutate: mocks.reorder, isPending: false };
-    }
-    return { mutate: mocks.updatePriority, isPending: false };
+    mocks.success = onSuccess;
+    return { mutate: mocks.reorder, isPending: false };
   },
 }));
 vi.mock("@kaneo/libs", () => ({ client: {} }));
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, options?: { sort?: string }) =>
+      options?.sort ? `${key}:${options.sort}` : key,
+  }),
 }));
 vi.mock("@/store/project", () => ({
   default: () => ({ project: mocks.project, setProject: mocks.setProject }),
@@ -60,7 +53,6 @@ vi.mock("@/store/background", () => ({
 }));
 vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
   useRegisterShortcuts: vi.fn(),
-  getModifierKeyText: () => mocks.modifierKey,
 }));
 vi.mock("@/hooks/use-project-background", () => ({
   useProjectBackground: () => null,
@@ -68,25 +60,16 @@ vi.mock("@/hooks/use-project-background", () => ({
 vi.mock("../bulk-selection/bulk-toolbar", () => ({ default: () => null }));
 vi.mock("./column", () => ({
   default: ({
-    automaticSortLabel,
     column,
-    isSortOverlaySuppressed,
-    sortOverlayColumnId,
+    sortHint,
   }: {
-    automaticSortLabel?: string;
     column: { id: string; tasks: { id: string }[] };
-    isSortOverlaySuppressed: boolean;
-    sortOverlayColumnId: string | null;
+    sortHint?: string;
   }) => (
     <div
       data-testid={`column-${column.id}`}
       data-task-ids={column.tasks.map((task) => task.id).join(",")}
-      data-automatic-sort-label={automaticSortLabel}
-      data-sort-overlay={
-        sortOverlayColumnId === column.id && !isSortOverlaySuppressed
-          ? "visible"
-          : "hidden"
-      }
+      data-sort-hint={sortHint}
     />
   ),
 }));
@@ -97,80 +80,33 @@ vi.mock("@dnd-kit/core", () => ({
     onDragStart,
     onDragOver,
     onDragEnd,
+    onDragCancel,
   }: {
     children: ReactNode;
     onDragStart: (event: unknown) => void;
     onDragOver: (event: unknown) => void;
     onDragEnd: (event: unknown) => void;
-  }) => (
-    <>
-      {children}
-      <button
-        onClick={(event) =>
-          onDragStart({
-            active: { id: "a" },
-            activatorEvent: event.nativeEvent,
-          })
-        }
-      >
-        start
-      </button>
-      <button
-        onClick={() =>
-          onDragOver({
-            active: {
-              id: "a",
-              rect: { current: { translated: { top: 20, height: 80 } } },
-            },
-            over: { id: "c", rect: { top: 100, height: 80 } },
-          })
-        }
-      >
-        over
-      </button>
-      <button
-        onClick={() =>
-          onDragOver({
-            active: {
-              id: "a",
-              rect: { current: { translated: { top: 110, height: 80 } } },
-            },
-            over: { id: "c", rect: { top: 100, height: 80 } },
-          })
-        }
-      >
-        over-center
-      </button>
-      <button
-        onClick={() =>
-          onDragOver({
-            active: {
-              id: "a",
-              rect: { current: { translated: { top: 20 } } },
-            },
-            over: { id: "a", rect: { top: 20, height: 80 } },
-          })
-        }
-      >
-        over-active
-      </button>
-      <button
-        onClick={() => onDragEnd({ active: { id: "a" }, over: { id: "b" } })}
-      >
-        drop
-      </button>
-      <button
-        onClick={() => onDragEnd({ active: { id: "a" }, over: { id: "a" } })}
-      >
-        drop-over
-      </button>
-      <button
-        onClick={() => onDragEnd({ active: { id: "a" }, over: { id: "c" } })}
-      >
-        drop-c
-      </button>
-    </>
-  ),
+    onDragCancel: () => void;
+  }) => {
+    const hover = (overId: string) => () =>
+      onDragOver({ active: { id: "a" }, over: { id: overId } });
+    const drop = (overId: string) => () =>
+      onDragEnd({ active: { id: "a" }, over: { id: overId } });
+    return (
+      <>
+        {children}
+        <button onClick={() => onDragStart({ active: { id: "a" } })}>
+          start
+        </button>
+        <button onClick={hover("c")}>over-c</button>
+        <button onClick={hover("todo")}>over-todo</button>
+        <button onClick={drop("b")}>drop</button>
+        <button onClick={drop("a")}>drop-on-card</button>
+        <button onClick={drop("c")}>drop-c</button>
+        <button onClick={() => onDragCancel()}>cancel</button>
+      </>
+    );
+  },
   DragOverlay: () => null,
   MouseSensor: {},
   TouchSensor: {},
@@ -181,10 +117,7 @@ vi.mock("@dnd-kit/core", () => ({
   defaultDropAnimationSideEffects: vi.fn(),
 }));
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  mocks.modifierKey = "Ctrl";
-});
+beforeEach(() => vi.clearAllMocks());
 afterEach(cleanup);
 describe("filtered board dragging", () => {
   it("moves visible tasks in canonical state and sends one ordering mutation", () => {
@@ -297,8 +230,8 @@ it("refreshes personal work after a cross-column status change", () => {
   });
 });
 
-it("places a cross-column drop at the bottom without Command", () => {
-  const canonical = {
+function crossColumnBoard() {
+  return {
     id: "p",
     columns: [
       {
@@ -318,257 +251,111 @@ it("places a cross-column drop at the bottom without Command", () => {
     plannedTasks: [],
     archivedTasks: [],
   } as unknown as ProjectWithTasks;
-  mocks.project = canonical;
-  const view = render(<KanbanBoard project={canonical} />);
+}
 
-  fireEvent.click(view.getByText("start"));
-  fireEvent.click(view.getByText("drop-c"));
+function shownIds(view: ReturnType<typeof render>, columnId: string) {
+  return view.getByTestId(`column-${columnId}`).getAttribute("data-task-ids");
+}
 
-  expect(
-    mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
-      (task: { id: string }) => task.id,
-    ),
-  ).toEqual(["c", "d", "a"]);
-  expect(mocks.setProject.mock.calls[0][0].columns[1].tasks[2].priority).toBe(
-    "low",
+function savedIds(columnIndex: number) {
+  return mocks.setProject.mock.calls[0][0].columns[columnIndex].tasks.map(
+    (task: { id: string }) => task.id,
   );
-});
+}
 
-it("cancels a stale cross-column drop after returning to the active card", () => {
-  const canonical = {
-    id: "p",
-    columns: [
-      {
-        id: "todo",
-        slug: "todo",
-        tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
-      },
-      {
-        id: "doing",
-        slug: "doing",
-        tasks: [{ id: "c", status: "doing", position: 0, priority: "high" }],
-      },
-    ],
-    plannedTasks: [],
-    archivedTasks: [],
-  } as unknown as ProjectWithTasks;
-  mocks.project = canonical;
-  const view = render(<KanbanBoard project={canonical} />);
+describe("cross-column dragging", () => {
+  it("previews the card in the hovered card's slot and drops it there", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
 
-  fireEvent.click(view.getByText("start"));
-  fireEvent.click(view.getByText("over"));
-  fireEvent.click(view.getByText("over-active"));
-  fireEvent.click(view.getByText("drop-over"));
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    expect(shownIds(view, "todo")).toBe("");
+    expect(shownIds(view, "doing")).toBe("a,c,d");
 
-  expect(mocks.setProject).not.toHaveBeenCalled();
-  expect(mocks.reorder).not.toHaveBeenCalled();
-});
+    fireEvent.click(view.getByText("drop-on-card"));
+    expect(savedIds(1)).toEqual(["a", "c", "d"]);
+    expect(mocks.setProject.mock.calls[0][0].columns[1].tasks[0].priority).toBe(
+      "low",
+    );
+    expect(mocks.reorder).toHaveBeenCalledOnce();
+    expect(mocks.reorder.mock.calls[0][0].tasks).toContainEqual({
+      id: "a",
+      position: 0,
+      status: "doing",
+    });
+    expect(shownIds(view, "doing")).toBe("c,d");
+  });
 
-it("keeps modifier-assisted drops append-only on number-sorted boards", () => {
-  const canonical = {
-    id: "p",
-    columns: [
-      {
-        id: "todo",
-        slug: "todo",
-        tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
-      },
-      {
-        id: "doing",
-        slug: "doing",
-        tasks: [
-          { id: "c", status: "doing", position: 0, priority: "high" },
-          { id: "d", status: "doing", position: 1, priority: "medium" },
-        ],
-      },
-    ],
-    plannedTasks: [],
-    archivedTasks: [],
-  } as unknown as ProjectWithTasks;
-  mocks.project = canonical;
-  const view = render(
-    <KanbanBoard project={canonical} sortedByNumber={true} />,
-  );
+  it("applies a final sortable hover inside the destination column", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
 
-  fireEvent.click(view.getByText("start"), { ctrlKey: true });
-  fireEvent.click(view.getByText("over"));
-  fireEvent.keyDown(window, { key: "Control", ctrlKey: true });
-  fireEvent.click(view.getByText("over-center"));
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    fireEvent.click(view.getByText("drop-c"));
+    expect(savedIds(1)).toEqual(["c", "a", "d"]);
+  });
 
-  expect(view.getByTestId("column-doing")).toHaveAttribute(
-    "data-sort-overlay",
-    "visible",
-  );
-  expect(view.getByTestId("column-doing")).toHaveAttribute(
-    "data-automatic-sort-label",
-    "tasks:sort.fields.number",
-  );
-  expect(view.getByTestId("column-doing")).toHaveAttribute(
-    "data-task-ids",
-    "c,d",
-  );
+  it("leaves the board unchanged when the card returns to its column", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
 
-  fireEvent.click(view.getByText("drop-c"));
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    fireEvent.click(view.getByText("over-todo"));
+    expect(shownIds(view, "todo")).toBe("a");
+    expect(shownIds(view, "doing")).toBe("c,d");
 
-  expect(
-    mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
-      (task: { id: string }) => task.id,
-    ),
-  ).toEqual(["c", "d", "a"]);
-  expect(mocks.reorder).toHaveBeenCalledOnce();
-});
+    fireEvent.click(view.getByText("drop-on-card"));
+    expect(mocks.setProject).not.toHaveBeenCalled();
+    expect(mocks.reorder).not.toHaveBeenCalled();
+  });
 
-it("keeps modifier-assisted drops append-only on priority-sorted boards", () => {
-  const canonical = {
-    id: "p",
-    columns: [
-      {
-        id: "todo",
-        slug: "todo",
-        tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
-      },
-      {
-        id: "doing",
-        slug: "doing",
-        tasks: [
-          { id: "c", status: "doing", position: 0, priority: "high" },
-          { id: "d", status: "doing", position: 1, priority: "medium" },
-        ],
-      },
-    ],
-    plannedTasks: [],
-    archivedTasks: [],
-  } as unknown as ProjectWithTasks;
-  mocks.project = canonical;
-  const view = render(
-    <KanbanBoard project={canonical} sortedByPriority={true} />,
-  );
+  it("restores the board when the drag is cancelled", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
 
-  fireEvent.click(view.getByText("start"), { ctrlKey: true });
-  fireEvent.click(view.getByText("over"));
-  fireEvent.keyDown(window, { key: "Control", ctrlKey: true });
-  fireEvent.click(view.getByText("over-center"));
-
-  expect(view.getByTestId("column-doing")).toHaveAttribute(
-    "data-sort-overlay",
-    "visible",
-  );
-  expect(view.getByTestId("column-doing")).toHaveAttribute(
-    "data-automatic-sort-label",
-    "tasks:sort.fields.priority",
-  );
-  expect(view.getByTestId("column-doing")).toHaveAttribute(
-    "data-task-ids",
-    "c,d",
-  );
-
-  fireEvent.click(view.getByText("drop-c"));
-
-  expect(
-    mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
-      (task: { id: string }) => task.id,
-    ),
-  ).toEqual(["c", "d", "a"]);
-  expect(mocks.setProject.mock.calls[0][0].columns[1].tasks[2].priority).toBe(
-    "low",
-  );
-  expect(mocks.reorder).toHaveBeenCalledOnce();
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    fireEvent.click(view.getByText("cancel"));
+    expect(shownIds(view, "todo")).toBe("a");
+    expect(shownIds(view, "doing")).toBe("c,d");
+    expect(mocks.reorder).not.toHaveBeenCalled();
+  });
 });
 
 describe.each([
-  ["⌘", "Meta", "metaKey"],
-  ["Ctrl", "Control", "ctrlKey"],
-  ["Ctrl", "Meta", "metaKey"],
-])("sorting with %s and %s", (label, key, modifier) => {
-  it.each(["held", "released", "blurred", "held-at-start"])(
-    "uses the matching drop behavior when modifier is %s",
-    (commandState) => {
-      mocks.modifierKey = label;
-      const canonical = {
-        id: "p",
-        columns: [
-          {
-            id: "todo",
-            slug: "todo",
-            tasks: [{ id: "a", status: "todo", position: 0, priority: "low" }],
-          },
-          {
-            id: "doing",
-            slug: "doing",
-            tasks: [
-              { id: "c", status: "doing", position: 0, priority: "high" },
-            ],
-          },
-        ],
-        plannedTasks: [],
-        archivedTasks: [],
-      } as unknown as ProjectWithTasks;
-      mocks.project = canonical;
-      const view = render(<KanbanBoard project={canonical} />);
+  ["sortedByNumber", "tasks:sort.fields.number"],
+  ["sortedByPriority", "tasks:sort.fields.priority"],
+])("%s boards", (sortProp, sortLabel) => {
+  it("hints at the sort and appends the dropped card", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(
+      <KanbanBoard project={project} {...{ [sortProp]: true }} />,
+    );
 
-      fireEvent.click(view.getByText("start"), {
-        [modifier]: commandState === "held-at-start",
-      });
-      fireEvent.click(view.getByText("over"));
-      expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-sort-overlay",
-        commandState === "held-at-start" ? "hidden" : "visible",
-      );
-      expect(view.getByTestId("column-doing")).not.toHaveAttribute(
-        "data-automatic-sort-label",
-      );
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    expect(shownIds(view, "doing")).toBe("c,d");
+    expect(view.getByTestId("column-doing")).toHaveAttribute(
+      "data-sort-hint",
+      `tasks:kanban.automaticallySortedHint:${sortLabel}`,
+    );
+    expect(view.getByTestId("column-todo")).not.toHaveAttribute(
+      "data-sort-hint",
+    );
 
-      if (commandState !== "held-at-start")
-        fireEvent.keyDown(window, { key, [modifier]: true });
-      fireEvent.keyUp(window, { key: "a", [modifier]: true });
-      expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-sort-overlay",
-        "hidden",
-      );
-      expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-task-ids",
-        "a,c",
-      );
-
-      if (commandState === "held" || commandState === "held-at-start") {
-        fireEvent.click(view.getByText("over-center"));
-        expect(view.getByTestId("column-doing")).toHaveAttribute(
-          "data-task-ids",
-          "c,a",
-        );
-        fireEvent.click(view.getByText("over-active"));
-        fireEvent.click(view.getByText("drop-over"));
-        expect(
-          mocks.setProject.mock.calls[0][0].columns[1].tasks.map(
-            (task: { id: string }) => task.id,
-          ),
-        ).toEqual(["c", "a"]);
-        return;
-      }
-
-      if (commandState === "released") {
-        fireEvent.keyUp(window, { key, [modifier]: false });
-      } else {
-        fireEvent.blur(window);
-      }
-      expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-sort-overlay",
-        "visible",
-      );
-      expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-task-ids",
-        "c",
-      );
-
-      fireEvent.click(view.getByText("over-active"));
-      expect(view.getByTestId("column-doing")).toHaveAttribute(
-        "data-task-ids",
-        "c",
-      );
-
-      fireEvent.click(view.getByText("drop-over"));
-      expect(mocks.setProject).not.toHaveBeenCalled();
-      expect(mocks.reorder).not.toHaveBeenCalled();
-    },
-  );
+    fireEvent.click(view.getByText("drop-c"));
+    expect(savedIds(1)).toEqual(["c", "d", "a"]);
+    expect(mocks.reorder).toHaveBeenCalledOnce();
+    expect(view.getByTestId("column-doing")).not.toHaveAttribute(
+      "data-sort-hint",
+    );
+  });
 });

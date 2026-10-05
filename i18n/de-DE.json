@@ -2602,8 +2602,7 @@
 		},
 		"kanban": {
 			"addTask": "Aufgabe hinzufügen",
-			"automaticallySortedOverlayHint": "Automatisch nach {{sort}} sortiert",
-			"priorityOrderedOverlayHint": "Halte {{key}} gedrückt, um Karten zu sortieren"
+			"automaticallySortedHint": "Automatisch nach {{sort}} sortiert"
 		},
 		"pr": {
 			"merged": "Zusammengeführt",

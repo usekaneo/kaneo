@@ -1,21 +1,15 @@
-import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cva } from "class-variance-authority";
 import { useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnAddTask } from "./column-add-task";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
+import { ColumnSortHint } from "./column-sort-hint";
 
 type ColumnProps = {
-  isDragPreview?: boolean;
   column: ProjectWithTasks["columns"][number];
-  activeTaskId?: string | null;
-  sourceColumnId?: string;
-  automaticSortLabel?: string;
-  isSortOverlaySuppressed?: boolean;
-  sortOverlayColumnId?: string | null;
+  sortHint?: string;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
 };
@@ -64,24 +58,12 @@ export const columnVariants = cva(
 
 function Column({
   column,
-  isDragPreview = false,
-  activeTaskId = null,
-  sourceColumnId,
-  automaticSortLabel,
-  isSortOverlaySuppressed = false,
-  sortOverlayColumnId = null,
+  sortHint,
   disableDragDrop = false,
   disableCollectionActions = false,
 }: ColumnProps) {
   const [isDropzoneOver, setIsDropzoneOver] = useState(false);
   const { background } = useBackgroundStore();
-  const { t } = useTranslation();
-  const isActiveTaskColumn = column.id === sourceColumnId;
-  const showSortOverlay =
-    sortOverlayColumnId === column.id &&
-    activeTaskId !== null &&
-    !isActiveTaskColumn &&
-    !isSortOverlaySuppressed;
 
   return (
     <div
@@ -99,26 +81,13 @@ function Column({
       <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2 [-webkit-overflow-scrolling:touch]">
         <ColumnDropzone
           column={column}
-          isDragPreview={isDragPreview}
           disableDragDrop={disableDragDrop}
           onIsOverChange={setIsDropzoneOver}
         />
         {/* New work starts in an open column; finished ones only collect. */}
         {!column.isFinal && <ColumnAddTask columnId={column.id} />}
       </div>
-      {showSortOverlay && (
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-white/85 px-4 text-center">
-          <span className="text-sm font-medium text-neutral-950">
-            {automaticSortLabel
-              ? t("tasks:kanban.automaticallySortedOverlayHint", {
-                  sort: automaticSortLabel,
-                })
-              : t("tasks:kanban.priorityOrderedOverlayHint", {
-                  key: getModifierKeyText(),
-                })}
-          </span>
-        </div>
-      )}
+      {sortHint && <ColumnSortHint label={sortHint} />}
     </div>
   );
 }

@@ -9,7 +9,6 @@ import type { ProjectWithTasks } from "@/types/project";
 import TaskCard from "../task-card";
 
 type ColumnDropzoneProps = {
-  isDragPreview?: boolean;
   column: ProjectWithTasks["columns"][number];
   disableDragDrop?: boolean;
   onIsOverChange?: (isOver: boolean) => void;
@@ -17,7 +16,6 @@ type ColumnDropzoneProps = {
 
 export function ColumnDropzone({
   column,
-  isDragPreview = false,
   disableDragDrop = false,
   onIsOverChange,
 }: ColumnDropzoneProps) {
@@ -46,7 +44,6 @@ export function ColumnDropzone({
             {column.tasks.map((task) => (
               <motion.div
                 key={task.id}
-                layout={reduceMotion ? false : "position"}
                 initial={
                   reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }
                 }
@@ -61,7 +58,6 @@ export function ColumnDropzone({
                 <TaskCard
                   task={task}
                   disableDragDrop={disableDragDrop}
-                  isDragPreview={isDragPreview}
                   isFinalColumn={column.isFinal}
                 />
               </motion.div>

@@ -2602,8 +2602,7 @@
 		},
 		"kanban": {
 			"addTask": "कार्य जोड़ें",
-			"automaticallySortedOverlayHint": "{{sort}} के अनुसार स्वचालित रूप से क्रमबद्ध",
-			"priorityOrderedOverlayHint": "कार्डों को क्रम में लगाने के लिए {{key}} दबाए रखें"
+			"automaticallySortedHint": "{{sort}} के अनुसार स्वचालित रूप से क्रमबद्ध"
 		},
 		"pr": {
 			"merged": "मर्ज किया",

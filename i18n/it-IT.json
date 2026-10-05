@@ -2614,8 +2614,7 @@
 		},
 		"kanban": {
 			"addTask": "Aggiungi attività",
-			"automaticallySortedOverlayHint": "Ordinamento automatico per {{sort}}",
-			"priorityOrderedOverlayHint": "Tieni premuto {{key}} per ordinare le schede"
+			"automaticallySortedHint": "Ordinamento automatico per {{sort}}"
 		},
 		"pr": {
 			"merged": "Unito",

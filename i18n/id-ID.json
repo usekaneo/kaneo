@@ -2590,8 +2590,7 @@
 		},
 		"kanban": {
 			"addTask": "Tambah tugas",
-			"automaticallySortedOverlayHint": "Diurutkan otomatis berdasarkan {{sort}}",
-			"priorityOrderedOverlayHint": "Tahan {{key}} untuk mengurutkan kartu"
+			"automaticallySortedHint": "Diurutkan otomatis berdasarkan {{sort}}"
 		},
 		"pr": {
 			"merged": "Digabung",

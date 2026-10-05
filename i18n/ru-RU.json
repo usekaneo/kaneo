@@ -2646,8 +2646,7 @@
 		},
 		"kanban": {
 			"addTask": "Добавить задачу",
-			"automaticallySortedOverlayHint": "Автоматическая сортировка: {{sort}}",
-			"priorityOrderedOverlayHint": "Удерживайте {{key}}, чтобы изменить порядок карточек"
+			"automaticallySortedHint": "Автоматическая сортировка: {{sort}}"
 		},
 		"pr": {
 			"merged": "Влит",

@@ -2603,8 +2603,7 @@
 		},
 		"kanban": {
 			"addTask": "작업 추가",
-			"automaticallySortedOverlayHint": "{{sort}} 기준으로 자동 정렬됨",
-			"priorityOrderedOverlayHint": "{{key}} 키를 누른 채로 카드를 정렬하세요"
+			"automaticallySortedHint": "{{sort}} 기준으로 자동 정렬됨"
 		},
 		"pr": {
 			"merged": "병합됨",

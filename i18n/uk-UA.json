@@ -2626,8 +2626,7 @@
 		},
 		"kanban": {
 			"addTask": "Додати завдання",
-			"automaticallySortedOverlayHint": "Автоматично відсортовано за полем «{{sort}}»",
-			"priorityOrderedOverlayHint": "Утримуйте {{key}}, щоб змінити порядок карток"
+			"automaticallySortedHint": "Автоматично відсортовано за полем «{{sort}}»"
 		},
 		"pr": {
 			"merged": "Змерджено",

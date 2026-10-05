@@ -2602,8 +2602,7 @@
 		},
 		"kanban": {
 			"addTask": "Προσθήκη εργασίας",
-			"automaticallySortedOverlayHint": "Αυτόματη ταξινόμηση κατά {{sort}}",
-			"priorityOrderedOverlayHint": "Κρατήστε πατημένο το {{key}} για να ταξινομήσετε τις κάρτες"
+			"automaticallySortedHint": "Αυτόματη ταξινόμηση κατά {{sort}}"
 		},
 		"pr": {
 			"merged": "Συγχωνευμένο",
