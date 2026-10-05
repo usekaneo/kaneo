@@ -48,6 +48,7 @@ import { publishEvent } from "./events";
 import { applyInvitationProjectAccess } from "./project-access/apply-invitation-project-access";
 import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
 import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
+import { isOwnerRole } from "./project-access/is-owner-role";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -562,6 +563,19 @@ export const auth = betterAuth({
         },
         beforeAcceptInvitation: async ({ invitation, user }) => {
           await applyInvitationProjectAccess(invitation, user.id);
+        },
+        afterUpdateMemberRole: async ({ member }) => {
+          if (!isOwnerRole(member.role)) return;
+          await clearMemberProjectAccess(member.organizationId, member.userId)
+            .then(() =>
+              publishEvent("project_access.updated", {
+                workspaceId: member.organizationId,
+                userId: member.userId,
+              }),
+            )
+            .catch((error) => {
+              console.error("Project access cleanup failed:", error);
+            });
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {

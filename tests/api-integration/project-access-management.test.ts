@@ -326,6 +326,50 @@ describe("invitations with project access", () => {
     );
   });
 
+  it("clears a member's project limit when they become an owner", async () => {
+    const ctx = await createInvitationWorkspace();
+    const invited = await ctx.ownerRequest("/auth/organization/invite-member", {
+      method: "POST",
+      body: {
+        organizationId: ctx.workspaceId,
+        email: "lead@example.com",
+        role: "member",
+        projectAccess: "selected",
+        projectIds: [ctx.alpha.id],
+      },
+    });
+    const invitation = (await invited.json()) as { id: string };
+    const invitee = await signUpWithSession(ctx.app, {
+      email: "lead@example.com",
+      name: "Lead",
+    });
+    await projectAccessApi({ cookie: invitee.cookies })(
+      "/auth/organization/accept-invitation",
+      { method: "POST", body: { invitationId: invitation.id } },
+    );
+    const [membership] = await db
+      .select({ id: schema.workspaceUserTable.id })
+      .from(schema.workspaceUserTable)
+      .where(eq(schema.workspaceUserTable.userId, invitee.userId));
+
+    const promoted = await ctx.ownerRequest(
+      "/auth/organization/update-member-role",
+      {
+        method: "POST",
+        body: {
+          organizationId: ctx.workspaceId,
+          memberId: membership?.id,
+          role: "owner",
+        },
+      },
+    );
+
+    expect(promoted.status).toBe(200);
+    expect(await readMemberAccessRows(ctx.workspaceId, invitee.userId)).toEqual(
+      { rules: [], grants: [] },
+    );
+  });
+
   it("gives every project to an invitation without a selection", async () => {
     const ctx = await createInvitationWorkspace();
 
