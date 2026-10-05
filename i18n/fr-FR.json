@@ -2613,7 +2613,8 @@
 			"noTasks": "Aucune tâche"
 		},
 		"kanban": {
-			"addTask": "Ajouter une tâche"
+			"addTask": "Ajouter une tâche",
+			"automaticallySortedHint": "Tri automatique par {{sort}}"
 		},
 		"pr": {
 			"merged": "Fusionné",

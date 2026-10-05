@@ -2597,7 +2597,8 @@
 			"noTasks": "タスクはありません"
 		},
 		"kanban": {
-			"addTask": "タスクを追加"
+			"addTask": "タスクを追加",
+			"automaticallySortedHint": "{{sort}}で自動的に並べ替え"
 		},
 		"pr": {
 			"merged": "マージ済み",

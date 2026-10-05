@@ -2602,7 +2602,8 @@
 			"noTasks": "沒有任務"
 		},
 		"kanban": {
-			"addTask": "新增任務"
+			"addTask": "新增任務",
+			"automaticallySortedHint": "依{{sort}}自動排序"
 		},
 		"pr": {
 			"merged": "已合併",

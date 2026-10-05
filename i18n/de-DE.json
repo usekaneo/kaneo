@@ -2601,7 +2601,8 @@
 			"noTasks": "Keine Aufgaben"
 		},
 		"kanban": {
-			"addTask": "Aufgabe hinzufügen"
+			"addTask": "Aufgabe hinzufügen",
+			"automaticallySortedHint": "Automatisch nach {{sort}} sortiert"
 		},
 		"pr": {
 			"merged": "Zusammengeführt",

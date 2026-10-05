@@ -2615,7 +2615,8 @@
 			"noTasks": "No tasks"
 		},
 		"kanban": {
-			"addTask": "Add task"
+			"addTask": "Add task",
+			"automaticallySortedHint": "Automatically sorted by {{sort}}"
 		},
 		"pr": {
 			"merged": "Merged",

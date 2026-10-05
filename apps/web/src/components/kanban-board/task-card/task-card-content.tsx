@@ -1,6 +1,3 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import {
   Calendar,
@@ -8,7 +5,7 @@ import {
   CalendarX,
   SlidersHorizontal,
 } from "lucide-react";
-import { type CSSProperties, useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
@@ -47,8 +44,10 @@ import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
-import TaskCardContextMenuContent from "./task-card-context-menu/task-card-context-menu-content";
-import { TaskLabels } from "./task-labels";
+import TaskCardContextMenuContent from "../task-card-context-menu/task-card-context-menu-content";
+import { TaskLabels } from "../task-labels";
+import type { DragListeners } from "./drag-listeners";
+import { useTaskCardClick } from "./use-task-card-click";
 
 const dueDateTextColors: Record<DueDateStatus, string> = {
   overdue: "text-destructive-foreground",
@@ -57,30 +56,22 @@ const dueDateTextColors: Record<DueDateStatus, string> = {
   "no-due-date": "text-muted-foreground",
 };
 
-type TaskCardProps = {
+type TaskCardContentProps = {
   task: Task;
-  disableDragDrop?: boolean;
+  disableDragDrop: boolean;
   isFinalColumn?: boolean;
+  isDragging: boolean;
+  dragListeners: DragListeners;
 };
 
-function TaskCard({
+function TaskCardContent({
   task,
-  disableDragDrop = false,
+  disableDragDrop,
   isFinalColumn,
-}: TaskCardProps) {
+  isDragging,
+  dragListeners,
+}: TaskCardContentProps) {
   const { t } = useTranslation();
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: task.id,
-    disabled: disableDragDrop,
-    data: { isFinalColumn },
-  });
   const { project } = useProjectStore();
   const taskIsCompleted =
     isFinalColumn ?? isTaskCompleted(task.status, project?.columns);
@@ -89,7 +80,6 @@ function TaskCard({
   const hasPriority = Boolean(task.priority) && task.priority !== "no-priority";
   const { data: workspace } = useActiveWorkspace();
   const { mutateAsync: deleteTask } = useDeleteTask();
-  const navigate = useNavigate();
   const {
     showAssignees,
     showPriority,
@@ -97,14 +87,10 @@ function TaskCard({
     showLabels,
     showTaskNumbers,
   } = useUserPreferencesStore();
-  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
-  const toggleSelection = useBulkSelectionStore(
-    (state) => state.toggleSelection,
-  );
-  const selectRange = useBulkSelectionStore((state) => state.selectRange);
-  const setSelectionAnchor = useBulkSelectionStore(
-    (state) => state.setSelectionAnchor,
-  );
+  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState<
+    boolean | null
+  >(null);
+  const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
   const isTaskSelected = useBulkSelectionStore((state) =>
     state.selectedTaskIds.has(task.id),
   );
@@ -140,15 +126,6 @@ function TaskCard({
     [customFieldValues],
   );
 
-  const style: CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition:
-      transition || "transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-    opacity: isDragging ? 0.6 : 1,
-    touchAction: isDragging ? "none" : "auto",
-    zIndex: isDragging ? 999 : "auto",
-  };
-
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
   );
@@ -159,52 +136,7 @@ function TaskCard({
     );
   }, [workspaceUsers, task.userId]);
 
-  function handleTaskCardClick(
-    e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>,
-  ) {
-    if (!project || !task || !workspace) return;
-
-    if (e.shiftKey) {
-      e.preventDefault();
-      selectRange(task.id);
-      return;
-    }
-
-    if (e.metaKey || e.ctrlKey) {
-      e.preventDefault();
-      toggleSelection(task.id);
-      return;
-    }
-
-    setSelectionAnchor(task.id);
-    const currentParams = new URLSearchParams(window.location.search);
-    const currentTaskId = currentParams.get("taskId");
-
-    if (currentTaskId === task.id) {
-      navigate({
-        to: ".",
-        search: {},
-      });
-    } else {
-      navigate({
-        to: ".",
-        search: { taskId: task.id },
-      });
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.defaultPrevented || e.target !== e.currentTarget) return;
-    if (e.key === "Enter") {
-      handleTaskCardClick(e);
-      e.preventDefault();
-    } else {
-      if (e.key === "Escape") {
-        toggleSelection(task.id);
-      }
-      listeners?.onKeyDown?.(e);
-    }
-  };
+  const { handleClick, handleKeyDown } = useTaskCardClick(task, dragListeners);
 
   const handleDeleteTask = async () => {
     try {
@@ -218,20 +150,16 @@ function TaskCard({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      role="button"
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
-    >
-      <ContextMenu>
+    <>
+      <ContextMenu
+        onOpenChange={(open) => {
+          if (open) setHasOpenedMenu(true);
+        }}
+      >
         <ContextMenuTrigger asChild>
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
-            onClick={handleTaskCardClick}
+            onClick={handleClick}
             onKeyDown={handleKeyDown}
             className={cn(
               "group relative rounded-lg border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98]",
@@ -417,7 +345,7 @@ function TaskCard({
           </div>
         </ContextMenuTrigger>
 
-        {project && workspace && (
+        {hasOpenedMenu && project && workspace && (
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
@@ -430,37 +358,39 @@ function TaskCard({
         )}
       </ContextMenu>
 
-      <AlertDialog
-        open={isDeleteTaskModalOpen}
-        onOpenChange={setIsDeleteTaskModalOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("tasks:delete.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogClose render={<Button variant="outline" size="sm" />}>
-              {t("common:actions.cancel")}
-            </AlertDialogClose>
-            <AlertDialogClose
-              render={
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDeleteTask}
-                />
-              }
-            >
-              {t("tasks:delete.action")}
-            </AlertDialogClose>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      {isDeleteTaskModalOpen !== null && (
+        <AlertDialog
+          open={isDeleteTaskModalOpen}
+          onOpenChange={setIsDeleteTaskModalOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("tasks:delete.description")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
+              </AlertDialogClose>
+              <AlertDialogClose
+                render={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteTask}
+                  />
+                }
+              >
+                {t("tasks:delete.action")}
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </>
   );
 }
 
-export default TaskCard;
+export default memo(TaskCardContent);
