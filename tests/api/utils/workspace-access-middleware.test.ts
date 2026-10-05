@@ -57,6 +57,10 @@ vi.mock("../../../apps/api/src/utils/validate-workspace-access", async () => {
   };
 });
 
+vi.mock("../../../apps/api/src/utils/task-visibility", () => ({
+  assertTasksVisible: async () => {},
+}));
+
 const { workspaceAccess } = await import(
   "../../../apps/api/src/utils/workspace-access-middleware"
 );

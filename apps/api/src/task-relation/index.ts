@@ -11,6 +11,10 @@ import {
   jsonResponse,
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  assertTasksVisible,
+  restrictedAssigneeId,
+} from "../utils/task-visibility";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createTaskRelation from "./controllers/create-task-relation";
@@ -51,6 +55,7 @@ async function scopeToSourceTask(c: Context, next: Next) {
 
   const body = (await c.req.json().catch(() => ({}))) as {
     sourceTaskId?: unknown;
+    targetTaskId?: unknown;
   };
   const sourceTaskId =
     typeof body?.sourceTaskId === "string" ? body.sourceTaskId : null;
@@ -65,6 +70,13 @@ async function scopeToSourceTask(c: Context, next: Next) {
 
   await validateWorkspaceAccess(userId, workspaceId);
   c.set("workspaceId", workspaceId);
+  await assertTasksVisible(
+    c,
+    "task",
+    typeof body?.targetTaskId === "string"
+      ? [sourceTaskId, body.targetTaskId]
+      : [sourceTaskId],
+  );
   return next();
 }
 
@@ -73,7 +85,10 @@ async function scopeToRelation(c: Context, next: Next) {
 
   const id = c.req.param("id");
   const [rel] = await db
-    .select({ sourceTaskId: taskRelationTable.sourceTaskId })
+    .select({
+      sourceTaskId: taskRelationTable.sourceTaskId,
+      targetTaskId: taskRelationTable.targetTaskId,
+    })
     .from(taskRelationTable)
     .where(eq(taskRelationTable.id, id ?? ""))
     .limit(1);
@@ -88,6 +103,7 @@ async function scopeToRelation(c: Context, next: Next) {
 
   await validateWorkspaceAccess(userId, workspaceId);
   c.set("workspaceId", workspaceId);
+  await assertTasksVisible(c, "task", [rel.sourceTaskId, rel.targetTaskId]);
   return next();
 }
 
@@ -166,7 +182,11 @@ const deleteTaskRelationRoute = createRoute({
 const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskRelationsRoute, async (c) =>
     c.json(
-      await getTaskRelations(c.req.valid("param").taskId, c.get("workspaceId")),
+      await getTaskRelations(
+        c.req.valid("param").taskId,
+        c.get("workspaceId"),
+        await restrictedAssigneeId(c),
+      ),
       200,
     ),
   )

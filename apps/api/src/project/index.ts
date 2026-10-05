@@ -8,6 +8,7 @@ import {
   z,
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import { restrictedAssigneeId } from "../utils/task-visibility";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import archiveProjectCtrl from "./controllers/archive-project";
 import createProjectCtrl from "./controllers/create-project";
@@ -226,6 +227,7 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     const projects = await getProjectsCtrl(
       workspaceId,
       includeArchived === "true",
+      await restrictedAssigneeId(c),
     );
     return c.json(projects, 200);
   })
@@ -238,7 +240,11 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getProjectRoute, async (c) => {
     const { id } = c.req.valid("param");
     const workspaceId = c.get("workspaceId");
-    const projectData = await getProjectCtrl(id, workspaceId);
+    const projectData = await getProjectCtrl(
+      id,
+      workspaceId,
+      await restrictedAssigneeId(c),
+    );
     return c.json(projectData, 200);
   })
   .openapi(reorderProjectsRoute, async (c) => {

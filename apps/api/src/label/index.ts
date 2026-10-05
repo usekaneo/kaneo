@@ -5,6 +5,10 @@ import {
   jsonResponse,
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  assertTasksVisible,
+  restrictedAssigneeId,
+} from "../utils/task-visibility";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import assignLabelToTask from "./controllers/assign-label-to-task";
 import createLabel from "./controllers/create-label";
@@ -213,11 +217,17 @@ const label = apiRouter()
   })
   .openapi(getWorkspaceLabelsRoute, async (c) => {
     const { workspaceId } = c.req.valid("param");
-    return c.json(await getLabelsByWorkspaceId(workspaceId), 200);
+    return c.json(
+      await getLabelsByWorkspaceId(workspaceId, await restrictedAssigneeId(c)),
+      200,
+    );
   })
   .openapi(createLabelRoute, async (c) => {
     const { name, color, workspaceId, taskId } = c.req.valid("json");
     const userId = c.get("userId");
+    if (taskId) {
+      await assertTasksVisible(c, "task", [taskId]);
+    }
     return c.json(
       await createLabel(name, color, taskId, workspaceId, userId),
       200,
@@ -231,6 +241,7 @@ const label = apiRouter()
     const { id } = c.req.valid("param");
     const { taskId } = c.req.valid("json");
     const userId = c.get("userId");
+    await assertTasksVisible(c, "task", [taskId]);
     return c.json(await assignLabelToTask(id, taskId, userId), 200);
   })
   .openapi(detachLabelFromTaskRoute, async (c) => {

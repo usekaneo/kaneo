@@ -23,6 +23,7 @@ import {
 } from "../storage/s3";
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import { restrictedAssigneeId } from "../utils/task-visibility";
 import {
   validateAndParseDate,
   validateDateRange,
@@ -547,8 +548,12 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(listTasksRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     const filters = c.req.valid("query") || {};
+    const assigneeId = await restrictedAssigneeId(c);
 
-    const tasks = await getTasks(projectId, filters);
+    const tasks = await getTasks(
+      projectId,
+      assigneeId ? { ...filters, assigneeId } : filters,
+    );
 
     return c.json(tasks, 200);
   })
@@ -595,10 +600,12 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     validateDateRange(parsedStartDate, parsedDueDate);
 
+    // Restricted users would lose sight of an unassigned task the moment they
+    // created it, so it lands on them instead.
     const task = await createTask({
       projectId,
       currentUserId: c.get("userId"),
-      userId: userId,
+      userId: userId || (await restrictedAssigneeId(c)),
       title,
       description,
       startDate: parsedStartDate,
@@ -676,7 +683,10 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(exportTasksRoute, async (c) => {
     const { projectId } = c.req.valid("param");
 
-    const exportData = await exportTasks(projectId);
+    const exportData = await exportTasks(
+      projectId,
+      await restrictedAssigneeId(c),
+    );
 
     return c.json(exportData, 200);
   })

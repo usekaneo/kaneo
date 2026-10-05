@@ -7,7 +7,11 @@ import {
   userTable,
 } from "../../database/schema";
 
-async function getTaskRelations(taskId: string, workspaceId: string) {
+async function getTaskRelations(
+  taskId: string,
+  workspaceId: string,
+  assigneeId?: string,
+) {
   const relations = await db
     .select({
       id: taskRelationTable.id,
@@ -63,6 +67,7 @@ async function getTaskRelations(taskId: string, workspaceId: string) {
         and(
           inArray(taskTable.id, [...taskIds]),
           eq(projectTable.workspaceId, workspaceId),
+          assigneeId ? eq(taskTable.userId, assigneeId) : undefined,
         ),
       );
 

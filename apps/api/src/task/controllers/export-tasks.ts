@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
@@ -8,7 +8,7 @@ import {
   userTable,
 } from "../../database/schema";
 
-async function exportTasks(projectId: string) {
+async function exportTasks(projectId: string, assigneeId?: string) {
   const project = await db.query.projectTable.findFirst({
     where: eq(projectTable.id, projectId),
   });
@@ -37,7 +37,12 @@ async function exportTasks(projectId: string) {
     })
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))
-    .where(eq(taskTable.projectId, projectId))
+    .where(
+      and(
+        eq(taskTable.projectId, projectId),
+        assigneeId ? eq(taskTable.userId, assigneeId) : undefined,
+      ),
+    )
     .orderBy(taskTable.position);
 
   const taskIds = tasks.map((task) => task.id);

@@ -1,12 +1,29 @@
-import { eq } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import db from "../../database";
-import { labelTable } from "../../database/schema";
+import { labelTable, taskTable } from "../../database/schema";
 
-function getLabelsByWorkspaceId(workspaceId: string) {
-  return db
-    .select()
+async function getLabelsByWorkspaceId(
+  workspaceId: string,
+  assigneeId?: string,
+) {
+  if (!assigneeId) {
+    return db
+      .select()
+      .from(labelTable)
+      .where(eq(labelTable.workspaceId, workspaceId));
+  }
+
+  const rows = await db
+    .select({ label: labelTable })
     .from(labelTable)
-    .where(eq(labelTable.workspaceId, workspaceId));
+    .leftJoin(taskTable, eq(labelTable.taskId, taskTable.id))
+    .where(
+      and(
+        eq(labelTable.workspaceId, workspaceId),
+        or(isNull(labelTable.taskId), eq(taskTable.userId, assigneeId)),
+      ),
+    );
+  return rows.map((row) => row.label);
 }
 
 export default getLabelsByWorkspaceId;

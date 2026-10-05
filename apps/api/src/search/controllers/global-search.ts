@@ -24,6 +24,8 @@ type SearchParams = {
     | "activities";
   workspaceId?: string;
   projectId?: string;
+  // Only tasks assigned to this user (and their comments/activity) are searched.
+  assigneeId?: string;
   limit?: number;
 };
 
@@ -108,6 +110,7 @@ async function globalSearch(params: SearchParams): Promise<{
     type = "all",
     workspaceId,
     projectId,
+    assigneeId,
     limit = 20,
   } = params;
 
@@ -147,6 +150,9 @@ async function globalSearch(params: SearchParams): Promise<{
   const workspaceFilter = workspaceId
     ? eq(projectTable.workspaceId, workspaceId)
     : inArray(projectTable.workspaceId, accessibleWorkspaceIds);
+  const assigneeFilter = assigneeId
+    ? eq(taskTable.userId, assigneeId)
+    : undefined;
 
   // Check if query matches short-id pattern (e.g. "DEP-23"). `generateProjectSlug`
   // normalizes to NFKC before it stores a key, so the query is normalized too,
@@ -189,6 +195,7 @@ async function globalSearch(params: SearchParams): Promise<{
         .where(
           and(
             workspaceFilter,
+            assigneeFilter,
             projectId ? eq(taskTable.projectId, projectId) : undefined,
             // A project key may hold `_`, which `ilike` reads as "any one
             // character", so `DE_-23` would also match a task in `DEP` and the
@@ -257,6 +264,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .where(
         and(
           workspaceFilter,
+          assigneeFilter,
           projectId ? eq(taskTable.projectId, projectId) : undefined,
           or(
             ilike(taskTable.title, searchPattern),
@@ -431,6 +439,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .where(
         and(
           workspaceFilter,
+          assigneeFilter,
           projectId ? eq(taskTable.projectId, projectId) : undefined,
           or(
             ilike(searchableActivityText, searchPattern),

@@ -17,6 +17,7 @@ const EMPTY_STATISTICS: ProjectStatistics = {
 async function getProjectStatistics(
   workspaceId: string,
   includeArchived: boolean,
+  assigneeId?: string,
 ) {
   const statisticsByProject = new Map<string, ProjectStatistics>();
 
@@ -38,12 +39,11 @@ async function getProjectStatistics(
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(
-      includeArchived
-        ? eq(projectTable.workspaceId, workspaceId)
-        : and(
-            eq(projectTable.workspaceId, workspaceId),
-            isNull(projectTable.archivedAt),
-          ),
+      and(
+        eq(projectTable.workspaceId, workspaceId),
+        includeArchived ? undefined : isNull(projectTable.archivedAt),
+        assigneeId ? eq(taskTable.userId, assigneeId) : undefined,
+      ),
     )
     .groupBy(taskTable.projectId);
 
@@ -62,7 +62,11 @@ async function getProjectStatistics(
   return statisticsByProject;
 }
 
-async function getProjects(workspaceId: string, includeArchived = false) {
+async function getProjects(
+  workspaceId: string,
+  includeArchived = false,
+  assigneeId?: string,
+) {
   const projects = await db.query.projectTable.findMany({
     where: includeArchived
       ? eq(projectTable.workspaceId, workspaceId)
@@ -82,6 +86,7 @@ async function getProjects(workspaceId: string, includeArchived = false) {
   const statisticsByProject = await getProjectStatistics(
     workspaceId,
     includeArchived,
+    assigneeId,
   );
 
   return projects.map((project) => ({

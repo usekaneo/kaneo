@@ -2,7 +2,16 @@ import { and, eq, inArray } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
+import { assertTasksVisible, type TaskScopedResource } from "./task-visibility";
 import { validateWorkspaceAccess } from "./validate-workspace-access";
+
+const TASK_SCOPED_RESOURCES: readonly string[] = [
+  "task",
+  "timeEntry",
+  "activity",
+  "comment",
+  "label",
+] satisfies TaskScopedResource[];
 
 type WorkspaceIdSource =
   | { type: "query"; key: string }
@@ -52,6 +61,7 @@ export function workspaceAccessMiddleware(
     }
 
     let workspaceId: string | null = null;
+    let scopedTo: { resource: TaskScopedResource; ids: string[] } | null = null;
 
     for (const source of config.sources) {
       if (source.type === "query") {
@@ -73,6 +83,12 @@ export function workspaceAccessMiddleware(
         const id = c.req.param(source.idKey) || idFromBody;
         if (id) {
           workspaceId = await lookupWorkspaceId(source.resource, id);
+          if (workspaceId && TASK_SCOPED_RESOURCES.includes(source.resource)) {
+            scopedTo = {
+              resource: source.resource as TaskScopedResource,
+              ids: [id],
+            };
+          }
         }
       } else if (source.type === "lookupMany") {
         const body = await readJsonObjectBody(c);
@@ -102,6 +118,7 @@ export function workspaceAccessMiddleware(
               });
             }
             workspaceId = workspaceIds[0] ?? null;
+            scopedTo = { resource: "task", ids: taskIds };
           }
         }
       }
@@ -123,6 +140,10 @@ export function workspaceAccessMiddleware(
     await validateWorkspaceAccess(userId, workspaceId, apiKeyId);
 
     c.set("workspaceId", workspaceId);
+
+    if (scopedTo) {
+      await assertTasksVisible(c, scopedTo.resource, scopedTo.ids);
+    }
 
     return next();
   };

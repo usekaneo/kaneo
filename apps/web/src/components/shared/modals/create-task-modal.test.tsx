@@ -15,6 +15,7 @@ afterEach(() => {
   cleanup();
   document.body.innerHTML = "";
   vi.clearAllMocks();
+  canAssignTasks.mockReturnValue(true);
 });
 
 vi.mock("@tanstack/react-router", () => ({
@@ -56,10 +57,15 @@ vi.mock(
   }),
 );
 
+const canAssignTasks = vi.fn(() => true);
+
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
     canCreateLabels: () => true,
+    canAssignTasks,
+    isCheckingPermissions: false,
+    member: { userId: "user-1" },
   }),
 }));
 
@@ -189,6 +195,33 @@ describe("CreateTaskModal", () => {
           title: "Picked project task",
           projectId: "project-2",
         }),
+      );
+    });
+  });
+
+  it("assigns the task to the creator when they cannot assign tasks", async () => {
+    canAssignTasks.mockReturnValue(false);
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
+    });
+
+    render(<CreateTaskModal open onClose={vi.fn()} projectId="project-1" />);
+
+    expect(
+      screen.getByText("common:modals.createTask.assign").closest("button"),
+    ).toBeDisabled();
+
+    fireEvent.change(
+      screen.getByPlaceholderText(
+        "common:modals.createTask.taskTitlePlaceholder",
+      ),
+      { target: { value: "My task" } },
+    );
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+
+    await vi.waitFor(() => {
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ title: "My task", userId: "user-1" }),
       );
     });
   });

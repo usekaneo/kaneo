@@ -4,6 +4,7 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
+import { restrictedAssigneeId } from "../utils/task-visibility";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import globalSearch from "./controllers/global-search";
 import { searchResponseSchema } from "./response";
@@ -40,6 +41,7 @@ const search = apiRouter().openapi(globalSearchRoute, async (c) => {
       type,
       workspaceId,
       projectId,
+      assigneeId: await restrictedAssigneeId(c),
       limit,
     }),
     200,
