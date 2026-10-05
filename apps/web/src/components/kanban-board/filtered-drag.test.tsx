@@ -100,6 +100,9 @@ vi.mock("@dnd-kit/core", () => ({
         </button>
         <button onClick={hover("c")}>over-c</button>
         <button onClick={hover("todo")}>over-todo</button>
+        <button onClick={() => onDragOver({ active: { id: "a" }, over: null })}>
+          over-none
+        </button>
         <button onClick={drop("b")}>drop</button>
         <button onClick={drop("a")}>drop-on-card</button>
         <button onClick={drop("c")}>drop-c</button>
@@ -332,18 +335,22 @@ describe("cross-column dragging", () => {
     expect(mocks.reorder).not.toHaveBeenCalled();
   });
 
-  it("drops where the card is shown when released over a gap", () => {
+  it("cancels a previewed move released outside every column", () => {
     const project = crossColumnBoard();
     mocks.project = project;
     const view = render(<KanbanBoard project={project} />);
 
     fireEvent.click(view.getByText("start"));
     fireEvent.click(view.getByText("over-c"));
+    fireEvent.click(view.getByText("over-none"));
+    expect(shownIds(view, "todo")).toBe("a");
+    expect(shownIds(view, "doing")).toBe("c,d");
+
     fireEvent.click(view.getByText("drop-gap"));
-    expect(savedIds(1)).toEqual(["a", "c", "d"]);
+    expect(mocks.reorder).not.toHaveBeenCalled();
   });
 
-  it("ignores a release over a gap without a preview", () => {
+  it("ignores a release outside every column without a preview", () => {
     const project = crossColumnBoard();
     mocks.project = project;
     const view = render(<KanbanBoard project={project} />);

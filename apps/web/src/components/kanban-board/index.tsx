@@ -211,25 +211,24 @@ function KanbanBoard({
       "fetching";
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
-    if (isDropBlocked()) {
+    if (!over || isDropBlocked()) {
       setSortHintColumnId(null);
       dragPreview.clear();
       return;
     }
     if (!isAutomaticallySorted) {
-      if (over) dragPreview.hover(active, over);
+      dragPreview.hover(active, over);
       return;
     }
     setSortHintColumnId(
-      over ? (findTaskColumn(project, over.id.toString())?.id ?? null) : null,
+      findTaskColumn(project, over.id.toString())?.id ?? null,
     );
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     const activeId = active.id.toString();
-    const overId =
-      over?.id.toString() ?? (dragPreview.preview ? activeId : null);
+    const overId = over?.id.toString();
     const placement = overId
       ? dragPreview.getDropPlacement(activeId, overId)
       : null;

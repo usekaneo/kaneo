@@ -64,8 +64,17 @@ describe("boardCollisionDetection", () => {
     expect(detect({ x: 400, y: 197 })).toEqual(["d"]);
   });
 
-  it("finds nothing when the pointer is between columns", () => {
-    expect(detect({ x: 310, y: 160 })).toEqual([]);
+  it("targets the first card when the pointer is over a column header", () => {
+    expect(detect({ x: 400, y: 104 })).toEqual(["c"]);
+  });
+
+  it("snaps to a column across the gap between columns", () => {
+    expect(detect({ x: 310, y: 160 })).toEqual(["empty"]);
+  });
+
+  it("finds nothing outside every column", () => {
+    expect(detect({ x: 700, y: 160 })).toEqual([]);
+    expect(detect({ x: 400, y: 900 })).toEqual([]);
   });
 
   it("falls back to corner distance without a pointer", () => {

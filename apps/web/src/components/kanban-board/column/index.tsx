@@ -1,5 +1,6 @@
+import { useDroppable } from "@dnd-kit/core";
 import { cva } from "class-variance-authority";
-import { memo, useState } from "react";
+import { memo } from "react";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnAddTask } from "./column-add-task";
@@ -66,13 +67,17 @@ function Column({
   disableSorting = false,
   disableCollectionActions = false,
 }: ColumnProps) {
-  const [isDropzoneOver, setIsDropzoneOver] = useState(false);
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
+    data: { type: "column", column },
+  });
   const { background } = useBackgroundStore();
 
   return (
     <div
+      ref={setNodeRef}
       className={columnVariants({
-        isDropzoneOver,
+        isDropzoneOver: isOver,
         backgroundImage: !!background,
       })}
     >
@@ -88,11 +93,9 @@ function Column({
           activeTaskId={activeTaskId}
           disableDragDrop={disableDragDrop}
           disableSorting={disableSorting}
-          onIsOverChange={setIsDropzoneOver}
-        >
-          {/* New work starts in an open column; finished ones only collect. */}
-          {!column.isFinal && <ColumnAddTask columnId={column.id} />}
-        </ColumnDropzone>
+        />
+        {/* New work starts in an open column; finished ones only collect. */}
+        {!column.isFinal && <ColumnAddTask columnId={column.id} />}
       </div>
       {sortHint && <ColumnSortHint label={sortHint} />}
     </div>
