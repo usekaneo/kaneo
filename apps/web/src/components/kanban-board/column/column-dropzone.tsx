@@ -1,6 +1,7 @@
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
+  type SortingStrategy,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -8,10 +9,13 @@ import { type ReactNode, useEffect } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import TaskCard from "../task-card";
 
+const keepOrder: SortingStrategy = () => null;
+
 type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
   activeTaskId: string | null;
   disableDragDrop?: boolean;
+  disableSorting?: boolean;
   onIsOverChange?: (isOver: boolean) => void;
   children?: ReactNode;
 };
@@ -20,6 +24,7 @@ export function ColumnDropzone({
   column,
   activeTaskId,
   disableDragDrop = false,
+  disableSorting = false,
   onIsOverChange,
   children,
 }: ColumnDropzoneProps) {
@@ -42,7 +47,7 @@ export function ColumnDropzone({
     <div ref={setNodeRef} className="flex min-h-full flex-col">
       <SortableContext
         items={column.tasks}
-        strategy={verticalListSortingStrategy}
+        strategy={disableSorting ? keepOrder : verticalListSortingStrategy}
       >
         <div className="flex flex-col gap-2">
           <AnimatePresence initial={false} mode="popLayout">

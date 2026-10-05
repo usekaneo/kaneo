@@ -24,7 +24,7 @@ import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
 import { rollbackBoardReorder } from "./apply-reorder";
 import { boardCollisionDetection } from "./board-collision-detection";
-import { getHoveredOtherColumnId } from "./drag-preview/get-hovered-other-column-id";
+import { findTaskColumn } from "./drag-preview/find-task-column";
 import { moveBoardTask } from "./move-task";
 import { useDragPreview } from "./drag-preview/use-drag-preview";
 import { useEffect, useState } from "react";
@@ -204,19 +204,24 @@ function KanbanBoard({
     dragPreview.clear();
   };
 
+  const isDropBlocked = () =>
+    disableDragDrop ||
+    isReordering ||
+    queryClient.getQueryState(["tasks", project.id])?.fetchStatus ===
+      "fetching";
+
   const handleDragOver = ({ active, over }: DragOverEvent) => {
+    if (isDropBlocked()) {
+      setSortHintColumnId(null);
+      dragPreview.clear();
+      return;
+    }
     if (!isAutomaticallySorted) {
       if (over) dragPreview.hover(active, over);
       return;
     }
     setSortHintColumnId(
-      over
-        ? getHoveredOtherColumnId(
-            project,
-            active.id.toString(),
-            over.id.toString(),
-          )
-        : null,
+      over ? (findTaskColumn(project, over.id.toString())?.id ?? null) : null,
     );
   };
 
@@ -230,15 +235,7 @@ function KanbanBoard({
       : null;
     resetDrag();
 
-    if (!overId || !project?.columns) return;
-
-    if (
-      disableDragDrop ||
-      isReordering ||
-      queryClient.getQueryState(["tasks", project.id])?.fetchStatus ===
-        "fetching"
-    )
-      return;
+    if (!overId || !project?.columns || isDropBlocked()) return;
     const canonical = selectReorderBoard(
       project.id,
       activeId,
@@ -355,6 +352,7 @@ function KanbanBoard({
                       : undefined
                   }
                   disableDragDrop={disableDragDrop}
+                  disableSorting={isAutomaticallySorted}
                   disableCollectionActions={disableCollectionActions}
                 />
               </div>

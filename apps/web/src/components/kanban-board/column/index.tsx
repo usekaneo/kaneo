@@ -12,6 +12,7 @@ type ColumnProps = {
   activeTaskId: string | null;
   sortHint?: string;
   disableDragDrop?: boolean;
+  disableSorting?: boolean;
   disableCollectionActions?: boolean;
 };
 
@@ -62,6 +63,7 @@ function Column({
   activeTaskId,
   sortHint,
   disableDragDrop = false,
+  disableSorting = false,
   disableCollectionActions = false,
 }: ColumnProps) {
   const [isDropzoneOver, setIsDropzoneOver] = useState(false);
@@ -85,6 +87,7 @@ function Column({
           column={column}
           activeTaskId={activeTaskId}
           disableDragDrop={disableDragDrop}
+          disableSorting={disableSorting}
           onIsOverChange={setIsDropzoneOver}
         >
           {/* New work starts in an open column; finished ones only collect. */}

@@ -353,6 +353,24 @@ describe("cross-column dragging", () => {
     expect(mocks.reorder).not.toHaveBeenCalled();
   });
 
+  it("drops the preview once dragging is disabled mid-drag", () => {
+    const project = crossColumnBoard();
+    mocks.project = project;
+    const view = render(<KanbanBoard project={project} />);
+
+    fireEvent.click(view.getByText("start"));
+    fireEvent.click(view.getByText("over-c"));
+    expect(shownIds(view, "doing")).toBe("a,c,d");
+
+    view.rerender(<KanbanBoard project={project} disableDragDrop />);
+    fireEvent.click(view.getByText("over-c"));
+    expect(shownIds(view, "todo")).toBe("a");
+    expect(shownIds(view, "doing")).toBe("c,d");
+
+    fireEvent.click(view.getByText("drop-gap"));
+    expect(mocks.reorder).not.toHaveBeenCalled();
+  });
+
   it("keeps board updates that arrive during a drag", () => {
     const project = crossColumnBoard();
     mocks.project = project;
@@ -395,6 +413,15 @@ describe.each([
       `tasks:kanban.automaticallySortedHint:${sortLabel}`,
     );
     expect(view.getByTestId("column-todo")).not.toHaveAttribute(
+      "data-sort-hint",
+    );
+
+    fireEvent.click(view.getByText("over-todo"));
+    expect(view.getByTestId("column-todo")).toHaveAttribute(
+      "data-sort-hint",
+      `tasks:kanban.automaticallySortedHint:${sortLabel}`,
+    );
+    expect(view.getByTestId("column-doing")).not.toHaveAttribute(
       "data-sort-hint",
     );
 
