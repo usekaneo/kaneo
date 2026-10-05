@@ -224,8 +224,9 @@ async function duplicateTask({
     fieldId,
     value: value ?? "",
   }));
-  // Older tasks may predate a required field. Apply its current default or fail
-  // validation, just as creation does, before copying anything in storage.
+  // Older tasks may predate a required field. Apply its current default, then
+  // fail validation as creation does before copying anything in storage. An
+  // occurrence leaves the field empty instead, so the series keeps going.
   for (const definition of fieldDefinitions) {
     if (!definition.required || !definition.defaultValue?.trim()) continue;
     const existing = customFields.find(
@@ -239,7 +240,8 @@ async function duplicateTask({
     else if (!existing.value.trim())
       existing.value = definition.defaultValue.trim();
   }
-  await assertRequiredCustomFields(sourceTask.projectId, customFields);
+  if (!occurrence)
+    await assertRequiredCustomFields(sourceTask.projectId, customFields);
 
   const sourceLabels = await db
     .select({

@@ -9,7 +9,12 @@ subscribeToEvent<{ taskId: string; userId?: string | null }>(
     // Leave the completing request's context so task.created reaches its own
     // window too: that client may have refetched the board before this insert.
     await eventContext.exit(() =>
-      createNextOccurrence(data.taskId, data.userId),
+      createNextOccurrence(data.taskId, data.userId).catch((error) => {
+        console.error(
+          `Failed to create the next occurrence of task ${data.taskId}`,
+          error,
+        );
+      }),
     );
   },
 );

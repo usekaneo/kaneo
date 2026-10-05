@@ -432,6 +432,28 @@ describe("API integration: recurring tasks", () => {
     ).toHaveLength(0);
   });
 
+  it("keeps repeating when a required field has no value", async () => {
+    const { project, columns } = await seedProject();
+    const task = await seedTask(project.id, columns.done.id, {
+      status: "done",
+    });
+    // Added after the task, without a default to fill it.
+    await db.insert(schema.customFieldDefinitionTable).values({
+      projectId: project.id,
+      name: "Audience",
+      type: "text",
+      required: true,
+    });
+
+    const next = await createNextOccurrence(task.id, null);
+
+    expect(next).toMatchObject({
+      status: "to-do",
+      dueDate: new Date("2026-03-17T00:00:00.000Z"),
+      recurrence: weekly,
+    });
+  });
+
   it("tells clients that the completed task no longer repeats", async () => {
     const { project, columns } = await seedProject();
     const task = await seedTask(project.id, columns.done.id, {
