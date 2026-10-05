@@ -132,6 +132,19 @@ export function useUserWebSocket() {
             if (current === message.workspaceId)
               void navigate({ to: "/dashboard" });
           }
+          if (
+            message.type === "PROJECT_ACCESS_CHANGED" &&
+            message.workspaceId
+          ) {
+            const { workspaceId } = message;
+            for (const queryKey of [
+              ["projects", workspaceId],
+              ["assigned-tasks", workspaceId],
+              ["search", { workspaceId }],
+              ["workspace-activity", workspaceId],
+            ])
+              void queryClient.invalidateQueries({ queryKey });
+          }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
           }

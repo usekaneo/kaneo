@@ -11,9 +11,12 @@ import {
   taskRelationTable,
   taskTable,
   userNotificationWorkspaceProjectTable,
+  workspaceMemberProjectTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { grantProjectToRestrictedMember } from "../../project-access/member-project-access";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import { closeProjectConnections } from "../../ws";
 import { findProjectKeyConflict } from "../project-key";
 
@@ -107,6 +110,44 @@ async function moveProject(
         ),
       );
 
+    await tx
+      .delete(workspaceMemberProjectTable)
+      .where(eq(workspaceMemberProjectTable.projectId, id));
+
+    // The source position means nothing in the target's ordering, and keeping
+    // it would collide with whichever project already holds that slot. Append
+    // instead, matching where `createProject` puts a new project.
+    const [{ maxPosition } = { maxPosition: null }] = await tx
+      .select({ maxPosition: max(projectTable.position) })
+      .from(projectTable)
+      .where(eq(projectTable.workspaceId, targetWorkspaceId));
+
+    const [movedProject] = await tx
+      .update(projectTable)
+      .set({
+        workspaceId: targetWorkspaceId,
+        position: maxPosition === null ? 0 : maxPosition + 1,
+      })
+      .where(
+        and(
+          eq(projectTable.id, id),
+          eq(projectTable.workspaceId, sourceWorkspaceId),
+        ),
+      )
+      .returning();
+
+    if (!movedProject) {
+      throw new HTTPException(409, {
+        message: "Project was moved to another workspace, please try again",
+      });
+    }
+
+    await grantProjectToRestrictedMember(tx, {
+      workspaceId: targetWorkspaceId,
+      userId: currentUserId,
+      projectId: id,
+    });
+
     const tasks = await tx
       .select({
         id: taskTable.id,
@@ -135,7 +176,11 @@ async function moveProject(
           ),
         );
 
-      const memberIds = new Set(targetMembers.map((member) => member.userId));
+      const memberIds = await filterUsersWithProjectAccess(
+        targetMembers.map((member) => member.userId),
+        id,
+        tx,
+      );
       // Kept as rows rather than a count: each one needs an activity row
       // afterwards, keyed by task id.
       unassigned = tasks.filter(
@@ -159,34 +204,6 @@ async function moveProject(
             ),
           );
       }
-    }
-
-    // The source position means nothing in the target's ordering, and keeping
-    // it would collide with whichever project already holds that slot. Append
-    // instead, matching where `createProject` puts a new project.
-    const [{ maxPosition } = { maxPosition: null }] = await tx
-      .select({ maxPosition: max(projectTable.position) })
-      .from(projectTable)
-      .where(eq(projectTable.workspaceId, targetWorkspaceId));
-
-    const [movedProject] = await tx
-      .update(projectTable)
-      .set({
-        workspaceId: targetWorkspaceId,
-        position: maxPosition === null ? 0 : maxPosition + 1,
-      })
-      .where(
-        and(
-          eq(projectTable.id, id),
-          eq(projectTable.workspaceId, sourceWorkspaceId),
-        ),
-      )
-      .returning();
-
-    if (!movedProject) {
-      throw new HTTPException(409, {
-        message: "Project was moved to another workspace, please try again",
-      });
     }
 
     // Older task moves could leave links owned by a different project.

@@ -9,6 +9,7 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
+import { projectAccessCondition } from "../project-access/project-access-condition";
 import { decryptSecret, encryptSecret } from "./secrets";
 
 export type NotificationPreferenceProjectMode = "all" | "selected";
@@ -136,6 +137,7 @@ async function assertWorkspaceMembership(userId: string, workspaceId: string) {
 }
 
 export async function validateProjectSelection(
+  userId: string,
   workspaceId: string,
   selectedProjectIds: string[],
 ) {
@@ -152,6 +154,7 @@ export async function validateProjectSelection(
       and(
         eq(projectTable.workspaceId, workspaceId),
         inArray(projectTable.id, selectedProjectIds),
+        projectAccessCondition(userId, projectTable.id),
       ),
     );
 
@@ -513,7 +516,11 @@ export async function upsertWorkspaceRule(
   await assertWorkspaceMembership(userId, workspaceId);
 
   if (input.projectMode === "selected") {
-    await validateProjectSelection(workspaceId, input.selectedProjectIds ?? []);
+    await validateProjectSelection(
+      userId,
+      workspaceId,
+      input.selectedProjectIds ?? [],
+    );
   }
 
   const preference = await db.query.userNotificationPreferenceTable.findFirst({

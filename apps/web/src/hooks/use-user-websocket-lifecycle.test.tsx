@@ -220,6 +220,27 @@ describe("user WebSocket lifecycle", () => {
     expect(auth.notify).toHaveBeenCalledWith("$sessionSignal");
   });
 
+  it("refreshes project lists in every tab after a project access change", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "PROJECT_ACCESS_CHANGED",
+          workspaceId: "workspace",
+        }),
+      }),
+    );
+    for (const queryKey of [
+      ["projects", "workspace"],
+      ["assigned-tasks", "workspace"],
+      ["search", { workspaceId: "workspace" }],
+      ["workspace-activity", "workspace"],
+    ])
+      expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey });
+    expect(client.removeQueries).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it("redirects after a reconnect snapshot reveals a missed workspace revocation", () => {
     renderHook(useUserWebSocket);
     act(() =>

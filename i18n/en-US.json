@@ -2760,7 +2760,14 @@
 			},
 			"noDueDate": "No due date",
 			"reorderHandle": "Reorder project",
-			"reorderError": "Failed to reorder projects"
+			"reorderError": "Failed to reorder projects",
+			"unavailable": {
+				"noAccessTitle": "You don't have access to this project",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"notFoundTitle": "Project not found",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"backToWorkspace": "Back to workspace"
+			}
 		},
 		"search": {
 			"pageTitle": "Search",
@@ -2890,7 +2897,8 @@
 				"name": "Name",
 				"role": "Role",
 				"joined": "Joined",
-				"actions": "Actions"
+				"actions": "Actions",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (Pending)",
 			"ariaCancelInvitation": "Cancel invitation",
@@ -2908,6 +2916,26 @@
 			"cancelInviteError": "Failed to cancel invitation",
 			"roleUpdateSuccess": "Role updated",
 			"roleUpdateError": "Failed to update role"
+		},
+		"projectAccess": {
+			"label": "Project access",
+			"description": "Choose which projects this person can see.",
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"projectsLabel": "Projects",
+			"noProjects": "No projects in this workspace yet.",
+			"archived": "Archived",
+			"selectAtLeastOne": "Choose at least one project.",
+			"projectCount_one": "{{count}} project",
+			"projectCount_other": "{{count}} projects",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"dialogTitle": "Project access",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"save": "Save",
+			"updateSuccess": "Project access updated",
+			"updateError": "Failed to update project access"
 		}
 	},
 	"publicProject": {

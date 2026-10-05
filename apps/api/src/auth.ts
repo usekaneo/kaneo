@@ -45,6 +45,11 @@ import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
+import {
+  applyInvitationProjectAccess,
+  resolveInvitationProjectAccess,
+} from "./project-access/invitation-project-access";
+import { clearMemberProjectAccess } from "./project-access/member-project-access";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -409,6 +414,20 @@ export const auth = betterAuth({
           fields: {
             organizationId: "workspaceId",
           },
+          additionalFields: {
+            projectAccess: {
+              type: "string",
+              input: true,
+              required: false,
+              defaultValue: "all",
+            },
+            projectIds: {
+              type: "string[]",
+              input: true,
+              required: false,
+              defaultValue: [],
+            },
+          },
         },
         organizationRole: {
           modelName: "workspace_role",
@@ -539,6 +558,13 @@ export const auth = betterAuth({
             ),
           );
         },
+        beforeCreateInvitation: async ({ invitation }) => {
+          const access = await resolveInvitationProjectAccess(invitation);
+          return { data: access };
+        },
+        beforeAcceptInvitation: async ({ invitation, user }) => {
+          await applyInvitationProjectAccess(invitation, user.id);
+        },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
             void syncWorkspaceSeats(member.organizationId).catch((error) => {
@@ -548,6 +574,12 @@ export const auth = betterAuth({
         },
         afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
+            await clearMemberProjectAccess(
+              member.organizationId,
+              member.userId,
+            ).catch((error) => {
+              console.error("Project access cleanup failed:", error);
+            });
             if (!hasInstanceAdminRole(user.role)) {
               await revokeWorkspaceConnections(
                 member.userId,
@@ -856,6 +888,12 @@ export const auth = betterAuth({
           typeof removed.organizationId === "string" &&
           removed.organizationId === ctx.body?.organizationId
         ) {
+          await clearMemberProjectAccess(
+            removed.organizationId,
+            removed.userId,
+          ).catch((error) => {
+            console.error("Project access cleanup failed:", error);
+          });
           await revokeWorkspaceConnections(
             removed.userId,
             removed.organizationId,

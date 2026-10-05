@@ -2747,7 +2747,14 @@
 			},
 			"noDueDate": "期限なし",
 			"reorderHandle": "プロジェクトの並び替え",
-			"reorderError": "プロジェクトの並び替えに失敗しました"
+			"reorderError": "プロジェクトの並び替えに失敗しました",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "検索",
@@ -2873,7 +2880,8 @@
 				"name": "名前",
 				"role": "ロール",
 				"joined": "参加日",
-				"actions": "操作"
+				"actions": "操作",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (保留中)",
 			"ariaCancelInvitation": "招待をキャンセル",
@@ -2891,6 +2899,25 @@
 			"cancelInviteError": "招待のキャンセルに失敗しました",
 			"roleUpdateSuccess": "ロールを更新しました",
 			"roleUpdateError": "ロールの更新に失敗しました"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived"
 		}
 	},
 	"publicProject": {

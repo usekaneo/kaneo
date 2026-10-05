@@ -10,6 +10,8 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import { subscribeToEvent } from "../events";
+import { findInaccessibleProjectIds } from "../project-access/assert-project-access";
+import { filterUsersWithProjectAccess } from "../project-access/filter-users-with-project-access";
 import {
   hasInstanceAdminRole,
   instanceAdminRoleSql,
@@ -94,6 +96,12 @@ function deliverToLocalUserConnections(
     typeof message.workspaceId === "string"
   ) {
     revokeLocalWorkspaceConnections(userId, message.workspaceId);
+  }
+  if (
+    message.type === "PROJECT_ACCESS_CHANGED" &&
+    typeof message.workspaceId === "string"
+  ) {
+    void revokeLocalProjectConnections(userId, message.workspaceId);
   }
   const allAccessRevoked = message.type === "USER_ACCESS_REVOKED";
   if (allAccessRevoked) {
@@ -303,6 +311,40 @@ function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
   }
 }
 
+async function revokeLocalProjectConnections(
+  userId: string,
+  workspaceId: string,
+) {
+  const owned = [...projectConnections].flatMap(([projectId, connections]) =>
+    [...connections]
+      .filter(
+        (conn) => conn.userId === userId && conn.workspaceId === workspaceId,
+      )
+      .map((conn) => ({ projectId, conn })),
+  );
+  if (owned.length === 0) return;
+  let denied: Set<string>;
+  try {
+    denied = new Set(
+      await findInaccessibleProjectIds(
+        userId,
+        owned.map(({ projectId }) => projectId),
+      ),
+    );
+  } catch (error) {
+    console.error("Failed to verify project access:", error);
+    return;
+  }
+  for (const { projectId, conn } of owned) {
+    if (!denied.has(projectId)) continue;
+    if (!projectConnections.get(projectId)?.has(conn)) continue;
+    removeConnection(projectId, conn);
+    try {
+      conn.ws.close(1008, "Project access revoked");
+    } catch {}
+  }
+}
+
 export async function revokeUserConnections(userId: string) {
   const message = { type: "USER_ACCESS_REVOKED" };
   deliverToLocalUserConnections(userId, message);
@@ -383,18 +425,19 @@ function currentProjectWorkspace(projectId: string) {
 
 const authorizationLookups = new Map<
   string,
-  Promise<{ workspaceId: string | null; members: Set<string> } | null>
+  Promise<{
+    workspaceId: string | null;
+    members: Set<string>;
+    restricted: Set<string>;
+  } | null>
 >();
 function currentBroadcastAccess(
   projectId: string,
   recipients: Array<{ userId: string }>,
   authorizationBatch: string,
 ) {
-  const key = JSON.stringify([
-    projectId,
-    authorizationBatch,
-    [...new Set(recipients.map((conn) => conn.userId))].sort(),
-  ]);
+  const userIds = [...new Set(recipients.map((conn) => conn.userId))].sort();
+  const key = JSON.stringify([projectId, authorizationBatch, userIds]);
   let pending = authorizationLookups.get(key);
   if (!pending) {
     pending = (async () => {
@@ -406,23 +449,26 @@ function currentBroadcastAccess(
         return null;
       }
       let members = new Set<string>();
+      let restricted = new Set<string>();
       if (workspaceId) {
         try {
-          const rows = await db
-            .select({ userId: workspaceUserTable.userId })
-            .from(workspaceUserTable)
-            .where(
-              and(
-                eq(workspaceUserTable.workspaceId, workspaceId),
-                inArray(workspaceUserTable.userId, [
-                  ...new Set(recipients.map((conn) => conn.userId)),
-                ]),
+          const [rows, permitted] = await Promise.all([
+            db
+              .select({ userId: workspaceUserTable.userId })
+              .from(workspaceUserTable)
+              .where(
+                and(
+                  eq(workspaceUserTable.workspaceId, workspaceId),
+                  inArray(workspaceUserTable.userId, userIds),
+                ),
               ),
-            );
+            filterUsersWithProjectAccess(userIds, projectId),
+          ]);
           members = new Set(rows.map((row) => row.userId));
-          const nonmembers = [
-            ...new Set(recipients.map((conn) => conn.userId)),
-          ].filter((userId) => !members.has(userId));
+          restricted = new Set(
+            userIds.filter((userId) => !permitted.has(userId)),
+          );
+          const nonmembers = userIds.filter((userId) => !members.has(userId));
           if (nonmembers.length > 0) {
             const admins = await db
               .select({ userId: userTable.id, role: userTable.role })
@@ -440,7 +486,7 @@ function currentBroadcastAccess(
           return null;
         }
       }
-      return { workspaceId, members };
+      return { workspaceId, members, restricted };
     })().finally(() => authorizationLookups.delete(key));
     authorizationLookups.set(key, pending);
   }
@@ -466,20 +512,23 @@ async function deliverToLocalConnections(
     authorizationBatch,
   );
   if (!access) return;
-  const { workspaceId, members } = access;
+  const { workspaceId, members, restricted } = access;
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.
     if (!projectConnections.get(projectId)?.has(conn)) continue;
-    if (conn.workspaceId !== workspaceId || !members.has(conn.userId)) {
+    const revoked =
+      conn.workspaceId !== workspaceId
+        ? "Project workspace changed"
+        : !members.has(conn.userId)
+          ? "Workspace access revoked"
+          : restricted.has(conn.userId)
+            ? "Project access revoked"
+            : null;
+    if (revoked) {
       removeConnection(projectId, conn);
       try {
-        conn.ws.close(
-          1008,
-          conn.workspaceId !== workspaceId
-            ? "Project workspace changed"
-            : "Workspace access revoked",
-        );
+        conn.ws.close(1008, revoked);
       } catch {
         /* Already closed. */
       }
@@ -709,6 +758,16 @@ subscribeToEvent<{ notificationId: string; userId: string }>(
     if (data.userId) {
       broadcastToUser(data.userId, { type: "NOTIFICATION_CREATED" });
     }
+  },
+);
+
+subscribeToEvent<{ workspaceId: string; userId: string }>(
+  "project_access.updated",
+  async ({ workspaceId, userId }) => {
+    if (!workspaceId || !userId) return;
+    const message = { type: "PROJECT_ACCESS_CHANGED", workspaceId };
+    deliverToLocalUserConnections(userId, message);
+    await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
   },
 );
 

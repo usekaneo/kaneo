@@ -519,6 +519,14 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
                   "Resend the invitation email, if the user is already invited. Eg: true",
               }),
               teamId: z.union([z.string(), z.array(z.string())]).optional(),
+              projectAccess: z.enum(["all", "selected"]).optional().openapi({
+                description:
+                  '"all" (the default) gives access to every project. "selected" limits the new member to projectIds once they accept.',
+              }),
+              projectIds: z.array(z.string()).optional().openapi({
+                description:
+                  'Projects the new member can access when projectAccess is "selected". They must belong to the workspace, and an inviter whose own access is limited can only choose projects they can access.',
+              }),
             }),
           },
         },

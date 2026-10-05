@@ -2,12 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import getProjects from "@/fetchers/project/get-projects";
 
 function useGetProjects(
-  { workspaceId }: { workspaceId: string },
+  {
+    workspaceId,
+    includeArchived = false,
+  }: { workspaceId: string; includeArchived?: boolean },
   refreshWhileVisible = false,
 ) {
   return useQuery({
-    queryFn: () => getProjects({ workspaceId }),
-    queryKey: ["projects", workspaceId],
+    queryFn: () =>
+      getProjects(
+        includeArchived
+          ? { workspaceId, includeArchived: "true" }
+          : { workspaceId },
+      ),
+    queryKey: includeArchived
+      ? ["projects", workspaceId, "including-archived"]
+      : ["projects", workspaceId],
     enabled: !!workspaceId,
     // Home and the sidebar show statistics without a project socket.
     ...(refreshWhileVisible

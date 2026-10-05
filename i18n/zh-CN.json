@@ -2747,7 +2747,14 @@
 			},
 			"noDueDate": "无截止日期",
 			"reorderHandle": "重新排序项目",
-			"reorderError": "重新排序项目失败"
+			"reorderError": "重新排序项目失败",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "搜索",
@@ -2873,7 +2880,8 @@
 				"name": "姓名",
 				"role": "角色",
 				"joined": "加入于",
-				"actions": "操作"
+				"actions": "操作",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}}（待处理）",
 			"ariaCancelInvitation": "取消邀请",
@@ -2891,6 +2899,25 @@
 			"cancelInviteError": "取消邀请失败",
 			"roleUpdateSuccess": "角色已更新",
 			"roleUpdateError": "更新角色失败"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived"
 		}
 	},
 	"publicProject": {

@@ -642,7 +642,14 @@
 			},
 			"noDueDate": "Brak terminu",
 			"reorderHandle": "Przestaw projekt",
-			"reorderError": "Nie udało się zmienić kolejności projektów"
+			"reorderError": "Nie udało się zmienić kolejności projektów",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "Szukaj",
@@ -780,7 +787,8 @@
 				"name": "Nazwa",
 				"role": "Rola",
 				"joined": "Dołączył",
-				"actions": "Działania"
+				"actions": "Działania",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (oczekuje)",
 			"ariaCancelInvitation": "Anuluj zaproszenie",
@@ -798,6 +806,28 @@
 			"cancelInviteError": "Nie udało się anulować zaproszenia",
 			"roleUpdateSuccess": "Rola zaktualizowana",
 			"roleUpdateError": "Nie udało się zaktualizować roli"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_few": "{{count}} projects",
+			"projectCount_many": "{{count}} projects",
+			"projectCount_one": "{{count}} project",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived"
 		}
 	},
 	"publicProject": {

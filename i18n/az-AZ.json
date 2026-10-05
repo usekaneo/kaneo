@@ -2760,7 +2760,14 @@
 			},
 			"noDueDate": "Son tarix yoxdur",
 			"reorderHandle": "Layihənin sırasını dəyiş",
-			"reorderError": "Layihələrin sırasını dəyişmək alınmadı"
+			"reorderError": "Layihələrin sırasını dəyişmək alınmadı",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "Axtarış",
@@ -2890,7 +2897,8 @@
 				"name": "Ad",
 				"role": "Rol",
 				"joined": "Qoşulub",
-				"actions": "Əməliyyatlar"
+				"actions": "Əməliyyatlar",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (gözləyir)",
 			"ariaCancelInvitation": "Dəvəti ləğv et",
@@ -2908,6 +2916,26 @@
 			"cancelInviteError": "Dəvəti ləğv etmək alınmadı",
 			"roleUpdateSuccess": "Rol yeniləndi",
 			"roleUpdateError": "Rolu yeniləmək alınmadı"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_one": "{{count}} project",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived"
 		}
 	},
 	"publicProject": {

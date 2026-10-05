@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
+import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
@@ -28,6 +29,13 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import InvitationLinkField from "./invitation-link-field";
+import {
+  ALL_PROJECTS_ACCESS,
+  isProjectAccessComplete,
+  type ProjectAccessValue,
+  toProjectAccessRequest,
+} from "./project-access";
+import ProjectAccessFields from "./project-access-fields";
 
 type Props = {
   open: boolean;
@@ -52,6 +60,12 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     id: string;
     email: string;
   } | null>(null);
+  const [projectAccess, setProjectAccess] =
+    useState<ProjectAccessValue>(ALL_PROJECTS_ACCESS);
+  const [showProjectAccessError, setShowProjectAccessError] = useState(false);
+  const { data: projects, isLoading: isLoadingProjects } = useGetProjects({
+    workspaceId: open ? (workspaceId ?? "") : "",
+  });
 
   const form = useForm<TeamMemberFormValues>({
     resolver: standardSchemaResolver(teamMemberSchema),
@@ -72,11 +86,20 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       toast.error(t("team:inviteModal.error"));
       return;
     }
+    const access = toProjectAccessRequest(
+      projectAccess,
+      (projects ?? []).map((project) => project.id),
+    );
+    if (!isProjectAccessComplete(access)) {
+      setShowProjectAccessError(true);
+      return;
+    }
     try {
       const invitation = await mutateAsync({
         email,
         workspaceId,
         role: "member",
+        ...access,
       }); // TODO: role and email
       await queryClient.refetchQueries({
         queryKey: ["workspace-users", workspaceId],
@@ -90,6 +113,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       if (invitation?.id) {
         setCreatedInvitation({ id: invitation.id, email });
         form.reset();
+        setProjectAccess(ALL_PROJECTS_ACCESS);
         return;
       }
 
@@ -109,6 +133,8 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       });
     }
     form.reset();
+    setProjectAccess(ALL_PROJECTS_ACCESS);
+    setShowProjectAccessError(false);
   };
 
   const resetAndCloseModal = () => {
@@ -147,7 +173,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="contents">
-              <DialogPanel>
+              <DialogPanel className="space-y-5">
                 <FormField
                   control={form.control}
                   name="email"
@@ -164,6 +190,21 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+                <ProjectAccessFields
+                  value={projectAccess}
+                  onChange={(next) => {
+                    setProjectAccess(next);
+                    setShowProjectAccessError(false);
+                  }}
+                  projects={projects}
+                  isLoadingProjects={isLoadingProjects}
+                  disabled={form.formState.isSubmitting}
+                  error={
+                    showProjectAccessError
+                      ? t("team:projectAccess.selectAtLeastOne")
+                      : undefined
+                  }
                 />
               </DialogPanel>
 

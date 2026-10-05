@@ -4325,6 +4325,32 @@
           "role"
         ]
       },
+      "MemberProjectAccess": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "projectAccess": {
+            "type": "string",
+            "enum": [
+              "all",
+              "selected"
+            ]
+          },
+          "projectIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "userId",
+          "projectAccess",
+          "projectIds"
+        ]
+      },
       "CustomFieldDefinition": {
         "type": "object",
         "properties": {
@@ -5999,6 +6025,21 @@
                         }
                       }
                     ]
+                  },
+                  "projectAccess": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "selected"
+                    ],
+                    "description": "\"all\" (the default) gives access to every project. \"selected\" limits the new member to projectIds once they accept."
+                  },
+                  "projectIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Projects the new member can access when projectAccess is \"selected\". They must belong to the workspace, and an inviter whose own access is limited can only choose projects they can access."
                   }
                 },
                 "required": [
@@ -8159,7 +8200,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No workspace access, missing project:update permission, or no access to a listed project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18719,7 +18760,7 @@
           "Workspaces"
         ],
         "summary": "Get workspace members",
-        "description": "Get all members of a workspace, with their role.",
+        "description": "Get all members of a workspace, with their role. Pass projectId to get only the members who can access that project.",
         "parameters": [
           {
             "schema": {
@@ -18728,6 +18769,16 @@
             "required": true,
             "name": "workspaceId",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Only return members who can access this project, for example to fill an assignee picker."
+            },
+            "required": false,
+            "description": "Only return members who can access this project, for example to fill an assignee picker.",
+            "name": "projectId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -18758,7 +18809,180 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No access to the workspace",
+            "description": "No access to the workspace or to the project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found in this workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/project-access": {
+      "get": {
+        "operationId": "getWorkspaceProjectAccess",
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "Get member project access",
+        "description": "List the members who are limited to selected projects, with the projects each one can access. Everyone else in the workspace can access every project.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Members limited to selected projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberProjectAccess"
+                  },
+                  "description": "Members limited to selected projects. Members not listed can access every project."
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Workspace ID could not be determined",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing member:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/members/{userId}/project-access": {
+      "put": {
+        "operationId": "updateMemberProjectAccess",
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "Update member project access",
+        "description": "Give a member access to every project, or limit them to selected projects. Owners always access every project, and you can't change your own access or give access to projects you can't access yourself.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "projectAccess": {
+                    "type": "string",
+                    "enum": [
+                      "all",
+                      "selected"
+                    ],
+                    "description": "\"all\" gives access to every project in the workspace, including future ones. \"selected\" limits the member to projectIds."
+                  },
+                  "projectIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [],
+                    "description": "Projects the member can access when projectAccess is \"selected\"."
+                  }
+                },
+                "required": [
+                  "projectAccess"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The member's project access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberProjectAccess"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, the member is an owner, or a project is not in this workspace",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing member:update permission, changing your own access, or granting a project you can't access",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Member not found",
             "content": {
               "text/plain": {
                 "schema": {

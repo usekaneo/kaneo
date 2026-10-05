@@ -7,6 +7,7 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { commentExcerpt } from "../comment-excerpt";
 
 export const WORKSPACE_ACTIVITY_LIMIT = 20;
@@ -15,7 +16,7 @@ export const WORKSPACE_ACTIVITY_LIMIT = 20;
 // in workspaces with years of history.
 const WINDOW_DAYS = 30;
 
-async function getWorkspaceActivities(workspaceId: string) {
+async function getWorkspaceActivities(workspaceId: string, userId: string) {
   const since = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
 
   // Concrete project IDs let PostgreSQL estimate task selectivity before it
@@ -28,6 +29,7 @@ async function getWorkspaceActivities(workspaceId: string) {
       and(
         eq(projectTable.workspaceId, workspaceId),
         isNull(projectTable.archivedAt),
+        projectAccessCondition(userId, projectTable.id),
       ),
     );
   if (!projects.length) return [];

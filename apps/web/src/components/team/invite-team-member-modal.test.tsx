@@ -41,6 +41,15 @@ vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({ canInviteUsers: () => true }),
 }));
+vi.mock("@/hooks/queries/project/use-get-projects", () => ({
+  default: () => ({
+    data: [
+      { id: "project-a", name: "Alpha" },
+      { id: "project-b", name: "Beta" },
+    ],
+    isLoading: false,
+  }),
+}));
 vi.mock("@/lib/toast", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock("./invitation-link-field", () => ({ default: () => null }));
 function wrapper({ children }: PropsWithChildren) {
@@ -105,5 +114,61 @@ describe("invitation email delivery errors", () => {
     );
     expect(toast.success).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+describe("invitation project access", () => {
+  beforeEach(() => {
+    inviteMember.mockResolvedValue({ data: { id: "invite-1" }, error: null });
+  });
+
+  async function fillEmail() {
+    fireEvent.change(
+      await screen.findByPlaceholderText("team:inviteModal.emailPlaceholder"),
+      { target: { value: "member@example.com" } },
+    );
+  }
+
+  function submit() {
+    fireEvent.click(
+      screen.getByRole("button", { name: "team:inviteModal.sendInvitation" }),
+    );
+  }
+
+  it("invites with access to every project by default", async () => {
+    render(<InviteTeamMemberModal open onClose={vi.fn()} />, { wrapper });
+    await fillEmail();
+    submit();
+    await waitFor(() =>
+      expect(inviteMember).toHaveBeenCalledWith(
+        expect.objectContaining({ projectAccess: "all", projectIds: [] }),
+      ),
+    );
+  });
+
+  it("requires a project before inviting with selected access", async () => {
+    render(<InviteTeamMemberModal open onClose={vi.fn()} />, { wrapper });
+    await fillEmail();
+    fireEvent.click(
+      screen.getByRole("radio", {
+        name: /team:projectAccess.selectedProjects/,
+      }),
+    );
+    submit();
+    expect(
+      await screen.findByText("team:projectAccess.selectAtLeastOne"),
+    ).toBeVisible();
+    expect(inviteMember).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Beta" }));
+    submit();
+    await waitFor(() =>
+      expect(inviteMember).toHaveBeenCalledWith(
+        expect.objectContaining({
+          projectAccess: "selected",
+          projectIds: ["project-b"],
+        }),
+      ),
+    );
   });
 });
