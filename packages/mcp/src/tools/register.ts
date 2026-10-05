@@ -795,14 +795,16 @@ export function registerTools(
             "Weekly only: days to repeat on, 0 for Sunday to 6 for Saturday.",
           ),
         timeZone: nonEmptyString
-          .default("UTC")
+          .optional()
           .describe(
-            "IANA time zone that keeps the next due date on the same local day.",
+            "Required with frequency: the user's IANA time zone, such as Europe/Madrid. Weekdays and month ends are matched in this zone, so a wrong one moves the next task to another local day.",
           ),
       }),
     },
-    async (args) =>
-      run(() =>
+    async (args) => {
+      if (args.frequency && !args.timeZone)
+        return errorResult("timeZone is required with frequency");
+      return run(() =>
         client.json(`/api/task/recurrence/${encodeURIComponent(args.taskId)}`, {
           method: "PUT",
           body: JSON.stringify({
@@ -816,7 +818,8 @@ export function registerTools(
               : null,
           }),
         }),
-      ),
+      );
+    },
   );
 
   registerTool(

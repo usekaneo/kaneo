@@ -188,10 +188,22 @@ describe("MCP tool catalog", () => {
       },
     });
 
-    await call("update_task_recurrence", { taskId: "t1", frequency: "daily" });
-    expect(lastRequest().body).toEqual({
-      recurrence: { frequency: "daily", interval: 1, timeZone: "UTC" },
+    await call("update_task_recurrence", {
+      taskId: "t1",
+      frequency: "daily",
+      timeZone: "Asia/Tokyo",
     });
+    expect(lastRequest().body).toEqual({
+      recurrence: { frequency: "daily", interval: 1, timeZone: "Asia/Tokyo" },
+    });
+
+    const requests = apiFetch.mock.calls.length;
+    const missingZone = await call("update_task_recurrence", {
+      taskId: "t1",
+      frequency: "daily",
+    });
+    expect(missingZone.isError).toBe(true);
+    expect(apiFetch.mock.calls.length).toBe(requests);
 
     await call("update_task_recurrence", { taskId: "t1" });
     expect(lastRequest().body).toEqual({ recurrence: null });
