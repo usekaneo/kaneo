@@ -34,6 +34,9 @@ async function checkPullRequest(github, pull, policy, policyError) {
       description: "Pull request changed; waiting for a fresh check.",
     };
   }
+  if (result.state === "failure" && !current.draft) {
+    await github.convertToDraft(current.node_id);
+  }
   return result;
 }
 

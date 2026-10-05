@@ -60,8 +60,12 @@ account, can't be handed to someone else, and only skips the issue step.
 Everyone still goes through code review, CI, and the [AI policy](AI_POLICY.md).
 Past contributions or org membership don't earn a voucher automatically.
 
-The **Contribution eligibility** check on your PR tells you where you stand. If
-it fails, link an approved issue or ask a maintainer to vouch for you.
+The **Contribution eligibility** check on your PR tells you where you stand.
+If you're ineligible, the automation converts your PR to a draft. Link an
+approved issue or ask a maintainer to vouch for you, then mark the PR ready
+for review once the check passes. Eligible drafts stay drafts until you mark
+them ready. If eligibility cannot be checked because of an API or policy
+error, the check fails without changing the PR's draft status.
 
 The check reruns when you edit the PR description or push commits, when an
 issue gains or loses the label, and when the voucher list changes. It can't
@@ -70,8 +74,8 @@ those up (GitHub sometimes runs these late). Maintainers can also trigger the
 workflow by hand. Dependabot PRs are checked after their CI run finishes,
 because bot-triggered workflows may only get read-only tokens.
 
-Once the check is required, a failing result blocks merging. It won't stop
-anyone from opening a PR, and it never closes one.
+Once the check is required, a failing result blocks merging. Anyone can still
+open a PR; ineligible PRs become drafts and are never automatically closed.
 
 #### Managing Vouchers
 
