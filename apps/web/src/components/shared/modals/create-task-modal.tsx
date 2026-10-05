@@ -282,8 +282,8 @@ function CreateTaskModalContent({
   });
   const assigneeOptions = useMemo(
     () =>
-      resolvedProjectId && projectMembers
-        ? projectMembers.map((member) => ({
+      resolvedProjectId
+        ? (projectMembers ?? []).map((member) => ({
             id: member.id,
             name: member.name,
             image: member.image,

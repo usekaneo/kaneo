@@ -5,7 +5,8 @@ function useGetProjects(
   {
     workspaceId,
     includeArchived = false,
-  }: { workspaceId: string; includeArchived?: boolean },
+    enabled = true,
+  }: { workspaceId: string; includeArchived?: boolean; enabled?: boolean },
   refreshWhileVisible = false,
 ) {
   return useQuery({
@@ -18,7 +19,7 @@ function useGetProjects(
     queryKey: includeArchived
       ? ["projects", workspaceId, "including-archived"]
       : ["projects", workspaceId],
-    enabled: !!workspaceId,
+    enabled: enabled && !!workspaceId,
     // Home and the sidebar show statistics without a project socket.
     ...(refreshWhileVisible
       ? {

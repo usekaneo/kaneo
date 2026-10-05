@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
-import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
+import useGetMembersOfProjects from "@/hooks/queries/workspace-users/use-get-members-of-projects";
 import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getInitials } from "@/lib/get-initials";
@@ -37,9 +37,9 @@ export default function SubtaskAssigneePopover({
     INITIAL_VISIBLE_USERS,
   );
   const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
-  const { data: projectMembers } = useGetProjectMembers({
+  const { data: projectMembers } = useGetMembersOfProjects({
     workspaceId,
-    projectId: tasks[0]?.projectId ?? "",
+    projectIds: tasks.map((task) => task.projectId),
   });
   const { canAssignTasks } = useWorkspacePermission();
   const canAssign = canAssignTasks();

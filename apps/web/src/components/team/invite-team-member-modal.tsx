@@ -65,6 +65,8 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
   const [showProjectAccessError, setShowProjectAccessError] = useState(false);
   const { data: projects, isLoading: isLoadingProjects } = useGetProjects({
     workspaceId: workspaceId ?? "",
+    includeArchived: true,
+    enabled: open,
   });
 
   const form = useForm<TeamMemberFormValues>({

@@ -6,6 +6,7 @@ function useGetWorkspaceProjectAccess(workspaceId: string, enabled = true) {
     queryKey: ["workspace-users", workspaceId, "project-access"],
     queryFn: () => getWorkspaceProjectAccess(workspaceId),
     enabled: enabled && !!workspaceId,
+    refetchOnMount: "always",
   });
 }
 
