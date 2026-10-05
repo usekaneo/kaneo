@@ -14,6 +14,11 @@
 			"id": 176929823,
 			"login": "tinsever",
 			"reason": "Core team (usekaneo/developers)."
+		},
+		{
+			"id": 115077240,
+			"login": "MonsPropre",
+			"reason": "Approved by maintainer request."
 		}
 	],
 	"exemptBots": [
