@@ -6,7 +6,7 @@ const CONTACT =
 
 const features = [
   "A dedicated instance with its own database",
-  "Your own domain, and SSO with your identity provider",
+  "Your own domain and single sign-on",
   "Daily backups and regular restore tests",
   "Upgrades and security fixes applied for you",
   "Hosted in the EU",
@@ -15,30 +15,30 @@ const features = [
 
 export function ManagedInstance() {
   return (
-    <div className="mt-6 grid gap-8 rounded-xl border bg-background p-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-12 lg:p-8">
-      <div className="flex min-w-0 flex-col">
-        <h2 className="font-medium text-base">Managed instance</h2>
-        <p className="mt-1 text-muted-foreground text-sm">
-          Your own Kaneo, run by us
-        </p>
-        <p className="mt-6 text-muted-foreground text-sm leading-relaxed">
-          For teams that want an isolated instance without being the ones on
-          call. One flat monthly price for the whole instance, not per seat.
-        </p>
-        <div className="mt-auto pt-8">
-          <Button
-            variant="outline"
-            size="lg"
-            className="plausible-event-name=Managed+Instance+Inquiry h-12 w-full gap-3 px-4 text-sm sm:h-12 sm:w-auto"
-            render={<a href={CONTACT} />}
-          >
-            Talk to us
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </Button>
+    <div className="mt-6 rounded-xl border bg-background p-6 lg:p-8">
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-12">
+        <div className="min-w-0 max-w-2xl">
+          <h2 className="font-medium text-base">Managed instance</h2>
+          <p className="mt-1 text-muted-foreground text-sm">
+            Your own Kaneo, run by us
+          </p>
+          <p className="mt-4 text-muted-foreground text-sm leading-relaxed">
+            For teams that want an isolated instance without being the ones on
+            call. One flat monthly price for the whole instance, not per seat.
+          </p>
         </div>
+        <Button
+          variant="outline"
+          size="lg"
+          className="plausible-event-name=Managed+Instance+Inquiry h-12 w-full shrink-0 gap-3 px-4 text-sm sm:h-12 md:w-auto"
+          render={<a href={CONTACT} />}
+        >
+          Talk to us
+          <ArrowRight aria-hidden="true" className="size-4" />
+        </Button>
       </div>
 
-      <ul className="grid content-start gap-3 text-sm sm:grid-cols-2">
+      <ul className="mt-6 grid gap-3 border-t pt-6 text-sm sm:grid-cols-2 lg:mt-8 lg:grid-cols-3 lg:pt-8">
         {features.map((feature) => (
           <li key={feature} className="flex items-start gap-2.5">
             <Check
