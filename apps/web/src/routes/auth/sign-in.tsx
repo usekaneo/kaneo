@@ -3,7 +3,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
-import { KeyRound, UserCheck } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
@@ -20,7 +20,6 @@ import { AuthLayout } from "../../components/auth/layout";
 import { OtpSignInForm } from "../../components/auth/otp-sign-in-form";
 import { SignInForm } from "../../components/auth/sign-in-form";
 import { SignInFormSkeleton } from "../../components/auth/sign-in-form-skeleton";
-import { AuthToggle } from "../../components/auth/toggle";
 import { Turnstile } from "../../components/auth/turnstile";
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as
@@ -47,7 +46,6 @@ function SignIn() {
   const [isGithubLoading, setIsGithubLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isDiscordLoading, setIsDiscordLoading] = useState(false);
-  const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [captchaKey, setCaptchaKey] = useState(0);
   const resetCaptcha = useCallback(() => {
@@ -244,33 +242,6 @@ function SignIn() {
     }
   };
 
-  const handleGuestAccess = async () => {
-    if (captchaPending) return;
-    setIsGuestLoading(true);
-    try {
-      const result = await authClient.signIn.anonymous(
-        {},
-        {
-          headers: turnstileToken
-            ? { "x-turnstile-token": turnstileToken }
-            : undefined,
-        },
-      );
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-      toast.success(t("auth:signIn.guestSuccess"));
-      handleSignInSuccess();
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("auth:signIn.guestError"),
-      );
-    } finally {
-      setIsGuestLoading(false);
-      resetCaptcha();
-    }
-  };
-
   useEffect(() => {
     if (search.error) {
       setAutoLoginFailed(true);
@@ -362,8 +333,7 @@ function SignIn() {
           {(config?.hasGoogleSignIn ||
             config?.hasGithubSignIn ||
             config?.hasDiscordSignIn ||
-            config?.hasCustomOAuth ||
-            (config?.hasGuestAccess && !invitationId)) && (
+            config?.hasCustomOAuth) && (
             <>
               <div className="space-y-3">
                 {config?.hasGoogleSignIn && (
@@ -481,20 +451,6 @@ function SignIn() {
                     )}
                   </div>
                 )}
-
-                {config?.hasGuestAccess && !invitationId && (
-                  <Button
-                    variant="outline"
-                    onClick={handleGuestAccess}
-                    disabled={isGuestLoading || captchaPending}
-                    className="w-full"
-                  >
-                    <UserCheck className="w-5 h-5 mr-2" />
-                    {isGuestLoading
-                      ? t("auth:signIn.signingIn")
-                      : t("auth:signUp.continueAsGuest")}
-                  </Button>
-                )}
               </div>
 
               {!config?.disableLoginForm && (
@@ -528,8 +484,8 @@ function SignIn() {
                 onSuccess={handleSignInSuccess}
               />
             ))}
-          {config?.disableRegistration ||
-          config?.disablePasswordRegistration ? (
+          {(config?.disableRegistration ||
+            config?.disablePasswordRegistration) && (
             <div className="text-center pt-4">
               <p className="text-sm text-muted-foreground">
                 {config?.disableRegistration
@@ -537,13 +493,7 @@ function SignIn() {
                   : t("auth:signIn.passwordRegistrationDisabled")}
               </p>
             </div>
-          ) : !config?.disableLoginForm ? (
-            <AuthToggle
-              message={t("auth:signIn.toggleMessage")}
-              linkText={t("auth:signIn.toggleLink")}
-              linkTo="/auth/sign-up"
-            />
-          ) : null}
+          )}
         </div>
       </AuthLayout>
     </>
