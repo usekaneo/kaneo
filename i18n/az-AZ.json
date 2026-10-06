@@ -2635,7 +2635,8 @@
 			"noTasks": "Tapşırıq yoxdur"
 		},
 		"kanban": {
-			"addTask": "Tapşırıq əlavə et"
+			"addTask": "Tapşırıq əlavə et",
+			"automaticallySortedHint": "Avtomatik olaraq {{sort}} üzrə sıralanıb"
 		},
 		"pr": {
 			"merged": "Birləşdirilib",

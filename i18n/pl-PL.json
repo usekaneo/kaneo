@@ -2801,7 +2801,8 @@
 			"showTaskDates": "Show task dates"
 		},
 		"kanban": {
-			"addTask": "Dodaj zadanie"
+			"addTask": "Dodaj zadanie",
+			"automaticallySortedHint": "Automatyczne sortowanie: {{sort}}"
 		},
 		"labels": {
 			"empty": "Brak dostępnych etykiet",

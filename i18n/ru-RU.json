@@ -2679,7 +2679,8 @@
 			"noTasks": "Нет задач"
 		},
 		"kanban": {
-			"addTask": "Добавить задачу"
+			"addTask": "Добавить задачу",
+			"automaticallySortedHint": "Автоматическая сортировка: {{sort}}"
 		},
 		"pr": {
 			"merged": "Влит",

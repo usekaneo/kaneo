@@ -2611,7 +2611,8 @@
 			"noTasks": "Không có công việc"
 		},
 		"kanban": {
-			"addTask": "Thêm công việc"
+			"addTask": "Thêm công việc",
+			"automaticallySortedHint": "Tự động sắp xếp theo {{sort}}"
 		},
 		"pr": {
 			"merged": "Đã gộp",

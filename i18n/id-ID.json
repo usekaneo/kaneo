@@ -2611,7 +2611,8 @@
 			"noTasks": "Tidak ada tugas"
 		},
 		"kanban": {
-			"addTask": "Tambah tugas"
+			"addTask": "Tambah tugas",
+			"automaticallySortedHint": "Diurutkan otomatis berdasarkan {{sort}}"
 		},
 		"pr": {
 			"merged": "Digabung",

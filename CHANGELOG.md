@@ -1,5 +1,22 @@
 ### Features
 
+- make cross-column dragged card sortable: #1894
+- **i18n:** add zh-TW locale: #1893
+- **integrations:** add label-based sync in advanced settings: #1908
+
+### Bug Fixes
+
+- **web:** show the task label editor on narrow screens: #1924
+- convert ineligible contributions to draft pull requests: [291da4a](https://github.com/usekaneo/kaneo/commit/291da4a413a5b3a107dae9710860e37cf1822a2e)
+- **i18n:** translate the zh-CN strings added since the last sync: #1916
+- **ci:** exclude skipped events from eligibility concurrency: #1917
+
+### Credits
+
+Huge thanks to @VictorOnwukwe, @kenny-ish, @ApplesBear-X, @tinsever, and @FunnyQ for helping!
+
+### Features
+
 - **web:** redesign settings: #1905
 - **site:** link community projects from resources: [69ba99d](https://github.com/usekaneo/kaneo/commit/69ba99da501627977d57597457d04d23966796da)
 - **site:** add a community projects page: [961c309](https://github.com/usekaneo/kaneo/commit/961c309cbf383e07c5f9026ad654b2dc77ade6f2)

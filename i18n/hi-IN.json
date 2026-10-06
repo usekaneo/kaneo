@@ -2627,7 +2627,8 @@
 			"noTasks": "कोई कार्य नहीं"
 		},
 		"kanban": {
-			"addTask": "कार्य जोड़ें"
+			"addTask": "कार्य जोड़ें",
+			"automaticallySortedHint": "{{sort}} के अनुसार स्वचालित रूप से क्रमबद्ध"
 		},
 		"pr": {
 			"merged": "मर्ज किया",

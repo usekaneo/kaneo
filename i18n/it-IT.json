@@ -2643,7 +2643,8 @@
 			"noTasks": "Nessuna attività"
 		},
 		"kanban": {
-			"addTask": "Aggiungi attività"
+			"addTask": "Aggiungi attività",
+			"automaticallySortedHint": "Ordinamento automatico per {{sort}}"
 		},
 		"pr": {
 			"merged": "Unito",

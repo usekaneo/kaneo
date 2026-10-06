@@ -2627,7 +2627,8 @@
 			"noTasks": "Нема задачи"
 		},
 		"kanban": {
-			"addTask": "Додади задача"
+			"addTask": "Додади задача",
+			"automaticallySortedHint": "Автоматски подредено според {{sort}}"
 		},
 		"pr": {
 			"merged": "Споен",

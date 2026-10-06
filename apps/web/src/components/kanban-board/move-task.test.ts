@@ -74,6 +74,15 @@ describe("board moves", () => {
       { id: "a", position: 1, status: "doing" },
     ]);
   });
+
+  it("can insert before a cross-column target for a visual drag preview", () => {
+    const moved = moveBoardTask(board(), "a", "c", false, false)!;
+
+    expect(moved.project.columns[1].tasks.map((task) => task.id)).toEqual([
+      "a",
+      "c",
+    ]);
+  });
 });
 
 it("patches a remote reorder without removing hidden cards or replacing concurrent fields", () => {

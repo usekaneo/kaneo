@@ -2616,7 +2616,8 @@
 			"noTasks": "Geen taken"
 		},
 		"kanban": {
-			"addTask": "Taak toevoegen"
+			"addTask": "Taak toevoegen",
+			"automaticallySortedHint": "Automatisch gesorteerd op {{sort}}"
 		},
 		"pr": {
 			"merged": "Samengevoegd",

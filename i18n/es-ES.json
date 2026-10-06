@@ -2632,7 +2632,8 @@
 			"noTasks": "No hay tareas"
 		},
 		"kanban": {
-			"addTask": "Añadir tarea"
+			"addTask": "Añadir tarea",
+			"automaticallySortedHint": "Ordenado automáticamente por {{sort}}"
 		},
 		"pr": {
 			"merged": "Mergeada",
