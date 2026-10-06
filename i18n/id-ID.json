@@ -2590,7 +2590,8 @@
 			"noTasks": "Tidak ada tugas",
 			"collapseSubtasks": "Sembunyikan subtugas {{title}}",
 			"expandSubtasks": "Tampilkan subtugas {{title}}",
-			"subtaskLevel": "Subtugas, tingkat {{level}}"
+			"subtaskLevel": "Subtugas, tingkat {{level}}",
+			"subtasksLoadError": "Subtugas tidak dapat dimuat, jadi tugas ditampilkan tanpa hierarkinya."
 		},
 		"kanban": {
 			"addTask": "Tambah tugas",

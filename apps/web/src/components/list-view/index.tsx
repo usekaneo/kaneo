@@ -18,6 +18,7 @@ import { produce } from "immer";
 import { Flag } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
@@ -27,7 +28,7 @@ import {
   readExpandedRows,
   writeExpandedRows,
 } from "@/lib/expanded-rows-storage";
-import { buildSubtaskChildren } from "@/lib/subtask-tree";
+import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -82,8 +83,12 @@ function ListView({
 
   // isLoading rather than isPending: a disabled query is also pending, and an
   // empty project should not look like it is still fetching.
-  const { data: relations, isLoading: relationsLoading } =
-    useGetProjectTaskRelations(project?.id ?? "");
+  const {
+    data: relations,
+    isLoading: relationsLoading,
+    isError: relationsFailed,
+    refetch: refetchRelations,
+  } = useGetProjectTaskRelations(project?.id ?? "");
 
   const subtaskChildren = useMemo(
     () => buildSubtaskChildren(relations ?? []),
@@ -124,21 +129,45 @@ function ListView({
     writeExpandedRows(projectId, expandedTasks);
   }, [projectId, expandedTasks]);
 
+  // Collapsing removes the row rather than recording false, so the stored map
+  // holds only expanded rows and does not grow with every row ever touched.
   const toggleTaskExpanded = useCallback((rowId: string) => {
-    setExpanded((previous) => ({
-      ...previous,
-      rows: { ...previous.rows, [rowId]: !previous.rows[rowId] },
-    }));
+    setExpanded((previous) => {
+      const rows = { ...previous.rows };
+      if (rows[rowId]) delete rows[rowId];
+      else rows[rowId] = true;
+      return { ...previous, rows };
+    });
   }, []);
 
+  // j/k, select-all and shift-click ranges follow this order, so it is the
+  // order rows are shown in, expanded subtasks included -- built the same
+  // way each section builds its rows. Selection and focus stay per task, so
+  // a task shown both under its parent and in its own place is listed once,
+  // where it first appears.
   useEffect(() => {
     if (project?.columns) {
       const visibleTaskIds = project.columns
         .filter((column) => expandedSections[column.id])
-        .flatMap((column) => column.tasks.map((task) => task.id));
-      setAvailableTasks(visibleTaskIds);
+        .flatMap((column) =>
+          flattenSubtaskRows({
+            tasks: column.tasks,
+            children: subtaskChildren,
+            tasksById,
+            isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
+          }).map((row) => row.task.id),
+        );
+      setAvailableTasks([...new Set(visibleTaskIds)]);
     }
-  }, [project, expandedSections, setAvailableTasks]);
+  }, [
+    project,
+    expandedSections,
+    setAvailableTasks,
+    subtaskChildren,
+    tasksById,
+    expandedTasks,
+    activeId,
+  ]);
 
   useEffect(() => {
     clearFocus();
@@ -369,6 +398,23 @@ function ListView({
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">
+        {relationsFailed && (
+          // Without relations every task renders as a top-level row, which
+          // reads exactly like a project with no subtasks; this says it isn't.
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-2 text-sm text-muted-foreground"
+          >
+            <span>{t("tasks:listView.subtasksLoadError")}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void refetchRelations()}
+            >
+              {t("common:error.tryAgain")}
+            </Button>
+          </div>
+        )}
         <div aria-busy={relationsLoading} className="divide-y divide-border/50">
           {project.columns.map((column) => (
             <ColumnSection

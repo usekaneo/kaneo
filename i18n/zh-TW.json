@@ -2603,7 +2603,8 @@
 			"noTasks": "沒有任務",
 			"expandSubtasks": "顯示 {{title}} 的子任務",
 			"collapseSubtasks": "隱藏 {{title}} 的子任務",
-			"subtaskLevel": "子任務，第 {{level}} 層"
+			"subtaskLevel": "子任務，第 {{level}} 層",
+			"subtasksLoadError": "無法載入子任務，因此任務以無階層的方式顯示。"
 		},
 		"kanban": {
 			"addTask": "新增任務",

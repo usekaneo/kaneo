@@ -2591,7 +2591,8 @@
 			"noTasks": "Geen taken",
 			"collapseSubtasks": "Subtaken van {{title}} verbergen",
 			"expandSubtasks": "Subtaken van {{title}} tonen",
-			"subtaskLevel": "Subtaak, niveau {{level}}"
+			"subtaskLevel": "Subtaak, niveau {{level}}",
+			"subtasksLoadError": "Subtaken konden niet worden geladen, daarom worden taken zonder hiërarchie getoond."
 		},
 		"kanban": {
 			"addTask": "Taak toevoegen",

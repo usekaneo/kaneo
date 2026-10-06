@@ -2602,7 +2602,8 @@
 			"noTasks": "Нема задачи",
 			"collapseSubtasks": "Сокриј подзадачи на {{title}}",
 			"expandSubtasks": "Прикажи подзадачи на {{title}}",
-			"subtaskLevel": "Подзадача, ниво {{level}}"
+			"subtaskLevel": "Подзадача, ниво {{level}}",
+			"subtasksLoadError": "Подзадачите не можеа да се вчитаат, па задачите се прикажани без хиерархија."
 		},
 		"kanban": {
 			"addTask": "Додади задача",

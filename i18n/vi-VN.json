@@ -2590,7 +2590,8 @@
 			"noTasks": "Không có công việc",
 			"collapseSubtasks": "Ẩn công việc con của {{title}}",
 			"expandSubtasks": "Hiện công việc con của {{title}}",
-			"subtaskLevel": "Công việc con, cấp {{level}}"
+			"subtaskLevel": "Công việc con, cấp {{level}}",
+			"subtasksLoadError": "Không thể tải công việc con, nên công việc được hiển thị không có phân cấp."
 		},
 		"kanban": {
 			"addTask": "Thêm công việc",

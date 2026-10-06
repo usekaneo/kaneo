@@ -2614,7 +2614,8 @@
 			"noTasks": "Nessuna attività",
 			"collapseSubtasks": "Nascondi sotto-attività di {{title}}",
 			"expandSubtasks": "Mostra sotto-attività di {{title}}",
-			"subtaskLevel": "Sotto-attività, livello {{level}}"
+			"subtaskLevel": "Sotto-attività, livello {{level}}",
+			"subtasksLoadError": "Impossibile caricare le sotto-attività, quindi le attività sono mostrate senza gerarchia."
 		},
 		"kanban": {
 			"addTask": "Aggiungi attività",

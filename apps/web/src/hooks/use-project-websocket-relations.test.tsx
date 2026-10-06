@@ -105,6 +105,32 @@ describe("useProjectWebSocket relation invalidation", () => {
     vi.unstubAllGlobals();
   });
 
+  // A relation changed while the socket was down sends no message once it is
+  // back, so reconnecting refetches the hierarchy along with the board.
+  it("refreshes the project relations when the socket opens", async () => {
+    socket.onopen?.();
+    await Promise.resolve();
+
+    expect(invalidatedKeys()).toContain(projectRelationsKey);
+  });
+
+  it("refreshes the project relations while polling without a socket", () => {
+    vi.useFakeTimers();
+    try {
+      for (let attempt = 0; attempt <= 5; attempt++) {
+        socket.onclose?.();
+        vi.advanceTimersByTime(20_000);
+      }
+      invalidate.mockClear();
+
+      vi.advanceTimersByTime(30_000);
+
+      expect(invalidatedKeys()).toContain(projectRelationsKey);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   // The project-scoped relations query is what the list view reads, and no
   // per-task key reaches it.
   it("refreshes the project relations on a real relation change", () => {

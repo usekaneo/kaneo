@@ -2614,7 +2614,8 @@
 			"noTasks": "Aucune tâche",
 			"collapseSubtasks": "Masquer les sous-tâches de {{title}}",
 			"expandSubtasks": "Afficher les sous-tâches de {{title}}",
-			"subtaskLevel": "Sous-tâche, niveau {{level}}"
+			"subtaskLevel": "Sous-tâche, niveau {{level}}",
+			"subtasksLoadError": "Impossible de charger les sous-tâches : les tâches s'affichent sans leur hiérarchie."
 		},
 		"kanban": {
 			"addTask": "Ajouter une tâche",

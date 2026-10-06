@@ -8644,6 +8644,9 @@
 				"moved": {
 					"type": "string"
 				},
+				"movedFromOtherProject": {
+					"type": "string"
+				},
 				"created": {
 					"type": "string"
 				},
@@ -9064,6 +9067,7 @@
 				"changedDueDate",
 				"changedTitle",
 				"moved",
+				"movedFromOtherProject",
 				"created",
 				"githubUser",
 				"comment"
@@ -10617,6 +10621,9 @@
 						},
 						"subtaskLevel": {
 							"type": "string"
+						},
+						"subtasksLoadError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -10625,7 +10632,8 @@
 						"noTasks",
 						"expandSubtasks",
 						"collapseSubtasks",
-						"subtaskLevel"
+						"subtaskLevel",
+						"subtasksLoadError"
 					]
 				},
 				"kanban": {
@@ -12027,6 +12035,9 @@
 						"allProjectsDescription": {
 							"type": "string"
 						},
+						"allProjectsUnavailable": {
+							"type": "string"
+						},
 						"selectedProjects": {
 							"type": "string"
 						},
@@ -12037,6 +12048,9 @@
 							"type": "string"
 						},
 						"noProjects": {
+							"type": "string"
+						},
+						"archived": {
 							"type": "string"
 						},
 						"selectAtLeastOne": {
@@ -12084,10 +12098,12 @@
 						"description",
 						"allProjects",
 						"allProjectsDescription",
+						"allProjectsUnavailable",
 						"selectedProjects",
 						"selectedProjectsDescription",
 						"projectsLabel",
 						"noProjects",
+						"archived",
 						"selectAtLeastOne",
 						"editAria",
 						"dialogTitle",

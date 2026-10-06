@@ -600,6 +600,10 @@ export function useProjectWebSocket(projectId: string) {
             void queryClient.invalidateQueries({
               queryKey: ["tasks", projectId],
             });
+            // The hierarchy has no message to refresh it while polling.
+            void queryClient.invalidateQueries({
+              queryKey: ["task-relations", "project", projectId],
+            });
           }, 30_000);
           flushPending();
         }
@@ -629,6 +633,11 @@ export function useProjectWebSocket(projectId: string) {
           markBoardCacheChanged(queryClient, projectId);
           void queryClient.invalidateQueries({
             queryKey: ["tasks", projectId],
+          });
+          // A relation change missed while the socket was down reaches the
+          // list's hierarchy through no message, so it is refetched too.
+          void queryClient.invalidateQueries({
+            queryKey: ["task-relations", "project", projectId],
           });
         }
         const messages = Array.from(pendingMessages.values());

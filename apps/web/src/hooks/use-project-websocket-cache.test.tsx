@@ -168,9 +168,13 @@ it("reconciles the initial handshake after active pagination completes", async (
     query: { queryKey: ["tasks", "p"], state: { fetchStatus: "idle" } },
   });
   await Promise.resolve();
-  expect(mocks.client.invalidateQueries).toHaveBeenCalledExactlyOnceWith({
-    queryKey: ["tasks", "p"],
-  });
+  // The board once, plus the subtask hierarchy, which a missed relation
+  // change would otherwise leave stale.
+  const keys = mocks.client.invalidateQueries.mock.calls.map(
+    ([filters]) => (filters as { queryKey?: unknown[] })?.queryKey,
+  );
+  expect(keys.filter((key) => key?.[0] === "tasks")).toEqual([["tasks", "p"]]);
+  expect(keys).toContainEqual(["task-relations", "project", "p"]);
 });
 it("preserves distinct task effects across pagination and a disconnect before replay", async () => {
   vi.useFakeTimers();

@@ -2847,7 +2847,8 @@
 			"noTasks": "Brak zadań",
 			"collapseSubtasks": "Ukryj podzadania {{title}}",
 			"expandSubtasks": "Pokaż podzadania {{title}}",
-			"subtaskLevel": "Podzadanie, poziom {{level}}"
+			"subtaskLevel": "Podzadanie, poziom {{level}}",
+			"subtasksLoadError": "Nie udało się wczytać podzadań, więc zadania są wyświetlane bez hierarchii."
 		},
 		"move": {
 			"action": "Przenieś zadanie",

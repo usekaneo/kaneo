@@ -2603,7 +2603,8 @@
 			"noTasks": "작업 없음",
 			"collapseSubtasks": "{{title}}의 하위 작업 숨기기",
 			"expandSubtasks": "{{title}}의 하위 작업 표시",
-			"subtaskLevel": "하위 작업, {{level}}단계"
+			"subtaskLevel": "하위 작업, {{level}}단계",
+			"subtasksLoadError": "하위 작업을 불러오지 못해 작업을 계층 없이 표시합니다."
 		},
 		"kanban": {
 			"addTask": "작업 추가",

@@ -2602,7 +2602,8 @@
 			"noTasks": "Keine Aufgaben",
 			"collapseSubtasks": "Teilaufgaben von {{title}} ausblenden",
 			"expandSubtasks": "Teilaufgaben von {{title}} anzeigen",
-			"subtaskLevel": "Teilaufgabe, Ebene {{level}}"
+			"subtaskLevel": "Teilaufgabe, Ebene {{level}}",
+			"subtasksLoadError": "Teilaufgaben konnten nicht geladen werden, daher werden Aufgaben ohne Hierarchie angezeigt."
 		},
 		"kanban": {
 			"addTask": "Aufgabe hinzufügen",

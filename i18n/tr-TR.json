@@ -2602,7 +2602,8 @@
 			"noTasks": "Talep yok",
 			"collapseSubtasks": "{{title}} alt taleplerini gizle",
 			"expandSubtasks": "{{title}} alt taleplerini göster",
-			"subtaskLevel": "Alt talep, seviye {{level}}"
+			"subtaskLevel": "Alt talep, seviye {{level}}",
+			"subtasksLoadError": "Alt talepler yüklenemedi, bu yüzden görevler hiyerarşi olmadan gösteriliyor."
 		},
 		"kanban": {
 			"addTask": "Talep ekle",

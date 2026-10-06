@@ -21,6 +21,23 @@ describe("readExpandedRows", () => {
     expect(readExpandedRows("p1")).toEqual({ a: true, "a/b": true });
   });
 
+  // Collapsed rows used to be saved as false and never pruned, so the stored
+  // map grew with every row the viewer had ever touched.
+  it("stores only expanded rows", () => {
+    writeExpandedRows("p1", { a: true, b: false });
+
+    expect(
+      JSON.parse(localStorage.getItem(expandedRowsStorageKey("p1")) ?? "{}"),
+    ).toEqual({ a: true });
+  });
+
+  it("removes the key once nothing is expanded", () => {
+    writeExpandedRows("p1", { a: true });
+    writeExpandedRows("p1", { a: false });
+
+    expect(localStorage.getItem(expandedRowsStorageKey("p1"))).toBeNull();
+  });
+
   it("keeps projects apart", () => {
     writeExpandedRows("p1", { a: true });
 
