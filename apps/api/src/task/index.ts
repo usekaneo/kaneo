@@ -852,7 +852,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const { projectId } = c.req.valid("param");
     const filters = c.req.valid("query") || {};
 
-    const tasks = await getTasks(projectId, filters);
+    const tasks = await getTasks(projectId, filters, c.get("userId"));
 
     return c.json(tasks, 200);
   })
@@ -977,7 +977,11 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskRoute, async (c) => {
     const { id } = c.req.valid("param");
 
-    const task = await getTask(id, c.req.valid("query").view === "board");
+    const task = await getTask(
+      id,
+      c.req.valid("query").view === "board",
+      c.get("userId"),
+    );
 
     return c.json(task, 200);
   })

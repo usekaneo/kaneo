@@ -23,7 +23,7 @@ import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-st
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import type getProjects from "@/fetchers/project/get-projects";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
-import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
@@ -70,9 +70,10 @@ export default function TaskCardContextMenuContent({
           icon: col.icon,
           isFinal: col.isFinal,
         }));
-  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
-    taskCardContext.worskpaceId,
-  );
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: taskCardContext.worskpaceId,
+    projectId: taskCardContext.projectId,
+  });
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
@@ -89,13 +90,13 @@ export default function TaskCardContextMenuContent({
   const canAssign = canAssignTasks();
 
   const usersOptions = useMemo(() => {
-    return workspaceUsers?.members?.map((member) => ({
-      label: member?.user?.name ?? member.userId,
-      value: member.userId,
-      image: member?.user?.image ?? "",
-      name: member?.user?.name ?? "",
+    return projectMembers?.map((member) => ({
+      label: member.name || member.email,
+      value: member.id,
+      image: member.image ?? "",
+      name: member.name,
     }));
-  }, [workspaceUsers]);
+  }, [projectMembers]);
 
   const handleCopyTaskLink = () => {
     const path = getTaskPath({

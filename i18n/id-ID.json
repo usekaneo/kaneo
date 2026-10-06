@@ -2224,7 +2224,8 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "berkomentar di {{forge}}"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "Tugas",
@@ -2776,7 +2777,14 @@
 			},
 			"noDueDate": "Tanpa tenggat",
 			"reorderHandle": "Ubah urutan proyek",
-			"reorderError": "Gagal mengubah urutan proyek"
+			"reorderError": "Gagal mengubah urutan proyek",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "Cari",
@@ -2902,7 +2910,8 @@
 				"name": "Nama",
 				"role": "Peran",
 				"joined": "Bergabung",
-				"actions": "Aksi"
+				"actions": "Aksi",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (Tertunda)",
 			"ariaCancelInvitation": "Batalkan undangan",
@@ -2920,6 +2929,26 @@
 			"roleUpdateSuccess": "Peran diperbarui",
 			"roleUpdateError": "Gagal memperbarui peran",
 			"ariaInvitationActions": "Tindakan undangan"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

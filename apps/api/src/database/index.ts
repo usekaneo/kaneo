@@ -77,6 +77,8 @@ import {
   workflowRuleTable,
   workspaceBillingTable,
   workspaceRoleTable,
+  workspaceMemberAccessTable,
+  workspaceMemberProjectTable,
   workspaceTable,
   workspaceUserTable,
 } from "./schema";
@@ -123,6 +125,8 @@ export const schema = {
   verificationTable,
   workflowRuleTable,
   workspaceRoleTable,
+  workspaceMemberAccessTable,
+  workspaceMemberProjectTable,
   workspaceTable,
   workspaceUserTable,
   accountTableRelations,

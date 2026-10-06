@@ -14,11 +14,13 @@ import {
   userTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { contentReferencesAsset } from "../../storage/cleanup-assets";
 import { copyTaskAssetObject, deleteS3Object } from "../../storage/s3";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import {
-  assertAssignableUser,
   filterAssignableUsers,
+  NOT_ASSIGNABLE,
 } from "../../utils/assert-assignable-user";
 import { nextOccurrenceDates } from "../recurrence/next-occurrence-date";
 import { taskIsCompleted } from "../task-is-completed";
@@ -184,14 +186,21 @@ async function duplicateTask({
   // A manual copy reports a departed assignee; an occurrence goes unassigned
   // so the series keeps going.
   let userId = sourceTask.userId;
-  if (userId && occurrence) {
-    const assignable = await filterAssignableUsers(
+  if (userId) {
+    const members = await filterAssignableUsers([userId], project.workspaceId);
+    if (!members.has(userId)) {
+      if (!occurrence) {
+        throw new HTTPException(403, { message: NOT_ASSIGNABLE });
+      }
+      userId = null;
+    }
+  }
+  if (userId) {
+    const permitted = await filterUsersWithProjectAccess(
       [userId],
-      project.workspaceId,
+      sourceTask.projectId,
     );
-    if (!assignable.has(userId)) userId = null;
-  } else if (userId) {
-    await assertAssignableUser(userId, project.workspaceId);
+    if (!permitted.has(userId)) userId = null;
   }
   const column = await db.query.columnTable.findFirst({
     where: and(
@@ -273,6 +282,7 @@ async function duplicateTask({
         eq(taskRelationTable.targetTaskId, sourceTask.id),
         eq(projectTable.workspaceId, project.workspaceId),
         eq(taskRelationTable.relationType, "subtask"),
+        projectAccessCondition(currentUserId, taskTable.projectId),
       ),
     );
 

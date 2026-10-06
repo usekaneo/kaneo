@@ -8,6 +8,7 @@ import {
   evictWorkspaceCache,
 } from "@/lib/evict-workspace-cache";
 import { authClient } from "@/lib/auth-client";
+import { reconcileProjectAccess } from "@/lib/reconcile-project-access";
 
 export function getUserWsUrl() {
   const base = getApiUrl("ws");
@@ -109,6 +110,8 @@ export function useUserWebSocket() {
             message.workspaceIds.every((id) => typeof id === "string")
           ) {
             evictInaccessibleWorkspaceCache(queryClient, message.workspaceIds);
+            for (const workspaceId of message.workspaceIds)
+              reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
             refreshOrganizationState();
             const path = pathnameRef.current;
             const current =
@@ -131,6 +134,23 @@ export function useUserWebSocket() {
                 : path.match(/^\/dashboard\/workspace\/([^/]+)/)?.[1];
             if (current === message.workspaceId)
               void navigate({ to: "/dashboard" });
+          }
+          if (
+            message.type === "PROJECT_ACCESS_CHANGED" &&
+            message.workspaceId
+          ) {
+            const { workspaceId } = message;
+            for (const queryKey of [
+              ["projects", workspaceId],
+              ["assigned-tasks", workspaceId],
+              ["search", { workspaceId }],
+              ["workspace-activity", workspaceId],
+              ["labels", workspaceId],
+              ["workspace-users", workspaceId, "project-access"],
+              ["notifications"],
+            ])
+              void queryClient.invalidateQueries({ queryKey });
+            reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
           }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });

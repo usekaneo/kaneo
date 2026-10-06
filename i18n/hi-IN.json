@@ -2236,7 +2236,8 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}} पर टिप्पणी की"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "कार्य",
@@ -2797,7 +2798,14 @@
 			},
 			"noDueDate": "कोई नियत तारीख नहीं",
 			"reorderHandle": "प्रोजेक्ट का क्रम बदलें",
-			"reorderError": "प्रोजेक्ट का क्रम बदलने में विफल"
+			"reorderError": "प्रोजेक्ट का क्रम बदलने में विफल",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "खोजें",
@@ -2927,7 +2935,8 @@
 				"name": "नाम",
 				"role": "भूमिका",
 				"joined": "शामिल हुए",
-				"actions": "कार्रवाइयाँ"
+				"actions": "कार्रवाइयाँ",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (लंबित)",
 			"ariaCancelInvitation": "निमंत्रण रद्द करें",
@@ -2945,6 +2954,27 @@
 			"cancelInviteError": "निमंत्रण रद्द करने में विफल",
 			"roleUpdateSuccess": "भूमिका अपडेट की गई",
 			"roleUpdateError": "भूमिका अपडेट करने में विफल"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_one": "{{count}} project",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

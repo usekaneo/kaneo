@@ -2248,7 +2248,8 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "comentou no {{forge}}"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "Tarefas",
@@ -2818,7 +2819,14 @@
 			},
 			"noDueDate": "Sem data de vencimento",
 			"reorderHandle": "Reordenar projeto",
-			"reorderError": "Falha ao reordenar os projetos"
+			"reorderError": "Falha ao reordenar os projetos",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "Buscar",
@@ -2952,7 +2960,8 @@
 				"name": "Nome",
 				"role": "Função",
 				"joined": "Entrou em",
-				"actions": "Ações"
+				"actions": "Ações",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (Pendente)",
 			"ariaCancelInvitation": "Cancelar convite",
@@ -2970,6 +2979,28 @@
 			"cancelInviteError": "Falha ao cancelar convite",
 			"roleUpdateSuccess": "Função atualizada",
 			"roleUpdateError": "Falha ao atualizar função"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_many": "{{count}} projects",
+			"projectCount_one": "{{count}} project",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

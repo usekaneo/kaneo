@@ -74,6 +74,9 @@ vi.mock(
     useGetActiveWorkspaceUsers: () => ({ data: undefined }),
   }),
 );
+vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
+  default: () => ({ data: undefined }),
+}));
 vi.mock("@/lib/toast", () => ({
   toast: {
     error: vi.fn(),

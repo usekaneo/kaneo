@@ -181,12 +181,19 @@ const deleteCommentRoute = createRoute({
 
 const activity = apiRouter()
   .openapi(getWorkspaceActivitiesRoute, async (c) =>
-    c.json(await getWorkspaceActivities(c.req.valid("param").workspaceId), 200),
+    c.json(
+      await getWorkspaceActivities(
+        c.req.valid("param").workspaceId,
+        c.get("userId"),
+      ),
+      200,
+    ),
   )
   .openapi(getActivitiesRoute, async (c) =>
     c.json(
       await getActivities(
         c.req.valid("param").taskId,
+        c.get("userId"),
         c.req.valid("query").limit,
       ),
       200,

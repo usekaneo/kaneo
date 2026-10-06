@@ -10763,9 +10763,12 @@
 					"properties": {
 						"addTask": {
 							"type": "string"
+						},
+						"automaticallySortedHint": {
+							"type": "string"
 						}
 					},
-					"required": ["addTask"]
+					"required": ["addTask", "automaticallySortedHint"]
 				},
 				"pr": {
 					"type": "object",
@@ -11574,6 +11577,34 @@
 						},
 						"reorderError": {
 							"type": "string"
+						},
+						"unavailable": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"noAccessTitle": {
+									"type": "string"
+								},
+								"noAccessDescription": {
+									"type": "string"
+								},
+								"notFoundTitle": {
+									"type": "string"
+								},
+								"notFoundDescription": {
+									"type": "string"
+								},
+								"backToWorkspace": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"noAccessTitle",
+								"noAccessDescription",
+								"notFoundTitle",
+								"notFoundDescription",
+								"backToWorkspace"
+							]
 						}
 					},
 					"required": [
@@ -11590,7 +11621,8 @@
 						"projectStatus",
 						"noDueDate",
 						"reorderHandle",
-						"reorderError"
+						"reorderError",
+						"unavailable"
 					]
 				},
 				"search": {
@@ -12113,9 +12145,12 @@
 								},
 								"actions": {
 									"type": "string"
+								},
+								"projects": {
+									"type": "string"
 								}
 							},
-							"required": ["name", "role", "joined", "actions"]
+							"required": ["name", "role", "joined", "actions", "projects"]
 						},
 						"memberRolePending": {
 							"type": "string"
@@ -12187,6 +12222,92 @@
 						"roleUpdateSuccess",
 						"roleUpdateError"
 					]
+				},
+				"projectAccess": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"label": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"allProjects": {
+							"type": "string"
+						},
+						"allProjectsDescription": {
+							"type": "string"
+						},
+						"selectedProjects": {
+							"type": "string"
+						},
+						"selectedProjectsDescription": {
+							"type": "string"
+						},
+						"projectsLabel": {
+							"type": "string"
+						},
+						"noProjects": {
+							"type": "string"
+						},
+						"selectAtLeastOne": {
+							"type": "string"
+						},
+						"projectCount_one": {
+							"type": "string"
+						},
+						"projectCount_zero": {
+							"type": "string"
+						},
+						"projectCount_two": {
+							"type": "string"
+						},
+						"projectCount_few": {
+							"type": "string"
+						},
+						"projectCount_many": {
+							"type": "string"
+						},
+						"projectCount_other": {
+							"type": "string"
+						},
+						"editAria": {
+							"type": "string"
+						},
+						"dialogTitle": {
+							"type": "string"
+						},
+						"dialogDescription": {
+							"type": "string"
+						},
+						"save": {
+							"type": "string"
+						},
+						"updateSuccess": {
+							"type": "string"
+						},
+						"updateError": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"label",
+						"description",
+						"allProjects",
+						"allProjectsDescription",
+						"selectedProjects",
+						"selectedProjectsDescription",
+						"projectsLabel",
+						"noProjects",
+						"selectAtLeastOne",
+						"editAria",
+						"dialogTitle",
+						"dialogDescription",
+						"save",
+						"updateSuccess",
+						"updateError"
+					]
 				}
 			},
 			"required": [
@@ -12194,7 +12315,8 @@
 				"members",
 				"invitations",
 				"inviteModal",
-				"membersTable"
+				"membersTable",
+				"projectAccess"
 			]
 		},
 		"publicProject": {

@@ -119,6 +119,7 @@ async function createTask({
     await assertAssignableUser(
       normalizedUserId,
       await getProjectWorkspaceId(projectId),
+      projectId,
     );
 
     [assignee] = await db
