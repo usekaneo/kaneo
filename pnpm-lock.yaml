@@ -74,8 +74,8 @@ importers:
         specifier: ^21.2.3
         version: 21.2.3
       '@semantic-release/changelog':
-        specifier: ^6.0.3
-        version: 6.0.3(semantic-release@24.2.9(typescript@7.0.2))
+        specifier: ^7.0.0
+        version: 7.0.0(semantic-release@24.2.9(typescript@7.0.2))
       '@semantic-release/exec':
         specifier: ^7.1.0
         version: 7.1.0(semantic-release@24.2.9(typescript@7.0.2))
@@ -3867,11 +3867,11 @@ packages:
   '@selderee/plugin-htmlparser2@0.11.0':
     resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
 
-  '@semantic-release/changelog@6.0.3':
-    resolution: {integrity: sha512-dZuR5qByyfe3Y03TpmCvAxCyTnp7r5XwtHRf/8vD9EAn4ZWbavUX8adMtXYzE86EVh0gyLA7lm5yW4IV30XUag==}
-    engines: {node: '>=14.17'}
+  '@semantic-release/changelog@7.0.0':
+    resolution: {integrity: sha512-TNPyag5db24o7jWjre7UwKB4EcL8oJxbRhnDQ7hmZRAYqzreAc6PgdxQuU3pppp5xQinYtiumL0iG8SSKvnlzg==}
+    engines: {node: ^22.22.2 || >=24.15}
     peerDependencies:
-      semantic-release: '>=18.0.0'
+      semantic-release: '>=20.1.0'
 
   '@semantic-release/commit-analyzer@13.0.1':
     resolution: {integrity: sha512-wdnBPHKkr9HhNhXOhZD5a2LNl91+hs8CC2vsAVYxtZH3y0dV3wKn+uZSN61rdJQZ8EGxzWB3inWocBHV9+u/CQ==}
@@ -12525,12 +12525,11 @@ snapshots:
       domhandler: 5.0.3
       selderee: 0.11.0
 
-  '@semantic-release/changelog@6.0.3(semantic-release@24.2.9(typescript@7.0.2))':
+  '@semantic-release/changelog@7.0.0(semantic-release@24.2.9(typescript@7.0.2))':
     dependencies:
-      '@semantic-release/error': 3.0.0
-      aggregate-error: 3.1.0
-      fs-extra: 11.3.3
-      lodash: 4.18.1
+      '@semantic-release/error': 4.0.0
+      aggregate-error: 5.0.0
+      lodash-es: 4.18.1
       semantic-release: 24.2.9(typescript@7.0.2)
 
   '@semantic-release/commit-analyzer@13.0.1(semantic-release@24.2.9(typescript@7.0.2))':
