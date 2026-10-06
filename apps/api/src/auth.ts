@@ -49,6 +49,7 @@ import { applyInvitationProjectAccess } from "./project-access/apply-invitation-
 import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
 import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
 import { isOwnerRole } from "./project-access/is-owner-role";
+import { publishMemberProjects } from "./project-access/publish-member-projects";
 import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
@@ -565,6 +566,14 @@ export const auth = betterAuth({
         beforeAcceptInvitation: async ({ invitation, user }) => {
           await applyInvitationProjectAccess(invitation, user.id);
         },
+        afterAcceptInvitation: async ({ member }) => {
+          await publishMemberProjects(
+            member.organizationId,
+            member.userId,
+          ).catch((error) => {
+            console.error("Project member refresh failed:", error);
+          });
+        },
         afterUpdateMemberRole: async ({ member }) => {
           if (!isOwnerRole(member.role)) return;
           await clearMemberProjectAccess(member.organizationId, member.userId)
@@ -580,6 +589,12 @@ export const auth = betterAuth({
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
+            await publishMemberProjects(
+              member.organizationId,
+              member.userId,
+            ).catch((error) => {
+              console.error("Project member refresh failed:", error);
+            });
             void syncWorkspaceSeats(member.organizationId).catch((error) => {
               console.error("Seat sync after member add failed:", error);
             });
@@ -592,6 +607,9 @@ export const auth = betterAuth({
               member.userId,
             ).catch((error) => {
               console.error("Project access cleanup failed:", error);
+            });
+            await publishEvent("project_members.updated", {
+              workspaceId: member.organizationId,
             });
             if (!hasInstanceAdminRole(user.role)) {
               await revokeWorkspaceConnections(

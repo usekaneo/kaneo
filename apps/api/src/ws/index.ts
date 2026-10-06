@@ -791,6 +791,18 @@ subscribeToEvent<{ notificationId: string; userId: string }>(
   },
 );
 
+async function broadcastProjectMembersUpdated(
+  workspaceId: string,
+  projectIds?: string[],
+) {
+  for (const projectId of projectIds ??
+    (await listWorkspaceProjectIds(workspaceId)))
+    broadcastToProject(projectId, {
+      type: "PROJECT_MEMBERS_UPDATED",
+      projectId,
+    });
+}
+
 subscribeToEvent<{
   workspaceId: string;
   userId: string;
@@ -800,13 +812,16 @@ subscribeToEvent<{
   const message = { type: "PROJECT_ACCESS_CHANGED", workspaceId };
   deliverToLocalUserConnections(userId, message);
   await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
-  for (const projectId of projectIds ??
-    (await listWorkspaceProjectIds(workspaceId)))
-    broadcastToProject(projectId, {
-      type: "PROJECT_MEMBERS_UPDATED",
-      projectId,
-    });
+  await broadcastProjectMembersUpdated(workspaceId, projectIds);
 });
+
+subscribeToEvent<{ workspaceId: string; projectIds?: string[] }>(
+  "project_members.updated",
+  async ({ workspaceId, projectIds }) => {
+    if (!workspaceId) return;
+    await broadcastProjectMembersUpdated(workspaceId, projectIds);
+  },
+);
 
 subscribeToEvent<{
   projectId: string;
