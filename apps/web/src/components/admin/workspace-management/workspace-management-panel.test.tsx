@@ -327,20 +327,19 @@ describe("WorkspaceManagementPanel", () => {
     expect(mocks.transfer).not.toHaveBeenCalled();
   });
 
-  it("does not offer ownership to the only owner", async () => {
-    await openAcme();
-    openMemberMenu("Ada Lovelace");
+  it("offers no member actions for the only owner", async () => {
+    const dialog = await openAcme();
 
     expect(
-      await screen.findByRole("menuitem", {
-        name: "settings:adminWorkspaces.members.remove",
-      }),
-    ).toBeTruthy();
-    expect(
-      screen.queryByRole("menuitem", {
-        name: "settings:adminWorkspaces.members.makeOwner",
+      within(dialog).queryByRole("button", {
+        name: "settings:adminWorkspaces.members.actions|Ada Lovelace",
       }),
     ).toBeNull();
+    expect(
+      within(dialog).getByRole("button", {
+        name: "settings:adminWorkspaces.members.actions|Grace Hopper",
+      }),
+    ).toBeTruthy();
   });
 
   it("changes a member's role", async () => {

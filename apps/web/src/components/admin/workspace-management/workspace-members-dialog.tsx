@@ -119,16 +119,17 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
         <DialogPanel>
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs text-muted-foreground">
-                {members
-                  ? t("settings:adminWorkspaces.members.count", {
-                      count: members.length,
-                    })
-                  : null}
-              </p>
+              {members ? (
+                <p className="text-xs text-muted-foreground">
+                  {t("settings:adminWorkspaces.members.count", {
+                    count: members.length,
+                  })}
+                </p>
+              ) : null}
               <Button
                 type="button"
                 size="sm"
+                className="ms-auto"
                 disabled={!members}
                 onClick={() => setIsAddOpen(true)}
               >
@@ -225,7 +226,7 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
                               member.role,
                             )}
                             access={access}
-                            canMakeOwner={!isOwner || ownerCount > 1}
+                            isOnlyOwner={isOwner && ownerCount === 1}
                             isUpdatingRole={
                               updateRole.isPending &&
                               updateRole.variables?.userId === member.userId

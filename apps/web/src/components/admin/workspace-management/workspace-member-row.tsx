@@ -28,7 +28,7 @@ type Props = {
   member: AdminWorkspaceMember;
   roleOptions: readonly string[];
   access: ProjectAccessValue | undefined;
-  canMakeOwner: boolean;
+  isOnlyOwner: boolean;
   isUpdatingRole: boolean;
   onRoleChange: (role: string) => void;
   onEditAccess: () => void;
@@ -40,7 +40,7 @@ function WorkspaceMemberRow({
   member,
   roleOptions,
   access,
-  canMakeOwner,
+  isOnlyOwner,
   isUpdatingRole,
   onRoleChange,
   onEditAccess,
@@ -126,37 +126,35 @@ function WorkspaceMemberRow({
         {formatDateMedium(member.joinedAt)}
       </TableCell>
       <TableCell className="py-3 text-right">
-        <Menu>
-          <MenuTrigger
-            render={
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={t("settings:adminWorkspaces.members.actions", {
-                  name,
-                })}
-              />
-            }
-          >
-            <EllipsisIcon aria-hidden="true" />
-          </MenuTrigger>
-          <MenuPopup align="end">
-            {canMakeOwner ? (
-              <>
-                <MenuItem closeOnClick onClick={onMakeOwner}>
-                  <CrownIcon aria-hidden="true" />
-                  {t("settings:adminWorkspaces.members.makeOwner")}
-                </MenuItem>
-                <MenuSeparator />
-              </>
-            ) : null}
-            <MenuItem closeOnClick variant="destructive" onClick={onRemove}>
-              <UserMinusIcon aria-hidden="true" />
-              {t("settings:adminWorkspaces.members.remove")}
-            </MenuItem>
-          </MenuPopup>
-        </Menu>
+        {isOnlyOwner ? null : (
+          <Menu>
+            <MenuTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t("settings:adminWorkspaces.members.actions", {
+                    name,
+                  })}
+                />
+              }
+            >
+              <EllipsisIcon aria-hidden="true" />
+            </MenuTrigger>
+            <MenuPopup align="end">
+              <MenuItem closeOnClick onClick={onMakeOwner}>
+                <CrownIcon aria-hidden="true" />
+                {t("settings:adminWorkspaces.members.makeOwner")}
+              </MenuItem>
+              <MenuSeparator />
+              <MenuItem closeOnClick variant="destructive" onClick={onRemove}>
+                <UserMinusIcon aria-hidden="true" />
+                {t("settings:adminWorkspaces.members.remove")}
+              </MenuItem>
+            </MenuPopup>
+          </Menu>
+        )}
       </TableCell>
     </TableRow>
   );
