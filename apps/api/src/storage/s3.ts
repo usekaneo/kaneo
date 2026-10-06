@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Readable } from "node:stream";
 import {
   CopyObjectCommand,
@@ -193,6 +194,12 @@ function getMaxImageUploadBytes() {
   );
 }
 
+// Secret fingerprint for the cache key so a rotated secret never reuses a
+// cached client, without exposing the secret in the key string.
+function credentialFingerprint(secretAccessKey: string) {
+  return createHash("sha256").update(secretAccessKey).digest("hex");
+}
+
 function getClient(config: StorageConfig, presign = false) {
   // Presigning is offline signing math: no request is sent to the endpoint.
   // When a public base URL is set, sign against that host so the browser can
@@ -211,6 +218,7 @@ function getClient(config: StorageConfig, presign = false) {
     accessKeyId: config.accessKeyId,
     bucket: config.bucket,
     forcePathStyle,
+    secretFingerprint: credentialFingerprint(config.secretAccessKey),
   });
 
   const cached = clientCache.get(cacheKey);
