@@ -1,4 +1,6 @@
-import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
+import { and, inArray } from "drizzle-orm";
+import db, { schema } from "../database";
+import { projectAccessCondition } from "../project-access/project-access-condition";
 
 type MoveData = Record<string, unknown>;
 
@@ -29,9 +31,22 @@ export async function redactInaccessibleMoves<
         )
       : [];
   });
-  const hidden = new Set(
-    await findInaccessibleProjectIds(viewerId, projectIds),
+  const referenced = [...new Set(projectIds)];
+  if (referenced.length === 0) return rows;
+  const visible = new Set(
+    (
+      await db
+        .select({ id: schema.projectTable.id })
+        .from(schema.projectTable)
+        .where(
+          and(
+            inArray(schema.projectTable.id, referenced),
+            projectAccessCondition(viewerId, schema.projectTable.id),
+          ),
+        )
+    ).map((project) => project.id),
   );
+  const hidden = new Set(referenced.filter((id) => !visible.has(id)));
   if (hidden.size === 0) return rows;
 
   return rows.map((row) => {

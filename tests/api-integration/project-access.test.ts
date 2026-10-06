@@ -254,24 +254,33 @@ describe("project access enforcement", () => {
     });
     expect(moved.status).toBe(200);
 
-    mockAuthenticatedSession(betaOnly);
-    await vi.waitFor(async () => {
-      const response = await projectAccessApi()(
-        `/activity/${ctx.alphaTask.id}`,
-      );
-      const activities = (await response.json()) as {
-        type: string;
-        eventData: Record<string, unknown> | null;
-      }[];
-      expect(
-        activities.find((activity) => activity.type === "moved")?.eventData,
-      ).toMatchObject({
-        fromProjectId: null,
-        fromProjectName: null,
-        toProjectId: ctx.beta.id,
-        toProjectName: "Beta",
+    const expectHiddenSource = () =>
+      vi.waitFor(async () => {
+        mockAuthenticatedSession(betaOnly);
+        const response = await projectAccessApi()(
+          `/activity/${ctx.alphaTask.id}`,
+        );
+        const activities = (await response.json()) as {
+          type: string;
+          eventData: Record<string, unknown> | null;
+        }[];
+        expect(
+          activities.find((activity) => activity.type === "moved")?.eventData,
+        ).toMatchObject({
+          fromProjectId: null,
+          fromProjectName: null,
+          toProjectId: ctx.beta.id,
+          toProjectName: "Beta",
+        });
       });
+    await expectHiddenSource();
+
+    mockAuthenticatedSession(ctx.owner);
+    const deleted = await projectAccessApi()(`/project/${ctx.alpha.id}`, {
+      method: "DELETE",
     });
+    expect(deleted.status).toBe(200);
+    await expectHiddenSource();
   });
 
   it("keeps tasks editable after their assignee loses access", async () => {
