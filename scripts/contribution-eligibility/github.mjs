@@ -33,8 +33,22 @@ export class GitHub {
       throw new Error(`GitHub request failed (${response.status}).`);
     }
     const result = await response.json();
-    if (result.errors?.length)
-      throw new Error("GitHub GraphQL request failed.");
+    if (result.errors?.length) {
+      const details = result.errors
+        .map((error) =>
+          [error?.type, error?.message]
+            .filter((value) => typeof value === "string")
+            .join(": "),
+        )
+        .join("; ")
+        .replaceAll(this.token, "[redacted]")
+        .replace(/\p{Cc}/gu, " ")
+        .slice(0, 1_000)
+        .trim();
+      throw new Error(
+        `GitHub GraphQL request failed: ${details || "No error details returned."}`,
+      );
+    }
     return result;
   }
 
