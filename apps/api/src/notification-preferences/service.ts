@@ -9,6 +9,7 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
+import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
 import { projectAccessCondition } from "../project-access/project-access-condition";
 import { decryptSecret, encryptSecret } from "./secrets";
 
@@ -190,6 +191,14 @@ export async function getNotificationPreferences(
     },
     orderBy: (table, { asc }) => [asc(table.createdAt)],
   });
+  const hiddenProjectIds = new Set(
+    await findInaccessibleProjectIds(
+      userId,
+      rules.flatMap((rule) =>
+        rule.selectedProjects.map((project) => project.projectId),
+      ),
+    ),
+  );
 
   return {
     emailAddress,
@@ -231,9 +240,9 @@ export async function getNotificationPreferences(
       webhookEnabled: rule.webhookEnabled ?? false,
       projectMode:
         rule.projectMode === "selected" ? "selected" : ("all" as const),
-      selectedProjectIds: rule.selectedProjects.map(
-        (project) => project.projectId,
-      ),
+      selectedProjectIds: rule.selectedProjects
+        .map((project) => project.projectId)
+        .filter((projectId) => !hiddenProjectIds.has(projectId)),
       createdAt: rule.createdAt,
       updatedAt: rule.updatedAt,
     })),
