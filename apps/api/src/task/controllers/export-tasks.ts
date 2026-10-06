@@ -7,6 +7,7 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { visibleTaskFilter } from "../../utils/task-visibility";
 
 async function exportTasks(projectId: string, assigneeId?: string) {
   const project = await db.query.projectTable.findFirst({
@@ -40,7 +41,7 @@ async function exportTasks(projectId: string, assigneeId?: string) {
     .where(
       and(
         eq(taskTable.projectId, projectId),
-        assigneeId ? eq(taskTable.userId, assigneeId) : undefined,
+        assigneeId ? visibleTaskFilter(assigneeId) : undefined,
       ),
     )
     .orderBy(taskTable.position);

@@ -1,6 +1,7 @@
 import { and, eq, isNull, or } from "drizzle-orm";
 import db from "../../database";
 import { labelTable, taskTable } from "../../database/schema";
+import { visibleTaskFilter } from "../../utils/task-visibility";
 
 async function getLabelsByWorkspaceId(
   workspaceId: string,
@@ -20,7 +21,7 @@ async function getLabelsByWorkspaceId(
     .where(
       and(
         eq(labelTable.workspaceId, workspaceId),
-        or(isNull(labelTable.taskId), eq(taskTable.userId, assigneeId)),
+        or(isNull(labelTable.taskId), visibleTaskFilter(assigneeId)),
       ),
     );
   return rows.map((row) => row.label);

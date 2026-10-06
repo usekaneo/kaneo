@@ -6,6 +6,7 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { visibleTaskFilter } from "../../utils/task-visibility";
 
 async function getTaskRelations(
   taskId: string,
@@ -67,7 +68,7 @@ async function getTaskRelations(
         and(
           inArray(taskTable.id, [...taskIds]),
           eq(projectTable.workspaceId, workspaceId),
-          assigneeId ? eq(taskTable.userId, assigneeId) : undefined,
+          assigneeId ? visibleTaskFilter(assigneeId) : undefined,
         ),
       );
 

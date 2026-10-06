@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { WSContext } from "hono/ws";
 import { subscribeToEvent } from "../events";
 import { isRedisConfigured } from "../redis";
+import { usersWhoCanSeeTasks } from "../utils/task-visibility";
 import type {
   BroadcastAdapter,
   BroadcastMessage,
@@ -113,11 +114,16 @@ export async function initializeWebSocketAdapter() {
 
   try {
     await nextAdapter.subscribe((msg: BroadcastMessage) => {
-      deliverToLocalConnections(
+      void deliverToLocalConnections(
         msg.projectId,
         msg.message,
         msg.excludeInitiatorId,
-      );
+      ).catch((err) => {
+        console.error(
+          `Failed to deliver broadcast for project ${msg.projectId}:`,
+          err,
+        );
+      });
     });
     await nextAdapter.subscribeToUser((msg: UserBroadcast) => {
       if (msg.origin === INSTANCE_ID) {
@@ -158,7 +164,7 @@ export async function shutdownWebSocketAdapter() {
   adapter = null;
 }
 
-function deliverToLocalConnections(
+async function deliverToLocalConnections(
   projectId: string,
   message: ProjectBroadcastMessage,
   excludeInitiatorId?: string,
@@ -166,9 +172,25 @@ function deliverToLocalConnections(
   const connections = projectConnections.get(projectId);
   if (!connections) return;
 
+  const recipients = [...connections].filter(
+    (conn) => !excludeInitiatorId || conn.initiatorId !== excludeInitiatorId,
+  );
+  if (recipients.length === 0) return;
+
+  // Members who cannot see a task must not learn its id from the realtime
+  // stream either, so the audience is narrowed before the message goes out.
+  const taskIds = [
+    message.taskId,
+    message.sourceTaskId,
+    message.targetTaskId,
+  ].filter((id): id is string => Boolean(id));
+  const allowedUserIds = await usersWhoCanSeeTasks(taskIds, [
+    ...new Set(recipients.map((conn) => conn.userId)),
+  ]);
+
   const payload = JSON.stringify(message);
-  for (const conn of connections) {
-    if (excludeInitiatorId && conn.initiatorId === excludeInitiatorId) continue;
+  for (const conn of recipients) {
+    if (!allowedUserIds.has(conn.userId)) continue;
     try {
       conn.ws.send(payload);
     } catch {

@@ -3,7 +3,7 @@ import { and, eq } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
-import { isInstanceAdmin } from "./is-instance-admin";
+import { isInstanceAdmin, isInstanceAdminUser } from "./is-instance-admin";
 
 type PermissionMap = Record<string, string[]>;
 
@@ -84,6 +84,22 @@ function satisfies(
   return true;
 }
 
+// Context-free counterpart of `hasWorkspacePermission`, for callers outside the
+// request pipeline (the WebSocket layer has no Hono context).
+export async function userHasWorkspacePermission(
+  userId: string,
+  workspaceId: string,
+  permissions: PermissionMap,
+): Promise<boolean> {
+  if (!userId || !workspaceId) return false;
+
+  if (await isInstanceAdminUser(userId)) {
+    return true;
+  }
+
+  return resolveMemberPermission(userId, workspaceId, permissions);
+}
+
 export async function hasWorkspacePermission(
   c: Context,
   permissions: PermissionMap,
@@ -105,6 +121,14 @@ export async function hasWorkspacePermission(
   const userId = c.get("userId");
   if (!userId) return false;
 
+  return resolveMemberPermission(userId, workspaceId, permissions);
+}
+
+async function resolveMemberPermission(
+  userId: string,
+  workspaceId: string,
+  permissions: PermissionMap,
+): Promise<boolean> {
   const [member] = await db
     .select({ role: schema.workspaceUserTable.role })
     .from(schema.workspaceUserTable)

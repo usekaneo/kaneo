@@ -20,10 +20,13 @@ async function createTask({
   dueDate,
   description,
   priority,
+  restrictedToAssigneeId,
 }: {
   projectId: string;
   currentUserId: string;
   userId?: string;
+  /** When set, the caller may only assign the task to this user. */
+  restrictedToAssigneeId?: string;
   title: string;
   status: string;
   startDate?: Date;
@@ -41,10 +44,18 @@ async function createTask({
   let assignee: { name: string } | undefined;
 
   if (normalizedUserId) {
+    // Assignability is checked first so an unknown user id answers the same way
+    // for every caller and cannot be used to probe which users exist.
     await assertAssignableUser(
       normalizedUserId,
       await getProjectWorkspaceId(projectId),
     );
+
+    if (restrictedToAssigneeId && normalizedUserId !== restrictedToAssigneeId) {
+      throw new HTTPException(403, {
+        message: "Handing a task to another member requires task:assign",
+      });
+    }
 
     [assignee] = await db
       .select({ name: userTable.name })

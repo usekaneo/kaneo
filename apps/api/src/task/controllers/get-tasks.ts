@@ -19,6 +19,7 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { visibleTaskFilter } from "../../utils/task-visibility";
 
 type GetTasksOptions = {
   assigneeId?: string;
@@ -36,6 +37,11 @@ type GetTasksOptions = {
     | "number";
   sortOrder?: "asc" | "desc";
   status?: string;
+  /**
+   * Restricts the result to the tasks this user is allowed to see. Separate
+   * from `assigneeId`, which is a caller-supplied filter the user can set.
+   */
+  visibleToAssigneeId?: string;
 };
 
 const priorityCaseExpr = sql<number>`CASE
@@ -91,6 +97,13 @@ async function getTasks(projectId: string, options: GetTasksOptions = {}) {
 
   if (options.assigneeId) {
     conditions.push(eq(taskTable.userId, options.assigneeId));
+  }
+
+  if (options.visibleToAssigneeId) {
+    const visibility = visibleTaskFilter(options.visibleToAssigneeId);
+    if (visibility) {
+      conditions.push(visibility);
+    }
   }
 
   if (options.dueBefore) {

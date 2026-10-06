@@ -53,7 +53,14 @@ vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
 vi.mock(
   "@/hooks/queries/workspace-users/use-get-active-workspace-users",
   () => ({
-    useGetActiveWorkspaceUsers: () => ({ data: { members: [] } }),
+    useGetActiveWorkspaceUsers: () => ({
+      data: {
+        members: [
+          { userId: "user-1", user: { name: "Me" } },
+          { userId: "user-2", user: { name: "Someone else" } },
+        ],
+      },
+    }),
   }),
 );
 
@@ -199,7 +206,7 @@ describe("CreateTaskModal", () => {
     });
   });
 
-  it("assigns the task to the creator when they cannot assign tasks", async () => {
+  it("offers only the creator as an assignee when they cannot assign tasks", async () => {
     canAssignTasks.mockReturnValue(false);
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
@@ -207,23 +214,27 @@ describe("CreateTaskModal", () => {
 
     render(<CreateTaskModal open onClose={vi.fn()} projectId="project-1" />);
 
+    fireEvent.click(screen.getByText("common:modals.createTask.assign"));
+
+    // Unassigned stays selectable, because the API keeps unclaimed tasks
+    // visible to restricted members.
     expect(
-      screen.getByText("common:modals.createTask.assign").closest("button"),
-    ).toBeDisabled();
+      await screen.findByText("common:modals.createTask.assignUnassigned"),
+    ).toBeTruthy();
+    expect(screen.getByText("Me")).toBeTruthy();
+    expect(screen.queryByText("Someone else")).toBeNull();
+  });
 
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        "common:modals.createTask.taskTitlePlaceholder",
-      ),
-      { target: { value: "My task" } },
-    );
-    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
-
-    await vi.waitFor(() => {
-      expect(createTask).toHaveBeenCalledWith(
-        expect.objectContaining({ title: "My task", userId: "user-1" }),
-      );
+  it("offers every member to a user who can assign tasks", async () => {
+    useLocation.mockReturnValue({
+      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
     });
+
+    render(<CreateTaskModal open onClose={vi.fn()} projectId="project-1" />);
+
+    fireEvent.click(screen.getByText("common:modals.createTask.assign"));
+
+    expect(await screen.findByText("Someone else")).toBeTruthy();
   });
 
   it("hides the picker when a project is in scope from the route", () => {

@@ -1,6 +1,7 @@
 import { and, count, eq, isNull, min, sql } from "drizzle-orm";
 import db from "../../database";
 import { projectTable, taskTable } from "../../database/schema";
+import { visibleTaskFilter } from "../../utils/task-visibility";
 
 type ProjectStatistics = {
   completionPercentage: number;
@@ -42,7 +43,7 @@ async function getProjectStatistics(
       and(
         eq(projectTable.workspaceId, workspaceId),
         includeArchived ? undefined : isNull(projectTable.archivedAt),
-        assigneeId ? eq(taskTable.userId, assigneeId) : undefined,
+        assigneeId ? visibleTaskFilter(assigneeId) : undefined,
       ),
     )
     .groupBy(taskTable.projectId);

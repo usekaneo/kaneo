@@ -1,7 +1,8 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { projectTable, taskTable } from "../../database/schema";
+import { projectTable } from "../../database/schema";
+import { visibleTaskFilter } from "../../utils/task-visibility";
 
 async function getProject(
   id: string,
@@ -14,7 +15,7 @@ async function getProject(
       eq(projectTable.workspaceId, workspaceId),
     ),
     with: {
-      tasks: assigneeId ? { where: eq(taskTable.userId, assigneeId) } : true,
+      tasks: assigneeId ? { where: visibleTaskFilter(assigneeId) } : true,
     },
   });
 

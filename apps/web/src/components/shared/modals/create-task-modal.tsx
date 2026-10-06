@@ -197,17 +197,20 @@ function CreateTaskModal({
   } = useWorkspacePermission();
   const canCreateTaskCapability = canCreateTasks();
   const canCreateLabelCapability = canCreateLabels();
-  // Without task:assign the API only shows a member their own tasks, so a task
-  // created for anyone else would vanish from their board.
-  const isAssigneeLocked = !isCheckingPermissions && !canAssignTasks();
+  // Without task:assign the API rejects handing a task to anyone else, so only
+  // the creator is offered. Unassigned stays available: the API shows a
+  // restricted member their own tasks plus the unclaimed ones.
+  const canOnlyAssignSelf = !isCheckingPermissions && !canAssignTasks();
+  const assignableMembers = canOnlyAssignSelf
+    ? (workspaceUsers?.members?.filter(
+        (candidate) => candidate.userId === member?.userId,
+      ) ?? [])
+    : (workspaceUsers?.members ?? []);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
   const [assigneeId, setAssigneeId] = useState("");
-  const effectiveAssigneeId = isAssigneeLocked
-    ? (member?.userId ?? "")
-    : assigneeId;
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
@@ -390,7 +393,7 @@ function CreateTaskModal({
     const draftPromise = createTask({
       title: title.trim() || t("common:modals.createTask.untitledTask"),
       description: description.trim() || "",
-      userId: effectiveAssigneeId,
+      userId: assigneeId,
       priority,
       projectId: resolvedProjectId,
       startDate: startDate ? startDate.toISOString() : undefined,
@@ -415,7 +418,7 @@ function CreateTaskModal({
       draftCreationPromiseRef.current = null;
     }
   }, [
-    effectiveAssigneeId,
+    assigneeId,
     createTask,
     description,
     draftTask,
@@ -441,7 +444,7 @@ function CreateTaskModal({
               ...draftTask,
               title: title.trim(),
               description: description.trim() || "",
-              userId: effectiveAssigneeId || null,
+              userId: assigneeId || null,
               status: taskStatus,
               priority,
               startDate: startDate ? startDate.toISOString() : null,
@@ -453,7 +456,7 @@ function CreateTaskModal({
             await createTask({
               title: title.trim(),
               description: description.trim() || "",
-              userId: effectiveAssigneeId,
+              userId: assigneeId,
               priority,
               projectId: resolvedProjectId,
               startDate: startDate ? startDate.toISOString() : undefined,
@@ -531,7 +534,7 @@ function CreateTaskModal({
     return t("tasks:status.in-progress");
   }, [status, t]);
   const selectedUser = workspaceUsers?.members?.find(
-    (u) => u.userId === effectiveAssigneeId,
+    (u) => u.userId === assigneeId,
   );
 
   useEffect(() => {
@@ -853,9 +856,8 @@ function CreateTaskModal({
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    disabled={isAssigneeLocked}
                     className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50 disabled:cursor-default disabled:hover:bg-accent/30",
+                      "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
                       selectedUser
                         ? "bg-accent/30 text-foreground"
                         : "text-muted-foreground",
@@ -904,7 +906,7 @@ function CreateTaskModal({
                       </span>
                       {!assigneeId && <Check className="ml-auto h-4 w-4" />}
                     </button>
-                    {workspaceUsers?.members?.map((member) => (
+                    {assignableMembers.map((member) => (
                       <button
                         key={member.userId}
                         type="button"

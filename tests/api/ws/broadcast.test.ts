@@ -6,6 +6,18 @@ vi.mock("../../../apps/api/src/events", () => ({
   publishEvent: vi.fn(),
 }));
 
+// Keeps the delivery path off the database. Tests that care about the audience
+// override this; everyone else sees every task.
+const { usersWhoCanSeeTasks } = vi.hoisted(() => ({
+  usersWhoCanSeeTasks: vi.fn(
+    async (_taskIds: string[], userIds: string[]) => new Set(userIds),
+  ),
+}));
+
+vi.mock("../../../apps/api/src/utils/task-visibility", () => ({
+  usersWhoCanSeeTasks,
+}));
+
 import {
   addConnection,
   broadcastToProject,
@@ -29,6 +41,9 @@ describe("broadcastToProject", () => {
   beforeEach(async () => {
     // Ensure no REDIS_URL so InMemoryBroadcastAdapter is used
     delete process.env.REDIS_URL;
+    usersWhoCanSeeTasks.mockImplementation(
+      async (_taskIds: string[], userIds: string[]) => new Set(userIds),
+    );
     await initializeWebSocketAdapter();
   });
 
@@ -149,6 +164,78 @@ describe("broadcastToProject", () => {
     ).not.toHaveBeenCalled();
 
     removeConnection("proj-2", conn);
+  });
+
+  it("withholds a task event from users who cannot see that task", async () => {
+    usersWhoCanSeeTasks.mockImplementation(
+      async (taskIds: string[], userIds: string[]) =>
+        new Set(
+          taskIds.includes("owner-task")
+            ? userIds.filter((id) => id !== "restricted-user")
+            : userIds,
+        ),
+    );
+
+    const allowedWs = makeFakeWs();
+    const hiddenWs = makeFakeWs();
+    const allowed = addConnection("proj-1", allowedWs, "admin-user", "init-1");
+    const hidden = addConnection(
+      "proj-1",
+      hiddenWs,
+      "restricted-user",
+      "init-2",
+    );
+
+    broadcastToProject("proj-1", {
+      type: "TASK_UPDATED",
+      projectId: "proj-1",
+      taskId: "owner-task",
+    });
+
+    await vi.waitFor(
+      () => {
+        expect(
+          (allowedWs as { send: ReturnType<typeof vi.fn> }).send,
+        ).toHaveBeenCalled();
+      },
+      { timeout: 300 },
+    );
+
+    expect(
+      (hiddenWs as { send: ReturnType<typeof vi.fn> }).send,
+    ).not.toHaveBeenCalled();
+    expect(usersWhoCanSeeTasks).toHaveBeenCalledWith(
+      ["owner-task"],
+      expect.arrayContaining(["admin-user", "restricted-user"]),
+    );
+
+    removeConnection("proj-1", allowed);
+    removeConnection("proj-1", hidden);
+  });
+
+  it("passes every referenced task id to the visibility check", async () => {
+    const ws = makeFakeWs();
+    const conn = addConnection("proj-1", ws, "user-1", "init-1");
+
+    broadcastToProject("proj-1", {
+      type: "TASK_RELATION_UPDATED",
+      projectId: "proj-1",
+      taskId: "",
+      sourceTaskId: "source-task",
+      targetTaskId: "target-task",
+    });
+
+    await vi.waitFor(
+      () => {
+        expect(usersWhoCanSeeTasks).toHaveBeenCalledWith(
+          ["source-task", "target-task"],
+          ["user-1"],
+        );
+      },
+      { timeout: 300 },
+    );
+
+    removeConnection("proj-1", conn);
   });
 
   it("warns when called before adapter initialization", async () => {

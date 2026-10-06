@@ -25,6 +25,8 @@ async function importTasks(
   projectId: string,
   tasksToImport: ImportTask[],
   currentUserId?: string,
+  /** When set, the caller may only assign imported rows to this user. */
+  restrictedToAssigneeId?: string,
 ) {
   const project = await db.query.projectTable.findFirst({
     where: eq(projectTable.id, projectId),
@@ -60,6 +62,19 @@ async function importTasks(
       results.push({
         success: false,
         error: "Assignee is not a member of this workspace",
+        task: taskData,
+      });
+      continue;
+    }
+
+    if (
+      assigneeId &&
+      restrictedToAssigneeId &&
+      assigneeId !== restrictedToAssigneeId
+    ) {
+      results.push({
+        success: false,
+        error: "Handing a task to another member requires task:assign",
         task: taskData,
       });
       continue;

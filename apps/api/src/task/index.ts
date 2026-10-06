@@ -548,12 +548,11 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(listTasksRoute, async (c) => {
     const { projectId } = c.req.valid("param");
     const filters = c.req.valid("query") || {};
-    const assigneeId = await restrictedAssigneeId(c);
 
-    const tasks = await getTasks(
-      projectId,
-      assigneeId ? { ...filters, assigneeId } : filters,
-    );
+    const tasks = await getTasks(projectId, {
+      ...filters,
+      visibleToAssigneeId: await restrictedAssigneeId(c),
+    });
 
     return c.json(tasks, 200);
   })
@@ -600,12 +599,11 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     validateDateRange(parsedStartDate, parsedDueDate);
 
-    // Restricted users would lose sight of an unassigned task the moment they
-    // created it, so it lands on them instead.
     const task = await createTask({
       projectId,
       currentUserId: c.get("userId"),
-      userId: userId || (await restrictedAssigneeId(c)),
+      userId,
+      restrictedToAssigneeId: await restrictedAssigneeId(c),
       title,
       description,
       startDate: parsedStartDate,
@@ -695,7 +693,12 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const { tasks } = c.req.valid("json");
     const currentUserId = c.get("userId");
 
-    const result = await importTasks(projectId, tasks, currentUserId);
+    const result = await importTasks(
+      projectId,
+      tasks,
+      currentUserId,
+      await restrictedAssigneeId(c),
+    );
 
     return c.json(result, 200);
   })
