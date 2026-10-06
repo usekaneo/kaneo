@@ -30,9 +30,12 @@ export async function lockAccessChange(
 
   if (
     actorRole &&
-    (await roleHasWorkspacePermission(change.workspaceId, actorRole, {
-      member: ["update"],
-    }))
+    (await roleHasWorkspacePermission(
+      change.workspaceId,
+      actorRole,
+      { member: ["update"] },
+      database,
+    ))
   ) {
     return { actorAllowed: true, targetRole: roles.get(change.userId) ?? null };
   }

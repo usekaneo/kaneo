@@ -53,8 +53,9 @@ function parsePermissionStatements(
 async function customRoleStatements(
   workspaceId: string,
   role: string,
+  database: Pick<typeof db, "select"> = db,
 ): Promise<Record<string, readonly string[]> | null> {
-  const [row] = await db
+  const [row] = await database
     .select({ permission: schema.workspaceRoleTable.permission })
     .from(schema.workspaceRoleTable)
     .where(
@@ -88,9 +89,10 @@ export async function roleHasWorkspacePermission(
   workspaceId: string,
   role: string,
   permissions: PermissionMap,
+  database: Pick<typeof db, "select"> = db,
 ) {
   const statements =
-    (await customRoleStatements(workspaceId, role)) ??
+    (await customRoleStatements(workspaceId, role, database)) ??
     builtInRoleStatements(role);
   return Boolean(statements && satisfies(statements, permissions));
 }
