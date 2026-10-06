@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { type SyncRules, syncRulesSchema } from "../sync/rules";
 import { branchPatterns } from "../github/config";
 
 export { branchPatterns };
@@ -9,6 +10,9 @@ export const giteaConfigSchema = v.object({
   repositoryOwner: v.pipe(v.string(), v.trim(), v.nonEmpty()),
   repositoryName: v.pipe(v.string(), v.trim(), v.nonEmpty()),
   webhookSecret: v.optional(v.string()),
+  syncRules: v.optional(
+    v.custom<SyncRules>((value) => syncRulesSchema.safeParse(value).success),
+  ),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
   commentTaskLinkOnGiteaIssue: v.optional(v.boolean()),

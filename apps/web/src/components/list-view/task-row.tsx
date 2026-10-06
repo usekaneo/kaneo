@@ -3,7 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
-import { type CSSProperties, useMemo, useState } from "react";
+import { type CSSProperties, useMemo, useState, memo } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
@@ -65,7 +65,10 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     showLabels,
     showTaskNumbers,
   } = useUserPreferencesStore();
-  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
+  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState<
+    boolean | null
+  >(null);
+  const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
   const toggleSelection = useBulkSelectionStore(
     (state) => state.toggleSelection,
@@ -163,7 +166,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
         isTaskFocused && "ring-2 ring-inset ring-ring/50",
       )}
     >
-      <ContextMenu>
+      <ContextMenu
+        onOpenChange={(open) => {
+          if (open) setHasOpenedMenu(true);
+        }}
+      >
         <ContextMenuTrigger asChild>
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
@@ -247,7 +254,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           </div>
         </ContextMenuTrigger>
 
-        {project && workspace && (
+        {hasOpenedMenu && project && workspace && (
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
@@ -260,37 +267,39 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
         )}
       </ContextMenu>
 
-      <AlertDialog
-        open={isDeleteTaskModalOpen}
-        onOpenChange={setIsDeleteTaskModalOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("tasks:delete.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogClose render={<Button variant="outline" size="sm" />}>
-              {t("common:actions.cancel")}
-            </AlertDialogClose>
-            <AlertDialogClose
-              render={
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDeleteTask}
-                />
-              }
-            >
-              {t("tasks:delete.action")}
-            </AlertDialogClose>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {isDeleteTaskModalOpen !== null && (
+        <AlertDialog
+          open={isDeleteTaskModalOpen}
+          onOpenChange={setIsDeleteTaskModalOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("tasks:delete.description")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
+              </AlertDialogClose>
+              <AlertDialogClose
+                render={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteTask}
+                  />
+                }
+              >
+                {t("tasks:delete.action")}
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
 
-export default TaskRow;
+export default memo(TaskRow);

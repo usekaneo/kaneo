@@ -140,6 +140,7 @@ function getLocaleKey(locale?: string | null) {
   if (normalized?.startsWith("de")) return "de";
   if (normalized?.startsWith("vi")) return "vi";
   if (normalized?.startsWith("ja")) return "ja";
+  if (normalized === "zh-tw") return "zh-tw";
   return "en";
 }
 
@@ -183,6 +184,14 @@ function getAuthEmailCopy(locale?: string | null) {
       magicLinkSubject: "Kaneo ログインリンク",
       otpSubject: "Kaneo 認証コード",
       passwordResetSubject: "Kaneo のパスワードをリセット",
+    };
+  }
+
+  if (localeKey === "zh-tw") {
+    return {
+      magicLinkSubject: "Kaneo 登入連結",
+      otpSubject: "Kaneo 驗證碼",
+      passwordResetSubject: "重設 Kaneo 密碼",
     };
   }
 

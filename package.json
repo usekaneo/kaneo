@@ -25,9 +25,9 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
-    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/exec": "^7.1.0",
-    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/git": "^11.0.1",
     "conventional-changelog-conventionalcommits": "^10.4.0",
     "esbuild": "0.28.2",
     "husky": "^9.1.7",
@@ -41,7 +41,7 @@
     "node": "^24.11.0 || >=26.0.0"
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.32.0",
+  "version": "2.33.0",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

@@ -250,6 +250,9 @@ async function moveProject(
 
   await closeProjectConnections(id);
 
+  await publishEvent("integration.sync_labels_changed", { projectId: id });
+  await publishEvent("project.updated", { projectId: id });
+
   if (unassignedTasks.length > 0) {
     await publishEvent("task.bulk_unassigned", {
       projectId: id,

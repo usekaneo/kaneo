@@ -49,7 +49,7 @@
 
 ## Contributing
 
-Code, translations, documentation, and bug reports are welcome. Start with the [contributing guide](CONTRIBUTING.md) and [local development setup](ENVIRONMENT_SETUP.md).
+Code, translations, documentation, and bug reports are welcome. Start with the [contributing guide](CONTRIBUTING.md) and [local development setup](ENVIRONMENT_SETUP.md). Pay particular attention to [contribution eligibility](https://github.com/usekaneo/kaneo/blob/main/CONTRIBUTING.md#contribution-eligibility).
 
 Join us on [Discord](https://discord.gg/rU4tSyhXXU) or share bugs and feature requests in [GitHub Issues](https://github.com/usekaneo/kaneo/issues).
 

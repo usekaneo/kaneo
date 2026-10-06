@@ -1,3 +1,4 @@
+import { reconcileProjectSync, reconcileTaskSync } from "./sync/reconcile";
 import { and, eq } from "drizzle-orm";
 import db from "../database";
 import { integrationTable } from "../database/schema";
@@ -94,37 +95,33 @@ export function initializeEventSubscriptions(): void {
     });
   });
 
-  subscribeToEvent<{
-    taskId: string;
-    userId: string | null;
-    oldTitle: string;
-    newTitle: string;
-    projectId: string;
-  }>("task.title_changed", async (data) => {
-    await broadcastTaskTitleChanged({
-      taskId: data.taskId,
-      projectId: data.projectId,
-      userId: data.userId,
-      oldTitle: data.oldTitle,
-      newTitle: data.newTitle,
-    });
-  });
+  subscribeToEvent<TaskTitleChangedEvent>(
+    "task.title_changed",
+    async (data) => {
+      await broadcastTaskTitleChanged({
+        sourceIntegrationId: data.sourceIntegrationId,
+        taskId: data.taskId,
+        projectId: data.projectId,
+        userId: data.userId,
+        oldTitle: data.oldTitle,
+        newTitle: data.newTitle,
+      });
+    },
+  );
 
-  subscribeToEvent<{
-    taskId: string;
-    userId: string | null;
-    oldDescription: string | null;
-    newDescription: string | null;
-    projectId: string;
-  }>("task.description_changed", async (data) => {
-    await broadcastTaskDescriptionChanged({
-      taskId: data.taskId,
-      projectId: data.projectId,
-      userId: data.userId,
-      oldDescription: data.oldDescription,
-      newDescription: data.newDescription,
-    });
-  });
+  subscribeToEvent<TaskDescriptionChangedEvent>(
+    "task.description_changed",
+    async (data) => {
+      await broadcastTaskDescriptionChanged({
+        sourceIntegrationId: data.sourceIntegrationId,
+        taskId: data.taskId,
+        projectId: data.projectId,
+        userId: data.userId,
+        oldDescription: data.oldDescription,
+        newDescription: data.newDescription,
+      });
+    },
+  );
 
   subscribeToEvent<{
     taskId: string;
@@ -229,6 +226,40 @@ export function initializeEventSubscriptions(): void {
     });
   });
 
+  for (const event of [
+    "task.label_created",
+    "task.label_deleted",
+    "task.label_assigned",
+    "task.label_unassigned",
+    "task.labels_updated",
+  ]) {
+    subscribeToEvent<{ projectId: string; taskId: string }>(
+      event,
+      async (data) => {
+        await reconcileTaskSync(data.projectId, data.taskId);
+      },
+    );
+  }
+  subscribeToEvent<{ taskId: string; toProjectId: string }>(
+    "task.moved",
+    async (data) => {
+      await reconcileTaskSync(data.toProjectId, data.taskId);
+    },
+  );
+  subscribeToEvent<{ projectId: string; integrationId: string }>(
+    "integration.sync_rules_changed",
+    async (data) => {
+      await reconcileProjectSync(data.projectId, data.integrationId);
+    },
+  );
+
+  subscribeToEvent<{ projectId: string; integrationId?: string }>(
+    "integration.sync_labels_changed",
+    async (data) => {
+      await reconcileProjectSync(data.projectId, data.integrationId);
+    },
+  );
+
   eventSubscriptionsInitialized = true;
   console.log("✓ Plugin event subscriptions initialized");
 }
@@ -290,6 +321,7 @@ export async function broadcastTaskStatusChanged(
   const integrations = await getActiveIntegrations(event.projectId);
 
   for (const integration of integrations) {
+    if (integration.id === event.sourceIntegrationId) continue;
     const plugin = getPlugin(integration.type);
     if (!plugin?.onTaskStatusChanged) continue;
 
@@ -334,6 +366,7 @@ export async function broadcastTaskTitleChanged(
   const integrations = await getActiveIntegrations(event.projectId);
 
   for (const integration of integrations) {
+    if (integration.id === event.sourceIntegrationId) continue;
     const plugin = getPlugin(integration.type);
     if (!plugin?.onTaskTitleChanged) continue;
 
@@ -356,6 +389,7 @@ export async function broadcastTaskDescriptionChanged(
   const integrations = await getActiveIntegrations(event.projectId);
 
   for (const integration of integrations) {
+    if (integration.id === event.sourceIntegrationId) continue;
     const plugin = getPlugin(integration.type);
     if (!plugin?.onTaskDescriptionChanged) continue;
 

@@ -1,4 +1,7 @@
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
+import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
+import { isTaskInFinalState } from "../../github/services/task-service";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
@@ -9,6 +12,16 @@ export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const config = context.config as GiteaConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;
@@ -27,23 +40,42 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
-
     const client = createGiteaClient(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await removeLabelGitea(config, issueNumber, `status:${event.oldStatus}`);
-
-    await addLabelsToIssueGitea(config, issueNumber, [
-      `status:${event.newStatus}`,
-    ]);
-
-    if (event.newStatus === "done" || event.oldStatus === "done") {
+    const currentValue = await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "gitea",
+      "status",
+      async ({ add, remove }, write) => {
+        for (const name of remove)
+          await removeLabelGitea(config, issueNumber, name, write, true);
+        if (add.length)
+          await addLabelsToIssueGitea(config, issueNumber, add, true, write);
+      },
+    );
+    if (currentValue === undefined) return;
+    const closing = await isTaskInFinalState({
+      projectId: event.projectId,
+      status: currentValue,
+      columnId: null,
+    });
+    const reopening =
+      !closing &&
+      (await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.oldStatus,
+        columnId: null,
+      }));
+    if (closing || reopening) {
       await syncLatestTaskValue(
         event.taskId,
         event.projectId,
         issueLink,
         "state",
-        event.newStatus === "done" ? "closed" : "open",
+        closing ? "closed" : "open",
         async (value) => {
           const response = await client.updateIssue(
             repositoryOwner,
