@@ -17,6 +17,7 @@ type Props = {
     | undefined;
   isLoadingProjects?: boolean;
   disabled?: boolean;
+  allowAll?: boolean;
   error?: string;
 };
 
@@ -26,6 +27,7 @@ function ProjectAccessFields({
   projects,
   isLoadingProjects = false,
   disabled = false,
+  allowAll = true,
   error,
 }: Props) {
   const { t } = useTranslation();
@@ -56,11 +58,13 @@ function ProjectAccessFields({
           </p>
         </div>
         <Label className="items-start gap-3">
-          <Radio value="all" />
+          <Radio value="all" disabled={!allowAll} />
           <span className="flex flex-col gap-0.5">
             {t("team:projectAccess.allProjects")}
             <span className="font-normal text-muted-foreground text-xs">
-              {t("team:projectAccess.allProjectsDescription")}
+              {allowAll
+                ? t("team:projectAccess.allProjectsDescription")
+                : t("team:projectAccess.allProjectsUnavailable")}
             </span>
           </span>
         </Label>

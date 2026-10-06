@@ -2917,7 +2917,8 @@
 			"selectedProjectsDescription": "Only access the projects you choose.",
 			"updateError": "Failed to update project access",
 			"updateSuccess": "Project access updated",
-			"archived": "Archived"
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

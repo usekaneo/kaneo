@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useUpdateMemberProjectAccess from "@/hooks/mutations/workspace-user/use-update-member-project-access";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
+import useGetMyProjectAccess from "@/hooks/queries/workspace-users/use-get-my-project-access";
 import { toast } from "@/lib/toast";
 import { Button } from "../ui/button";
 import {
@@ -42,6 +43,7 @@ function MemberProjectAccessDialog({
     workspaceId,
     includeArchived: true,
   });
+  const { data: myAccess } = useGetMyProjectAccess(workspaceId, open);
   const { mutateAsync, isPending } = useUpdateMemberProjectAccess();
 
   if (open !== wasOpen) {
@@ -88,6 +90,7 @@ function MemberProjectAccessDialog({
         </DialogHeader>
         <DialogPanel>
           <ProjectAccessFields
+            allowAll={myAccess?.projectAccess !== "selected"}
             value={value}
             onChange={(next) => {
               setValue(next);

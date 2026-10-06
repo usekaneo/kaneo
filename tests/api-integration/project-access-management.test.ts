@@ -85,6 +85,27 @@ describe("managing member project access", () => {
     );
   });
 
+  it("tells each member their own project access", async () => {
+    const ctx = await createRestrictedWorkspace();
+
+    mockAuthenticatedSession(ctx.restricted);
+    const restricted = await projectAccessApi()(
+      `/workspace/${ctx.workspace.id}/project-access/me`,
+    );
+    expect(restricted.status).toBe(200);
+    expect(await restricted.json()).toEqual({
+      userId: ctx.restricted.id,
+      projectAccess: "selected",
+      projectIds: [ctx.alpha.id],
+    });
+
+    mockAuthenticatedSession(ctx.owner);
+    const owner = await projectAccessApi()(
+      `/workspace/${ctx.workspace.id}/project-access/me`,
+    );
+    expect(await owner.json()).toMatchObject({ projectAccess: "all" });
+  });
+
   it("refuses to restrict owners or yourself", async () => {
     const ctx = await createRestrictedWorkspace();
     const admin = await addWorkspaceMember(ctx.workspace.id, "admin");

@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
+import useGetMyProjectAccess from "@/hooks/queries/workspace-users/use-get-my-project-access";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
@@ -32,6 +33,7 @@ import InvitationLinkField from "./invitation-link-field";
 import {
   ALL_PROJECTS_ACCESS,
   type ProjectAccessValue,
+  SELECTED_PROJECTS_ACCESS,
 } from "./project-access/project-access-value";
 import { isProjectAccessComplete } from "./project-access/is-project-access-complete";
 import { toProjectAccessRequest } from "./project-access/to-project-access-request";
@@ -60,8 +62,14 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     id: string;
     email: string;
   } | null>(null);
-  const [projectAccess, setProjectAccess] =
-    useState<ProjectAccessValue>(ALL_PROJECTS_ACCESS);
+  const { data: myAccess } = useGetMyProjectAccess(workspaceId ?? "", open);
+  const inviterLimited = myAccess?.projectAccess === "selected";
+  const [chosenAccess, setProjectAccess] = useState<ProjectAccessValue | null>(
+    null,
+  );
+  const projectAccess =
+    chosenAccess ??
+    (inviterLimited ? SELECTED_PROJECTS_ACCESS : ALL_PROJECTS_ACCESS);
   const [showProjectAccessError, setShowProjectAccessError] = useState(false);
   const { data: projects, isLoading: isLoadingProjects } = useGetProjects({
     workspaceId: workspaceId ?? "",
@@ -115,7 +123,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
       if (invitation?.id) {
         setCreatedInvitation({ id: invitation.id, email });
         form.reset();
-        setProjectAccess(ALL_PROJECTS_ACCESS);
+        setProjectAccess(null);
         return;
       }
 
@@ -140,7 +148,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     if (isOpen) return;
     setCreatedInvitation(null);
     form.reset();
-    setProjectAccess(ALL_PROJECTS_ACCESS);
+    setProjectAccess(null);
     setShowProjectAccessError(false);
   };
 
@@ -199,6 +207,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                   )}
                 />
                 <ProjectAccessFields
+                  allowAll={!inviterLimited}
                   value={projectAccess}
                   onChange={(next) => {
                     setProjectAccess(next);

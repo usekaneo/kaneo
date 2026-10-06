@@ -86,6 +86,15 @@ vi.mock(
   }),
 );
 
+const myProjectAccess = vi.fn(() => ({
+  projectAccess: "all",
+  projectIds: [] as string[],
+}));
+
+vi.mock("@/hooks/queries/workspace-users/use-get-my-project-access", () => ({
+  default: () => ({ data: myProjectAccess() }),
+}));
+
 vi.mock("@/hooks/queries/project/use-get-projects", () => ({
   default: () => ({
     data: [
@@ -240,6 +249,26 @@ describe("MembersTable project access", () => {
     expect(
       screen.getAllByText("team:projectAccess.projectCount").length,
     ).toBeGreaterThan(0);
+  });
+
+  it("lets a limited manager edit only limited members", () => {
+    myProjectAccess.mockReturnValue({
+      projectAccess: "selected",
+      projectIds: ["project-a"],
+    });
+
+    render(
+      <MembersTable
+        workspaceId="workspace-1"
+        invitations={[]}
+        users={members}
+      />,
+    );
+
+    expect(
+      screen.getAllByRole("button", { name: "team:projectAccess.editAria" }),
+    ).toHaveLength(1);
+    myProjectAccess.mockReturnValue({ projectAccess: "all", projectIds: [] });
   });
 
   it("saves selected projects for a member from the dialog", async () => {

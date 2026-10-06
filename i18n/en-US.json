@@ -2922,6 +2922,7 @@
 			"description": "Choose which projects this person can see.",
 			"allProjects": "All projects",
 			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects.",
 			"selectedProjects": "Selected projects",
 			"selectedProjectsDescription": "Only access the projects you choose.",
 			"projectsLabel": "Projects",

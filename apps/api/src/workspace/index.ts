@@ -8,6 +8,7 @@ import {
 import { listWorkspaceProjectAccess } from "../project-access/list-workspace-project-access";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import getMyProjectAccessCtrl from "./controllers/get-my-project-access";
 import getWorkspaceMembersCtrl from "./controllers/get-workspace-members";
 import updateMemberProjectAccessCtrl from "./controllers/update-member-project-access";
 import {
@@ -65,6 +66,23 @@ const getWorkspaceProjectAccessRoute = createRoute({
   },
 });
 
+const getMyProjectAccessRoute = createRoute({
+  method: "get",
+  operationId: "getMyProjectAccess",
+  path: "/{workspaceId}/project-access/me",
+  tags: ["Workspaces"],
+  summary: "Get my project access",
+  description:
+    "Get the caller's own project access in the workspace: every project, or the selected projects they're limited to. Owners and instance admins always get every project.",
+  middleware: [workspaceAccess.fromParam("workspaceId")] as const,
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse("The caller's project access", memberProjectAccessSchema),
+    400: errorResponse("Workspace ID could not be determined"),
+    403: errorResponse("No access to the workspace"),
+  },
+});
+
 const updateMemberProjectAccessRoute = createRoute({
   method: "put",
   operationId: "updateMemberProjectAccess",
@@ -106,6 +124,12 @@ const workspace = apiRouter<BaseVariables & { workspaceId: string }>()
         userId: c.get("userId"),
         projectId: c.req.valid("query").projectId,
       }),
+      200,
+    ),
+  )
+  .openapi(getMyProjectAccessRoute, async (c) =>
+    c.json(
+      await getMyProjectAccessCtrl(c.get("workspaceId"), c.get("userId")),
       200,
     ),
   )

@@ -13,6 +13,7 @@ import useCancelInvitation from "@/hooks/mutations/workspace-user/use-cancel-inv
 import useDeleteWorkspaceUser from "@/hooks/mutations/workspace-user/use-delete-workspace-user";
 import useUpdateWorkspaceUserRole from "@/hooks/mutations/workspace-user/use-update-workspace-user-role";
 import useWorkspaceRoles from "@/hooks/queries/workspace/use-workspace-roles";
+import useGetMyProjectAccess from "@/hooks/queries/workspace-users/use-get-my-project-access";
 import useGetWorkspaceProjectAccess from "@/hooks/queries/workspace-users/use-get-workspace-project-access";
 import { useCopyInvitationLink } from "@/hooks/use-copy-invitation-link";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -131,6 +132,11 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
     workspaceId,
     canManageProjectAccess,
   );
+  const { data: myAccess } = useGetMyProjectAccess(
+    workspaceId,
+    canManageProjectAccess,
+  );
+  const managerLimited = myAccess?.projectAccess === "selected";
   const columnCount = canManageProjectAccess ? 5 : 4;
 
   const describeAccess = (access: ProjectAccessValue) =>
@@ -240,12 +246,15 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
             const isSelf = currentUser?.id === member.userId;
             const showRoleSelect =
               canChangeRoles && !isSelf && member.role !== "owner";
-            const showAccessEdit =
-              canManageProjectAccess && !isSelf && member.role !== "owner";
             const access =
               member.role === "owner"
                 ? ALL_PROJECTS_ACCESS
                 : findMemberProjectAccess(projectAccessEntries, member.userId);
+            const showAccessEdit =
+              canManageProjectAccess &&
+              !isSelf &&
+              member.role !== "owner" &&
+              !(managerLimited && access.projectAccess === "all");
             const accessLabel = describeAccess(access);
             const memberName = member.user.name || member.user.email;
             const tone = toneFor(member.user.email);
