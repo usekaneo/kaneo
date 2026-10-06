@@ -86,12 +86,7 @@ type AssetObject = {
   lastModified: Date | undefined;
 };
 
-let clientCache:
-  | {
-      cacheKey: string;
-      client: S3Client;
-    }
-  | undefined;
+const clientCache = new Map<string, S3Client>();
 
 function env(name: string) {
   return process.env[name]?.trim() || "";
@@ -187,26 +182,31 @@ function getClient(config: StorageConfig, presign = false) {
   // Presigning is offline signing math: no request is sent to the endpoint.
   // When a public base URL is set, sign against that host so the browser can
   // reach the presigned URLs while the API keeps using the private endpoint
-  // for its own reads, verifies, and deletes.
+  // for its own reads, verifies, and deletes. Public presigned URLs are always
+  // path-style: the base URL is a single hostname in front of the storage, and
+  // a bucket-prefixed hostname would not resolve to the proxy.
   const endpoint =
     presign && config.publicBaseUrl ? config.publicBaseUrl : config.endpoint;
+  const forcePathStyle =
+    presign && config.publicBaseUrl ? true : config.forcePathStyle;
 
   const cacheKey = JSON.stringify({
     endpoint,
     region: config.region,
     accessKeyId: config.accessKeyId,
     bucket: config.bucket,
-    forcePathStyle: config.forcePathStyle,
+    forcePathStyle,
   });
 
-  if (clientCache?.cacheKey === cacheKey) {
-    return clientCache.client;
+  const cached = clientCache.get(cacheKey);
+  if (cached) {
+    return cached;
   }
 
   const clientConfig: S3ClientConfig = {
     endpoint,
     region: config.region,
-    forcePathStyle: config.forcePathStyle,
+    forcePathStyle,
     // Avoid auto-injecting checksum params for presigned PUT URLs. Some
     // S3-compatible providers (e.g. Garage/R2) reject mismatched hoisted CRCs.
     requestChecksumCalculation: "WHEN_REQUIRED",
@@ -226,7 +226,7 @@ function getClient(config: StorageConfig, presign = false) {
   }
 
   const client = new S3Client(clientConfig);
-  clientCache = { cacheKey, client };
+  clientCache.set(cacheKey, client);
   return client;
 }
 
