@@ -49,6 +49,7 @@ import { applyInvitationProjectAccess } from "./project-access/apply-invitation-
 import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
 import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
 import { isOwnerRole } from "./project-access/is-owner-role";
+import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -889,6 +890,21 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      const viewerId = ctx.context.session?.user.id;
+      if (viewerId && ctx.path === "/organization/list-invitations") {
+        await hideInaccessibleInvitationProjects(
+          viewerId,
+          ctx.context.returned,
+        );
+      }
+      if (viewerId && ctx.path === "/organization/get-full-organization") {
+        await hideInaccessibleInvitationProjects(
+          viewerId,
+          (ctx.context.returned as { invitations?: unknown } | null)
+            ?.invitations,
+        );
+      }
+
       if (ctx.path === "/organization/leave") {
         // The successful endpoint returns the removed member. No post-delete
         // query may prevent revocation after membership has already committed.

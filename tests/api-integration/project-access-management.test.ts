@@ -422,4 +422,91 @@ describe("invitations with project access", () => {
     expect(invited.status).toBe(400);
     expect(await db.select().from(schema.invitationTable)).toHaveLength(0);
   });
+
+  it("hides invited project ids from a limited admin", async () => {
+    const ctx = await createInvitationWorkspace();
+    const invite = async (email: string, role: string, projectIds: string[]) =>
+      (await (
+        await ctx.ownerRequest("/auth/organization/invite-member", {
+          method: "POST",
+          body: {
+            organizationId: ctx.workspaceId,
+            email,
+            role,
+            projectAccess: "selected",
+            projectIds,
+          },
+        })
+      ).json()) as { id: string };
+
+    const adminInvitation = await invite("admin@example.com", "admin", [
+      ctx.alpha.id,
+    ]);
+    const admin = await signUpWithSession(ctx.app, {
+      email: "admin@example.com",
+      name: "Limited Admin",
+    });
+    const adminRequest = projectAccessApi({ cookie: admin.cookies });
+    await adminRequest("/auth/organization/accept-invitation", {
+      method: "POST",
+      body: { invitationId: adminInvitation.id },
+    });
+    await invite("client@example.com", "member", [ctx.alpha.id, ctx.beta.id]);
+
+    const listed = await adminRequest(
+      `/auth/organization/list-invitations?organizationId=${ctx.workspaceId}`,
+    );
+    expect(listed.status).toBe(200);
+    const invitations = (await listed.json()) as {
+      email: string;
+      projectIds: string[];
+    }[];
+    expect(
+      invitations.find(
+        (invitation) => invitation.email === "client@example.com",
+      )?.projectIds,
+    ).toEqual([ctx.alpha.id]);
+    expect(JSON.stringify(invitations)).not.toContain(ctx.beta.id);
+  });
+});
+
+describe("notification rules with project access", () => {
+  it("keeps projects a member lost when they save the rule again", async () => {
+    const ctx = await createRestrictedWorkspace();
+    const member = await addWorkspaceMember(ctx.workspace.id);
+    mockAuthenticatedSession(member);
+    const request = projectAccessApi();
+    const rule = (projectIds: string[]) =>
+      request(`/notification-preferences/workspaces/${ctx.workspace.id}`, {
+        method: "PUT",
+        body: {
+          isActive: true,
+          emailEnabled: false,
+          ntfyEnabled: false,
+          gotifyEnabled: false,
+          webhookEnabled: false,
+          projectMode: "selected",
+          selectedProjectIds: projectIds,
+        },
+      });
+
+    expect((await rule([ctx.alpha.id, ctx.beta.id])).status).toBe(200);
+    await restrictToProjects(ctx.workspace.id, member.id, [ctx.alpha.id]);
+
+    const read = await request("/notification-preferences");
+    const preferences = (await read.json()) as {
+      workspaces: { selectedProjectIds: string[] }[];
+    };
+    expect(preferences.workspaces[0]?.selectedProjectIds).toEqual([
+      ctx.alpha.id,
+    ]);
+
+    expect((await rule([])).status).toBe(200);
+    const stored = await db
+      .select({
+        projectId: schema.userNotificationWorkspaceProjectTable.projectId,
+      })
+      .from(schema.userNotificationWorkspaceProjectTable);
+    expect(stored.map((row) => row.projectId)).toEqual([ctx.beta.id]);
+  });
 });
