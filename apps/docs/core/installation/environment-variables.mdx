@@ -80,7 +80,7 @@ Name | Description | Default |
 | `S3_ACCESS_KEY_ID` | Access key used by the Kaneo API to create presigned upload URLs. Optional: leave unset (together with `S3_SECRET_ACCESS_KEY`) to use the default AWS credential provider chain (IAM role / IRSA / instance profile). |  |
 | `S3_SECRET_ACCESS_KEY` | Secret key used by the Kaneo API to create presigned upload URLs. Must be set together with `S3_ACCESS_KEY_ID`, or left unset for IAM-role-based access. |  |
 | `S3_REGION` | The storage region used for request signing. | `us-east-1` |
-| `S3_PUBLIC_BASE_URL` | Optional public base URL for uploaded assets. Kaneo does not require this for the current private asset flow. |  |
+| `S3_PUBLIC_BASE_URL` | Optional public base URL for browser-facing presigned upload URLs. When set, signed URLs use this host while the API connects to `S3_ENDPOINT` directly. Combine it with an internal `S3_ENDPOINT` (e.g. `http://silo:9000`) to keep storage traffic off the public network. |  |
 | `S3_FORCE_PATH_STYLE` | Use path-style S3 URLs. Set to `true` for Silo. Check other providers' endpoint requirements. | `true` |
 | `S3_MAX_IMAGE_UPLOAD_BYTES` | Maximum allowed upload size in bytes for images and other uploaded files. | `10485760` |
 | `S3_KEY_PREFIX` | Optional prefix prepended to all S3 object keys. Useful for sharing a single bucket across multiple environments (e.g. `staging/`, `prod/kaneo/`). Trailing slashes are trimmed automatically. |  |

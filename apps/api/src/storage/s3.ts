@@ -183,9 +183,16 @@ function getMaxImageUploadBytes() {
   );
 }
 
-function getClient(config: StorageConfig) {
+function getClient(config: StorageConfig, presign = false) {
+  // Presigning is offline signing math: no request is sent to the endpoint.
+  // When a public base URL is set, sign against that host so the browser can
+  // reach the presigned URLs while the API keeps using the private endpoint
+  // for its own reads, verifies, and deletes.
+  const endpoint =
+    presign && config.publicBaseUrl ? config.publicBaseUrl : config.endpoint;
+
   const cacheKey = JSON.stringify({
-    endpoint: config.endpoint,
+    endpoint,
     region: config.region,
     accessKeyId: config.accessKeyId,
     bucket: config.bucket,
@@ -197,7 +204,7 @@ function getClient(config: StorageConfig) {
   }
 
   const clientConfig: S3ClientConfig = {
-    endpoint: config.endpoint,
+    endpoint,
     region: config.region,
     forcePathStyle: config.forcePathStyle,
     // Avoid auto-injecting checksum params for presigned PUT URLs. Some
@@ -361,7 +368,7 @@ export async function createTaskImageUploadUrl(
 ): Promise<TaskImageUploadUrl> {
   validateTaskAssetUploadInput(context.contentType, context.size);
   const config = getStorageConfig();
-  const client = getClient(config);
+  const client = getClient(config, true);
   const rawKey = buildObjectKey(context);
   const key = applyKeyPrefix(config.keyPrefix, rawKey);
 
@@ -393,7 +400,7 @@ export async function createProjectBackgroundUploadUrl(
 ): Promise<ProjectBackgroundUploadUrl> {
   validateProjectBackgroundUploadInput(context.contentType, context.size);
   const config = getStorageConfig();
-  const client = getClient(config);
+  const client = getClient(config, true);
   const { rawKey, version } = buildProjectBackgroundObjectKey(context);
   const key = applyKeyPrefix(config.keyPrefix, rawKey);
 
