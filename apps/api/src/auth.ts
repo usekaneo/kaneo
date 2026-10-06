@@ -41,7 +41,6 @@ import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
 } from "./billing/controllers/find-billable-workspaces";
-import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
@@ -50,6 +49,9 @@ import { resolveInvitationProjectAccess } from "./project-access/resolve-invitat
 import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
 import { isOwnerRole } from "./project-access/is-owner-role";
 import { publishMemberProjects } from "./project-access/publish-member-projects";
+import { handleMemberAdded } from "./workspace-members/handle-member-added";
+import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
+import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
 import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
@@ -575,51 +577,21 @@ export const auth = betterAuth({
           });
         },
         afterUpdateMemberRole: async ({ member }) => {
-          if (!isOwnerRole(member.role)) return;
-          await clearMemberProjectAccess(member.organizationId, member.userId)
-            .then(() =>
-              publishEvent("project_access.updated", {
-                workspaceId: member.organizationId,
-                userId: member.userId,
-              }),
-            )
-            .catch((error) => {
-              console.error("Project access cleanup failed:", error);
-            });
+          if (isOwnerRole(member.role)) {
+            await handleOwnerPromoted(member.organizationId, member.userId);
+          }
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
-            await publishMemberProjects(
-              member.organizationId,
-              member.userId,
-            ).catch((error) => {
-              console.error("Project member refresh failed:", error);
-            });
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member add failed:", error);
-            });
+            await handleMemberAdded(member.organizationId, member.userId);
           }
         },
         afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
-            await clearMemberProjectAccess(
-              member.organizationId,
-              member.userId,
-            ).catch((error) => {
-              console.error("Project access cleanup failed:", error);
-            });
-            await publishEvent("project_members.updated", {
+            await handleMemberRemoved({
               workspaceId: member.organizationId,
-            });
-            if (!hasInstanceAdminRole(user.role)) {
-              await revokeWorkspaceConnections(
-                member.userId,
-                member.organizationId,
-                { role: user.role ?? null },
-              );
-            }
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member remove failed:", error);
+              userId: member.userId,
+              userRole: user.role,
             });
           }
         },
