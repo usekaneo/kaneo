@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { formatIssueBody } from "../../../../../apps/api/src/plugins/github/utils/format";
 import { taskDescriptionFromIssue } from "../../../../../apps/api/src/plugins/gitlab/utils/issue-description";
 

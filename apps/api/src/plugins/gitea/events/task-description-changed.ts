@@ -1,17 +1,17 @@
+import { canSyncTask } from "../../sync/eligibility";
+import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
+import db from "../../../database";
+import { linkedTaskScope } from "../../github/services/integration-task-scope";
+import { findExternalLinksByTask } from "../../github/services/link-manager";
 import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../../github/services/link-manager";
-import { formatIssueBody } from "../../github/utils/format";
+  formatIssueBody,
+  formatTaskDescriptionFromIssue,
+} from "../../github/utils/format";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
 import { createGiteaClient } from "../utils/gitea-api";
 
-type LinkSyncState = {
-  timestamp: string;
-  source: string;
-  value: string;
-};
+type LinkSyncState = import("../../github/utils/sync-echo").SyncStamp;
 
 type LinkMetadata = {
   lastSync?: {
@@ -24,6 +24,16 @@ export async function handleTaskDescriptionChanged(
   event: TaskDescriptionChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const config = context.config as GiteaConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;
@@ -32,6 +42,16 @@ export async function handleTaskDescriptionChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { description: true },
+    });
+    if (
+      !current ||
+      (current.description || "") !== (event.newDescription || "")
+    )
+      return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -71,19 +91,6 @@ export async function handleTaskDescriptionChanged(
         console.log("Skipping description sync - already synced from Gitea");
         return;
       }
-
-      const timeSinceLastSync =
-        Date.now() - new Date(lastDescSync.timestamp).getTime();
-      if (
-        timeSinceLastSync < 2000 &&
-        lastDescSync.source === "gitea" &&
-        newDescNormalized === lastDescSync.value
-      ) {
-        console.log(
-          `Skipping description sync - recent sync detected (${timeSinceLastSync}ms ago)`,
-        );
-        return;
-      }
     }
 
     const client = createGiteaClient(config);
@@ -97,25 +104,31 @@ export async function handleTaskDescriptionChanged(
       return;
     }
 
-    const formattedBody = formatIssueBody(event.newDescription, event.taskId);
-
-    await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-      body: formattedBody,
-    });
-
-    await updateExternalLink(issueLink.id, {
-      metadata: {
-        ...metadata,
-        lastSync: {
-          ...(metadata.lastSync ?? {}),
-          description: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: newDescNormalized,
+    await syncLatestTaskValue(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "description",
+      newDescNormalized,
+      async (value) => {
+        const response = await client.updateIssue(
+          repositoryOwner,
+          repositoryName,
+          issueNumber,
+          {
+            body: formatIssueBody(value, event.taskId),
           },
-        },
+        );
+        return response?.updated_at;
       },
-    });
+      async () =>
+        formatTaskDescriptionFromIssue(
+          (await client.getIssue(repositoryOwner, repositoryName, issueNumber))
+            .body ?? null,
+          event.taskId,
+        ),
+      { type: "gitea", config: JSON.stringify(config) },
+    );
 
     console.log(`Synced task description to Gitea issue #${issueNumber}`);
   } catch (error) {

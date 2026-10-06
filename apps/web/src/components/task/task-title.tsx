@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -27,7 +27,7 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
     updateTaskRef.current = updateTaskTitle;
   }, [task, updateTaskTitle]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: taskId is not needed here
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- taskId is not needed here
   useEffect(() => {
     isInitializedRef.current = false;
   }, [taskId]);
@@ -44,24 +44,25 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
     if (task?.title !== undefined) isInitializedRef.current = true;
   }, [task?.title]);
 
-  const debouncedUpdate = useCallback(
-    debounce(async (title: string) => {
-      if (!isInitializedRef.current) return;
+  const debouncedUpdate = useMemo(
+    () =>
+      debounce(async (title: string) => {
+        if (!isInitializedRef.current) return;
 
-      const currentTask = taskRef.current;
-      const updateTaskFn = updateTaskRef.current;
+        const currentTask = taskRef.current;
+        const updateTaskFn = updateTaskRef.current;
 
-      if (!currentTask || !updateTaskFn) return;
+        if (!currentTask || !updateTaskFn) return;
 
-      try {
-        await updateTaskFn({
-          ...currentTask,
-          title,
-        });
-      } catch (error) {
-        console.error("Failed to update title:", error);
-      }
-    }, 800),
+        try {
+          await updateTaskFn({
+            ...currentTask,
+            title,
+          });
+        } catch (error) {
+          console.error("Failed to update title:", error);
+        }
+      }, 800),
     [],
   );
 

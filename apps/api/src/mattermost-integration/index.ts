@@ -54,7 +54,7 @@ function toResponse(integration: {
     maskedWebhookUrl: maskWebhookUrl(config.webhookUrl),
     events: {
       ...defaultMattermostEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     isActive: integration.isActive,
     createdAt: integration.createdAt,
@@ -265,8 +265,8 @@ const mattermostIntegration = apiRouter<
           ? currentConfig.channelName
           : (body.channelName ?? undefined),
       events: {
-        ...(currentConfig.events ?? {}),
-        ...(body.events ?? {}),
+        ...currentConfig.events,
+        ...body.events,
       },
     });
 

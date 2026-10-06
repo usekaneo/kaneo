@@ -76,7 +76,7 @@ export const azureDevops: Comparison = {
     {
       question: "Can Kaneo connect to my Git repositories?",
       answer:
-        "Kaneo integrates with GitHub and Gitea, and has outgoing webhooks and a documented public API for anything else, including Azure Repos.",
+        "Kaneo integrates with GitHub, GitLab, and Gitea, and has outgoing webhooks and a documented public API for anything else, including Azure Repos.",
     },
   ],
   related: ["jira", "github-projects", "redmine", "openproject"],

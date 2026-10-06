@@ -52,8 +52,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Biome
-        run: pnpm exec biome ci .
+      - name: Run Vite+ checks
+        run: pnpm lint
 
   i18n:
     runs-on: blacksmith-4vcpu-ubuntu-2404
@@ -155,7 +155,7 @@ jobs:
       - name: Test release security controls
         run: |
           docker pull nginx:1.29.5-alpine
-          node --test scripts/security/*.test.mjs scripts/ci/*.test.mjs
+          node --test scripts/security/*.test.mjs scripts/ci/*.test.mjs scripts/contribution-eligibility/*.test.mjs
 
       - name: Run unit tests
         env:
@@ -371,7 +371,7 @@ jobs:
       - name: Verify signed uploads against real storage
         env:
           KANEO_STORAGE_TEST_ENDPOINT: http://127.0.0.1:59039
-        run: pnpm --filter @kaneo/api exec vitest run --config vitest.storage.config.ts
+        run: pnpm --filter @kaneo/api exec vp test run --config vitest.storage.config.ts
       - name: Storage logs
         if: failure()
         run: docker logs kaneo-storage-ci

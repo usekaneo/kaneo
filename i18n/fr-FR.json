@@ -153,7 +153,8 @@
 					"terracotta": "Terre cuite",
 					"rose": "Rose",
 					"crimson": "Cramoisi"
-				}
+				},
+				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
 		"boolean": {
@@ -221,6 +222,14 @@
 			"onboarding": {
 				"title": "Qu'est-ce qu'un espace de travail",
 				"description": "Un espace de travail regroupe vos projets, leurs tâches et les personnes avec qui vous travaillez. Invitez vos collègues une fois qu'il est configuré."
+			},
+			"invite": {
+				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
+				"title": "Work better together"
+			},
+			"plan": {
+				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
+				"title": "Try everything first"
 			}
 		},
 		"signUp": {
@@ -336,7 +345,38 @@
 			"restrictedTitle": "Vous avez besoin d'une invitation",
 			"cloud": {
 				"title": "Nommez votre espace de travail",
-				"subtitle": "Utilisez le nom de votre équipe ou de votre entreprise. Vous pourrez le modifier plus tard dans les paramètres."
+				"subtitle": "Utilisez le nom de votre équipe ou de votre entreprise. Vous pourrez le modifier plus tard dans les paramètres.",
+				"continue": "Continue",
+				"invite": {
+					"addAnother": "Add another",
+					"emailLabel": "Teammate email {{index}}",
+					"emailPlaceholder": "teammate@company.com",
+					"failed": "Couldn't invite {{email}}: {{message}}",
+					"invalidEmail": "Enter a valid email address",
+					"remove": "Remove email {{index}}",
+					"send": "Send invites",
+					"sending": "Sending...",
+					"sent_many": "{{count}} invitations sent",
+					"sent_one": "Invitation sent",
+					"sent_other": "{{count}} invitations sent",
+					"skip": "Skip for now",
+					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
+					"title": "Invite your teammates"
+				},
+				"plan": {
+					"continueTrial": "Start free trial",
+					"continueWithoutPlan": "Continue to workspace",
+					"note": "You can pick or change a plan anytime in Settings, under Billing.",
+					"recommended": "Recommended",
+					"title": "Pick a plan",
+					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
+					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
+				},
+				"usageLabel": "Who will use this workspace?",
+				"usageSolo": "Just me",
+				"usageSoloDescription": "Keep track of your own work",
+				"usageTeam": "My team",
+				"usageTeamDescription": "Plan and ship work together"
 			}
 		},
 		"profileSetup": {
@@ -384,6 +424,7 @@
 		}
 	},
 	"settings": {
+		"advancedSettings": "Paramètres avancés",
 		"account": "Compte",
 		"developer": "Développeur",
 		"information": "Information",
@@ -765,7 +806,14 @@
 			"mattermostSectionSubtitle": "Send project task updates into a Mattermost channel with an incoming webhook.",
 			"mattermostSectionTitle": "Mattermost Integration",
 			"gitlabSectionSubtitle": "Synchronize tasks with GitLab.com or a self-managed instance (issues, merge requests, webhooks).",
-			"gitlabSectionTitle": "GitLab Integration"
+			"gitlabSectionTitle": "GitLab Integration",
+			"codeHostingTitle": "Hébergement de code",
+			"chatTitle": "Chat et webhooks",
+			"statusConnected": "Connecté",
+			"statusPaused": "En pause",
+			"connect": "Connecter",
+			"configure": "Configurer",
+			"done": "Terminé"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilité du projet",
@@ -1185,7 +1233,7 @@
 				"issue_closed": "Problème Fermé"
 			},
 			"gitlabHeading": "GitLab",
-			"gitlabHint": "When a GitLab webhook event occurs, move the linked task to a column."
+			"gitlabHint": "Lorsqu'un événement de webhook GitLab survient, déplacez la tâche associée vers une colonne."
 		},
 		"externalLinks": {
 			"resources": "Ressources",
@@ -1194,14 +1242,14 @@
 			"merged": "Fusionné",
 			"draft": "Brouillon",
 			"open": "Ouvert",
-			"adding": "Adding...",
-			"addResource": "Add resource",
-			"cancel": "Cancel",
-			"empty": "No resources linked to this task.",
-			"titleOptional": "Title (optional)",
+			"adding": "Ajout...",
+			"addResource": "Ajouter une ressource",
+			"cancel": "Annuler",
+			"empty": "Aucune ressource liée à cette tâche.",
+			"titleOptional": "Titre (optionnel)",
 			"url": "URL",
-			"remove": "Remove {{title}}",
-			"removeError": "Failed to remove the resource link."
+			"remove": "Supprimer {{title}}",
+			"removeError": "Échec de la suppression du lien de la ressource."
 		},
 		"workspaceRoles": {
 			"pageTitle": "Rôles",
@@ -1730,7 +1778,169 @@
 			"deletedLabel": "Deleted label",
 			"permissionRequired": "You need project-sharing permission to manage calendar feeds."
 		},
-		"invitationEmailFailed": "Invitation saved, but email delivery failed. Check SMTP settings and resend the invitation."
+		"invitationEmailFailed": "Invitation saved, but email delivery failed. Check SMTP settings and resend the invitation.",
+		"billing": {
+			"accessEnds": "Access ends",
+			"adminsOnly": "Only workspace owners and admins can manage billing.",
+			"choose": "Choose {{plan}}",
+			"choosePlan": {
+				"subtitle": "Switch anytime. Cancel whenever you like.",
+				"title": "Choose a plan"
+			},
+			"currentPlan": {
+				"subtitle": "Your workspace's active plan and billing status.",
+				"title": "Current plan"
+			},
+			"disabled": "Billing isn't enabled on this instance. Self-hosted Kaneo includes every feature, free forever.",
+			"expiredCallout": {
+				"action": "Choose a plan",
+				"adminDescription": "You can still view everything, but creating and editing are paused until you choose a plan. Nothing has been deleted.",
+				"memberDescription": "You can still view everything, but creating and editing are paused until a workspace owner or admin chooses a plan.",
+				"title": "Your free trial has ended"
+			},
+			"features": {
+				"backups": "Automatic backups and updates",
+				"emailSupport": "Email support",
+				"prioritySupport": "Priority email support",
+				"roles": "Workspace roles and permissions",
+				"singleUser": "Single user",
+				"unlimitedMembers": "Unlimited team members",
+				"unlimitedProjects": "Unlimited projects and tasks"
+			},
+			"foundingFree": {
+				"badge": "Free",
+				"description": "This workspace has free access to Kaneo Cloud as an early supporter. Thank you for being here from the start.",
+				"title": "Founding Free"
+			},
+			"interval": {
+				"annual": "Annual",
+				"annualBadge": "2 months free",
+				"monthly": "Monthly"
+			},
+			"manage": "Manage billing",
+			"mostPopular": "Most popular",
+			"opening": "Opening...",
+			"pageTitle": "Billing",
+			"planName": "Kaneo Cloud {{plan}}",
+			"plans": {
+				"personal": {
+					"name": "Personal",
+					"tagline": "For individuals"
+				},
+				"team": {
+					"name": "Team",
+					"tagline": "For teams working together"
+				}
+			},
+			"portalHint": "Update payment method, view invoices, or cancel anytime.",
+			"price": {
+				"billedMonthly": "Billed monthly",
+				"billedYearly": "{{price}} / month, billed yearly",
+				"billedYearlyPerUser": "{{price}} / user / month, billed yearly",
+				"perMonth": "/ month",
+				"perUserMonth": "/ user / month",
+				"perUserYear": "/ user / year",
+				"perYear": "/ year"
+			},
+			"processedBy": "Payments are securely processed by Creem. Prices exclude tax where applicable.",
+			"renews": "Renews",
+			"seats_many": "{{count}} seats",
+			"seats_one": "{{count}} seat",
+			"seats_other": "{{count}} seats",
+			"starting": "Starting...",
+			"status": {
+				"active": "Active",
+				"canceled": "Canceled",
+				"expired": "Expired",
+				"past_due": "Payment past due",
+				"paused": "Paused",
+				"scheduled_cancel": "Cancels soon",
+				"trialing": "Trial"
+			},
+			"subtitle": "Manage the Kaneo Cloud subscription for this workspace.",
+			"trial": {
+				"activeTitle": "Free trial",
+				"daysLeft_many": "You have {{count}} days left on your free trial. Choose a plan to continue without interruption.",
+				"daysLeft_one": "You have {{count}} day left on your free trial. Choose a plan to continue without interruption.",
+				"daysLeft_other": "You have {{count}} days left on your free trial. Choose a plan to continue without interruption.",
+				"expiredDescription": "Subscribe to a plan below to keep creating and editing. Your data stays safe and exportable in the meantime.",
+				"expiredTitle": "Your trial has ended",
+				"noDate": "Choose a plan below to continue after your trial."
+			},
+			"trialCard": {
+				"activeDescription": "Upgrade anytime to keep your workspace after the trial.",
+				"choosePlan": "Choose a plan",
+				"daysLeft_many": "{{count}} days left in trial",
+				"daysLeft_one": "{{count}} day left in trial",
+				"daysLeft_other": "{{count}} days left in trial",
+				"dismiss": "Dismiss",
+				"ended": "Trial ended",
+				"endingDescription": "Pick a plan now so your team isn't interrupted.",
+				"expiredDescription": "Subscribe to keep creating and editing.",
+				"viewPlans": "View plans"
+			},
+			"openFailed": "Couldn't open billing for this workspace"
+		},
+		"syncRules": {
+			"addLabel": "Add label",
+			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
+			"all": "All tasks and issues",
+			"allSummary": "All of: {{labels}}",
+			"any": "Any selected label",
+			"anySummary": "Any of: {{labels}}",
+			"apply": "Apply sync rules",
+			"closed": "Closed",
+			"every": "All selected labels",
+			"excluded": "Outside the current rule",
+			"filtered": "Only matching labels",
+			"filteredBadge": "Filtered by labels",
+			"impact": "{{matching}} of {{total}} tasks match. {{create}} tasks will be exported, {{pause}} links will pause, and {{review}} links need review to resume.",
+			"impactTitle": "What will change",
+			"incoming": "Repository → Kaneo",
+			"incomingHint": "Choose which issues can be imported or create tasks. Use exact repository label names. Existing links follow the Kaneo task rule.",
+			"loadError": "Sync rules could not be loaded.",
+			"loading": "Loading sync rules…",
+			"matchLabels": "Label matching",
+			"missingLabels": "A selected workspace label is unavailable. Sync stays paused until the rule is repaired.",
+			"removeMissingLabels": "Supprimer les étiquettes indisponibles",
+			"next": "Next",
+			"noDescription": "No description",
+			"noLabels": "Create workspace labels before configuring a task filter.",
+			"open": "Open",
+			"outgoing": "Kaneo → repository",
+			"outgoingHint": "Choose which Kaneo tasks can sync. Losing a matching label pauses both directions for an existing task.",
+			"paused": "Sync paused",
+			"pausedCount_many": "{{count}} paused links",
+			"pausedCount_one": "{{count}} paused link",
+			"pausedCount_other": "{{count}} paused links",
+			"pausedHint": "Records and links are preserved. Tasks that match again need review before syncing resumes.",
+			"preserveHint": "Pausing keeps both records and their link. Resuming requires a comparison; historical comments are never replayed.",
+			"previewing": "Checking sync impact…",
+			"previous": "Previous",
+			"refreshComparison": "Refresh comparison",
+			"refreshPreview": "Refresh preview",
+			"removeLabel": "Remove {{name}}",
+			"repository": "Repository",
+			"repositoryLabel": "Repository label name",
+			"resumeError": "Could not resume. The task, issue or rule may have changed, or the provider is unavailable. Sync remains paused; refresh the comparison.",
+			"review": "Review and resume",
+			"reviewHint": "Compare the current title, description and open/closed state. Choose which side to keep for these fields. Labels and historical comments remain unchanged.",
+			"reviewRequired": "Matches the rule · review required",
+			"reviewTitle": "Review before resuming sync",
+			"saved": "Sync rules saved",
+			"saveError": "Could not apply these rules. The integration or task scope may have changed. Refresh the preview and try again.",
+			"selectLabel": "Select at least one label to preview this rule.",
+			"sharedHint": "These rules apply to everyone using this project. Hiding advanced settings does not disable them.",
+			"title": "Sync scope",
+			"unavailableLabel": "Unavailable label",
+			"useKaneo": "Keep Kaneo values",
+			"useRepository": "Keep repository values",
+			"exportPending": "Export matching tasks",
+			"inactiveHint": "This integration is paused. No tasks will be exported until it is reactivated.",
+			"loadSavedRules": "Load saved rules",
+			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
+		},
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1754,14 +1964,16 @@
 				"close": "Fermer"
 			}
 		},
-		"notifications": "Notifications",
 		"sidebar": {
-			"overview": "Vue d'ensemble",
 			"projects": "Projets",
 			"members": "Membres",
 			"invitations": "Invitations",
 			"more": "Plus",
-			"backToBoard": "Retour au tableau"
+			"backToBoard": "Retour au tableau",
+			"home": "Home",
+			"inbox": "Inbox",
+			"invitePeople": "Invite people",
+			"myTasks": "My tasks"
 		},
 		"projectList": {
 			"viewProject": "Voir le projet",
@@ -1846,7 +2058,6 @@
 		}
 	},
 	"notifications": {
-		"title": "Notifications",
 		"newCount_one": "{{count}} nouvelle",
 		"newCount_other": "{{count}} nouvelles",
 		"emptyTitle": "Aucune notification pour le moment",
@@ -1854,9 +2065,6 @@
 		"clearAll": "Effacer toutes les notifications",
 		"clearDialogTitle": "Effacer toutes les notifications?",
 		"clearDialogDescription": "Cela supprimera définitivement toutes les notifications. Vous ne pouvez pas annuler cette action.",
-		"shortcuts": {
-			"open": "Ouvrir les notifications"
-		},
 		"events": {
 			"task_created": {
 				"title": "Nouvelle tâche créée",
@@ -1907,7 +2115,27 @@
 			"days_many": "{{count}} jours",
 			"hours_many": "{{count}} heures"
 		},
-		"newCount_many": "{{count}} nouvelles"
+		"newCount_many": "{{count}} nouvelles",
+		"inbox": {
+			"back": "Inbox",
+			"earlier": "Earlier",
+			"emptyFilter": "Nothing here",
+			"filters": {
+				"all": "All",
+				"label": "Filter notifications",
+				"mentions": "Mentions",
+				"unread": "Unread"
+			},
+			"openTask": "Open task",
+			"pageTitle": "Inbox",
+			"recentActivity": "Recent activity",
+			"selectPrompt": "Select a notification to read it",
+			"taskUnavailable": "This task is no longer available.",
+			"today": "Today",
+			"unread": "Unread",
+			"loadError": "Notifications couldn't be loaded.",
+			"taskLoadError": "This task couldn’t be loaded."
+		}
 	},
 	"activity": {
 		"assignedToSelf": "s'est assigné la tâche",
@@ -2052,6 +2280,9 @@
 			"loadingTask": "Chargement de la tâche...",
 			"taskNotFound": "Tâche non trouvée",
 			"taskNotFoundDescription": "La tâche que vous recherchez n'existe pas ou a été supprimée.",
+			"ticketAmbiguous": "Cet identifiant correspond à plusieurs tâches",
+			"ticketAmbiguousDescription": "{{ticketId}} correspond à des tâches dans plusieurs projets de cet espace de travail. Attribuez une clé différente à l'un de ces projets pour que le lien fonctionne.",
+			"ticketNotFoundDescription": "Aucune tâche avec l'identifiant {{ticketId}} n'existe dans cet espace de travail, ou vous n'y avez pas accès.",
 			"customFields": "Custom Fields"
 		},
 		"detail": {
@@ -2164,7 +2395,11 @@
 					"reset": "Reset size",
 					"resizeHandle": "Resize image",
 					"small": "Small"
-				}
+				},
+				"saved": "Saved",
+				"saving": "Saving…",
+				"saveFailed": "Changes could not be saved",
+				"retrySave": "Retry"
 			},
 			"customFieldUpdated": "Field updated",
 			"selectOption": "Select option"
@@ -2210,6 +2445,8 @@
 			"labels": "Labels",
 			"copyTaskLink": "Copier le lien de la tâche",
 			"copyTaskBranch": "Copier la branche de la tâche",
+			"taskLinkCopied": "Lien de la tâche copié",
+			"taskBranchCopied": "Nom de la branche copié",
 			"start": "Début",
 			"startDate": "Date de début",
 			"noDate": "Pas de date"
@@ -2376,7 +2613,8 @@
 			"noTasks": "Aucune tâche"
 		},
 		"kanban": {
-			"addTask": "Ajouter une tâche"
+			"addTask": "Ajouter une tâche",
+			"automaticallySortedHint": "Tri automatique par {{sort}}"
 		},
 		"pr": {
 			"merged": "Fusionné",
@@ -2481,6 +2719,9 @@
 		"checklistProgress": "{{completed}} éléments de la liste terminés sur {{total}}",
 		"customFields": {
 			"ariaLabel": "Custom fields"
+		},
+		"board": {
+			"reorderFailed": "Could not move task. Please try again."
 		}
 	},
 	"invitations": {
@@ -2567,6 +2808,65 @@
 			"submit": "Créer un workspace",
 			"success": "Workspace créé avec succès",
 			"error": "Échec de la création du workspace"
+		},
+		"home": {
+			"activity": {
+				"commented": "commented",
+				"empty": "Nothing has happened in the last 30 days.",
+				"loadError": "Activity couldn't be loaded.",
+				"title": "Activity",
+				"updated": "updated the task"
+			},
+			"greeting": {
+				"afternoon": "Good afternoon",
+				"evening": "Good evening",
+				"morning": "Good morning"
+			},
+			"newTask": "New task",
+			"pageTitle": "Home",
+			"projects": {
+				"all": "All projects",
+				"tasks_many": "{{count}} tasks",
+				"tasks_one": "{{count}} task",
+				"tasks_other": "{{count}} tasks",
+				"title": "Your projects",
+				"loadError": "Projects couldn't be loaded."
+			},
+			"upNext": {
+				"assigned_many": "{{count}} assigned to you",
+				"assigned_one": "{{count}} assigned to you",
+				"assigned_other": "{{count}} assigned to you",
+				"title": "Up next",
+				"viewAll": "View all"
+			},
+			"week": {
+				"more_many": "+{{count}} more",
+				"more_one": "+{{count}} more",
+				"more_other": "+{{count}} more",
+				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+			}
+		},
+		"myTasks": {
+			"emptyDescription": "Tasks assigned to you across this workspace show up here.",
+			"groupBy": {
+				"dueDate": "Due date",
+				"label": "Group by",
+				"project": "Project"
+			},
+			"pageTitle": "My tasks",
+			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"myWork": {
+			"due": {
+				"later": "Later",
+				"noDueDate": "No due date",
+				"overdue": "Overdue",
+				"thisWeek": "This week",
+				"today": "Today",
+				"tomorrow": "Tomorrow"
+			},
+			"empty": "Nothing assigned to you",
+			"loadError": "Your tasks couldn't be loaded."
 		}
 	},
 	"team": {
@@ -2735,6 +3035,7 @@
 			"guides": "Guides",
 			"comparisons": "Compare tools",
 			"roadmap": "Roadmap",
+			"community": "Communauté",
 			"menu": "Menu",
 			"closeMenu": "Close menu",
 			"home": "Kaneo home",

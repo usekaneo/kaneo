@@ -62,7 +62,7 @@ export function normalizeTelegramConfig(
     chatLabel: config.chatLabel?.trim() || undefined,
     events: {
       ...defaultTelegramEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
   };
 }

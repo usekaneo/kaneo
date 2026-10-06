@@ -1,7 +1,17 @@
+import { createHash } from "node:crypto";
+import { eq } from "drizzle-orm";
+import db, { schema } from "../../apps/api/src/database";
 import { once } from "node:events";
 import type { IncomingMessage } from "node:http";
 import { createRequire } from "node:module";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { serve } from "../../apps/api/node_modules/@hono/node-server";
 import type { NodeWebSocket } from "../../apps/api/node_modules/@hono/node-ws";
 import { auth } from "../../apps/api/src/auth";
@@ -98,6 +108,31 @@ afterEach(async () => {
 
 describe.each(["project", "user"])("%s WebSocket", (endpoint) => {
   const path = () => (endpoint === "user" ? "user" : projectId);
+  it("consumes a single quota and rate-limit unit per API-key handshake", async () => {
+    const key = `ws-key-${userId}`;
+    const [row] = await db
+      .insert(schema.apikeyTable)
+      .values({
+        referenceId: userId,
+        userId,
+        key: createHash("sha256").update(key).digest("base64url"),
+        remaining: 1,
+        rateLimitEnabled: true,
+        rateLimitMax: 1,
+        rateLimitTimeWindow: 60_000,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    expect((await connect(path(), { "x-api-key": key })).status).toBe(101);
+    const [saved] = await db
+      .select()
+      .from(schema.apikeyTable)
+      .where(eq(schema.apikeyTable.id, row.id));
+    expect(saved.remaining).toBe(0);
+    expect(saved.requestCount).toBe(1);
+    expect((await connect(path(), { "x-api-key": key })).status).toBe(401);
+  });
   it("rejects missing, null, hostile and lookalike browser origins", async () => {
     for (const origin of [
       undefined,

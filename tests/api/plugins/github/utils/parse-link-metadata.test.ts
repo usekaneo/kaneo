@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { parseLinkMetadata } from "../../../../../apps/api/src/plugins/github/utils/parse-link-metadata";
 
 const context = { externalLinkId: "link-1", source: "issue_closed" };

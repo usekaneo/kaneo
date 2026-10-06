@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import type Task from "@/types/task";
 import { removeTaskFromProject } from "./remove-task-from-project";
 

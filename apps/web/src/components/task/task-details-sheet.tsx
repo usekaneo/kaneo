@@ -2,6 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Maximize2, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import TaskDeleteButton from "./task-delete-button";
+import TaskDeleteDialog from "./task-delete-dialog";
 import TaskDetailsContent from "./task-details-content";
 import TaskPropertiesSidebar from "./task-properties-sidebar";
 
@@ -34,6 +35,7 @@ export default function TaskDetailsSheet({
   const [currentTaskId, setCurrentTaskId] = useState<string | undefined>(
     taskId,
   );
+  const [deleteHandle] = useState(() => AlertDialogCreateHandle());
 
   const { data: task } = useGetTask(currentTaskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
@@ -76,9 +78,6 @@ export default function TaskDetailsSheet({
             </span>
           </div>
           <div className="flex items-center gap-1">
-            {currentTaskId && (
-              <TaskDeleteButton taskId={currentTaskId} onDeleted={onClose} />
-            )}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -107,6 +106,14 @@ export default function TaskDetailsSheet({
           </div>
         </div>
 
+        {currentTaskId && (
+          <TaskDeleteDialog
+            handle={deleteHandle}
+            taskId={currentTaskId}
+            onDeleted={onClose}
+            shortcutEnabled={Boolean(taskId)}
+          />
+        )}
         <div
           className="flex flex-col flex-1 min-h-0 overflow-hidden"
           key={currentTaskId}
@@ -117,6 +124,8 @@ export default function TaskDetailsSheet({
             workspaceId={workspaceId}
             className="w-full bg-sidebar border-b border-border flex flex-col gap-0 overflow-y-auto shrink-0"
             compact={true}
+            deleteHandle={deleteHandle}
+            shortcutsEnabled={Boolean(taskId)}
           />
 
           <div className="flex-1 overflow-y-auto min-h-0">

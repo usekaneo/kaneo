@@ -1,6 +1,8 @@
 import { eq, max, sql } from "drizzle-orm";
+import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable } from "../../database/schema";
+import { findProjectKeyConflict, projectKeyTakenMessage } from "../project-key";
 
 export const DEFAULT_PROJECT_COLUMNS = [
   { name: "To Do", slug: "to-do", position: 0, isFinal: false },
@@ -23,6 +25,13 @@ async function createProject(
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(1524, hashtext(${workspaceId}))`,
     );
+
+    const keyConflict = await findProjectKeyConflict(tx, workspaceId, slug);
+    if (keyConflict) {
+      throw new HTTPException(409, {
+        message: projectKeyTakenMessage(slug, keyConflict.name),
+      });
+    }
 
     // New projects go to the bottom of the workspace's ordering.
     const [{ maxPosition } = { maxPosition: null }] = await tx

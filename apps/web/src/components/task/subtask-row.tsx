@@ -15,6 +15,7 @@ type SubtaskRowProps = {
   tasks: Task[];
   projectId: string;
   workspaceId: string;
+  workspaceSlug?: string | null;
   isSelected: boolean;
   isFocused: boolean;
   isCompleted: boolean;
@@ -33,6 +34,7 @@ export default function SubtaskRow({
   tasks,
   projectId,
   workspaceId,
+  workspaceSlug,
   isSelected,
   isFocused,
   isCompleted,
@@ -131,6 +133,7 @@ export default function SubtaskRow({
           taskCardContext={{
             projectId,
             worskpaceId: workspaceId,
+            workspaceSlug,
           }}
           onDeleteClick={onDeleteClick}
         />

@@ -3,7 +3,14 @@ import { Extension } from "@tiptap/core";
 import TaskItem from "@tiptap/extension-task-item";
 import { EditorView } from "@tiptap/pm/view";
 import type { Editor } from "@tiptap/react";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { toast } from "@/lib/toast";
 import { uploadTaskImage } from "@/lib/upload-task-image";
 import CommentEditor from "./comment-editor";

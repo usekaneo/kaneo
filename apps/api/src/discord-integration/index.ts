@@ -56,7 +56,7 @@ function toResponse(integration: {
       : "",
     events: {
       ...defaultDiscordEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     isActive: integration.isActive,
     createdAt: integration.createdAt,
@@ -254,8 +254,8 @@ const discordIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
           ? currentConfig.channelName
           : (body.channelName ?? undefined),
       events: {
-        ...(currentConfig.events ?? {}),
-        ...(body.events ?? {}),
+        ...currentConfig.events,
+        ...body.events,
       },
     });
 

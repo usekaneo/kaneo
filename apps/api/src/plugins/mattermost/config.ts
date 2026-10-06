@@ -60,7 +60,7 @@ export function normalizeMattermostConfig(
     channelName: config.channelName?.trim() || undefined,
     events: {
       ...defaultMattermostEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
   };
 }

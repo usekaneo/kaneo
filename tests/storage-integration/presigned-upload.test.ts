@@ -1,5 +1,5 @@
 import { request } from "node:http";
-import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import {
   CreateBucketCommand,
   DeleteBucketCommand,

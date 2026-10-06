@@ -1,9 +1,10 @@
+import { canSyncTask } from "../../sync/eligibility";
+import { syncLatestTaskValue } from "../services/sync-latest-task-value";
+import db from "../../../database";
+import { linkedTaskScope } from "../services/integration-task-scope";
 import type { PluginContext, TaskTitleChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
-import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../services/link-manager";
+import { findExternalLinksByTask } from "../services/link-manager";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
@@ -13,6 +14,16 @@ export async function handleTaskTitleChanged(
   event: TaskTitleChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;
@@ -23,6 +34,12 @@ export async function handleTaskTitleChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { title: true },
+    });
+    if (!current || current.title !== event.newTitle) return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -47,43 +64,36 @@ export async function handleTaskTitleChanged(
         console.log("Skipping title sync - already synced from GitHub");
         return;
       }
-
-      // Skip if recent sync (within 2 seconds) to prevent rapid loops
-      const timeSinceLastSync =
-        Date.now() - new Date(lastTitleSync.timestamp).getTime();
-      if (timeSinceLastSync < 2000) {
-        console.log(
-          `Skipping title sync - recent sync detected (${timeSinceLastSync}ms ago)`,
-        );
-        return;
-      }
     }
 
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await octokit.rest.issues.update({
-      owner: repositoryOwner,
-      repo: repositoryName,
-      issue_number: issueNumber,
-      title: event.newTitle,
-    });
-
-    // Update metadata to track this sync
-    await updateExternalLink(issueLink.id, {
-      title: event.newTitle,
-      metadata: {
-        ...metadata,
-        lastSync: {
-          ...metadata.lastSync,
-          title: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: event.newTitle,
-          },
-        },
+    await syncLatestTaskValue(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "title",
+      event.newTitle,
+      async (value) => {
+        const response = await octokit.rest.issues.update({
+          owner: repositoryOwner,
+          repo: repositoryName,
+          issue_number: issueNumber,
+          title: value,
+        });
+        return response?.data?.updated_at;
       },
-    });
+      async () =>
+        (
+          await octokit.rest.issues.get({
+            owner: repositoryOwner,
+            repo: repositoryName,
+            issue_number: issueNumber,
+          })
+        ).data.title,
+      { type: "github", config: JSON.stringify(config) },
+    );
 
     console.log(`Synced task title to GitHub issue #${issueNumber}`);
   } catch (error) {

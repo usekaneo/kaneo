@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -20,6 +21,7 @@ import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
+import type getProjects from "@/fetchers/project/get-projects";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -28,12 +30,14 @@ import { generateLink } from "@/lib/generate-link";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { getTaskPath } from "@/lib/task-link";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 
 type TaskCardContext = {
   worskpaceId: string;
+  workspaceSlug?: string | null;
   projectId: string;
 };
 
@@ -50,6 +54,7 @@ export default function TaskCardContextMenuContent({
 }: TaskCardContextMenuContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
+  const queryClient = useQueryClient();
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
   const columns =
     project?.columns && project.columns.length > 0
@@ -93,7 +98,20 @@ export default function TaskCardContextMenuContent({
   }, [workspaceUsers]);
 
   const handleCopyTaskLink = () => {
-    const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
+    const path = getTaskPath({
+      workspaceId: taskCardContext.worskpaceId,
+      workspace: {
+        id: taskCardContext.worskpaceId,
+        slug: taskCardContext.workspaceSlug,
+      },
+      projectId: taskCardContext.projectId,
+      workspaceProjects: queryClient.getQueryData<
+        Awaited<ReturnType<typeof getProjects>>
+      >(["projects", taskCardContext.worskpaceId]),
+      taskId: task.id,
+      taskNumber: task.number,
+      title: task.title,
+    });
     const taskLink = generateLink(path);
 
     navigator.clipboard.writeText(taskLink);

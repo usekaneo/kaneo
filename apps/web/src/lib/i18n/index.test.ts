@@ -6,7 +6,7 @@ import {
   it,
   type MockInstance,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const { loadLocaleMock, defaultResources } = vi.hoisted(() => {
   const resources = {
@@ -16,7 +16,9 @@ const { loadLocaleMock, defaultResources } = vi.hoisted(() => {
   return {
     loadLocaleMock: vi.fn(
       async (
-        _locale: Parameters<typeof import("@i18n/resources")["loadLocale"]>[0],
+        _locale: Parameters<
+          (typeof import("@i18n/resources"))["loadLocale"]
+        >[0],
       ) => resources,
     ),
     defaultResources: resources,

@@ -1,9 +1,11 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   assetTable,
   columnTable,
+  externalLinkTable,
+  integrationTable,
   projectTable,
   taskTable,
 } from "../../database/schema";
@@ -113,6 +115,22 @@ async function moveTask({
   );
 
   const movedTask = await db.transaction(async (tx) => {
+    for (const projectId of [sourceProject.id, destinationProjectId].sort()) {
+      const [project] = await tx
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(
+          and(
+            eq(projectTable.id, projectId),
+            eq(projectTable.workspaceId, sourceProject.workspaceId),
+          ),
+        )
+        .for("key share");
+      if (!project)
+        throw new HTTPException(409, {
+          message: "Project was moved to another workspace, please try again",
+        });
+    }
     const nextTaskNumber = await claimTaskNumber(destinationProjectId, tx);
     const nextPosition = await nextTaskPosition(
       tx,
@@ -130,14 +148,35 @@ async function moveTask({
         number: nextTaskNumber,
         position: nextPosition,
       })
-      .where(eq(taskTable.id, taskId))
+      .where(
+        and(
+          eq(taskTable.id, taskId),
+          eq(taskTable.projectId, sourceProject.id),
+        ),
+      )
       .returning();
 
     if (!updatedTask) {
-      throw new HTTPException(500, {
-        message: "Failed to move task",
+      throw new HTTPException(409, {
+        message: "Task was moved concurrently, please try again",
       });
     }
+
+    await tx
+      .delete(externalLinkTable)
+      .where(
+        and(
+          eq(externalLinkTable.taskId, taskId),
+          isNotNull(externalLinkTable.integrationId),
+          notInArray(
+            externalLinkTable.integrationId,
+            tx
+              .select({ id: integrationTable.id })
+              .from(integrationTable)
+              .where(eq(integrationTable.projectId, destinationProjectId)),
+          ),
+        ),
+      );
 
     await tx
       .update(assetTable)

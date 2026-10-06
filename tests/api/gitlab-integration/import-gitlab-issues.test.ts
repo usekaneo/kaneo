@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   listIssues: vi.fn(),
@@ -6,8 +6,17 @@ const mocks = vi.hoisted(() => ({
   insertValues: vi.fn(),
 }));
 
+vi.mock("../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: vi.fn(async () => true),
+}));
+
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
+    select: () => ({
+      from: () => ({
+        where: () => ({ for: async () => [{ id: "link-1" }] }),
+      }),
+    }),
     query: {
       projectTable: {
         findFirst: async () => ({
@@ -59,9 +68,8 @@ vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   }),
 }));
 
-const { importGitlabIssues } = await import(
-  "../../../apps/api/src/gitlab-integration/controllers/import-gitlab-issues"
-);
+const { importGitlabIssues } =
+  await import("../../../apps/api/src/gitlab-integration/controllers/import-gitlab-issues");
 
 function linkedIssue(labels: string[]) {
   return {
@@ -104,3 +112,33 @@ describe("importGitlabIssues labels on an already linked task", () => {
     );
   });
 });
+
+// Ownership locking is covered by integration-task-scope.test.ts. These cases
+// exercise provider behavior with the transaction's existing database mock.
+vi.mock(
+  "../../../apps/api/src/plugins/github/services/integration-task-scope",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../../apps/api/src/plugins/github/services/integration-task-scope")
+      >();
+    return {
+      ...actual,
+      withIntegrationTask: async (
+        _taskId: string,
+        _integration: unknown,
+        apply: (
+          database: unknown,
+          afterCommit: (effect: () => Promise<void>) => void,
+        ) => Promise<unknown>,
+      ) => {
+        const database = (await import("../../../apps/api/src/database"))
+          .default;
+        const effects: Array<() => Promise<void>> = [];
+        const result = await apply(database, (effect) => effects.push(effect));
+        for (const effect of effects) await effect();
+        return result;
+      },
+    };
+  },
+);

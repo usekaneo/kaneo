@@ -393,7 +393,7 @@ export default function CustomFieldEditor({
             {t("settings:customFields.loading")}
           </div>
         ) : fieldsToRender.length === 0 ? (
-          <div className="text-sm text-muted-foreground border border-border rounded-md bg-sidebar p-4">
+          <div className="text-sm text-muted-foreground rounded-xl border border-border bg-card p-4">
             {t("settings:customFields.empty")}
           </div>
         ) : (
@@ -427,7 +427,7 @@ export default function CustomFieldEditor({
                 : Boolean(defaultDisplayValue));
 
             return (
-              // biome-ignore lint/a11y/useSemanticElements: false positive for role="listitem"
+              // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- false positive for role="listitem"
               <div
                 key={field.id}
                 role="listitem"

@@ -11,13 +11,13 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "vp run compile",
     "dev": "tsc && email dev --port 3002 --dir src/templates",
     "export": "email export",
-    "lint": "biome check .",
-    "format": "biome format --write .",
-    "test": "vitest run --config vitest.config.ts",
-    "test:watch": "vitest --config vitest.config.ts"
+    "lint": "vp check .",
+    "format": "vp fmt .",
+    "test": "vp run test:run",
+    "test:watch": "vp test --config vitest.config.ts"
   },
   "dependencies": {
     "@react-email/components": "1.0.12",
@@ -33,6 +33,6 @@
     "@types/react-dom": "^19.3.0",
     "react-email": "6.11.0",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vite-plus": "catalog:"
   }
 }

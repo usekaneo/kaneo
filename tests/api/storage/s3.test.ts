@@ -1,5 +1,12 @@
 import { S3Client } from "@aws-sdk/client-s3";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import {
   applyKeyPrefix,
   assertProjectBackgroundKeyMatchesContext,
@@ -531,9 +538,8 @@ describe("S3 credential provider chain (IAM role)", () => {
 
 vi.mock("../../../apps/api/src/database", () => ({ default: {} }));
 
-const { contentReferencesAsset, extractAssetIds } = await import(
-  "../../../apps/api/src/storage/cleanup-assets"
-);
+const { contentReferencesAsset, extractAssetIds } =
+  await import("../../../apps/api/src/storage/cleanup-assets");
 
 describe("extractAssetIds", () => {
   it("extracts asset IDs from content with /api/asset/ URLs", () => {

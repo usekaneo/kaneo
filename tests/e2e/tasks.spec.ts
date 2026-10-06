@@ -44,6 +44,8 @@ async function createWorkspace(page: Page) {
 }
 
 async function createProject(page: Page) {
+  await page.getByRole("link", { name: "All projects", exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
   await page
     .getByRole("button", { name: "Create project", exact: true })
     .first()

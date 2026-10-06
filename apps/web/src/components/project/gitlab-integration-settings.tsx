@@ -161,12 +161,14 @@ export function GitlabIntegrationSettings({
     },
   });
 
+  const { reset: resetForm, getValues: getFormValues, formState } = form;
+
   const resetIntegrationForm = React.useCallback(() => {
     if (!integration?.baseUrl) {
       return;
     }
 
-    form.reset({
+    resetForm({
       baseUrl: integration.baseUrl,
       accessToken: "",
       tokenType: integration.tokenType,
@@ -177,7 +179,7 @@ export function GitlabIntegrationSettings({
     setVerificationResult(null);
     setShowWebhookSecret(false);
   }, [
-    form.reset,
+    resetForm,
     integration?.baseUrl,
     integration?.projectPath,
     integration?.tokenType,
@@ -271,7 +273,7 @@ export function GitlabIntegrationSettings({
   }, [currentVerificationSnapshot]);
 
   React.useEffect(() => {
-    if (!baseUrl || !projectPath || !form.formState.isValid) {
+    if (!baseUrl || !projectPath || !formState.isValid) {
       return;
     }
     if (!accessToken.trim()) {
@@ -289,7 +291,7 @@ export function GitlabIntegrationSettings({
     projectPath,
     accessToken,
     tokenType,
-    form.formState.isValid,
+    formState.isValid,
     runVerify,
   ]);
 
@@ -346,7 +348,7 @@ export function GitlabIntegrationSettings({
   const handleDelete = async () => {
     try {
       await deleteIntegration(projectId);
-      form.reset({
+      resetForm({
         baseUrl: GITLAB_CLOUD_URL,
         accessToken: "",
         tokenType: "private",
@@ -413,7 +415,7 @@ export function GitlabIntegrationSettings({
 
   if (integrationError) {
     return (
-      <div className="space-y-4 border border-destructive/25 rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-destructive/25 bg-card p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
@@ -455,7 +457,7 @@ export function GitlabIntegrationSettings({
 
   return (
     <div className="space-y-4">
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <p className="text-sm font-medium">
@@ -603,7 +605,7 @@ export function GitlabIntegrationSettings({
         )}
       </div>
 
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -777,10 +779,10 @@ export function GitlabIntegrationSettings({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => runVerify(form.getValues())}
+                  onClick={() => runVerify(getFormValues())}
                   disabled={
                     isVerifying ||
-                    !form.formState.isValid ||
+                    !formState.isValid ||
                     (!accessToken.trim() && !integration)
                   }
                   className="gap-2"
@@ -797,7 +799,7 @@ export function GitlabIntegrationSettings({
                   disabled={
                     isCreating ||
                     isDeleting ||
-                    !form.formState.isValid ||
+                    !formState.isValid ||
                     (verificationResult ? !hasVerifiedCurrentValues : false)
                   }
                   className="gap-2"
@@ -859,7 +861,7 @@ export function GitlabIntegrationSettings({
       </div>
 
       {isConnected && (
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <p className="text-sm font-medium">

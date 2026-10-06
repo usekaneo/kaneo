@@ -1,10 +1,14 @@
+import { canSyncTask } from "../../sync/eligibility";
+import { syncLatestTaskValue } from "../services/sync-latest-task-value";
+import db from "../../../database";
+import { linkedTaskScope } from "../services/integration-task-scope";
 import type { PluginContext, TaskDescriptionChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
+import { findExternalLinksByTask } from "../services/link-manager";
 import {
-  findExternalLinksByTask,
-  updateExternalLink,
-} from "../services/link-manager";
-import { formatIssueBody } from "../utils/format";
+  formatIssueBody,
+  formatTaskDescriptionFromIssue,
+} from "../utils/format";
 import {
   getGithubApp,
   getVerifiedInstallationOctokit,
@@ -14,6 +18,16 @@ export async function handleTaskDescriptionChanged(
   event: TaskDescriptionChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;
@@ -24,6 +38,16 @@ export async function handleTaskDescriptionChanged(
   const { repositoryOwner, repositoryName } = config;
 
   try {
+    const current = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(event.taskId, context.projectId),
+      columns: { description: true },
+    });
+    if (
+      !current ||
+      (current.description || "") !== (event.newDescription || "")
+    )
+      return;
+
     const links = await findExternalLinksByTask(event.taskId);
     const issueLink = links.find(
       (link) =>
@@ -50,45 +74,40 @@ export async function handleTaskDescriptionChanged(
         console.log("Skipping description sync - already synced from GitHub");
         return;
       }
-
-      // Skip if recent sync (within 2 seconds) to prevent rapid loops
-      const timeSinceLastSync =
-        Date.now() - new Date(lastDescSync.timestamp).getTime();
-      if (timeSinceLastSync < 2000) {
-        console.log(
-          `Skipping description sync - recent sync detected (${timeSinceLastSync}ms ago)`,
-        );
-        return;
-      }
     }
 
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
     // Format description with task ID footer
-    const formattedBody = formatIssueBody(event.newDescription, event.taskId);
-
-    await octokit.rest.issues.update({
-      owner: repositoryOwner,
-      repo: repositoryName,
-      issue_number: issueNumber,
-      body: formattedBody,
-    });
-
-    // Update metadata to track this sync
-    await updateExternalLink(issueLink.id, {
-      metadata: {
-        ...metadata,
-        lastSync: {
-          ...metadata.lastSync,
-          description: {
-            timestamp: new Date().toISOString(),
-            source: "kaneo",
-            value: newDescNormalized,
-          },
-        },
+    await syncLatestTaskValue(
+      event.taskId,
+      context.projectId,
+      issueLink,
+      "description",
+      newDescNormalized,
+      async (value) => {
+        const response = await octokit.rest.issues.update({
+          owner: repositoryOwner,
+          repo: repositoryName,
+          issue_number: issueNumber,
+          body: formatIssueBody(value, event.taskId),
+        });
+        return response?.data?.updated_at;
       },
-    });
+      async () =>
+        formatTaskDescriptionFromIssue(
+          (
+            await octokit.rest.issues.get({
+              owner: repositoryOwner,
+              repo: repositoryName,
+              issue_number: issueNumber,
+            })
+          ).data.body ?? null,
+          event.taskId,
+        ),
+      { type: "github", config: JSON.stringify(config) },
+    );
 
     console.log(`Synced task description to GitHub issue #${issueNumber}`);
   } catch (error) {

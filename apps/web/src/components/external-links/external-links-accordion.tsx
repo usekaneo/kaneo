@@ -122,6 +122,14 @@ export function ExternalLinksAccordion({
     const isIssue = link.resourceType === "issue";
     const isBranch = link.resourceType === "branch";
 
+    if (isIssue && link.metadata?.syncFilterPaused === true) {
+      return (
+        <span className="text-xs font-medium text-warning-foreground">
+          {t("settings:syncRules.paused")}
+        </span>
+      );
+    }
+
     if (isIssue) {
       return (
         <span className="text-xs font-medium text-muted-foreground">
@@ -275,7 +283,7 @@ export function ExternalLinksAccordion({
               </DialogTitle>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 px-6 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="external-resource-url">
                   {t("settings:externalLinks.url")}

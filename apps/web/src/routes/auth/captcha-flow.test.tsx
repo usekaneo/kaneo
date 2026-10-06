@@ -15,7 +15,7 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const m = vi.hoisted(() => ({
   anonymous: vi.fn(),

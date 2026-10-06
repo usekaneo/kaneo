@@ -10,6 +10,8 @@ export type GiteaLabel = {
 };
 
 export type GiteaIssue = {
+  updated_at?: string;
+  content_version?: number;
   id: number;
   number: number;
   title: string;

@@ -4,16 +4,17 @@ FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.7.0 --activate
+  corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
 # Copy only package files first for better caching
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
+COPY packages/mcp/package.json ./packages/mcp/
 COPY apps/api/package.json ./apps/api/
 
 # Install dependencies
@@ -24,6 +25,7 @@ COPY packages/typescript-config ./packages/typescript-config
 COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
+COPY packages/mcp ./packages/mcp
 COPY i18n ./i18n
 COPY apps/api ./apps/api
 
@@ -45,15 +47,16 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
 # resulting node_modules is architecture-independent and safe to copy into the arm64 runtime.
 FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS prod-deps
 
-RUN corepack enable && corepack prepare pnpm@10.7.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
-COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/email/package.json ./packages/email/
 COPY packages/permissions/package.json ./packages/permissions/
+COPY packages/mcp/package.json ./packages/mcp/
 COPY apps/api/package.json ./apps/api/
 
 RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
@@ -79,9 +82,11 @@ COPY --from=builder --chown=appuser:appuser /app/apps/api/dist ./apps/api/dist
 COPY --from=builder --chown=appuser:appuser /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=builder --chown=appuser:appuser /app/packages/email ./packages/email
 COPY --from=builder --chown=appuser:appuser /app/packages/permissions ./packages/permissions
+COPY --from=builder --chown=appuser:appuser /app/packages/mcp/dist ./packages/mcp/dist
 
 # Fail the build early if the runtime dependency layout is broken on the target architecture
-RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}"
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}" && \
+  node --input-type=module -e "import { registerTools } from '@kaneo/mcp/tools'; if (typeof registerTools !== 'function') process.exit(1)"
 
 # Switch to non-root user
 USER appuser
@@ -90,6 +95,6 @@ EXPOSE 1337
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:1337/api/health || exit 1
+  CMD wget -Y off --no-verbose --tries=1 --spider http://127.0.0.1:1337/api/health || exit 1
 
 CMD ["node", "--enable-source-maps", "dist/index.js"]

@@ -1,5 +1,5 @@
 import { HTTPException } from "hono/http-exception";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const { mockGitlabFetch } = vi.hoisted(() => ({
   mockGitlabFetch: vi.fn(),
@@ -13,9 +13,8 @@ vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   }),
 }));
 
-const { default: verifyGitlabAccess } = await import(
-  "../../../apps/api/src/gitlab-integration/controllers/verify-gitlab-access"
-);
+const { default: verifyGitlabAccess } =
+  await import("../../../apps/api/src/gitlab-integration/controllers/verify-gitlab-access");
 
 async function statusOf(promise: Promise<unknown>) {
   try {

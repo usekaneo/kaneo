@@ -5,7 +5,14 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { NotificationPreferencesSettings } from "./notification-preferences-settings";
 
 const updatePreferences = vi.fn();
@@ -86,7 +93,9 @@ describe("NotificationPreferencesSettings", () => {
     );
     fireEvent.change(
       screen.getByLabelText("settings:notificationsPage.reminderLeadTimeLabel"),
-      { target: { value: "2" } },
+      {
+        target: { value: "2" },
+      },
     );
     fireEvent.click(
       screen.getByRole("button", {
@@ -110,7 +119,9 @@ describe("NotificationPreferencesSettings", () => {
 
     fireEvent.change(
       screen.getByLabelText("settings:notificationsPage.reminderLeadTimeLabel"),
-      { target: { value: "" } },
+      {
+        target: { value: "" },
+      },
     );
 
     expect(
@@ -128,7 +139,9 @@ describe("NotificationPreferencesSettings", () => {
 
     fireEvent.change(
       screen.getByLabelText("settings:notificationsPage.reminderLeadTimeLabel"),
-      { target: { value: "0" } },
+      {
+        target: { value: "0" },
+      },
     );
     fireEvent.click(
       screen.getByRole("switch", {

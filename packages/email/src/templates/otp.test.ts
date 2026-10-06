@@ -1,6 +1,6 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { OTP_EXPIRY_SECONDS } from "../otp-expiry";
 import OtpEmail from "./otp";
 
@@ -16,6 +16,7 @@ describe("OtpEmail", () => {
     ["de-DE", "Dieser Code läuft in 5 Minuten ab."],
     ["vi-VN", "Mã này sẽ hết hạn sau 5 phút."],
     ["ja-JP", "このコードの有効期限は5分です。"],
+    ["zh-TW", "此驗證碼將在 5 分鐘後失效。"],
   ])("describes the server expiry in %s", async (locale, expiry) => {
     expect(OTP_EXPIRY_SECONDS).toBe(300);
     const html = await render(

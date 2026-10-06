@@ -4,8 +4,9 @@ import {
   supportedLocales,
 } from "@i18n/resources";
 import { createFileRoute } from "@tanstack/react-router";
-import { RotateCcw } from "lucide-react";
+import { List, RotateCcw, SquareKanban } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ThemePicker } from "@/components/account/theme-picker";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,31 +18,24 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useLocale } from "@/hooks/use-locale";
+import { getLocaleLabel } from "@/lib/i18n/get-locale-label";
 import {
   isWeekStartDay,
   useUserPreferencesStore,
   WEEK_START_DAYS,
   type WeekStartDay,
 } from "@/store/user-preferences";
+import { AdvancedSettingsSwitch } from "@/components/settings/advanced-settings-switch";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/account/preferences",
 )({
   component: RouteComponent,
 });
-
-function getLocaleLabel(locale: AppLocale) {
-  try {
-    const localeObj = new Intl.Locale(locale);
-    const languageDisplayNames = new Intl.DisplayNames([locale], {
-      type: "language",
-    });
-    return languageDisplayNames.of(localeObj.language) ?? locale;
-  } catch {
-    return locale;
-  }
-}
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -70,16 +64,6 @@ function RouteComponent() {
     setSidebarDefaultOpen,
   } = useUserPreferencesStore();
 
-  const themeLabels: Record<string, string> = {
-    light: t("settings:preferencesPage.themeLight"),
-    dark: t("settings:preferencesPage.themeDark"),
-    system: t("settings:preferencesPage.themeSystem"),
-  };
-
-  const viewLabels: Record<string, string> = {
-    board: t("settings:preferencesPage.board"),
-    list: t("settings:preferencesPage.list"),
-  };
   const weekStartLabels: Record<WeekStartDay, string> = {
     0: t("settings:preferencesPage.weekStartsOnSunday"),
     1: t("settings:preferencesPage.weekStartsOnMonday"),
@@ -89,63 +73,25 @@ function RouteComponent() {
   const selectedLocale: AppLocale = locale ?? defaultLocale;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-2xl font-semibold">
-          {t("settings:preferencesPage.title")}
-        </h1>
-        <p className="text-muted-foreground">
-          {t("settings:preferencesPage.subtitle")}
-        </p>
+    <SettingsPage
+      title={t("settings:preferencesPage.title")}
+      description={t("settings:preferencesPage.subtitle")}
+    >
+      <div className="space-y-3">
+        <SettingsSectionHeader
+          title={t("settings:preferencesPage.theme")}
+          description={t("settings:preferencesPage.themeDescription")}
+        />
+        <ThemePicker value={theme} onChange={setTheme} />
       </div>
 
-      <div className="space-y-6">
-        <div className="space-y-1">
-          <h2 className="text-md font-medium">
-            {t("settings:preferencesPage.appearanceTitle")}
-          </h2>
-          <p className="text-xs text-muted-foreground">
-            {t("settings:preferencesPage.appearanceSubtitle")}
-          </p>
-        </div>
+      <div className="space-y-3">
+        <SettingsSectionHeader
+          title={t("settings:preferencesPage.appearanceTitle")}
+          description={t("settings:preferencesPage.appearanceSubtitle")}
+        />
 
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <div className="space-y-0.5">
-              <Label className="text-sm font-medium">
-                {t("settings:preferencesPage.theme")}
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                {t("settings:preferencesPage.themeDescription")}
-              </p>
-            </div>
-            <Select
-              value={theme}
-              onValueChange={(value) => value && setTheme(value)}
-            >
-              <SelectTrigger size="sm" className="w-full sm:w-40">
-                <SelectValue
-                  placeholder={t("settings:preferencesPage.selectTheme")}
-                >
-                  {themeLabels[theme]}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="light">
-                  {t("settings:preferencesPage.themeLight")}
-                </SelectItem>
-                <SelectItem value="dark">
-                  {t("settings:preferencesPage.themeDark")}
-                </SelectItem>
-                <SelectItem value="system">
-                  {t("settings:preferencesPage.themeSystem")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Separator />
-
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="space-y-0.5">
               <Label className="text-sm font-medium">
@@ -235,26 +181,25 @@ function RouteComponent() {
                 {t("settings:preferencesPage.defaultViewDescription")}
               </p>
             </div>
-            <Select
-              value={viewMode}
-              onValueChange={(value) => value && setViewMode(value)}
+            <ToggleGroup
+              value={[viewMode]}
+              onValueChange={(values) => {
+                const next = values[0];
+                if (next === "board" || next === "list") setViewMode(next);
+              }}
+              variant="outline"
+              size="sm"
+              aria-label={t("settings:preferencesPage.defaultView")}
             >
-              <SelectTrigger size="sm" className="w-full sm:w-40">
-                <SelectValue
-                  placeholder={t("settings:preferencesPage.selectViewMode")}
-                >
-                  {viewLabels[viewMode]}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="board">
-                  {t("settings:preferencesPage.board")}
-                </SelectItem>
-                <SelectItem value="list">
-                  {t("settings:preferencesPage.list")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <ToggleGroupItem value="board" className="gap-1.5 px-2.5">
+                <SquareKanban aria-hidden="true" />
+                {t("settings:preferencesPage.board")}
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" className="gap-1.5 px-2.5">
+                <List aria-hidden="true" />
+                {t("settings:preferencesPage.list")}
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
 
           <Separator />
@@ -303,14 +248,12 @@ function RouteComponent() {
 
       <div className="space-y-6">
         <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:preferencesPage.displayOptions")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:preferencesPage.displayOptionsDescription")}
-            </p>
-          </div>
+          <SettingsSectionHeader
+            title={t("settings:preferencesPage.displayOptions")}
+            description={t(
+              "settings:preferencesPage.displayOptionsDescription",
+            )}
+          />
           <Button
             variant="outline"
             size="xs"
@@ -322,7 +265,7 @@ function RouteComponent() {
           </Button>
         </div>
 
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <Label
@@ -415,6 +358,8 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-    </div>
+
+      <AdvancedSettingsSwitch />
+    </SettingsPage>
   );
 }

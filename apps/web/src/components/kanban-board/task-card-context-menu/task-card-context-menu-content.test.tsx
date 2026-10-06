@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "./task-card-context-menu-content";
 
@@ -69,6 +69,11 @@ vi.mock(
     }),
   }),
 );
+
+vi.mock("@tanstack/react-query", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@tanstack/react-query")>()),
+  useQueryClient: () => ({ getQueryData: () => [] }),
+}));
 
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),

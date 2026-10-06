@@ -29,7 +29,7 @@ const scenarios = [
     name: "literal punctuation, control characters, UTF-8, and placeholder-like data",
     api: 'https://api.example.test/a&b/$host/"quoted"/\\path/api#fragment',
     client:
-      // biome-ignore lint/suspicious/noTemplateCurlyInString: Must remain literal hostile configuration data.
+      // eslint-disable-next-line no-template-curly-in-string -- Must remain literal hostile configuration data.
       "https://app.example.test/#'\"` ${globalThis.injected = true} & \\ \n\r\t\u0001\u001f Grüße 😀 \u2028\u2029",
     key: 'KANEO_CLIENT_URL ";globalThis.injected=true;//',
   },

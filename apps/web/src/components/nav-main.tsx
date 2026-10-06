@@ -1,93 +1,133 @@
-import { useNavigate } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
-import { useTranslation } from "react-i18next";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
-  Collapsible,
-  CollapsiblePanel,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+  CircleCheck,
+  House,
+  Inbox,
+  type LucideIcon,
+  Mail,
+  Users,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { shortcuts } from "@/constants/shortcuts";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
+import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
+import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { cn } from "@/lib/cn";
+
+type NavItem = {
+  title: string;
+  icon: LucideIcon;
+  url: string;
+  count?: number;
+  emphasizeCount?: boolean;
+};
 
 export function NavMain() {
   const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
+  const pathname = useLocation({
+    select: (location) => location.pathname.replace(/\/+$/, ""),
+  });
   const { data: invitations = [] } = usePendingInvitations();
+  const { data: notifications = [] } = useGetNotifications(workspace?.id);
+  const { data: assignedTasks } = useGetAssignedTasks(workspace?.id, true);
+
+  const inboxUrl = workspace
+    ? `/dashboard/workspace/${workspace.id}/inbox`
+    : undefined;
+
+  useRegisterShortcuts({
+    sequentialShortcuts: {
+      [shortcuts.notification.prefix]: {
+        [shortcuts.notification.open]: () => {
+          if (inboxUrl) navigate({ to: inboxUrl });
+        },
+      },
+    },
+  });
 
   if (!workspace) return null;
 
-  const pendingCount = invitations.length;
+  const homeUrl = `/dashboard/workspace/${workspace.id}`;
+  const unreadCount = notifications.filter(
+    (notification) => !notification.isRead,
+  ).length;
 
-  const navItems = [
+  const navItems: NavItem[] = [
+    { title: t("navigation:sidebar.home"), icon: House, url: homeUrl },
     {
-      title: t("navigation:sidebar.projects"),
-      url: `/dashboard/workspace/${workspace.id}`,
-      isActive:
-        window.location.pathname === `/dashboard/workspace/${workspace.id}`,
-      badge: null,
+      title: t("navigation:sidebar.inbox"),
+      icon: Inbox,
+      url: `${homeUrl}/inbox`,
+      count: unreadCount,
+      emphasizeCount: true,
+    },
+    {
+      title: t("navigation:sidebar.myTasks"),
+      icon: CircleCheck,
+      url: `${homeUrl}/my-tasks`,
+      count: assignedTasks?.total,
     },
     {
       title: t("navigation:sidebar.members"),
-      url: `/dashboard/workspace/${workspace.id}/members`,
-      isActive:
-        window.location.pathname ===
-        `/dashboard/workspace/${workspace.id}/members`,
-      badge: null,
-    },
-    {
-      title: t("navigation:sidebar.invitations"),
-      url: "/dashboard/invitations",
-      isActive: window.location.pathname === "/dashboard/invitations",
-      badge: pendingCount > 0 ? pendingCount : null,
+      icon: Users,
+      url: `${homeUrl}/members`,
     },
   ];
 
+  // Invitations to other workspaces only matter while one is waiting.
+  if (invitations.length > 0) {
+    navItems.push({
+      title: t("navigation:sidebar.invitations"),
+      icon: Mail,
+      url: "/dashboard/invitations",
+      count: invitations.length,
+      emphasizeCount: true,
+    });
+  }
+
   return (
-    <Collapsible defaultOpen className="group/collapsible">
-      <SidebarGroup className="gap-1 p-2">
-        <CollapsibleTrigger
-          className="data-panel-open:[&_svg]:rotate-90"
-          render={
-            <SidebarGroupLabel className="h-7 cursor-pointer justify-between px-0 text-sidebar-accent-foreground" />
-          }
-        >
-          <span>{t("navigation:sidebar.overview")}</span>
-          <ChevronRight className="h-3.5 w-3.5 text-sidebar-foreground/60 transition-transform duration-200" />
-        </CollapsibleTrigger>
-        <CollapsiblePanel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton
-                    tooltip={item.title}
-                    isActive={item.isActive}
-                    size="default"
-                    className="h-8 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
-                    onClick={() => navigate({ to: item.url })}
-                  >
-                    <span>{item.title}</span>
-                    {item.badge !== null && (
-                      <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-sm border border-sidebar-border/60 px-1 text-[11px] font-medium text-sidebar-foreground/80">
-                        {item.badge}
-                      </span>
+    <SidebarGroup className="gap-1 p-2">
+      <SidebarGroupContent>
+        <SidebarMenu className="gap-0.5">
+          {navItems.map((item) => (
+            <SidebarMenuItem key={item.url}>
+              <SidebarMenuButton
+                tooltip={item.title}
+                isActive={pathname === item.url}
+                size="default"
+                className="h-8 text-sm"
+                onClick={() => navigate({ to: item.url })}
+              >
+                <item.icon aria-hidden="true" />
+                <span>{item.title}</span>
+                {item.count ? (
+                  <span
+                    className={cn(
+                      "ml-auto flex h-4.5 min-w-4.5 shrink-0 items-center justify-center rounded-full px-1 text-[11px] tabular-nums",
+                      item.emphasizeCount
+                        ? "bg-foreground font-semibold text-background"
+                        : "font-medium text-muted-foreground",
                     )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </CollapsiblePanel>
-      </SidebarGroup>
-    </Collapsible>
+                  >
+                    {item.count > 99 ? "99+" : item.count}
+                  </span>
+                ) : null}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }

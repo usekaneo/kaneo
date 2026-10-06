@@ -21,7 +21,7 @@ function generateProjectSlug(projectName: string) {
   // multilingual plane is two units, so `word[0]` would hand back half a
   // surrogate pair and `slice(0, 3)` would cut one in half. Leading combining
   // marks are skipped for the same reason `firstLetterOrNumber` skips them: a
-  // key has to start with a letter to be typed back as a task short id.
+  // key has to start with a letter or number to be typed back as a task short id.
   if (words.length === 1) {
     const codePoints = Array.from(words[0]);
     const firstLetter = codePoints.findIndex((char) =>

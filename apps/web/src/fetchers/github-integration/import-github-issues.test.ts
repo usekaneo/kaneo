@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import importGithubIssues from "./import-github-issues";
 
 const { request } = vi.hoisted(() => ({ request: vi.fn() }));

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { importGiteaIssues } from "../../../../apps/api/src/gitea-integration/controllers/import-gitea-issues";
 import { handleTaskCommentCreated } from "../../../../apps/api/src/plugins/gitea/events/task-comment-created";
 import { handleGiteaIssueCommentCreated } from "../../../../apps/api/src/plugins/gitea/webhooks/issue-comment-created";
@@ -17,6 +17,11 @@ const config = {
 
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
+    select: () => ({
+      from: () => ({
+        where: () => ({ for: async () => [{ id: "link-1" }] }),
+      }),
+    }),
     insert: () => ({ values: mocks.values }),
     update: () => ({ set: () => ({ where: vi.fn() }) }),
     delete: () => ({ where: vi.fn() }),
@@ -165,3 +170,70 @@ describe("Gitea comment sync", () => {
     );
   });
 });
+
+// Ownership locking is covered by integration-task-scope.test.ts. These cases
+// exercise provider behavior with the transaction's existing database mock.
+vi.mock(
+  "../../../../apps/api/src/plugins/github/services/integration-task-scope",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../../../apps/api/src/plugins/github/services/integration-task-scope")
+      >();
+    return {
+      ...actual,
+      withIntegrationTask: async (
+        _taskId: string,
+        _integration: unknown,
+        apply: (
+          database: unknown,
+          afterCommit: (effect: () => Promise<void>) => void,
+        ) => Promise<unknown>,
+      ) => {
+        const database = (await import("../../../../apps/api/src/database"))
+          .default;
+        const effects: Array<() => Promise<void>> = [];
+        const result = await apply(database, (effect) => effects.push(effect));
+        for (const effect of effects) await effect();
+        return result;
+      },
+    };
+  },
+);
+
+vi.mock(
+  "../../../../apps/api/src/plugins/github/services/with-integration-link",
+  async () => ({
+    withIntegrationLink: async (
+      link: unknown,
+      integration: unknown,
+      apply: (
+        database: unknown,
+        afterCommit: (effect: () => Promise<void>) => void,
+        link: unknown,
+      ) => Promise<unknown>,
+    ) => {
+      const { withIntegrationTask } =
+        await import("../../../../apps/api/src/plugins/github/services/integration-task-scope");
+      return withIntegrationTask(
+        (link as { taskId: string }).taskId,
+        integration as Parameters<typeof withIntegrationTask>[1],
+        (database, afterCommit) => apply(database, afterCommit, link),
+      );
+    },
+  }),
+);
+
+// Policy enforcement is covered by the PostgreSQL sync-rules integration tests.
+vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));
+
+vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
+  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+  dispatchIssueWrite: async (
+    _link: unknown,
+    _config: unknown,
+    send: () => Promise<unknown>,
+  ) => ({ value: await send() }),
+}));

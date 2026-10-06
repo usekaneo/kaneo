@@ -18,7 +18,11 @@ import {
   notificationListSchema,
   notificationSchema,
 } from "./response";
-import { createNotificationBody, notificationParam } from "./schema";
+import {
+  createNotificationBody,
+  notificationParam,
+  notificationWorkspaceQuery,
+} from "./schema";
 
 const listNotificationsRoute = createRoute({
   method: "get",
@@ -26,7 +30,9 @@ const listNotificationsRoute = createRoute({
   path: "/",
   tags: ["Notifications"],
   summary: "List notifications",
-  description: "Get every notification for the current user, read and unread.",
+  request: { query: notificationWorkspaceQuery },
+  description:
+    "Get up to 50 notifications for the current user, read and unread. Optionally limit them to one workspace before applying the limit.",
   responses: {
     200: jsonResponse("List of notifications", notificationListSchema),
   },
@@ -76,7 +82,9 @@ const markAllAsReadRoute = createRoute({
   path: "/read-all",
   tags: ["Notifications"],
   summary: "Mark all read",
-  description: "Mark every notification for the current user as read.",
+  request: { query: notificationWorkspaceQuery },
+  description:
+    "Mark notifications for the current user as read, optionally limited to one workspace.",
   responses: {
     200: jsonResponse("All notifications marked as read", bulkResultSchema),
   },
@@ -88,8 +96,9 @@ const clearAllRoute = createRoute({
   path: "/clear-all",
   tags: ["Notifications"],
   summary: "Clear all",
+  request: { query: notificationWorkspaceQuery },
   description:
-    "Permanently delete every notification for the current user. This cannot be undone.",
+    "Permanently delete notifications for the current user, optionally limited to one workspace. This cannot be undone.",
   responses: {
     200: jsonResponse("All notifications cleared", bulkResultSchema),
   },
@@ -97,7 +106,10 @@ const clearAllRoute = createRoute({
 
 const notification = apiRouter()
   .openapi(listNotificationsRoute, async (c) =>
-    c.json(await getNotifications(c.get("userId")), 200),
+    c.json(
+      await getNotifications(c.get("userId"), c.req.valid("query").workspaceId),
+      200,
+    ),
   )
   .openapi(createNotificationRoute, async (c) => {
     const {
@@ -125,10 +137,22 @@ const notification = apiRouter()
     c.json(await markAsRead(c.req.valid("param").id, c.get("userId")), 200),
   )
   .openapi(markAllAsReadRoute, async (c) =>
-    c.json(await markAllNotificationsAsRead(c.get("userId")), 200),
+    c.json(
+      await markAllNotificationsAsRead(
+        c.get("userId"),
+        c.req.valid("query").workspaceId,
+      ),
+      200,
+    ),
   )
   .openapi(clearAllRoute, async (c) =>
-    c.json(await clearNotifications(c.get("userId")), 200),
+    c.json(
+      await clearNotifications(
+        c.get("userId"),
+        c.req.valid("query").workspaceId,
+      ),
+      200,
+    ),
   );
 
 subscribeToEvent<{

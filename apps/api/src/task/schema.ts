@@ -1,10 +1,41 @@
 import { pagingNumber, z } from "../openapi";
 import { MAX_TASK_POSITION } from "./controllers/next-task-position";
+import { TICKET_ID_PATTERN } from "./ticket-id";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
 export const taskParam = z.object({ id: z.string() });
 
+export const ticketIdParam = z.object({
+  ticketId: z
+    .string()
+    .max(128)
+    .refine((value) => TICKET_ID_PATTERN.test(value), "Invalid task ticket ID")
+    .openapi({
+      description: "Project key and task number, e.g. KAN-12.",
+    }),
+});
+
+export const ticketIdQuery = z.object({
+  workspaceId: z.string().min(1).optional().openapi({
+    description: "Select a workspace if the ticket ID exists in more than one.",
+  }),
+  workspaceSlug: z.string().min(1).max(128).optional().openapi({
+    description: "Select a workspace by its slug instead of its ID.",
+  }),
+  projectId: z.string().min(1).optional().openapi({
+    description: "Select a project if the ticket ID exists more than once.",
+  }),
+});
+
 export const projectIdParam = z.object({ projectId: z.string() });
+
+export const assignedTasksQuery = z.object({
+  workspaceId: z.string().min(1),
+  countOnly: z.enum(["true", "false"]).optional().openapi({
+    description:
+      "Return only the total, with an empty tasks array, without loading task rows or labels.",
+  }),
+});
 
 const priority = z.enum(VALID_PRIORITIES);
 
@@ -50,6 +81,7 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  draftAssetIds: z.array(z.string()).max(100).optional(),
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))
     .optional(),
@@ -134,3 +166,35 @@ export const descriptionMatchesQuery = z.object({
 });
 
 export const duplicateTaskBody = z.object({ title: z.string().optional() });
+
+export const stagedImageUploadBody = imageUploadBody.extend({
+  surface: z.literal("description"),
+});
+export const finalizeStagedImageUploadBody = finalizeImageUploadBody.extend({
+  surface: z.literal("description"),
+});
+
+export const reorderTasksBody = z.object({
+  projectId: z.string(),
+  expectedTasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        position: z.number().int().min(0).max(MAX_TASK_POSITION).nullable(),
+        status: z.string(),
+      }),
+    )
+    .optional()
+    .describe(
+      "Previous complete contents of the affected columns; stale snapshots return 409",
+    ),
+  tasks: z
+    .array(
+      z.object({
+        id: z.string(),
+        position: z.number().int().min(0).max(MAX_TASK_POSITION),
+        status: z.string().optional(),
+      }),
+    )
+    .min(1),
+});

@@ -53,7 +53,7 @@ function BreadcrumbLink({
 
 function BreadcrumbPage({ className, ...props }: React.ComponentProps<"span">) {
   return (
-    // biome-ignore lint(a11y/useFocusableInteractive): known
+    // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- Current breadcrumb is intentionally not a navigable link.
     <span
       aria-current="page"
       aria-disabled="true"

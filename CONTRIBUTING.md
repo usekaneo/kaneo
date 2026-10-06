@@ -6,10 +6,9 @@ Thanks for wanting to contribute to Kaneo! Whether you're fixing bugs, adding fe
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
-  - [What You'll Need](#what-youll-need)
-  - [Setting Up Your Dev Environment](#setting-up-your-dev-environment)
 - [Making Your First Contribution](#making-your-first-contribution)
   - [Finding Something to Work On](#finding-something-to-work-on)
+  - [Contribution Eligibility](#contribution-eligibility)
   - [The Process](#the-process)
 - [Development Guidelines](#development-guidelines)
   - [Code Style](#code-style)
@@ -25,47 +24,99 @@ We want everyone to feel welcome here. Please be respectful and follow our [Code
 
 ## Getting Started
 
-### What You'll Need
+Fork and clone the repository:
 
-- **Node.js** (24 or newer)
-- **pnpm** (we use this instead of npm/yarn)
-- **Git**
-- **Docker** (optional, for testing full deployments)
-
-### Setting Up Your Dev Environment
-
-1. **Fork and clone the repo**:
 ```bash
 git clone https://github.com/yourusername/kaneo.git
 cd kaneo
 ```
 
-2. **Install dependencies**:
-```bash
-pnpm install
-```
-
-3. **Set up environment variables**:
-   Create a `.env` file in the repository root for server configuration. The web app includes localhost development defaults; put local Vite overrides such as `VITE_API_URL` in `apps/web/.env.local`. See [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) for the required variables and examples.
-
-4. **Start everything up**:
-```bash
-pnpm run dev
-```
-
-This starts both the API (port 1337) and web app (port 5173). Both will automatically reload when you make changes.
-
-> **Tip**: The web app at http://localhost:5173 will automatically connect to the API at http://localhost:1337
-
-> **Need help with setup?** See our [Environment Setup Guide](ENVIRONMENT_SETUP.md) for detailed instructions and troubleshooting tips.
+Follow the [local development setup guide](ENVIRONMENT_SETUP.md) for prerequisites, database and environment configuration, installation, startup, and troubleshooting.
 
 ## Making Your First Contribution
 
 ### Finding Something to Work On
 
-- **Browse [open issues](https://github.com/usekaneo/kaneo/issues)** - look for "good first issue" labels
+- **Browse [issues ready for contribution](https://github.com/usekaneo/kaneo/issues?q=is%3Aissue%20is%3Aopen%20label%3Aready-for-contribution)** - the "good first issue" ones are a nice place to start
 - **Check our [Discord](https://discord.gg/rU4tSyhXXU)** - we often discuss features and bugs there
-- **Found a bug?** Feel free to fix it and open a PR
+- **Found a bug?** Open an issue first and wait for a maintainer to give the go-ahead before sending a PR (unless you're [exempt](#contribution-eligibility))
+
+### Contribution Eligibility
+
+Please talk to us before you start writing code. Find or open an issue and
+agree on the scope with a maintainer. Unless someone has vouched for you, your
+PR needs to link an open issue in this repo with the **`ready-for-contribution`**
+label. Opening an issue yourself isn't approval; a maintainer adds the label
+once the work is agreed.
+
+Link the issue in your PR description with `Fixes #123` or `Closes #123`.
+GitHub only picks those up for PRs against the default branch, so for other
+branches a maintainer can link the issue from the PR's Development sidebar.
+Just mentioning it (`See #123`) isn't enough.
+
+You can skip the issue if you're a repo admin, have the **maintain** role, have
+been vouched for, or are an approved bot. A voucher is tied to one GitHub
+account, can't be handed to someone else, and only skips the issue step.
+Everyone still goes through code review, CI, and the [AI policy](AI_POLICY.md).
+Past contributions or org membership don't earn a voucher automatically.
+
+The **Contribution eligibility** check on your PR tells you where you stand.
+If you're ineligible, the automation converts your PR to a draft. Link an
+approved issue or ask a maintainer to vouch for you, then mark the PR ready
+for review once the check passes. Eligible drafts stay drafts until you mark
+them ready. If eligibility cannot be checked because of an API or policy
+error, the check fails without changing the PR's draft status.
+
+The check reruns when you edit the PR description or push commits, when an
+issue gains or loses the label, and when the voucher list changes. It can't
+react to sidebar links or permission changes, so an hourly scheduled run picks
+those up (GitHub sometimes runs these late). Maintainers can also trigger the
+workflow by hand. Dependabot PRs are checked after their CI run finishes,
+because bot-triggered workflows may only get read-only tokens.
+
+Once the check is required, a failing result blocks merging. Anyone can still
+open a PR; ineligible PRs become drafts and are never automatically closed.
+
+#### Managing Vouchers
+
+Vouchers live in
+[`.github/contribution-policy.json`](.github/contribution-policy.json). To vouch
+for someone, add them to `vouchedContributors` in a PR to `main`. To revoke,
+remove them. Review these changes the same way you'd review code.
+
+```json
+{
+  "id": 123456789,
+  "login": "example-contributor",
+  "reason": "Consistently submits focused changes and follows through on review."
+}
+```
+
+Get the numeric ID with `gh api users/USERNAME --jq '{id,login}'`. Only the ID
+matters for eligibility; `login` and `reason` are there so people can tell who
+it is and why. That way a renamed account keeps its voucher, and whoever grabs
+an old username doesn't inherit it.
+
+Bots go in `exemptBots`. For now that's just Dependabot.
+
+To turn on enforcement once this workflow is on `main`:
+
+1. Create the `ready-for-contribution` label and only put it on work you've agreed to.
+2. Run the **Contribution eligibility** workflow once so it checks PRs that are already open.
+3. In the branch rules for `main`, require the **Contribution eligibility**
+   status check with GitHub Actions as the source. Do the same for any other
+   protected branches people contribute to. Don't pick the workflow's
+   `reconcile` job: the script publishes its own check on each PR's head
+   commit, and that's the one to require.
+
+The automation only reads code and policy from `main`, relies on GitHub's own
+issue links, and never runs anything from the PR. Once it lists the open PRs
+and publishes pending checks, a broken policy or an eligibility lookup error
+fails the affected checks. If GitHub cannot list PRs or accept check updates,
+the workflow fails but earlier check results can remain unchanged, including
+successful ones. Maintainers must inspect failed workflow runs and rerun them
+after GitHub recovers before relying on those results. Revoking a voucher,
+removing the label, or closing the issue all trigger a recheck of open PRs.
 
 ### The Process
 
@@ -90,19 +141,43 @@ git commit -m "docs: update deployment guide"
 git push origin your-branch-name
 ```
 
-Then open a pull request on GitHub with a clear description of what you changed and why.
+Then open a pull request on GitHub that explains what you changed and why. Link
+the approved issue too, unless you're exempt.
 
 ## Development Guidelines
 
 ### Code Style
 
-We use **Biome** for formatting and linting. Before you commit:
+We use **Vite+** for development, workspace tasks, testing, formatting, and linting.
+It is pinned in `pnpm-workspace.yaml`; a global `vp` installation is optional.
+Before you commit:
 
 ```bash
 pnpm run lint
+pnpm run typecheck
 ```
 
-This will check and automatically fix formatting issues. Most editors can auto-format on save if you install the Biome extension.
+`pnpm lint` checks formatting and lint rules without changing files. Use
+`pnpm format` to format the repository or `pnpm exec vp check --fix` to also apply
+safe lint fixes. Install the recommended Vite Plus extension pack for editor support.
+
+The existing `pnpm build`, `pnpm dev`, `pnpm test`, and `pnpm test:integration`
+commands use the Vite+ task runner. Package tasks in `vite.config.ts` build their
+workspace dependencies before compiling, testing, or checking types. Build and
+typecheck results are cached; tests and development servers always run. Web builds
+always run too, so a cached build cannot skip a Sentry source-map upload.
+
+Use `pnpm --filter @kaneo/web dev` to start just the web app, or
+`pnpm exec vp run --filter @kaneo/api test` to run API unit tests with dependency
+builds. `pnpm exec vp test run` runs the unit-test projects directly; PostgreSQL
+integration tests remain behind `pnpm test:integration`.
+
+Vite+ built-ins and package scripts are distinct: `vp build` builds a Vite app,
+while `vp run build` runs the package's build script. The API still uses esbuild,
+the site uses Next.js, and libraries use TypeScript to preserve their output.
+Typechecking remains an explicit package task so both web tsconfigs are covered.
+The root lint configuration preserves the previous policy where equivalents exist;
+additional React Compiler and accessibility rules are left for a separate review.
 
 ### Commit Messages
 
@@ -201,23 +276,7 @@ kaneo/
 
 ## Using AI
 
-You are welcome to use AI tools to help you contribute, and we as maintainers do the same. They are useful for research, writing code or tests, and exploring unfamiliar parts of the project. Two boundaries apply to every contribution.
-
-### Speak for yourself
-
-Write issues, pull request descriptions, and review replies in your own words. Clear, imperfect writing is better than a generated explanation that is longer than necessary or does not accurately describe the contribution.
-
-### Think for yourself
-
-Understand and take responsibility for every change you submit. Before requesting review, reproduce the problem, reduce the solution to its necessary scope, and verify the behavior yourself. You should be able to explain the design decisions, tradeoffs, and tests without relying on an AI-generated answer.
-
-AI output is not evidence that a change is correct. Include meaningful regression coverage for behavior changes and keep unrelated or speculative work out of the pull request.
-
-Automated review can be part of preparing an open pull request. Address relevant bot feedback and stabilize the change before requesting review from a maintainer.
-
-Maintainers may close a pull request without a detailed implementation review when its description is inaccurate, its scope exceeds the linked issue, important behavior is untested, or the author cannot explain and validate the submitted work. Review feedback identifies problems; it does not replace the contributor's own investigation and validation.
-
-For more context, see [this blog article](https://roe.dev/blog/using-ai-in-open-source).
+Please read and follow our [AI Contribution Policy](AI_POLICY.md), which adopts the [Human Voice policy](https://ai-policy.dev/policies/human-voice/).
 
 ## Need Help?
 
@@ -227,7 +286,7 @@ For more context, see [this blog article](https://roe.dev/blog/using-ai-in-open-
 
 ## Types of Contributions We Love
 
-- **Bug fixes** - Found something broken? Fix it!
+- **Bug fixes** - Found something broken? Open an issue so we can agree on the fix
 - **New features** - Have an idea? Let's discuss it first
 - **Documentation** - Help others understand how to use Kaneo
 - **Performance improvements** - Make things faster

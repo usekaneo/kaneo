@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { verifyApiKey } from "../../apps/api/src/utils/verify-api-key";
@@ -51,6 +51,28 @@ describe("API integration: API keys of banned users", () => {
     const result = await verifyApiKey(key);
 
     expect(result?.key.userId).toBe(userId);
+  });
+
+  it("does not consume the window counter while rate limits are disabled", async () => {
+    const { userId, key } = await createUserWithKey({ banned: false });
+    await db
+      .update(schema.apikeyTable)
+      .set({ rateLimitEnabled: false, rateLimitMax: 1, requestCount: 0 })
+      .where(eq(schema.apikeyTable.userId, userId));
+    for (let i = 0; i < 3; i++) expect(await verifyApiKey(key)).not.toBeNull();
+    expect(
+      (
+        await db.query.apikeyTable.findFirst({
+          where: eq(schema.apikeyTable.userId, userId),
+        })
+      )?.requestCount,
+    ).toBe(0);
+    await db
+      .update(schema.apikeyTable)
+      .set({ rateLimitEnabled: true })
+      .where(eq(schema.apikeyTable.userId, userId));
+    expect(await verifyApiKey(key)).not.toBeNull();
+    expect(await verifyApiKey(key)).toBeNull();
   });
 
   it("rejects the key of a banned user", async () => {

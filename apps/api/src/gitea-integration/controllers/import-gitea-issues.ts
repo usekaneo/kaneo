@@ -1,8 +1,12 @@
+import { acceptsIssue } from "../../plugins/sync/rules";
+import { canSyncTask } from "../../plugins/sync/eligibility";
+import { sameConfig } from "../../plugins/sync/same-config";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   activityTable,
+  externalLinkTable,
   integrationTable,
   labelTable,
   projectTable,
@@ -14,6 +18,7 @@ import { isKaneoComment } from "../../plugins/gitea/utils/comment-origin";
 import {
   createGiteaClient,
   type GiteaIssue,
+  type GiteaComment,
   type GiteaLabel,
   type GiteaPullRequest,
 } from "../../plugins/gitea/utils/gitea-api";
@@ -28,6 +33,12 @@ import {
 } from "../../plugins/github/utils/extract-priority";
 import { formatTaskDescriptionFromIssue } from "../../plugins/github/utils/format";
 import { claimTaskNumber } from "../../task/controllers/claim-task-numbers";
+
+import {
+  type IntegrationDatabase,
+  linkedTaskScope,
+  withIntegrationTask,
+} from "../../plugins/github/services/integration-task-scope";
 
 type ImportResult = {
   imported: number;
@@ -204,76 +215,143 @@ async function importSingleIssue(
     issue.number.toString(),
   );
 
+  if (!existingLink && !acceptsIssue(config, issue.labels)) return "skipped";
+
   const labels = issue.labels ?? [];
   const adaptedLabels = toPriorityLabels(labels);
   const priority = extractIssuePriority(adaptedLabels);
   const status = extractIssueStatus(adaptedLabels);
 
+  const comments = await fetchIssueComments(issue.number, config, client);
+
   if (existingLink) {
-    const updateData: Record<string, unknown> = {
-      title: issue.title,
-      description: formatTaskDescriptionFromIssue(issue.body),
-    };
-
-    if (priority) updateData.priority = priority;
-    if (status) updateData.status = status;
-
-    await db
-      .update(taskTable)
-      .set(updateData)
-      .where(eq(taskTable.id, existingLink.taskId));
-
-    await importLabelsForTask(labels, existingLink.taskId, workspaceId);
-
-    await importCommentsForTask(
-      issue.number,
+    const result = await withIntegrationTask(
       existingLink.taskId,
-      config,
-      client,
-    );
+      { id: integrationId, projectId, project: { workspaceId } },
+      async (database, afterCommit) => {
+        const [linked] = await database
+          .select({ id: externalLinkTable.id })
+          .from(externalLinkTable)
+          .where(
+            and(
+              eq(externalLinkTable.id, existingLink.id),
+              eq(externalLinkTable.taskId, existingLink.taskId),
+              eq(externalLinkTable.integrationId, integrationId),
+            ),
+          )
+          .for("update");
+        if (
+          !linked ||
+          !(await canSyncTask(existingLink.taskId, integrationId, database))
+        )
+          return "skipped" as const;
 
-    return "updated";
+        const updateData: Record<string, unknown> = {
+          title: issue.title,
+          description: formatTaskDescriptionFromIssue(issue.body),
+        };
+
+        if (priority) updateData.priority = priority;
+        if (status) updateData.status = status;
+
+        await database
+          .update(taskTable)
+          .set(updateData)
+          .where(linkedTaskScope(existingLink.taskId, projectId));
+
+        await importLabelsForTask(
+          labels,
+          existingLink.taskId,
+          workspaceId,
+          database,
+        );
+        await canSyncTask(existingLink.taskId, integrationId, database);
+
+        await importCommentsForTask(comments, existingLink.taskId, database);
+
+        afterCommit(async () => {
+          for (const type of [
+            "task.updated",
+            "task.labels_updated",
+            "comment.updated",
+          ])
+            await publishEvent(type, {
+              projectId,
+              taskId: existingLink.taskId,
+            });
+        });
+        return "updated" as const;
+      },
+    );
+    return result ?? "skipped";
   }
 
-  const createdTask = await db.transaction(async (tx) => {
-    const nextNumber = await claimTaskNumber(projectId, tx);
+  const createdTask = await withIntegrationTask(
+    null,
+    { id: integrationId, projectId, project: { workspaceId } },
+    async (tx) => {
+      const binding = await tx.query.integrationTable.findFirst({
+        where: eq(integrationTable.id, integrationId),
+      });
+      if (
+        !binding ||
+        !sameConfig(binding.config, JSON.stringify(config)) ||
+        !acceptsIssue(binding.config, issue.labels) ||
+        (await findExternalLink(
+          integrationId,
+          "issue",
+          String(issue.number),
+          tx,
+        ))
+      )
+        return null;
+      const nextNumber = await claimTaskNumber(projectId, tx);
 
-    const taskValues: typeof taskTable.$inferInsert = {
-      projectId,
-      userId: null,
-      title: issue.title,
-      description: formatTaskDescriptionFromIssue(issue.body),
-      status: status || "to-do",
-      priority: priority ?? "low",
-      number: nextNumber,
-    };
+      const taskValues: typeof taskTable.$inferInsert = {
+        projectId,
+        userId: null,
+        title: issue.title,
+        description: formatTaskDescriptionFromIssue(issue.body),
+        status: status || "to-do",
+        priority: priority ?? "low",
+        number: nextNumber,
+      };
 
-    const [created] = await tx.insert(taskTable).values(taskValues).returning();
+      const [created] = await tx
+        .insert(taskTable)
+        .values(taskValues)
+        .returning();
 
-    if (!created) {
-      throw new Error("Failed to create task");
-    }
+      if (!created) {
+        throw new Error("Failed to create task");
+      }
 
-    return created;
-  });
+      await createExternalLink(
+        {
+          taskId: created.id,
+          integrationId,
+          resourceType: "issue",
+          externalId: issue.number.toString(),
+          url: issue.html_url,
+          title: issue.title,
+          metadata: {
+            state: issue.state,
+            createdFrom: "gitea-import",
+            author: issue.user?.login ?? issue.user?.username,
+          },
+        },
+        tx,
+      );
 
-  await createExternalLink({
-    taskId: createdTask.id,
-    integrationId,
-    resourceType: "issue",
-    externalId: issue.number.toString(),
-    url: issue.html_url,
-    title: issue.title,
-    metadata: {
-      state: issue.state,
-      createdFrom: "gitea-import",
-      author: issue.user?.login ?? issue.user?.username,
+      await importLabelsForTask(labels, created.id, workspaceId, tx);
+      await canSyncTask(created.id, integrationId, tx, binding.config);
+
+      await importCommentsForTask(comments, created.id, tx);
+
+      return created;
     },
-  });
-
-  await importLabelsForTask(labels, createdTask.id, workspaceId);
-
-  await importCommentsForTask(issue.number, createdTask.id, config, client);
+  );
+  if (!createdTask) return "skipped";
 
   await publishEvent("task.created", {
     ...createdTask,
@@ -293,6 +371,7 @@ async function importLabelsForTask(
   issueLabels: GiteaIssue["labels"],
   taskId: string,
   workspaceId: string,
+  database: IntegrationDatabase = db,
 ): Promise<void> {
   const nonSystemLabels = (issueLabels ?? [])
     .map((label) => {
@@ -316,7 +395,7 @@ async function importLabelsForTask(
   const expectedNames = nonSystemLabels.map((label) => label.name);
 
   if (expectedNames.length > 0) {
-    await db
+    await database
       .delete(labelTable)
       .where(
         and(
@@ -325,10 +404,10 @@ async function importLabelsForTask(
         ),
       );
   } else {
-    await db.delete(labelTable).where(eq(labelTable.taskId, taskId));
+    await database.delete(labelTable).where(eq(labelTable.taskId, taskId));
   }
 
-  const existingLabelsOnTask = await db.query.labelTable.findMany({
+  const existingLabelsOnTask = await database.query.labelTable.findMany({
     where:
       expectedNames.length > 0
         ? and(
@@ -347,7 +426,7 @@ async function importLabelsForTask(
       continue;
     }
 
-    const existingWorkspaceLabel = await db.query.labelTable.findFirst({
+    const existingWorkspaceLabel = await database.query.labelTable.findFirst({
       where: and(
         eq(labelTable.workspaceId, workspaceId),
         eq(labelTable.name, labelData.name),
@@ -356,7 +435,7 @@ async function importLabelsForTask(
 
     const colorToUse = existingWorkspaceLabel?.color || labelData.color;
 
-    await db
+    await database
       .insert(labelTable)
       .values({
         name: labelData.name,
@@ -370,18 +449,12 @@ async function importLabelsForTask(
   }
 }
 
-async function importCommentsForTask(
+async function fetchIssueComments(
   issueNumber: number,
-  taskId: string,
   config: GiteaConfig,
   client: ReturnType<typeof createGiteaClient>,
-): Promise<void> {
-  const allComments: Array<{
-    id: number;
-    body: string;
-    html_url: string;
-    user?: { login?: string; username?: string; avatar_url?: string } | null;
-  }> = [];
+): Promise<GiteaComment[]> {
+  const allComments: GiteaComment[] = [];
   let page = 1;
 
   while (true) {
@@ -401,13 +474,21 @@ async function importCommentsForTask(
     page++;
   }
 
+  return allComments;
+}
+
+async function importCommentsForTask(
+  allComments: GiteaComment[],
+  taskId: string,
+  database: IntegrationDatabase,
+): Promise<void> {
   for (const comment of allComments) {
     const username = comment.user?.login ?? comment.user?.username ?? "";
     if (username.endsWith("[bot]") || isKaneoComment(comment.body)) {
       continue;
     }
 
-    await db
+    await database
       .insert(activityTable)
       .values({
         taskId,
@@ -476,4 +557,5 @@ async function linkPullRequestToTask(
       author: pr.user?.login ?? pr.user?.username,
     },
   });
+  await publishEvent("task.updated", { projectId, taskId: task.id });
 }

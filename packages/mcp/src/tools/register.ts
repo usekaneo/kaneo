@@ -1,7 +1,5 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
-import type { KaneoClient } from "../kaneo/client.js";
 import { buildFullTaskUpdateBody } from "../kaneo/task-helpers.js";
 import {
   buildAssetResult,
@@ -13,6 +11,22 @@ import {
   resolveAssetContentTypes,
 } from "../utils/asset-result.js";
 import { errorResult, textResult } from "../utils/mcp-result.js";
+
+export type ToolClient = {
+  readonly usingApiKey?: boolean;
+  /** Origin shown in asset results; defaults to the client's own base URL. */
+  readonly baseUrl?: string;
+  json<T = unknown>(path: string, init?: RequestInit): Promise<T>;
+  /** Raw response for binary endpoints such as asset downloads. */
+  raw(path: string, init?: RequestInit): Promise<Response>;
+};
+export type ToolRegistrar = {
+  registerTool(
+    name: string,
+    config: { description: string; inputSchema: z.ZodObject },
+    callback: (args: unknown) => Promise<CallToolResult>,
+  ): unknown;
+};
 
 const prioritySchema = z.enum([
   "no-priority",
@@ -81,12 +95,23 @@ function oversizedAssetMessage(id: string, size?: number): string {
 }
 
 export function registerTools(
-  server: McpServer,
-  ctx: { client: KaneoClient },
+  server: ToolRegistrar,
+  ctx: { client: ToolClient; assetUrlBase?: string },
 ): void {
   const { client } = ctx;
+  const assetUrlBase = ctx.assetUrlBase ?? client.baseUrl ?? "";
+  const registerTool = <S extends z.ZodObject>(
+    name: string,
+    config: { description: string; inputSchema: S },
+    callback: (args: z.output<S>) => Promise<CallToolResult>,
+  ) =>
+    server.registerTool(name, config, async (args) => {
+      const parsed = config.inputSchema.safeParse(args);
+      if (!parsed.success) return errorResult(z.prettifyError(parsed.error));
+      return callback(parsed.data);
+    });
 
-  server.registerTool(
+  registerTool(
     "whoami",
     {
       description:
@@ -102,7 +127,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_workspaces",
     {
       description:
@@ -113,7 +138,7 @@ export function registerTools(
       run(() => client.json("/api/auth/organization/list", { method: "GET" })),
   );
 
-  server.registerTool(
+  registerTool(
     "list_projects",
     {
       description: "List projects in a workspace.",
@@ -137,7 +162,7 @@ export function registerTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "get_project",
     {
       description: "Get a single project by ID.",
@@ -147,7 +172,7 @@ export function registerTools(
       run(() => client.json(`/api/project/${encodeURIComponent(args.id)}`)),
   );
 
-  server.registerTool(
+  registerTool(
     "create_project",
     {
       description: "Create a project in a workspace.",
@@ -172,7 +197,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_project",
     {
       description:
@@ -250,7 +275,7 @@ export function registerTools(
     dueAfter: optionalIsoDateTimeSchema,
   });
 
-  server.registerTool(
+  registerTool(
     "list_tasks",
     {
       description:
@@ -272,7 +297,7 @@ export function registerTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "get_task",
     {
       description: "Get a task by ID.",
@@ -286,7 +311,32 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
+    "get_task_by_ticket_id",
+    {
+      description:
+        "Get one task by its ticket ID (project key and number, e.g. KAN-12). If multiple accessible tasks share the ID, provide workspaceId or projectId.",
+      inputSchema: z.object({
+        ticketId: nonEmptyString,
+        workspaceId: optionalNonEmptyString,
+        projectId: optionalNonEmptyString,
+      }),
+    },
+    async ({ ticketId, workspaceId, projectId }) => {
+      const query = new URLSearchParams();
+      if (workspaceId) query.set("workspaceId", workspaceId);
+      if (projectId) query.set("projectId", projectId);
+      const suffix = query.toString();
+      return run(() =>
+        client.json(
+          `/api/task/by-ticket-id/${encodeURIComponent(ticketId)}${suffix ? `?${suffix}` : ""}`,
+          { method: "GET" },
+        ),
+      );
+    },
+  );
+
+  registerTool(
     "create_task",
     {
       description: "Create a task in a project.",
@@ -326,7 +376,7 @@ export function registerTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "duplicate_task",
     {
       description:
@@ -363,7 +413,7 @@ export function registerTools(
     userId: nullableOptionalNonEmptyString,
   });
 
-  server.registerTool(
+  registerTool(
     "update_task",
     {
       description:
@@ -386,7 +436,7 @@ export function registerTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "move_task",
     {
       description:
@@ -411,7 +461,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_status",
     {
       description: "Update only the status (column) of a task.",
@@ -429,7 +479,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_task_comments",
     {
       description: "List comments on a task.",
@@ -443,7 +493,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task_comment",
     {
       description: "Add a comment to a task.",
@@ -461,7 +511,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_comment",
     {
       description: "Update one of your comments on a task.",
@@ -479,7 +529,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_task_comment",
     {
       description: "Delete one of your comments from a task.",
@@ -493,7 +543,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_workspace_labels",
     {
       description: "List labels defined in a workspace.",
@@ -508,7 +558,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_label",
     {
       description:
@@ -534,7 +584,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "attach_label_to_task",
     {
       description: "Attach an existing label to a task.",
@@ -552,7 +602,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "detach_label_from_task",
     {
       description: "Detach a label from its current task.",
@@ -566,7 +616,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "create_task_relation",
     {
       description:
@@ -590,7 +640,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "get_task_relations",
     {
       description:
@@ -605,7 +655,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_task_relation",
     {
       description: "Delete a task relation by its relation ID.",
@@ -619,31 +669,42 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_label",
     {
       description:
-        "Delete a label by ID. Only task-associated labels can be deleted; workspace-level labels (taskId null) are rejected by the API.",
+        "Delete a task or workspace label by ID. Workspace-label cascades resume automatically; repeat the tool if pendingDeletion remains true.",
       inputSchema: z.object({ id: nonEmptyString }),
     },
     async (args) =>
       run(async () => {
-        const label = (await client.json(
-          `/api/label/${encodeURIComponent(args.id)}`,
-          { method: "GET" },
-        )) as { taskId?: string | null };
-        if (!label?.taskId) {
-          throw new Error(
-            "Label is not associated with a task and cannot be deleted (workspace-level labels are not deletable via this endpoint).",
-          );
+        let result: unknown;
+        const signal = AbortSignal.timeout(10_000);
+        // Bound work per tool call. The API persists the continuation boundary.
+        for (let page = 0; page < 100; page++) {
+          if (page > 0 && signal.aborted) break;
+          try {
+            result = await client.json(
+              `/api/label/${encodeURIComponent(args.id)}`,
+              { method: "DELETE", signal },
+            );
+          } catch (error) {
+            if (signal.aborted && result) break;
+            throw error;
+          }
+          if (
+            !result ||
+            typeof result !== "object" ||
+            !("pendingDeletion" in result) ||
+            !result.pendingDeletion
+          )
+            break;
         }
-        return client.json(`/api/label/${encodeURIComponent(args.id)}`, {
-          method: "DELETE",
-        });
+        return result;
       }),
   );
 
-  server.registerTool(
+  registerTool(
     "list_workspace_members",
     {
       description:
@@ -658,7 +719,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "search",
     {
       description:
@@ -697,7 +758,7 @@ export function registerTools(
     },
   );
 
-  server.registerTool(
+  registerTool(
     "list_project_columns",
     {
       description:
@@ -710,7 +771,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "delete_task",
     {
       description: "Delete a task by ID.",
@@ -724,7 +785,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_assignee",
     {
       description:
@@ -745,7 +806,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_task_due_date",
     {
       description: "Set a task's due date. Omit dueDate to clear it.",
@@ -765,7 +826,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_task_time_entries",
     {
       description: "List the time entries logged against a task.",
@@ -777,7 +838,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "get_time_entry",
     {
       description: "Get a single time entry by ID.",
@@ -787,7 +848,7 @@ export function registerTools(
       run(() => client.json(`/api/time-entry/${encodeURIComponent(args.id)}`)),
   );
 
-  server.registerTool(
+  registerTool(
     "create_time_entry",
     {
       description:
@@ -813,7 +874,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "update_time_entry",
     {
       description:
@@ -838,7 +899,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_task_activity",
     {
       description: "List a task's activity history.",
@@ -850,7 +911,7 @@ export function registerTools(
       ),
   );
 
-  server.registerTool(
+  registerTool(
     "list_notifications",
     {
       description: "List the signed-in user's notifications.",
@@ -859,7 +920,7 @@ export function registerTools(
     async () => run(() => client.json("/api/notification")),
   );
 
-  server.registerTool(
+  registerTool(
     "get_asset",
     {
       description:
@@ -906,7 +967,7 @@ export function registerTools(
             ),
             mimeType,
             size: body.bytes.byteLength,
-            url: `${client.baseUrl}/api/asset/${id}`,
+            url: `${assetUrlBase}/api/asset/${id}`,
           },
           body.bytes,
           servedType,

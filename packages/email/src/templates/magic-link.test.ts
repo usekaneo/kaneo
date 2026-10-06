@@ -1,6 +1,6 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import MagicLinkEmail from "./magic-link";
 
 describe("MagicLinkEmail", () => {
@@ -13,5 +13,16 @@ describe("MagicLinkEmail", () => {
     );
     expect(html).toContain("Kaneo にサインイン");
     expect(html).toContain("Kaneo セキュリティメール");
+  });
+
+  it("renders Traditional Chinese copy for a zh-TW locale", async () => {
+    const html = await render(
+      createElement(MagicLinkEmail, {
+        magicLink: "https://kaneo.example/auth",
+        locale: "zh-TW",
+      }),
+    );
+    expect(html).toContain("你的安全登入連結");
+    expect(html).toContain("Kaneo 安全性通知");
   });
 });

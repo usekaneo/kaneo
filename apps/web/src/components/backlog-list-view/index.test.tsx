@@ -5,7 +5,14 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { KeyboardShortcutsProvider } from "@/hooks/use-keyboard-shortcuts";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import type { ProjectWithTasks } from "@/types/project";
@@ -22,7 +29,7 @@ const { mountRow, unmountRow, renderRow, navigate } = vi.hoisted(() => ({
 vi.mock("./backlog-task-row", async () => {
   const { useEffect } = await import("react");
   return {
-    default: ({ task }: { task: Task }) => {
+    default: function MockTaskRow({ task }: { task: Task }) {
       renderRow(task.id);
       useEffect(() => {
         mountRow(task.id);

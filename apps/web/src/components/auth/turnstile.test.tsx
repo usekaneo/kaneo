@@ -1,5 +1,5 @@
 import { cleanup, render, waitFor } from "@testing-library/react";
-import { afterEach, expect, it, vi } from "vitest";
+import { afterEach, expect, it, vi } from "vite-plus/test";
 import { Turnstile } from "./turnstile";
 
 afterEach(() => {

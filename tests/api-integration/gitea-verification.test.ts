@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { resolveVerificationToken } from "../../apps/api/src/gitea-integration/controllers/resolve-verification-token";
 import verifyGiteaAccess from "../../apps/api/src/gitea-integration/controllers/verify-gitea-access";

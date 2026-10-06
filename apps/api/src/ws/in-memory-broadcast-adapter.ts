@@ -6,7 +6,7 @@ import type {
 
 export class InMemoryBroadcastAdapter implements BroadcastAdapter {
   private handler?: (msg: BroadcastMessage) => void | Promise<void>;
-  private userHandler?: (msg: UserBroadcast) => void;
+  private userHandler?: (msg: UserBroadcast) => void | Promise<void>;
 
   async publish(msg: BroadcastMessage): Promise<void> {
     // Deliver directly in the same process
@@ -14,7 +14,7 @@ export class InMemoryBroadcastAdapter implements BroadcastAdapter {
   }
 
   async publishToUser(msg: UserBroadcast): Promise<void> {
-    this.userHandler?.(msg);
+    await this.userHandler?.(msg);
   }
 
   async subscribe(
@@ -23,7 +23,9 @@ export class InMemoryBroadcastAdapter implements BroadcastAdapter {
     this.handler = handler;
   }
 
-  async subscribeToUser(handler: (msg: UserBroadcast) => void): Promise<void> {
+  async subscribeToUser(
+    handler: (msg: UserBroadcast) => void | Promise<void>,
+  ): Promise<void> {
     this.userHandler = handler;
   }
 

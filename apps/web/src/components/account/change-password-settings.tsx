@@ -22,6 +22,7 @@ import { Input, type InputProps } from "@/components/ui/input";
 import useChangePassword from "@/hooks/mutations/use-change-password";
 import useListAccounts from "@/hooks/queries/use-list-accounts";
 import { toast } from "@/lib/toast";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 type ChangePasswordFormValues = {
   currentPassword: string;
@@ -114,17 +115,13 @@ export function ChangePasswordSettings() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h2 className="text-md font-medium">
-          {t("settings:securityPage.sectionTitle")}
-        </h2>
-        <p className="text-xs text-muted-foreground">
-          {t("settings:securityPage.sectionSubtitle")}
-        </p>
-      </div>
+    <div className="space-y-3">
+      <SettingsSectionHeader
+        title={t("settings:securityPage.sectionTitle")}
+        description={t("settings:securityPage.sectionSubtitle")}
+      />
 
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         {isLoading ? (
           <div className="flex justify-center py-6">
             <Loader2 className="size-4 animate-spin text-muted-foreground" />

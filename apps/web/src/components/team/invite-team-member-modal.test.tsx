@@ -9,7 +9,14 @@ import {
   waitFor,
 } from "@testing-library/react";
 import type { PropsWithChildren } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import useInviteWorkspaceUser from "@/hooks/mutations/workspace-user/use-invite-workspace-user";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
@@ -84,7 +91,9 @@ describe("invitation email delivery errors", () => {
     render(<InviteTeamMemberModal open onClose={onClose} />, { wrapper });
     fireEvent.change(
       await screen.findByPlaceholderText("team:inviteModal.emailPlaceholder"),
-      { target: { value: "member@example.com" } },
+      {
+        target: { value: "member@example.com" },
+      },
     );
     fireEvent.click(
       screen.getByRole("button", { name: "team:inviteModal.sendInvitation" }),

@@ -115,9 +115,9 @@ function SidebarProvider({
       const target = event.target as HTMLElement | null;
       const isEditableTarget = Boolean(
         target &&
-          (target.isContentEditable ||
-            ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
-            target.closest('[contenteditable="true"]')),
+        (target.isContentEditable ||
+          ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+          target.closest('[contenteditable="true"]')),
       );
       if (isEditableTarget) return;
 
@@ -560,11 +560,8 @@ function SidebarMenuButton({
     return buttonElement;
   }
 
-  if (typeof tooltip === "string") {
-    tooltip = {
-      children: tooltip,
-    };
-  }
+  const tooltipProps =
+    typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
   return (
     <Tooltip>
@@ -575,7 +572,7 @@ function SidebarMenuButton({
         align="center"
         hidden={state !== "collapsed" || isMobile}
         side="right"
-        {...tooltip}
+        {...tooltipProps}
       />
     </Tooltip>
   );

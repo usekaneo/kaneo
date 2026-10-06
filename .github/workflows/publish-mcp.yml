@@ -6,6 +6,7 @@ on:
   push:
     branches: [main]
     paths:
+      - .github/workflows/publish-mcp.yml
       - packages/mcp/package.json
       - packages/mcp/server.json
 
@@ -18,7 +19,8 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    # npm provenance and trusted publishing require a GitHub-hosted runner.
+    runs-on: ubuntu-24.04
     if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'mcp-v') }}
     permissions:
       # gh release create needs contents: write; npm publish --provenance needs id-token: write.
@@ -27,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -131,9 +133,13 @@ jobs:
         run: |
           set -euo pipefail
           PACKAGE_VERSION=$(jq -r .version packages/mcp/package.json)
-          IN_REGISTRY=$(curl --fail --silent --show-error --max-time 30 \
-            "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo" \
-            | jq -er --arg v "$PACKAGE_VERSION" '[.servers[]? | (.server // .) | select(.name == "io.github.usekaneo/kaneo" and .version == $v)] | length')
+          curl --fail --silent --show-error --connect-timeout 10 --max-time 60 \
+            --retry 3 --retry-all-errors --retry-delay 2 --retry-max-time 240 \
+            --output "$RUNNER_TEMP/mcp-registry.json" \
+            "https://registry.modelcontextprotocol.io/v0/servers?search=io.github.usekaneo/kaneo"
+          IN_REGISTRY=$(jq -er --arg v "$PACKAGE_VERSION" \
+            '[.servers[]? | (.server // .) | select(.name == "io.github.usekaneo/kaneo" and .version == $v)] | length' \
+            "$RUNNER_TEMP/mcp-registry.json")
           if [ "$IN_REGISTRY" != "0" ]; then
             echo "MCP version already registered; skipping."
             exit 0

@@ -1,0 +1,1 @@
+CREATE INDEX "activity_createdAt_idx" ON "activity" USING btree ("created_at");
