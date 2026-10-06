@@ -53,6 +53,7 @@ import { createRoute, errorResponse, jsonResponse, z } from "./openapi";
 import { initializePlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
+import { assertProjectAccess } from "./project-access/assert-project-access";
 import { getPublicProject } from "./project/controllers/get-public-project";
 import { initializeScheduler, shutdownScheduler } from "./scheduler";
 import search from "./search";
@@ -457,6 +458,7 @@ export function createApp() {
           surface: schema.assetTable.surface,
           createdBy: schema.assetTable.createdBy,
           workspaceId: schema.assetTable.workspaceId,
+          projectId: schema.assetTable.projectId,
           isPublic: schema.projectTable.isPublic,
         })
         .from(schema.assetTable)
@@ -843,6 +845,7 @@ export function createApp() {
         }
 
         await validateWorkspaceAccess(userId, project.workspaceId);
+        await assertProjectAccess(userId, projectId);
         workspaceId = project.workspaceId;
       }
 

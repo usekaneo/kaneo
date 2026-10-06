@@ -1147,12 +1147,12 @@ it.each(["labels", "comments"])(
         await moveTask({
           taskId: task!.id,
           destinationProjectId: destination.id,
-          userId: member.user.id,
+          currentUserId: member.user.id,
         });
         await moveTask({
           taskId: task!.id,
           destinationProjectId: project.id,
-          userId: member.user.id,
+          currentUserId: member.user.id,
         });
         return {
           repository: {

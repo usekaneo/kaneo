@@ -2225,7 +2225,8 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}}에 댓글을 남김"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "작업",
@@ -2747,7 +2748,14 @@
 			"noDueDate": "마감일 없음",
 			"reorderHandle": "프로젝트 순서 변경",
 			"reorderError": "프로젝트 순서를 변경하지 못했습니다",
-			"emptyDescriptionReadOnly": "이 워크스페이스에 아직 프로젝트가 없습니다. 관리자에게 프로젝트 생성을 요청하세요."
+			"emptyDescriptionReadOnly": "이 워크스페이스에 아직 프로젝트가 없습니다. 관리자에게 프로젝트 생성을 요청하세요.",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "검색",
@@ -2873,7 +2881,8 @@
 				"name": "이름",
 				"role": "역할",
 				"joined": "참여",
-				"actions": "작업"
+				"actions": "작업",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (대기 중)",
 			"ariaCancelInvitation": "초대 취소",
@@ -2891,6 +2900,26 @@
 			"ariaInvitationActions": "초대 작업",
 			"roleUpdateSuccess": "역할이 업데이트되었습니다",
 			"roleUpdateError": "역할 업데이트에 실패했습니다"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

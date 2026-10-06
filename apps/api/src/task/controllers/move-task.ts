@@ -1,5 +1,6 @@
 import { and, asc, eq, isNotNull, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import createActivities from "../../activity/controllers/create-activities";
 import db from "../../database";
 import {
   assetTable,
@@ -10,6 +11,8 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { assertProjectAccess } from "../../project-access/assert-project-access";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
 
@@ -108,6 +111,8 @@ async function moveTask({
     });
   }
 
+  await assertProjectAccess(currentUserId, destinationProjectId);
+
   const resolvedColumn = await resolveDestinationStatus(
     destinationProjectId,
     existingTask.status,
@@ -162,6 +167,38 @@ async function moveTask({
       });
     }
 
+    let movedTask = updatedTask;
+    const assigneeId = updatedTask.userId;
+    if (
+      assigneeId &&
+      !(
+        await filterUsersWithProjectAccess(
+          [assigneeId],
+          destinationProjectId,
+          tx,
+        )
+      ).has(assigneeId)
+    ) {
+      const [unassignedTask] = await tx
+        .update(taskTable)
+        .set({ userId: null })
+        .where(eq(taskTable.id, taskId))
+        .returning();
+      movedTask = unassignedTask ?? { ...updatedTask, userId: null };
+      await createActivities(
+        [
+          {
+            taskId,
+            type: "unassigned",
+            userId: currentUserId,
+            content: null,
+            eventData: {},
+          },
+        ],
+        tx,
+      );
+    }
+
     await tx
       .delete(externalLinkTable)
       .where(
@@ -183,7 +220,7 @@ async function moveTask({
       .set({ projectId: destinationProjectId })
       .where(eq(assetTable.taskId, taskId));
 
-    return updatedTask;
+    return movedTask;
   });
 
   await publishEvent("task.moved", {

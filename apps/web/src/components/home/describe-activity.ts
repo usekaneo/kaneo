@@ -88,10 +88,14 @@ export function describeActivity(activity: WorkspaceActivity, t: Translate) {
       break;
     case "moved":
       if (eventData) {
-        return t("activity:moved", {
-          from: String(eventData.fromProjectName ?? ""),
-          to: String(eventData.toProjectName ?? ""),
-        });
+        return eventData.fromProjectName
+          ? t("activity:moved", {
+              from: String(eventData.fromProjectName),
+              to: String(eventData.toProjectName ?? ""),
+            })
+          : t("activity:movedFromOtherProject", {
+              to: String(eventData.toProjectName ?? ""),
+            });
       }
       break;
     default:

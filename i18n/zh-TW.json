@@ -2225,7 +2225,8 @@
 			"importedFrom": "匯入自 {{source}}",
 			"importedBy": "由 {{name}} 匯入",
 			"commentedOnForge": "在 {{forge}} 上留言"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "任務",
@@ -2747,7 +2748,14 @@
 			},
 			"noDueDate": "無截止日期",
 			"reorderHandle": "重新排序專案",
-			"reorderError": "無法重新排序專案"
+			"reorderError": "無法重新排序專案",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "搜尋",
@@ -2873,7 +2881,8 @@
 				"name": "姓名",
 				"role": "角色",
 				"joined": "加入時間",
-				"actions": "操作"
+				"actions": "操作",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}}（待處理）",
 			"ariaCancelInvitation": "取消邀請",
@@ -2891,6 +2900,26 @@
 			"cancelInviteError": "無法取消邀請",
 			"roleUpdateSuccess": "角色已更新",
 			"roleUpdateError": "無法更新角色"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

@@ -2237,7 +2237,8 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "коментираше на {{forge}}"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "Задачи",
@@ -2760,7 +2761,14 @@
 			"noDueDate": "Без краен рок",
 			"reorderHandle": "Прередување на проектот",
 			"reorderError": "Прередувањето на проектите не успеа",
-			"emptyDescriptionReadOnly": "Сè уште нема проекти во овој работен простор. Замоли администратор да креира еден."
+			"emptyDescriptionReadOnly": "Сè уште нема проекти во овој работен простор. Замоли администратор да креира еден.",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "Пребарување",
@@ -2890,7 +2898,8 @@
 				"name": "Име",
 				"role": "Улога",
 				"joined": "Приклучен",
-				"actions": "Акции"
+				"actions": "Акции",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (На чекање)",
 			"ariaCancelInvitation": "Откажи покана",
@@ -2908,6 +2917,27 @@
 			"ariaInvitationActions": "Акции за поканата",
 			"roleUpdateSuccess": "Улогата е ажурирана",
 			"roleUpdateError": "Неуспешно ажурирање на улогата"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_one": "{{count}} project",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

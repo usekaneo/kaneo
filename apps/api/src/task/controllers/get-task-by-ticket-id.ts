@@ -12,6 +12,7 @@ import {
   isSameProjectKey,
   mayMatchProjectKey,
 } from "../../project/project-key";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { TICKET_ID_PATTERN } from "../ticket-id";
 import { hasInstanceAdminRole } from "../../utils/instance-admin-role";
 import getTask from "./get-task";
@@ -86,6 +87,7 @@ export default async function getTaskByTicketId(
         hasInstanceAdminRole(user?.role)
           ? undefined
           : inArray(projectTable.workspaceId, memberWorkspaces),
+        projectAccessCondition(userId, projectTable.id),
       ),
     );
 

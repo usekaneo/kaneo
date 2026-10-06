@@ -9,6 +9,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
+import { evictProjectCache } from "@/lib/evict-project-cache";
 import getTask from "@/fetchers/task/get-task";
 import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import getExternalLinks from "@/fetchers/external-link/get-external-links";
@@ -187,6 +188,15 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "PROJECT_MEMBERS_UPDATED") {
+            void queryClient.invalidateQueries({
+              predicate: (query) =>
+                query.queryKey[0] === "workspace-users" &&
+                query.queryKey[2] === "project" &&
+                query.queryKey[3] === projectId,
+            });
+            return;
+          }
           if (
             message.taskId &&
             [
@@ -526,6 +536,26 @@ export function useProjectWebSocket(projectId: string) {
           void queryClient.cancelQueries();
           queryClient.clear();
           void navigate({ to: "/dashboard" });
+          return;
+        }
+
+        if (event?.code === 1008 && event.reason === "Project access revoked") {
+          disposed = true;
+          const workspaceId = queryClient
+            .getQueryCache()
+            .findAll({ queryKey: ["projects"] })
+            .find((query) => query.queryKey[2] === projectId)?.queryKey[1];
+          void Promise.resolve(
+            typeof workspaceId === "string"
+              ? navigate({
+                  to: "/dashboard/workspace/$workspaceId",
+                  params: { workspaceId },
+                })
+              : navigate({ to: "/dashboard" }),
+          ).finally(() => {
+            evictProjectCache(queryClient, projectId);
+            void queryClient.invalidateQueries({ queryKey: ["projects"] });
+          });
           return;
         }
 
