@@ -54,6 +54,13 @@ vi.mock("@kaneo/libs", () => ({ windowId: "local-test" }));
 vi.mock("@/lib/evict-project-cache", () => ({
   evictProjectCache: evictProject,
 }));
+const cachedProjects = vi.fn(
+  (_client: unknown, _workspaceId: string): { id: string }[] => [],
+);
+vi.mock("@/lib/collect-cached-projects", () => ({
+  collectCachedProjects: (client: unknown, workspaceId: string) =>
+    cachedProjects(client, workspaceId),
+}));
 function projectAccessChanged(socket: TestSocket) {
   socket.onmessage?.({
     data: JSON.stringify({
@@ -252,16 +259,15 @@ describe("user WebSocket lifecycle", () => {
   });
 
   it("evicts cached data for projects that left the refreshed list", async () => {
-    client.getQueryData.mockReturnValueOnce([
-      { id: "kept" },
-      { id: "removed" },
-    ]);
+    cachedProjects.mockReturnValueOnce([{ id: "kept" }, { id: "removed" }]);
     client.fetchQuery.mockResolvedValueOnce([{ id: "kept" }, { id: "added" }]);
     renderHook(useUserWebSocket);
     await act(async () => projectAccessChanged(TestSocket.instances[0]));
-    expect(client.getQueryData).toHaveBeenCalledWith(["projects", "workspace"]);
+    expect(cachedProjects).toHaveBeenCalledWith(client, "workspace");
     expect(client.fetchQuery).toHaveBeenCalledWith(
-      expect.objectContaining({ queryKey: ["projects", "workspace"] }),
+      expect.objectContaining({
+        queryKey: ["projects", "workspace", "including-archived"],
+      }),
     );
     expect(evictProject).toHaveBeenCalledOnce();
     expect(evictProject).toHaveBeenCalledWith(client, "removed");
@@ -272,7 +278,7 @@ describe("user WebSocket lifecycle", () => {
   });
 
   it("keeps project caches when the project list refresh fails", async () => {
-    client.getQueryData.mockReturnValueOnce([{ id: "project" }]);
+    cachedProjects.mockReturnValueOnce([{ id: "project" }]);
     client.fetchQuery.mockRejectedValueOnce(new Error("Network unavailable"));
     renderHook(useUserWebSocket);
     await act(async () => projectAccessChanged(TestSocket.instances[0]));
@@ -282,7 +288,7 @@ describe("user WebSocket lifecycle", () => {
 
   it("ignores a project list refresh that finishes after the session ends", async () => {
     let finish!: (projects: { id: string }[]) => void;
-    client.getQueryData.mockReturnValueOnce([{ id: "project" }]);
+    cachedProjects.mockReturnValueOnce([{ id: "project" }]);
     client.fetchQuery.mockReturnValueOnce(
       new Promise((resolve) => {
         finish = resolve;

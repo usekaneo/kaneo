@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import getProjects from "@/fetchers/project/get-projects";
+import { collectCachedProjects } from "@/lib/collect-cached-projects";
 import { evictProjectCache } from "@/lib/evict-project-cache";
 import {
   evictInaccessibleWorkspaceCache,
@@ -140,13 +141,9 @@ export function useUserWebSocket() {
             message.workspaceId
           ) {
             const { workspaceId } = message;
-            const projectsKey = ["projects", workspaceId];
-            const before =
-              queryClient.getQueryData<
-                NonNullable<Awaited<ReturnType<typeof getProjects>>>
-              >(projectsKey);
+            const before = collectCachedProjects(queryClient, workspaceId);
             for (const queryKey of [
-              projectsKey,
+              ["projects", workspaceId],
               ["assigned-tasks", workspaceId],
               ["search", { workspaceId }],
               ["workspace-activity", workspaceId],
@@ -155,11 +152,12 @@ export function useUserWebSocket() {
               ["notifications"],
             ])
               void queryClient.invalidateQueries({ queryKey });
-            if (before)
+            if (before.length > 0)
               void queryClient
                 .fetchQuery({
-                  queryKey: projectsKey,
-                  queryFn: () => getProjects({ workspaceId }),
+                  queryKey: ["projects", workspaceId, "including-archived"],
+                  queryFn: () =>
+                    getProjects({ workspaceId, includeArchived: "true" }),
                 })
                 .then((after) => {
                   if (disposed) return;
