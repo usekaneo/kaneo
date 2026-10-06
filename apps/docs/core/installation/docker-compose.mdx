@@ -52,7 +52,7 @@ volumes:
   postgres_data:
 ```
 
-This example pins Kaneo to a release so a pull does not unexpectedly upgrade it. See the [release notes](https://github.com/usekaneo/kaneo/releases) when choosing another version.
+This example pins Kaneo to a release so a pull does not unexpectedly upgrade it. See the [release notes](https://github.com/usekaneo/kaneo/releases) when choosing another version. To pick up fixes on each pull while staying within a release line, set `KANEO_IMAGE_TAG` to a minor tag such as `2.28` or a major tag such as `2`. These move to the newest matching release.
 
 ## 2. Add configuration
 
