@@ -291,6 +291,7 @@ function CreateTaskModalContent({
   );
   const projectMembersPending =
     Boolean(resolvedProjectId) && projectMembers === undefined;
+  const assigneeUnconfirmed = Boolean(assigneeId) && projectMembersPending;
   const assigneeOptions = useMemo(
     () =>
       resolvedProjectId
@@ -526,6 +527,7 @@ function CreateTaskModalContent({
       awaitingColumns ||
       !title.trim() ||
       !resolvedProjectId ||
+      assigneeUnconfirmed ||
       !workspace?.id
     )
       return;
@@ -1563,6 +1565,7 @@ function CreateTaskModalContent({
               disabled={
                 !title.trim() ||
                 !resolvedProjectId ||
+                assigneeUnconfirmed ||
                 isSubmitting ||
                 awaitingColumns ||
                 isPreparingDraft
