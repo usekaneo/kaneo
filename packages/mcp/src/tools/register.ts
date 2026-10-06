@@ -86,12 +86,17 @@ async function describeAssetFailure(
   return `Failed to fetch asset ${id}: ${detail}`;
 }
 
-function oversizedAssetMessage(id: string, size?: number): string {
+function oversizedAssetMessage(
+  id: string,
+  assetUrlBase: string,
+  size?: number,
+): string {
   const lead =
     size === undefined
       ? "Asset is over"
       : `Asset is ${formatBytes(size)}, over`;
-  return `${lead} the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly with: curl -H "Authorization: Bearer $KANEO_API_KEY" "$KANEO_API_URL/api/asset/${encodeURIComponent(id)}" -o out`;
+  const url = `${assetUrlBase}/api/asset/${encodeURIComponent(id)}`;
+  return `${lead} the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly from ${url} with a Kaneo bearer credential (API key or session token), for example: curl -H "Authorization: Bearer <token>" "${url}" -o out`;
 }
 
 export function registerTools(
@@ -952,12 +957,17 @@ export function registerTools(
           Number.isFinite(declaredLength) &&
           declaredLength > MAX_ASSET_BYTES
         ) {
-          return errorResult(oversizedAssetMessage(id, declaredLength));
+          // Rejecting from the header alone still has to release the body,
+          // otherwise the download stream stays open until the abort timeout.
+          await res.body?.cancel().catch(() => {});
+          return errorResult(
+            oversizedAssetMessage(id, assetUrlBase, declaredLength),
+          );
         }
         const { mimeType, servedType } = resolveAssetContentTypes(res.headers);
         const body = await readBodyWithLimit(res, MAX_ASSET_BYTES);
         if ("exceeded" in body) {
-          return errorResult(oversizedAssetMessage(id));
+          return errorResult(oversizedAssetMessage(id, assetUrlBase));
         }
         return buildAssetResult(
           {

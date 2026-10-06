@@ -357,7 +357,7 @@ describe("MCP tool catalog", () => {
       type: "resource",
       resource: {
         uri: "http://api.test/api/asset/doc1",
-        mimeType: "application/octet-stream",
+        mimeType: "application/pdf",
         blob: Buffer.from([10, 20, 30]).toString("base64"),
       },
     });
@@ -421,7 +421,7 @@ describe("MCP tool catalog", () => {
       type: "resource",
       resource: {
         uri: "https://public.test/api/asset/doc1",
-        mimeType: "application/octet-stream",
+        mimeType: "application/pdf",
         blob: Buffer.from([1]).toString("base64"),
       },
     });
@@ -444,7 +444,9 @@ describe("MCP tool catalog", () => {
     expect(content).toMatchObject({ type: "text" });
     const text = content?.type === "text" ? content.text : "";
     expect(text).toContain("over the 10.0MB MCP limit");
-    expect(text).toContain("/api/asset/big");
+    expect(text).toContain("http://api.test/api/asset/big");
+    expect(text).toContain("API key or session token");
+    expect(text).not.toContain("KANEO_API_KEY");
   });
 
   it("refuses an oversized streamed asset without a declared length", async () => {
@@ -466,6 +468,7 @@ describe("MCP tool catalog", () => {
     expect(content).toMatchObject({ type: "text" });
     const text = content?.type === "text" ? content.text : "";
     expect(text).toContain("over the 10.0MB MCP limit");
-    expect(text).toContain("/api/asset/big-stream");
+    expect(text).toContain("http://api.test/api/asset/big-stream");
+    expect(text).not.toContain("KANEO_API_KEY");
   });
 });

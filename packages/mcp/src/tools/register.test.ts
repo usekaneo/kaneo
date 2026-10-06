@@ -581,7 +581,34 @@ describe("registerTools", () => {
       type: "resource",
       resource: {
         uri: "http://api.test/api/asset/doc1",
-        mimeType: "application/octet-stream",
+        mimeType: "application/pdf",
+        blob: Buffer.from([10, 20, 30]).toString("base64"),
+      },
+    });
+  });
+
+  it("returns image types hosts may reject as embedded resources", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([10, 20, 30]),
+          contentType: "image/heic",
+          filename: "photo.heic",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "heic1" });
+
+    expect(result?.content[1]).toEqual({
+      type: "resource",
+      resource: {
+        uri: "http://api.test/api/asset/heic1",
+        mimeType: "image/heic",
         blob: Buffer.from([10, 20, 30]).toString("base64"),
       },
     });
@@ -647,7 +674,38 @@ describe("registerTools", () => {
     expect(content).toMatchObject({ type: "text" });
     const text = content?.type === "text" ? content.text : "";
     expect(text).toContain("over the 10.0MB MCP limit");
-    expect(text).toContain("/api/asset/big");
+    expect(text).toContain("http://api.test/api/asset/big");
+    expect(text).toContain("API key or session token");
+    expect(text).not.toContain("KANEO_API_KEY");
+  });
+
+  it("cancels the download stream when content-length exceeds the limit", async () => {
+    const { server, tools } = createServerMock();
+    const cancel = vi.fn();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          "content-length": String(10 * 1024 * 1024 + 1),
+        }),
+        body: new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array([1]));
+          },
+          cancel,
+        }),
+        text: async () => "",
+      } as unknown as Response),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "big" });
+
+    expect(result?.isError).toBe(true);
+    expect(cancel).toHaveBeenCalled();
   });
 
   it("refuses an oversized streamed asset without a declared length", async () => {
@@ -677,7 +735,8 @@ describe("registerTools", () => {
     expect(content).toMatchObject({ type: "text" });
     const text = content?.type === "text" ? content.text : "";
     expect(text).toContain("over the 10.0MB MCP limit");
-    expect(text).toContain("/api/asset/big-stream");
+    expect(text).toContain("http://api.test/api/asset/big-stream");
+    expect(text).not.toContain("KANEO_API_KEY");
   });
 
   it("returns saved progress when the overall deletion deadline expires", async () => {

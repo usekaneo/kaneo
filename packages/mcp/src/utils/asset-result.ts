@@ -54,8 +54,20 @@ export function normalizeContentType(header: string | null): string {
   return value || "application/octet-stream";
 }
 
+/**
+ * MCP image content is only produced for types model APIs reliably accept.
+ * Other image formats (HEIC, AVIF, APNG, SVG, ...) fall back to a resource
+ * blob rather than failing the whole tool call in the host.
+ */
+const MCP_IMAGE_CONTENT_TYPES = new Set([
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+
 export function isImageContentType(contentType: string): boolean {
-  return contentType.startsWith("image/");
+  return MCP_IMAGE_CONTENT_TYPES.has(contentType);
 }
 
 /**
@@ -123,9 +135,10 @@ export async function readBodyWithLimit(
 }
 
 /**
- * Images become MCP `image` content so a client can display them; every other
- * type is an embedded resource blob. A short metadata block leads so callers
- * can see the filename, size, and source URL without decoding the payload.
+ * Model-safe images become MCP `image` content so a client can display them;
+ * every other type is an embedded resource blob labelled with the stored MIME
+ * type. A short metadata block leads so callers can see the filename, size,
+ * and source URL without decoding the payload.
  */
 export function buildAssetResult(
   metadata: AssetMetadata,
@@ -143,7 +156,7 @@ export function buildAssetResult(
       type: "resource",
       resource: {
         uri: metadata.url,
-        mimeType: servedType,
+        mimeType: metadata.mimeType,
         blob: base64,
       },
     });
