@@ -73,7 +73,11 @@ export async function reconcile(github, loadPolicy) {
     try {
       result = await checkPullRequest(github, pull, policy, policyError);
     } catch (error) {
-      errors.push(error);
+      errors.push(
+        new Error(`PR #${pull.number}: Eligibility reconciliation failed.`, {
+          cause: error,
+        }),
+      );
       result = {
         state: "error",
         description:
