@@ -908,19 +908,20 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
-      const viewerId = ctx.context.session?.user.id;
-      if (viewerId && ctx.path === "/organization/list-invitations") {
-        await hideInaccessibleInvitationProjects(
-          viewerId,
-          ctx.context.returned,
-        );
-      }
-      if (viewerId && ctx.path === "/organization/get-full-organization") {
-        await hideInaccessibleInvitationProjects(
-          viewerId,
-          (ctx.context.returned as { invitations?: unknown } | null)
-            ?.invitations,
-        );
+      if (
+        ctx.path === "/organization/list-invitations" ||
+        ctx.path === "/organization/get-full-organization"
+      ) {
+        const viewer = await getSessionFromCtx(ctx);
+        const returned = ctx.context.returned as
+          | { invitations?: unknown }
+          | unknown[]
+          | null;
+        if (viewer)
+          await hideInaccessibleInvitationProjects(
+            viewer.user.id,
+            Array.isArray(returned) ? returned : returned?.invitations,
+          );
       }
 
       if (ctx.path === "/organization/leave") {
