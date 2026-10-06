@@ -229,6 +229,21 @@ test("conversion failures fail the check and retry on the next run", async () =>
   }
 });
 
+test("reconciliation errors identify the PR and retain the rejection cause", async () => {
+  const { github, statuses } = fixture({ links: [], conversionErrors: true });
+  await assert.rejects(
+    reconcile(github, async () => policy),
+    (error) => {
+      assert.ok(error instanceof AggregateError);
+      assert.match(error.errors[0].message, /PR #1/);
+      assert.match(error.errors[0].cause.message, /synthetic failure/);
+      return true;
+    },
+  );
+  assert.equal(statuses.at(-1).state, "failure");
+  assert.match(statuses.at(-1).description, /could not be checked/);
+});
+
 test("approved issue publishes pending then success on the fork's exact head", async () => {
   const { github, statuses } = fixture();
   const results = await reconcile(github, async () => policy);
