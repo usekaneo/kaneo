@@ -3,15 +3,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
-import getProjects from "@/fetchers/project/get-projects";
-import { collectCachedProjects } from "@/lib/collect-cached-projects";
-import { evictProjectCache } from "@/lib/evict-project-cache";
 import {
   evictInaccessibleWorkspaceCache,
   evictWorkspaceCache,
 } from "@/lib/evict-workspace-cache";
 import { authClient } from "@/lib/auth-client";
-import { findRemovedProjectIds } from "@/lib/find-removed-project-ids";
+import { reconcileProjectAccess } from "@/lib/reconcile-project-access";
 
 export function getUserWsUrl() {
   const base = getApiUrl("ws");
@@ -113,6 +110,8 @@ export function useUserWebSocket() {
             message.workspaceIds.every((id) => typeof id === "string")
           ) {
             evictInaccessibleWorkspaceCache(queryClient, message.workspaceIds);
+            for (const workspaceId of message.workspaceIds)
+              reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
             refreshOrganizationState();
             const path = pathnameRef.current;
             const current =
@@ -141,7 +140,6 @@ export function useUserWebSocket() {
             message.workspaceId
           ) {
             const { workspaceId } = message;
-            const before = collectCachedProjects(queryClient, workspaceId);
             for (const queryKey of [
               ["projects", workspaceId],
               ["assigned-tasks", workspaceId],
@@ -152,19 +150,7 @@ export function useUserWebSocket() {
               ["notifications"],
             ])
               void queryClient.invalidateQueries({ queryKey });
-            if (before.length > 0)
-              void queryClient
-                .fetchQuery({
-                  queryKey: ["projects", workspaceId, "including-archived"],
-                  queryFn: () =>
-                    getProjects({ workspaceId, includeArchived: "true" }),
-                })
-                .then((after) => {
-                  if (disposed) return;
-                  for (const projectId of findRemovedProjectIds(before, after))
-                    evictProjectCache(queryClient, projectId);
-                })
-                .catch(() => {});
+            reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
           }
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });

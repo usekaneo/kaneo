@@ -301,6 +301,23 @@ describe("user WebSocket lifecycle", () => {
     expect(evictProject).not.toHaveBeenCalled();
   });
 
+  it("reconciles cached projects when a reconnect snapshot arrives", async () => {
+    cachedProjects.mockReturnValueOnce([{ id: "kept" }, { id: "revoked" }]);
+    client.fetchQuery.mockResolvedValueOnce([{ id: "kept" }]);
+    renderHook(useUserWebSocket);
+    await act(async () =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_SYNC",
+          workspaceIds: ["workspace"],
+        }),
+      }),
+    );
+    expect(cachedProjects).toHaveBeenCalledWith(client, "workspace");
+    expect(evictProject).toHaveBeenCalledWith(client, "revoked");
+    expect(evictProject).toHaveBeenCalledOnce();
+  });
+
   it("redirects after a reconnect snapshot reveals a missed workspace revocation", () => {
     renderHook(useUserWebSocket);
     act(() =>
