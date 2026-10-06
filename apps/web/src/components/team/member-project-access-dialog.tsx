@@ -43,7 +43,9 @@ function MemberProjectAccessDialog({
     workspaceId,
     includeArchived: true,
   });
-  const { data: myAccess } = useGetMyProjectAccess(workspaceId, open);
+  const myAccess = useGetMyProjectAccess(workspaceId, open);
+  const managerLimited =
+    myAccess.isError || myAccess.data?.projectAccess === "selected";
   const { mutateAsync, isPending } = useUpdateMemberProjectAccess();
 
   if (open !== wasOpen) {
@@ -90,7 +92,7 @@ function MemberProjectAccessDialog({
         </DialogHeader>
         <DialogPanel>
           <ProjectAccessFields
-            allowAll={myAccess?.projectAccess !== "selected"}
+            allowAll={!managerLimited}
             value={value}
             onChange={(next) => {
               setValue(next);
@@ -98,7 +100,7 @@ function MemberProjectAccessDialog({
             }}
             projects={projects}
             isLoadingProjects={isLoadingProjects}
-            disabled={isPending}
+            disabled={isPending || myAccess.isPending}
             error={
               showError ? t("team:projectAccess.selectAtLeastOne") : undefined
             }
@@ -113,7 +115,7 @@ function MemberProjectAccessDialog({
           <Button
             size="sm"
             type="button"
-            disabled={isPending || isLoadingProjects}
+            disabled={isPending || isLoadingProjects || myAccess.isPending}
             onClick={handleSave}
           >
             {t("team:projectAccess.save")}

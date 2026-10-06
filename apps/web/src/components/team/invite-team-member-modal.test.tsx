@@ -50,6 +50,14 @@ vi.mock("@/hooks/queries/project/use-get-projects", () => ({
     isLoading: false,
   }),
 }));
+const myAccess = vi.fn(() => ({
+  isPending: false,
+  isError: false,
+  data: { projectAccess: "all", projectIds: [] as string[] },
+}));
+vi.mock("@/hooks/queries/workspace-users/use-get-my-project-access", () => ({
+  default: () => myAccess(),
+}));
 vi.mock("@/lib/toast", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock("./invitation-link-field", () => ({ default: () => null }));
 function wrapper({ children }: PropsWithChildren) {
@@ -144,6 +152,52 @@ describe("invitation project access", () => {
         expect.objectContaining({ projectAccess: "all", projectIds: [] }),
       ),
     );
+  });
+
+  it("starts a limited inviter on selected projects", async () => {
+    myAccess.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { projectAccess: "selected", projectIds: ["project-a"] },
+    });
+    render(<InviteTeamMemberModal open onClose={vi.fn()} />, { wrapper });
+    await fillEmail();
+
+    expect(
+      screen.getByRole("radio", { name: /team:projectAccess.allProjects/ }),
+    ).toHaveAttribute("aria-disabled", "true");
+    expect(
+      screen.getByRole("radio", {
+        name: /team:projectAccess.selectedProjects/,
+      }),
+    ).toHaveAttribute("aria-checked", "true");
+    myAccess.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { projectAccess: "all", projectIds: [] },
+    });
+  });
+
+  it("waits for the inviter's own access before sending", async () => {
+    myAccess.mockReturnValue({
+      isPending: true,
+      isError: false,
+      data: undefined as unknown as {
+        projectAccess: string;
+        projectIds: string[];
+      },
+    });
+    render(<InviteTeamMemberModal open onClose={vi.fn()} />, { wrapper });
+    await fillEmail();
+
+    expect(
+      screen.getByRole("button", { name: "team:inviteModal.sendInvitation" }),
+    ).toBeDisabled();
+    myAccess.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { projectAccess: "all", projectIds: [] },
+    });
   });
 
   it("requires a project before inviting with selected access", async () => {

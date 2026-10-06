@@ -151,6 +151,7 @@ export function useUserWebSocket() {
               ["search", { workspaceId }],
               ["workspace-activity", workspaceId],
               ["labels", workspaceId],
+              ["workspace-users", workspaceId, "project-access"],
               ["notifications"],
             ])
               void queryClient.invalidateQueries({ queryKey });

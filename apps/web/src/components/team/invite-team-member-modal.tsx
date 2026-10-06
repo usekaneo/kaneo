@@ -62,8 +62,10 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
     id: string;
     email: string;
   } | null>(null);
-  const { data: myAccess } = useGetMyProjectAccess(workspaceId ?? "", open);
-  const inviterLimited = myAccess?.projectAccess === "selected";
+  const myAccess = useGetMyProjectAccess(workspaceId ?? "", open);
+  const isMyAccessPending = myAccess.isPending;
+  const inviterLimited =
+    myAccess.isError || myAccess.data?.projectAccess === "selected";
   const [chosenAccess, setProjectAccess] = useState<ProjectAccessValue | null>(
     null,
   );
@@ -215,7 +217,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                   }}
                   projects={projects}
                   isLoadingProjects={isLoadingProjects}
-                  disabled={form.formState.isSubmitting}
+                  disabled={form.formState.isSubmitting || isMyAccessPending}
                   error={
                     showProjectAccessError
                       ? t("team:projectAccess.selectAtLeastOne")
@@ -233,7 +235,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={!workspaceId || !canInvite}
+                  disabled={!workspaceId || !canInvite || isMyAccessPending}
                 >
                   {t("team:inviteModal.sendInvitation")}
                 </Button>
