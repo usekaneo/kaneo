@@ -2136,6 +2136,7 @@
 		"changedDueDate": "changed due date from {{from}} to {{to}}",
 		"changedTitle": "changed title from \"{{from}}\" to \"{{to}}\"",
 		"moved": "moved task from \"{{from}}\" to \"{{to}}\"",
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
 		"created": "created this task",
 		"githubUser": "GitHub User",
 		"comment": {

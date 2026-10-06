@@ -193,6 +193,7 @@ const activity = apiRouter()
     c.json(
       await getActivities(
         c.req.valid("param").taskId,
+        c.get("userId"),
         c.req.valid("query").limit,
       ),
       200,

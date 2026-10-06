@@ -1,12 +1,13 @@
 import { createHash, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import { addWorkspaceMember } from "./helpers/project-access/add-workspace-member";
 import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
 import { projectAccessApi } from "./helpers/project-access/project-access-api";
+import { restrictToProjects } from "./helpers/project-access/restrict-to-projects";
 
 beforeEach(resetTestDatabase);
 
@@ -240,6 +241,37 @@ describe("project access enforcement", () => {
       .from(schema.taskTable)
       .where(eq(schema.taskTable.id, ctx.alphaTask.id));
     expect(task?.userId).toBeNull();
+  });
+
+  it("hides the source project of a move from members who can't see it", async () => {
+    const ctx = await createRestrictedWorkspace();
+    const betaOnly = await addWorkspaceMember(ctx.workspace.id);
+    await restrictToProjects(ctx.workspace.id, betaOnly.id, [ctx.beta.id]);
+    mockAuthenticatedSession(ctx.owner);
+    const moved = await projectAccessApi()(`/task/move/${ctx.alphaTask.id}`, {
+      method: "PUT",
+      body: { destinationProjectId: ctx.beta.id },
+    });
+    expect(moved.status).toBe(200);
+
+    mockAuthenticatedSession(betaOnly);
+    await vi.waitFor(async () => {
+      const response = await projectAccessApi()(
+        `/activity/${ctx.alphaTask.id}`,
+      );
+      const activities = (await response.json()) as {
+        type: string;
+        eventData: Record<string, unknown> | null;
+      }[];
+      expect(
+        activities.find((activity) => activity.type === "moved")?.eventData,
+      ).toMatchObject({
+        fromProjectId: null,
+        fromProjectName: null,
+        toProjectId: ctx.beta.id,
+        toProjectName: "Beta",
+      });
+    });
   });
 
   it("keeps tasks editable after their assignee loses access", async () => {

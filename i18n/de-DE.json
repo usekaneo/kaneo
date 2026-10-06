@@ -2237,7 +2237,8 @@
 			"importedFrom": "Importiert aus {{source}}",
 			"importedBy": "Importiert von {{name}}",
 			"commentedOnForge": "hat auf {{forge}} kommentiert"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "Aufgaben",

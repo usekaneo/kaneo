@@ -2269,7 +2269,8 @@
 			"commentedOnForge": "прокомментировал на {{forge}}"
 		},
 		"moved": "переместил задачу из «{{from}}» в «{{to}}»",
-		"created": "создал эту задачу"
+		"created": "создал эту задачу",
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "Задачи",

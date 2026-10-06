@@ -2225,7 +2225,8 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}}에 댓글을 남김"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "작업",

@@ -1010,7 +1010,8 @@
 		"githubUser": "Użytkownik GitHub",
 		"moved": "przeniósł(ęła) zadanie z \"{{from}}\" do \"{{to}}\"",
 		"setDueDate": "ustawił(a) termin na {{date}}",
-		"unassigned": "usunął(ęła) przypisanie zadania"
+		"unassigned": "usunął(ęła) przypisanie zadania",
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"settings": {
 		"advancedSettings": "Ustawienia zaawansowane",

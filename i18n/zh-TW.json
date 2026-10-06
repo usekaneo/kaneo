@@ -2225,7 +2225,8 @@
 			"importedFrom": "匯入自 {{source}}",
 			"importedBy": "由 {{name}} 匯入",
 			"commentedOnForge": "在 {{forge}} 上留言"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "任務",

@@ -1,5 +1,6 @@
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import db from "../../database";
+import { redactInaccessibleMoves } from "../redact-inaccessible-moves";
 import {
   activityTable,
   columnTable,
@@ -98,7 +99,7 @@ async function getWorkspaceActivities(workspaceId: string, userId: string) {
         )
     : [];
 
-  return rows.map(({ content, ...row }) => {
+  const activities = rows.map(({ content, ...row }) => {
     const data =
       row.type === "status_changed" ? statusData(row.eventData) : null;
     const nameOf = (slug: unknown) => {
@@ -120,6 +121,7 @@ async function getWorkspaceActivities(workspaceId: string, userId: string) {
       excerpt: commentExcerpt(content),
     };
   });
+  return redactInaccessibleMoves(userId, activities);
 }
 
 function statusData(value: unknown): Record<string, unknown> | null {
