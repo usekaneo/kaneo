@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { track } from "@/lib/analytics/track";
 import { authClient } from "@/lib/auth-client";
 import queryClient from "@/query-client";
 
@@ -8,6 +9,8 @@ type InviteWorkspaceUserRequest = {
   email: string;
   role: "admin" | "member" | "owner";
   resend?: boolean;
+  projectAccess?: "all" | "selected";
+  projectIds?: string[];
 };
 
 function useInviteWorkspaceUser() {
@@ -18,12 +21,15 @@ function useInviteWorkspaceUser() {
       email,
       role,
       resend,
+      projectAccess,
+      projectIds,
     }: InviteWorkspaceUserRequest) => {
       const { data, error } = await authClient.organization.inviteMember({
         email,
         role,
         organizationId: workspaceId,
         resend,
+        ...(projectAccess ? { projectAccess, projectIds } : {}),
       });
 
       if (error?.code === "INVITATION_EMAIL_FAILED") {
@@ -34,6 +40,9 @@ function useInviteWorkspaceUser() {
       }
 
       return data;
+    },
+    onSuccess: (_data, { resend }) => {
+      if (!resend) track("Invite Sent");
     },
     onSettled: (_, _error, { workspaceId }) => {
       queryClient.invalidateQueries({

@@ -275,6 +275,11 @@ export const invitationTable = pgTable(
     inviterId: text("inviter_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
+    projectAccess: text("project_access").default("all").notNull(),
+    projectIds: text("project_ids")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
   },
   (table) => [
     index("invitation_workspaceId_idx").on(table.workspaceId),
@@ -335,11 +340,71 @@ export const projectTable = pgTable(
     backgroundVersion: text("background_version"),
   },
   (table) => [
+    index("project_background_object_key_idx")
+      .on(table.backgroundObjectKey)
+      .where(sql`${table.backgroundObjectKey} is not null`),
     unique("project_workspace_id_id_unique").on(table.workspaceId, table.id),
     index("project_workspaceId_position_idx").on(
       table.workspaceId,
       table.position,
     ),
+  ],
+);
+
+export const workspaceMemberAccessTable = pgTable(
+  "workspace_member_access",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectAccess: text("project_access").default("all").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("workspace_member_access_workspace_user_unique").on(
+      table.workspaceId,
+      table.userId,
+    ),
+    index("workspace_member_access_userId_idx").on(table.userId),
+  ],
+);
+
+export const workspaceMemberProjectTable = pgTable(
+  "workspace_member_project",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.workspaceId, table.projectId],
+      foreignColumns: [projectTable.workspaceId, projectTable.id],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
+    unique("workspace_member_project_workspace_user_project_unique").on(
+      table.workspaceId,
+      table.userId,
+      table.projectId,
+    ),
+    index("workspace_member_project_projectId_idx").on(table.projectId),
   ],
 );
 
@@ -599,6 +664,7 @@ export const activityTable = pgTable(
   (table) => [
     index("activity_task_id_idx").on(table.taskId),
     index("activity_userId_idx").on(table.userId),
+    index("activity_createdAt_idx").on(table.createdAt),
     unique("activity_task_external_source_external_url_unique").on(
       table.taskId,
       table.externalSource,
@@ -651,6 +717,11 @@ export const assetTable = pgTable(
     index("asset_taskId_idx").on(table.taskId),
     index("asset_activityId_idx").on(table.activityId),
     index("asset_createdBy_idx").on(table.createdBy),
+    index("asset_draft_expiry_idx")
+      .on(table.createdAt, table.id)
+      .where(
+        sql`${table.taskId} is null and ${table.surface} in ('draft', 'draft-pending')`,
+      ),
   ],
 );
 
@@ -1290,3 +1361,17 @@ export const customFieldValueTable = pgTable(
     ),
   ],
 );
+
+// These records outlive their original owner so failed object deletion can retry.
+export const storageCleanupTable = pgTable("storage_cleanup", {
+  objectKey: text("object_key").primaryKey(),
+  lastAttemptAt: timestamp("last_attempt_at", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const dataMigrationTable = pgTable("data_migration", {
+  id: text("id").primaryKey(),
+  completedAt: timestamp("completed_at", { mode: "date" })
+    .defaultNow()
+    .notNull(),
+});

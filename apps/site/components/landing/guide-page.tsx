@@ -1,5 +1,6 @@
 import { FadeIn } from "@/components/landing/fade-in";
 import { Footer } from "@/components/landing/footer";
+import { GuideTable } from "@/components/landing/guide-table";
 import {
   breadcrumbJsonLd,
   faqJsonLd,
@@ -85,6 +86,7 @@ export function GuidePage({ data }: { data: Guide }) {
                       {paragraph}
                     </p>
                   ))}
+                  {section.table ? <GuideTable data={section.table} /> : null}
                   {section.items ? (
                     <div className="mt-6 space-y-5">
                       {section.items.map((item) => (

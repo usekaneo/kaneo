@@ -218,7 +218,11 @@ it.each([
         kind === "text" || (kind === "priority" && provider !== "gitlab")
           ? "task.updated"
           : "task.labels_updated",
-        { projectId: project.id, taskId: task.id },
+        {
+          projectId: project.id,
+          taskId: task.id,
+          ...(kind === "text" ? { titleChanged: true } : {}),
+        },
       ],
     ]);
   },

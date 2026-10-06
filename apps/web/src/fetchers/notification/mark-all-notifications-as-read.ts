@@ -2,8 +2,10 @@ import { client } from "@kaneo/libs";
 
 import { HttpError } from "@/lib/http-error";
 
-async function markAllNotificationsAsRead() {
-  const response = await client.notification["read-all"].$patch();
+async function markAllNotificationsAsRead(workspaceId?: string) {
+  const response = await client.notification["read-all"].$patch({
+    query: { workspaceId },
+  });
 
   if (!response.ok) {
     throw new HttpError(response.status, await response.text());

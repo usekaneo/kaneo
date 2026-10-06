@@ -36,6 +36,8 @@ import {
 } from "./relations";
 import { resolveDatabaseConnectionString } from "./resolve-database-url";
 import {
+  dataMigrationTable,
+  storageCleanupTable,
   accountTable,
   activityTable,
   apikeyTable,
@@ -75,6 +77,8 @@ import {
   workflowRuleTable,
   workspaceBillingTable,
   workspaceRoleTable,
+  workspaceMemberAccessTable,
+  workspaceMemberProjectTable,
   workspaceTable,
   workspaceUserTable,
 } from "./schema";
@@ -82,6 +86,8 @@ import {
 config();
 
 export const schema = {
+  dataMigrationTable,
+  storageCleanupTable,
   accountTable,
   assetTable,
   activityTable,
@@ -119,6 +125,8 @@ export const schema = {
   verificationTable,
   workflowRuleTable,
   workspaceRoleTable,
+  workspaceMemberAccessTable,
+  workspaceMemberProjectTable,
   workspaceTable,
   workspaceUserTable,
   accountTableRelations,

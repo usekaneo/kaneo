@@ -6,6 +6,7 @@ import { publishEvent } from "../../events";
 import { syncLabelToGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { syncLabelToGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { syncLabelToGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
+import { assertProjectAccess } from "../../project-access/assert-project-access";
 
 async function createLabel(
   name: string,
@@ -47,6 +48,8 @@ async function createLabel(
         message: "Task not found",
       });
     }
+
+    await assertProjectAccess(userId, task.projectId);
 
     const [inserted] = await db
       .insert(labelTable)

@@ -7,6 +7,7 @@ import {
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 
 async function deleteTaskRelation(
   id: string,
@@ -17,7 +18,12 @@ async function deleteTaskRelation(
     .select({ id: taskTable.id })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .where(eq(projectTable.workspaceId, workspaceId));
+    .where(
+      and(
+        eq(projectTable.workspaceId, workspaceId),
+        projectAccessCondition(userId, taskTable.projectId),
+      ),
+    );
 
   // Check both endpoints in the delete statement itself. Legacy cross-tenant
   // rows must not bypass the same boundary enforced on creation and reads.

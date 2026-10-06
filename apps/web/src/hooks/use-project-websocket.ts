@@ -5,15 +5,22 @@ import {
 } from "@/lib/board-cache-version";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
+import { evictProjectCache } from "@/lib/evict-project-cache";
 import getTask from "@/fetchers/task/get-task";
 import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import getExternalLinks from "@/fetchers/external-link/get-external-links";
+import type { ResumePreview } from "@/fetchers/integration-sync/types";
 import { patchBoardTask } from "@/lib/patch-board-task";
 import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
 import type { ProjectWithTasks } from "@/types/project";
+import {
+  hasSyncTaskSample,
+  patchSyncTaskTitles,
+} from "@/lib/patch-sync-task-titles";
 
 export function getWsUrl(projectId: string) {
   const base = getApiUrl("ws");
@@ -30,6 +37,7 @@ const WS_PING_INTERVAL_MS = 30_000;
 
 export function useProjectWebSocket(projectId: string) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: session } = authClient.useSession();
 
   useEffect(() => {
@@ -41,6 +49,7 @@ export function useProjectWebSocket(projectId: string) {
     let needsReconcile = false;
     let flushQueued = false;
     const taskVersions = new Map<string, number>();
+    const titleVersions = new Map<string, number>();
     const refreshingTasks = new Set<string>();
     let burstReconcileTimer: ReturnType<typeof setTimeout> | null = null;
     function reconcileBurst() {
@@ -68,10 +77,21 @@ export function useProjectWebSocket(projectId: string) {
       taskId?: string;
       sourceTaskId?: string;
       targetTaskId?: string;
+      linksChanged?: boolean;
     }) {
+      if (["PROJECT_UPDATED", "TASK_LABEL_UPDATED"].includes(message.type)) {
+        queryClient.invalidateQueries({
+          queryKey: ["integration-sync", projectId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["integration-sync-preview", projectId],
+        });
+      }
       if (message.type === "PROJECT_UPDATED") {
         queryClient.invalidateQueries({ queryKey: ["projects"] });
         queryClient.invalidateQueries({ queryKey: ["labels"] });
+        if (message.linksChanged)
+          queryClient.invalidateQueries({ queryKey: ["external-links"] });
         return;
       }
 
@@ -173,6 +193,79 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "PROJECT_MEMBERS_UPDATED") {
+            void queryClient.invalidateQueries({
+              predicate: (query) =>
+                query.queryKey[0] === "workspace-users" &&
+                query.queryKey[2] === "project" &&
+                query.queryKey[3] === projectId,
+            });
+            return;
+          }
+          if (
+            message.taskId &&
+            [
+              "TASK_UPDATED",
+              "TASK_LABEL_UPDATED",
+              "TASK_MOVED",
+              "TASK_DELETED",
+            ].includes(message.type)
+          )
+            // An open comparison needs a fresh token; other tasks and closed
+            // dialogs must not cause provider reads during routine edits.
+            for (const query of queryClient.getQueryCache().findAll({
+              queryKey: ["integration-sync-review", projectId],
+              type: "active",
+            })) {
+              const review = query.state.data as ResumePreview | undefined;
+              if ((review?.task.id ?? query.meta?.taskId) !== message.taskId)
+                continue;
+              const filters = { queryKey: query.queryKey, exact: true };
+              // Invalidation reuses an initial fetch with no data. Reset it so
+              // a pre-edit snapshot cannot become the first displayed token.
+              if (!review) void queryClient.resetQueries(filters);
+              else void queryClient.invalidateQueries(filters);
+            }
+          let titleTaskRequest: ReturnType<typeof getTask> | undefined;
+          if (
+            message.taskId &&
+            message.taskTitleChanged &&
+            hasSyncTaskSample(queryClient, projectId, message.taskId)
+          ) {
+            const taskId = message.taskId as string;
+            const version = (titleVersions.get(taskId) ?? 0) + 1;
+            titleVersions.set(taskId, version);
+            // Read titles through the task API, which enforces task-read permission.
+            titleTaskRequest = getTask(taskId, "board");
+            void titleTaskRequest
+              .then((task) => {
+                if (
+                  !disposed &&
+                  activeSocket === ws &&
+                  titleVersions.get(taskId) === version &&
+                  task.projectId === projectId
+                )
+                  patchSyncTaskTitles(
+                    queryClient,
+                    projectId,
+                    taskId,
+                    task.title,
+                  );
+              })
+              .catch(() => {});
+          }
+          if (
+            ["TASK_CREATED", "TASK_DELETED", "TASK_MOVED"].includes(
+              message.type,
+            )
+          ) {
+            queryClient.invalidateQueries({
+              queryKey: ["integration-sync", projectId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["integration-sync-preview", projectId],
+            });
+          }
           if (message.type === "PROJECT_MOVED") {
             markBoardCacheChanged(queryClient, projectId);
             for (const queryKey of [
@@ -355,7 +448,7 @@ export function useProjectWebSocket(projectId: string) {
               } else {
                 refreshingTasks.add(taskId);
                 void Promise.all([
-                  getTask(taskId, "board"),
+                  titleTaskRequest ?? getTask(taskId, "board"),
                   getLabelsByTask({ taskId }),
                   getExternalLinks(taskId),
                 ])
@@ -377,6 +470,13 @@ export function useProjectWebSocket(projectId: string) {
                     }
                     const staleOwnCounts =
                       (parentCountVersions.get(taskId) ?? 0) > sequence;
+                    if (task.projectId === projectId)
+                      patchSyncTaskTitles(
+                        queryClient,
+                        projectId,
+                        taskId,
+                        task.title,
+                      );
                     const { subtaskCounts, ...taskFields } = task;
                     if (staleOwnCounts)
                       void queryClient.invalidateQueries({
@@ -450,7 +550,7 @@ export function useProjectWebSocket(projectId: string) {
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         if (disposed || activeSocket !== ws) return;
         clearPing();
         if (healthyTimeout !== null) {
@@ -458,6 +558,37 @@ export function useProjectWebSocket(projectId: string) {
           healthyTimeout = null;
         }
         activeSocket = null;
+
+        if (
+          event?.code === 1008 &&
+          event.reason === "Workspace access revoked"
+        ) {
+          disposed = true;
+          void queryClient.cancelQueries();
+          queryClient.clear();
+          void navigate({ to: "/dashboard" });
+          return;
+        }
+
+        if (event?.code === 1008 && event.reason === "Project access revoked") {
+          disposed = true;
+          const workspaceId = queryClient
+            .getQueryCache()
+            .findAll({ queryKey: ["projects"] })
+            .find((query) => query.queryKey[2] === projectId)?.queryKey[1];
+          void Promise.resolve(
+            typeof workspaceId === "string"
+              ? navigate({
+                  to: "/dashboard/workspace/$workspaceId",
+                  params: { workspaceId },
+                })
+              : navigate({ to: "/dashboard" }),
+          ).finally(() => {
+            evictProjectCache(queryClient, projectId);
+            void queryClient.invalidateQueries({ queryKey: ["projects"] });
+          });
+          return;
+        }
 
         if (retries < MAX_RETRIES) {
           const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
@@ -539,5 +670,5 @@ export function useProjectWebSocket(projectId: string) {
       }
       activeSocket?.close();
     };
-  }, [projectId, session?.user?.id, queryClient]);
+  }, [projectId, session?.user?.id, queryClient, navigate]);
 }

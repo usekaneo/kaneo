@@ -1,7 +1,9 @@
+import { queueStorageCleanup } from "../../storage/cleanup-queue";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
+  assetTable,
   columnTable,
   labelTable,
   projectTable,
@@ -244,7 +246,11 @@ async function bulkUpdateTasks({
       const assigneeId = value?.trim() || null;
 
       if (assigneeId) {
-        await assertAssignableUser(assigneeId, workspaceId);
+        await assertAssignableUser(
+          assigneeId,
+          workspaceId,
+          tasks.map((task) => task.projectId),
+        );
       }
 
       const assignee = assigneeId
@@ -300,9 +306,35 @@ async function bulkUpdateTasks({
     case "delete": {
       // Relations cascade away with the children, so capture parents first.
       const parentProjects = await getSubtaskParentProjects(foundIds);
-      const result = await db
-        .delete(taskTable)
-        .where(inArray(taskTable.id, foundIds));
+      const result = await db.transaction(async (tx) => {
+        const locked = await tx
+          .select({ id: taskTable.id, projectId: taskTable.projectId })
+          .from(taskTable)
+          .where(inArray(taskTable.id, foundIds))
+          .orderBy(asc(taskTable.id))
+          .for("update");
+        const originalProjects = new Map(
+          tasks.map((task) => [task.id, task.projectId]),
+        );
+        if (
+          locked.length !== foundIds.length ||
+          locked.some(
+            (task) => task.projectId !== originalProjects.get(task.id),
+          )
+        )
+          throw new HTTPException(409, {
+            message: "Tasks changed projects; retry the operation",
+          });
+        const assets = await tx
+          .select({ objectKey: assetTable.objectKey })
+          .from(assetTable)
+          .where(inArray(assetTable.taskId, foundIds));
+        await queueStorageCleanup(
+          tx,
+          assets.map((asset) => asset.objectKey),
+        );
+        return tx.delete(taskTable).where(inArray(taskTable.id, foundIds));
+      });
 
       updatedCount = result.rowCount ?? foundIds.length;
 

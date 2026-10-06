@@ -112,6 +112,12 @@ export function Footer() {
               <p className="font-medium">Community</p>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/community"
+              >
+                Community projects
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
                 href="https://discord.com/invite/rU4tSyhXXU"
                 target="_blank"
                 rel="noreferrer"

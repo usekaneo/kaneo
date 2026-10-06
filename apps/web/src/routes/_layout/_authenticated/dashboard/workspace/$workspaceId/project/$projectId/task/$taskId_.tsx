@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskLayout from "@/components/common/task-layout";
 import PageTitle from "@/components/page-title";
-import TaskDeleteButton from "@/components/task/task-delete-button";
+import TaskDeleteDialog from "@/components/task/task-delete-dialog";
 import TaskDetailsContent from "@/components/task/task-details-content";
 import {
   TaskDetailsSkeleton,
   TaskPropertiesSidebarSkeleton,
 } from "@/components/task/task-page-skeleton";
 import TaskPropertiesSidebar from "@/components/task/task-properties-sidebar";
+import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
 import useGetProject from "@/hooks/queries/project/use-get-project";
@@ -36,6 +37,7 @@ function RouteComponent() {
   });
   const { isLoading: isActivitiesLoading } = useGetActivitiesByTaskId(taskId);
   const [isShikiReady, setIsShikiReady] = useState(false);
+  const [deleteHandle] = useState(() => AlertDialogCreateHandle());
   useEffect(() => {
     let mounted = true;
 
@@ -74,11 +76,6 @@ function RouteComponent() {
       taskId={taskId}
       projectId={projectId}
       workspaceId={workspaceId}
-      headerActions={
-        !isLoading && task ? (
-          <TaskDeleteButton taskId={taskId} onDeleted={handleDeleted} />
-        ) : null
-      }
       rightSidebar={
         isLoading ? (
           <TaskPropertiesSidebarSkeleton className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2" />
@@ -88,6 +85,7 @@ function RouteComponent() {
             projectId={projectId}
             workspaceId={workspaceId}
             className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2"
+            deleteHandle={deleteHandle}
           />
         )
       }
@@ -102,6 +100,13 @@ function RouteComponent() {
         }
         hideAppName
       />
+      {!isLoading && task && (
+        <TaskDeleteDialog
+          handle={deleteHandle}
+          taskId={taskId}
+          onDeleted={handleDeleted}
+        />
+      )}
       {isLoading ? (
         <TaskDetailsSkeleton />
       ) : isTaskError || !task ? (

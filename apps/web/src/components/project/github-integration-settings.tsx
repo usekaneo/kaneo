@@ -40,6 +40,7 @@ import {
 import useImportGithubIssues from "@/hooks/mutations/github-integration/use-import-github-issues";
 import { useUpdateGithubIntegration } from "@/hooks/mutations/github-integration/use-update-github-integration";
 import useGetGithubIntegration from "@/hooks/queries/github-integration/use-get-github-integration";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -55,6 +56,8 @@ export function GitHubIntegrationSettings({
   projectId: string;
 }) {
   const { t } = useTranslation();
+  const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
+  const hasImportPermission = canCreateTasks() && canUpdateTasks();
   const { data: session } = authClient.useSession();
   const { data: appInfo } = useQuery({
     queryKey: ["github-app-info", session?.user.id],
@@ -257,6 +260,7 @@ export function GitHubIntegrationSettings({
   };
 
   const handleImportIssues = async () => {
+    if (!hasImportPermission) return;
     try {
       const result = await importIssues({
         projectId,
@@ -279,14 +283,14 @@ export function GitHubIntegrationSettings({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="space-y-4">
             <div className="h-4 bg-muted rounded animate-pulse w-40" />
             <div className="h-4 bg-muted rounded animate-pulse w-full" />
             <div className="h-10 bg-muted rounded animate-pulse w-full" />
           </div>
         </div>
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="space-y-4">
             <div className="h-4 bg-muted rounded animate-pulse w-40" />
             <div className="h-10 bg-muted rounded animate-pulse w-full" />
@@ -300,12 +304,13 @@ export function GitHubIntegrationSettings({
   const isConnected = !!integration && integration.isActive;
   // The saved binding is verified again by each import request. Resuming must
   // also work after refresh, without a new administrator-only account check.
-  const canImport = isConnected && !integration.requiresVerification;
+  const canImport =
+    hasImportPermission && isConnected && !integration.requiresVerification;
 
   return (
     <div className="space-y-4">
       {appInfo && !appInfo.accountConnected && (
-        <div className="space-y-3 rounded-md border border-border bg-sidebar p-4">
+        <div className="space-y-3 rounded-xl border border-border bg-card p-4">
           <p className="text-sm">
             {t("settings:githubIntegration.accountVerificationHint")}
           </p>
@@ -334,7 +339,7 @@ export function GitHubIntegrationSettings({
           {t("settings:githubIntegration.reverifyHint")}
         </p>
       )}
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <p className="text-sm font-medium">
@@ -477,7 +482,7 @@ export function GitHubIntegrationSettings({
           </>
         )}
       </div>
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -716,7 +721,7 @@ export function GitHubIntegrationSettings({
       </div>
 
       {isConnected && (
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <p className="text-sm font-medium">
@@ -760,7 +765,9 @@ export function GitHubIntegrationSettings({
             <>
               <Separator />
               <p className="text-xs text-muted-foreground">
-                {t("settings:githubIntegration.importDisabledHint")}
+                {hasImportPermission
+                  ? t("settings:githubIntegration.importDisabledHint")
+                  : t("settings:gitlabIntegration.importPermissionHint")}
               </p>
             </>
           )}

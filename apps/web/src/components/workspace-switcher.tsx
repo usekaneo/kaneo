@@ -2,7 +2,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import NotificationDropdown from "@/components/notification/notification-dropdown";
+import Search from "@/components/search";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +27,6 @@ import {
   getModifierKeyText,
   useRegisterShortcuts,
 } from "@/hooks/use-keyboard-shortcuts";
-import { useUserWebSocket } from "@/hooks/use-user-websocket";
 import { authClient } from "@/lib/auth-client";
 import { hasInstanceAdminRole } from "@/lib/instance-admin";
 import type { Workspace } from "@/types/workspace";
@@ -37,8 +36,6 @@ export function WorkspaceSwitcher() {
   const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
 
-  // User-scoped WebSocket for real-time events (e.g. NOTIFICATION_CREATED)
-  useUserWebSocket();
   const { data: workspaces } = useGetWorkspaces();
   const { data: session } = authClient.useSession();
   const { data: config } = useGetConfig();
@@ -202,8 +199,8 @@ export function WorkspaceSwitcher() {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        <div className="flex items-center gap-1">
-          <NotificationDropdown />
+        <div className="flex items-center gap-0.5">
+          <Search />
           <div className="h-8 w-8 shrink-0">
             <UserAvatar />
           </div>

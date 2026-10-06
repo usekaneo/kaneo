@@ -49,6 +49,15 @@ const messages = {
     ignore: "心当たりがない場合は、このメールを無視してかまいません。",
     footer: "Kaneo セキュリティメール",
   },
+  "zh-tw": {
+    preview: "登入 Kaneo",
+    title: "你的安全登入連結",
+    subtitle: "使用此連結繼續前往你的 Kaneo 工作區。",
+    cta: "登入 Kaneo",
+    expiry: "為了你的帳號安全，此連結將在 5 分鐘後失效。",
+    ignore: "如果這不是你本人的操作，請忽略這封郵件。",
+    footer: "Kaneo 安全性通知",
+  },
 } as const;
 
 const MagicLinkEmail = ({ magicLink, locale }: MagicLinkEmailProps) => {

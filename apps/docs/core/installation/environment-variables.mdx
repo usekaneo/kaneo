@@ -40,6 +40,7 @@ Name | Description |
 | `POSTGRES_PASSWORD` | The password for the PostgreSQL database. Use a strong value in production.
 | `POSTGRES_HOST` | Database hostname for derived configuration. Default: `postgres`; use `localhost` for a host-native API connected to local PostgreSQL. |
 | `POSTGRES_PORT` | Database port for derived configuration. Default: `5432`. |
+| `POSTGRES_PASSWORD_FILE` | Path to a UTF-8 file containing the database password. Used when `POSTGRES_PASSWORD` is unset and Kaneo derives `DATABASE_URL` from `POSTGRES_*`. Set the same file variable on the PostgreSQL container when using the bundled Compose setup; see [Keep secrets in files](/core/installation/docker-compose#keep-secrets-in-files). |
 
 ### Authentication
 
@@ -49,8 +50,14 @@ Name | Description |
 --- | --- |
 | `AUTH_SECRET` | The secret used by the authentication service. **Must be at least 32 characters long**, use a long, random value in production. Example: use `openssl rand -base64 32` to generate a secure key in Linux/macOS.
 | `COOKIE_DOMAIN` | Optional cookie domain override. Leave unset for host-only cookies. Set a parent domain only when your deployment needs cookies shared across its trusted subdomains. |
+| `AUTH_SECRET_FILE` | Path to a UTF-8 file containing the authentication secret. Used when `AUTH_SECRET` is unset; the same 32-character minimum applies. |
 | `DEVICE_AUTH_CLIENT_IDS` | **Optional.** Comma-separated list of allowed device authorization client IDs. When unset, Kaneo implicitly allows `kaneo-cli` and `kaneo-mcp` by default, so no extra configuration is required for the CLI or MCP. Override only when you need additional trusted clients, for example `kaneo-cli,kaneo-mcp,my-desktop-app`. |
 
+The Docker Compose quick-start pins image `2.28.3`, which predates `_FILE`
+support. Raise `KANEO_IMAGE_TAG` to a release containing this feature before
+following [Keep secrets in files](/core/installation/docker-compose#keep-secrets-in-files).
+
+For the supported `_FILE` variables, a non-empty direct value takes precedence. Kaneo removes trailing line endings from secret files but keeps other whitespace. Missing, unreadable, or empty files fail startup instead of silently using a fallback. Secrets are read at startup; restart Kaneo after rotating a file. `DATABASE_URL` takes precedence over both PostgreSQL password variables.
 
 ## Optional variables
 
@@ -162,6 +169,7 @@ Name | Description |
 --- | --- |
 | `CUSTOM_OAUTH_CLIENT_ID` | OAuth client ID from your provider.
 | `CUSTOM_OAUTH_CLIENT_SECRET` | OAuth client secret from your provider.
+| `CUSTOM_OAUTH_CLIENT_SECRET_FILE` | Path to a UTF-8 file containing the custom OAuth client secret. Used when `CUSTOM_OAUTH_CLIENT_SECRET` is unset.
 | `CUSTOM_OAUTH_AUTHORIZATION_URL` | Authorization endpoint URL.
 | `CUSTOM_OAUTH_TOKEN_URL` | Token exchange endpoint URL.
 | `CUSTOM_OAUTH_USER_INFO_URL` | User info endpoint URL.

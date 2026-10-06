@@ -19,20 +19,17 @@ import {
 import { useMoveTask } from "@/hooks/mutations/task/use-move-task";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
-import { cn } from "@/lib/cn";
 import { getStatusLabel } from "@/lib/i18n/domain";
 import type Task from "@/types/task";
 
 type TaskMovePopoverProps = {
   task: Task;
   workspaceId: string;
-  triggerClassName?: string;
 };
 
 export default function TaskMovePopover({
   task,
   workspaceId,
-  triggerClassName,
 }: TaskMovePopoverProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -135,7 +132,7 @@ export default function TaskMovePopover({
           type="button"
           variant="outline"
           size="sm"
-          className={cn("text-foreground", triggerClassName)}
+          className="text-foreground"
           title={t("tasks:move.title")}
           aria-label={t("tasks:move.title")}
         >

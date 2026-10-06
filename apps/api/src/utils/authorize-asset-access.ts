@@ -1,11 +1,15 @@
 import type { Context } from "hono";
+import { HTTPException } from "hono/http-exception";
+import { assertProjectAccess } from "../project-access/assert-project-access";
 import { resolveAssetBearerOrCookie } from "./authenticate-api-request";
 import { validateWorkspaceAccess } from "./validate-workspace-access";
 
 type AssetAccessTarget = {
   workspaceId: string;
+  projectId: string;
   isPublic: boolean | null;
   surface: string;
+  createdBy?: string | null;
 };
 
 /** Only description assets belong to the public project representation. */
@@ -22,5 +26,10 @@ export async function authorizeAssetAccess(
   }
 
   const { userId, apiKeyId } = await resolveAssetBearerOrCookie(c);
+  if (asset.surface.startsWith("draft") && asset.createdBy !== userId)
+    throw new HTTPException(403, {
+      message: "Staged uploads are private to their owner",
+    });
   await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId);
+  await assertProjectAccess(userId, asset.projectId);
 }

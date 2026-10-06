@@ -37,6 +37,7 @@ import {
 import useImportGiteaIssues from "@/hooks/mutations/gitea-integration/use-import-gitea-issues";
 import { useUpdateGiteaIntegration } from "@/hooks/mutations/gitea-integration/use-update-gitea-integration";
 import useGetGiteaIntegration from "@/hooks/queries/gitea-integration/use-get-gitea-integration";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
@@ -72,6 +73,8 @@ function createVerificationSnapshot(
 
 export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   const { t } = useTranslation();
+  const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
+  const hasImportPermission = canCreateTasks() && canUpdateTasks();
 
   const giteaIntegrationSchema = React.useMemo(
     () =>
@@ -350,6 +353,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
   };
 
   const handleImportIssues = async () => {
+    if (!hasImportPermission) return;
     try {
       await importIssues(projectId);
       toast.success(t("settings:giteaIntegration.toast.issuesImported"));
@@ -407,7 +411,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
   if (integrationError) {
     return (
-      <div className="space-y-4 border border-destructive/25 rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-destructive/25 bg-card p-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <p className="text-sm font-medium text-destructive">
@@ -445,7 +449,8 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       currentVerificationSnapshot.repositoryOwner &&
     verificationResult.verified.repositoryName ===
       currentVerificationSnapshot.repositoryName;
-  const canImport = isConnected && Boolean(hasVerifiedCurrentValues);
+  const canImport =
+    hasImportPermission && isConnected && Boolean(hasVerifiedCurrentValues);
 
   const repoUrl =
     integration?.baseUrl && integration.repositoryOwner
@@ -454,7 +459,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
             <p className="text-sm font-medium">
@@ -601,7 +606,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
         )}
       </div>
 
-      <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+      <div className="space-y-4 rounded-xl border border-border bg-card p-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -841,7 +846,7 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
       </div>
 
       {isConnected && (
-        <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
               <p className="text-sm font-medium">
@@ -872,7 +877,9 @@ export function GiteaIntegrationSettings({ projectId }: { projectId: string }) {
             <>
               <Separator />
               <p className="text-xs text-muted-foreground">
-                {t("settings:giteaIntegration.importDisabledHint")}
+                {hasImportPermission
+                  ? t("settings:giteaIntegration.importDisabledHint")
+                  : t("settings:gitlabIntegration.importPermissionHint")}
               </p>
             </>
           )}

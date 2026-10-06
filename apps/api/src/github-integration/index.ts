@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
+import { publishEvent } from "../events";
 import { accountTable, integrationTable } from "../database/schema";
 import { scopeToProjectFromBody } from "../integrations/middleware";
 import { projectIdParam } from "../integrations/schema";
@@ -229,7 +230,7 @@ const importIssuesRoute = createRoute({
     "Import open issues and link open pull requests in bounded steps. Existing tasks are updated. Continue 202 responses with the returned runId until 200; the same runId safely retries completion. Progress is saved after each page. New calls without runId resume an unfinished import or start a new one after completion.",
   middleware: [
     scopeToProjectFromBody,
-    requireWorkspacePermission({ task: ["create"] }),
+    requireWorkspacePermission({ task: ["create", "update"] }),
   ] as const,
   request: {
     body: {
@@ -252,7 +253,7 @@ const importIssuesRoute = createRoute({
     ),
     400: errorResponse("projectId is required"),
     403: errorResponse(
-      "No workspace access, or missing task:create permission",
+      "No workspace access, or missing task:create or task:update permission",
     ),
     404: errorResponse("Project not found"),
   },
@@ -314,6 +315,11 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       repositoryName,
     });
 
+    if (integration)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: integration.id,
+      });
     return c.json(integration, 200);
   })
   .openapi(updateIntegrationRoute, async (c) => {
@@ -373,6 +379,12 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       });
 
     const updated = await getGithubIntegration(projectId);
+    if (body.isActive === true && !row.isActive)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: row.id,
+      });
+    await publishEvent("project.updated", { projectId, linksChanged: true });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {

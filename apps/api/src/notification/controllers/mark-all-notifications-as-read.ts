@@ -1,12 +1,30 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { notificationTable } from "../../database/schema";
 
-async function markAllNotificationsAsRead(userId: string) {
+import { notificationResourceAccess } from "../resource-access";
+import { notificationWorkspaceFilter } from "../workspace-filter";
+
+async function markAllNotificationsAsRead(
+  userId: string,
+  workspaceId?: string,
+) {
   await db
     .update(notificationTable)
     .set({ isRead: true })
-    .where(eq(notificationTable.userId, userId));
+    .where(
+      and(
+        eq(notificationTable.userId, userId),
+        notificationWorkspaceFilter(workspaceId),
+        workspaceId
+          ? notificationResourceAccess(
+              userId,
+              notificationTable.resourceId,
+              notificationTable.resourceType,
+            )
+          : undefined,
+      ),
+    );
 
   return { success: true };
 }

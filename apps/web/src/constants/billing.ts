@@ -11,6 +11,7 @@ export type BillingPlan = {
   monthly: string;
   annual: string;
   annualPerMonth: string;
+  amount: Record<BillingIntervalKey, number>;
   features: string[];
 };
 
@@ -20,6 +21,7 @@ export const BILLING_PLANS: BillingPlan[] = [
     monthly: "$4",
     annual: "$40",
     annualPerMonth: "$3.33",
+    amount: { monthly: 4, annual: 40 },
     features: ["singleUser", "unlimitedProjects", "backups", "emailSupport"],
   },
   {
@@ -27,6 +29,7 @@ export const BILLING_PLANS: BillingPlan[] = [
     monthly: "$5",
     annual: "$50",
     annualPerMonth: "$4.17",
+    amount: { monthly: 5, annual: 50 },
     features: [
       "unlimitedMembers",
       "unlimitedProjects",
