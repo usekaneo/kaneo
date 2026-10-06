@@ -52,7 +52,7 @@ export default function TaskDueDatePicker({
       {recurrence && (
         <TaskRecurrenceSettings
           recurrence={recurrence}
-          defaultWeekday={(dueDate ?? new Date()).getDay()}
+          defaultWeekday={dueDate?.getDay()}
           onChange={onRecurrenceChange}
         />
       )}

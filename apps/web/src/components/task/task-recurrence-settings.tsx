@@ -45,7 +45,7 @@ export default function TaskRecurrenceSettings({
   onChange,
 }: {
   recurrence: TaskRecurrence;
-  defaultWeekday: number;
+  defaultWeekday?: number;
   onChange: (recurrence: TaskRecurrence) => void;
 }) {
   const { t } = useTranslation();
@@ -159,8 +159,13 @@ export default function TaskRecurrenceSettings({
           <span className="text-xs text-muted-foreground">
             {t("tasks:popover.recurrence.onDays")}
           </span>
+          {/* An undated rule without weekdays follows the completion day, so no
+              day is shown as selected until the user picks one. */}
           <WeekdayPicker
-            value={recurrence.weekdays ?? [defaultWeekday]}
+            value={
+              recurrence.weekdays ??
+              (defaultWeekday === undefined ? [] : [defaultWeekday])
+            }
             onChange={(weekdays) => onChange({ ...recurrence, weekdays })}
           />
         </div>
