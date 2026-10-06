@@ -1,6 +1,9 @@
-import { findInaccessibleProjectIds } from "./find-inaccessible-project-ids";
+import { findAccessibleProjects } from "./find-accessible-projects";
 
-type InvitationWithProjects = { projectIds: string[] };
+type InvitationWithProjects = {
+  organizationId?: unknown;
+  projectIds: string[];
+};
 
 function hasProjectIds(value: unknown): value is InvitationWithProjects {
   return (
@@ -16,16 +19,13 @@ export async function hideInaccessibleInvitationProjects(
 ): Promise<void> {
   if (!Array.isArray(invitations)) return;
   const restricted = invitations.filter(hasProjectIds);
-  const hidden = new Set(
-    await findInaccessibleProjectIds(
-      viewerId,
-      restricted.flatMap((invitation) => invitation.projectIds),
-    ),
+  const visible = await findAccessibleProjects(
+    viewerId,
+    restricted.flatMap((invitation) => invitation.projectIds),
   );
-  if (hidden.size === 0) return;
   for (const invitation of restricted) {
     invitation.projectIds = invitation.projectIds.filter(
-      (projectId) => !hidden.has(projectId),
+      (projectId) => visible.get(projectId) === invitation.organizationId,
     );
   }
 }

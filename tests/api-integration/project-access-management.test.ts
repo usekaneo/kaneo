@@ -489,6 +489,30 @@ describe("invitations with project access", () => {
     ).toEqual([ctx.alpha.id]);
     expect(JSON.stringify(invitations)).not.toContain(ctx.beta.id);
   });
+
+  it("drops deleted projects from listed invitations", async () => {
+    const ctx = await createInvitationWorkspace();
+    await ctx.ownerRequest("/auth/organization/invite-member", {
+      method: "POST",
+      body: {
+        organizationId: ctx.workspaceId,
+        email: "client@example.com",
+        role: "member",
+        projectAccess: "selected",
+        projectIds: [ctx.alpha.id, ctx.beta.id],
+      },
+    });
+    const deleted = await ctx.ownerRequest(`/project/${ctx.beta.id}`, {
+      method: "DELETE",
+    });
+    expect(deleted.status).toBe(200);
+
+    const listed = await ctx.ownerRequest(
+      `/auth/organization/list-invitations?organizationId=${ctx.workspaceId}`,
+    );
+    const [invitation] = (await listed.json()) as { projectIds: string[] }[];
+    expect(invitation?.projectIds).toEqual([ctx.alpha.id]);
+  });
 });
 
 describe("notification rules with project access", () => {
