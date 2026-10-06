@@ -11,6 +11,7 @@ import {
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
 import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
 import { projectAccessCondition } from "../project-access/project-access-condition";
+import { findHiddenRuleProjectIds } from "./find-hidden-rule-project-ids";
 import { decryptSecret, encryptSecret } from "./secrets";
 
 export type NotificationPreferenceProjectMode = "all" | "selected";
@@ -141,8 +142,9 @@ export async function validateProjectSelection(
   userId: string,
   workspaceId: string,
   selectedProjectIds: string[],
+  hiddenProjectIds: string[] = [],
 ) {
-  if (selectedProjectIds.length === 0) {
+  if (selectedProjectIds.length === 0 && hiddenProjectIds.length === 0) {
     throw new HTTPException(400, {
       message: "Select at least one project for selected project mode",
     });
@@ -159,7 +161,7 @@ export async function validateProjectSelection(
       ),
     );
 
-  if (projects.length !== selectedProjectIds.length) {
+  if (projects.length !== new Set(selectedProjectIds).size) {
     throw new HTTPException(400, {
       message: "One or more selected projects are invalid",
     });
@@ -524,11 +526,19 @@ export async function upsertWorkspaceRule(
 ): Promise<NotificationPreferenceResponse> {
   await assertWorkspaceMembership(userId, workspaceId);
 
+  const hiddenProjectIds =
+    input.projectMode === "selected"
+      ? await findHiddenRuleProjectIds(userId, workspaceId)
+      : [];
+  const visibleProjectIds = (input.selectedProjectIds ?? []).filter(
+    (projectId) => !hiddenProjectIds.includes(projectId),
+  );
   if (input.projectMode === "selected") {
     await validateProjectSelection(
       userId,
       workspaceId,
-      input.selectedProjectIds ?? [],
+      visibleProjectIds,
+      hiddenProjectIds,
     );
   }
 
@@ -631,11 +641,13 @@ export async function upsertWorkspaceRule(
 
   if (input.projectMode === "selected") {
     await db.insert(userNotificationWorkspaceProjectTable).values(
-      (input.selectedProjectIds ?? []).map((projectId) => ({
-        workspaceId,
-        workspaceRuleId,
-        projectId,
-      })),
+      [...new Set([...visibleProjectIds, ...hiddenProjectIds])].map(
+        (projectId) => ({
+          workspaceId,
+          workspaceRuleId,
+          projectId,
+        }),
+      ),
     );
   }
 
