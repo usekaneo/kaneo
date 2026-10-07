@@ -13,6 +13,7 @@ type Spec = {
   paths: Record<string, Record<string, Operation>>;
   security?: Array<Record<string, unknown>>;
   components: {
+    responses: Record<string, { headers?: Record<string, unknown> }>;
     schemas: Record<string, unknown>;
     securitySchemes: Record<string, { type: string; scheme?: string }>;
   };
@@ -123,5 +124,30 @@ describe("Kaneo API OpenAPI spec", () => {
         missing.push(`${method.toUpperCase()} ${path}`);
     }
     expect(missing).toEqual([]);
+  });
+
+  it("documents the API key rate limit on every operation that requires auth", () => {
+    expect(
+      Object.keys(
+        spec.components.responses.ApiKeyRateLimited?.headers ?? {},
+      ).sort(),
+    ).toEqual([
+      "Retry-After",
+      "X-RateLimit-Limit",
+      "X-RateLimit-Remaining",
+      "X-RateLimit-Reset",
+    ]);
+    const missing: string[] = [];
+    for (const [method, path, operation] of operations(spec)) {
+      const isPublic =
+        Array.isArray(operation.security) && operation.security.length === 0;
+      if (isPublic) continue;
+      if (!operation.responses["429"])
+        missing.push(`${method.toUpperCase()} ${path}`);
+    }
+    expect(missing).toEqual([]);
+    expect(spec.paths["/project"]?.get?.responses["429"]).toEqual({
+      $ref: "#/components/responses/ApiKeyRateLimited",
+    });
   });
 });

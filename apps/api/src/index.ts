@@ -71,6 +71,7 @@ import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
 import user from "./user";
 import getAvatar from "./user/controllers/get-avatar";
+import { apiKeyRejection } from "./utils/api-key-rejection";
 import { authenticateApiRequest } from "./utils/authenticate-api-request";
 import {
   authorizeAssetAccess,
@@ -86,7 +87,11 @@ import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
-import { verifyApiKey } from "./utils/verify-api-key";
+import {
+  type ApiKeyRateLimit,
+  rateLimitHeaders,
+} from "./utils/rate-limit-headers";
+import { readApiKeyRateLimit, verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
@@ -126,6 +131,7 @@ type ApiVariables = {
     userId: string;
     userEmail: string;
     apiKey?: ApiKey;
+    apiKeyRateLimit?: ApiKeyRateLimit | null;
   };
 };
 
@@ -208,6 +214,12 @@ export function createApp() {
     "*",
     cors({
       credentials: true,
+      exposeHeaders: [
+        "Retry-After",
+        "X-RateLimit-Limit",
+        "X-RateLimit-Remaining",
+        "X-RateLimit-Reset",
+      ],
       origin: (origin) => {
         // Reflecting an arbitrary origin alongside credentials lets any site
         // read authenticated responses, so it stays a development convenience.
@@ -230,6 +242,15 @@ export function createApp() {
   app.use(compress());
 
   const api = new OpenAPIHono<ApiVariables>();
+
+  api.use("*", async (c, next) => {
+    await next();
+    const rateLimit = c.get("apiKeyRateLimit");
+    if (!rateLimit) return;
+    for (const [name, value] of Object.entries(rateLimitHeaders(rateLimit))) {
+      c.header(name, value);
+    }
+  });
 
   api.get("/health", (c) => {
     return c.json({ status: "ok" });
@@ -398,13 +419,11 @@ export function createApp() {
 
   api.use("/auth/*", async (c, next) => {
     const apiKeyHeader = c.req.header("x-api-key")?.trim();
-    if (
-      apiKeyHeader &&
-      !(await verifyApiKey(apiKeyHeader, { consume: false }))
-    ) {
-      throw new HTTPException(401, { message: "Unauthorized" });
-    }
-    return next();
+    if (!apiKeyHeader) return next();
+    const apiKeyResult = await verifyApiKey(apiKeyHeader, { consume: false });
+    if (apiKeyResult?.status !== "valid") throw apiKeyRejection(apiKeyResult);
+    await next();
+    c.set("apiKeyRateLimit", await readApiKeyRateLimit(apiKeyHeader));
   });
 
   api.openapi(
@@ -564,6 +583,34 @@ export function createApp() {
     scheme: "bearer",
     description: "API key or session token (Bearer)",
   });
+  const apiKeyRateLimited = api.openAPIRegistry.registerComponent(
+    "responses",
+    "ApiKeyRateLimited",
+    {
+      description:
+        "The API key exceeded its rate limit or usage quota. Wait the number of seconds in Retry-After before retrying. The X-RateLimit headers are sent only when the rate limit was hit.",
+      headers: {
+        "Retry-After": {
+          description:
+            "Seconds to wait before retrying. Omitted when an exhausted usage quota never refills.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Limit": {
+          description: "Requests the API key may make per window.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Remaining": {
+          description: "Requests left in the current window.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Reset": {
+          description: "Unix time in seconds when the current window resets.",
+          schema: { type: "integer" },
+        },
+      },
+      content: { "text/plain": { schema: { type: "string" } } },
+    },
+  );
   organizationRoutes(api.openAPIRegistry);
 
   api.get("/openapi", (c) => {
@@ -587,9 +634,9 @@ export function createApp() {
     });
 
     // Every authenticated route sits behind the same app-wide
-    // authenticateApiRequest middleware, so the shared 401 is injected here
-    // rather than repeated on all ~120 route definitions. Routes that opt out
-    // of auth declare `security: []` and are skipped.
+    // authenticateApiRequest middleware, so the shared 401 and 429 are injected
+    // here rather than repeated on all ~120 route definitions. Routes that opt
+    // out of auth declare `security: []` and are skipped.
     const httpMethods = [
       "get",
       "post",
@@ -619,6 +666,7 @@ export function createApp() {
         operation.responses["401"] ??= {
           description: "Missing or invalid credentials",
         };
+        operation.responses["429"] ??= apiKeyRateLimited.ref;
       }
     }
 
@@ -690,14 +738,15 @@ export function createApp() {
         return auth.handler(new Request(c.req.raw, { headers }));
       }
 
-      if (!(await verifyApiKey(bearerToken, { consume: false }))) {
-        throw new HTTPException(401, { message: "Unauthorized" });
-      }
+      const apiKeyResult = await verifyApiKey(bearerToken, { consume: false });
+      if (apiKeyResult?.status !== "valid") throw apiKeyRejection(apiKeyResult);
 
       // Better Auth API key plugin validates from x-api-key by default.
       headers.set("x-api-key", bearerToken);
 
-      return auth.handler(new Request(c.req.raw, { headers }));
+      const response = await auth.handler(new Request(c.req.raw, { headers }));
+      c.set("apiKeyRateLimit", await readApiKeyRateLimit(bearerToken));
+      return response;
     }
 
     return auth.handler(c.req.raw);

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { and, eq, exists, gt, isNull, or, sql } from "drizzle-orm";
 import db, { schema } from "../database";
+import type { ApiKeyRateLimit } from "./rate-limit-headers";
 import { notBannedCondition } from "./user-ban";
 
 async function hashApiKey(key: string): Promise<string> {
@@ -82,18 +83,6 @@ export async function verifyApiKey(
     const now = new Date();
     if (apiKey.expiresAt && apiKey.expiresAt <= now) return null;
 
-    if (options.consume === false)
-      return {
-        valid: true,
-        key: {
-          ...apiKey,
-          userId: apiKey.referenceId ?? apiKey.userId ?? "",
-          enabled: apiKey.enabled ?? false,
-          permissions: parsePermissions(apiKey.permissions),
-          metadata: null,
-        },
-      };
-
     // Locking the key serializes quota/refill and window accounting across API
     // instances. Neither a stale lookup nor a rejected request can restore quota.
     let remaining = apiKey.remaining;
@@ -108,20 +97,59 @@ export async function verifyApiKey(
         remaining = apiKey.refillAmount;
         lastRefillAt = now;
       }
-      if (remaining <= 0) return null;
+      if (remaining <= 0)
+        return {
+          status: "usage_exceeded" as const,
+          retryAt:
+            apiKey.refillInterval && apiKey.refillAmount
+              ? new Date(
+                  (lastRefillAt ?? apiKey.createdAt).getTime() +
+                    apiKey.refillInterval,
+                )
+              : null,
+        };
     }
     let requestCount = apiKey.requestCount ?? 0;
+    let rateLimit: ApiKeyRateLimit | null = null;
     if (apiKey.rateLimitEnabled) {
       const window = apiKey.rateLimitTimeWindow ?? 60_000;
-      if (
-        !apiKey.lastRequest ||
-        now.getTime() - apiKey.lastRequest.getTime() >= window
-      )
+      const limit = apiKey.rateLimitMax ?? 100;
+      let windowAnchor = apiKey.lastRequest;
+      if (!windowAnchor || now.getTime() - windowAnchor.getTime() >= window) {
         requestCount = 0;
-      if (requestCount >= (apiKey.rateLimitMax ?? 100)) return null;
+        windowAnchor = now;
+      }
+      if (requestCount >= limit)
+        return {
+          status: "rate_limited" as const,
+          limit,
+          resetAt: new Date(windowAnchor.getTime() + window),
+        };
+      if (options.consume !== false) {
+        requestCount++;
+        windowAnchor = now;
+      }
+      rateLimit = {
+        limit,
+        remaining: limit - requestCount,
+        resetAt: new Date(windowAnchor.getTime() + window),
+      };
     }
+
+    if (options.consume === false)
+      return {
+        status: "valid" as const,
+        rateLimit,
+        key: {
+          ...apiKey,
+          userId: apiKey.referenceId ?? apiKey.userId ?? "",
+          enabled: apiKey.enabled ?? false,
+          permissions: parsePermissions(apiKey.permissions),
+          metadata: null,
+        },
+      };
+
     if (remaining !== null) remaining--;
-    if (apiKey.rateLimitEnabled) requestCount++;
     await tx
       .update(schema.apikeyTable)
       .set({
@@ -134,7 +162,8 @@ export async function verifyApiKey(
       .where(eq(schema.apikeyTable.id, apiKey.id));
 
     return {
-      valid: true,
+      status: "valid" as const,
+      rateLimit,
       key: {
         id: apiKey.id,
         userId: apiKey.referenceId ?? apiKey.userId ?? "",
@@ -159,4 +188,13 @@ export async function verifyApiKey(
       },
     };
   });
+}
+
+export async function readApiKeyRateLimit(
+  key: string,
+): Promise<ApiKeyRateLimit | null> {
+  const result = await verifyApiKey(key, { consume: false });
+  if (result?.status === "rate_limited")
+    return { limit: result.limit, remaining: 0, resetAt: result.resetAt };
+  return result?.status === "valid" ? result.rateLimit : null;
 }

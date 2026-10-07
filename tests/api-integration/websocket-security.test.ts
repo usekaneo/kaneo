@@ -131,7 +131,7 @@ describe.each(["project", "user"])("%s WebSocket", (endpoint) => {
       .where(eq(schema.apikeyTable.id, row.id));
     expect(saved.remaining).toBe(0);
     expect(saved.requestCount).toBe(1);
-    expect((await connect(path(), { "x-api-key": key })).status).toBe(401);
+    expect((await connect(path(), { "x-api-key": key })).status).toBe(429);
   });
   it("rejects missing, null, hostile and lookalike browser origins", async () => {
     for (const origin of [

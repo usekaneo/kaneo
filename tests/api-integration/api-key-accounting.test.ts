@@ -33,14 +33,18 @@ async function seedKey(
 describe("API key accounting", () => {
   it("denies an exhausted quota", async () => {
     const { key } = await seedKey({ remaining: 0 });
-    expect(await verifyApiKey(key)).toBeNull();
+    expect(await verifyApiKey(key)).toEqual({
+      status: "usage_exceeded",
+      retryAt: null,
+    });
   });
   it("enforces a rate window across concurrent requests", async () => {
     const { key, row } = await seedKey();
     const results = await Promise.all(
       Array.from({ length: 6 }, () => verifyApiKey(key)),
     );
-    expect(results.filter(Boolean)).toHaveLength(2);
+    expect(results.filter((r) => r?.status === "valid")).toHaveLength(2);
+    expect(results.filter((r) => r?.status === "rate_limited")).toHaveLength(4);
     const [saved] = await db
       .select()
       .from(schema.apikeyTable)
@@ -52,7 +56,10 @@ describe("API key accounting", () => {
     const results = await Promise.all(
       Array.from({ length: 5 }, () => verifyApiKey(key)),
     );
-    expect(results.filter(Boolean)).toHaveLength(1);
+    expect(results.filter((r) => r?.status === "valid")).toHaveLength(1);
+    expect(results.filter((r) => r?.status === "usage_exceeded")).toHaveLength(
+      4,
+    );
   });
   it("refills eligible quota and resets an expired window", async () => {
     const old = new Date(Date.now() - 120000);
@@ -64,7 +71,7 @@ describe("API key accounting", () => {
       lastRequest: old,
       requestCount: 2,
     });
-    expect(await verifyApiKey(key)).toMatchObject({ valid: true });
+    expect(await verifyApiKey(key)).toMatchObject({ status: "valid" });
   });
 });
 
@@ -98,7 +105,7 @@ it("creates normal API keys with the configured 100-per-minute limit", async () 
   expect(saved.rateLimitMax).toBe(100);
   expect(saved.rateLimitTimeWindow).toBe(60_000);
   for (let i = 0; i < 11; i++)
-    expect(await verifyApiKey(created.key)).not.toBeNull();
+    expect(await verifyApiKey(created.key)).toMatchObject({ status: "valid" });
 });
 
 it.each([true, false])(
