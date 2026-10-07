@@ -52,7 +52,9 @@ export class KaneoClient {
     const release = withResolvers();
     KaneoClient.gate = release.promise;
     await previous;
-    if (KaneoClient.sentInWindow >= REQUESTS_PER_WINDOW) {
+    if (Date.now() >= KaneoClient.windowEndsAt) {
+      KaneoClient.sentInWindow = 0;
+    } else if (KaneoClient.sentInWindow >= REQUESTS_PER_WINDOW) {
       const wait = KaneoClient.windowEndsAt - Date.now();
       if (wait > 0) await sleep(wait);
       KaneoClient.sentInWindow = 0;
