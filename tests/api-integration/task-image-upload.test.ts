@@ -459,9 +459,7 @@ describe("API integration: task image upload finalize", () => {
       },
     );
 
-    expect(response.status).toBe(403);
-    await expect(response.text()).resolves.toBe(
-      "You don't have access to this workspace",
-    );
+    expect(response.status).toBe(404);
+    await expect(response.text()).resolves.toContain("Task not found");
   });
 });

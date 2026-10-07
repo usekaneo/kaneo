@@ -12,6 +12,7 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
+  z,
 } from "../openapi";
 import { type GiteaConfig, validateGiteaConfig } from "../plugins/gitea/config";
 import { handleGiteaWebhookRequest } from "../plugins/gitea/webhook-handler";
@@ -64,12 +65,11 @@ const listRepositoriesRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Accessible repositories", giteaRepositoryListSchema),
-    400: errorResponse(
-      "Invalid body, unknown project, or invalid Gitea credentials",
-    ),
+    400: errorResponse("Invalid body, or invalid Gitea credentials"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -92,12 +92,11 @@ const verifyRoute = createRoute({
     200: jsonResponse("Verification result", giteaVerificationResultSchema),
     401: errorResponse("Kaneo authentication required"),
     500: errorResponse("Gitea verification failed"),
-    400: errorResponse(
-      "Invalid body, unknown project, or invalid Gitea credentials",
-    ),
+    400: errorResponse("Invalid body, or invalid Gitea credentials"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -116,10 +115,8 @@ const getIntegrationRoute = createRoute({
       "Gitea integration details, or null",
       giteaIntegrationSchema.nullable(),
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -141,10 +138,11 @@ const createIntegrationRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The stored integration", giteaIntegrationSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -168,9 +166,15 @@ const updateIntegrationRoute = createRoute({
     200: jsonResponse("The updated integration", giteaIntegrationSchema),
     400: errorResponse("The resulting config failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: jsonResponse("Integration not found", integrationNotFoundSchema),
+    404: {
+      description: "Project or integration not found",
+      content: {
+        "text/plain": { schema: z.string() },
+        "application/json": { schema: integrationNotFoundSchema },
+      },
+    },
     409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
@@ -186,13 +190,10 @@ const deleteIntegrationRoute = createRoute({
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The integration was removed", giteaDeleteResultSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Gitea integration not found"),
+    404: errorResponse("Project or Gitea integration not found"),
   },
 });
 
@@ -218,7 +219,7 @@ const importIssuesRoute = createRoute({
     200: jsonResponse("Import summary", giteaImportResultSchema),
     400: errorResponse("projectId is required"),
     403: errorResponse(
-      "No workspace access, or missing task:create or task:update permission",
+      "No access to the project, or missing task:create or task:update permission",
     ),
     404: errorResponse("Project not found"),
   },

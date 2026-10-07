@@ -443,7 +443,10 @@ export function createApp() {
           content: { "*/*": { schema: { type: "string", format: "binary" } } },
         },
         304: { description: "Not modified" },
-        403: { description: "No access to this asset" },
+        403: {
+          description:
+            "Staged upload owned by another user, or no access to the asset's project",
+        },
         404: { description: "Asset not found" },
       },
     }),
@@ -841,10 +844,12 @@ export function createApp() {
           .limit(1);
 
         if (!project) {
-          throw new HTTPException(401, { message: "Unauthorized" });
+          throw new HTTPException(404, { message: "Project not found" });
         }
 
-        await validateWorkspaceAccess(userId, project.workspaceId);
+        await validateWorkspaceAccess(userId, project.workspaceId, undefined, {
+          notFoundMessage: "Project not found",
+        });
         await assertProjectAccess(userId, projectId);
         workspaceId = project.workspaceId;
       }

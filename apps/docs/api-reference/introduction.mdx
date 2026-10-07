@@ -51,10 +51,12 @@ For a single task, request `GET /api/task/TASK_ID`. Check the endpoint reference
 | --- | --- |
 | 400 | Required IDs, query parameters, and request body |
 | 401 | Missing, invalid, or expired credentials |
-| 403 | Workspace membership and permission for the requested action |
-| 404 | The resource ID and endpoint path |
+| 403 | Your role's permission for the requested action, or your access to a restricted project |
+| 404 | The resource ID, the endpoint path, and your membership in the resource's workspace |
 | 429 | Rate limits; wait before retrying |
 | 5xx | Instance logs and service health |
+
+Resources in a workspace you are not a member of return `404`, the same response as a resource that does not exist.
 
 Inspect the response body for the specific error. Do not retry a mutation blindly when you are unsure whether it already succeeded.
 

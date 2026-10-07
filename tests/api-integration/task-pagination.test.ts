@@ -145,7 +145,7 @@ describe("bounded task pages", () => {
     const other = await createWorkspaceMember();
     mockAuthenticatedSession(other.user);
     const response = await app.request(`/api/task/tasks/${project.id}?page=2`);
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
     expect(await response.text()).not.toContain("Description");
   });
   it("paginates public boards and rechecks visibility on every request", async () => {

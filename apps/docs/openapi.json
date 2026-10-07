@@ -5247,7 +5247,7 @@
             "description": "Not modified"
           },
           "403": {
-            "description": "No access to this asset"
+            "description": "Staged upload owned by another user, or no access to the asset's project"
           },
           "404": {
             "description": "Asset not found"
@@ -7832,7 +7832,7 @@
             }
           },
           "403": {
-            "description": "Missing workspace access or permission",
+            "description": "No access to the project, or missing permission in the source or destination workspace",
             "content": {
               "text/plain": {
                 "schema": {
@@ -7842,7 +7842,7 @@
             }
           },
           "404": {
-            "description": "Project not found in the source workspace",
+            "description": "Project or destination workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -7919,8 +7919,8 @@
           "401": {
             "description": "Missing or invalid credentials"
           },
-          "403": {
-            "description": "No access to the workspace",
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -7993,7 +7993,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:create permission",
+            "description": "Missing project:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8044,8 +8054,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8054,11 +8067,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8132,7 +8142,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8145,7 +8155,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, missing project:update, or missing project:share when visibility changes",
+            "description": "No access to the project, missing project:update, or missing project:share when visibility changes",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8194,8 +8214,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing project:delete permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8204,11 +8227,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:delete permission",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8253,21 +8273,11 @@
           "304": {
             "description": "Not modified"
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No access to the project's workspace",
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8277,7 +8287,7 @@
             }
           },
           "404": {
-            "description": "Project background not found",
+            "description": "Project or project background not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8309,8 +8319,11 @@
           "204": {
             "description": "Project background removed"
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8319,11 +8332,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:update permission",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8416,7 +8426,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, missing project:update permission, or no access to a listed project",
+            "description": "Missing project:update permission, or no access to a listed project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8457,8 +8477,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8467,11 +8490,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:update permission",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8512,8 +8532,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8522,11 +8545,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:update permission",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8600,7 +8620,7 @@
             }
           },
           "400": {
-            "description": "Invalid image upload request, or unknown project",
+            "description": "Invalid image upload request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8613,7 +8633,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8705,7 +8725,7 @@
             }
           },
           "400": {
-            "description": "Invalid image upload request, or unknown project",
+            "description": "Invalid image upload request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8718,7 +8738,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8783,7 +8803,7 @@
             }
           },
           "400": {
-            "description": "Invalid request or unknown project",
+            "description": "Invalid request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8803,7 +8823,17 @@
             }
           },
           "403": {
-            "description": "No workspace access or missing project sharing permission",
+            "description": "No access to the project, or missing project sharing permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8869,7 +8899,7 @@
             }
           },
           "400": {
-            "description": "Invalid request or unknown project",
+            "description": "Invalid request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8889,7 +8919,17 @@
             }
           },
           "403": {
-            "description": "No workspace access, missing project:share permission, or missing label:create permission for a new workspace label definition",
+            "description": "No access to the project, missing project:share permission, or missing label:create permission for a new workspace label definition",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8947,7 +8987,7 @@
             }
           },
           "400": {
-            "description": "Invalid request or unknown project",
+            "description": "Invalid request",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8967,7 +9007,7 @@
             }
           },
           "403": {
-            "description": "No workspace access or missing project sharing permission",
+            "description": "No access to the project, or missing project sharing permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -8977,7 +9017,7 @@
             }
           },
           "404": {
-            "description": "Calendar feed not found in this project",
+            "description": "Project or calendar feed not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9051,7 +9091,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access",
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9155,7 +9195,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access",
+            "description": "No access to the project",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9235,7 +9285,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:read or task:read permission",
+            "description": "Missing project:read or task:read permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9374,8 +9434,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9384,11 +9447,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9485,7 +9545,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing the permission the operation needs",
+            "description": "No access to the project, or missing the permission the operation needs",
             "content": {
               "text/plain": {
                 "schema": {
@@ -9880,7 +9940,7 @@
             }
           },
           "404": {
-            "description": "Tasks do not belong to the project",
+            "description": "Project not found, or tasks do not belong to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10005,7 +10065,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10018,7 +10078,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:create permission",
+            "description": "No access to the project, or missing task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10095,7 +10165,7 @@
             }
           },
           "403": {
-            "description": "No workspace access, missing task:create, or missing task:update when copying parent links",
+            "description": "No access to the project, missing task:create, or missing task:update when copying parent links",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10280,8 +10350,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10290,11 +10363,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the task's workspace",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10390,7 +10460,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10403,7 +10473,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update or task:assign permission",
+            "description": "No access to the project, or missing task:update or task:assign permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10442,8 +10522,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing task:delete permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10452,11 +10535,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing task:delete permission",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10530,7 +10610,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10543,7 +10623,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10604,8 +10684,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10614,11 +10697,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10717,7 +10797,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10730,7 +10810,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:create permission",
+            "description": "No access to the project, or missing task:create permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10790,7 +10880,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10803,7 +10893,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10870,7 +10970,7 @@
             }
           },
           "400": {
-            "description": "Invalid priority, or unknown task",
+            "description": "Invalid priority",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10883,7 +10983,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10947,7 +11057,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10960,7 +11070,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:assign permission",
+            "description": "No access to the project, or missing task:assign permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -10970,7 +11080,7 @@
             }
           },
           "404": {
-            "description": "Assignee is not a member of the workspace",
+            "description": "Task not found, or assignee is not a member of the workspace",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11027,7 +11137,7 @@
             }
           },
           "400": {
-            "description": "Invalid date, or unknown task",
+            "description": "Invalid date",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11040,7 +11150,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11100,7 +11220,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11113,7 +11233,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11203,7 +11333,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11318,7 +11448,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11388,7 +11518,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11401,7 +11531,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11445,8 +11585,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11455,11 +11598,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11526,7 +11666,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11539,7 +11679,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11641,7 +11791,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11713,7 +11873,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown column",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11726,7 +11886,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Column not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11765,8 +11935,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown column, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11775,11 +11948,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:update permission",
+          "404": {
+            "description": "Column not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11834,8 +12004,11 @@
               }
             }
           },
-          "400": {
-            "description": "Workspace ID could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing project:read or task:read permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11844,11 +12017,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:read or task:read permission",
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11904,8 +12074,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11914,11 +12087,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the task's workspace",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11989,7 +12159,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, unknown task, or comment activity submitted through the generic endpoint",
+            "description": "Invalid body, or comment activity submitted through the generic endpoint",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12015,7 +12185,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12070,7 +12250,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12083,7 +12263,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12136,7 +12326,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown activity",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12149,7 +12339,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "Not the author, or no access to the workspace",
+            "description": "Not the author, or no access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12159,7 +12349,7 @@
             }
           },
           "404": {
-            "description": "Comment not found",
+            "description": "Activity or comment not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12207,7 +12397,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown activity",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12220,7 +12410,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "Not the author, or no access to the workspace",
+            "description": "Not the author, or no access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12230,7 +12420,7 @@
             }
           },
           "404": {
-            "description": "Comment not found",
+            "description": "Activity or comment not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12274,8 +12464,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12284,11 +12477,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the task's workspace",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12362,7 +12552,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown task",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12375,7 +12565,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, missing task:update permission, or external attribution without workspace:manage_settings",
+            "description": "No access to the project, missing task:update permission, or external attribution without workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12437,7 +12637,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown comment",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12495,16 +12695,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Activity"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unknown comment, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
                 }
               }
             }
@@ -12567,8 +12757,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12577,11 +12770,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the task's workspace",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12622,8 +12812,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown entry, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12632,11 +12825,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the entry's workspace",
+          "404": {
+            "description": "Time entry not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12704,7 +12894,7 @@
             }
           },
           "400": {
-            "description": "Invalid timestamps, or unknown entry",
+            "description": "Invalid timestamps",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12717,7 +12907,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Time entry not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12782,7 +12982,7 @@
             }
           },
           "400": {
-            "description": "Invalid timestamps, or unknown task",
+            "description": "Invalid body or timestamps",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12795,7 +12995,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12839,8 +13049,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12849,11 +13062,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the task's workspace",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12897,21 +13107,11 @@
               }
             }
           },
-          "400": {
-            "description": "Workspace ID could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
-          "403": {
-            "description": "No access to the workspace",
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12985,7 +13185,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing label:create permission",
+            "description": "Missing label:create permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -12995,7 +13195,7 @@
             }
           },
           "404": {
-            "description": "Task not found",
+            "description": "Workspace or task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13046,8 +13246,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown label, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13056,11 +13259,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the label's workspace",
+          "404": {
+            "description": "Label not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13122,7 +13322,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown label",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13135,7 +13335,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing label:update permission",
+            "description": "No access to the project, or missing label:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Label not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13194,21 +13404,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown label, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing label:delete permission",
+            "description": "No access to the project, or missing label:delete permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13218,7 +13418,7 @@
             }
           },
           "404": {
-            "description": "The label's task no longer exists",
+            "description": "Label not found, or the label's task no longer exists",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13288,7 +13488,7 @@
             }
           },
           "400": {
-            "description": "Unknown label, or label and task belong to different workspaces",
+            "description": "Label and task belong to different workspaces",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13301,7 +13501,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing label:update permission",
+            "description": "No access to the project, or missing label:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13311,7 +13511,7 @@
             }
           },
           "404": {
-            "description": "Task not found",
+            "description": "Label or task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13361,7 +13561,7 @@
             }
           },
           "400": {
-            "description": "Unknown label, or label is not assigned to a task",
+            "description": "Label is not assigned to a task",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13374,7 +13574,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing label:update permission",
+            "description": "No access to the project, or missing label:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -13384,7 +13584,7 @@
             }
           },
           "404": {
-            "description": "Task not found",
+            "description": "Label or task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14042,8 +14242,8 @@
           "401": {
             "description": "Missing or invalid credentials"
           },
-          "403": {
-            "description": "No access to the workspace",
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14120,7 +14320,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access or required permission",
+            "description": "No access to the project, or missing required permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14130,7 +14330,7 @@
             }
           },
           "404": {
-            "description": "Integration or linked task not found",
+            "description": "Project, integration, or linked task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14341,7 +14541,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access or required permission",
+            "description": "No access to the project, or missing required permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14351,7 +14551,7 @@
             }
           },
           "404": {
-            "description": "Integration or linked task not found",
+            "description": "Project, integration, or linked task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14558,7 +14758,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access or required permission",
+            "description": "No access to the project, or missing required permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14568,7 +14768,7 @@
             }
           },
           "404": {
-            "description": "Integration or linked task not found",
+            "description": "Project, integration, or linked task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14655,7 +14855,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access or required permission",
+            "description": "No access to the project, or missing required permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14665,7 +14865,7 @@
             }
           },
           "404": {
-            "description": "Integration or linked task not found",
+            "description": "Project, integration, or linked task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14799,7 +14999,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access or required permission",
+            "description": "No access to the project, or missing required permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14809,7 +15009,7 @@
             }
           },
           "404": {
-            "description": "Integration or linked task not found",
+            "description": "Project, integration, or linked task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14915,8 +15115,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14925,11 +15128,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -14992,7 +15192,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15005,7 +15205,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15046,8 +15256,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15056,11 +15269,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15126,7 +15336,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15139,7 +15349,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15220,7 +15440,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15230,8 +15450,13 @@
             }
           },
           "404": {
-            "description": "Integration not found",
+            "description": "Project or integration not found",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GitHubIntegrationNotFound"
@@ -15279,21 +15504,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15303,7 +15518,7 @@
             }
           },
           "404": {
-            "description": "GitHub integration not found",
+            "description": "Project or GitHub integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15383,7 +15598,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:create or task:update permission",
+            "description": "No access to the project, or missing task:create or task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15484,7 +15699,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, unknown project, or invalid Gitea credentials",
+            "description": "Invalid body, or invalid Gitea credentials",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15497,7 +15712,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15568,7 +15793,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, unknown project, or invalid Gitea credentials",
+            "description": "Invalid body, or invalid Gitea credentials",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15588,7 +15813,17 @@
             }
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15639,8 +15874,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15649,11 +15887,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15726,7 +15961,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15739,7 +15974,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15810,7 +16055,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15820,8 +16065,13 @@
             }
           },
           "404": {
-            "description": "Integration not found",
+            "description": "Project or integration not found",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GiteaIntegrationNotFound"
@@ -15869,21 +16119,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15893,7 +16133,7 @@
             }
           },
           "404": {
-            "description": "Gitea integration not found",
+            "description": "Project or Gitea integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -15956,7 +16196,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:create or task:update permission",
+            "description": "No access to the project, or missing task:create or task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16035,7 +16275,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16055,7 +16295,17 @@
             }
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16130,7 +16380,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16150,7 +16400,17 @@
             }
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16191,8 +16451,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16201,11 +16464,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16281,7 +16541,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16294,7 +16554,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16375,7 +16645,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16385,8 +16655,13 @@
             }
           },
           "404": {
-            "description": "Integration not found",
+            "description": "Project or integration not found",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/GitlabIntegrationNotFound"
@@ -16434,21 +16709,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16458,7 +16723,7 @@
             }
           },
           "404": {
-            "description": "GitLab integration not found",
+            "description": "Project or GitLab integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16521,7 +16786,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:create or task:update permission",
+            "description": "No access to the project, or missing task:create or task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16572,8 +16837,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16582,11 +16850,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16709,7 +16974,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16834,7 +17109,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16844,7 +17119,7 @@
             }
           },
           "404": {
-            "description": "Webhook integration not found",
+            "description": "Project or webhook integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16891,21 +17166,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16915,7 +17180,7 @@
             }
           },
           "404": {
-            "description": "Webhook integration not found",
+            "description": "Project or webhook integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16956,8 +17221,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -16966,11 +17234,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17068,7 +17333,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17168,7 +17443,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17178,7 +17453,7 @@
             }
           },
           "404": {
-            "description": "Discord integration not found",
+            "description": "Project or Discord integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17225,21 +17500,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17249,7 +17514,7 @@
             }
           },
           "404": {
-            "description": "Discord integration not found",
+            "description": "Project or Discord integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17290,8 +17555,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17300,11 +17568,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17402,7 +17667,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17502,7 +17777,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17512,7 +17787,7 @@
             }
           },
           "404": {
-            "description": "Mattermost integration not found",
+            "description": "Project or Mattermost integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17559,21 +17834,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17583,7 +17848,7 @@
             }
           },
           "404": {
-            "description": "Mattermost integration not found",
+            "description": "Project or Mattermost integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17624,8 +17889,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17634,11 +17902,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17736,7 +18001,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17836,7 +18111,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17846,7 +18121,7 @@
             }
           },
           "404": {
-            "description": "Slack integration not found",
+            "description": "Project or Slack integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17893,21 +18168,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17917,7 +18182,7 @@
             }
           },
           "404": {
-            "description": "Slack integration not found",
+            "description": "Project or Slack integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17958,8 +18223,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -17968,11 +18236,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18079,7 +18344,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18188,7 +18463,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18198,7 +18473,7 @@
             }
           },
           "404": {
-            "description": "Telegram integration not found",
+            "description": "Project or Telegram integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18245,21 +18520,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing workspace:manage_settings",
+            "description": "No access to the project, or missing workspace:manage_settings",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18269,7 +18534,7 @@
             }
           },
           "404": {
-            "description": "Telegram integration not found",
+            "description": "Project or Telegram integration not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18313,8 +18578,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18323,11 +18591,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the task's workspace",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18403,7 +18668,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18468,7 +18733,7 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18572,6 +18837,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
@@ -18606,8 +18881,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18616,11 +18894,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the task's workspace",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18670,7 +18945,7 @@
             }
           },
           "400": {
-            "description": "Unknown task or invalid link data",
+            "description": "Invalid link data",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18700,7 +18975,7 @@
             }
           },
           "404": {
-            "description": "Manual resource link not found on this task",
+            "description": "Task or manual resource link not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18744,8 +19019,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18754,11 +19032,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No access to the project's workspace",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18824,7 +19099,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18837,7 +19112,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18878,8 +19163,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown rule, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -18888,11 +19176,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:update permission",
+          "404": {
+            "description": "Workflow rule not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19009,21 +19294,11 @@
               }
             }
           },
-          "400": {
-            "description": "Workspace ID could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No access to the workspace or to the project",
+            "description": "No access to the project",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19033,7 +19308,7 @@
             }
           },
           "404": {
-            "description": "Project not found in this workspace",
+            "description": "Workspace not found, or project not found in this workspace",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19074,21 +19349,11 @@
               }
             }
           },
-          "400": {
-            "description": "Workspace ID could not be determined",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "401": {
             "description": "Missing or invalid credentials"
           },
-          "403": {
-            "description": "No access to the workspace",
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19133,8 +19398,11 @@
               }
             }
           },
-          "400": {
-            "description": "Workspace ID could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "Missing member:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19143,11 +19411,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing member:update permission",
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19251,7 +19516,7 @@
             }
           },
           "404": {
-            "description": "Member not found",
+            "description": "Workspace or member not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19295,8 +19560,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing read permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19305,11 +19573,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access or missing read permission",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19353,8 +19618,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing read permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19363,11 +19631,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access or missing read permission",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19411,8 +19676,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown task, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing task:read permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19421,11 +19689,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access or missing task:read permission",
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19469,8 +19734,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown project, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing read permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19479,11 +19747,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access or missing read permission",
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19562,7 +19827,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19575,7 +19840,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19663,7 +19938,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing project:update permission",
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19721,7 +20006,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, unknown task, or unknown custom field",
+            "description": "Invalid body, or unknown custom field",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19734,7 +20019,17 @@
             "description": "Missing or invalid credentials"
           },
           "403": {
-            "description": "No workspace access, or missing task:update permission",
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19775,8 +20070,11 @@
               }
             }
           },
-          "400": {
-            "description": "Unknown custom field, or its workspace could not be determined",
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19785,11 +20083,8 @@
               }
             }
           },
-          "401": {
-            "description": "Missing or invalid credentials"
-          },
-          "403": {
-            "description": "No workspace access, or missing project:update permission",
+          "404": {
+            "description": "Custom field not found",
             "content": {
               "text/plain": {
                 "schema": {

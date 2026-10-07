@@ -166,10 +166,8 @@ describe("API integration: task duplication", () => {
 
     const response = await requestDuplicate(app, task.id);
 
-    expect(response.status).toBe(403);
-    await expect(response.text()).resolves.toBe(
-      "You don't have access to this workspace",
-    );
+    expect(response.status).toBe(404);
+    await expect(response.text()).resolves.toContain("Task not found");
 
     const tasks = await db.query.taskTable.findMany({
       where: eq(schema.taskTable.projectId, project.id),
