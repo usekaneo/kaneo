@@ -3,7 +3,9 @@ import { and, eq } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
+import { ApiError } from "../errors/api-error";
 import { isInstanceAdmin } from "./is-instance-admin";
+import { missingPermissions } from "./missing-permissions";
 
 type PermissionMap = Record<string, string[]>;
 
@@ -119,8 +121,16 @@ export async function hasWorkspacePermission(
     return true;
   }
 
+  const statements = await memberStatements(c, workspaceId);
+  return Boolean(statements && satisfies(statements, permissions));
+}
+
+async function memberStatements(
+  c: Context,
+  workspaceId: string,
+): Promise<Record<string, readonly string[]> | null> {
   const userId = c.get("userId");
-  if (!userId) return false;
+  if (!userId) return null;
 
   const [member] = await db
     .select({ role: schema.workspaceUserTable.role })
@@ -133,7 +143,7 @@ export async function hasWorkspacePermission(
     )
     .limit(1);
 
-  if (!member?.role) return false;
+  if (!member?.role) return null;
 
   // Prefer the DB row when present so admin-edited defaults
   // (viewer/member/admin) take effect immediately. Falls back to the
@@ -141,16 +151,16 @@ export async function hasWorkspacePermission(
   // viewer/member/admin users from a 403 if their workspace somehow
   // missed the seed (e.g., seed failed during workspace creation and
   // the boot-time backfill hasn't run yet).
-  const statements =
+  return (
     (await customRoleStatements(workspaceId, member.role)) ??
-    builtInRoleStatements(member.role);
-
-  return Boolean(statements && satisfies(statements, permissions));
+    builtInRoleStatements(member.role)
+  );
 }
 
 export function requireWorkspacePermission(permissions: PermissionMap) {
   return async (c: Context, next: Next) => {
-    if (!c.get("workspaceId")) {
+    const workspaceId = c.get("workspaceId");
+    if (!workspaceId) {
       throw new HTTPException(500, {
         message: "workspaceId not set in context",
       });
@@ -160,14 +170,28 @@ export function requireWorkspacePermission(permissions: PermissionMap) {
       | { permissions?: Record<string, string[]> | null }
       | undefined;
     if (apiKey?.permissions && !satisfies(apiKey.permissions, permissions)) {
-      throw new HTTPException(403, { message: "Insufficient API key scope" });
+      throw new ApiError(403, {
+        message: "Insufficient API key scope",
+        code: "API_KEY_SCOPE",
+        missingPermissions: missingPermissions(apiKey.permissions, permissions),
+      });
     }
 
-    if (!(await hasWorkspacePermission(c, permissions))) {
-      if (!c.get("userId")) {
-        throw new HTTPException(401, { message: "Unauthorized" });
-      }
-      throw new HTTPException(403, { message: "Insufficient permissions" });
+    if (await isInstanceAdmin(c)) {
+      return next();
+    }
+
+    if (!c.get("userId")) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+
+    const statements = await memberStatements(c, workspaceId);
+    if (!statements || !satisfies(statements, permissions)) {
+      throw new ApiError(403, {
+        message: "Insufficient permissions",
+        code: "MISSING_PERMISSION",
+        missingPermissions: missingPermissions(statements, permissions),
+      });
     }
 
     return next();

@@ -1,10 +1,32 @@
+import {
+  type ApiErrorDetails,
+  type ApiErrorIssue,
+  parseApiErrorBody,
+} from "./parse-api-error-body";
+
 export class HttpError extends Error {
   status: number;
+  code?: string;
+  issues?: ApiErrorIssue[];
+  missingPermissions?: string[];
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, details: ApiErrorDetails = {}) {
     super(message);
     this.name = "HttpError";
     this.status = status;
+    this.code = details.code;
+    this.issues = details.issues;
+    this.missingPermissions = details.missingPermissions;
+  }
+
+  static async fromResponse(
+    response: Pick<Response, "status" | "text">,
+  ): Promise<HttpError> {
+    const text = await response.text().catch(() => "");
+    const body = parseApiErrorBody(text);
+    return body
+      ? new HttpError(response.status, body.message, body)
+      : new HttpError(response.status, text);
   }
 }
 

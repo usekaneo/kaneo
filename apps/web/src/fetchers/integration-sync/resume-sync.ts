@@ -14,6 +14,6 @@ export default async function resumeSync(
     param: { ...param, linkId },
     json: { token, source },
   });
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }

@@ -20,18 +20,7 @@ async function createGiteaIntegration(
   });
 
   if (!response.ok) {
-    const error = await response
-      .clone()
-      .json()
-      .catch(async () => ({
-        message: (await response.text()) || "Request failed",
-      }));
-    throw new HttpError(
-      response.status,
-      typeof error === "object" && error && "message" in error
-        ? String(error.message)
-        : "Request failed",
-    );
+    throw await HttpError.fromResponse(response);
   }
 
   return response.json();

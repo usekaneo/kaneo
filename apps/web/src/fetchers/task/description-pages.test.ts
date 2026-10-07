@@ -62,7 +62,15 @@ describe("deferred descriptions", () => {
       .mockResolvedValueOnce(
         Response.json({ content: "partial", version: "1", nextOffset: 7 }),
       )
-      .mockResolvedValueOnce(new Response("unavailable", { status: 409 }));
+      .mockResolvedValueOnce(
+        Response.json(
+          {
+            message: "Description changed or no longer public",
+            code: "CONFLICT",
+          },
+          { status: 409 },
+        ),
+      );
     await expect(
       getPublicTaskDescription("project", "task"),
     ).rejects.toMatchObject({
@@ -108,7 +116,15 @@ describe("deferred descriptions", () => {
     ]);
     matchRequest
       .mockResolvedValueOnce(Response.json({ ids: ["a"], nextCursor: "a" }))
-      .mockResolvedValueOnce(new Response("busy", { status: 503 }));
+      .mockResolvedValueOnce(
+        Response.json(
+          {
+            message: "Description request timed out",
+            code: "SERVICE_UNAVAILABLE",
+          },
+          { status: 503 },
+        ),
+      );
     await expect(
       getDescriptionMatches("project", "text"),
     ).rejects.toMatchObject({ status: 503 });

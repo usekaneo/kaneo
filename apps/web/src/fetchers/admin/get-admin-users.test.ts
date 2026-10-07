@@ -80,7 +80,8 @@ describe("getAdminUsers", () => {
     mocks.get.mockResolvedValue({
       ok: false,
       status: 403,
-      text: async () => "Forbidden",
+      text: async () =>
+        JSON.stringify({ message: "Forbidden", code: "FORBIDDEN" }),
     });
 
     const error = await getAdminUsers("", 0).catch((caught) => caught);
@@ -88,5 +89,6 @@ describe("getAdminUsers", () => {
     expect(error).toBeInstanceOf(HttpError);
     expect(error.status).toBe(403);
     expect(error.message).toBe("Forbidden");
+    expect(error.code).toBe("FORBIDDEN");
   });
 });
