@@ -4745,6 +4745,14 @@
             "type": "string",
             "format": "date-time"
           },
+          "lastUsedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Latest retained non-impersonated session creation/refresh or recorded task activity. Null means no retained evidence; this is not proof of inactivity."
+          },
           "role": {
             "type": [
               "string",
@@ -4776,6 +4784,7 @@
           "image",
           "createdAt",
           "updatedAt",
+          "lastUsedAt",
           "role",
           "banned",
           "banReason",
@@ -4820,6 +4829,14 @@
           "memberCount": {
             "type": "integer"
           },
+          "lastUsedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Latest recorded task activity in this workspace, including integrations. Does not track reads; deleting tasks removes their activity. Null means no retained evidence."
+          },
           "projectCount": {
             "type": "integer"
           },
@@ -4852,6 +4869,7 @@
           "slug",
           "createdAt",
           "memberCount",
+          "lastUsedAt",
           "projectCount",
           "owners"
         ]

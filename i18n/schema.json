@@ -1967,6 +1967,25 @@
 				"apiKeys": {
 					"type": "string"
 				},
+				"adminLastUsed": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"label": {
+							"type": "string"
+						},
+						"unknown": {
+							"type": "string"
+						},
+						"userHint": {
+							"type": "string"
+						},
+						"workspaceHint": {
+							"type": "string"
+						}
+					},
+					"required": ["label", "unknown", "userHint", "workspaceHint"]
+				},
 				"adminUsers": {
 					"type": "object",
 					"additionalProperties": false,
@@ -8189,6 +8208,7 @@
 				"notifications",
 				"preferences",
 				"apiKeys",
+				"adminLastUsed",
 				"adminUsers",
 				"adminWorkspaces",
 				"informationPage",

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import type { AdminWorkspace } from "@/fetchers/admin/workspace-types";
 import { formatDateMedium } from "@/lib/format";
+import LastUsed from "../last-used";
 
 type Props = {
   workspace: AdminWorkspace;
@@ -50,6 +51,9 @@ function WorkspaceTableRow({ workspace, onManage }: Props) {
       </TableCell>
       <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
         {formatDateMedium(workspace.createdAt)}
+      </TableCell>
+      <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
+        <LastUsed value={workspace.lastUsedAt} />
       </TableCell>
       <TableCell className="pe-6 py-3 text-right">
         <Button

@@ -2636,6 +2636,12 @@
 			"workspaceCount_many": "{{count}} workspaces",
 			"workspaceCount_one": "{{count}} workspace",
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"adminLastUsed": {
+			"label": "Last Used",
+			"unknown": "Unknown",
+			"userHint": "Latest retained login/session refresh or task activity. Reads are not tracked and deleted records are not included. This does not establish whether deletion is safe.",
+			"workspaceHint": "Latest recorded task activity, including integrations. Reads are not tracked and deleted tasks are not included. This does not establish whether deletion is safe."
 		}
 	},
 	"tasks": {

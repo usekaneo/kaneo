@@ -124,6 +124,7 @@ const acme: AdminWorkspace = {
   name: "Acme",
   slug: "acme-inc",
   createdAt: "2026-01-01T00:00:00.000Z",
+  lastUsedAt: "2026-02-03T12:00:00.000Z",
   memberCount: 2,
   projectCount: 4,
   owners: [{ id: "ada", name: "Ada Lovelace", email: "ada@example.com" }],
@@ -134,6 +135,7 @@ const orphan: AdminWorkspace = {
   name: "Orphaned",
   slug: "orphaned",
   createdAt: "2026-01-01T00:00:00.000Z",
+  lastUsedAt: null,
   memberCount: 1,
   projectCount: 0,
   owners: [],
@@ -226,6 +228,18 @@ afterEach(() => {
 });
 
 describe("WorkspaceManagementPanel", () => {
+  it("shows workspace Last Used and Unknown without recorded activity", () => {
+    useAdminWorkspacesMock.mockReturnValue(workspacesResult([acme, orphan]));
+    const { container } = render(<WorkspaceManagementPanel />);
+    expect(
+      screen.getByRole("columnheader", { name: "settings:adminLastUsed.label" })
+        .title,
+    ).toBe("settings:adminLastUsed.workspaceHint");
+    const time = container.querySelector(`time[datetime="${acme.lastUsedAt}"]`);
+    expect(time?.textContent).toBeTruthy();
+    expect(time?.getAttribute("title")).toBeTruthy();
+    expect(screen.getByText("settings:adminLastUsed.unknown")).toBeTruthy();
+  });
   it("lists workspaces with their owners and counts", () => {
     render(<WorkspaceManagementPanel />);
 
