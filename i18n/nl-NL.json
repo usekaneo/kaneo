@@ -126,7 +126,6 @@
 				"startDate": "Startdatum",
 				"dueDate": "Einddatum",
 				"clearStartDate": "Startdatum wissen",
-				"clearDueDate": "Einddatum wissen",
 				"assign": "Toewijzen",
 				"assignUnassigned": "Niet toegewezen",
 				"assignUnassignedTitle": "Niet toegewezen",
@@ -2571,6 +2570,33 @@
 					"rose": "Roos",
 					"crimson": "Karmozijn"
 				}
+			},
+			"recurrence": {
+				"updateError": "Bijwerken herhaling mislukt",
+				"every": "Om de",
+				"hint": "Als deze taak klaar is, wordt de volgende aangemaakt.",
+				"interval": "Interval",
+				"onDays": "Op deze dagen",
+				"pattern": {
+					"daily": "Dagelijks",
+					"monthly": "Maandelijks",
+					"periodically": "Periodiek",
+					"weekly": "Wekelijks",
+					"yearly": "Jaarlijks"
+				},
+				"repeats": "Herhaalt",
+				"toggle": "Herhalen",
+				"unit": {
+					"days_one": "dag",
+					"days_other": "dagen",
+					"label": "Eenheid",
+					"months_one": "maand",
+					"months_other": "maanden",
+					"weeks_one": "week",
+					"weeks_other": "weken",
+					"years_one": "jaar",
+					"years_other": "jaar"
+				}
 			}
 		},
 		"backlog": {
@@ -2799,6 +2825,17 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_one": "Elke dag",
+			"daily_other": "Om de {{count}} dagen",
+			"monthly_one": "Elke maand",
+			"monthly_other": "Om de {{count}} maanden",
+			"weekly_one": "Elke week",
+			"weekly_other": "Om de {{count}} weken",
+			"yearly_one": "Elk jaar",
+			"yearly_other": "Om de {{count}} jaar",
+			"onDays": "{{rule}} op {{days}}"
 		}
 	},
 	"invitations": {

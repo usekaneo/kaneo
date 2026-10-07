@@ -126,7 +126,6 @@
 				"startDate": "Почетен датум",
 				"dueDate": "Краен рок",
 				"clearStartDate": "Исчисти почетен датум",
-				"clearDueDate": "Исчисти краен рок",
 				"assign": "Додели",
 				"assignUnassigned": "Недоделен",
 				"assignUnassignedTitle": "Недоделен",
@@ -2582,6 +2581,33 @@
 					"rose": "Роза",
 					"crimson": "Гримизна"
 				}
+			},
+			"recurrence": {
+				"updateError": "Неуспешно ажурирање на повторувањето на задачата",
+				"every": "На секои",
+				"hint": "Кога оваа задача ќе заврши, ќе се создаде следната.",
+				"interval": "Интервал",
+				"onDays": "Во овие денови",
+				"pattern": {
+					"daily": "Дневно",
+					"monthly": "Месечно",
+					"periodically": "Периодично",
+					"weekly": "Неделно",
+					"yearly": "Годишно"
+				},
+				"repeats": "Повторување",
+				"toggle": "Повторувај",
+				"unit": {
+					"days_one": "ден",
+					"days_other": "дена",
+					"label": "Единица",
+					"months_one": "месец",
+					"months_other": "месеци",
+					"weeks_one": "недела",
+					"weeks_other": "недели",
+					"years_one": "година",
+					"years_other": "години"
+				}
 			}
 		},
 		"backlog": {
@@ -2799,6 +2825,17 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_one": "На секој {{count}} ден",
+			"daily_other": "На секои {{count}} дена",
+			"monthly_one": "На секој {{count}} месец",
+			"monthly_other": "На секои {{count}} месеци",
+			"weekly_one": "На секоја {{count}} недела",
+			"weekly_other": "На секои {{count}} недели",
+			"yearly_one": "На секоја {{count}} година",
+			"yearly_other": "На секои {{count}} години",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

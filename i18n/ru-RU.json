@@ -126,7 +126,6 @@
 				"startDate": "Дата начала",
 				"dueDate": "Срок выполнения",
 				"clearStartDate": "Очистить дату начала",
-				"clearDueDate": "Очистить срок выполнения",
 				"assign": "Назначить",
 				"assignUnassigned": "Не назначено",
 				"assignUnassignedTitle": "Не назначено",
@@ -2620,6 +2619,41 @@
 					"rose": "Роза",
 					"crimson": "Малиновый"
 				}
+			},
+			"recurrence": {
+				"updateError": "Не удалось обновить повтор задачи",
+				"every": "Каждые",
+				"hint": "Когда эта задача будет выполнена, будет создана следующая.",
+				"interval": "Интервал",
+				"onDays": "В эти дни",
+				"pattern": {
+					"daily": "Ежедневно",
+					"monthly": "Ежемесячно",
+					"periodically": "Периодически",
+					"weekly": "Еженедельно",
+					"yearly": "Ежегодно"
+				},
+				"repeats": "Повтор",
+				"toggle": "Повторять",
+				"unit": {
+					"days_few": "дня",
+					"days_many": "дней",
+					"days_one": "день",
+					"days_other": "дня",
+					"label": "Единица",
+					"months_few": "месяца",
+					"months_many": "месяцев",
+					"months_one": "месяц",
+					"months_other": "месяца",
+					"weeks_few": "недели",
+					"weeks_many": "недель",
+					"weeks_one": "неделю",
+					"weeks_other": "недели",
+					"years_few": "года",
+					"years_many": "лет",
+					"years_one": "год",
+					"years_other": "года"
+				}
 			}
 		},
 		"backlog": {
@@ -2887,6 +2921,25 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_few": "Каждые {{count}} дня",
+			"daily_many": "Каждые {{count}} дней",
+			"daily_one": "Каждый {{count}} день",
+			"daily_other": "Каждые {{count}} дня",
+			"monthly_few": "Каждые {{count}} месяца",
+			"monthly_many": "Каждые {{count}} месяцев",
+			"monthly_one": "Каждый {{count}} месяц",
+			"monthly_other": "Каждые {{count}} месяца",
+			"weekly_few": "Каждые {{count}} недели",
+			"weekly_many": "Каждые {{count}} недель",
+			"weekly_one": "Каждую {{count}} неделю",
+			"weekly_other": "Каждые {{count}} недели",
+			"yearly_few": "Каждые {{count}} года",
+			"yearly_many": "Каждые {{count}} лет",
+			"yearly_one": "Каждый {{count}} год",
+			"yearly_other": "Каждые {{count}} года",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

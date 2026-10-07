@@ -126,7 +126,6 @@
 				"startDate": "Tanggal mulai",
 				"dueDate": "Tenggat",
 				"clearStartDate": "Hapus tanggal mulai",
-				"clearDueDate": "Hapus tenggat",
 				"assign": "Tugaskan",
 				"assignUnassigned": "Belum ditugaskan",
 				"assignUnassignedTitle": "Belum ditugaskan",
@@ -2567,6 +2566,29 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				}
+			},
+			"recurrence": {
+				"updateError": "Gagal memperbarui pengulangan tugas",
+				"every": "Setiap",
+				"hint": "Saat tugas ini selesai, tugas berikutnya dibuat.",
+				"interval": "Interval",
+				"onDays": "Pada hari-hari ini",
+				"pattern": {
+					"daily": "Harian",
+					"monthly": "Bulanan",
+					"periodically": "Berkala",
+					"weekly": "Mingguan",
+					"yearly": "Tahunan"
+				},
+				"repeats": "Berulang",
+				"toggle": "Ulangi",
+				"unit": {
+					"days_other": "hari",
+					"label": "Satuan",
+					"months_other": "bulan",
+					"weeks_other": "minggu",
+					"years_other": "tahun"
+				}
 			}
 		},
 		"backlog": {
@@ -2783,6 +2805,13 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_other": "Setiap {{count}} hari",
+			"monthly_other": "Setiap {{count}} bulan",
+			"weekly_other": "Setiap {{count}} minggu",
+			"yearly_other": "Setiap {{count}} tahun",
+			"onDays": "{{rule}} pada {{days}}"
 		}
 	},
 	"invitations": {

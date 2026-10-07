@@ -778,6 +778,51 @@ export function registerTools(
   );
 
   registerTool(
+    "update_task_recurrence",
+    {
+      description:
+        "Make a task repeat, or omit frequency to stop it repeating. When a repeating task moves into a final column, the next task is created in the first open column, due one step after the completed task's due date.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        frequency: z.enum(["daily", "weekly", "monthly", "yearly"]).optional(),
+        interval: z.number().int().min(1).max(99).default(1),
+        weekdays: z
+          .array(z.number().int().min(0).max(6))
+          .min(1)
+          .max(7)
+          .optional()
+          .describe(
+            "Weekly only: days to repeat on, 0 for Sunday to 6 for Saturday.",
+          ),
+        timeZone: nonEmptyString
+          .optional()
+          .describe(
+            "Required with frequency: the user's IANA time zone, such as Europe/Madrid. Weekdays and month ends are matched in this zone, so a wrong one moves the next task to another local day.",
+          ),
+      }),
+    },
+    async (args) => {
+      if (args.frequency && !args.timeZone)
+        return errorResult("timeZone is required with frequency");
+      return run(() =>
+        client.json(`/api/task/recurrence/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            recurrence: args.frequency
+              ? {
+                  frequency: args.frequency,
+                  interval: args.interval,
+                  ...(args.weekdays ? { weekdays: args.weekdays } : {}),
+                  timeZone: args.timeZone,
+                }
+              : null,
+          }),
+        }),
+      );
+    },
+  );
+
+  registerTool(
     "list_task_time_entries",
     {
       description: "List the time entries logged against a task.",

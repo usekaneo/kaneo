@@ -145,6 +145,9 @@
             ],
             "format": "date-time"
           },
+          "recurrence": {
+            "$ref": "#/components/schemas/TaskRecurrence"
+          },
           "position": {
             "type": [
               "number",
@@ -222,6 +225,7 @@
           "priority",
           "startDate",
           "dueDate",
+          "recurrence",
           "position",
           "createdAt",
           "userId",
@@ -233,6 +237,50 @@
           "labels",
           "externalLinks"
         ]
+      },
+      "TaskRecurrence": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly",
+              "yearly"
+            ]
+          },
+          "interval": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99,
+            "description": "Repeat every this many days, weeks, months, or years."
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "minItems": 1,
+            "maxItems": 7,
+            "description": "Weekly rules only: the days to repeat on, 0 for Sunday to 6 for Saturday. Without them, a weekly rule repeats on the due date's weekday."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA time zone used to keep the next due date on the same local day and time."
+          }
+        },
+        "required": [
+          "frequency",
+          "interval",
+          "timeZone"
+        ],
+        "description": "When a task with this rule moves into a final column, the next task is created with its dates moved forward by one interval from the completed task's due date."
       },
       "TaskLabel": {
         "type": "object",
@@ -1126,6 +1174,9 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "recurrence": {
+            "$ref": "#/components/schemas/TaskRecurrence"
           },
           "createdAt": {
             "type": "string",
@@ -9959,6 +10010,16 @@
                     "type": "string",
                     "description": "Assignee, if any."
                   },
+                  "recurrence": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/TaskRecurrence"
+                      },
+                      {
+                        "description": "Omit to create a task that does not repeat."
+                      }
+                    ]
+                  },
                   "draftAssetIds": {
                     "type": "array",
                     "items": {
@@ -10007,7 +10068,7 @@
             }
           },
           "400": {
-            "description": "Invalid body, or unknown project",
+            "description": "Invalid body, unknown project, or a repeating task in a final column",
             "content": {
               "text/plain": {
                 "schema": {
@@ -11043,6 +11104,106 @@
           },
           "403": {
             "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/task/recurrence/{id}": {
+      "put": {
+        "operationId": "updateTaskRecurrence",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Update task recurrence",
+        "description": "Make a task repeat, or stop it repeating. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recurrence": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/TaskRecurrence"
+                      },
+                      {
+                        "description": "Null stops the task from repeating."
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "recurrence"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid recurrence rule",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "No workspace access, or missing task:update permission",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The task is completed and no longer holds a rule; reopen it first",
             "content": {
               "text/plain": {
                 "schema": {

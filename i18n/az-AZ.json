@@ -126,7 +126,6 @@
 				"startDate": "Başlama tarixi",
 				"dueDate": "Son tarix",
 				"clearStartDate": "Başlama tarixini təmizlə",
-				"clearDueDate": "Son tarixi təmizlə",
 				"assign": "Təyin et",
 				"assignUnassigned": "Təyin olunmayıb",
 				"assignUnassignedTitle": "Təyin olunmayıb",
@@ -2582,6 +2581,33 @@
 					"rose": "Çəhrayı",
 					"crimson": "Tünd qırmızı"
 				}
+			},
+			"recurrence": {
+				"updateError": "Tapşırığın təkrarını yeniləmək alınmadı",
+				"every": "Hər",
+				"hint": "Bu tapşırıq tamamlandıqda növbəti yaradılır.",
+				"interval": "İnterval",
+				"onDays": "Bu günlərdə",
+				"pattern": {
+					"daily": "Hər gün",
+					"monthly": "Hər ay",
+					"periodically": "Dövri",
+					"weekly": "Hər həftə",
+					"yearly": "Hər il"
+				},
+				"repeats": "Təkrar",
+				"toggle": "Təkrarla",
+				"unit": {
+					"days_one": "gündən bir",
+					"days_other": "gündən bir",
+					"label": "Vahid",
+					"months_one": "aydan bir",
+					"months_other": "aydan bir",
+					"weeks_one": "həftədən bir",
+					"weeks_other": "həftədən bir",
+					"years_one": "ildən bir",
+					"years_other": "ildən bir"
+				}
 			}
 		},
 		"backlog": {
@@ -2799,6 +2825,17 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_one": "Hər gün",
+			"daily_other": "Hər {{count}} gündən bir",
+			"monthly_one": "Hər ay",
+			"monthly_other": "Hər {{count}} aydan bir",
+			"weekly_one": "Hər həftə",
+			"weekly_other": "Hər {{count}} həftədən bir",
+			"yearly_one": "Hər il",
+			"yearly_other": "Hər {{count}} ildən bir",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

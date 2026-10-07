@@ -61,12 +61,14 @@ import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
+import updateTaskRecurrence from "./controllers/update-task-recurrence";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
 import {
   getDeferredDescriptionMatches,
   getDescriptionPage,
 } from "./description-pages";
+import "./recurrence/subscribe";
 import {
   assignedTasksSchema,
   boardSchema,
@@ -105,6 +107,7 @@ import {
   updateDescriptionBody,
   updateDueDateBody,
   updatePriorityBody,
+  updateRecurrenceBody,
   updateStatusBody,
   updateTaskBody,
   updateTitleBody,
@@ -298,7 +301,9 @@ const createTaskRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created task", taskSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse(
+      "Invalid body, unknown project, or a repeating task in a final column",
+    ),
     403: errorResponse(
       "No workspace access, or missing task:create permission",
     ),
@@ -628,6 +633,39 @@ const updateTaskDueDateRoute = createRoute({
   },
 });
 
+const updateTaskRecurrenceRoute = createRoute({
+  method: "put",
+  operationId: "updateTaskRecurrence",
+  path: "/recurrence/{id}",
+  tags: ["Tasks"],
+  summary: "Update task recurrence",
+  description:
+    "Make a task repeat, or stop it repeating. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateRecurrenceBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    400: errorResponse("Invalid recurrence rule"),
+    403: errorResponse(
+      "No workspace access, or missing task:update permission",
+    ),
+    404: errorResponse("Task not found"),
+    409: errorResponse(
+      "The task is completed and no longer holds a rule; reopen it first",
+    ),
+  },
+});
+
 const updateTaskTitleRoute = createRoute({
   method: "put",
   operationId: "updateTaskTitle",
@@ -883,6 +921,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       userId,
+      recurrence,
       customFields,
       draftAssetIds,
     } = c.req.valid("json");
@@ -908,6 +947,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: parsedDueDate,
       priority,
       status,
+      recurrence,
       customFields,
       draftAssetIds,
     });
@@ -1063,6 +1103,15 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
       currentUserId,
     });
+
+    return c.json(task, 200);
+  })
+  .openapi(updateTaskRecurrenceRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { recurrence } = c.req.valid("json");
+    const currentUserId = c.get("userId");
+
+    const task = await updateTaskRecurrence({ id, recurrence, currentUserId });
 
     return c.json(task, 200);
   })

@@ -126,7 +126,6 @@
 				"startDate": "Ημερομηνία έναρξης",
 				"dueDate": "Ημερομηνία λήξης",
 				"clearStartDate": "Εκκαθάριση ημερομηνίας έναρξης",
-				"clearDueDate": "Εκκαθάριση ημερομηνίας λήξης",
 				"assign": "Ανάθεση",
 				"assignUnassigned": "Χωρίς ανάθεση",
 				"assignUnassignedTitle": "Χωρίς ανάθεση",
@@ -2582,6 +2581,33 @@
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
 				}
+			},
+			"recurrence": {
+				"updateError": "Αποτυχία ενημέρωσης επανάληψης εργασίας",
+				"every": "Κάθε",
+				"hint": "Όταν ολοκληρωθεί αυτή η εργασία, δημιουργείται η επόμενη.",
+				"interval": "Διάστημα",
+				"onDays": "Αυτές τις ημέρες",
+				"pattern": {
+					"daily": "Καθημερινά",
+					"monthly": "Μηνιαία",
+					"periodically": "Περιοδικά",
+					"weekly": "Εβδομαδιαία",
+					"yearly": "Ετήσια"
+				},
+				"repeats": "Επαναλαμβάνεται",
+				"toggle": "Επανάληψη",
+				"unit": {
+					"days_one": "ημέρα",
+					"days_other": "ημέρες",
+					"label": "Μονάδα",
+					"months_one": "μήνα",
+					"months_other": "μήνες",
+					"weeks_one": "εβδομάδα",
+					"weeks_other": "εβδομάδες",
+					"years_one": "χρόνο",
+					"years_other": "χρόνια"
+				}
 			}
 		},
 		"backlog": {
@@ -2799,6 +2825,17 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_one": "Κάθε ημέρα",
+			"daily_other": "Κάθε {{count}} ημέρες",
+			"monthly_one": "Κάθε μήνα",
+			"monthly_other": "Κάθε {{count}} μήνες",
+			"weekly_one": "Κάθε εβδομάδα",
+			"weekly_other": "Κάθε {{count}} εβδομάδες",
+			"yearly_one": "Κάθε χρόνο",
+			"yearly_other": "Κάθε {{count}} χρόνια",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

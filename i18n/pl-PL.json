@@ -126,7 +126,6 @@
 				"startDate": "Data rozpoczęcia",
 				"dueDate": "Termin",
 				"clearStartDate": "Wyczyść datę rozpoczęcia",
-				"clearDueDate": "Wyczyść termin",
 				"assign": "Przypisz",
 				"assignUnassigned": "Nieprzypisane",
 				"assignUnassignedTitle": "Nieprzypisane",
@@ -2994,6 +2993,41 @@
 			},
 			"status": {
 				"updateError": "Nie udało się zaktualizować statusu zadania"
+			},
+			"recurrence": {
+				"updateError": "Nie udało się zaktualizować powtarzania zadania",
+				"every": "Co",
+				"hint": "Po ukończeniu tego zadania zostanie utworzone następne.",
+				"interval": "Interwał",
+				"onDays": "W te dni",
+				"pattern": {
+					"daily": "Codziennie",
+					"monthly": "Co miesiąc",
+					"periodically": "Okresowo",
+					"weekly": "Co tydzień",
+					"yearly": "Co rok"
+				},
+				"repeats": "Powtarzanie",
+				"toggle": "Powtarzaj",
+				"unit": {
+					"days_few": "dni",
+					"days_many": "dni",
+					"days_one": "dzień",
+					"days_other": "dnia",
+					"label": "Jednostka",
+					"months_few": "miesiące",
+					"months_many": "miesięcy",
+					"months_one": "miesiąc",
+					"months_other": "miesiąca",
+					"weeks_few": "tygodnie",
+					"weeks_many": "tygodni",
+					"weeks_one": "tydzień",
+					"weeks_other": "tygodnia",
+					"years_few": "lata",
+					"years_many": "lat",
+					"years_one": "rok",
+					"years_other": "roku"
+				}
 			}
 		},
 		"pr": {
@@ -3106,6 +3140,25 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_few": "Co {{count}} dni",
+			"daily_many": "Co {{count}} dni",
+			"daily_one": "Codziennie",
+			"daily_other": "Co {{count}} dnia",
+			"monthly_few": "Co {{count}} miesiące",
+			"monthly_many": "Co {{count}} miesięcy",
+			"monthly_one": "Co miesiąc",
+			"monthly_other": "Co {{count}} miesiąca",
+			"weekly_few": "Co {{count}} tygodnie",
+			"weekly_many": "Co {{count}} tygodni",
+			"weekly_one": "Co tydzień",
+			"weekly_other": "Co {{count}} tygodnia",
+			"yearly_few": "Co {{count}} lata",
+			"yearly_many": "Co {{count}} lat",
+			"yearly_one": "Co rok",
+			"yearly_other": "Co {{count}} roku",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"press": {

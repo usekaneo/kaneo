@@ -126,7 +126,6 @@
 				"startDate": "Data de início",
 				"dueDate": "Data de vencimento",
 				"clearStartDate": "Limpar data de início",
-				"clearDueDate": "Limpar data de vencimento",
 				"assign": "Atribuir",
 				"assignUnassigned": "Não atribuído",
 				"assignUnassignedTitle": "Não atribuído",
@@ -2597,6 +2596,37 @@
 					"rose": "Rosa",
 					"crimson": "Carmesim"
 				}
+			},
+			"recurrence": {
+				"updateError": "Falha ao atualizar a repetição da tarefa",
+				"every": "A cada",
+				"hint": "Quando esta tarefa for concluída, a próxima será criada.",
+				"interval": "Intervalo",
+				"onDays": "Nestes dias",
+				"pattern": {
+					"daily": "Diariamente",
+					"monthly": "Mensalmente",
+					"periodically": "Periodicamente",
+					"weekly": "Semanalmente",
+					"yearly": "Anualmente"
+				},
+				"repeats": "Repete",
+				"toggle": "Repetir",
+				"unit": {
+					"days_many": "dias",
+					"days_one": "dia",
+					"days_other": "dias",
+					"label": "Unidade",
+					"months_many": "meses",
+					"months_one": "mês",
+					"months_other": "meses",
+					"weeks_many": "semanas",
+					"weeks_one": "semana",
+					"weeks_other": "semanas",
+					"years_many": "anos",
+					"years_one": "ano",
+					"years_other": "anos"
+				}
 			}
 		},
 		"backlog": {
@@ -2815,6 +2845,21 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_many": "A cada {{count}} dias",
+			"daily_one": "Todos os dias",
+			"daily_other": "A cada {{count}} dias",
+			"monthly_many": "A cada {{count}} meses",
+			"monthly_one": "Todo mês",
+			"monthly_other": "A cada {{count}} meses",
+			"weekly_many": "A cada {{count}} semanas",
+			"weekly_one": "Toda semana",
+			"weekly_other": "A cada {{count}} semanas",
+			"yearly_many": "A cada {{count}} anos",
+			"yearly_one": "Todo ano",
+			"yearly_other": "A cada {{count}} anos",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

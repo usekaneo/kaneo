@@ -126,7 +126,6 @@
 				"startDate": "Date de début",
 				"dueDate": "Date d'échéance",
 				"clearStartDate": "Supprimer la date de début",
-				"clearDueDate": "Supprimer la date d'échéance",
 				"assign": "Assigner",
 				"assignUnassigned": "Non assigné",
 				"assignUnassignedTitle": "Non assigné",
@@ -2597,6 +2596,37 @@
 					"rose": "Rose",
 					"crimson": "Cramoisi"
 				}
+			},
+			"recurrence": {
+				"updateError": "Échec de la mise à jour de la répétition de la tâche",
+				"every": "Fréquence",
+				"hint": "Une fois cette tâche terminée, la suivante est créée.",
+				"interval": "Intervalle",
+				"onDays": "Les jours suivants",
+				"pattern": {
+					"daily": "Tous les jours",
+					"monthly": "Tous les mois",
+					"periodically": "Périodiquement",
+					"weekly": "Toutes les semaines",
+					"yearly": "Tous les ans"
+				},
+				"repeats": "Répétition",
+				"toggle": "Répéter",
+				"unit": {
+					"days_many": "jours",
+					"days_one": "jour",
+					"days_other": "jours",
+					"label": "Unité",
+					"months_many": "mois",
+					"months_one": "mois",
+					"months_other": "mois",
+					"weeks_many": "semaines",
+					"weeks_one": "semaine",
+					"weeks_other": "semaines",
+					"years_many": "ans",
+					"years_one": "an",
+					"years_other": "ans"
+				}
 			}
 		},
 		"backlog": {
@@ -2815,6 +2845,21 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_many": "Tous les {{count}} jours",
+			"daily_one": "Tous les jours",
+			"daily_other": "Tous les {{count}} jours",
+			"monthly_many": "Tous les {{count}} mois",
+			"monthly_one": "Tous les mois",
+			"monthly_other": "Tous les {{count}} mois",
+			"weekly_many": "Toutes les {{count}} semaines",
+			"weekly_one": "Toutes les semaines",
+			"weekly_other": "Toutes les {{count}} semaines",
+			"yearly_many": "Tous les {{count}} ans",
+			"yearly_one": "Tous les ans",
+			"yearly_other": "Tous les {{count}} ans",
+			"onDays": "{{rule}} : {{days}}"
 		}
 	},
 	"invitations": {

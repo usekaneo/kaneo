@@ -126,7 +126,6 @@
 				"startDate": "Başlangıç tarihi",
 				"dueDate": "Bitiş tarihi",
 				"clearStartDate": "Başlangıç tarihini temizle",
-				"clearDueDate": "Bitiş tarihini temizle",
 				"assign": "Ata",
 				"assignUnassigned": "Atanmamış",
 				"assignUnassignedTitle": "Atanmamış",
@@ -2582,6 +2581,33 @@
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				}
+			},
+			"recurrence": {
+				"updateError": "Talep tekrarı güncellenemedi",
+				"every": "Her",
+				"hint": "Bu talep tamamlandığında bir sonraki oluşturulur.",
+				"interval": "Aralık",
+				"onDays": "Bu günlerde",
+				"pattern": {
+					"daily": "Her gün",
+					"monthly": "Her ay",
+					"periodically": "Periyodik",
+					"weekly": "Her hafta",
+					"yearly": "Her yıl"
+				},
+				"repeats": "Tekrar",
+				"toggle": "Tekrarla",
+				"unit": {
+					"days_one": "günde",
+					"days_other": "günde",
+					"label": "Birim",
+					"months_one": "ayda",
+					"months_other": "ayda",
+					"weeks_one": "haftada",
+					"weeks_other": "haftada",
+					"years_one": "yılda",
+					"years_other": "yılda"
+				}
 			}
 		},
 		"backlog": {
@@ -2799,6 +2825,17 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_one": "Her gün",
+			"daily_other": "{{count}} günde bir",
+			"monthly_one": "Her ay",
+			"monthly_other": "{{count}} ayda bir",
+			"weekly_one": "Her hafta",
+			"weekly_other": "{{count}} haftada bir",
+			"yearly_one": "Her yıl",
+			"yearly_other": "{{count}} yılda bir",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

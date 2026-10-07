@@ -13,6 +13,8 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import TaskDueDatePicker from "@/components/task/task-due-date-picker";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import {
   Accordion,
   AccordionContent,
@@ -96,6 +98,7 @@ import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import type { TaskRecurrence } from "@/types/task/recurrence";
 import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
@@ -253,6 +256,7 @@ function CreateTaskModalContent({
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
@@ -405,6 +409,7 @@ function CreateTaskModalContent({
     assigneeId ||
     startDate ||
     dueDate ||
+    recurrence ||
     selectedProjectId ||
     labels.length > 0 ||
     stagedAssetsRef.current.length > 0 ||
@@ -553,6 +558,7 @@ function CreateTaskModalContent({
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
+          recurrence: recurrence ?? undefined,
           status: submitStatus,
           draftAssetIds: stagedAssetsRef.current.filter((id) =>
             description.includes(`/asset/${id}`),
@@ -591,6 +597,7 @@ function CreateTaskModalContent({
         setAssigneeId("");
         setStartDate(undefined);
         setDueDate(undefined);
+        setRecurrence(null);
         setLabels([]);
         setLabelsStep("select");
         setSearchValue("");
@@ -1345,7 +1352,7 @@ function CreateTaskModalContent({
                     type="button"
                     className={cn(
                       "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
-                      dueDate
+                      dueDate || recurrence
                         ? "bg-accent/30 text-foreground"
                         : "text-muted-foreground",
                     )}
@@ -1356,28 +1363,18 @@ function CreateTaskModalContent({
                         ? formatDateMedium(dueDate)
                         : t("common:modals.createTask.dueDate")}
                     </span>
+                    <TaskRecurrenceBadge task={{ recurrence }} asText />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dueDate}
-                    onSelect={setDueDate}
-                    className="w-full bg-popover"
+                <PopoverContent className="w-72 p-0" align="start">
+                  <TaskDueDatePicker
+                    dueDate={dueDate}
+                    startDate={startDate}
+                    recurrence={recurrence}
+                    onDateChange={setDueDate}
+                    onRecurrenceChange={setRecurrence}
+                    onClear={() => setDueDate(undefined)}
                   />
-                  {dueDate && (
-                    <div className="p-2 border-t border-border">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs"
-                        onClick={() => setDueDate(undefined)}
-                      >
-                        {t("common:modals.createTask.clearDueDate")}
-                      </Button>
-                    </div>
-                  )}
                 </PopoverContent>
               </Popover>
 

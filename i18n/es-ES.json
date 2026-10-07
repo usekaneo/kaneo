@@ -126,7 +126,6 @@
 				"startDate": "Fecha de inicio",
 				"dueDate": "Fecha de vencimiento",
 				"clearStartDate": "Borrar fecha de inicio",
-				"clearDueDate": "Borrar fecha de vencimiento",
 				"assign": "Asignar",
 				"assignUnassigned": "Sin asignar",
 				"assignUnassignedTitle": "Sin asignar",
@@ -2560,6 +2559,37 @@
 				"updateError": "Error al actualizar la fehca de vencimiento de la tarea",
 				"clear": "Eliminar fecha"
 			},
+			"recurrence": {
+				"toggle": "Repetir",
+				"repeats": "Se repite",
+				"pattern": {
+					"daily": "Diariamente",
+					"weekly": "Semanalmente",
+					"monthly": "Mensualmente",
+					"yearly": "Anualmente",
+					"periodically": "Periódicamente"
+				},
+				"every": "Cada",
+				"interval": "Intervalo",
+				"unit": {
+					"label": "Unidad",
+					"days_many": "días",
+					"days_one": "día",
+					"days_other": "días",
+					"weeks_many": "semanas",
+					"weeks_one": "semana",
+					"weeks_other": "semanas",
+					"months_many": "meses",
+					"months_one": "mes",
+					"months_other": "meses",
+					"years_many": "años",
+					"years_one": "año",
+					"years_other": "años"
+				},
+				"onDays": "Estos días",
+				"hint": "Al completar esta tarea, se crea la siguiente.",
+				"updateError": "No se pudo actualizar la repetición de la tarea"
+			},
 			"startDate": {
 				"updateSuccess": "La fecha de inicio de la tarea se ha actualizado correctamente",
 				"updateError": "Error al actualizar la fecha de inicio de la tarea",
@@ -2718,6 +2748,21 @@
 			"updateError": "Error al actualizar fecha de vencimiento",
 			"clearSuccess": "Fecha de vencimiento eliminada correctamente",
 			"clearError": "Error al eliminar fecha de vencimiento"
+		},
+		"recurrence": {
+			"daily_many": "Cada {{count}} días",
+			"daily_one": "Cada día",
+			"daily_other": "Cada {{count}} días",
+			"weekly_many": "Cada {{count}} semanas",
+			"weekly_one": "Cada semana",
+			"weekly_other": "Cada {{count}} semanas",
+			"monthly_many": "Cada {{count}} meses",
+			"monthly_one": "Cada mes",
+			"monthly_other": "Cada {{count}} meses",
+			"yearly_many": "Cada {{count}} años",
+			"yearly_one": "Cada año",
+			"yearly_other": "Cada {{count}} años",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"labels": {
 			"label": "Etiquetas",

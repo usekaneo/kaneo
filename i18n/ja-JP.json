@@ -126,7 +126,6 @@
 				"startDate": "開始日",
 				"dueDate": "期限",
 				"clearStartDate": "開始日をクリア",
-				"clearDueDate": "期限をクリア",
 				"assign": "担当者を割り当て",
 				"assignUnassigned": "未割り当て",
 				"assignUnassignedTitle": "未割り当て",
@@ -2567,6 +2566,29 @@
 					"rose": "ローズ",
 					"crimson": "クリムゾン"
 				}
+			},
+			"recurrence": {
+				"updateError": "繰り返しの更新に失敗しました",
+				"every": "間隔",
+				"hint": "このタスクが完了すると、次のタスクが作成されます。",
+				"interval": "間隔",
+				"onDays": "曜日",
+				"pattern": {
+					"daily": "毎日",
+					"monthly": "毎月",
+					"periodically": "定期的",
+					"weekly": "毎週",
+					"yearly": "毎年"
+				},
+				"repeats": "繰り返し",
+				"toggle": "繰り返し",
+				"unit": {
+					"days_other": "日ごと",
+					"label": "単位",
+					"months_other": "か月ごと",
+					"weeks_other": "週間ごと",
+					"years_other": "年ごと"
+				}
 			}
 		},
 		"backlog": {
@@ -2783,6 +2805,13 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_other": "{{count}}日ごと",
+			"monthly_other": "{{count}}か月ごと",
+			"weekly_other": "{{count}}週間ごと",
+			"yearly_other": "{{count}}年ごと",
+			"onDays": "{{rule}}（{{days}}）"
 		}
 	},
 	"invitations": {

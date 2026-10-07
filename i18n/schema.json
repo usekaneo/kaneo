@@ -498,9 +498,6 @@
 								"clearStartDate": {
 									"type": "string"
 								},
-								"clearDueDate": {
-									"type": "string"
-								},
 								"assign": {
 									"type": "string"
 								},
@@ -612,7 +609,6 @@
 								"startDate",
 								"dueDate",
 								"clearStartDate",
-								"clearDueDate",
 								"assign",
 								"assignUnassigned",
 								"assignUnassignedTitle",
@@ -10339,6 +10335,154 @@
 							},
 							"required": ["updateSuccess", "updateError", "clear"]
 						},
+						"recurrence": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"toggle": {
+									"type": "string"
+								},
+								"repeats": {
+									"type": "string"
+								},
+								"pattern": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"daily": {
+											"type": "string"
+										},
+										"weekly": {
+											"type": "string"
+										},
+										"monthly": {
+											"type": "string"
+										},
+										"yearly": {
+											"type": "string"
+										},
+										"periodically": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"daily",
+										"weekly",
+										"monthly",
+										"yearly",
+										"periodically"
+									]
+								},
+								"every": {
+									"type": "string"
+								},
+								"interval": {
+									"type": "string"
+								},
+								"unit": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"days_one": {
+											"type": "string"
+										},
+										"days_zero": {
+											"type": "string"
+										},
+										"days_two": {
+											"type": "string"
+										},
+										"days_few": {
+											"type": "string"
+										},
+										"days_many": {
+											"type": "string"
+										},
+										"days_other": {
+											"type": "string"
+										},
+										"weeks_one": {
+											"type": "string"
+										},
+										"weeks_zero": {
+											"type": "string"
+										},
+										"weeks_two": {
+											"type": "string"
+										},
+										"weeks_few": {
+											"type": "string"
+										},
+										"weeks_many": {
+											"type": "string"
+										},
+										"weeks_other": {
+											"type": "string"
+										},
+										"months_one": {
+											"type": "string"
+										},
+										"months_zero": {
+											"type": "string"
+										},
+										"months_two": {
+											"type": "string"
+										},
+										"months_few": {
+											"type": "string"
+										},
+										"months_many": {
+											"type": "string"
+										},
+										"months_other": {
+											"type": "string"
+										},
+										"years_one": {
+											"type": "string"
+										},
+										"years_zero": {
+											"type": "string"
+										},
+										"years_two": {
+											"type": "string"
+										},
+										"years_few": {
+											"type": "string"
+										},
+										"years_many": {
+											"type": "string"
+										},
+										"years_other": {
+											"type": "string"
+										}
+									},
+									"required": ["label"]
+								},
+								"onDays": {
+									"type": "string"
+								},
+								"hint": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"toggle",
+								"repeats",
+								"pattern",
+								"every",
+								"interval",
+								"unit",
+								"onDays",
+								"hint",
+								"updateError"
+							]
+						},
 						"startDate": {
 							"type": "object",
 							"additionalProperties": false,
@@ -10450,6 +10594,7 @@
 						"status",
 						"priority",
 						"dueDate",
+						"recurrence",
 						"startDate",
 						"labels"
 					]
@@ -11094,6 +11239,88 @@
 						"clearError"
 					]
 				},
+				"recurrence": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"daily_one": {
+							"type": "string"
+						},
+						"daily_zero": {
+							"type": "string"
+						},
+						"daily_two": {
+							"type": "string"
+						},
+						"daily_few": {
+							"type": "string"
+						},
+						"daily_many": {
+							"type": "string"
+						},
+						"daily_other": {
+							"type": "string"
+						},
+						"weekly_one": {
+							"type": "string"
+						},
+						"weekly_zero": {
+							"type": "string"
+						},
+						"weekly_two": {
+							"type": "string"
+						},
+						"weekly_few": {
+							"type": "string"
+						},
+						"weekly_many": {
+							"type": "string"
+						},
+						"weekly_other": {
+							"type": "string"
+						},
+						"monthly_one": {
+							"type": "string"
+						},
+						"monthly_zero": {
+							"type": "string"
+						},
+						"monthly_two": {
+							"type": "string"
+						},
+						"monthly_few": {
+							"type": "string"
+						},
+						"monthly_many": {
+							"type": "string"
+						},
+						"monthly_other": {
+							"type": "string"
+						},
+						"yearly_one": {
+							"type": "string"
+						},
+						"yearly_zero": {
+							"type": "string"
+						},
+						"yearly_two": {
+							"type": "string"
+						},
+						"yearly_few": {
+							"type": "string"
+						},
+						"yearly_many": {
+							"type": "string"
+						},
+						"yearly_other": {
+							"type": "string"
+						},
+						"onDays": {
+							"type": "string"
+						}
+					},
+					"required": ["onDays"]
+				},
 				"labels": {
 					"type": "object",
 					"additionalProperties": false,
@@ -11540,6 +11767,7 @@
 				"pr",
 				"assignee",
 				"dueDate",
+				"recurrence",
 				"labels",
 				"update",
 				"contextMenu",

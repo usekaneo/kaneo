@@ -126,7 +126,6 @@
 				"startDate": "開始日期",
 				"dueDate": "截止日期",
 				"clearStartDate": "清除開始日期",
-				"clearDueDate": "清除截止日期",
 				"assign": "指派",
 				"assignUnassigned": "未指派",
 				"assignUnassignedTitle": "未指派",
@@ -2567,6 +2566,29 @@
 					"rose": "玫瑰紅",
 					"crimson": "深紅"
 				}
+			},
+			"recurrence": {
+				"updateError": "更新任務重複設定失敗",
+				"every": "每",
+				"hint": "完成此任務後，將建立下一個任務。",
+				"interval": "間隔",
+				"onDays": "重複日",
+				"pattern": {
+					"daily": "每天",
+					"monthly": "每月",
+					"periodically": "定期",
+					"weekly": "每週",
+					"yearly": "每年"
+				},
+				"repeats": "重複",
+				"toggle": "重複",
+				"unit": {
+					"days_other": "天",
+					"label": "單位",
+					"months_other": "個月",
+					"weeks_other": "週",
+					"years_other": "年"
+				}
 			}
 		},
 		"backlog": {
@@ -2783,6 +2805,13 @@
 		},
 		"board": {
 			"reorderFailed": "無法移動任務，請再試一次。"
+		},
+		"recurrence": {
+			"daily_other": "每 {{count}} 天",
+			"monthly_other": "每 {{count}} 個月",
+			"weekly_other": "每 {{count}} 週",
+			"yearly_other": "每 {{count}} 年",
+			"onDays": "{{rule}}的{{days}}"
 		}
 	},
 	"invitations": {

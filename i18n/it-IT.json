@@ -126,7 +126,6 @@
 				"startDate": "Data inizio",
 				"dueDate": "Data scadenza",
 				"clearStartDate": "Cancella data inizio",
-				"clearDueDate": "Cancella data scadenza",
 				"assign": "Assegna",
 				"assignUnassigned": "Non assegnato",
 				"assignUnassignedTitle": "Non assegnato",
@@ -2597,6 +2596,37 @@
 					"rose": "Rosa",
 					"crimson": "Cremisi"
 				}
+			},
+			"recurrence": {
+				"updateError": "Aggiornamento ripetizione attività fallito",
+				"every": "Ogni",
+				"hint": "Quando questa attività è completata, viene creata la successiva.",
+				"interval": "Intervallo",
+				"onDays": "In questi giorni",
+				"pattern": {
+					"daily": "Ogni giorno",
+					"monthly": "Ogni mese",
+					"periodically": "Periodicamente",
+					"weekly": "Ogni settimana",
+					"yearly": "Ogni anno"
+				},
+				"repeats": "Si ripete",
+				"toggle": "Ripeti",
+				"unit": {
+					"days_many": "giorni",
+					"days_one": "giorno",
+					"days_other": "giorni",
+					"label": "Unità",
+					"months_many": "mesi",
+					"months_one": "mese",
+					"months_other": "mesi",
+					"weeks_many": "settimane",
+					"weeks_one": "settimana",
+					"weeks_other": "settimane",
+					"years_many": "anni",
+					"years_one": "anno",
+					"years_other": "anni"
+				}
 			}
 		},
 		"backlog": {
@@ -2815,6 +2845,21 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"recurrence": {
+			"daily_many": "Ogni {{count}} giorni",
+			"daily_one": "Ogni giorno",
+			"daily_other": "Ogni {{count}} giorni",
+			"monthly_many": "Ogni {{count}} mesi",
+			"monthly_one": "Ogni mese",
+			"monthly_other": "Ogni {{count}} mesi",
+			"weekly_many": "Ogni {{count}} settimane",
+			"weekly_one": "Ogni settimana",
+			"weekly_other": "Ogni {{count}} settimane",
+			"yearly_many": "Ogni {{count}} anni",
+			"yearly_one": "Ogni anno",
+			"yearly_other": "Ogni {{count}} anni",
+			"onDays": "{{rule}}: {{days}}"
 		}
 	},
 	"invitations": {

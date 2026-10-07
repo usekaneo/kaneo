@@ -7,6 +7,7 @@ import { type CSSProperties, useMemo, useState, memo } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -201,6 +202,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                 </span>
                 <div className="flex items-center gap-1">
                   <TaskProgressBadges task={task} />
+                  <TaskRecurrenceBadge task={task} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
 
                   <TaskPullRequests
