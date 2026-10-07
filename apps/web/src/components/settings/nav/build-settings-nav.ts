@@ -1,5 +1,6 @@
 import {
   Bell,
+  Building2,
   Code,
   CreditCard,
   KeyRound,
@@ -143,6 +144,12 @@ export function buildSettingsNav({
               label: t("settings:adminUsers.title"),
               to: "/dashboard/settings/admin/users",
               icon: Server,
+            },
+            {
+              id: "admin-workspaces",
+              label: t("settings:adminWorkspaces.title"),
+              to: "/dashboard/settings/admin/workspaces",
+              icon: Building2,
             },
           ],
         }

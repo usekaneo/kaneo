@@ -107,6 +107,7 @@
 					{
 						"group": "Keep it running",
 						"pages": [
+							"core/operations/administration",
 							"core/operations/backups",
 							"core/operations/upgrades",
 							"core/operations/troubleshooting"

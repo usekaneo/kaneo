@@ -15,6 +15,8 @@ import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useProjectWebSocket } from "@/hooks/use-project-websocket";
+import { getProjectUnavailableReason } from "@/lib/project-unavailable-reason";
+import ProjectUnavailable from "./project-unavailable";
 
 type TaskLayoutProps = {
   taskId: string;
@@ -35,10 +37,14 @@ export default function TaskLayout({
 }: TaskLayoutProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const { data: project, error: projectError } = useGetProject({
+    id: projectId,
+    workspaceId,
+  });
   const { data: task } = useGetTask(taskId);
+  const unavailableReason = getProjectUnavailableReason(projectError);
 
-  useProjectWebSocket(projectId);
+  useProjectWebSocket(unavailableReason ? "" : projectId);
 
   const taskLabel =
     project?.slug && task?.number != null
@@ -103,25 +109,34 @@ export default function TaskLayout({
             </div>
 
             <div className="flex shrink-0 items-center gap-1.5">
-              {headerActions}
+              {unavailableReason ? null : headerActions}
             </div>
           </div>
         </Layout.Header>
 
         <Layout.Content>
-          <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row">
-            <div className="order-2 min-h-0 flex-1 overflow-y-auto overscroll-contain lg:order-1">
-              {children}
+          {unavailableReason ? (
+            <ProjectUnavailable
+              reason={unavailableReason}
+              workspaceId={workspaceId}
+            />
+          ) : (
+            <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row">
+              <div className="order-2 min-h-0 flex-1 overflow-y-auto overscroll-contain lg:order-1">
+                {children}
+              </div>
+              <div className="order-1 border-b border-border/80 lg:order-2 lg:hidden">
+                {rightSidebar}
+              </div>
             </div>
-            <div className="order-1 border-b border-border/80 lg:order-2 lg:hidden">
-              {rightSidebar}
-            </div>
-          </div>
+          )}
         </Layout.Content>
       </div>
-      <div className="hidden border-l border-border/80 bg-card lg:flex lg:h-full lg:overflow-y-auto">
-        {rightSidebar}
-      </div>
+      {unavailableReason ? null : (
+        <div className="hidden border-l border-border/80 bg-card lg:flex lg:h-full lg:overflow-y-auto">
+          {rightSidebar}
+        </div>
+      )}
     </Layout>
   );
 }

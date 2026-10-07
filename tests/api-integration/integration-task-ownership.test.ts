@@ -418,7 +418,7 @@ it("reports a concurrent move as a conflict without deleting links", async () =>
     moveTask({
       taskId: f.task.id,
       destinationProjectId: f.destination.id,
-      userId: f.source.user.id,
+      currentUserId: f.source.user.id,
     }),
   ).rejects.toMatchObject({ status: 409 });
   expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
@@ -443,7 +443,7 @@ it("preserves legacy links belonging to the destination integration when moving 
   await moveTask({
     taskId: f.task.id,
     destinationProjectId: f.destination.id,
-    userId: f.source.user.id,
+    currentUserId: f.source.user.id,
   });
   expect(await db.query.externalLinkTable.findMany()).toEqual([compatible]);
 });
@@ -566,12 +566,12 @@ it.each(["edit", "labels", "comment"])(
         await moveTask({
           taskId: f.task.id,
           destinationProjectId: f.destination.id,
-          userId: f.source.user.id,
+          currentUserId: f.source.user.id,
         });
         await moveTask({
           taskId: f.task.id,
           destinationProjectId: f.project.id,
-          userId: f.source.user.id,
+          currentUserId: f.source.user.id,
         });
         return transaction(apply, config);
       });

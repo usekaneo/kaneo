@@ -85,6 +85,7 @@ import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-wor
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { uploadDraftAsset } from "@/lib/upload-draft-asset";
@@ -275,6 +276,38 @@ function CreateTaskModalContent({
     (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
   );
   const resolvedProjectId = resolvedProject?.id ?? "";
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: workspace?.id || "",
+    projectId: resolvedProjectId,
+  });
+  const workspaceAssigneeOptions = useMemo(
+    () =>
+      (workspaceUsers?.members ?? []).map((member) => ({
+        id: member.userId,
+        name: member.user?.name ?? "",
+        image: member.user?.image ?? null,
+      })),
+    [workspaceUsers?.members],
+  );
+  const projectMembersPending =
+    Boolean(resolvedProjectId) && projectMembers === undefined;
+  const assigneeUnconfirmed = Boolean(assigneeId) && projectMembersPending;
+  const assigneeOptions = useMemo(
+    () =>
+      resolvedProjectId
+        ? (projectMembers ?? []).map((member) => ({
+            id: member.id,
+            name: member.name,
+            image: member.image,
+          }))
+        : workspaceAssigneeOptions,
+    [resolvedProjectId, projectMembers, workspaceAssigneeOptions],
+  );
+  const selectedUser =
+    assigneeOptions.find((option) => option.id === assigneeId) ??
+    (projectMembersPending
+      ? workspaceAssigneeOptions.find((option) => option.id === assigneeId)
+      : undefined);
   const {
     data: projectColumns,
     isError: columnsError,
@@ -494,6 +527,7 @@ function CreateTaskModalContent({
       awaitingColumns ||
       !title.trim() ||
       !resolvedProjectId ||
+      assigneeUnconfirmed ||
       !workspace?.id
     )
       return;
@@ -514,7 +548,7 @@ function CreateTaskModalContent({
         await createTask({
           title: title.trim(),
           description: description.trim() || "",
-          userId: assigneeId,
+          userId: selectedUser?.id ?? "",
           priority,
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
@@ -600,10 +634,6 @@ function CreateTaskModalContent({
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
 
   const statusLabel = getStatusDisplayLabel(taskStatus, initialColumn?.name);
-  const selectedUser = workspaceUsers?.members?.find(
-    (u) => u.userId === assigneeId,
-  );
-
   useEffect(() => {
     if (labelsOpen && labelsStep === "select" && searchInputRef.current) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -1000,6 +1030,7 @@ function CreateTaskModalContent({
                 placeholder={t(
                   "common:modals.createTask.descriptionPlaceholder",
                 )}
+                projectId={resolvedProjectId || undefined}
                 uploadAsset={stageAsset}
               />
             </div>
@@ -1243,14 +1274,14 @@ function CreateTaskModalContent({
                       <>
                         <Avatar className="h-4 w-4">
                           <AvatarImage
-                            src={selectedUser?.user?.image ?? ""}
-                            alt={selectedUser?.user?.name || ""}
+                            src={selectedUser.image ?? ""}
+                            alt={selectedUser.name}
                           />
                           <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                            {getInitials(selectedUser?.user?.name)}
+                            {getInitials(selectedUser.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span>{selectedUser.user?.name}</span>
+                        <span>{selectedUser.name}</span>
                       </>
                     ) : (
                       <>
@@ -1280,26 +1311,26 @@ function CreateTaskModalContent({
                       <span className="text-sm">
                         {t("common:modals.createTask.assignUnassigned")}
                       </span>
-                      {!assigneeId && <Check className="ml-auto h-4 w-4" />}
+                      {!selectedUser && <Check className="ml-auto h-4 w-4" />}
                     </button>
-                    {workspaceUsers?.members?.map((member) => (
+                    {assigneeOptions.map((member) => (
                       <button
-                        key={member.userId}
+                        key={member.id}
                         type="button"
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => setAssigneeId(member.userId || "")}
+                        onClick={() => setAssigneeId(member.id)}
                       >
                         <Avatar className="h-6 w-6">
                           <AvatarImage
-                            src={member?.user?.image ?? ""}
-                            alt={member?.user?.name || ""}
+                            src={member.image ?? ""}
+                            alt={member.name}
                           />
                           <AvatarFallback className="text-xs font-medium border border-border/30">
-                            {getInitials(member?.user?.name)}
+                            {getInitials(member.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{member?.user?.name}</span>
-                        {assigneeId === member.userId && (
+                        <span className="text-sm">{member.name}</span>
+                        {selectedUser?.id === member.id && (
                           <Check className="ml-auto h-4 w-4" />
                         )}
                       </button>
@@ -1534,6 +1565,7 @@ function CreateTaskModalContent({
               disabled={
                 !title.trim() ||
                 !resolvedProjectId ||
+                assigneeUnconfirmed ||
                 isSubmitting ||
                 awaitingColumns ||
                 isPreparingDraft

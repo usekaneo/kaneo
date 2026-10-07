@@ -41,10 +41,18 @@ import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
 } from "./billing/controllers/find-billable-workspaces";
-import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
+import { applyInvitationProjectAccess } from "./project-access/apply-invitation-project-access";
+import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
+import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
+import { isOwnerRole } from "./project-access/is-owner-role";
+import { publishMemberProjects } from "./project-access/publish-member-projects";
+import { handleMemberAdded } from "./workspace-members/handle-member-added";
+import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
+import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
+import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -409,6 +417,20 @@ export const auth = betterAuth({
           fields: {
             organizationId: "workspaceId",
           },
+          additionalFields: {
+            projectAccess: {
+              type: "string",
+              input: true,
+              required: false,
+              defaultValue: "all",
+            },
+            projectIds: {
+              type: "string[]",
+              input: true,
+              required: false,
+              defaultValue: [],
+            },
+          },
         },
         organizationRole: {
           modelName: "workspace_role",
@@ -539,24 +561,37 @@ export const auth = betterAuth({
             ),
           );
         },
+        beforeCreateInvitation: async ({ invitation }) => {
+          const access = await resolveInvitationProjectAccess(invitation);
+          return { data: access };
+        },
+        beforeAcceptInvitation: async ({ invitation, user }) => {
+          await applyInvitationProjectAccess(invitation, user.id);
+        },
+        afterAcceptInvitation: async ({ member }) => {
+          await publishMemberProjects(
+            member.organizationId,
+            member.userId,
+          ).catch((error) => {
+            console.error("Project member refresh failed:", error);
+          });
+        },
+        afterUpdateMemberRole: async ({ member }) => {
+          if (isOwnerRole(member.role)) {
+            await handleOwnerPromoted(member.organizationId, member.userId);
+          }
+        },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member add failed:", error);
-            });
+            await handleMemberAdded(member.organizationId, member.userId);
           }
         },
         afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
-            if (!hasInstanceAdminRole(user.role)) {
-              await revokeWorkspaceConnections(
-                member.userId,
-                member.organizationId,
-                { role: user.role ?? null },
-              );
-            }
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member remove failed:", error);
+            await handleMemberRemoved({
+              workspaceId: member.organizationId,
+              userId: member.userId,
+              userRole: user.role,
             });
           }
         },
@@ -845,6 +880,22 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (
+        ctx.path === "/organization/list-invitations" ||
+        ctx.path === "/organization/get-full-organization"
+      ) {
+        const viewer = await getSessionFromCtx(ctx);
+        const returned = ctx.context.returned as
+          | { invitations?: unknown }
+          | unknown[]
+          | null;
+        if (viewer)
+          await hideInaccessibleInvitationProjects(
+            viewer.user.id,
+            Array.isArray(returned) ? returned : returned?.invitations,
+          );
+      }
+
       if (ctx.path === "/organization/leave") {
         // The successful endpoint returns the removed member. No post-delete
         // query may prevent revocation after membership has already committed.
@@ -856,6 +907,12 @@ export const auth = betterAuth({
           typeof removed.organizationId === "string" &&
           removed.organizationId === ctx.body?.organizationId
         ) {
+          await clearMemberProjectAccess(
+            removed.organizationId,
+            removed.userId,
+          ).catch((error) => {
+            console.error("Project access cleanup failed:", error);
+          });
           await revokeWorkspaceConnections(
             removed.userId,
             removed.organizationId,

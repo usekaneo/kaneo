@@ -122,6 +122,13 @@ describe("awaited label deletion broadcasts", () => {
   });
 });
 
+vi.mock(
+  "../../../apps/api/src/project-access/filter-users-with-project-access",
+  () => ({
+    filterUsersWithProjectAccess: async (userIds: Iterable<string>) =>
+      new Set(userIds),
+  }),
+);
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: (fields: Record<string, unknown>) => ({
