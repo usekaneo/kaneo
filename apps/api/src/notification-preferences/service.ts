@@ -9,6 +9,9 @@ import {
   workspaceUserTable,
 } from "../database/schema";
 import { assertPublicWebhookDestination } from "../plugins/generic-webhook/config";
+import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
+import { projectAccessCondition } from "../project-access/project-access-condition";
+import { findHiddenRuleProjectIds } from "./find-hidden-rule-project-ids";
 import { decryptSecret, encryptSecret } from "./secrets";
 
 export type NotificationPreferenceProjectMode = "all" | "selected";
@@ -136,10 +139,12 @@ async function assertWorkspaceMembership(userId: string, workspaceId: string) {
 }
 
 export async function validateProjectSelection(
+  userId: string,
   workspaceId: string,
   selectedProjectIds: string[],
+  hiddenProjectIds: string[] = [],
 ) {
-  if (selectedProjectIds.length === 0) {
+  if (selectedProjectIds.length === 0 && hiddenProjectIds.length === 0) {
     throw new HTTPException(400, {
       message: "Select at least one project for selected project mode",
     });
@@ -152,10 +157,11 @@ export async function validateProjectSelection(
       and(
         eq(projectTable.workspaceId, workspaceId),
         inArray(projectTable.id, selectedProjectIds),
+        projectAccessCondition(userId, projectTable.id),
       ),
     );
 
-  if (projects.length !== selectedProjectIds.length) {
+  if (projects.length !== new Set(selectedProjectIds).size) {
     throw new HTTPException(400, {
       message: "One or more selected projects are invalid",
     });
@@ -187,6 +193,14 @@ export async function getNotificationPreferences(
     },
     orderBy: (table, { asc }) => [asc(table.createdAt)],
   });
+  const hiddenProjectIds = new Set(
+    await findInaccessibleProjectIds(
+      userId,
+      rules.flatMap((rule) =>
+        rule.selectedProjects.map((project) => project.projectId),
+      ),
+    ),
+  );
 
   return {
     emailAddress,
@@ -228,9 +242,9 @@ export async function getNotificationPreferences(
       webhookEnabled: rule.webhookEnabled ?? false,
       projectMode:
         rule.projectMode === "selected" ? "selected" : ("all" as const),
-      selectedProjectIds: rule.selectedProjects.map(
-        (project) => project.projectId,
-      ),
+      selectedProjectIds: rule.selectedProjects
+        .map((project) => project.projectId)
+        .filter((projectId) => !hiddenProjectIds.has(projectId)),
       createdAt: rule.createdAt,
       updatedAt: rule.updatedAt,
     })),
@@ -512,8 +526,20 @@ export async function upsertWorkspaceRule(
 ): Promise<NotificationPreferenceResponse> {
   await assertWorkspaceMembership(userId, workspaceId);
 
+  const hiddenProjectIds =
+    input.projectMode === "selected"
+      ? await findHiddenRuleProjectIds(userId, workspaceId)
+      : [];
+  const visibleProjectIds = (input.selectedProjectIds ?? []).filter(
+    (projectId) => !hiddenProjectIds.includes(projectId),
+  );
   if (input.projectMode === "selected") {
-    await validateProjectSelection(workspaceId, input.selectedProjectIds ?? []);
+    await validateProjectSelection(
+      userId,
+      workspaceId,
+      visibleProjectIds,
+      hiddenProjectIds,
+    );
   }
 
   const preference = await db.query.userNotificationPreferenceTable.findFirst({
@@ -615,11 +641,13 @@ export async function upsertWorkspaceRule(
 
   if (input.projectMode === "selected") {
     await db.insert(userNotificationWorkspaceProjectTable).values(
-      (input.selectedProjectIds ?? []).map((projectId) => ({
-        workspaceId,
-        workspaceRuleId,
-        projectId,
-      })),
+      [...new Set([...visibleProjectIds, ...hiddenProjectIds])].map(
+        (projectId) => ({
+          workspaceId,
+          workspaceRuleId,
+          projectId,
+        }),
+      ),
     );
   }
 

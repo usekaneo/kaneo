@@ -275,6 +275,11 @@ export const invitationTable = pgTable(
     inviterId: text("inviter_id")
       .notNull()
       .references(() => userTable.id, { onDelete: "cascade" }),
+    projectAccess: text("project_access").default("all").notNull(),
+    projectIds: text("project_ids")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
   },
   (table) => [
     index("invitation_workspaceId_idx").on(table.workspaceId),
@@ -343,6 +348,63 @@ export const projectTable = pgTable(
       table.workspaceId,
       table.position,
     ),
+  ],
+);
+
+export const workspaceMemberAccessTable = pgTable(
+  "workspace_member_access",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectAccess: text("project_access").default("all").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("workspace_member_access_workspace_user_unique").on(
+      table.workspaceId,
+      table.userId,
+    ),
+    index("workspace_member_access_userId_idx").on(table.userId),
+  ],
+);
+
+export const workspaceMemberProjectTable = pgTable(
+  "workspace_member_project",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.workspaceId, table.projectId],
+      foreignColumns: [projectTable.workspaceId, projectTable.id],
+    })
+      .onDelete("cascade")
+      .onUpdate("cascade"),
+    unique("workspace_member_project_workspace_user_project_unique").on(
+      table.workspaceId,
+      table.userId,
+      table.projectId,
+    ),
+    index("workspace_member_project_projectId_idx").on(table.projectId),
   ],
 );
 
@@ -464,6 +526,11 @@ export const taskTable = pgTable(
   },
   (table) => [
     index("task_projectId_idx").on(table.projectId),
+    index("task_project_scheduled_id_idx")
+      .on(table.projectId, table.id)
+      .where(
+        sql`${table.startDate} is not null or ${table.dueDate} is not null`,
+      ),
     index("task_dueDate_idx").on(table.dueDate),
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),

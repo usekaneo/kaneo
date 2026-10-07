@@ -17,6 +17,7 @@ const mockRemoveLabelFromGitHub = vi.fn();
 const mockRemoveLabelFromGitea = vi.fn();
 const mockSyncLabelToGitHub = vi.fn();
 const mockSyncLabelToGitea = vi.fn();
+const mockAssertProjectAccess = vi.fn();
 
 function createMockTxContext() {
   return {
@@ -52,6 +53,10 @@ vi.mock("../../../apps/api/src/database", () => ({
 
 vi.mock("../../../apps/api/src/events", () => ({
   publishEvent: (...args: unknown[]) => mockPublishEvent(...args),
+}));
+
+vi.mock("../../../apps/api/src/project-access/assert-project-access", () => ({
+  assertProjectAccess: (...args: unknown[]) => mockAssertProjectAccess(...args),
 }));
 
 vi.mock(
@@ -351,6 +356,25 @@ describe("assignLabelToTask", () => {
 
     expect(mockDelete).not.toHaveBeenCalled();
     expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it("rejects a target task in a project the caller cannot access", async () => {
+    mockFindFirst.mockResolvedValue(WORKSPACE_LABEL);
+    mockSelect.mockReturnValue(makeSelectMock([TASK]));
+    mockAssertProjectAccess.mockRejectedValue(
+      Object.assign(new Error("You don't have access to this project"), {
+        status: 403,
+      }),
+    );
+
+    await expect(
+      assignLabelToTask("label-ws-1", "task-1", "user-1"),
+    ).rejects.toMatchObject({ status: 403 });
+
+    expect(mockAssertProjectAccess).toHaveBeenCalledWith("user-1", "proj-1");
+    expect(mockTransaction).not.toHaveBeenCalled();
+    expect(mockInsert).not.toHaveBeenCalled();
+    expect(mockPublishEvent).not.toHaveBeenCalled();
   });
 });
 

@@ -2,6 +2,7 @@ import { eq, max, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable } from "../../database/schema";
+import { grantProjectToRestrictedMember } from "../../project-access/grant-project-to-restricted-member";
 import { findProjectKeyConflict, projectKeyTakenMessage } from "../project-key";
 
 export const DEFAULT_PROJECT_COLUMNS = [
@@ -16,6 +17,7 @@ async function createProject(
   name: string,
   icon: string,
   slug: string,
+  userId: string,
 ) {
   return db.transaction(async (tx) => {
     // Serialize ordering writes per workspace: without this, two concurrent
@@ -60,6 +62,12 @@ async function createProject(
           isFinal: col.isFinal,
         });
       }
+
+      await grantProjectToRestrictedMember(tx, {
+        workspaceId,
+        userId,
+        projectId: createdProject.id,
+      });
     }
 
     return createdProject;

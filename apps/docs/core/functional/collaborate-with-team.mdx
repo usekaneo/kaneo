@@ -9,8 +9,9 @@ Membership belongs to a workspace. Make sure the workspace name at the top of th
 
 1. Open **Members** in the workspace sidebar.
 2. Choose **Invite member** and enter their email address.
-3. Create the invitation, then copy the link shown in the dialog.
-4. Share the link with that person. With SMTP configured, the instance can also send an invitation email.
+3. Under **Project access**, keep **All projects** or choose **Selected projects** and pick the projects they need. See [Limit a member to selected projects](#limit-a-member-to-selected-projects).
+4. Create the invitation, then copy the link shown in the dialog.
+5. Share the link with that person. With SMTP configured, the instance can also send an invitation email.
 
 The person must sign in or sign up with the invited email address and accept the invitation. New invitations created from this dialog use the **Member** role. You can change the role after the person joins.
 
@@ -42,6 +43,29 @@ These are the starting permissions. An administrator can edit the **Viewer**, **
 
 Task assignment and deletion are separate permissions. A member who can edit a task may still be unable to assign or delete it.
 
+## Limit a member to selected projects
+
+By default, members can open every project in the workspace, including projects created later. To invite a client or contractor without showing them unrelated work, limit them to selected projects:
+
+1. Open **Members** in the workspace sidebar.
+2. In the **Projects** column, choose the member's current access, for example **All projects**.
+3. Choose **Selected projects**, tick the projects they should see, and choose **Save**.
+
+If a limited member opens a link to another project, they see **You don't have access to this project** and can ask a workspace admin for access.
+
+A limited member only sees those projects: their boards, tasks, comments, activity, search results, notifications, and **My tasks**. The same limit applies to their API keys and MCP clients, and a board they have open closes as soon as you remove the project.
+
+Project access works alongside roles. The role decides what someone can do; project access decides where. A limited member who can create projects keeps access to the projects they create.
+
+Some rules keep this predictable:
+
+- Owners always have access to every project.
+- You need permission to change roles, and you can't change your own project access.
+- If your own access is limited, you can only give others access to projects you can open, and you can't give anyone **All projects** or limit someone who has it. Projects you can't open stay as they are on the member you edit.
+- Tasks can only be assigned to people who can see the project. Limiting someone unassigns them from tasks in the projects they lose, and moving a task into a project its assignee can't see unassigns it.
+
+Project access set on an invitation applies when the person accepts it. To change it before then, cancel the invitation and invite them again.
+
 ## Edit roles or create a custom role
 
 Open **Settings → Workspace → Roles** to inspect the permissions behind a role. If you have role-management permission, you can change the editable roles or create a custom one.
@@ -52,7 +76,7 @@ Give people the access their work needs. For example, a reviewer may only need t
 
 In **Members**, use the member's menu to remove them and confirm the action. They lose membership in this workspace, but their Kaneo account is not deleted.
 
-To change the owner, use **Settings → Workspace → General → Transfer ownership**. Transfer ownership before leaving or deleting your account if you are the only owner of a shared workspace.
+To change the owner, use **Settings → Workspace → General → Transfer ownership**. Transfer ownership before leaving or deleting your account if you are the only owner of a shared workspace. If the owner has already left, an instance administrator can transfer ownership for them. See [Administer users and workspaces](/core/operations/administration#manage-workspaces).
 
 ## Keep the conversation with the work
 

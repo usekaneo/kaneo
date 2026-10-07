@@ -186,7 +186,9 @@ export function InboxTask({ taskId, workspaceId }: InboxTaskProps) {
             </Timeline>
           )
         )}
-        {canUpdateTasks() && <CommentInput taskId={taskId} />}
+        {canUpdateTasks() && (
+          <CommentInput taskId={taskId} projectId={task?.projectId} />
+        )}
       </div>
     </div>
   );

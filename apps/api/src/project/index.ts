@@ -178,7 +178,7 @@ const reorderProjectsRoute = createRoute({
     200: jsonResponse("The reordered projects", z.array(projectSchema)),
     400: errorResponse("Invalid body, or workspace ID could not be determined"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No workspace access, missing project:update permission, or no access to a listed project",
     ),
   },
 });
@@ -436,6 +436,7 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     const { includeArchived } = c.req.valid("query");
     const projects = await getProjectsCtrl(
       workspaceId,
+      c.get("userId"),
       includeArchived === "true",
     );
     return c.json(projects.map(toPublicProject), 200);
@@ -443,7 +444,13 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(createProjectRoute, async (c) => {
     const { name, icon, slug } = c.req.valid("json");
     const workspaceId = c.get("workspaceId");
-    const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
+    const newProject = await createProjectCtrl(
+      workspaceId,
+      name,
+      icon,
+      slug,
+      c.get("userId"),
+    );
     return c.json(toPublicProject(newProject), 200);
   })
   .openapi(getProjectRoute, async (c) => {
@@ -520,7 +527,11 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(reorderProjectsRoute, async (c) => {
     const workspaceId = c.get("workspaceId");
     const { projects } = c.req.valid("json");
-    const reordered = await reorderProjectsCtrl(workspaceId, projects);
+    const reordered = await reorderProjectsCtrl(
+      workspaceId,
+      c.get("userId"),
+      projects,
+    );
     return c.json(reordered.map(toPublicProject), 200);
   })
   .openapi(updateProjectRoute, async (c) => {

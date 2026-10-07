@@ -1754,7 +1754,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1765,6 +1765,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -1940,7 +1941,99 @@
 			"loadSavedRules": "Load saved rules",
 			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
 		},
-		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces.",
+		"adminWorkspaces": {
+			"addMember": {
+				"adding": "Adding…",
+				"alreadyMember": "Already a member",
+				"description": "Add an existing user to {{name}}. They can access every project until you limit them.",
+				"noUsers": "No users found",
+				"role": "Role",
+				"searching": "Searching users…",
+				"submit": "Add member",
+				"title": "Add member",
+				"user": "User",
+				"userPlaceholder": "Search name or email…",
+				"usersError": "Users could not be loaded."
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"created": "Created",
+				"members": "Members",
+				"owners": "Owners",
+				"projects": "Projects",
+				"workspace": "Workspace"
+			},
+			"confirm": {
+				"remove": {
+					"action": "Remove member",
+					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
+					"title": "Remove {{name}}?"
+				},
+				"transfer": {
+					"action": "Make owner",
+					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
+					"title": "Make {{name}} the owner?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "Workspace directory",
+			"emptyDescription": "Try another name or slug.",
+			"emptyTitle": "No workspaces found",
+			"instanceBadge": "Instance",
+			"loadError": "Workspaces could not be loaded.",
+			"manage": "Manage",
+			"manageLabel": "Manage {{name}}",
+			"members": {
+				"actions": "Actions for {{name}}",
+				"add": "Add member",
+				"columns": {
+					"actions": "Actions",
+					"joined": "Joined",
+					"member": "Member",
+					"projects": "Projects",
+					"role": "Role"
+				},
+				"count_many": "{{count}} members",
+				"count_one": "{{count}} member",
+				"count_other": "{{count}} members",
+				"description": "Change roles, project access, and ownership, even if you aren't a member of this workspace.",
+				"editAccess": "Change project access for {{name}} ({{access}})",
+				"empty": "This workspace has no members.",
+				"loadError": "Members could not be loaded.",
+				"makeOwner": "Make owner",
+				"remove": "Remove from workspace",
+				"roleLabel": "Role for {{name}}",
+				"title": "Members of {{name}}"
+			},
+			"next": "Next",
+			"noOwner": "No owner",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing workspaces",
+			"retry": "Retry",
+			"searchCount_many": "{{count}} matching workspaces",
+			"searchCount_one": "{{count}} matching workspace",
+			"searchCount_other": "{{count}} matching workspaces",
+			"searchLabel": "Search workspaces",
+			"searchPlaceholder": "Search name or slug…",
+			"subtitle": "Manage every workspace on this Kaneo instance, including ones you don't belong to.",
+			"title": "Workspace management",
+			"toast": {
+				"added": "Member added",
+				"addError": "Failed to add member",
+				"ownershipTransferred": "Ownership transferred",
+				"removed": "Member removed",
+				"removeError": "Failed to remove member",
+				"roleError": "Failed to update role",
+				"roleUpdated": "Role updated",
+				"transferError": "Failed to transfer ownership"
+			},
+			"workspaceCount_many": "{{count}} workspaces",
+			"workspaceCount_one": "{{count}} workspace",
+			"workspaceCount_other": "{{count}} workspaces"
+		}
 	},
 	"navigation": {
 		"commandPalette": {
@@ -2249,7 +2342,8 @@
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "comentou no {{forge}}"
-		}
+		},
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
 		"title": "Tarefas",
@@ -2773,7 +2867,14 @@
 			},
 			"noDueDate": "Sem data de vencimento",
 			"reorderHandle": "Reordenar projeto",
-			"reorderError": "Falha ao reordenar os projetos"
+			"reorderError": "Falha ao reordenar os projetos",
+			"unavailable": {
+				"backToWorkspace": "Back to workspace",
+				"noAccessDescription": "Ask a workspace admin to give you access.",
+				"noAccessTitle": "You don't have access to this project",
+				"notFoundDescription": "This project doesn't exist or has been deleted.",
+				"notFoundTitle": "Project not found"
+			}
 		},
 		"search": {
 			"pageTitle": "Buscar",
@@ -2907,7 +3008,8 @@
 				"name": "Nome",
 				"role": "Função",
 				"joined": "Entrou em",
-				"actions": "Ações"
+				"actions": "Ações",
+				"projects": "Projects"
 			},
 			"memberRolePending": "{{role}} (Pendente)",
 			"ariaCancelInvitation": "Cancelar convite",
@@ -2925,6 +3027,28 @@
 			"cancelInviteError": "Falha ao cancelar convite",
 			"roleUpdateSuccess": "Função atualizada",
 			"roleUpdateError": "Falha ao atualizar função"
+		},
+		"projectAccess": {
+			"allProjects": "All projects",
+			"allProjectsDescription": "Access every project in this workspace, including new ones.",
+			"description": "Choose which projects this person can see.",
+			"dialogDescription": "Choose which projects {{name}} can access.",
+			"dialogTitle": "Project access",
+			"editAria": "Change project access for {{name}} ({{access}})",
+			"label": "Project access",
+			"noProjects": "No projects in this workspace yet.",
+			"projectCount_many": "{{count}} projects",
+			"projectCount_one": "{{count}} project",
+			"projectCount_other": "{{count}} projects",
+			"projectsLabel": "Projects",
+			"save": "Save",
+			"selectAtLeastOne": "Choose at least one project.",
+			"selectedProjects": "Selected projects",
+			"selectedProjectsDescription": "Only access the projects you choose.",
+			"updateError": "Failed to update project access",
+			"updateSuccess": "Project access updated",
+			"archived": "Archived",
+			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
 		}
 	},
 	"publicProject": {

@@ -2267,6 +2267,388 @@
 						"toast"
 					]
 				},
+				"adminWorkspaces": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"instanceBadge": {
+							"type": "string"
+						},
+						"directoryTitle": {
+							"type": "string"
+						},
+						"workspaceCount_one": {
+							"type": "string"
+						},
+						"workspaceCount_zero": {
+							"type": "string"
+						},
+						"workspaceCount_two": {
+							"type": "string"
+						},
+						"workspaceCount_few": {
+							"type": "string"
+						},
+						"workspaceCount_many": {
+							"type": "string"
+						},
+						"workspaceCount_other": {
+							"type": "string"
+						},
+						"searchCount_one": {
+							"type": "string"
+						},
+						"searchCount_zero": {
+							"type": "string"
+						},
+						"searchCount_two": {
+							"type": "string"
+						},
+						"searchCount_few": {
+							"type": "string"
+						},
+						"searchCount_many": {
+							"type": "string"
+						},
+						"searchCount_other": {
+							"type": "string"
+						},
+						"refreshing": {
+							"type": "string"
+						},
+						"searchPlaceholder": {
+							"type": "string"
+						},
+						"searchLabel": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"emptyTitle": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"clearSearch": {
+							"type": "string"
+						},
+						"previous": {
+							"type": "string"
+						},
+						"next": {
+							"type": "string"
+						},
+						"pagination": {
+							"type": "string"
+						},
+						"noOwner": {
+							"type": "string"
+						},
+						"manage": {
+							"type": "string"
+						},
+						"manageLabel": {
+							"type": "string"
+						},
+						"columns": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"workspace": {
+									"type": "string"
+								},
+								"owners": {
+									"type": "string"
+								},
+								"members": {
+									"type": "string"
+								},
+								"projects": {
+									"type": "string"
+								},
+								"created": {
+									"type": "string"
+								},
+								"actions": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"workspace",
+								"owners",
+								"members",
+								"projects",
+								"created",
+								"actions"
+							]
+						},
+						"members": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"count_one": {
+									"type": "string"
+								},
+								"count_zero": {
+									"type": "string"
+								},
+								"count_two": {
+									"type": "string"
+								},
+								"count_few": {
+									"type": "string"
+								},
+								"count_many": {
+									"type": "string"
+								},
+								"count_other": {
+									"type": "string"
+								},
+								"add": {
+									"type": "string"
+								},
+								"loadError": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"columns": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"member": {
+											"type": "string"
+										},
+										"role": {
+											"type": "string"
+										},
+										"projects": {
+											"type": "string"
+										},
+										"joined": {
+											"type": "string"
+										},
+										"actions": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"member",
+										"role",
+										"projects",
+										"joined",
+										"actions"
+									]
+								},
+								"roleLabel": {
+									"type": "string"
+								},
+								"editAccess": {
+									"type": "string"
+								},
+								"actions": {
+									"type": "string"
+								},
+								"makeOwner": {
+									"type": "string"
+								},
+								"remove": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"add",
+								"loadError",
+								"empty",
+								"columns",
+								"roleLabel",
+								"editAccess",
+								"actions",
+								"makeOwner",
+								"remove"
+							]
+						},
+						"addMember": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"user": {
+									"type": "string"
+								},
+								"userPlaceholder": {
+									"type": "string"
+								},
+								"searching": {
+									"type": "string"
+								},
+								"usersError": {
+									"type": "string"
+								},
+								"noUsers": {
+									"type": "string"
+								},
+								"alreadyMember": {
+									"type": "string"
+								},
+								"role": {
+									"type": "string"
+								},
+								"submit": {
+									"type": "string"
+								},
+								"adding": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"user",
+								"userPlaceholder",
+								"searching",
+								"usersError",
+								"noUsers",
+								"alreadyMember",
+								"role",
+								"submit",
+								"adding"
+							]
+						},
+						"confirm": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"working": {
+									"type": "string"
+								},
+								"transfer": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"action": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description", "action"]
+								},
+								"remove": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"action": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description", "action"]
+								}
+							},
+							"required": ["working", "transfer", "remove"]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"added": {
+									"type": "string"
+								},
+								"addError": {
+									"type": "string"
+								},
+								"roleUpdated": {
+									"type": "string"
+								},
+								"roleError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								},
+								"ownershipTransferred": {
+									"type": "string"
+								},
+								"transferError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"added",
+								"addError",
+								"roleUpdated",
+								"roleError",
+								"removed",
+								"removeError",
+								"ownershipTransferred",
+								"transferError"
+							]
+						}
+					},
+					"required": [
+						"title",
+						"subtitle",
+						"instanceBadge",
+						"directoryTitle",
+						"refreshing",
+						"searchPlaceholder",
+						"searchLabel",
+						"loadError",
+						"retry",
+						"emptyTitle",
+						"emptyDescription",
+						"clearSearch",
+						"previous",
+						"next",
+						"pagination",
+						"noOwner",
+						"manage",
+						"manageLabel",
+						"columns",
+						"members",
+						"addMember",
+						"confirm",
+						"toast"
+					]
+				},
 				"informationPage": {
 					"type": "object",
 					"additionalProperties": false,
@@ -7294,6 +7676,9 @@
 						"activeFeeds": {
 							"type": "string"
 						},
+						"allScheduledTasks": {
+							"type": "string"
+						},
 						"subscribeHint": {
 							"type": "string"
 						},
@@ -7346,6 +7731,7 @@
 						"created",
 						"createError",
 						"activeFeeds",
+						"allScheduledTasks",
 						"subscribeHint",
 						"empty",
 						"feedUrl",
@@ -7792,6 +8178,7 @@
 				"preferences",
 				"apiKeys",
 				"adminUsers",
+				"adminWorkspaces",
 				"informationPage",
 				"notificationsPage",
 				"preferencesPage",
@@ -8644,6 +9031,9 @@
 				"moved": {
 					"type": "string"
 				},
+				"movedFromOtherProject": {
+					"type": "string"
+				},
 				"created": {
 					"type": "string"
 				},
@@ -9064,6 +9454,7 @@
 				"changedDueDate",
 				"changedTitle",
 				"moved",
+				"movedFromOtherProject",
 				"created",
 				"githubUser",
 				"comment"
@@ -10618,9 +11009,12 @@
 					"properties": {
 						"addTask": {
 							"type": "string"
+						},
+						"automaticallySortedHint": {
+							"type": "string"
 						}
 					},
-					"required": ["addTask"]
+					"required": ["addTask", "automaticallySortedHint"]
 				},
 				"pr": {
 					"type": "object",
@@ -11346,6 +11740,34 @@
 						},
 						"reorderError": {
 							"type": "string"
+						},
+						"unavailable": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"noAccessTitle": {
+									"type": "string"
+								},
+								"noAccessDescription": {
+									"type": "string"
+								},
+								"notFoundTitle": {
+									"type": "string"
+								},
+								"notFoundDescription": {
+									"type": "string"
+								},
+								"backToWorkspace": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"noAccessTitle",
+								"noAccessDescription",
+								"notFoundTitle",
+								"notFoundDescription",
+								"backToWorkspace"
+							]
 						}
 					},
 					"required": [
@@ -11362,7 +11784,8 @@
 						"projectStatus",
 						"noDueDate",
 						"reorderHandle",
-						"reorderError"
+						"reorderError",
+						"unavailable"
 					]
 				},
 				"search": {
@@ -11885,9 +12308,12 @@
 								},
 								"actions": {
 									"type": "string"
+								},
+								"projects": {
+									"type": "string"
 								}
 							},
-							"required": ["name", "role", "joined", "actions"]
+							"required": ["name", "role", "joined", "actions", "projects"]
 						},
 						"memberRolePending": {
 							"type": "string"
@@ -11959,6 +12385,100 @@
 						"roleUpdateSuccess",
 						"roleUpdateError"
 					]
+				},
+				"projectAccess": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"label": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"allProjects": {
+							"type": "string"
+						},
+						"allProjectsDescription": {
+							"type": "string"
+						},
+						"allProjectsUnavailable": {
+							"type": "string"
+						},
+						"selectedProjects": {
+							"type": "string"
+						},
+						"selectedProjectsDescription": {
+							"type": "string"
+						},
+						"projectsLabel": {
+							"type": "string"
+						},
+						"noProjects": {
+							"type": "string"
+						},
+						"archived": {
+							"type": "string"
+						},
+						"selectAtLeastOne": {
+							"type": "string"
+						},
+						"projectCount_one": {
+							"type": "string"
+						},
+						"projectCount_zero": {
+							"type": "string"
+						},
+						"projectCount_two": {
+							"type": "string"
+						},
+						"projectCount_few": {
+							"type": "string"
+						},
+						"projectCount_many": {
+							"type": "string"
+						},
+						"projectCount_other": {
+							"type": "string"
+						},
+						"editAria": {
+							"type": "string"
+						},
+						"dialogTitle": {
+							"type": "string"
+						},
+						"dialogDescription": {
+							"type": "string"
+						},
+						"save": {
+							"type": "string"
+						},
+						"updateSuccess": {
+							"type": "string"
+						},
+						"updateError": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"label",
+						"description",
+						"allProjects",
+						"allProjectsDescription",
+						"allProjectsUnavailable",
+						"selectedProjects",
+						"selectedProjectsDescription",
+						"projectsLabel",
+						"noProjects",
+						"archived",
+						"selectAtLeastOne",
+						"editAria",
+						"dialogTitle",
+						"dialogDescription",
+						"save",
+						"updateSuccess",
+						"updateError"
+					]
 				}
 			},
 			"required": [
@@ -11966,7 +12486,8 @@
 				"members",
 				"invitations",
 				"inviteModal",
-				"membersTable"
+				"membersTable",
+				"projectAccess"
 			]
 		},
 		"publicProject": {

@@ -217,13 +217,13 @@ it.each(cases)(
               await moveTask({
                 taskId: task.id,
                 destinationProjectId: destination.id,
-                userId: user.id,
+                currentUserId: user.id,
               });
               if (race === "returned")
                 await moveTask({
                   taskId: task.id,
                   destinationProjectId: project.id,
-                  userId: user.id,
+                  currentUserId: user.id,
                 });
               return transaction(apply, config);
             });
