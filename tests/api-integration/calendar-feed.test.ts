@@ -234,51 +234,57 @@ describe("API integration: calendar feeds", () => {
     );
   });
 
-  it("streams every task across batches once and bounds oversized Unicode text", async () => {
-    const { member, project, labels, app, create } = await setup();
-    const count = CALENDAR_TASK_BATCH_SIZE * 2 + 3;
-    const description =
-      "🚀".repeat(CALENDAR_DESCRIPTION_CHARACTERS) + "omitted".repeat(150_000);
-    const tasks = await db
-      .insert(schema.taskTable)
-      .values(
-        Array.from({ length: count }, (_, i) => ({
-          title: i === 0 ? "T".repeat(1100) : `Task ${i}`,
-          description:
-            i === 0 ? description : i === 1 ? "Short description" : null,
-          projectId: project.id,
-          number: i + 1,
-          dueDate: new Date("2026-09-23T00:00:00Z"),
-        })),
-      )
-      .returning();
-    await db.insert(schema.labelTable).values(
-      tasks.flatMap((task) =>
-        labels.map((label) => ({
-          name: label.name,
-          color: "gray",
-          workspaceId: member.workspace.id,
-          taskId: task.id,
-        })),
-      ),
-    );
-    const feed = (await (await create()).json()) as Feed;
-    const response = await app.request(feedPath(feed));
-    expect(response.status).toBe(200);
-    const text = await response.text();
-    const unfolded = text.replaceAll("\r\n ", "");
-    expect(text.match(/BEGIN:VEVENT/g)).toHaveLength(count);
-    for (const task of tasks)
-      expect(unfolded.split(`UID:${task.id}@kaneo\r\n`)).toHaveLength(2);
-    expect(unfolded).toContain(
-      `DESCRIPTION:${"🚀".repeat(CALENDAR_DESCRIPTION_CHARACTERS)}…\r\n`,
-    );
-    expect(unfolded).toContain("DESCRIPTION:Short description\r\n");
-    expect(unfolded).toContain(`SUMMARY:${"T".repeat(1024)}…\r\n`);
-    expect(unfolded).not.toContain("omitted");
-    expect(Buffer.byteLength(text)).toBeLessThan(100_000);
-    expect(text.endsWith("END:VCALENDAR\r\n")).toBe(true);
-  });
+  it.each([true, false])(
+    "streams every task across batches once and bounds oversized Unicode text (filtered: %s)",
+    async (filtered) => {
+      const { member, project, labels, app, create } = await setup();
+      const count = CALENDAR_TASK_BATCH_SIZE * 2 + 3;
+      const description =
+        "🚀".repeat(CALENDAR_DESCRIPTION_CHARACTERS) +
+        "omitted".repeat(150_000);
+      const tasks = await db
+        .insert(schema.taskTable)
+        .values(
+          Array.from({ length: count }, (_, i) => ({
+            title: i === 0 ? "T".repeat(1100) : `Task ${i}`,
+            description:
+              i === 0 ? description : i === 1 ? "Short description" : null,
+            projectId: project.id,
+            number: i + 1,
+            dueDate: new Date("2026-09-23T00:00:00Z"),
+          })),
+        )
+        .returning();
+      await db.insert(schema.labelTable).values(
+        tasks.flatMap((task) =>
+          labels.map((label) => ({
+            name: label.name,
+            color: "gray",
+            workspaceId: member.workspace.id,
+            taskId: task.id,
+          })),
+        ),
+      );
+      const feed = (await (
+        await create(filtered ? undefined : { labelIds: [] })
+      ).json()) as Feed;
+      const response = await app.request(feedPath(feed));
+      expect(response.status).toBe(200);
+      const text = await response.text();
+      const unfolded = text.replaceAll("\r\n ", "");
+      expect(text.match(/BEGIN:VEVENT/g)).toHaveLength(count);
+      for (const task of tasks)
+        expect(unfolded.split(`UID:${task.id}@kaneo\r\n`)).toHaveLength(2);
+      expect(unfolded).toContain(
+        `DESCRIPTION:${"🚀".repeat(CALENDAR_DESCRIPTION_CHARACTERS)}…\r\n`,
+      );
+      expect(unfolded).toContain("DESCRIPTION:Short description\r\n");
+      expect(unfolded).toContain(`SUMMARY:${"T".repeat(1024)}…\r\n`);
+      expect(unfolded).not.toContain("omitted");
+      expect(Buffer.byteLength(text)).toBeLessThan(100_000);
+      expect(text.endsWith("END:VCALENDAR\r\n")).toBe(true);
+    },
+  );
 
   it("preserves label renames and never broadens the feed when labels are deleted", async () => {
     const { member, project, labels, app, create } = await setup();
