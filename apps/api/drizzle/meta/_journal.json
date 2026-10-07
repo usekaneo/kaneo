@@ -435,6 +435,13 @@
       "when": 1791391236556,
       "tag": "0061_slim_yellowjacket",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1791392710461,
+      "tag": "0062_pink_agent_brand",
+      "breakpoints": true
     }
   ]
 }
