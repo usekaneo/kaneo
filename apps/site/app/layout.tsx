@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import { ThemeSync } from "@/components/landing/theme-sync";
 import { landing } from "@/lib/landing";
 import "./globals.css";
 
@@ -102,29 +103,26 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <head>
         <script
-          // eslint-disable-next-line react/no-danger -- This is necessary to apply the user's preferred color scheme before React hydration to prevent a flash of incorrect theme.
+          // eslint-disable-next-line react/no-danger -- Apply the theme before the page paints, including when JavaScript bundles load slowly.
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
+                var stored = null;
                 try {
-                  var media = window.matchMedia('(prefers-color-scheme: dark)');
-                  function applyTheme(isDark) {
-                    document.documentElement.classList.toggle('dark', isDark);
-                    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-                  }
-                  applyTheme(media.matches);
-                  if (media.addEventListener) {
-                    media.addEventListener('change', function(e) { applyTheme(e.matches); });
-                  } else if (media.addListener) {
-                    media.addListener(function(e) { applyTheme(e.matches); });
-                  }
+                  stored = localStorage.getItem('kaneo-site-theme');
                 } catch (e) {}
+                var isDark = stored === 'dark' || (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.classList.toggle('dark', isDark);
+                document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
               })();
             `,
           }}
         />
+      </head>
+      <body>
+        <ThemeSync />
         {children}
         <script
           type="application/ld+json"
