@@ -99,7 +99,7 @@ const calendarFeed = apiRouter<BaseVariables & { workspaceId: string }>()
       tags: ["Calendar feeds"],
       summary: "Create a calendar feed",
       description:
-        "Create a calendar subscription matching any selected label. Tasks need a start or due date. All-day dates use the supplied time zone. Creating a missing workspace label definition also requires label:create permission.",
+        "Create a calendar subscription matching any selected label, or all project tasks when no labels are selected. Tasks need a start or due date. All-day dates use the supplied time zone. Creating a missing workspace label definition also requires label:create permission.",
       middleware: sharingMiddleware,
       request: {
         params: calendarFeedProjectParam,

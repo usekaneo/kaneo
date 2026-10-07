@@ -523,6 +523,11 @@ export const taskTable = pgTable(
   },
   (table) => [
     index("task_projectId_idx").on(table.projectId),
+    index("task_project_scheduled_id_idx")
+      .on(table.projectId, table.id)
+      .where(
+        sql`${table.startDate} is not null or ${table.dueDate} is not null`,
+      ),
     index("task_dueDate_idx").on(table.dueDate),
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
