@@ -1,5 +1,22 @@
 import { PROJECT_ACCESS_MODES } from "../project-access/project-access-mode";
-import { z } from "../openapi";
+import { responseTimestamp, z } from "../openapi";
+
+export const workspaceSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    slug: z.string(),
+    logo: z.string().nullable(),
+    description: z.string().nullable(),
+    createdAt: responseTimestamp,
+    role: z.string().nullable().openapi({
+      description:
+        "The caller's workspace role: a built-in role (owner, admin, member, guest) or a custom role name. Null when an instance admin views a workspace they are not a member of.",
+    }),
+  })
+  .openapi("Workspace");
+
+export const workspaceListSchema = z.array(workspaceSchema);
 
 export const workspaceMemberSchema = z
   .object({

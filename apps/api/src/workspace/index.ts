@@ -9,12 +9,16 @@ import { listWorkspaceProjectAccess } from "../project-access/list-workspace-pro
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import getMyProjectAccessCtrl from "./controllers/get-my-project-access";
+import getWorkspaceCtrl from "./controllers/get-workspace";
 import getWorkspaceMembersCtrl from "./controllers/get-workspace-members";
+import listWorkspacesCtrl from "./controllers/list-workspaces";
 import updateMemberProjectAccessCtrl from "./controllers/update-member-project-access";
 import {
   memberProjectAccessListSchema,
   memberProjectAccessSchema,
+  workspaceListSchema,
   workspaceMemberListSchema,
+  workspaceSchema,
 } from "./response";
 import {
   updateMemberProjectAccessBody,
@@ -22,6 +26,36 @@ import {
   workspaceMemberParam,
   workspaceMembersQuery,
 } from "./schema";
+
+const listWorkspacesRoute = createRoute({
+  method: "get",
+  operationId: "listWorkspaces",
+  path: "/",
+  tags: ["Workspaces"],
+  summary: "List workspaces",
+  description:
+    "List the workspaces the caller is a member of, with the caller's role, sorted by name. Instance admins also only get the workspaces they are a member of.",
+  responses: {
+    200: jsonResponse("The caller's workspaces", workspaceListSchema),
+  },
+});
+
+const getWorkspaceRoute = createRoute({
+  method: "get",
+  operationId: "getWorkspace",
+  path: "/{workspaceId}",
+  tags: ["Workspaces"],
+  summary: "Get workspace",
+  description:
+    "Get a workspace the caller is a member of, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse("The workspace", workspaceSchema),
+    404: errorResponse(
+      "Workspace not found, or the caller is not a member of it",
+    ),
+  },
+});
 
 const getWorkspaceMembersRoute = createRoute({
   method: "get",
@@ -117,6 +151,15 @@ const updateMemberProjectAccessRoute = createRoute({
 });
 
 const workspace = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(listWorkspacesRoute, async (c) =>
+    c.json(await listWorkspacesCtrl(c.get("userId")), 200),
+  )
+  .openapi(getWorkspaceRoute, async (c) =>
+    c.json(
+      await getWorkspaceCtrl(c.req.valid("param").workspaceId, c.get("userId")),
+      200,
+    ),
+  )
   .openapi(getWorkspaceMembersRoute, async (c) =>
     c.json(
       await getWorkspaceMembersCtrl({

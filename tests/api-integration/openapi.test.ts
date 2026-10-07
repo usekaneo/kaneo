@@ -72,6 +72,8 @@ describe("Kaneo API OpenAPI spec", () => {
       "PATCH /task/bulk",
       "GET /search",
       "GET /notification",
+      "GET /workspace",
+      "GET /workspace/{workspaceId}",
       "POST /auth/organization/create",
     ]) {
       expect(keys.has(op), `missing operation ${op}`).toBe(true);
@@ -107,6 +109,7 @@ describe("Kaneo API OpenAPI spec", () => {
         "Notification",
         "Config",
         "SearchResult",
+        "Workspace",
         "WorkspaceMember",
         "MattermostIntegration",
       ]),
