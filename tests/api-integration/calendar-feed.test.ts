@@ -54,6 +54,86 @@ const feedPath = (feed: Feed) =>
 describe("API integration: calendar feeds", () => {
   beforeEach(resetTestDatabase);
 
+  it.each([{}, { labelIds: [] }])(
+    "includes all scheduled project tasks without label creation permission when labels are omitted or empty: %j",
+    async (body) => {
+      const { member, project, labels, session, app, create, endpoint } =
+        await setup("calendar-publisher");
+      await db.insert(schema.workspaceRoleTable).values({
+        workspaceId: member.workspace.id,
+        role: "calendar-publisher",
+        permission: JSON.stringify({ project: ["share"] }),
+      });
+      const { project: otherProject } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const foreign = await createWorkspaceMember();
+      const { project: foreignProject } = await createProjectFixture({
+        workspaceId: foreign.workspace.id,
+      });
+      const tasks = await db
+        .insert(schema.taskTable)
+        .values([
+          {
+            title: "Scheduled labeled",
+            projectId: project.id,
+            number: 1,
+            dueDate: new Date(),
+          },
+          {
+            title: "Scheduled unlabeled",
+            projectId: project.id,
+            number: 2,
+            startDate: new Date(),
+          },
+          { title: "Unscheduled", projectId: project.id, number: 3 },
+          {
+            title: "Other project",
+            projectId: otherProject.id,
+            dueDate: new Date(),
+          },
+          {
+            title: "Foreign workspace",
+            projectId: foreignProject.id,
+            dueDate: new Date(),
+          },
+        ])
+        .returning();
+      await db.insert(schema.labelTable).values({
+        name: labels[0].name,
+        color: "gray",
+        workspaceId: member.workspace.id,
+        taskId: tasks[0].id,
+      });
+      const response = await create(body);
+      expect(response.status).toBe(201);
+      const feed = (await response.json()) as Feed;
+      expect(feed.labelIds).toEqual([]);
+      expect(feed.timeZone).toBe("UTC");
+      expect(await (await app.request(endpoint)).json()).toEqual([feed]);
+      session.mockResolvedValue(null);
+      const calendar = await (await app.request(feedPath(feed))).text();
+      expect(calendar.match(/BEGIN:VEVENT/g)).toHaveLength(2);
+      expect(calendar).toContain("SUMMARY:Scheduled labeled");
+      expect(calendar).toContain("SUMMARY:Scheduled unlabeled");
+      expect(calendar).not.toContain("SUMMARY:Unscheduled");
+      expect(calendar).not.toContain("SUMMARY:Other project");
+      expect(calendar).not.toContain("SUMMARY:Foreign workspace");
+    },
+  );
+
+  it("creates a feed in a workspace with no labels", async () => {
+    const { labels, create } = await setup();
+    for (const label of labels)
+      await db
+        .delete(schema.labelTable)
+        .where(eq(schema.labelTable.id, label.id));
+    const response = await create({ labelIds: [] });
+    expect(response.status).toBe(201);
+    expect(((await response.json()) as Feed).labelIds).toEqual([]);
+    expect(await db.select().from(schema.labelTable)).toHaveLength(0);
+  });
+
   it("creates distinct persistent subscriptions and exposes only scheduled matching project tasks without a session", async () => {
     const { member, project, labels, session, app, create, endpoint } =
       await setup();
@@ -381,7 +461,7 @@ describe("API integration: calendar feeds", () => {
     ).toBe(400);
   });
 
-  it("rejects foreign-workspace labels, empty selections, and invalid time zones", async () => {
+  it("rejects foreign-workspace labels, invalid selections, and invalid time zones", async () => {
     const { create, labels } = await setup();
     const foreign = await createWorkspaceMember();
     const [foreignLabel] = await db
@@ -394,7 +474,7 @@ describe("API integration: calendar feeds", () => {
       .returning();
     for (const body of [
       { labelIds: [foreignLabel.id] },
-      { labelIds: [] },
+      { labelIds: [""] },
       { labelIds: ["missing"] },
       { labelIds: [labels[0].id], timeZone: "Not/A_Zone" },
       { labelIds: Array(101).fill(labels[0].id) },

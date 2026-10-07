@@ -7676,6 +7676,9 @@
 						"activeFeeds": {
 							"type": "string"
 						},
+						"allScheduledTasks": {
+							"type": "string"
+						},
 						"subscribeHint": {
 							"type": "string"
 						},
@@ -7728,6 +7731,7 @@
 						"created",
 						"createError",
 						"activeFeeds",
+						"allScheduledTasks",
 						"subscribeHint",
 						"empty",
 						"feedUrl",
