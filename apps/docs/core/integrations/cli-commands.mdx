@@ -1,0 +1,856 @@
+---
+title: CLI command reference
+description: Every kaneo command with its arguments and flags.
+---
+
+This page lists every command of the [Kaneo CLI](/core/integrations/cli) with its arguments and flags. Run any command with `--help` to see the same information in your terminal.
+
+## Conventions
+
+- `<task>` is a ticket ID such as `KAN-12`, or a task ID.
+- `-p`, `--project` takes a project key such as `KAN`, or a project ID. Without it, the CLI uses `KANEO_PROJECT` or the project in `.kaneo.json`.
+- Dates accept `YYYY-MM-DD`, `today`, `tomorrow` or a number of days ahead such as `+3d`. Edit commands also accept `none` to clear a date.
+- Arguments in `[brackets]` are optional. Many of them open a picker or a prompt when you run the command in a terminal. In scripts, pass them.
+- Commands that delete or remove data ask for confirmation in a terminal. In scripts they stop with an error until you pass `-y`, `--yes`.
+- Repeatable flags can be passed more than once.
+
+## Global flags
+
+These work with every command.
+
+| Flag | Description |
+| --- | --- |
+| `--json` | Print one JSON value on stdout. This is the default when stdout is not a terminal. |
+| `--human` | Print styled output even when stdout is not a terminal. |
+| `--jq <expression>` | Filter the JSON output with a jq expression. Turns on JSON mode. |
+| `--token <token>` | API key or access token to use instead of the stored login. |
+| `--api-url <url>` | Kaneo server URL. |
+| `-w`, `--workspace <id>` | Workspace ID. |
+| `--profile <name>` | Stored login to use. |
+| `-h`, `--help` | Show help for the command. |
+| `-v`, `--version` | Show the CLI version. |
+| `--completions <shell>` | Print a completion script for `bash`, `zsh`, `fish` or `sh`. |
+
+## Account and setup
+
+### `kaneo`
+
+Shows your account, workspace, open tasks and the main commands.
+
+### `kaneo login`
+
+```bash
+kaneo login [--no-browser]
+```
+
+Signs in with your browser and stores the login. `--no-browser` prints the sign-in link instead of opening a browser. Add `--api-url` for a self-hosted server, and `--profile` to store the login under a name other than `default`.
+
+### `kaneo logout`
+
+Signs out and forgets the stored token.
+
+### `kaneo whoami`
+
+Shows the account and server you are using. Terminals that can show images also show your avatar.
+
+### `kaneo context`
+
+Shows the server, web app, profile, account, workspace, project, config file and output mode in use, and where each value came from: a flag, an environment variable, `.kaneo.json` or the stored login.
+
+### `kaneo doctor`
+
+Checks the config file, that the server answers, that you are signed in, that the workspace exists, and that the server has every API operation this CLI uses. Exits with code 1 when a check fails.
+
+### `kaneo link`
+
+```bash
+kaneo link [-w <workspace>] [-p <project>]
+```
+
+Saves the workspace and project for this repository in `.kaneo.json`. In a terminal, missing values are picked from a list. In scripts, pass both. `-w` takes a workspace ID or slug here.
+
+### `kaneo unlink`
+
+```bash
+kaneo unlink [--yes]
+```
+
+Removes the workspace and project from `.kaneo.json`, and deletes the file when nothing else is left in it. It asks first in a terminal. In scripts it unlinks right away.
+
+### `kaneo profile list`
+
+Lists stored logins with the server and user of each.
+
+### `kaneo profile use`
+
+```bash
+kaneo profile use [<name>]
+```
+
+Switches the stored login your commands use.
+
+### `kaneo profile rename`
+
+```bash
+kaneo profile rename <old> <new>
+```
+
+Renames a stored login.
+
+### `kaneo profile remove`
+
+```bash
+kaneo profile remove <name> [--yes]
+```
+
+Signs out of a stored login and forgets it.
+
+## Tasks
+
+### `kaneo task list`
+
+```bash
+kaneo task list [-p <project>] [flags]
+```
+
+Lists a project's tasks grouped by column.
+
+| Flag | Description |
+| --- | --- |
+| `-p`, `--project` | Project key or ID |
+| `-s`, `--status` | Only tasks in this column, by slug, such as `in-progress` |
+| `--priority` | Only tasks with this priority: `no-priority`, `low`, `medium`, `high` or `urgent` |
+| `-a`, `--assignee` | Only tasks assigned to this user ID, or `me` |
+| `--mine` | Only tasks assigned to you, like `--assignee me` |
+| `-l`, `--label` | Only tasks with this label. Repeat to require several. |
+| `--open` | Hide tasks in done columns |
+| `--sort` | Sort by `created`, `priority`, `due`, `position`, `title` or `number` |
+| `--order` | `asc` or `desc`. Default: `desc` for `created` and `priority`, `asc` otherwise. |
+| `--due-before` | Only tasks due on or before this day |
+| `--due-after` | Only tasks due on or after this day |
+| `--all` | Show every matching task |
+| `-L`, `--limit` | Maximum number of tasks to show. Default: 50. |
+
+```bash
+kaneo task list -p KAN --mine --open --sort due
+```
+
+### `kaneo task mine`
+
+```bash
+kaneo task mine [--all-workspaces]
+```
+
+Lists the open tasks assigned to you in the current workspace, soonest due first. `--all-workspaces` includes every workspace you belong to.
+
+### `kaneo task view`
+
+```bash
+kaneo task view <task>
+```
+
+Shows a task with its details and description.
+
+### `kaneo task create`
+
+```bash
+kaneo task create [<title>] [flags]
+```
+
+Creates a task. In a terminal, the title is asked for when you leave it out.
+
+| Flag | Description |
+| --- | --- |
+| `-p`, `--project` | Project key or ID |
+| `-d`, `--description` | Description in Markdown, or `-` to read stdin |
+| `-F`, `--description-file` | Read the description from a file, or `-` for stdin |
+| `--priority` | `no-priority`, `low`, `medium`, `high` or `urgent` |
+| `-s`, `--status` | Column slug, such as `in-progress`. Default: the first column. |
+| `-a`, `--assignee` | `me`, or a member by email, name or ID |
+| `--due` | Due date |
+| `--start` | Start date |
+| `--label` | Add a workspace label by name. Repeatable. |
+| `--parent` | Create it as a subtask of this task, such as `KAN-12`. The project defaults to the parent's. |
+
+```bash
+kaneo task create "Fix login redirect" -p KAN --priority high --due tomorrow --label Bug
+```
+
+### `kaneo task edit`
+
+```bash
+kaneo task edit <task> [flags]
+```
+
+Changes a task's title, description, priority, dates or labels.
+
+| Flag | Description |
+| --- | --- |
+| `--title` | New title |
+| `-d`, `--description` | New description in Markdown, or `-` to read stdin. Replaces the current one. |
+| `-F`, `--description-file` | Read the new description from a file, or `-` for stdin |
+| `--priority` | New priority |
+| `--due` | Due date, or `none` to clear it |
+| `--start` | Start date, or `none` to clear it |
+| `--add-label` | Add a workspace label by name. Repeatable. |
+| `--remove-label` | Remove a label by name. Repeatable. |
+
+### `kaneo task open`
+
+```bash
+kaneo task open <task>
+```
+
+Opens the task in your browser.
+
+### `kaneo task status`
+
+```bash
+kaneo task status <task> [<status>]
+```
+
+Moves a task to another column of its project. The column is a slug or a name, such as `in-progress` or `Done`.
+
+### `kaneo task move`
+
+```bash
+kaneo task move <task> [-p <project>] [-s <status>]
+```
+
+Moves a task to another project. `-s`, `--status` picks the column in the destination project. By default the task keeps the same column, or goes to the first one.
+
+### `kaneo task duplicate`
+
+```bash
+kaneo task duplicate <task> [--title <title>] [-p <project>]
+```
+
+Copies a task with its description, labels and custom fields. `--title` sets the title of the copy. `-p` puts the copy in another project.
+
+### `kaneo task bulk`
+
+```bash
+kaneo task bulk <task...> [flags]
+```
+
+Applies one change to many tasks. Pass one change per call. If any task is unknown, nothing changes.
+
+| Flag | Description |
+| --- | --- |
+| `-s`, `--status` | Move every task to this column |
+| `--priority` | Set this priority on every task |
+| `-a`, `--assignee` | Assign every task to `me`, or a member by email, name or ID |
+| `--unassign` | Remove the assignee from every task |
+| `--due` | Set the due date, or `none` to clear it |
+| `--add-label` | Add this workspace label to every task |
+| `--remove-label` | Remove this label from every task |
+| `--delete` | Delete every task |
+| `-y`, `--yes` | Delete without asking for confirmation |
+
+```bash
+kaneo task bulk KAN-12 KAN-13 KAN-14 --status done
+```
+
+### `kaneo task assign`
+
+```bash
+kaneo task assign <task> [<user>] [--unassign]
+```
+
+Assigns a task to `me`, an email address, a name or a user ID. `--unassign` removes the assignee.
+
+### `kaneo task field`
+
+```bash
+kaneo task field <task> [<field>] [<value>] [--clear]
+```
+
+Shows or sets the custom field values of a task. Leave out the field to show every field. A value can be text, a number, a date, `yes` or `no`, an option, or comma-separated options. `--clear` removes the value.
+
+### `kaneo task comment`
+
+```bash
+kaneo task comment <task> [<text...>]
+```
+
+Adds a comment to a task. When you leave out the text, it is read from stdin.
+
+### `kaneo task attach`
+
+```bash
+kaneo task attach <task> [<file...>] [flags]
+```
+
+Uploads files to a task and adds them to its description. Images are shown inline.
+
+| Flag | Description |
+| --- | --- |
+| `--comment` | Post the files as a new comment instead |
+| `-m`, `--message` | Comment text to post with the files, or `-` for stdin. Implies `--comment`. |
+| `-F`, `--message-file` | Read the comment text from a file, or `-` for stdin. Implies `--comment`. |
+
+### `kaneo task images`
+
+```bash
+kaneo task images <task> [--max <n>]
+```
+
+Shows the images in a task description inline, or lists their links when the terminal cannot show images. `--max` shows at most this many images. Default: 10. JSON output lists every image unless you pass `--max`.
+
+### `kaneo task relation list`
+
+```bash
+kaneo task relation list <task>
+```
+
+Shows the parent, subtasks and linked tasks of a task.
+
+### `kaneo task relation add`
+
+```bash
+kaneo task relation add <task> <type> <other-task>
+```
+
+Links two tasks. `<type>` says how the first task relates to the other: `subtask-of`, `parent-of`, `blocks`, `blocked-by` or `relates-to`.
+
+```bash
+kaneo task relation add KAN-3 blocked-by KAN-4
+```
+
+### `kaneo task relation remove`
+
+```bash
+kaneo task relation remove <task> <other-task> [-t <type>] [--yes]
+```
+
+Unlinks two tasks. `-t`, `--type` removes only that relation. When several relations would be removed, the CLI asks first.
+
+### `kaneo task link list`
+
+```bash
+kaneo task link list <task>
+```
+
+Lists a task's links, including issues and pull requests from integrations.
+
+### `kaneo task link add`
+
+```bash
+kaneo task link add <task> <url> [-t <title>]
+```
+
+Attaches an `http` or `https` link to a task. `-t`, `--title` sets the text shown instead of the address.
+
+### `kaneo task link remove`
+
+```bash
+kaneo task link remove <task> <link> [--yes]
+```
+
+Removes a link you added. `<link>` is the link ID from `kaneo task link list` (the first characters are enough) or its URL.
+
+### `kaneo task activity`
+
+```bash
+kaneo task activity <task> [-L <n>]
+```
+
+Shows the history of a task: status changes, assignments, comments and more. `-L`, `--limit` shows only the latest events. Default: 30.
+
+### `kaneo task delete`
+
+```bash
+kaneo task delete <task> [--yes]
+```
+
+Permanently deletes a task with its comments and time entries.
+
+### `kaneo task export`
+
+```bash
+kaneo task export [-p <project>] [-o <file>]
+```
+
+Exports a project's tasks as JSON, ready for `kaneo task import`. `-o`, `--output` writes to a file instead of stdout.
+
+### `kaneo task import`
+
+```bash
+kaneo task import <file> [-p <project>] [--dry-run] [--yes]
+```
+
+Creates tasks in a project from a JSON file, or `-` for stdin. The file is the output of `kaneo task export`, or a JSON array of tasks that each have at least a `title`. Labels are not imported. `--dry-run` checks the file and shows what would be imported.
+
+```bash
+kaneo task export -p KAN | kaneo task import - -p MOB --yes
+```
+
+## Comments
+
+### `kaneo comment list`
+
+```bash
+kaneo comment list <task> [-L <n>]
+```
+
+Shows the comments on a task, oldest first. `-L`, `--limit` shows only the latest comments. Default: 50.
+
+### `kaneo comment add`
+
+```bash
+kaneo comment add <task> [<text...>] [-F <file>]
+```
+
+Adds a comment in Markdown. Pass the text, `-` to read stdin, or `-F`, `--file` to read a file (`-` for stdin). With no text, it is read from stdin.
+
+```bash
+git log -1 --format=%B | kaneo comment add KAN-12 -
+```
+
+### `kaneo comment edit`
+
+```bash
+kaneo comment edit <comment-id> [<text...>] [-F <file>]
+```
+
+Changes the text of one of your comments. Pass the new text, `-` to read stdin, or `-F`, `--file`. In a terminal, it is asked for when you leave it out. Get the ID from `kaneo comment list`.
+
+### `kaneo comment delete`
+
+```bash
+kaneo comment delete <comment-id> [--yes]
+```
+
+Deletes one of your comments.
+
+## Labels
+
+### `kaneo label list`
+
+Lists the labels in your workspace.
+
+### `kaneo label create`
+
+```bash
+kaneo label create [<name>] [-c <color>]
+```
+
+Creates a workspace label. `-c`, `--color` takes a hex color such as `#e7000b`, or one of `stone`, `slate`, `lavender`, `sage`, `forest`, `amber`, `terracotta`, `rose` or `crimson`. By default the CLI picks an unused color.
+
+### `kaneo label edit`
+
+```bash
+kaneo label edit [<label>] [--name <name>] [-c <color>]
+```
+
+Renames a label or changes its color, on every task that uses it.
+
+### `kaneo label delete`
+
+```bash
+kaneo label delete [<label>] [--yes]
+```
+
+Deletes a label and removes it from every task.
+
+## Time
+
+Durations look like `1h30m`, `45m`, `2h`, `1.5h` or `1:30`, and must be at least one minute. `-m`, `--note` adds a short note about the work.
+
+### `kaneo time start`
+
+```bash
+kaneo time start [<task>] [-m <note>]
+```
+
+Starts a timer on a task. Only one timer runs at a time. If another one is running, the CLI offers to stop it in a terminal. In scripts it stops with an error.
+
+### `kaneo time stop`
+
+```bash
+kaneo time stop [<task>]
+```
+
+Stops your running timer. If you started it outside the CLI on a task that is not assigned to you, pass the task.
+
+### `kaneo time status`
+
+Shows your running timer.
+
+### `kaneo time log`
+
+```bash
+kaneo time log [<task>] [<duration>] [--date <day>] [-m <note>]
+```
+
+Logs time you already spent. `--date` takes `today`, `yesterday` or `YYYY-MM-DD`.
+
+```bash
+kaneo time log KAN-12 1h30m --date yesterday -m "Code review"
+```
+
+### `kaneo time list`
+
+```bash
+kaneo time list [<task>]
+```
+
+Lists the time logged on a task, with a total.
+
+### `kaneo time edit`
+
+```bash
+kaneo time edit <entry-id> [-d <duration>] [-m <note>]
+```
+
+Changes the length or note of a time entry. `-d`, `--duration` keeps the start time. Get the ID from `kaneo time list`.
+
+## Projects
+
+### `kaneo project list`
+
+```bash
+kaneo project list [--archived]
+```
+
+Lists the projects in your workspace. `--archived` includes archived projects.
+
+### `kaneo project view`
+
+```bash
+kaneo project view [<project>]
+```
+
+Shows a project with its columns and task counts.
+
+### `kaneo project create`
+
+```bash
+kaneo project create [<name>] [flags]
+```
+
+Creates a project with the default columns.
+
+| Flag | Description |
+| --- | --- |
+| `-k`, `--key` | Task ID prefix such as `KAN`. Default: made from the name, like the web app. |
+| `-d`, `--description` | Description in Markdown, or `-` for stdin |
+| `-F`, `--description-file` | Read the description from a file, or `-` for stdin |
+| `--icon` | Lucide icon name from the web app, such as `Rocket`. Default: `Layout`. |
+
+### `kaneo project edit`
+
+```bash
+kaneo project edit [<project>] [flags]
+```
+
+Changes a project's name, key, description, icon or visibility.
+
+| Flag | Description |
+| --- | --- |
+| `--name` | New name |
+| `-k`, `--key` | New task ID prefix. Existing ticket IDs change with it. |
+| `-d`, `--description` | New description in Markdown, or `-` for stdin. Replaces the current one. |
+| `-F`, `--description-file` | Read the description from a file, or `-` for stdin |
+| `--icon` | Lucide icon name |
+| `--public` | Let anyone with the link view the board |
+| `--private` | Only workspace members can view the board |
+
+### `kaneo project archive`
+
+```bash
+kaneo project archive [<project>]
+```
+
+Hides a project from the project list without deleting it.
+
+### `kaneo project unarchive`
+
+```bash
+kaneo project unarchive [<project>]
+```
+
+Brings an archived project back to the project list.
+
+### `kaneo project move`
+
+```bash
+kaneo project move [<project>] --to <workspace> [--yes]
+```
+
+Moves a project and its tasks to another workspace. `--to` takes a workspace ID or slug.
+
+### `kaneo project delete`
+
+```bash
+kaneo project delete [<project>] [--yes]
+```
+
+Permanently deletes a project with all its tasks, comments and columns. In a terminal, you type the project key to confirm.
+
+## Columns
+
+### `kaneo column list`
+
+```bash
+kaneo column list [-p <project>]
+```
+
+Lists a project's columns in board order.
+
+### `kaneo column create`
+
+```bash
+kaneo column create [<name>] [-p <project>] [--final] [--icon <name>] [--color <hex>]
+```
+
+Adds a column to the end of the board. The slug comes from the name. `--final` marks it as a done column, which stops overdue reminders for its tasks.
+
+### `kaneo column edit`
+
+```bash
+kaneo column edit <column> [-p <project>] [flags]
+```
+
+Renames a column or changes its done state, color or icon. `--name` keeps the slug and the tasks. `--final` and `--no-final` mark or unmark it as done. `--color` and `--icon` accept `none` to clear them.
+
+### `kaneo column move`
+
+```bash
+kaneo column move <column> [-p <project>] (--before <column> | --after <column>)
+```
+
+Moves a column before or after another one.
+
+### `kaneo column delete`
+
+```bash
+kaneo column delete <column> [-p <project>] [--move-tasks-to <column>] [--yes]
+```
+
+Deletes a column. When it holds tasks, `--move-tasks-to` is required and moves them first.
+
+## Custom fields
+
+### `kaneo field list`
+
+```bash
+kaneo field list [-p <project>]
+```
+
+Lists the custom fields of a project.
+
+### `kaneo field create`
+
+```bash
+kaneo field create [<name>] [-t <type>] [-o <option>...] [-p <project>]
+```
+
+Adds a custom field. `-t`, `--type` is `text`, `number`, `date`, `dropdown` (or `select`), `multiselect` or `boolean`. `-o`, `--option` adds a choice for dropdown and multiselect fields. Repeatable.
+
+```bash
+kaneo field create Size -t dropdown -o S -o M -o L -p KAN
+```
+
+### `kaneo field delete`
+
+```bash
+kaneo field delete [<field>] [-p <project>] [--yes]
+```
+
+Deletes a custom field and its values on every task.
+
+## Workflow rules
+
+Workflow rules move tasks to a column when GitHub, GitLab or Gitea events arrive. The integrations are `github`, `gitlab` and `gitea`. The events are `branch_push`, `pr_opened`, `pr_merged`, `issue_opened`, `issue_closed` and `issue_reopened`.
+
+### `kaneo workflow list`
+
+```bash
+kaneo workflow list [-p <project>]
+```
+
+Lists the rules of a project.
+
+### `kaneo workflow set`
+
+```bash
+kaneo workflow set [<integration>] [<event>] [<column>] [-p <project>]
+```
+
+Chooses the column tasks move to when an event arrives.
+
+```bash
+kaneo workflow set github pr_merged done -p KAN
+```
+
+### `kaneo workflow delete`
+
+```bash
+kaneo workflow delete [<rule>] [<event>] [-p <project>] [--yes]
+```
+
+Deletes a rule. Pass the integration and the event, an event alone, or a rule ID.
+
+## Workspaces
+
+### `kaneo workspace list`
+
+Lists the workspaces you belong to.
+
+### `kaneo workspace use`
+
+```bash
+kaneo workspace use [<workspace>]
+```
+
+Chooses the default workspace for your commands. Takes a slug, name or ID.
+
+### `kaneo workspace create`
+
+```bash
+kaneo workspace create [<name>] [--slug <slug>]
+```
+
+Creates a workspace and makes you its owner. The slug is made from the name unless you pass `--slug`.
+
+### `kaneo workspace edit`
+
+```bash
+kaneo workspace edit [<workspace>] [flags]
+```
+
+Changes the current workspace, or the one you name.
+
+| Flag | Description |
+| --- | --- |
+| `--name` | New name |
+| `--slug` | New URL slug, such as `acme-studio` |
+| `-d`, `--description` | New description, or `-` for stdin. Pass `""` to clear it. |
+| `-F`, `--description-file` | Read the description from a file, or `-` for stdin |
+
+### `kaneo workspace leave`
+
+```bash
+kaneo workspace leave <workspace> [--yes]
+```
+
+Leaves a workspace you are a member of.
+
+### `kaneo workspace delete`
+
+```bash
+kaneo workspace delete <workspace> [--yes]
+```
+
+Permanently deletes a workspace with all its projects and tasks. In a terminal, you type the slug to confirm.
+
+## Members and invitations
+
+Roles are `owner`, `admin`, `member`, `viewer`, or a custom role of the workspace.
+
+### `kaneo member list`
+
+Lists the members of a workspace with their roles.
+
+### `kaneo member invite`
+
+```bash
+kaneo member invite <email...> [-r <role>]
+```
+
+Invites one or more people by email. `-r`, `--role` sets their role.
+
+### `kaneo member role`
+
+```bash
+kaneo member role [<member>] [<role>] [--yes]
+```
+
+Changes a member's role. The member is an email address, name or ID. Demoting an owner or admin asks first.
+
+### `kaneo member remove`
+
+```bash
+kaneo member remove [<member>] [--yes]
+```
+
+Removes someone from the workspace.
+
+### `kaneo invitation list`
+
+Lists pending invitations sent from the workspace.
+
+### `kaneo invitation pending`
+
+Lists invitations for you to join other workspaces.
+
+### `kaneo invitation accept`
+
+```bash
+kaneo invitation accept [<id>]
+```
+
+Accepts an invitation and joins the workspace.
+
+### `kaneo invitation decline`
+
+```bash
+kaneo invitation decline [<id>]
+```
+
+Declines an invitation.
+
+### `kaneo invitation cancel`
+
+```bash
+kaneo invitation cancel [<invitation>] [--yes]
+```
+
+Cancels a pending invitation you sent. Takes the invitation ID or the invited email address.
+
+## Notifications
+
+`kaneo inbox` is a shorter name for `kaneo notification`.
+
+### `kaneo notification list`
+
+```bash
+kaneo notification list [-u] [-L <n>]
+```
+
+Lists your latest notifications, in the selected workspace if there is one. `-u`, `--unread` shows only unread ones. `-L`, `--limit` defaults to 20. The server keeps the latest 50.
+
+### `kaneo notification read`
+
+```bash
+kaneo notification read [<id...>] [--all]
+```
+
+Marks notifications as read. Pass notification IDs or the short IDs from `kaneo notification list`, or `-a`, `--all` for every notification.
+
+## Search and API
+
+### `kaneo search`
+
+```bash
+kaneo search <query...> [-t <type>] [-L <n>] [-p <project>]
+```
+
+Searches tasks, projects and comments. The query can be words or a ticket ID such as `KAN-12`. `-t`, `--type` is `all`, `tasks`, `projects`, `workspaces`, `comments` or `activities`. `-L`, `--limit` is 1 to 50, default 20. `-p` searches one project.
+
+### `kaneo api`
+
+```bash
+kaneo api <method> <path> [-f key=value...] [--input <file>] [--query key=value...]
+```
+
+Sends an authenticated request to the Kaneo API and prints the response. The method is `GET`, `POST`, `PUT`, `PATCH` or `DELETE`. The path is under `/api`, and the `/api` prefix is optional.
+
+| Flag | Description |
+| --- | --- |
+| `-f`, `--field` | Add `key=value` to the JSON body. Values that parse as JSON keep their type, and `a.b=1` nests. Repeatable. |
+| `--input` | Read the JSON body from a file, or `-` for stdin |
+| `--query` | Add a `key=value` query parameter. Repeatable. |
+
+`GET` requests cannot have a body. See [the CLI guide](/core/integrations/cli#call-the-api-directly) for examples.

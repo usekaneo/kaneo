@@ -1,0 +1,330 @@
+---
+title: Kaneo CLI
+description: Manage tasks and projects from your terminal with the official Kaneo command-line client.
+---
+
+The official CLI, [`@kaneo/cli`](https://www.npmjs.com/package/@kaneo/cli), installs the `kaneo` command. It works with Kaneo Cloud and self-hosted instances, shows styled output in a terminal, and prints plain JSON for scripts and agents.
+
+## Install
+
+You need Node.js 20 or newer.
+
+```bash
+npm install -g @kaneo/cli
+```
+
+Run `kaneo` on its own to see your account, your open tasks and the main commands.
+
+## Sign in
+
+```bash
+kaneo login
+```
+
+The CLI shows a one-time code, copies it to your clipboard, and opens the approval page of your Kaneo web app. Approve the request there and the CLI saves the login. After signing in you can choose a default workspace. Pass `--no-browser` to print the link instead of opening a browser.
+
+For a self-hosted instance, pass its address once. Later commands reuse it:
+
+```bash
+kaneo login --api-url https://kaneo.example.com
+```
+
+`kaneo login` uses [device authorization](/api-reference/authentication) with the `kaneo-cli` client ID, which self-hosted Kaneo allows by default. If you set `DEVICE_AUTH_CLIENT_IDS`, keep `kaneo-cli` in the list.
+
+Check or end the session with:
+
+```bash
+kaneo whoami
+kaneo logout
+```
+
+### API keys for CI and scripts
+
+Create a key in **Settings → Account → API Keys** and set it in the environment:
+
+```bash
+export KANEO_API_KEY=your-key
+kaneo task list -w your-workspace-id -p KAN
+```
+
+The CLI picks credentials in this order: `--token`, then `KANEO_API_KEY`, then the stored login. A stored login is only ever sent to the server it was created for. A few account-level actions need a signed-in session, and the CLI tells you when an API key cannot be used.
+
+### Profiles
+
+Each login is stored as a profile. The first one is called `default`. To keep a second server or account, sign in with another profile name:
+
+```bash
+kaneo login --profile work --api-url https://kaneo.example.com
+kaneo profile list
+kaneo profile use default
+```
+
+`kaneo login` and `kaneo profile use` make that profile the active one. To use a profile for a single command, pass `--profile work` or set `KANEO_PROFILE=work`. `kaneo profile rename` and `kaneo profile remove` manage the rest.
+
+## Everyday commands
+
+```bash
+kaneo workspace list
+kaneo workspace use            # pick the default workspace
+kaneo project list
+kaneo task list -p KAN         # tasks grouped by column
+kaneo task list -p KAN --mine --open
+kaneo task mine                # your open tasks, soonest due first
+kaneo task view KAN-12
+kaneo task create "Fix login redirect" -p KAN --priority high --due tomorrow
+kaneo task status KAN-12 done
+kaneo task assign KAN-12 me
+kaneo comment add KAN-12 "Shipped in v2.35"
+kaneo time start KAN-12
+kaneo time stop
+kaneo task open KAN-12
+kaneo search "login redirect"
+```
+
+Tasks are addressed by their ticket ID, such as `KAN-12`, or by their ID. If a ticket ID exists in more than one of your workspaces, pass `-w` to choose one.
+
+When a workspace, project or column is missing and you are in a terminal, the CLI shows a searchable picker. In scripts it stops with an error that names the flag to pass.
+
+Every command has `--help`. Print a shell completion script with `kaneo --completions zsh` (or `bash`, `fish`, `sh`).
+
+## Commands
+
+Each line is one command. The [command reference](/core/integrations/cli-commands) lists every argument and flag.
+
+### Tasks
+
+| Command | What it does |
+| --- | --- |
+| `kaneo task list` | List a project's tasks grouped by column, with filters and sorting |
+| `kaneo task mine` | List the open tasks assigned to you, soonest due first |
+| `kaneo task view` | Show a task with its details and description |
+| `kaneo task create` | Create a task, optionally as a subtask |
+| `kaneo task edit` | Change a task's title, description, priority, dates or labels |
+| `kaneo task open` | Open a task in your browser |
+| `kaneo task status` | Move a task to another column |
+| `kaneo task move` | Move a task to another project |
+| `kaneo task duplicate` | Copy a task with its description, labels and custom fields |
+| `kaneo task bulk` | Apply one change to many tasks at once |
+| `kaneo task assign` | Assign a task to a member, or unassign it |
+| `kaneo task field` | Show or set a task's custom field values |
+| `kaneo task attach` | Upload files to a task's description or a comment |
+| `kaneo task images` | Show the images in a task description |
+| `kaneo task relation list`, `add`, `remove` | Manage parents, subtasks, blockers and related tasks |
+| `kaneo task link list`, `add`, `remove` | Manage a task's links, including issues and pull requests |
+| `kaneo task activity` | Show the history of a task |
+| `kaneo task delete` | Permanently delete a task |
+| `kaneo task export` | Export a project's tasks as JSON |
+| `kaneo task import` | Create tasks from a JSON file |
+
+### Comments
+
+| Command | What it does |
+| --- | --- |
+| `kaneo comment list` | Show the comments on a task, oldest first |
+| `kaneo comment add` | Add a comment (also `kaneo task comment`) |
+| `kaneo comment edit` | Change one of your comments |
+| `kaneo comment delete` | Delete one of your comments |
+
+### Labels
+
+| Command | What it does |
+| --- | --- |
+| `kaneo label list` | List the workspace labels |
+| `kaneo label create` | Create a label |
+| `kaneo label edit` | Rename a label or change its color |
+| `kaneo label delete` | Delete a label and remove it from every task |
+
+### Time
+
+| Command | What it does |
+| --- | --- |
+| `kaneo time start` | Start a timer on a task |
+| `kaneo time stop` | Stop your running timer |
+| `kaneo time status` | Show your running timer |
+| `kaneo time log` | Log time you already spent |
+| `kaneo time list` | List the time logged on a task, with a total |
+| `kaneo time edit` | Change the length or note of a time entry |
+
+### Projects and columns
+
+| Command | What it does |
+| --- | --- |
+| `kaneo project list` | List the projects in your workspace |
+| `kaneo project view` | Show a project with its columns and task counts |
+| `kaneo project create` | Create a project with the default columns |
+| `kaneo project edit` | Change a project's name, key, description, icon or visibility |
+| `kaneo project archive`, `unarchive` | Hide a project or bring it back |
+| `kaneo project move` | Move a project and its tasks to another workspace |
+| `kaneo project delete` | Permanently delete a project |
+| `kaneo column list` | List a project's columns in board order |
+| `kaneo column create` | Add a column to the end of the board |
+| `kaneo column edit` | Rename a column, or change its done state, color or icon |
+| `kaneo column move` | Move a column before or after another one |
+| `kaneo column delete` | Delete a column, moving its tasks first |
+| `kaneo field list`, `create`, `delete` | Manage a project's custom fields |
+| `kaneo workflow list`, `set`, `delete` | Move tasks when GitHub, GitLab or Gitea events arrive |
+
+### Workspaces and members
+
+| Command | What it does |
+| --- | --- |
+| `kaneo workspace list` | List the workspaces you belong to |
+| `kaneo workspace use` | Choose the default workspace |
+| `kaneo workspace create` | Create a workspace and become its owner |
+| `kaneo workspace edit` | Change a workspace's name, slug or description |
+| `kaneo workspace leave` | Leave a workspace |
+| `kaneo workspace delete` | Permanently delete a workspace |
+| `kaneo member list` | List members and their roles |
+| `kaneo member invite` | Invite people by email |
+| `kaneo member role` | Change a member's role |
+| `kaneo member remove` | Remove someone from the workspace |
+| `kaneo invitation list` | List invitations sent from the workspace |
+| `kaneo invitation pending` | List invitations for you to join other workspaces |
+| `kaneo invitation accept`, `decline` | Answer an invitation |
+| `kaneo invitation cancel` | Cancel an invitation you sent |
+
+### Notifications
+
+| Command | What it does |
+| --- | --- |
+| `kaneo notification list` | List your latest notifications (also `kaneo inbox list`) |
+| `kaneo notification read` | Mark notifications as read |
+
+### Setup and utilities
+
+| Command | What it does |
+| --- | --- |
+| `kaneo` | Show your account, open tasks and the main commands |
+| `kaneo login`, `logout`, `whoami` | Sign in, sign out, show the current account and server |
+| `kaneo profile list`, `use`, `rename`, `remove` | Manage stored logins |
+| `kaneo link`, `unlink` | Save or remove the workspace and project for a repository |
+| `kaneo context` | Show the settings in use and where each came from |
+| `kaneo doctor` | Check the server, your login and API compatibility |
+| `kaneo search` | Search tasks, projects and comments |
+| `kaneo api` | Send an authenticated request to the Kaneo API |
+
+## Output for scripts and agents
+
+The CLI uses JSON mode when you pass `--json` or `--jq`, set `KANEO_JSON=true`, or pipe its output:
+
+- A successful command prints exactly one JSON value on stdout.
+- A failed command prints `{"error": "message"}` on stdout and exits with code 1.
+- JSON mode never prints colors, spinners, progress lines or images.
+
+```bash
+kaneo task list -p KAN --json | jq '.[] | select(.priority == "urgent") | .ticketId'
+```
+
+Pass `--human` to force styled output. Styled output respects `NO_COLOR`, `FORCE_COLOR` and `TERM=dumb`, and uses plain ASCII when the terminal cannot show Unicode. Ticket IDs and project names are clickable links in terminals that support them.
+
+### Filter with `--jq`
+
+`--jq` filters the JSON output with a jq expression. The engine is built in, so you do not need `jq` installed. Each result goes on its own line, and strings print without quotes:
+
+```bash
+kaneo task list -p KAN --jq '.[].ticketId'
+kaneo task list -p KAN --jq '.[] | select(.priority == "urgent") | .ticketId'
+kaneo task view KAN-12 --jq '.url'
+kaneo task mine --jq '.[] | {ticketId, dueDate}'
+```
+
+An invalid expression fails before any request is sent. Run the same command with `--json` to see the data the expression receives.
+
+### Long text and stdin
+
+Comments and descriptions can come from a file or from stdin. Pass `-F <file>` to read a file, or `-` to read stdin:
+
+```bash
+kaneo comment add KAN-12 -F notes.md
+git log -1 --format=%B | kaneo comment add KAN-12 -
+kaneo project edit KAN -F README.md
+kaneo task create "Write release notes" -p KAN -F notes.md
+kaneo task attach KAN-12 screenshot.png -m "Before and after"
+```
+
+`kaneo task create`, `task edit`, `comment add`, `comment edit`, `task attach`, `project create`, `project edit` and `workspace edit` accept `-F`. `kaneo comment add` and `kaneo task comment` also read stdin when you leave out the text.
+
+### Confirmations
+
+Commands that delete or remove data, such as `kaneo task delete` or `kaneo label delete`, ask for confirmation in a terminal. Deleting a project asks you to type its key, and deleting a workspace asks for its slug. In scripts, these commands stop with an error until you pass `--yes`:
+
+```bash
+kaneo task delete KAN-12 --yes
+```
+
+## Call the API directly
+
+`kaneo api` sends an authenticated request to any Kaneo API endpoint, like `gh api` does for GitHub. It uses the same server, credentials and output modes as the other commands. The path is under `/api`, and the `/api` prefix is optional:
+
+```bash
+kaneo api GET /user/me
+kaneo api GET /task/assigned --query workspaceId=your-workspace-id
+kaneo api PUT /task/status/your-task-id -f status=done
+kaneo api POST /time-entry --input entry.json
+```
+
+`-f key=value` builds a JSON body. Values that parse as JSON keep their type, and dotted keys such as `a.b=1` nest. `--input` reads the body from a file, or `-` for stdin. See the [API reference](/api-reference/introduction) for the available endpoints.
+
+## Images in the terminal
+
+`kaneo task images` shows the images in a task description, `kaneo task attach` previews the images you upload, and `kaneo whoami` shows your avatar.
+
+- Kitty and Ghostty show full images with the Kitty graphics protocol.
+- iTerm2 and WezTerm show full images with the iTerm2 protocol.
+- Other terminals with 256 colors and Unicode get a preview drawn with colored blocks. Inside tmux, screen or Zellij the CLI also uses blocks.
+- When none of these work, the CLI lists the image links instead.
+
+Set `KANEO_IMAGES` to `kitty`, `iterm` or `blocks` to choose the method, or to `off` to turn images off. JSON mode never shows images.
+
+The CLI sends your token only with image requests to your Kaneo server's own file URLs. Images hosted anywhere else are fetched without it.
+
+## Configuration
+
+| Setting | Flag | Environment variable |
+| --- | --- | --- |
+| Server | `--api-url` | `KANEO_API_URL` (default `https://cloud.kaneo.app`) |
+| Token or API key | `--token` | `KANEO_API_KEY` |
+| Workspace | `-w`, `--workspace` | `KANEO_WORKSPACE` |
+| Project | `-p`, `--project` | `KANEO_PROJECT` |
+| Stored login | `--profile` | `KANEO_PROFILE` |
+| JSON output | `--json` | `KANEO_JSON=true` |
+| Inline images | | `KANEO_IMAGES` (`kitty`, `iterm`, `blocks` or `off`) |
+| Web app address for links | | `KANEO_WEB_URL` (detected during login) |
+| Config file | | `KANEO_CONFIG` |
+
+Logins are stored in `~/.config/kaneo/config.json`, or `$XDG_CONFIG_HOME/kaneo/config.json`, with permissions that only your user can read. If another kaneo CLI already uses that file, the official CLI leaves it untouched and asks you to move it or set `KANEO_CONFIG`. The CLI keeps track of your running timer in `timer.json` next to the config file.
+
+### Repository defaults
+
+Link a repository to a workspace and project, so commands run anywhere inside it use them:
+
+```bash
+kaneo link                     # pick from a list in a terminal
+kaneo link -w your-workspace-id -p KAN
+```
+
+`kaneo link` writes a `.kaneo.json` at the root of the Git repository, or in the current directory outside a repository. It keeps any other keys already in the file:
+
+```json
+{ "workspace": "your-workspace-id", "project": "KAN" }
+```
+
+Commands look for `.kaneo.json` in the current directory and its parents. `kaneo unlink` removes the two keys, and deletes the file when nothing else is left.
+
+The CLI picks the workspace from `-w`, then `KANEO_WORKSPACE`, then `.kaneo.json`, then the default you chose with `kaneo workspace use`. It picks the project from `-p`, then `KANEO_PROJECT`, then `.kaneo.json`.
+
+### Check your setup
+
+`kaneo context` shows the server, profile, account, workspace and project in use, and where each one came from. Use it when a command picks the wrong workspace or server.
+
+`kaneo doctor` checks the config file, the server, your login, the workspace, and whether the server has every API operation this CLI uses. It exits with code 1 when a check fails, so it also works in CI:
+
+```bash
+kaneo doctor
+```
+
+## Related
+
+- [CLI command reference](/core/integrations/cli-commands) for every command, argument and flag.
+- [MCP server](/core/integrations/mcp) for AI assistants such as Claude and Cursor.
+- [API reference](/api-reference/introduction) for direct HTTP access.

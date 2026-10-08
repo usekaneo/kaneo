@@ -1,0 +1,112 @@
+name: Publish CLI Package
+
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - packages/cli/package.json
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-cli
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'cli-v') }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Require reviewed release source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = push ] && [ "$GITHUB_REF" != refs/heads/main ]; then
+            exit 1
+          fi
+          git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.32.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run CLI checks
+        run: |
+          pnpm --filter @kaneo/cli typecheck
+          pnpm --filter @kaneo/cli test
+          pnpm --filter @kaneo/cli build
+          node packages/cli/dist/kaneo.mjs --version --json
+
+      - name: Validate CLI release tag
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/cli/package.json').version")
+          TAG_VERSION="${GITHUB_REF_NAME#cli-v}"
+
+          if [ "${GITHUB_REF_NAME}" = "${TAG_VERSION}" ]; then
+            echo "Release tag must start with cli-v, got ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+          if [ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]; then
+            echo "Release tag version (${TAG_VERSION}) does not match packages/cli version (${PACKAGE_VERSION})"
+            exit 1
+          fi
+
+      - name: Check whether @kaneo/cli version is already published
+        id: version_check
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/cli/package.json').version")
+
+          if npm view "@kaneo/cli@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "@kaneo/cli@${PACKAGE_VERSION} is already published; skipping publish."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish @kaneo/cli
+        if: ${{ steps.version_check.outputs.already_published == 'false' }}
+        run: |
+          cd packages/cli
+          npm publish --access public --provenance
+
+      - name: Create CLI release
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./packages/cli/package.json').version")
+
+          if gh release view "cli-v${PACKAGE_VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            echo "Release cli-v${PACKAGE_VERSION} already exists; skipping."
+            exit 0
+          fi
+
+          gh release create "cli-v${PACKAGE_VERSION}" \
+            --target "${GITHUB_SHA}" \
+            --title "@kaneo/cli v${PACKAGE_VERSION}" \
+            --notes "Published [@kaneo/cli@${PACKAGE_VERSION}](https://www.npmjs.com/package/@kaneo/cli/v/${PACKAGE_VERSION}) to npm." \
+            --latest=false
+        env:
+          GH_TOKEN: ${{ github.token }}

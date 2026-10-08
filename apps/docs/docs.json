@@ -159,6 +159,10 @@
 						]
 					},
 					{
+						"group": "Command line",
+						"pages": ["core/integrations/cli", "core/integrations/cli-commands"]
+					},
+					{
 						"group": "AI assistants",
 						"pages": ["core/integrations/mcp"]
 					}
