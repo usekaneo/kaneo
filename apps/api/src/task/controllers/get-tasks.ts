@@ -31,6 +31,7 @@ import {
 } from "../description-pages";
 import { taskIsCompleted } from "../task-is-completed";
 import { getSubtaskCounts } from "../get-subtask-counts";
+import { getSubtaskParents } from "../get-subtask-parents";
 
 export type GetTasksOptions = {
   publicOnly?: boolean;
@@ -208,6 +209,13 @@ async function getTasksPage(
   const taskIds = paginatedTasks.map((task) => task.id);
 
   const subtaskCounts = await getSubtaskCounts(
+    db,
+    taskIds,
+    project.workspaceId,
+    options.publicOnly ?? false,
+    userId,
+  );
+  const subtaskParents = await getSubtaskParents(
     db,
     taskIds,
     project.workspaceId,
@@ -415,6 +423,28 @@ async function getTasksPage(
         ),
       );
     publicRelatedRevision = `${labels?.revision}:${links?.revision}:${children?.revision}`;
+    const child = alias(taskTable, "board_child");
+    const [parents] = await db
+      .select({
+        revision: boardRevision(true, [
+          taskRelationTable.id,
+          taskTable.id,
+          taskTable.title,
+        ]),
+      })
+      .from(taskRelationTable)
+      .innerJoin(child, eq(taskRelationTable.targetTaskId, child.id))
+      .innerJoin(taskTable, eq(taskRelationTable.sourceTaskId, taskTable.id))
+      .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
+      .where(
+        and(
+          eq(child.projectId, projectId),
+          eq(taskRelationTable.relationType, "subtask"),
+          eq(projectTable.workspaceId, project.workspaceId),
+          eq(projectTable.isPublic, true),
+        ),
+      );
+    publicRelatedRevision += `:${parents?.revision}`;
   }
 
   const columns = projectColumns.map((column) => ({
@@ -429,6 +459,7 @@ async function getTasksPage(
       .map((task) => ({
         ...task,
         subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
+        subtaskParents: subtaskParents.get(task.id) ?? [],
         labels: taskLabelsMap.get(task.id) || [],
         externalLinks: taskExternalLinksMap.get(task.id) || [],
       })),
@@ -439,6 +470,7 @@ async function getTasksPage(
     .map((task) => ({
       ...task,
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
+      subtaskParents: subtaskParents.get(task.id) ?? [],
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));
@@ -448,6 +480,7 @@ async function getTasksPage(
     .map((task) => ({
       ...task,
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
+      subtaskParents: subtaskParents.get(task.id) ?? [],
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));

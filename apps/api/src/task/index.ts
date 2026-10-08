@@ -284,7 +284,7 @@ const createTaskRoute = createRoute({
   tags: ["Tasks"],
   summary: "Create task",
   description:
-    "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`.",
+    "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`. With parentTaskId, create and link a subtask in the same transaction; the parent must belong to this project and task:update is also required.",
   middleware: [
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ task: ["create"] }),
@@ -304,7 +304,7 @@ const createTaskRoute = createRoute({
     ),
     400: errorResponse("Invalid body, or unknown project"),
     403: errorResponse(
-      "No workspace access, or missing task:create permission",
+      "No workspace access, or missing task:create or task:update permission",
     ),
   },
 });
@@ -337,7 +337,9 @@ const duplicateTaskRoute = createRoute({
       "No workspace access, missing task:create, or missing task:update when copying parent links",
     ),
     404: errorResponse("Task or project not found"),
-    409: errorResponse("Task column has reached its capacity, or the task has multiple parents"),
+    409: errorResponse(
+      "Task column has reached its capacity, or the task has multiple parents",
+    ),
     503: errorResponse("Unable to copy task attachments"),
   },
 });
@@ -889,8 +891,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       userId,
       customFields,
       draftAssetIds,
+      parentTaskId,
       externalLinks,
     } = c.req.valid("json");
+
+    if (
+      parentTaskId &&
+      !(await hasWorkspacePermission(c, { task: ["update"] }))
+    ) {
+      throw new HTTPException(403, {
+        message: "Linking a subtask requires task:update permission",
+      });
+    }
 
     const parsedStartDate =
       startDate !== undefined
@@ -915,6 +927,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       status,
       customFields,
       draftAssetIds,
+      parentTaskId,
       externalLinks,
     });
 

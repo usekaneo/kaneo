@@ -18,6 +18,7 @@ async function createTask(
   priority: CreateTaskRequest["priority"],
   customFields?: { fieldId: string; value: string }[],
   draftAssetIds?: string[],
+  parentTaskId?: string,
   externalLinks?: CreateTaskRequest["externalLinks"],
 ) {
   if (!projectId) {
@@ -35,6 +36,7 @@ async function createTask(
       priority,
       customFields,
       draftAssetIds,
+      parentTaskId,
       externalLinks,
     },
     param: { projectId },

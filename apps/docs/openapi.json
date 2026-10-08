@@ -289,6 +289,29 @@
             ],
             "description": "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects."
           },
+          "subtaskParents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "projectId"
+              ]
+            },
+            "description": "Accessible direct parents in this workspace. Public boards include only parents in public projects."
+          },
           "labels": {
             "type": "array",
             "items": {
@@ -319,6 +342,7 @@
           "assigneeImage",
           "projectId",
           "subtaskCounts",
+          "subtaskParents",
           "labels",
           "externalLinks"
         ]
@@ -1311,6 +1335,29 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "subtaskParents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "projectId"
+              ]
+            },
+            "description": "Accessible direct parents in this workspace. Public boards include only parents in public projects."
           },
           "customFields": {
             "type": "array",
@@ -10606,7 +10653,7 @@
           "Tasks"
         ],
         "summary": "Create task",
-        "description": "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`.",
+        "description": "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`. With parentTaskId, create and link a subtask in the same transaction; the parent must belong to this project and task:update is also required.",
         "parameters": [
           {
             "schema": {
@@ -10683,6 +10730,11 @@
                     "maxItems": 100,
                     "description": "Manual HTTP/HTTPS resource links created atomically with the task."
                   },
+                  "parentTaskId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Create and link a subtask atomically. The parent must be in the same project; requires task:update in addition to task:create."
+                  },
                   "customFields": {
                     "type": "array",
                     "items": {
@@ -10744,7 +10796,7 @@
             }
           },
           "403": {
-            "description": "No workspace access, or missing task:create permission",
+            "description": "No workspace access, or missing task:create or task:update permission",
             "content": {
               "application/json": {
                 "schema": {

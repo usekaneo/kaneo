@@ -9,6 +9,7 @@ import {
 import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
+import TaskParentIndicator from "@/components/task/task-parent-indicator";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import TaskAssigneePopover from "@/components/task/task-assignee-popover";
 import TaskDueDatePopover from "@/components/task/task-due-date-popover";
@@ -273,147 +274,155 @@ function TaskCardContent({
               </div>
             )}
 
-            <div
-              className={cn(
-                "flex flex-wrap items-center gap-x-2.5 gap-y-1.5 empty:hidden",
-                taskIsCompleted && "hidden",
-              )}
-            >
-              {showPriority && hasPriority && (
-                <TaskCardProperty
-                  label={getPriorityLabel(task.priority ?? "")}
-                  canEdit={canEdit}
-                  renderEditor={(trigger) => (
-                    <TaskPriorityPopover task={task} defaultOpen>
-                      {trigger}
-                    </TaskPriorityPopover>
-                  )}
-                >
-                  <span
-                    className="inline-flex h-5.5 items-center"
-                    title={getPriorityLabel(task.priority ?? "")}
+            <div className="flex items-end gap-2">
+              <div
+                className={cn(
+                  "flex flex-1 flex-wrap items-center gap-x-2.5 gap-y-1.5 empty:hidden",
+                  taskIsCompleted && "hidden",
+                )}
+              >
+                {showPriority && hasPriority && (
+                  <TaskCardProperty
+                    label={getPriorityLabel(task.priority ?? "")}
+                    canEdit={canEdit}
+                    renderEditor={(trigger) => (
+                      <TaskPriorityPopover task={task} defaultOpen>
+                        {trigger}
+                      </TaskPriorityPopover>
+                    )}
                   >
-                    {getPriorityIcon(task.priority ?? "")}
-                  </span>
-                </TaskCardProperty>
-              )}
-
-              {activeCustomFieldValues.length > 0 && (
-                <HoverCard openDelay={200} closeDelay={100}>
-                  <HoverCardTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                      aria-label={t("tasks:customFields.ariaLabel", {
-                        count: activeCustomFieldValues.length,
-                      })}
+                    <span
+                      className="inline-flex h-5.5 items-center"
+                      title={getPriorityLabel(task.priority ?? "")}
                     >
-                      <SlidersHorizontal className="w-3 h-3" />
-                      <span>{activeCustomFieldValues.length}</span>
-                    </button>
-                  </HoverCardTrigger>
-                  <HoverCardContent
-                    className="w-fit p-2.5"
-                    side="bottom"
-                    onClick={(e) => e.stopPropagation()}
-                    onPointerDown={(e) => e.stopPropagation()}
-                  >
-                    <div className="space-y-1.5">
-                      {activeCustomFieldValues.map((field) => {
-                        const value = field.value;
+                      {getPriorityIcon(task.priority ?? "")}
+                    </span>
+                  </TaskCardProperty>
+                )}
 
-                        if (!value) return null;
+                {activeCustomFieldValues.length > 0 && (
+                  <HoverCard openDelay={200} closeDelay={100}>
+                    <HoverCardTrigger asChild>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                        }}
+                        aria-label={t("tasks:customFields.ariaLabel", {
+                          count: activeCustomFieldValues.length,
+                        })}
+                      >
+                        <SlidersHorizontal className="w-3 h-3" />
+                        <span>{activeCustomFieldValues.length}</span>
+                      </button>
+                    </HoverCardTrigger>
+                    <HoverCardContent
+                      className="w-fit p-2.5"
+                      side="bottom"
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <div className="space-y-1.5">
+                        {activeCustomFieldValues.map((field) => {
+                          const value = field.value;
 
-                        let displayValue: string = value;
-                        if (field.fieldType === "multiselect") {
-                          try {
-                            const parsed = JSON.parse(value);
-                            if (Array.isArray(parsed)) {
-                              displayValue = parsed.join(", ");
+                          if (!value) return null;
+
+                          let displayValue: string = value;
+                          if (field.fieldType === "multiselect") {
+                            try {
+                              const parsed = JSON.parse(value);
+                              if (Array.isArray(parsed)) {
+                                displayValue = parsed.join(", ");
+                              }
+                            } catch {
+                              displayValue = value;
                             }
-                          } catch {
-                            displayValue = value;
                           }
-                        }
 
-                        return (
-                          <div
-                            key={field.id}
-                            className="flex items-center justify-between gap-2 text-xs"
-                          >
-                            <span className="font-medium text-muted-foreground truncate">
-                              {field.fieldName}
-                            </span>
-                            <span className="text-foreground truncate max-w-24">
-                              {displayValue}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              )}
+                          return (
+                            <div
+                              key={field.id}
+                              className="flex items-center justify-between gap-2 text-xs"
+                            >
+                              <span className="font-medium text-muted-foreground truncate">
+                                {field.fieldName}
+                              </span>
+                              <span className="text-foreground truncate max-w-24">
+                                {displayValue}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </HoverCardContent>
+                  </HoverCard>
+                )}
 
-              <TaskProgressBadges task={task} />
+                <TaskProgressBadges task={task} />
 
-              {showDueDates && task.startDate && (
-                <TaskCardProperty
-                  label={t("tasks:properties.startDate")}
-                  canEdit={canEdit}
-                  renderEditor={(trigger) => (
-                    <TaskStartDatePopover task={task} defaultOpen>
-                      {trigger}
-                    </TaskStartDatePopover>
-                  )}
-                >
-                  <span className="flex h-5.5 items-center gap-1 text-[10px] text-muted-foreground">
-                    <CalendarDays className="size-3" />
-                    <span>{format(new Date(task.startDate), "MMM d")}</span>
-                  </span>
-                </TaskCardProperty>
-              )}
-              {showDueDates && task.dueDate && (
-                <TaskCardProperty
-                  label={t("tasks:boardFilters.subjects.dueDate")}
-                  canEdit={canEdit}
-                  renderEditor={(trigger) => (
-                    <TaskDueDatePopover task={task} defaultOpen>
-                      {trigger}
-                    </TaskDueDatePopover>
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex h-5.5 items-center gap-1 text-[10px]",
-                      isOverdue && "font-medium",
-                      dueDateTextColors[dueDateStatus],
+                {showDueDates && task.startDate && (
+                  <TaskCardProperty
+                    label={t("tasks:properties.startDate")}
+                    canEdit={canEdit}
+                    renderEditor={(trigger) => (
+                      <TaskStartDatePopover task={task} defaultOpen>
+                        {trigger}
+                      </TaskStartDatePopover>
                     )}
                   >
-                    {dueDateStatus === "overdue" && (
-                      <CalendarX className="w-3 h-3" />
+                    <span className="flex h-5.5 items-center gap-1 text-[10px] text-muted-foreground">
+                      <CalendarDays className="size-3" />
+                      <span>{format(new Date(task.startDate), "MMM d")}</span>
+                    </span>
+                  </TaskCardProperty>
+                )}
+                {showDueDates && task.dueDate && (
+                  <TaskCardProperty
+                    label={t("tasks:boardFilters.subjects.dueDate")}
+                    canEdit={canEdit}
+                    renderEditor={(trigger) => (
+                      <TaskDueDatePopover task={task} defaultOpen>
+                        {trigger}
+                      </TaskDueDatePopover>
                     )}
-                    {dueDateStatus === "due-soon" && (
-                      <CalendarClock className="w-3 h-3" />
-                    )}
-                    {(dueDateStatus === "far-future" ||
-                      dueDateStatus === "no-due-date") && (
-                      <Calendar className="w-3 h-3" />
-                    )}
-                    <span>{format(new Date(task.dueDate), "MMM d")}</span>
-                  </span>
-                </TaskCardProperty>
-              )}
+                  >
+                    <span
+                      className={cn(
+                        "flex h-5.5 items-center gap-1 text-[10px]",
+                        isOverdue && "font-medium",
+                        dueDateTextColors[dueDateStatus],
+                      )}
+                    >
+                      {dueDateStatus === "overdue" && (
+                        <CalendarX className="w-3 h-3" />
+                      )}
+                      {dueDateStatus === "due-soon" && (
+                        <CalendarClock className="w-3 h-3" />
+                      )}
+                      {(dueDateStatus === "far-future" ||
+                        dueDateStatus === "no-due-date") && (
+                        <Calendar className="w-3 h-3" />
+                      )}
+                      <span>{format(new Date(task.dueDate), "MMM d")}</span>
+                    </span>
+                  </TaskCardProperty>
+                )}
 
-              <TaskPullRequests externalLinks={task.externalLinks} />
+                <TaskPullRequests externalLinks={task.externalLinks} />
+              </div>
+              {workspace && (
+                <TaskParentIndicator
+                  parents={task.subtaskParents}
+                  workspaceId={workspace.id}
+                />
+              )}
             </div>
           </div>
         </ContextMenuTrigger>

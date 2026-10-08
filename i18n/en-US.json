@@ -2509,6 +2509,8 @@
 			}
 		},
 		"subtasks": {
+			"create": "Create sub-task",
+			"parentIndicator": "Sub-task of {{title}}",
 			"unlink": "Unlink",
 			"unlinkParent": "Unlink Parent",
 			"chooseParent": "Choose parent task",
@@ -2581,6 +2583,7 @@
 			},
 			"labels": {
 				"searchPlaceholder": "Search labels...",
+				"loadError": "Could not load labels. Click to retry.",
 				"empty": "No labels found",
 				"create": "Create \"{{name}}\"",
 				"chooseColor": "Choose color",

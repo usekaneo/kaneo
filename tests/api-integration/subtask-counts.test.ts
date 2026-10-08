@@ -10,6 +10,8 @@ import deleteTask from "../../apps/api/src/task/controllers/delete-task";
 import getTasks from "../../apps/api/src/task/controllers/get-tasks";
 import moveTask from "../../apps/api/src/task/controllers/move-task";
 import updateTaskStatus from "../../apps/api/src/task/controllers/update-task-status";
+import updateTaskTitle from "../../apps/api/src/task/controllers/update-task-title";
+import { restrictToProjects } from "./helpers/project-access/restrict-to-projects";
 import * as subtaskParents from "../../apps/api/src/task/get-subtask-parent-projects";
 import getTaskRelations from "../../apps/api/src/task-relation/controllers/get-task-relations";
 import createTaskRelation from "../../apps/api/src/task-relation/controllers/create-task-relation";
@@ -68,6 +70,66 @@ async function countsFor(projectId: string, taskId: string) {
 describe("API integration: subtask counters", () => {
   beforeEach(resetTestDatabase);
 
+  it("returns accessible parent titles independently of filters, omitting hidden and cross-workspace parents", async () => {
+    const member = await createWorkspaceMember();
+    const own = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const hidden = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const stranger = await createWorkspaceMember();
+    const foreign = await createProjectFixture({
+      workspaceId: stranger.workspace.id,
+    });
+    const child = await addTask(own.project.id);
+    const visibleParent = await addTask(own.project.id, "planned");
+    const hiddenParent = await addTask(hidden.project.id);
+    const foreignParent = await addTask(foreign.project.id);
+    await relate(visibleParent.id, child.id);
+    await relate(hiddenParent.id, child.id);
+    await relate(foreignParent.id, child.id);
+    await restrictToProjects(member.workspace.id, member.user.id, [
+      own.project.id,
+    ]);
+    const board = await getTasks(
+      own.project.id,
+      { status: "to-do", limit: 1 },
+      member.user.id,
+    );
+    expect(
+      board.data.columns.flatMap((c) => c.tasks).find((t) => t.id === child.id)
+        ?.subtaskParents,
+    ).toEqual([{
+      id: visibleParent.id,
+      title: visibleParent.title,
+      projectId: visibleParent.projectId,
+    }]);
+    await db
+      .update(schema.projectTable)
+      .set({ isPublic: true })
+      .where(eq(schema.projectTable.id, own.project.id));
+    const publicBoard = await getTasks(own.project.id, { publicOnly: true });
+    expect(
+      publicBoard.data.columns
+        .flatMap((c) => c.tasks)
+        .find((t) => t.id === child.id)?.subtaskParents,
+    ).toEqual([{
+      id: visibleParent.id,
+      title: visibleParent.title,
+      projectId: visibleParent.projectId,
+    }]);
+    const revision = publicBoard.pagination.revision;
+    await db
+      .update(schema.taskTable)
+      .set({ title: "Renamed parent" })
+      .where(eq(schema.taskTable.id, visibleParent.id));
+    expect(
+      (await getTasks(own.project.id, { publicOnly: true })).pagination
+        .revision,
+    ).not.toEqual(revision);
+  });
+
   it("refreshes the other project when a cross-project subtask is linked or unlinked", async () => {
     const member = await createWorkspaceMember();
     const parentProject = await createProjectFixture({
@@ -109,6 +171,29 @@ describe("API integration: subtask counters", () => {
         completed: 0,
         total: 1,
       });
+      send.mockClear();
+      await eventContext.run({ initiatorId: "same-window" }, () =>
+        updateTaskTitle({
+          id: parent.id,
+          title: "Renamed parent",
+          currentUserId: member.user.id,
+        }),
+      );
+      await vi.waitFor(() => expect(send).toHaveBeenCalled());
+      expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+        type: "TASK_RELATION_UPDATED",
+        projectId: childProject.project.id,
+        taskId: "",
+      });
+      expect(
+        (await getTasks(childProject.project.id)).data.columns
+          .flatMap((c) => c.tasks)
+          .find((t) => t.id === child.id)?.subtaskParents,
+      ).toEqual([{
+        id: parent.id,
+        title: "Renamed parent",
+        projectId: parent.projectId,
+      }]);
       send.mockClear();
       await eventContext.run({ initiatorId: "same-window" }, () =>
         deleteTaskRelation(relation.id, member.user.id, member.workspace.id),
@@ -500,6 +585,62 @@ describe("API integration: subtask counters", () => {
 
 describe("subtask counter mutation paths", () => {
   beforeEach(resetTestDatabase);
+  it.each(["project", "bulk"])(
+    "clears parent markers when parents are deleted via %s deletion",
+    async (operation) => {
+      const member = await createWorkspaceMember({ role: "owner" });
+      const parentProject = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const childProject = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const parent = await addTask(parentProject.project.id);
+      const child = await addTask(childProject.project.id);
+      await relate(parent.id, child.id);
+      await initializeWebSocketAdapter();
+      const send = vi.fn();
+      const connection = addConnection(
+        childProject.project.id,
+        { send } as never,
+        member.user.id,
+        "same-window",
+        member.workspace.id,
+      );
+      try {
+        await eventContext.run({ initiatorId: "same-window" }, async () => {
+          if (operation === "project") {
+            await deleteProject(parentProject.project.id, member.workspace.id);
+          } else {
+            mockAuthenticatedSession(member.user);
+            const response = await createApp().app.request("/api/task/bulk", {
+              method: "PATCH",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                taskIds: [parent.id],
+                operation: "delete",
+              }),
+            });
+            expect(response.status).toBe(200);
+          }
+        });
+        await vi.waitFor(() => expect(send).toHaveBeenCalled());
+        expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+          type: "TASK_RELATION_UPDATED",
+          projectId: childProject.project.id,
+          taskId: "",
+        });
+        expect(
+          (await getTasks(childProject.project.id)).data.columns
+            .flatMap((c) => c.tasks)
+            .find((t) => t.id === child.id)?.subtaskParents,
+        ).toEqual([]);
+      } finally {
+        removeConnection(childProject.project.id, connection);
+        await shutdownWebSocketAdapter();
+      }
+    },
+  );
   it.each([false, true])(
     "refreshes a parent after moving a child into a nonfinal workflow (sameSource=%s)",
     async (sameSource) => {

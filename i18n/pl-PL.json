@@ -2988,7 +2988,8 @@
 				"empty": "Nie znaleziono etykiet",
 				"removeSuccess": "Usunięto etykietę",
 				"searchPlaceholder": "Szukaj etykiet...",
-				"updateError": "Nie udało się zaktualizować etykiety"
+				"updateError": "Nie udało się zaktualizować etykiety",
+				"loadError": "Could not load labels. Click to retry."
 			},
 			"priority": {
 				"updateError": "Nie udało się zaktualizować priorytetu zadania"
@@ -3099,6 +3100,8 @@
 			"searchPrompt": "Search for a task in this workspace",
 			"unlinkError": "Failed to remove parent",
 			"unlink": "Unlink",
+			"create": "Create sub-task",
+			"parentIndicator": "Sub-task of {{title}}",
 			"unlinkParent": "Unlink Parent"
 		},
 		"update": {

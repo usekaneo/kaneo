@@ -10158,6 +10158,12 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"create": {
+							"type": "string"
+						},
+						"parentIndicator": {
+							"type": "string"
+						},
 						"unlink": {
 							"type": "string"
 						},
@@ -10238,6 +10244,8 @@
 						}
 					},
 					"required": [
+						"create",
+						"parentIndicator",
 						"unlink",
 						"unlinkParent",
 						"chooseParent",
@@ -10430,6 +10438,9 @@
 								"searchPlaceholder": {
 									"type": "string"
 								},
+								"loadError": {
+									"type": "string"
+								},
 								"empty": {
 									"type": "string"
 								},
@@ -10501,6 +10512,7 @@
 							},
 							"required": [
 								"searchPlaceholder",
+								"loadError",
 								"empty",
 								"create",
 								"chooseColor",

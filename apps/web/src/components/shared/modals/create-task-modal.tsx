@@ -107,6 +107,7 @@ type CreateTaskModalProps = {
   projectId?: string;
   startDate?: Date;
   dueDate?: Date;
+  parentTaskId?: string;
 };
 
 type Priority = "no-priority" | "low" | "medium" | "high" | "urgent";
@@ -182,6 +183,7 @@ function CreateTaskModalContent({
   projectId,
   startDate: initialStartDate,
   dueDate: initialDueDate,
+  parentTaskId,
 }: CreateTaskModalProps) {
   const { t } = useTranslation();
   const { project, setProject } = useProjectStore();
@@ -249,8 +251,10 @@ function CreateTaskModalContent({
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
   );
-  const { canCreateTasks, canCreateLabels } = useWorkspacePermission();
-  const canCreateTaskCapability = canCreateTasks();
+  const { canCreateTasks, canCreateLabels, canUpdateTasks } =
+    useWorkspacePermission();
+  const canCreateTaskCapability =
+    canCreateTasks() && (!parentTaskId || canUpdateTasks());
   const canCreateLabelCapability = canCreateLabels();
 
   const [title, setTitle] = useState("");
@@ -589,6 +593,7 @@ function CreateTaskModalContent({
           priority,
           externalLinks: resources.map(({ url, title }) => ({ url, title })),
           projectId: resolvedProjectId,
+          ...(parentTaskId ? { parentTaskId } : {}),
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
           status: submitStatus,
@@ -1036,7 +1041,9 @@ function CreateTaskModalContent({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem className="text-foreground font-medium text-sm">
-                  {t("common:modals.createTask.title")}
+                  {parentTaskId
+                    ? t("tasks:subtasks.create")
+                    : t("common:modals.createTask.title")}
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

@@ -2,6 +2,12 @@ import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 import { createdExternalLinkSchema } from "../external-link/response";
 
 const priorityDescription = "One of: no-priority, low, medium, high, urgent.";
+const subtaskParentsSchema = z
+  .array(z.object({ id: z.string(), title: z.string(), projectId: z.string() }))
+  .openapi({
+    description:
+      "Accessible direct parents in this workspace. Public boards include only parents in public projects.",
+  });
 
 export const taskSchema = z
   .object({
@@ -30,6 +36,7 @@ export const taskSchema = z
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
     createdAt: responseTimestamp,
+    subtaskParents: subtaskParentsSchema.optional(),
     customFields: z
       .array(z.object({ fieldId: z.string(), value: z.string() }))
       .optional(),
@@ -131,6 +138,7 @@ export const boardTaskSchema = z
         description:
           "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects.",
       }),
+    subtaskParents: subtaskParentsSchema,
     labels: z.array(taskLabelSchema),
     externalLinks: z.array(taskExternalLinkSchema),
   })

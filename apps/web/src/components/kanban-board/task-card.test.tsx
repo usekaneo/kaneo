@@ -238,6 +238,23 @@ it("keeps details in the rendered open column despite a final column sharing its
   expect(screen.getByText("Open work")).toBeVisible();
 });
 
+it("keeps the parent indicator visible on completed task cards", () => {
+  const child = {
+    ...task,
+    subtaskParents: [{ id: "parent", title: "Parent", projectId: "project-1" }],
+  };
+  const view = render(<TaskCard task={child} isFinalColumn />);
+  expect(
+    screen.getByRole("button", { name: "tasks:subtasks.parentIndicator" }),
+  ).toBeVisible();
+  view.rerender(
+    <TaskCard task={{ ...child, subtaskParents: [] }} isFinalColumn />,
+  );
+  expect(
+    screen.queryByRole("button", { name: "tasks:subtasks.parentIndicator" }),
+  ).not.toBeInTheDocument();
+});
+
 it.each(["board", "list", "backlog"] as const)(
   "opens priority editing in %s without navigating or starting a drag and persists the selection",
   async (viewMode) => {

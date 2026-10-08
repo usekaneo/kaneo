@@ -44,6 +44,7 @@ const useLocation = vi.fn();
 const deleteTask = vi.fn(async () => {});
 const updateTask = vi.fn(async (input: Record<string, unknown>) => input);
 const setProject = vi.fn();
+let canUpdateTasks = true;
 let workspaceId = "workspace-1";
 let projects: { id: string; name: string; slug: string }[] | undefined;
 let columnsError = false;
@@ -66,6 +67,7 @@ vi.mock("@/lib/upload-draft-asset", () => ({
 }));
 
 beforeEach(() => {
+  canUpdateTasks = true;
   workspaceId = "workspace-1";
   projects = [
     { id: "project-1", name: "Alpha", slug: "alp" },
@@ -91,6 +93,55 @@ const createTask = vi.fn(async (input: Record<string, unknown>) => ({
   projectId: input.projectId,
   createdAt: "2026-08-05T00:00:00.000Z",
 }));
+
+it("submits the parent with task creation and keeps the draft on failure", async () => {
+  const onClose = vi.fn();
+  render(
+    <CreateTaskModal
+      open
+      projectId="project-1"
+      parentTaskId="parent"
+      onClose={onClose}
+    />,
+    { wrapper: createWrapper() },
+  );
+  const input = screen.getByPlaceholderText(
+    "common:modals.createTask.taskTitlePlaceholder",
+  );
+  fireEvent.change(input, { target: { value: "New subtask" } });
+  createTask.mockRejectedValueOnce(new Error("Parent unavailable"));
+  fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+  await vi.waitFor(() =>
+    expect(createTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parentTaskId: "parent",
+        projectId: "project-1",
+      }),
+    ),
+  );
+  await vi.waitFor(() =>
+    expect(toast.error).toHaveBeenCalledWith("Parent unavailable"),
+  );
+  expect(onClose).not.toHaveBeenCalled();
+  expect(input).toHaveValue("New subtask");
+  fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+  await vi.waitFor(() => expect(onClose).toHaveBeenCalled());
+});
+
+it("does not create a subtask without update permission", () => {
+  canUpdateTasks = false;
+  render(
+    <CreateTaskModal
+      open
+      projectId="project-1"
+      parentTaskId="parent"
+      onClose={vi.fn()}
+    />,
+    { wrapper: createWrapper() },
+  );
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(createTask).not.toHaveBeenCalled();
+});
 
 it("treats staged resources as unsaved input and allows removing them", async () => {
   const onClose = vi.fn();
@@ -281,6 +332,7 @@ vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
+    canUpdateTasks: () => canUpdateTasks,
     canCreateLabels: () => true,
   }),
 }));
@@ -658,6 +710,46 @@ describe("CreateTaskModal", () => {
       expect.objectContaining({ status: "review" }),
     );
   });
+
+  it.each([undefined, "parent"])(
+    "keeps Create more enabled across two submissions with parent %s",
+    async (parentTaskId) => {
+      const onClose = vi.fn();
+      render(
+        <CreateTaskModal
+          open
+          projectId="project-1"
+          parentTaskId={parentTaskId}
+          onClose={onClose}
+        />,
+        { wrapper: createWrapper() },
+      );
+      const toggle = screen.getByRole("switch", {
+        name: "common:modals.createTask.createMore",
+      });
+      fireEvent.click(toggle);
+      for (const title of ["First task", "Second task"]) {
+        enterTitle(title);
+        submit();
+        await vi.waitFor(() =>
+          expect(
+            screen.getByPlaceholderText(
+              "common:modals.createTask.taskTitlePlaceholder",
+            ),
+          ).toHaveValue(""),
+        );
+        expect(toggle).toBeChecked();
+        expect(createTask).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            title,
+            projectId: "project-1",
+            ...(parentTaskId ? { parentTaskId } : {}),
+          }),
+        );
+        expect(onClose).not.toHaveBeenCalled();
+      }
+    },
+  );
 
   it.each(["startDate", "dueDate"])(
     "submits the selected %s even after its calendar closes",

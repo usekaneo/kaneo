@@ -7,10 +7,11 @@ import {
   columnTable,
   customFieldDefinitionTable,
   customFieldValueTable,
-  externalLinkTable,
   taskTable,
+  taskRelationTable,
   projectTable,
   userTable,
+  externalLinkTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import {
@@ -58,6 +59,7 @@ async function createTask({
   priority,
   customFields,
   draftAssetIds,
+  parentTaskId,
   externalLinks,
 }: {
   projectId: string;
@@ -71,6 +73,7 @@ async function createTask({
   priority?: string;
   customFields?: CustomFieldInput[];
   draftAssetIds?: string[];
+  parentTaskId?: string;
   externalLinks?: { url: string; title?: string }[];
 }) {
   const resolvedStatus = status || "to-do";
@@ -135,98 +138,136 @@ async function createTask({
     ),
   });
 
-  const { createdTask, resources } = await db.transaction(async (tx) => {
-    const taskNumber = await claimTaskNumber(projectId, tx);
-    const nextPosition = await nextTaskPosition(
-      tx,
-      projectId,
-      resolvedStatus,
-      column?.id ?? null,
-    );
-
-    const [task] = await tx
-      .insert(taskTable)
-      .values({
-        projectId,
-        userId: normalizedUserId ?? null,
-        title: title || "",
-        status: resolvedStatus,
-        columnId: column?.id ?? null,
-        startDate: startDate || null,
-        dueDate: dueDate || null,
-        description: description || "",
-        priority: resolvedPriority,
-        number: taskNumber,
-        position: nextPosition,
-      })
-      .returning();
-
-    if (task && draftAssetIds?.length) {
-      const referenced = extractAssetIds(description);
-      const ids = [...new Set(draftAssetIds)].filter((id) =>
-        referenced.has(id),
-      );
-      if (ids.length) {
-        // claimTaskNumber already holds the project row lock in this transaction.
-        const project = await tx.query.projectTable.findFirst({
-          columns: { workspaceId: true },
-          where: eq(projectTable.id, projectId),
-        });
-        if (!project)
-          throw new HTTPException(404, { message: "Project not found" });
-        const claimed = await tx
-          .update(assetTable)
-          .set({
-            taskId: task.id,
-            surface: "description",
-            workspaceId: project.workspaceId,
+  const { createdTask, relation, parents, resources } = await db.transaction(
+    async (tx) => {
+      const taskNumber = await claimTaskNumber(projectId, tx);
+      let parents: { id: string; title: string; projectId: string }[] = [];
+      if (parentTaskId) {
+        const [parent] = await tx
+          .select({
+            id: taskTable.id,
+            title: taskTable.title,
+            projectId: taskTable.projectId,
           })
+          .from(taskTable)
           .where(
             and(
-              inArray(assetTable.id, ids),
-              eq(assetTable.projectId, projectId),
-              eq(assetTable.createdBy, currentUserId),
-              eq(assetTable.surface, "draft"),
-              isNull(assetTable.taskId),
+              eq(taskTable.id, parentTaskId),
+              eq(taskTable.projectId, projectId),
             ),
           )
-          .returning({ id: assetTable.id });
-        if (claimed.length !== ids.length)
+          .for("share");
+        if (!parent) {
           throw new HTTPException(400, {
-            message:
-              "Some staged uploads are unavailable or belong to another owner/project",
+            message: "Parent task is unavailable in this project",
           });
+        }
+        parents = [parent];
       }
-    }
-
-    if (task && mergedCustomFields.length) {
-      await tx.insert(customFieldValueTable).values(
-        mergedCustomFields.map(({ fieldId, value }) => ({
-          taskId: task.id,
-          fieldId,
-          value: value.trim(),
-        })),
+      const nextPosition = await nextTaskPosition(
+        tx,
+        projectId,
+        resolvedStatus,
+        column?.id ?? null,
       );
-    }
 
-    const resources =
-      task && externalLinks?.length
-        ? await tx
-            .insert(externalLinkTable)
-            .values(
-              externalLinks.map((link) => ({
-                taskId: task.id,
-                integrationId: null,
-                resourceType: "url",
-                externalId: link.url,
-                url: link.url,
-                title: link.title?.trim() || null,
-              })),
+      const [task] = await tx
+        .insert(taskTable)
+        .values({
+          projectId,
+          userId: normalizedUserId ?? null,
+          title: title || "",
+          status: resolvedStatus,
+          columnId: column?.id ?? null,
+          startDate: startDate || null,
+          dueDate: dueDate || null,
+          description: description || "",
+          priority: resolvedPriority,
+          number: taskNumber,
+          position: nextPosition,
+        })
+        .returning();
+
+      if (task && draftAssetIds?.length) {
+        const referenced = extractAssetIds(description);
+        const ids = [...new Set(draftAssetIds)].filter((id) =>
+          referenced.has(id),
+        );
+        if (ids.length) {
+          // claimTaskNumber already holds the project row lock in this transaction.
+          const project = await tx.query.projectTable.findFirst({
+            columns: { workspaceId: true },
+            where: eq(projectTable.id, projectId),
+          });
+          if (!project)
+            throw new HTTPException(404, { message: "Project not found" });
+          const claimed = await tx
+            .update(assetTable)
+            .set({
+              taskId: task.id,
+              surface: "description",
+              workspaceId: project.workspaceId,
+            })
+            .where(
+              and(
+                inArray(assetTable.id, ids),
+                eq(assetTable.projectId, projectId),
+                eq(assetTable.createdBy, currentUserId),
+                eq(assetTable.surface, "draft"),
+                isNull(assetTable.taskId),
+              ),
             )
-            .returning()
-        : [];
-    return { createdTask: task, resources };
-  });
+            .returning({ id: assetTable.id });
+          if (claimed.length !== ids.length)
+            throw new HTTPException(400, {
+              message:
+                "Some staged uploads are unavailable or belong to another owner/project",
+            });
+        }
+      }
+
+      if (task && mergedCustomFields.length) {
+        await tx.insert(customFieldValueTable).values(
+          mergedCustomFields.map(({ fieldId, value }) => ({
+            taskId: task.id,
+            fieldId,
+            value: value.trim(),
+          })),
+        );
+      }
+
+      const [relation] =
+        task && parentTaskId
+          ? await tx
+              .insert(taskRelationTable)
+              .values({
+                sourceTaskId: parentTaskId,
+                targetTaskId: task.id,
+                relationType: "subtask",
+              })
+              .returning()
+          : [];
+
+      const resources =
+        task && externalLinks?.length
+          ? await tx
+              .insert(externalLinkTable)
+              .values(
+                externalLinks.map((link) => ({
+                  taskId: task.id,
+                  integrationId: null,
+                  resourceType: "url",
+                  externalId: link.url,
+                  url: link.url,
+                  title: link.title?.trim() || null,
+                })),
+              )
+              .returning()
+          : [];
+
+      return { createdTask: task, relation, parents, resources };
+    },
+  );
 
   if (!createdTask) {
     throw new HTTPException(500, {
@@ -243,9 +284,19 @@ async function createTask({
     content: null,
   });
 
+  if (relation) {
+    await publishEvent("task-relation.created", {
+      ...relation,
+      taskId: relation.sourceTaskId,
+      projectId,
+      userId: currentUserId,
+    });
+  }
+
   return {
     ...createdTask,
     assigneeName: assignee?.name,
+    subtaskParents: parents,
     externalLinks: resources.map((link) => ({ ...link, metadata: null })),
   };
 }

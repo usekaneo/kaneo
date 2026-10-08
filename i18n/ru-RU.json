@@ -2571,6 +2571,8 @@
 			"searchPrompt": "Search for a task in this workspace",
 			"unlinkError": "Failed to remove parent",
 			"unlink": "Unlink",
+			"create": "Create sub-task",
+			"parentIndicator": "Sub-task of {{title}}",
 			"unlinkParent": "Unlink Parent"
 		},
 		"properties": {
@@ -2636,7 +2638,8 @@
 					"terracotta": "Терракота",
 					"rose": "Роза",
 					"crimson": "Малиновый"
-				}
+				},
+				"loadError": "Could not load labels. Click to retry."
 			}
 		},
 		"backlog": {

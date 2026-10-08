@@ -21,6 +21,7 @@ import { isRedisConfigured } from "../redis";
 import {
   getRelationTaskProjects,
   getSubtaskParentProjects,
+  getSubtaskChildProjects,
 } from "../task/get-subtask-parent-projects";
 import type {
   BroadcastAdapter,
@@ -741,6 +742,7 @@ subscribeToEvent<{
     initiatorId,
   );
   refreshParentBoards(await getSubtaskParentProjects([taskId]), toProjectId);
+  refreshParentBoards(await getSubtaskChildProjects([taskId]), toProjectId);
 });
 
 subscribeToEvent<{
@@ -903,6 +905,11 @@ for (const eventName of taskUpdateEvents) {
     );
     if (eventName === "task.status_changed" && !data.skipSubtaskParentRefresh) {
       refreshParentBoards(await getSubtaskParentProjects([taskId]), projectId);
+    } else if (
+      eventName === "task.title_changed" ||
+      eventName === "task.updated"
+    ) {
+      refreshParentBoards(await getSubtaskChildProjects([taskId]), projectId);
     } else if (
       eventName === "task-relation.created" ||
       eventName === "task-relation.deleted"

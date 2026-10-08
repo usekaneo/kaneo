@@ -36,6 +36,7 @@ import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
+import TaskViewContextMenu from "../task/task-view-context-menu";
 import Column from "./column";
 import TaskCard from "./task-card";
 
@@ -322,43 +323,49 @@ function KanbanBoard({
       onDragEnd={handleDragEnd}
       onDragCancel={resetDrag}
     >
-      <div
-        className={cn("flex h-full w-full flex-col", {
-          "bg-linear-to-b from-muted/20 to-background": !background,
-        })}
+      <TaskViewContextMenu
+        projectId={project.id}
+        disabled={disableCollectionActions}
       >
-        <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
-          <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
-            {(dragPreview.preview ?? project).columns.map((column) => (
-              <div
-                key={column.id}
-                className={cn("h-full max-w-96 min-w-80 shrink-0 flex-1", {
-                  "h-fit": !!background,
-                })}
-              >
-                <Column
-                  column={column}
-                  activeTaskId={activeId?.toString() ?? null}
-                  sortHint={
-                    column.id === sortHintColumnId
-                      ? t("tasks:kanban.automaticallySortedHint", {
-                          sort: t(
-                            sortedByNumber
-                              ? "tasks:sort.fields.number"
-                              : "tasks:sort.fields.priority",
-                          ),
-                        })
-                      : undefined
-                  }
-                  disableDragDrop={disableDragDrop}
-                  disableSorting={isAutomaticallySorted}
-                  disableCollectionActions={disableCollectionActions}
-                />
-              </div>
-            ))}
+        <div
+          className={cn("flex h-full w-full flex-col", {
+            "bg-linear-to-b from-muted/20 to-background": !background,
+          })}
+        >
+          <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
+            <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
+              {(dragPreview.preview ?? project).columns.map((column) => (
+                <div
+                  key={column.id}
+                  data-task-status={column.slug}
+                  className={cn("h-full max-w-96 min-w-80 shrink-0 flex-1", {
+                    "h-fit": !!background,
+                  })}
+                >
+                  <Column
+                    column={column}
+                    activeTaskId={activeId?.toString() ?? null}
+                    sortHint={
+                      column.id === sortHintColumnId
+                        ? t("tasks:kanban.automaticallySortedHint", {
+                            sort: t(
+                              sortedByNumber
+                                ? "tasks:sort.fields.number"
+                                : "tasks:sort.fields.priority",
+                            ),
+                          })
+                        : undefined
+                    }
+                    disableDragDrop={disableDragDrop}
+                    disableSorting={isAutomaticallySorted}
+                    disableCollectionActions={disableCollectionActions}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </TaskViewContextMenu>
       <DragOverlay dropAnimation={dropAnimation}>
         {activeTask ? (
           <div className="transform rotate-1 scale-[1.03] shadow-lg">

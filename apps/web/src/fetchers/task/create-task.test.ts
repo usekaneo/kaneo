@@ -89,6 +89,7 @@ describe("createTask", () => {
       "no-priority",
       undefined,
       undefined,
+      undefined,
       externalLinks,
     );
     expect(mocks.post).toHaveBeenCalledWith(
