@@ -6,6 +6,7 @@ import db, { getDatabase, schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { signUpWithSession } from "./helpers/auth-session";
 import { resetTestDatabase } from "./helpers/database";
+import { readErrorBody } from "./helpers/error-body";
 import { createWorkspaceMember } from "./helpers/fixtures";
 
 const LIMIT = 3;
@@ -59,6 +60,12 @@ function limitHeaders(response: Response) {
   };
 }
 
+const rateLimited = { message: "Rate limit exceeded", code: "RATE_LIMITED" };
+const usageExceeded = {
+  message: "API key usage limit exceeded",
+  code: "RATE_LIMITED",
+};
+
 function epochSeconds(date: Date) {
   return String(Math.ceil(date.getTime() / 1000));
 }
@@ -110,7 +117,7 @@ describe("API key rate limits", () => {
     });
 
     expect(response.status).toBe(429);
-    expect(await response.text()).toContain("Rate limit exceeded");
+    expect(await readErrorBody(response)).toEqual(rateLimited);
     const headers = limitHeaders(response);
     expect(headers).toMatchObject({
       limit: String(LIMIT),
@@ -147,7 +154,7 @@ describe("API key rate limits", () => {
       headers: { "x-api-key": key },
     });
     expect(limited.status).toBe(429);
-    expect(await limited.text()).toContain("Rate limit exceeded");
+    expect(await readErrorBody(limited)).toEqual(rateLimited);
     expect(limitHeaders(limited)).toMatchObject({
       limit: String(LIMIT),
       remaining: "0",
@@ -158,49 +165,9 @@ describe("API key rate limits", () => {
       headers: { Authorization: `Bearer ${key}` },
     });
     expect(bearer.status).toBe(429);
-    expect(await bearer.text()).toContain("Rate limit exceeded");
+    expect(await readErrorBody(bearer)).toEqual(rateLimited);
     expect(limitHeaders(bearer).remaining).toBe("0");
     expect(limitHeaders(bearer).retryAfter).not.toBeNull();
-  });
-
-  it("answers 429 when Better Auth rejects a rate limited key", async () => {
-    const { key, row } = await seedKey();
-    await fillWindow(row.id, new Date());
-    const { app } = createApp();
-
-    const response = await app.request("/api/user/me", {
-      headers: { Authorization: "Bearer not-a-real-key", "x-api-key": key },
-    });
-
-    expect(response.status).toBe(429);
-    expect(await response.text()).toContain("Rate limit exceeded");
-    const headers = limitHeaders(response);
-    expect(headers).toMatchObject({
-      limit: String(LIMIT),
-      remaining: "0",
-      reset: expect.stringMatching(/^\d+$/),
-    });
-    expect(Number(headers.retryAfter)).toBeGreaterThanOrEqual(59);
-  });
-
-  it("answers 429 with the refill time when Better Auth rejects an exhausted key", async () => {
-    const { key } = await seedKey({
-      remaining: 0,
-      refillAmount: 5,
-      refillInterval: 3_600_000,
-      lastRefillAt: new Date(Date.now() - 600_000),
-    });
-    const { app } = createApp();
-
-    const response = await app.request("/api/user/me", {
-      headers: { Authorization: "Bearer not-a-real-key", "x-api-key": key },
-    });
-
-    expect(response.status).toBe(429);
-    expect(await response.text()).toContain("API key usage limit exceeded");
-    const retryAfter = Number(limitHeaders(response).retryAfter);
-    expect(retryAfter).toBeGreaterThanOrEqual(2_999);
-    expect(retryAfter).toBeLessThanOrEqual(3_000);
   });
 
   it.each([
@@ -353,7 +320,10 @@ describe("API key rate limits", () => {
     const response = await app.request("/api/user/me", { headers });
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe("Unauthorized");
+    expect(await readErrorBody(response)).toEqual({
+      message: "Unauthorized",
+      code: "UNAUTHORIZED",
+    });
     expect(limitHeaders(response)).toMatchObject({
       limit: null,
       retryAfter: null,
@@ -389,7 +359,10 @@ describe("API key rate limits", () => {
       { headers: { "x-api-key": key } },
     );
     expect(missing.status).toBe(404);
-    expect(await missing.text()).toContain("Project not found");
+    expect(await readErrorBody(missing)).toEqual({
+      message: "Project not found",
+      code: "NOT_FOUND",
+    });
     expect(limitHeaders(missing)).toMatchObject({
       limit: String(LIMIT),
       remaining: String(LIMIT - 1),
@@ -419,7 +392,7 @@ describe("API key rate limits", () => {
     });
 
     expect(response.status).toBe(429);
-    expect(await response.text()).toContain("API key usage limit exceeded");
+    expect(await readErrorBody(response)).toEqual(usageExceeded);
     const retryAfter = Number(limitHeaders(response).retryAfter);
     expect(retryAfter).toBeGreaterThanOrEqual(2_999);
     expect(retryAfter).toBeLessThanOrEqual(3_000);
@@ -437,7 +410,7 @@ describe("API key rate limits", () => {
     ]) {
       const response = await app.request("/api/user/me", { headers });
       expect(response.status).toBe(429);
-      expect(await response.text()).toContain("API key usage limit exceeded");
+      expect(await readErrorBody(response)).toEqual(usageExceeded);
       expect(limitHeaders(response).retryAfter).toBeNull();
     }
   });

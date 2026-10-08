@@ -36,7 +36,6 @@ import {
   githubIntegrationSchema,
   githubRepositoryListSchema,
   importResultSchema,
-  integrationNotFoundSchema,
   verificationResultSchema,
 } from "./response";
 import {
@@ -195,7 +194,7 @@ const updateIntegrationRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
-    404: jsonResponse("Integration not found", integrationNotFoundSchema),
+    404: errorResponse("Integration not found"),
   },
 });
 
@@ -334,7 +333,7 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     if (!row) {
-      return c.json({ error: "Integration not found" }, 404);
+      throw new HTTPException(404, { message: "Integration not found" });
     }
 
     let config: GitHubConfig;

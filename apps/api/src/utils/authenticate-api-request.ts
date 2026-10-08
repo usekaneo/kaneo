@@ -2,10 +2,10 @@ import * as Sentry from "@sentry/node";
 import { APIError } from "better-auth/api";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { auth } from "../auth";
-import { apiKeyRejection, betterAuthLimitRejection } from "./api-key-rejection";
+import { apiKeyRejection } from "./api-key-rejection";
+import { getUserSession } from "./get-user-session";
 import { type ApiKeyRateLimit, rateLimitHeaders } from "./rate-limit-headers";
-import { readApiKeyCheck, verifyApiKey } from "./verify-api-key";
+import { verifyApiKey } from "./verify-api-key";
 
 // User is tagged on Sentry's isolation scope; the per-request isolation
 // scope is forked by Sentry.withIsolationScope in the api.use("*", ...)
@@ -24,15 +24,8 @@ function isAuthRejection(error: unknown) {
 
 async function getSession(headers: Headers) {
   try {
-    return await auth.api.getSession({ headers });
+    return await getUserSession(headers);
   } catch (error) {
-    if (error instanceof APIError && error.statusCode === 429) {
-      const apiKeyHeader = headers.get("x-api-key")?.trim();
-      throw betterAuthLimitRejection(
-        error.body,
-        apiKeyHeader ? await readApiKeyCheck(apiKeyHeader) : null,
-      );
-    }
     if (isAuthRejection(error)) {
       return null;
     }

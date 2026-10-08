@@ -6,6 +6,6 @@ export default async function getSyncRules(param: SyncParams, after?: string) {
   const response = await client["integration-sync"].project[":projectId"][
     ":provider"
   ].$get({ param, query: after ? { after } : {} });
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }

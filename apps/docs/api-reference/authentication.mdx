@@ -52,9 +52,9 @@ Successful requests made with an API key include these headers:
 | `X-RateLimit-Remaining` | Requests left in the current window. |
 | `X-RateLimit-Reset` | Unix time in seconds when the window resets if the key makes no further requests. |
 
-When a key goes over its limit, Kaneo answers `429 Too Many Requests` with the same headers, `X-RateLimit-Remaining: 0`, and a `Retry-After` header with the number of seconds to wait. Wait at least that long before you retry, and pace bulk jobs rather than retrying in a loop. A `429` does not mean the key is invalid. An unknown, disabled, or expired key still gets `401 Unauthorized`.
+When a key goes over its limit, Kaneo answers `429 Too Many Requests` with the error code `RATE_LIMITED`, the same headers, `X-RateLimit-Remaining: 0`, and a `Retry-After` header with the number of seconds to wait. Wait at least that long before you retry, and pace bulk jobs rather than retrying in a loop. A `429` does not mean the key is invalid. An unknown, disabled, or expired key still gets `401` with `UNAUTHORIZED`.
 
-A key with a usage quota also gets `429` once the quota runs out, with the message `API key usage limit exceeded`. `Retry-After` is included when the quota refills at a known time.
+A key with a usage quota also gets `429` with `RATE_LIMITED` once the quota runs out, with the message `API key usage limit exceeded`. `Retry-After` is included when the quota refills at a known time.
 
 Auth endpoints under `/api/auth` can also have their own per-IP limits, for example on sign-up and invitations. Those `429` responses include `Retry-After` but no `X-RateLimit` headers, because the request did not count against the key.
 

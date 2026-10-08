@@ -31,6 +31,22 @@ jobs:
       - run: npm test
         working-directory: scripts/ui-review-bot
 
+  slop-labeler-tests:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: scripts/slop-labeler
+      - run: npm test
+        working-directory: scripts/slop-labeler
+
   lint:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 15

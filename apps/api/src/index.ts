@@ -27,6 +27,16 @@ import comment from "./comment";
 import config from "./config";
 import customField from "./custom-field";
 import db, { getDatabase, schema } from "./database";
+import { apiErrorSchema } from "./errors/api-error-schema";
+import { httpExceptionResponse } from "./errors/http-exception-response";
+import {
+  notFoundResponse,
+  withJsonNotFound,
+} from "./errors/not-found-response";
+import {
+  validationHook,
+  validationHookWithMessage,
+} from "./errors/validation-error";
 import { prepareDatabaseStartup } from "./database/prepare-database-startup";
 import { waitForDatabase } from "./database/wait-for-database";
 import discordIntegration from "./discord-integration";
@@ -172,18 +182,29 @@ export function createApp() {
   const app = new Hono<AppVariables>();
   app.use("*", clientIpMiddleware());
 
-  app.onError((err, c) => {
+  app.onError((err) => {
     if (err instanceof HTTPException) {
       // expected errors (401/404/...) are not reported; real failures are
       if (err.status >= 500) {
         Sentry.captureException(err);
       }
-      return err.getResponse();
+      return httpExceptionResponse(err);
     }
 
     Sentry.captureException(err);
-    return c.json({ message: "Internal Server Error" }, 500);
+    return httpExceptionResponse(
+      new HTTPException(500, { message: "Internal Server Error" }),
+    );
   });
+
+  app.notFound((c) => {
+    const path = c.req.path;
+    if (path === "/api" || path.startsWith("/api/")) {
+      return notFoundResponse();
+    }
+    return c.text("404 Not Found", 404);
+  });
+
   const nodeWs = createNodeWebSocket({ app });
   // node-ws exposes its ws server, but does not accept constructor options.
   // Set the receiver limit before any connection can upgrade, including
@@ -239,7 +260,7 @@ export function createApp() {
   // JSON with repeated keys compresses extremely well.
   app.use(compress());
 
-  const api = new OpenAPIHono<ApiVariables>();
+  const api = new OpenAPIHono<ApiVariables>({ defaultHook: validationHook });
 
   api.use("*", applyApiKeyHeaders);
 
@@ -268,7 +289,11 @@ export function createApp() {
           schema: { type: "integer" },
         },
       },
-      content: { "text/plain": { schema: { type: "string" } } },
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/ApiError" },
+        },
+      },
     },
   );
 
@@ -331,12 +356,7 @@ export function createApp() {
         const project = await getPublicProject(id, c.req.valid("query"));
         return c.json(project, 200);
       },
-      (result) => {
-        if (!result.success)
-          throw new HTTPException(400, {
-            message: "Invalid task pagination or filters",
-          });
-      },
+      validationHookWithMessage("Invalid task pagination or filters"),
     )
     .openapi(
       createRoute({
@@ -369,12 +389,7 @@ export function createApp() {
           ),
           200,
         ),
-      (result) => {
-        if (!result.success)
-          throw new HTTPException(400, {
-            message: "Invalid description cursor",
-          });
-      },
+      validationHookWithMessage("Invalid description cursor"),
     )
     .openapi(
       createRoute({
@@ -409,12 +424,7 @@ export function createApp() {
           200,
         );
       },
-      (result) => {
-        if (!result.success)
-          throw new HTTPException(400, {
-            message: "Invalid description cursor",
-          });
-      },
+      validationHookWithMessage("Invalid description cursor"),
     );
 
   api.route("/calendar-feed", publicCalendarFeed);
@@ -490,8 +500,8 @@ export function createApp() {
           content: { "*/*": { schema: { type: "string", format: "binary" } } },
         },
         304: { description: "Not modified" },
-        403: { description: "No access to this asset" },
-        404: { description: "Asset not found" },
+        403: errorResponse("No access to this asset"),
+        404: errorResponse("Asset not found"),
         429: apiKeyRateLimited.ref,
       },
     }),
@@ -576,7 +586,7 @@ export function createApp() {
           },
         },
         304: { description: "Not modified" },
-        404: { description: "Avatar not found" },
+        404: errorResponse("Avatar not found"),
       },
     }),
     async (c) => {
@@ -612,6 +622,7 @@ export function createApp() {
     scheme: "bearer",
     description: "API key or session token (Bearer)",
   });
+  api.openAPIRegistry.register("ApiError", apiErrorSchema);
   organizationRoutes(api.openAPIRegistry);
 
   api.get("/openapi", (c) => {
@@ -666,6 +677,11 @@ export function createApp() {
         }
         operation.responses["401"] ??= {
           description: "Missing or invalid credentials",
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/ApiError" },
+            },
+          },
         };
         operation.responses["429"] ??= apiKeyRateLimited.ref;
       }
@@ -737,7 +753,9 @@ export function createApp() {
 
       // Preserve Better Auth bearer session tokens on auth routes.
       if (session?.session && session.user) {
-        return auth.handler(new Request(c.req.raw, { headers }));
+        return withJsonNotFound(
+          await auth.handler(new Request(c.req.raw, { headers })),
+        );
       }
 
       const apiKeyResult = await verifyApiKey(bearerToken, { consume: false });
@@ -746,7 +764,9 @@ export function createApp() {
       // Better Auth API key plugin validates from x-api-key by default.
       headers.set("x-api-key", bearerToken);
 
-      const response = await auth.handler(new Request(c.req.raw, { headers }));
+      const response = await withJsonNotFound(
+        await auth.handler(new Request(c.req.raw, { headers })),
+      );
       c.set(
         "apiKeyHeaders",
         await apiKeyResponseHeaders(
@@ -758,7 +778,7 @@ export function createApp() {
       return response;
     }
 
-    return auth.handler(c.req.raw);
+    return withJsonNotFound(await auth.handler(c.req.raw));
   });
 
   api.route("/", mcpRoutes);
