@@ -2362,7 +2362,9 @@
 		"boardSearchPlaceholder": "Search tickets...",
 		"view": {
 			"board": "Board",
-			"list": "List"
+			"list": "List",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "Select task",

@@ -2399,7 +2399,9 @@
 		"boardSearchPlaceholder": "Поиск задач...",
 		"view": {
 			"board": "Доска",
-			"list": "Список"
+			"list": "Список",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "Выбрать задачу",

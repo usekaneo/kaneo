@@ -2391,7 +2391,9 @@
 		"boardSearchPlaceholder": "Пошук тікетів...",
 		"view": {
 			"board": "Дошка",
-			"list": "Список"
+			"list": "Список",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "Обрати завдання",

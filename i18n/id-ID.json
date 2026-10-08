@@ -2346,7 +2346,9 @@
 		"boardSearchPlaceholder": "Cari tiket...",
 		"view": {
 			"board": "Papan",
-			"list": "Daftar"
+			"list": "Daftar",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "Pilih tugas",

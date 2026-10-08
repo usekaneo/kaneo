@@ -2376,7 +2376,9 @@
 		"boardSearchPlaceholder": "Cerca ticket...",
 		"view": {
 			"board": "Board",
-			"list": "Elenco"
+			"list": "Elenco",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "Seleziona attività",

@@ -2361,7 +2361,9 @@
 		"boardSearchPlaceholder": "टिकट खोजें...",
 		"view": {
 			"board": "बोर्ड",
-			"list": "सूची"
+			"list": "सूची",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "कार्य चुनें",

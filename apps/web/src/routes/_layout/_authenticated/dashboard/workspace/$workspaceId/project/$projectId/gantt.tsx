@@ -237,10 +237,7 @@ function RouteComponent() {
       workspaceId={workspaceId}
       activeView="gantt"
     >
-      <PageTitle
-        title={t("tasks:gantt.pageTitle", { name: project?.name })}
-        hideAppName
-      />
+      <PageTitle title={project?.name ?? ""} suffix={t("tasks:view.gantt")} />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <div className="border-b border-border/80 px-3 py-3 sm:px-4">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

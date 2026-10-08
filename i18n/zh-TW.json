@@ -2346,7 +2346,9 @@
 		"boardSearchPlaceholder": "搜尋任務…",
 		"view": {
 			"board": "看板",
-			"list": "清單"
+			"list": "清單",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "選取任務",

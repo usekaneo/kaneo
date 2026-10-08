@@ -2361,7 +2361,9 @@
 		"boardSearchPlaceholder": "Tapşırıqları axtar...",
 		"view": {
 			"board": "Lövhə",
-			"list": "Siyahı"
+			"list": "Siyahı",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "Tapşırıq seç",

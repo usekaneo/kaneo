@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import PageTitle from "@/components/page-title";
 import { SettingsPage } from "@/components/settings/settings-page";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -42,9 +43,16 @@ function RouteComponent() {
       <SettingsPage
         title={t("navigation:sidebar.projects")}
         description={t("settings:projectSwitcher.noProjects")}
-      />
+      >
+        <PageTitle title={t("navigation:sidebar.projects")} />
+      </SettingsPage>
     );
   }
 
-  return <Outlet />;
+  return (
+    <>
+      {isProjectsRoot && <PageTitle title={t("navigation:sidebar.projects")} />}
+      <Outlet />
+    </>
+  );
 }

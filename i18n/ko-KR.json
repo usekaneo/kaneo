@@ -2346,7 +2346,9 @@
 		"boardSearchPlaceholder": "티켓 검색...",
 		"view": {
 			"board": "보드",
-			"list": "목록"
+			"list": "목록",
+			"backlog": "Backlog",
+			"gantt": "Gantt"
 		},
 		"common": {
 			"selectTask": "작업 선택",

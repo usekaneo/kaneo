@@ -9582,9 +9582,15 @@
 						},
 						"list": {
 							"type": "string"
+						},
+						"backlog": {
+							"type": "string"
+						},
+						"gantt": {
+							"type": "string"
 						}
 					},
-					"required": ["board", "list"]
+					"required": ["board", "list", "backlog", "gantt"]
 				},
 				"common": {
 					"type": "object",

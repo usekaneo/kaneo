@@ -137,8 +137,8 @@ function RouteComponent() {
       activeView="calendar"
     >
       <PageTitle
-        title={t("tasks:calendar.pageTitle", { name: project?.name })}
-        hideAppName
+        title={project?.name ?? ""}
+        suffix={t("tasks:calendar.title")}
       />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <CalendarToolbar
