@@ -56,9 +56,11 @@ function run(respond: Responder) {
       ),
     ),
   );
-  const effect = linkToParent(parent, { id: "child", label: "KAN-9" }).pipe(
-    Effect.provide(Layer.mergeAll(api, captureOutput().layer)),
-  );
+  const effect = linkToParent(parent, {
+    id: "child",
+    label: "KAN-9",
+    argument: "KAN-9",
+  }).pipe(Effect.provide(Layer.mergeAll(api, captureOutput().layer)));
   return { recorded, result: Effect.runPromise(Effect.result(effect)) };
 }
 
@@ -106,7 +108,11 @@ describe("linkToParent", () => {
   });
 
   it("does nothing without a parent", async () => {
-    const effect = linkToParent(undefined, { id: "child", label: "KAN-9" });
+    const effect = linkToParent(undefined, {
+      id: "child",
+      label: "KAN-9",
+      argument: "KAN-9",
+    });
     expect(
       await Effect.runPromise(
         effect.pipe(

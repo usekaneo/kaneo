@@ -2,7 +2,6 @@ import { Effect, Option } from "effect";
 import { createTaskRelation } from "../api/task-relations.js";
 import { describeError } from "../errors/describe.js";
 import { InvalidArgument } from "../errors/errors.js";
-import { shellQuote } from "../input/shell-quote.js";
 import { withSpinner } from "../output/spinner.js";
 import { type ResolvedTask, resolveTask } from "../tasks/resolve-task.js";
 import { toApiRelation } from "./relation-types.js";
@@ -36,7 +35,11 @@ export function projectOrParent(
 
 export const linkToParent = Effect.fn("relations.linkToParent")(function* (
   parent: ResolvedTask | undefined,
-  child: { readonly id: string; readonly label: string },
+  child: {
+    readonly id: string;
+    readonly label: string;
+    readonly argument: string;
+  },
 ) {
   if (!parent) return null;
   const ref: TaskRef = taskRef(parent);
@@ -48,7 +51,7 @@ export const linkToParent = Effect.fn("relations.linkToParent")(function* (
       (error) =>
         new InvalidArgument({
           message: `Created ${child.label}, but could not make it a subtask of ${parentLabel}: ${describeError(error).message}`,
-          hint: `Link it with kaneo task relation add ${shellQuote(child.label)} subtask-of ${shellQuote(taskArgument(ref))}`,
+          hint: `Link it with kaneo task relation add ${child.argument} subtask-of ${taskArgument(ref)}`,
         }),
     ),
   );

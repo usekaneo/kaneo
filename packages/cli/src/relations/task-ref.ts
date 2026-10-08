@@ -1,3 +1,4 @@
+import { shellSafeOr } from "../input/shell-safe.js";
 import type { ResolvedTask } from "../tasks/resolve-task.js";
 
 export type TaskRef = {
@@ -21,5 +22,5 @@ export function taskLabel(task: TaskRef): string {
 }
 
 export function taskArgument(task: TaskRef): string {
-  return task.ticketId ?? task.id;
+  return shellSafeOr(task.ticketId, task.id);
 }

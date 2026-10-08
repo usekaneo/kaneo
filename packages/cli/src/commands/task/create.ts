@@ -35,7 +35,7 @@ import { renderTaskChange } from "../../tasks/render-task-change.js";
 import { resolveAssignee } from "../../tasks/resolve-assignee.js";
 import { toTaskDetailJson } from "../../tasks/task-detail-json.js";
 import { readTextInput } from "../../input/read-text-input.js";
-import { shellQuote } from "../../input/shell-quote.js";
+import { shellSafeOr } from "../../input/shell-safe.js";
 import { ApiLayer } from "../api-layer.js";
 
 const PRIORITIES = ["no-priority", "low", "medium", "high", "urgent"] as const;
@@ -149,7 +149,9 @@ export const runTaskCreate = Effect.fn("command.task.create")(
     const created = yield* withSpinner("Creating task")(
       createTask(project.id, body),
     );
-    const createdLabel = ticketId(project.slug, created.number) ?? created.id;
+    const createdTicket = ticketId(project.slug, created.number);
+    const createdLabel = createdTicket ?? created.id;
+    const createdArgument = shellSafeOr(createdTicket, created.id);
     const attached: ReadonlyArray<Label> =
       labels.length > 0
         ? yield* withSpinner("Adding labels")(
@@ -161,7 +163,7 @@ export const runTaskCreate = Effect.fn("command.task.create")(
               (error) =>
                 new InvalidArgument({
                   message: `Created ${createdLabel}, but could not add the labels: ${describeError(error).message}`,
-                  hint: `Add them with kaneo task edit ${shellQuote(createdLabel)} ${labels.map((label) => `--add-label ${shellQuote(label.name)}`).join(" ")}`,
+                  hint: `Add them with kaneo task edit ${createdArgument} ${labels.map((label) => `--add-label ${shellSafeOr(label.name, label.id)}`).join(" ")}`,
                 }),
             ),
           )
@@ -169,6 +171,7 @@ export const runTaskCreate = Effect.fn("command.task.create")(
     const parentRef = yield* linkToParent(parent, {
       id: created.id,
       label: createdLabel,
+      argument: createdArgument,
     });
 
     const json = toTaskDetailJson({
