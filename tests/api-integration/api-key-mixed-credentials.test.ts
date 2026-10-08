@@ -79,9 +79,10 @@ describe("API integration: API key sent with an invalid bearer token", () => {
 
     const keyOnly = await createProject({ "x-api-key": key });
     expect(keyOnly.status).toBe(403);
-    expect(await readErrorBody(keyOnly)).toMatchObject({
+    expect(await readErrorBody(keyOnly)).toEqual({
       message: "Insufficient API key scope",
       code: "API_KEY_SCOPE",
+      missingPermissions: ["project:create"],
     });
 
     const mixed = await createProject({ "x-api-key": key, ...invalidBearer });
