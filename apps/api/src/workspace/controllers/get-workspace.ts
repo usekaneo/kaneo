@@ -3,22 +3,19 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   userTable,
-  workspaceRoleTable,
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { instanceAdminRoleSql } from "../../utils/instance-admin-role";
-import {
-  canReadWorkspace,
-  workspaceAccessColumns,
-} from "../can-read-workspace";
+import { workspaceAccessColumns } from "../can-read-workspace";
+import { filterReadableWorkspaces } from "../filter-readable-workspaces";
 import {
   toWorkspaceResponse,
   workspaceColumns,
 } from "../to-workspace-response";
 
 async function getWorkspace(workspaceId: string, userId: string) {
-  const [row] = await db
+  const rows = await db
     .select({ ...workspaceColumns, ...workspaceAccessColumns })
     .from(workspaceTable)
     .innerJoin(userTable, eq(userTable.id, userId))
@@ -27,13 +24,6 @@ async function getWorkspace(workspaceId: string, userId: string) {
       and(
         eq(workspaceUserTable.workspaceId, workspaceTable.id),
         eq(workspaceUserTable.userId, userTable.id),
-      ),
-    )
-    .leftJoin(
-      workspaceRoleTable,
-      and(
-        eq(workspaceRoleTable.workspaceId, workspaceTable.id),
-        eq(workspaceRoleTable.role, workspaceUserTable.role),
       ),
     )
     .where(
@@ -48,7 +38,8 @@ async function getWorkspace(workspaceId: string, userId: string) {
     .orderBy(workspaceUserTable.joinedAt, workspaceUserTable.id)
     .limit(1);
 
-  if (!row || !canReadWorkspace(row)) {
+  const [row] = await filterReadableWorkspaces(rows);
+  if (!row) {
     throw new HTTPException(404, { message: "Workspace not found" });
   }
 

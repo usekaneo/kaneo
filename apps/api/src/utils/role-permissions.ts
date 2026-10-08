@@ -65,3 +65,20 @@ export function roleAllows(
     builtInRoleStatements(role);
   return Boolean(statements && satisfies(statements, permissions));
 }
+
+export type StoredRolePermission = {
+  role: string;
+  permission: string | null;
+};
+
+export function rolesAllow(
+  roles: readonly string[],
+  stored: readonly StoredRolePermission[],
+  permissions: PermissionMap,
+) {
+  return roles.some((role) => {
+    const rows = stored.filter((row) => row.role === role);
+    if (rows.length === 0) return roleAllows(role, null, permissions);
+    return rows.some((row) => roleAllows(role, row.permission, permissions));
+  });
+}

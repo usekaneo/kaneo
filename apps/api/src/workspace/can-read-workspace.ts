@@ -1,26 +1,28 @@
 import { sql } from "drizzle-orm";
-import {
-  userTable,
-  workspaceRoleTable,
-  workspaceUserTable,
-} from "../database/schema";
+import { userTable, workspaceUserTable } from "../database/schema";
 import { instanceAdminRoleSql } from "../utils/instance-admin-role";
-import { roleAllows } from "../utils/role-permissions";
+import {
+  rolesAllow,
+  type StoredRolePermission,
+} from "../utils/role-permissions";
+import { splitRoles } from "../utils/split-roles";
 
 export const workspaceAccessColumns = {
   role: workspaceUserTable.role,
-  rolePermission: workspaceRoleTable.permission,
   instanceAdmin: sql<boolean>`coalesce(${instanceAdminRoleSql(userTable.role)}, false)`,
 };
 
-export function canReadWorkspace(row: {
+export type WorkspaceAccess = {
   role: string | null;
-  rolePermission: string | null;
   instanceAdmin: boolean;
-}) {
-  if (row.instanceAdmin) return true;
-  return (
-    row.role !== null &&
-    roleAllows(row.role, row.rolePermission, { workspace: ["read"] })
-  );
+};
+
+export function canReadWorkspace(
+  access: WorkspaceAccess,
+  storedRoles: readonly StoredRolePermission[],
+) {
+  if (access.instanceAdmin) return true;
+  return rolesAllow(splitRoles(access.role), storedRoles, {
+    workspace: ["read"],
+  });
 }

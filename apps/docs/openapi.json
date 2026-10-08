@@ -4327,7 +4327,7 @@
               "string",
               "null"
             ],
-            "description": "The caller's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace. Null when an instance admin views a workspace they are not a member of."
+            "description": "The caller's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace. Several roles are comma-separated, for example owner,viewer. Null when an instance admin views a workspace they are not a member of."
           }
         },
         "required": [
@@ -4360,7 +4360,7 @@
           },
           "role": {
             "type": "string",
-            "description": "The member's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace."
+            "description": "The member's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace. Several roles are comma-separated, for example owner,viewer."
           }
         },
         "required": [
@@ -19020,7 +19020,7 @@
           "Workspaces"
         ],
         "summary": "List workspaces",
-        "description": "List the workspaces where the caller is a member with a role that grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
+        "description": "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
         "responses": {
           "200": {
             "description": "The caller's workspaces",
@@ -19058,7 +19058,7 @@
           "Workspaces"
         ],
         "summary": "Get workspace",
-        "description": "Get a workspace the caller is a member of with a role that grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+        "description": "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
         "parameters": [
           {
             "schema": {
@@ -19094,7 +19094,7 @@
             }
           },
           "404": {
-            "description": "Workspace not found, the caller is not a member of it, or their role lacks workspace:read",
+            "description": "Workspace not found, the caller is not a member of it, or none of their roles grants workspace:read",
             "content": {
               "text/plain": {
                 "schema": {

@@ -2,14 +2,11 @@ import { and, eq, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   userTable,
-  workspaceRoleTable,
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
-import {
-  canReadWorkspace,
-  workspaceAccessColumns,
-} from "../can-read-workspace";
+import { workspaceAccessColumns } from "../can-read-workspace";
+import { filterReadableWorkspaces } from "../filter-readable-workspaces";
 import {
   toWorkspaceResponse,
   workspaceColumns,
@@ -32,13 +29,6 @@ async function listWorkspaces(userId: string) {
       ),
     )
     .innerJoin(userTable, eq(userTable.id, workspaceUserTable.userId))
-    .leftJoin(
-      workspaceRoleTable,
-      and(
-        eq(workspaceRoleTable.workspaceId, workspaceTable.id),
-        eq(workspaceRoleTable.role, workspaceUserTable.role),
-      ),
-    )
     .orderBy(
       sortName,
       workspaceTable.id,
@@ -46,7 +36,7 @@ async function listWorkspaces(userId: string) {
       workspaceUserTable.id,
     );
 
-  return rows.filter(canReadWorkspace).map(toWorkspaceResponse);
+  return (await filterReadableWorkspaces(rows)).map(toWorkspaceResponse);
 }
 
 export default listWorkspaces;

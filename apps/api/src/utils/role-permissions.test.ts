@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { roleAllows, satisfies } from "./role-permissions";
+import { roleAllows, rolesAllow, satisfies } from "./role-permissions";
 
 const workspaceRead = { workspace: ["read"] };
 
@@ -36,6 +36,73 @@ describe("roleAllows", () => {
 
     expect(roleAllows("custom", stored, workspaceRead)).toBe(false);
     expect(roleAllows("custom", stored, { task: ["read"] })).toBe(true);
+  });
+});
+
+describe("rolesAllow", () => {
+  const noRead = JSON.stringify({ task: ["read"] });
+  const read = JSON.stringify(workspaceRead);
+
+  it("allows when any role grants the permission", () => {
+    expect(
+      rolesAllow(
+        ["limited", "reader"],
+        [
+          { role: "limited", permission: noRead },
+          { role: "reader", permission: read },
+        ],
+        workspaceRead,
+      ),
+    ).toBe(true);
+    expect(
+      rolesAllow(
+        ["limited", "viewer"],
+        [{ role: "limited", permission: noRead }],
+        workspaceRead,
+      ),
+    ).toBe(true);
+  });
+
+  it("denies when no role grants the permission", () => {
+    expect(
+      rolesAllow(
+        ["limited", "viewer"],
+        [
+          { role: "limited", permission: noRead },
+          { role: "viewer", permission: noRead },
+        ],
+        workspaceRead,
+      ),
+    ).toBe(false);
+    expect(rolesAllow([], [], workspaceRead)).toBe(false);
+  });
+
+  it("allows when any duplicate row for a role grants the permission", () => {
+    for (const stored of [
+      [
+        { role: "custom", permission: noRead },
+        { role: "custom", permission: read },
+      ],
+      [
+        { role: "custom", permission: read },
+        { role: "custom", permission: noRead },
+      ],
+    ]) {
+      expect(rolesAllow(["custom"], stored, workspaceRead)).toBe(true);
+    }
+  });
+
+  it("ignores stored rows for roles the member does not have", () => {
+    expect(
+      rolesAllow(
+        ["limited"],
+        [
+          { role: "limited", permission: noRead },
+          { role: "reader", permission: read },
+        ],
+        workspaceRead,
+      ),
+    ).toBe(false);
   });
 });
 

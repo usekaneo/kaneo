@@ -1,27 +1,34 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
 import { isInstanceAdmin } from "./is-instance-admin";
-import { type PermissionMap, roleAllows, satisfies } from "./role-permissions";
+import {
+  type PermissionMap,
+  rolesAllow,
+  type StoredRolePermission,
+  satisfies,
+} from "./role-permissions";
+import { splitRoles } from "./split-roles";
 
-async function storedRolePermission(
+async function storedRolePermissions(
   workspaceId: string,
-  role: string,
-  database: Pick<typeof db, "select"> = db,
-): Promise<string | null> {
-  const [row] = await database
-    .select({ permission: schema.workspaceRoleTable.permission })
+  roles: string[],
+  database: Pick<typeof db, "select">,
+): Promise<StoredRolePermission[]> {
+  if (roles.length === 0) return [];
+  return database
+    .select({
+      role: schema.workspaceRoleTable.role,
+      permission: schema.workspaceRoleTable.permission,
+    })
     .from(schema.workspaceRoleTable)
     .where(
       and(
         eq(schema.workspaceRoleTable.workspaceId, workspaceId),
-        eq(schema.workspaceRoleTable.role, role),
+        inArray(schema.workspaceRoleTable.role, roles),
       ),
-    )
-    .limit(1);
-
-  return row?.permission ?? null;
+    );
 }
 
 function apiKeyAllows(c: Context, permissions: PermissionMap) {
@@ -43,9 +50,10 @@ export async function roleHasWorkspacePermission(
   permissions: PermissionMap,
   database: Pick<typeof db, "select"> = db,
 ) {
-  return roleAllows(
-    role,
-    await storedRolePermission(workspaceId, role, database),
+  const roles = splitRoles(role);
+  return rolesAllow(
+    roles,
+    await storedRolePermissions(workspaceId, roles, database),
     permissions,
   );
 }

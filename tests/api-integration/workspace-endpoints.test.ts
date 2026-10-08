@@ -164,6 +164,85 @@ describe("GET /api/workspace", () => {
     ]);
   });
 
+  it("lists and reads a workspace when any of the caller's roles grants workspace:read", async () => {
+    const { user, workspace: custom } = await createWorkspaceMember({
+      role: "limited,reader",
+      workspaceName: "Custom",
+    });
+    await addRole(custom.id, "limited", { task: ["read"] });
+    await addRole(custom.id, "reader", { workspace: ["read"] });
+    const builtIn = await createWorkspace({ name: "Built-in" });
+    await addMembership(builtIn.id, user.id, "limited, viewer");
+    await addRole(builtIn.id, "limited", { task: ["read"] });
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const list = await app.request("/api/workspace");
+    const customSingle = await app.request(`/api/workspace/${custom.id}`);
+    const builtInSingle = await app.request(`/api/workspace/${builtIn.id}`);
+
+    expect(await readJson(list)).toEqual([
+      expected(builtIn, "limited, viewer"),
+      expected(custom, "limited,reader"),
+    ]);
+    expect(await readJson(customSingle)).toEqual(
+      expected(custom, "limited,reader"),
+    );
+    expect(await readJson(builtInSingle)).toEqual(
+      expected(builtIn, "limited, viewer"),
+    );
+  });
+
+  it("hides a workspace when none of the caller's roles grants workspace:read", async () => {
+    const { user, workspace } = await createWorkspaceMember({
+      role: "limited,other",
+    });
+    await addRole(workspace.id, "limited", { task: ["read"] });
+    await addRole(workspace.id, "other", { project: ["read"] });
+    await addRole(workspace.id, "reader", { workspace: ["read"] });
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const list = await app.request("/api/workspace");
+    const single = await app.request(`/api/workspace/${workspace.id}`);
+
+    expect(await readJson(list)).toEqual([]);
+    expect(single.status).toBe(404);
+    expect(await single.text()).toContain("Workspace not found");
+  });
+
+  it("grants access when any duplicate role row grants workspace:read", async () => {
+    const { user, workspace: readFirst } = await createWorkspaceMember({
+      role: "custom",
+      workspaceName: "Read first",
+    });
+    await addRole(readFirst.id, "custom", { workspace: ["read"] });
+    await addRole(readFirst.id, "custom", { task: ["read"] });
+    const readLast = await createWorkspace({ name: "Read last" });
+    await addMembership(readLast.id, user.id, "custom");
+    await addRole(readLast.id, "custom", { task: ["read"] });
+    await addRole(readLast.id, "custom", { workspace: ["read"] });
+    const noRead = await createWorkspace({ name: "No read" });
+    await addMembership(noRead.id, user.id, "custom");
+    await addRole(noRead.id, "custom", { task: ["read"] });
+    await addRole(noRead.id, "custom", { project: ["read"] });
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const list = await app.request("/api/workspace");
+    const first = await app.request(`/api/workspace/${readFirst.id}`);
+    const last = await app.request(`/api/workspace/${readLast.id}`);
+    const denied = await app.request(`/api/workspace/${noRead.id}`);
+
+    expect(await readJson(list)).toEqual([
+      expected(readFirst, "custom"),
+      expected(readLast, "custom"),
+    ]);
+    expect(await readJson(first)).toEqual(expected(readFirst, "custom"));
+    expect(await readJson(last)).toEqual(expected(readLast, "custom"));
+    expect(denied.status).toBe(404);
+  });
+
   it("lists an instance admin's membership even when the role lacks workspace:read", async () => {
     const admin = await createInstanceAdmin();
     const workspace = await createWorkspace({ name: "Limited" });
