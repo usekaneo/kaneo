@@ -17,13 +17,6 @@
     }
   ],
   "components": {
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "description": "API key or session token (Bearer)"
-      }
-    },
     "responses": {
       "ApiKeyRateLimited": {
         "description": "The API key exceeded its rate limit or usage quota. Wait the number of seconds in Retry-After before retrying. The X-RateLimit headers are sent only when the rate limit was hit.",
@@ -60,6 +53,13 @@
             }
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "API key or session token (Bearer)"
       }
     },
     "schemas": {
@@ -5246,6 +5246,9 @@
         "responses": {
           "200": {
             "description": "Current session details, or null when unauthenticated"
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5289,6 +5292,9 @@
           },
           "404": {
             "description": "Asset not found"
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7544,6 +7550,9 @@
           },
           "302": {
             "description": "Redirects the browser to the web app device screen"
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }

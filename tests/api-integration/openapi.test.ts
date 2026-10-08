@@ -150,4 +150,27 @@ describe("Kaneo API OpenAPI spec", () => {
       $ref: "#/components/responses/ApiKeyRateLimited",
     });
   });
+
+  it("documents the API key rate limit on public routes that read an API key", () => {
+    const byId = new Map(
+      operations(spec).map(([, , operation]) => [
+        operation.operationId,
+        operation,
+      ]),
+    );
+    for (const id of ["getSession", "getAsset", "getDeviceAuthorizationPage"]) {
+      expect(byId.get(id)?.responses["429"], id).toEqual({
+        $ref: "#/components/responses/ApiKeyRateLimited",
+      });
+    }
+    for (const id of [
+      "getInstanceStatus",
+      "getPublicProject",
+      "getUserAvatar",
+      "getCalendarFeed",
+      "getConfig",
+    ]) {
+      expect(byId.get(id)?.responses["429"], id).toBeUndefined();
+    }
+  });
 });

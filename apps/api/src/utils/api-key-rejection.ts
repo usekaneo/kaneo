@@ -1,5 +1,6 @@
 import { HTTPException } from "hono/http-exception";
 import {
+  type ApiKeyCheck,
   type ApiKeyDenial,
   apiKeyDenialHeaders,
   retryAfterSeconds,
@@ -22,13 +23,21 @@ export function apiKeyRejection(denial: ApiKeyDenial | null, now = new Date()) {
   );
 }
 
-export function betterAuthLimitRejection(body: unknown, now = new Date()) {
+export function betterAuthLimitRejection(
+  body: unknown,
+  check: ApiKeyCheck | null,
+  now = new Date(),
+) {
+  if (check && check.status !== "valid") return apiKeyRejection(check, now);
   const { code, details } = (body ?? {}) as {
     code?: unknown;
     details?: { tryAgainIn?: unknown };
   };
   if (code === "USAGE_EXCEEDED")
-    return apiKeyRejection({ status: "usage_exceeded", retryAt: null }, now);
+    return apiKeyRejection(
+      { status: "usage_exceeded", retryAt: null, rateLimit: null },
+      now,
+    );
   const tryAgainIn = details?.tryAgainIn;
   return tooManyRequests(
     "Rate limit exceeded",

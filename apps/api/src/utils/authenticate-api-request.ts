@@ -4,7 +4,8 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { auth } from "../auth";
 import { apiKeyRejection, betterAuthLimitRejection } from "./api-key-rejection";
-import { verifyApiKey } from "./verify-api-key";
+import { type ApiKeyRateLimit, rateLimitHeaders } from "./rate-limit-headers";
+import { readApiKeyCheck, verifyApiKey } from "./verify-api-key";
 
 // User is tagged on Sentry's isolation scope; the per-request isolation
 // scope is forked by Sentry.withIsolationScope in the api.use("*", ...)
@@ -26,7 +27,11 @@ async function getSession(headers: Headers) {
     return await auth.api.getSession({ headers });
   } catch (error) {
     if (error instanceof APIError && error.statusCode === 429) {
-      throw betterAuthLimitRejection(error.body);
+      const apiKeyHeader = headers.get("x-api-key")?.trim();
+      throw betterAuthLimitRejection(
+        error.body,
+        apiKeyHeader ? await readApiKeyCheck(apiKeyHeader) : null,
+      );
     }
     if (isAuthRejection(error)) {
       return null;
@@ -65,6 +70,10 @@ function parseBearerToken(authHeader: string | undefined): {
   };
 }
 
+function setRateLimitHeaders(c: Context, rateLimit: ApiKeyRateLimit | null) {
+  if (rateLimit) c.set("apiKeyHeaders", rateLimitHeaders(rateLimit));
+}
+
 type VerifiedApiKey = Extract<
   Awaited<ReturnType<typeof verifyApiKey>>,
   { status: "valid" }
@@ -81,7 +90,7 @@ function setApiKeyContext(c: Context, { key, rateLimit }: VerifiedApiKey) {
     enabled: key.enabled,
     permissions: key.permissions,
   });
-  c.set("apiKeyRateLimit", rateLimit);
+  setRateLimitHeaders(c, rateLimit);
   attachUserToScope(key.userId);
 }
 
@@ -150,7 +159,7 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
     if (apiKeyResult?.status !== "valid") {
       throw apiKeyRejection(apiKeyResult);
     }
-    c.set("apiKeyRateLimit", apiKeyResult.rateLimit);
+    setRateLimitHeaders(c, apiKeyResult.rateLimit);
     return {
       userId: apiKeyResult.key.userId,
       apiKeyId: apiKeyResult.key.id,
@@ -160,7 +169,7 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
   if (token) {
     const apiKeyResult = await verifyApiKey(token);
     if (apiKeyResult?.status === "valid") {
-      c.set("apiKeyRateLimit", apiKeyResult.rateLimit);
+      setRateLimitHeaders(c, apiKeyResult.rateLimit);
       return {
         userId: apiKeyResult.key.userId,
         apiKeyId: apiKeyResult.key.id,

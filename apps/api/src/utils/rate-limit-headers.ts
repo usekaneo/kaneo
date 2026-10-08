@@ -6,7 +6,15 @@ export type ApiKeyRateLimit = {
 
 export type ApiKeyDenial =
   | { status: "rate_limited"; limit: number; resetAt: Date }
-  | { status: "usage_exceeded"; retryAt: Date | null };
+  | {
+      status: "usage_exceeded";
+      retryAt: Date | null;
+      rateLimit: ApiKeyRateLimit | null;
+    };
+
+export type ApiKeyCheck =
+  | ApiKeyDenial
+  | { status: "valid"; rateLimit: ApiKeyRateLimit | null };
 
 export function retryAfterSeconds(retryAt: Date, now: Date) {
   return String(
@@ -43,4 +51,25 @@ export function apiKeyDenialHeaders(
   return denial.retryAt
     ? { "Retry-After": retryAfterSeconds(denial.retryAt, now) }
     : {};
+}
+
+export function apiKeyResponseHeaders(
+  check: ApiKeyCheck | null,
+  response: Response,
+  now: Date,
+): Record<string, string> {
+  if (!check) return {};
+  if (
+    check.status !== "valid" &&
+    response.status === 429 &&
+    !response.headers.has("Retry-After")
+  )
+    return apiKeyDenialHeaders(check, now);
+  if (check.status === "rate_limited")
+    return rateLimitHeaders({
+      limit: check.limit,
+      remaining: 0,
+      resetAt: check.resetAt,
+    });
+  return check.rateLimit ? rateLimitHeaders(check.rateLimit) : {};
 }

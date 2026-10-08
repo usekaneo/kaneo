@@ -1,7 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
-import db, { schema } from "../../apps/api/src/database";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { auth } from "../../apps/api/src/auth";
+import db, { getDatabase, schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { signUpWithSession } from "./helpers/auth-session";
 import { resetTestDatabase } from "./helpers/database";
@@ -172,8 +173,121 @@ describe("API key rate limits", () => {
 
     expect(response.status).toBe(429);
     expect(await response.text()).toContain("Rate limit exceeded");
-    expect(Number(limitHeaders(response).retryAfter)).toBeGreaterThanOrEqual(
-      59,
+    const headers = limitHeaders(response);
+    expect(headers).toMatchObject({
+      limit: String(LIMIT),
+      remaining: "0",
+      reset: expect.stringMatching(/^\d+$/),
+    });
+    expect(Number(headers.retryAfter)).toBeGreaterThanOrEqual(59);
+  });
+
+  it("answers 429 with the refill time when Better Auth rejects an exhausted key", async () => {
+    const { key } = await seedKey({
+      remaining: 0,
+      refillAmount: 5,
+      refillInterval: 3_600_000,
+      lastRefillAt: new Date(Date.now() - 600_000),
+    });
+    const { app } = createApp();
+
+    const response = await app.request("/api/user/me", {
+      headers: { Authorization: "Bearer not-a-real-key", "x-api-key": key },
+    });
+
+    expect(response.status).toBe(429);
+    expect(await response.text()).toContain("API key usage limit exceeded");
+    const retryAfter = Number(limitHeaders(response).retryAfter);
+    expect(retryAfter).toBeGreaterThanOrEqual(2_999);
+    expect(retryAfter).toBeLessThanOrEqual(3_000);
+  });
+
+  it.each([
+    [
+      "x-api-key",
+      "/api/auth/get-session",
+      (key: string) => ({ "x-api-key": key }),
+    ],
+    [
+      "a Bearer key",
+      "/api/auth/organization/list",
+      (key: string) => ({ Authorization: `Bearer ${key}` }),
+    ],
+  ])(
+    "reports the window on an auth request that spends the last quota unit via %s",
+    async (_, path, headersFor) => {
+      const { key, row } = await seedKey({ remaining: 1 });
+      const { app } = createApp();
+
+      const response = await app.request(path, { headers: headersFor(key) });
+
+      expect(response.status).toBe(200);
+      expect(limitHeaders(response)).toMatchObject({
+        limit: String(LIMIT),
+        remaining: String(LIMIT - 1),
+        retryAfter: null,
+      });
+      expect((await savedKey(row.id)).remaining).toBe(0);
+    },
+  );
+
+  it.each([
+    [
+      "x-api-key",
+      "/api/auth/get-session",
+      (key: string) => ({ "x-api-key": key }),
+    ],
+    [
+      "a Bearer key",
+      "/api/auth/organization/list",
+      (key: string) => ({ Authorization: `Bearer ${key}` }),
+    ],
+  ])(
+    "adds retry headers when the window fills before Better Auth checks a key via %s",
+    async (_, path, headersFor) => {
+      const { key, row } = await seedKey();
+      const handler = auth.handler;
+      vi.spyOn(auth, "handler").mockImplementationOnce(async (request) => {
+        await fillWindow(row.id, new Date());
+        return handler(request);
+      });
+      const { app } = createApp();
+
+      const response = await app.request(path, { headers: headersFor(key) });
+
+      expect(response.status).toBe(429);
+      const headers = limitHeaders(response);
+      expect(headers).toMatchObject({ limit: String(LIMIT), remaining: "0" });
+      expect(Number(headers.retryAfter)).toBeGreaterThanOrEqual(59);
+      expect(Number(headers.retryAfter)).toBeLessThanOrEqual(60);
+    },
+  );
+
+  it("still answers when the rate limit headers cannot be read", async () => {
+    const { key, row } = await seedKey();
+    const handler = auth.handler;
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(auth, "handler").mockImplementationOnce(async (request) => {
+      const response = await handler(request);
+      vi.spyOn(getDatabase(), "select").mockImplementationOnce(() => {
+        throw new Error("database unavailable");
+      });
+      return response;
+    });
+    const { app } = createApp();
+
+    const response = await app.request("/api/auth/get-session", {
+      headers: { "x-api-key": key },
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      user: { id: row.referenceId },
+    });
+    expect(limitHeaders(response).limit).toBeNull();
+    expect(errors).toHaveBeenCalledWith(
+      "Failed to read API key usage:",
+      expect.any(Error),
     );
   });
 

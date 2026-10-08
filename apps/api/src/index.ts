@@ -72,6 +72,7 @@ import timeEntry from "./time-entry";
 import user from "./user";
 import getAvatar from "./user/controllers/get-avatar";
 import { apiKeyRejection } from "./utils/api-key-rejection";
+import { applyApiKeyHeaders } from "./utils/apply-api-key-headers";
 import { authenticateApiRequest } from "./utils/authenticate-api-request";
 import {
   authorizeAssetAccess,
@@ -87,11 +88,8 @@ import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
-import {
-  type ApiKeyRateLimit,
-  rateLimitHeaders,
-} from "./utils/rate-limit-headers";
-import { readApiKeyRateLimit, verifyApiKey } from "./utils/verify-api-key";
+import { apiKeyResponseHeaders } from "./utils/rate-limit-headers";
+import { readApiKeyCheck, verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
@@ -131,7 +129,7 @@ type ApiVariables = {
     userId: string;
     userEmail: string;
     apiKey?: ApiKey;
-    apiKeyRateLimit?: ApiKeyRateLimit | null;
+    apiKeyHeaders?: Record<string, string>;
   };
 };
 
@@ -243,14 +241,36 @@ export function createApp() {
 
   const api = new OpenAPIHono<ApiVariables>();
 
-  api.use("*", async (c, next) => {
-    await next();
-    const rateLimit = c.get("apiKeyRateLimit");
-    if (!rateLimit) return;
-    for (const [name, value] of Object.entries(rateLimitHeaders(rateLimit))) {
-      c.header(name, value);
-    }
-  });
+  api.use("*", applyApiKeyHeaders);
+
+  const apiKeyRateLimited = api.openAPIRegistry.registerComponent(
+    "responses",
+    "ApiKeyRateLimited",
+    {
+      description:
+        "The API key exceeded its rate limit or usage quota. Wait the number of seconds in Retry-After before retrying. The X-RateLimit headers are sent only when the rate limit was hit.",
+      headers: {
+        "Retry-After": {
+          description:
+            "Seconds to wait before retrying. Omitted when an exhausted usage quota never refills.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Limit": {
+          description: "Requests the API key may make per window.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Remaining": {
+          description: "Requests left in the current window.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Reset": {
+          description: "Unix time in seconds when the current window resets.",
+          schema: { type: "integer" },
+        },
+      },
+      content: { "text/plain": { schema: { type: "string" } } },
+    },
+  );
 
   api.get("/health", (c) => {
     return c.json({ status: "ok" });
@@ -423,7 +443,14 @@ export function createApp() {
     const apiKeyResult = await verifyApiKey(apiKeyHeader, { consume: false });
     if (apiKeyResult?.status !== "valid") throw apiKeyRejection(apiKeyResult);
     await next();
-    c.set("apiKeyRateLimit", await readApiKeyRateLimit(apiKeyHeader));
+    c.set(
+      "apiKeyHeaders",
+      apiKeyResponseHeaders(
+        await readApiKeyCheck(apiKeyHeader),
+        c.res,
+        new Date(),
+      ),
+    );
   });
 
   api.openapi(
@@ -440,6 +467,7 @@ export function createApp() {
         200: {
           description: "Current session details, or null when unauthenticated",
         },
+        429: apiKeyRateLimited.ref,
       },
     }),
     async (c) => auth.handler(c.req.raw),
@@ -464,6 +492,7 @@ export function createApp() {
         304: { description: "Not modified" },
         403: { description: "No access to this asset" },
         404: { description: "Asset not found" },
+        429: apiKeyRateLimited.ref,
       },
     }),
     async (c) => {
@@ -583,34 +612,6 @@ export function createApp() {
     scheme: "bearer",
     description: "API key or session token (Bearer)",
   });
-  const apiKeyRateLimited = api.openAPIRegistry.registerComponent(
-    "responses",
-    "ApiKeyRateLimited",
-    {
-      description:
-        "The API key exceeded its rate limit or usage quota. Wait the number of seconds in Retry-After before retrying. The X-RateLimit headers are sent only when the rate limit was hit.",
-      headers: {
-        "Retry-After": {
-          description:
-            "Seconds to wait before retrying. Omitted when an exhausted usage quota never refills.",
-          schema: { type: "integer" },
-        },
-        "X-RateLimit-Limit": {
-          description: "Requests the API key may make per window.",
-          schema: { type: "integer" },
-        },
-        "X-RateLimit-Remaining": {
-          description: "Requests left in the current window.",
-          schema: { type: "integer" },
-        },
-        "X-RateLimit-Reset": {
-          description: "Unix time in seconds when the current window resets.",
-          schema: { type: "integer" },
-        },
-      },
-      content: { "text/plain": { schema: { type: "string" } } },
-    },
-  );
   organizationRoutes(api.openAPIRegistry);
 
   api.get("/openapi", (c) => {
@@ -701,6 +702,7 @@ export function createApp() {
           description: "Redirects the browser to the web app device screen",
         },
         200: { description: "Device authorization payload from Better Auth" },
+        429: apiKeyRateLimited.ref,
       },
     }),
     async (c) => {
@@ -745,7 +747,14 @@ export function createApp() {
       headers.set("x-api-key", bearerToken);
 
       const response = await auth.handler(new Request(c.req.raw, { headers }));
-      c.set("apiKeyRateLimit", await readApiKeyRateLimit(bearerToken));
+      c.set(
+        "apiKeyHeaders",
+        apiKeyResponseHeaders(
+          await readApiKeyCheck(bearerToken),
+          response,
+          new Date(),
+        ),
+      );
       return response;
     }
 
