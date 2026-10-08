@@ -116,6 +116,32 @@ describe("Kaneo API OpenAPI spec", () => {
     );
   });
 
+  it("documents Kaneo errors as ApiError JSON", () => {
+    expect(spec.components.schemas.ApiError).toMatchObject({
+      type: "object",
+      required: ["message", "code"],
+    });
+    const plainText: string[] = [];
+    for (const [method, path, operation] of operations(spec)) {
+      if (path.startsWith("/mcp/")) continue;
+      for (const [status, response] of Object.entries(operation.responses)) {
+        if (!/^[45]/.test(status)) continue;
+        const content = (response as { content?: Record<string, unknown> })
+          .content;
+        if (!content?.["application/json"])
+          plainText.push(`${method.toUpperCase()} ${path} ${status}`);
+      }
+    }
+    expect(plainText).toEqual([]);
+    expect(spec.paths["/task/{id}"]?.get?.responses["401"]).toMatchObject({
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/ApiError" },
+        },
+      },
+    });
+  });
+
   it("documents a 401 on every operation that requires auth", () => {
     const missing: string[] = [];
     for (const [method, path, operation] of operations(spec)) {

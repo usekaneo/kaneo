@@ -5,8 +5,20 @@ const { mockGitlabFetch } = vi.hoisted(() => ({
   mockGitlabFetch: vi.fn(),
 }));
 
+const { MockGitlabApiError } = vi.hoisted(() => ({
+  MockGitlabApiError: class GitlabApiError extends Error {
+    constructor(
+      message: string,
+      public status: number,
+      public kind: string,
+    ) {
+      super(message);
+    }
+  },
+}));
+
 vi.mock("../../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
-  GitlabApiError: class GitlabApiError extends Error {},
+  GitlabApiError: MockGitlabApiError,
   verifyGitlabToken: (...args: unknown[]) => mockGitlabFetch(...args),
   createGitlabClient: () => ({
     getProject: (...args: unknown[]) => mockGitlabFetch(...args),
@@ -73,4 +85,27 @@ describe("verifyGitlabAccess input", () => {
     expect(result.projectExists).toBe(true);
     expect(mockGitlabFetch).toHaveBeenLastCalledWith("acme/web");
   });
+});
+
+describe("verifyGitlabAccess token rejection", () => {
+  it.each([401, 403])(
+    "reports GitLab HTTP %i as an integration auth failure",
+    async (status) => {
+      mockGitlabFetch.mockRejectedValueOnce(
+        new MockGitlabApiError("GitLab API error", status, "HTTP_ERROR"),
+      );
+
+      await expect(
+        verifyGitlabAccess({
+          baseUrl: "https://gitlab.com",
+          accessToken: "token",
+          tokenType: "private",
+          projectPath: "acme/web",
+        }),
+      ).rejects.toMatchObject({
+        status: 401,
+        code: "INTEGRATION_AUTH_FAILED",
+      });
+    },
+  );
 });

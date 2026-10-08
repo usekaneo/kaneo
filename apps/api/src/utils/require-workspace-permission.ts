@@ -2,10 +2,13 @@ import { and, eq, inArray } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
+import { ApiError } from "../errors/api-error";
 import { isInstanceAdmin } from "./is-instance-admin";
+import { missingPermissions } from "./missing-permissions";
 import {
   type PermissionMap,
   rolesAllow,
+  rolesMissingPermissions,
   type StoredRolePermission,
   satisfies,
 } from "./role-permissions";
@@ -31,16 +34,21 @@ async function storedRolePermissions(
     );
 }
 
-function apiKeyAllows(c: Context, permissions: PermissionMap) {
+function apiKeyPermissions(c: Context) {
   const apiKey = c.get("apiKey") as
     | { permissions?: Record<string, string[]> | null }
     | undefined;
-  return !apiKey?.permissions || satisfies(apiKey.permissions, permissions);
+  return apiKey?.permissions ?? null;
 }
 
 function assertApiKeyScope(c: Context, permissions: PermissionMap) {
-  if (!apiKeyAllows(c, permissions)) {
-    throw new HTTPException(403, { message: "Insufficient API key scope" });
+  const scope = apiKeyPermissions(c);
+  if (scope && !satisfies(scope, permissions)) {
+    throw new ApiError(403, {
+      message: "Insufficient API key scope",
+      code: "API_KEY_SCOPE",
+      missingPermissions: missingPermissions(scope, permissions),
+    });
   }
 }
 
@@ -69,7 +77,8 @@ export async function hasWorkspacePermission(
   const workspaceId = workspaceIdOverride ?? c.get("workspaceId");
   if (!workspaceId) return false;
 
-  if (!apiKeyAllows(c, permissions)) {
+  const scope = apiKeyPermissions(c);
+  if (scope && !satisfies(scope, permissions)) {
     return false;
   }
 
@@ -77,8 +86,16 @@ export async function hasWorkspacePermission(
     return true;
   }
 
+  const { roles, stored } = await memberRoles(c, workspaceId);
+  return rolesAllow(roles, stored, permissions);
+}
+
+async function memberRoles(
+  c: Context,
+  workspaceId: string,
+): Promise<{ roles: string[]; stored: StoredRolePermission[] }> {
   const userId = c.get("userId");
-  if (!userId) return false;
+  if (!userId) return { roles: [], stored: [] };
 
   const [member] = await db
     .select({ role: schema.workspaceUserTable.role })
@@ -91,15 +108,17 @@ export async function hasWorkspacePermission(
     )
     .limit(1);
 
-  if (!member?.role) return false;
-
   // Prefer the DB row when present so admin-edited defaults
   // (viewer/member/admin) take effect immediately. Falls back to the
   // compiled-in static definitions only when no row exists, which protects
   // viewer/member/admin users from a 403 if their workspace somehow
   // missed the seed (e.g., seed failed during workspace creation and
   // the boot-time backfill hasn't run yet).
-  return roleHasWorkspacePermission(workspaceId, member.role, permissions);
+  const roles = splitRoles(member?.role);
+  return {
+    roles,
+    stored: await storedRolePermissions(workspaceId, roles, db),
+  };
 }
 
 export function requireApiKeyScope(permissions: PermissionMap) {
@@ -111,7 +130,8 @@ export function requireApiKeyScope(permissions: PermissionMap) {
 
 export function requireWorkspacePermission(permissions: PermissionMap) {
   return async (c: Context, next: Next) => {
-    if (!c.get("workspaceId")) {
+    const workspaceId = c.get("workspaceId");
+    if (!workspaceId) {
       throw new HTTPException(500, {
         message: "workspaceId not set in context",
       });
@@ -119,11 +139,21 @@ export function requireWorkspacePermission(permissions: PermissionMap) {
 
     assertApiKeyScope(c, permissions);
 
-    if (!(await hasWorkspacePermission(c, permissions))) {
-      if (!c.get("userId")) {
-        throw new HTTPException(401, { message: "Unauthorized" });
-      }
-      throw new HTTPException(403, { message: "Insufficient permissions" });
+    if (await isInstanceAdmin(c)) {
+      return next();
+    }
+
+    if (!c.get("userId")) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+
+    const { roles, stored } = await memberRoles(c, workspaceId);
+    if (!rolesAllow(roles, stored, permissions)) {
+      throw new ApiError(403, {
+        message: "Insufficient permissions",
+        code: "MISSING_PERMISSION",
+        missingPermissions: rolesMissingPermissions(roles, stored, permissions),
+      });
     }
 
     return next();

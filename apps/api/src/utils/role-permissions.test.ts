@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vite-plus/test";
-import { roleAllows, rolesAllow, satisfies } from "./role-permissions";
+import {
+  roleAllows,
+  rolesAllow,
+  rolesMissingPermissions,
+  satisfies,
+} from "./role-permissions";
 
 const workspaceRead = { workspace: ["read"] };
 
@@ -103,6 +108,76 @@ describe("rolesAllow", () => {
         workspaceRead,
       ),
     ).toBe(false);
+  });
+});
+
+describe("rolesMissingPermissions", () => {
+  const required = { task: ["create", "update"], project: ["read"] };
+
+  it("lists what a single role lacks", () => {
+    expect(
+      rolesMissingPermissions(
+        ["custom"],
+        [{ role: "custom", permission: JSON.stringify({ task: ["create"] }) }],
+        required,
+      ),
+    ).toEqual(["task:update", "project:read"]);
+  });
+
+  it("reports the role that lacks the fewest permissions", () => {
+    expect(
+      rolesMissingPermissions(
+        ["far", "near"],
+        [
+          { role: "far", permission: JSON.stringify({ label: ["read"] }) },
+          {
+            role: "near",
+            permission: JSON.stringify({
+              task: ["create", "update"],
+            }),
+          },
+        ],
+        required,
+      ),
+    ).toEqual(["project:read"]);
+  });
+
+  it("compares every duplicate row and the built-in fallback", () => {
+    expect(
+      rolesMissingPermissions(
+        ["custom", "viewer"],
+        [
+          { role: "custom", permission: JSON.stringify({ task: ["read"] }) },
+          {
+            role: "custom",
+            permission: JSON.stringify({ task: ["create", "update"] }),
+          },
+        ],
+        required,
+      ),
+    ).toEqual(["project:read"]);
+    expect(rolesMissingPermissions(["viewer"], [], required)).toEqual([
+      "task:create",
+      "task:update",
+    ]);
+  });
+
+  it("lists every required permission when the member has no roles", () => {
+    expect(rolesMissingPermissions([], [], required)).toEqual([
+      "task:create",
+      "task:update",
+      "project:read",
+    ]);
+  });
+
+  it("returns nothing when a role grants every permission", () => {
+    expect(
+      rolesMissingPermissions(
+        ["limited", "admin"],
+        [{ role: "limited", permission: JSON.stringify({ task: ["read"] }) }],
+        required,
+      ),
+    ).toEqual([]);
   });
 });
 

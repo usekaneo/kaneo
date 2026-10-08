@@ -1,7 +1,7 @@
 import { HTTPException } from "hono/http-exception";
-import { auth } from "../../auth";
 import { publishEvent } from "../../events";
 import type { z } from "../../openapi";
+import { getUserSession } from "../../utils/get-user-session";
 import {
   consumeAuthorizationRequest,
   createAuthCode,
@@ -114,7 +114,7 @@ export async function decideMcpAuthorizationRequest(params: {
     throwOAuthError(403, "invalid_origin");
   }
 
-  const session = await auth.api.getSession({ headers: params.headers });
+  const session = await getUserSession(params.headers);
   if (!session?.user?.id) throwOAuthError(401, "unauthorized");
 
   const request = await getAuthorizationRequest(params.requestId);

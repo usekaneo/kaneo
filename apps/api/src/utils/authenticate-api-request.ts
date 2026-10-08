@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import { APIError } from "better-auth/api";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { auth } from "../auth";
+import { getUserSession } from "./get-user-session";
 import { verifyApiKey } from "./verify-api-key";
 
 // User is tagged on Sentry's isolation scope; the per-request isolation
@@ -22,7 +22,7 @@ function isAuthRejection(error: unknown) {
 
 async function getSession(headers: Headers) {
   try {
-    return await auth.api.getSession({ headers });
+    return await getUserSession(headers);
   } catch (error) {
     if (isAuthRejection(error)) {
       return null;

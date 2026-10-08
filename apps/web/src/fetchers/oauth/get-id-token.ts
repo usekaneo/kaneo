@@ -11,7 +11,7 @@ export async function getIdToken() {
   const response = await client.oauth["id-token"].$get();
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();

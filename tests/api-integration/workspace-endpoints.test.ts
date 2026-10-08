@@ -7,6 +7,7 @@ import { createInstanceAdmin } from "./helpers/admin/create-instance-admin";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { signUpWithSession } from "./helpers/auth-session";
 import { resetTestDatabase } from "./helpers/database";
+import { readErrorBody } from "./helpers/error-body";
 import { createWorkspaceMember } from "./helpers/fixtures";
 
 type WorkspaceRow = typeof schema.workspaceTable.$inferSelect;
@@ -63,6 +64,13 @@ function expected(workspace: WorkspaceRow, role: string | null) {
     role,
   };
 }
+
+const workspaceNotFound = {
+  message: "Workspace not found",
+  code: "NOT_FOUND",
+};
+
+const unauthorized = { message: "Unauthorized", code: "UNAUTHORIZED" };
 
 async function readJson(response: Response) {
   expect(response.status).toBe(200);
@@ -208,7 +216,7 @@ describe("GET /api/workspace", () => {
 
     expect(await readJson(list)).toEqual([]);
     expect(single.status).toBe(404);
-    expect(await single.text()).toContain("Workspace not found");
+    expect(await readErrorBody(single)).toEqual(workspaceNotFound);
   });
 
   it("grants access when any duplicate role row grants workspace:read", async () => {
@@ -279,7 +287,7 @@ describe("GET /api/workspace", () => {
     const response = await app.request("/api/workspace");
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toContain("Unauthorized");
+    expect(await readErrorBody(response)).toEqual(unauthorized);
   });
 });
 
@@ -371,9 +379,8 @@ describe("GET /api/workspace/{workspaceId}", () => {
 
     expect(notMember.status).toBe(404);
     expect(missing.status).toBe(404);
-    const notMemberBody = await notMember.text();
-    expect(notMemberBody).toContain("Workspace not found");
-    expect(await missing.text()).toBe(notMemberBody);
+    expect(await readErrorBody(notMember)).toEqual(workspaceNotFound);
+    expect(await readErrorBody(missing)).toEqual(workspaceNotFound);
   });
 
   it("returns the same 404 when the caller's role lacks workspace:read", async () => {
@@ -388,9 +395,9 @@ describe("GET /api/workspace/{workspaceId}", () => {
     const missing = await app.request("/api/workspace/workspace-missing");
 
     expect(denied.status).toBe(404);
-    const deniedBody = await denied.text();
-    expect(deniedBody).toContain("Workspace not found");
-    expect(await missing.text()).toBe(deniedBody);
+    expect(missing.status).toBe(404);
+    expect(await readErrorBody(denied)).toEqual(workspaceNotFound);
+    expect(await readErrorBody(missing)).toEqual(workspaceNotFound);
   });
 
   it("lets an instance admin read a workspace they are not a member of", async () => {
@@ -412,7 +419,7 @@ describe("GET /api/workspace/{workspaceId}", () => {
     const response = await app.request("/api/workspace/workspace-missing");
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Workspace not found");
+    expect(await readErrorBody(response)).toEqual(workspaceNotFound);
   });
 
   it("rejects missing credentials", async () => {
@@ -422,7 +429,7 @@ describe("GET /api/workspace/{workspaceId}", () => {
     const response = await app.request(`/api/workspace/${workspace.id}`);
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toContain("Unauthorized");
+    expect(await readErrorBody(response)).toEqual(unauthorized);
   });
 });
 
@@ -473,10 +480,15 @@ describe("workspace endpoints with bearer credentials", () => {
       headers,
     });
 
+    const scopeError = {
+      message: "Insufficient API key scope",
+      code: "API_KEY_SCOPE",
+      missingPermissions: ["workspace:read"],
+    };
     expect(list.status).toBe(403);
-    expect(await list.text()).toContain("Insufficient API key scope");
+    expect(await readErrorBody(list)).toEqual(scopeError);
     expect(single.status).toBe(403);
-    expect(await single.text()).toContain("Insufficient API key scope");
+    expect(await readErrorBody(single)).toEqual(scopeError);
   });
 
   it("accepts an API key scoped to workspace:read", async () => {
@@ -549,6 +561,6 @@ describe("workspace endpoints with bearer credentials", () => {
     });
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toContain("Unauthorized");
+    expect(await readErrorBody(response)).toEqual(unauthorized);
   });
 });

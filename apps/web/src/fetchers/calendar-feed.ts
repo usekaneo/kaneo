@@ -6,7 +6,7 @@ const endpoint = client["calendar-feed"].project[":projectId"];
 
 export async function getCalendarFeeds(projectId: string) {
   const response = await endpoint.$get({ param: { projectId } });
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }
 
@@ -19,13 +19,13 @@ export async function createCalendarFeed(
     param: { projectId },
     json: { labelIds, timeZone },
   });
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }
 
 export async function revokeCalendarFeed(projectId: string, id: string) {
   const response = await endpoint[":id"].$delete({ param: { projectId, id } });
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }
 

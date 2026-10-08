@@ -1,4 +1,5 @@
 import { type BuiltInRoleName, builtInRoles } from "@kaneo/permissions";
+import { missingPermissions } from "./missing-permissions";
 
 export type PermissionMap = Record<string, string[]>;
 
@@ -55,14 +56,22 @@ export function satisfies(
   return true;
 }
 
+function roleStatements(
+  role: string,
+  storedPermission: string | null | undefined,
+): PermissionStatements | null {
+  return (
+    (storedPermission ? parsePermissionStatements(storedPermission) : null) ??
+    builtInRoleStatements(role)
+  );
+}
+
 export function roleAllows(
   role: string,
   storedPermission: string | null | undefined,
   permissions: PermissionMap,
 ) {
-  const statements =
-    (storedPermission ? parsePermissionStatements(storedPermission) : null) ??
-    builtInRoleStatements(role);
+  const statements = roleStatements(role, storedPermission);
   return Boolean(statements && satisfies(statements, permissions));
 }
 
@@ -71,14 +80,36 @@ export type StoredRolePermission = {
   permission: string | null;
 };
 
+function candidateStatements(
+  roles: readonly string[],
+  stored: readonly StoredRolePermission[],
+) {
+  return roles.flatMap((role) => {
+    const rows = stored.filter((row) => row.role === role);
+    if (rows.length === 0) return [roleStatements(role, null)];
+    return rows.map((row) => roleStatements(role, row.permission));
+  });
+}
+
 export function rolesAllow(
   roles: readonly string[],
   stored: readonly StoredRolePermission[],
   permissions: PermissionMap,
 ) {
-  return roles.some((role) => {
-    const rows = stored.filter((row) => row.role === role);
-    if (rows.length === 0) return roleAllows(role, null, permissions);
-    return rows.some((row) => roleAllows(role, row.permission, permissions));
-  });
+  return candidateStatements(roles, stored).some((statements) =>
+    Boolean(statements && satisfies(statements, permissions)),
+  );
+}
+
+export function rolesMissingPermissions(
+  roles: readonly string[],
+  stored: readonly StoredRolePermission[],
+  permissions: PermissionMap,
+): string[] {
+  let closest = missingPermissions(null, permissions);
+  for (const statements of candidateStatements(roles, stored)) {
+    const missing = missingPermissions(statements, permissions);
+    if (missing.length < closest.length) closest = missing;
+  }
+  return closest;
 }
