@@ -42,6 +42,7 @@ import { getPriorityIcon } from "@/lib/priority";
 import type { SortConfig } from "@/lib/sort-tasks";
 import { sortTasks } from "@/lib/sort-tasks";
 import { toast } from "@/lib/toast";
+import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
@@ -121,16 +122,12 @@ function RouteComponent() {
             params: { workspaceId, projectId },
           });
         },
-        [shortcuts.view.gantt]: () => {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
-            params: { workspaceId, projectId },
-          });
-        },
         [shortcuts.view.backlog]: () => {},
       },
     },
   });
+
+  usePluginViewShortcuts(workspaceId, projectId);
 
   const [filters, setFilters] = useState({
     priority: null as string | null,

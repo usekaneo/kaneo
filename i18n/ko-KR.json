@@ -161,6 +161,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "The plugin command failed",
+			"failedToLoad": "This plugin failed to load",
+			"openTaskFailed": "Could not open the task",
+			"unavailable": "This plugin view is not available"
 		}
 	},
 	"auth": {
@@ -597,7 +603,6 @@
 			"selectViewMode": "보기 모드 선택",
 			"board": "보드",
 			"list": "목록",
-			"gantt": "간트",
 			"sidebarDefault": "사이드바 기본값",
 			"sidebarDefaultDescription": "시작 시 사이드바를 펼친 상태로 유지",
 			"displayOptions": "표시 옵션",
@@ -1857,6 +1862,43 @@
 				"viewPlans": "View plans"
 			},
 			"openFailed": "Couldn't open billing for this workspace"
+		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
+				"link": "Learn about plugins",
+				"title": "No plugins installed"
+			},
+			"enable": "Enable {{name}}",
+			"form": {
+				"none": "None",
+				"save": "Save settings",
+				"secretCancel": "Cancel",
+				"secretClear": "Clear",
+				"secretConfigured": "Configured",
+				"secretPlaceholder": "Enter a new value",
+				"secretReplace": "Replace",
+				"secretUndo": "Undo",
+				"secretWillClear": "Will be cleared when you save",
+				"selectPlaceholder": "Select an option"
+			},
+			"loadError": "Could not load plugins. Refresh the page to try again.",
+			"pageTitle": "Plugin Settings",
+			"status": {
+				"failed": "Failed to load",
+				"loaded": "Active",
+				"loading": "Loading"
+			},
+			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
+			"title": "Plugins",
+			"toast": {
+				"disabled": "{{name}} turned off",
+				"enabled": "{{name}} turned on",
+				"invalid": "Some settings need attention",
+				"saved": "Plugin settings saved",
+				"updateError": "Could not update the plugin"
+			},
+			"builtIn": "Built in"
 		}
 	},
 	"navigation": {
@@ -1879,7 +1921,8 @@
 				"navigate": "이동",
 				"open": "열기",
 				"close": "닫기"
-			}
+			},
+			"plugins": "Plugins"
 		},
 		"notifications": "알림",
 		"sidebar": {

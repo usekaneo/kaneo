@@ -23,6 +23,7 @@ import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
 import { cn } from "@/lib/cn";
 import { sortTasks } from "@/lib/sort-tasks";
+import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
 import { useBackgroundStore } from "@/store/background";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -145,11 +146,6 @@ function RouteComponent() {
             to: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
             params: { workspaceId, projectId },
           }),
-        [shortcuts.view.gantt]: () =>
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
-            params: { workspaceId, projectId },
-          }),
         [shortcuts.view.backlog]: () =>
           navigate({
             to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
@@ -158,6 +154,8 @@ function RouteComponent() {
       },
     },
   });
+
+  usePluginViewShortcuts(workspaceId, projectId);
 
   useEffect(() => {
     if (data) {

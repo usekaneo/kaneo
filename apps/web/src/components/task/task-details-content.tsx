@@ -7,6 +7,7 @@ import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
 import { isCommentActivity } from "@/components/activity/utils";
 import { ExternalLinksAccordion } from "@/components/external-links/external-links-accordion";
+import { PluginTaskPanels } from "@/components/plugins/plugin-task-panels";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import {
   Accordion,
@@ -675,6 +676,11 @@ export default function TaskDetailsContent({
           workspaceId={workspaceId}
         />
       </div>
+      <PluginTaskPanels
+        taskId={taskId}
+        projectId={projectId}
+        workspaceId={workspaceId}
+      />
       <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
       <div className="flex flex-col gap-4">
         <h1 className="text-md font-semibold">{t("tasks:detail.activity")}</h1>

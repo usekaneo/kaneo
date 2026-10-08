@@ -1,0 +1,50 @@
+{
+	"name": "@kaneo/gantt",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Gantt timeline view for Kaneo projects",
+	"license": "MIT",
+	"type": "module",
+	"keywords": [
+		"kaneo-plugin"
+	],
+	"engines": {
+		"kaneo": ">=2.29.0 <3"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./web": "./dist/web/index.js"
+	},
+	"kaneo": {
+		"id": "gantt",
+		"name": "Gantt"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "kaneo-plugin build",
+		"test": "vp test run",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"devDependencies": {
+		"@kaneo/plugin-sdk": "workspace:*",
+		"@kaneo/typescript-config": "workspace:*",
+		"@tailwindcss/vite": "^4.3.3",
+		"@tanstack/react-query": "^5.103.2",
+		"@testing-library/react": "^16.3.3",
+		"@types/react": "^19.3.0",
+		"date-fns": "^4.4.0",
+		"jsdom": "^30.1.1",
+		"lucide-react": "^1.48.0",
+		"react": "^19.3.0",
+		"react-dom": "^19.3.0",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^7.0.2",
+		"vite": "catalog:",
+		"vite-plus": "catalog:"
+	}
+}

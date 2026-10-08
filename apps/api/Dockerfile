@@ -15,6 +15,9 @@ COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/mcp/package.json ./packages/mcp/
+COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
+COPY packages/plugin-sdk/bin ./packages/plugin-sdk/bin
+COPY plugins/gantt/package.json ./plugins/gantt/
 COPY apps/api/package.json ./apps/api/
 
 # Install dependencies
@@ -26,6 +29,8 @@ COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
 COPY packages/mcp ./packages/mcp
+COPY packages/plugin-sdk ./packages/plugin-sdk
+COPY plugins/gantt ./plugins/gantt
 COPY i18n ./i18n
 COPY apps/api ./apps/api
 
@@ -35,6 +40,12 @@ RUN pnpm run build
 
 # Build permissions package
 WORKDIR /app/packages/permissions
+RUN pnpm run build
+
+WORKDIR /app/packages/plugin-sdk
+RUN pnpm run build
+
+WORKDIR /app/plugins/gantt
 RUN pnpm run build
 
 # Fix TypeScript config and build API
@@ -57,6 +68,8 @@ COPY packages/libs/package.json ./packages/libs/
 COPY packages/email/package.json ./packages/email/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/mcp/package.json ./packages/mcp/
+COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
+COPY plugins/gantt/package.json ./plugins/gantt/
 COPY apps/api/package.json ./apps/api/
 
 RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
@@ -83,10 +96,16 @@ COPY --from=builder --chown=appuser:appuser /app/apps/api/drizzle ./apps/api/dri
 COPY --from=builder --chown=appuser:appuser /app/packages/email ./packages/email
 COPY --from=builder --chown=appuser:appuser /app/packages/permissions ./packages/permissions
 COPY --from=builder --chown=appuser:appuser /app/packages/mcp/dist ./packages/mcp/dist
+COPY --from=builder --chown=appuser:appuser /app/packages/plugin-sdk/dist ./packages/plugin-sdk/dist
+COPY --from=builder --chown=appuser:appuser /app/plugins/gantt/dist ./plugins/gantt/dist
 
 # Fail the build early if the runtime dependency layout is broken on the target architecture
-RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}" && \
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions','plugin-sdk','gantt']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}fs.accessSync('node_modules/@kaneo/gantt/dist/web/index.js')" && \
+  node -e "require.resolve('semver')" && \
   node --input-type=module -e "import { registerTools } from '@kaneo/mcp/tools'; if (typeof registerTools !== 'function') process.exit(1)"
+
+COPY --chown=appuser:appuser deploy/kaneo-cli.sh /usr/local/bin/kaneo
+RUN chmod +x /usr/local/bin/kaneo
 
 # Switch to non-root user
 USER appuser

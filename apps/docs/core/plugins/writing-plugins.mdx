@@ -1,0 +1,514 @@
+---
+title: "Writing plugins"
+description: "Build a Kaneo plugin with a server entry, a web entry, and workspace settings, then publish it to npm."
+---
+
+A plugin is an npm package with up to three entries:
+
+- **The factory**, which operators call in `kaneo.config.ts` to add the plugin and set its options.
+- **The server entry**, which Kaneo's API loads at startup. It adds routes, reacts to events, and stores data.
+- **The web entry**, which the browser loads in workspaces that turned the plugin on. It adds views, panels, pages, and commands.
+
+`@kaneo/plugin-sdk` provides the types, the helpers, and the `kaneo-plugin build` command. The quickest start is to copy the [task progress example](https://github.com/usekaneo/kaneo/tree/main/examples/plugins/task-progress), which this page follows.
+
+For operator setup, see [Plugins](/core/plugins/index). For every signature and field, see the [plugin reference](/core/plugins/reference).
+
+## Package anatomy
+
+```text
+kaneo-plugin-task-progress/
+├── package.json
+├── tsconfig.json
+└── src/
+    ├── index.ts
+    ├── server.ts
+    └── web.tsx
+```
+
+```json
+{
+  "name": "kaneo-plugin-task-progress",
+  "version": "0.1.0",
+  "description": "Track percent progress on Kaneo tasks",
+  "license": "MIT",
+  "type": "module",
+  "keywords": ["kaneo-plugin"],
+  "engines": {
+    "kaneo": ">=2.29.0 <3"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": "./dist/server.js",
+    "./web": "./dist/web/index.js"
+  },
+  "kaneo": {
+    "name": "Task progress"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "kaneo-plugin build"
+  }
+}
+```
+
+Install the build and type dependencies as dev dependencies:
+
+```bash
+npm i -D @kaneo/plugin-sdk vite typescript zod react @types/react @types/node @tanstack/react-query hono
+```
+
+A minimal `tsconfig.json` for editor support and type checking:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src"]
+}
+```
+
+- **`exports`**: `.` is the factory used in `kaneo.config.ts`. Keep its `types` condition so operators get type checking for your options. `./server` is the API entry and `./web` is the browser entry. You can ship only one of them, but at least one is required, and both must point to files inside the package.
+- **`engines.kaneo`**: the Kaneo versions your plugin supports, as a semver range. Kaneo refuses to start a plugin whose range does not include the running version.
+- **`keywords`**: include `kaneo-plugin` so people can find your package on npm.
+- **`kaneo.name`**: optional. The name shown under **Settings → Workspace → Plugins**. Defaults to the package name.
+- **`kaneo.id`**: optional. Overrides the plugin ID.
+- **`dependencies`**: leave this empty. The build bundles everything your code imports, so operators install a single self-contained package.
+
+### Plugin ID
+
+The ID namespaces your routes and your stored data. By default Kaneo derives it from the package name: lowercase, without the leading `@`, with each run of other characters replaced by `-`, and at most 64 characters.
+
+| Package name | Plugin ID |
+| --- | --- |
+| `kaneo-plugin-task-progress` | `kaneo-plugin-task-progress` |
+| `@acme/kaneo-reports` | `acme-kaneo-reports` |
+
+To pick a shorter one, set `"kaneo": { "id": "task-progress" }`. An ID must start with a lowercase letter or digit and contain only lowercase letters, digits, and `-`.
+
+Keep the ID stable once you publish. Data stored under an old ID is not moved to a new one.
+
+## Define the plugin
+
+`src/index.ts` exports the factory:
+
+```ts
+import { definePlugin } from "@kaneo/plugin-sdk";
+import { z } from "zod";
+
+export default definePlugin(import.meta.url, {
+  options: z.object({
+    autoComplete: z.boolean().default(true),
+  }),
+});
+```
+
+Pass `import.meta.url` as written. Kaneo uses it to find your package from the operator's config.
+
+`options` accepts any [Standard Schema](https://standardschema.dev) validator, such as Zod, Valibot, or ArkType. Its input type becomes the argument type in `kaneo.config.ts`, and its output type becomes `kaneo.options` on the server. When every option has a default, operators can call `taskProgress()` without an argument.
+
+A plugin without options calls `definePlugin(import.meta.url)`.
+
+### Options and settings
+
+A plugin has two kinds of configuration:
+
+| | Options | Settings |
+| --- | --- | --- |
+| Set by | The operator, in `kaneo.config.ts` | Workspace admins, under **Settings → Workspace → Plugins** |
+| Applies to | The whole instance | One workspace |
+| Declared in | `definePlugin`, as a schema | `defineServer`, as form fields |
+| Validated | At startup | When saved |
+| Read on the server | `kaneo.options` | `await kaneo.settings(workspaceId)` |
+| Read in the browser | Not available | `usePlugin().settings`, without secret fields |
+
+Use options for instance-wide behavior and credentials that operators read from the environment. Use settings for choices that differ between teams, including per-workspace secrets.
+
+## Server entry
+
+`src/server.ts` exports the server definition. Pass your factory as the first argument so `kaneo.options` gets its type:
+
+```ts
+import { defineServer } from "@kaneo/plugin-sdk/server";
+import taskProgress from "./index.js";
+
+export default defineServer(taskProgress, {
+  settings: {
+    doneStatus: {
+      type: "text",
+      label: "Status that counts as done",
+      default: "done",
+    },
+  },
+  setup(kaneo) {
+    kaneo.routes.get(
+      "/tasks/:taskId/progress",
+      kaneo.guard.task("taskId", { task: ["read"] }),
+      async (c) => {
+        const value = await kaneo
+          .storage(c.get("workspaceId"))
+          .get<number>(`task:${c.req.param("taskId")}`);
+        return c.json({ value: value ?? 0 });
+      },
+    );
+
+    kaneo.routes.put(
+      "/tasks/:taskId/progress",
+      kaneo.guard.task("taskId", { task: ["update"] }),
+      async (c) => {
+        const { value } = await c.req.json<{ value: number }>();
+        if (!Number.isInteger(value) || value < 0 || value > 100) {
+          return c.json({ error: "Progress must be a whole number from 0 to 100" }, 400);
+        }
+        await kaneo
+          .storage(c.get("workspaceId"))
+          .set(`task:${c.req.param("taskId")}`, value);
+        return c.json({ value });
+      },
+    );
+
+    kaneo.on("task.status_changed", async (event) => {
+      if (!kaneo.options.autoComplete) return;
+      const { doneStatus } = await kaneo.settings(event.workspaceId);
+      if (event.to !== doneStatus) return;
+      await kaneo.storage(event.workspaceId).set(`task:${event.taskId}`, 100);
+    });
+  },
+});
+```
+
+A plugin without options calls `defineServer({ settings, setup })` instead.
+
+`setup` runs once at startup and may be `async`. If it throws, Kaneo stops at the start stage.
+
+### What `setup` receives
+
+| Member | Use it to |
+| --- | --- |
+| `kaneo.plugin` | Read your plugin's `id` and installed `version`. |
+| `kaneo.options` | Read the operator's validated options. |
+| `kaneo.log` | Log with `info`, `warn`, and `error`. Each line is prefixed with your plugin ID. |
+| `kaneo.routes` | Add authenticated routes under `/api/plugins/<id>/`. It is a [Hono](https://hono.dev) app. |
+| `kaneo.webhooks` | Add unauthenticated routes under `/api/plugins/<id>/webhooks/`. |
+| `kaneo.guard` | Check workspace access, permissions, and that the plugin is on, with `workspace`, `project`, and `task`. |
+| `kaneo.on` | React to task and comment events. |
+| `kaneo.storage(workspaceId)` | Read and write JSON values for one workspace. |
+| `kaneo.settings(workspaceId)` | Read one workspace's settings, with defaults applied. |
+| `kaneo.enabledWorkspaces()` | List the IDs of workspaces that turned the plugin on. |
+| `kaneo.schedule(name, cron, run)` | Run a job on a schedule, once across all API instances. |
+
+Plugins work through this context and never through Kaneo's database tables. That keeps workspace permissions enforced and lets Kaneo change its schema without breaking plugins.
+
+### Routes and guards
+
+Routes go through Kaneo's normal session and API key authentication. Add a guard to any route that touches workspace data. A guard reads an ID from the named route parameter (`workspaceId`, `projectId`, or `taskId` by default), checks that the signed-in user can access that workspace and has the listed permissions, and sets `c.get("workspaceId")`. It responds with `404` when the plugin is off in that workspace.
+
+Return errors with `c.json(body, status)`. Do not register routes whose first path segment is `assets`, `workspace`, or `webhooks`; Kaneo uses those.
+
+### Events
+
+`kaneo.on` handlers receive typed events such as `task.created`, `task.status_changed`, and `comment.created`. Every event carries `workspaceId`, `projectId`, `taskId`, and `actorId`, and only reaches workspaces that turned your plugin on. Events report changes that already happened; a handler cannot change or block them. An error in a handler is logged and does not affect Kaneo. See the [event list](/core/plugins/reference#events).
+
+### Webhooks
+
+Webhook routes have no user and no workspace, so verify each request yourself. This example expects the workspace ID in the URL and a shared secret that workspace admins enter as a setting:
+
+```ts
+import { timingSafeEqual } from "node:crypto";
+import { defineServer } from "@kaneo/plugin-sdk/server";
+
+export default defineServer({
+  settings: {
+    webhookSecret: { type: "secret", label: "Webhook secret" },
+  },
+  setup(kaneo) {
+    kaneo.webhooks.post("/:workspaceId", async (c) => {
+      const workspaceId = c.req.param("workspaceId");
+      const enabled = await kaneo.enabledWorkspaces();
+      if (!enabled.includes(workspaceId)) return c.notFound();
+
+      const { webhookSecret } = await kaneo.settings(workspaceId);
+      const expected = Buffer.from(webhookSecret ?? "");
+      const received = Buffer.from(c.req.header("x-webhook-secret") ?? "");
+      if (
+        expected.length === 0 ||
+        expected.length !== received.length ||
+        !timingSafeEqual(expected, received)
+      ) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      const payload = await c.req.json();
+      await kaneo.storage(workspaceId).set("last-webhook", payload);
+      return c.json({ ok: true });
+    });
+  },
+});
+```
+
+The sender then posts to `https://kaneo.example.com/api/plugins/<id>/webhooks/<workspaceId>`.
+
+### Scheduled jobs
+
+Jobs are not tied to a workspace. Loop over the workspaces that use your plugin:
+
+```ts
+kaneo.schedule("hourly-cleanup", "0 * * * *", async () => {
+  for (const workspaceId of await kaneo.enabledWorkspaces()) {
+    const storage = kaneo.storage(workspaceId);
+    for (const entry of await storage.list({ prefix: "draft:" })) {
+      await storage.delete(entry.key);
+    }
+  }
+});
+```
+
+### Settings
+
+Declare settings as form fields. Kaneo renders the form, validates input, and types the values that `kaneo.settings()` returns:
+
+```ts
+settings: {
+  doneStatus: { type: "text", label: "Status that counts as done", default: "done" },
+  apiToken: { type: "secret", label: "API token" },
+  threshold: { type: "number", label: "Warning threshold", min: 0, max: 100, default: 80 },
+  notify: { type: "boolean", label: "Notify assignees" },
+  mode: {
+    type: "select",
+    label: "Mode",
+    options: [
+      { value: "manual", label: "Manual" },
+      { value: "automatic", label: "Automatic" },
+    ],
+    default: "manual",
+  },
+},
+```
+
+Here `doneStatus` is a `string`, `apiToken` is `string | undefined`, `threshold` is a `number`, `notify` is a `boolean`, and `mode` is `"manual" | "automatic"`. Declare settings inline in `defineServer` so option values keep their literal types. The [settings reference](/core/plugins/reference#settings-fields) lists every field type.
+
+## Web entry
+
+`src/web.tsx` exports the web definition. Every key is optional:
+
+```tsx
+import { defineWeb } from "@kaneo/plugin-sdk/web";
+import { ProgressOverview } from "./progress-overview.js";
+import { ProgressPanel } from "./progress-panel.js";
+import { ProgressSettings } from "./progress-settings.js";
+import { ProgressView } from "./progress-view.js";
+import "./web.css";
+
+export default defineWeb({
+  projectViews: [{ id: "progress", title: "Progress", component: ProgressView }],
+  taskPanels: [{ id: "progress", title: "Progress", component: ProgressPanel }],
+  pages: [{ id: "overview", title: "Progress overview", component: ProgressOverview }],
+  commands: [
+    {
+      id: "copy-project-id",
+      title: "Copy project ID",
+      run: async ({ projectId }) => {
+        if (projectId) await navigator.clipboard.writeText(projectId);
+      },
+    },
+  ],
+  settingsPanel: ProgressSettings,
+  translations: {
+    "en-US": {
+      percent: "{{value}}% done",
+      addTen: "Add 10%",
+      loadFailed: "Could not load progress",
+    },
+    "de-DE": {
+      percent: "{{value}} % erledigt",
+      addTen: "10 % hinzufügen",
+      loadFailed: "Fortschritt konnte nicht geladen werden",
+    },
+  },
+});
+```
+
+| Key | Where it appears | Component props |
+| --- | --- | --- |
+| `projectViews` | A tab in the project's top navigation, next to Kaneo's own views | `workspaceId`, `projectId` |
+| `taskPanels` | A section in the task detail sheet and on the full task page | `workspaceId`, `projectId`, `taskId` |
+| `pages` | A sidebar entry and its page | `workspaceId` |
+| `commands` | An item in the command palette | `run` receives `workspaceId`, `projectId`, and `navigate` |
+| `settingsPanel` | Your own UI below the generated settings form | `workspaceId` |
+| `translations` | Strings for `useT`, keyed by locale such as `en-US` | |
+
+Views and pages also accept an `icon`, any React component that takes a `className`. Kaneo renders each contribution inside its own error boundary and suspense boundary, and only in workspaces that turned the plugin on.
+
+### Hooks
+
+Components read Kaneo's state through hooks from `@kaneo/plugin-sdk/web`:
+
+```tsx
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button, Spinner } from "@kaneo/plugin-sdk/ui";
+import { usePlugin, usePluginApi, useT, type TaskPanelProps } from "@kaneo/plugin-sdk/web";
+
+export function ProgressPanel({ taskId }: TaskPanelProps) {
+  const { id } = usePlugin();
+  const api = usePluginApi();
+  const t = useT();
+  const queryClient = useQueryClient();
+  const queryKey = [id, "progress", taskId];
+
+  const progress = useQuery({
+    queryKey,
+    queryFn: () => api.get<{ value: number }>(`/tasks/${taskId}/progress`),
+  });
+
+  const update = useMutation({
+    mutationFn: (value: number) =>
+      api.put<{ value: number }>(`/tasks/${taskId}/progress`, { value }),
+    onSuccess: (data) => queryClient.setQueryData(queryKey, data),
+  });
+
+  if (progress.isLoading) return <Spinner />;
+  if (progress.error) {
+    return <p className="text-sm text-destructive">{t("loadFailed")}</p>;
+  }
+
+  const value = progress.data?.value ?? 0;
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm text-muted-foreground">{t("percent", { value })}</span>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={update.isPending}
+        onClick={() => update.mutate(Math.min(value + 10, 100))}
+      >
+        {t("addTen")}
+      </Button>
+    </div>
+  );
+}
+```
+
+| Hook | Returns |
+| --- | --- |
+| `usePlugin()` | Your plugin's `id`, `version`, the current `workspaceId`, and its `settings` without secret fields |
+| `usePluginApi()` | A client for your routes, with paths relative to `/api/plugins/<id>` |
+| `useKaneoApi()` | The same client for Kaneo's own API, acting as the signed-in user |
+| `useTask(taskId)` | One task as `{ data, isLoading, error }` |
+| `useTasks(projectId)` | A project's tasks as `{ data, isLoading, error }` |
+| `useCurrentUser()` | The signed-in user, or `null` |
+| `useT()` | A translate function for your `translations` |
+| `useNavigate()` | A function that navigates within Kaneo |
+| `useOpenTask()` | A function that opens a task by ID |
+
+The hooks only work inside Kaneo's web app.
+
+### Shared React and query cache
+
+Kaneo provides `react`, `react-dom`, and `@tanstack/react-query` to your web entry. The build leaves them out of your bundle, so your components run on Kaneo's React instance and share its query cache. Keep them in `devDependencies` for types, and start your query keys with your plugin ID, as above, so they never collide with Kaneo's. Everything else you import, such as an icon library, is bundled into your files.
+
+### UI components
+
+`@kaneo/plugin-sdk/ui` exports Kaneo's own `Button`, `Badge`, `Input`, `Textarea`, `Label`, `Switch`, `Spinner`, `Skeleton`, and `Separator`. They render with Kaneo's styles in light and dark mode. See the [component props](/core/plugins/reference#ui-components).
+
+### Styling
+
+Import a stylesheet from your web entry, as `src/web.tsx` does above. It is loaded with your plugin and applies to the whole page, so give your own class names a prefix, such as your plugin ID.
+
+**Plain CSS.** Use Kaneo's CSS variables. They switch with the light and dark theme automatically:
+
+```css
+.task-progress-bar {
+  height: 0.5rem;
+  border-radius: var(--radius);
+  background: var(--muted);
+}
+
+.task-progress-bar > div {
+  height: 100%;
+  border-radius: var(--radius);
+  background: var(--primary);
+}
+```
+
+**Tailwind CSS.** Install `tailwindcss` as a dev dependency and start your stylesheet with:
+
+```css
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "@kaneo/plugin-sdk/theme.css";
+```
+
+`@kaneo/plugin-sdk/theme.css` maps Tailwind's tokens to Kaneo's variables, so classes such as `bg-background`, `text-muted-foreground`, `border-border`, `bg-primary`, and `rounded-lg` match the app, and `dark:` follows Kaneo's theme. Leave out Tailwind's preflight: Kaneo already provides base styles, and loading them again would restyle the page around your plugin.
+
+## Build
+
+```bash
+npm run build
+```
+
+`kaneo-plugin build` writes:
+
+| File | Contents |
+| --- | --- |
+| `dist/index.js` | The factory from `src/index.ts` |
+| `dist/index.d.ts` | Its types, for `kaneo.config.ts` |
+| `dist/server.js` | The server entry from `src/server.ts` |
+| `dist/web/index.js` | The web entry from `src/web.tsx` |
+| `dist/web/index.css` | The styles your web entry imports |
+
+Every dependency is bundled in, except the shared modules Kaneo provides. Plugins cannot use install scripts or native modules: the same files must work on a laptop, in a container, and on any CPU architecture.
+
+## Develop locally
+
+The Kaneo repository contains the task progress plugin in `examples/plugins/task-progress` and an instance that uses it in `examples/instance`.
+
+1. Clone Kaneo and follow its [local development setup](https://github.com/usekaneo/kaneo/blob/main/ENVIRONMENT_SETUP.md).
+2. Build the example plugin:
+
+   ```bash
+   pnpm install
+   pnpm --filter kaneo-plugin-task-progress build
+   ```
+
+3. Point Kaneo at the example instance. Add the absolute path to the repository's root `.env`:
+
+   ```env
+   KANEO_CONFIG=/path/to/kaneo/examples/instance/kaneo.config.ts
+   ```
+
+4. Start Kaneo with `pnpm dev`, open **Settings → Workspace → Plugins**, and turn on **Task progress**.
+
+Kaneo loads plugins at startup. After a change, rebuild the plugin and restart `pnpm dev`.
+
+To work on your own plugin the same way, copy `examples/plugins/task-progress` to a new folder under `examples/plugins/`, rename the package, add it to `examples/instance/package.json` as `"workspace:*"`, run `pnpm install`, and import it in `examples/instance/kaneo.config.ts`.
+
+## Publish
+
+1. Check `package.json`: a unique `name`, a new `version`, the `kaneo-plugin` keyword, an `engines.kaneo` range, `"files": ["dist"]`, and no `dependencies`.
+2. Build and publish:
+
+   ```bash
+   npm run build
+   npm publish
+   ```
+
+Publish from CI with [npm provenance](https://docs.npmjs.com/generating-provenance-statements) so operators can verify that the package was built from your repository.
+
+Kaneo only makes incompatible changes to the plugin API in major versions, so an upper bound at the next major, as in `>=2.29.0 <3`, is a good default. When a new Kaneo major ships, test your plugin against it and widen the range in a new release.
+
+## Get listed
+
+The [plugins page](https://kaneo.app/plugins) on kaneo.app lists community plugins, and `kaneo add` warns before adding a package that is not listed. To get listed, publish your plugin, then open a pull request that adds an entry to [`catalog/index.json`](https://github.com/usekaneo/kaneo/blob/main/catalog/index.json). The [catalog guide](https://github.com/usekaneo/kaneo/blob/main/catalog/README.md) has the requirements, the entry format, and the checks to run first.
+
+Listing is a light review, not a security audit. A Kaneo maintainer checks the entry and the published package, not every line of your code.

@@ -1,12 +1,6 @@
-import {
-  CalendarDays,
-  CalendarRange,
-  Check,
-  Menu,
-  Plus,
-  SquareKanban,
-} from "lucide-react";
+import { CalendarRange, Check, Menu, Plus, SquareKanban } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { PluginIcon } from "@/components/plugins/plugin-icon";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -16,15 +10,22 @@ import {
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
+import {
+  isSamePluginView,
+  type PluginViewRef,
+  type ProjectPluginView,
+} from "@/lib/plugins/runtime/use-project-plugin-views";
 
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
-  activeView: "backlog" | "board" | "calendar" | "gantt";
+  activeView: "backlog" | "board" | "calendar" | null;
   onSelectBoard: () => void;
   onSelectBacklog: () => void;
   onSelectCalendar: () => void;
-  onSelectGantt: () => void;
+  pluginViews: ProjectPluginView[];
+  activePluginView: PluginViewRef | undefined;
+  onSelectPluginView: (view: PluginViewRef) => void;
   onSelectProject: (projectId: string) => void;
   onAddProject: () => void;
 };
@@ -36,7 +37,9 @@ export default function MobileProjectNav({
   onSelectBoard,
   onSelectBacklog,
   onSelectCalendar,
-  onSelectGantt,
+  pluginViews,
+  activePluginView,
+  onSelectPluginView,
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
@@ -101,19 +104,22 @@ export default function MobileProjectNav({
                 <CalendarRange className="size-3.5" />
                 {t("tasks:calendar.title")}
               </button>
-              <button
-                type="button"
-                onClick={onSelectGantt}
-                className={cn(
-                  "flex w-full items-center justify-center gap-1 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
-                  activeView === "gantt"
-                    ? "border-border bg-secondary text-foreground"
-                    : "border-transparent text-muted-foreground hover:bg-accent",
-                )}
-              >
-                <CalendarDays className="size-3.5" />
-                Gantt
-              </button>
+              {pluginViews.map((view) => (
+                <button
+                  key={`${view.pluginId}:${view.viewId}`}
+                  type="button"
+                  onClick={() => onSelectPluginView(view)}
+                  className={cn(
+                    "flex w-full min-w-0 items-center justify-center gap-1 rounded-md border px-2 py-1.5 text-xs font-medium transition-colors",
+                    isSamePluginView(activePluginView, view)
+                      ? "border-border bg-secondary text-foreground"
+                      : "border-transparent text-muted-foreground hover:bg-accent",
+                  )}
+                >
+                  <PluginIcon icon={view.icon} />
+                  <span className="truncate">{view.title}</span>
+                </button>
+              ))}
             </div>
           </div>
 

@@ -34,7 +34,6 @@ export const shortcuts = {
     prefix: "v",
     board: "b",
     calendar: "c",
-    gantt: "g",
     list: "l",
     backlog: "k",
   },

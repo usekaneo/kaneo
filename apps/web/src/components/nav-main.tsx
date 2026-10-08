@@ -16,12 +16,17 @@ import {
 } from "@/components/ui/sidebar";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { usePlugins } from "@/lib/plugins/runtime/plugins-context";
+import { selectContributions } from "@/lib/plugins/runtime/select-contributions";
+import { usePluginLabel } from "@/lib/plugins/runtime/use-plugin-label";
 
 export function NavMain() {
   const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
   const { data: invitations = [] } = usePendingInvitations();
+  const { plugins, workspaceId: pluginWorkspaceId } = usePlugins();
+  const pluginLabel = usePluginLabel();
 
   if (!workspace) return null;
 
@@ -49,6 +54,17 @@ export function NavMain() {
       isActive: window.location.pathname === "/dashboard/invitations",
       badge: pendingCount > 0 ? pendingCount : null,
     },
+    ...(pluginWorkspaceId === workspace.id
+      ? selectContributions(plugins, "pages").map(({ scope, item }) => {
+          const url = `/dashboard/workspace/${workspace.id}/plugin/${encodeURIComponent(scope.id)}/${encodeURIComponent(item.id)}`;
+          return {
+            title: pluginLabel(scope.id, item.title),
+            url,
+            isActive: window.location.pathname === url,
+            badge: null,
+          };
+        })
+      : []),
   ];
 
   return (

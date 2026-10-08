@@ -105,6 +105,10 @@
 						]
 					},
 					{
+						"group": "Plugins",
+						"pages": ["core/plugins/index"]
+					},
+					{
 						"group": "Keep it running",
 						"pages": [
 							"core/operations/backups",
@@ -173,6 +177,10 @@
 							"api-reference/authentication",
 							"core/integrations/mcp-stateless"
 						]
+					},
+					{
+						"group": "Plugins",
+						"pages": ["core/plugins/writing-plugins", "core/plugins/reference"]
 					},
 					{
 						"group": "Endpoint reference",

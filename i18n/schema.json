@@ -630,6 +630,30 @@
 						}
 					},
 					"required": ["createProject", "createWorkspace", "createTask"]
+				},
+				"plugins": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"failedToLoad": {
+							"type": "string"
+						},
+						"unavailable": {
+							"type": "string"
+						},
+						"commandFailed": {
+							"type": "string"
+						},
+						"openTaskFailed": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"failedToLoad",
+						"unavailable",
+						"commandFailed",
+						"openTaskFailed"
+					]
 				}
 			},
 			"required": [
@@ -645,7 +669,8 @@
 				"people",
 				"error",
 				"formats",
-				"modals"
+				"modals",
+				"plugins"
 			]
 		},
 		"auth": {
@@ -2670,9 +2695,6 @@
 						"list": {
 							"type": "string"
 						},
-						"gantt": {
-							"type": "string"
-						},
 						"sidebarDefault": {
 							"type": "string"
 						},
@@ -2747,7 +2769,6 @@
 						"selectViewMode",
 						"board",
 						"list",
-						"gantt",
 						"sidebarDefault",
 						"sidebarDefaultDescription",
 						"displayOptions",
@@ -4048,6 +4069,150 @@
 						"nameRequired",
 						"deletionPending",
 						"resumeDeletion"
+					]
+				},
+				"workspacePlugins": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"enable": {
+							"type": "string"
+						},
+						"builtIn": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"link": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "link"]
+						},
+						"status": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"loading": {
+									"type": "string"
+								},
+								"loaded": {
+									"type": "string"
+								},
+								"failed": {
+									"type": "string"
+								}
+							},
+							"required": ["loading", "loaded", "failed"]
+						},
+						"form": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"save": {
+									"type": "string"
+								},
+								"none": {
+									"type": "string"
+								},
+								"selectPlaceholder": {
+									"type": "string"
+								},
+								"secretPlaceholder": {
+									"type": "string"
+								},
+								"secretConfigured": {
+									"type": "string"
+								},
+								"secretReplace": {
+									"type": "string"
+								},
+								"secretClear": {
+									"type": "string"
+								},
+								"secretCancel": {
+									"type": "string"
+								},
+								"secretUndo": {
+									"type": "string"
+								},
+								"secretWillClear": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"save",
+								"none",
+								"selectPlaceholder",
+								"secretPlaceholder",
+								"secretConfigured",
+								"secretReplace",
+								"secretClear",
+								"secretCancel",
+								"secretUndo",
+								"secretWillClear"
+							]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"enabled": {
+									"type": "string"
+								},
+								"disabled": {
+									"type": "string"
+								},
+								"saved": {
+									"type": "string"
+								},
+								"invalid": {
+									"type": "string"
+								},
+								"updateError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"enabled",
+								"disabled",
+								"saved",
+								"invalid",
+								"updateError"
+							]
+						}
+					},
+					"required": [
+						"pageTitle",
+						"title",
+						"subtitle",
+						"loadError",
+						"enable",
+						"builtIn",
+						"empty",
+						"status",
+						"form",
+						"toast"
 					]
 				},
 				"projectGeneral": {
@@ -7517,6 +7682,7 @@
 				"workspaceGeneral",
 				"workspaceRoles",
 				"workspaceLabels",
+				"workspacePlugins",
 				"projectGeneral",
 				"projectIntegrations",
 				"projectVisibility",
@@ -7608,6 +7774,9 @@
 								}
 							},
 							"required": ["navigate", "open", "close"]
+						},
+						"plugins": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -7625,7 +7794,8 @@
 						"keyboardShortcuts",
 						"inputPlaceholder",
 						"empty",
-						"footer"
+						"footer",
+						"plugins"
 					]
 				},
 				"notifications": {
@@ -10745,6 +10915,16 @@
 				},
 				"descriptionLoadError": {
 					"type": "string"
+				},
+				"board": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"reorderFailed": {
+							"type": "string"
+						}
+					},
+					"required": ["reorderFailed"]
 				}
 			},
 			"required": [
@@ -10786,7 +10966,8 @@
 				"descriptionSearchError",
 				"descriptionRetry",
 				"descriptionLoading",
-				"descriptionLoadError"
+				"descriptionLoadError",
+				"board"
 			]
 		},
 		"invitations": {
