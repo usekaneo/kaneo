@@ -84,6 +84,7 @@ export const runApi = Effect.fn("command.api")(function* (options: {
   const api = yield* KaneoApi;
   const response = yield* withSpinner(`${method} ${target.success.path}`)(
     api.request(method, target.success.path, Schema.Unknown, {
+      raw: true,
       query: { ...target.success.query, ...query.success },
       body,
     }),

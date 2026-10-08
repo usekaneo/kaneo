@@ -1,4 +1,5 @@
 import { hyperlink } from "./link.js";
+import { sanitizeText } from "./sanitize.js";
 import type { Style } from "./theme.js";
 import type { Ui } from "./ui.js";
 import { stringWidth, truncate } from "./width.js";
@@ -42,7 +43,8 @@ export function fitCell(cell: Cell, width: number, ellipsis: string): Cell {
 export function renderCell(cell: Cell, ui: Ui): string {
   return cell
     .map((segment) => {
-      const styled = segment.style ? segment.style(segment.text) : segment.text;
+      const clean = sanitizeText(segment.text);
+      const styled = segment.style ? segment.style(clean) : clean;
       return segment.href
         ? hyperlink(styled, segment.href, ui.caps.hyperlinks)
         : styled;

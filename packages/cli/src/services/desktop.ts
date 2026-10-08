@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { Context, Effect, Layer } from "effect";
+import { isSafeUrl } from "../render/sanitize.js";
 import { CliEnvironment } from "./cli-environment.js";
 
 export type DesktopShape = {
@@ -61,7 +62,7 @@ export const DesktopLive = Layer.effect(
         : platform === "darwin"
           ? { command: "open", args: [] }
           : platform === "win32"
-            ? { command: "cmd", args: ["/c", "start", '""'] }
+            ? { command: "rundll32", args: ["url.dll,FileProtocolHandler"] }
             : { command: "xdg-open", args: [] };
 
     const clipboards: ReadonlyArray<Launch> =
@@ -77,7 +78,7 @@ export const DesktopLive = Layer.effect(
 
     return {
       openUrl: (url) =>
-        opener
+        opener && isSafeUrl(url)
           ? Effect.promise(() =>
               run({ command: opener.command, args: [...opener.args, url] }),
             )

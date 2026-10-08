@@ -20,6 +20,7 @@ import {
   UnexpectedResponse,
 } from "../errors/errors.js";
 import { type Credentials, Session } from "../services/session.js";
+import { sanitizeDeep } from "../render/sanitize.js";
 import { parseErrorBody, parseRetryAfter } from "./error-body.js";
 import { toApiFailure } from "./to-api-failure.js";
 
@@ -33,6 +34,7 @@ export type RequestOptions = {
   readonly query?: Query;
   readonly body?: unknown;
   readonly credentials?: Credentials;
+  readonly raw?: boolean;
 };
 
 export type KaneoApiShape = {
@@ -177,7 +179,7 @@ export const KaneoApiLayer = Layer.effect(
                 }),
             ),
           );
-          return yield* decode(json).pipe(
+          return yield* decode(options.raw ? json : sanitizeDeep(json)).pipe(
             Effect.mapError(
               (error) =>
                 new UnexpectedResponse({

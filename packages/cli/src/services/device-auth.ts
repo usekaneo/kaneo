@@ -11,6 +11,7 @@ import {
   ServerUnreachable,
   UnexpectedResponse,
 } from "../errors/errors.js";
+import { sanitizeText } from "../render/sanitize.js";
 
 export const DEVICE_CLIENT_ID = "kaneo-cli";
 
@@ -46,12 +47,29 @@ export function toDeviceFailure(apiUrl: string, endpoint: string) {
   };
 }
 
+export function sanitizeDeviceCode(
+  code: DeviceCodeResponse,
+): DeviceCodeResponse {
+  return {
+    ...code,
+    user_code: sanitizeText(code.user_code),
+    verification_uri: sanitizeText(code.verification_uri),
+    ...(code.verification_uri_complete === undefined
+      ? {}
+      : {
+          verification_uri_complete: sanitizeText(
+            code.verification_uri_complete,
+          ),
+        }),
+  };
+}
+
 export const DeviceAuthLive = Layer.succeed(DeviceAuth, {
   requestCode: (apiUrl) =>
     Effect.tryPromise({
       try: () => requestDeviceCode(apiUrl, DEVICE_CLIENT_ID),
       catch: toDeviceFailure(apiUrl, "POST /api/auth/device/code"),
-    }),
+    }).pipe(Effect.map(sanitizeDeviceCode)),
   poll: (apiUrl, deviceCode) =>
     Effect.tryPromise({
       try: () => pollDeviceTokenOnce(apiUrl, DEVICE_CLIENT_ID, deviceCode),

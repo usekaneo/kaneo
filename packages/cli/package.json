@@ -44,14 +44,13 @@
 	},
 	"devDependencies": {
 		"@effect/platform-node": "4.0.2",
-		"@gabrielbryk/jq-ts": "^1.7.0",
+		"@gabrielbryk/jq-ts": "1.7.0",
 		"@kaneo/mcp": "workspace:*",
 		"@kaneo/typescript-config": "workspace:*",
 		"@types/node": "^26.6.2",
-		"@types/pngjs": "^6.0.5",
 		"effect": "4.0.2",
-		"jpeg-js": "^0.4.4",
-		"pngjs": "^7.0.0",
+		"jpeg-js": "0.4.4",
+		"pngjs": "7.0.0",
 		"tsx": "^4.23.15",
 		"typescript": "^7.0.2",
 		"vite-plus": "catalog:"

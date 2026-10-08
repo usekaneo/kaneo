@@ -113,6 +113,8 @@ const previewLines = Effect.fnUntraced(function* (
   return lines;
 });
 
+const PLACEHOLDER_ASSET_URL = `https://${"x".repeat(64)}/api/asset/${"x".repeat(64)}`;
+
 export const runTaskAttach = Effect.fn("command.task.attach")(
   function* (options: {
     readonly task: string;
@@ -142,6 +144,25 @@ export const runTaskAttach = Effect.fn("command.task.attach")(
       resolveTask(options.task),
     );
     const label = resolved.ticketId ?? resolved.task.id.slice(0, 8);
+
+    if (target === "comment") {
+      const estimate = commentWithFiles(
+        text,
+        files.map((file) => ({
+          name: file.name,
+          url: PLACEHOLDER_ASSET_URL,
+          contentType: file.contentType,
+          size: file.bytes.byteLength,
+          kind: isInlineImageType(file.contentType) ? "image" : "attachment",
+        })),
+      );
+      if (estimate.length > COMMENT_MAX_LENGTH) {
+        return yield* new InvalidArgument({
+          message: `The comment would be about ${estimate.length} characters long, and the limit is ${COMMENT_MAX_LENGTH}.`,
+          hint: "Attach fewer files, or shorten the message.",
+        });
+      }
+    }
 
     const uploaded: UploadedFile[] = [];
     for (const [index, file] of files.entries()) {

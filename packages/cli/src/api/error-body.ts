@@ -1,3 +1,5 @@
+import { sanitizeText } from "../render/sanitize.js";
+
 export type ErrorBody = {
   readonly message: string;
   readonly code: string | null;
@@ -5,6 +7,15 @@ export type ErrorBody = {
 };
 
 export function parseErrorBody(text: string, status: number): ErrorBody {
+  const body = readErrorBody(text, status);
+  return {
+    message: sanitizeText(body.message),
+    code: body.code === null ? null : sanitizeText(body.code),
+    missingPermissions: body.missingPermissions.map(sanitizeText),
+  };
+}
+
+function readErrorBody(text: string, status: number): ErrorBody {
   const fallback = text.trim().slice(0, 500) || `HTTP ${status}`;
   try {
     const body: unknown = JSON.parse(text);

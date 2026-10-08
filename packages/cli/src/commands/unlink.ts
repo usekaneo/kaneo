@@ -4,6 +4,7 @@ import { Command, Flag } from "effect/cli";
 import {
   deleteRepoConfig,
   hasRepoLink,
+  linkFilePath,
   readRepoConfigObject,
   removeRepoLink,
   writeRepoConfig,
@@ -13,7 +14,7 @@ import { emit } from "../output/emit.js";
 import { Output } from "../output/output.js";
 import { confirm } from "../prompts/confirm.js";
 import type { Ui } from "../render/ui.js";
-import { Session } from "../services/session.js";
+import { CliEnvironment } from "../services/cli-environment.js";
 import { ApiLayer } from "./api-layer.js";
 
 type UnlinkResult = {
@@ -40,10 +41,10 @@ export function renderUnlink(ui: Ui, result: UnlinkResult): string[] {
 export const runUnlink = Effect.fn("command.unlink")(function* (options: {
   readonly yes: boolean;
 }) {
-  const session = yield* Session;
+  const environment = yield* CliEnvironment;
   const output = yield* Output;
-  const path = session.repo?.path;
-  const existing = path ? yield* readRepoConfigObject(path) : undefined;
+  const path = linkFilePath(environment.cwd);
+  const existing = yield* readRepoConfigObject(path);
 
   if (!path || !existing || !hasRepoLink(existing)) {
     yield* emit<UnlinkResult>(
