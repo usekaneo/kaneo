@@ -80,6 +80,7 @@ import {
   taskExportSchema,
   taskImportResultSchema,
   taskSchema,
+  createdTaskSchema,
   taskWithAssigneeSchema,
 } from "./response";
 import {
@@ -283,7 +284,7 @@ const createTaskRoute = createRoute({
   tags: ["Tasks"],
   summary: "Create task",
   description:
-    "Add a task to a project. It is placed in the column named by `status`.",
+    "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`.",
   middleware: [
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ task: ["create"] }),
@@ -297,7 +298,10 @@ const createTaskRoute = createRoute({
     },
   },
   responses: {
-    200: jsonResponse("The created task", taskSchema),
+    200: jsonResponse(
+      "The created task and its resource links",
+      createdTaskSchema,
+    ),
     400: errorResponse("Invalid body, or unknown project"),
     403: errorResponse(
       "No workspace access, or missing task:create permission",
@@ -885,6 +889,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       userId,
       customFields,
       draftAssetIds,
+      externalLinks,
     } = c.req.valid("json");
 
     const parsedStartDate =
@@ -910,6 +915,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       status,
       customFields,
       draftAssetIds,
+      externalLinks,
     });
 
     return c.json(task, 200);

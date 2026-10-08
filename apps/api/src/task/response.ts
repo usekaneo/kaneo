@@ -1,4 +1,5 @@
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
+import { createdExternalLinkSchema } from "../external-link/response";
 
 const priorityDescription = "One of: no-priority, low, medium, high, urgent.";
 
@@ -34,6 +35,14 @@ export const taskSchema = z
       .optional(),
   })
   .openapi("Task");
+
+export const createdTaskSchema = taskSchema
+  .extend({
+    externalLinks: z.array(
+      createdExternalLinkSchema.extend({ metadata: z.null() }),
+    ),
+  })
+  .openapi("CreatedTask");
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({

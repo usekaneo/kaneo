@@ -154,7 +154,10 @@
 					"rose": "玫红",
 					"crimson": "深红"
 				},
-				"statusLoadError": "项目状态加载失败。"
+				"statusLoadError": "项目状态加载失败。",
+				"noStatuses": "No selectable statuses are available.",
+				"status": "Status",
+				"statusUnavailable": "The selected status is no longer available. Choose another status."
 			}
 		},
 		"boolean": {

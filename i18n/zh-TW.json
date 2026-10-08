@@ -154,7 +154,10 @@
 					"rose": "玫瑰紅",
 					"crimson": "緋紅"
 				},
-				"statusLoadError": "無法載入專案狀態。"
+				"statusLoadError": "無法載入專案狀態。",
+				"noStatuses": "No selectable statuses are available.",
+				"status": "Status",
+				"statusUnavailable": "The selected status is no longer available. Choose another status."
 			}
 		},
 		"boolean": {

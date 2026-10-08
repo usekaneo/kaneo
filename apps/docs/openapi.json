@@ -1151,6 +1151,98 @@
           "url"
         ]
       },
+      "CreatedTask": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Task"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "externalLinks": {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/CreatedExternalLink"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "metadata": {
+                          "type": "null"
+                        }
+                      },
+                      "required": [
+                        "metadata"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "externalLinks"
+            ]
+          }
+        ]
+      },
+      "CreatedExternalLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "integrationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceType": {
+            "type": "string",
+            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
+          },
+          "externalId": {
+            "type": "string",
+            "description": "The provider's resource identifier, or the URL for a manual link."
+          },
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metadata": {
+            "description": "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "integrationId",
+          "resourceType",
+          "externalId",
+          "url",
+          "title",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Task": {
         "type": "object",
         "properties": {
@@ -4017,62 +4109,6 @@
           "targetTaskId",
           "relationType",
           "createdAt"
-        ]
-      },
-      "CreatedExternalLink": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "taskId": {
-            "type": "string"
-          },
-          "integrationId": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "resourceType": {
-            "type": "string",
-            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
-          },
-          "externalId": {
-            "type": "string",
-            "description": "The provider's resource identifier, or the URL for a manual link."
-          },
-          "url": {
-            "type": "string"
-          },
-          "title": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "metadata": {
-            "description": "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "taskId",
-          "integrationId",
-          "resourceType",
-          "externalId",
-          "url",
-          "title",
-          "createdAt",
-          "updatedAt"
         ]
       },
       "DeletedExternalLink": {
@@ -10570,7 +10606,7 @@
           "Tasks"
         ],
         "summary": "Create task",
-        "description": "Add a task to a project. It is placed in the column named by `status`.",
+        "description": "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`.",
         "parameters": [
           {
             "schema": {
@@ -10625,6 +10661,28 @@
                     },
                     "maxItems": 100
                   },
+                  "externalLinks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "An HTTP or HTTPS URL"
+                        },
+                        "title": {
+                          "type": "string",
+                          "maxLength": 200
+                        }
+                      },
+                      "required": [
+                        "url"
+                      ]
+                    },
+                    "maxItems": 100,
+                    "description": "Manual HTTP/HTTPS resource links created atomically with the task."
+                  },
                   "customFields": {
                     "type": "array",
                     "items": {
@@ -10656,11 +10714,11 @@
         },
         "responses": {
           "200": {
-            "description": "The created task",
+            "description": "The created task and its resource links",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Task"
+                  "$ref": "#/components/schemas/CreatedTask"
                 }
               }
             }

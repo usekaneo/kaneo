@@ -70,4 +70,32 @@ describe("createTask", () => {
       }),
     );
   });
+
+  it("includes draft resources in the task creation request and preserves the returned links", async () => {
+    const externalLinks = [{ url: "https://example.com", title: "Design" }];
+    const created = {
+      id: "task-1",
+      externalLinks: [{ id: "link-1", ...externalLinks[0], metadata: null }],
+    };
+    mocks.post.mockResolvedValue({ ok: true, json: async () => created });
+    const result = await createTask(
+      "With resource",
+      "",
+      "project-1",
+      undefined,
+      "to-do",
+      undefined,
+      undefined,
+      "no-priority",
+      undefined,
+      undefined,
+      externalLinks,
+    );
+    expect(mocks.post).toHaveBeenCalledWith(
+      expect.objectContaining({
+        json: expect.objectContaining({ externalLinks }),
+      }),
+    );
+    expect(result).toEqual(created);
+  });
 });

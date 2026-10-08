@@ -18,15 +18,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import ResourceLinkDialog from "./resource-link-dialog";
 import useCreateExternalLink from "@/hooks/mutations/external-link/use-create-external-link";
 import useDeleteExternalLink from "@/hooks/mutations/external-link/use-delete-external-link";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -65,8 +57,6 @@ export function ExternalLinksAccordion({
   const canAddResource = canUpdateTasks();
   const [isOpen, setIsOpen] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [url, setUrl] = useState("");
-  const [title, setTitle] = useState("");
 
   const createExternalLink = useCreateExternalLink();
   const deleteExternalLink = useDeleteExternalLink();
@@ -82,38 +72,6 @@ export function ExternalLinksAccordion({
 
     return externalLinks;
   }, [externalLinks]);
-
-  const resetForm = () => {
-    setUrl("");
-    setTitle("");
-  };
-
-  const handleDialogChange = (open: boolean) => {
-    setIsDialogOpen(open);
-
-    if (!open && !createExternalLink.isPending) {
-      resetForm();
-    }
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!canAddResource || createExternalLink.isPending) return;
-
-    createExternalLink.mutate(
-      {
-        taskId,
-        url,
-        ...(title.trim() ? { title: title.trim() } : {}),
-      },
-      {
-        onSuccess: () => {
-          setIsDialogOpen(false);
-          resetForm();
-        },
-      },
-    );
-  };
 
   const getStatusBadge = (link: ExternalLink) => {
     const isMerged = link.metadata?.merged === true;
@@ -271,68 +229,20 @@ export function ExternalLinksAccordion({
         </CollapsibleContent>
       </Collapsible>
 
-      <Dialog
-        open={isDialogOpen && canAddResource}
-        onOpenChange={handleDialogChange}
-      >
-        <DialogContent>
-          <form onSubmit={handleSubmit}>
-            <DialogHeader>
-              <DialogTitle>
-                {t("settings:externalLinks.addResource")}
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="grid gap-4 px-6 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="external-resource-url">
-                  {t("settings:externalLinks.url")}
-                </Label>
-                <Input
-                  id="external-resource-url"
-                  type="url"
-                  value={url}
-                  onChange={(event) => setUrl(event.target.value)}
-                  required
-                  autoFocus
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="external-resource-title">
-                  {t("settings:externalLinks.titleOptional")}
-                </Label>
-                <Input
-                  id="external-resource-title"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  maxLength={200}
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleDialogChange(false)}
-                disabled={createExternalLink.isPending}
-              >
-                {t("settings:externalLinks.cancel")}
-              </Button>
-
-              <Button
-                type="submit"
-                disabled={createExternalLink.isPending || !url.trim()}
-              >
-                {createExternalLink.isPending
-                  ? t("settings:externalLinks.adding")
-                  : t("settings:externalLinks.addResource")}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+      {isDialogOpen && canAddResource && (
+        <ResourceLinkDialog
+          open
+          onOpenChange={setIsDialogOpen}
+          isPending={createExternalLink.isPending}
+          onSubmit={(resource) => {
+            if (!canAddResource || createExternalLink.isPending) return;
+            createExternalLink.mutate(
+              { taskId, ...resource },
+              { onSuccess: () => setIsDialogOpen(false) },
+            );
+          }}
+        />
+      )}
     </>
   );
 }

@@ -462,6 +462,15 @@
 								"statusLoadError": {
 									"type": "string"
 								},
+								"status": {
+									"type": "string"
+								},
+								"statusUnavailable": {
+									"type": "string"
+								},
+								"noStatuses": {
+									"type": "string"
+								},
 								"taskTitlePlaceholder": {
 									"type": "string"
 								},
@@ -600,6 +609,9 @@
 								"title",
 								"description",
 								"statusLoadError",
+								"status",
+								"statusUnavailable",
+								"noStatuses",
 								"taskTitlePlaceholder",
 								"descriptionPlaceholder",
 								"chooseProjectForImages",

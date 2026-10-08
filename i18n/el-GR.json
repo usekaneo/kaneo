@@ -154,7 +154,10 @@
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
 				},
-				"statusLoadError": "Project statuses couldn’t be loaded."
+				"statusLoadError": "Project statuses couldn’t be loaded.",
+				"noStatuses": "No selectable statuses are available.",
+				"status": "Status",
+				"statusUnavailable": "The selected status is no longer available. Choose another status."
 			}
 		},
 		"boolean": {

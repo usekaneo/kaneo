@@ -7,6 +7,7 @@ import {
   columnTable,
   customFieldDefinitionTable,
   customFieldValueTable,
+  externalLinkTable,
   taskTable,
   projectTable,
   userTable,
@@ -57,6 +58,7 @@ async function createTask({
   priority,
   customFields,
   draftAssetIds,
+  externalLinks,
 }: {
   projectId: string;
   currentUserId: string;
@@ -69,6 +71,7 @@ async function createTask({
   priority?: string;
   customFields?: CustomFieldInput[];
   draftAssetIds?: string[];
+  externalLinks?: { url: string; title?: string }[];
 }) {
   const resolvedStatus = status || "to-do";
   const resolvedPriority = priority || "no-priority";
@@ -132,7 +135,7 @@ async function createTask({
     ),
   });
 
-  const createdTask = await db.transaction(async (tx) => {
+  const { createdTask, resources } = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
     const nextPosition = await nextTaskPosition(
       tx,
@@ -206,7 +209,23 @@ async function createTask({
       );
     }
 
-    return task;
+    const resources =
+      task && externalLinks?.length
+        ? await tx
+            .insert(externalLinkTable)
+            .values(
+              externalLinks.map((link) => ({
+                taskId: task.id,
+                integrationId: null,
+                resourceType: "url",
+                externalId: link.url,
+                url: link.url,
+                title: link.title?.trim() || null,
+              })),
+            )
+            .returning()
+        : [];
+    return { createdTask: task, resources };
   });
 
   if (!createdTask) {
@@ -227,6 +246,7 @@ async function createTask({
   return {
     ...createdTask,
     assigneeName: assignee?.name,
+    externalLinks: resources.map((link) => ({ ...link, metadata: null })),
   };
 }
 
