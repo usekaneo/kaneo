@@ -27,7 +27,7 @@ async function listRepositories(
   });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const result = await response.json();

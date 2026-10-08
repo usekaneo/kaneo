@@ -7,7 +7,7 @@ async function getMyProjectAccess(workspaceId: string) {
   ].$get({ param: { workspaceId } });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   return response.json();
