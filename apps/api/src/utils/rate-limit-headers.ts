@@ -53,12 +53,39 @@ export function apiKeyDenialHeaders(
     : {};
 }
 
-export function apiKeyResponseHeaders(
+export function retryAfterFromBody(body: unknown, now: Date) {
+  const tryAgainIn = (body as { details?: { tryAgainIn?: unknown } } | null)
+    ?.details?.tryAgainIn;
+  return typeof tryAgainIn === "number"
+    ? retryAfterSeconds(new Date(now.getTime() + tryAgainIn), now)
+    : null;
+}
+
+async function betterAuthRetryAfter(response: Response, now: Date) {
+  const seconds = Number.parseFloat(
+    response.headers.get("X-Retry-After") ?? "",
+  );
+  if (Number.isFinite(seconds)) return String(Math.max(1, Math.ceil(seconds)));
+  try {
+    return retryAfterFromBody(await response.clone().json(), now);
+  } catch {
+    return null;
+  }
+}
+
+export async function apiKeyResponseHeaders(
   check: ApiKeyCheck | null,
   response: Response,
   now: Date,
-): Record<string, string> {
+): Promise<Record<string, string>> {
   if (!check) return {};
+  const keyLimited =
+    check.status !== "valid" && !response.headers.has("X-Retry-After");
+  if (response.status === 429 && !keyLimited) {
+    if (response.headers.has("Retry-After")) return {};
+    const retryAfter = await betterAuthRetryAfter(response, now);
+    return retryAfter ? { "Retry-After": retryAfter } : {};
+  }
   if (
     check.status !== "valid" &&
     response.status === 429 &&

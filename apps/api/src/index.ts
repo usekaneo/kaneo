@@ -445,7 +445,7 @@ export function createApp() {
     await next();
     c.set(
       "apiKeyHeaders",
-      apiKeyResponseHeaders(
+      await apiKeyResponseHeaders(
         await readApiKeyCheck(apiKeyHeader),
         c.res,
         new Date(),
@@ -749,7 +749,7 @@ export function createApp() {
       const response = await auth.handler(new Request(c.req.raw, { headers }));
       c.set(
         "apiKeyHeaders",
-        apiKeyResponseHeaders(
+        await apiKeyResponseHeaders(
           await readApiKeyCheck(bearerToken),
           response,
           new Date(),

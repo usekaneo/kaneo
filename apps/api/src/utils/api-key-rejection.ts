@@ -3,7 +3,7 @@ import {
   type ApiKeyCheck,
   type ApiKeyDenial,
   apiKeyDenialHeaders,
-  retryAfterSeconds,
+  retryAfterFromBody,
 } from "./rate-limit-headers";
 
 function tooManyRequests(message: string, headers: Record<string, string>) {
@@ -29,25 +29,15 @@ export function betterAuthLimitRejection(
   now = new Date(),
 ) {
   if (check && check.status !== "valid") return apiKeyRejection(check, now);
-  const { code, details } = (body ?? {}) as {
-    code?: unknown;
-    details?: { tryAgainIn?: unknown };
-  };
+  const { code } = (body ?? {}) as { code?: unknown };
   if (code === "USAGE_EXCEEDED")
     return apiKeyRejection(
       { status: "usage_exceeded", retryAt: null, rateLimit: null },
       now,
     );
-  const tryAgainIn = details?.tryAgainIn;
+  const retryAfter = retryAfterFromBody(body, now);
   return tooManyRequests(
     "Rate limit exceeded",
-    typeof tryAgainIn === "number"
-      ? {
-          "Retry-After": retryAfterSeconds(
-            new Date(now.getTime() + tryAgainIn),
-            now,
-          ),
-        }
-      : {},
+    retryAfter ? { "Retry-After": retryAfter } : {},
   );
 }

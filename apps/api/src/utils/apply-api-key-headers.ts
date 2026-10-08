@@ -1,5 +1,13 @@
 import { createMiddleware } from "hono/factory";
 
+function privateCacheControl(cacheControl: string | null) {
+  if (!cacheControl) return "private";
+  if (/\b(private|no-store)\b/i.test(cacheControl)) return cacheControl;
+  if (/\bpublic\b/i.test(cacheControl))
+    return cacheControl.replace(/\bpublic\b/gi, "private");
+  return `private, ${cacheControl}`;
+}
+
 export const applyApiKeyHeaders = createMiddleware<{
   Variables: { apiKeyHeaders?: Record<string, string> };
 }>(async (c, next) => {
@@ -7,7 +15,8 @@ export const applyApiKeyHeaders = createMiddleware<{
   const headers = Object.entries(c.get("apiKeyHeaders") ?? {});
   if (headers.length === 0) return;
   for (const [name, value] of headers) c.header(name, value);
-  const cacheControl = c.res.headers.get("Cache-Control");
-  if (cacheControl && /\bpublic\b/i.test(cacheControl))
-    c.header("Cache-Control", cacheControl.replace(/\bpublic\b/gi, "private"));
+  c.header(
+    "Cache-Control",
+    privateCacheControl(c.res.headers.get("Cache-Control")),
+  );
 });

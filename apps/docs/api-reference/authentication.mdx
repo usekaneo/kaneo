@@ -56,6 +56,8 @@ When a key goes over its limit, Kaneo answers `429 Too Many Requests` with the s
 
 A key with a usage quota also gets `429` once the quota runs out, with the message `API key usage limit exceeded`. `Retry-After` is included when the quota refills at a known time.
 
+Auth endpoints under `/api/auth` can also have their own per-IP limits, for example on sign-up and invitations. Those `429` responses include `Retry-After` but no `X-RateLimit` headers, because the request did not count against the key.
+
 ## Device authorization
 
 By default, self-hosted Kaneo allows the built-in device clients `kaneo-cli` and `kaneo-mcp`.

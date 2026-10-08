@@ -75,6 +75,7 @@ describe("API key rate limits", () => {
     const after = Date.now();
 
     expect(first.status).toBe(200);
+    expect(first.headers.get("cache-control")).toBe("private");
     const headers = limitHeaders(first);
     expect(headers).toMatchObject({
       limit: String(LIMIT),
@@ -263,6 +264,45 @@ describe("API key rate limits", () => {
     },
   );
 
+  it.each([
+    [
+      "x-api-key",
+      "/api/auth/get-session",
+      (key: string) => ({ "x-api-key": key }),
+    ],
+    [
+      "a Bearer key",
+      "/api/auth/organization/list",
+      (key: string) => ({ Authorization: `Bearer ${key}` }),
+    ],
+  ])(
+    "answers Better Auth's own 429 with its Retry-After and no key window via %s",
+    async (_, path, headersFor) => {
+      const { key, row } = await seedKey();
+      vi.spyOn(auth, "handler").mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            message: "Too many requests. Please try again later.",
+          }),
+          { status: 429, headers: { "X-Retry-After": "42" } },
+        ),
+      );
+      const { app } = createApp();
+
+      const response = await app.request(path, { headers: headersFor(key) });
+
+      expect(response.status).toBe(429);
+      expect(limitHeaders(response)).toEqual({
+        limit: null,
+        remaining: null,
+        reset: null,
+        retryAfter: "42",
+      });
+      expect(response.headers.get("cache-control")).toBe("private");
+      expect((await savedKey(row.id)).requestCount).toBe(0);
+    },
+  );
+
   it("still answers when the rate limit headers cannot be read", async () => {
     const { key, row } = await seedKey();
     const handler = auth.handler;
@@ -354,12 +394,14 @@ describe("API key rate limits", () => {
       limit: String(LIMIT),
       remaining: String(LIMIT - 1),
     });
+    expect(missing.headers.get("cache-control")).toBe("private");
 
     const unknownRoute = await app.request("/api/no-such-route", {
       headers: { "x-api-key": key },
     });
     expect(unknownRoute.status).toBe(404);
     expect(limitHeaders(unknownRoute).remaining).toBe(String(LIMIT - 2));
+    expect(unknownRoute.headers.get("cache-control")).toBe("private");
   });
 
   it("answers 429 when the usage quota is exhausted", async () => {
