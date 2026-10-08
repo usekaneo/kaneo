@@ -15,5 +15,8 @@ export function useReorderColumns() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ refetchType: "all" });
     },
+    onError: async (_error, { projectId }) => {
+      await queryClient.invalidateQueries({ queryKey: ["columns", projectId] });
+    },
   });
 }
