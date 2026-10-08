@@ -12,7 +12,6 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import {
   type GitlabConfig,
@@ -37,7 +36,6 @@ import {
   gitlabIntegrationSchema,
   gitlabProjectListSchema,
   gitlabVerificationResultSchema,
-  integrationNotFoundSchema,
 } from "./response";
 import {
   createGitlabBody,
@@ -176,13 +174,7 @@ const updateIntegrationRoute = createRoute({
     403: errorResponse(
       "No access to the project, or missing workspace:manage_settings",
     ),
-    404: {
-      description: "Project or integration not found",
-      content: {
-        "text/plain": { schema: z.string() },
-        "application/json": { schema: integrationNotFoundSchema },
-      },
-    },
+    404: errorResponse("Project or integration not found"),
     409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
@@ -295,7 +287,7 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     if (!row) {
-      return c.json({ error: "Integration not found" }, 404);
+      throw new HTTPException(404, { message: "Integration not found" });
     }
 
     let config: GitlabConfig;

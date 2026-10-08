@@ -475,7 +475,10 @@ export const auth = betterAuth({
         beforeCreateOrganization: async ({ organization }) => {
           const check = checkWorkspaceName(organization.name ?? "");
           if (!check.ok) {
-            throw new APIError("BAD_REQUEST", { message: check.reason });
+            throw new APIError("BAD_REQUEST", {
+              code: "INVALID_WORKSPACE_NAME",
+              message: check.reason,
+            });
           }
         },
         afterCreateOrganization: async ({ organization, user }) => {
@@ -525,6 +528,7 @@ export const auth = betterAuth({
           const billable = await findBillableWorkspaces([organization.id]);
           if (billable.length > 0) {
             throw new APIError("CONFLICT", {
+              code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
               message: formatBillableWorkspacesMessage(
                 billable.map((workspace) => workspace.name),
               ),
@@ -773,6 +777,7 @@ export const auth = betterAuth({
 
       if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
         throw new APIError("FORBIDDEN", {
+          code: "LOCAL_SIGN_IN_DISABLED",
           message:
             "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
         });
@@ -780,6 +785,7 @@ export const auth = betterAuth({
 
       if (ctx.path === "/request-password-reset" && !isSmtpConfigured()) {
         throw new APIError("FORBIDDEN", {
+          code: "EMAIL_DELIVERY_NOT_CONFIGURED",
           message: "Password reset requires email delivery to be configured.",
         });
       }
@@ -793,7 +799,10 @@ export const auth = betterAuth({
           ctx.headers?.get("x-turnstile-token") ?? ctx.body?.turnstileToken,
         );
         if (!verdict.ok)
-          throw new APIError("FORBIDDEN", { message: verdict.reason });
+          throw new APIError("FORBIDDEN", {
+            code: "CAPTCHA_FAILED",
+            message: verdict.reason,
+          });
       }
 
       // Block invite-member calls on cloud from anonymous users or to
@@ -812,12 +821,14 @@ export const auth = betterAuth({
           | undefined;
         if (sessionUser?.isAnonymous) {
           throw new APIError("FORBIDDEN", {
+            code: "GUEST_INVITATIONS_NOT_ALLOWED",
             message: "Guest accounts may not send workspace invitations.",
           });
         }
         const inviteeEmail = (ctx.body?.email as string | undefined) ?? "";
         if (inviteeEmail && isDisposableEmail(inviteeEmail)) {
           throw new APIError("BAD_REQUEST", {
+            code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
             message:
               "Invitations to disposable-email addresses are not allowed.",
           });
@@ -838,6 +849,7 @@ export const auth = betterAuth({
       if (ctx.path === "/sign-up/email") {
         if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
           throw new APIError("FORBIDDEN", {
+            code: "PASSWORD_REGISTRATION_DISABLED",
             message:
               "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
           });
@@ -849,6 +861,7 @@ export const auth = betterAuth({
           const signupEmail = (ctx.body?.email as string | undefined) ?? "";
           if (signupEmail && isDisposableEmail(signupEmail)) {
             throw new APIError("BAD_REQUEST", {
+              code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
               message:
                 "Sign-up with disposable email addresses is not allowed.",
             });
@@ -874,6 +887,7 @@ export const auth = betterAuth({
         const result = await checkRegistrationAllowed(email, invitationId);
         if (!result.allowed) {
           throw new APIError("FORBIDDEN", {
+            code: "REGISTRATION_NOT_ALLOWED",
             message: result.reason,
           });
         }

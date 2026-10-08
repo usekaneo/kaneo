@@ -13,6 +13,6 @@ export default async function reviewSyncResume(
     { param: { ...param, linkId } },
     { init: { signal } },
   );
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }

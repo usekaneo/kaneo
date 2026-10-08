@@ -50,7 +50,12 @@ describe("KaneoClient", () => {
     };
     const fetchMock = vi
       .fn()
-      .mockResolvedValueOnce(new Response("unauthorized", { status: 401 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({ message: "Unauthorized", code: "UNAUTHORIZED" }),
+          { status: 401, headers: { "content-type": "application/json" } },
+        ),
+      )
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ id: "task-1" }), { status: 200 }),
       );
@@ -74,9 +79,13 @@ describe("KaneoClient", () => {
       clearToken: vi.fn().mockResolvedValue(undefined),
     };
     globalThis.fetch = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify({ message: "Task not found" }), {
-        status: 404,
-      }),
+      new Response(
+        JSON.stringify({ message: "Task not found", code: "NOT_FOUND" }),
+        {
+          status: 404,
+          headers: { "content-type": "application/json" },
+        },
+      ),
     ) as typeof fetch;
 
     const client = new KaneoClient({
@@ -85,7 +94,54 @@ describe("KaneoClient", () => {
     });
 
     await expect(client.json("/api/task/missing")).rejects.toThrow(
-      "/api/task/missing: Task not found",
+      "/api/task/missing: Task not found (NOT_FOUND)",
+    );
+  });
+
+  it("names missing permissions through the error code", async () => {
+    const auth = {
+      getAccessToken: vi.fn().mockResolvedValue("token-123"),
+      clearToken: vi.fn().mockResolvedValue(undefined),
+    };
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          message: "Insufficient API key scope",
+          code: "API_KEY_SCOPE",
+          missingPermissions: ["task:update"],
+        }),
+        { status: 403, headers: { "content-type": "application/json" } },
+      ),
+    ) as typeof fetch;
+
+    const client = new KaneoClient({
+      baseUrl: "https://api.example.com",
+      auth: auth as never,
+    });
+
+    await expect(client.json("/api/task/task-1")).rejects.toThrow(
+      "/api/task/task-1: Insufficient API key scope (API_KEY_SCOPE)",
+    );
+  });
+
+  it("falls back to a text body from an older API", async () => {
+    const auth = {
+      getAccessToken: vi.fn().mockResolvedValue("token-123"),
+      clearToken: vi.fn().mockResolvedValue(undefined),
+    };
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response("Task not found", { status: 404 }),
+      ) as typeof fetch;
+
+    const client = new KaneoClient({
+      baseUrl: "https://api.example.com",
+      auth: auth as never,
+    });
+
+    await expect(client.json("/api/task/missing")).rejects.toThrow(
+      /^\/api\/task\/missing: Task not found$/,
     );
   });
 });

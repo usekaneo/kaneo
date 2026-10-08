@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { mockAuthenticatedSession } from "./helpers/auth";
+import { readErrorBody } from "./helpers/error-body";
 import { createInstanceAdmin } from "./helpers/admin/create-instance-admin";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -33,7 +34,10 @@ describe("missing and deleted resources return 404", () => {
     const response = await projectAccessApi()(`/project/${randomUUID()}`);
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Project not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Project not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("returns 404 for a deleted project", async () => {
@@ -59,7 +63,10 @@ describe("missing and deleted resources return 404", () => {
 
     const response = await request(`/project/${id}`);
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Project not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Project not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("returns 404 for a task that never existed", async () => {
@@ -69,7 +76,10 @@ describe("missing and deleted resources return 404", () => {
     const response = await projectAccessApi()(`/task/${randomUUID()}`);
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Task not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Task not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("returns 404 for a deleted task", async () => {
@@ -83,7 +93,10 @@ describe("missing and deleted resources return 404", () => {
 
     const response = await request(`/task/${own.task.id}`);
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Task not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Task not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("does not fall back to a workspace query when the task lookup fails", async () => {
@@ -95,7 +108,10 @@ describe("missing and deleted resources return 404", () => {
     );
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Task not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Task not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("returns 404 for a workspace that does not exist", async () => {
@@ -107,7 +123,10 @@ describe("missing and deleted resources return 404", () => {
     );
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Workspace not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Workspace not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("keeps 400 when no workspace id is given at all", async () => {
@@ -117,9 +136,10 @@ describe("missing and deleted resources return 404", () => {
     const response = await projectAccessApi()("/project");
 
     expect(response.status).toBe(400);
-    expect(await response.text()).toContain(
-      "Workspace ID could not be determined",
-    );
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Workspace ID could not be determined",
+      code: "BAD_REQUEST",
+    });
   });
 });
 
@@ -199,7 +219,10 @@ describe("members without a permission still get 403", () => {
     });
 
     expect(response.status).toBe(403);
-    expect(await response.text()).toContain("Insufficient permissions");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Insufficient permissions",
+      code: "MISSING_PERMISSION",
+    });
   });
 });
 
@@ -213,7 +236,10 @@ describe("instance admins need an existing workspace", () => {
     );
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Workspace not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Workspace not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("returns 404 instead of a server error when creating a project in a missing workspace", async () => {
@@ -231,7 +257,10 @@ describe("instance admins need an existing workspace", () => {
     });
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toContain("Workspace not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Workspace not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("still reads a workspace the admin never joined", async () => {

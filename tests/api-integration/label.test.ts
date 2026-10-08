@@ -8,6 +8,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 describe("API integration: labels", () => {
   beforeEach(async () => {
@@ -31,7 +32,10 @@ describe("API integration: labels", () => {
     });
 
     expect(response.status).toBe(401);
-    await expect(response.text()).resolves.toBe("Unauthorized");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Unauthorized",
+      code: "UNAUTHORIZED",
+    });
   });
 
   it("creates a label in a workspace for a member", async () => {
@@ -103,7 +107,10 @@ describe("API integration: labels", () => {
     });
 
     expect(response.status).toBe(404);
-    await expect(response.text()).resolves.toContain("Workspace not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Workspace not found",
+      code: "NOT_FOUND",
+    });
 
     const persisted = await db.query.labelTable.findFirst({
       where: eq(schema.labelTable.name, "Blocked"),

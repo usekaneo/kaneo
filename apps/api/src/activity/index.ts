@@ -5,7 +5,6 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
@@ -90,14 +89,9 @@ const createActivityRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created activity", activitySchema),
-    400: {
-      description:
-        "Invalid body, or comment activity submitted through the generic endpoint",
-      content: {
-        "text/plain": { schema: z.string() },
-        "application/json": { schema: z.object({ message: z.string() }) },
-      },
-    },
+    400: errorResponse(
+      "Invalid body, or comment activity submitted through the generic endpoint",
+    ),
     403: errorResponse(
       "No access to the project, or missing task:update permission",
     ),
@@ -201,10 +195,7 @@ const activity = apiRouter()
     const { taskId, message, type, eventData } = c.req.valid("json");
     if (type === "comment") {
       throw new HTTPException(400, {
-        res: c.json(
-          { message: "Use the comment endpoint to create comments" },
-          400,
-        ),
+        message: "Use the comment endpoint to create comments",
       });
     }
     return c.json(

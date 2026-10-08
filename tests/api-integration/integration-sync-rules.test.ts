@@ -35,6 +35,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 const provider = vi.hoisted(() => ({ read: vi.fn(), write: vi.fn() }));
 vi.mock("../../apps/api/src/plugins/sync/provider-issue", () => ({
@@ -714,9 +715,10 @@ describe("reviewed sync resume", () => {
       token: "a".repeat(64),
     });
     expect(response.status).toBe(409);
-    expect(await response.text()).toBe(
-      "Synchronization is busy; retry shortly",
-    );
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Synchronization is busy; retry shortly",
+      code: "CONFLICT",
+    });
     expect(provider.read).not.toHaveBeenCalled();
     expect(provider.write).not.toHaveBeenCalled();
     expect((await db.query.jobLeaseTable.findFirst())?.owner).toBe(

@@ -12,7 +12,6 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import {
   type GitHubConfig,
@@ -37,7 +36,6 @@ import {
   githubIntegrationSchema,
   githubRepositoryListSchema,
   importResultSchema,
-  integrationNotFoundSchema,
   verificationResultSchema,
 } from "./response";
 import {
@@ -194,13 +192,7 @@ const updateIntegrationRoute = createRoute({
     403: errorResponse(
       "No access to the project, or missing workspace:manage_settings",
     ),
-    404: {
-      description: "Project or integration not found",
-      content: {
-        "text/plain": { schema: z.string() },
-        "application/json": { schema: integrationNotFoundSchema },
-      },
-    },
+    404: errorResponse("Project or integration not found"),
   },
 });
 
@@ -336,7 +328,7 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     if (!row) {
-      return c.json({ error: "Integration not found" }, 404);
+      throw new HTTPException(404, { message: "Integration not found" });
     }
 
     let config: GitHubConfig;
