@@ -31,6 +31,7 @@ import { Output } from "../../output/output.js";
 import { withSpinner } from "../../output/spinner.js";
 import { promptTheme } from "../../prompts/prompt-theme.js";
 import { fetchTask, resolveTask } from "../../tasks/resolve-task.js";
+import { Session } from "../../services/session.js";
 import { ApiLayer } from "../api-layer.js";
 
 const FILES_HINT = "For example: kaneo task attach KAN-12 screenshot.png";
@@ -113,8 +114,6 @@ const previewLines = Effect.fnUntraced(function* (
   return lines;
 });
 
-const PLACEHOLDER_ASSET_URL = `https://${"x".repeat(64)}/api/asset/${"x".repeat(64)}`;
-
 export const runTaskAttach = Effect.fn("command.task.attach")(
   function* (options: {
     readonly task: string;
@@ -123,6 +122,7 @@ export const runTaskAttach = Effect.fn("command.task.attach")(
     readonly message: Option.Option<string>;
     readonly messageFile: Option.Option<string>;
   }) {
+    const session = yield* Session;
     const message = yield* readTextInput({
       value: options.message,
       file: options.messageFile,
@@ -150,7 +150,7 @@ export const runTaskAttach = Effect.fn("command.task.attach")(
         text,
         files.map((file) => ({
           name: file.name,
-          url: PLACEHOLDER_ASSET_URL,
+          url: `${session.apiUrl}/api/asset/${"x".repeat(32)}`,
           contentType: file.contentType,
           size: file.bytes.byteLength,
           kind: isInlineImageType(file.contentType) ? "image" : "attachment",

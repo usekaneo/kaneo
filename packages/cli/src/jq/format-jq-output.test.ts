@@ -15,4 +15,10 @@ describe("formatJqResults", () => {
   it("prints nothing when the expression yields no results", () => {
     expect(formatJqResults([])).toBe("");
   });
+
+  it("strips terminal control characters from string results", () => {
+    expect(formatJqResults(["title\u001b]0;pwned\u0007"])).toBe(
+      "title]0;pwned\n",
+    );
+  });
 });
