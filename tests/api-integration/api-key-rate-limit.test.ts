@@ -265,6 +265,10 @@ describe("API key rate limits", () => {
         reset: null,
         retryAfter: "42",
       });
+      expect(await response.json()).toEqual({
+        message: "Too many requests. Please try again later.",
+        code: "RATE_LIMITED",
+      });
       expect(response.headers.get("cache-control")).toBe("private");
       expect((await savedKey(row.id)).requestCount).toBe(0);
     },

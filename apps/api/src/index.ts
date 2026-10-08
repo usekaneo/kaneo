@@ -33,6 +33,7 @@ import {
   notFoundResponse,
   withJsonNotFound,
 } from "./errors/not-found-response";
+import { withJsonRateLimit } from "./errors/rate-limit-response";
 import {
   validationHook,
   validationHookWithMessage,
@@ -480,7 +481,7 @@ export function createApp() {
         429: apiKeyRateLimited.ref,
       },
     }),
-    async (c) => auth.handler(c.req.raw),
+    async (c) => withJsonRateLimit(await auth.handler(c.req.raw)),
   );
 
   api.openapi(
@@ -737,7 +738,7 @@ export function createApp() {
         }
         return c.redirect(deviceUrl.toString(), 302);
       }
-      return auth.handler(c.req.raw);
+      return withJsonRateLimit(await auth.handler(c.req.raw));
     },
   );
 
@@ -753,8 +754,10 @@ export function createApp() {
 
       // Preserve Better Auth bearer session tokens on auth routes.
       if (session?.session && session.user) {
-        return withJsonNotFound(
-          await auth.handler(new Request(c.req.raw, { headers })),
+        return withJsonRateLimit(
+          await withJsonNotFound(
+            await auth.handler(new Request(c.req.raw, { headers })),
+          ),
         );
       }
 
@@ -764,8 +767,10 @@ export function createApp() {
       // Better Auth API key plugin validates from x-api-key by default.
       headers.set("x-api-key", bearerToken);
 
-      const response = await withJsonNotFound(
-        await auth.handler(new Request(c.req.raw, { headers })),
+      const response = await withJsonRateLimit(
+        await withJsonNotFound(
+          await auth.handler(new Request(c.req.raw, { headers })),
+        ),
       );
       c.set(
         "apiKeyHeaders",
@@ -778,7 +783,9 @@ export function createApp() {
       return response;
     }
 
-    return withJsonNotFound(await auth.handler(c.req.raw));
+    return withJsonRateLimit(
+      await withJsonNotFound(await auth.handler(c.req.raw)),
+    );
   });
 
   api.route("/", mcpRoutes);
