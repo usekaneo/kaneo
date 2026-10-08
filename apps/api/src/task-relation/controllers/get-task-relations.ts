@@ -6,9 +6,14 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { taskIsCompleted } from "../../task/task-is-completed";
 
-async function getTaskRelations(taskId: string, workspaceId: string) {
+async function getTaskRelations(
+  taskId: string,
+  workspaceId: string,
+  userId: string,
+) {
   const relations = await db
     .select({
       id: taskRelationTable.id,
@@ -66,6 +71,7 @@ async function getTaskRelations(taskId: string, workspaceId: string) {
         and(
           inArray(taskTable.id, [...taskIds]),
           eq(projectTable.workspaceId, workspaceId),
+          projectAccessCondition(userId, projectTable.id),
         ),
       );
 

@@ -1,6 +1,15 @@
+import { acceptsIssue } from "../../sync/rules";
+import { importIssueLabels } from "../../sync/issue-labels";
+import { canSyncTask } from "../../sync/eligibility";
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
-import { columnTable, projectTable, taskTable } from "../../../database/schema";
+import {
+  columnTable,
+  integrationTable,
+  projectTable,
+  taskTable,
+} from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { claimTaskNumber } from "../../../task/controllers/claim-task-numbers";
 import {
@@ -28,9 +37,10 @@ type IssueOpenedPayload = {
   issue: {
     number: number;
     title: string;
+    state?: string;
     body: string | null;
     html_url: string;
-    labels?: Array<string | { name?: string }>;
+    labels?: Array<string | { name?: string; color?: string }>;
     user: { login?: string; username?: string } | null;
   };
   repository: {
@@ -64,6 +74,7 @@ export async function handleGiteaIssueOpened(
   }
 
   for (const integration of integrations) {
+    if (!acceptsIssue(integration.config, issue.labels)) continue;
     let config: GiteaConfig;
     try {
       config = JSON.parse(integration.config) as GiteaConfig;
@@ -75,71 +86,100 @@ export async function handleGiteaIssueOpened(
       continue;
     }
     const projectId = integration.projectId;
+    const closed = issue.state === "closed";
 
     const priority = extractIssuePriority(issue.labels);
     const status = extractIssueStatus(issue.labels);
 
-    const existingLink = await findExternalLink(
-      integration.id,
-      "issue",
-      issue.number.toString(),
-    );
-
-    if (existingLink) {
-      continue;
-    }
-
-    const nextTaskNumber = await claimTaskNumber(projectId);
-
-    const resolvedStatus = await resolveTargetStatus(
-      projectId,
-      "issue_opened",
-      status || "to-do",
-    );
-
-    const targetColumn = await db.query.columnTable.findFirst({
-      where: and(
-        eq(columnTable.projectId, projectId),
-        eq(columnTable.slug, resolvedStatus),
-      ),
-    });
-
-    const taskValues: typeof taskTable.$inferInsert = {
-      projectId,
-      userId: null,
-      title: issue.title,
-      description: formatTaskDescriptionFromIssue(issue.body),
-      status: resolvedStatus,
-      columnId: targetColumn?.id ?? null,
-      priority: priority ?? "low",
-      number: nextTaskNumber,
-    };
-
-    const [createdTask] = await db
-      .insert(taskTable)
-      .values(taskValues)
-      .returning();
-
-    if (!createdTask) {
-      console.error("Failed to create task from Gitea issue");
-      continue;
-    }
-
-    // Must run before task.created: the plugin's onTaskCreated uses link
-    // existence to skip self-originated tasks, else it duplicates the issue.
-    await createExternalLink({
-      taskId: createdTask.id,
-      integrationId: integration.id,
-      resourceType: "issue",
-      externalId: issue.number.toString(),
-      url: issue.html_url,
-      title: issue.title,
-      metadata: {
-        state: "open",
+    const result = await db.transaction(async (tx) => {
+      const [current] = await tx
+        .select()
+        .from(integrationTable)
+        .where(eq(integrationTable.id, integration.id))
+        .for("update");
+      if (
+        !current?.isActive ||
+        current.config !== integration.config ||
+        !acceptsIssue(current.config, issue.labels)
+      )
+        return null;
+      if (
+        await findExternalLink(
+          integration.id,
+          "issue",
+          String(issue.number),
+          tx,
+        )
+      )
+        return null;
+      const resolvedStatus = await resolveTargetStatus(
+        projectId,
+        closed ? "issue_closed" : "issue_opened",
+        closed ? "done" : status || "to-do",
+        tx,
+      );
+      let targetColumn = await tx.query.columnTable.findFirst({
+        where: and(
+          eq(columnTable.projectId, projectId),
+          eq(columnTable.slug, resolvedStatus),
+        ),
+      });
+      if (closed && !targetColumn?.isFinal)
+        targetColumn = await tx.query.columnTable.findFirst({
+          where: and(
+            eq(columnTable.projectId, projectId),
+            eq(columnTable.isFinal, true),
+          ),
+          orderBy: (column, { asc }) => [asc(column.position)],
+        });
+      const nextTaskNumber = await claimTaskNumber(projectId, tx);
+      const [task] = await tx
+        .insert(taskTable)
+        .values({
+          projectId,
+          userId: null,
+          title: issue.title,
+          description: formatTaskDescriptionFromIssue(issue.body),
+          status: closed ? (targetColumn?.slug ?? "done") : resolvedStatus,
+          columnId: targetColumn?.id ?? null,
+          priority: priority ?? "low",
+          number: nextTaskNumber,
+        })
+        .returning();
+      if (!task) throw new Error("Failed to create task from gitea issue");
+      const linkMetadata = {
+        state: closed ? "closed" : "open",
         createdFrom: "gitea",
         author: issue.user?.login ?? issue.user?.username,
-      },
+      };
+      const link = await createExternalLink(
+        {
+          taskId: task.id,
+          integrationId: integration.id,
+          resourceType: "issue",
+          externalId: String(issue.number),
+          url: issue.html_url,
+          title: issue.title,
+          metadata: linkMetadata,
+        },
+        tx,
+      );
+      await importIssueLabels(
+        task.id,
+        integration.project.workspaceId,
+        issue.labels,
+        tx,
+      );
+      const eligible = await canSyncTask(
+        task.id,
+        integration.id,
+        tx,
+        integration.config,
+      );
+      return { task, link, linkMetadata, eligible };
     });
+    if (!result) continue;
+    const { task: createdTask, link, eligible } = result;
 
     await publishEvent("task.created", {
       ...createdTask,
@@ -151,6 +191,11 @@ export async function handleGiteaIssueOpened(
       externalId: issue.number.toString(),
       actor: issue.user?.login ?? issue.user?.username ?? "gitea-webhook",
     });
+    if (!eligible) continue;
+    const write = createIssueWrite(
+      { id: link.id, taskId: createdTask.id, integrationId: integration.id },
+      integration.config,
+    );
 
     const project = await db.query.projectTable.findFirst({
       where: eq(projectTable.id, projectId),
@@ -183,19 +228,32 @@ export async function handleGiteaIssueOpened(
       }
 
       if (labelsToAdd.length > 0) {
-        await addLabelsToIssueGitea(config, issue.number, labelsToAdd);
+        await addLabelsToIssueGitea(
+          config,
+          issue.number,
+          labelsToAdd,
+          true,
+          write,
+        );
       }
 
       if (config.commentTaskLinkOnGiteaIssue !== false) {
-        await client.createIssueComment(
-          config.repositoryOwner,
-          config.repositoryName,
-          issue.number,
-          markKaneoComment(`[${taskIdentifier}](${taskUrl})`),
+        await write(() =>
+          client.createIssueComment(
+            config.repositoryOwner,
+            config.repositoryName,
+            issue.number,
+            markKaneoComment(`[${taskIdentifier}](${taskUrl})`),
+          ),
         );
       }
-    } catch (error) {
-      console.error("Failed to process Gitea issue:", error);
+    } catch {
+      console.error("Gitea imported issue linking write failed", {
+        projectId,
+        taskId: createdTask.id,
+        integrationId: integration.id,
+        linkId: link.id,
+      });
     }
   }
 }

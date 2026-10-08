@@ -1,3 +1,6 @@
+import { acceptsIssue } from "../../plugins/sync/rules";
+import { canSyncTask } from "../../plugins/sync/eligibility";
+import { sameConfig } from "../../plugins/sync/same-config";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -212,6 +215,8 @@ async function importSingleIssue(
     issue.number.toString(),
   );
 
+  if (!existingLink && !acceptsIssue(config, issue.labels)) return "skipped";
+
   const labels = issue.labels ?? [];
   const adaptedLabels = toPriorityLabels(labels);
   const priority = extractIssuePriority(adaptedLabels);
@@ -235,7 +240,11 @@ async function importSingleIssue(
             ),
           )
           .for("update");
-        if (!linked) return "skipped" as const;
+        if (
+          !linked ||
+          !(await canSyncTask(existingLink.taskId, integrationId, database))
+        )
+          return "skipped" as const;
 
         const updateData: Record<string, unknown> = {
           title: issue.title,
@@ -256,6 +265,7 @@ async function importSingleIssue(
           workspaceId,
           database,
         );
+        await canSyncTask(existingLink.taskId, integrationId, database);
 
         await importCommentsForTask(comments, existingLink.taskId, database);
 
@@ -280,6 +290,21 @@ async function importSingleIssue(
     null,
     { id: integrationId, projectId, project: { workspaceId } },
     async (tx) => {
+      const binding = await tx.query.integrationTable.findFirst({
+        where: eq(integrationTable.id, integrationId),
+      });
+      if (
+        !binding ||
+        !sameConfig(binding.config, JSON.stringify(config)) ||
+        !acceptsIssue(binding.config, issue.labels) ||
+        (await findExternalLink(
+          integrationId,
+          "issue",
+          String(issue.number),
+          tx,
+        ))
+      )
+        return null;
       const nextNumber = await claimTaskNumber(projectId, tx);
 
       const taskValues: typeof taskTable.$inferInsert = {
@@ -319,6 +344,7 @@ async function importSingleIssue(
       );
 
       await importLabelsForTask(labels, created.id, workspaceId, tx);
+      await canSyncTask(created.id, integrationId, tx, binding.config);
 
       await importCommentsForTask(comments, created.id, tx);
 

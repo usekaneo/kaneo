@@ -23,7 +23,7 @@
 	},
 	"fonts": {
 		"family": "Geist Variable",
-		"source": "/fonts/geist.woff2",
+		"source": "https://kaneo.app/docs/fonts/geist.woff2",
 		"format": "woff2"
 	},
 	"favicon": "/favicon.svg",
@@ -111,6 +111,7 @@
 					{
 						"group": "Keep it running",
 						"pages": [
+							"core/operations/administration",
 							"core/operations/backups",
 							"core/operations/upgrades",
 							"core/operations/troubleshooting"
@@ -175,6 +176,7 @@
 						"pages": [
 							"api-reference/introduction",
 							"api-reference/authentication",
+							"api-reference/errors",
 							"core/integrations/mcp-stateless"
 						]
 					},

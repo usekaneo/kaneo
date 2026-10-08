@@ -126,7 +126,7 @@ Kaneo checks the configured branch pattern first, then explicit task references 
 
 Issue references use the remote repository's numbering. A title containing `#61` or a body containing `Closes #61` resolves through the issue link recorded by this integration. If GitHub issue 61 is linked to Kaneo task `PROJ-42`, the PR belongs to `PROJ-42`, even if `PROJ-61` also exists. Same-repository `owner/repo#61` references and issue URLs are also supported. References to another repository are ignored.
 
-If none of those match, Kaneo looks for a task link in the PR title or body. Paste the link from **Copy task link** on the task, and the PR is linked to that task. A PR that links to more than one task, or to a task in another project, is not linked.
+Links from **Copy task link**, such as `https://kaneo.example.com/acme/task/PROJ-42/fix-login`, contain the project key, so pasting one in the PR title or body links the PR to that task. If none of those match, Kaneo also looks for a full task URL (`/dashboard/workspace/.../task/...`). A PR with full URLs to more than one task, or to a task in another project, is not linked.
 
 Without an explicit task reference, unmapped issues do not create PR associations. References that map to multiple tasks within the integration are skipped. Repeated issue links to the same task are accepted. Bare numeric title shortcuts such as `[42]`, `(42)`, or `42: ...` are not task identifiers; use the project key instead.
 

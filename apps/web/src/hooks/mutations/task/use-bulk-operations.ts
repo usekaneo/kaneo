@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import bulkOperation from "@/fetchers/task/bulk-operation";
 import deleteTask from "@/fetchers/task/delete-task";
 
@@ -8,6 +9,7 @@ export function useBulkOperations() {
   const invalidateCommon = () => {
     queryClientRef.invalidateQueries({ queryKey: ["tasks"] });
     queryClientRef.invalidateQueries({ queryKey: ["projects"] });
+    invalidateMyWork(queryClientRef);
   };
 
   const bulkDelete = useMutation({

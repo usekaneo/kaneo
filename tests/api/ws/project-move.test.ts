@@ -19,15 +19,28 @@ import {
   revokeUserConnections,
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws";
+import { subscribeToEvent } from "../../../apps/api/src/events";
 
 const m = vi.hoisted(() => ({
   lookup: vi.fn(),
   members: vi.fn(),
   admins: vi.fn(),
+  projectAccess: vi.fn(),
+  inaccessible: vi.fn(),
+  sync: vi.fn(),
   redis: false,
   publish: vi.fn(),
   on: vi.fn(),
 }));
+vi.mock(
+  "../../../apps/api/src/ws/workspace-access",
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import("../../../apps/api/src/ws/workspace-access")
+    >()),
+    syncWorkspaceAccess: m.sync,
+  }),
+);
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: (fields: Record<string, unknown>) => ({
@@ -42,27 +55,51 @@ vi.mock("../../../apps/api/src/database", () => ({
     }),
   },
 }));
+vi.mock(
+  "../../../apps/api/src/project-access/filter-users-with-project-access",
+  () => ({
+    filterUsersWithProjectAccess: async () =>
+      new Set(
+        ((await m.projectAccess()) as { userId: string }[]).map(
+          (row) => row.userId,
+        ),
+      ),
+  }),
+);
 vi.mock("../../../apps/api/src/events", () => ({ subscribeToEvent: vi.fn() }));
+vi.mock(
+  "../../../apps/api/src/project-access/find-inaccessible-project-ids",
+  () => ({
+    findInaccessibleProjectIds: m.inaccessible,
+  }),
+);
+vi.mock(
+  "../../../apps/api/src/project-access/list-workspace-project-ids",
+  () => ({ listWorkspaceProjectIds: async () => [] }),
+);
+const projectAccessUpdated = vi
+  .mocked(subscribeToEvent)
+  .mock.calls.find(([eventName]) => eventName === "project_access.updated")![1];
 vi.mock("../../../apps/api/src/redis", () => ({
   isRedisConfigured: () => m.redis,
   getRedisPub: () => ({ publish: m.publish }),
   getRedisSub: () => ({
     on: m.on,
     off: vi.fn(),
-    psubscribe: vi.fn(),
+    psubscribe: vi.fn(async () => {}),
     punsubscribe: vi.fn(),
   }),
   closeRedis: vi.fn(),
 }));
 const tracked: Array<[string, ReturnType<typeof addConnection>]> = [];
-function connect(projectId = "project", workspaceId = "old") {
+function connect(projectId = "project", workspaceId = "old", userId = "user") {
   const ws = { send: vi.fn(), close: vi.fn() };
   tracked.push([
     projectId,
     addConnection(
       projectId,
       ws as unknown as WSContext,
-      "user",
+      userId,
       "window",
       workspaceId,
     ),
@@ -78,6 +115,8 @@ beforeEach(() => {
   m.redis = false;
   m.admins.mockResolvedValue([]);
   m.members.mockResolvedValue([{ userId: "user" }]);
+  m.projectAccess.mockResolvedValue([{ userId: "user" }]);
+  m.inaccessible.mockResolvedValue([]);
   m.lookup.mockResolvedValue([{ workspaceId: "old" }]);
   m.publish.mockResolvedValue(1);
 });
@@ -114,15 +153,13 @@ describe("project move revocation", () => {
     expect(old.close).toHaveBeenCalled();
     expect(current.send).toHaveBeenCalledWith(JSON.stringify(update));
   });
-  it.each(["workspace", "membership"])(
-    "skips delivery without revoking access on transient %s lookup failure",
+  it.each(["lookup", "members", "projectAccess"] as const)(
+    "skips delivery without revoking access on transient %s failure",
     async (lookup) => {
       vi.useFakeTimers();
       await initializeWebSocketAdapter();
       const old = connect();
-      (lookup === "workspace" ? m.lookup : m.members).mockRejectedValueOnce(
-        new Error("Database unavailable"),
-      );
+      m[lookup].mockRejectedValueOnce(new Error("Database unavailable"));
       broadcastToProject("project", update);
       await vi.advanceTimersByTimeAsync(100);
       expect(old.send).not.toHaveBeenCalled();
@@ -258,6 +295,189 @@ describe("workspace membership revocation", () => {
   });
 });
 
+describe("project access revocation", () => {
+  it("stops broadcasts to a member who lost project access even when the change was missed", async () => {
+    vi.useFakeTimers();
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    m.projectAccess.mockResolvedValue([]);
+    broadcastToProject("project", update);
+    await vi.advanceTimersByTimeAsync(100);
+    expect(ws.send).not.toHaveBeenCalled();
+    expect(ws.close).toHaveBeenCalledWith(1008, "Project access revoked");
+  });
+
+  it("closes only the inaccessible project sockets and notifies every tab", async () => {
+    await initializeWebSocketAdapter();
+    const revoked = connect();
+    const kept = connect("kept-project");
+    const elsewhere = connect("other-project", "other-workspace");
+    const tab = { send: vi.fn(), close: vi.fn() };
+    const conn = addUserConnection("user", tab as unknown as WSContext);
+    m.inaccessible.mockResolvedValue(["project"]);
+    try {
+      await projectAccessUpdated({ workspaceId: "old", userId: "user" });
+      await vi.waitFor(() =>
+        expect(revoked.close).toHaveBeenCalledWith(
+          1008,
+          "Project access revoked",
+        ),
+      );
+      expect(m.inaccessible).toHaveBeenCalledWith("user", [
+        "project",
+        "kept-project",
+      ]);
+      expect(kept.close).not.toHaveBeenCalled();
+      expect(elsewhere.close).not.toHaveBeenCalled();
+      expect(tab.send).toHaveBeenCalledWith(
+        JSON.stringify({ type: "PROJECT_ACCESS_CHANGED", workspaceId: "old" }),
+      );
+      expect(tab.close).not.toHaveBeenCalled();
+    } finally {
+      removeUserConnection("user", conn);
+    }
+  });
+
+  it("keeps project sockets open when the access check fails", async () => {
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    m.inaccessible.mockRejectedValueOnce(new Error("database unavailable"));
+    await projectAccessUpdated({ workspaceId: "old", userId: "user" });
+    await vi.waitFor(() => expect(m.inaccessible).toHaveBeenCalled());
+    await Promise.resolve();
+    expect(ws.close).not.toHaveBeenCalled();
+  });
+
+  it("fans the change out to other instances through the user Redis channel", async () => {
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    await projectAccessUpdated({ workspaceId: "old", userId: "user" });
+    expect(m.publish).toHaveBeenCalledWith(
+      "kaneo:ws-user:user:broadcast",
+      expect.any(String),
+    );
+    expect(JSON.parse(m.publish.mock.calls[0][1])).toMatchObject({
+      userId: "user",
+      message: { type: "PROJECT_ACCESS_CHANGED", workspaceId: "old" },
+    });
+  });
+
+  it("revokes remote project sockets on a Redis project access change", async () => {
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    m.inaccessible.mockResolvedValue(["project"]);
+    const handler = m.on.mock.calls[1][1];
+    handler(
+      "kaneo:ws-user:*:broadcast",
+      "kaneo:ws-user:user:broadcast",
+      JSON.stringify({
+        userId: "user",
+        origin: "remote-instance",
+        message: { type: "PROJECT_ACCESS_CHANGED", workspaceId: "old" },
+      }),
+    );
+    await vi.waitFor(() =>
+      expect(ws.close).toHaveBeenCalledWith(1008, "Project access revoked"),
+    );
+  });
+
+  it("does not let a pending project access change replace a workspace revocation", async () => {
+    vi.useFakeTimers();
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    m.publish.mockRejectedValueOnce(new Error("Redis unavailable"));
+    m.publish.mockRejectedValueOnce(new Error("Redis unavailable"));
+    await revokeWorkspaceConnections("user", "old", { force: true });
+    await projectAccessUpdated({ workspaceId: "old", userId: "user" });
+    await vi.advanceTimersByTimeAsync(1_000);
+    const types = m.publish.mock.calls.map(
+      ([, data]) => JSON.parse(data).message.type,
+    );
+    expect(
+      types.filter((type) => type === "WORKSPACE_ACCESS_REVOKED"),
+    ).toHaveLength(2);
+    expect(
+      types.filter((type) => type === "PROJECT_ACCESS_CHANGED"),
+    ).toHaveLength(2);
+  });
+
+  it("rechecks local project sockets once per user after Redis reconnects", async () => {
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    const revoked = connect();
+    const kept = connect("kept-project");
+    const elsewhere = connect("other-project", "other-workspace");
+    const colleague = connect("project", "old", "colleague");
+    const tab = { send: vi.fn(), close: vi.fn() };
+    const colleagueTab = { send: vi.fn(), close: vi.fn() };
+    const conn = addUserConnection("user", tab as unknown as WSContext);
+    const colleagueConn = addUserConnection(
+      "colleague",
+      colleagueTab as unknown as WSContext,
+    );
+    m.inaccessible.mockImplementation(async (userId: string) =>
+      userId === "user" ? ["project"] : [],
+    );
+    try {
+      const ready = m.on.mock.calls.find(([event]) => event === "ready")![1];
+      ready();
+      await vi.waitFor(() =>
+        expect(revoked.close).toHaveBeenCalledWith(
+          1008,
+          "Project access revoked",
+        ),
+      );
+      expect(m.inaccessible).toHaveBeenCalledTimes(2);
+      expect(m.inaccessible).toHaveBeenCalledWith("user", [
+        "project",
+        "kept-project",
+        "other-project",
+      ]);
+      expect(m.inaccessible).toHaveBeenCalledWith("colleague", ["project"]);
+      expect(kept.close).not.toHaveBeenCalled();
+      expect(elsewhere.close).not.toHaveBeenCalled();
+      expect(colleague.close).not.toHaveBeenCalled();
+      await vi.waitFor(() =>
+        expect(tab.send).toHaveBeenCalledWith(
+          JSON.stringify({
+            type: "PROJECT_ACCESS_CHANGED",
+            workspaceId: "old",
+          }),
+        ),
+      );
+      expect(tab.send).toHaveBeenCalledOnce();
+      expect(tab.close).not.toHaveBeenCalled();
+      expect(colleagueTab.send).not.toHaveBeenCalled();
+      expect(m.sync).toHaveBeenCalledWith("user", tab);
+      expect(m.sync).toHaveBeenCalledWith("colleague", colleagueTab);
+    } finally {
+      removeUserConnection("user", conn);
+      removeUserConnection("colleague", colleagueConn);
+    }
+  });
+
+  it("keeps project sockets open when the reconnect recheck fails", async () => {
+    m.redis = true;
+    await initializeWebSocketAdapter();
+    const ws = connect();
+    const tab = { send: vi.fn(), close: vi.fn() };
+    const conn = addUserConnection("user", tab as unknown as WSContext);
+    m.inaccessible.mockRejectedValueOnce(new Error("database unavailable"));
+    try {
+      const ready = m.on.mock.calls.find(([event]) => event === "ready")![1];
+      ready();
+      await vi.waitFor(() => expect(m.inaccessible).toHaveBeenCalledOnce());
+      await vi.waitFor(() => expect(m.sync).toHaveBeenCalled());
+      await Promise.resolve();
+      expect(ws.close).not.toHaveBeenCalled();
+      expect(tab.send).not.toHaveBeenCalled();
+    } finally {
+      removeUserConnection("user", conn);
+    }
+  });
+});
+
 it("coalesces authorization checks across a bulk broadcast burst", async () => {
   vi.useFakeTimers();
   await initializeWebSocketAdapter();
@@ -267,6 +487,7 @@ it("coalesces authorization checks across a bulk broadcast burst", async () => {
   await vi.advanceTimersByTimeAsync(100);
   expect(connection.send).toHaveBeenCalledTimes(50);
   expect(m.members).toHaveBeenCalledTimes(1);
+  expect(m.projectAccess).toHaveBeenCalledTimes(1);
 });
 
 it("does not reuse an older flush's membership snapshot for a later Redis broadcast", async () => {

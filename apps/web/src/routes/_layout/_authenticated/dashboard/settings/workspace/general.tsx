@@ -41,6 +41,9 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetFullWorkspace from "@/hooks/queries/workspace/use-get-full-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
+import { AdvancedSettingsSwitch } from "@/components/settings/advanced-settings-switch";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/general",
@@ -314,27 +317,17 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:workspaceGeneral.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:workspaceGeneral.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:workspaceGeneral.subtitle")}
-          </p>
-        </div>
+      <SettingsPage
+        title={t("settings:workspaceGeneral.title")}
+        description={t("settings:workspaceGeneral.subtitle")}
+      >
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:workspaceGeneral.workspaceInfoTitle")}
+            description={t("settings:workspaceGeneral.workspaceInfoSubtitle")}
+          />
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:workspaceGeneral.workspaceInfoTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:workspaceGeneral.workspaceInfoSubtitle")}
-            </p>
-          </div>
-
-          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="space-y-4 rounded-xl border border-border bg-card p-4">
             <Form {...workspaceForm}>
               <form className="space-y-4">
                 <FormField
@@ -404,22 +397,15 @@ function RouteComponent() {
         </div>
 
         {isOwner ? (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-md font-medium">
-                {t("settings:workspaceGeneral.transferOwnership.title", {
-                  defaultValue: "Transfer ownership",
-                })}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {t("settings:workspaceGeneral.transferOwnership.subtitle", {
-                  defaultValue:
-                    "Hand this workspace over to another member. You'll be demoted to admin and lose owner-only abilities.",
-                })}
-              </p>
-            </div>
+          <div className="space-y-3">
+            <SettingsSectionHeader
+              title={t("settings:workspaceGeneral.transferOwnership.title")}
+              description={t(
+                "settings:workspaceGeneral.transferOwnership.subtitle",
+              )}
+            />
 
-            <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="space-y-4 rounded-xl border border-border bg-card p-4">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="space-y-0.5 min-w-0">
                   <p className="text-sm font-medium">
@@ -495,17 +481,13 @@ function RouteComponent() {
         ) : null}
 
         {canDelete && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-md font-medium">
-                {t("settings:workspaceGeneral.dangerZone")}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {t("settings:workspaceGeneral.dangerZoneSubtitle")}
-              </p>
-            </div>
+          <div className="space-y-3">
+            <SettingsSectionHeader
+              title={t("settings:workspaceGeneral.dangerZone")}
+              description={t("settings:workspaceGeneral.dangerZoneSubtitle")}
+            />
 
-            <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="space-y-4 rounded-xl border border-border bg-card p-4">
               <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">
@@ -528,6 +510,8 @@ function RouteComponent() {
             </div>
           </div>
         )}
+
+        <AdvancedSettingsSwitch />
 
         <AlertDialog
           open={isTransferModalOpen}
@@ -625,7 +609,7 @@ function RouteComponent() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
+      </SettingsPage>
     </>
   );
 }

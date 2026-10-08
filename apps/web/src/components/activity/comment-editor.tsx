@@ -45,6 +45,7 @@ import {
 } from "@/components/ui/menu";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { cn } from "@/lib/cn";
 import {
   extractIssueKeyFromUrl,
@@ -73,6 +74,7 @@ type CommentEditorProps = {
   onSubmitShortcut?: () => void;
   onCancelShortcut?: () => void;
   taskId?: string;
+  projectId?: string;
   uploadSurface?: "description" | "comment";
   ensureTaskId?: () => Promise<string | null>;
   uploadAsset?: (
@@ -150,6 +152,7 @@ export default function CommentEditor({
   onSubmitShortcut,
   onCancelShortcut,
   taskId,
+  projectId,
   uploadSurface = "comment",
   ensureTaskId,
   uploadAsset,
@@ -160,18 +163,29 @@ export default function CommentEditor({
   const resolvedPlaceholder =
     placeholder ?? t("activity:comment.leavePlaceholder");
   const { data: activeWorkspace } = useActiveWorkspace();
+  const mentionWorkspaceId = activeWorkspace?.id ?? "";
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
-    activeWorkspace?.id ?? "",
+    projectId ? "" : mentionWorkspaceId,
   );
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: mentionWorkspaceId,
+    projectId: projectId ?? "",
+  });
   const mentionMembersRef = useRef<MentionMember[]>([]);
   mentionMembersRef.current = useMemo(
     () =>
-      (workspaceUsers?.members ?? []).map((member) => ({
-        id: member.userId,
-        label: member.user?.name ?? member.user?.email ?? "",
-        image: member.user?.image ?? null,
-      })),
-    [workspaceUsers],
+      projectId
+        ? (projectMembers ?? []).map((member) => ({
+            id: member.id,
+            label: member.name || member.email,
+            image: member.image,
+          }))
+        : (workspaceUsers?.members ?? []).map((member) => ({
+            id: member.userId,
+            label: member.user?.name ?? member.user?.email ?? "",
+            image: member.user?.image ?? null,
+          })),
+    [projectId, projectMembers, workspaceUsers],
   );
   const editorShellRef = useRef<HTMLDivElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);

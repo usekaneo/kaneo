@@ -1,4 +1,7 @@
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
+import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../services/sync-latest-task-value";
+import { isTaskInFinalState } from "../services/task-service";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinksByTask } from "../services/link-manager";
@@ -12,6 +15,16 @@ export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;
@@ -32,33 +45,57 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
-
     const octokit = await getVerifiedInstallationOctokit(config);
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    await removeLabel(
-      octokit,
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      `status:${event.oldStatus}`,
+    const currentValue = await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "github",
+      "status",
+      async ({ add, remove }, write) => {
+        for (const name of remove)
+          await removeLabel(
+            octokit,
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            name,
+            write,
+          );
+        if (add.length)
+          await addLabelsToIssue(
+            octokit,
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            add,
+            true,
+            write,
+          );
+      },
     );
-
-    await addLabelsToIssue(
-      octokit,
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      [`status:${event.newStatus}`],
-    );
-
-    if (event.newStatus === "done" || event.oldStatus === "done") {
+    if (currentValue === undefined) return;
+    const closing = await isTaskInFinalState({
+      projectId: event.projectId,
+      status: currentValue,
+      columnId: null,
+    });
+    const reopening =
+      !closing &&
+      (await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.oldStatus,
+        columnId: null,
+      }));
+    if (closing || reopening) {
       await syncLatestTaskValue(
         event.taskId,
         event.projectId,
         issueLink,
         "state",
-        event.newStatus === "done" ? "closed" : "open",
+        closing ? "closed" : "open",
         async (value) => {
           const response = await octokit.rest.issues.update({
             owner: repositoryOwner,

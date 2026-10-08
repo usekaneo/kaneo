@@ -3,14 +3,52 @@ import type { Guide } from "./types";
 export const bestOpenSourceProjectManagement: Guide = {
   slug: "best-open-source-project-management-software",
   question: "What is the best open-source project management software?",
-  title: "Best open-source project management software in 2026",
+  title: "Open-source project management software: 10 compared",
   description:
-    "An honest guide to the best open-source, self-hostable project management tools in 2026: Kaneo, OpenProject, Plane, Redmine, Taiga, Vikunja, PLANKA, WeKan, Kanboard, and Huly, with the licence and paid-tier catch for each.",
+    "The best open-source project management tools in 2026 are Kaneo, OpenProject, Plane, Redmine, Taiga, and Vikunja. Compare licences, paid tiers, and setup.",
   summary:
     "Ten self-hostable tools compared by licence, footprint, and what each one keeps behind a paid tier.",
   answer:
-    "There is no single best one, but there is a short list. Kaneo is the best pick if you want a modern, MIT-licensed tracker that runs as one container with single sign-on included. OpenProject is best for classical project management with Gantt charts, Plane for a Linear-style interface, Redmine for a mature plugin ecosystem, and Vikunja for personal task management. The licence and the paid-tier line matter more than the feature list, because that is what changes after you have committed.",
+    "The best open-source project management software for most teams is Kaneo, OpenProject, or Plane. Kaneo is the pick for a modern, MIT-licensed tracker that runs as one container with single sign-on included, OpenProject for classical project management with Gantt charts and budgets, and Plane for a Linear-style interface. Redmine wins on plugins, Taiga on Scrum, and Vikunja on personal task management. Check the licence and the paid-tier line before you commit, because that is what changes later.",
   sections: [
+    {
+      heading: "At a glance",
+      table: {
+        columns: ["Tool", "Licence", "Paid edition or add-on", "Best for"],
+        rows: [
+          ["Kaneo", "MIT", "None", "Small teams that want it light"],
+          [
+            "OpenProject",
+            "GPLv3 (Community)",
+            "Enterprise add-on",
+            "Gantt charts, budgets, classic PM",
+          ],
+          [
+            "Plane",
+            "AGPL-3.0 (Community)",
+            "Commercial edition, paid cloud tiers",
+            "Linear-style cycles and modules",
+          ],
+          ["Redmine", "GPLv2", "None", "A plugin for every workflow"],
+          ["Taiga", "MPL-2.0", "None", "Scrum with sprints and burndowns"],
+          ["Vikunja", "AGPLv3", "Vikunja Pro", "Personal task management"],
+          [
+            "PLANKA",
+            "Fair Use (source-available)",
+            "Pro tier",
+            "Trello-style boards",
+          ],
+          ["WeKan", "MIT", "None", "Kanban with swimlanes"],
+          ["Kanboard", "MIT", "None", "The lightest possible install"],
+          [
+            "Huly",
+            "EPL-2.0",
+            "None for self-hosting",
+            "Replacing several tools at once",
+          ],
+        ],
+      },
+    },
     {
       heading: "The short list",
       items: [
@@ -111,6 +149,17 @@ export const bestOpenSourceProjectManagement: Guide = {
         "Kanboard is the smallest, PHP with an optional SQLite file. Kaneo and Vikunja are close behind: one container plus a database, with Kaneo also shipping an official Helm chart. OpenProject, Plane, Taiga, and Huly all run several services.",
     },
     {
+      question:
+        "Which features are behind the paid tier in open-core project management tools?",
+      answer:
+        "Single sign-on is the most common one. OpenProject keeps SSO and custom themes for its Enterprise add-on. Plane puts SSO, advanced controls, and time tracking on paid tiers. Vikunja Pro adds an admin panel, audit logs, and time tracking. PLANKA moved OIDC single sign-on to its Pro tier in version 2.2. Kaneo has no paid edition.",
+    },
+    {
+      question: "Vikunja vs Plane: which should I pick?",
+      answer:
+        "Vikunja for personal or small-group task management: it is small to run, has list, table, gantt, and calendar views, and includes OIDC single sign-on for free. Plane for a software team that wants cycles, modules, and a Linear-style interface, and can run a larger multi-service stack. Both are AGPL licensed.",
+    },
+    {
       question: "Do any of them include single sign-on for free?",
       answer:
         "Kaneo, Vikunja, and WeKan support OIDC on the free self-hosted build. Redmine and Kanboard can do it through plugins. OpenProject, Plane, and PLANKA reserve it for a paid edition or tier.",
@@ -121,5 +170,5 @@ export const bestOpenSourceProjectManagement: Guide = {
     { label: "Kaneo vs Plane", href: "/plane-alternative" },
     { label: "All comparisons", href: "/alternatives" },
   ],
-  updatedOn: "2026-09-23",
+  updatedOn: "2026-10-05",
 };

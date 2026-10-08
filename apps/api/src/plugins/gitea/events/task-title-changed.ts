@@ -1,3 +1,4 @@
+import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../../github/services/sync-latest-task-value";
 import db from "../../../database";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
@@ -19,6 +20,16 @@ export async function handleTaskTitleChanged(
   event: TaskTitleChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const config = context.config as GiteaConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;

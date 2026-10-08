@@ -70,6 +70,15 @@ vi.mock(
   }),
 );
 
+vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
+  default: () => ({ data: [] }),
+}));
+
+vi.mock("@tanstack/react-query", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@tanstack/react-query")>()),
+  useQueryClient: () => ({ getQueryData: () => [] }),
+}));
+
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: vi.fn() }),
 }));

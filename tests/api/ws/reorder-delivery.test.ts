@@ -7,6 +7,13 @@ import {
   removeConnection,
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws";
+vi.mock(
+  "../../../apps/api/src/project-access/filter-users-with-project-access",
+  () => ({
+    filterUsersWithProjectAccess: async (userIds: Iterable<string>) =>
+      new Set(userIds),
+  }),
+);
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: (fields: Record<string, unknown>) => ({

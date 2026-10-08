@@ -4,7 +4,9 @@
 
 ## Related issue
 
-<!-- Link an issue if there is one, for example: Fixes #123. -->
+<!-- Link the approved issue (labeled ready-for-contribution), e.g. Fixes #123.
+Maintainers, vouched contributors, and approved bots can skip this.
+Details: CONTRIBUTING.md#contribution-eligibility -->
 
 ## How did you check it?
 

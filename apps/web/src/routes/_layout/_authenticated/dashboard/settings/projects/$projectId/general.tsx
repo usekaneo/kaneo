@@ -66,6 +66,8 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project.ts";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/general",
@@ -518,27 +520,17 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:projectGeneral.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:projectGeneral.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:projectGeneral.subtitle")}
-          </p>
-        </div>
+      <SettingsPage
+        title={t("settings:projectGeneral.title")}
+        description={t("settings:projectGeneral.subtitle")}
+      >
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:projectGeneral.projectInfoTitle")}
+            description={t("settings:projectGeneral.projectInfoSubtitle")}
+          />
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:projectGeneral.projectInfoTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:projectGeneral.projectInfoSubtitle")}
-            </p>
-          </div>
-
-          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="space-y-4 rounded-xl border border-border bg-card p-4">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">
@@ -864,17 +856,13 @@ function RouteComponent() {
         </div>
 
         {canDelete && (
-          <div className="space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-md font-medium">
-                {t("settings:projectGeneral.dangerZone")}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {t("settings:projectGeneral.dangerZoneSubtitle")}
-              </p>
-            </div>
+          <div className="space-y-3">
+            <SettingsSectionHeader
+              title={t("settings:projectGeneral.dangerZone")}
+              description={t("settings:projectGeneral.dangerZoneSubtitle")}
+            />
 
-            <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            <div className="space-y-4 rounded-xl border border-border bg-card p-4">
               <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">
@@ -969,7 +957,7 @@ function RouteComponent() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
+      </SettingsPage>
     </>
   );
 }

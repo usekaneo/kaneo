@@ -36,6 +36,9 @@ describe("GitHub import cache refresh", () => {
       const keys = [
         ["tasks", "project"],
         ["labels", "workspace"],
+        ["projects", "workspace"],
+        ["assigned-tasks", "workspace"],
+        ["workspace-activity", "workspace"],
         ["github-integration", "project"],
       ];
       for (const key of keys) queryClient.setQueryData(key, {});

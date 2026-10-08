@@ -4,6 +4,8 @@ import PageTitle from "@/components/page-title";
 import ColumnEditor from "@/components/project/column-editor";
 import CustomFieldEditor from "@/components/project/custom-field-editor";
 import WorkflowEditor from "@/components/project/workflow-editor";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/workflow",
@@ -18,52 +20,34 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:projectWorkflow.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:projectWorkflow.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:projectWorkflow.subtitle")}
-          </p>
-        </div>
-
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:projectWorkflow.columnsTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:projectWorkflow.columnsDescription")}
-            </p>
-          </div>
+      <SettingsPage
+        title={t("settings:projectWorkflow.title")}
+        description={t("settings:projectWorkflow.subtitle")}
+      >
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:projectWorkflow.columnsTitle")}
+            description={t("settings:projectWorkflow.columnsDescription")}
+          />
           <ColumnEditor projectId={projectId} />
         </div>
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:projectWorkflow.customFieldsTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:projectWorkflow.customFieldsDescription")}
-            </p>
-          </div>
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:projectWorkflow.customFieldsTitle")}
+            description={t("settings:projectWorkflow.customFieldsDescription")}
+          />
           <CustomFieldEditor projectId={projectId} />
         </div>
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:projectWorkflow.automationTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:projectWorkflow.automationDescription")}
-            </p>
-          </div>
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:projectWorkflow.automationTitle")}
+            description={t("settings:projectWorkflow.automationDescription")}
+          />
           <WorkflowEditor projectId={projectId} />
         </div>
-      </div>
+      </SettingsPage>
     </>
   );
 }

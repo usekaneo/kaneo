@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useTrackSignup } from "@/hooks/use-track-signup";
 import { useUserWebSocket } from "@/hooks/use-user-websocket";
 import { authClient } from "@/lib/auth-client";
 
@@ -34,6 +35,8 @@ export const Route = createFileRoute("/_layout/_authenticated")({
 });
 
 function AuthenticatedLayout() {
+  const { session } = Route.useRouteContext();
   useUserWebSocket();
+  useTrackSignup(session?.user);
   return <Outlet />;
 }

@@ -384,10 +384,14 @@ function renderActivityContent({
     if (eventData) {
       return (
         <span className="text-sm text-muted-foreground">
-          {t("activity:moved", {
-            from: String(eventData.fromProjectName ?? ""),
-            to: String(eventData.toProjectName ?? ""),
-          })}
+          {eventData.fromProjectName
+            ? t("activity:moved", {
+                from: String(eventData.fromProjectName),
+                to: String(eventData.toProjectName ?? ""),
+              })
+            : t("activity:movedFromOtherProject", {
+                to: String(eventData.toProjectName ?? ""),
+              })}
         </span>
       );
     }

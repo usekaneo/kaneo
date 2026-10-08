@@ -16,6 +16,7 @@ describe("OtpEmail", () => {
     ["de-DE", "Dieser Code läuft in 5 Minuten ab."],
     ["vi-VN", "Mã này sẽ hết hạn sau 5 phút."],
     ["ja-JP", "このコードの有効期限は5分です。"],
+    ["zh-TW", "此驗證碼將在 5 分鐘後失效。"],
   ])("describes the server expiry in %s", async (locale, expiry) => {
     expect(OTP_EXPIRY_SECONDS).toBe(300);
     const html = await render(

@@ -12,11 +12,17 @@ const mocks = vi.hoisted(() => {
     claimTaskNumber: vi.fn(),
     resolveTargetStatus: vi.fn(),
     publishEvent: vi.fn(),
+    lockedIntegration: vi.fn(),
     columnFindFirst: vi.fn(),
     projectFindFirst: vi.fn(),
     createGitlabClient: vi.fn(),
     addLabelsToIssueGitlab: vi.fn(),
     db: {
+      transaction: async (run: (tx: unknown) => Promise<unknown>) =>
+        run(mocks.db),
+      select: () => ({
+        from: () => ({ where: () => ({ for: mocks.lockedIntegration }) }),
+      }),
       insert: () => ({
         values: (values: Record<string, unknown>) => {
           insertedValues.push(values);
@@ -34,6 +40,10 @@ const mocks = vi.hoisted(() => {
     },
   };
 });
+
+vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));
 
 vi.mock("../../../../../apps/api/src/database", () => ({ default: mocks.db }));
 
@@ -85,6 +95,7 @@ vi.mock("../../../../../apps/api/src/plugins/gitlab/utils/labels", () => ({
 const integration = {
   id: "integration-1",
   projectId: "project-1",
+  project: { workspaceId: "workspace-1" },
   isActive: true,
   type: "gitlab",
   config: JSON.stringify({
@@ -115,6 +126,7 @@ function issueOpenedPayload(labels: Array<{ title: string }>) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.lockedIntegration.mockResolvedValue([integration]);
   mocks.insertedValues.length = 0;
   mocks.findAllIntegrationsByGitlabProject.mockResolvedValue([integration]);
   mocks.findExternalLink.mockResolvedValue(null);
@@ -155,6 +167,7 @@ describe("handleGitlabIssueOpened", () => {
         externalId: "42",
         url: "https://gitlab.com/usekaneo/kaneo/-/issues/42",
       }),
+      mocks.db,
     );
   });
 
@@ -181,3 +194,7 @@ describe("handleGitlabIssueOpened", () => {
     expect(mocks.claimTaskNumber).not.toHaveBeenCalled();
   });
 });
+
+vi.mock("../../../../../apps/api/src/plugins/sync/issue-labels", () => ({
+  importIssueLabels: async () => undefined,
+}));

@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { type SyncRules, syncRulesSchema } from "../sync/rules";
 import { privateDestinationsAllowed } from "../../utils/assert-public-destination";
 import { branchPatterns } from "../github/config";
 
@@ -10,6 +11,9 @@ export const gitlabConfigSchema = v.object({
   tokenType: v.optional(v.picklist(["private", "bearer"])),
   projectPath: v.pipe(v.string(), v.trim(), v.nonEmpty()),
   webhookSecret: v.optional(v.string()),
+  syncRules: v.optional(
+    v.custom<SyncRules>((value) => syncRulesSchema.safeParse(value).success),
+  ),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
   commentTaskLinkOnGitlabIssue: v.optional(v.boolean()),

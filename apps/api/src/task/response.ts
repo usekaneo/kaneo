@@ -37,6 +37,14 @@ export const taskSchema = z
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({
+    workspaceId: z.string().optional().openapi({
+      description:
+        "The workspace currently owning the task's project. Included in the detail view; omitted from the compact board view.",
+    }),
+    columnId: z.string().nullable().openapi({
+      description:
+        "The referenced workflow column; null for virtual statuses and legacy tasks without a column reference.",
+    }),
     subtaskCounts: z
       .object({ completed: z.number(), total: z.number() })
       .optional(),
@@ -53,6 +61,14 @@ export const taskWithAssigneeSchema = taskSchema
     assigneeId: z.string().nullable(),
   })
   .openapi("TaskWithAssignee");
+
+export const taskByTicketIdSchema = taskWithAssigneeSchema
+  .extend({
+    workspaceId: z.string().openapi({
+      description: "The workspace that owns the task's project.",
+    }),
+  })
+  .openapi("TaskByTicketId");
 
 const taskLabelSchema = z
   .object({ id: z.string(), name: z.string(), color: z.string() })
@@ -266,3 +282,36 @@ export const descriptionPageSchema = z
 export const descriptionMatchesSchema = z
   .object({ ids: z.array(z.string()), nextCursor: z.string().nullable() })
   .openapi("TaskDescriptionMatches");
+
+export const assignedTasksSchema = z
+  .object({
+    tasks: z.array(
+      z
+        .object({
+          id: z.string(),
+          projectId: z.string(),
+          number: z.number().nullable(),
+          title: z.string(),
+          status: z.string().openapi({
+            description: "The slug of the column the task sits in.",
+          }),
+          statusName: z.string().nullable().openapi({
+            description:
+              "The column's display name. Null for tasks outside a column, such as planned ones.",
+          }),
+          statusIcon: z.string().nullable(),
+          priority: z.string().openapi({ description: priorityDescription }),
+          dueDate: nullableResponseTimestamp,
+          projectName: z.string(),
+          projectSlug: z.string(),
+          projectIcon: z.string().nullable(),
+          labels: z.array(taskLabelSchema),
+        })
+        .openapi("AssignedTask"),
+    ),
+    total: z.number().openapi({
+      description:
+        "All open tasks assigned to the caller, including any beyond the first 100 returned.",
+    }),
+  })
+  .openapi("AssignedTasks");

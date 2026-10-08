@@ -16,6 +16,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 describe("API integration: task image upload finalize", () => {
   beforeEach(async () => {
@@ -360,8 +361,10 @@ describe("API integration: task image upload finalize", () => {
     );
 
     expect(response.status).toBe(400);
-    const text = await response.text();
-    expect(text).toBe("Image upload key does not match the task context.");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Image upload key does not match the task context.",
+      code: "BAD_REQUEST",
+    });
   });
 
   it("rejects unauthenticated requests", async () => {
@@ -460,8 +463,9 @@ describe("API integration: task image upload finalize", () => {
     );
 
     expect(response.status).toBe(403);
-    await expect(response.text()).resolves.toBe(
-      "You don't have access to this workspace",
-    );
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "You don't have access to this workspace",
+      code: "FORBIDDEN",
+    });
   });
 });

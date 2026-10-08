@@ -46,7 +46,7 @@ import {
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { getInitials } from "@/lib/get-initials";
@@ -98,9 +98,10 @@ function BacklogBulkToolbar() {
     bulkDueDate,
   } = useBulkOperations();
   const { data: workspace } = useActiveWorkspace();
-  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
-    workspace?.id ?? "",
-  );
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: workspace?.id ?? "",
+    projectId: project?.id ?? "",
+  });
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id ?? "",
   );
@@ -300,22 +301,19 @@ function BacklogBulkToolbar() {
       groups.push({
         value: "assign",
         label: t("tasks:bulk.assignTo"),
-        items: (workspaceUsers?.members ?? []).map((member) => ({
-          value: `assign-${member.userId}`,
-          label: member.user?.name || t("common:people.someone"),
+        items: (projectMembers ?? []).map((member) => ({
+          value: `assign-${member.id}`,
+          label: member.name || t("common:people.someone"),
           icon: (
             <Avatar className="h-5 w-5">
-              <AvatarImage
-                src={member.user?.image ?? ""}
-                alt={member.user?.name || ""}
-              />
+              <AvatarImage src={member.image ?? ""} alt={member.name || ""} />
               <AvatarFallback className="text-xs font-medium border border-border/30">
-                {getInitials(member.user?.name)}
+                {getInitials(member.name)}
               </AvatarFallback>
             </Avatar>
           ),
           onRun: () => {
-            void handleBulkAssign(member.userId);
+            void handleBulkAssign(member.id);
           },
         })),
       });
@@ -361,7 +359,7 @@ function BacklogBulkToolbar() {
     canDelete,
     canAssign,
     canEditLabels,
-    workspaceUsers?.members,
+    projectMembers,
     uniqueLabels,
     handleBulkDelete,
     handleBulkArchive,

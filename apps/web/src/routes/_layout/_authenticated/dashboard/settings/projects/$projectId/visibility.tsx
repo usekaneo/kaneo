@@ -13,6 +13,8 @@ import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/projects/$projectId/visibility",
@@ -88,27 +90,17 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:projectVisibility.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:projectVisibility.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:projectVisibility.subtitle")}
-          </p>
-        </div>
+      <SettingsPage
+        title={t("settings:projectVisibility.title")}
+        description={t("settings:projectVisibility.subtitle")}
+      >
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:projectVisibility.sectionTitle")}
+            description={t("settings:projectVisibility.sectionSubtitle")}
+          />
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:projectVisibility.sectionTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:projectVisibility.sectionSubtitle")}
-            </p>
-          </div>
-
-          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="space-y-4 rounded-xl border border-border bg-card p-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label className="text-sm font-medium">
@@ -157,7 +149,7 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-      </div>
+      </SettingsPage>
     </>
   );
 }

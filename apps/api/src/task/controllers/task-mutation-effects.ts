@@ -59,6 +59,7 @@ export async function publishTaskMutation(
     skipRelationRefresh?: boolean;
     fields?: Array<keyof Changes>;
     assigneeName?: string | null;
+    sourceIntegrationId?: string;
   } = {},
 ) {
   const changed = (field: keyof Changes) =>
@@ -69,6 +70,9 @@ export async function publishTaskMutation(
     projectId: after.projectId,
     userId,
     title: after.title,
+    ...(options.sourceIntegrationId
+      ? { sourceIntegrationId: options.sourceIntegrationId }
+      : {}),
   };
   if (changed("status")) {
     await publishEvent("task.status_changed", {

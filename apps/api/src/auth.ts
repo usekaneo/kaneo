@@ -41,10 +41,18 @@ import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
 } from "./billing/controllers/find-billable-workspaces";
-import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
+import { applyInvitationProjectAccess } from "./project-access/apply-invitation-project-access";
+import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
+import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
+import { isOwnerRole } from "./project-access/is-owner-role";
+import { publishMemberProjects } from "./project-access/publish-member-projects";
+import { handleMemberAdded } from "./workspace-members/handle-member-added";
+import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
+import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
+import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -140,6 +148,7 @@ function getLocaleKey(locale?: string | null) {
   if (normalized?.startsWith("de")) return "de";
   if (normalized?.startsWith("vi")) return "vi";
   if (normalized?.startsWith("ja")) return "ja";
+  if (normalized === "zh-tw") return "zh-tw";
   return "en";
 }
 
@@ -183,6 +192,14 @@ function getAuthEmailCopy(locale?: string | null) {
       magicLinkSubject: "Kaneo ログインリンク",
       otpSubject: "Kaneo 認証コード",
       passwordResetSubject: "Kaneo のパスワードをリセット",
+    };
+  }
+
+  if (localeKey === "zh-tw") {
+    return {
+      magicLinkSubject: "Kaneo 登入連結",
+      otpSubject: "Kaneo 驗證碼",
+      passwordResetSubject: "重設 Kaneo 密碼",
     };
   }
 
@@ -400,6 +417,20 @@ export const auth = betterAuth({
           fields: {
             organizationId: "workspaceId",
           },
+          additionalFields: {
+            projectAccess: {
+              type: "string",
+              input: true,
+              required: false,
+              defaultValue: "all",
+            },
+            projectIds: {
+              type: "string[]",
+              input: true,
+              required: false,
+              defaultValue: [],
+            },
+          },
         },
         organizationRole: {
           modelName: "workspace_role",
@@ -444,7 +475,10 @@ export const auth = betterAuth({
         beforeCreateOrganization: async ({ organization }) => {
           const check = checkWorkspaceName(organization.name ?? "");
           if (!check.ok) {
-            throw new APIError("BAD_REQUEST", { message: check.reason });
+            throw new APIError("BAD_REQUEST", {
+              code: "INVALID_WORKSPACE_NAME",
+              message: check.reason,
+            });
           }
         },
         afterCreateOrganization: async ({ organization, user }) => {
@@ -494,6 +528,7 @@ export const auth = betterAuth({
           const billable = await findBillableWorkspaces([organization.id]);
           if (billable.length > 0) {
             throw new APIError("CONFLICT", {
+              code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
               message: formatBillableWorkspacesMessage(
                 billable.map((workspace) => workspace.name),
               ),
@@ -530,24 +565,37 @@ export const auth = betterAuth({
             ),
           );
         },
+        beforeCreateInvitation: async ({ invitation }) => {
+          const access = await resolveInvitationProjectAccess(invitation);
+          return { data: access };
+        },
+        beforeAcceptInvitation: async ({ invitation, user }) => {
+          await applyInvitationProjectAccess(invitation, user.id);
+        },
+        afterAcceptInvitation: async ({ member }) => {
+          await publishMemberProjects(
+            member.organizationId,
+            member.userId,
+          ).catch((error) => {
+            console.error("Project member refresh failed:", error);
+          });
+        },
+        afterUpdateMemberRole: async ({ member }) => {
+          if (isOwnerRole(member.role)) {
+            await handleOwnerPromoted(member.organizationId, member.userId);
+          }
+        },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member add failed:", error);
-            });
+            await handleMemberAdded(member.organizationId, member.userId);
           }
         },
         afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
-            if (!hasInstanceAdminRole(user.role)) {
-              await revokeWorkspaceConnections(
-                member.userId,
-                member.organizationId,
-                { role: user.role ?? null },
-              );
-            }
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member remove failed:", error);
+            await handleMemberRemoved({
+              workspaceId: member.organizationId,
+              userId: member.userId,
+              userRole: user.role,
             });
           }
         },
@@ -729,6 +777,7 @@ export const auth = betterAuth({
 
       if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
         throw new APIError("FORBIDDEN", {
+          code: "LOCAL_SIGN_IN_DISABLED",
           message:
             "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
         });
@@ -736,6 +785,7 @@ export const auth = betterAuth({
 
       if (ctx.path === "/request-password-reset" && !isSmtpConfigured()) {
         throw new APIError("FORBIDDEN", {
+          code: "EMAIL_DELIVERY_NOT_CONFIGURED",
           message: "Password reset requires email delivery to be configured.",
         });
       }
@@ -749,7 +799,10 @@ export const auth = betterAuth({
           ctx.headers?.get("x-turnstile-token") ?? ctx.body?.turnstileToken,
         );
         if (!verdict.ok)
-          throw new APIError("FORBIDDEN", { message: verdict.reason });
+          throw new APIError("FORBIDDEN", {
+            code: "CAPTCHA_FAILED",
+            message: verdict.reason,
+          });
       }
 
       // Block invite-member calls on cloud from anonymous users or to
@@ -768,12 +821,14 @@ export const auth = betterAuth({
           | undefined;
         if (sessionUser?.isAnonymous) {
           throw new APIError("FORBIDDEN", {
+            code: "GUEST_INVITATIONS_NOT_ALLOWED",
             message: "Guest accounts may not send workspace invitations.",
           });
         }
         const inviteeEmail = (ctx.body?.email as string | undefined) ?? "";
         if (inviteeEmail && isDisposableEmail(inviteeEmail)) {
           throw new APIError("BAD_REQUEST", {
+            code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
             message:
               "Invitations to disposable-email addresses are not allowed.",
           });
@@ -794,6 +849,7 @@ export const auth = betterAuth({
       if (ctx.path === "/sign-up/email") {
         if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
           throw new APIError("FORBIDDEN", {
+            code: "PASSWORD_REGISTRATION_DISABLED",
             message:
               "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
           });
@@ -805,6 +861,7 @@ export const auth = betterAuth({
           const signupEmail = (ctx.body?.email as string | undefined) ?? "";
           if (signupEmail && isDisposableEmail(signupEmail)) {
             throw new APIError("BAD_REQUEST", {
+              code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
               message:
                 "Sign-up with disposable email addresses is not allowed.",
             });
@@ -830,12 +887,29 @@ export const auth = betterAuth({
         const result = await checkRegistrationAllowed(email, invitationId);
         if (!result.allowed) {
           throw new APIError("FORBIDDEN", {
+            code: "REGISTRATION_NOT_ALLOWED",
             message: result.reason,
           });
         }
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (
+        ctx.path === "/organization/list-invitations" ||
+        ctx.path === "/organization/get-full-organization"
+      ) {
+        const viewer = await getSessionFromCtx(ctx);
+        const returned = ctx.context.returned as
+          | { invitations?: unknown }
+          | unknown[]
+          | null;
+        if (viewer)
+          await hideInaccessibleInvitationProjects(
+            viewer.user.id,
+            Array.isArray(returned) ? returned : returned?.invitations,
+          );
+      }
+
       if (ctx.path === "/organization/leave") {
         // The successful endpoint returns the removed member. No post-delete
         // query may prevent revocation after membership has already committed.
@@ -847,6 +921,12 @@ export const auth = betterAuth({
           typeof removed.organizationId === "string" &&
           removed.organizationId === ctx.body?.organizationId
         ) {
+          await clearMemberProjectAccess(
+            removed.organizationId,
+            removed.userId,
+          ).catch((error) => {
+            console.error("Project access cleanup failed:", error);
+          });
           await revokeWorkspaceConnections(
             removed.userId,
             removed.organizationId,

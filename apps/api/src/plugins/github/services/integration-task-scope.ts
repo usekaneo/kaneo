@@ -33,6 +33,19 @@ export async function withIntegrationTask<T>(
 ): Promise<T | undefined> {
   const effects: Array<() => Promise<void>> = [];
   const result = await db.transaction(async (tx) => {
+    if (taskId === null) {
+      const [binding] = await tx
+        .select({ id: integrationTable.id })
+        .from(integrationTable)
+        .where(
+          and(
+            eq(integrationTable.id, integration.id),
+            eq(integrationTable.isActive, true),
+          ),
+        )
+        .for("no key update");
+      if (!binding) return undefined;
+    }
     const [project] = await tx
       .select({ id: projectTable.id })
       .from(projectTable)

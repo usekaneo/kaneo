@@ -66,6 +66,12 @@ describe("getInvitationEmailSubject", () => {
     );
   });
 
+  it("uses Traditional Chinese copy for zh-TW", () => {
+    expect(getInvitationEmailSubject("zh-TW", "Alice", "產品團隊")).toBe(
+      "Alice 邀請你加入 Kaneo 上的 產品團隊",
+    );
+  });
+
   it("uses the English fallback for unsupported locales", () => {
     const locale = "es-ES";
     const inviterName = "Alice";

@@ -226,7 +226,10 @@ const label = apiRouter()
   })
   .openapi(getWorkspaceLabelsRoute, async (c) => {
     const { workspaceId } = c.req.valid("param");
-    return c.json(await getLabelsByWorkspaceId(workspaceId), 200);
+    return c.json(
+      await getLabelsByWorkspaceId(workspaceId, c.get("userId")),
+      200,
+    );
   })
   .openapi(createLabelRoute, async (c) => {
     const { name, color, workspaceId, taskId } = c.req.valid("json");

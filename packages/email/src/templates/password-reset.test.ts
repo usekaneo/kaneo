@@ -14,4 +14,15 @@ describe("PasswordResetEmail", () => {
     expect(html).toContain("パスワードのリセット");
     expect(html).toContain("Kaneo セキュリティメール");
   });
+
+  it("renders Traditional Chinese copy for a zh-TW locale", async () => {
+    const html = await render(
+      createElement(PasswordResetEmail, {
+        resetLink: "https://kaneo.example/reset",
+        locale: "zh-TW",
+      }),
+    );
+    expect(html).toContain("重設密碼");
+    expect(html).toContain("Kaneo 安全性通知");
+  });
 });

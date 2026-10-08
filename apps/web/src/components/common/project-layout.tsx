@@ -26,7 +26,9 @@ import {
   type PluginViewRef,
   useProjectPluginViews,
 } from "@/lib/plugins/runtime/use-project-plugin-views";
+import { getProjectUnavailableReason } from "@/lib/project-unavailable-reason";
 import { useBackgroundStore } from "@/store/background";
+import ProjectUnavailable from "./project-unavailable";
 
 type ProjectLayoutProps = {
   projectId: string;
@@ -50,13 +52,17 @@ export default function ProjectLayout({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const { data: project, error: projectError } = useGetProject({
+    id: projectId,
+    workspaceId,
+  });
+  const unavailableReason = getProjectUnavailableReason(projectError);
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
     useState(false);
   const { background } = useBackgroundStore();
   const pluginViews = useProjectPluginViews();
 
-  useProjectWebSocket(projectId);
+  useProjectWebSocket(unavailableReason ? "" : projectId);
 
   const resolvedView = activePluginView
     ? null
@@ -186,7 +192,7 @@ export default function ProjectLayout({
               />
             </div>
 
-            {showViewSwitcher && (
+            {showViewSwitcher && !unavailableReason && (
               <div className="hidden h-8 items-center gap-0.5 rounded-lg border border-border/80 bg-background p-0.5 sm:inline-flex">
                 <Button
                   variant={resolvedView === "backlog" ? "secondary" : "ghost"}
@@ -249,12 +255,21 @@ export default function ProjectLayout({
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5">
-            {headerActions}
+            {unavailableReason ? null : headerActions}
           </div>
         </div>
       </Layout.Header>
 
-      <Layout.Content>{children}</Layout.Content>
+      <Layout.Content>
+        {unavailableReason ? (
+          <ProjectUnavailable
+            reason={unavailableReason}
+            workspaceId={workspaceId}
+          />
+        ) : (
+          children
+        )}
+      </Layout.Content>
 
       <CreateProjectModal
         open={isCreateProjectModalOpen}

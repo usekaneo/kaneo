@@ -39,6 +39,8 @@ import useWorkspaceRoles, {
 } from "@/hooks/queries/workspace/use-workspace-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/roles",
@@ -273,16 +275,10 @@ function RouteComponent() {
     return (
       <>
         <PageTitle title={t("settings:workspaceRoles.pageTitle")} />
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold">
-              {t("settings:workspaceRoles.title")}
-            </h1>
-            <p className="text-muted-foreground">
-              {t("settings:workspaceRoles.noAccess")}
-            </p>
-          </div>
-        </div>
+        <SettingsPage
+          title={t("settings:workspaceRoles.title")}
+          description={t("settings:workspaceRoles.noAccess")}
+        />
       </>
     );
   }
@@ -290,29 +286,19 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:workspaceRoles.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:workspaceRoles.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:workspaceRoles.subtitle", {
-              workspaceName:
-                workspace?.name ?? t("settings:workspaceRoles.thisWorkspace"),
-            })}
-          </p>
-        </div>
-
+      <SettingsPage
+        title={t("settings:workspaceRoles.title")}
+        description={t("settings:workspaceRoles.subtitle", {
+          workspaceName:
+            workspace?.name ?? t("settings:workspaceRoles.thisWorkspace"),
+        })}
+      >
         <div className="space-y-6">
           <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <h2 className="text-md font-medium">
-                {t("settings:workspaceRoles.sectionTitle")}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {t("settings:workspaceRoles.sectionSubtitle")}
-              </p>
-            </div>
+            <SettingsSectionHeader
+              title={t("settings:workspaceRoles.sectionTitle")}
+              description={t("settings:workspaceRoles.sectionSubtitle")}
+            />
             <Button
               size="sm"
               className="gap-1.5"
@@ -328,7 +314,7 @@ function RouteComponent() {
               {t("settings:workspaceRoles.newRole")}
             </Button>
           </div>
-          <div className="border border-border rounded-md bg-sidebar">
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
             {isLoading && !draftActive ? (
               <p className="text-xs text-muted-foreground px-4 py-6">
                 {t("settings:workspaceRoles.loading")}
@@ -469,7 +455,7 @@ function RouteComponent() {
             )}
           </div>
         </div>
-      </div>
+      </SettingsPage>
 
       <AlertDialog
         open={!!roleToDelete}

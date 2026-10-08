@@ -24,6 +24,7 @@ export async function assertGuestRegistrationAllowed(): Promise<void> {
     !(await hasRegisteredUsers())
   ) {
     throw new APIError("FORBIDDEN", {
+      code: "GUEST_ACCESS_DISABLED",
       message: "Guest access is unavailable on this instance.",
     });
   }
@@ -47,6 +48,7 @@ export async function assertUserRegistrationAllowed(
     !isOAuthCallbackPath(context?.path)
   ) {
     throw new APIError("FORBIDDEN", {
+      code: "LOCAL_REGISTRATION_DISABLED",
       message:
         "Local account registration is disabled. Please use a configured social or OIDC sign-in method.",
     });
@@ -64,5 +66,8 @@ export async function assertUserRegistrationAllowed(
     },
   );
   if (!result.allowed)
-    throw new APIError("FORBIDDEN", { message: result.reason });
+    throw new APIError("FORBIDDEN", {
+      code: "REGISTRATION_NOT_ALLOWED",
+      message: result.reason,
+    });
 }

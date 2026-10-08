@@ -81,6 +81,7 @@ import {
   hasInstanceAdminRole,
   withInstanceAdminRole,
 } from "@/lib/instance-admin";
+import { SettingsPage } from "@/components/settings/settings-page";
 
 type PendingAction = {
   type: "deactivate" | "reactivate" | "delete";
@@ -222,30 +223,20 @@ function UserManagementPanel() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-      <header className="flex flex-col gap-2">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl border bg-sidebar text-muted-foreground shadow-xs/5">
-            <UsersRoundIcon aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                {t("settings:adminUsers.title")}
-              </h1>
-              <Badge variant="outline" size="sm">
-                {t("settings:adminUsers.instanceBadge")}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {t("settings:adminUsers.subtitle")}
-            </p>
-          </div>
-        </div>
-      </header>
-
+    <SettingsPage
+      className="max-w-5xl"
+      title={
+        <span className="flex items-center gap-2">
+          {t("settings:adminUsers.title")}
+          <Badge variant="outline" size="sm">
+            {t("settings:adminUsers.instanceBadge")}
+          </Badge>
+        </span>
+      }
+      description={t("settings:adminUsers.subtitle")}
+    >
       <section className="overflow-hidden rounded-xl border bg-card shadow-xs/5">
-        <div className="flex flex-col gap-4 border-b bg-sidebar/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div>
               <h2 className="text-sm font-medium">
@@ -519,7 +510,7 @@ function UserManagementPanel() {
         </div>
 
         {!isLoading && !isError ? (
-          <div className="flex items-center justify-between gap-4 border-t bg-sidebar/30 px-4 py-3">
+          <div className="flex items-center justify-between gap-4 border-t px-4 py-3">
             <p className="text-xs text-muted-foreground tabular-nums">
               {t("settings:adminUsers.pagination", {
                 current: page + 1,
@@ -699,7 +690,7 @@ function UserManagementPanel() {
           </AlertDialogFooter>
         </AlertDialogPopup>
       </AlertDialog>
-    </div>
+    </SettingsPage>
   );
 }
 

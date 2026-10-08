@@ -18,9 +18,10 @@ import { toast } from "@/lib/toast";
 
 type CommentInputProps = {
   taskId: string;
+  projectId?: string;
 };
 
-export default function CommentInput({ taskId }: CommentInputProps) {
+export default function CommentInput({ taskId, projectId }: CommentInputProps) {
   const { t } = useTranslation();
   const [content, setContent] = useState("");
   const [attachAction, setAttachAction] = useState<(() => void) | null>(null);
@@ -64,6 +65,7 @@ export default function CommentInput({ taskId }: CommentInputProps) {
           onChange={setContent}
           placeholder={t("activity:comment.leavePlaceholder")}
           taskId={taskId}
+          projectId={projectId}
           uploadSurface="comment"
           showQuickAttachButton={false}
           onAttachActionChange={handleAttachActionChange}

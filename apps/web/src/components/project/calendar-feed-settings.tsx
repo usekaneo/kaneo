@@ -160,10 +160,9 @@ export function CalendarFeedSettings({ projectId }: { projectId: string }) {
         </p>
         <Button
           disabled={
-            !selected.length ||
             selected.length > 100 ||
             create.isPending ||
-            labelsQuery.isError
+            (selected.length > 0 && labelsQuery.isError)
           }
           onClick={() => create.mutate()}
         >
@@ -204,13 +203,15 @@ export function CalendarFeedSettings({ projectId }: { projectId: string }) {
               className="space-y-3 rounded-xl border border-border p-4"
             >
               <p className="text-sm font-medium">
-                {feed.labelIds
-                  .map(
-                    (id) =>
-                      labels.find((label) => label.id === id)?.name ??
-                      t("settings:calendarFeeds.deletedLabel"),
-                  )
-                  .join(", ")}
+                {feed.labelIds.length
+                  ? feed.labelIds
+                      .map(
+                        (id) =>
+                          labels.find((label) => label.id === id)?.name ??
+                          t("settings:calendarFeeds.deletedLabel"),
+                      )
+                      .join(", ")
+                  : t("settings:calendarFeeds.allScheduledTasks")}
               </p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Input

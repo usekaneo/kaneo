@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
+import deleteLabel from "../../apps/api/src/label/controllers/delete-label";
 import updateLabel from "../../apps/api/src/label/controllers/update-label";
 import { resetTestDatabase } from "./helpers/database";
 import {
@@ -56,14 +57,47 @@ it("announces committed workspace label edits once per affected board", async ()
     name: "Old",
     color: "#000000",
   });
+  await db.insert(schema.integrationTable).values([
+    {
+      id: "selected-label-integration",
+      projectId: first.id,
+      type: "github",
+      config: JSON.stringify({
+        syncRules: {
+          outgoing: { mode: "labels", match: "any", labels: [root.id] },
+          incoming: { mode: "all" },
+        },
+      }),
+    },
+    {
+      projectId: second.id,
+      type: "gitlab",
+      isActive: false,
+      config: "{}",
+    },
+    {
+      projectId: foreign.id,
+      type: "gitea",
+      config: JSON.stringify({
+        syncRules: {
+          outgoing: { mode: "labels", match: "any", labels: [root.id] },
+          incoming: { mode: "all" },
+        },
+      }),
+    },
+  ]);
   await updateLabel(root.id, "Renamed", "#123456");
   expect(publish.mock.calls.map((call) => call)).toEqual(
     expect.arrayContaining([
       ["project.updated", { projectId: first.id }],
       ["project.updated", { projectId: second.id }],
+      [
+        "integration.sync_labels_changed",
+        { projectId: first.id, integrationId: "selected-label-integration" },
+      ],
     ]),
   );
-  expect(publish).toHaveBeenCalledTimes(2);
+  expect(publish).toHaveBeenCalledTimes(3);
   const labels = await db.query.labelTable.findMany();
   expect(
     labels
@@ -127,4 +161,63 @@ it("announces an unassigned workspace label edit to every local board's choices"
     ]),
   );
   expect(publish).toHaveBeenCalledTimes(2);
+});
+
+it("refreshes sync label choices on deletion without requiring changed task links", async () => {
+  const { workspace, user } = await createWorkspaceMember();
+  const { project: first } = await createProjectFixture({
+    workspaceId: workspace.id,
+  });
+  const { project: second } = await createProjectFixture({
+    workspaceId: workspace.id,
+  });
+  const { workspace: foreignWorkspace } = await createWorkspaceMember();
+  const { project: foreign } = await createProjectFixture({
+    workspaceId: foreignWorkspace.id,
+  });
+  const [label] = await db
+    .insert(schema.labelTable)
+    .values({ workspaceId: workspace.id, name: "Unassigned", color: "red" })
+    .returning();
+  const [integration] = await db
+    .insert(schema.integrationTable)
+    .values({
+      projectId: first.id,
+      type: "gitea",
+      config: JSON.stringify({
+        syncRules: {
+          outgoing: { mode: "labels", match: "any", labels: [label.id] },
+          incoming: { mode: "all" },
+        },
+      }),
+    })
+    .returning();
+  await db.insert(schema.integrationTable).values([
+    {
+      projectId: second.id,
+      type: "gitlab",
+      isActive: false,
+      config: "{}",
+    },
+    { projectId: foreign.id, type: "github", config: "{}" },
+  ]);
+
+  await deleteLabel(label.id, user.id);
+
+  expect(publish.mock.calls).toEqual(
+    expect.arrayContaining([
+      [
+        "integration.sync_labels_changed",
+        { projectId: first.id, integrationId: integration.id },
+      ],
+      ["project.updated", { projectId: first.id }],
+      ["project.updated", { projectId: second.id }],
+    ]),
+  );
+  expect(publish).toHaveBeenCalledTimes(3);
+  expect(
+    await db.query.labelTable.findFirst({
+      where: eq(schema.labelTable.id, label.id),
+    }),
+  ).toBeUndefined();
 });

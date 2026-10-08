@@ -1,3 +1,5 @@
+import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
+import { canSyncTask } from "../../sync/eligibility";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -64,6 +66,8 @@ async function getGitlabIssueContext(taskId: string) {
     return null;
   }
 
+  if (!(await canSyncTask(taskId, externalLink.integration.id))) return null;
+
   let config: GitlabConfig;
   try {
     config = JSON.parse(externalLink.integration.config) as GitlabConfig;
@@ -86,6 +90,8 @@ async function getGitlabIssueContext(taskId: string) {
   }
 
   return {
+    externalLink,
+    expectedConfig: externalLink.integration.config,
     client: createGitlabClient(config),
     config,
     issueIid,
@@ -117,11 +123,17 @@ export async function syncLabelToGitlab(
 
   if (!labels.some((l) => l.name === labelName)) {
     try {
-      await client.createLabel(
-        config.projectPath,
-        labelName,
-        toHexColor(labelColor),
+      const created = await dispatchIssueWrite(
+        ctx.externalLink,
+        ctx.expectedConfig,
+        () =>
+          client.createLabel(
+            config.projectPath,
+            labelName,
+            toHexColor(labelColor),
+          ),
       );
+      if (!created) return;
     } catch (error) {
       console.error(`Failed to create label "${labelName}" in GitLab:`, error);
       return;
@@ -133,9 +145,11 @@ export async function syncLabelToGitlab(
     if (issue.labels?.includes(labelName)) {
       return;
     }
-    await client.updateIssue(config.projectPath, issueIid, {
-      add_labels: labelName,
-    });
+    await dispatchIssueWrite(ctx.externalLink, ctx.expectedConfig, () =>
+      client.updateIssue(config.projectPath, issueIid, {
+        add_labels: labelName,
+      }),
+    );
   } catch (error) {
     console.error(`Failed to add label "${labelName}" to GitLab issue:`, error);
   }
@@ -149,9 +163,11 @@ export async function removeLabelFromGitlab(taskId: string, labelName: string) {
   const { client, config, issueIid } = ctx;
 
   try {
-    await client.updateIssue(config.projectPath, issueIid, {
-      remove_labels: labelName,
-    });
+    await dispatchIssueWrite(ctx.externalLink, ctx.expectedConfig, () =>
+      client.updateIssue(config.projectPath, issueIid, {
+        remove_labels: labelName,
+      }),
+    );
   } catch (error) {
     console.error(
       `Failed to remove label "${labelName}" from GitLab issue:`,

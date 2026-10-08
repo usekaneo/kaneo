@@ -220,15 +220,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PACKAGE_TOKEN }}
 
-      # Copies the published manifest, so :latest is the exact bytes released.
-      - name: Tag images as latest
+      # Copies the published manifest, so the floating tags are the exact bytes
+      # released. Releases only come from main, so the newest version always
+      # owns its :major and :major.minor tags.
+      - name: Tag images as latest, major and major.minor
         env:
           OWNER: ${{ github.repository_owner }}
           VERSION: ${{ needs.plan.outputs.version }}
         run: |
+          if [[ ! "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.[0-9]+$ ]]; then
+            echo "::error::Expected a major.minor.patch version, got '$VERSION'."
+            exit 1
+          fi
+          major="${BASH_REMATCH[1]}"
+          minor="${major}.${BASH_REMATCH[2]}"
           for image in kaneo web api; do
             ref="ghcr.io/${OWNER,,}/${image}"
-            docker buildx imagetools create --tag "${ref}:latest" "${ref}:${VERSION}"
+            docker buildx imagetools create \
+              --tag "${ref}:latest" \
+              --tag "${ref}:${major}" \
+              --tag "${ref}:${minor}" \
+              "${ref}:${VERSION}"
           done
 
   chart-publish:

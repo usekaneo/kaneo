@@ -21,6 +21,9 @@ type UserPreferencesStore = {
   compactMode: boolean;
   setCompactMode: (compact: boolean) => void;
 
+  advancedSettings: boolean;
+  setAdvancedSettings: (enabled: boolean) => void;
+
   showTaskNumbers: boolean;
   setShowTaskNumbers: (show: boolean) => void;
   toggleTaskNumbers: () => void;
@@ -86,6 +89,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       compactMode: false,
       setCompactMode: (compact) => set({ compactMode: compact }),
+
+      advancedSettings: false,
+      setAdvancedSettings: (enabled) => set({ advancedSettings: enabled }),
 
       showTaskNumbers: true,
       setShowTaskNumbers: (show) => set({ showTaskNumbers: show }),

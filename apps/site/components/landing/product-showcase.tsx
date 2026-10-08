@@ -43,6 +43,10 @@ const tourTargets = [
   "gantt",
   "board",
   "drag-back",
+  "home",
+  "inbox",
+  "inbox-notification",
+  "my-tasks",
   "project-other",
   "project-main",
 ];

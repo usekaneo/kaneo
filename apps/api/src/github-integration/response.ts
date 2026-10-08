@@ -146,7 +146,3 @@ export const createdGithubIntegrationSchema = githubIntegrationSchema
 export const deleteResultSchema = z
   .object({ success: z.boolean(), message: z.string() })
   .openapi("GitHubDeleteResult");
-
-export const integrationNotFoundSchema = z
-  .object({ error: z.string() })
-  .openapi("GitHubIntegrationNotFound");

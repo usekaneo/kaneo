@@ -9,6 +9,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 // Assignment notifications run in the background and can otherwise race the
 // next test's TRUNCATE. Notification access/delivery has its own DB suite;
@@ -111,7 +112,11 @@ describe("API integration: workspace RBAC enforcement", () => {
 
       const response = await postCreateTask(app, project.id);
       expect(response.status).toBe(403);
-      await expect(response.text()).resolves.toBe("Insufficient permissions");
+      expect(await readErrorBody(response)).toEqual({
+        message: "Insufficient permissions",
+        code: "MISSING_PERMISSION",
+        missingPermissions: ["task:create"],
+      });
 
       const persisted = await db.query.taskTable.findFirst({
         where: and(

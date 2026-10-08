@@ -6,7 +6,7 @@ export function FoundingFreeCard() {
   const { t } = useTranslation();
 
   return (
-    <div className="overflow-hidden rounded-md border border-primary/30 bg-sidebar">
+    <div className="overflow-hidden rounded-xl border border-primary/30 bg-card">
       <div className="flex items-start gap-3 p-5">
         <div className="mt-0.5 flex size-9 items-center justify-center rounded-md bg-primary/10 text-primary">
           <Sparkles className="size-4.5" />

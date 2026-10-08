@@ -75,6 +75,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
+import { getColumnIcon } from "@/lib/column";
+import { getStatusDisplayLabel } from "@/lib/i18n/domain";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
@@ -82,6 +85,7 @@ import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-wor
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { uploadDraftAsset } from "@/lib/upload-draft-asset";
@@ -92,6 +96,7 @@ import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
   open: boolean;
@@ -271,6 +276,50 @@ function CreateTaskModalContent({
     (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
   );
   const resolvedProjectId = resolvedProject?.id ?? "";
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: workspace?.id || "",
+    projectId: resolvedProjectId,
+  });
+  const workspaceAssigneeOptions = useMemo(
+    () =>
+      (workspaceUsers?.members ?? []).map((member) => ({
+        id: member.userId,
+        name: member.user?.name ?? "",
+        image: member.user?.image ?? null,
+      })),
+    [workspaceUsers?.members],
+  );
+  const projectMembersPending =
+    Boolean(resolvedProjectId) && projectMembers === undefined;
+  const assigneeUnconfirmed = Boolean(assigneeId) && projectMembersPending;
+  const assigneeOptions = useMemo(
+    () =>
+      resolvedProjectId
+        ? (projectMembers ?? []).map((member) => ({
+            id: member.id,
+            name: member.name,
+            image: member.image,
+          }))
+        : workspaceAssigneeOptions,
+    [resolvedProjectId, projectMembers, workspaceAssigneeOptions],
+  );
+  const selectedUser =
+    assigneeOptions.find((option) => option.id === assigneeId) ??
+    (projectMembersPending
+      ? workspaceAssigneeOptions.find((option) => option.id === assigneeId)
+      : undefined);
+  const {
+    data: projectColumns,
+    isError: columnsError,
+    refetch: refetchColumns,
+    isFetching: columnsFetching,
+  } = useGetColumns(open ? resolvedProjectId : "", { refreshOnMount: true });
+  const initialColumn = getInitialTaskColumn(projectColumns, status);
+  const taskStatus = status ?? initialColumn?.slug ?? "planned";
+  const awaitingColumns =
+    !status &&
+    Boolean(resolvedProjectId) &&
+    (!projectColumns || columnsFetching || columnsError);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const stagedAssetsRef = useRef<string[]>([]);
@@ -475,8 +524,10 @@ function CreateTaskModalContent({
       submittingRef.current ||
       pendingUploadsRef.current > 0 ||
       !canCreateTaskCapability ||
+      awaitingColumns ||
       !title.trim() ||
       !resolvedProjectId ||
+      assigneeUnconfirmed ||
       !workspace?.id
     )
       return;
@@ -484,18 +535,25 @@ function CreateTaskModalContent({
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
-      const taskStatus = status ?? "to-do";
+      let submitStatus = taskStatus;
+      if (!status) {
+        const workflow = await refetchColumns();
+        if (!activeRef.current) return;
+        if (workflow.isError || !workflow.data)
+          throw new Error(t("common:modals.createTask.statusLoadError"));
+        submitStatus = getInitialTaskColumn(workflow.data)?.slug ?? "planned";
+      }
       didSubmitRef.current = true;
       const savedTask = normalizeTask(
         await createTask({
           title: title.trim(),
           description: description.trim() || "",
-          userId: assigneeId,
+          userId: selectedUser?.id ?? "",
           priority,
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
-          status: taskStatus,
+          status: submitStatus,
           draftAssetIds: stagedAssetsRef.current.filter((id) =>
             description.includes(`/asset/${id}`),
           ),
@@ -575,16 +633,7 @@ function CreateTaskModalContent({
 
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
 
-  const statusLabel = useMemo(() => {
-    if (status) {
-      return t(`tasks:status.${status}`);
-    }
-    return t("tasks:status.in-progress");
-  }, [status, t]);
-  const selectedUser = workspaceUsers?.members?.find(
-    (u) => u.userId === assigneeId,
-  );
-
+  const statusLabel = getStatusDisplayLabel(taskStatus, initialColumn?.name);
   useEffect(() => {
     if (labelsOpen && labelsStep === "select" && searchInputRef.current) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -981,6 +1030,7 @@ function CreateTaskModalContent({
                 placeholder={t(
                   "common:modals.createTask.descriptionPlaceholder",
                 )}
+                projectId={resolvedProjectId || undefined}
                 uploadAsset={stageAsset}
               />
             </div>
@@ -1120,7 +1170,11 @@ function CreateTaskModalContent({
                 </Popover>
               )}
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent/50 text-foreground rounded-md text-xs font-medium border border-border">
-                <div className="w-1.5 h-1.5 bg-foreground rounded-full" />
+                {getColumnIcon(
+                  taskStatus,
+                  initialColumn?.isFinal,
+                  initialColumn?.icon,
+                )}
                 {statusLabel}
               </div>
 
@@ -1220,14 +1274,14 @@ function CreateTaskModalContent({
                       <>
                         <Avatar className="h-4 w-4">
                           <AvatarImage
-                            src={selectedUser?.user?.image ?? ""}
-                            alt={selectedUser?.user?.name || ""}
+                            src={selectedUser.image ?? ""}
+                            alt={selectedUser.name}
                           />
                           <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                            {getInitials(selectedUser?.user?.name)}
+                            {getInitials(selectedUser.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span>{selectedUser.user?.name}</span>
+                        <span>{selectedUser.name}</span>
                       </>
                     ) : (
                       <>
@@ -1257,26 +1311,26 @@ function CreateTaskModalContent({
                       <span className="text-sm">
                         {t("common:modals.createTask.assignUnassigned")}
                       </span>
-                      {!assigneeId && <Check className="ml-auto h-4 w-4" />}
+                      {!selectedUser && <Check className="ml-auto h-4 w-4" />}
                     </button>
-                    {workspaceUsers?.members?.map((member) => (
+                    {assigneeOptions.map((member) => (
                       <button
-                        key={member.userId}
+                        key={member.id}
                         type="button"
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => setAssigneeId(member.userId || "")}
+                        onClick={() => setAssigneeId(member.id)}
                       >
                         <Avatar className="h-6 w-6">
                           <AvatarImage
-                            src={member?.user?.image ?? ""}
-                            alt={member?.user?.name || ""}
+                            src={member.image ?? ""}
+                            alt={member.name}
                           />
                           <AvatarFallback className="text-xs font-medium border border-border/30">
-                            {getInitials(member?.user?.name)}
+                            {getInitials(member.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{member?.user?.name}</span>
-                        {assigneeId === member.userId && (
+                        <span className="text-sm">{member.name}</span>
+                        {selectedUser?.id === member.id && (
                           <Check className="ml-auto h-4 w-4" />
                         )}
                       </button>
@@ -1468,6 +1522,22 @@ function CreateTaskModalContent({
             </div>
           </div>
 
+          {awaitingColumns && columnsError && (
+            <div
+              role="alert"
+              className="flex items-center gap-2 px-6 py-2 text-sm text-muted-foreground"
+            >
+              {t("common:modals.createTask.statusLoadError")}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => void refetchColumns()}
+              >
+                {t("common:error.tryAgain")}
+              </Button>
+            </div>
+          )}
           <DialogFooter className="flex-shrink-0 border-t border-border bg-background px-6 py-4">
             <div className="flex items-center gap-3 mr-auto">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
@@ -1495,7 +1565,9 @@ function CreateTaskModalContent({
               disabled={
                 !title.trim() ||
                 !resolvedProjectId ||
+                assigneeUnconfirmed ||
                 isSubmitting ||
+                awaitingColumns ||
                 isPreparingDraft
               }
               aria-busy={isPreparingDraft || isSubmitting}

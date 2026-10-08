@@ -1,0 +1,102 @@
+---
+title: "Errors"
+description: "Read the JSON error body, branch on stable codes, and handle the OAuth exceptions."
+---
+
+Every error from `/api/*` is JSON with `Content-Type: application/json`:
+
+```json
+{
+  "message": "Insufficient permissions",
+  "code": "MISSING_PERMISSION",
+  "missingPermissions": ["task:create"]
+}
+```
+
+| Field | Always present | Description |
+| --- | --- | --- |
+| `message` | Yes | Human-readable text. Show it to people; do not parse it. |
+| `code` | Yes | Stable `UPPER_SNAKE_CASE` code. Branch on this instead of the message. |
+| `issues` | No | Every invalid input, for `VALIDATION_ERROR`. |
+| `missingPermissions` | No | The permissions the route requires that the caller lacks, for `MISSING_PERMISSION` and `API_KEY_SCOPE`. |
+
+The HTTP status stays meaningful on its own. New fields may be added, so ignore ones you do not recognize.
+
+## Codes from the status
+
+Most errors carry a code derived from their status:
+
+| Status | Code |
+| --- | --- |
+| 400 | `BAD_REQUEST` |
+| 401 | `UNAUTHORIZED` |
+| 402 | `PAYMENT_REQUIRED` |
+| 403 | `FORBIDDEN` |
+| 404 | `NOT_FOUND` |
+| 408 | `REQUEST_TIMEOUT` |
+| 409 | `CONFLICT` |
+| 413 | `PAYLOAD_TOO_LARGE` |
+| 414 | `URI_TOO_LONG` |
+| 422 | `UNPROCESSABLE_ENTITY` |
+| 429 | `RATE_LIMITED` |
+| 500 | `INTERNAL_SERVER_ERROR` |
+| 502 | `BAD_GATEWAY` |
+| 503 | `SERVICE_UNAVAILABLE` |
+| Any other | `HTTP_<status>`, for example `HTTP_504` |
+
+An unknown path under `/api` returns `404` with `{"message": "Not found", "code": "NOT_FOUND"}`. Unexpected server failures return `500` with `{"message": "Internal Server Error", "code": "INTERNAL_SERVER_ERROR"}` and never include internal details.
+
+## Specific codes
+
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `VALIDATION_ERROR` | 400 | The path, query, or body failed validation. See `issues`. |
+| `MISSING_PERMISSION` | 403 | Your workspace role does not grant the action. `missingPermissions` lists what is missing, such as `task:update`. |
+| `API_KEY_SCOPE` | 403 | The API key was created with permissions that do not cover the action. `missingPermissions` lists what is missing. |
+| `SESSION_REQUIRED` | 403 | The endpoint needs a signed-in user session and does not accept API keys. This covers account-level actions such as billing, instance administration, and some GitHub setup routes. |
+| `INTEGRATION_AUTH_FAILED` | 401 | A connected service such as GitLab rejected the token in the request, or could not be reached to check it. Your Kaneo session or API key is still valid. |
+
+`missingPermissions` only names permissions for the route you called in the workspace it targets.
+
+A `401` with `UNAUTHORIZED` means Kaneo did not accept your session or API key. Sign in again or replace the key only for that code, not for every `401`.
+
+Sign-in, sign-up, and workspace membership endpoints under `/api/auth/*` return the same `message` and `code` fields. Their codes describe the specific failure, for example `INVALID_EMAIL_OR_PASSWORD`, `PASSWORD_REGISTRATION_DISABLED`, or `CAPTCHA_FAILED`.
+
+## Validation issues
+
+`message` repeats the first issue. `issues` lists all of them, so a form can mark every invalid field at once:
+
+```json
+{
+  "message": "title: Invalid input: expected string, received undefined",
+  "code": "VALIDATION_ERROR",
+  "issues": [
+    {
+      "path": "body.title",
+      "message": "Invalid input: expected string, received undefined"
+    },
+    {
+      "path": "body.priority",
+      "message": "Invalid option: expected one of \"no-priority\"|\"low\"|\"medium\"|\"high\"|\"urgent\""
+    }
+  ]
+}
+```
+
+Each `path` starts with the part of the request that failed: `body`, `query`, `params`, or `header`, followed by the field, for example `query.limit` or `body.customFields.0.value`.
+
+## Retrying
+
+A `429` may include a `Retry-After` header with the number of seconds to wait. Do not retry `4xx` errors other than `408` and `429` without changing the request.
+
+## Exceptions
+
+These endpoints follow external standards and keep their own error bodies:
+
+- **Device authorization.** `/api/auth/device/code` and `/api/auth/device/token` return RFC 8628 errors such as `{"error": "authorization_pending"}` and `{"error": "slow_down"}`. See [Authentication](/api-reference/authentication#poll-for-a-token).
+- **MCP OAuth.** `/api/mcp/register`, `/api/mcp/authorize`, `/api/mcp/authorize/request/{requestId}`, and `/api/mcp/token` return RFC 6749 and RFC 7591 errors shaped as `{"error": "invalid_request", "error_description": "..."}`. The `/api/mcp` endpoint itself answers with `{"error": ...}` bodies, such as `invalid_token`, and MCP protocol messages.
+- **Inbound webhooks.** The GitHub, Gitea, and GitLab webhook receivers are called by those services, not by API clients, and keep their existing responses.
+
+## Older instances
+
+Kaneo versions before this format returned many errors as plain text. If your client talks to instances you do not control, read the body as text and parse it as JSON only when it is valid, falling back to the text as the message.

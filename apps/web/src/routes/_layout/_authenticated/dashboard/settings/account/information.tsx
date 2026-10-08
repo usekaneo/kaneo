@@ -45,6 +45,8 @@ import useUpdateUserProfile from "@/hooks/mutations/use-update-user-profile";
 import { getInitials } from "@/lib/get-initials";
 import { ACCEPTED_AVATAR_TYPES } from "@/lib/prepare-avatar-image";
 import { toast } from "@/lib/toast";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/account/information",
@@ -262,27 +264,17 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:informationPage.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:informationPage.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:informationPage.subtitle")}
-          </p>
-        </div>
+      <SettingsPage
+        title={t("settings:informationPage.title")}
+        description={t("settings:informationPage.subtitle")}
+      >
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:informationPage.sectionTitle")}
+            description={t("settings:informationPage.sectionSubtitle")}
+          />
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:informationPage.sectionTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:informationPage.sectionSubtitle")}
-            </p>
-          </div>
-
-          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="space-y-4 rounded-xl border border-border bg-card p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">
@@ -410,17 +402,15 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="space-y-1">
-            <h2 className="text-md font-medium">
-              {t("settings:informationPage.deleteAccount.sectionTitle")}
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              {t("settings:informationPage.deleteAccount.sectionSubtitle")}
-            </p>
-          </div>
+        <div className="space-y-3">
+          <SettingsSectionHeader
+            title={t("settings:informationPage.deleteAccount.sectionTitle")}
+            description={t(
+              "settings:informationPage.deleteAccount.sectionSubtitle",
+            )}
+          />
 
-          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+          <div className="space-y-4 rounded-xl border border-border bg-card p-4">
             <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
               <div className="space-y-0.5">
                 <p className="text-sm font-medium">
@@ -504,7 +494,7 @@ function RouteComponent() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
+      </SettingsPage>
     </>
   );
 }

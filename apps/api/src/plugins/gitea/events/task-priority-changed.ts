@@ -1,3 +1,5 @@
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
+import { canSyncTask } from "../../sync/eligibility";
 import { findExternalLinksByTask } from "../../github/services/link-manager";
 import type { PluginContext, TaskPriorityChangedEvent } from "../../types";
 import type { GiteaConfig } from "../config";
@@ -7,6 +9,16 @@ export async function handleTaskPriorityChanged(
   event: TaskPriorityChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const config = context.config as GiteaConfig;
   if (!config.baseUrl || !config.accessToken) {
     return;
@@ -23,22 +35,21 @@ export async function handleTaskPriorityChanged(
     if (!issueLink) {
       return;
     }
-
     const issueNumber = Number.parseInt(issueLink.externalId, 10);
 
-    if (event.oldPriority && event.oldPriority !== "no-priority") {
-      await removeLabelGitea(
-        config,
-        issueNumber,
-        `priority:${event.oldPriority}`,
-      );
-    }
-
-    if (event.newPriority && event.newPriority !== "no-priority") {
-      await addLabelsToIssueGitea(config, issueNumber, [
-        `priority:${event.newPriority}`,
-      ]);
-    }
+    await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "gitea",
+      "priority",
+      async ({ add, remove }, write) => {
+        for (const name of remove)
+          await removeLabelGitea(config, issueNumber, name, write, true);
+        if (add.length)
+          await addLabelsToIssueGitea(config, issueNumber, add, true, write);
+      },
+    );
   } catch (error) {
     console.error("Failed to update Gitea issue priority:", error);
   }

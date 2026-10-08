@@ -6,12 +6,16 @@ import {
   createBillingCheckout,
   createBillingPortal,
 } from "@/fetchers/billing/create-checkout";
+import { savePendingPurchase } from "@/lib/analytics/pending-purchase";
+import { track } from "@/lib/analytics/track";
 
 export function useCreateCheckout(workspaceId: string | undefined) {
   return useMutation({
     mutationFn: (input: { plan: BillingPlan; interval: BillingInterval }) =>
       createBillingCheckout({ workspaceId: workspaceId as string, ...input }),
-    onSuccess: ({ checkoutUrl }) => {
+    onSuccess: ({ checkoutUrl }, { plan, interval }) => {
+      track("Checkout Started", { props: { plan, interval } });
+      savePendingPurchase({ plan, interval });
       window.location.href = checkoutUrl;
     },
     onError: (error) => {

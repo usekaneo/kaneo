@@ -3,6 +3,7 @@ import {
   markBoardCacheChanged,
 } from "@/lib/board-cache-version";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import updateTaskTitle from "@/fetchers/task/update-task-title";
 import type Task from "@/types/task";
 import { updateBoardTaskCache } from "@/lib/update-board-task-cache";
@@ -19,6 +20,7 @@ export function useUpdateTaskTitle() {
       };
     },
     onSuccess: (updated, variables, context) => {
+      invalidateMyWork(queryClient);
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });

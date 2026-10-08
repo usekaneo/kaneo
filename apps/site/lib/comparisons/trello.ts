@@ -4,12 +4,12 @@ export const trello: Comparison = {
   slug: "trello",
   competitor: "Trello",
   category: "saas",
-  title: "Self-hostable Trello alternative",
+  title: "Open-source Trello alternative: Kaneo vs Trello",
   description:
-    "Kaneo is an open-source, self-hostable Trello alternative. Keep the simple kanban board, add backlog and workflows, and host it yourself for free under the MIT license.",
+    "Kaneo is a free, open-source Trello alternative under the MIT license. Keep the simple kanban board, add a backlog and workflows, and host it yourself.",
   summary:
     "Keeps the simple board, adds a backlog and workflows, and runs on your server.",
-  heading: "The self-hostable Trello alternative",
+  heading: "The open-source, self-hostable Trello alternative",
   subheading:
     "Trello nails simple kanban, but your boards live on someone else's servers and grow into paid Power-Ups. Kaneo keeps the simplicity, adds backlog and workflows, and lets you own the whole thing.",
   verdict:
@@ -48,6 +48,11 @@ export const trello: Comparison = {
     "If you only need a couple of personal boards, never want to self-host, and Trello's free tier covers you, it's a perfectly good choice. Kaneo makes more sense the moment you care about owning your data or your team outgrows a simple board.",
   faq: [
     {
+      question: "Is Trello open source?",
+      answer:
+        "No. Trello is proprietary software owned by Atlassian and runs only as a cloud service. Kaneo, WeKan, and Kanboard are MIT-licensed kanban boards whose code you can read, change, and run yourself for free.",
+    },
+    {
       question: "Can you self-host Trello?",
       answer:
         "No. Trello is a hosted Atlassian product with no on-premise edition, so the only way to run a Trello-style board on your own server is to use a different tool. Kaneo, WeKan, Kanboard, and PLANKA are the common self-hosted choices.",
@@ -69,6 +74,16 @@ export const trello: Comparison = {
     },
   ],
   related: ["planka", "wekan", "kanboard", "notion"],
+  guides: [
+    {
+      label: "Self-hosted Trello alternatives compared",
+      href: "/guides/self-hosted-trello-alternatives",
+    },
+    {
+      label: "Best Trello alternatives, including paid tools",
+      href: "/blog/best-trello-alternatives",
+    },
+  ],
   verifiedOn: "2026-08-19",
   sources: [
     { label: "Trello pricing", href: "https://trello.com/pricing" },

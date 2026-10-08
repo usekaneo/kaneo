@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { useTranslation } from "react-i18next";
 import duplicateTask from "@/fetchers/task/duplicate-task";
 import { toast } from "@/lib/toast";
@@ -10,6 +11,8 @@ export function useDuplicateTask() {
   return useMutation({
     mutationFn: duplicateTask,
     onSuccess: (task) => {
+      invalidateMyWork(queryClient);
+      void queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast.success(t("tasks:duplicate.success"));
       queryClient.invalidateQueries({
         queryKey: ["tasks", task.projectId],

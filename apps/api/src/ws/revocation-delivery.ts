@@ -43,7 +43,11 @@ export function createRevocationDelivery(
   return {
     async send(message: UserBroadcast, shouldRetry?: () => Promise<boolean>) {
       if (stopped) return;
-      const key = JSON.stringify([message.userId, message.message.workspaceId]);
+      const key = JSON.stringify([
+        message.userId,
+        message.message.workspaceId,
+        message.message.type,
+      ]);
       const entry = { message, shouldRetry };
       pending.set(key, entry);
       // Redis can queue PUBLISH through a long outage. Local revocation has

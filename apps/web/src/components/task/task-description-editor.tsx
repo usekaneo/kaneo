@@ -7,6 +7,7 @@ type TaskDescriptionEditorProps = {
   onChange: (value: string) => void;
   placeholder?: string;
   taskId?: string;
+  projectId?: string;
   ensureTaskId?: () => Promise<string | null>;
   uploadAsset?: (
     file: File,
@@ -18,6 +19,7 @@ export default function TaskDescriptionEditor({
   onChange,
   placeholder,
   taskId,
+  projectId,
   ensureTaskId,
   uploadAsset,
 }: TaskDescriptionEditorProps) {
@@ -29,6 +31,7 @@ export default function TaskDescriptionEditor({
       onChange={onChange}
       placeholder={placeholder ?? t("tasks:detail.addDescription")}
       taskId={taskId}
+      projectId={projectId}
       ensureTaskId={ensureTaskId}
       uploadAsset={uploadAsset}
       uploadSurface="description"

@@ -13,11 +13,17 @@ const mocks = vi.hoisted(() => {
     claimTaskNumber: vi.fn(),
     resolveTargetStatus: vi.fn(),
     publishEvent: vi.fn(),
+    lockedIntegration: vi.fn(),
     columnFindFirst: vi.fn(),
     projectFindFirst: vi.fn(),
     createGiteaClient: vi.fn(),
     addLabelsToIssueGitea: vi.fn(),
     db: {
+      transaction: async (run: (tx: unknown) => Promise<unknown>) =>
+        run(mocks.db),
+      select: () => ({
+        from: () => ({ where: () => ({ for: mocks.lockedIntegration }) }),
+      }),
       insert: () => ({
         values: (values: Record<string, unknown>) => {
           insertedValues.push(values);
@@ -35,6 +41,17 @@ const mocks = vi.hoisted(() => {
     },
   };
 });
+
+vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  () => ({
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+  }),
+);
 
 vi.mock("../../../../../apps/api/src/database", () => ({ default: mocks.db }));
 
@@ -88,6 +105,7 @@ vi.mock("../../../../../apps/api/src/plugins/gitea/utils/labels", () => ({
 const integration = {
   id: "integration-1",
   projectId: "project-1",
+  project: { workspaceId: "workspace-1" },
   isActive: true,
   type: "gitea",
   config: JSON.stringify({
@@ -119,6 +137,7 @@ function issueOpenedPayload(labels: Array<string | { name?: string }>) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.lockedIntegration.mockResolvedValue([integration]);
   mocks.insertedValues.length = 0;
   mocks.findAllIntegrationsByGiteaRepo.mockResolvedValue([integration]);
   mocks.findExternalLink.mockResolvedValue(null);
@@ -180,3 +199,7 @@ describe("handleGiteaIssueOpened", () => {
     expect(mocks.insertedValues[0].priority).toBe("high");
   });
 });
+
+vi.mock("../../../../../apps/api/src/plugins/sync/issue-labels", () => ({
+  importIssueLabels: async () => undefined,
+}));

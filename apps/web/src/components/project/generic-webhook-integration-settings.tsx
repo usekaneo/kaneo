@@ -296,7 +296,7 @@ export function GenericWebhookIntegrationSettings({
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="space-y-4 rounded-md border border-border bg-sidebar p-4">
+        <div className="space-y-4 rounded-xl border border-border bg-card p-4">
           <div className="h-4 w-40 animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
           <div className="h-10 w-full animate-pulse rounded bg-muted" />
@@ -309,7 +309,7 @@ export function GenericWebhookIntegrationSettings({
     <div className="space-y-4">
       <Form {...form}>
         <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-4 rounded-md border border-border bg-sidebar p-4">
+          <div className="space-y-4 rounded-xl border border-border bg-card p-4">
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <h3 className="font-medium">
@@ -397,7 +397,7 @@ export function GenericWebhookIntegrationSettings({
             />
           </div>
 
-          <div className="space-y-3 rounded-md border border-border bg-sidebar p-4">
+          <div className="space-y-3 rounded-xl border border-border bg-card p-4">
             <div>
               <h3 className="font-medium">
                 {t("settings:genericWebhookIntegration.eventsTitle")}

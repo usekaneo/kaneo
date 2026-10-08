@@ -4,6 +4,7 @@ import { describe, expect, it } from "vite-plus/test";
 import enUS from "../../../../i18n/en-US.json";
 import frFR from "../../../../i18n/fr-FR.json";
 import jaJP from "../../../../i18n/ja-JP.json";
+import zhTW from "../../../../i18n/zh-TW.json";
 import WorkspaceInvitationEmail from "./workspace-invitation";
 
 describe("WorkspaceInvitationEmail", () => {
@@ -39,6 +40,22 @@ describe("WorkspaceInvitationEmail", () => {
     expect(html).toContain("「プロダクト」に参加");
     expect(html).toContain("招待を承諾");
     expect(html).toContain("アリス (alice@example.com)");
+  });
+
+  it("renders the invitation in Traditional Chinese for a zh-TW locale", async () => {
+    const html = await render(
+      createElement(WorkspaceInvitationEmail, {
+        workspaceName: "產品團隊",
+        inviterName: "Alice",
+        inviterEmail: "alice@example.com",
+        invitationLink: "https://kaneo.example/invite/abc",
+        to: "invite@example.com",
+        copy: zhTW.invitations.email,
+      }),
+    );
+
+    expect(html).toContain("加入 產品團隊");
+    expect(html).toContain("接受邀請");
   });
 });
 

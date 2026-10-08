@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
+import { publishEvent } from "../events";
 import { integrationTable } from "../database/schema";
 import { scopeToProjectFromBody } from "../integrations/middleware";
 import { projectIdBody, projectIdParam } from "../integrations/schema";
@@ -35,7 +36,6 @@ import {
   gitlabIntegrationSchema,
   gitlabProjectListSchema,
   gitlabVerificationResultSchema,
-  integrationNotFoundSchema,
 } from "./response";
 import {
   createGitlabBody,
@@ -173,7 +173,8 @@ const updateIntegrationRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing workspace:manage_settings",
     ),
-    404: jsonResponse("Integration not found", integrationNotFoundSchema),
+    404: errorResponse("Integration not found"),
+    409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
 
@@ -269,6 +270,11 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     if (!integration) {
       throw new HTTPException(500, { message: "Failed to load integration" });
     }
+    if (integration)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: integration.id,
+      });
     return c.json(integration, 200);
   })
   .openapi(updateIntegrationRoute, async (c) => {
@@ -283,7 +289,7 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     if (!row) {
-      return c.json({ error: "Integration not found" }, 404);
+      throw new HTTPException(404, { message: "Integration not found" });
     }
 
     let config: GitlabConfig;
@@ -307,7 +313,7 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
-    await db
+    const [saved] = await db
       .update(integrationTable)
       .set({
         config: JSON.stringify(config),
@@ -317,15 +323,26 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       })
       .where(
         and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "gitlab"),
+          eq(integrationTable.id, row.id),
+          eq(integrationTable.config, row.config),
         ),
-      );
+      )
+      .returning({ id: integrationTable.id });
+    if (!saved)
+      throw new HTTPException(409, {
+        message: "Integration changed; refresh before updating settings",
+      });
 
     const updated = await getGitlabIntegration(projectId, true);
     if (!updated) {
       throw new HTTPException(500, { message: "Failed to load integration" });
     }
+    if (body.isActive === true && !row.isActive)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: row.id,
+      });
+    await publishEvent("project.updated", { projectId, linksChanged: true });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {

@@ -28,7 +28,7 @@ describe("TaskLabels", () => {
     render(<TaskLabels labels={[{ id: "label-1", name, color: "purple" }]} />);
 
     const labelName = screen.getByText(name);
-    const badge = labelName.closest('[data-slot="badge"]');
+    const badge = labelName.closest('[data-slot="task-label"]');
     expect(labelName).not.toHaveClass("max-w-20");
     expect(labelName).toHaveClass("min-w-0", "truncate");
     expect(labelName).toHaveAttribute("title", name);

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useFadeTransition } from "@/hooks/use-fade-transition";
+import { track } from "@/lib/analytics/track";
 import { Spinner } from "@/components/ui/spinner";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import {
@@ -91,6 +92,7 @@ export function OnboardingFlow() {
         description: data.description?.trim() || "",
         userId: user?.id,
       });
+      track("Workspace Created", { props: { usage } });
 
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
       await authClient.organization.setActive({

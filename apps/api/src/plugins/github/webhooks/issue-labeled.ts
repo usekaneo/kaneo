@@ -1,9 +1,12 @@
+import { resumeLabelChanges } from "../../sync/resume-label-changes";
+import { acceptsIssue, readSyncRules } from "../../sync/rules";
+import { handleIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../services/with-integration-link";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import { eq } from "drizzle-orm";
 import { labelTable, taskTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
-import { findExternalLink } from "../services/link-manager";
+import { findExternalLink, updateExternalLink } from "../services/link-manager";
 import {
   findAllIntegrationsByRepo,
   updateTaskStatus,
@@ -44,6 +47,20 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
     );
 
     if (!existingLink) {
+      const fullIssue = issue as typeof issue &
+        Partial<Parameters<typeof handleIssueOpened>[0]["issue"]>;
+      if (
+        payload.action === "labeled" &&
+        readSyncRules(integration.config)?.incoming.mode === "labels" &&
+        acceptsIssue(integration.config, issue.labels) &&
+        fullIssue.title &&
+        fullIssue.html_url
+      ) {
+        await handleIssueOpened(
+          payload as Parameters<typeof handleIssueOpened>[0],
+          integration.id,
+        );
+      }
       continue;
     }
 
@@ -51,17 +68,28 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
       existingLink,
       integration,
       async (db, afterCommit, existingLink) => {
+        const names = (issue.labels ?? []).flatMap((label) => {
+          const name = typeof label === "string" ? label : label.name;
+          return name ? [name] : [];
+        });
+        const changes = resumeLabelChanges(existingLink, names);
+        if (changes.baseline && issue.labels !== undefined)
+          await updateExternalLink(
+            existingLink.id,
+            { metadata: { syncResumeLabelBaseline: names } },
+            db,
+          );
         const priority = extractIssuePriority(issue.labels);
         const status = extractIssueStatus(issue.labels);
 
-        if (priority) {
+        if (priority && changes.priorityChanged) {
           await db
             .update(taskTable)
             .set({ priority })
             .where(linkedTaskScope(existingLink.taskId, integration.projectId));
         }
 
-        if (status) {
+        if (status && changes.statusChanged) {
           const statusResult = await updateTaskStatus(
             existingLink.taskId,
             status,
