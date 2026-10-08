@@ -6,11 +6,14 @@ import {
 } from "./parse-api-error-body";
 
 function fallbackMessage(status: number): string {
-  return i18n.t(
-    status >= 500
-      ? "common:error.messages.server"
-      : "common:error.messages.unknown",
-  );
+  if (status >= 500) {
+    return i18n.t("common:error.messages.server", {
+      defaultValue: "Server error. Please try again later.",
+    });
+  }
+  return i18n.t("common:error.messages.unknown", {
+    defaultValue: "An unexpected error occurred.",
+  });
 }
 
 export class HttpError extends Error {
