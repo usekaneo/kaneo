@@ -38,6 +38,26 @@ const board = await response.json();
 
 Return to **API Keys** to remove a credential you no longer use. To rotate one, create a replacement, update the service that uses it, check a request succeeds, then revoke the old key.
 
+## Rate limits
+
+Each API key can make 100 requests per 60 seconds by default. Requests made with a browser session or a device access token do not count against it.
+
+The window follows the key's most recent successful request. Every successful request starts the 60 seconds again, and the count resets only after a full window passes without a successful request. A steady stream of requests, even one per second, keeps the window open, so the key is limited after 100 requests until it has been idle for 60 seconds.
+
+Successful requests made with an API key include these headers:
+
+| Header | Meaning |
+| --- | --- |
+| `X-RateLimit-Limit` | Requests the key can make per window. |
+| `X-RateLimit-Remaining` | Requests left in the current window. |
+| `X-RateLimit-Reset` | Unix time in seconds when the window resets if the key makes no further requests. |
+
+When a key goes over its limit, Kaneo answers `429 Too Many Requests` with the error code `RATE_LIMITED`, the same headers, `X-RateLimit-Remaining: 0`, and a `Retry-After` header with the number of seconds to wait. Wait at least that long before you retry, and pace bulk jobs rather than retrying in a loop. A `429` does not mean the key is invalid. An unknown, disabled, or expired key still gets `401` with `UNAUTHORIZED`.
+
+A key with a usage quota also gets `429` with `RATE_LIMITED` once the quota runs out, with the message `API key usage limit exceeded`. `Retry-After` is included when the quota refills at a known time.
+
+Auth endpoints under `/api/auth` can also have their own per-IP limits, for example on sign-up and invitations. Those `429` responses include `Retry-After` but no `X-RateLimit` headers, because the request did not count against the key.
+
 ## Device authorization
 
 By default, self-hosted Kaneo allows the built-in device clients `kaneo-cli` and `kaneo-mcp`.
