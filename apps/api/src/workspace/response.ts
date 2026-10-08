@@ -11,7 +11,7 @@ export const workspaceSchema = z
     createdAt: responseTimestamp,
     role: z.string().nullable().openapi({
       description:
-        "The caller's workspace role: a built-in role (owner, admin, member, guest) or a custom role name. Null when an instance admin views a workspace they are not a member of.",
+        "The caller's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace. Null when an instance admin views a workspace they are not a member of.",
     }),
   })
   .openapi("Workspace");
@@ -26,7 +26,7 @@ export const workspaceMemberSchema = z
     image: z.string().nullable(),
     role: z.string().openapi({
       description:
-        "The member's workspace role: a built-in role (owner, admin, member, guest) or a custom role name.",
+        "The member's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace.",
     }),
   })
   .openapi("WorkspaceMember");

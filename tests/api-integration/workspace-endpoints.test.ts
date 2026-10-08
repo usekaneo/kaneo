@@ -40,6 +40,18 @@ async function addMembership(
     .values({ workspaceId, userId, role, joinedAt });
 }
 
+async function addRole(
+  workspaceId: string,
+  role: string,
+  permission: Record<string, string[]>,
+) {
+  await db.insert(schema.workspaceRoleTable).values({
+    workspaceId,
+    role,
+    permission: JSON.stringify(permission),
+  });
+}
+
 function expected(workspace: WorkspaceRow, role: string | null) {
   return {
     id: workspace.id,
@@ -81,7 +93,7 @@ describe("GET /api/workspace", () => {
     await addMembership(beta.id, caller.userId, "owner");
     await addMembership(alpha.id, caller.userId, "member");
     await addMembership(charlie.id, caller.userId, "admin");
-    await addMembership(twinB.id, caller.userId, "guest");
+    await addMembership(twinB.id, caller.userId, "viewer");
     await addMembership(twinA.id, caller.userId, "member");
     await createWorkspaceMember({ workspaceName: "Aardvark" });
 
@@ -94,7 +106,7 @@ describe("GET /api/workspace", () => {
       expected(beta, "owner"),
       expected(charlie, "admin"),
       expected(twinA, "member"),
-      expected(twinB, "guest"),
+      expected(twinB, "viewer"),
     ]);
   });
 
@@ -125,6 +137,46 @@ describe("GET /api/workspace", () => {
     const response = await app.request("/api/workspace");
 
     expect(await readJson(response)).toEqual([expected(joined, "member")]);
+  });
+
+  it("leaves out workspaces where the caller's role lacks workspace:read", async () => {
+    const { user, workspace: hidden } = await createWorkspaceMember({
+      role: "limited",
+      workspaceName: "Hidden",
+    });
+    await addRole(hidden.id, "limited", { task: ["read"] });
+    const edited = await createWorkspace({ name: "Edited viewer" });
+    await addMembership(edited.id, user.id, "viewer");
+    await addRole(edited.id, "viewer", { project: ["read"] });
+    const custom = await createWorkspace({ name: "Custom" });
+    await addMembership(custom.id, user.id, "reader");
+    await addRole(custom.id, "reader", { workspace: ["read"] });
+    const visible = await createWorkspace({ name: "Visible" });
+    await addMembership(visible.id, user.id, "member");
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const response = await app.request("/api/workspace");
+
+    expect(await readJson(response)).toEqual([
+      expected(custom, "reader"),
+      expected(visible, "member"),
+    ]);
+  });
+
+  it("lists an instance admin's membership even when the role lacks workspace:read", async () => {
+    const admin = await createInstanceAdmin();
+    const workspace = await createWorkspace({ name: "Limited" });
+    await addMembership(workspace.id, admin.id, "limited");
+    await addRole(workspace.id, "limited", { task: ["read"] });
+    mockAuthenticatedSession(admin);
+    const { app } = createApp();
+
+    const list = await app.request("/api/workspace");
+    const single = await app.request(`/api/workspace/${workspace.id}`);
+
+    expect(await readJson(list)).toEqual([expected(workspace, "limited")]);
+    expect(await readJson(single)).toEqual(expected(workspace, "limited"));
   });
 
   it("returns an empty list when the caller has no workspaces", async () => {
@@ -245,6 +297,23 @@ describe("GET /api/workspace/{workspaceId}", () => {
     expect(await missing.text()).toBe(notMemberBody);
   });
 
+  it("returns the same 404 when the caller's role lacks workspace:read", async () => {
+    const { user, workspace } = await createWorkspaceMember({
+      role: "limited",
+    });
+    await addRole(workspace.id, "limited", { task: ["read"] });
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+
+    const denied = await app.request(`/api/workspace/${workspace.id}`);
+    const missing = await app.request("/api/workspace/workspace-missing");
+
+    expect(denied.status).toBe(404);
+    const deniedBody = await denied.text();
+    expect(deniedBody).toContain("Workspace not found");
+    expect(await missing.text()).toBe(deniedBody);
+  });
+
   it("lets an instance admin read a workspace they are not a member of", async () => {
     const { workspace } = await createWorkspaceMember({ role: "owner" });
     const admin = await createInstanceAdmin();
@@ -307,6 +376,50 @@ describe("workspace endpoints with bearer credentials", () => {
       expect(await readJson(single)).toEqual(expected(workspace, "owner"));
     },
   );
+
+  it("rejects an API key without workspace:read on both routes", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "owner" });
+    const { key } = await auth.api.createApiKey({
+      body: {
+        userId: user.id,
+        name: "Task reader",
+        permissions: { task: ["read"], project: ["read"] },
+      },
+    });
+    const headers = { Authorization: `Bearer ${key}` };
+    const { app } = createApp();
+
+    const list = await app.request("/api/workspace", { headers });
+    const single = await app.request(`/api/workspace/${workspace.id}`, {
+      headers,
+    });
+
+    expect(list.status).toBe(403);
+    expect(await list.text()).toContain("Insufficient API key scope");
+    expect(single.status).toBe(403);
+    expect(await single.text()).toContain("Insufficient API key scope");
+  });
+
+  it("accepts an API key scoped to workspace:read", async () => {
+    const { user, workspace } = await createWorkspaceMember({ role: "owner" });
+    const { key } = await auth.api.createApiKey({
+      body: {
+        userId: user.id,
+        name: "Workspace reader",
+        permissions: { workspace: ["read"] },
+      },
+    });
+    const headers = { "x-api-key": key };
+    const { app } = createApp();
+
+    const list = await app.request("/api/workspace", { headers });
+    const single = await app.request(`/api/workspace/${workspace.id}`, {
+      headers,
+    });
+
+    expect(await readJson(list)).toEqual([expected(workspace, "owner")]);
+    expect(await readJson(single)).toEqual(expected(workspace, "owner"));
+  });
 
   it("reads the instance admin role from the database for API keys", async () => {
     const { workspace } = await createWorkspaceMember({ role: "owner" });

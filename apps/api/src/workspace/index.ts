@@ -6,7 +6,10 @@ import {
   jsonResponse,
 } from "../openapi";
 import { listWorkspaceProjectAccess } from "../project-access/list-workspace-project-access";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  requireApiKeyScope,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import getMyProjectAccessCtrl from "./controllers/get-my-project-access";
 import getWorkspaceCtrl from "./controllers/get-workspace";
@@ -34,9 +37,11 @@ const listWorkspacesRoute = createRoute({
   tags: ["Workspaces"],
   summary: "List workspaces",
   description:
-    "List the workspaces the caller is a member of, with the caller's role, sorted by name. Instance admins also only get the workspaces they are a member of.",
+    "List the workspaces where the caller is a member with a role that grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
+  middleware: [requireApiKeyScope({ workspace: ["read"] })] as const,
   responses: {
     200: jsonResponse("The caller's workspaces", workspaceListSchema),
+    403: errorResponse("The API key lacks workspace:read"),
   },
 });
 
@@ -47,12 +52,14 @@ const getWorkspaceRoute = createRoute({
   tags: ["Workspaces"],
   summary: "Get workspace",
   description:
-    "Get a workspace the caller is a member of, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+    "Get a workspace the caller is a member of with a role that grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+  middleware: [requireApiKeyScope({ workspace: ["read"] })] as const,
   request: { params: workspaceIdParam },
   responses: {
     200: jsonResponse("The workspace", workspaceSchema),
+    403: errorResponse("The API key lacks workspace:read"),
     404: errorResponse(
-      "Workspace not found, or the caller is not a member of it",
+      "Workspace not found, the caller is not a member of it, or their role lacks workspace:read",
     ),
   },
 });

@@ -1,6 +1,15 @@
 import { and, eq, sql } from "drizzle-orm";
 import db from "../../database";
-import { workspaceTable, workspaceUserTable } from "../../database/schema";
+import {
+  userTable,
+  workspaceRoleTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "../../database/schema";
+import {
+  canReadWorkspace,
+  workspaceAccessColumns,
+} from "../can-read-workspace";
 import {
   toWorkspaceResponse,
   workspaceColumns,
@@ -12,7 +21,7 @@ async function listWorkspaces(userId: string) {
   const rows = await db
     .selectDistinctOn([sortName, workspaceTable.id], {
       ...workspaceColumns,
-      role: workspaceUserTable.role,
+      ...workspaceAccessColumns,
     })
     .from(workspaceTable)
     .innerJoin(
@@ -22,6 +31,14 @@ async function listWorkspaces(userId: string) {
         eq(workspaceUserTable.userId, userId),
       ),
     )
+    .innerJoin(userTable, eq(userTable.id, workspaceUserTable.userId))
+    .leftJoin(
+      workspaceRoleTable,
+      and(
+        eq(workspaceRoleTable.workspaceId, workspaceTable.id),
+        eq(workspaceRoleTable.role, workspaceUserTable.role),
+      ),
+    )
     .orderBy(
       sortName,
       workspaceTable.id,
@@ -29,7 +46,7 @@ async function listWorkspaces(userId: string) {
       workspaceUserTable.id,
     );
 
-  return rows.map(toWorkspaceResponse);
+  return rows.filter(canReadWorkspace).map(toWorkspaceResponse);
 }
 
 export default listWorkspaces;

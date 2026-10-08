@@ -4327,7 +4327,7 @@
               "string",
               "null"
             ],
-            "description": "The caller's workspace role: a built-in role (owner, admin, member, guest) or a custom role name. Null when an instance admin views a workspace they are not a member of."
+            "description": "The caller's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace. Null when an instance admin views a workspace they are not a member of."
           }
         },
         "required": [
@@ -4360,7 +4360,7 @@
           },
           "role": {
             "type": "string",
-            "description": "The member's workspace role: a built-in role (owner, admin, member, guest) or a custom role name."
+            "description": "The member's workspace role: a built-in role (owner, admin, member, viewer) or the name of a custom role defined in the workspace."
           }
         },
         "required": [
@@ -19020,7 +19020,7 @@
           "Workspaces"
         ],
         "summary": "List workspaces",
-        "description": "List the workspaces the caller is a member of, with the caller's role, sorted by name. Instance admins also only get the workspaces they are a member of.",
+        "description": "List the workspaces where the caller is a member with a role that grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
         "responses": {
           "200": {
             "description": "The caller's workspaces",
@@ -19037,6 +19037,16 @@
           },
           "401": {
             "description": "Missing or invalid credentials"
+          },
+          "403": {
+            "description": "The API key lacks workspace:read",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -19048,7 +19058,7 @@
           "Workspaces"
         ],
         "summary": "Get workspace",
-        "description": "Get a workspace the caller is a member of, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+        "description": "Get a workspace the caller is a member of with a role that grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
         "parameters": [
           {
             "schema": {
@@ -19073,8 +19083,18 @@
           "401": {
             "description": "Missing or invalid credentials"
           },
+          "403": {
+            "description": "The API key lacks workspace:read",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
           "404": {
-            "description": "Workspace not found, or the caller is not a member of it",
+            "description": "Workspace not found, the caller is not a member of it, or their role lacks workspace:read",
             "content": {
               "text/plain": {
                 "schema": {

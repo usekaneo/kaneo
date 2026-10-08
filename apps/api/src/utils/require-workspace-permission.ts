@@ -1,60 +1,15 @@
-import { type BuiltInRoleName, builtInRoles } from "@kaneo/permissions";
 import { and, eq } from "drizzle-orm";
 import type { Context, Next } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
 import { isInstanceAdmin } from "./is-instance-admin";
+import { type PermissionMap, roleAllows, satisfies } from "./role-permissions";
 
-type PermissionMap = Record<string, string[]>;
-
-function builtInRoleStatements(
-  role: string,
-): Record<string, readonly string[]> | null {
-  if (role in builtInRoles) {
-    return builtInRoles[role as BuiltInRoleName].statements as Record<
-      string,
-      readonly string[]
-    >;
-  }
-  return null;
-}
-
-function parsePermissionStatements(
-  raw: string,
-): Record<string, readonly string[]> | null {
-  let value: unknown;
-  try {
-    value = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return null;
-  }
-
-  // Only keep entries shaped like { [resource: string]: string[] }.
-  // Anything malformed is dropped so `satisfies()` never calls
-  // `.includes()` on a non-array.
-  const result: Record<string, string[]> = {};
-  for (const [resource, actions] of Object.entries(
-    value as Record<string, unknown>,
-  )) {
-    if (!Array.isArray(actions)) continue;
-    const filtered = actions.filter(
-      (action): action is string => typeof action === "string",
-    );
-    if (filtered.length > 0) {
-      result[resource] = filtered;
-    }
-  }
-  return result;
-}
-
-async function customRoleStatements(
+async function storedRolePermission(
   workspaceId: string,
   role: string,
   database: Pick<typeof db, "select"> = db,
-): Promise<Record<string, readonly string[]> | null> {
+): Promise<string | null> {
   const [row] = await database
     .select({ permission: schema.workspaceRoleTable.permission })
     .from(schema.workspaceRoleTable)
@@ -66,23 +21,20 @@ async function customRoleStatements(
     )
     .limit(1);
 
-  if (!row?.permission) return null;
-
-  return parsePermissionStatements(row.permission);
+  return row?.permission ?? null;
 }
 
-function satisfies(
-  statements: Record<string, readonly string[]>,
-  required: PermissionMap,
-): boolean {
-  for (const [resource, actions] of Object.entries(required)) {
-    const granted = statements[resource];
-    if (!granted) return false;
-    for (const action of actions) {
-      if (!granted.includes(action)) return false;
-    }
+function apiKeyAllows(c: Context, permissions: PermissionMap) {
+  const apiKey = c.get("apiKey") as
+    | { permissions?: Record<string, string[]> | null }
+    | undefined;
+  return !apiKey?.permissions || satisfies(apiKey.permissions, permissions);
+}
+
+function assertApiKeyScope(c: Context, permissions: PermissionMap) {
+  if (!apiKeyAllows(c, permissions)) {
+    throw new HTTPException(403, { message: "Insufficient API key scope" });
   }
-  return true;
 }
 
 export async function roleHasWorkspacePermission(
@@ -91,10 +43,11 @@ export async function roleHasWorkspacePermission(
   permissions: PermissionMap,
   database: Pick<typeof db, "select"> = db,
 ) {
-  const statements =
-    (await customRoleStatements(workspaceId, role, database)) ??
-    builtInRoleStatements(role);
-  return Boolean(statements && satisfies(statements, permissions));
+  return roleAllows(
+    role,
+    await storedRolePermission(workspaceId, role, database),
+    permissions,
+  );
 }
 
 export async function hasWorkspacePermission(
@@ -108,10 +61,7 @@ export async function hasWorkspacePermission(
   const workspaceId = workspaceIdOverride ?? c.get("workspaceId");
   if (!workspaceId) return false;
 
-  const apiKey = c.get("apiKey") as
-    | { permissions?: Record<string, string[]> | null }
-    | undefined;
-  if (apiKey?.permissions && !satisfies(apiKey.permissions, permissions)) {
+  if (!apiKeyAllows(c, permissions)) {
     return false;
   }
 
@@ -141,11 +91,14 @@ export async function hasWorkspacePermission(
   // viewer/member/admin users from a 403 if their workspace somehow
   // missed the seed (e.g., seed failed during workspace creation and
   // the boot-time backfill hasn't run yet).
-  const statements =
-    (await customRoleStatements(workspaceId, member.role)) ??
-    builtInRoleStatements(member.role);
+  return roleHasWorkspacePermission(workspaceId, member.role, permissions);
+}
 
-  return Boolean(statements && satisfies(statements, permissions));
+export function requireApiKeyScope(permissions: PermissionMap) {
+  return async (c: Context, next: Next) => {
+    assertApiKeyScope(c, permissions);
+    return next();
+  };
 }
 
 export function requireWorkspacePermission(permissions: PermissionMap) {
@@ -156,12 +109,7 @@ export function requireWorkspacePermission(permissions: PermissionMap) {
       });
     }
 
-    const apiKey = c.get("apiKey") as
-      | { permissions?: Record<string, string[]> | null }
-      | undefined;
-    if (apiKey?.permissions && !satisfies(apiKey.permissions, permissions)) {
-      throw new HTTPException(403, { message: "Insufficient API key scope" });
-    }
+    assertApiKeyScope(c, permissions);
 
     if (!(await hasWorkspacePermission(c, permissions))) {
       if (!c.get("userId")) {
