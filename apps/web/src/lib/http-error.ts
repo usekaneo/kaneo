@@ -1,8 +1,17 @@
+import i18n from "i18next";
 import {
   type ApiErrorDetails,
   type ApiErrorIssue,
   parseApiErrorBody,
 } from "./parse-api-error-body";
+
+function fallbackMessage(status: number): string {
+  return i18n.t(
+    status >= 500
+      ? "common:error.messages.server"
+      : "common:error.messages.unknown",
+  );
+}
 
 export class HttpError extends Error {
   status: number;
@@ -24,23 +33,23 @@ export class HttpError extends Error {
   ): Promise<HttpError> {
     const text = await response.text().catch(() => "");
     const body = parseApiErrorBody(text);
-    return body
-      ? new HttpError(response.status, body.message, body)
-      : new HttpError(response.status, text);
+    const message =
+      (body ? body.message : text).trim() || fallbackMessage(response.status);
+    return new HttpError(response.status, message, body ?? {});
   }
 }
 
 export function isUnauthorizedError(error: unknown): boolean {
-  if (error instanceof HttpError) return error.status === 401;
+  if (typeof error !== "object" || error === null) return false;
   // Recognize HttpError-shaped values even when their prototype differs.
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "name" in error &&
-    error.name === "HttpError" &&
-    "status" in error &&
-    error.status === 401
-  );
+  const isHttpError =
+    error instanceof HttpError ||
+    ("name" in error && error.name === "HttpError");
+  if (!isHttpError || !("status" in error) || error.status !== 401) {
+    return false;
+  }
+  const code = "code" in error ? error.code : undefined;
+  return code === undefined || code === "UNAUTHORIZED";
 }
 
 // Shared unauthorized redirect for both the React Query error cache and direct

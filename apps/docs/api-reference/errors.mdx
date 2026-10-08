@@ -54,8 +54,11 @@ An unknown path under `/api` returns `404` with `{"message": "Not found", "code"
 | `MISSING_PERMISSION` | 403 | Your workspace role does not grant the action. `missingPermissions` lists what is missing, such as `task:update`. |
 | `API_KEY_SCOPE` | 403 | The API key was created with permissions that do not cover the action. `missingPermissions` lists what is missing. |
 | `SESSION_REQUIRED` | 403 | The endpoint needs a signed-in user session and does not accept API keys. This covers account-level actions such as billing, instance administration, and some GitHub setup routes. |
+| `INTEGRATION_AUTH_FAILED` | 401 | A connected service such as GitLab rejected the token in the request, or could not be reached to check it. Your Kaneo session or API key is still valid. |
 
 `missingPermissions` only names permissions for the route you called in the workspace it targets.
+
+A `401` with `UNAUTHORIZED` means Kaneo did not accept your session or API key. Sign in again or replace the key only for that code, not for every `401`.
 
 Sign-in, sign-up, and workspace membership endpoints under `/api/auth/*` return the same `message` and `code` fields. Their codes describe the specific failure, for example `INVALID_EMAIL_OR_PASSWORD`, `PASSWORD_REGISTRATION_DISABLED`, or `CAPTCHA_FAILED`.
 

@@ -1,5 +1,7 @@
-import { describe, expect, it } from "vite-plus/test";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { HttpError, isUnauthorizedError } from "./http-error";
+
+vi.mock("i18next", () => ({ default: { t: (key: string) => key } }));
 
 describe("isUnauthorizedError", () => {
   it("recognizes a 401 HttpError with a different prototype", () => {
@@ -12,6 +14,11 @@ describe("isUnauthorizedError", () => {
     expect(isUnauthorizedError(new HttpError(401, "Session expired"))).toBe(
       true,
     );
+    expect(
+      isUnauthorizedError(
+        new HttpError(401, "Unauthorized", { code: "UNAUTHORIZED" }),
+      ),
+    ).toBe(true);
   });
 
   it.each([
@@ -24,6 +31,10 @@ describe("isUnauthorizedError", () => {
     { name: "HttpError", status: 500 },
     { name: "TypeError", status: 401 },
     { status: 401 },
+    new HttpError(401, "Invalid GitLab token or unauthorized.", {
+      code: "INTEGRATION_AUTH_FAILED",
+    }),
+    { name: "HttpError", status: 401, code: "INVALID_EMAIL_OR_PASSWORD" },
   ])("rejects other errors: %j", (error) => {
     expect(isUnauthorizedError(error)).toBe(false);
   });
@@ -79,13 +90,13 @@ describe("HttpError.fromResponse", () => {
     expect(error.code).toBeUndefined();
   });
 
-  it("keeps an empty message for an empty body", async () => {
+  it("falls back to the server error message for an empty 5xx body", async () => {
     const error = await HttpError.fromResponse(
       new Response(null, { status: 502 }),
     );
 
     expect(error.status).toBe(502);
-    expect(error.message).toBe("");
+    expect(error.message).toBe("common:error.messages.server");
     expect(error.code).toBeUndefined();
   });
 
@@ -96,6 +107,23 @@ describe("HttpError.fromResponse", () => {
     });
 
     expect(error.status).toBe(500);
-    expect(error.message).toBe("");
+    expect(error.message).toBe("common:error.messages.server");
+  });
+
+  it("falls back to the unknown error message for a blank 4xx body", async () => {
+    const error = await HttpError.fromResponse(
+      new Response("  \n", { status: 404 }),
+    );
+
+    expect(error.message).toBe("common:error.messages.unknown");
+  });
+
+  it("keeps the code when the JSON message is blank", async () => {
+    const error = await HttpError.fromResponse(
+      Response.json({ message: "", code: "CONFLICT" }, { status: 409 }),
+    );
+
+    expect(error.message).toBe("common:error.messages.unknown");
+    expect(error.code).toBe("CONFLICT");
   });
 });
