@@ -19,3 +19,7 @@ export function taskRef(resolved: ResolvedTask): TaskRef {
 export function taskLabel(task: TaskRef): string {
   return task.ticketId ?? task.id.slice(0, 8);
 }
+
+export function taskArgument(task: TaskRef): string {
+  return task.ticketId ?? task.id;
+}

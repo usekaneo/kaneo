@@ -2,10 +2,11 @@ import { Effect, Option } from "effect";
 import { createTaskRelation } from "../api/task-relations.js";
 import { describeError } from "../errors/describe.js";
 import { InvalidArgument } from "../errors/errors.js";
+import { shellQuote } from "../input/shell-quote.js";
 import { withSpinner } from "../output/spinner.js";
 import { type ResolvedTask, resolveTask } from "../tasks/resolve-task.js";
 import { toApiRelation } from "./relation-types.js";
-import { type TaskRef, taskLabel, taskRef } from "./task-ref.js";
+import { type TaskRef, taskArgument, taskLabel, taskRef } from "./task-ref.js";
 
 export const resolveParent = Effect.fn("relations.resolveParent")(function* (
   reference: Option.Option<string>,
@@ -47,7 +48,7 @@ export const linkToParent = Effect.fn("relations.linkToParent")(function* (
       (error) =>
         new InvalidArgument({
           message: `Created ${child.label}, but could not make it a subtask of ${parentLabel}: ${describeError(error).message}`,
-          hint: `Link it with kaneo task relation add ${child.label} subtask-of ${parentLabel}`,
+          hint: `Link it with kaneo task relation add ${shellQuote(child.label)} subtask-of ${shellQuote(taskArgument(ref))}`,
         }),
     ),
   );
