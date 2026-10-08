@@ -2790,7 +2790,9 @@
 			"taskAriaLabel": "{{title}}, {{range}}: taak openen",
 			"title": "Kalender",
 			"today": "Vandaag",
-			"loadError": "Taken konden niet worden geladen."
+			"loadError": "Taken konden niet worden geladen.",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

@@ -2878,7 +2878,9 @@
 			"taskAriaLabel": "{{title}}, {{range}}: открыть задачу",
 			"title": "Календарь",
 			"today": "Сегодня",
-			"loadError": "Не удалось загрузить задачи."
+			"loadError": "Не удалось загрузить задачи.",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

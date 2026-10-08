@@ -45,6 +45,9 @@ vi.mock("@/hooks/queries/task/use-get-tasks", () => ({
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutateAsync: m.update }),
 }));
+vi.mock("@/components/task/task-context-menu", () => ({
+  default: ({ children }: { children: ReactNode }) => children,
+}));
 vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
 vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: () => 1,

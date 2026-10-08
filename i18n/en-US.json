@@ -2665,7 +2665,9 @@
 			"moreTasks": "+{{count}} more",
 			"loadError": "Failed to load tasks.",
 			"dayTasksAriaLabel": "Show all tasks for {{date}}",
-			"taskAriaLabel": "{{title}}, {{range}}: open task"
+			"taskAriaLabel": "{{title}}, {{range}}: open task",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",

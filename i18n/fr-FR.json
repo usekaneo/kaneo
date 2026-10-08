@@ -2806,7 +2806,9 @@
 			"taskAriaLabel": "{{title}}, {{range}} : ouvrir la tâche",
 			"title": "Calendrier",
 			"today": "Aujourd’hui",
-			"loadError": "Échec du chargement des tâches."
+			"loadError": "Échec du chargement des tâches.",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

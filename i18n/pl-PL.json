@@ -2909,7 +2909,9 @@
 			"moreTasks": "+{{count}} więcej",
 			"loadError": "Nie udało się załadować zadań.",
 			"dayTasksAriaLabel": "Pokaż wszystkie zadania z dnia {{date}}",
-			"taskAriaLabel": "{{title}}, {{range}}: otwórz zadanie"
+			"taskAriaLabel": "{{title}}, {{range}}: otwórz zadanie",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"gantt": {
 			"hideTasks": "Ukryj zadania",

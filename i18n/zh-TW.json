@@ -2649,7 +2649,9 @@
 			"moreTasks": "+{{count}} 項",
 			"loadError": "載入任務失敗。",
 			"dayTasksAriaLabel": "查看 {{date}} 的所有任務",
-			"taskAriaLabel": "{{title}}，{{range}}：開啟任務"
+			"taskAriaLabel": "{{title}}，{{range}}：開啟任務",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} - 甘特圖",

@@ -2774,7 +2774,9 @@
 			"taskAriaLabel": "{{title}}, {{range}}: mở công việc",
 			"title": "Lịch",
 			"today": "Hôm nay",
-			"loadError": "Không thể tải công việc."
+			"loadError": "Không thể tải công việc.",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

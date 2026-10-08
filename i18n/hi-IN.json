@@ -2790,7 +2790,9 @@
 			"taskAriaLabel": "{{title}}, {{range}}: कार्य खोलें",
 			"title": "कैलेंडर",
 			"today": "आज",
-			"loadError": "कार्य लोड नहीं हो सके।"
+			"loadError": "कार्य लोड नहीं हो सके।",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

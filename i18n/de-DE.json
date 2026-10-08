@@ -2790,7 +2790,9 @@
 			"taskAriaLabel": "{{title}}, {{range}}: Aufgabe öffnen",
 			"title": "Kalender",
 			"today": "Heute",
-			"loadError": "Aufgaben konnten nicht geladen werden."
+			"loadError": "Aufgaben konnten nicht geladen werden.",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task"
 		},
 		"descriptionSearchLoading": "Vollständige Beschreibungen werden durchsucht…",
 		"descriptionSearchError": "Die Suche in Beschreibungen ist fehlgeschlagen. Ergebnisse sind möglicherweise unvollständig.",
