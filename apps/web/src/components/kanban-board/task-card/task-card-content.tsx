@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import {
   Calendar,
   CalendarClock,
+  CalendarDays,
   CalendarX,
   SlidersHorizontal,
 } from "lucide-react";
@@ -9,6 +10,12 @@ import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
+import TaskAssigneePopover from "@/components/task/task-assignee-popover";
+import TaskDueDatePopover from "@/components/task/task-due-date-popover";
+import TaskLabelsPopover from "@/components/task/task-labels-popover";
+import TaskPriorityPopover from "@/components/task/task-priority-popover";
+import TaskStartDatePopover from "@/components/task/task-start-date-popover";
+import TaskCardProperty from "@/components/task/task-property-trigger";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -30,9 +37,11 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import {
-  type DueDateStatus,
+  dueDateTextColors,
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
@@ -48,13 +57,6 @@ import TaskCardContextMenuContent from "../task-card-context-menu/task-card-cont
 import { TaskLabels } from "../task-labels";
 import type { DragListeners } from "./drag-listeners";
 import { useTaskCardClick } from "./use-task-card-click";
-
-const dueDateTextColors: Record<DueDateStatus, string> = {
-  overdue: "text-destructive-foreground",
-  "due-soon": "text-warning-foreground",
-  "far-future": "text-muted-foreground",
-  "no-due-date": "text-muted-foreground",
-};
 
 type TaskCardContentProps = {
   task: Task;
@@ -72,6 +74,7 @@ function TaskCardContent({
   dragListeners,
 }: TaskCardContentProps) {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
   const { project } = useProjectStore();
   const taskIsCompleted =
     isFinalColumn ?? isTaskCompleted(task.status, project?.columns);
@@ -79,6 +82,11 @@ function TaskCardContent({
   const isOverdue = dueDateStatus === "overdue";
   const hasPriority = Boolean(task.priority) && task.priority !== "no-priority";
   const { data: workspace } = useActiveWorkspace();
+  const { canUpdateTasks, canAssignTasks, canUpdateLabels } =
+    useWorkspacePermission();
+  const canEdit = !isMobile && Boolean(workspace) && canUpdateTasks();
+  const canAssign = !isMobile && Boolean(workspace) && canAssignTasks();
+  const canEditLabels = !isMobile && Boolean(workspace) && canUpdateLabels();
   const { mutateAsync: deleteTask } = useDeleteTask();
   const {
     showAssignees,
@@ -162,7 +170,7 @@ function TaskCardContent({
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             className={cn(
-              "group relative rounded-lg border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98]",
+              "group relative rounded-lg border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out motion-safe:active:not-has-[button:active]:scale-[0.98]",
               disableDragDrop ? "cursor-default" : "cursor-move",
               // Finished work steps back so open cards draw the eye.
               taskIsCompleted
@@ -187,30 +195,45 @@ function TaskCardContent({
 
             {showAssignees && (
               <div className="absolute top-3 right-3">
-                {task.userId ? (
-                  <Avatar className="h-5 w-5">
-                    <AvatarImage
-                      src={assignee?.user?.image ?? ""}
-                      alt={assignee?.user?.name || ""}
-                    />
-                    <AvatarFallback className="text-xs font-medium border border-border/30">
-                      {getInitials(assignee?.user?.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <div
-                    className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-muted"
-                    title={t("tasks:assignee.unassigned")}
-                  >
-                    <span className="text-[10px] font-medium text-muted-foreground">
-                      ?
+                <TaskCardProperty
+                  label={t("tasks:boardFilters.subjects.assignee")}
+                  variant="avatar"
+                  canEdit={canAssign}
+                  renderEditor={(trigger) => (
+                    <TaskAssigneePopover
+                      task={task}
+                      workspaceId={workspace?.id ?? ""}
+                      defaultOpen
+                    >
+                      {trigger}
+                    </TaskAssigneePopover>
+                  )}
+                >
+                  {task.userId ? (
+                    <Avatar className="h-5 w-5">
+                      <AvatarImage
+                        src={assignee?.user?.image ?? ""}
+                        alt={assignee?.user?.name || ""}
+                      />
+                      <AvatarFallback className="text-xs font-medium border border-border/30">
+                        {getInitials(assignee?.user?.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <span
+                      className="flex h-5 w-5 items-center justify-center rounded-full border border-border bg-muted"
+                      title={t("tasks:assignee.unassigned")}
+                    >
+                      <span className="text-[10px] font-medium text-muted-foreground">
+                        ?
+                      </span>
                     </span>
-                  </div>
-                )}
+                  )}
+                </TaskCardProperty>
               </div>
             )}
 
-            <div className={cn("pr-6", !taskIsCompleted && "mb-2.5")}>
+            <div className={cn("pr-8", !taskIsCompleted && "mb-2.5")}>
               <div
                 className={cn(
                   "overflow-hidden break-words leading-5 font-medium text-[15px]",
@@ -232,7 +255,21 @@ function TaskCardContent({
 
             {!taskIsCompleted && showLabels && Boolean(task.labels?.length) && (
               <div className="mb-2.5">
-                <TaskLabels labels={task.labels ?? []} />
+                <TaskCardProperty
+                  label={t("tasks:properties.labels")}
+                  canEdit={canEditLabels}
+                  renderEditor={(trigger) => (
+                    <TaskLabelsPopover
+                      task={task}
+                      workspaceId={workspace?.id ?? ""}
+                      defaultOpen
+                    >
+                      {trigger}
+                    </TaskLabelsPopover>
+                  )}
+                >
+                  <TaskLabels labels={task.labels ?? []} />
+                </TaskCardProperty>
               </div>
             )}
 
@@ -243,12 +280,22 @@ function TaskCardContent({
               )}
             >
               {showPriority && hasPriority && (
-                <span
-                  className="inline-flex h-5.5 items-center"
-                  title={getPriorityLabel(task.priority ?? "")}
+                <TaskCardProperty
+                  label={getPriorityLabel(task.priority ?? "")}
+                  canEdit={canEdit}
+                  renderEditor={(trigger) => (
+                    <TaskPriorityPopover task={task} defaultOpen>
+                      {trigger}
+                    </TaskPriorityPopover>
+                  )}
                 >
-                  {getPriorityIcon(task.priority ?? "")}
-                </span>
+                  <span
+                    className="inline-flex h-5.5 items-center"
+                    title={getPriorityLabel(task.priority ?? "")}
+                  >
+                    {getPriorityIcon(task.priority ?? "")}
+                  </span>
+                </TaskCardProperty>
               )}
 
               {activeCustomFieldValues.length > 0 && (
@@ -318,26 +365,52 @@ function TaskCardContent({
 
               <TaskProgressBadges task={task} />
 
-              {showDueDates && task.dueDate && (
-                <div
-                  className={cn(
-                    "flex h-5.5 items-center gap-1 text-[10px]",
-                    isOverdue && "font-medium",
-                    dueDateTextColors[dueDateStatus],
+              {showDueDates && task.startDate && (
+                <TaskCardProperty
+                  label={t("tasks:properties.startDate")}
+                  canEdit={canEdit}
+                  renderEditor={(trigger) => (
+                    <TaskStartDatePopover task={task} defaultOpen>
+                      {trigger}
+                    </TaskStartDatePopover>
                   )}
                 >
-                  {dueDateStatus === "overdue" && (
-                    <CalendarX className="w-3 h-3" />
+                  <span className="flex h-5.5 items-center gap-1 text-[10px] text-muted-foreground">
+                    <CalendarDays className="size-3" />
+                    <span>{format(new Date(task.startDate), "MMM d")}</span>
+                  </span>
+                </TaskCardProperty>
+              )}
+              {showDueDates && task.dueDate && (
+                <TaskCardProperty
+                  label={t("tasks:boardFilters.subjects.dueDate")}
+                  canEdit={canEdit}
+                  renderEditor={(trigger) => (
+                    <TaskDueDatePopover task={task} defaultOpen>
+                      {trigger}
+                    </TaskDueDatePopover>
                   )}
-                  {dueDateStatus === "due-soon" && (
-                    <CalendarClock className="w-3 h-3" />
-                  )}
-                  {(dueDateStatus === "far-future" ||
-                    dueDateStatus === "no-due-date") && (
-                    <Calendar className="w-3 h-3" />
-                  )}
-                  <span>{format(new Date(task.dueDate), "MMM d")}</span>
-                </div>
+                >
+                  <span
+                    className={cn(
+                      "flex h-5.5 items-center gap-1 text-[10px]",
+                      isOverdue && "font-medium",
+                      dueDateTextColors[dueDateStatus],
+                    )}
+                  >
+                    {dueDateStatus === "overdue" && (
+                      <CalendarX className="w-3 h-3" />
+                    )}
+                    {dueDateStatus === "due-soon" && (
+                      <CalendarClock className="w-3 h-3" />
+                    )}
+                    {(dueDateStatus === "far-future" ||
+                      dueDateStatus === "no-due-date") && (
+                      <Calendar className="w-3 h-3" />
+                    )}
+                    <span>{format(new Date(task.dueDate), "MMM d")}</span>
+                  </span>
+                </TaskCardProperty>
               )}
 
               <TaskPullRequests externalLinks={task.externalLinks} />

@@ -17,6 +17,7 @@ import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
 type TaskPriorityPopoverProps = {
+  defaultOpen?: boolean;
   task: Task;
   children: React.ReactNode;
 };
@@ -32,9 +33,10 @@ const priorityOptions = [
 export default function TaskPriorityPopover({
   task,
   children,
+  defaultOpen = false,
 }: TaskPriorityPopoverProps) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
