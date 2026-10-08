@@ -24,6 +24,14 @@ const ChangedMember = Schema.Struct({ id: Schema.String, role: Schema.String });
 
 const RemovedMember = Schema.Struct({ member: ChangedMember });
 
+const UpdatedMember = Schema.Union([ChangedMember, RemovedMember]);
+
+export function unwrapMember(
+  value: typeof UpdatedMember.Type,
+): typeof ChangedMember.Type {
+  return "member" in value ? value.member : value;
+}
+
 const PermissionCheck = Schema.Struct({ success: Schema.Boolean });
 
 const RoleList = Schema.Array(Schema.Struct({ role: Schema.String }));
@@ -99,10 +107,11 @@ export const updateOrganizationMemberRole = Effect.fnUntraced(function* (
   role: string,
 ) {
   const api = yield* KaneoApi;
-  return yield* api.request(
+  const updated = yield* api.request(
     "POST",
     "/api/auth/organization/update-member-role",
-    ChangedMember,
+    UpdatedMember,
     { body: { organizationId: workspaceId, memberId, role } },
   );
+  return unwrapMember(updated);
 });
