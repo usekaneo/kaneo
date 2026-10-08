@@ -7,6 +7,7 @@ import {
   createTask,
   type Priority,
 } from "../../api/task-mutations.js";
+import { describeError } from "../../errors/describe.js";
 import { Cancelled, InvalidArgument } from "../../errors/errors.js";
 import { toTaskLabelJson } from "../../labels/label-json.js";
 import { resolveLabels } from "../../labels/resolve-labels.js";
@@ -147,17 +148,27 @@ export const runTaskCreate = Effect.fn("command.task.create")(
     const created = yield* withSpinner("Creating task")(
       createTask(project.id, body),
     );
+    const createdLabel =
+      ticketId(project.slug, created.number) ?? created.id.slice(0, 8);
     const attached: ReadonlyArray<Label> =
       labels.length > 0
         ? yield* withSpinner("Adding labels")(
             Effect.forEach(labels, (label) =>
               attachLabelToTask(label.id, created.id),
             ),
+          ).pipe(
+            Effect.mapError(
+              (error) =>
+                new InvalidArgument({
+                  message: `Created ${createdLabel}, but could not add the labels: ${describeError(error).message}`,
+                  hint: `Add them with kaneo task edit ${createdLabel} ${labels.map((label) => `--add-label "${label.name}"`).join(" ")}`,
+                }),
+            ),
           )
         : [];
     const parentRef = yield* linkToParent(parent, {
       id: created.id,
-      label: ticketId(project.slug, created.number) ?? created.id.slice(0, 8),
+      label: createdLabel,
     });
 
     const json = toTaskDetailJson({

@@ -1,7 +1,11 @@
 import { Effect } from "effect";
 import { renderBlocks } from "./blocks.js";
 import type { CellSize } from "./cell-size.js";
-import { canDecode, decodeImage } from "./decode-image.js";
+import {
+  canDecode,
+  decodeImage,
+  MAX_PASSTHROUGH_PIXELS,
+} from "./decode-image.js";
 import {
   BLOCK_CELL,
   fitImage,
@@ -38,6 +42,18 @@ function unsupported(reason: string): ImageArt {
 
 function art(lines: ReadonlyArray<string>, size: CellSize): ImageArt {
   return { _tag: "Art", lines, ...size };
+}
+
+function fitsPassthrough(info: ImageInfo): boolean {
+  return (
+    info.width > 0 &&
+    info.height > 0 &&
+    info.width * info.height <= MAX_PASSTHROUGH_PIXELS
+  );
+}
+
+function tooLarge(info: ImageInfo): ImageArt {
+  return unsupported(`${info.width}x${info.height} is too large to show`);
 }
 
 function notShown(info: ImageInfo): ImageArt {
@@ -85,11 +101,13 @@ export const imageArt = Effect.fnUntraced(function* (
       if (!ITERM_FORMATS.has(info.format) || info.width === 0) {
         return notShown(info);
       }
+      if (!fitsPassthrough(info)) return tooLarge(info);
       const size = graphicsSize();
       return art([encodeIterm(bytes, size, tmux)], size);
     }
     case "kitty": {
       if (info.format === "png" && info.width > 0) {
+        if (!fitsPassthrough(info)) return tooLarge(info);
         const size = graphicsSize();
         return art([encodeKitty({ format: "png", bytes }, size, tmux)], size);
       }

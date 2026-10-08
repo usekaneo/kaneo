@@ -23,6 +23,14 @@ const gif = new Uint8Array([
   0,
 ]);
 
+function withDeclaredSize(png: Uint8Array, width: number, height: number) {
+  const copy = new Uint8Array(png);
+  const view = new DataView(copy.buffer);
+  view.setUint32(16, width);
+  view.setUint32(20, height);
+  return copy;
+}
+
 const run = (bytes: Uint8Array, at: ImageTarget, maxColumns = 64) =>
   Effect.runPromise(imageArt(bytes, at, { maxColumns }));
 
@@ -64,6 +72,16 @@ describe("imageArt", () => {
     expect(art._tag).toBe("Art");
     if (art._tag === "Art") {
       expect(art.lines[0]).toContain("width=2;height=1;preserveAspectRatio=1");
+    }
+  });
+
+  it("refuses images whose declared size would overload the terminal", async () => {
+    const huge = withDeclaredSize(red, 100_000, 100_000);
+    for (const protocol of ["kitty", "iterm"] as const) {
+      expect(await run(huge, target(protocol))).toEqual({
+        _tag: "Unsupported",
+        reason: "100000x100000 is too large to show",
+      });
     }
   });
 

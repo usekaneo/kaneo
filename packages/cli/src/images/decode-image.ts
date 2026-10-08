@@ -3,6 +3,8 @@ import type { RgbaImage } from "./rgba.js";
 
 export const MAX_DECODE_PIXELS = 40_000_000;
 
+export const MAX_PASSTHROUGH_PIXELS = 4096 * 4096;
+
 function asBuffer(bytes: Uint8Array): Buffer {
   return Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
 }
