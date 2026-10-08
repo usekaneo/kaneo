@@ -11,7 +11,8 @@ export async function checkPullRequest(
   fetcher = fetch,
   scan = scanFiles,
 ) {
-  const number = event.pull_request?.number;
+  const number =
+    event.pull_request?.number ?? Number(event.inputs?.pull_request_number);
   if (!Number.isSafeInteger(number) || number <= 0) {
     throw new Error("Invalid pull request number.");
   }

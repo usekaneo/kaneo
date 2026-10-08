@@ -1,6 +1,13 @@
 name: AI comment labeler
+run-name: "AI comment scan for PR #${{ github.event.pull_request.number || inputs.pull_request_number }}"
 
 on:
+  workflow_dispatch:
+    inputs:
+      pull_request_number:
+        description: Open pull request number
+        required: true
+        type: string
   # zizmor: ignore[dangerous-triggers] Executes only trusted workflow code;
   # PR blobs are fetched as text through the API and parsed, never executed.
   pull_request_target:
@@ -12,7 +19,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: slop-labeler-${{ github.event.pull_request.number }}
+  group: slop-labeler-${{ github.event.pull_request.number || inputs.pull_request_number }}
   cancel-in-progress: true
 
 jobs:

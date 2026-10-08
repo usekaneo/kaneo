@@ -12,6 +12,42 @@ import {
   event,
 } from "./test-fixtures.mjs";
 
+test("manual runs validate the PR number and use the same author exclusion", async () => {
+  const dispatch = { inputs: { pull_request_number: "42" } };
+  const contributor = fixture();
+  assert.equal(
+    await checkPullRequest(dispatch, env, contributor.fetcher, flagged),
+    "flagged",
+  );
+  const maintainer = fixture({ authorAccess: { permission: "write" } });
+  assert.equal(
+    await checkPullRequest(dispatch, env, maintainer.fetcher, flagged),
+    "maintainer",
+  );
+  assert.equal(writes(maintainer.state).length, 0);
+  for (const number of [
+    undefined,
+    "",
+    "0",
+    "-1",
+    "42.5",
+    "invalid",
+    "9007199254740992",
+  ]) {
+    const { state, fetcher } = fixture();
+    await assert.rejects(
+      checkPullRequest(
+        { inputs: { pull_request_number: number } },
+        env,
+        fetcher,
+        flagged,
+      ),
+      /Invalid pull request number/,
+    );
+    assert.equal(state.calls.length, 0);
+  }
+});
+
 test("adds the label and one advisory comment; reruns neither duplicate nor rewrite it", async () => {
   const { state, fetcher } = fixture({ labelExists: false });
   assert.equal(await checkPullRequest(event, env, fetcher, flagged), "flagged");

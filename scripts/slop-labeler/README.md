@@ -14,6 +14,8 @@ doesn't mean 99% accuracy.
 PR code is fetched as text and parsed, never executed. The workflow starts
 running once merged into the default branch.
 
+To scan an existing PR, run the workflow manually with its PR number.
+
 Run the tests:
 
 ```sh
