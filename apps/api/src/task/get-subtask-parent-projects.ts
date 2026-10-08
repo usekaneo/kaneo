@@ -18,12 +18,13 @@ export async function getSubtaskParentProjects(taskIds: string[]) {
     );
 }
 
-/** Deleted relations are gone by broadcast time; their source task still exists. */
-export async function getRelationSourceProject(sourceTaskId: string) {
+/** Resolve surviving endpoints even after the relation has been removed. */
+export async function getRelationTaskProjects(taskIds: string[]) {
+  if (taskIds.length === 0) return [];
   return db
-    .select({ projectId: taskTable.projectId })
+    .selectDistinct({ projectId: taskTable.projectId })
     .from(taskTable)
-    .where(eq(taskTable.id, sourceTaskId));
+    .where(inArray(taskTable.id, taskIds));
 }
 
 /** Find affected parent boards before a project cascade or column change. */

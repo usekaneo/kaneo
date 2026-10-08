@@ -10158,6 +10158,45 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"unlink": {
+							"type": "string"
+						},
+						"unlinkParent": {
+							"type": "string"
+						},
+						"chooseParent": {
+							"type": "string"
+						},
+						"removeParent": {
+							"type": "string"
+						},
+						"removeChild": {
+							"type": "string"
+						},
+						"addExisting": {
+							"type": "string"
+						},
+						"searchPlaceholder": {
+							"type": "string"
+						},
+						"searchPrompt": {
+							"type": "string"
+						},
+						"searchError": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"loading": {
+							"type": "string"
+						},
+						"linkError": {
+							"type": "string"
+						},
+						"unlinkError": {
+							"type": "string"
+						},
 						"progress": {
 							"type": "string"
 						},
@@ -10199,6 +10238,19 @@
 						}
 					},
 					"required": [
+						"unlink",
+						"unlinkParent",
+						"chooseParent",
+						"removeParent",
+						"removeChild",
+						"addExisting",
+						"searchPlaceholder",
+						"searchPrompt",
+						"searchError",
+						"loadError",
+						"loading",
+						"linkError",
+						"unlinkError",
 						"progress",
 						"noCompletionColumn",
 						"title",
@@ -10834,6 +10886,12 @@
 						},
 						"taskAriaLabel": {
 							"type": "string"
+						},
+						"createTaskOnDay": {
+							"type": "string"
+						},
+						"newTask": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -10846,7 +10904,9 @@
 						"noTasksSubtitle",
 						"loadError",
 						"dayTasksAriaLabel",
-						"taskAriaLabel"
+						"taskAriaLabel",
+						"createTaskOnDay",
+						"newTask"
 					]
 				},
 				"gantt": {

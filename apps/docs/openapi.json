@@ -10766,7 +10766,7 @@
           "Tasks"
         ],
         "summary": "Duplicate a task",
-        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Copying parent links also requires task:update. Comments, time entries and child tasks are not copied.",
+        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and its accessible same-workspace parent link. Copying a parent link also requires task:update; legacy tasks with multiple accessible parents must unlink extra parents first. Comments, time entries and child tasks are not copied.",
         "parameters": [
           {
             "schema": {
@@ -10844,7 +10844,7 @@
             }
           },
           "409": {
-            "description": "Task column has reached its capacity",
+            "description": "Task column has reached its capacity, or the task has multiple parents",
             "content": {
               "application/json": {
                 "schema": {
@@ -20038,7 +20038,7 @@
           "Task Relations"
         ],
         "summary": "Create task relation",
-        "description": "Link two tasks. Authorization is scoped to the source task's workspace.",
+        "description": "Link two tasks in the same workspace. Authorization is scoped to the source task's workspace and both projects must be accessible. For subtasks, the source is the parent and the target is the child; the child must not already have a parent and circular hierarchies are rejected.",
         "requestBody": {
           "required": true,
           "content": {
@@ -20082,7 +20082,7 @@
             }
           },
           "400": {
-            "description": "Invalid body",
+            "description": "Invalid body, self-relation, or circular subtask hierarchy",
             "content": {
               "application/json": {
                 "schema": {
@@ -20122,7 +20122,7 @@
             }
           },
           "409": {
-            "description": "This relation already exists",
+            "description": "This relation already exists, or the child already has a parent",
             "content": {
               "application/json": {
                 "schema": {

@@ -12,6 +12,8 @@ import moveTask from "../../apps/api/src/task/controllers/move-task";
 import updateTaskStatus from "../../apps/api/src/task/controllers/update-task-status";
 import * as subtaskParents from "../../apps/api/src/task/get-subtask-parent-projects";
 import getTaskRelations from "../../apps/api/src/task-relation/controllers/get-task-relations";
+import createTaskRelation from "../../apps/api/src/task-relation/controllers/create-task-relation";
+import deleteTaskRelation from "../../apps/api/src/task-relation/controllers/delete-task-relation";
 import {
   addConnection,
   initializeWebSocketAdapter,
@@ -65,6 +67,67 @@ async function countsFor(projectId: string, taskId: string) {
 
 describe("API integration: subtask counters", () => {
   beforeEach(resetTestDatabase);
+
+  it("refreshes the other project when a cross-project subtask is linked or unlinked", async () => {
+    const member = await createWorkspaceMember();
+    const parentProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const childProject = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const parent = await addTask(parentProject.project.id);
+    const child = await addTask(childProject.project.id);
+    await initializeWebSocketAdapter();
+    const send = vi.fn();
+    const connection = addConnection(
+      childProject.project.id,
+      { send } as never,
+      member.user.id,
+      "same-window",
+      member.workspace.id,
+    );
+    try {
+      const relation = await eventContext.run(
+        { initiatorId: "same-window" },
+        () =>
+          createTaskRelation({
+            sourceTaskId: parent.id,
+            targetTaskId: child.id,
+            relationType: "subtask",
+            userId: member.user.id,
+            workspaceId: member.workspace.id,
+          }),
+      );
+      await vi.waitFor(() => expect(send).toHaveBeenCalled());
+      expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+        type: "TASK_RELATION_UPDATED",
+        projectId: childProject.project.id,
+        taskId: "",
+      });
+      expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+        completed: 0,
+        total: 1,
+      });
+      send.mockClear();
+      await eventContext.run({ initiatorId: "same-window" }, () =>
+        deleteTaskRelation(relation.id, member.user.id, member.workspace.id),
+      );
+      await vi.waitFor(() => expect(send).toHaveBeenCalled());
+      expect(JSON.parse(send.mock.calls[0][0])).toEqual({
+        type: "TASK_RELATION_UPDATED",
+        projectId: childProject.project.id,
+        taskId: "",
+      });
+      expect(await countsFor(parentProject.project.id, parent.id)).toEqual({
+        completed: 0,
+        total: 0,
+      });
+    } finally {
+      removeConnection(childProject.project.id, connection);
+      await shutdownWebSocketAdapter();
+    }
+  });
 
   it("counts direct children across filters and pagination, excluding other relations and incoming parents", async () => {
     const member = await createWorkspaceMember();

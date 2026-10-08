@@ -2520,7 +2520,20 @@
 			"deleteAction": "Taak verwijderen",
 			"completeAria": "Markeer subtaak als voltooid",
 			"progress": "{{completed}} van {{total}} subtaken voltooid",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"addExisting": "Add existing task",
+			"chooseParent": "Choose parent task",
+			"linkError": "Failed to link subtask",
+			"loadError": "Could not load parent tasks.",
+			"loading": "Loading tasks...",
+			"removeChild": "Unlink subtask {{title}}",
+			"removeParent": "Remove parent {{title}}",
+			"searchError": "Could not load tasks. Try searching again.",
+			"searchPlaceholder": "Search tasks by title or ID...",
+			"searchPrompt": "Search for a task in this workspace",
+			"unlinkError": "Failed to remove parent",
+			"unlink": "Unlink",
+			"unlinkParent": "Unlink Parent"
 		},
 		"properties": {
 			"title": "Eigenschappen",

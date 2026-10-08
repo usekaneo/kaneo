@@ -1,6 +1,5 @@
-import { useNavigate } from "@tanstack/react-router";
 import { format, isValid, parseISO } from "date-fns";
-import { ArrowUpRight, CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
@@ -53,12 +52,12 @@ import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-cu
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
-import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import type { ExternalLink } from "@/types/external-link";
 import TaskDescription from "./task-description";
+import TaskParents from "./task-parents";
 import TaskRelations from "./task-relations";
 import TaskSubtasks from "./task-subtasks";
 import TaskTitle from "./task-title";
@@ -114,13 +113,11 @@ export default function TaskDetailsContent({
   className,
 }: TaskDetailsContentProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { data: task } = useGetTask(taskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: activities = [] } = useGetActivitiesByTaskId(taskId ?? "");
   const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
     useExternalLinks(taskId ?? "");
-  const { data: relations = [] } = useGetTaskRelations(taskId ?? "");
   const { user } = useAuth();
 
   const { data: customFields = [] } = useGetCustomFieldsByProject(
@@ -204,38 +201,12 @@ export default function TaskDetailsContent({
     }
   };
 
-  const parentRelation = relations.find(
-    (rel) => rel.relationType === "subtask" && rel.targetTaskId === taskId,
-  );
-  const parentTask = parentRelation?.sourceTask;
-
   if (!taskId) return null;
 
   return (
     <div className={`${className} gap-4`}>
       <div className="flex flex-col gap-2.5">
-        {parentTask && (
-          <button
-            type="button"
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors w-fit"
-            onClick={() =>
-              navigate({
-                to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-                params: {
-                  workspaceId,
-                  projectId,
-                  taskId: parentTask.id,
-                },
-              })
-            }
-          >
-            <ArrowUpRight className="size-3" />
-            <span>
-              {t("tasks:detail.subtaskOf")}{" "}
-              <span className="font-medium">{parentTask.title}</span>
-            </span>
-          </button>
-        )}
+        <TaskParents taskId={taskId} workspaceId={workspaceId} />
 
         <p className="text-xs font-semibold text-foreground/70">
           {project?.slug}-{task?.number}

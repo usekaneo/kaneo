@@ -2505,7 +2505,20 @@
 			"deleteAction": "删除任务",
 			"completeAria": "将子任务标记为完成",
 			"progress": "已完成 {{completed}}/{{total}} 个子任务",
-			"noCompletionColumn": "此项目没有可用于完成或重新打开该子任务的列。"
+			"noCompletionColumn": "此项目没有可用于完成或重新打开该子任务的列。",
+			"addExisting": "Add existing task",
+			"chooseParent": "Choose parent task",
+			"linkError": "Failed to link subtask",
+			"loadError": "Could not load parent tasks.",
+			"loading": "Loading tasks...",
+			"removeChild": "Unlink subtask {{title}}",
+			"removeParent": "Remove parent {{title}}",
+			"searchError": "Could not load tasks. Try searching again.",
+			"searchPlaceholder": "Search tasks by title or ID...",
+			"searchPrompt": "Search for a task in this workspace",
+			"unlinkError": "Failed to remove parent",
+			"unlink": "Unlink",
+			"unlinkParent": "Unlink Parent"
 		},
 		"properties": {
 			"title": "属性",

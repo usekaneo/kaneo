@@ -119,6 +119,39 @@ describe("API integration: task duplication", () => {
     });
   });
 
+  it("does not copy multiple legacy parent links into a new task", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const child = await seedTask({
+      projectId: project.id,
+      columnId: columns.todo.id,
+    });
+    const parents = await db.insert(schema.taskTable).values([
+      { projectId: project.id, title: "First parent", number: 2 },
+      { projectId: project.id, title: "Second parent", number: 3 },
+    ]).returning();
+    await db.insert(schema.taskRelationTable).values(
+      parents.map((parent) => ({
+        sourceTaskId: parent.id,
+        targetTaskId: child.id,
+        relationType: "subtask",
+      })),
+    );
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const response = await requestDuplicate(app, child.id);
+    expect(response.status).toBe(409);
+    expect(await response.json()).toEqual({
+      message: "Unlink extra parents before duplicating this task",
+      code: "CONFLICT",
+    });
+    expect(await db.query.taskTable.findMany()).toHaveLength(3);
+    expect(await db.query.taskRelationTable.findMany()).toHaveLength(2);
+    expect(publishEvent).not.toHaveBeenCalled();
+  });
+
   it("blocks a viewer from duplicating a task (viewer role lacks task:create)", async () => {
     const viewer = await createWorkspaceMember({ role: "viewer" });
     const { project, columns } = await createProjectFixture({

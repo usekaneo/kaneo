@@ -1,6 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
+import {
+  ArrowUpRight,
+  ChevronDown,
+  ChevronRight,
+  Link2,
+  Plus,
+  Unlink,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -25,6 +32,7 @@ import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
+import useDeleteTaskRelation from "@/hooks/mutations/task-relation/use-delete-task-relation";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -34,6 +42,7 @@ import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
 import type Task from "@/types/task";
 import SubtaskRow from "./subtask-row";
+import SubtaskLinkPicker from "./subtask-link-picker";
 
 type TaskSubtasksProps = {
   taskId: string;
@@ -52,6 +61,9 @@ export default function TaskSubtasks({
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
+  const [linkDirection, setLinkDirection] = useState<"parent" | "child" | null>(
+    null,
+  );
   const [newTitle, setNewTitle] = useState("");
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -65,6 +77,7 @@ export default function TaskSubtasks({
   );
   const createTask = useCreateTask();
   const createRelation = useCreateTaskRelation();
+  const deleteRelation = useDeleteTaskRelation(taskId);
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { data: columns = [], isLoading: isLoadingColumns } =
@@ -86,6 +99,10 @@ export default function TaskSubtasks({
       (item): item is typeof item & { task: NonNullable<typeof item.task> } =>
         item.task !== null,
     );
+  const parents = relations.filter(
+    (relation) =>
+      relation.relationType === "subtask" && relation.targetTaskId === taskId,
+  );
 
   const completedCount = subtasks.filter((s) => s.task.isCompleted).length;
   const totalCount = subtasks.length;
@@ -311,6 +328,25 @@ export default function TaskSubtasks({
     }
   };
 
+  const handleUnlink = async (relationId: string, childId?: string) => {
+    try {
+      await deleteRelation.mutateAsync(relationId);
+      if (childId) {
+        setSelectedIds((previous) => {
+          const next = new Set(previous);
+          next.delete(childId);
+          return next;
+        });
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:subtasks.unlinkError"),
+      );
+    }
+  };
+
   return (
     <>
       <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
@@ -341,18 +377,63 @@ export default function TaskSubtasks({
               </span>
             )}
           </div>
-          {canEdit && canCreate && (
-            <Button
-              variant="ghost"
-              size="xs"
-              className="text-muted-foreground"
-              aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
-              onClick={() => setIsAdding(true)}
-              disabled={!canCreateSubtask}
-            >
-              <Plus className="size-3.5" />
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            {canEdit &&
+              parents.map((parent) => (
+                <Button
+                  key={parent.id}
+                  variant="ghost"
+                  size="xs"
+                  className="text-muted-foreground"
+                  title={t("tasks:subtasks.removeParent", {
+                    title: parent.sourceTask?.title ?? "",
+                  })}
+                  disabled={deleteRelation.isPending}
+                  onClick={() => void handleUnlink(parent.id)}
+                >
+                  <Unlink className="size-3.5" />
+                  {t("tasks:subtasks.unlinkParent")}
+                  {parents.length > 1 && (
+                    <span className="max-w-32 truncate">{parent.sourceTask?.title}</span>
+                  )}
+                </Button>
+              ))}
+            {canEdit && parents.length === 0 && (
+              <Button
+                variant="ghost"
+                size="xs"
+                className="text-muted-foreground"
+                onClick={() => setLinkDirection("parent")}
+              >
+                <ArrowUpRight className="size-3.5" />
+                {t("tasks:subtasks.chooseParent")}
+              </Button>
+            )}
+            {canEdit && (
+              <Button
+                variant="ghost"
+                size="xs"
+                className="text-muted-foreground"
+                aria-label={t("tasks:subtasks.addExisting")}
+                onClick={() => setLinkDirection("child")}
+              >
+                <Link2 className="size-3.5" />
+                {t("tasks:subtasks.addExisting")}
+              </Button>
+            )}
+            {canEdit && canCreate && (
+              <Button
+                variant="ghost"
+                size="xs"
+                className="text-muted-foreground"
+                aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
+                onClick={() => setIsAdding(true)}
+                disabled={!canCreateSubtask}
+              >
+                <Plus className="size-3.5" />
+              </Button>
+            )}
+          </div>
         </div>
 
         <CollapsibleContent>
@@ -397,6 +478,10 @@ export default function TaskSubtasks({
                       })
                     }
                     onDeleteClick={() => setDeleteTaskId(subtask.task.id)}
+                    unlinkPending={deleteRelation.isPending}
+                    onUnlink={() =>
+                      void handleUnlink(subtask.relation.id, subtask.task.id)
+                    }
                   />
                 );
               })}
@@ -450,6 +535,14 @@ export default function TaskSubtasks({
           )}
         </CollapsibleContent>
       </Collapsible>
+      {linkDirection && (
+        <SubtaskLinkPicker
+          taskId={taskId}
+          workspaceId={workspaceId}
+          direction={linkDirection}
+          onClose={() => setLinkDirection(null)}
+        />
+      )}
 
       <AlertDialog
         open={!!deleteTaskId}

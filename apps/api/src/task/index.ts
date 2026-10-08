@@ -316,7 +316,7 @@ const duplicateTaskRoute = createRoute({
   tags: ["Tasks"],
   summary: "Duplicate a task",
   description:
-    "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Copying parent links also requires task:update. Comments, time entries and child tasks are not copied.",
+    "Copy a task into the same project and column, including custom fields, labels, description assets and its accessible same-workspace parent link. Copying a parent link also requires task:update; legacy tasks with multiple accessible parents must unlink extra parents first. Comments, time entries and child tasks are not copied.",
   middleware: [
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["create"] }),
@@ -337,7 +337,7 @@ const duplicateTaskRoute = createRoute({
       "No workspace access, missing task:create, or missing task:update when copying parent links",
     ),
     404: errorResponse("Task or project not found"),
-    409: errorResponse("Task column has reached its capacity"),
+    409: errorResponse("Task column has reached its capacity, or the task has multiple parents"),
     503: errorResponse("Unable to copy task attachments"),
   },
 });
