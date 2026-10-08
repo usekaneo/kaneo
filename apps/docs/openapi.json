@@ -17,6 +17,44 @@
     }
   ],
   "components": {
+    "responses": {
+      "ApiKeyRateLimited": {
+        "description": "The API key exceeded its rate limit or usage quota. Wait the number of seconds in Retry-After before retrying. The X-RateLimit headers are sent only when the rate limit was hit.",
+        "headers": {
+          "Retry-After": {
+            "description": "Seconds to wait before retrying. Omitted when an exhausted usage quota never refills.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "X-RateLimit-Limit": {
+            "description": "Requests the API key may make per window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "X-RateLimit-Remaining": {
+            "description": "Requests left in the current window.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "X-RateLimit-Reset": {
+            "description": "Unix time in seconds when the current window resets.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
@@ -5226,6 +5264,9 @@
         "responses": {
           "200": {
             "description": "Current session details, or null when unauthenticated"
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5283,6 +5324,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5414,6 +5458,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5498,6 +5545,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5542,6 +5592,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5586,6 +5639,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5666,6 +5722,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5728,6 +5787,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5812,6 +5874,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5863,6 +5928,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5935,6 +6003,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -5987,6 +6058,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6012,6 +6086,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6042,6 +6119,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6145,6 +6225,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6170,6 +6253,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6238,6 +6324,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6394,6 +6483,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
           "502": {
             "description": "Invitation saved, but email delivery failed",
             "content": {
@@ -6462,6 +6554,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6495,6 +6590,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6593,6 +6691,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6618,6 +6719,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6643,6 +6747,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6702,6 +6809,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6766,6 +6876,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6849,6 +6962,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6882,6 +6998,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -6946,6 +7065,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7029,6 +7151,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7096,6 +7221,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7168,6 +7296,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7221,6 +7352,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7270,6 +7404,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7350,6 +7487,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7448,6 +7588,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7540,6 +7683,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7641,6 +7787,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -7685,6 +7834,9 @@
           },
           "302": {
             "description": "Redirects the browser to the web app device screen"
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8008,6 +8160,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8040,6 +8195,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8151,6 +8309,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8226,6 +8387,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -8316,6 +8480,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8378,6 +8545,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -8482,6 +8652,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -8542,6 +8715,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8618,6 +8794,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -8671,6 +8850,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8771,6 +8953,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8833,6 +9018,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8905,6 +9093,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -8999,6 +9190,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           },
           "503": {
             "description": "Image uploads are not configured",
@@ -9112,6 +9306,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
           "500": {
             "description": "Failed to save the project background",
             "content": {
@@ -9186,6 +9383,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -9272,6 +9472,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -9360,6 +9563,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -9462,6 +9668,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
           "503": {
             "description": "Description request timed out",
             "content": {
@@ -9553,6 +9762,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
           "503": {
             "description": "Description search timed out",
             "content": {
@@ -9639,6 +9851,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -9800,6 +10015,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
           "503": {
             "description": "Task list request timed out",
             "content": {
@@ -9923,6 +10141,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -10028,6 +10249,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           },
           "503": {
             "description": "Storage unavailable",
@@ -10157,6 +10381,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           },
           "503": {
             "description": "Storage unavailable",
@@ -10329,6 +10556,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -10464,6 +10694,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -10561,6 +10794,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           },
           "503": {
             "description": "Unable to copy task attachments",
@@ -10680,6 +10916,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -10754,6 +10993,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -10870,6 +11112,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -10940,6 +11185,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11044,6 +11292,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11106,6 +11357,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11225,6 +11479,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11305,6 +11562,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11392,6 +11652,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11486,6 +11749,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11563,6 +11829,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11643,6 +11912,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11750,6 +12022,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           },
           "503": {
             "description": "Image uploads are not configured on this instance",
@@ -11872,6 +12147,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -11952,6 +12230,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12017,6 +12298,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -12114,6 +12398,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12213,6 +12500,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12305,6 +12595,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -12375,6 +12668,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12441,6 +12737,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12518,6 +12817,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12609,6 +12911,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12684,6 +12989,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -12767,6 +13075,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -12845,6 +13156,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -12910,6 +13224,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -13004,6 +13321,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13096,6 +13416,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -13166,6 +13489,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13231,6 +13557,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13293,6 +13622,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -13381,6 +13713,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13466,6 +13801,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13531,6 +13869,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13596,6 +13937,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13697,6 +14041,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -13759,6 +14106,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -13851,6 +14201,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -14041,6 +14394,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -14111,6 +14467,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14159,6 +14518,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -14255,6 +14617,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14307,6 +14672,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14352,6 +14720,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14397,6 +14768,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14429,6 +14803,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -14553,6 +14930,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14664,6 +15044,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -14724,6 +15107,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14840,6 +15226,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -14944,6 +15333,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -15172,6 +15564,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -15396,6 +15791,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -15500,6 +15898,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           },
           "502": {
             "description": "External issue unavailable; sync remains paused",
@@ -15652,6 +16053,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
           "502": {
             "description": "External issue unavailable; sync remains paused",
             "content": {
@@ -15693,6 +16097,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -15775,6 +16182,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -15858,6 +16268,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -15920,6 +16333,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -16016,6 +16432,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -16114,6 +16533,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -16184,6 +16606,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -16392,6 +16817,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -16484,6 +16912,9 @@
               }
             }
           },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
           "500": {
             "description": "Gitea verification failed",
             "content": {
@@ -16555,6 +16986,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -16648,6 +17082,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -16746,6 +17183,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -16816,6 +17256,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -16896,6 +17339,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -16985,6 +17431,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -17080,6 +17529,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -17142,6 +17594,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -17248,6 +17703,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -17346,6 +17804,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -17416,6 +17877,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -17496,6 +17960,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -17558,6 +18025,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -17688,6 +18158,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -17830,6 +18303,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -17908,6 +18384,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -17970,6 +18449,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18075,6 +18557,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18192,6 +18677,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18270,6 +18758,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -18332,6 +18823,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18437,6 +18931,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18554,6 +19051,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18632,6 +19132,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -18694,6 +19197,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18799,6 +19305,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18916,6 +19425,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -18994,6 +19506,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -19056,6 +19571,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -19170,6 +19688,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -19296,6 +19817,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -19374,6 +19898,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -19439,6 +19966,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -19542,6 +20072,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -19604,6 +20137,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -19690,6 +20226,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -19753,6 +20292,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -19833,6 +20375,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -19898,6 +20443,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -19984,6 +20532,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20046,6 +20597,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20081,6 +20635,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20123,6 +20680,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20208,6 +20768,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20270,6 +20833,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20336,6 +20902,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20447,6 +21016,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20512,6 +21084,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20577,6 +21152,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20642,6 +21220,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20707,6 +21288,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20806,6 +21390,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20901,6 +21488,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -20979,6 +21569,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21041,6 +21634,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21083,6 +21679,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21172,6 +21771,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -21202,6 +21804,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21289,6 +21894,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21376,6 +21984,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21441,6 +22052,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       },
@@ -21550,6 +22164,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21616,6 +22233,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21730,6 +22350,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21813,6 +22436,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
@@ -21908,6 +22534,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }
