@@ -37,6 +37,7 @@ function fixture(options = {}) {
   const checks = new Map();
   const drafts = new Set();
   const conversions = [];
+  const comments = [];
   const pulls = options.pulls ?? [pull];
   const fetcher = async (url, init) => {
     const parsed = new URL(url);
@@ -80,6 +81,19 @@ function fixture(options = {}) {
         draft: drafts.has(current.node_id) || current.draft,
         ...options.current,
       };
+    } else if (/^\/repos\/test\/repo\/issues\/\d+\/comments$/.test(path)) {
+      assert.equal(init.method, "POST");
+      assert.ok(
+        drafts.has(
+          pulls.find((item) => item.number === Number(path.split("/").at(-2)))
+            .node_id,
+        ),
+      );
+      comments.push({
+        number: Number(path.split("/").at(-2)),
+        body: body.body,
+      });
+      data = { id: comments.length };
     } else if (path.includes("/collaborators/")) {
       status = options.permissionStatus ?? (options.permission ? 200 : 404);
       data = options.permission ?? {};
@@ -147,21 +161,33 @@ function fixture(options = {}) {
     },
     fetcher,
   );
-  return { github, requests, statuses, conversions };
+  return { github, requests, statuses, conversions, comments };
 }
 
 test("ineligible PRs become drafts once and are re-drafted if marked ready", async () => {
   const options = { links: [] };
-  const { github, conversions, statuses } = fixture(options);
+  const { github, conversions, statuses, comments } = fixture(options);
   await reconcile(github, async () => policy);
   assert.deepEqual(conversions, [pull.node_id]);
   assert.equal(statuses.at(-1).state, "failure");
+  assert.equal(comments.length, 1);
+  assert.equal(comments[0].number, pull.number);
+  assert.match(comments[0].body, /automatically converted to a draft/);
+  assert.match(comments[0].body, /Since October 5, 2026/);
+  assert.match(comments[0].body, /ready-for-contribution/);
+  assert.match(comments[0].body, /bug report or feature request/);
+  assert.match(
+    comments[0].body,
+    /https:\/\/github\.com\/usekaneo\/kaneo\?tab=contributing-ov-file#contribution-eligibility/,
+  );
   await reconcile(github, async () => policy);
   assert.deepEqual(conversions, [pull.node_id]);
+  assert.equal(comments.length, 1);
 
   options.current = { draft: false };
   await reconcile(github, async () => policy);
   assert.deepEqual(conversions, [pull.node_id, pull.node_id]);
+  assert.equal(comments.length, 2);
 });
 
 test("eligible PRs and existing drafts keep their draft status", async () => {
@@ -171,9 +197,10 @@ test("eligible PRs and existing drafts keep their draft status", async () => {
     { pulls: [{ ...pull, draft: true }], links: [] },
     { links: [], permission: { permission: "admin" } },
   ]) {
-    const { github, conversions } = fixture(options);
+    const { github, conversions, comments } = fixture(options);
     await reconcile(github, async () => policy);
     assert.deepEqual(conversions, []);
+    assert.deepEqual(comments, []);
   }
 });
 
@@ -200,9 +227,10 @@ test("stale or closed ineligible PRs are not converted", async () => {
     { base: { ref: "other" } },
     { state: "closed" },
   ]) {
-    const { github, conversions } = fixture({ current, links: [] });
+    const { github, conversions, comments } = fixture({ current, links: [] });
     await reconcile(github, async () => policy);
     assert.deepEqual(conversions, []);
+    assert.deepEqual(comments, []);
   }
 });
 
@@ -214,13 +242,14 @@ test("conversion failures fail the check and retry on the next run", async () =>
     { current: { node_id: undefined } },
   ]) {
     const options = { links: [], ...failure };
-    const { github, statuses } = fixture(options);
+    const { github, statuses, comments } = fixture(options);
     await assert.rejects(
       reconcile(github, async () => policy),
       AggregateError,
     );
     assert.equal(statuses.at(-1).state, "failure");
     assert.match(statuses.at(-1).description, /could not be checked/);
+    assert.deepEqual(comments, []);
     for (const key of Object.keys(failure)) delete options[key];
     options.current = { draft: false };
     await reconcile(github, async () => policy);
