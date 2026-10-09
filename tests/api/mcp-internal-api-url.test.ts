@@ -58,7 +58,13 @@ afterEach(() => {
 describe("MCP API URLs", () => {
   it("advertises the public URL while fetching tools through the internal URL", async () => {
     const apiFetch = vi.fn(async () =>
-      Response.json({ user: { id: "test-user" } }),
+      Response.json({
+        user: {
+          id: "test-user",
+          name: "Test User",
+          email: "test@example.com",
+        },
+      }),
     );
     vi.stubGlobal("fetch", apiFetch);
     const mcpRoutes = await loadMcpRoutes();
@@ -89,7 +95,13 @@ describe("MCP API URLs", () => {
     "uses the configured internal URL %s without duplicate slashes",
     async (internalApiUrl) => {
       const apiFetch = vi.fn(async () =>
-        Response.json({ user: { id: "test-user" } }),
+        Response.json({
+          user: {
+            id: "test-user",
+            name: "Test User",
+            email: "test@example.com",
+          },
+        }),
       );
       vi.stubGlobal("fetch", apiFetch);
       const mcpRoutes = await loadMcpRoutes(internalApiUrl);
