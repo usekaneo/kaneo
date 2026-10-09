@@ -9,6 +9,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 describe("API integration: task creation", () => {
   beforeEach(async () => {
@@ -38,7 +39,10 @@ describe("API integration: task creation", () => {
     });
 
     expect(response.status).toBe(401);
-    await expect(response.text()).resolves.toBe("Unauthorized");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Unauthorized",
+      code: "UNAUTHORIZED",
+    });
   });
 
   it("creates a task with the matching column, assignee, and next number", async () => {
@@ -158,10 +162,11 @@ describe("API integration: task creation", () => {
       }),
     });
 
-    expect(response.status).toBe(403);
-    await expect(response.text()).resolves.toBe(
-      "You don't have access to this workspace",
-    );
+    expect(response.status).toBe(404);
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Project not found",
+      code: "NOT_FOUND",
+    });
 
     const persistedTask = await db.query.taskTable.findFirst({
       where: and(

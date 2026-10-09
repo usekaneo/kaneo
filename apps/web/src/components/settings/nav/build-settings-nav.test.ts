@@ -36,9 +36,12 @@ describe("buildSettingsNav", () => {
 
   it("only shows administration to instance admins", () => {
     expect(build().admin).toBeNull();
-    expect(build({ hasAdminAccess: true }).admin?.links[0]?.to).toBe(
+    expect(
+      build({ hasAdminAccess: true }).admin?.links.map((link) => link.to),
+    ).toEqual([
       "/dashboard/settings/admin/users",
-    );
+      "/dashboard/settings/admin/workspaces",
+    ]);
   });
 
   it("gives every project its own settings pages", () => {

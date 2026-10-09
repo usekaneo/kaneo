@@ -2,7 +2,9 @@ import * as Sentry from "@sentry/node";
 import { APIError } from "better-auth/api";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { auth } from "../auth";
+import { apiKeyRejection } from "./api-key-rejection";
+import { getUserSession } from "./get-user-session";
+import { type ApiKeyRateLimit, rateLimitHeaders } from "./rate-limit-headers";
 import { verifyApiKey } from "./verify-api-key";
 
 // User is tagged on Sentry's isolation scope; the per-request isolation
@@ -22,7 +24,7 @@ function isAuthRejection(error: unknown) {
 
 async function getSession(headers: Headers) {
   try {
-    return await auth.api.getSession({ headers });
+    return await getUserSession(headers);
   } catch (error) {
     if (isAuthRejection(error)) {
       return null;
@@ -61,6 +63,30 @@ function parseBearerToken(authHeader: string | undefined): {
   };
 }
 
+function setRateLimitHeaders(c: Context, rateLimit: ApiKeyRateLimit | null) {
+  if (rateLimit) c.set("apiKeyHeaders", rateLimitHeaders(rateLimit));
+}
+
+type VerifiedApiKey = Extract<
+  Awaited<ReturnType<typeof verifyApiKey>>,
+  { status: "valid" }
+>;
+
+function setApiKeyContext(c: Context, { key, rateLimit }: VerifiedApiKey) {
+  c.set("userId", key.userId);
+  c.set("userEmail", "");
+  c.set("user", null);
+  c.set("session", null);
+  c.set("apiKey", {
+    id: key.id,
+    userId: key.userId,
+    enabled: key.enabled,
+    permissions: key.permissions,
+  });
+  setRateLimitHeaders(c, rateLimit);
+  attachUserToScope(key.userId);
+}
+
 export async function authenticateApiRequest(c: Context): Promise<void> {
   const { token, malformed } = parseBearerToken(c.req.header("Authorization"));
   if (malformed) {
@@ -70,40 +96,21 @@ export async function authenticateApiRequest(c: Context): Promise<void> {
   const apiKeyHeader = c.req.header("x-api-key")?.trim();
   if (!token && apiKeyHeader) {
     const apiKeyResult = await verifyApiKey(apiKeyHeader);
-    if (!apiKeyResult?.valid || !apiKeyResult.key) {
-      throw new HTTPException(401, { message: "Unauthorized" });
+    if (apiKeyResult?.status !== "valid") {
+      throw apiKeyRejection(apiKeyResult);
     }
-    const key = apiKeyResult.key;
-    c.set("userId", key.userId);
-    c.set("userEmail", "");
-    c.set("user", null);
-    c.set("session", null);
-    c.set("apiKey", {
-      id: key.id,
-      userId: key.userId,
-      enabled: key.enabled,
-      permissions: key.permissions,
-    });
-    attachUserToScope(key.userId);
+    setApiKeyContext(c, apiKeyResult);
     return;
   }
 
   if (token) {
     const apiKeyResult = await verifyApiKey(token);
-    if (apiKeyResult?.valid && apiKeyResult.key) {
-      const key = apiKeyResult.key;
-      c.set("userId", key.userId);
-      c.set("userEmail", "");
-      c.set("user", null);
-      c.set("session", null);
-      c.set("apiKey", {
-        id: key.id,
-        userId: key.userId,
-        enabled: key.enabled,
-        permissions: key.permissions,
-      });
-      attachUserToScope(key.userId);
+    if (apiKeyResult?.status === "valid") {
+      setApiKeyContext(c, apiKeyResult);
       return;
+    }
+    if (apiKeyResult) {
+      throw apiKeyRejection(apiKeyResult);
     }
     const sessionResult = await getSessionFromBearerOnlyHeaders(c);
     if (sessionResult?.user && sessionResult.session) {
@@ -142,22 +149,27 @@ export async function resolveAssetBearerOrCookie(c: Context): Promise<{
   const apiKeyHeader = c.req.header("x-api-key")?.trim();
   if (!token && apiKeyHeader) {
     const apiKeyResult = await verifyApiKey(apiKeyHeader);
-    if (apiKeyResult?.valid && apiKeyResult.key) {
+    if (apiKeyResult?.status !== "valid") {
+      throw apiKeyRejection(apiKeyResult);
+    }
+    setRateLimitHeaders(c, apiKeyResult.rateLimit);
+    return {
+      userId: apiKeyResult.key.userId,
+      apiKeyId: apiKeyResult.key.id,
+    };
+  }
+
+  if (token) {
+    const apiKeyResult = await verifyApiKey(token);
+    if (apiKeyResult?.status === "valid") {
+      setRateLimitHeaders(c, apiKeyResult.rateLimit);
       return {
         userId: apiKeyResult.key.userId,
         apiKeyId: apiKeyResult.key.id,
       };
     }
-    throw new HTTPException(401, { message: "Unauthorized" });
-  }
-
-  if (token) {
-    const apiKeyResult = await verifyApiKey(token);
-    if (apiKeyResult?.valid && apiKeyResult.key) {
-      return {
-        userId: apiKeyResult.key.userId,
-        apiKeyId: apiKeyResult.key.id,
-      };
+    if (apiKeyResult) {
+      throw apiKeyRejection(apiKeyResult);
     }
     const sessionResult = await getSessionFromBearerOnlyHeaders(c);
     if (sessionResult?.user?.id) {

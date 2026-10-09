@@ -1,0 +1,249 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`task view screen > fully loaded task at 80 columns, no color 1`] = `
+"
+
+  KAN-12 Fix login redirect after device approval
+
+    Status     ● In Progress
+    Priority   ▲ Urgent
+    Assignee   Ada Lovelace
+    Labels     ● bug  ● auth
+    Due        ◷ Fri
+    Start      Oct 1
+    Created    Sep 29
+    Time       3h · ● Timer running (Ada Lovelace)
+    Project    Kaneo Web · KAN
+    Parent     ● KAN-4 Auth overhaul
+
+    Steps
+
+    1. Sign in with the device flow
+    2. Approve in the browser
+
+    [image: Redirect loop]
+
+  Subtasks 2 of 5 done
+    ● KAN-13  Reproduce on Safari                           ✓
+    ● KAN-14  Add a regression test                         ✓
+    ● KAN-15  Handle expired device codes
+    ● KAN-16  Update the login docs
+    ● KAN-17  Clean up the redirect helper and its callers
+
+  Relations
+    Blocks      ● KAN-20  Release 2.36
+    Blocked by  ● KAN-9   Session cookie on the API domain
+    Related     ● MOB-3   Mobile sign in
+
+  Links
+    fix(auth): keep state on devic…  github.com/usekaneo/kaneo/pull/1960  github
+    sentry.io/issues/4211
+
+  Custom fields
+    Story points  5
+    Platforms     Web, CLI
+
+  Recent comments
+    Grace Hopper · Yesterday
+      It started with the cookie change.
+      The callback URL drops the state param when the device page redirects, so
+      the CLI never sees the approval and keeps polling until the code expires.
+
+    Ada Lovelace · 3h ago · edited
+      First pass is up, please review.
+
+    Grace Hopper · 1h ago
+      Looks good. One question:
+      • do we still need the fallback?
+      • can we drop the retry? …
+
+    and 2 more, run kaneo comment list KAN-12
+
+"
+`;
+
+exports[`task view screen > fully loaded task at 80 columns, truecolor 1`] = `
+"
+
+  ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t12\\[38;2;115;115;115mKAN-12[39m]8;;\\ [1mFix login redirect after device approval[22m
+
+    [38;2;115;115;115mStatus    [39m [38;2;59;130;246m●[39m In Progress
+    [38;2;115;115;115mPriority  [39m [38;2;239;68;68m▲ [39m[38;2;239;68;68mUrgent[39m
+    [38;2;115;115;115mAssignee  [39m Ada Lovelace
+    [38;2;115;115;115mLabels    [39m [38;2;231;0;11m●[39m bug  [38;2;142;81;255m●[39m auth
+    [38;2;115;115;115mDue       [39m ◷ Fri
+    [38;2;115;115;115mStart     [39m Oct 1
+    [38;2;115;115;115mCreated   [39m Sep 29
+    [38;2;115;115;115mTime      [39m 3h[38;2;115;115;115m · [39m[38;2;5;150;105m● Timer running[39m[38;2;115;115;115m (Ada Lovelace)[39m
+    [38;2;115;115;115mProject   [39m Kaneo Web [38;2;115;115;115m· KAN[39m
+    [38;2;115;115;115mParent    [39m [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t4\\[38;2;115;115;115mKAN-4[39m]8;;\\ Auth overhaul
+
+    [1mSteps[22m
+
+    1. Sign in with the device flow
+    2. Approve in the browser
+
+    [image: Redirect loop]
+
+  [1mSubtasks[22m [38;2;115;115;115m2 of 5 done[39m
+    [38;2;5;150;105m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t13\\[38;2;115;115;115mKAN-13[39m]8;;\\  Reproduce on Safari                           [38;2;5;150;105m✓[39m
+    [38;2;5;150;105m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t14\\[38;2;115;115;115mKAN-14[39m]8;;\\  Add a regression test                         [38;2;5;150;105m✓[39m
+    [38;2;59;130;246m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t15\\[38;2;115;115;115mKAN-15[39m]8;;\\  Handle expired device codes
+    [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t16\\[38;2;115;115;115mKAN-16[39m]8;;\\  Update the login docs
+    [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t17\\[38;2;115;115;115mKAN-17[39m]8;;\\  Clean up the redirect helper and its callers
+
+  [1mRelations[22m
+    [38;2;115;115;115mBlocks[39m      [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t20\\[38;2;115;115;115mKAN-20[39m]8;;\\  Release 2.36
+    [38;2;115;115;115mBlocked by[39m  [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t9\\[38;2;115;115;115mKAN-9[39m]8;;\\   Session cookie on the API domain
+    [38;2;115;115;115mRelated[39m     [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p2/task/m3\\[38;2;115;115;115mMOB-3[39m]8;;\\   Mobile sign in
+
+  [1mLinks[22m
+    ]8;;https://github.com/usekaneo/kaneo/pull/1960\\fix(auth): keep state on devic…]8;;\\  ]8;;https://github.com/usekaneo/kaneo/pull/1960\\[38;2;59;130;246mgithub.com/usekaneo/kaneo/pull/1960[39m]8;;\\  [38;2;115;115;115mgithub[39m
+    ]8;;https://sentry.io/issues/4211/\\sentry.io/issues/4211]8;;\\
+
+  [1mCustom fields[22m
+    [38;2;115;115;115mStory points[39m  5
+    [38;2;115;115;115mPlatforms[39m     Web, CLI
+
+  [1mRecent comments[22m
+    [1mGrace Hopper[22m[38;2;115;115;115m · Yesterday[39m
+      It started with the cookie change.
+      The callback URL drops the state param when the device page redirects, so
+      the CLI never sees the approval and keeps polling until the code expires.
+
+    [1mAda Lovelace[22m[38;2;115;115;115m · 3h ago · edited[39m
+      First pass is up, please review.
+
+    [1mGrace Hopper[22m[38;2;115;115;115m · 1h ago[39m
+      Looks good. One question:
+      • do we still need the fallback?
+      • can we drop the retry?[38;2;115;115;115m …[39m
+
+    [38;2;115;115;115mand 2 more, run[39m [1mkaneo comment list KAN-12[22m
+
+"
+`;
+
+exports[`task view screen > fully loaded task at 120 columns, no color 1`] = `
+"
+
+  KAN-12 Fix login redirect after device approval
+
+    Status     ● In Progress
+    Priority   ▲ Urgent
+    Assignee   Ada Lovelace
+    Labels     ● bug  ● auth
+    Due        ◷ Fri
+    Start      Oct 1
+    Created    Sep 29
+    Time       3h · ● Timer running (Ada Lovelace)
+    Project    Kaneo Web · KAN
+    Parent     ● KAN-4 Auth overhaul
+
+    Steps
+
+    1. Sign in with the device flow
+    2. Approve in the browser
+
+    [image: Redirect loop]
+
+  Subtasks 2 of 5 done
+    ● KAN-13  Reproduce on Safari                           ✓
+    ● KAN-14  Add a regression test                         ✓
+    ● KAN-15  Handle expired device codes
+    ● KAN-16  Update the login docs
+    ● KAN-17  Clean up the redirect helper and its callers
+
+  Relations
+    Blocks      ● KAN-20  Release 2.36
+    Blocked by  ● KAN-9   Session cookie on the API domain
+    Related     ● MOB-3   Mobile sign in
+
+  Links
+    fix(auth): keep state on device redirect  github.com/usekaneo/kaneo/pull/1960  github
+    sentry.io/issues/4211
+
+  Custom fields
+    Story points  5
+    Platforms     Web, CLI
+
+  Recent comments
+    Grace Hopper · Yesterday
+      It started with the cookie change.
+      The callback URL drops the state param when the device page redirects, so the CLI never sees the approval and
+      keeps polling until the code expires.
+
+    Ada Lovelace · 3h ago · edited
+      First pass is up, please review.
+
+    Grace Hopper · 1h ago
+      Looks good. One question:
+      • do we still need the fallback?
+      • can we drop the retry? …
+
+    and 2 more, run kaneo comment list KAN-12
+
+"
+`;
+
+exports[`task view screen > fully loaded task at 120 columns, truecolor 1`] = `
+"
+
+  ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t12\\[38;2;115;115;115mKAN-12[39m]8;;\\ [1mFix login redirect after device approval[22m
+
+    [38;2;115;115;115mStatus    [39m [38;2;59;130;246m●[39m In Progress
+    [38;2;115;115;115mPriority  [39m [38;2;239;68;68m▲ [39m[38;2;239;68;68mUrgent[39m
+    [38;2;115;115;115mAssignee  [39m Ada Lovelace
+    [38;2;115;115;115mLabels    [39m [38;2;231;0;11m●[39m bug  [38;2;142;81;255m●[39m auth
+    [38;2;115;115;115mDue       [39m ◷ Fri
+    [38;2;115;115;115mStart     [39m Oct 1
+    [38;2;115;115;115mCreated   [39m Sep 29
+    [38;2;115;115;115mTime      [39m 3h[38;2;115;115;115m · [39m[38;2;5;150;105m● Timer running[39m[38;2;115;115;115m (Ada Lovelace)[39m
+    [38;2;115;115;115mProject   [39m Kaneo Web [38;2;115;115;115m· KAN[39m
+    [38;2;115;115;115mParent    [39m [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t4\\[38;2;115;115;115mKAN-4[39m]8;;\\ Auth overhaul
+
+    [1mSteps[22m
+
+    1. Sign in with the device flow
+    2. Approve in the browser
+
+    [image: Redirect loop]
+
+  [1mSubtasks[22m [38;2;115;115;115m2 of 5 done[39m
+    [38;2;5;150;105m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t13\\[38;2;115;115;115mKAN-13[39m]8;;\\  Reproduce on Safari                           [38;2;5;150;105m✓[39m
+    [38;2;5;150;105m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t14\\[38;2;115;115;115mKAN-14[39m]8;;\\  Add a regression test                         [38;2;5;150;105m✓[39m
+    [38;2;59;130;246m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t15\\[38;2;115;115;115mKAN-15[39m]8;;\\  Handle expired device codes
+    [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t16\\[38;2;115;115;115mKAN-16[39m]8;;\\  Update the login docs
+    [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t17\\[38;2;115;115;115mKAN-17[39m]8;;\\  Clean up the redirect helper and its callers
+
+  [1mRelations[22m
+    [38;2;115;115;115mBlocks[39m      [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t20\\[38;2;115;115;115mKAN-20[39m]8;;\\  Release 2.36
+    [38;2;115;115;115mBlocked by[39m  [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p1/task/t9\\[38;2;115;115;115mKAN-9[39m]8;;\\   Session cookie on the API domain
+    [38;2;115;115;115mRelated[39m     [38;2;100;116;139m●[39m ]8;;https://kaneo.test/dashboard/workspace/ws_1/project/p2/task/m3\\[38;2;115;115;115mMOB-3[39m]8;;\\   Mobile sign in
+
+  [1mLinks[22m
+    ]8;;https://github.com/usekaneo/kaneo/pull/1960\\fix(auth): keep state on device redirect]8;;\\  ]8;;https://github.com/usekaneo/kaneo/pull/1960\\[38;2;59;130;246mgithub.com/usekaneo/kaneo/pull/1960[39m]8;;\\  [38;2;115;115;115mgithub[39m
+    ]8;;https://sentry.io/issues/4211/\\sentry.io/issues/4211]8;;\\
+
+  [1mCustom fields[22m
+    [38;2;115;115;115mStory points[39m  5
+    [38;2;115;115;115mPlatforms[39m     Web, CLI
+
+  [1mRecent comments[22m
+    [1mGrace Hopper[22m[38;2;115;115;115m · Yesterday[39m
+      It started with the cookie change.
+      The callback URL drops the state param when the device page redirects, so the CLI never sees the approval and
+      keeps polling until the code expires.
+
+    [1mAda Lovelace[22m[38;2;115;115;115m · 3h ago · edited[39m
+      First pass is up, please review.
+
+    [1mGrace Hopper[22m[38;2;115;115;115m · 1h ago[39m
+      Looks good. One question:
+      • do we still need the fallback?
+      • can we drop the retry?[38;2;115;115;115m …[39m
+
+    [38;2;115;115;115mand 2 more, run[39m [1mkaneo comment list KAN-12[22m
+
+"
+`;

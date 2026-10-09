@@ -428,6 +428,13 @@
       "when": 1791234516735,
       "tag": "0060_flaky_ezekiel",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1791391236556,
+      "tag": "0061_slim_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

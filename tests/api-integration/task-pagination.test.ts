@@ -9,6 +9,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 beforeEach(resetTestDatabase);
 async function fixture(count = 237, publicProject = false) {
@@ -145,7 +146,7 @@ describe("bounded task pages", () => {
     const other = await createWorkspaceMember();
     mockAuthenticatedSession(other.user);
     const response = await app.request(`/api/task/tasks/${project.id}?page=2`);
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
     expect(await response.text()).not.toContain("Description");
   });
   it("paginates public boards and rechecks visibility on every request", async () => {
@@ -180,7 +181,11 @@ describe("bounded task pages", () => {
       `/api/public-project/${project.id}?limit=101`,
     );
     expect(response.status).toBe(400);
-    expect(response.headers.get("Content-Type")).toContain("text/plain");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Invalid task pagination or filters",
+      code: "VALIDATION_ERROR",
+      issues: [{ path: "query.limit", message: expect.any(String) }],
+    });
   });
   it("returns empty pages and an empty project without inventing tasks", async () => {
     const { project, app } = await fixture(0);

@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono";
+import { HttpError } from "@/lib/http-error";
 
 export type UpdateGitlabIntegrationRequest = InferRequestType<
   (typeof client)["gitlab-integration"]["project"][":projectId"]["$patch"]
@@ -17,17 +18,7 @@ async function updateGitlabIntegration(
   });
 
   if (!response.ok) {
-    const error = await response
-      .clone()
-      .json()
-      .catch(async () => ({
-        message: (await response.text()) || "Request failed",
-      }));
-    throw new Error(
-      typeof error === "object" && error && "message" in error
-        ? String(error.message)
-        : "Request failed",
-    );
+    throw await HttpError.fromResponse(response);
   }
 
   return response.json();

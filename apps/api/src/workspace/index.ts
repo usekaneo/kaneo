@@ -6,15 +6,22 @@ import {
   jsonResponse,
 } from "../openapi";
 import { listWorkspaceProjectAccess } from "../project-access/list-workspace-project-access";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  requireApiKeyScope,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import getMyProjectAccessCtrl from "./controllers/get-my-project-access";
+import getWorkspaceCtrl from "./controllers/get-workspace";
 import getWorkspaceMembersCtrl from "./controllers/get-workspace-members";
+import listWorkspacesCtrl from "./controllers/list-workspaces";
 import updateMemberProjectAccessCtrl from "./controllers/update-member-project-access";
 import {
   memberProjectAccessListSchema,
   memberProjectAccessSchema,
+  workspaceListSchema,
   workspaceMemberListSchema,
+  workspaceSchema,
 } from "./response";
 import {
   updateMemberProjectAccessBody,
@@ -22,6 +29,40 @@ import {
   workspaceMemberParam,
   workspaceMembersQuery,
 } from "./schema";
+
+const listWorkspacesRoute = createRoute({
+  method: "get",
+  operationId: "listWorkspaces",
+  path: "/",
+  tags: ["Workspaces"],
+  summary: "List workspaces",
+  description:
+    "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
+  middleware: [requireApiKeyScope({ workspace: ["read"] })] as const,
+  responses: {
+    200: jsonResponse("The caller's workspaces", workspaceListSchema),
+    403: errorResponse("The API key lacks workspace:read"),
+  },
+});
+
+const getWorkspaceRoute = createRoute({
+  method: "get",
+  operationId: "getWorkspace",
+  path: "/{workspaceId}",
+  tags: ["Workspaces"],
+  summary: "Get workspace",
+  description:
+    "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+  middleware: [requireApiKeyScope({ workspace: ["read"] })] as const,
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse("The workspace", workspaceSchema),
+    403: errorResponse("The API key lacks workspace:read"),
+    404: errorResponse(
+      "Workspace not found, the caller is not a member of it, or none of their roles grants workspace:read",
+    ),
+  },
+});
 
 const getWorkspaceMembersRoute = createRoute({
   method: "get",
@@ -35,9 +76,10 @@ const getWorkspaceMembersRoute = createRoute({
   request: { params: workspaceIdParam, query: workspaceMembersQuery },
   responses: {
     200: jsonResponse("List of workspace members", workspaceMemberListSchema),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse("No access to the workspace or to the project"),
-    404: errorResponse("Project not found in this workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse(
+      "Workspace not found, or project not found in this workspace",
+    ),
   },
 });
 
@@ -59,10 +101,8 @@ const getWorkspaceProjectAccessRoute = createRoute({
       "Members limited to selected projects",
       memberProjectAccessListSchema,
     ),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse(
-      "No workspace access, or missing member:update permission",
-    ),
+    403: errorResponse("Missing member:update permission"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -78,8 +118,7 @@ const getMyProjectAccessRoute = createRoute({
   request: { params: workspaceIdParam },
   responses: {
     200: jsonResponse("The caller's project access", memberProjectAccessSchema),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse("No access to the workspace"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -112,11 +151,20 @@ const updateMemberProjectAccessRoute = createRoute({
     403: errorResponse(
       "Missing member:update permission, changing your own access, or granting a project you can't access",
     ),
-    404: errorResponse("Member not found"),
+    404: errorResponse("Workspace or member not found"),
   },
 });
 
 const workspace = apiRouter<BaseVariables & { workspaceId: string }>()
+  .openapi(listWorkspacesRoute, async (c) =>
+    c.json(await listWorkspacesCtrl(c.get("userId")), 200),
+  )
+  .openapi(getWorkspaceRoute, async (c) =>
+    c.json(
+      await getWorkspaceCtrl(c.req.valid("param").workspaceId, c.get("userId")),
+      200,
+    ),
+  )
   .openapi(getWorkspaceMembersRoute, async (c) =>
     c.json(
       await getWorkspaceMembersCtrl({

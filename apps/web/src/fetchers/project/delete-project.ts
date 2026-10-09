@@ -10,7 +10,7 @@ async function deleteProject({ id }: DeleteProjectRequest) {
   const response = await client.project[":id"].$delete({ param: { id } });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();

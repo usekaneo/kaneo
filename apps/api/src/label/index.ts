@@ -39,10 +39,8 @@ const getTaskLabelsRoute = createRoute({
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse("List of labels for the task", labelListSchema),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the task's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -57,8 +55,7 @@ const getWorkspaceLabelsRoute = createRoute({
   request: { params: workspaceIdParam },
   responses: {
     200: jsonResponse("List of labels in the workspace", labelListSchema),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse("No access to the workspace"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -82,10 +79,8 @@ const createLabelRoute = createRoute({
   responses: {
     200: jsonResponse("Label created successfully", labelSchema),
     400: errorResponse("Invalid body, or workspace ID could not be determined"),
-    403: errorResponse(
-      "No workspace access, or missing label:create permission",
-    ),
-    404: errorResponse("Task not found"),
+    403: errorResponse("Missing label:create permission"),
+    404: errorResponse("Workspace or task not found"),
     409: errorResponse("The workspace label is being deleted"),
   },
 });
@@ -101,10 +96,8 @@ const getLabelRoute = createRoute({
   request: { params: labelParam },
   responses: {
     200: jsonResponse("Label details", labelSchema),
-    400: errorResponse(
-      "Unknown label, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the label's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Label not found"),
   },
 });
 
@@ -128,13 +121,11 @@ const attachLabelToTaskRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Label attached to task successfully", labelSchema),
-    400: errorResponse(
-      "Unknown label, or label and task belong to different workspaces",
-    ),
+    400: errorResponse("Label and task belong to different workspaces"),
     403: errorResponse(
-      "No workspace access, or missing label:update permission",
+      "No access to the project, or missing label:update permission",
     ),
-    404: errorResponse("Task not found"),
+    404: errorResponse("Label or task not found"),
     409: errorResponse("The workspace label is being deleted"),
   },
 });
@@ -153,11 +144,11 @@ const detachLabelFromTaskRoute = createRoute({
   request: { params: labelParam },
   responses: {
     200: jsonResponse("Label detached from task successfully", labelSchema),
-    400: errorResponse("Unknown label, or label is not assigned to a task"),
+    400: errorResponse("Label is not assigned to a task"),
     403: errorResponse(
-      "No workspace access, or missing label:update permission",
+      "No access to the project, or missing label:update permission",
     ),
-    404: errorResponse("Task not found"),
+    404: errorResponse("Label or task not found"),
   },
 });
 
@@ -182,10 +173,11 @@ const updateLabelRoute = createRoute({
   responses: {
     200: jsonResponse("Label updated successfully", labelSchema),
     409: errorResponse("The workspace label is being deleted"),
-    400: errorResponse("Invalid body, or unknown label"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing label:update permission",
+      "No access to the project, or missing label:update permission",
     ),
+    404: errorResponse("Label not found"),
   },
 });
 
@@ -209,13 +201,10 @@ const deleteLabelRoute = createRoute({
       pendingLabelDeletionSchema,
     ),
     429: errorResponse("Deletion capacity is busy; retry after Retry-After"),
-    400: errorResponse(
-      "Unknown label, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing label:delete permission",
+      "No access to the project, or missing label:delete permission",
     ),
-    404: errorResponse("The label's task no longer exists"),
+    404: errorResponse("Label not found, or the label's task no longer exists"),
   },
 });
 

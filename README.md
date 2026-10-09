@@ -40,7 +40,7 @@
 - **Work with your team:** shared workspaces, invitations, custom roles, live updates, and public project views.
 - **Shape your workflow:** custom columns and fields, with rules that move tasks when repository activity changes.
 - **Stay informed:** in-app notifications, email, ntfy, Gotify, and personal webhooks.
-- **Connect other tools:** GitHub and Gitea, chat integrations, project webhooks, a [REST API](https://kaneo.app/docs/api-reference/introduction), and [MCP](https://kaneo.app/docs/core/integrations/mcp) for AI assistants.
+- **Connect other tools:** GitHub and Gitea, chat integrations, project webhooks, a [REST API](https://kaneo.app/docs/api-reference/introduction), a [command-line client](https://kaneo.app/docs/core/integrations/cli), and [MCP](https://kaneo.app/docs/core/integrations/mcp) for AI assistants.
 
 ## Installation
 
@@ -51,7 +51,7 @@
 
 Code, translations, documentation, and bug reports are welcome. Start with the [contributing guide](CONTRIBUTING.md) and [local development setup](ENVIRONMENT_SETUP.md). Pay particular attention to [contribution eligibility](https://github.com/usekaneo/kaneo/blob/main/CONTRIBUTING.md#contribution-eligibility).
 
-Join us on [Discord](https://discord.gg/rU4tSyhXXU) or share bugs and feature requests in [GitHub Issues](https://github.com/usekaneo/kaneo/issues).
+Join us on [Discord](https://discord.gg/rU4tSyhXXU), report bugs in [GitHub Issues](https://github.com/usekaneo/kaneo/issues), or submit and vote on feature requests at [Kaneo Feedback](https://feedback.kaneo.app).
 
 ## Sponsors
 

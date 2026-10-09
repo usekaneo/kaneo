@@ -41,7 +41,26 @@ describe("API integration: instance admin workspace access", () => {
     await expect(
       validateWorkspaceAccess(outsider.id, owner.workspace.id),
     ).rejects.toMatchObject({
-      status: 403,
+      status: 404,
+      message: "Workspace not found",
+    });
+  });
+
+  it("rejects an instance admin for a workspace that does not exist", async () => {
+    const admin = await createUser("user,admin");
+
+    await expect(
+      validateWorkspaceAccess(
+        admin.id,
+        `workspace-${randomUUID()}`,
+        undefined,
+        {
+          notFoundMessage: "Project not found",
+        },
+      ),
+    ).rejects.toMatchObject({
+      status: 404,
+      message: "Project not found",
     });
   });
 });

@@ -18,6 +18,14 @@ const root = {
   workspaceId: "workspace",
   taskId: null,
 };
+const busy = () =>
+  Response.json(
+    {
+      message: "Label deletion is busy; retry this request",
+      code: "RATE_LIMITED",
+    },
+    { status: 429, headers: { "Retry-After": "1" } },
+  );
 beforeEach(() => {
   request.mockReset();
 });
@@ -70,11 +78,13 @@ describe("resumable label deletion client", () => {
 
   it("backs off when busy and stops after five retries", async () => {
     vi.useFakeTimers();
-    request.mockImplementation(
-      async () => new Response("busy", { status: 429 }),
-    );
+    request.mockImplementation(async () => busy());
     const operation = deleteLabel({ id: root.id });
-    const rejection = expect(operation).rejects.toMatchObject({ status: 429 });
+    const rejection = expect(operation).rejects.toMatchObject({
+      status: 429,
+      code: "RATE_LIMITED",
+      message: "Label deletion is busy; retry this request",
+    });
     await vi.advanceTimersByTimeAsync(999);
     expect(request).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(4001);
@@ -85,7 +95,7 @@ describe("resumable label deletion client", () => {
   it("continues after temporary contention without reporting success early", async () => {
     vi.useFakeTimers();
     request
-      .mockResolvedValueOnce(new Response("busy", { status: 429 }))
+      .mockResolvedValueOnce(busy())
       .mockResolvedValueOnce(
         Response.json({ ...root, pendingDeletion: true }, { status: 202 }),
       )
@@ -97,9 +107,20 @@ describe("resumable label deletion client", () => {
   });
 
   it("does not retry authorization failures", async () => {
-    request.mockResolvedValueOnce(new Response("forbidden", { status: 403 }));
+    request.mockResolvedValueOnce(
+      Response.json(
+        {
+          message: "Insufficient permissions",
+          code: "MISSING_PERMISSION",
+          missingPermissions: ["label:delete"],
+        },
+        { status: 403 },
+      ),
+    );
     await expect(deleteLabel({ id: root.id })).rejects.toMatchObject({
       status: 403,
+      code: "MISSING_PERMISSION",
+      missingPermissions: ["label:delete"],
     });
     expect(request).toHaveBeenCalledTimes(1);
   });

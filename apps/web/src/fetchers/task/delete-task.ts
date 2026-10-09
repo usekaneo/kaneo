@@ -10,7 +10,7 @@ async function deleteTask(taskId: string) {
   const response = await client.task[":id"].$delete({ param: { id: taskId } });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();

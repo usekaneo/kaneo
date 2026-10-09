@@ -215,6 +215,7 @@ describe("API integration: task comments", () => {
     expect(response.headers.get("content-type")).toContain("application/json");
     expect(await response.json()).toEqual({
       message: "Use the comment endpoint to create comments",
+      code: "BAD_REQUEST",
     });
   });
 

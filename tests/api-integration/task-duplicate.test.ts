@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { readErrorBody } from "./helpers/error-body";
 
 const { copyTaskAssetObject, deleteS3Object, publishEvent } = vi.hoisted(
   () => ({
@@ -112,7 +113,10 @@ describe("API integration: task duplication", () => {
     const response = await requestDuplicate(app, task.id);
 
     expect(response.status).toBe(401);
-    await expect(response.text()).resolves.toBe("Unauthorized");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Unauthorized",
+      code: "UNAUTHORIZED",
+    });
   });
 
   it("blocks a viewer from duplicating a task (viewer role lacks task:create)", async () => {
@@ -131,7 +135,11 @@ describe("API integration: task duplication", () => {
     const response = await requestDuplicate(app, task.id);
 
     expect(response.status).toBe(403);
-    await expect(response.text()).resolves.toBe("Insufficient permissions");
+    expect(await readErrorBody(response)).toEqual({
+      message: "Insufficient permissions",
+      code: "MISSING_PERMISSION",
+      missingPermissions: ["task:create"],
+    });
 
     const tasks = await db.query.taskTable.findMany({
       where: eq(schema.taskTable.projectId, project.id),
@@ -166,10 +174,11 @@ describe("API integration: task duplication", () => {
 
     const response = await requestDuplicate(app, task.id);
 
-    expect(response.status).toBe(403);
-    await expect(response.text()).resolves.toBe(
-      "You don't have access to this workspace",
-    );
+    expect(response.status).toBe(404);
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Task not found",
+      code: "NOT_FOUND",
+    });
 
     const tasks = await db.query.taskTable.findMany({
       where: eq(schema.taskTable.projectId, project.id),
@@ -765,7 +774,10 @@ describe("API integration: task duplication", () => {
       .mockRejectedValueOnce(new Error("private bucket details"));
     const response = await requestDuplicate(own.app, own.task.id);
     expect(response.status).toBe(503);
-    expect(await response.text()).toBe("Failed to copy the task attachments");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Failed to copy the task attachments",
+      code: "SERVICE_UNAVAILABLE",
+    });
     expect(deleteS3Object).toHaveBeenCalledWith("copied-first");
     expect(await db.query.taskTable.findMany()).toHaveLength(1);
     expect(publishEvent).not.toHaveBeenCalled();

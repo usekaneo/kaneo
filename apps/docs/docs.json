@@ -107,6 +107,7 @@
 					{
 						"group": "Keep it running",
 						"pages": [
+							"core/operations/administration",
 							"core/operations/backups",
 							"core/operations/upgrades",
 							"core/operations/troubleshooting"
@@ -158,6 +159,10 @@
 						]
 					},
 					{
+						"group": "Command line",
+						"pages": ["core/integrations/cli", "core/integrations/cli-commands"]
+					},
+					{
 						"group": "AI assistants",
 						"pages": ["core/integrations/mcp"]
 					}
@@ -171,6 +176,7 @@
 						"pages": [
 							"api-reference/introduction",
 							"api-reference/authentication",
+							"api-reference/errors",
 							"core/integrations/mcp-stateless"
 						]
 					},

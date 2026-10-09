@@ -1,4 +1,5 @@
 import { HTTPException } from "hono/http-exception";
+import { ApiError } from "../../errors/api-error";
 import type { GitlabTokenType } from "../../plugins/gitlab/config";
 import {
   createGitlabClient,
@@ -113,8 +114,9 @@ async function verifyGitlabAccess({
       }
 
       if (error.status === 401 || error.status === 403) {
-        throw new HTTPException(401, {
+        throw new ApiError(401, {
           message: "Invalid GitLab token or unauthorized.",
+          code: "INTEGRATION_AUTH_FAILED",
         });
       }
     }
