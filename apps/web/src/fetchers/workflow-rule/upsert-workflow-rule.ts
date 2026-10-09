@@ -1,10 +1,12 @@
 import { client } from "@kaneo/libs";
-
+import type { InferRequestType } from "hono/client";
 import { HttpError } from "@/lib/http-error";
 
 async function upsertWorkflowRule(
   projectId: string,
-  data: { integrationType: string; eventType: string; columnId: string },
+  data: InferRequestType<
+    (typeof client)["workflow-rule"][":projectId"]["$put"]
+  >["json"],
 ) {
   const response = await client["workflow-rule"][":projectId"].$put({
     param: { projectId },
