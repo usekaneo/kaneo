@@ -32,6 +32,7 @@ jobs:
       contents: read
     outputs:
       version: ${{ steps.release.outputs.version }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
       release_state: ${{ steps.release.outputs.release_state }}
 
     steps:
@@ -91,15 +92,22 @@ jobs:
             exit 1
           fi
           tag="cli-v$version"
-          if present=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' 2> "$RUNNER_TEMP/release-view.err"); then
+          prerelease=false
+          if [[ "$version" == *-* ]]; then
+            prerelease=true
+          fi
+          if release=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets,isDraft,isPrerelease 2> "$RUNNER_TEMP/release-view.err"); then
             read -ra expected <<< "$CLI_ASSETS"
+            present=$(jq -r '.assets[].name' <<< "$release")
             missing=$(comm -23 <(printf '%s\n' "${expected[@]}" SHA256SUMS | sort) <(printf '%s\n' "$present" | sort) | tr '\n' ' ')
-            if [ -z "$missing" ]; then
+            draft=$(jq -r '.isDraft' <<< "$release")
+            published_prerelease=$(jq -r '.isPrerelease' <<< "$release")
+            if [ -z "$missing" ] && [ "$draft" = false ] && [ "$published_prerelease" = "$prerelease" ]; then
               state=complete
-              echo "Release $tag already has every asset; skipping binaries and release."
+              echo "Release $tag is published with every asset; skipping binaries and release."
             else
               state=incomplete
-              echo "Release $tag is missing $missing; uploading every asset again."
+              echo "Release $tag needs repair (missing: ${missing:-none}, draft: $draft, prerelease: $published_prerelease)."
             fi
           elif grep -q "release not found" "$RUNNER_TEMP/release-view.err"; then
             state=missing
@@ -107,8 +115,11 @@ jobs:
             cat "$RUNNER_TEMP/release-view.err" >&2
             exit 1
           fi
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "release_state=$state" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$version"
+            echo "prerelease=$prerelease"
+            echo "release_state=$state"
+          } >> "$GITHUB_OUTPUT"
 
   binaries:
     name: Compile ${{ matrix.platform }} binaries
@@ -223,16 +234,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.check.outputs.version }}
+          PRERELEASE: ${{ needs.check.outputs.prerelease }}
           RELEASE_STATE: ${{ needs.check.outputs.release_state }}
         run: |
           set -euo pipefail
           if [ "$RELEASE_STATE" = incomplete ]; then
             gh release upload "cli-v$VERSION" assets/* --repo "$GITHUB_REPOSITORY" --clobber
+            gh release edit "cli-v$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --draft=false \
+              --prerelease="$PRERELEASE" \
+              --latest=false
             exit 0
-          fi
-          prerelease=()
-          if [[ "$VERSION" == *-* ]]; then
-            prerelease=(--prerelease)
           fi
           notes="$RUNNER_TEMP/notes.md"
           cat > "$notes" <<'EOF'
@@ -256,7 +269,7 @@ jobs:
             --title "Kaneo CLI v$VERSION" \
             --notes-file "$notes" \
             --latest=false \
-            "${prerelease[@]}"
+            --prerelease="$PRERELEASE"
 
   npm:
     name: Publish to npm
