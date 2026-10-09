@@ -121,6 +121,14 @@ Use `--human` to force styled output. Styled output respects `NO_COLOR`, `FORCE_
 
 Images in task descriptions (`kaneo task images`), uploads (`kaneo task attach`) and your avatar (`kaneo whoami`) are shown inline in Kitty, Ghostty, iTerm2 and WezTerm. Other terminals with 256 colors and Unicode get a preview drawn with colored blocks, and the rest get links. Set `KANEO_IMAGES=kitty|iterm|blocks|off` to override this. Your token is only sent with requests for files on your Kaneo server.
 
+## Agent skill
+
+The [`kaneo-cli` skill](https://github.com/usekaneo/kaneo/tree/main/skills/kaneo-cli) teaches coding agents such as Claude Code, Codex and Cursor to use the CLI: check the login and workspace, read JSON output, address tasks by ticket ID, and confirm before deleting anything.
+
+```bash
+npx skills add usekaneo/kaneo --skill kaneo-cli
+```
+
 ## Configuration
 
 | Setting | Flag | Environment |
