@@ -11,7 +11,7 @@ description: Work with Kaneo tasks, projects, comments and time tracking through
 
 Run `kaneo context`. It prints the server, user, workspace and project in use, and where each value came from.
 
-- `kaneo: command not found`: ask the user before installing, then run `curl -fsSL https://kaneo.app/cli/install.sh | sh` (Windows: `irm https://kaneo.app/cli/install.ps1 | iex`).
+- `kaneo: command not found`: ask the user to install it in their own terminal, where they can read the script first: `curl -fsSL https://kaneo.app/cli/install.sh | sh` (Windows: `irm https://kaneo.app/cli/install.ps1 | iex`). The binary lands in `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`). Your shell may not have that folder on its `PATH` yet, so call it by that full path until it does.
 - No user: `kaneo login` is a browser approval only a person can finish. Ask the user to run it in their own terminal. Headless and CI runs use an API key in `KANEO_API_KEY` instead (created in Kaneo under Settings, Account, API Keys).
 - No workspace: list them with `kaneo workspace list --jq '.[] | "\(.id) \(.name)"'` and pass `-w <id>`, or ask the user to pick a default with `kaneo workspace use`.
 - Server or compatibility errors: `kaneo doctor` explains what is wrong.
@@ -25,6 +25,7 @@ You are ready when `kaneo context` shows a user and the workspace you mean to ac
 - `--jq '<expr>'` filters the JSON with a built-in jq. Strings print raw, one result per line. Reach for it to keep large results small.
 - Writes print JSON describing the change: `task create` returns the new task (`--jq .ticketId` gives its ticket id), and `task status` returns the `from` and `to` columns. Run `kaneo task view` to see the full task afterwards.
 - `task list` stops at 50 tasks. Pass `--all` when you need every match, for example to count.
+- `task mine` returns at most 100 tasks per workspace, soonest due first, and cannot page further. For a complete list, run `kaneo task list -p <KEY> --mine --all` for each project.
 
 ## Addressing things
 
