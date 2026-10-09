@@ -275,7 +275,10 @@ async function sendNtfyNotification(input: {
       headers: {
         ...(input.token ? { Authorization: `Bearer ${input.token}` } : {}),
         ...(input.clickUrl ? { Click: input.clickUrl } : {}),
-        Title: input.title,
+        // fetch rejects header values outside Latin-1, so send non-ASCII titles RFC 2047 encoded; ntfy decodes them.
+        Title: /^[\x20-\x7e]*$/.test(input.title)
+          ? input.title
+          : `=?UTF-8?B?${Buffer.from(input.title).toString("base64")}?=`,
       },
       body: input.body,
     },

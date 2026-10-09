@@ -354,4 +354,42 @@ describe("notification recipient boundaries", () => {
       expect(logged).not.toContain(secret);
     expect(logged).toContain("network");
   });
+
+  it("sends ntfy titles with non-Latin-1 characters as a valid header", async () => {
+    const { actor, member, task } = await fixture();
+    const [notification] = await db
+      .insert(schema.notificationTable)
+      .values({
+        userId: member.user.id,
+        resourceType: "task",
+        resourceId: task.id,
+        type: "task_comment",
+        title: "日本語のタスク",
+        content: "body",
+      })
+      .returning();
+    await db.insert(schema.userNotificationPreferenceTable).values({
+      userId: member.user.id,
+      ntfyEnabled: true,
+      ntfyServerUrl: "http://127.0.0.1",
+      ntfyTopic: "topic",
+    });
+    await db.insert(schema.userNotificationWorkspaceRuleTable).values({
+      userId: member.user.id,
+      workspaceId: actor.workspace.id,
+      ntfyEnabled: true,
+    });
+    vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "true");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null));
+    vi.stubGlobal("fetch", fetchMock);
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    await deliverNotification(notification.id);
+    expect(log).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const title = new Headers(fetchMock.mock.calls[0][1].headers).get("Title");
+    const [, encoded] = title?.match(/^=\?UTF-8\?B\?(.+)\?=$/) ?? [];
+    expect(Buffer.from(encoded ?? "", "base64").toString()).toBe(
+      "日本語のタスク",
+    );
+  });
 });
