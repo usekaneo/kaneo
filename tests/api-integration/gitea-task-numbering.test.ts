@@ -13,22 +13,26 @@ import {
 vi.mock("../../apps/api/src/events", () => ({
   publishEvent: vi.fn(async () => undefined),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    listIssues: async () => [
-      {
-        number: 1,
-        title: "Imported issue",
-        body: "Body",
-        state: "open",
-        labels: [],
-        html_url: "https://gitea.example/owner/repo/issues/1",
-      },
-    ],
-    listPulls: async () => [],
-    listIssueComments: async () => [],
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      listIssues: async () => [
+        {
+          number: 1,
+          title: "Imported issue",
+          body: "Body",
+          state: "open",
+          labels: [],
+          html_url: "https://gitea.example/owner/repo/issues/1",
+        },
+      ],
+      listPulls: async () => [],
+      listIssueComments: async () => [],
+    }),
   }),
-}));
+);
 const repair = readFileSync(
   new URL(
     "../../apps/api/drizzle/0046_repair_task_number_counters.sql",

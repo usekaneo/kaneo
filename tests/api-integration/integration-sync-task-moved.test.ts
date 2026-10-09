@@ -22,9 +22,13 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     rest: { issues: { create: mocks.create } },
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({ createIssue: mocks.create }),
-}));
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({ createIssue: mocks.create }),
+  }),
+);
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({ createIssue: mocks.create }),
 }));

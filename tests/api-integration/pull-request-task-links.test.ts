@@ -61,12 +61,16 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     }),
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    listIssues: remote.listIssues,
-    listPulls: remote.listPulls,
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      listIssues: remote.listIssues,
+      listPulls: remote.listPulls,
+    }),
   }),
-}));
+);
 
 async function createFixture(
   provider: "github" | "gitea",

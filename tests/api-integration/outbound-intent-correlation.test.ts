@@ -326,7 +326,12 @@ it.each(
       .values({
         projectId: project.id,
         type: provider,
-        config: JSON.stringify({ repositoryName: "old", accessToken: "fake" }),
+        config: JSON.stringify({
+          baseUrl: "https://gitea.example",
+          repositoryOwner: "owner",
+          repositoryName: "old",
+          accessToken: "fake",
+        }),
       })
       .returning();
     const [link] = await db
@@ -345,6 +350,7 @@ it.each(
         .update(schema.integrationTable)
         .set({
           config: JSON.stringify({
+            ...JSON.parse(integration.config),
             repositoryName: "new",
             accessToken: "fake",
           }),
@@ -353,14 +359,18 @@ it.each(
     };
     let responseReceived = false;
     let reconfigured = false;
-    const findLinks = db.query.externalLinkTable.findMany.bind(db.query.externalLinkTable);
-    const linksRead = vi.spyOn(db.query.externalLinkTable, "findMany").mockImplementation(async (options) => {
-      if (responseReceived && !reconfigured && phase !== "apply") {
-        reconfigured = true;
-        await reconfigure();
-      }
-      return findLinks(options);
-    });
+    const findLinks = db.query.externalLinkTable.findMany.bind(
+      db.query.externalLinkTable,
+    );
+    const linksRead = vi
+      .spyOn(db.query.externalLinkTable, "findMany")
+      .mockImplementation(async (options) => {
+        if (responseReceived && !reconfigured && phase !== "apply") {
+          reconfigured = true;
+          await reconfigure();
+        }
+        return findLinks(options);
+      });
     const write = vi.fn(async () => {
       if (write.mock.calls.length === 1) {
         if (phase !== "retry") {
@@ -433,7 +443,12 @@ it.each(["github", "gitea"])(
       .values({
         projectId: project.id,
         type: provider,
-        config: JSON.stringify({ repositoryName: "new" }),
+        config: JSON.stringify({
+          baseUrl: "https://gitea.example",
+          repositoryOwner: "owner",
+          repositoryName: "new",
+          accessToken: "fake",
+        }),
       })
       .returning();
     const [link] = await db
@@ -458,7 +473,13 @@ it.each(["github", "gitea"])(
       "A",
       write,
       undefined,
-      { type: provider, config: JSON.stringify({ repositoryName: "old" }) },
+      {
+        type: provider,
+        config: JSON.stringify({
+          ...JSON.parse(integration.config),
+          repositoryName: "old",
+        }),
+      },
     );
     expect(write).not.toHaveBeenCalled();
   },

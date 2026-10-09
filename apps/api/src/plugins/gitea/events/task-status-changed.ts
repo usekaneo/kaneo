@@ -61,9 +61,11 @@ export async function handleTaskStatusChanged(
     ).catch(async (error: unknown) => {
       if (error instanceof IssueWriteRefused) return undefined;
       console.error("Gitea status label synchronization failed", error);
-      return (await db.query.taskTable.findFirst({
-        where: linkedTaskScope(event.taskId, event.projectId),
-      }))?.status;
+      return (
+        await db.query.taskTable.findFirst({
+          where: linkedTaskScope(event.taskId, event.projectId),
+        })
+      )?.status;
     });
     if (currentValue === undefined) return;
     const closing = await isTaskInFinalState({

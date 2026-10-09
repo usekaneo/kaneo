@@ -30,11 +30,15 @@ vi.mock("../../../apps/api/src/database", () => {
     },
   };
 });
-vi.mock("../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  GiteaApiError: class extends Error {},
-  verifyGiteaToken: m.verify,
-  createGiteaClient: () => ({ getRepo: m.getRepo }),
-}));
+vi.mock(
+  "../../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    GiteaApiError: class extends Error {},
+    verifyGiteaToken: m.verify,
+    createGiteaClient: () => ({ getRepo: m.getRepo }),
+  }),
+);
 const { default: reconnect } =
   await import("../../../apps/api/src/gitea-integration/controllers/create-gitea-integration");
 const input = {

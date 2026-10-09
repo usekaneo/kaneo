@@ -48,7 +48,8 @@ vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
 
 vi.mock(
   "../../../../../apps/api/src/plugins/sync/dispatch-issue-write",
-  () => ({
+  async (original) => ({
+    ...(await original<object>()),
     createIssueWrite: () => (send: () => Promise<unknown>) => send(),
   }),
 );
@@ -93,18 +94,11 @@ vi.mock(
   }),
 );
 
-vi.mock("../../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: (...args: unknown[]) => mocks.createGiteaClient(...args),
-}));
-
-// Real admission/locking is exercised in gitea-outbound-fence.test.ts.
 vi.mock(
-  "../../../../../apps/api/src/plugins/gitea/services/outbound-fence",
-  () => ({
-    withGiteaOutboundWrite: async <T>(
-      _binding: unknown,
-      write: () => Promise<T>,
-    ) => ({ sent: true, value: await write() }),
+  "../../../../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: (...args: unknown[]) => mocks.createGiteaClient(...args),
   }),
 );
 
@@ -162,7 +156,7 @@ beforeEach(() => {
     externalId: "42",
   });
   mocks.publishEvent.mockResolvedValue(undefined);
-  mocks.addLabelsToIssueGitea.mockResolvedValue({ outcome: "completed" });
+  mocks.addLabelsToIssueGitea.mockResolvedValue(undefined);
 });
 
 describe("handleGiteaIssueOpened", () => {

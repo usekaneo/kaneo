@@ -102,9 +102,16 @@ export async function handleTaskTitleChanged(
       event.newTitle,
       async (value) => ({
         sent: true,
-        updatedAt: (await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-          title: value,
-        })).updated_at,
+        updatedAt: (
+          await client.updateIssue(
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            {
+              title: value,
+            },
+          )
+        ).updated_at,
       }),
       async () =>
         (await client.getIssue(repositoryOwner, repositoryName, issueNumber))

@@ -52,33 +52,37 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     },
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    getIssue: async () => mocks.read(),
-    listLabels: async () => {
-      await mocks.list();
-      return available();
-    },
-    removeLabelFromIssue: async (
-      _owner: string,
-      _repo: string,
-      _number: number,
-      id: number,
-    ) => {
-      await mocks.remove();
-      mocks.labels.delete(names[id - 1]);
-    },
-    addLabelsToIssue: async (
-      _owner: string,
-      _repo: string,
-      _number: number,
-      ids: number[],
-    ) => {
-      await mocks.write();
-      for (const id of ids) mocks.labels.add(names[id - 1]);
-    },
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      getIssue: async () => mocks.read(),
+      listLabels: async () => {
+        await mocks.list();
+        return available();
+      },
+      removeLabelFromIssue: async (
+        _owner: string,
+        _repo: string,
+        _number: number,
+        id: number,
+      ) => {
+        await mocks.remove();
+        mocks.labels.delete(names[id - 1]);
+      },
+      addLabelsToIssue: async (
+        _owner: string,
+        _repo: string,
+        _number: number,
+        ids: number[],
+      ) => {
+        await mocks.write();
+        for (const id of ids) mocks.labels.add(names[id - 1]);
+      },
+    }),
   }),
-}));
+);
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({
     getIssue: async () => mocks.read(),
@@ -311,8 +315,21 @@ it.each(
           )
           .join("\n");
         expect(output).not.toContain("fake-private-provider");
-        expect(output).toContain(integration.id);
-        expect(output).toContain(link.id);
+        expect(mocks.remove).not.toHaveBeenCalled();
+        expect([...mocks.labels].sort()).toEqual([
+          "keep",
+          "priority:low",
+          "status:planned",
+        ]);
+        const failed = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, link.id),
+        });
+        expect(failed).toMatchObject({
+          taskId: task.id,
+          integrationId: integration.id,
+          externalId: link.externalId,
+          metadata: link.metadata,
+        });
         expect(mocks.write).not.toHaveBeenCalled();
         return;
       } finally {

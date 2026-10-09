@@ -71,7 +71,9 @@ async function issueAccess(
       read: () => client.getIssue(owner, repo, number),
       write: async (field: IssueField, value: string, _intentId: string) => ({
         sent: true as const,
-        updatedAt: (await client.updateIssue(owner, repo, number, payload(field, value))).updated_at,
+        updatedAt: (
+          await client.updateIssue(owner, repo, number, payload(field, value))
+        ).updated_at,
       }),
     };
   }

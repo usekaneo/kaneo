@@ -139,24 +139,18 @@ it("does not send a queued title after a newer task edit", async () => {
   expect(m.update).not.toHaveBeenCalled();
 });
 
-vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    updateIssue: async (
-      _owner: string,
-      _repo: string,
-      _number: number,
-      input: unknown,
-    ) => m.update(input),
-  }),
-}));
-// Real Gitea admission/locking is exercised in gitea-outbound-fence.test.ts.
 vi.mock(
-  "../../../../apps/api/src/plugins/gitea/services/outbound-fence",
-  () => ({
-    withGiteaOutboundWrite: async <T>(
-      _binding: unknown,
-      write: () => Promise<T>,
-    ) => ({ sent: true, value: await write() }),
+  "../../../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      updateIssue: async (
+        _owner: string,
+        _repo: string,
+        _number: number,
+        input: unknown,
+      ) => m.update(input),
+    }),
   }),
 );
 const giteaTitle = (
@@ -247,11 +241,15 @@ vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));
 
-vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
-  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
-  dispatchIssueWrite: async (
-    _link: unknown,
-    _config: unknown,
-    send: () => Promise<unknown>,
-  ) => ({ value: await send() }),
-}));
+vi.mock(
+  "../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  async (original) => ({
+    ...(await original<object>()),
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+    dispatchIssueWrite: async (
+      _link: unknown,
+      _config: unknown,
+      send: () => Promise<unknown>,
+    ) => ({ value: await send() }),
+  }),
+);

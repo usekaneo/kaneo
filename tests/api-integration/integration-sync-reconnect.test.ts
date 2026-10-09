@@ -18,11 +18,15 @@ import {
 } from "./helpers/fixtures";
 
 const verify = vi.hoisted(() => vi.fn());
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  GiteaApiError: class extends Error {},
-  verifyGiteaToken: verify,
-  createGiteaClient: () => ({ getRepo: async () => ({}) }),
-}));
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    GiteaApiError: class extends Error {},
+    verifyGiteaToken: verify,
+    createGiteaClient: () => ({ getRepo: async () => ({}) }),
+  }),
+);
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   GitlabApiError: class extends Error {},
   verifyGitlabToken: verify,

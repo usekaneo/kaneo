@@ -52,18 +52,22 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     },
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    listLabels: async () => {
-      await mocks.lookup();
-      return [{ id: 7, name: "bug" }];
-    },
-    getIssue: async () => ({ labels: [] }),
-    createLabel: mocks.createLabel,
-    addLabelsToIssue: mocks.addLabel,
-    removeLabelFromIssue: mocks.removeLabel,
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      listLabels: async () => {
+        await mocks.lookup();
+        return [{ id: 7, name: "bug" }];
+      },
+      getIssue: async () => ({ labels: [] }),
+      createLabel: mocks.createLabel,
+      addLabelsToIssue: mocks.addLabel,
+      removeLabelFromIssue: mocks.removeLabel,
+    }),
   }),
-}));
+);
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({
     listLabels: async () => {

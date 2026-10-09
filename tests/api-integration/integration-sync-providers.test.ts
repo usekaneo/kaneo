@@ -23,7 +23,10 @@ import { githubPlugin } from "../../apps/api/src/plugins/github";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
 import { gitlabPlugin } from "../../apps/api/src/plugins/gitlab";
 import { handleGitlabIssueOpened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-opened";
-import { registerPlugin } from "../../apps/api/src/plugins/registry";
+import {
+  initializeEventSubscriptions,
+  registerPlugin,
+} from "../../apps/api/src/plugins/registry";
 import {
   reconcileProjectSync,
   reconcileTaskSync,
@@ -33,6 +36,7 @@ import { previewSyncRules } from "../../apps/api/src/integration-sync/controller
 import type { SyncRules } from "../../apps/api/src/plugins/sync/rules";
 import { canSyncTask } from "../../apps/api/src/plugins/sync/eligibility";
 import * as eligibility from "../../apps/api/src/plugins/sync/eligibility";
+import * as linkManager from "../../apps/api/src/plugins/github/services/link-manager";
 import { resumeSync } from "../../apps/api/src/integration-sync/controllers/resume-sync";
 import { reviewSyncResume } from "../../apps/api/src/integration-sync/controllers/review-resume";
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
@@ -74,13 +78,17 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     },
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    createIssue: mocks.giteaCreate,
-    updateIssue: mocks.update,
-    createIssueComment: mocks.comment,
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      createIssue: mocks.giteaCreate,
+      updateIssue: mocks.update,
+      createIssueComment: mocks.comment,
+    }),
   }),
-}));
+);
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({
     createIssue: mocks.gitlabCreate,
@@ -711,12 +719,22 @@ describe.each(["github", "gitea", "gitlab"] as const)(
           .update(schema.taskTable)
           .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
           .where(eq(schema.taskTable.id, f.task.id));
-        let release!: () => void;
-        const gate = new Promise<void>((resolve) => {
-          release = resolve;
-        });
+        const release = Promise.withResolvers<void>();
+        const scopeChanged = Promise.withResolvers<void>();
+        const createLink = linkManager.createExternalLink;
+        const postResponse =
+          type === "gitea"
+            ? vi
+                .spyOn(linkManager, "createExternalLink")
+                .mockImplementationOnce(async (...args) => {
+                  // Creation has committed its HTTP fence. Hold local follow-ups until
+                  // the settings/eligibility mutation queued during HTTP commits.
+                  await scopeChanged.promise;
+                  return createLink(...args);
+                })
+            : undefined;
         create.mockImplementationOnce(async () => {
-          await gate;
+          await release.promise;
           const issue = {
             number: 12,
             iid: 12,
@@ -728,37 +746,65 @@ describe.each(["github", "gitea", "gitlab"] as const)(
           return type === "github" ? { data: issue } : issue;
         });
         const exportTask = reconcileTaskSync(f.project.id, f.task.id);
+        let mutation: Promise<void> | undefined;
         try {
           await vi.waitFor(() => expect(create).toHaveBeenCalledOnce());
-          if (change === "labels")
-            await db
-              .delete(schema.labelTable)
-              .where(eq(schema.labelTable.taskId, f.task.id));
-          else if (change === "deactivation")
-            await db
-              .update(schema.integrationTable)
-              .set({ isActive: false })
-              .where(eq(schema.integrationTable.id, f.integration.id));
-          else
-            await db
-              .update(schema.integrationTable)
-              .set({
-                config: JSON.stringify({
-                  ...f.config,
-                  syncRules: {
-                    ...f.config.syncRules,
-                    outgoing: {
-                      mode: "labels",
-                      match: "any",
-                      labels: ["missing-label"],
+          const started = Promise.withResolvers<number>();
+          let changed = false;
+          mutation = db.transaction(async (tx) => {
+            const connection = await tx.execute<{ pid: number }>(
+              sql`select pg_backend_pid() as pid`,
+            );
+            started.resolve(connection.rows[0]!.pid);
+            if (change === "labels")
+              await tx
+                .delete(schema.labelTable)
+                .where(eq(schema.labelTable.taskId, f.task.id));
+            else if (change === "deactivation")
+              await tx
+                .update(schema.integrationTable)
+                .set({ isActive: false })
+                .where(eq(schema.integrationTable.id, f.integration.id));
+            else
+              await tx
+                .update(schema.integrationTable)
+                .set({
+                  config: JSON.stringify({
+                    ...f.config,
+                    syncRules: {
+                      ...f.config.syncRules,
+                      outgoing: {
+                        mode: "labels",
+                        match: "any",
+                        labels: ["missing-label"],
+                      },
                     },
-                  },
-                }),
-              })
-              .where(eq(schema.integrationTable.id, f.integration.id));
+                  }),
+                })
+                .where(eq(schema.integrationTable.id, f.integration.id));
+            changed = true;
+          });
+          if (type === "gitea") {
+            const pid = await started.promise;
+            await vi.waitFor(async () => {
+              const blocked = await db.execute<{ waiting: boolean }>(sql`
+                select cardinality(pg_blocking_pids(${pid})) > 0 as waiting
+              `);
+              expect(blocked.rows[0]!.waiting).toBe(true);
+            });
+            expect(changed).toBe(false);
+            release.resolve();
+          }
+          await mutation;
         } finally {
-          release();
-          await exportTask;
+          release.resolve();
+          try {
+            await mutation;
+          } finally {
+            scopeChanged.resolve();
+            await exportTask;
+            postResponse?.mockRestore();
+          }
         }
         const link = await db.query.externalLinkTable.findFirst({
           where: eq(schema.externalLinkTable.taskId, f.task.id),
@@ -989,6 +1035,9 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       mocks.comment.mockClear();
       const link = (await db.query.externalLinkTable.findMany())[0]!;
       const holder = await getDatabasePool().connect();
+      const {
+        rows: [{ pid }],
+      } = await holder.query<{ pid: number }>("select pg_backend_pid() as pid");
       await holder.query("begin");
       await holder.query(
         "select id from external_link where id = $1 for update",
@@ -1013,60 +1062,105 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       );
       try {
         await vi.waitFor(async () => {
-          const result = await db.execute<{ waiting: number }>(
-            sql`select count(*)::int as waiting from pg_stat_activity where datname = current_database() and wait_event_type = 'Lock' and pid <> pg_backend_pid()`,
-          );
-          expect(result.rows[0]!.waiting).toBeGreaterThan(0);
+          const blocked = await db.execute<{ waiting: boolean }>(sql`
+            select exists (
+              select 1 from pg_stat_activity
+              where datname = current_database() and ${pid} = any(pg_blocking_pids(pid))
+            ) as waiting
+          `);
+          expect(blocked.rows[0]!.waiting).toBe(true);
         });
+        expect(mocks.comment).not.toHaveBeenCalled();
       } finally {
-        await holder.query("commit");
-        holder.release();
-        await comment;
+        try {
+          await holder.query("commit");
+        } finally {
+          holder.release();
+          await comment;
+        }
       }
       expect(mocks.comment).not.toHaveBeenCalled();
+      const stored = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, link.id),
+      });
+      expect(JSON.parse(stored!.metadata!)).toMatchObject({
+        syncFilterPaused: true,
+      });
     });
 
-    it("releases dispatch locks while the provider handles a comment", async () => {
-      const f = await setup(type);
-      await f.assign();
-      await reconcileTaskSync(f.project.id, f.task.id);
-      let release!: () => void;
-      const response = new Promise<void>((resolve) => {
-        release = resolve;
-      });
-      mocks.comment.mockClear();
-      mocks.comment.mockImplementationOnce(async () => {
-        await response;
-        return { id: 123 };
-      });
-      const comment = plugin.onTaskCommentCreated!(
-        {
-          taskId: f.task.id,
-          projectId: f.project.id,
-          userId: "test-user",
-          comment: "Already dispatched",
-        },
-        {
-          integrationId: f.integration.id,
-          projectId: f.project.id,
-          config: f.config,
-        },
-      );
-      try {
-        await vi.waitFor(() => expect(mocks.comment).toHaveBeenCalledOnce());
-        await db
-          .delete(schema.labelTable)
-          .where(eq(schema.labelTable.taskId, f.task.id));
+    it(
+      type === "gitea"
+        ? "retains eligibility locks through comment HTTP without locking task edits"
+        : "releases dispatch locks while the provider handles a comment",
+      async () => {
+        const f = await setup(type);
+        await f.assign();
         await reconcileTaskSync(f.project.id, f.task.id);
-        const link = (await db.query.externalLinkTable.findMany())[0]!;
-        expect(JSON.parse(link.metadata!)).toMatchObject({
-          syncFilterPaused: true,
+        const release = Promise.withResolvers<void>();
+        mocks.comment.mockClear();
+        mocks.comment.mockImplementationOnce(async () => {
+          await release.promise;
+          return { id: 123 };
         });
-      } finally {
-        release();
-        await comment;
-      }
-    });
+        const comment = plugin.onTaskCommentCreated!(
+          {
+            taskId: f.task.id,
+            projectId: f.project.id,
+            userId: "test-user",
+            comment: "Already dispatched",
+          },
+          {
+            integrationId: f.integration.id,
+            projectId: f.project.id,
+            config: f.config,
+          },
+        );
+        let mutation: Promise<void> | undefined;
+        try {
+          await vi.waitFor(() => expect(mocks.comment).toHaveBeenCalledOnce());
+          if (type === "gitea") {
+            await db
+              .update(schema.taskTable)
+              .set({ title: "Concurrent comment-time edit" })
+              .where(eq(schema.taskTable.id, f.task.id));
+            const started = Promise.withResolvers<number>();
+            let changed = false;
+            mutation = db.transaction(async (tx) => {
+              const connection = await tx.execute<{ pid: number }>(
+                sql`select pg_backend_pid() as pid`,
+              );
+              started.resolve(connection.rows[0]!.pid);
+              await tx
+                .delete(schema.labelTable)
+                .where(eq(schema.labelTable.taskId, f.task.id));
+              changed = true;
+            });
+            const pid = await started.promise;
+            await vi.waitFor(async () => {
+              const blocked = await db.execute<{ waiting: boolean }>(sql`
+              select cardinality(pg_blocking_pids(${pid})) > 0 as waiting
+            `);
+              expect(blocked.rows[0]!.waiting).toBe(true);
+            });
+            expect(changed).toBe(false);
+            release.resolve();
+            await mutation;
+          } else {
+            await db
+              .delete(schema.labelTable)
+              .where(eq(schema.labelTable.taskId, f.task.id));
+          }
+          await reconcileTaskSync(f.project.id, f.task.id);
+          const link = (await db.query.externalLinkTable.findMany())[0]!;
+          expect(JSON.parse(link.metadata!)).toMatchObject({
+            syncFilterPaused: true,
+          });
+        } finally {
+          release.resolve();
+          await Promise.all([comment, mutation]);
+        }
+      },
+    );
 
     it("records a successful outbound edit after its scope transaction fails", async () => {
       const f = await setup(type);
@@ -1077,11 +1171,18 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         .update(schema.taskTable)
         .set({ title: "New title" })
         .where(eq(schema.taskTable.id, f.task.id));
-      const write = vi.fn(async () => "local-time");
+      let remoteTitle = "Old title";
+      let sentIntentId = "";
+      const write = vi.fn(async (value: string, intentId: string) => {
+        sentIntentId = intentId;
+        remoteTitle = value;
+        return { sent: true as const, updatedAt: "local-time" };
+      });
       let injected = false;
       const transaction = getDatabase().transaction.bind(getDatabase());
-      vi.spyOn(getDatabase(), "transaction").mockImplementation(
-        (apply, config) =>
+      const scope = vi
+        .spyOn(getDatabase(), "transaction")
+        .mockImplementation((apply, config) =>
           transaction(async (tx) => {
             const result = await apply(tx);
             if (!injected && write.mock.calls.length) {
@@ -1090,20 +1191,26 @@ describe.each(["github", "gitea", "gitlab"] as const)(
             }
             return result;
           }, config),
-      );
+        );
       const log = vi.spyOn(console, "error").mockImplementation(() => {});
-      await syncLatestTaskValue(
-        f.task.id,
-        f.project.id,
-        link,
-        "title",
-        "New title",
-        write,
-        undefined,
-        { type, config: f.integration.config },
-      );
-      expect(injected).toBe(true);
-      expect(write).toHaveBeenCalledOnce();
+      try {
+        await syncLatestTaskValue(
+          f.task.id,
+          f.project.id,
+          link,
+          "title",
+          "New title",
+          write,
+          undefined,
+          { type, config: f.integration.config },
+        );
+        expect(injected).toBe(true);
+        expect(write).toHaveBeenCalledOnce();
+        expect(remoteTitle).toBe("New title");
+      } finally {
+        scope.mockRestore();
+        log.mockRestore();
+      }
       const stored = await db.query.externalLinkTable.findFirst({
         where: eq(schema.externalLinkTable.id, link.id),
       });
@@ -1111,13 +1218,19 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         source: "kaneo",
         value: "New title",
         outbound: [
-          expect.objectContaining({ pending: false, updatedAt: "local-time" }),
+          expect.objectContaining({
+            intentId: sentIntentId,
+            pending: false,
+            updatedAt: "local-time",
+          }),
         ],
       });
-      expect(log).toHaveBeenCalledWith(
-        "Issue write scope transaction failed after dispatch",
-        { integrationId: f.integration.id, linkId: link.id },
-      );
+      expect(
+        JSON.parse(stored!.metadata!).lastSync.title.outbound[0].cancelled,
+      ).not.toBe(true);
+      expect(
+        JSON.parse(stored!.metadata!).lastSync.title.outbound[0].uncertain,
+      ).not.toBe(true);
     });
 
     it.each(["open", "closed"] as const)(
@@ -1602,15 +1715,14 @@ it("retries a competing creation after the first attempt fails", async () => {
   expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
 });
 
-it("runs task creation HTTP calls without an idle database transaction", async () => {
+it("allows task edits and reads while Gitea task creation HTTP remains in flight", async () => {
   const f = await setup("gitea");
   await f.assign();
+  const entered = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
   mocks.giteaCreate.mockImplementationOnce(async () => {
-    const result = await db.execute<{ transactions: string }>(sql`
-      select count(*)::text as transactions from pg_stat_activity
-      where datname = current_database() and pid <> pg_backend_pid() and state = 'idle in transaction'
-    `);
-    expect(result.rows[0]!.transactions).toBe("0");
+    entered.resolve();
+    await release.promise;
     return {
       number: 12,
       html_url: "https://git.example/issues/12",
@@ -1618,8 +1730,24 @@ it("runs task creation HTTP calls without an idle database transaction", async (
       state: "open",
     };
   });
-  await reconcileTaskSync(f.project.id, f.task.id);
+  const exporting = reconcileTaskSync(f.project.id, f.task.id);
+  try {
+    await entered.promise;
+    await db
+      .update(schema.taskTable)
+      .set({ title: "Concurrent local edit" })
+      .where(eq(schema.taskTable.id, f.task.id));
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, f.task.id),
+      }),
+    ).toMatchObject({ title: "Concurrent local edit" });
+  } finally {
+    release.resolve();
+    await exporting;
+  }
   expect(await db.query.externalLinkTable.findMany()).toHaveLength(1);
+  expect(mocks.giteaCreate).toHaveBeenCalledOnce();
 });
 
 it("waits for another instance's creation lease instead of dropping the export", async () => {
@@ -1783,3 +1911,90 @@ it("broadcasts deleted label availability even without changed links or an activ
       .missingLabels,
   ).toEqual(f.config.syncRules.outgoing.labels);
 });
+
+it.each(
+  (["ingest-only", "off"] as const).flatMap((mode) =>
+    (["workspace-label", "project-move"] as const).map((trigger) => ({
+      mode,
+      trigger,
+    })),
+  ),
+)(
+  "does not backfill $mode tasks after enabling sync and $trigger reconciliation",
+  async ({ mode, trigger }) => {
+    const f = await setup("gitea");
+    await f.assign();
+    initializeEventSubscriptions();
+    await db
+      .update(schema.integrationTable)
+      .set({ config: JSON.stringify({ ...f.config, issueSyncMode: mode }) })
+      .where(eq(schema.integrationTable.id, f.integration.id));
+    await events.publishEvent(
+      "task.created",
+      {
+        taskId: f.task.id,
+        projectId: f.project.id,
+        userId: "test-user",
+        title: f.task.title,
+        description: null,
+        priority: f.task.priority,
+        status: f.task.status,
+        number: f.task.number,
+      },
+      { waitForHandlers: true },
+    );
+    expect(mocks.giteaCreate).not.toHaveBeenCalled();
+    await db
+      .update(schema.integrationTable)
+      .set({ config: JSON.stringify({ ...f.config, issueSyncMode: "sync" }) })
+      .where(eq(schema.integrationTable.id, f.integration.id));
+    await events.publishEvent(
+      "integration.sync_rules_changed",
+      {
+        projectId: f.project.id,
+        integrationId: f.integration.id,
+        existingLinksOnly: true,
+      },
+      { waitForHandlers: true },
+    );
+    await events.publishEvent(
+      "integration.sync_labels_changed",
+      {
+        projectId: f.project.id,
+        ...(trigger === "workspace-label"
+          ? { integrationId: f.integration.id }
+          : {}),
+      },
+      { waitForHandlers: true },
+    );
+    expect(mocks.giteaCreate).not.toHaveBeenCalled();
+    expect(mocks.update).not.toHaveBeenCalled();
+    expect(mocks.write).not.toHaveBeenCalled();
+    expect(mocks.comment).not.toHaveBeenCalled();
+    expect(
+      await db.query.externalLinkTable.findMany({
+        where: eq(schema.externalLinkTable.taskId, f.task.id),
+      }),
+    ).toEqual([]);
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, f.task.id),
+      }),
+    ).toEqual(f.task);
+    // An explicit sync-rules export remains the upstream opt-in for pending tasks.
+    await events.publishEvent(
+      "integration.sync_rules_changed",
+      {
+        projectId: f.project.id,
+        integrationId: f.integration.id,
+      },
+      { waitForHandlers: true },
+    );
+    expect(mocks.giteaCreate).toHaveBeenCalledTimes(1);
+    expect(
+      await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.taskId, f.task.id),
+      }),
+    ).toMatchObject({ resourceType: "issue", externalId: "12" });
+  },
+);

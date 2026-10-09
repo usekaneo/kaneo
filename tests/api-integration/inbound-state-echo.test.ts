@@ -29,9 +29,13 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     rest: { issues: { get: async () => ({ data: { state: m.state } }) } },
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({ getIssue: async () => ({ state: m.state }) }),
-}));
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({ getIssue: async () => ({ state: m.state }) }),
+  }),
+);
 beforeEach(resetTestDatabase);
 it.each(
   ["github", "gitea"].flatMap((provider) =>

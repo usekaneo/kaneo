@@ -48,8 +48,13 @@ export async function syncLatestTaskValue(
     );
     let modeAllowsWrite = true;
     if (binding?.integration?.type === "gitea") {
-      try { modeAllowsWrite = canSyncGiteaIssues(JSON.parse(binding.integration.config) as GiteaConfig); }
-      catch { modeAllowsWrite = false; }
+      try {
+        modeAllowsWrite = canSyncGiteaIssues(
+          JSON.parse(binding.integration.config) as GiteaConfig,
+        );
+      } catch {
+        modeAllowsWrite = false;
+      }
     }
     if (
       !binding ||
@@ -77,8 +82,13 @@ export async function syncLatestTaskValue(
         undefined,
         identity?.config,
       ))
-    )
+    ) {
+      if (lastIntentId)
+        await updateExternalLink(link.id, {
+          retireOutboundIntents: { field, intentIds: [lastIntentId] },
+        });
       return;
+    }
     return binding;
   };
   for (;;) {

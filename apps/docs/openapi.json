@@ -17394,6 +17394,16 @@
               }
             }
           },
+          "409": {
+            "description": "Integration changed or repository is already linked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
           "429": {
             "$ref": "#/components/responses/ApiKeyRateLimited"
           }
@@ -17494,7 +17504,7 @@
             }
           },
           "409": {
-            "description": "Integration changed; refresh before updating settings",
+            "description": "Integration changed. Reload and try again.",
             "content": {
               "application/json": {
                 "schema": {

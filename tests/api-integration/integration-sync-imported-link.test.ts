@@ -14,13 +14,17 @@ import {
 } from "./helpers/fixtures";
 
 const mocks = vi.hoisted(() => ({ issues: vi.fn(), publish: vi.fn() }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    listIssues: mocks.issues,
-    listPulls: async () => [],
-    listIssueComments: async () => [],
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      listIssues: mocks.issues,
+      listPulls: async () => [],
+      listIssueComments: async () => [],
+    }),
   }),
-}));
+);
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({
     listIssues: mocks.issues,

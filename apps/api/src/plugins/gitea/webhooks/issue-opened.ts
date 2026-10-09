@@ -235,10 +235,19 @@ export async function handleGiteaIssueOpened(
 
       if (labelsToAdd.length > 0) {
         try {
-          await addLabelsToIssueGitea(config, issue.number, labelsToAdd, true, write);
+          await addLabelsToIssueGitea(
+            config,
+            issue.number,
+            labelsToAdd,
+            true,
+            write,
+          );
         } catch (error) {
           if (error instanceof IssueWriteRefused) continue;
-          console.error("Gitea imported issue label synchronization failed", error);
+          console.error(
+            "Gitea imported issue label synchronization failed",
+            error,
+          );
         }
       }
 

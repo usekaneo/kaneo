@@ -75,9 +75,13 @@ vi.mock(
     repoOwnerLogin: () => "owner",
   }),
 );
-vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({ getIssue: m.getIssue }),
-}));
+vi.mock(
+  "../../../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({ getIssue: m.getIssue }),
+  }),
+);
 vi.mock(
   "../../../../apps/api/src/plugins/github/services/with-integration-link",
   () => ({
@@ -429,11 +433,15 @@ it("applies a close following an inbound reopen within the same provider timesta
   expect(JSON.parse(m.metadata).state).toBe("closed");
 });
 
-vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
-  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
-  dispatchIssueWrite: async (
-    _link: unknown,
-    _config: unknown,
-    send: () => Promise<unknown>,
-  ) => ({ value: await send() }),
-}));
+vi.mock(
+  "../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  async (original) => ({
+    ...(await original<object>()),
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+    dispatchIssueWrite: async (
+      _link: unknown,
+      _config: unknown,
+      send: () => Promise<unknown>,
+    ) => ({ value: await send() }),
+  }),
+);

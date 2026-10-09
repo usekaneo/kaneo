@@ -5,7 +5,7 @@ import { linkedTaskScope } from "../github/services/integration-task-scope";
 import { updateExternalLink } from "../github/services/link-manager";
 import { parseLinkMetadata } from "../github/utils/parse-link-metadata";
 import type { PluginContext } from "../types";
-import { createIssueWrite } from "./dispatch-issue-write";
+import { createIssueWrite, IssueWriteRefused } from "./dispatch-issue-write";
 import { canSyncTask } from "./eligibility";
 import type { IssueWrite } from "./issue-write";
 import { taskIssueLabels } from "./issue-labels";
@@ -117,6 +117,7 @@ export async function syncTaskFieldLabels(
       linkId: link.id,
       field,
     });
-    throw error;
+    if (error instanceof IssueWriteRefused) throw error;
+    throw new Error("Issue field label synchronization failed");
   });
 }

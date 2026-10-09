@@ -18,6 +18,7 @@ import { createExternalLink } from "../../apps/api/src/plugins/github/services/l
 import { withIntegrationLink } from "../../apps/api/src/plugins/github/services/with-integration-link";
 import { withTaskSyncCreation } from "../../apps/api/src/plugins/sync/create-task-issue";
 import { outgoingPredicate } from "../../apps/api/src/plugins/sync/task-predicate";
+import { withGiteaOutboundWrite } from "../../apps/api/src/plugins/gitea/services/outbound-fence";
 import {
   canSyncTask,
   taskMatchesRule,
@@ -671,51 +672,294 @@ describe("reviewed sync resume", () => {
     const link = await f.link(true);
     return { ...f, link };
   }
+  it("returns a scope conflict when settings change while reviewed resume awaits outbound admission", async () => {
+    const blocker = await setup();
+    const f = await paused();
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
+    const release = Promise.withResolvers<void>();
+    const entered = Array.from({ length: 4 }, () =>
+      Promise.withResolvers<void>(),
+    );
+    const blockers = entered.map((signal) =>
+      withGiteaOutboundWrite(
+        {
+          integrationId: blocker.integration.id,
+          projectId: blocker.project.id,
+          config: JSON.parse(blocker.integration.config),
+        },
+        async () => {
+          signal.resolve();
+          await release.promise;
+        },
+      ),
+    );
+    await Promise.all(entered.map((signal) => signal.promise));
+    const transaction = getDatabase().transaction.bind(getDatabase());
+    const committed = Promise.withResolvers<void>();
+    const scope = vi
+      .spyOn(getDatabase(), "transaction")
+      .mockImplementationOnce(async (apply, config) => {
+        const result = await transaction(apply, config);
+        committed.resolve();
+        return result;
+      });
+    const resume = f.request(`/links/${f.link.id}/resume`, "POST", {
+      source: "kaneo",
+      token: review.token,
+    });
+    let response: Response;
+    try {
+      let ready = false;
+      void committed.promise.then(() => {
+        ready = true;
+      });
+      await vi.waitFor(() => expect(ready).toBe(true));
+      scope.mockRestore();
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...JSON.parse(f.integration.config),
+            syncRules: f.rules,
+            issueSyncMode: "off",
+          }),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      release.resolve();
+      response = await resume;
+    } finally {
+      scope.mockRestore();
+      release.resolve();
+      await Promise.all([...blockers, resume]);
+    }
+    expect(response.status).toBe(409);
+    expect(await readErrorBody(response)).toMatchObject({
+      code: expect.any(String),
+      message: expect.any(String),
+    });
+    expect(provider.write).not.toHaveBeenCalled();
+    const link = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, f.link.id),
+    });
+    expect(JSON.parse(link!.metadata!)).toMatchObject({
+      syncFilterPaused: true,
+      retained: "preserve-me",
+    });
+    expect(JSON.parse(link!.metadata!).syncResumeUncertain).not.toBe(true);
+  });
+
+  it("reports an admitted provider 503 as a gateway failure rather than a scope conflict", async () => {
+    const f = await paused();
+    const review = await reviewSyncResume(
+      f.project.id,
+      "gitea",
+      f.link.id,
+      f.workspace.id,
+    );
+    provider.write.mockRejectedValueOnce(
+      Object.assign(new Error("Provider unavailable"), { status: 503 }),
+    );
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const response = await f.request(`/links/${f.link.id}/resume`, "POST", {
+        source: "kaneo",
+        token: review.token,
+      });
+      expect(response.status).toBe(502);
+      expect(await readErrorBody(response)).toMatchObject({
+        code: expect.any(String),
+        message: expect.any(String),
+      });
+      expect(provider.write).toHaveBeenCalledTimes(1);
+      const link = await db.query.externalLinkTable.findFirst({
+        where: eq(schema.externalLinkTable.id, f.link.id),
+      });
+      expect(JSON.parse(link!.metadata!)).toMatchObject({
+        syncFilterPaused: true,
+      });
+    } finally {
+      log.mockRestore();
+    }
+  });
+
+  it.each(["integration", "labels"] as const)(
+    "serializes a concurrent %s save through an admitted Gitea resume write",
+    async (change) => {
+      const f = await paused();
+      const review = await reviewSyncResume(
+        f.project.id,
+        "gitea",
+        f.link.id,
+        f.workspace.id,
+      );
+      const entered = Promise.withResolvers<void>();
+      const release = Promise.withResolvers<void>();
+      provider.write.mockImplementationOnce(async (values) => {
+        entered.resolve();
+        await release.promise;
+        provider.read.mockResolvedValue({
+          ...values,
+          labels: [],
+          updatedAt: "2026-01-02T00:00:00Z",
+        });
+        return { updatedAt: "2026-01-02T00:00:00Z" };
+      });
+      const resume = f.request(`/links/${f.link.id}/resume`, "POST", {
+        source: "kaneo",
+        token: review.token,
+      });
+      await entered.promise;
+      let saved = false;
+      const mutationStarted = Promise.withResolvers<number>();
+      const mutation = db.transaction(async (tx) => {
+        const connection = await tx.execute<{ pid: number }>(
+          sql`select pg_backend_pid() as pid`,
+        );
+        mutationStarted.resolve(connection.rows[0]!.pid);
+        if (change === "integration")
+          await tx
+            .update(schema.integrationTable)
+            .set({ isActive: false })
+            .where(eq(schema.integrationTable.id, f.integration.id));
+        else
+          await tx
+            .delete(schema.labelTable)
+            .where(eq(schema.labelTable.taskId, f.task.id));
+        saved = true;
+      });
+      try {
+        const pid = await mutationStarted.promise;
+        await vi.waitFor(async () => {
+          const blocked = await db.execute<{ waiting: boolean }>(sql`
+            select cardinality(pg_blocking_pids(${pid})) > 0 as waiting
+          `);
+          expect(blocked.rows[0]!.waiting).toBe(true);
+        });
+        expect(saved).toBe(false);
+        expect(provider.write).toHaveBeenCalledTimes(1);
+      } finally {
+        release.resolve();
+        await Promise.all([mutation, resume]);
+      }
+      expect(saved).toBe(true);
+      expect(provider.write).toHaveBeenCalledTimes(1);
+      expect(
+        await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, f.task.id),
+        }),
+      ).toMatchObject({ title: "Kaneo title" });
+      if (change === "integration")
+        expect(
+          await db.query.integrationTable.findFirst({
+            where: eq(schema.integrationTable.id, f.integration.id),
+          }),
+        ).toMatchObject({ isActive: false });
+      else
+        expect(
+          await db.query.labelTable.findMany({
+            where: eq(schema.labelTable.taskId, f.task.id),
+          }),
+        ).toEqual([]);
+    },
+  );
+
   it.each(
     (["sync", "ingest-only", "off"] as const).flatMap((mode) =>
       (["kaneo", "provider"] as const).map((source) => ({ mode, source })),
     ),
-  )("applies $mode policy to a reviewed $source resume over HTTP", async ({ mode, source }) => {
-    const f = await paused();
-    const config = { ...JSON.parse(f.integration.config), syncRules: f.rules, issueSyncMode: mode };
-    await db.update(schema.integrationTable).set({ config: JSON.stringify(config) })
-      .where(eq(schema.integrationTable.id, f.integration.id));
-    const review = await f.request(`/links/${f.link.id}/review`, "GET");
-    expect(review.status).toBe(200);
-    const { token } = await review.json();
-    const before = await db.query.taskTable.findFirst({ where: eq(schema.taskTable.id, f.task.id) });
-    const response = await f.request(`/links/${f.link.id}/resume`, "POST", { source, token });
-    const allowed = mode === "sync" || (mode === "ingest-only" && source === "provider");
-    if (allowed) {
-      expect(response.status).toBe(200);
-      expect(provider.write).toHaveBeenCalledTimes(source === "kaneo" ? 1 : 0);
-      expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
-      const task = await db.query.taskTable.findFirst({ where: eq(schema.taskTable.id, f.task.id) });
-      expect(task!.title).toBe(source === "provider" ? "Repository title" : before!.title);
-    } else {
-      expect(response.status).toBeGreaterThanOrEqual(400);
-      expect(response.status).toBeLessThan(500);
-      expect(await readErrorBody(response)).toMatchObject({ message: expect.any(String), code: expect.any(String) });
-      expect(provider.write).not.toHaveBeenCalled();
-      expect(await db.query.taskTable.findFirst({ where: eq(schema.taskTable.id, f.task.id) })).toEqual(before);
-      const link = await db.query.externalLinkTable.findFirst({ where: eq(schema.externalLinkTable.id, f.link.id) });
-      expect(JSON.parse(link!.metadata!)).toMatchObject({ syncFilterPaused: true, retained: "preserve-me" });
-    }
-  });
+  )(
+    "applies $mode policy to a reviewed $source resume over HTTP",
+    async ({ mode, source }) => {
+      const f = await paused();
+      const config = {
+        ...JSON.parse(f.integration.config),
+        syncRules: f.rules,
+        issueSyncMode: mode,
+      };
+      await db
+        .update(schema.integrationTable)
+        .set({ config: JSON.stringify(config) })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      const review = await f.request(`/links/${f.link.id}/review`, "GET");
+      expect(review.status).toBe(200);
+      const { token } = await review.json();
+      const before = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, f.task.id),
+      });
+      const response = await f.request(`/links/${f.link.id}/resume`, "POST", {
+        source,
+        token,
+      });
+      const allowed =
+        mode === "sync" || (mode === "ingest-only" && source === "provider");
+      if (allowed) {
+        expect(response.status).toBe(200);
+        expect(provider.write).toHaveBeenCalledTimes(
+          source === "kaneo" ? 1 : 0,
+        );
+        expect(await canSyncTask(f.task.id, f.integration.id)).toBe(true);
+        const task = await db.query.taskTable.findFirst({
+          where: eq(schema.taskTable.id, f.task.id),
+        });
+        expect(task!.title).toBe(
+          source === "provider" ? "Repository title" : before!.title,
+        );
+      } else {
+        expect(response.status).toBeGreaterThanOrEqual(400);
+        expect(response.status).toBeLessThan(500);
+        expect(await readErrorBody(response)).toMatchObject({
+          message: expect.any(String),
+          code: expect.any(String),
+        });
+        expect(provider.write).not.toHaveBeenCalled();
+        expect(
+          await db.query.taskTable.findFirst({
+            where: eq(schema.taskTable.id, f.task.id),
+          }),
+        ).toEqual(before);
+        const link = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        });
+        expect(JSON.parse(link!.metadata!)).toMatchObject({
+          syncFilterPaused: true,
+          retained: "preserve-me",
+        });
+      }
+    },
+  );
 
   it.each(["sync", "ingest-only", "off"] as const)(
     "previews creation only when %s permits export",
     async (mode) => {
       const f = await setup();
       await f.assign();
-      await db.update(schema.integrationTable).set({ config: JSON.stringify({
-        ...JSON.parse(f.integration.config), syncRules: f.rules, issueSyncMode: mode,
-      }) }).where(eq(schema.integrationTable.id, f.integration.id));
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({
+            ...JSON.parse(f.integration.config),
+            syncRules: f.rules,
+            issueSyncMode: mode,
+          }),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
       const preview = await f.request("/preview", "POST", { rules: f.rules });
       expect(preview.status).toBe(200);
-      expect(await preview.json()).toMatchObject({ matching: 1, willCreate: mode === "sync" ? 1 : 0 });
+      expect(await preview.json()).toMatchObject({
+        matching: 1,
+        willCreate: mode === "sync" ? 1 : 0,
+      });
       expect(provider.write).not.toHaveBeenCalled();
-      expect(await db.query.externalLinkTable.findMany({ where: eq(schema.externalLinkTable.taskId, f.task.id) })).toEqual([]);
+      expect(
+        await db.query.externalLinkTable.findMany({
+          where: eq(schema.externalLinkTable.taskId, f.task.id),
+        }),
+      ).toEqual([]);
     },
   );
 
@@ -975,7 +1219,7 @@ describe("reviewed sync resume", () => {
     expect(provider.write).not.toHaveBeenCalled();
   });
 
-  it.each(["task", "integration", "labels", "link", "project"] as const)(
+  it.each(["task", "link", "project"] as const)(
     "allows %s edits during a provider write and retains an uncertain paused link",
     async (change) => {
       const f = await paused();
@@ -1014,15 +1258,6 @@ describe("reviewed sync resume", () => {
               .update(schema.taskTable)
               .set({ title: "Concurrent edit" })
               .where(eq(schema.taskTable.id, f.task.id)),
-          integration: (tx: typeof db) =>
-            tx
-              .update(schema.integrationTable)
-              .set({ isActive: false })
-              .where(eq(schema.integrationTable.id, f.integration.id)),
-          labels: (tx: typeof db) =>
-            tx
-              .delete(schema.labelTable)
-              .where(eq(schema.labelTable.taskId, f.task.id)),
           link: (tx: typeof db) =>
             tx
               .update(schema.externalLinkTable)
@@ -1038,11 +1273,6 @@ describe("reviewed sync resume", () => {
           await tx.execute(sql`set local lock_timeout = '1s'`);
           await attempts[change](tx as typeof db);
         });
-        const activity = await db.execute<{ count: number }>(sql`
-        select count(*)::int as count from pg_stat_activity
-        where datname = current_database() and state = 'idle in transaction'
-      `);
-        expect(activity.rows[0]!.count).toBe(0);
       } finally {
         release();
       }

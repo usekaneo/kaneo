@@ -1,7 +1,11 @@
 import { IssueWriteRefused } from "../../sync/dispatch-issue-write";
 import type { IssueWrite } from "../../sync/issue-write";
 import { canSyncGiteaIssues, type GiteaConfig } from "../config";
-import { createGiteaClient, type GiteaLabel } from "./gitea-api";
+import {
+  createGiteaClient,
+  GITEA_MAX_LABELS_PER_REQUEST,
+  type GiteaLabel,
+} from "./gitea-api";
 
 const labelColors: Record<string, string> = {
   "priority:low": "0EA5E9",
@@ -97,14 +101,21 @@ export async function addLabelsToIssueGitea(
   const client = createGiteaClient(config);
 
   try {
-    await write(() =>
-      client.addLabelsToIssue(
-        config.repositoryOwner,
-        config.repositoryName,
-        issueIndex,
-        ids,
-      ),
-    );
+    for (
+      let offset = 0;
+      offset < ids.length;
+      offset += GITEA_MAX_LABELS_PER_REQUEST
+    ) {
+      const chunk = ids.slice(offset, offset + GITEA_MAX_LABELS_PER_REQUEST);
+      await write(() =>
+        client.addLabelsToIssue(
+          config.repositoryOwner,
+          config.repositoryName,
+          issueIndex,
+          chunk,
+        ),
+      );
+    }
   } catch (error) {
     if (requireSuccess || error instanceof IssueWriteRefused) throw error;
     console.error("Failed to add labels to Gitea issue:", error);

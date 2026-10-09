@@ -100,14 +100,21 @@ export default async function updateGiteaIntegration(
       await retireGiteaIssueEdits(row.id, tx, targetMode);
     }
   });
-  const modeChanged = body.issueSyncMode !== undefined &&
+  const modeChanged =
+    body.issueSyncMode !== undefined &&
     body.issueSyncMode !== getGiteaIssueSyncMode(previous);
-  const activeChanged = body.isActive !== undefined && body.isActive !== snapshot.isActive;
+  const activeChanged =
+    body.isActive !== undefined && body.isActive !== snapshot.isActive;
   if (modeChanged || activeChanged) {
     await publishEvent("integration.sync_rules_changed", {
-      projectId, integrationId: snapshot.id,
-      existingLinksOnly: !(activeChanged && body.isActive === true && !modeChanged &&
-        getGiteaIssueSyncMode(previous) === "sync"),
+      projectId,
+      integrationId: snapshot.id,
+      existingLinksOnly: !(
+        activeChanged &&
+        body.isActive === true &&
+        !modeChanged &&
+        getGiteaIssueSyncMode(previous) === "sync"
+      ),
     });
   }
   await publishEvent("project.updated", { projectId, linksChanged: true });

@@ -6,7 +6,7 @@ import { createApp } from "../../apps/api/src/index";
 import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
 import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
 import { saveSyncRules } from "../../apps/api/src/integration-sync/controllers/save-rules";
-import * as giteaConfig from "../../apps/api/src/plugins/gitea/config";
+import * as giteaVerification from "../../apps/api/src/gitea-integration/controllers/verify-gitea-access";
 import * as gitlabConfig from "../../apps/api/src/plugins/gitlab/config";
 import {
   defaultSyncRules,
@@ -44,6 +44,7 @@ it.each(["gitea", "gitlab"] as const)(
           repositoryName: "repo",
           projectPath: "team/repo",
           syncRules: defaultSyncRules,
+          ...(type === "gitea" ? { issueSyncMode: "ingest-only" } : {}),
         }),
       })
       .returning();
@@ -57,27 +58,49 @@ it.each(["gitea", "gitlab"] as const)(
       app.request(`/api/${type}-integration/project/${project.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ [property]: false }),
+        body: JSON.stringify({
+          [property]: false,
+          ...(type === "gitea" ? { issueSyncMode: "sync" } : {}),
+        }),
       });
     let release!: () => void;
     const gate = new Promise<void>((resolve) => {
       release = resolve;
     });
-    const validation =
-      type === "gitea"
-        ? vi.spyOn(giteaConfig, "validateGiteaConfig")
-        : vi.spyOn(gitlabConfig, "validateGitlabConfig");
-    validation.mockImplementationOnce(async () => {
-      await gate;
-      return { valid: true };
-    });
+    let validationStarted = false;
+    if (type === "gitea") {
+      const verified = {
+        isInstalled: true,
+        hasRequiredPermissions: true,
+        repositoryExists: true,
+        repositoryPrivate: true,
+        missingPermissions: [],
+        message: "Token can access the repository.",
+        failureReason: null,
+      };
+      vi.spyOn(giteaVerification, "default")
+        .mockResolvedValue(verified)
+        .mockImplementationOnce(async () => {
+          validationStarted = true;
+          await gate;
+          return verified;
+        });
+    } else {
+      vi.spyOn(gitlabConfig, "validateGitlabConfig").mockImplementationOnce(
+        async () => {
+          validationStarted = true;
+          await gate;
+          return { valid: true };
+        },
+      );
+    }
     const pending = patch();
     const rules: SyncRules = {
       ...defaultSyncRules,
       incoming: { mode: "labels", match: "all", labels: ["ready"] },
     };
     try {
-      await vi.waitFor(() => expect(validation).toHaveBeenCalledOnce());
+      await vi.waitFor(() => expect(validationStarted).toBe(true));
       const preview = await previewSyncRules(
         await getSyncIntegration(project.id, type),
         rules,
@@ -100,10 +123,13 @@ it.each(["gitea", "gitlab"] as const)(
         }))!.config,
       );
     expect((await readConfig()).syncRules).toEqual(rules);
+    if (type === "gitea")
+      expect((await readConfig()).issueSyncMode).toBe("ingest-only");
     expect((await patch()).status).toBe(200);
     expect(await readConfig()).toMatchObject({
       syncRules: rules,
       [property]: false,
+      ...(type === "gitea" ? { issueSyncMode: "sync" } : {}),
     });
   },
 );

@@ -54,17 +54,21 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     },
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    getIssue: () => m.read(),
-    updateIssue: (
-      _owner: string,
-      _repo: string,
-      _number: number,
-      params: Record<string, unknown>,
-    ) => m.write(params),
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      getIssue: () => m.read(),
+      updateIssue: (
+        _owner: string,
+        _repo: string,
+        _number: number,
+        params: Record<string, unknown>,
+      ) => m.write(params),
+    }),
   }),
-}));
+);
 beforeEach(async () => {
   await resetTestDatabase();
   vi.clearAllMocks();
@@ -2150,14 +2154,18 @@ it.each(
     };
     let responseReceived = false;
     let reconfigured = false;
-    const findLinks = db.query.externalLinkTable.findMany.bind(db.query.externalLinkTable);
-    const linksRead = vi.spyOn(db.query.externalLinkTable, "findMany").mockImplementation(async (options) => {
-      if (responseReceived && !reconfigured) {
-        reconfigured = true;
-        await reconfigure();
-      }
-      return findLinks(options);
-    });
+    const findLinks = db.query.externalLinkTable.findMany.bind(
+      db.query.externalLinkTable,
+    );
+    const linksRead = vi
+      .spyOn(db.query.externalLinkTable, "findMany")
+      .mockImplementation(async (options) => {
+        if (responseReceived && !reconfigured) {
+          reconfigured = true;
+          await reconfigure();
+        }
+        return findLinks(options);
+      });
     const write = vi.fn(async () => {
       responseReceived = true;
       if (failed) throw new Error("old repository request failed");

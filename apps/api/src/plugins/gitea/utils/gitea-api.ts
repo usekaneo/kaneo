@@ -70,6 +70,7 @@ function authHeaders(token: string): HeadersInit {
 }
 
 const GITEA_FETCH_TIMEOUT_MS = 10_000;
+export const GITEA_MAX_LABELS_PER_REQUEST = 50;
 
 export async function giteaFetch<T>(
   baseUrl: string,
@@ -385,15 +386,21 @@ export function createGiteaClient(
       labelIds: number[],
     ) {
       if (labelIds.length === 0) return;
-      await giteaFetch<unknown>(
-        baseUrl,
-        accessToken,
-        `${owner(repositoryOwner, repositoryName)}/issues/${index}/labels`,
-        {
+      const path = `${owner(repositoryOwner, repositoryName)}/issues/${index}/labels`;
+      for (
+        let offset = 0;
+        offset < labelIds.length;
+        offset += GITEA_MAX_LABELS_PER_REQUEST
+      ) {
+        const chunk = labelIds.slice(
+          offset,
+          offset + GITEA_MAX_LABELS_PER_REQUEST,
+        );
+        await giteaFetch<unknown>(baseUrl, accessToken, path, {
           method: "POST",
-          body: JSON.stringify({ labels: labelIds }),
-        },
-      );
+          body: JSON.stringify({ labels: chunk }),
+        });
+      }
     },
 
     async replaceIssueLabels(

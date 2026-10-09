@@ -58,25 +58,18 @@ vi.mock(
     repoOwnerLogin: () => "owner",
   }),
 );
-vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    createIssueComment: mocks.createIssueComment,
-    listIssueComments: mocks.listIssueComments,
-    listIssues: async () => [
-      { number: 42, title: "Issue", body: "", labels: [] },
-    ],
-    listPulls: async () => [],
-  }),
-}));
-
-// Real admission/locking is exercised in gitea-outbound-fence.test.ts.
 vi.mock(
-  "../../../../apps/api/src/plugins/gitea/services/outbound-fence",
-  () => ({
-    withGiteaOutboundWrite: async <T>(
-      _binding: unknown,
-      write: () => Promise<T>,
-    ) => ({ sent: true, value: await write() }),
+  "../../../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      createIssueComment: mocks.createIssueComment,
+      listIssueComments: mocks.listIssueComments,
+      listIssues: async () => [
+        { number: 42, title: "Issue", body: "", labels: [] },
+      ],
+      listPulls: async () => [],
+    }),
   }),
 );
 
@@ -244,11 +237,15 @@ vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));
 
-vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
-  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
-  dispatchIssueWrite: async (
-    _link: unknown,
-    _config: unknown,
-    send: () => Promise<unknown>,
-  ) => ({ value: await send() }),
-}));
+vi.mock(
+  "../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  async (original) => ({
+    ...(await original<object>()),
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+    dispatchIssueWrite: async (
+      _link: unknown,
+      _config: unknown,
+      send: () => Promise<unknown>,
+    ) => ({ value: await send() }),
+  }),
+);

@@ -18,6 +18,7 @@ const m = vi.hoisted(() => ({
   stamps: {} as Record<string, SyncStamp>,
   save: vi.fn(),
   dispatch: vi.fn(),
+  eligible: vi.fn(),
 }));
 vi.mock("../../../../apps/api/src/database", () => ({
   default: {
@@ -78,6 +79,7 @@ vi.mock(
 );
 const link = { id: "link", integrationId: "integration" };
 beforeEach(() => {
+  m.eligible.mockReset().mockResolvedValue(true);
   m.dispatch
     .mockReset()
     .mockImplementation(
@@ -94,7 +96,9 @@ beforeEach(() => {
       {
         outbound,
         observedOutbound,
+        retireOutboundIntents,
       }: {
+        retireOutboundIntents?: { field: string; intentIds: string[] };
         observedOutbound?: {
           field: string;
           intentId: string;
@@ -107,6 +111,16 @@ beforeEach(() => {
         };
       },
     ) => {
+      if (retireOutboundIntents) {
+        const stamp = m.stamps[retireOutboundIntents.field];
+        if (stamp?.outbound)
+          stamp.outbound = stamp.outbound.map((entry) =>
+            entry.intentId &&
+            retireOutboundIntents.intentIds.includes(entry.intentId)
+              ? { ...entry, pending: false, uncertain: false, cancelled: true }
+              : entry,
+          );
+      }
       if (observedOutbound) {
         const entry = m.stamps[observedOutbound.field]?.outbound?.find(
           (entry) => entry.intentId === observedOutbound.intentId,
@@ -519,7 +533,7 @@ it("bounds confirmation retries and durably defers continuous sync changes", asy
 
 // Policy enforcement is covered by the PostgreSQL sync-rules integration tests.
 vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
-  canSyncTask: async () => true,
+  canSyncTask: m.eligible,
 }));
 
 vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
@@ -546,3 +560,40 @@ it("cancels an outbound intent when scope changes before dispatch", async () => 
     uncertain: false,
   });
 });
+
+it.each(["title", "description", "state"] as const)(
+  "retires only the pending %s intent when eligibility is lost before dispatch",
+  async (field) => {
+    m.current = { title: "Current", description: "Current", status: "to-do" };
+    m.stamps[field] = outboundStamp(
+      undefined,
+      field === "state" ? "open" : "Previous",
+      "2026-09-30T00:00:01Z",
+      {
+        intentId: "completed-intent",
+        pending: false,
+      },
+    );
+    const retained = { ...m.stamps[field].outbound![0] };
+    m.eligible.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+    const write = vi.fn();
+    await syncLatestTaskValue(
+      "task",
+      "project",
+      link,
+      field,
+      field === "state" ? "closed" : "Current",
+      write,
+    );
+    expect(write).not.toHaveBeenCalled();
+    expect(m.dispatch).not.toHaveBeenCalled();
+    expect(m.stamps[field].outbound).toEqual([
+      retained,
+      expect.objectContaining({
+        pending: false,
+        uncertain: false,
+        cancelled: true,
+      }),
+    ]);
+  },
+);

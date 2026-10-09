@@ -33,6 +33,8 @@ Switching away from **Two-way sync** cancels queued outbound issue repairs. **In
 
 A mode change waits for admitted outbound requests to finish or time out before saving. Once **Ingest only** or **Off** is saved, stale work cannot start new outbound issue, comment, or label requests while that mode remains active. Requests already received by Gitea may still complete remotely after a timeout; they cannot be cancelled by a later mode change.
 
+Each API instance admits at most four coordinated Gitea writes at once. Other writes wait without reserving database connections; the ten-second DNS and HTTP deadline starts when a request is admitted, not while it is queued. This keeps a slow Gitea server from consuming the entire API database pool.
+
 All three modes retain live branch, push, and pull-request linking and workflow automation while the connection is active. **Off** is not a connection-wide disable switch. Task-link comments are available only in **Two-way sync**; their saved preference is kept in the other modes.
 
 ## Choose the sync scope

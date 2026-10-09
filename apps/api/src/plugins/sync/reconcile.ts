@@ -115,11 +115,21 @@ export async function reconcileProjectSync(
           .where(
             and(
               eq(taskTable.projectId, projectId),
-              (existingLinksOnly === true || (existingLinksOnly === "gitea" && integration.type === "gitea")) ? exists(db.select({ id: externalLinkTable.id }).from(externalLinkTable).where(and(
-                eq(externalLinkTable.taskId, taskTable.id),
-                eq(externalLinkTable.integrationId, integration.id),
-                eq(externalLinkTable.resourceType, "issue"),
-              ))) : undefined,
+              existingLinksOnly === true ||
+                (existingLinksOnly === "gitea" && integration.type === "gitea")
+                ? exists(
+                    db
+                      .select({ id: externalLinkTable.id })
+                      .from(externalLinkTable)
+                      .where(
+                        and(
+                          eq(externalLinkTable.taskId, taskTable.id),
+                          eq(externalLinkTable.integrationId, integration.id),
+                          eq(externalLinkTable.resourceType, "issue"),
+                        ),
+                      ),
+                  )
+                : undefined,
               reconciliationPredicate(integration.id, scope.predicate),
               cursor ? gt(taskTable.id, cursor) : undefined,
             ),

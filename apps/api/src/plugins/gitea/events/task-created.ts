@@ -52,13 +52,19 @@ async function createTaskIssue(
       existingLink;
     let issueNumber = existingLink ? Number(existingLink.externalId) : 0;
     if (!existingLink) {
-      const result = await withGiteaOutboundWrite({
-        integrationId: context.integrationId, projectId: context.projectId,
-        config, taskId: event.taskId,
-      }, () => client.createIssue(repositoryOwner, repositoryName, {
-        title: formatIssueTitle(event.title),
-        body: formatIssueBody(event.description, event.taskId),
-      }));
+      const result = await withGiteaOutboundWrite(
+        {
+          integrationId: context.integrationId,
+          projectId: context.projectId,
+          config,
+          taskId: event.taskId,
+        },
+        () =>
+          client.createIssue(repositoryOwner, repositoryName, {
+            title: formatIssueTitle(event.title),
+            body: formatIssueBody(event.description, event.taskId),
+          }),
+      );
       if (!result.sent) return;
       const createdIssue = result.value;
 

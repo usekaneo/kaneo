@@ -24,14 +24,18 @@ class GiteaApiError extends Error {
   }
 }
 
-vi.mock("../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  GiteaApiError,
-  giteaFetch: (...args: unknown[]) => mockGiteaFetch(...args),
-  createGiteaClient: () => ({
-    getRepo: (...args: unknown[]) => mockGiteaFetch(...args),
+vi.mock(
+  "../../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    GiteaApiError,
+    giteaFetch: (...args: unknown[]) => mockGiteaFetch(...args),
+    createGiteaClient: () => ({
+      getRepo: (...args: unknown[]) => mockGiteaFetch(...args),
+    }),
+    verifyGiteaToken: (...args: unknown[]) => mockGiteaFetch(...args),
   }),
-  verifyGiteaToken: (...args: unknown[]) => mockGiteaFetch(...args),
-}));
+);
 
 const { default: verifyGiteaAccess } =
   await import("../../../apps/api/src/gitea-integration/controllers/verify-gitea-access");

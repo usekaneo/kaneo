@@ -10,6 +10,11 @@ import { handleTaskStatusChanged } from "../../apps/api/src/plugins/gitea/events
 import { handleGiteaIssueOpened } from "../../apps/api/src/plugins/gitea/webhooks/issue-opened";
 import { syncLatestTaskValue } from "../../apps/api/src/plugins/github/services/sync-latest-task-value";
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
+import { addLabelsToIssueGitea } from "../../apps/api/src/plugins/gitea/utils/labels";
+import {
+  createIssueWrite,
+  IssueWriteRefused,
+} from "../../apps/api/src/plugins/sync/dispatch-issue-write";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -24,13 +29,19 @@ const client = vi.hoisted(() => ({
   removeLabelFromIssue: vi.fn(async () => undefined),
   updateIssue: vi.fn(async () => ({ updated_at: "2026-10-02T00:00:00Z" })),
   getIssue: vi.fn(async () => ({
-    title: "Provider issue", body: "", state: "open",
+    title: "Provider issue",
+    body: "",
+    state: "open",
     labels: [] as Array<{ id: number; name: string }>,
   })),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => client,
-}));
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => client,
+  }),
+);
 vi.mock("../../apps/api/src/events", () => ({
   publishEvent: vi.fn(async () => undefined),
 }));
@@ -42,7 +53,10 @@ beforeEach(async () => {
   client.addLabelsToIssue.mockReset().mockResolvedValue(undefined);
   client.removeLabelFromIssue.mockReset().mockResolvedValue(undefined);
   client.getIssue.mockReset().mockResolvedValue({
-    title: "Provider issue", body: "", state: "open", labels: [],
+    title: "Provider issue",
+    body: "",
+    state: "open",
+    labels: [],
   });
 });
 
@@ -148,6 +162,150 @@ it.each(["off", "ingest-only"] as const)(
     expect(label).not.toHaveBeenCalled();
   },
 );
+
+it.each([49, 50, 51, 101])(
+  "assigns %s Gitea labels in bounded requests without losing or repeating IDs",
+  async (count) => {
+    const f = await fixture();
+    const labels = Array.from({ length: count }, (_, index) => ({
+      id: index + 1,
+      name: `label-${index}`,
+    }));
+    client.listLabels.mockResolvedValue(labels);
+    await addLabelsToIssueGitea(
+      f.config,
+      1,
+      labels.map((label) => label.name),
+      true,
+      createIssueWrite(f.link, f.integration.config),
+    );
+    const requests = client.addLabelsToIssue.mock.calls as unknown as Array<
+      [string, string, number, number[]]
+    >;
+    expect(requests).toHaveLength(Math.ceil(count / 50));
+    for (const [owner, repository, issueNumber, ids] of requests) {
+      expect([owner, repository, issueNumber]).toEqual(["owner", "repo", 1]);
+      expect(ids.length).toBeGreaterThan(0);
+      expect(ids.length).toBeLessThanOrEqual(50);
+    }
+    expect(requests.flatMap(([, , , ids]) => ids)).toEqual(
+      labels.map((label) => label.id),
+    );
+    expect(client.createLabel).not.toHaveBeenCalled();
+  },
+);
+
+it.each(
+  [false, true].flatMap((strict) =>
+    [1, 2].map((failedRequest) => ({ strict, failedRequest })),
+  ),
+)(
+  "stops later label batches after request $failedRequest fails (strict=$strict)",
+  async ({ strict, failedRequest }) => {
+    const f = await fixture();
+    const labels = Array.from({ length: 101 }, (_, index) => ({
+      id: index + 1,
+      name: `label-${index}`,
+    }));
+    client.listLabels.mockResolvedValue(labels);
+    const failure = new Error("Provider label request unavailable");
+    client.addLabelsToIssue.mockImplementation(async () => {
+      if (client.addLabelsToIssue.mock.calls.length === failedRequest)
+        throw failure;
+    });
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const assignment = addLabelsToIssueGitea(
+        f.config,
+        1,
+        labels.map((label) => label.name),
+        strict,
+        createIssueWrite(f.link, f.integration.config),
+      );
+      if (strict) await expect(assignment).rejects.toBe(failure);
+      else await expect(assignment).resolves.toBeUndefined();
+      const requests = client.addLabelsToIssue.mock.calls as unknown as Array<
+        [string, string, number, number[]]
+      >;
+      expect(requests).toHaveLength(failedRequest);
+      expect(requests.flatMap(([, , , ids]) => ids)).toEqual(
+        labels.slice(0, failedRequest * 50).map((label) => label.id),
+      );
+    } finally {
+      log.mockRestore();
+    }
+  },
+);
+
+it("refuses later label batches after a committed mode save even for best-effort assignment", async () => {
+  const f = await fixture();
+  const labels = Array.from({ length: 101 }, (_, index) => ({
+    id: index + 1,
+    name: `label-${index}`,
+  }));
+  client.listLabels.mockResolvedValue(labels);
+  const write = createIssueWrite(f.link, f.integration.config);
+  let changed = false;
+  await expect(
+    addLabelsToIssueGitea(
+      f.config,
+      1,
+      labels.map((label) => label.name),
+      false,
+      async (send) => {
+        const result = await write(send);
+        // Commit a settings save between bounded requests, never inside provider HTTP.
+        if (!changed) {
+          changed = true;
+          await f.saveMode("off");
+        }
+        return result;
+      },
+    ),
+  ).rejects.toBeInstanceOf(IssueWriteRefused);
+  expect(client.addLabelsToIssue).toHaveBeenCalledTimes(1);
+  const requests = client.addLabelsToIssue.mock.calls as unknown as Array<
+    [string, string, number, number[]]
+  >;
+  expect(requests[0][3]).toEqual(labels.slice(0, 50).map((label) => label.id));
+});
+
+it("keeps unrelated task database work responsive with twelve waiting Gitea writes", async () => {
+  const f = await fixture();
+  const entered = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
+  const writes = Array.from({ length: 12 }, (_, index) =>
+    withGiteaOutboundWrite(f.binding, async () => {
+      entered.resolve();
+      await release.promise;
+      return index;
+    }),
+  );
+  await entered.promise;
+  let edited = false;
+  const unrelated = db
+    .update(schema.taskTable)
+    .set({ title: "Concurrent local edit" })
+    .where(eq(schema.taskTable.id, f.task.id))
+    .returning()
+    .then(async ([task]) => {
+      const current = await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, f.task.id),
+      });
+      expect(task.title).toBe("Concurrent local edit");
+      expect(current?.title).toBe("Concurrent local edit");
+      edited = true;
+    });
+  try {
+    await vi.waitFor(() => expect(edited).toBe(true));
+  } finally {
+    release.resolve();
+    await Promise.all([unrelated, ...writes]);
+  }
+  expect(await Promise.all(writes)).toEqual(
+    Array.from({ length: 12 }, (_, value) => ({ sent: true, value })),
+  );
+});
 
 it("holds SHARE through admitted HTTP, blocks the save, and denies the next stale mutation", async () => {
   const f = await fixture();
@@ -262,22 +420,26 @@ it("a sync/off/sync cycle cannot resurrect a retired write intent or schedule un
   const readCurrent = vi.fn(async () => "provider value");
   const findTask = db.query.taskTable.findFirst.bind(db.query.taskTable);
   let intercepted = false;
-  const read = vi.spyOn(db.query.taskTable, "findFirst").mockImplementation(async (options) => {
-    if (!intercepted) {
-      const current = await db.query.externalLinkTable.findFirst({
-        where: eq(schema.externalLinkTable.id, f.link.id),
-      });
-      const intent = JSON.parse(current?.metadata ?? "{}").lastSync?.title?.outbound?.find(
-        (entry: { pending?: boolean }) => entry.pending,
-      );
-      if (intent) {
-        intercepted = true;
-        pending.resolve(intent.intentId);
-        await proceed.promise;
+  const read = vi
+    .spyOn(db.query.taskTable, "findFirst")
+    .mockImplementation(async (options) => {
+      if (!intercepted) {
+        const current = await db.query.externalLinkTable.findFirst({
+          where: eq(schema.externalLinkTable.id, f.link.id),
+        });
+        const intent = JSON.parse(
+          current?.metadata ?? "{}",
+        ).lastSync?.title?.outbound?.find(
+          (entry: { pending?: boolean }) => entry.pending,
+        );
+        if (intent) {
+          intercepted = true;
+          pending.resolve(intent.intentId);
+          await proceed.promise;
+        }
       }
-    }
-    return findTask(options);
-  });
+      return findTask(options);
+    });
   const outbound = syncLatestTaskValue(
     f.task.id,
     f.project.id,
@@ -439,7 +601,7 @@ it.each([false, true])(
 
 async function statusChange(
   f: {
-    task: { id: string };
+    task: { id: string; title: string };
     project: { id: string };
     columns: { done: { id: string }; todo: { id: string } };
   },
@@ -456,6 +618,7 @@ async function statusChange(
     taskId: f.task.id,
     projectId: f.project.id,
     userId: "test-user",
+    title: f.task.title,
     oldStatus: newStatus === "done" ? "to-do" : "done",
     newStatus,
   };
@@ -498,12 +661,19 @@ describe.each(["done", "to-do"] as const)(
           { id: 1, name: `status:${event.oldStatus}` },
         ]);
         client.getIssue.mockResolvedValue({
-          title: "Provider issue", body: "", state: "open",
+          title: "Provider issue",
+          body: "",
+          state: "open",
           labels: [{ id: 1, name: `status:${event.oldStatus}` }],
         });
-        await db.update(schema.externalLinkTable).set({ metadata: JSON.stringify({
-          syncResumeLabelBaseline: [`status:${event.oldStatus}`, "bug"],
-        }) }).where(eq(schema.externalLinkTable.id, f.link.id));
+        await db
+          .update(schema.externalLinkTable)
+          .set({
+            metadata: JSON.stringify({
+              syncResumeLabelBaseline: [`status:${event.oldStatus}`, "bug"],
+            }),
+          })
+          .where(eq(schema.externalLinkTable.id, f.link.id));
         const failure = new Error(`${operation} unavailable`);
         client[operation].mockRejectedValueOnce(failure);
         const errors = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -527,17 +697,20 @@ describe.each(["done", "to-do"] as const)(
             newStatus === "done" ? "closed" : "open",
           );
           expect(JSON.parse(link!.metadata!).syncResumeLabelBaseline).toEqual([
-            `status:${event.oldStatus}`, "bug",
+            `status:${event.oldStatus}`,
+            "bug",
           ]);
           await handleTaskStatusChanged(event, {
-            integrationId: f.integration.id, projectId: f.project.id, config: f.config,
+            integrationId: f.integration.id,
+            projectId: f.project.id,
+            config: f.config,
           });
           const retried = await db.query.externalLinkTable.findFirst({
             where: eq(schema.externalLinkTable.id, f.link.id),
           });
-          expect(JSON.parse(retried!.metadata!).syncResumeLabelBaseline).toEqual([
-            "bug", `status:${newStatus}`,
-          ]);
+          expect(
+            JSON.parse(retried!.metadata!).syncResumeLabelBaseline,
+          ).toEqual(["bug", `status:${newStatus}`]);
         } finally {
           errors.mockRestore();
         }

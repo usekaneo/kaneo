@@ -1,4 +1,7 @@
-import { canSyncGiteaIssues, type GiteaConfig } from "../../plugins/gitea/config";
+import {
+  canSyncGiteaIssues,
+  type GiteaConfig,
+} from "../../plugins/gitea/config";
 import { createHash } from "node:crypto";
 import { and, asc, desc, eq, gt, or, sql } from "drizzle-orm";
 import db from "../../database";
@@ -14,7 +17,8 @@ export async function previewSyncRules(
   database: IntegrationDatabase = db,
   after?: string,
 ) {
-  const allowExport = integration.type !== "gitea" ||
+  const allowExport =
+    integration.type !== "gitea" ||
     canSyncGiteaIssues(JSON.parse(integration.config) as GiteaConfig);
   const proposed = await outgoingPredicate(
     integration.project.workspaceId,
@@ -57,7 +61,9 @@ export async function previewSyncRules(
     .select({
       total: sql<number>`count(*)::int`,
       matching: sql<number>`count(*) filter (where ${scope.eligible})::int`,
-      willCreate: allowExport ? sql<number>`count(*) filter (where ${scope.eligible} and (${scope.linkId} is null or (${scope.initializing} and not ${scope.paused})))::int` : sql<number>`0::int`,
+      willCreate: allowExport
+        ? sql<number>`count(*) filter (where ${scope.eligible} and (${scope.linkId} is null or (${scope.initializing} and not ${scope.paused})))::int`
+        : sql<number>`0::int`,
       willPause: sql<number>`count(*) filter (where ${scope.linkId} is not null and not ${scope.eligible} and not ${scope.paused})::int`,
       needsReview: sql<number>`count(*) filter (where ${scope.linkId} is not null and ${scope.eligible} and (${scope.paused} or not ${scope.current}))::int`,
       paused: sql<number>`count(*) filter (where ${scope.linkId} is not null and (not ${scope.eligible} or ${scope.paused}))::int`,

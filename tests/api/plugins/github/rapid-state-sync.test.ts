@@ -41,24 +41,18 @@ vi.mock("../../../../apps/api/src/plugins/github/utils/github-app", () => ({
     },
   }),
 }));
-vi.mock("../../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({
-    updateIssue: async (
-      _owner: string,
-      _repo: string,
-      _number: number,
-      { state }: { state: string },
-    ) => m.write(state),
-  }),
-}));
-// Real Gitea admission/locking is exercised in gitea-outbound-fence.test.ts.
 vi.mock(
-  "../../../../apps/api/src/plugins/gitea/services/outbound-fence",
-  () => ({
-    withGiteaOutboundWrite: async <T>(
-      _binding: unknown,
-      write: () => Promise<T>,
-    ) => ({ sent: true, value: await write() }),
+  "../../../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({
+      updateIssue: async (
+        _owner: string,
+        _repo: string,
+        _number: number,
+        { state }: { state: string },
+      ) => m.write(state),
+    }),
   }),
 );
 vi.mock("../../../../apps/api/src/plugins/github/utils/labels", () => ({
@@ -92,8 +86,8 @@ function deferred() {
 }
 beforeEach(() => {
   vi.resetAllMocks();
-  vi.mocked(removeLabelGitea).mockResolvedValue({ outcome: "completed" });
-  vi.mocked(addLabelsToIssueGitea).mockResolvedValue({ outcome: "completed" });
+  vi.mocked(removeLabelGitea).mockResolvedValue(undefined);
+  vi.mocked(addLabelsToIssueGitea).mockResolvedValue(undefined);
 });
 it.each([
   ["github", "closed"],
@@ -157,14 +151,18 @@ vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
   canSyncTask: async () => true,
 }));
 
-vi.mock("../../../../apps/api/src/plugins/sync/dispatch-issue-write", () => ({
-  createIssueWrite: () => (send: () => Promise<unknown>) => send(),
-  dispatchIssueWrite: async (
-    _link: unknown,
-    _config: unknown,
-    send: () => Promise<unknown>,
-  ) => ({ value: await send() }),
-}));
+vi.mock(
+  "../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  async (original) => ({
+    ...(await original<object>()),
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+    dispatchIssueWrite: async (
+      _link: unknown,
+      _config: unknown,
+      send: () => Promise<unknown>,
+    ) => ({ value: await send() }),
+  }),
+);
 
 vi.mock("../../../../apps/api/src/plugins/sync/sync-task-field-labels", () => ({
   syncTaskFieldLabels: async () => m.status,

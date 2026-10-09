@@ -132,7 +132,6 @@ async function createGiteaIntegration({
     issueSyncMode: targetMode,
   };
 
-
   const validation = await validateGiteaConfig(config);
   if (!validation.valid) {
     throw new HTTPException(400, {
@@ -193,8 +192,10 @@ async function createGiteaIntegration({
         )
         .returning();
       if (
-        saved && targetMode !== "sync" &&
-        (!sameTarget || getGiteaIssueSyncMode(previousConfig ?? {}) !== targetMode)
+        saved &&
+        targetMode !== "sync" &&
+        (!sameTarget ||
+          getGiteaIssueSyncMode(previousConfig ?? {}) !== targetMode)
       ) {
         await retireGiteaIssueEdits(saved.id, tx, targetMode);
       }

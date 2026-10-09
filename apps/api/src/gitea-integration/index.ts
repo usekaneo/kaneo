@@ -275,7 +275,8 @@ const giteaIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     const { projectId } = c.req.valid("param");
     const body = c.req.valid("json");
     const updated = await updateGiteaIntegration(projectId, body);
-    if (!updated) throw new HTTPException(404, { message: "Integration not found" });
+    if (!updated)
+      throw new HTTPException(404, { message: "Integration not found" });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {
@@ -314,7 +315,9 @@ export async function handleGiteaWebhookRoute(c: Context) {
   );
 
   if (!result.success) {
-    throw new HTTPException(400, { message: result.error ?? "Invalid Gitea webhook" });
+    throw new HTTPException(400, {
+      message: result.error ?? "Invalid Gitea webhook",
+    });
   }
 
   return c.json({ status: "success" });

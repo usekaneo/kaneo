@@ -11,7 +11,11 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 
-const provider = vi.hoisted(() => ({ labels: vi.fn(), comment: vi.fn() }));
+const provider = vi.hoisted(() => ({
+  labels: vi.fn(),
+  comment: vi.fn(),
+  afterLabels: vi.fn(),
+}));
 vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getGithubApp: () => ({
     getInstallationOctokit: async () => ({
@@ -19,9 +23,13 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
     }),
   }),
 }));
-vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
-  createGiteaClient: () => ({ createIssueComment: provider.comment }),
-}));
+vi.mock(
+  "../../apps/api/src/plugins/gitea/utils/gitea-api",
+  async (original) => ({
+    ...(await original<object>()),
+    createGiteaClient: () => ({ createIssueComment: provider.comment }),
+  }),
+);
 vi.mock("../../apps/api/src/plugins/gitlab/utils/gitlab-api", () => ({
   createGitlabClient: () => ({ createIssueNote: provider.comment }),
 }));
@@ -36,7 +44,11 @@ vi.mock("../../apps/api/src/plugins/gitea/utils/labels", () => ({
   addLabelsToIssueGitea: async (...args: unknown[]) => {
     const write = args.at(-1);
     const send = () => provider.labels();
-    return typeof write === "function" ? write(send) : send();
+    const result =
+      typeof write === "function" ? await write(send) : await send();
+    // The bounded label request has released its integration/eligibility locks.
+    await provider.afterLabels();
+    return result;
   },
 }));
 vi.mock("../../apps/api/src/plugins/gitlab/utils/labels", () => ({
@@ -52,6 +64,7 @@ beforeEach(async () => {
   vi.clearAllMocks();
   provider.labels.mockReset().mockResolvedValue(undefined);
   provider.comment.mockReset().mockResolvedValue({ id: 123 });
+  provider.afterLabels.mockReset().mockResolvedValue(undefined);
 });
 
 it.each(
@@ -125,7 +138,9 @@ it.each(
         if (name === "task.created" && phase === "before-write")
           await removeQualifyingLabel();
       });
-    if (phase === "after-label")
+    if (phase === "after-label" && type === "gitea")
+      provider.afterLabels.mockImplementationOnce(removeQualifyingLabel);
+    if (phase === "after-label" && type !== "gitea")
       provider.labels.mockImplementationOnce(async () => {
         await vi.waitFor(async () => {
           const activity = await db.execute<{ count: number }>(sql`

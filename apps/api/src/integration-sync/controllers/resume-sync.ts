@@ -1,4 +1,7 @@
-import { getGiteaIssueSyncMode, type GiteaConfig } from "../../plugins/gitea/config";
+import {
+  getGiteaIssueSyncMode,
+  type GiteaConfig,
+} from "../../plugins/gitea/config";
 import { withGiteaOutboundWrite } from "../../plugins/gitea/services/outbound-fence";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -47,7 +50,8 @@ async function resumeWithLease(
   source: "kaneo" | "provider",
   authorizedWorkspaceId: string,
 ) {
-  // Provider latency must not retain a pooled connection or block local edits.
+  // Release resume task/link locks before awaiting provider HTTP. Gitea's bounded
+  // fence retains integration/eligibility locks, with pool admission capped at four.
   const initial = await reviewSyncResume(
     projectId,
     provider,
@@ -77,9 +81,13 @@ async function resumeWithLease(
       tx,
     );
     if (provider === "gitea") {
-      const mode = getGiteaIssueSyncMode(JSON.parse(binding.config) as GiteaConfig);
+      const mode = getGiteaIssueSyncMode(
+        JSON.parse(binding.config) as GiteaConfig,
+      );
       if (mode === "off" || (source === "kaneo" && mode !== "sync"))
-        throw new HTTPException(409, { message: "Issue sync mode does not allow this operation" });
+        throw new HTTPException(409, {
+          message: "Issue sync mode does not allow this operation",
+        });
     }
     const review = await reviewSyncResume(
       projectId,
@@ -103,18 +111,30 @@ async function resumeWithLease(
         // before awaiting the response. Completion rechecks the local snapshot.
         const send = async () => {
           if (provider !== "gitea") return snapshot.access.write(review.local);
-          const result = await withGiteaOutboundWrite({
-            integrationId: review.integration.id, projectId,
-            config: JSON.parse(review.integration.config) as GiteaConfig,
-            link: review.link, resumePaused: true,
-          }, () => snapshot.access.write(review.local));
-          if (!result.sent) throw new HTTPException(409, { message: "Issue sync scope changed" });
+          const result = await withGiteaOutboundWrite(
+            {
+              integrationId: review.integration.id,
+              projectId,
+              config: JSON.parse(review.integration.config) as GiteaConfig,
+              link: review.link,
+              resumePaused: true,
+            },
+            () => snapshot.access.write(review.local),
+          );
+          if (!result.sent)
+            throw new HTTPException(409, {
+              message: "Issue sync scope changed",
+            });
           return result.value;
         };
-        request = send().then((value) => ({ value }), (error: unknown) => ({ error }));
+        request = send().then(
+          (value) => ({ value }),
+          (error: unknown) => ({ error }),
+        );
       });
       const result = await request!;
       if ("error" in result) {
+        if (result.error instanceof HTTPException) throw result.error;
         console.error("Sync resume provider write failed", {
           projectId,
           provider,

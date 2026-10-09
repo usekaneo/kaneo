@@ -112,9 +112,16 @@ export async function handleTaskDescriptionChanged(
       newDescNormalized,
       async (value) => ({
         sent: true,
-        updatedAt: (await client.updateIssue(repositoryOwner, repositoryName, issueNumber, {
-          body: formatIssueBody(value, event.taskId),
-        })).updated_at,
+        updatedAt: (
+          await client.updateIssue(
+            repositoryOwner,
+            repositoryName,
+            issueNumber,
+            {
+              body: formatIssueBody(value, event.taskId),
+            },
+          )
+        ).updated_at,
       }),
       async () =>
         formatTaskDescriptionFromIssue(

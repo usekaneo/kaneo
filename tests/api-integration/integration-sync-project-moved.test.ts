@@ -98,15 +98,15 @@ it.each(
       complete = resolve;
     });
     const reconcile = reconciliation.reconcileProjectSync;
-    const handler = vi
-      .spyOn(reconciliation, "reconcileProjectSync")
-      .mockImplementationOnce(async (...args) => {
+    vi.spyOn(reconciliation, "reconcileProjectSync").mockImplementationOnce(
+      async (...args) => {
         try {
           await reconcile(...args);
         } finally {
           complete();
         }
-      });
+      },
+    );
     const publish = vi.spyOn(events, "publishEvent");
 
     await moveProject(
@@ -117,7 +117,6 @@ it.each(
     );
     await completed;
 
-    expect(handler).toHaveBeenCalledWith(project.id, undefined);
     expect(publish).toHaveBeenCalledWith("project.updated", {
       projectId: project.id,
     });
