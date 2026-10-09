@@ -47,6 +47,18 @@ jobs:
             args: >-
               --set postgresql.auth.existingSecret=kaneo-secrets
               --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+          - name: openshift-read-only
+            args: >-
+              --set postgresql.enabled=false
+              --set kaneo.env.database.external.enabled=true
+              --set kaneo.env.database.external.host=db.example.com
+              --set kaneo.env.database.external.password=secure-db-password
+              --set kaneo.env.authSecret=secure-auth-secret-at-least-32-characters
+              --set podSecurityContext.runAsNonRoot=true
+              --set podSecurityContext.seccompProfile.type=RuntimeDefault
+              --set kaneo.securityContext.readOnlyRootFilesystem=true
+              --set kaneo.securityContext.allowPrivilegeEscalation=false
+              --set kaneo.securityContext.capabilities.drop[0]=ALL
 
     steps:
       - name: Checkout repository

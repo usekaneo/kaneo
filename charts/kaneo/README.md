@@ -121,7 +121,7 @@ When CPU autoscaling is enabled, set `kaneo.resources.requests.cpu`; Kubernetes 
 | `kaneo.extraEnvFrom`                | Additional Kubernetes EnvFromSource entries appended to the Kaneo container                                        | `[]`                            |
 | `kaneo.resources`                   | Resource requests and limits for the Kaneo container (optional, disabled by default)                               | `{}`                            |
 | `podSecurityContext`                | Security context applied at the Pod level                                                                          | `{}`                            |
-| `securityContext`                   | Security context applied at the container level                                                                    | `{}`                            |
+| `kaneo.securityContext`             | Security context applied at the Kaneo container level                                                              | `{}`                            |
 ### Ingress parameters
 | Name                                | Description                                                                                                        | Value                           |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
@@ -372,7 +372,7 @@ Common causes:
 - Incorrect host, port, or database name in the URI
 
 ### PodSecurity warnings on install/upgrade
-On clusters with Pod Security Admission enabled, you may see warnings like `would violate PodSecurity "restricted:latest"`. The chart exposes `podSecurityContext` and `securityContext` to address these. See the [Security](#security) section for recommended values.
+On clusters with Pod Security Admission enabled, you may see warnings like `would violate PodSecurity "restricted:latest"`. The chart exposes `podSecurityContext` and `kaneo.securityContext` to address these. See the [Security](#security) section for recommended values.
 ## Architecture
 This chart deploys the following components:
 1. **Kaneo application**: Serves the web UI and API from the combined Kaneo image
@@ -443,6 +443,33 @@ kaneo:
     capabilities:
       drop: ["ALL"]
 ```
+### OpenShift and read-only containers
+Kaneo supports OpenShift's assigned UID. The chart mounts an `emptyDir` at `/var/lib/kaneo` for generated frontend assets, nginx state, and temporary files. These files are recreated at startup; application data remains in PostgreSQL and the configured object storage.
+
+Leave `runAsUser`, `runAsGroup`, and `fsGroup` unset on OpenShift so its security policy can assign permitted IDs. With an external PostgreSQL database, the Kaneo container can use:
+```yaml
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+kaneo:
+  securityContext:
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+```
+The bundled PostgreSQL image has its own platform requirements; use an OpenShift-compatible database deployment or an external database on OpenShift.
+
+When running the combined or standalone web image outside Helm with a read-only root filesystem, mount writable storage at `/var/lib/kaneo`. For example:
+```bash
+docker run --read-only \
+  --tmpfs /var/lib/kaneo:rw,mode=0770,uid=1001,gid=0 \
+  --env-file .env -p 5173:5173 ghcr.io/usekaneo/kaneo:latest
+```
+For a bind mount, grant write access to the container's UID or a group it belongs to. The image's default user is UID 1001 with GID 0; arbitrary UIDs can write its runtime directory through GID 0 when the root filesystem is writable.
+
 ### Registration Control
 By default, user registration is enabled. To disable new user registration:
 ```yaml

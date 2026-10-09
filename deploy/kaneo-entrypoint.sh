@@ -90,7 +90,7 @@ until wget -Y off --spider --quiet http://127.0.0.1:1337/api/health 2>/dev/null;
 done
 echo "API is ready"
 
-nginx -g "daemon off;" &
+nginx -e /dev/stderr -g "daemon off;" &
 nginx_pid=$!
 
 while kill -0 "$api_pid" 2>/dev/null && kill -0 "$nginx_pid" 2>/dev/null; do
