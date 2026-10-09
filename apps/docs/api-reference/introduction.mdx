@@ -13,17 +13,24 @@ Keep keys in server-side scripts or secret storage. Do not put a personal API ke
 
 ## 2. Find your workspace and project IDs
 
-Open a project in the browser. Its URL includes both IDs:
+Set `KANEO_API_KEY` in your shell using your secret manager or a private environment file. Then list the workspaces you belong to with `GET /api/workspace`. Each item includes the workspace `id`, `name`, `slug`, and your `role`:
+
+```bash
+curl --fail-with-body 'https://kaneo.example.com/api/workspace' \
+  -H "Authorization: Bearer $KANEO_API_KEY"
+```
+
+You can also open a project in the browser. Its URL includes both IDs:
 
 ```text
 /dashboard/workspace/WORKSPACE_ID/project/PROJECT_ID/board
 ```
 
-Use the IDs from the URL, not the workspace name or a task number such as `WEB-22`.
+Use the IDs, not the workspace name or a task number such as `WEB-22`.
 
 ## 3. List the workspace's projects
 
-Set `KANEO_API_KEY` in your shell using your secret manager or a private environment file. Then replace the example workspace ID:
+Replace the example workspace ID:
 
 ```bash
 curl --fail-with-body --get 'https://kaneo.example.com/api/project' \

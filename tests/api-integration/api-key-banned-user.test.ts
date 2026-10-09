@@ -59,7 +59,8 @@ describe("API integration: API keys of banned users", () => {
       .update(schema.apikeyTable)
       .set({ rateLimitEnabled: false, rateLimitMax: 1, requestCount: 0 })
       .where(eq(schema.apikeyTable.userId, userId));
-    for (let i = 0; i < 3; i++) expect(await verifyApiKey(key)).not.toBeNull();
+    for (let i = 0; i < 3; i++)
+      expect(await verifyApiKey(key)).toMatchObject({ status: "valid" });
     expect(
       (
         await db.query.apikeyTable.findFirst({
@@ -71,8 +72,8 @@ describe("API integration: API keys of banned users", () => {
       .update(schema.apikeyTable)
       .set({ rateLimitEnabled: true })
       .where(eq(schema.apikeyTable.userId, userId));
-    expect(await verifyApiKey(key)).not.toBeNull();
-    expect(await verifyApiKey(key)).toBeNull();
+    expect(await verifyApiKey(key)).toMatchObject({ status: "valid" });
+    expect(await verifyApiKey(key)).toMatchObject({ status: "rate_limited" });
   });
 
   it("rejects the key of a banned user", async () => {

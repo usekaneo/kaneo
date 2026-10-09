@@ -9,6 +9,7 @@ import {
   registerClient,
 } from "../../apps/api/src/mcp/oauth";
 import { resetTestDatabase } from "./helpers/database";
+import { readErrorBody } from "./helpers/error-body";
 import {
   createProjectFixture,
   createWorkspaceMember,
@@ -78,7 +79,11 @@ describe("API integration: API key sent with an invalid bearer token", () => {
 
     const keyOnly = await createProject({ "x-api-key": key });
     expect(keyOnly.status).toBe(403);
-    expect(await keyOnly.text()).toBe("Insufficient API key scope");
+    expect(await readErrorBody(keyOnly)).toEqual({
+      message: "Insufficient API key scope",
+      code: "API_KEY_SCOPE",
+      missingPermissions: ["project:create"],
+    });
 
     const mixed = await createProject({ "x-api-key": key, ...invalidBearer });
     expect(mixed.status).toBe(401);
