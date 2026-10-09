@@ -21,14 +21,15 @@ You are ready when `kaneo context` shows a user and the workspace you mean to ac
 ## Output contract
 
 - Success prints exactly one JSON value on stdout and exits 0.
-- Failure prints `{"error": "message"}` on stdout and exits 1. The message names what is missing, such as a project or a confirmation, so fix that and retry.
+- Failure prints `{"error": "message"}` on stdout and exits 1. The message names what went wrong, such as a missing project, so fix that and retry. A message saying something needs confirmation means rerunning with `--yes` once the user has agreed.
 - `--jq '<expr>'` filters the JSON with a built-in jq. Strings print raw, one result per line. Reach for it to keep large results small.
-- Writes return the changed object: `kaneo task create ... --jq .ticketId` gives the new ticket id.
+- Writes print JSON describing the change: `task create` returns the new task (`--jq .ticketId` gives its ticket id), and `task status` returns the `from` and `to` columns. Run `kaneo task view` to see the full task afterwards.
 - `task list` stops at 50 tasks. Pass `--all` when you need every match, for example to count.
 
 ## Addressing things
 
-- Tasks by ticket id such as `KAN-12`, projects by key such as `KAN`, workspaces by id.
+- Tasks by ticket id such as `KAN-12`, projects by key such as `KAN`, workspaces by id. When the user names a project, find its key with `kaneo project list`.
+- Statuses are the slugs of a project's columns, such as `to-do`, `in-progress` or `done`. Projects can have custom columns, so list them with `kaneo column list -p KAN` before moving a task somewhere unfamiliar.
 - The workspace comes from `-w`, then `KANEO_WORKSPACE`, then a `.kaneo.json` in the current folder or any parent, then the default from `kaneo workspace use`. The project comes from `-p`, then `KANEO_PROJECT`, then `.kaneo.json`. A `.kaneo.json` further up the tree can select a different workspace than expected; `kaneo context` shows which source won.
 - Dates take `YYYY-MM-DD`, `today`, `tomorrow` or `+3d`.
 - Descriptions and comments are Markdown. Pass long text with `-F <file>`, or `-F -` to read stdin.
@@ -36,6 +37,8 @@ You are ready when `kaneo context` shows a user and the workspace you mean to ac
 ## Common commands
 
 ```sh
+kaneo project list --jq '.[] | "\(.key)  \(.name)"'
+kaneo column list -p KAN --jq '.[] | "\(.slug)  \(.name)"'
 kaneo task mine --jq '.[] | "\(.ticketId)  \(.statusName)  \(.title)"'
 kaneo task list -p KAN --open --jq '.[] | select(.priority == "urgent") | .ticketId'
 kaneo task view KAN-12
@@ -46,6 +49,7 @@ kaneo task assign KAN-12 me
 kaneo comment add KAN-12 "Fixed in #123"
 kaneo time log KAN-12 1h30m -m "Pairing on the fix"
 kaneo search "login redirect" --type tasks
+kaneo task delete KAN-12 --yes
 kaneo api GET /workspace --jq '.[].name'
 ```
 
