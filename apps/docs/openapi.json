@@ -4179,7 +4179,7 @@
           },
           "eventType": {
             "type": "string",
-            "description": "The provider event that triggers the move, e.g. `pull_request.opened`."
+            "description": "The Kaneo event that triggers the move: `branch_push`, `pr_opened`, `pr_merged`, `issue_opened`, `issue_closed` or `issue_reopened`."
           },
           "columnId": {
             "type": "string",
@@ -20783,7 +20783,15 @@
                     "type": "string"
                   },
                   "eventType": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "branch_push",
+                      "pr_opened",
+                      "pr_merged",
+                      "issue_opened",
+                      "issue_closed",
+                      "issue_reopened"
+                    ]
                   },
                   "columnId": {
                     "type": "string"
