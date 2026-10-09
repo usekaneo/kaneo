@@ -9,8 +9,10 @@ import { listWorkspaceProjectAccess } from "../project-access/list-workspace-pro
 import {
   requireApiKeyScope,
   requireWorkspacePermission,
+  workspacePermissionChecker,
 } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
+import getMyCapabilitiesCtrl from "./controllers/get-my-capabilities";
 import getMyProjectAccessCtrl from "./controllers/get-my-project-access";
 import getWorkspaceCtrl from "./controllers/get-workspace";
 import getWorkspaceMembersCtrl from "./controllers/get-workspace-members";
@@ -19,6 +21,7 @@ import updateMemberProjectAccessCtrl from "./controllers/update-member-project-a
 import {
   memberProjectAccessListSchema,
   memberProjectAccessSchema,
+  workspaceCapabilitiesSchema,
   workspaceListSchema,
   workspaceMemberListSchema,
   workspaceSchema,
@@ -122,6 +125,25 @@ const getMyProjectAccessRoute = createRoute({
   },
 });
 
+const getMyCapabilitiesRoute = createRoute({
+  method: "get",
+  operationId: "getMyWorkspaceCapabilities",
+  path: "/{workspaceId}/capabilities",
+  tags: ["Workspaces"],
+  summary: "Get my workspace capabilities",
+  description:
+    "Check every named workspace action for the caller in one request: which of them the caller's roles allow, narrowed by the API key's scope when one is used. Instance admins are allowed everything.",
+  middleware: [workspaceAccess.fromParam("workspaceId")] as const,
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse(
+      "The caller's capabilities in the workspace",
+      workspaceCapabilitiesSchema,
+    ),
+    404: errorResponse("Workspace not found"),
+  },
+});
+
 const updateMemberProjectAccessRoute = createRoute({
   method: "put",
   operationId: "updateMemberProjectAccess",
@@ -180,6 +202,9 @@ const workspace = apiRouter<BaseVariables & { workspaceId: string }>()
       await getMyProjectAccessCtrl(c.get("workspaceId"), c.get("userId")),
       200,
     ),
+  )
+  .openapi(getMyCapabilitiesRoute, async (c) =>
+    c.json(getMyCapabilitiesCtrl(await workspacePermissionChecker(c)), 200),
   )
   .openapi(getWorkspaceProjectAccessRoute, async (c) =>
     c.json(

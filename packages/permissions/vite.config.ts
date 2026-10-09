@@ -11,6 +11,8 @@ export default defineConfig({
         cache: {
           input: [
             { auto: true },
+            "src/**",
+            "tsconfig.json",
             ".env*",
             { pattern: ".env*", base: "workspace" },
           ],
