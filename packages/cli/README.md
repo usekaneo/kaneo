@@ -44,7 +44,7 @@ $env:KANEO_VERSION = "0.1.0"; irm https://kaneo.app/cli/install.ps1 | iex
 
 To update, run the install command again. To uninstall, delete the binary, and `~/.config/kaneo` too if you want to remove your logins.
 
-Prefer the script to downloading a binary from the release page with a browser: the macOS builds are signed ad hoc but not notarized, so Gatekeeper can block browser downloads. On Alpine and other musl distributions, install the C++ runtime first with `apk add libstdc++`. See the [install guide](https://kaneo.app/docs/core/integrations/cli#install) for mirrors, offline installs and supported systems.
+Prefer the script to downloading a binary from the release page with a browser: the macOS builds are signed ad hoc but not notarized, so Gatekeeper can block browser downloads. On Alpine and other musl distributions, install the C++ runtime first with `apk add libstdc++`. See the [install guide](https://kaneo.app/docs/cli/install#install) for mirrors, offline installs and supported systems.
 
 ## Sign in
 
@@ -97,7 +97,7 @@ Credentials are resolved in this order: `--token`, then `KANEO_API_KEY`, then th
 | `kaneo doctor` | Check the server, your login and API compatibility |
 | `kaneo api` | Send an authenticated request to any API endpoint, like `gh api` |
 
-The [command reference](https://kaneo.app/docs/core/integrations/cli-commands) lists every argument and flag. Run any command with `--help` for the same information, and `kaneo --completions zsh` (or `bash`, `fish`, `sh`) to print a shell completion script.
+The [command reference](https://kaneo.app/docs/cli/reference) lists every argument and flag. Run any command with `--help` for the same information, and `kaneo --completions zsh` (or `bash`, `fish`, `sh`) to print a shell completion script.
 
 Tasks are addressed by their ticket ID, such as `KAN-123`, or by id. When a required workspace, project or column is missing and you are in a terminal, the CLI offers a searchable picker. In scripts it fails with an error that says which flag to pass.
 
