@@ -3,7 +3,6 @@ import { Prompt } from "effect/cli";
 import { Cancelled, InvalidArgument } from "../errors/errors.js";
 import { note } from "../output/emit.js";
 import { Output } from "../output/output.js";
-import { needsConfirmation } from "../prompts/needs-confirmation.js";
 import { promptTheme } from "../prompts/prompt-theme.js";
 
 export const confirmBySlug = Effect.fnUntraced(function* (options: {
@@ -14,7 +13,11 @@ export const confirmBySlug = Effect.fnUntraced(function* (options: {
 }) {
   if (options.yes) return;
   const output = yield* Output;
-  if (!output.interactive) return yield* needsConfirmation(options.action);
+  if (!output.interactive) {
+    return yield* new InvalidArgument({
+      message: `${options.action} needs confirmation. Pass --yes to confirm.`,
+    });
+  }
   yield* note((ui) => [
     "",
     `  ${ui.theme.danger(ui.glyphs.warning)} ${options.warning}`,
