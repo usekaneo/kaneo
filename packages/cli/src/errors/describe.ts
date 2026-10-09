@@ -75,7 +75,7 @@ export function describeError(error: AppError): Failure {
     case "UnexpectedResponse":
       return {
         message: `The server sent a response this CLI does not understand (${error.endpoint}): ${error.detail}`,
-        hint: "Update the CLI with npm i -g @kaneo/cli, or check the server version.",
+        hint: "Update the CLI by running its install command again (https://kaneo.app/docs/core/integrations/cli#update), or check the server version.",
       };
     case "WorkspaceRequired":
       return {
