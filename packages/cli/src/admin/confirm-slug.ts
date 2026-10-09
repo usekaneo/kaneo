@@ -15,8 +15,7 @@ export const confirmBySlug = Effect.fnUntraced(function* (options: {
   const output = yield* Output;
   if (!output.interactive) {
     return yield* new InvalidArgument({
-      message: `${options.action} needs confirmation.`,
-      hint: "Pass --yes to skip the prompt.",
+      message: `${options.action} needs confirmation. Pass --yes to confirm.`,
     });
   }
   yield* note((ui) => [
