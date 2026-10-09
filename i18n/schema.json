@@ -9094,6 +9094,18 @@
 						"failedToUpdate": {
 							"type": "string"
 						},
+						"deleteTitle": {
+							"type": "string"
+						},
+						"deleteDescription": {
+							"type": "string"
+						},
+						"deleted": {
+							"type": "string"
+						},
+						"failedToDelete": {
+							"type": "string"
+						},
 						"edit": {
 							"type": "string"
 						},
@@ -9461,6 +9473,10 @@
 						"mustBeLoggedInToEdit",
 						"updated",
 						"failedToUpdate",
+						"deleteTitle",
+						"deleteDescription",
+						"deleted",
+						"failedToDelete",
 						"edit",
 						"editPlaceholder",
 						"save",

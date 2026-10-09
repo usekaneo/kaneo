@@ -19,7 +19,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import useDeleteComment from "@/hooks/mutations/comment/use-delete-comment";
+import {
+  AlertDialogCreateHandle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import CommentDeleteDialog from "./comment-delete-dialog";
 import useUpdateComment from "@/hooks/mutations/comment/use-update-comment";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
@@ -69,8 +73,7 @@ export default function CommentCard({
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
   const { mutateAsync: updateComment, isPending } = useUpdateComment();
-  const { mutate: deleteComment, isPending: isDeleting } =
-    useDeleteComment(taskId);
+  const [deleteHandle] = useState(() => AlertDialogCreateHandle());
   const queryClient = useQueryClient();
 
   const canEdit = currentUser?.id === user?.id;
@@ -255,15 +258,19 @@ export default function CommentCard({
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteComment({ activityId: commentId })}
-                  disabled={isDeleting}
-                  className="h-6 w-6 rounded-md p-0 text-muted-foreground hover:text-destructive"
+                <AlertDialogTrigger
+                  handle={deleteHandle}
+                  aria-label={t("common:actions.delete")}
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 rounded-md p-0 text-muted-foreground hover:text-destructive"
+                    />
+                  }
                 >
                   <Trash2 className="size-3.5" />
-                </Button>
+                </AlertDialogTrigger>
               </TooltipTrigger>
               <TooltipContent>
                 <p className="text-xs">{t("common:actions.delete")}</p>
@@ -314,6 +321,13 @@ export default function CommentCard({
           </div>
         )}
       </div>
+      {canEdit && (
+        <CommentDeleteDialog
+          handle={deleteHandle}
+          commentId={commentId}
+          taskId={taskId}
+        />
+      )}
     </TooltipProvider>
   );
 }

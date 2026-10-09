@@ -615,6 +615,18 @@ export default function TaskPropertiesSidebar({
               {t("tasks:properties.labels")}
             </span>
             <div className="flex flex-wrap items-center gap-1.5 px-2">
+              {task && (
+                <TaskLabelsPopover task={task} workspaceId={workspaceId}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    aria-label={t("tasks:properties.labels")}
+                    className="h-5 w-5 p-0 shrink-0 rounded-full"
+                  >
+                    <Plus className="h-3 w-3" />
+                  </Button>
+                </TaskLabelsPopover>
+              )}
               {task &&
                 taskLabels.length > 0 &&
                 taskLabels.map(
@@ -642,18 +654,6 @@ export default function TaskPropertiesSidebar({
                     </TaskLabelsPopover>
                   ),
                 )}
-
-              {task && (
-                <TaskLabelsPopover task={task} workspaceId={workspaceId}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-5 w-5 p-0 rounded-full"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                </TaskLabelsPopover>
-              )}
             </div>
           </div>
         </div>

@@ -2363,7 +2363,11 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
-			"commentedOnForge": "прокоментував на {{forge}}"
+			"commentedOnForge": "прокоментував на {{forge}}",
+			"deleted": "Comment deleted",
+			"deleteDescription": "Are you sure you want to delete this comment? This action cannot be undone.",
+			"deleteTitle": "Delete comment?",
+			"failedToDelete": "Failed to delete comment"
 		},
 		"moved": "перемістив завдання з «{{from}}» до «{{to}}»",
 		"created": "створив це завдання",
