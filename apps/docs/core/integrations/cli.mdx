@@ -347,6 +347,16 @@ Commands that delete or remove data, such as `kaneo task delete` or `kaneo label
 kaneo task delete KAN-12 --yes
 ```
 
+## Agent skill
+
+Coding agents such as Claude Code, Codex and Cursor can manage your Kaneo work through the CLI. The `kaneo-cli` skill shows them how: check the login and workspace first, read the JSON output, address tasks by ticket ID, and confirm with you before deleting anything.
+
+```bash
+npx skills add usekaneo/kaneo --skill kaneo-cli
+```
+
+Add `-g` to install it for every project. The skill is a single file in [`skills/kaneo-cli`](https://github.com/usekaneo/kaneo/tree/main/skills/kaneo-cli), so you can also copy it into your agent's skills folder by hand. Agents that should talk to Kaneo without a shell can use the [MCP server](/core/integrations/mcp) instead.
+
 ## Call the API directly
 
 `kaneo api` sends an authenticated request to any Kaneo API endpoint, like `gh api` does for GitHub. It uses the same server, credentials and output modes as the other commands. The path is under `/api`, and the `/api` prefix is optional:
