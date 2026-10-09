@@ -1,14 +1,50 @@
 # Kaneo CLI
 
-[`@kaneo/cli`](https://www.npmjs.com/package/@kaneo/cli) is the official command-line client for [Kaneo](https://kaneo.app), the open source project manager. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and installs the `kaneo` command.
+The official command-line client for [Kaneo](https://kaneo.app), the open source project manager. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and ships as a single `kaneo` binary for macOS, Linux and Windows.
 
 ```bash
-npm install -g @kaneo/cli
+curl -fsSL https://kaneo.app/cli/install.sh | sh
 kaneo login
 kaneo task list
 ```
 
-It works with Kaneo Cloud and with self-hosted instances, prints styled output in a terminal and plain JSON everywhere else, and needs Node.js 20 or newer.
+It works with Kaneo Cloud and with self-hosted instances, and prints styled output in a terminal and plain JSON everywhere else.
+
+## Install
+
+macOS and Linux:
+
+```bash
+curl -fsSL https://kaneo.app/cli/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+irm https://kaneo.app/cli/install.ps1 | iex
+```
+
+The script picks the build for your system from the `cli-v<version>` GitHub release, verifies it against the release's `SHA256SUMS`, and installs it to `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`, added to your user `PATH`). Both scripts are plain text, so you can read [install.sh](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.sh) and [install.ps1](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.ps1) before running them.
+
+| Variable | What it does |
+| --- | --- |
+| `KANEO_VERSION` | Install this version, such as `0.1.0` or `cli-v0.1.0`, instead of the latest |
+| `KANEO_INSTALL_DIR` | Install into this directory |
+| `KANEO_DOWNLOAD_URL` | Download from a mirror that has the GitHub release layout (`<url>/cli-v<version>/<file>`) instead of GitHub. Requires `KANEO_VERSION` |
+
+```bash
+curl -fsSL https://kaneo.app/cli/install.sh | KANEO_VERSION=0.1.0 sh
+curl -fsSL https://kaneo.app/cli/install.sh | KANEO_INSTALL_DIR="$HOME/bin" sh
+curl -fsSL https://kaneo.app/cli/install.sh | KANEO_DOWNLOAD_URL=https://mirror.example.com/kaneo KANEO_VERSION=0.1.0 sh
+```
+
+```powershell
+$env:KANEO_VERSION = "0.1.0"; irm https://kaneo.app/cli/install.ps1 | iex
+```
+
+To update, run the install command again. To uninstall, delete the binary, and `~/.config/kaneo` too if you want to remove your logins.
+
+Prefer the script to downloading a binary from the release page with a browser: the macOS builds are signed ad hoc but not notarized, so Gatekeeper can block browser downloads. On Alpine and other musl distributions, install the C++ runtime first with `apk add libstdc++`. See the [install guide](https://kaneo.app/docs/core/integrations/cli#install) for mirrors, offline installs and supported systems.
 
 ## Sign in
 
