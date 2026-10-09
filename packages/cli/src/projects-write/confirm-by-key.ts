@@ -1,8 +1,9 @@
 import { Effect } from "effect";
 import { Prompt } from "effect/cli";
-import { Cancelled, InvalidArgument } from "../errors/errors.js";
+import { Cancelled } from "../errors/errors.js";
 import { note } from "../output/emit.js";
 import { Output } from "../output/output.js";
+import { needsConfirmation } from "../prompts/needs-confirmation.js";
 import { promptTheme } from "../prompts/prompt-theme.js";
 
 function same(a: string, b: string): boolean {
@@ -20,12 +21,7 @@ export const confirmByKey = Effect.fnUntraced(function* (options: {
 }) {
   if (options.yes) return;
   const output = yield* Output;
-  if (!output.interactive) {
-    return yield* new InvalidArgument({
-      message: `${options.action} needs confirmation.`,
-      hint: "Pass --yes to skip the prompt.",
-    });
-  }
+  if (!output.interactive) return yield* needsConfirmation(options.action);
   yield* note((ui) => [
     "",
     `  ${ui.theme.warning(ui.glyphs.warning)} ${options.warning}`,
