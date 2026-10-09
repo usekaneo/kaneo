@@ -193,7 +193,10 @@ function Install-KaneoCli {
     else {
         $installDir = Join-Path $env:LOCALAPPDATA 'Programs\kaneo'
     }
-    $installDir = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($installDir).TrimEnd('\', '/')
+    $installDir = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($installDir)
+    if ($installDir.Length -gt [IO.Path]::GetPathRoot($installDir).Length) {
+        $installDir = $installDir.TrimEnd('\', '/')
+    }
     try {
         New-Item -ItemType Directory -Force -Path $installDir | Out-Null
     }
