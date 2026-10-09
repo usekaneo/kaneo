@@ -10999,9 +10999,29 @@
 						},
 						"noTasks": {
 							"type": "string"
+						},
+						"expandSubtasks": {
+							"type": "string"
+						},
+						"collapseSubtasks": {
+							"type": "string"
+						},
+						"subtaskLevel": {
+							"type": "string"
+						},
+						"subtasksLoadError": {
+							"type": "string"
 						}
 					},
-					"required": ["addTask", "archiveAllTooltip", "noTasks"]
+					"required": [
+						"addTask",
+						"archiveAllTooltip",
+						"noTasks",
+						"expandSubtasks",
+						"collapseSubtasks",
+						"subtaskLevel",
+						"subtasksLoadError"
+					]
 				},
 				"kanban": {
 					"type": "object",

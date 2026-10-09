@@ -2693,7 +2693,11 @@
 		"listView": {
 			"addTask": "Añadir tarea",
 			"archiveAllTooltip": "Archivar todas las tareas completadas",
-			"noTasks": "No hay tareas"
+			"noTasks": "No hay tareas",
+			"collapseSubtasks": "Ocultar sub-tareas de {{title}}",
+			"expandSubtasks": "Mostrar sub-tareas de {{title}}",
+			"subtaskLevel": "Sub-tarea, nivel {{level}}",
+			"subtasksLoadError": "No se pudieron cargar las sub-tareas, así que las tareas se muestran sin su jerarquía."
 		},
 		"kanban": {
 			"addTask": "Añadir tarea",

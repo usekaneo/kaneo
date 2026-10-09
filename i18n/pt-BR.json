@@ -2704,7 +2704,11 @@
 		"listView": {
 			"addTask": "Adicionar tarefa",
 			"archiveAllTooltip": "Arquivar todas as tarefas concluídas",
-			"noTasks": "Nenhuma tarefa"
+			"noTasks": "Nenhuma tarefa",
+			"collapseSubtasks": "Ocultar subtarefas de {{title}}",
+			"expandSubtasks": "Mostrar subtarefas de {{title}}",
+			"subtaskLevel": "Subtarefa, nível {{level}}",
+			"subtasksLoadError": "Não foi possível carregar as subtarefas, então as tarefas são exibidas sem a hierarquia."
 		},
 		"kanban": {
 			"addTask": "Adicionar tarefa",

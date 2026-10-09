@@ -9,26 +9,26 @@ import {
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
 import { produce } from "immer";
-import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Flag } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
-import { getColumnIcon } from "@/lib/column";
+import {
+  readExpandedRows,
+  writeExpandedRows,
+} from "@/lib/expanded-rows-storage";
+import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -36,7 +36,7 @@ import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
-import TaskRow from "./task-row";
+import ColumnSection from "./column-section";
 
 type ListViewProps = {
   project: ProjectWithTasks;
@@ -81,14 +81,93 @@ function ListView({
     (column) => column.id === columnToArchive,
   );
 
+  // isLoading rather than isPending: a disabled query is also pending, and an
+  // empty project should not look like it is still fetching.
+  const {
+    data: relations,
+    isLoading: relationsLoading,
+    isError: relationsFailed,
+    refetch: refetchRelations,
+  } = useGetProjectTaskRelations(project?.id ?? "");
+
+  const subtaskChildren = useMemo(
+    () => buildSubtaskChildren(relations ?? []),
+    [relations],
+  );
+
+  const tasksById = useMemo(() => {
+    const index = new Map<
+      string,
+      ProjectWithTasks["columns"][number]["tasks"][number]
+    >();
+    for (const column of project?.columns ?? []) {
+      for (const task of column.tasks) {
+        index.set(task.id, task);
+      }
+    }
+    return index;
+  }, [project?.columns]);
+
+  // Per viewer and per project, and only a convenience: a row that cannot be
+  // restored simply starts collapsed.
+  const projectId = project?.id ?? "";
+  const [expanded, setExpanded] = useState(() => ({
+    projectId,
+    rows: readExpandedRows(projectId),
+  }));
+
+  // The board route swaps this component's project rather than remounting it,
+  // so a lazy initializer would keep the previous project's map and then save
+  // it under the new project's key.
+  if (expanded.projectId !== projectId) {
+    setExpanded({ projectId, rows: readExpandedRows(projectId) });
+  }
+
+  const expandedTasks = expanded.rows;
+
+  useEffect(() => {
+    writeExpandedRows(projectId, expandedTasks);
+  }, [projectId, expandedTasks]);
+
+  // Collapsing removes the row rather than recording false, so the stored map
+  // holds only expanded rows and does not grow with every row ever touched.
+  const toggleTaskExpanded = useCallback((rowId: string) => {
+    setExpanded((previous) => {
+      const rows = { ...previous.rows };
+      if (rows[rowId]) delete rows[rowId];
+      else rows[rowId] = true;
+      return { ...previous, rows };
+    });
+  }, []);
+
+  // j/k, select-all and shift-click ranges follow this order, so it is the
+  // order rows are shown in, expanded subtasks included -- built the same
+  // way each section builds its rows. Selection and focus stay per task, so
+  // a task shown both under its parent and in its own place is listed once,
+  // where it first appears.
   useEffect(() => {
     if (project?.columns) {
       const visibleTaskIds = project.columns
         .filter((column) => expandedSections[column.id])
-        .flatMap((column) => column.tasks.map((task) => task.id));
-      setAvailableTasks(visibleTaskIds);
+        .flatMap((column) =>
+          flattenSubtaskRows({
+            tasks: column.tasks,
+            children: subtaskChildren,
+            tasksById,
+            isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
+          }).map((row) => row.task.id),
+        );
+      setAvailableTasks([...new Set(visibleTaskIds)]);
     }
-  }, [project, expandedSections, setAvailableTasks]);
+  }, [
+    project,
+    expandedSections,
+    setAvailableTasks,
+    subtaskChildren,
+    tasksById,
+    expandedTasks,
+    activeId,
+  ]);
 
   useEffect(() => {
     clearFocus();
@@ -245,6 +324,13 @@ function ListView({
     setProject(updatedProject);
   };
 
+  // Escape ends a drag without onDragEnd, so without this the dragged row
+  // stays active: its children remain collapsed and the overlay lingers.
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setOverColumnId(null);
+  };
+
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -291,113 +377,6 @@ function ListView({
     setColumnToArchive(null);
   };
 
-  function ColumnSection({
-    column,
-  }: {
-    column: ProjectWithTasks["columns"][number];
-  }) {
-    const { setNodeRef } = useDroppable({
-      id: column.id,
-      data: {
-        type: "column",
-        column,
-      },
-    });
-
-    const showDropIndicator = activeId && overColumnId === column.id;
-
-    return (
-      <div
-        className={cn(
-          "border-b border-border/50 transition-colors duration-150 overflow-auto",
-          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
-        )}
-      >
-        <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
-          <button
-            type="button"
-            onClick={() => toggleSection(column.id)}
-            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronRight
-              className={cn(
-                "w-3 h-3 transition-transform",
-                expandedSections[column.id] && "rotate-90",
-              )}
-            />
-            <div className="flex items-center gap-2 h-4">
-              {getColumnIcon(column.id, column.isFinal, column.icon)}
-              <div className="flex items-center gap-1">
-                <span className="mt-1 mr-1">{column.name}</span>
-                <span className="text-xs text-muted-foreground mt-0.5">
-                  {column.tasks.length}
-                </span>
-              </div>
-            </div>
-          </button>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTaskModalOpen(true);
-                setActiveColumn(column.id);
-              }}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-              title={t("tasks:listView.addTask")}
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-
-            {column.isFinal && column.tasks.length > 0 && (
-              <button
-                type="button"
-                disabled={disableCollectionActions}
-                onClick={() => handleArchiveClick(column)}
-                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title={t("tasks:listView.archiveAllTooltip")}
-              >
-                <Archive className="w-3 h-3" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {expandedSections[column.id] && (
-          <div
-            ref={setNodeRef}
-            className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
-          >
-            <SortableContext
-              items={column.tasks}
-              strategy={verticalListSortingStrategy}
-            >
-              <AnimatePresence initial={false} mode="popLayout">
-                {column.tasks.map((task) => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  >
-                    <TaskRow task={task} projectSlug={project?.slug ?? ""} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </SortableContext>
-
-            {column.tasks.length === 0 && (
-              <div className="py-6 px-4 text-center text-xs text-muted-foreground">
-                {t("tasks:listView.noTasks")}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   if (!project?.columns) {
     return null;
   }
@@ -415,12 +394,49 @@ function ListView({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
+        {relationsFailed && (
+          // Without relations every task renders as a top-level row, which
+          // reads exactly like a project with no subtasks; this says it isn't.
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-2 text-sm text-muted-foreground"
+          >
+            <span>{t("tasks:listView.subtasksLoadError")}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void refetchRelations()}
+            >
+              {t("common:error.tryAgain")}
+            </Button>
+          </div>
+        )}
+        <div aria-busy={relationsLoading} className="divide-y divide-border/50">
           {project.columns.map((column) => (
-            <ColumnSection key={column.id} column={column} />
+            <ColumnSection
+              key={column.id}
+              column={column}
+              projectSlug={project.slug}
+              activeId={activeId}
+              overColumnId={overColumnId}
+              isExpanded={expandedSections[column.id]}
+              expandedTasks={expandedTasks}
+              subtaskChildren={subtaskChildren}
+              tasksById={tasksById}
+              relationsLoading={relationsLoading}
+              disableCollectionActions={disableCollectionActions}
+              toggleSection={toggleSection}
+              toggleTaskExpanded={toggleTaskExpanded}
+              onAddTask={(columnId) => {
+                setIsTaskModalOpen(true);
+                setActiveColumn(columnId);
+              }}
+              handleArchiveClick={handleArchiveClick}
+            />
           ))}
         </div>
       </div>

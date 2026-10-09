@@ -2739,7 +2739,11 @@
 		"listView": {
 			"addTask": "Добавить задачу",
 			"archiveAllTooltip": "Архивировать все завершённые задачи",
-			"noTasks": "Нет задач"
+			"noTasks": "Нет задач",
+			"collapseSubtasks": "Скрыть подзадачи «{{title}}»",
+			"expandSubtasks": "Показать подзадачи «{{title}}»",
+			"subtaskLevel": "Подзадача, уровень {{level}}",
+			"subtasksLoadError": "Не удалось загрузить подзадачи, поэтому задачи показаны без иерархии."
 		},
 		"kanban": {
 			"addTask": "Добавить задачу",

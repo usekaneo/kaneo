@@ -2674,7 +2674,11 @@
 		"listView": {
 			"addTask": "Tambah tugas",
 			"archiveAllTooltip": "Arsipkan semua tugas yang selesai",
-			"noTasks": "Tidak ada tugas"
+			"noTasks": "Tidak ada tugas",
+			"collapseSubtasks": "Sembunyikan subtugas {{title}}",
+			"expandSubtasks": "Tampilkan subtugas {{title}}",
+			"subtaskLevel": "Subtugas, tingkat {{level}}",
+			"subtasksLoadError": "Subtugas tidak dapat dimuat, jadi tugas ditampilkan tanpa hierarkinya."
 		},
 		"kanban": {
 			"addTask": "Tambah tugas",

@@ -15,6 +15,7 @@ import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import getExternalLinks from "@/fetchers/external-link/get-external-links";
 import type { ResumePreview } from "@/fetchers/integration-sync/types";
 import { patchBoardTask } from "@/lib/patch-board-task";
+import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
 import type { ProjectWithTasks } from "@/types/project";
 import {
   hasSyncTaskSample,
@@ -112,8 +113,12 @@ export function useProjectWebSocket(projectId: string) {
           });
         }
         if (!message.sourceTaskId && !message.targetTaskId) {
+          // Every per-task relation query, but not the project one: those
+          // responses embed each linked task's status, so a status change
+          // stales them, while the project query returns edges alone and a
+          // prefix match would refetch it needlessly.
           queryClient.invalidateQueries({
-            queryKey: ["task-relations"],
+            predicate: isPerTaskRelationQuery,
           });
         }
       } else {
@@ -275,6 +280,32 @@ export function useProjectWebSocket(projectId: string) {
             }
             return;
           }
+
+          // The list view reads relations per project, and no per-task key
+          // reaches that query. Only the events that can change which edges
+          // belong to the project qualify: an edit, a label or a comment
+          // leaves the edge set alone and would cost every mounted list a
+          // refetch. Creating a task inserts no relation - a subtask is a
+          // create followed by a separate relation mutation, which emits its
+          // own event. TASK_RELATION_UPDATED also carries
+          // `task-relation.refresh`, which the API publishes on every status
+          // change with no endpoint ids; that changes the per-task responses,
+          // which embed task status, but not the project response, which is
+          // edges only.
+          //
+          // This sits ahead of the branching below because several of those
+          // paths return before reaching invalidateDetails.
+          if (
+            (message.type === "TASK_RELATION_UPDATED" &&
+              (message.sourceTaskId || message.targetTaskId)) ||
+            message.type === "TASK_DELETED" ||
+            message.type === "TASK_MOVED"
+          ) {
+            queryClient.invalidateQueries({
+              queryKey: ["task-relations", "project", message.projectId],
+            });
+          }
+
           const boardIsLoading =
             queryClient.getQueryState(["tasks", projectId])?.fetchStatus ===
             "fetching";
@@ -569,6 +600,10 @@ export function useProjectWebSocket(projectId: string) {
             void queryClient.invalidateQueries({
               queryKey: ["tasks", projectId],
             });
+            // The hierarchy has no message to refresh it while polling.
+            void queryClient.invalidateQueries({
+              queryKey: ["task-relations", "project", projectId],
+            });
           }, 30_000);
           flushPending();
         }
@@ -598,6 +633,11 @@ export function useProjectWebSocket(projectId: string) {
           markBoardCacheChanged(queryClient, projectId);
           void queryClient.invalidateQueries({
             queryKey: ["tasks", projectId],
+          });
+          // A relation change missed while the socket was down reaches the
+          // list's hierarchy through no message, so it is refetched too.
+          void queryClient.invalidateQueries({
+            queryKey: ["task-relations", "project", projectId],
           });
         }
         const messages = Array.from(pendingMessages.values());

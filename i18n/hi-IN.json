@@ -2689,7 +2689,11 @@
 		"listView": {
 			"addTask": "कार्य जोड़ें",
 			"archiveAllTooltip": "सभी पूर्ण कार्य संग्रहित करें",
-			"noTasks": "कोई कार्य नहीं"
+			"noTasks": "कोई कार्य नहीं",
+			"collapseSubtasks": "{{title}} के उप-कार्य छिपाएँ",
+			"expandSubtasks": "{{title}} के उप-कार्य दिखाएँ",
+			"subtaskLevel": "उप-कार्य, स्तर {{level}}",
+			"subtasksLoadError": "उप-कार्य लोड नहीं हो सके, इसलिए कार्य बिना पदानुक्रम के दिखाए जा रहे हैं।"
 		},
 		"kanban": {
 			"addTask": "कार्य जोड़ें",

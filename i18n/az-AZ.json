@@ -2697,7 +2697,11 @@
 		"listView": {
 			"addTask": "Tapşırıq əlavə et",
 			"archiveAllTooltip": "Bütün tamamlanmış tapşırıqları arxivlə",
-			"noTasks": "Tapşırıq yoxdur"
+			"noTasks": "Tapşırıq yoxdur",
+			"collapseSubtasks": "{{title}} alt tapşırıqlarını gizlət",
+			"expandSubtasks": "{{title}} alt tapşırıqlarını göstər",
+			"subtaskLevel": "Alt tapşırıq, səviyyə {{level}}",
+			"subtasksLoadError": "Alt tapşırıqlar yüklənə bilmədi, ona görə tapşırıqlar iyerarxiyasız göstərilir."
 		},
 		"kanban": {
 			"addTask": "Tapşırıq əlavə et",

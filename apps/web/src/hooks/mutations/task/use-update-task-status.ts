@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import updateTaskStatus from "@/fetchers/task/update-task-status";
+import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
 import type Task from "@/types/task";
 
 export function useUpdateTaskStatus() {
@@ -25,9 +26,10 @@ export function useUpdateTaskStatus() {
       queryClient.invalidateQueries({
         queryKey: ["activities", variables.id],
       });
-      queryClient.invalidateQueries({
-        queryKey: ["task-relations"],
-      });
+      // Per-task relation responses embed the linked tasks' status and
+      // assignee, so they stale here; the project-scoped query returns edges
+      // alone and does not.
+      queryClient.invalidateQueries({ predicate: isPerTaskRelationQuery });
     },
   });
 }

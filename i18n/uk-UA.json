@@ -2719,7 +2719,11 @@
 		"listView": {
 			"addTask": "Додати завдання",
 			"archiveAllTooltip": "Архівувати всі завершені завдання",
-			"noTasks": "Немає завдань"
+			"noTasks": "Немає завдань",
+			"collapseSubtasks": "Приховати підзавдання «{{title}}»",
+			"expandSubtasks": "Показати підзавдання «{{title}}»",
+			"subtaskLevel": "Підзавдання, рівень {{level}}",
+			"subtasksLoadError": "Не вдалося завантажити підзавдання, тому завдання показано без ієрархії."
 		},
 		"kanban": {
 			"addTask": "Додати завдання",

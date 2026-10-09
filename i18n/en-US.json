@@ -2703,7 +2703,11 @@
 		"listView": {
 			"addTask": "Add task",
 			"archiveAllTooltip": "Archive all completed tasks",
-			"noTasks": "No tasks"
+			"noTasks": "No tasks",
+			"expandSubtasks": "Show subtasks of {{title}}",
+			"collapseSubtasks": "Hide subtasks of {{title}}",
+			"subtaskLevel": "Subtask, level {{level}}",
+			"subtasksLoadError": "Subtasks couldn't be loaded, so tasks are shown without their hierarchy."
 		},
 		"kanban": {
 			"addTask": "Add task",
