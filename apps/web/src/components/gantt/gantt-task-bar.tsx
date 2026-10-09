@@ -8,6 +8,7 @@ import type Task from "@/types/task";
 
 const CLICK_MOVE_THRESHOLD_PX = 4;
 const MOBILE_MOVE_THRESHOLD_PX = 14;
+const MIN_INLINE_LABEL_PX = 120;
 
 type ScheduledTask = Task & {
   scheduleStart: Date;
@@ -290,6 +291,12 @@ export function GanttTaskBar({
     return null;
   }
 
+  // Short bars on phones leave no room for the title inside them, so it's
+  // drawn just after the bar instead (when the timeline has room for it).
+  const barWidthPx = (lineEnd - lineStart) * pxPerDay;
+  const labelOutside =
+    isMobile && barWidthPx < MIN_INLINE_LABEL_PX && lineEnd <= trackCount;
+
   return (
     <div
       className="pointer-events-none absolute inset-0 z-[1] grid items-center"
@@ -308,7 +315,7 @@ export function GanttTaskBar({
           onPointerDown={handleResizeLeftPointerDown}
           className={cn(
             "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
-            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
+            "min-h-[44px] w-4 sm:min-h-0 sm:w-2",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
           )}
         />
@@ -325,7 +332,14 @@ export function GanttTaskBar({
           }}
         >
           <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
-          <span className="relative z-10 block truncate">{task.title}</span>
+          <span
+            className={cn(
+              "relative z-10 block truncate",
+              labelOutside && "sr-only",
+            )}
+          >
+            {task.title}
+          </span>
         </button>
         <button
           type="button"
@@ -334,11 +348,20 @@ export function GanttTaskBar({
           onPointerDown={handleResizeRightPointerDown}
           className={cn(
             "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
-            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
+            "min-h-[44px] w-4 sm:min-h-0 sm:w-2",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
           )}
         />
       </div>
+      {labelOutside && (
+        <span
+          aria-hidden="true"
+          style={{ gridColumn: `${lineEnd} / ${trackCount + 1}` }}
+          className="min-w-0 truncate pl-1 text-xs font-medium text-foreground/80"
+        >
+          {task.title}
+        </span>
+      )}
     </div>
   );
 }

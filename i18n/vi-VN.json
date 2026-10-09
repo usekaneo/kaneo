@@ -1097,7 +1097,9 @@
 			"on": "Bật",
 			"off": "Tắt",
 			"newColumnPlaceholder": "Tên cột mới...",
-			"add": "Thêm"
+			"add": "Thêm",
+			"deleteAria": "Delete {{name}} column",
+			"renameAria": "Rename {{name}} column"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2055,7 +2057,8 @@
 			"deleteConfirmTitle": "Xóa dự án?",
 			"deleteConfirmDescription": "Thao tác này sẽ xóa vĩnh viễn dự án và toàn bộ dữ liệu của nó. Bạn không thể hoàn tác hành động này.",
 			"deletedToast": "Đã xóa dự án",
-			"deleteProject": "Xóa dự án"
+			"deleteProject": "Xóa dự án",
+			"switcherLabel": "Switch project or view"
 		},
 		"search": {
 			"inputPlaceholder": "Tìm công việc, dự án, bình luận...",
@@ -2337,7 +2340,10 @@
 		"boardSearchPlaceholder": "Tìm phiếu...",
 		"view": {
 			"board": "Bảng",
-			"list": "Danh sách"
+			"list": "Danh sách",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "View"
 		},
 		"common": {
 			"selectTask": "Chọn công việc",
@@ -2567,7 +2573,8 @@
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
-				}
+				},
+				"editLabels": "Edit labels"
 			}
 		},
 		"backlog": {
@@ -2771,7 +2778,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: mở công việc",
 			"title": "Lịch",
 			"today": "Hôm nay",
-			"loadError": "Không thể tải công việc."
+			"loadError": "Không thể tải công việc.",
+			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

@@ -1097,7 +1097,9 @@
 			"on": "开",
 			"off": "关",
 			"newColumnPlaceholder": "新列名称…",
-			"add": "添加"
+			"add": "添加",
+			"deleteAria": "Delete {{name}} column",
+			"renameAria": "Rename {{name}} column"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2055,7 +2057,8 @@
 			"deleteConfirmTitle": "删除项目？",
 			"deleteConfirmDescription": "这将永久删除项目及其所有数据，此操作不可撤销。",
 			"deletedToast": "项目已删除",
-			"deleteProject": "删除项目"
+			"deleteProject": "删除项目",
+			"switcherLabel": "Switch project or view"
 		},
 		"search": {
 			"inputPlaceholder": "搜索任务、项目、评论…",
@@ -2337,7 +2340,10 @@
 		"boardSearchPlaceholder": "搜索工单…",
 		"view": {
 			"board": "看板",
-			"list": "列表"
+			"list": "列表",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "View"
 		},
 		"common": {
 			"selectTask": "选择任务",
@@ -2567,7 +2573,8 @@
 					"terracotta": "赤陶",
 					"rose": "玫红",
 					"crimson": "深红"
-				}
+				},
+				"editLabels": "Edit labels"
 			}
 		},
 		"backlog": {
@@ -2646,7 +2653,8 @@
 			"moreTasks": "+{{count}} 项",
 			"loadError": "任务加载失败。",
 			"dayTasksAriaLabel": "查看 {{date}} 的全部任务",
-			"taskAriaLabel": "{{title}}，{{range}}：打开任务"
+			"taskAriaLabel": "{{title}}，{{range}}：打开任务",
+			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 甘特图",

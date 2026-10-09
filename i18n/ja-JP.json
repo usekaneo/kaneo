@@ -1097,7 +1097,9 @@
 			"on": "オン",
 			"off": "オフ",
 			"newColumnPlaceholder": "新しいカラム名...",
-			"add": "追加"
+			"add": "追加",
+			"deleteAria": "Delete {{name}} column",
+			"renameAria": "Rename {{name}} column"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2055,7 +2057,8 @@
 			"deleteConfirmTitle": "プロジェクトを削除しますか？",
 			"deleteConfirmDescription": "これにより、プロジェクトとそのすべてのデータが完全に削除されます。この操作は取り消せません。",
 			"deletedToast": "プロジェクトを削除しました",
-			"deleteProject": "プロジェクトを削除"
+			"deleteProject": "プロジェクトを削除",
+			"switcherLabel": "Switch project or view"
 		},
 		"search": {
 			"inputPlaceholder": "タスク、プロジェクト、コメントを検索...",
@@ -2337,7 +2340,10 @@
 		"boardSearchPlaceholder": "チケットを検索...",
 		"view": {
 			"board": "ボード",
-			"list": "リスト"
+			"list": "リスト",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "View"
 		},
 		"common": {
 			"selectTask": "タスクを選択",
@@ -2567,7 +2573,8 @@
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
 					"crimson": "クリムゾン"
-				}
+				},
+				"editLabels": "Edit labels"
 			}
 		},
 		"backlog": {
@@ -2646,7 +2653,8 @@
 			"moreTasks": "+{{count}} 件",
 			"loadError": "タスクの読み込みに失敗しました。",
 			"dayTasksAriaLabel": "{{date}}のすべてのタスクを表示",
-			"taskAriaLabel": "{{title}}、{{range}}: タスクを開く"
+			"taskAriaLabel": "{{title}}、{{range}}: タスクを開く",
+			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – ガントチャート",

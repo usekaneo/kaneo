@@ -7,7 +7,7 @@ export const Route = createFileRoute("/test-error")({
 
 function TestErrorComponent() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-svh bg-background">
       <ErrorTest />
     </div>
   );

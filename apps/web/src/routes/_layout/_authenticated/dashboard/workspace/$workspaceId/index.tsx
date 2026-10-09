@@ -47,7 +47,7 @@ function RouteComponent() {
       <WorkspaceLayout title={t("workspace:home.pageTitle")}>
         <div className="h-full overflow-y-auto">
           <TrialExpiredCallout workspaceId={workspaceId} className="m-4" />
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-9 px-6 py-10 lg:px-10">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-9 px-4 py-6 sm:px-6 sm:py-10 lg:px-10">
             <header className="flex items-end justify-between gap-4">
               <div className="flex flex-col gap-1.5">
                 <p className="font-medium text-[13px] text-muted-foreground">
@@ -83,7 +83,7 @@ function RouteComponent() {
               </p>
             )}
 
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
               <div className="flex min-w-0 flex-col gap-9">
                 <UpNext
                   tasks={assigned?.tasks}

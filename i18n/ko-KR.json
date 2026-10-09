@@ -863,7 +863,9 @@
 			"on": "켜짐",
 			"off": "꺼짐",
 			"newColumnPlaceholder": "새 컬럼 이름...",
-			"add": "추가"
+			"add": "추가",
+			"deleteAria": "Delete {{name}} column",
+			"renameAria": "Rename {{name}} column"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2055,7 +2057,8 @@
 			"deleteConfirmTitle": "프로젝트를 삭제하시겠습니까?",
 			"deleteConfirmDescription": "프로젝트와 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
 			"deletedToast": "프로젝트가 삭제되었습니다",
-			"deleteProject": "프로젝트 삭제"
+			"deleteProject": "프로젝트 삭제",
+			"switcherLabel": "Switch project or view"
 		},
 		"search": {
 			"inputPlaceholder": "작업, 프로젝트, 댓글 검색...",
@@ -2337,7 +2340,10 @@
 		"boardSearchPlaceholder": "티켓 검색...",
 		"view": {
 			"board": "보드",
-			"list": "목록"
+			"list": "목록",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "View"
 		},
 		"common": {
 			"selectTask": "작업 선택",
@@ -2567,7 +2573,8 @@
 					"terracotta": "테라코타",
 					"rose": "로즈",
 					"crimson": "크림슨"
-				}
+				},
+				"editLabels": "Edit labels"
 			}
 		},
 		"backlog": {
@@ -2646,7 +2653,8 @@
 			"moreTasks": "+{{count}}개",
 			"loadError": "작업을 불러오지 못했습니다.",
 			"dayTasksAriaLabel": "{{date}}의 모든 작업 보기",
-			"taskAriaLabel": "{{title}}, {{range}}: 작업 열기"
+			"taskAriaLabel": "{{title}}, {{range}}: 작업 열기",
+			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 간트",

@@ -863,7 +863,9 @@
 			"on": "Aktif",
 			"off": "Nonaktif",
 			"newColumnPlaceholder": "Nama kolom baru...",
-			"add": "Tambah"
+			"add": "Tambah",
+			"deleteAria": "Delete {{name}} column",
+			"renameAria": "Rename {{name}} column"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2055,7 +2057,8 @@
 			"deleteConfirmTitle": "Hapus Proyek?",
 			"deleteConfirmDescription": "Ini akan menghapus proyek dan semua datanya secara permanen. Anda tidak dapat membatalkan tindakan ini.",
 			"deletedToast": "Proyek dihapus",
-			"deleteProject": "Hapus Proyek"
+			"deleteProject": "Hapus Proyek",
+			"switcherLabel": "Switch project or view"
 		},
 		"search": {
 			"inputPlaceholder": "Cari tugas, proyek, komentar...",
@@ -2337,7 +2340,10 @@
 		"boardSearchPlaceholder": "Cari tiket...",
 		"view": {
 			"board": "Papan",
-			"list": "Daftar"
+			"list": "Daftar",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "View"
 		},
 		"common": {
 			"selectTask": "Pilih tugas",
@@ -2567,7 +2573,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Rose",
 					"crimson": "Crimson"
-				}
+				},
+				"editLabels": "Edit labels"
 			}
 		},
 		"backlog": {
@@ -2771,7 +2778,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: buka tugas",
 			"title": "Kalender",
 			"today": "Hari ini",
-			"loadError": "Gagal memuat tugas."
+			"loadError": "Gagal memuat tugas.",
+			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
