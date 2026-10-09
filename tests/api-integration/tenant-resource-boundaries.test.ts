@@ -124,9 +124,13 @@ describe("tenant resource boundaries", () => {
       ["/task", "DELETE", undefined],
       ["/task", "PUT", { taskId: own.task.id }],
     ] as const) {
-      expect(
-        (await request(`/label/${forged.id}${suffix}`, method, body)).status,
-      ).toBe(400);
+      const response = await request(
+        `/label/${forged.id}${suffix}`,
+        method,
+        body,
+      );
+      expect(response.status).toBe(404);
+      expect(await response.text()).toContain("Label not found");
     }
     await expect(deleteLabel(forged.id, own.user.id)).rejects.toMatchObject({
       status: 404,

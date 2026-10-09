@@ -76,9 +76,10 @@ const getWorkspaceMembersRoute = createRoute({
   request: { params: workspaceIdParam, query: workspaceMembersQuery },
   responses: {
     200: jsonResponse("List of workspace members", workspaceMemberListSchema),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse("No access to the workspace or to the project"),
-    404: errorResponse("Project not found in this workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse(
+      "Workspace not found, or project not found in this workspace",
+    ),
   },
 });
 
@@ -100,10 +101,8 @@ const getWorkspaceProjectAccessRoute = createRoute({
       "Members limited to selected projects",
       memberProjectAccessListSchema,
     ),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse(
-      "No workspace access, or missing member:update permission",
-    ),
+    403: errorResponse("Missing member:update permission"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -119,8 +118,7 @@ const getMyProjectAccessRoute = createRoute({
   request: { params: workspaceIdParam },
   responses: {
     200: jsonResponse("The caller's project access", memberProjectAccessSchema),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse("No access to the workspace"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -153,7 +151,7 @@ const updateMemberProjectAccessRoute = createRoute({
     403: errorResponse(
       "Missing member:update permission, changing your own access, or granting a project you can't access",
     ),
-    404: errorResponse("Member not found"),
+    404: errorResponse("Workspace or member not found"),
   },
 });
 

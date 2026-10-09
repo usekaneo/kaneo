@@ -24,7 +24,7 @@ const globalSearchRoute = createRoute({
     400: errorResponse(
       "Invalid query, or workspace ID could not be determined",
     ),
-    403: errorResponse("No access to the workspace"),
+    404: errorResponse("Workspace not found"),
   },
 });
 

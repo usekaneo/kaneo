@@ -35,6 +35,7 @@ export async function scopeToProjectFromBody(c: Context, next: Next) {
     userId,
     project.workspaceId,
     c.get("apiKey")?.id,
+    { notFoundMessage: "Project not found" },
   );
   await assertProjectAccess(userId, projectId);
   c.set("workspaceId", project.workspaceId);

@@ -53,6 +53,7 @@ const createExternalLinkRoute = createRoute({
     400: errorResponse("Invalid external link data"),
     401: errorResponse("Unauthorized"),
     403: errorResponse("No permission to update the task"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -71,10 +72,10 @@ const deleteExternalLinkRoute = createRoute({
   request: { params: deleteExternalLinkParam },
   responses: {
     200: jsonResponse("Resource link removed", deletedExternalLinkSchema),
-    400: errorResponse("Unknown task or invalid link data"),
+    400: errorResponse("Invalid link data"),
     401: errorResponse("Unauthorized"),
     403: errorResponse("No permission to update the task"),
-    404: errorResponse("Manual resource link not found on this task"),
+    404: errorResponse("Task or manual resource link not found"),
   },
 });
 
@@ -90,10 +91,8 @@ const getExternalLinksByTaskRoute = createRoute({
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse("External links for the task", externalLinkListSchema),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the task's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Task not found"),
   },
 });
 
