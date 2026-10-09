@@ -2,6 +2,7 @@ import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { buildFullTaskUpdateBody } from "../kaneo/task-helpers.js";
 import { errorResult, textResult } from "../utils/mcp-result.js";
+import { getCurrentUser } from "./get-current-user.js";
 
 export type ToolClient = {
   readonly usingApiKey?: boolean;
@@ -69,13 +70,7 @@ export function registerTools(
         "Return the current Kaneo user for the configured authentication method.",
       inputSchema: z.object({}),
     },
-    async () =>
-      run(() =>
-        client.json(
-          client.usingApiKey ? "/api/user/me" : "/api/auth/get-session",
-          { method: "GET" },
-        ),
-      ),
+    async () => run(() => getCurrentUser(client)),
   );
 
   registerTool(
