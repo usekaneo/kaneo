@@ -35,6 +35,14 @@
 		{
 			"source": "/core/guide/migrating-from-v1",
 			"destination": "/core/installation/environment-variables"
+		},
+		{
+			"source": "/core/integrations/cli",
+			"destination": "/cli"
+		},
+		{
+			"source": "/core/integrations/cli-commands",
+			"destination": "/cli/reference"
 		}
 	],
 	"navigation": {
@@ -159,10 +167,6 @@
 						]
 					},
 					{
-						"group": "Command line",
-						"pages": ["core/integrations/cli", "core/integrations/cli-commands"]
-					},
-					{
 						"group": "AI assistants",
 						"pages": ["core/integrations/mcp"]
 					}
@@ -178,6 +182,17 @@
 							"api-reference/authentication",
 							"api-reference/errors",
 							"core/integrations/mcp-stateless"
+						]
+					},
+					{
+						"group": "Command line",
+						"pages": [
+							"cli/index",
+							"cli/install",
+							"cli/sign-in",
+							"cli/configuration",
+							"cli/scripting",
+							"cli/reference"
 						]
 					},
 					{
