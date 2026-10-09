@@ -38,6 +38,7 @@ export function useWorkspacePermission() {
   const {
     data: capabilities,
     isLoading,
+    isError,
     isFetching,
   } = useQuery({
     queryKey: ["workspace-capabilities", workspaceId, role],
@@ -96,9 +97,11 @@ export function useWorkspacePermission() {
     isAdmin: role === "owner" || role === "admin",
     // True while the first capability fetch is in flight. Useful for hiding
     // action UI during the initial render instead of flashing it on then
-    // off when the server check resolves.
+    // off when the server check resolves. A failed check settles to
+    // "nothing allowed" instead of loading forever.
     isCheckingPermissions:
-      Boolean(workspaceId && role) && (isLoading || !capabilities),
+      Boolean(workspaceId && role) &&
+      (isLoading || (!capabilities && !isError)),
     isRefetchingPermissions: isFetching,
   };
 }

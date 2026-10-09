@@ -866,8 +866,8 @@
 			"off": "Off",
 			"newColumnPlaceholder": "Nouveau nom de colonne...",
 			"add": "Ajouter",
-			"deleteAria": "Delete {{name}} column",
-			"renameAria": "Rename {{name}} column"
+			"deleteAria": "Supprimer la colonne {{name}}",
+			"renameAria": "Renommer la colonne {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2080,7 +2080,7 @@
 			"deleteConfirmDescription": "Cela supprimera définitivement le projet et toutes ses données. Vous ne pouvez pas annuler cette action.",
 			"deletedToast": "Projet supprimé",
 			"deleteProject": "Supprimer le projet",
-			"switcherLabel": "Switch project or view"
+			"switcherLabel": "Changer de projet ou de vue"
 		},
 		"search": {
 			"inputPlaceholder": "Rechercher des tâches, projets, commentaires...",
@@ -2373,7 +2373,7 @@
 			"list": "Liste",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "View"
+			"heading": "Vue"
 		},
 		"common": {
 			"selectTask": "Sélectionner une tâche",
@@ -2604,7 +2604,7 @@
 					"rose": "Rose",
 					"crimson": "Cramoisi"
 				},
-				"editLabels": "Edit labels"
+				"editLabels": "Modifier les labels"
 			}
 		},
 		"backlog": {
@@ -2811,7 +2811,7 @@
 			"title": "Calendrier",
 			"today": "Aujourd’hui",
 			"loadError": "Échec du chargement des tâches.",
-			"noTasksThisMonth": "Nothing scheduled this month"
+			"noTasksThisMonth": "Rien de planifié ce mois-ci"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

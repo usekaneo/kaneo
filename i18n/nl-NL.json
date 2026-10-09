@@ -761,8 +761,8 @@
 			"off": "Uit",
 			"newColumnPlaceholder": "Nieuwe kolomnaam...",
 			"add": "Toevoegen",
-			"deleteAria": "Delete {{name}} column",
-			"renameAria": "Rename {{name}} column"
+			"deleteAria": "Kolom {{name}} verwijderen",
+			"renameAria": "Kolom {{name}} hernoemen"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2069,7 +2069,7 @@
 			"deleteConfirmDescription": "Dit zal het project en alle data permanent verwijderen. Dit kan niet ongedaan worden gemaakt.",
 			"deletedToast": "Project verwijderd",
 			"deleteProject": "Project verwijderen",
-			"switcherLabel": "Switch project or view"
+			"switcherLabel": "Project of weergave wisselen"
 		},
 		"search": {
 			"inputPlaceholder": "Zoek taken, projecten, reacties...",
@@ -2358,7 +2358,7 @@
 			"list": "Lijst",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "View"
+			"heading": "Weergave"
 		},
 		"common": {
 			"selectTask": "Selecteer taak",
@@ -2578,7 +2578,7 @@
 					"rose": "Roos",
 					"crimson": "Karmozijn"
 				},
-				"editLabels": "Edit labels"
+				"editLabels": "Labels bewerken"
 			}
 		},
 		"backlog": {
@@ -2795,7 +2795,7 @@
 			"title": "Kalender",
 			"today": "Vandaag",
 			"loadError": "Taken konden niet worden geladen.",
-			"noTasksThisMonth": "Nothing scheduled this month"
+			"noTasksThisMonth": "Niets gepland deze maand"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

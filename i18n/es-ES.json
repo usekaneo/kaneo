@@ -762,8 +762,8 @@
 			"off": "Desactivado",
 			"newColumnPlaceholder": "Nombre de la nueva columna...",
 			"add": "Añadir",
-			"deleteAria": "Delete {{name}} column",
-			"renameAria": "Rename {{name}} column"
+			"deleteAria": "Borrar la columna {{name}}",
+			"renameAria": "Renombrar la columna {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2080,7 +2080,7 @@
 			"deletedToast": "Proyecto eliminado",
 			"deleteProject": "Eliminar proyecto",
 			"projectSettings": "Ajustes del proyecto",
-			"switcherLabel": "Switch project or view"
+			"switcherLabel": "Cambiar de proyecto o vista"
 		},
 		"search": {
 			"inputPlaceholder": "Busca tareas, proyectos, comentarios...",
@@ -2373,7 +2373,7 @@
 			"list": "Lista",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "View"
+			"heading": "Vista"
 		},
 		"common": {
 			"selectTask": "Seleccionar tarea",
@@ -2593,7 +2593,7 @@
 					"rose": "Rosa",
 					"crimson": "Carmesí"
 				},
-				"editLabels": "Edit labels"
+				"editLabels": "Editar etiquetas"
 			}
 		},
 		"backlog": {
@@ -2811,7 +2811,7 @@
 			"title": "Calendario",
 			"today": "Hoy",
 			"loadError": "No se pudieron cargar las tareas.",
-			"noTasksThisMonth": "Nothing scheduled this month"
+			"noTasksThisMonth": "No hay nada planificado este mes"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

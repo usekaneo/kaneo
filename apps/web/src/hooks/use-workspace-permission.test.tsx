@@ -96,4 +96,19 @@ describe("useWorkspacePermission", () => {
     expect(getMyCapabilities).toHaveBeenCalledWith("workspace-1");
     expect(hasPermission).not.toHaveBeenCalled();
   });
+
+  it("stops checking and denies everything when the request fails", async () => {
+    getMyCapabilities.mockRejectedValue(new Error("Too many requests"));
+
+    const { result } = renderHook(() => useWorkspacePermission(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isCheckingPermissions).toBe(false);
+    });
+
+    expect(result.current.canCreateTasks()).toBe(false);
+    expect(result.current.canManageWorkspace()).toBe(false);
+  });
 });

@@ -1102,8 +1102,8 @@
 			"off": "Disattivo",
 			"newColumnPlaceholder": "Nuovo nome colonna...",
 			"add": "Aggiungi",
-			"deleteAria": "Delete {{name}} column",
-			"renameAria": "Rename {{name}} column"
+			"deleteAria": "Elimina la colonna {{name}}",
+			"renameAria": "Rinomina la colonna {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2080,7 +2080,7 @@
 			"deleteConfirmDescription": "Questo rimuoverà permanentemente il progetto e tutti i suoi dati. Non puoi annullare questa azione.",
 			"deletedToast": "Progetto eliminato",
 			"deleteProject": "Elimina Progetto",
-			"switcherLabel": "Switch project or view"
+			"switcherLabel": "Cambia progetto o vista"
 		},
 		"search": {
 			"inputPlaceholder": "Cerca attività, progetti, commenti...",
@@ -2373,7 +2373,7 @@
 			"list": "Elenco",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "View"
+			"heading": "Vista"
 		},
 		"common": {
 			"selectTask": "Seleziona attività",
@@ -2604,7 +2604,7 @@
 					"rose": "Rosa",
 					"crimson": "Cremisi"
 				},
-				"editLabels": "Edit labels"
+				"editLabels": "Modifica etichette"
 			}
 		},
 		"backlog": {
@@ -2811,7 +2811,7 @@
 			"title": "Calendario",
 			"today": "Oggi",
 			"loadError": "Impossibile caricare le attività.",
-			"noTasksThisMonth": "Nothing scheduled this month"
+			"noTasksThisMonth": "Niente in programma questo mese"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

@@ -864,8 +864,8 @@
 			"off": "Nonaktif",
 			"newColumnPlaceholder": "Nama kolom baru...",
 			"add": "Tambah",
-			"deleteAria": "Delete {{name}} column",
-			"renameAria": "Rename {{name}} column"
+			"deleteAria": "Hapus kolom {{name}}",
+			"renameAria": "Ganti nama kolom {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2058,7 +2058,7 @@
 			"deleteConfirmDescription": "Ini akan menghapus proyek dan semua datanya secara permanen. Anda tidak dapat membatalkan tindakan ini.",
 			"deletedToast": "Proyek dihapus",
 			"deleteProject": "Hapus Proyek",
-			"switcherLabel": "Switch project or view"
+			"switcherLabel": "Ganti proyek atau tampilan"
 		},
 		"search": {
 			"inputPlaceholder": "Cari tugas, proyek, komentar...",
@@ -2343,7 +2343,7 @@
 			"list": "Daftar",
 			"backlog": "Backlog",
 			"gantt": "Gantt",
-			"heading": "View"
+			"heading": "Tampilan"
 		},
 		"common": {
 			"selectTask": "Pilih tugas",
@@ -2574,7 +2574,7 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				},
-				"editLabels": "Edit labels"
+				"editLabels": "Edit label"
 			}
 		},
 		"backlog": {
@@ -2779,7 +2779,7 @@
 			"title": "Kalender",
 			"today": "Hari ini",
 			"loadError": "Gagal memuat tugas.",
-			"noTasksThisMonth": "Nothing scheduled this month"
+			"noTasksThisMonth": "Tidak ada yang terjadwal bulan ini"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

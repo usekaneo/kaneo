@@ -867,8 +867,8 @@
 			"off": "Выкл",
 			"newColumnPlaceholder": "Название новой колонки...",
 			"add": "Добавить",
-			"deleteAria": "Delete {{name}} column",
-			"renameAria": "Rename {{name}} column"
+			"deleteAria": "Удалить столбец {{name}}",
+			"renameAria": "Переименовать столбец {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2099,7 +2099,7 @@
 			"deleteConfirmDescription": "Проект и все его данные будут безвозвратно удалены. Это действие нельзя отменить.",
 			"deletedToast": "Проект удалён",
 			"deleteProject": "Удалить проект",
-			"switcherLabel": "Switch project or view"
+			"switcherLabel": "Сменить проект или вид"
 		},
 		"search": {
 			"inputPlaceholder": "Поиск задач, проектов, комментариев...",
@@ -2394,9 +2394,9 @@
 		"view": {
 			"board": "Доска",
 			"list": "Список",
-			"backlog": "Backlog",
-			"gantt": "Gantt",
-			"heading": "View"
+			"backlog": "Бэклог",
+			"gantt": "Гант",
+			"heading": "Вид"
 		},
 		"common": {
 			"selectTask": "Выбрать задачу",
@@ -2627,7 +2627,7 @@
 					"rose": "Роза",
 					"crimson": "Малиновый"
 				},
-				"editLabels": "Edit labels"
+				"editLabels": "Изменить метки"
 			}
 		},
 		"backlog": {
@@ -2883,7 +2883,7 @@
 			"title": "Календарь",
 			"today": "Сегодня",
 			"loadError": "Не удалось загрузить задачи.",
-			"noTasksThisMonth": "Nothing scheduled this month"
+			"noTasksThisMonth": "В этом месяце ничего не запланировано"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
