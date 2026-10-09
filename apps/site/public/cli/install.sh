@@ -333,32 +333,50 @@ path_contains() {
   esac
 }
 
-print_path_help() {
-  display_dir=$install_dir
+escape_for() {
+  case $1 in
+    fish) printf '%s' "$2" | sed 's/[\\"$]/\\&/g' ;;
+    *) printf '%s' "$2" | sed 's/[\\"`$]/\\&/g' ;;
+  esac
+}
+
+dir_for() {
   if [ -n "${HOME:-}" ]; then
     case $install_dir in
-      "$HOME"/*) display_dir="\$HOME/${install_dir#"$HOME"/}" ;;
+      "$HOME"/*)
+        printf "\$HOME/%s" "$(escape_for "$1" "${install_dir#"$HOME"/}")"
+        return 0
+        ;;
       *) ;;
     esac
   fi
+  escape_for "$1" "$install_dir"
+}
 
+append_command() {
+  line="export PATH=\"$(dir_for sh):\$PATH\""
+  quoted_line=$(printf '%s' "$line" | sed "s/'/'\\\\''/g")
+  printf "printf '%%s\\\\n' '%s' >> ~/%s" "$quoted_line" "$1"
+}
+
+print_path_help() {
   shell_name=$(basename -- "${SHELL:-sh}")
   case $shell_name in
     fish)
-      path_command="fish_add_path $display_dir"
+      path_command="fish_add_path \"$(dir_for fish)\""
       ;;
     zsh)
-      path_command="echo 'export PATH=\"$display_dir:\$PATH\"' >> ~/.zshrc"
+      path_command=$(append_command .zshrc)
       ;;
     bash)
       if [ "$os" = darwin ]; then
-        path_command="echo 'export PATH=\"$display_dir:\$PATH\"' >> ~/.bash_profile"
+        path_command=$(append_command .bash_profile)
       else
-        path_command="echo 'export PATH=\"$display_dir:\$PATH\"' >> ~/.bashrc"
+        path_command=$(append_command .bashrc)
       fi
       ;;
     *)
-      path_command="echo 'export PATH=\"$display_dir:\$PATH\"' >> ~/.profile"
+      path_command=$(append_command .profile)
       ;;
   esac
 
