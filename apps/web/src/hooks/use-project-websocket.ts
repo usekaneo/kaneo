@@ -89,6 +89,7 @@ export function useProjectWebSocket(projectId: string) {
       if (message.type === "PROJECT_UPDATED") {
         queryClient.invalidateQueries({ queryKey: ["projects"] });
         queryClient.invalidateQueries({ queryKey: ["labels"] });
+        queryClient.invalidateQueries({ queryKey: ["columns", projectId] });
         if (message.linksChanged)
           queryClient.invalidateQueries({ queryKey: ["external-links"] });
         return;

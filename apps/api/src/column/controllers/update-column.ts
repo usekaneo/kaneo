@@ -1,9 +1,11 @@
-import { eq } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
-import { columnTable } from "../../database/schema";
+import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { getProjectSubtaskParentProjects } from "../../task/get-subtask-parent-projects";
+import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
+import { toSlug } from "./create-column";
 
 async function updateColumn(
   id: string,
@@ -22,22 +24,75 @@ async function updateColumn(
     throw new HTTPException(404, { message: "Column not found" });
   }
 
-  const [updated] = await db
-    .update(columnTable)
-    .set({
-      ...(data.name !== undefined && { name: data.name }),
-      ...(data.icon !== undefined && { icon: data.icon }),
-      ...(data.color !== undefined && { color: data.color }),
-      ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
-    })
-    .where(eq(columnTable.id, id))
-    .returning();
+  let newSlug: string | undefined;
 
-  if (!updated) {
-    throw new HTTPException(500, { message: "Failed to update column" });
+  if (data.name !== undefined && data.name !== existing.name) {
+    const slug = toSlug(data.name);
+
+    if (!slug) {
+      throw new HTTPException(400, {
+        message: "Column name must contain at least one alphanumeric character",
+      });
+    }
+
+    if ((VIRTUAL_STATUSES as readonly string[]).includes(slug)) {
+      throw new HTTPException(409, {
+        message: `Column slug "${slug}" is reserved for virtual task statuses`,
+      });
+    }
+
+    if (slug !== existing.slug) {
+      const conflict = await db.query.columnTable.findFirst({
+        where: and(
+          eq(columnTable.projectId, existing.projectId),
+          eq(columnTable.slug, slug),
+          ne(columnTable.id, id),
+        ),
+      });
+
+      if (conflict) {
+        throw new HTTPException(409, {
+          message: `Column with slug "${slug}" already exists in this project`,
+        });
+      }
+
+      newSlug = slug;
+    }
   }
 
-  if (existing.isFinal !== updated.isFinal) {
+  const updated = await db.transaction(async (tx) => {
+    const [updatedColumn] = await tx
+      .update(columnTable)
+      .set({
+        ...(data.name !== undefined && { name: data.name }),
+        ...(newSlug !== undefined && { slug: newSlug }),
+        ...(data.icon !== undefined && { icon: data.icon }),
+        ...(data.color !== undefined && { color: data.color }),
+        ...(data.isFinal !== undefined && { isFinal: data.isFinal }),
+      })
+      .where(eq(columnTable.id, id))
+      .returning();
+
+    if (!updatedColumn) {
+      throw new HTTPException(500, { message: "Failed to update column" });
+    }
+
+    if (newSlug !== undefined) {
+      await tx
+        .update(taskTable)
+        .set({ status: newSlug })
+        .where(
+          and(
+            eq(taskTable.projectId, existing.projectId),
+            eq(taskTable.status, existing.slug),
+          ),
+        );
+    }
+
+    return updatedColumn;
+  });
+
+  if (existing.isFinal !== updated.isFinal || existing.slug !== updated.slug) {
     const parents = await getProjectSubtaskParentProjects(
       updated.projectId,
       updated.slug,
