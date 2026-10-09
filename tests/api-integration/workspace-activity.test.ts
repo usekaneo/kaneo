@@ -138,7 +138,7 @@ describe("API integration: workspace activity", () => {
     const response = await app.request(
       `/api/activity/workspace/${member.workspace.id}`,
     );
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
   });
   it.each([
     { workspace: ["read"] },

@@ -104,7 +104,7 @@ describe("saved Gitea token verification route", () => {
     const { project } = await fixture();
     const outsider = await createWorkspaceMember();
     mockAuthenticatedSession(outsider.user);
-    expect((await verify(project.id)).status).toBe(403);
+    expect((await verify(project.id)).status).toBe(404);
     expect(verifyGiteaAccess).not.toHaveBeenCalled();
   });
   it("uses a saved Gitea token only for its project and unchanged destination", async () => {

@@ -6,7 +6,12 @@ import {
   it,
   vi,
 } from "vite-plus/test";
-import { pollDeviceAccessToken, requestDeviceCode } from "./device-flow.js";
+import {
+  DeviceCodeRequestError,
+  pollDeviceAccessToken,
+  pollDeviceTokenOnce,
+  requestDeviceCode,
+} from "./device-flow.js";
 
 describe("requestDeviceCode", () => {
   const originalFetch = globalThis.fetch;
@@ -47,6 +52,27 @@ describe("requestDeviceCode", () => {
     );
   });
 
+  it("throws a typed error with the OAuth error code when the client is rejected", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: "invalid_client",
+          error_description: "Invalid client ID",
+        }),
+        { status: 400 },
+      ),
+    ) as typeof fetch;
+
+    const failure = await requestDeviceCode(
+      "https://api.example.com",
+      "kaneo-cli",
+    ).catch((error: unknown) => error);
+
+    expect(failure).toBeInstanceOf(DeviceCodeRequestError);
+    expect(failure).toMatchObject({ status: 400, error: "invalid_client" });
+    expect((failure as Error).message).toMatch(/device\/code failed \(400\)/);
+  });
+
   it("throws when the response body is missing the device code", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ user_code: "missing-device-code" }), {
@@ -57,6 +83,51 @@ describe("requestDeviceCode", () => {
     await expect(
       requestDeviceCode("https://api.example.com", "kaneo-mcp"),
     ).rejects.toThrow(/unexpected response/);
+  });
+});
+
+describe("pollDeviceTokenOnce", () => {
+  const originalFetch = globalThis.fetch;
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  function respondWith(body: unknown, status: number) {
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify(body), { status }),
+      ) as typeof fetch;
+  }
+
+  it("returns the access token once approved", async () => {
+    respondWith({ access_token: "token-123" }, 200);
+
+    await expect(
+      pollDeviceTokenOnce("https://api.example.com", "kaneo-cli", "device"),
+    ).resolves.toEqual({ status: "approved", accessToken: "token-123" });
+  });
+
+  it.each([
+    ["authorization_pending", "pending"],
+    ["slow_down", "slow_down"],
+    ["access_denied", "denied"],
+    ["expired_token", "expired"],
+  ])("maps %s to %s", async (error, status) => {
+    respondWith({ error }, 400);
+
+    await expect(
+      pollDeviceTokenOnce("https://api.example.com", "kaneo-cli", "device"),
+    ).resolves.toEqual({ status });
+  });
+
+  it("throws on an unknown error", async () => {
+    respondWith({ error: "invalid_grant" }, 400);
+
+    await expect(
+      pollDeviceTokenOnce("https://api.example.com", "kaneo-cli", "device"),
+    ).rejects.toThrow(/device\/token failed \(400\)/);
   });
 });
 

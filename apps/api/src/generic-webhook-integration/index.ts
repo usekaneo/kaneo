@@ -92,10 +92,8 @@ const getGenericWebhookIntegrationRoute = createRoute({
       "Webhook integration details, or null",
       genericWebhookIntegrationSchema.nullable(),
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -122,8 +120,9 @@ const createGenericWebhookIntegrationRoute = createRoute({
     ),
     400: errorResponse("The webhook URL failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -150,9 +149,9 @@ const updateGenericWebhookIntegrationRoute = createRoute({
     ),
     400: errorResponse("The resulting config failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Webhook integration not found"),
+    404: errorResponse("Project or webhook integration not found"),
   },
 });
 
@@ -167,13 +166,10 @@ const deleteGenericWebhookIntegrationRoute = createRoute({
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The integration was removed", deletedSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Webhook integration not found"),
+    404: errorResponse("Project or webhook integration not found"),
   },
 });
 

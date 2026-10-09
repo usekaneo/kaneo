@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Feature request
+    url: https://feedback.kaneo.app
+    about: Suggest improvements, vote on feature requests, and follow their progress
   - name: Kaneo Documentation
     url: https://kaneo.app/docs/core
     about: Check our documentation for answers to common questions

@@ -182,7 +182,7 @@ describe("large task descriptions", () => {
       .where(eq(schema.projectTable.id, otherProject.id));
     mockAuthenticatedSession(other.user);
     expect((await app.request(`/api/task/${task.id}/description`)).status).toBe(
-      403,
+      404,
     );
     expect(
       (
@@ -190,7 +190,7 @@ describe("large task descriptions", () => {
           `/api/task/description-matches/${project.id}?query=secret`,
         )
       ).status,
-    ).toBe(403);
+    ).toBe(404);
     mockAnonymousSession();
     expect((await app.request(`/api/task/${task.id}/description`)).status).toBe(
       401,

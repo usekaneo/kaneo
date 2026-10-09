@@ -503,7 +503,7 @@ describe("API integration: calendar feeds", () => {
     expect(
       (await app.request(`${endpoint}?workspaceId=${outsider.workspace.id}`))
         .status,
-    ).toBe(403);
+    ).toBe(404);
     expect(
       (
         await app.request(
@@ -517,7 +517,7 @@ describe("API integration: calendar feeds", () => {
     expect(
       (await app.request(`${endpoint}/${feed.id}`, { method: "DELETE" }))
         .status,
-    ).toBe(403);
+    ).toBe(404);
     expect((await app.request(feedPath(feed))).status).toBe(200);
   });
 });

@@ -3,6 +3,11 @@ description: Report something that is not working in Kaneo
 type: Bug
 labels: [bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is for bug reports only. To suggest an improvement, submit or vote on a feature request at [Kaneo Feedback](https://feedback.kaneo.app).
+
   - type: textarea
     id: description
     attributes:

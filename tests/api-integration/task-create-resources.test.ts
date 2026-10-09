@@ -69,7 +69,7 @@ describe("resources during task creation", () => {
     mockAuthenticatedSession(other.user);
     expect(
       (await create(owner.project.id, [{ url: "https://example.com" }])).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(await db.query.externalLinkTable.findMany()).toHaveLength(0);
     expect(publish).not.toHaveBeenCalled();
   });
