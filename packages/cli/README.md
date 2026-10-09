@@ -123,4 +123,6 @@ The CLI is written with [Effect](https://effect.website) 4 (`effect/cli`, `effec
 
 ## Releasing
 
-Bump `version` in `package.json` and merge to `main`. The `Publish CLI Package` workflow publishes to npm with provenance and creates a `cli-v<version>` release.
+Bump `version` in `package.json` and merge to `main`. The `Release CLI` workflow (`.github/workflows/publish-cli.yml`) tests and bundles the CLI, compiles standalone binaries with Bun for macOS, Linux (glibc and musl) and Windows, and creates the `cli-v<version>` GitHub release with the binaries and a `SHA256SUMS` file. It skips versions that already have a release, and you can also run it by hand from the Actions tab.
+
+Publishing to npm stays off until the `CLI_NPM_PUBLISH` repository variable is set to `true`. With it on, the same workflow publishes `@kaneo/cli` to npm with provenance, skipping versions that are already published.
