@@ -14,6 +14,16 @@ concurrency:
   group: publish-cli
   cancel-in-progress: false
 
+env:
+  CLI_ASSETS: >-
+    kaneo-darwin-arm64
+    kaneo-darwin-x64
+    kaneo-linux-arm64
+    kaneo-linux-arm64-musl
+    kaneo-linux-x64
+    kaneo-linux-x64-musl
+    kaneo-windows-x64.exe
+
 jobs:
   check:
     name: Check and bundle
@@ -22,7 +32,7 @@ jobs:
       contents: read
     outputs:
       version: ${{ steps.release.outputs.version }}
-      release_exists: ${{ steps.release.outputs.release_exists }}
+      release_state: ${{ steps.release.outputs.release_state }}
 
     steps:
       - name: Checkout repository
@@ -81,22 +91,29 @@ jobs:
             exit 1
           fi
           tag="cli-v$version"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json tagName > /dev/null 2> "$RUNNER_TEMP/release-view.err"; then
-            exists=true
-            echo "Release $tag already exists; skipping binaries and release."
+          if present=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' 2> "$RUNNER_TEMP/release-view.err"); then
+            read -ra expected <<< "$CLI_ASSETS"
+            missing=$(comm -23 <(printf '%s\n' "${expected[@]}" SHA256SUMS | sort) <(printf '%s\n' "$present" | sort) | tr '\n' ' ')
+            if [ -z "$missing" ]; then
+              state=complete
+              echo "Release $tag already has every asset; skipping binaries and release."
+            else
+              state=incomplete
+              echo "Release $tag is missing $missing; uploading every asset again."
+            fi
           elif grep -q "release not found" "$RUNNER_TEMP/release-view.err"; then
-            exists=false
+            state=missing
           else
             cat "$RUNNER_TEMP/release-view.err" >&2
             exit 1
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          echo "release_exists=$exists" >> "$GITHUB_OUTPUT"
+          echo "release_state=$state" >> "$GITHUB_OUTPUT"
 
   binaries:
     name: Compile ${{ matrix.platform }} binaries
     needs: check
-    if: needs.check.outputs.release_exists == 'false'
+    if: needs.check.outputs.release_state != 'complete'
     runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
@@ -179,7 +196,7 @@ jobs:
   release:
     name: Create GitHub release
     needs: [check, binaries]
-    if: needs.check.outputs.release_exists == 'false'
+    if: needs.check.outputs.release_state != 'complete'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -196,15 +213,7 @@ jobs:
         working-directory: assets
         run: |
           set -euo pipefail
-          assets=(
-            kaneo-darwin-arm64
-            kaneo-darwin-x64
-            kaneo-linux-arm64
-            kaneo-linux-arm64-musl
-            kaneo-linux-x64
-            kaneo-linux-x64-musl
-            kaneo-windows-x64.exe
-          )
+          read -ra assets <<< "$CLI_ASSETS"
           present=(*)
           [ "$(printf '%s\n' "${present[@]}" | sort)" = "$(printf '%s\n' "${assets[@]}" | sort)" ]
           sha256sum "${assets[@]}" > SHA256SUMS
@@ -214,8 +223,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.check.outputs.version }}
+          RELEASE_STATE: ${{ needs.check.outputs.release_state }}
         run: |
           set -euo pipefail
+          if [ "$RELEASE_STATE" = incomplete ]; then
+            gh release upload "cli-v$VERSION" assets/* --repo "$GITHUB_REPOSITORY" --clobber
+            exit 0
+          fi
+          prerelease=()
+          if [[ "$VERSION" == *-* ]]; then
+            prerelease=(--prerelease)
+          fi
           notes="$RUNNER_TEMP/notes.md"
           cat > "$notes" <<'EOF'
           Install or update the Kaneo CLI on macOS and Linux:
@@ -237,7 +255,8 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "Kaneo CLI v$VERSION" \
             --notes-file "$notes" \
-            --latest=false
+            --latest=false \
+            "${prerelease[@]}"
 
   npm:
     name: Publish to npm
