@@ -1,4 +1,5 @@
 import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 
 export type CreateExternalLinkRequest = {
   taskId: string;
@@ -20,8 +21,7 @@ async function createExternalLink({
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw await HttpError.fromResponse(response);
   }
 
   return response.json();

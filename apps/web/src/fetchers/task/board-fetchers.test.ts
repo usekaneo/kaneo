@@ -133,10 +133,15 @@ describe("authenticated and public board fetchers", () => {
         }),
       )
       .mockResolvedValueOnce(
-        new Response("Project is not public", { status: 403 }),
+        Response.json(
+          { message: "Project is not public", code: "FORBIDDEN" },
+          { status: 403 },
+        ),
       );
     await expect(getPublicProject({ id: "project" })).rejects.toMatchObject({
       status: 403,
+      message: "Project is not public",
+      code: "FORBIDDEN",
     });
     expect(publicRequest).toHaveBeenCalledTimes(2);
   });

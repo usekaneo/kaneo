@@ -14,7 +14,7 @@ export async function uploadDraftAsset(projectId: string, file: File) {
     param: { projectId },
     json,
   });
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   const upload = await response.json();
   const stored = await fetch(upload.uploadUrl, {
     method: "PUT",
@@ -29,8 +29,7 @@ export async function uploadDraftAsset(projectId: string, file: File) {
     param: { projectId },
     json: { ...json, key: upload.key },
   });
-  if (!finalized.ok)
-    throw new HttpError(finalized.status, await finalized.text());
+  if (!finalized.ok) throw await HttpError.fromResponse(finalized);
   const asset = await finalized.json();
   return {
     id: asset.id,

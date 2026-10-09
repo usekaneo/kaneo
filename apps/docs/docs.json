@@ -176,6 +176,7 @@
 						"pages": [
 							"api-reference/introduction",
 							"api-reference/authentication",
+							"api-reference/errors",
 							"core/integrations/mcp-stateless"
 						]
 					},
