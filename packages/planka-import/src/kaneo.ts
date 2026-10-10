@@ -5,6 +5,22 @@ export type KaneoTask = { id: string; title: string; number: number };
 export type KaneoLabel = { id: string; name: string; color: string };
 export type KaneoMember = { id: string; name: string; email: string };
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const REQUESTS_PER_WINDOW = 90;
+const RATE_LIMIT_SILENCE_BUFFER_MS = 2_000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function withResolvers(): { promise: Promise<void>; resolve: () => void } {
+  let resolve!: () => void;
+  const promise = new Promise<void>((r) => {
+    resolve = r;
+  });
+  return { promise, resolve };
+}
+
 export function normalizeBaseUrl(raw: string): string {
   const trimmed = raw.trim().replace(/\/+$/, "");
   try {
@@ -22,10 +38,31 @@ export function normalizeBaseUrl(raw: string): string {
 export class KaneoClient {
   readonly baseUrl: string;
   private readonly apiKey: string;
+  private static gate: Promise<void> = Promise.resolve();
+  private static windowEndsAt = 0;
+  private static sentInWindow = 0;
 
   constructor(options: { baseUrl: string; apiKey: string }) {
     this.baseUrl = normalizeBaseUrl(options.baseUrl);
     this.apiKey = options.apiKey;
+  }
+
+  private async acquireSlot(): Promise<void> {
+    const previous = KaneoClient.gate;
+    const release = withResolvers();
+    KaneoClient.gate = release.promise;
+    await previous;
+    if (Date.now() >= KaneoClient.windowEndsAt) {
+      KaneoClient.sentInWindow = 0;
+    } else if (KaneoClient.sentInWindow >= REQUESTS_PER_WINDOW) {
+      const wait = KaneoClient.windowEndsAt - Date.now();
+      if (wait > 0) await sleep(wait);
+      KaneoClient.sentInWindow = 0;
+    }
+    KaneoClient.sentInWindow++;
+    KaneoClient.windowEndsAt =
+      Date.now() + RATE_LIMIT_WINDOW_MS + RATE_LIMIT_SILENCE_BUFFER_MS;
+    release.resolve();
   }
 
   listWorkspaces(): Promise<KaneoWorkspace[]> {
@@ -137,6 +174,7 @@ export class KaneoClient {
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
+    await this.acquireSlot();
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Bearer ${this.apiKey}`);
     headers.set("Accept", "application/json");
@@ -177,6 +215,9 @@ export class KaneoClient {
 function describeError(body: unknown, status: number): string {
   if (status === 401) {
     return "unauthorized (HTTP 401), check your Kaneo API key";
+  }
+  if (status === 429) {
+    return "rate limited (HTTP 429), Kaneo throttled this API key; run again later";
   }
   if (typeof body === "object" && body !== null) {
     const record = body as Record<string, unknown>;
