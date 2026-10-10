@@ -3079,7 +3079,9 @@
 			"endsToday": "Bu gün bitir",
 			"daysOverdue": "{{remaining}} gün gecikib",
 			"noTasks": "Bu sprintdə hələ tapşırıq yoxdur",
-			"toggleTasks": "Sprint tapşırıqlarını göstər"
+			"toggleTasks": "Sprint tapşırıqlarını göstər",
+			"reportSummary": "Planlaşdırılmış {{planned}}, tamamlanmış {{completed}}, köçürülmüş {{carriedOver}}",
+			"carriedOver": "Köçürülmüş"
 		},
 		"type": {
 			"task": "Tapşırıq",

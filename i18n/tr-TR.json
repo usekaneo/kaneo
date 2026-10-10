@@ -3079,7 +3079,9 @@
 			"endsToday": "Bugün bitiyor",
 			"daysOverdue": "{{remaining}} gün gecikmiş",
 			"noTasks": "Bu sprintte henüz görev yok",
-			"toggleTasks": "Sprint görevlerini göster"
+			"toggleTasks": "Sprint görevlerini göster",
+			"reportSummary": "Planlanan {{planned}}, tamamlanan {{completed}}, aktarılan {{carriedOver}}",
+			"carriedOver": "Aktarılan"
 		},
 		"type": {
 			"task": "Görev",
