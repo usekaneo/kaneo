@@ -10,10 +10,16 @@ export default defineConfig({
           { task: "build", from: ["dependencies", "devDependencies"] },
         ],
         cache: {
+          // `auto` can't see what native tools (tsc 7, esbuild) read, so list
+          // the sources explicitly or edits replay a stale build.
           input: [
             { auto: true },
+            "src/**",
+            "tsconfig.json",
+            "package.json",
             ".env*",
             { pattern: ".env*", base: "workspace" },
+            { pattern: "pnpm-lock.yaml", base: "workspace" },
           ],
           output: ["dist/**"],
         },
