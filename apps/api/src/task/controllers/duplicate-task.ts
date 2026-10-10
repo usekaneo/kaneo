@@ -282,7 +282,12 @@ async function duplicateTask({
         eq(taskRelationTable.targetTaskId, sourceTask.id),
         eq(projectTable.workspaceId, project.workspaceId),
         eq(taskRelationTable.relationType, "subtask"),
-        projectAccessCondition(currentUserId, taskTable.projectId),
+        // An occurrence continues its series with the links it already had,
+        // whoever completed it; only a manual copy is limited to what the
+        // user can see.
+        occurrence
+          ? undefined
+          : projectAccessCondition(currentUserId, taskTable.projectId),
       ),
     );
 

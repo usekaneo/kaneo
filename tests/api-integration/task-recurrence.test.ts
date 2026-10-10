@@ -10,6 +10,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
 
 const weekly = { frequency: "weekly", interval: 1, timeZone: "UTC" } as const;
 
@@ -540,5 +541,37 @@ describe("API integration: recurring tasks", () => {
       dueDate: new Date("2026-03-12T00:00:00.000Z"),
       recurrence: rule,
     });
+  });
+
+  it("keeps a parent link the completing member cannot see", async () => {
+    const { restricted, alpha, alphaTask, betaTask } =
+      await createRestrictedWorkspace();
+    if (!alphaTask || !betaTask) throw new Error("Failed to seed tasks");
+    const done = await db.query.columnTable.findFirst({
+      where: and(
+        eq(schema.columnTable.projectId, alpha.id),
+        eq(schema.columnTable.isFinal, true),
+      ),
+    });
+    if (!done) throw new Error("Missing final column");
+    await db.insert(schema.taskRelationTable).values({
+      sourceTaskId: betaTask.id,
+      targetTaskId: alphaTask.id,
+      relationType: "subtask",
+    });
+    await db
+      .update(schema.taskTable)
+      .set({ status: done.slug, columnId: done.id, recurrence: weekly })
+      .where(eq(schema.taskTable.id, alphaTask.id));
+
+    const next = await createNextOccurrence(alphaTask.id, restricted.id);
+
+    expect(next).not.toBeNull();
+    const links = await db.query.taskRelationTable.findMany({
+      where: eq(schema.taskRelationTable.targetTaskId, next?.id ?? ""),
+    });
+    expect(links).toMatchObject([
+      { sourceTaskId: betaTask.id, relationType: "subtask" },
+    ]);
   });
 });
