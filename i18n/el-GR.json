@@ -3079,7 +3079,9 @@
 			"endsToday": "Τελειώνει σήμερα",
 			"daysOverdue": "{{remaining}} ημέρες καθυστέρηση",
 			"noTasks": "Δεν υπάρχουν ακόμα εργασίες σε αυτό το sprint",
-			"toggleTasks": "Εμφάνιση εργασιών sprint"
+			"toggleTasks": "Εμφάνιση εργασιών sprint",
+			"reportSummary": "Προγραμματισμένες {{planned}}, ολοκληρωμένες {{completed}}, μεταφέρθηκαν {{carriedOver}}",
+			"carriedOver": "Μεταφέρθηκαν"
 		},
 		"type": {
 			"task": "Εργασία",

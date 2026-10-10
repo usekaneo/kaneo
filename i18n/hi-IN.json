@@ -3079,7 +3079,9 @@
 			"endsToday": "आज समाप्त",
 			"daysOverdue": "{{remaining}} दिन से अतिदेय",
 			"noTasks": "इस स्प्रिंट में अभी कोई कार्य नहीं है",
-			"toggleTasks": "स्प्रिंट कार्य दिखाएँ"
+			"toggleTasks": "स्प्रिंट कार्य दिखाएँ",
+			"reportSummary": "योजनाबद्ध {{planned}}, पूर्ण {{completed}}, स्थानांतरित {{carriedOver}}",
+			"carriedOver": "स्थानांतरित"
 		},
 		"type": {
 			"task": "कार्य",

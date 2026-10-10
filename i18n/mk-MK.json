@@ -3079,7 +3079,9 @@
 			"endsToday": "Завршува денес",
 			"daysOverdue": "{{remaining}} дена доцни",
 			"noTasks": "Уште нема задачи во овој спринт",
-			"toggleTasks": "Прикажи задачи во спринтот"
+			"toggleTasks": "Прикажи задачи во спринтот",
+			"reportSummary": "Планирани {{planned}}, завршени {{completed}}, пренесени {{carriedOver}}",
+			"carriedOver": "Пренесени"
 		},
 		"type": {
 			"task": "Задача",
