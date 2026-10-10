@@ -432,7 +432,7 @@ function RouteComponent() {
                               )}
                             </div>
                           </div>
-                          <p className="text-xs font-normal text-muted-foreground shrink-0">
+                          <p className="hidden text-xs font-normal text-muted-foreground shrink-0 sm:block">
                             {t("settings:workspaceRoles.permissionCount", {
                               count: permissionCount(role.permission),
                             })}

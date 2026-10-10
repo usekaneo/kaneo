@@ -578,7 +578,7 @@ function RouteComponent() {
                         placeholder={t(
                           "settings:projectGeneral.searchIconsPlaceholder",
                         )}
-                        className="h-8 text-xs"
+                        className="h-8 text-base sm:text-xs"
                       />
                       <div className="max-h-[280px] overflow-y-auto pr-1">
                         <div className="grid grid-cols-6 gap-1.5">

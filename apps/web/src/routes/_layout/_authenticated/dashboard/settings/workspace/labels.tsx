@@ -34,7 +34,6 @@ import {
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
-  EmptyTitle,
 } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -262,13 +261,12 @@ function RouteComponent() {
                     <EmptyMedia>
                       <Tag className="size-8 text-muted-foreground" />
                     </EmptyMedia>
-                    <EmptyTitle>
+                    <EmptyDescription>
                       {t("settings:workspaceLabels.empty", {
                         defaultValue:
                           "No labels yet. Create your first label to get started.",
                       })}
-                    </EmptyTitle>
-                    <EmptyDescription />
+                    </EmptyDescription>
                   </EmptyHeader>
                 </Empty>
               ) : (

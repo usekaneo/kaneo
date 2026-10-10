@@ -46,7 +46,7 @@ function PasswordInput<T extends FieldValues>({
       <button
         type="button"
         onClick={() => setShow((prev) => !prev)}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+        className="touch-hitbox absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
         aria-label={
           show ? t("auth:forms.hidePassword") : t("auth:forms.showPassword")
         }

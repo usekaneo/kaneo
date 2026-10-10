@@ -1101,7 +1101,9 @@
 			"on": "Attivo",
 			"off": "Disattivo",
 			"newColumnPlaceholder": "Nuovo nome colonna...",
-			"add": "Aggiungi"
+			"add": "Aggiungi",
+			"deleteAria": "Elimina la colonna {{name}}",
+			"renameAria": "Rinomina la colonna {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2077,7 +2079,8 @@
 			"deleteConfirmTitle": "Eliminare il Progetto?",
 			"deleteConfirmDescription": "Questo rimuoverà permanentemente il progetto e tutti i suoi dati. Non puoi annullare questa azione.",
 			"deletedToast": "Progetto eliminato",
-			"deleteProject": "Elimina Progetto"
+			"deleteProject": "Elimina Progetto",
+			"switcherLabel": "Cambia progetto o vista"
 		},
 		"search": {
 			"inputPlaceholder": "Cerca attività, progetti, commenti...",
@@ -2367,7 +2370,10 @@
 		"boardSearchPlaceholder": "Cerca ticket...",
 		"view": {
 			"board": "Board",
-			"list": "Elenco"
+			"list": "Elenco",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Vista"
 		},
 		"common": {
 			"selectTask": "Seleziona attività",
@@ -2597,7 +2603,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
 					"crimson": "Cremisi"
-				}
+				},
+				"editLabels": "Modifica etichette"
 			}
 		},
 		"backlog": {
@@ -2803,7 +2810,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: apri attività",
 			"title": "Calendario",
 			"today": "Oggi",
-			"loadError": "Impossibile caricare le attività."
+			"loadError": "Impossibile caricare le attività.",
+			"noTasksThisMonth": "Niente in programma questo mese"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
 import {
   Breadcrumb,
@@ -33,13 +34,14 @@ export default function WorkspaceLayout({
   children,
   className,
 }: WorkspaceLayoutProps) {
+  const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
 
   return (
     <Layout>
       <Layout.Header>
-        <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-1 w-full">
+        <div className="flex w-full items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-1">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -47,7 +49,7 @@ export default function WorkspaceLayout({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="flex items-center gap-2 text-[10px]">
-                    Toggle sidebar
+                    {t("navigation:settingsLayout.toggleSidebar")}
                     <KbdSequence
                       keys={[
                         shortcuts.sidebar.prefix,
@@ -59,25 +61,30 @@ export default function WorkspaceLayout({
               </Tooltip>
             </TooltipProvider>
             <div className="mx-1.5 h-4 w-px shrink-0 bg-border/80" />
-            <Breadcrumb className="flex items-center gap-1 text-xs w-full">
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/">
-                    <span className="text-xs font-normal text-card-foreground">
-                      {workspace?.name}
-                    </span>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <span className="text-xs font-normal text-card-foreground">
+            <Breadcrumb className="flex min-w-0 items-center gap-1 text-xs">
+              <BreadcrumbList className="min-w-0 flex-nowrap">
+                {workspace?.name && (
+                  <>
+                    {/* The page title alone identifies the page on phones. */}
+                    <BreadcrumbItem className="hidden min-w-0 sm:inline-flex">
+                      <BreadcrumbLink href="/" className="min-w-0 truncate">
+                        <span className="text-xs font-normal text-card-foreground">
+                          {workspace.name}
+                        </span>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden sm:block" />
+                  </>
+                )}
+                <BreadcrumbItem className="min-w-0">
+                  <span className="truncate text-xs font-normal text-card-foreground">
                     {title}
                   </span>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-          <div className={`${cn("flex items-center gap-1.5", className)}`}>
+          <div className={cn("flex shrink-0 items-center gap-1.5", className)}>
             {headerActions}
           </div>
         </div>

@@ -864,7 +864,9 @@
 			"on": "Ενεργό",
 			"off": "Ανενεργό",
 			"newColumnPlaceholder": "Όνομα νέας στήλης...",
-			"add": "Προσθήκη"
+			"add": "Προσθήκη",
+			"deleteAria": "Διαγραφή στήλης {{name}}",
+			"renameAria": "Μετονομασία στήλης {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2066,7 +2068,8 @@
 			"deleteConfirmTitle": "Διαγραφή έργου;",
 			"deleteConfirmDescription": "Αυτό θα αφαιρέσει οριστικά το έργο και όλα τα δεδομένα του. Δεν μπορείτε να αναιρέσετε αυτήν την ενέργεια.",
 			"deletedToast": "Το έργο διαγράφηκε",
-			"deleteProject": "Διαγραφή έργου"
+			"deleteProject": "Διαγραφή έργου",
+			"switcherLabel": "Αλλαγή έργου ή προβολής"
 		},
 		"search": {
 			"inputPlaceholder": "Αναζήτηση εργασιών, έργων, σχολίων...",
@@ -2352,7 +2355,10 @@
 		"boardSearchPlaceholder": "Αναζήτηση αιτημάτων...",
 		"view": {
 			"board": "Πίνακας",
-			"list": "Λίστα"
+			"list": "Λίστα",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Προβολή"
 		},
 		"common": {
 			"selectTask": "Επιλέξτε εργασία",
@@ -2582,7 +2588,8 @@
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
 					"crimson": "Βυσσινί"
-				}
+				},
+				"editLabels": "Επεξεργασία ετικετών"
 			}
 		},
 		"backlog": {
@@ -2787,7 +2794,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: άνοιγμα εργασίας",
 			"title": "Ημερολόγιο",
 			"today": "Σήμερα",
-			"loadError": "Αποτυχία φόρτωσης εργασιών."
+			"loadError": "Αποτυχία φόρτωσης εργασιών.",
+			"noTasksThisMonth": "Τίποτα προγραμματισμένο αυτόν τον μήνα"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

@@ -632,19 +632,16 @@ function RouteComponent() {
                   );
                 })}
 
-                <SortControl sort={sort} onSortChange={setSort} />
-
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 gap-2 px-2.5 text-xs font-medium text-foreground"
+                      <button
+                        type="button"
+                        className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-foreground text-xs font-medium outline-none ring-0 hover:bg-accent/60"
                       />
                     }
                   >
-                    <Filter className="h-3.5 w-3.5" />
+                    <Filter className="h-3 w-3" />
                     {t("tasks:backlog.filter")}
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-80" align="start">
@@ -884,6 +881,8 @@ function RouteComponent() {
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
+
+                <SortControl sort={sort} onSortChange={setSort} />
               </div>
             </div>
           </div>

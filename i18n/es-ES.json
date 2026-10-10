@@ -761,7 +761,9 @@
 			"on": "Activado",
 			"off": "Desactivado",
 			"newColumnPlaceholder": "Nombre de la nueva columna...",
-			"add": "Añadir"
+			"add": "Añadir",
+			"deleteAria": "Borrar la columna {{name}}",
+			"renameAria": "Renombrar la columna {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2077,7 +2079,8 @@
 			"deleteConfirmDescription": "Esto eliminará permanentemente el proyecto y todos sus datos. Esta acción no se puede deshacer.",
 			"deletedToast": "Proyecto eliminado",
 			"deleteProject": "Eliminar proyecto",
-			"projectSettings": "Ajustes del proyecto"
+			"projectSettings": "Ajustes del proyecto",
+			"switcherLabel": "Cambiar de proyecto o vista"
 		},
 		"search": {
 			"inputPlaceholder": "Busca tareas, proyectos, comentarios...",
@@ -2367,7 +2370,10 @@
 		"boardSearchPlaceholder": "Buscar tickets...",
 		"view": {
 			"board": "Tablero",
-			"list": "Lista"
+			"list": "Lista",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Vista"
 		},
 		"common": {
 			"selectTask": "Seleccionar tarea",
@@ -2586,7 +2592,8 @@
 					"terracotta": "Terracota",
 					"rose": "Rosa",
 					"crimson": "Carmesí"
-				}
+				},
+				"editLabels": "Editar etiquetas"
 			}
 		},
 		"backlog": {
@@ -2803,7 +2810,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: abrir tarea",
 			"title": "Calendario",
 			"today": "Hoy",
-			"loadError": "No se pudieron cargar las tareas."
+			"loadError": "No se pudieron cargar las tareas.",
+			"noTasksThisMonth": "No hay nada planificado este mes"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

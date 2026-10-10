@@ -82,3 +82,9 @@ export const defaultRolePayloads: Record<
   member: toMutablePayload(member.statements),
   admin: toMutablePayload(admin.statements),
 };
+
+export {
+  WORKSPACE_CAPABILITY_NAMES,
+  type WorkspaceCapability,
+  workspaceCapabilities,
+} from "./capabilities.js";
