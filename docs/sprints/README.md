@@ -17,5 +17,6 @@ This folder contains the planning documents for adding Jira-style sprint plannin
 - Sprints can be created, renamed, edited while future, and reordered, following Jira's sprint management as the behavioural reference.
 - The sprint planning panel lists the tasks of every sprint section, and sprint-scheduled tasks leave the plain backlog list below.
 - The board offers a sprint filter, and the backlog bulk toolbar moves the selected tasks between sprints and the backlog.
+- Closing a sprint freezes a carry-over snapshot on the sprint, so every closed sprint reports planned versus completed work and lists the tasks that were carried over.
 
 The gap analysis was written from public sources before implementation; the assumptions listed there were verified against this repository when the feature was implemented on the `feat/sprint-planning` branch.

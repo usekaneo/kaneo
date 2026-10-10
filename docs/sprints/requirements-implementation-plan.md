@@ -115,7 +115,8 @@ Schema additions in apps/api/src/database/schema.ts:
 ```ts
 // sprints table (new)
 sprintTable: id, projectId, name, goal, status ("future" | "active" | "closed"),
-             startDate, endDate, position, createdAt, updatedAt
+             startDate, endDate, position, createdAt, updatedAt,
+             carryOverTasks (jsonb snapshot of the unfinished tasks moved out at close)
 
 // tasks table (alter)
 taskTable.sprintId -> sprintTable.id (nullable, null = backlog, set null on delete)
