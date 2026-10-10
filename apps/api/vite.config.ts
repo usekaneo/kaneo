@@ -15,6 +15,11 @@ export default defineConfig({
           input: [
             { auto: true },
             "src/**",
+            "tsconfig.json",
+            {
+              pattern: "packages/typescript-config/base.json",
+              base: "workspace",
+            },
             "package.json",
             ".env*",
             { pattern: ".env*", base: "workspace" },
