@@ -14,11 +14,15 @@ import {
   localTimeZone,
 } from "../../tasks/build-recurrence.js";
 import { formatRecurrence } from "../../tasks/format-recurrence.js";
+import { keepCurrentRule } from "../../tasks/keep-current-rule.js";
 import { renderTaskChange } from "../../tasks/render-task-change.js";
 import { resolveTask } from "../../tasks/resolve-task.js";
 import { ApiLayer } from "../api-layer.js";
 
 const RULE_HINT = "Use daily, weekly, monthly or yearly, or pass --stop.";
+
+const lowerFirst = (value: string) =>
+  `${value.charAt(0).toLowerCase()}${value.slice(1)}`;
 
 export const runTaskRepeat = Effect.fn("command.task.repeat")(
   function* (options: {
@@ -31,11 +35,10 @@ export const runTaskRepeat = Effect.fn("command.task.repeat")(
   }) {
     const output = yield* Output;
     const ruleFlags =
-      Option.isSome(options.frequency) ||
       Option.isSome(options.every) ||
       Option.isSome(options.timeZone) ||
       options.on.length > 0;
-    if (options.stop && ruleFlags) {
+    if (options.stop && (ruleFlags || Option.isSome(options.frequency))) {
       return yield* new InvalidArgument({
         message: "Pass a repeat rule or --stop, not both.",
         hint: RULE_HINT,
@@ -58,7 +61,9 @@ export const runTaskRepeat = Effect.fn("command.task.repeat")(
                     title: formatRecurrence({ frequency: value, interval: 1 }),
                     value,
                     description:
-                      current?.frequency === value ? "current" : undefined,
+                      current?.frequency === value
+                        ? `current: ${lowerFirst(formatRecurrence(current))}`
+                        : undefined,
                   })),
                   ...(current
                     ? [{ title: "Stop repeating", value: null }]
@@ -72,17 +77,22 @@ export const runTaskRepeat = Effect.fn("command.task.repeat")(
                 ),
         });
 
+    const kept =
+      frequency !== null && Option.isNone(options.frequency)
+        ? keepCurrentRule({ picked: frequency, current, ruleFlags })
+        : null;
     const recurrence: TaskRecurrence | null =
       frequency === null
         ? null
-        : yield* Effect.fromResult(
+        : (kept ??
+          (yield* Effect.fromResult(
             buildRecurrence({
               frequency,
               every: Option.getOrElse(options.every, () => 1),
               on: options.on,
               timeZone: Option.getOrElse(options.timeZone, localTimeZone),
             }),
-          );
+          )));
 
     yield* withSpinner(`Updating ${label}`)(
       updateTaskRecurrence(resolved.task.id, recurrence),
@@ -110,9 +120,7 @@ export const runTaskRepeat = Effect.fn("command.task.repeat")(
           verb: "Updated",
           reference: label,
           url: resolved.url,
-          detail: rule
-            ? `repeats ${rule.charAt(0).toLowerCase()}${rule.slice(1)}`
-            : "stopped repeating",
+          detail: rule ? `repeats ${lowerFirst(rule)}` : "stopped repeating",
         }),
     );
   },
