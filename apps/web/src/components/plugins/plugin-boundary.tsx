@@ -11,13 +11,18 @@ function BoundaryFallback() {
 
 type PluginBoundaryProps = {
   scope: PluginInfo;
+  resetKey: string;
   children: ReactNode;
 };
 
-export function PluginBoundary({ scope, children }: PluginBoundaryProps) {
+export function PluginBoundary({
+  scope,
+  resetKey,
+  children,
+}: PluginBoundaryProps) {
   return (
     <ErrorBoundary
-      key={`${scope.id}@${scope.version}`}
+      key={`${scope.id}@${scope.version}:${resetKey}`}
       fallback={BoundaryFallback}
     >
       <Suspense fallback={<PluginLoading />}>

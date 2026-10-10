@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "Lệnh của plugin không thành công",
+			"failedToLoad": "Không thể tải plugin này",
+			"openTaskFailed": "Không thể mở công việc",
+			"unavailable": "Chế độ xem của plugin này không khả dụng"
 		}
 	},
 	"auth": {
@@ -1877,40 +1877,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "Plugin do quản trị viên hệ thống thêm vào kaneo.config.ts. Sau khi được cài đặt, plugin sẽ xuất hiện tại đây để quản trị viên không gian làm việc bật.",
+				"link": "Tìm hiểu về plugin",
+				"title": "Chưa cài đặt plugin nào"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "Bật {{name}}",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Không có",
+				"save": "Lưu cài đặt",
+				"secretCancel": "Hủy",
+				"secretClear": "Xóa",
+				"secretConfigured": "Đã cấu hình",
+				"secretPlaceholder": "Nhập giá trị mới",
+				"secretReplace": "Thay thế",
+				"secretUndo": "Hoàn tác",
+				"secretWillClear": "Sẽ bị xóa khi bạn lưu",
+				"selectPlaceholder": "Chọn một tùy chọn"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "Không thể tải plugin. Hãy tải lại trang để thử lại.",
+			"pageTitle": "Cài đặt plugin",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Không tải được",
+				"loaded": "Đang hoạt động",
+				"loading": "Đang tải"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Chọn các plugin đã cài đặt mà không gian làm việc này sử dụng và cấu hình chúng.",
+			"title": "Plugin",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "Đã tắt {{name}}",
+				"enabled": "Đã bật {{name}}",
+				"invalid": "Một số cài đặt cần được kiểm tra",
+				"saved": "Đã lưu cài đặt plugin",
+				"updateError": "Không thể cập nhật plugin"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Tích hợp sẵn"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2078,7 +2078,7 @@
 				"open": "Mở",
 				"close": "Đóng"
 			},
-			"plugins": "Plugins"
+			"plugins": "Plugin"
 		},
 		"sidebar": {
 			"projects": "Dự án",

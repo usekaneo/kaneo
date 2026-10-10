@@ -164,10 +164,10 @@
 			"undefined": "未定義"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "外掛程式指令執行失敗",
+			"failedToLoad": "此外掛程式載入失敗",
+			"openTaskFailed": "無法開啟任務",
+			"unavailable": "此外掛程式檢視無法使用"
 		}
 	},
 	"auth": {
@@ -2020,40 +2020,40 @@
 			"workspaceCount_other": "{{count}} workspaces"
 		},
 		"workspacePlugins": {
-			"builtIn": "Built in",
+			"builtIn": "內建",
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "外掛程式由執行個體管理員在 kaneo.config.ts 中新增。外掛程式安裝後會顯示在這裡，供工作區管理員啟用。",
+				"link": "瞭解外掛程式",
+				"title": "未安裝任何外掛程式"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "啟用 {{name}}",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "無",
+				"save": "儲存設定",
+				"secretCancel": "取消",
+				"secretClear": "清除",
+				"secretConfigured": "已設定",
+				"secretPlaceholder": "輸入新值",
+				"secretReplace": "取代",
+				"secretUndo": "復原",
+				"secretWillClear": "儲存後將清除",
+				"selectPlaceholder": "選擇一個選項"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "無法載入外掛程式，請重新整理頁面後再試一次。",
+			"pageTitle": "外掛程式設定",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "載入失敗",
+				"loaded": "運作中",
+				"loading": "載入中"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "選擇此工作區要使用哪些已安裝的外掛程式，並進行設定。",
+			"title": "外掛程式",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "已停用 {{name}}",
+				"enabled": "已啟用 {{name}}",
+				"invalid": "部分設定需要處理",
+				"saved": "外掛程式設定已儲存",
+				"updateError": "無法更新外掛程式"
 			}
 		}
 	},
@@ -2078,7 +2078,7 @@
 				"open": "開啟",
 				"close": "關閉"
 			},
-			"plugins": "Plugins"
+			"plugins": "外掛程式"
 		},
 		"sidebar": {
 			"projects": "專案",

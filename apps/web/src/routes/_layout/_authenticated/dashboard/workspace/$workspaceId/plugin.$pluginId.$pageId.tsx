@@ -35,7 +35,10 @@ function RouteComponent() {
       {title ? <PageTitle title={title} /> : null}
       <WorkspaceLayout title={title}>
         {lookup.status === "ready" ? (
-          <PluginBoundary scope={lookup.contribution.scope}>
+          <PluginBoundary
+            scope={lookup.contribution.scope}
+            resetKey={`${workspaceId}:${pageId}`}
+          >
             <lookup.contribution.item.component workspaceId={workspaceId} />
           </PluginBoundary>
         ) : (

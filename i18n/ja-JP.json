@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "プラグインのコマンドが失敗しました",
+			"failedToLoad": "このプラグインを読み込めませんでした",
+			"openTaskFailed": "タスクを開けませんでした",
+			"unavailable": "このプラグインのビューは利用できません"
 		}
 	},
 	"auth": {
@@ -1877,40 +1877,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "プラグインはインスタンスの管理者が kaneo.config.ts で追加します。インストールされたプラグインはここに表示され、ワークスペースの管理者が有効にできます。",
+				"link": "プラグインについて詳しく見る",
+				"title": "インストール済みのプラグインはありません"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "{{name}} を有効にする",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "なし",
+				"save": "設定を保存",
+				"secretCancel": "キャンセル",
+				"secretClear": "クリア",
+				"secretConfigured": "設定済み",
+				"secretPlaceholder": "新しい値を入力",
+				"secretReplace": "置き換え",
+				"secretUndo": "元に戻す",
+				"secretWillClear": "保存するとクリアされます",
+				"selectPlaceholder": "オプションを選択"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "プラグインを読み込めませんでした。ページを再読み込みしてもう一度お試しください。",
+			"pageTitle": "プラグイン設定",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "読み込み失敗",
+				"loaded": "有効",
+				"loading": "読み込み中"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "このワークスペースで使用するインストール済みプラグインを選択し、設定します。",
+			"title": "プラグイン",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} を無効にしました",
+				"enabled": "{{name}} を有効にしました",
+				"invalid": "確認が必要な設定があります",
+				"saved": "プラグイン設定を保存しました",
+				"updateError": "プラグインを更新できませんでした"
 			},
-			"builtIn": "Built in"
+			"builtIn": "組み込み"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2078,7 +2078,7 @@
 				"open": "開く",
 				"close": "閉じる"
 			},
-			"plugins": "Plugins"
+			"plugins": "プラグイン"
 		},
 		"sidebar": {
 			"projects": "プロジェクト",

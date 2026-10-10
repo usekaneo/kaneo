@@ -55,7 +55,10 @@ function RouteComponent() {
         <>
           <PageTitle title={label(pluginId, lookup.contribution.item.title)} />
           <div className="h-full min-h-0 overflow-auto">
-            <PluginBoundary scope={lookup.contribution.scope}>
+            <PluginBoundary
+              scope={lookup.contribution.scope}
+              resetKey={`${workspaceId}:${projectId}:${viewId}`}
+            >
               <lookup.contribution.item.component
                 workspaceId={workspaceId}
                 projectId={projectId}

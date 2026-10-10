@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "El comando del complemento ha fallado",
+			"failedToLoad": "No se ha podido cargar este complemento",
+			"openTaskFailed": "No se ha podido abrir la tarea",
+			"unavailable": "Esta vista del complemento no está disponible"
 		}
 	},
 	"auth": {
@@ -1891,40 +1891,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "El administrador de la instancia añade los complementos en kaneo.config.ts. Cuando se instala un complemento, aparece aquí para que los admins del espacio de trabajo lo activen.",
+				"link": "Más información sobre complementos",
+				"title": "No hay complementos instalados"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "Activar {{name}}",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Ninguno",
+				"save": "Guardar ajustes",
+				"secretCancel": "Cancelar",
+				"secretClear": "Borrar",
+				"secretConfigured": "Configurado",
+				"secretPlaceholder": "Introduce un valor nuevo",
+				"secretReplace": "Reemplazar",
+				"secretUndo": "Deshacer",
+				"secretWillClear": "Se borrará al guardar",
+				"selectPlaceholder": "Selecciona una opción"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "No se han podido cargar los complementos. Recarga la página para intentarlo de nuevo.",
+			"pageTitle": "Ajustes de complementos",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Error al cargar",
+				"loaded": "Activo",
+				"loading": "Cargando"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Elige qué complementos instalados usa este espacio de trabajo y configúralos.",
+			"title": "Complementos",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} desactivado",
+				"enabled": "{{name}} activado",
+				"invalid": "Algunos ajustes requieren atención",
+				"saved": "Ajustes del complemento guardados",
+				"updateError": "No se ha podido actualizar el complemento"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Integrado"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2100,7 +2100,7 @@
 				"open": "Abrir",
 				"close": "Cerrar"
 			},
-			"plugins": "Plugins"
+			"plugins": "Complementos"
 		},
 		"sidebar": {
 			"projects": "Proyectos",

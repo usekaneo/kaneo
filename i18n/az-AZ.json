@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "Plagin əmri uğursuz oldu",
+			"failedToLoad": "Bu plagin yüklənə bilmədi",
+			"openTaskFailed": "Tapşırığı açmaq alınmadı",
+			"unavailable": "Bu plagin görünüşü əlçatan deyil"
 		}
 	},
 	"auth": {
@@ -1884,40 +1884,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "Plaginlər instans administratoru tərəfindən kaneo.config.ts faylına əlavə edilir. Plagin quraşdırıldıqdan sonra burada görünür və iş sahəsinin inzibatçıları onu aktivləşdirə bilər.",
+				"link": "Plaginlər haqqında ətraflı",
+				"title": "Quraşdırılmış plagin yoxdur"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "{{name}} plaginini aktivləşdir",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Heç biri",
+				"save": "Parametrləri yadda saxla",
+				"secretCancel": "Ləğv et",
+				"secretClear": "Təmizlə",
+				"secretConfigured": "Tənzimlənib",
+				"secretPlaceholder": "Yeni dəyər daxil edin",
+				"secretReplace": "Əvəzlə",
+				"secretUndo": "Geri qaytar",
+				"secretWillClear": "Yadda saxladıqda təmizlənəcək",
+				"selectPlaceholder": "Seçim edin"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "Plaginləri yükləmək alınmadı. Yenidən cəhd etmək üçün səhifəni yeniləyin.",
+			"pageTitle": "Plagin parametrləri",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Yüklənə bilmədi",
+				"loaded": "Aktiv",
+				"loading": "Yüklənir"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Bu iş sahəsinin hansı quraşdırılmış plaginlərdən istifadə edəcəyini seçin və onları tənzimləyin.",
+			"title": "Plaginlər",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} söndürüldü",
+				"enabled": "{{name}} aktivləşdirildi",
+				"invalid": "Bəzi parametrlər diqqət tələb edir",
+				"saved": "Plagin parametrləri yadda saxlanıldı",
+				"updateError": "Plagini yeniləmək alınmadı"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Daxili"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2089,7 +2089,7 @@
 				"open": "Aç",
 				"close": "Bağla"
 			},
-			"plugins": "Plugins"
+			"plugins": "Plaginlər"
 		},
 		"sidebar": {
 			"projects": "Layihələr",

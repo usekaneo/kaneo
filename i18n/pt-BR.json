@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "O comando do plug-in falhou",
+			"failedToLoad": "Não foi possível carregar este plug-in",
+			"openTaskFailed": "Não foi possível abrir a tarefa",
+			"unavailable": "Esta visualização do plug-in não está disponível"
 		}
 	},
 	"auth": {
@@ -1891,40 +1891,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "Os plug-ins são adicionados pelo administrador da instância em kaneo.config.ts. Depois de instalado, o plug-in aparece aqui para que os administradores do espaço de trabalho possam ativá-lo.",
+				"link": "Saiba mais sobre plug-ins",
+				"title": "Nenhum plug-in instalado"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "Ativar {{name}}",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Nenhum",
+				"save": "Salvar configurações",
+				"secretCancel": "Cancelar",
+				"secretClear": "Limpar",
+				"secretConfigured": "Configurado",
+				"secretPlaceholder": "Digite um novo valor",
+				"secretReplace": "Substituir",
+				"secretUndo": "Desfazer",
+				"secretWillClear": "Será limpo ao salvar",
+				"selectPlaceholder": "Selecione uma opção"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "Não foi possível carregar os plug-ins. Atualize a página para tentar novamente.",
+			"pageTitle": "Configurações de plug-ins",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Falha ao carregar",
+				"loaded": "Ativo",
+				"loading": "Carregando"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Escolha quais plug-ins instalados este espaço de trabalho usa e configure-os.",
+			"title": "Plug-ins",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} desativado",
+				"enabled": "{{name}} ativado",
+				"invalid": "Algumas configurações precisam de atenção",
+				"saved": "Configurações do plug-in salvas",
+				"updateError": "Não foi possível atualizar o plug-in"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Integrado"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2100,7 +2100,7 @@
 				"open": "Abrir",
 				"close": "Fechar"
 			},
-			"plugins": "Plugins"
+			"plugins": "Plug-ins"
 		},
 		"sidebar": {
 			"projects": "Projetos",

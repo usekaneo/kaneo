@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "Eklenti komutu başarısız oldu",
+			"failedToLoad": "Bu eklenti yüklenemedi",
+			"openTaskFailed": "Talep açılamadı",
+			"unavailable": "Bu eklenti görünümü kullanılamıyor"
 		}
 	},
 	"auth": {
@@ -1884,40 +1884,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "Eklentiler, örnek yöneticisi tarafından kaneo.config.ts dosyasına eklenir. Yüklenen eklentiler burada görünür ve çalışma alanı yöneticileri bunları etkinleştirebilir.",
+				"link": "Eklentiler hakkında bilgi edinin",
+				"title": "Yüklü eklenti yok"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "{{name}} eklentisini etkinleştir",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Hiçbiri",
+				"save": "Ayarları kaydet",
+				"secretCancel": "İptal",
+				"secretClear": "Temizle",
+				"secretConfigured": "Yapılandırıldı",
+				"secretPlaceholder": "Yeni bir değer girin",
+				"secretReplace": "Değiştir",
+				"secretUndo": "Geri al",
+				"secretWillClear": "Kaydettiğinizde temizlenecek",
+				"selectPlaceholder": "Bir seçenek seçin"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "Eklentiler yüklenemedi. Tekrar denemek için sayfayı yenileyin.",
+			"pageTitle": "Eklenti Ayarları",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Yüklenemedi",
+				"loaded": "Etkin",
+				"loading": "Yükleniyor"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Bu çalışma alanının hangi yüklü eklentileri kullanacağını seçin ve yapılandırın.",
+			"title": "Eklentiler",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} devre dışı bırakıldı",
+				"enabled": "{{name}} etkinleştirildi",
+				"invalid": "Bazı ayarların kontrol edilmesi gerekiyor",
+				"saved": "Eklenti ayarları kaydedildi",
+				"updateError": "Eklenti güncellenemedi"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Yerleşik"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2089,7 +2089,7 @@
 				"open": "Aç",
 				"close": "Kapat"
 			},
-			"plugins": "Plugins"
+			"plugins": "Eklentiler"
 		},
 		"sidebar": {
 			"projects": "Projeler",

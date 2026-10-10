@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "Не удалось выполнить команду плагина",
+			"failedToLoad": "Не удалось загрузить этот плагин",
+			"openTaskFailed": "Не удалось открыть задачу",
+			"unavailable": "Это представление плагина недоступно"
 		}
 	},
 	"auth": {
@@ -1906,40 +1906,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "Плагины добавляет администратор экземпляра в kaneo.config.ts. После установки плагин появится здесь, и администраторы рабочей области смогут его включить.",
+				"link": "Подробнее о плагинах",
+				"title": "Нет установленных плагинов"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "Включить {{name}}",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Нет",
+				"save": "Сохранить настройки",
+				"secretCancel": "Отмена",
+				"secretClear": "Очистить",
+				"secretConfigured": "Настроено",
+				"secretPlaceholder": "Введите новое значение",
+				"secretReplace": "Заменить",
+				"secretUndo": "Отменить",
+				"secretWillClear": "Будет очищено при сохранении",
+				"selectPlaceholder": "Выберите вариант"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "Не удалось загрузить плагины. Обновите страницу, чтобы повторить попытку.",
+			"pageTitle": "Настройки плагинов",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Ошибка загрузки",
+				"loaded": "Активен",
+				"loading": "Загрузка"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Выберите, какие установленные плагины использует эта рабочая область, и настройте их.",
+			"title": "Плагины",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "Плагин {{name}} отключён",
+				"enabled": "Плагин {{name}} включён",
+				"invalid": "Некоторые настройки требуют внимания",
+				"saved": "Настройки плагина сохранены",
+				"updateError": "Не удалось обновить плагин"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Встроенный"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2119,7 +2119,7 @@
 				"open": "Открыть",
 				"close": "Закрыть"
 			},
-			"plugins": "Plugins"
+			"plugins": "Плагины"
 		},
 		"sidebar": {
 			"projects": "Проекты",

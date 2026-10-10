@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "Η εντολή του πρόσθετου απέτυχε",
+			"failedToLoad": "Δεν ήταν δυνατή η φόρτωση αυτού του πρόσθετου",
+			"openTaskFailed": "Δεν ήταν δυνατό το άνοιγμα της εργασίας",
+			"unavailable": "Αυτή η προβολή του πρόσθετου δεν είναι διαθέσιμη"
 		}
 	},
 	"auth": {
@@ -1884,40 +1884,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "Τα πρόσθετα προστίθενται από τον διαχειριστή της εγκατάστασης στο kaneo.config.ts. Μόλις εγκατασταθεί ένα πρόσθετο, εμφανίζεται εδώ για να το ενεργοποιήσουν οι διαχειριστές του χώρου εργασίας.",
+				"link": "Μάθετε για τα πρόσθετα",
+				"title": "Δεν υπάρχουν εγκατεστημένα πρόσθετα"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "Ενεργοποίηση {{name}}",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Κανένα",
+				"save": "Αποθήκευση ρυθμίσεων",
+				"secretCancel": "Ακύρωση",
+				"secretClear": "Εκκαθάριση",
+				"secretConfigured": "Ρυθμισμένο",
+				"secretPlaceholder": "Εισαγάγετε νέα τιμή",
+				"secretReplace": "Αντικατάσταση",
+				"secretUndo": "Αναίρεση",
+				"secretWillClear": "Θα διαγραφεί κατά την αποθήκευση",
+				"selectPlaceholder": "Επιλέξτε τιμή"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "Δεν ήταν δυνατή η φόρτωση των πρόσθετων. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά.",
+			"pageTitle": "Ρυθμίσεις πρόσθετων",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Αποτυχία φόρτωσης",
+				"loaded": "Ενεργό",
+				"loading": "Φόρτωση"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Επιλέξτε ποια εγκατεστημένα πρόσθετα χρησιμοποιεί αυτός ο χώρος εργασίας και ρυθμίστε τα.",
+			"title": "Πρόσθετα",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "Το {{name}} απενεργοποιήθηκε",
+				"enabled": "Το {{name}} ενεργοποιήθηκε",
+				"invalid": "Ορισμένες ρυθμίσεις χρειάζονται προσοχή",
+				"saved": "Οι ρυθμίσεις του πρόσθετου αποθηκεύτηκαν",
+				"updateError": "Δεν ήταν δυνατή η ενημέρωση του πρόσθετου"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Ενσωματωμένο"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2089,7 +2089,7 @@
 				"open": "Άνοιγμα",
 				"close": "Κλείσιμο"
 			},
-			"plugins": "Plugins"
+			"plugins": "Πρόσθετα"
 		},
 		"sidebar": {
 			"projects": "Έργα",

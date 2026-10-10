@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "플러그인 명령이 실패했습니다",
+			"failedToLoad": "이 플러그인을 불러오지 못했습니다",
+			"openTaskFailed": "작업을 열 수 없습니다",
+			"unavailable": "이 플러그인 보기를 사용할 수 없습니다"
 		}
 	},
 	"auth": {
@@ -1877,40 +1877,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "플러그인은 인스턴스 관리자가 kaneo.config.ts에서 추가합니다. 플러그인이 설치되면 여기에 표시되며 워크스페이스 관리자가 활성화할 수 있습니다.",
+				"link": "플러그인 자세히 알아보기",
+				"title": "설치된 플러그인이 없습니다"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "{{name}} 활성화",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "없음",
+				"save": "설정 저장",
+				"secretCancel": "취소",
+				"secretClear": "지우기",
+				"secretConfigured": "구성됨",
+				"secretPlaceholder": "새 값 입력",
+				"secretReplace": "교체",
+				"secretUndo": "실행 취소",
+				"secretWillClear": "저장하면 지워집니다",
+				"selectPlaceholder": "옵션 선택"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "플러그인을 불러올 수 없습니다. 페이지를 새로고침한 후 다시 시도하세요.",
+			"pageTitle": "플러그인 설정",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "불러오기 실패",
+				"loaded": "활성",
+				"loading": "로딩 중"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "이 워크스페이스에서 사용할 설치된 플러그인을 선택하고 구성합니다.",
+			"title": "플러그인",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} 비활성화됨",
+				"enabled": "{{name}} 활성화됨",
+				"invalid": "확인이 필요한 설정이 있습니다",
+				"saved": "플러그인 설정이 저장되었습니다",
+				"updateError": "플러그인을 업데이트하지 못했습니다"
 			},
-			"builtIn": "Built in"
+			"builtIn": "기본 제공"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2078,7 +2078,7 @@
 				"open": "열기",
 				"close": "닫기"
 			},
-			"plugins": "Plugins"
+			"plugins": "플러그인"
 		},
 		"sidebar": {
 			"projects": "프로젝트",

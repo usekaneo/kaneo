@@ -20,10 +20,11 @@ describe("npm commands", () => {
     ]);
   });
 
-  it("installs exact versions", () => {
+  it("installs exact versions without running install scripts", () => {
     expect(installArgs(["a@1.0.0", "@kaneo/config@2.29.3"])).toEqual([
       "install",
       "--save-exact",
+      "--ignore-scripts",
       "a@1.0.0",
       "@kaneo/config@2.29.3",
     ]);

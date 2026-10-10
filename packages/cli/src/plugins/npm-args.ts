@@ -29,7 +29,7 @@ export function releasesArgs(packageName: string): string[] {
 }
 
 export function installArgs(specs: readonly string[]): string[] {
-  return ["install", "--save-exact", ...specs];
+  return ["install", "--save-exact", "--ignore-scripts", ...specs];
 }
 
 export function npmCommand(

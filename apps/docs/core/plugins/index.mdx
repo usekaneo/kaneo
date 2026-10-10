@@ -58,7 +58,7 @@ Use the image tag you deploy, because `kaneo plugin add` picks plugin versions f
 
 1. Asks npm for the plugin's releases and picks the newest stable, non-deprecated one whose `engines.kaneo` range includes your Kaneo version. It stops if no release declares a range or none fits, and shows the newest release's range.
 2. Checks the package against the [plugin catalog](https://kaneo.app/plugins). For a package that is not listed, or when the catalog cannot be reached, it warns and asks before going on. Without a terminal, for example without `docker run -it`, it needs `--yes` to go on.
-3. Creates `package.json` if the folder has none, then runs `npm install --save-exact` for the plugin, plus `@kaneo/config` for your Kaneo version the first time.
+3. Creates `package.json` if the folder has none, then runs `npm install --save-exact --ignore-scripts` for the plugin, plus `@kaneo/config` for your Kaneo version the first time. Plugins and their dependencies never run install scripts.
 4. Adds the import and the plugin to `kaneo.config.ts`, and creates the file if needed. If it cannot change your config safely, it leaves it as is and prints the lines to add.
 
 `--user` makes the new files yours instead of the container user's. npm reads `.npmrc` in the folder, so private registries and tokens work. Running `kaneo plugin add` again for an installed plugin moves it to the newest release that supports your Kaneo. Without a terminal, the command prints its result as JSON; add `-it` to `docker run` for the styled output and the prompt.
@@ -166,7 +166,7 @@ Build a thin image on top of Kaneo's. Add this `Dockerfile` to `my-kaneo`, repla
 ```dockerfile
 FROM ghcr.io/usekaneo/kaneo:<version>
 COPY --chown=appuser:appuser . /kaneo
-RUN npm ci --prefix /kaneo --omit=dev
+RUN npm ci --prefix /kaneo --omit=dev --ignore-scripts
 ```
 
 Add a `.dockerignore` so your local `node_modules` stays out of the image:
@@ -175,7 +175,7 @@ Add a `.dockerignore` so your local `node_modules` stays out of the image:
 node_modules
 ```
 
-The build only copies files and installs packages; nothing is compiled. The `--chown` flag matters because Kaneo's image runs as `appuser`, which must be able to write `/kaneo/node_modules`.
+The build only copies files and installs packages; nothing is compiled, and `--ignore-scripts` keeps packages from running install scripts. The `--chown` flag matters because Kaneo's image runs as `appuser`, which must be able to write `/kaneo/node_modules`.
 
 Use the resulting image wherever you used `ghcr.io/usekaneo/kaneo`. With the Helm chart, set `kaneo.image.repository` and `kaneo.image.tag`. On [Coolify](/core/deployments/coolify) or [Railway](/core/deployments/railway), deploy it from a repository that contains the `my-kaneo` files. Rebuild and redeploy after each change to the project.
 

@@ -24,7 +24,7 @@ export function PluginSettingsPanel({
   return (
     <>
       <Separator />
-      <PluginBoundary scope={scope}>
+      <PluginBoundary scope={scope} resetKey={workspaceId}>
         <Panel workspaceId={workspaceId} />
       </PluginBoundary>
     </>

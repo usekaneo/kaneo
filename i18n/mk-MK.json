@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "Командата на приклучокот не успеа",
+			"failedToLoad": "Овој приклучок не можеше да се вчита",
+			"openTaskFailed": "Задачата не можеше да се отвори",
+			"unavailable": "Овој приказ на приклучокот не е достапен"
 		}
 	},
 	"auth": {
@@ -1884,40 +1884,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "Приклучоците ги додава администраторот на инстанцата во kaneo.config.ts. Откако ќе се инсталира, приклучокот се појавува тука и администраторите на работниот простор можат да го вклучат.",
+				"link": "Дознај повеќе за приклучоците",
+				"title": "Нема инсталирани приклучоци"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "Вклучи {{name}}",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "Ниедно",
+				"save": "Зачувај поставки",
+				"secretCancel": "Откажи",
+				"secretClear": "Исчисти",
+				"secretConfigured": "Конфигурирано",
+				"secretPlaceholder": "Внеси нова вредност",
+				"secretReplace": "Замени",
+				"secretUndo": "Врати",
+				"secretWillClear": "Ќе се исчисти кога ќе зачуваш",
+				"selectPlaceholder": "Избери опција"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "Приклучоците не можеа да се вчитаат. Освежи ја страницата за да пробаш повторно.",
+			"pageTitle": "Поставки за приклучоци",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "Неуспешно вчитување",
+				"loaded": "Активен",
+				"loading": "Се вчитува"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "Избери кои инсталирани приклучоци ги користи овој работен простор и конфигурирај ги.",
+			"title": "Приклучоци",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} е исклучен",
+				"enabled": "{{name}} е вклучен",
+				"invalid": "Некои поставки бараат внимание",
+				"saved": "Поставките за приклучокот се зачувани",
+				"updateError": "Приклучокот не можеше да се ажурира"
 			},
-			"builtIn": "Built in"
+			"builtIn": "Вграден"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2089,7 +2089,7 @@
 				"open": "Отвори",
 				"close": "Затвори"
 			},
-			"plugins": "Plugins"
+			"plugins": "Приклучоци"
 		},
 		"sidebar": {
 			"projects": "Проекти",

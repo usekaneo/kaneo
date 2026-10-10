@@ -164,10 +164,10 @@
 			"undefined": "Undefined"
 		},
 		"plugins": {
-			"commandFailed": "The plugin command failed",
-			"failedToLoad": "This plugin failed to load",
-			"openTaskFailed": "Could not open the task",
-			"unavailable": "This plugin view is not available"
+			"commandFailed": "प्लगइन कमांड विफल रहा",
+			"failedToLoad": "यह प्लगइन लोड नहीं हो सका",
+			"openTaskFailed": "कार्य नहीं खोला जा सका",
+			"unavailable": "यह प्लगइन व्यू उपलब्ध नहीं है"
 		}
 	},
 	"auth": {
@@ -1884,40 +1884,40 @@
 		},
 		"workspacePlugins": {
 			"empty": {
-				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
-				"link": "Learn about plugins",
-				"title": "No plugins installed"
+				"description": "प्लगइन इंस्टेंस व्यवस्थापक द्वारा kaneo.config.ts में जोड़े जाते हैं। इंस्टॉल होने के बाद प्लगइन यहाँ दिखाई देता है, ताकि वर्कस्पेस व्यवस्थापक उसे चालू कर सकें।",
+				"link": "प्लगइन के बारे में जानें",
+				"title": "कोई प्लगइन इंस्टॉल नहीं है"
 			},
-			"enable": "Enable {{name}}",
+			"enable": "{{name}} सक्षम करें",
 			"form": {
-				"none": "None",
-				"save": "Save settings",
-				"secretCancel": "Cancel",
-				"secretClear": "Clear",
-				"secretConfigured": "Configured",
-				"secretPlaceholder": "Enter a new value",
-				"secretReplace": "Replace",
-				"secretUndo": "Undo",
-				"secretWillClear": "Will be cleared when you save",
-				"selectPlaceholder": "Select an option"
+				"none": "कोई नहीं",
+				"save": "सेटिंग सहेजें",
+				"secretCancel": "रद्द करें",
+				"secretClear": "साफ़ करें",
+				"secretConfigured": "कॉन्फ़िगर किया गया",
+				"secretPlaceholder": "नया मान दर्ज करें",
+				"secretReplace": "बदलें",
+				"secretUndo": "पूर्ववत करें",
+				"secretWillClear": "सहेजने पर साफ़ हो जाएगा",
+				"selectPlaceholder": "कोई विकल्प चुनें"
 			},
-			"loadError": "Could not load plugins. Refresh the page to try again.",
-			"pageTitle": "Plugin Settings",
+			"loadError": "प्लगइन लोड नहीं हो सके। फिर से प्रयास करने के लिए पेज रिफ़्रेश करें।",
+			"pageTitle": "प्लगइन सेटिंग",
 			"status": {
-				"failed": "Failed to load",
-				"loaded": "Active",
-				"loading": "Loading"
+				"failed": "लोड करने में विफल",
+				"loaded": "सक्रिय",
+				"loading": "लोड हो रहा है"
 			},
-			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
-			"title": "Plugins",
+			"subtitle": "चुनें कि यह वर्कस्पेस कौन से इंस्टॉल किए गए प्लगइन उपयोग करता है और उन्हें कॉन्फ़िगर करें।",
+			"title": "प्लगइन",
 			"toast": {
-				"disabled": "{{name}} turned off",
-				"enabled": "{{name}} turned on",
-				"invalid": "Some settings need attention",
-				"saved": "Plugin settings saved",
-				"updateError": "Could not update the plugin"
+				"disabled": "{{name}} अक्षम किया गया",
+				"enabled": "{{name}} सक्षम किया गया",
+				"invalid": "कुछ सेटिंग पर ध्यान देना आवश्यक है",
+				"saved": "प्लगइन सेटिंग सहेजी गईं",
+				"updateError": "प्लगइन अपडेट नहीं हो सका"
 			},
-			"builtIn": "Built in"
+			"builtIn": "अंतर्निहित"
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2089,7 +2089,7 @@
 				"open": "खोलें",
 				"close": "बंद करें"
 			},
-			"plugins": "Plugins"
+			"plugins": "प्लगइन"
 		},
 		"sidebar": {
 			"projects": "प्रोजेक्ट",

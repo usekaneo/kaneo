@@ -21,7 +21,7 @@ export function PluginTaskPanels({
   return selectContributions(plugins, "taskPanels").map(({ scope, item }) => (
     <div key={`${scope.id}:${item.id}`} className="mt-2">
       <PluginTaskPanelSection title={label(scope.id, item.title)}>
-        <PluginBoundary scope={scope}>
+        <PluginBoundary scope={scope} resetKey={`${item.id}:${taskId}`}>
           <item.component
             workspaceId={workspaceId}
             projectId={projectId}

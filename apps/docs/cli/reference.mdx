@@ -844,7 +844,7 @@ Lists the plugins installed on the server with their ID and version, whether the
 kaneo plugin add <package> [--yes] [--project <dir>] [--kaneo-version <version>]
 ```
 
-Installs the newest stable release of an npm package whose `engines.kaneo` range includes your Kaneo version, pins it with `npm install --save-exact`, and adds it to `kaneo.config.ts`. It also installs `@kaneo/config` the first time. npm does the lookup and the install, so it must be installed, and `.npmrc` and private registries work. A package that is not in the [plugin catalog](https://kaneo.app/plugins) needs confirmation, or `-y`, `--yes` in scripts. `KANEO_PLUGIN_CATALOG_URL` points the check at another catalog index.
+Installs the newest stable release of an npm package whose `engines.kaneo` range includes your Kaneo version, pins it with `npm install --save-exact --ignore-scripts`, and adds it to `kaneo.config.ts`. It also installs `@kaneo/config` the first time. npm does the lookup and the install, so it must be installed, and `.npmrc` and private registries work. A package that is not in the [plugin catalog](https://kaneo.app/plugins) needs confirmation, or `-y`, `--yes` in scripts. `KANEO_PLUGIN_CATALOG_URL` points the check at another catalog index.
 
 ### `kaneo plugin check`
 
