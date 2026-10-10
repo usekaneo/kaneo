@@ -35,6 +35,14 @@
 		{
 			"source": "/core/guide/migrating-from-v1",
 			"destination": "/core/installation/environment-variables"
+		},
+		{
+			"source": "/core/integrations/cli",
+			"destination": "/cli"
+		},
+		{
+			"source": "/core/integrations/cli-commands",
+			"destination": "/cli/reference"
 		}
 	],
 	"navigation": {
@@ -107,6 +115,7 @@
 					{
 						"group": "Keep it running",
 						"pages": [
+							"core/operations/administration",
 							"core/operations/backups",
 							"core/operations/upgrades",
 							"core/operations/troubleshooting"
@@ -171,7 +180,19 @@
 						"pages": [
 							"api-reference/introduction",
 							"api-reference/authentication",
+							"api-reference/errors",
 							"core/integrations/mcp-stateless"
+						]
+					},
+					{
+						"group": "Command line",
+						"pages": [
+							"cli/index",
+							"cli/install",
+							"cli/sign-in",
+							"cli/configuration",
+							"cli/scripting",
+							"cli/reference"
 						]
 					},
 					{

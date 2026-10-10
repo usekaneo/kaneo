@@ -632,7 +632,7 @@ export function NotificationPreferencesSettings() {
         </div>
 
         <div className="flex max-w-sm flex-col gap-1">
-          <Label htmlFor="due-date-reminder-lead-time">
+          <Label htmlFor="due-date-reminder-lead-time" className="text-sm">
             {t("settings:notificationsPage.reminderLeadTimeLabel")}
           </Label>
           <div className="flex gap-2">

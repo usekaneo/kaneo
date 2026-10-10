@@ -337,7 +337,8 @@
 				"createFailed": "वर्कस्पेस बनाने में विफल"
 			},
 			"validation": {
-				"workspaceNameRequired": "वर्कस्पेस का नाम आवश्यक है"
+				"workspaceNameRequired": "वर्कस्पेस का नाम आवश्यक है",
+				"projectNameRequired": "अपने पहले प्रोजेक्ट को एक नाम दें"
 			},
 			"restrictedSubtitle": "यहाँ केवल इंस्टेंस व्यवस्थापक ही कार्यक्षेत्र बना सकता है। आमंत्रण के लिए कहें, फिर यह पृष्ठ पुनः लोड करें।",
 			"restrictedCheckInvitations": "आमंत्रण देखें",
@@ -375,6 +376,31 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectName": "आपका पहला प्रोजेक्ट",
+			"projectNameDefault": "मेरा पहला प्रोजेक्ट",
+			"projectNameHint": "शुरुआत में मदद के लिए हम कुछ स्टार्टर टास्क जोड़ देंगे।",
+			"starterTasks": {
+				"drag": {
+					"title": "इस कार्ड को अगले कॉलम में खींचें",
+					"description": "काम आगे बढ़ने के साथ कार्ड एक कॉलम से दूसरे कॉलम में जाते हैं। इसे अगले कॉलम में खींचें, या इसे खोलकर इसका स्टेटस बदलें।"
+				},
+				"details": {
+					"title": "इस टास्क को खोलें और एक सबटास्क जोड़ें",
+					"description": "एक टास्क में विवरण, सबटास्क, लेबल, असाइनी और ड्यू डेट हो सकती है। आज़माने के लिए इसमें एक सबटास्क जोड़ें।"
+				},
+				"invite": {
+					"title": "अपनी टीम को आमंत्रित करें",
+					"description": "Kaneo तब सबसे अच्छा काम करता है जब सभी इसमें हों। लोगों को ईमेल से आमंत्रित करने के लिए साइडबार में **सदस्य** खोलें।"
+				},
+				"integrations": {
+					"title": "GitHub, GitLab या Gitea कनेक्ट करें",
+					"description": "इश्यू सिंक करें और पुल रिक्वेस्ट खुलने और मर्ज होने पर टास्क अपने आप आगे बढ़ाएँ। इसे **प्रोजेक्ट सेटिंग** में सेट करें।"
+				},
+				"create": {
+					"title": "अपना खुद का टास्क बनाएँ",
+					"description": "किसी कॉलम के नाम के पास **+** का इस्तेमाल करें, या **T** और फिर **C** दबाएँ। तैयार होने पर इन स्टार्टर टास्क को हटा दें।"
+				}
 			}
 		},
 		"profileSetup": {
@@ -1098,7 +1124,9 @@
 			"on": "चालू",
 			"off": "बंद",
 			"newColumnPlaceholder": "नया कॉलम नाम...",
-			"add": "जोड़ें"
+			"add": "जोड़ें",
+			"deleteAria": "{{name}} कॉलम हटाएँ",
+			"renameAria": "{{name}} कॉलम का नाम बदलें"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1749,7 +1777,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1760,6 +1788,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -1931,7 +1960,96 @@
 			"loadSavedRules": "Load saved rules",
 			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
 		},
-		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces.",
+		"adminWorkspaces": {
+			"addMember": {
+				"adding": "Adding…",
+				"alreadyMember": "Already a member",
+				"description": "Add an existing user to {{name}}. They can access every project until you limit them.",
+				"noUsers": "No users found",
+				"role": "Role",
+				"searching": "Searching users…",
+				"submit": "Add member",
+				"title": "Add member",
+				"user": "User",
+				"userPlaceholder": "Search name or email…",
+				"usersError": "Users could not be loaded."
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"created": "Created",
+				"members": "Members",
+				"owners": "Owners",
+				"projects": "Projects",
+				"workspace": "Workspace"
+			},
+			"confirm": {
+				"remove": {
+					"action": "Remove member",
+					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
+					"title": "Remove {{name}}?"
+				},
+				"transfer": {
+					"action": "Make owner",
+					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
+					"title": "Make {{name}} the owner?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "Workspace directory",
+			"emptyDescription": "Try another name or slug.",
+			"emptyTitle": "No workspaces found",
+			"instanceBadge": "Instance",
+			"loadError": "Workspaces could not be loaded.",
+			"manage": "Manage",
+			"manageLabel": "Manage {{name}}",
+			"members": {
+				"actions": "Actions for {{name}}",
+				"add": "Add member",
+				"columns": {
+					"actions": "Actions",
+					"joined": "Joined",
+					"member": "Member",
+					"projects": "Projects",
+					"role": "Role"
+				},
+				"count_one": "{{count}} member",
+				"count_other": "{{count}} members",
+				"description": "Change roles, project access, and ownership, even if you aren't a member of this workspace.",
+				"editAccess": "Change project access for {{name}} ({{access}})",
+				"empty": "This workspace has no members.",
+				"loadError": "Members could not be loaded.",
+				"makeOwner": "Make owner",
+				"remove": "Remove from workspace",
+				"roleLabel": "Role for {{name}}",
+				"title": "Members of {{name}}"
+			},
+			"next": "Next",
+			"noOwner": "No owner",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing workspaces",
+			"retry": "Retry",
+			"searchCount_one": "{{count}} matching workspace",
+			"searchCount_other": "{{count}} matching workspaces",
+			"searchLabel": "Search workspaces",
+			"searchPlaceholder": "Search name or slug…",
+			"subtitle": "Manage every workspace on this Kaneo instance, including ones you don't belong to.",
+			"title": "Workspace management",
+			"toast": {
+				"added": "Member added",
+				"addError": "Failed to add member",
+				"ownershipTransferred": "Ownership transferred",
+				"removed": "Member removed",
+				"removeError": "Failed to remove member",
+				"roleError": "Failed to update role",
+				"roleUpdated": "Role updated",
+				"transferError": "Failed to transfer ownership"
+			},
+			"workspaceCount_one": "{{count}} workspace",
+			"workspaceCount_other": "{{count}} workspaces"
+		}
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1975,7 +2093,8 @@
 			"deleteConfirmTitle": "प्रोजेक्ट हटाएँ?",
 			"deleteConfirmDescription": "यह प्रोजेक्ट और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
 			"deletedToast": "प्रोजेक्ट हटाया गया",
-			"deleteProject": "प्रोजेक्ट हटाएँ"
+			"deleteProject": "प्रोजेक्ट हटाएँ",
+			"switcherLabel": "प्रोजेक्ट या व्यू बदलें"
 		},
 		"search": {
 			"inputPlaceholder": "कार्य, प्रोजेक्ट, टिप्पणियाँ खोजें...",
@@ -2261,7 +2380,10 @@
 		"boardSearchPlaceholder": "टिकट खोजें...",
 		"view": {
 			"board": "बोर्ड",
-			"list": "सूची"
+			"list": "सूची",
+			"backlog": "बैकलॉग",
+			"gantt": "गैंट",
+			"heading": "व्यू"
 		},
 		"common": {
 			"selectTask": "कार्य चुनें",
@@ -2491,7 +2613,8 @@
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
-				}
+				},
+				"editLabels": "लेबल संपादित करें"
 			},
 			"recurrence": {
 				"updateError": "कार्य का दोहराव अपडेट करने में विफल",
@@ -2723,7 +2846,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: कार्य खोलें",
 			"title": "कैलेंडर",
 			"today": "आज",
-			"loadError": "कार्य लोड नहीं हो सके।"
+			"loadError": "कार्य लोड नहीं हो सके।",
+			"noTasksThisMonth": "इस महीने कुछ भी शेड्यूल नहीं है"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

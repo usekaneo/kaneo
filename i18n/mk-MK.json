@@ -337,7 +337,8 @@
 				"createFailed": "Неуспешно креирање на работен простор"
 			},
 			"validation": {
-				"workspaceNameRequired": "Името на работниот простор е задолжително"
+				"workspaceNameRequired": "Името на работниот простор е задолжително",
+				"projectNameRequired": "Дај име на твојот прв проект"
 			},
 			"restrictedSubtitle": "Овде само администратор на инстанцата може да создава работни простори. Побарајте покана и освежете ја страницата.",
 			"restrictedCheckInvitations": "Провери покани",
@@ -375,6 +376,31 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectName": "Твојот прв проект",
+			"projectNameDefault": "Мој прв проект",
+			"projectNameHint": "Ќе додадеме неколку почетни задачи за полесно да се снајдеш.",
+			"starterTasks": {
+				"drag": {
+					"title": "Повлечи ја оваа картичка во следната колона",
+					"description": "Картичките се движат од колона во колона како што напредува работата. Повлечи ја оваа во следната колона, или отвори ја и смени ѝ го статусот."
+				},
+				"details": {
+					"title": "Отвори ја оваа задача и додај подзадача",
+					"description": "Задачата може да има опис, подзадачи, ознаки, задолжено лице и рок. Додај подзадача на оваа за да пробаш."
+				},
+				"invite": {
+					"title": "Покани го твојот тим",
+					"description": "Kaneo најдобро функционира кога сите се внатре. Отвори **Членови** во страничната лента за да поканиш луѓе преку е-пошта."
+				},
+				"integrations": {
+					"title": "Поврзи GitHub, GitLab или Gitea",
+					"description": "Синхронизирај issues и автоматски преместувај задачи кога pull requests се отвораат и спојуваат. Постави го тоа во **Поставки на проектот**."
+				},
+				"create": {
+					"title": "Создај своја задача",
+					"description": "Користи го **+** до името на колоната или притисни **T**, па **C**. Избриши ги овие почетни задачи кога ќе бидеш подготвен."
+				}
 			}
 		},
 		"profileSetup": {
@@ -863,7 +889,9 @@
 			"on": "Вклучено",
 			"off": "Исклучено",
 			"newColumnPlaceholder": "Име на нова колона...",
-			"add": "Додади"
+			"add": "Додади",
+			"deleteAria": "Избриши ја колоната {{name}}",
+			"renameAria": "Преименувај ја колоната {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1749,7 +1777,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1760,6 +1788,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -1931,7 +1960,96 @@
 			"loadSavedRules": "Load saved rules",
 			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
 		},
-		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces.",
+		"adminWorkspaces": {
+			"addMember": {
+				"adding": "Adding…",
+				"alreadyMember": "Already a member",
+				"description": "Add an existing user to {{name}}. They can access every project until you limit them.",
+				"noUsers": "No users found",
+				"role": "Role",
+				"searching": "Searching users…",
+				"submit": "Add member",
+				"title": "Add member",
+				"user": "User",
+				"userPlaceholder": "Search name or email…",
+				"usersError": "Users could not be loaded."
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"created": "Created",
+				"members": "Members",
+				"owners": "Owners",
+				"projects": "Projects",
+				"workspace": "Workspace"
+			},
+			"confirm": {
+				"remove": {
+					"action": "Remove member",
+					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
+					"title": "Remove {{name}}?"
+				},
+				"transfer": {
+					"action": "Make owner",
+					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
+					"title": "Make {{name}} the owner?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "Workspace directory",
+			"emptyDescription": "Try another name or slug.",
+			"emptyTitle": "No workspaces found",
+			"instanceBadge": "Instance",
+			"loadError": "Workspaces could not be loaded.",
+			"manage": "Manage",
+			"manageLabel": "Manage {{name}}",
+			"members": {
+				"actions": "Actions for {{name}}",
+				"add": "Add member",
+				"columns": {
+					"actions": "Actions",
+					"joined": "Joined",
+					"member": "Member",
+					"projects": "Projects",
+					"role": "Role"
+				},
+				"count_one": "{{count}} member",
+				"count_other": "{{count}} members",
+				"description": "Change roles, project access, and ownership, even if you aren't a member of this workspace.",
+				"editAccess": "Change project access for {{name}} ({{access}})",
+				"empty": "This workspace has no members.",
+				"loadError": "Members could not be loaded.",
+				"makeOwner": "Make owner",
+				"remove": "Remove from workspace",
+				"roleLabel": "Role for {{name}}",
+				"title": "Members of {{name}}"
+			},
+			"next": "Next",
+			"noOwner": "No owner",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing workspaces",
+			"retry": "Retry",
+			"searchCount_one": "{{count}} matching workspace",
+			"searchCount_other": "{{count}} matching workspaces",
+			"searchLabel": "Search workspaces",
+			"searchPlaceholder": "Search name or slug…",
+			"subtitle": "Manage every workspace on this Kaneo instance, including ones you don't belong to.",
+			"title": "Workspace management",
+			"toast": {
+				"added": "Member added",
+				"addError": "Failed to add member",
+				"ownershipTransferred": "Ownership transferred",
+				"removed": "Member removed",
+				"removeError": "Failed to remove member",
+				"roleError": "Failed to update role",
+				"roleUpdated": "Role updated",
+				"transferError": "Failed to transfer ownership"
+			},
+			"workspaceCount_one": "{{count}} workspace",
+			"workspaceCount_other": "{{count}} workspaces"
+		}
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1975,7 +2093,8 @@
 			"deleteConfirmTitle": "Избриши проект?",
 			"deleteConfirmDescription": "Ова трајно ќе го отстрани проектот и сите негови податоци. Не можеш да ја вратиш оваа акција.",
 			"deletedToast": "Проектот е избришан",
-			"deleteProject": "Избриши проект"
+			"deleteProject": "Избриши проект",
+			"switcherLabel": "Промени проект или приказ"
 		},
 		"search": {
 			"inputPlaceholder": "Пребарај задачи, проекти, коментари...",
@@ -2261,7 +2380,10 @@
 		"boardSearchPlaceholder": "Пребарај тикети...",
 		"view": {
 			"board": "Табла",
-			"list": "Листа"
+			"list": "Листа",
+			"backlog": "Заостанати",
+			"gantt": "Gantt",
+			"heading": "Приказ"
 		},
 		"common": {
 			"selectTask": "Избери задача",
@@ -2491,7 +2613,8 @@
 					"terracotta": "Теракота",
 					"rose": "Роза",
 					"crimson": "Гримизна"
-				}
+				},
+				"editLabels": "Уреди етикети"
 			},
 			"recurrence": {
 				"updateError": "Неуспешно ажурирање на повторувањето на задачата",
@@ -2723,7 +2846,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: отвори задача",
 			"title": "Календар",
 			"today": "Денес",
-			"loadError": "Неуспешно вчитување на задачите."
+			"loadError": "Неуспешно вчитување на задачите.",
+			"noTasksThisMonth": "Ништо не е закажано овој месец"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

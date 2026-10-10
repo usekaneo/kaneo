@@ -13,6 +13,23 @@ input:-webkit-autofill:active {
 
 @custom-variant dark (&:is(.dark *));
 
+/* Gives small icon-only controls a 44px touch target on touch screens without
+   changing their visual size (same idea as Button's pointer-coarse ::after).
+   The element must be positioned (`relative` or `absolute`). */
+@utility touch-hitbox {
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 2.75rem);
+      height: max(100%, 2.75rem);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
 /* Reduced motion: keep opacity feedback, drop movement (scale/translate) and
    container morphs. Tailwind v4 scale/translate utilities use the standalone
    CSS properties, so forcing them here neutralizes entrance/exit movement
@@ -386,6 +403,15 @@ input:-webkit-autofill:active {
     color: var(--foreground);
     caret-color: var(--foreground);
     outline: none;
+  }
+
+  /* iOS Safari zooms the page into any focused field under 16px; keep the
+     editors at 16px on phone widths so focusing them doesn't zoom. */
+  @media (max-width: 639.98px) {
+    .kaneo-tiptap-content .ProseMirror[contenteditable="true"],
+    .kaneo-comment-editor-content .ProseMirror[contenteditable="true"] {
+      font-size: 1rem;
+    }
   }
 
   .kaneo-tiptap-slash-menu {

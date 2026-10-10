@@ -199,12 +199,13 @@ export function ExternalLinksAccordion({
             <Button
               type="button"
               variant="ghost"
-              size="sm"
-              className="gap-1 h-8"
+              size="xs"
+              className="text-muted-foreground"
+              aria-label={t("settings:externalLinks.addResource")}
+              title={t("settings:externalLinks.addResource")}
               onClick={() => setIsDialogOpen(true)}
             >
-              <Plus className="size-4" />
-              {t("settings:externalLinks.addResource")}
+              <Plus className="size-3.5" />
             </Button>
           )}
         </div>

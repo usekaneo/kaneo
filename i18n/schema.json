@@ -1318,9 +1318,12 @@
 							"properties": {
 								"workspaceNameRequired": {
 									"type": "string"
+								},
+								"projectNameRequired": {
+									"type": "string"
 								}
 							},
-							"required": ["workspaceNameRequired"]
+							"required": ["workspaceNameRequired", "projectNameRequired"]
 						},
 						"cloud": {
 							"type": "object",
@@ -1469,6 +1472,93 @@
 								"invite",
 								"plan"
 							]
+						},
+						"projectName": {
+							"type": "string"
+						},
+						"projectNameDefault": {
+							"type": "string"
+						},
+						"projectNameHint": {
+							"type": "string"
+						},
+						"starterTasks": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"drag": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description"]
+								},
+								"details": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description"]
+								},
+								"invite": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description"]
+								},
+								"integrations": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description"]
+								},
+								"create": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description"]
+								}
+							},
+							"required": [
+								"drag",
+								"details",
+								"invite",
+								"integrations",
+								"create"
+							]
 						}
 					},
 					"required": [
@@ -1489,7 +1579,11 @@
 						"redirectingToWorkspace",
 						"toast",
 						"validation",
-						"cloud"
+						"cloud",
+						"projectName",
+						"projectNameDefault",
+						"projectNameHint",
+						"starterTasks"
 					]
 				},
 				"profileSetup": {
@@ -2259,6 +2353,388 @@
 						"status",
 						"actions",
 						"edit",
+						"confirm",
+						"toast"
+					]
+				},
+				"adminWorkspaces": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"instanceBadge": {
+							"type": "string"
+						},
+						"directoryTitle": {
+							"type": "string"
+						},
+						"workspaceCount_one": {
+							"type": "string"
+						},
+						"workspaceCount_zero": {
+							"type": "string"
+						},
+						"workspaceCount_two": {
+							"type": "string"
+						},
+						"workspaceCount_few": {
+							"type": "string"
+						},
+						"workspaceCount_many": {
+							"type": "string"
+						},
+						"workspaceCount_other": {
+							"type": "string"
+						},
+						"searchCount_one": {
+							"type": "string"
+						},
+						"searchCount_zero": {
+							"type": "string"
+						},
+						"searchCount_two": {
+							"type": "string"
+						},
+						"searchCount_few": {
+							"type": "string"
+						},
+						"searchCount_many": {
+							"type": "string"
+						},
+						"searchCount_other": {
+							"type": "string"
+						},
+						"refreshing": {
+							"type": "string"
+						},
+						"searchPlaceholder": {
+							"type": "string"
+						},
+						"searchLabel": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"emptyTitle": {
+							"type": "string"
+						},
+						"emptyDescription": {
+							"type": "string"
+						},
+						"clearSearch": {
+							"type": "string"
+						},
+						"previous": {
+							"type": "string"
+						},
+						"next": {
+							"type": "string"
+						},
+						"pagination": {
+							"type": "string"
+						},
+						"noOwner": {
+							"type": "string"
+						},
+						"manage": {
+							"type": "string"
+						},
+						"manageLabel": {
+							"type": "string"
+						},
+						"columns": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"workspace": {
+									"type": "string"
+								},
+								"owners": {
+									"type": "string"
+								},
+								"members": {
+									"type": "string"
+								},
+								"projects": {
+									"type": "string"
+								},
+								"created": {
+									"type": "string"
+								},
+								"actions": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"workspace",
+								"owners",
+								"members",
+								"projects",
+								"created",
+								"actions"
+							]
+						},
+						"members": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"count_one": {
+									"type": "string"
+								},
+								"count_zero": {
+									"type": "string"
+								},
+								"count_two": {
+									"type": "string"
+								},
+								"count_few": {
+									"type": "string"
+								},
+								"count_many": {
+									"type": "string"
+								},
+								"count_other": {
+									"type": "string"
+								},
+								"add": {
+									"type": "string"
+								},
+								"loadError": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"columns": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"member": {
+											"type": "string"
+										},
+										"role": {
+											"type": "string"
+										},
+										"projects": {
+											"type": "string"
+										},
+										"joined": {
+											"type": "string"
+										},
+										"actions": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"member",
+										"role",
+										"projects",
+										"joined",
+										"actions"
+									]
+								},
+								"roleLabel": {
+									"type": "string"
+								},
+								"editAccess": {
+									"type": "string"
+								},
+								"actions": {
+									"type": "string"
+								},
+								"makeOwner": {
+									"type": "string"
+								},
+								"remove": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"add",
+								"loadError",
+								"empty",
+								"columns",
+								"roleLabel",
+								"editAccess",
+								"actions",
+								"makeOwner",
+								"remove"
+							]
+						},
+						"addMember": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"user": {
+									"type": "string"
+								},
+								"userPlaceholder": {
+									"type": "string"
+								},
+								"searching": {
+									"type": "string"
+								},
+								"usersError": {
+									"type": "string"
+								},
+								"noUsers": {
+									"type": "string"
+								},
+								"alreadyMember": {
+									"type": "string"
+								},
+								"role": {
+									"type": "string"
+								},
+								"submit": {
+									"type": "string"
+								},
+								"adding": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"user",
+								"userPlaceholder",
+								"searching",
+								"usersError",
+								"noUsers",
+								"alreadyMember",
+								"role",
+								"submit",
+								"adding"
+							]
+						},
+						"confirm": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"working": {
+									"type": "string"
+								},
+								"transfer": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"action": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description", "action"]
+								},
+								"remove": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"title": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"action": {
+											"type": "string"
+										}
+									},
+									"required": ["title", "description", "action"]
+								}
+							},
+							"required": ["working", "transfer", "remove"]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"added": {
+									"type": "string"
+								},
+								"addError": {
+									"type": "string"
+								},
+								"roleUpdated": {
+									"type": "string"
+								},
+								"roleError": {
+									"type": "string"
+								},
+								"removed": {
+									"type": "string"
+								},
+								"removeError": {
+									"type": "string"
+								},
+								"ownershipTransferred": {
+									"type": "string"
+								},
+								"transferError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"added",
+								"addError",
+								"roleUpdated",
+								"roleError",
+								"removed",
+								"removeError",
+								"ownershipTransferred",
+								"transferError"
+							]
+						}
+					},
+					"required": [
+						"title",
+						"subtitle",
+						"instanceBadge",
+						"directoryTitle",
+						"refreshing",
+						"searchPlaceholder",
+						"searchLabel",
+						"loadError",
+						"retry",
+						"emptyTitle",
+						"emptyDescription",
+						"clearSearch",
+						"previous",
+						"next",
+						"pagination",
+						"noOwner",
+						"manage",
+						"manageLabel",
+						"columns",
+						"members",
+						"addMember",
 						"confirm",
 						"toast"
 					]
@@ -4827,6 +5303,12 @@
 						},
 						"add": {
 							"type": "string"
+						},
+						"deleteAria": {
+							"type": "string"
+						},
+						"renameAria": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -4849,7 +5331,9 @@
 						"on",
 						"off",
 						"newColumnPlaceholder",
-						"add"
+						"add",
+						"deleteAria",
+						"renameAria"
 					]
 				},
 				"customFields": {
@@ -7290,6 +7774,9 @@
 						"activeFeeds": {
 							"type": "string"
 						},
+						"allScheduledTasks": {
+							"type": "string"
+						},
 						"subscribeHint": {
 							"type": "string"
 						},
@@ -7342,6 +7829,7 @@
 						"created",
 						"createError",
 						"activeFeeds",
+						"allScheduledTasks",
 						"subscribeHint",
 						"empty",
 						"feedUrl",
@@ -7788,6 +8276,7 @@
 				"preferences",
 				"apiKeys",
 				"adminUsers",
+				"adminWorkspaces",
 				"informationPage",
 				"notificationsPage",
 				"preferencesPage",
@@ -7981,6 +8470,9 @@
 						},
 						"deleteProject": {
 							"type": "string"
+						},
+						"switcherLabel": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -7992,7 +8484,8 @@
 						"deleteConfirmTitle",
 						"deleteConfirmDescription",
 						"deletedToast",
-						"deleteProject"
+						"deleteProject",
+						"switcherLabel"
 					]
 				},
 				"search": {
@@ -8640,6 +9133,9 @@
 				"moved": {
 					"type": "string"
 				},
+				"movedFromOtherProject": {
+					"type": "string"
+				},
 				"created": {
 					"type": "string"
 				},
@@ -9060,6 +9556,7 @@
 				"changedDueDate",
 				"changedTitle",
 				"moved",
+				"movedFromOtherProject",
 				"created",
 				"githubUser",
 				"comment"
@@ -9155,9 +9652,18 @@
 						},
 						"list": {
 							"type": "string"
+						},
+						"backlog": {
+							"type": "string"
+						},
+						"gantt": {
+							"type": "string"
+						},
+						"heading": {
+							"type": "string"
 						}
 					},
-					"required": ["board", "list"]
+					"required": ["board", "list", "backlog", "gantt", "heading"]
 				},
 				"common": {
 					"type": "object",
@@ -10186,6 +10692,9 @@
 										"rose",
 										"crimson"
 									]
+								},
+								"editLabels": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -10198,7 +10707,8 @@
 								"updateError",
 								"createSuccess",
 								"createError",
-								"colors"
+								"colors",
+								"editLabels"
 							]
 						}
 					},
@@ -10576,6 +11086,9 @@
 						},
 						"taskAriaLabel": {
 							"type": "string"
+						},
+						"noTasksThisMonth": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -10588,7 +11101,8 @@
 						"noTasksSubtitle",
 						"loadError",
 						"dayTasksAriaLabel",
-						"taskAriaLabel"
+						"taskAriaLabel",
+						"noTasksThisMonth"
 					]
 				},
 				"gantt": {
@@ -12239,6 +12753,9 @@
 						"allProjectsDescription": {
 							"type": "string"
 						},
+						"allProjectsUnavailable": {
+							"type": "string"
+						},
 						"selectedProjects": {
 							"type": "string"
 						},
@@ -12249,6 +12766,9 @@
 							"type": "string"
 						},
 						"noProjects": {
+							"type": "string"
+						},
+						"archived": {
 							"type": "string"
 						},
 						"selectAtLeastOne": {
@@ -12296,10 +12816,12 @@
 						"description",
 						"allProjects",
 						"allProjectsDescription",
+						"allProjectsUnavailable",
 						"selectedProjects",
 						"selectedProjectsDescription",
 						"projectsLabel",
 						"noProjects",
+						"archived",
 						"selectAtLeastOne",
 						"editAria",
 						"dialogTitle",

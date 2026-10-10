@@ -64,7 +64,7 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("workspace:create.pageTitle")} />
-      <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 overflow-y-auto">
+      <div className="min-h-svh w-full bg-background flex items-center justify-center p-4 overflow-y-auto">
         <div className="w-full max-w-md">
           <Card className="shadow-sm">
             <CardContent className="p-8">

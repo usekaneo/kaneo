@@ -181,7 +181,7 @@ export function ProfileSetupFlow() {
   return (
     <>
       <PageTitle title={t("auth:profileSetup.pageTitle")} />
-      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-svh w-full bg-background flex flex-col items-center justify-center p-4">
         <AnimatePresence mode="wait">
           {step === "profile" && renderProfileStep()}
           {step === "success" && renderSuccessStep()}

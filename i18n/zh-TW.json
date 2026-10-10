@@ -337,7 +337,8 @@
 				"createFailed": "無法建立工作區"
 			},
 			"validation": {
-				"workspaceNameRequired": "請輸入工作區名稱"
+				"workspaceNameRequired": "請輸入工作區名稱",
+				"projectNameRequired": "請為你的第一個專案命名"
 			},
 			"restrictedSubtitle": "只有執行個體管理員可以在此建立工作區。請管理員邀請你，然後重新載入此頁面。",
 			"restrictedCheckInvitations": "查看邀請",
@@ -374,6 +375,31 @@
 				"usageSoloDescription": "追蹤自己的工作",
 				"usageTeam": "我的團隊",
 				"usageTeamDescription": "一起規劃並交付工作"
+			},
+			"projectName": "你的第一個專案",
+			"projectNameDefault": "我的第一個專案",
+			"projectNameHint": "我們會新增幾個入門任務，幫你快速上手。",
+			"starterTasks": {
+				"drag": {
+					"title": "把這張卡片拖到下一欄",
+					"description": "隨著工作推進，卡片會從一欄移到下一欄。把這張卡片拖到下一欄，或打開它變更狀態。"
+				},
+				"details": {
+					"title": "打開這個任務並新增子任務",
+					"description": "任務可以包含描述、子任務、標籤、負責人和截止日期。試著為這個任務新增一個子任務。"
+				},
+				"invite": {
+					"title": "邀請你的團隊",
+					"description": "大家都在的時候，Kaneo 最好用。打開側邊欄中的 **成員**，透過電子郵件邀請成員。"
+				},
+				"integrations": {
+					"title": "連接 GitHub、GitLab 或 Gitea",
+					"description": "同步 issue，並在 Pull Request 開啟和合併時自動移動任務。在 **專案設定** 中進行設定。"
+				},
+				"create": {
+					"title": "建立你自己的任務",
+					"description": "使用欄位名稱旁的 **+**，或先按 **T** 再按 **C**。準備好後，就可以刪除這些入門任務。"
+				}
 			}
 		},
 		"profileSetup": {
@@ -1095,7 +1121,9 @@
 			"on": "開",
 			"off": "關",
 			"newColumnPlaceholder": "新欄位名稱…",
-			"add": "新增"
+			"add": "新增",
+			"deleteAria": "刪除 {{name}} 欄",
+			"renameAria": "重新命名 {{name}} 欄"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1744,7 +1772,7 @@
 			"title": "行事曆訂閱源",
 			"subtitle": "在行事曆應用程式中訂閱已排程的專案任務。",
 			"createTitle": "建立行事曆訂閱源",
-			"filterHint": "包含設有開始或截止日期，且至少帶有一個所選標籤的任務。",
+			"filterHint": "包含設有開始或截止日期的任務。選擇標籤可僅包含帶有任一所選標籤的任務；留空則包含所有已安排日期的專案任務。",
 			"labels": "標籤",
 			"selectLabels": "搜尋並選擇標籤…",
 			"noLabels": "找不到標籤。",
@@ -1755,6 +1783,7 @@
 			"created": "已建立行事曆訂閱源。",
 			"createError": "無法建立行事曆訂閱源。",
 			"activeFeeds": "使用中的訂閱源",
+			"allScheduledTasks": "所有已安排日期的專案任務",
 			"subscribeHint": "複製連結並加入行事曆訂閱。行事曆應用程式重新整理訂閱源後就會顯示更新。",
 			"empty": "尚無行事曆訂閱源。",
 			"feedUrl": "行事曆訂閱源 URL",
@@ -1923,6 +1952,92 @@
 			"useKaneo": "保留 Kaneo 的內容",
 			"exportPending": "匯出符合條件的任務",
 			"inactiveHint": "此整合已暫停。重新啟用前，不會匯出任何任務。"
+		},
+		"adminWorkspaces": {
+			"addMember": {
+				"adding": "Adding…",
+				"alreadyMember": "Already a member",
+				"description": "Add an existing user to {{name}}. They can access every project until you limit them.",
+				"noUsers": "No users found",
+				"role": "Role",
+				"searching": "Searching users…",
+				"submit": "Add member",
+				"title": "Add member",
+				"user": "User",
+				"userPlaceholder": "Search name or email…",
+				"usersError": "Users could not be loaded."
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"created": "Created",
+				"members": "Members",
+				"owners": "Owners",
+				"projects": "Projects",
+				"workspace": "Workspace"
+			},
+			"confirm": {
+				"remove": {
+					"action": "Remove member",
+					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
+					"title": "Remove {{name}}?"
+				},
+				"transfer": {
+					"action": "Make owner",
+					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
+					"title": "Make {{name}} the owner?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "Workspace directory",
+			"emptyDescription": "Try another name or slug.",
+			"emptyTitle": "No workspaces found",
+			"instanceBadge": "Instance",
+			"loadError": "Workspaces could not be loaded.",
+			"manage": "Manage",
+			"manageLabel": "Manage {{name}}",
+			"members": {
+				"actions": "Actions for {{name}}",
+				"add": "Add member",
+				"columns": {
+					"actions": "Actions",
+					"joined": "Joined",
+					"member": "Member",
+					"projects": "Projects",
+					"role": "Role"
+				},
+				"count_other": "{{count}} members",
+				"description": "Change roles, project access, and ownership, even if you aren't a member of this workspace.",
+				"editAccess": "Change project access for {{name}} ({{access}})",
+				"empty": "This workspace has no members.",
+				"loadError": "Members could not be loaded.",
+				"makeOwner": "Make owner",
+				"remove": "Remove from workspace",
+				"roleLabel": "Role for {{name}}",
+				"title": "Members of {{name}}"
+			},
+			"next": "Next",
+			"noOwner": "No owner",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing workspaces",
+			"retry": "Retry",
+			"searchCount_other": "{{count}} matching workspaces",
+			"searchLabel": "Search workspaces",
+			"searchPlaceholder": "Search name or slug…",
+			"subtitle": "Manage every workspace on this Kaneo instance, including ones you don't belong to.",
+			"title": "Workspace management",
+			"toast": {
+				"added": "Member added",
+				"addError": "Failed to add member",
+				"ownershipTransferred": "Ownership transferred",
+				"removed": "Member removed",
+				"removeError": "Failed to remove member",
+				"roleError": "Failed to update role",
+				"roleUpdated": "Role updated",
+				"transferError": "Failed to transfer ownership"
+			},
+			"workspaceCount_other": "{{count}} workspaces"
 		}
 	},
 	"navigation": {
@@ -1967,7 +2082,8 @@
 			"deleteConfirmTitle": "要刪除專案嗎？",
 			"deleteConfirmDescription": "這會永久移除專案及其所有資料，此操作無法復原。",
 			"deletedToast": "專案已刪除",
-			"deleteProject": "刪除專案"
+			"deleteProject": "刪除專案",
+			"switcherLabel": "切換專案或檢視"
 		},
 		"search": {
 			"inputPlaceholder": "搜尋任務、專案、留言...",
@@ -2249,7 +2365,10 @@
 		"boardSearchPlaceholder": "搜尋任務…",
 		"view": {
 			"board": "看板",
-			"list": "清單"
+			"list": "清單",
+			"backlog": "待辦",
+			"gantt": "甘特圖",
+			"heading": "檢視"
 		},
 		"common": {
 			"selectTask": "選取任務",
@@ -2479,7 +2598,8 @@
 					"terracotta": "赤陶",
 					"rose": "玫瑰紅",
 					"crimson": "深紅"
-				}
+				},
+				"editLabels": "編輯標籤"
 			},
 			"recurrence": {
 				"updateError": "更新任務重複設定失敗",
@@ -2581,7 +2701,8 @@
 			"moreTasks": "+{{count}} 項",
 			"loadError": "載入任務失敗。",
 			"dayTasksAriaLabel": "查看 {{date}} 的所有任務",
-			"taskAriaLabel": "{{title}}，{{range}}：開啟任務"
+			"taskAriaLabel": "{{title}}，{{range}}：開啟任務",
+			"noTasksThisMonth": "本月沒有排程"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} - 甘特圖",

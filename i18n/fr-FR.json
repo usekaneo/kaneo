@@ -337,7 +337,8 @@
 				"createFailed": "Échec de la création de l'espace de travail"
 			},
 			"validation": {
-				"workspaceNameRequired": "Le nom de l'espace de travail est requis"
+				"workspaceNameRequired": "Le nom de l'espace de travail est requis",
+				"projectNameRequired": "Donnez un nom à votre premier projet"
 			},
 			"restrictedSubtitle": "Seul un administrateur de l'instance peut créer des espaces de travail ici. Demandez une invitation, puis rechargez cette page.",
 			"restrictedCheckInvitations": "Voir les invitations",
@@ -376,6 +377,31 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectName": "Votre premier projet",
+			"projectNameDefault": "Mon premier projet",
+			"projectNameHint": "Nous ajouterons quelques tâches de démarrage pour vous guider.",
+			"starterTasks": {
+				"drag": {
+					"title": "Faites glisser cette carte vers la colonne suivante",
+					"description": "Les cartes passent de colonne en colonne au fil du travail. Faites glisser celle-ci vers la colonne suivante, ou ouvrez-la et changez son statut."
+				},
+				"details": {
+					"title": "Ouvrez cette tâche et ajoutez une sous-tâche",
+					"description": "Une tâche peut contenir une description, des sous-tâches, des étiquettes, une personne assignée et une date d'échéance. Ajoutez une sous-tâche à celle-ci pour essayer."
+				},
+				"invite": {
+					"title": "Invitez votre équipe",
+					"description": "Kaneo fonctionne mieux quand tout le monde y participe. Ouvrez **Membres** dans la barre latérale pour inviter des personnes par e-mail."
+				},
+				"integrations": {
+					"title": "Connectez GitHub, GitLab ou Gitea",
+					"description": "Synchronisez les issues et déplacez les tâches automatiquement quand des pull requests sont ouvertes et fusionnées. Configurez-le dans **Paramètres du projet**."
+				},
+				"create": {
+					"title": "Créez votre propre tâche",
+					"description": "Utilisez le **+** à côté du nom d'une colonne, ou appuyez sur **T** puis **C**. Supprimez ces tâches de démarrage quand vous le souhaitez."
+				}
 			}
 		},
 		"profileSetup": {
@@ -864,7 +890,9 @@
 			"on": "On",
 			"off": "Off",
 			"newColumnPlaceholder": "Nouveau nom de colonne...",
-			"add": "Ajouter"
+			"add": "Ajouter",
+			"deleteAria": "Supprimer la colonne {{name}}",
+			"renameAria": "Renommer la colonne {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1753,7 +1781,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1764,6 +1792,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -1939,7 +1968,99 @@
 			"loadSavedRules": "Load saved rules",
 			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
 		},
-		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces.",
+		"adminWorkspaces": {
+			"addMember": {
+				"adding": "Adding…",
+				"alreadyMember": "Already a member",
+				"description": "Add an existing user to {{name}}. They can access every project until you limit them.",
+				"noUsers": "No users found",
+				"role": "Role",
+				"searching": "Searching users…",
+				"submit": "Add member",
+				"title": "Add member",
+				"user": "User",
+				"userPlaceholder": "Search name or email…",
+				"usersError": "Users could not be loaded."
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"created": "Created",
+				"members": "Members",
+				"owners": "Owners",
+				"projects": "Projects",
+				"workspace": "Workspace"
+			},
+			"confirm": {
+				"remove": {
+					"action": "Remove member",
+					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
+					"title": "Remove {{name}}?"
+				},
+				"transfer": {
+					"action": "Make owner",
+					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
+					"title": "Make {{name}} the owner?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "Workspace directory",
+			"emptyDescription": "Try another name or slug.",
+			"emptyTitle": "No workspaces found",
+			"instanceBadge": "Instance",
+			"loadError": "Workspaces could not be loaded.",
+			"manage": "Manage",
+			"manageLabel": "Manage {{name}}",
+			"members": {
+				"actions": "Actions for {{name}}",
+				"add": "Add member",
+				"columns": {
+					"actions": "Actions",
+					"joined": "Joined",
+					"member": "Member",
+					"projects": "Projects",
+					"role": "Role"
+				},
+				"count_many": "{{count}} members",
+				"count_one": "{{count}} member",
+				"count_other": "{{count}} members",
+				"description": "Change roles, project access, and ownership, even if you aren't a member of this workspace.",
+				"editAccess": "Change project access for {{name}} ({{access}})",
+				"empty": "This workspace has no members.",
+				"loadError": "Members could not be loaded.",
+				"makeOwner": "Make owner",
+				"remove": "Remove from workspace",
+				"roleLabel": "Role for {{name}}",
+				"title": "Members of {{name}}"
+			},
+			"next": "Next",
+			"noOwner": "No owner",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing workspaces",
+			"retry": "Retry",
+			"searchCount_many": "{{count}} matching workspaces",
+			"searchCount_one": "{{count}} matching workspace",
+			"searchCount_other": "{{count}} matching workspaces",
+			"searchLabel": "Search workspaces",
+			"searchPlaceholder": "Search name or slug…",
+			"subtitle": "Manage every workspace on this Kaneo instance, including ones you don't belong to.",
+			"title": "Workspace management",
+			"toast": {
+				"added": "Member added",
+				"addError": "Failed to add member",
+				"ownershipTransferred": "Ownership transferred",
+				"removed": "Member removed",
+				"removeError": "Failed to remove member",
+				"roleError": "Failed to update role",
+				"roleUpdated": "Role updated",
+				"transferError": "Failed to transfer ownership"
+			},
+			"workspaceCount_many": "{{count}} workspaces",
+			"workspaceCount_one": "{{count}} workspace",
+			"workspaceCount_other": "{{count}} workspaces"
+		}
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1983,7 +2104,8 @@
 			"deleteConfirmTitle": "Supprimer le projet?",
 			"deleteConfirmDescription": "Cela supprimera définitivement le projet et toutes ses données. Vous ne pouvez pas annuler cette action.",
 			"deletedToast": "Projet supprimé",
-			"deleteProject": "Supprimer le projet"
+			"deleteProject": "Supprimer le projet",
+			"switcherLabel": "Changer de projet ou de vue"
 		},
 		"search": {
 			"inputPlaceholder": "Rechercher des tâches, projets, commentaires...",
@@ -2273,7 +2395,10 @@
 		"boardSearchPlaceholder": "Rechercher des tickets...",
 		"view": {
 			"board": "Tableau",
-			"list": "Liste"
+			"list": "Liste",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Vue"
 		},
 		"common": {
 			"selectTask": "Sélectionner une tâche",
@@ -2503,7 +2628,8 @@
 					"terracotta": "Terre cuite",
 					"rose": "Rose",
 					"crimson": "Cramoisi"
-				}
+				},
+				"editLabels": "Modifier les labels"
 			},
 			"recurrence": {
 				"updateError": "Échec de la mise à jour de la répétition de la tâche",
@@ -2740,7 +2866,8 @@
 			"taskAriaLabel": "{{title}}, {{range}} : ouvrir la tâche",
 			"title": "Calendrier",
 			"today": "Aujourd’hui",
-			"loadError": "Échec du chargement des tâches."
+			"loadError": "Échec du chargement des tâches.",
+			"noTasksThisMonth": "Rien de planifié ce mois-ci"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

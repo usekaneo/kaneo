@@ -41,7 +41,6 @@ import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
 } from "./billing/controllers/find-billable-workspaces";
-import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
@@ -50,6 +49,9 @@ import { resolveInvitationProjectAccess } from "./project-access/resolve-invitat
 import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
 import { isOwnerRole } from "./project-access/is-owner-role";
 import { publishMemberProjects } from "./project-access/publish-member-projects";
+import { handleMemberAdded } from "./workspace-members/handle-member-added";
+import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
+import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
 import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
@@ -271,6 +273,7 @@ export const auth = betterAuth({
       // Require the provider's verified-email claim for implicit linking;
       // configuration alone must not make an unverified identity trusted.
       enabled: true,
+      allowDifferentEmails: true,
       // Only link to an existing local account after its email has been
       // verified. Without this check, an attacker could pre-register a victim's
       // email with a password account and retain access after the victim signs
@@ -473,7 +476,10 @@ export const auth = betterAuth({
         beforeCreateOrganization: async ({ organization }) => {
           const check = checkWorkspaceName(organization.name ?? "");
           if (!check.ok) {
-            throw new APIError("BAD_REQUEST", { message: check.reason });
+            throw new APIError("BAD_REQUEST", {
+              code: "INVALID_WORKSPACE_NAME",
+              message: check.reason,
+            });
           }
         },
         afterCreateOrganization: async ({ organization, user }) => {
@@ -523,6 +529,7 @@ export const auth = betterAuth({
           const billable = await findBillableWorkspaces([organization.id]);
           if (billable.length > 0) {
             throw new APIError("CONFLICT", {
+              code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
               message: formatBillableWorkspacesMessage(
                 billable.map((workspace) => workspace.name),
               ),
@@ -575,51 +582,21 @@ export const auth = betterAuth({
           });
         },
         afterUpdateMemberRole: async ({ member }) => {
-          if (!isOwnerRole(member.role)) return;
-          await clearMemberProjectAccess(member.organizationId, member.userId)
-            .then(() =>
-              publishEvent("project_access.updated", {
-                workspaceId: member.organizationId,
-                userId: member.userId,
-              }),
-            )
-            .catch((error) => {
-              console.error("Project access cleanup failed:", error);
-            });
+          if (isOwnerRole(member.role)) {
+            await handleOwnerPromoted(member.organizationId, member.userId);
+          }
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
-            await publishMemberProjects(
-              member.organizationId,
-              member.userId,
-            ).catch((error) => {
-              console.error("Project member refresh failed:", error);
-            });
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member add failed:", error);
-            });
+            await handleMemberAdded(member.organizationId, member.userId);
           }
         },
         afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
-            await clearMemberProjectAccess(
-              member.organizationId,
-              member.userId,
-            ).catch((error) => {
-              console.error("Project access cleanup failed:", error);
-            });
-            await publishEvent("project_members.updated", {
+            await handleMemberRemoved({
               workspaceId: member.organizationId,
-            });
-            if (!hasInstanceAdminRole(user.role)) {
-              await revokeWorkspaceConnections(
-                member.userId,
-                member.organizationId,
-                { role: user.role ?? null },
-              );
-            }
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member remove failed:", error);
+              userId: member.userId,
+              userRole: user.role,
             });
           }
         },
@@ -801,6 +778,7 @@ export const auth = betterAuth({
 
       if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
         throw new APIError("FORBIDDEN", {
+          code: "LOCAL_SIGN_IN_DISABLED",
           message:
             "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
         });
@@ -808,6 +786,7 @@ export const auth = betterAuth({
 
       if (ctx.path === "/request-password-reset" && !isSmtpConfigured()) {
         throw new APIError("FORBIDDEN", {
+          code: "EMAIL_DELIVERY_NOT_CONFIGURED",
           message: "Password reset requires email delivery to be configured.",
         });
       }
@@ -821,7 +800,10 @@ export const auth = betterAuth({
           ctx.headers?.get("x-turnstile-token") ?? ctx.body?.turnstileToken,
         );
         if (!verdict.ok)
-          throw new APIError("FORBIDDEN", { message: verdict.reason });
+          throw new APIError("FORBIDDEN", {
+            code: "CAPTCHA_FAILED",
+            message: verdict.reason,
+          });
       }
 
       // Block invite-member calls on cloud from anonymous users or to
@@ -840,12 +822,14 @@ export const auth = betterAuth({
           | undefined;
         if (sessionUser?.isAnonymous) {
           throw new APIError("FORBIDDEN", {
+            code: "GUEST_INVITATIONS_NOT_ALLOWED",
             message: "Guest accounts may not send workspace invitations.",
           });
         }
         const inviteeEmail = (ctx.body?.email as string | undefined) ?? "";
         if (inviteeEmail && isDisposableEmail(inviteeEmail)) {
           throw new APIError("BAD_REQUEST", {
+            code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
             message:
               "Invitations to disposable-email addresses are not allowed.",
           });
@@ -866,6 +850,7 @@ export const auth = betterAuth({
       if (ctx.path === "/sign-up/email") {
         if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
           throw new APIError("FORBIDDEN", {
+            code: "PASSWORD_REGISTRATION_DISABLED",
             message:
               "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
           });
@@ -877,6 +862,7 @@ export const auth = betterAuth({
           const signupEmail = (ctx.body?.email as string | undefined) ?? "";
           if (signupEmail && isDisposableEmail(signupEmail)) {
             throw new APIError("BAD_REQUEST", {
+              code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
               message:
                 "Sign-up with disposable email addresses is not allowed.",
             });
@@ -902,6 +888,7 @@ export const auth = betterAuth({
         const result = await checkRegistrationAllowed(email, invitationId);
         if (!result.allowed) {
           throw new APIError("FORBIDDEN", {
+            code: "REGISTRATION_NOT_ALLOWED",
             message: result.reason,
           });
         }

@@ -120,7 +120,7 @@ function CardHeader({
 }: useRender.ComponentProps<"div">) {
   const defaultProps = {
     className: cn(
-      "grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 p-6 in-[[data-slot=card]:has(>[data-slot=card-panel])]:pb-4 has-data-[slot=card-action]:grid-cols-[1fr_auto]",
+      "grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 p-6 in-[[data-slot=card]:has(>[data-slot=card-panel])]:pb-4 sm:has-data-[slot=card-action]:grid-cols-[1fr_auto]",
       className,
     ),
     "data-slot": "card-header",
@@ -174,7 +174,8 @@ function CardAction({
 }: useRender.ComponentProps<"div">) {
   const defaultProps = {
     className: cn(
-      "col-start-2 row-span-2 row-start-1 self-start justify-self-end inline-flex",
+      // Stacks under the title on phones so the description keeps its width.
+      "mt-2 inline-flex self-start justify-self-start sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:mt-0 sm:justify-self-end",
       className,
     ),
     "data-slot": "card-action",

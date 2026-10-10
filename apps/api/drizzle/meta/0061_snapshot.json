@@ -1,5 +1,5 @@
 {
-  "id": "ad51e334-9a14-4ffa-b50f-411504fdd495",
+  "id": "57657924-5578-41e7-99bd-b2e744037c44",
   "prevId": "dc330bce-1038-4b1e-b083-0d39004554e4",
   "version": "7",
   "dialect": "postgresql",
@@ -3350,12 +3350,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "recurrence": {
-          "name": "recurrence",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -3383,6 +3377,28 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "task_project_scheduled_id_idx": {
+          "name": "task_project_scheduled_id_idx",
+          "columns": [
+            {
+              "expression": "project_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "where": "\"task\".\"start_date\" is not null or \"task\".\"due_date\" is not null",
           "concurrently": false,
           "method": "btree",
           "with": {}

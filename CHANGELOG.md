@@ -1,5 +1,68 @@
 ### Features
 
+- start new workspaces with a starter project: #1993
+
+### Bug Fixes
+
+- **cli:** reject checksums that are not SHA-256 digests: #1996
+
+### Documentation
+
+- **cli:** add npm as an install option: #1995
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
+- **cli:** add an agent skill for the kaneo CLI: #1974
+- **cli:** install the CLI with a one-line script: #1971
+
+### Bug Fixes
+
+- **build:** stop vp from replaying stale typechecks and builds: #1989
+- make the app usable on phones: #1983
+- **mcp:** omit session credentials from whoami: [cf44625](https://github.com/usekaneo/kaneo/commit/cf446256f39935e6067e70dbb57f429d4b7b7a5b)
+- **cli:** point the update hint at the install page: #1976
+- **cli:** say how to confirm in confirmation errors: #1975
+
+### Credits
+
+Huge thanks to @tinsever and @andrejsshell for helping!
+
+### Features
+
+- **cli:** add the official Kaneo command-line client: #1968
+- **api:** add workspace list and detail endpoints: #1960
+- allow manual AI comment scans for existing PRs: [70de375](https://github.com/usekaneo/kaneo/commit/70de375184e7908e8b54fda9abee37756ed20eb6)
+- add advisory AI comment labeler: [d1a6a39](https://github.com/usekaneo/kaneo/commit/d1a6a392ed4c8dbc6873a8ad46de804cfadfbc3f)
+
+### Bug Fixes
+
+- **auth:** allow linking social accounts with different emails: [c613565](https://github.com/usekaneo/kaneo/commit/c61356534839adfd0c40b65325114d2fd69e4b25)
+- **api:** answer rate-limited API keys with 429: #1961
+- **api:** never treat API keys as user sessions: #1969
+- **api:** return every error as JSON with a stable code: #1962
+- **ci:** explain automatic pull request draft conversions: [5c42599](https://github.com/usekaneo/kaneo/commit/5c425995019c9f624110c0b84f117854a0c707d7)
+- **api:** return 404 for missing and hidden resources: #1963
+- **calendar:** allow feeds without label filters: #1958
+- **site:** prevent theme flash during hydration: [6bd0c1a](https://github.com/usekaneo/kaneo/commit/6bd0c1ac42164ec2604a2e74538f6e084c684641)
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
+### Features
+
+- manage workspaces as an instance admin: #1953
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
 - restrict members to selected projects: #1933
 - **site:** offer a managed instance on pricing: [c4d009f](https://github.com/usekaneo/kaneo/commit/c4d009f2e0e1a1c623233ae2d5220e01813c0188)
 - **site:** refresh open-source project management guide for search: [a181173](https://github.com/usekaneo/kaneo/commit/a18117307149a7db2f2b055c8d1a20d344f6e71d)

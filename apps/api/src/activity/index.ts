@@ -5,7 +5,6 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
-  z,
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
@@ -48,10 +47,8 @@ const getWorkspaceActivitiesRoute = createRoute({
       "Recent activity in the workspace",
       workspaceActivityListSchema,
     ),
-    400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse(
-      "No workspace access, or missing project:read or task:read permission",
-    ),
+    403: errorResponse("Missing project:read or task:read permission"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -67,10 +64,8 @@ const getActivitiesRoute = createRoute({
   request: { params: taskIdParam, query: activitiesQuery },
   responses: {
     200: jsonResponse("List of activities for the task", activityListSchema),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the task's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -94,17 +89,13 @@ const createActivityRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created activity", activitySchema),
-    400: {
-      description:
-        "Invalid body, unknown task, or comment activity submitted through the generic endpoint",
-      content: {
-        "text/plain": { schema: z.string() },
-        "application/json": { schema: z.object({ message: z.string() }) },
-      },
-    },
-    403: errorResponse(
-      "No workspace access, or missing task:update permission",
+    400: errorResponse(
+      "Invalid body, or comment activity submitted through the generic endpoint",
     ),
+    403: errorResponse(
+      "No access to the project, or missing task:update permission",
+    ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -128,10 +119,11 @@ const createCommentRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created comment", activitySchema),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -151,9 +143,9 @@ const updateCommentRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated comment", activitySchema),
-    400: errorResponse("Invalid body, or unknown activity"),
-    403: errorResponse("Not the author, or no access to the workspace"),
-    404: errorResponse("Comment not found"),
+    400: errorResponse("Invalid body"),
+    403: errorResponse("Not the author, or no access to the project"),
+    404: errorResponse("Activity or comment not found"),
   },
 });
 
@@ -173,9 +165,9 @@ const deleteCommentRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The deleted comment", activitySchema),
-    400: errorResponse("Invalid body, or unknown activity"),
-    403: errorResponse("Not the author, or no access to the workspace"),
-    404: errorResponse("Comment not found"),
+    400: errorResponse("Invalid body"),
+    403: errorResponse("Not the author, or no access to the project"),
+    404: errorResponse("Activity or comment not found"),
   },
 });
 
@@ -203,10 +195,7 @@ const activity = apiRouter()
     const { taskId, message, type, eventData } = c.req.valid("json");
     if (type === "comment") {
       throw new HTTPException(400, {
-        res: c.json(
-          { message: "Use the comment endpoint to create comments" },
-          400,
-        ),
+        message: "Use the comment endpoint to create comments",
       });
     }
     return c.json(

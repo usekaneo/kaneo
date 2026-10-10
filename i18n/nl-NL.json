@@ -337,7 +337,8 @@
 				"createFailed": "Aanmaken werkruimte mislukt"
 			},
 			"validation": {
-				"workspaceNameRequired": "Werkruimtenaam is verplicht"
+				"workspaceNameRequired": "Werkruimtenaam is verplicht",
+				"projectNameRequired": "Geef je eerste project een naam"
 			},
 			"restrictedSubtitle": "Alleen een instantiebeheerder kan hier workspaces aanmaken. Vraag om een uitnodiging en laad deze pagina opnieuw.",
 			"restrictedCheckInvitations": "Uitnodigingen bekijken",
@@ -375,6 +376,31 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectName": "Je eerste project",
+			"projectNameDefault": "Mijn eerste project",
+			"projectNameHint": "We voegen een paar starttaken toe om je op weg te helpen.",
+			"starterTasks": {
+				"drag": {
+					"title": "Sleep deze kaart naar de volgende kolom",
+					"description": "Kaarten schuiven van kolom naar kolom naarmate het werk vordert. Sleep deze naar de volgende kolom, of open hem en wijzig de status."
+				},
+				"details": {
+					"title": "Open deze taak en voeg een subtaak toe",
+					"description": "Een taak kan een beschrijving, subtaken, labels, een toegewezen persoon en een deadline hebben. Voeg een subtaak toe aan deze taak om het te proberen."
+				},
+				"invite": {
+					"title": "Nodig je team uit",
+					"description": "Kaneo werkt het best als iedereen meedoet. Open **Leden** in de zijbalk om mensen per e-mail uit te nodigen."
+				},
+				"integrations": {
+					"title": "Koppel GitHub, GitLab of Gitea",
+					"description": "Synchroniseer issues en verplaats taken automatisch wanneer pull requests worden geopend en gemerged. Stel het in onder **Projectinstellingen**."
+				},
+				"create": {
+					"title": "Maak je eigen taak",
+					"description": "Gebruik de **+** naast een kolomnaam, of druk op **T** en dan **C**. Verwijder deze starttaken wanneer je er klaar voor bent."
+				}
 			}
 		},
 		"profileSetup": {
@@ -759,7 +785,9 @@
 			"on": "Aan",
 			"off": "Uit",
 			"newColumnPlaceholder": "Nieuwe kolomnaam...",
-			"add": "Toevoegen"
+			"add": "Toevoegen",
+			"deleteAria": "Kolom {{name}} verwijderen",
+			"renameAria": "Kolom {{name}} hernoemen"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1749,7 +1777,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1760,6 +1788,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -1931,7 +1960,96 @@
 			"loadSavedRules": "Load saved rules",
 			"rulesChanged": "The saved rules changed while you were editing. Your draft is preserved. Review the current rules above before applying it, or load the saved rules."
 		},
-		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces."
+		"advancedSettingsDescription": "A personal display preference for this browser across all your workspaces.",
+		"adminWorkspaces": {
+			"addMember": {
+				"adding": "Adding…",
+				"alreadyMember": "Already a member",
+				"description": "Add an existing user to {{name}}. They can access every project until you limit them.",
+				"noUsers": "No users found",
+				"role": "Role",
+				"searching": "Searching users…",
+				"submit": "Add member",
+				"title": "Add member",
+				"user": "User",
+				"userPlaceholder": "Search name or email…",
+				"usersError": "Users could not be loaded."
+			},
+			"clearSearch": "Clear search",
+			"columns": {
+				"actions": "Actions",
+				"created": "Created",
+				"members": "Members",
+				"owners": "Owners",
+				"projects": "Projects",
+				"workspace": "Workspace"
+			},
+			"confirm": {
+				"remove": {
+					"action": "Remove member",
+					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
+					"title": "Remove {{name}}?"
+				},
+				"transfer": {
+					"action": "Make owner",
+					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
+					"title": "Make {{name}} the owner?"
+				},
+				"working": "Working…"
+			},
+			"directoryTitle": "Workspace directory",
+			"emptyDescription": "Try another name or slug.",
+			"emptyTitle": "No workspaces found",
+			"instanceBadge": "Instance",
+			"loadError": "Workspaces could not be loaded.",
+			"manage": "Manage",
+			"manageLabel": "Manage {{name}}",
+			"members": {
+				"actions": "Actions for {{name}}",
+				"add": "Add member",
+				"columns": {
+					"actions": "Actions",
+					"joined": "Joined",
+					"member": "Member",
+					"projects": "Projects",
+					"role": "Role"
+				},
+				"count_one": "{{count}} member",
+				"count_other": "{{count}} members",
+				"description": "Change roles, project access, and ownership, even if you aren't a member of this workspace.",
+				"editAccess": "Change project access for {{name}} ({{access}})",
+				"empty": "This workspace has no members.",
+				"loadError": "Members could not be loaded.",
+				"makeOwner": "Make owner",
+				"remove": "Remove from workspace",
+				"roleLabel": "Role for {{name}}",
+				"title": "Members of {{name}}"
+			},
+			"next": "Next",
+			"noOwner": "No owner",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing workspaces",
+			"retry": "Retry",
+			"searchCount_one": "{{count}} matching workspace",
+			"searchCount_other": "{{count}} matching workspaces",
+			"searchLabel": "Search workspaces",
+			"searchPlaceholder": "Search name or slug…",
+			"subtitle": "Manage every workspace on this Kaneo instance, including ones you don't belong to.",
+			"title": "Workspace management",
+			"toast": {
+				"added": "Member added",
+				"addError": "Failed to add member",
+				"ownershipTransferred": "Ownership transferred",
+				"removed": "Member removed",
+				"removeError": "Failed to remove member",
+				"roleError": "Failed to update role",
+				"roleUpdated": "Role updated",
+				"transferError": "Failed to transfer ownership"
+			},
+			"workspaceCount_one": "{{count}} workspace",
+			"workspaceCount_other": "{{count}} workspaces"
+		}
 	},
 	"navigation": {
 		"commandPalette": {
@@ -1975,7 +2093,8 @@
 			"deleteConfirmTitle": "Project verwijderen?",
 			"deleteConfirmDescription": "Dit zal het project en alle data permanent verwijderen. Dit kan niet ongedaan worden gemaakt.",
 			"deletedToast": "Project verwijderd",
-			"deleteProject": "Project verwijderen"
+			"deleteProject": "Project verwijderen",
+			"switcherLabel": "Project of weergave wisselen"
 		},
 		"search": {
 			"inputPlaceholder": "Zoek taken, projecten, reacties...",
@@ -2261,7 +2380,10 @@
 		"boardSearchPlaceholder": "Tickets zoeken...",
 		"view": {
 			"board": "Bord",
-			"list": "Lijst"
+			"list": "Lijst",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Weergave"
 		},
 		"common": {
 			"selectTask": "Selecteer taak",
@@ -2480,7 +2602,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Roos",
 					"crimson": "Karmozijn"
-				}
+				},
+				"editLabels": "Labels bewerken"
 			},
 			"recurrence": {
 				"updateError": "Bijwerken herhaling mislukt",
@@ -2723,7 +2846,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: taak openen",
 			"title": "Kalender",
 			"today": "Vandaag",
-			"loadError": "Taken konden niet worden geladen."
+			"loadError": "Taken konden niet worden geladen.",
+			"noTasksThisMonth": "Niets gepland deze maand"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

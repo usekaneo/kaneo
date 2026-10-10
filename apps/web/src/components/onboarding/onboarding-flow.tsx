@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,6 +36,8 @@ import useWorkspaceCreationAccess from "@/hooks/use-workspace-creation-access";
 import { authClient } from "@/lib/auth-client";
 import { getTrialState } from "@/lib/billing";
 import { readCheckoutIntent } from "@/lib/checkout-intent";
+import { createStarterProject } from "@/lib/onboarding/create-starter-project";
+import { starterTasks } from "@/lib/onboarding/starter-tasks";
 import { toast } from "@/lib/toast";
 import { InviteStep } from "./invite-step";
 import { PlanStep } from "./plan-step";
@@ -45,6 +48,7 @@ type OnboardingStep = "workspace" | "invite" | "plan" | "success";
 export type WorkspaceFormValues = {
   name: string;
   description?: string;
+  projectName: string;
 };
 
 export function OnboardingFlow() {
@@ -55,6 +59,7 @@ export function OnboardingFlow() {
   const [createdWorkspaceId, setCreatedWorkspaceId] = useState<string | null>(
     null,
   );
+  const [createdProjectId, setCreatedProjectId] = useState<string | null>(null);
   const [usage, setUsage] = useState<WorkspaceUsage>(DEFAULT_WORKSPACE_USAGE);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -73,6 +78,10 @@ export function OnboardingFlow() {
           .string()
           .min(1, t("auth:onboarding.validation.workspaceNameRequired")),
         description: z.string().optional(),
+        projectName: z
+          .string()
+          .trim()
+          .min(1, t("auth:onboarding.validation.projectNameRequired")),
       }),
     [t],
   );
@@ -82,6 +91,7 @@ export function OnboardingFlow() {
     defaultValues: {
       name: "",
       description: "",
+      projectName: t("auth:onboarding.projectNameDefault"),
     },
   });
 
@@ -98,7 +108,13 @@ export function OnboardingFlow() {
       await authClient.organization.setActive({
         organizationId: workspace.id,
       });
-      const goToWorkspace = () => goToCreatedWorkspace(workspace.id);
+      const projectId = await createStarterProject({
+        workspaceId: workspace.id,
+        name: data.projectName.trim(),
+        tasks: starterTasks(t, usage),
+      }).catch(() => null);
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      setCreatedProjectId(projectId);
 
       if (isCloud) {
         setCreatedWorkspaceId(workspace.id);
@@ -106,7 +122,7 @@ export function OnboardingFlow() {
         if (usage === "team") {
           setStep("invite");
         } else {
-          await continueAfterInvites(workspace.id);
+          await continueAfterInvites(workspace.id, projectId);
         }
         return;
       }
@@ -114,7 +130,7 @@ export function OnboardingFlow() {
       setCreatedWorkspaceName(data.name);
       toast.success(t("auth:onboarding.toast.workspaceCreated"));
       setStep("success");
-      setTimeout(goToWorkspace, 1500);
+      setTimeout(() => goToCreatedWorkspace(workspace.id, projectId), 1500);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -124,16 +140,28 @@ export function OnboardingFlow() {
     }
   };
 
-  const goToCreatedWorkspace = (workspaceId: string) =>
-    navigate({
-      to: "/dashboard/workspace/$workspaceId",
-      params: { workspaceId },
-      replace: true,
-    });
+  const goToCreatedWorkspace = (
+    workspaceId: string,
+    projectId: string | null,
+  ) =>
+    projectId
+      ? navigate({
+          to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+          params: { workspaceId, projectId },
+          replace: true,
+        })
+      : navigate({
+          to: "/dashboard/workspace/$workspaceId",
+          params: { workspaceId },
+          replace: true,
+        });
 
-  const continueAfterInvites = async (workspaceId: string) => {
+  const continueAfterInvites = async (
+    workspaceId: string,
+    projectId: string | null,
+  ) => {
     if (readCheckoutIntent()) {
-      await goToCreatedWorkspace(workspaceId);
+      await goToCreatedWorkspace(workspaceId, projectId);
       return;
     }
     try {
@@ -146,7 +174,7 @@ export function OnboardingFlow() {
         return;
       }
     } catch {}
-    await goToCreatedWorkspace(workspaceId);
+    await goToCreatedWorkspace(workspaceId, projectId);
   };
 
   const isSubmitting = isPending || form.formState.isSubmitting;
@@ -190,6 +218,25 @@ export function OnboardingFlow() {
                     {...field}
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="projectName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium">
+                  {t("auth:onboarding.projectName")}
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormDescription className="text-xs">
+                  {t("auth:onboarding.projectNameHint")}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -326,7 +373,9 @@ export function OnboardingFlow() {
         >
           <InviteStep
             workspaceId={createdWorkspaceId}
-            onDone={() => continueAfterInvites(createdWorkspaceId)}
+            onDone={() =>
+              continueAfterInvites(createdWorkspaceId, createdProjectId)
+            }
           />
         </CloudAuthLayout>
       </>
@@ -346,7 +395,9 @@ export function OnboardingFlow() {
           <PlanStep
             workspaceId={createdWorkspaceId}
             usage={usage}
-            onContinue={() => goToCreatedWorkspace(createdWorkspaceId)}
+            onContinue={() =>
+              goToCreatedWorkspace(createdWorkspaceId, createdProjectId)
+            }
           />
         </CloudAuthLayout>
       </>
@@ -372,7 +423,7 @@ export function OnboardingFlow() {
   return (
     <>
       <PageTitle title={t("auth:onboarding.workspacePageTitle")} />
-      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-svh w-full bg-background flex flex-col items-center justify-center p-4">
         {/* The role refresh is a network round-trip that every visit makes,
             so without this the screen is blank for the length of it. It sits
             outside the AnimatePresence deliberately: as a child of it, its
