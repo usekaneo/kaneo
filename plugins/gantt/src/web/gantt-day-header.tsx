@@ -22,21 +22,21 @@ export function GanttDayHeader({
   const t = useT();
 
   return (
-    <div className="sticky top-0 z-20 flex border-b border-border bg-background/95 backdrop-blur">
+    <div className="gantt:sticky gantt:top-0 gantt:z-20 gantt:flex gantt:border-b gantt:border-border gantt:bg-background/95 gantt:backdrop-blur">
       {showTaskRail ? (
         <div
-          className="sticky left-0 z-30 shrink-0 border-r border-border bg-background px-2 py-2.5 sm:w-80 sm:px-4 sm:py-3"
+          className="gantt:sticky gantt:left-0 gantt:z-30 gantt:shrink-0 gantt:border-r gantt:border-border gantt:bg-background gantt:px-2 gantt:py-2.5 gantt:sm:w-80 gantt:sm:px-4 gantt:sm:py-3"
           style={{
             width: isMobile ? `${railWidthRem}rem` : undefined,
           }}
         >
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="gantt:text-[11px] gantt:font-medium gantt:uppercase gantt:tracking-wide gantt:text-muted-foreground">
             {t("taskHeader")}
           </p>
         </div>
       ) : null}
       <div
-        className="grid shrink-0"
+        className="gantt:grid gantt:shrink-0"
         style={{
           gridTemplateColumns: timeline.gridTemplateColumns,
           minWidth: `${timeline.timelineMinWidthRem}rem`,
@@ -52,17 +52,18 @@ export function GanttDayHeader({
               key={day.toISOString()}
               ref={isCurrentDay ? todayCellRef : undefined}
               className={cn(
-                "border-r border-border/70 px-0.5 py-2 text-center sm:px-1",
-                isWeekend(day) && "bg-muted/25",
+                "gantt:border-r gantt:border-border/70 gantt:px-0.5 gantt:py-2 gantt:text-center gantt:sm:px-1",
+                isWeekend(day) && "gantt:bg-muted/25",
               )}
             >
-              <div className="h-4 text-[10px] font-medium text-muted-foreground">
+              <div className="gantt:h-4 gantt:text-[10px] gantt:font-medium gantt:text-muted-foreground">
                 {showMonth ? format(day, "MMM") : ""}
               </div>
               <div
                 className={cn(
-                  "mx-auto flex size-6 items-center justify-center rounded-full text-xs font-medium",
-                  isCurrentDay && "bg-primary text-primary-foreground",
+                  "gantt:mx-auto gantt:flex gantt:size-6 gantt:items-center gantt:justify-center gantt:rounded-full gantt:text-xs gantt:font-medium",
+                  isCurrentDay &&
+                    "gantt:bg-primary gantt:text-primary-foreground",
                 )}
               >
                 {format(day, "d")}

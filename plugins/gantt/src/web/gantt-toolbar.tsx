@@ -28,23 +28,23 @@ export function GanttToolbar({
   const t = useT();
 
   return (
-    <div className="border-b border-border/80 px-3 py-3 sm:px-4">
-      <div className="flex flex-col gap-2 sm:gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <h1 className="sr-only text-sm font-semibold text-foreground sm:not-sr-only">
+    <div className="gantt:border-b gantt:border-border/80 gantt:px-3 gantt:py-3 gantt:sm:px-4">
+      <div className="gantt:flex gantt:flex-col gantt:gap-2 gantt:sm:gap-3 gantt:lg:flex-row gantt:lg:items-center gantt:lg:justify-between">
+        <h1 className="gantt:sr-only gantt:text-sm gantt:font-semibold gantt:text-foreground gantt:sm:not-sr-only">
           {t("title")}
         </h1>
 
-        <div className="relative w-full lg:max-w-sm">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <div className="gantt:relative gantt:w-full gantt:lg:max-w-sm">
+          <Search className="gantt:pointer-events-none gantt:absolute gantt:top-1/2 gantt:left-2.5 gantt:h-3.5 gantt:w-3.5 gantt:-translate-y-1/2 gantt:text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={t("searchPlaceholder")}
-            className="h-9 touch-manipulation sm:h-8 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-base sm:[&_[data-slot=input]]:text-xs"
+            className="gantt:h-9 gantt:touch-manipulation gantt:sm:h-8 gantt:[&_[data-slot=input]]:pl-8 gantt:[&_[data-slot=input]]:text-base gantt:sm:[&_[data-slot=input]]:text-xs"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="gantt:flex gantt:flex-wrap gantt:items-center gantt:gap-2">
           {timeline && (
             <GanttPeriodNav timeline={timeline} onShowDate={onShowDate} />
           )}
@@ -52,26 +52,28 @@ export function GanttToolbar({
           <Button
             variant="outline"
             size="xs"
-            className="h-9 touch-manipulation sm:h-auto"
+            className="gantt:h-9 gantt:touch-manipulation gantt:sm:h-auto"
             aria-label={t("jumpToToday")}
             onClick={onJumpToToday}
             disabled={!canJumpToToday}
           >
-            <Calendar className="size-3.5" />
-            <span className="hidden sm:inline">{t("jumpToToday")}</span>
+            <Calendar className="gantt:size-3.5" />
+            <span className="gantt:hidden gantt:sm:inline">
+              {t("jumpToToday")}
+            </span>
           </Button>
 
           <Button
             variant="outline"
             size="xs"
-            className="h-9 touch-manipulation sm:hidden"
+            className="gantt:h-9 gantt:touch-manipulation gantt:sm:hidden"
             aria-pressed={showTaskRail}
             onClick={onToggleTaskRail}
           >
             {showTaskRail ? (
-              <ChevronLeft className="size-3.5" />
+              <ChevronLeft className="gantt:size-3.5" />
             ) : (
-              <ChevronRight className="size-3.5" />
+              <ChevronRight className="gantt:size-3.5" />
             )}
             {showTaskRail ? t("hideTasks") : t("showTasks")}
           </Button>

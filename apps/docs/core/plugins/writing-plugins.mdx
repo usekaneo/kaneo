@@ -378,14 +378,14 @@ export function ProgressPanel({ taskId }: TaskPanelProps) {
 
   if (progress.isLoading) return <Spinner />;
   if (progress.error) {
-    return <p className="text-sm text-destructive">{t("loadFailed")}</p>;
+    return <p className="taskprogress:text-sm taskprogress:text-destructive">{t("loadFailed")}</p>;
   }
 
   const value = progress.data?.value ?? 0;
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">{t("percent", { value })}</span>
+    <div className="taskprogress:flex taskprogress:items-center taskprogress:gap-2">
+      <span className="taskprogress:text-sm taskprogress:text-muted-foreground">{t("percent", { value })}</span>
       <Button
         size="sm"
         variant="outline"
@@ -441,13 +441,15 @@ Import a stylesheet from your web entry, as `src/web.tsx` does above. It is load
 }
 ```
 
-**Tailwind CSS.** Install `tailwindcss` as a dev dependency and start your stylesheet with:
+**Tailwind CSS.** Install `tailwindcss` as a dev dependency and start your stylesheet with a prefix of lowercase letters, such as your plugin ID without dashes:
 
 ```css
-@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/theme.css" layer(theme) prefix(taskprogress);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "@kaneo/plugin-sdk/theme.css";
 ```
+
+Then put the prefix first on every class, as in `taskprogress:flex` or `taskprogress:md:hidden`. Your CSS loads into Kaneo's page after Kaneo's own Tailwind classes, so an unprefixed `.hidden` or `.flex` from your plugin would override Kaneo's layout. `kaneo-plugin build` fails when your CSS defines unprefixed Tailwind classes like these.
 
 `@kaneo/plugin-sdk/theme.css` maps Tailwind's tokens to Kaneo's variables, so classes such as `bg-background`, `text-muted-foreground`, `border-border`, `bg-primary`, and `rounded-lg` match the app, and `dark:` follows Kaneo's theme. Leave out Tailwind's preflight: Kaneo already provides base styles, and loading them again would restyle the page around your plugin.
 

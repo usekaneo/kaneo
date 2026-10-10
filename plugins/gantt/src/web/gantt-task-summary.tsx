@@ -26,24 +26,24 @@ export function GanttTaskSummary({
     task.scheduleStart > timeline.rangeEnd;
 
   return (
-    <div className="sticky left-0 z-[11] h-full border-r border-border bg-background">
+    <div className="gantt:sticky gantt:left-0 gantt:z-[11] gantt:h-full gantt:border-r gantt:border-border gantt:bg-background">
       <button
         type="button"
-        className="flex min-h-[44px] w-full min-w-0 flex-col items-start justify-center gap-0.5 px-2 py-2 text-left transition-colors hover:bg-muted sm:min-h-0 sm:px-3 sm:py-1.5"
+        className="gantt:flex gantt:min-h-[44px] gantt:w-full gantt:min-w-0 gantt:flex-col gantt:items-start gantt:justify-center gantt:gap-0.5 gantt:px-2 gantt:py-2 gantt:text-left gantt:transition-colors gantt:hover:bg-muted gantt:sm:min-h-0 gantt:sm:px-3 gantt:sm:py-1.5"
         onClick={onOpenTask}
       >
-        <div className="flex w-full items-center gap-1.5">
-          <span className="max-w-[7rem] truncate rounded-full bg-secondary px-1.5 py-px text-[10px] font-medium uppercase tracking-wide text-secondary-foreground sm:max-w-none">
+        <div className="gantt:flex gantt:w-full gantt:items-center gantt:gap-1.5">
+          <span className="gantt:max-w-[7rem] gantt:truncate gantt:rounded-full gantt:bg-secondary gantt:px-1.5 gantt:py-px gantt:text-[10px] gantt:font-medium gantt:uppercase gantt:tracking-wide gantt:text-secondary-foreground gantt:sm:max-w-none">
             {statusLabel}
           </span>
-          <span className="truncate text-[10px] text-muted-foreground">
+          <span className="gantt:truncate gantt:text-[10px] gantt:text-muted-foreground">
             {projectSlug}-{task.number}
           </span>
         </div>
-        <p className="w-full line-clamp-1 text-xs font-medium leading-tight text-foreground">
+        <p className="gantt:w-full gantt:line-clamp-1 gantt:text-xs gantt:font-medium gantt:leading-tight gantt:text-foreground">
           {task.title}
         </p>
-        <p className="w-full truncate text-[11px] leading-tight text-muted-foreground">
+        <p className="gantt:w-full gantt:truncate gantt:text-[11px] gantt:leading-tight gantt:text-muted-foreground">
           {format(task.scheduleStart, "MMM d, yyyy")} -{" "}
           {format(task.scheduleEnd, "MMM d, yyyy")}
           {task.assigneeName ? ` • ${task.assigneeName}` : ""}
@@ -52,7 +52,7 @@ export function GanttTaskSummary({
       {outOfRange && (
         <button
           type="button"
-          className="px-3 pb-2 text-xs text-primary underline"
+          className="gantt:px-3 gantt:pb-2 gantt:text-xs gantt:text-primary gantt:underline"
           onClick={() => onShowDate(addDays(task.scheduleStart, -7))}
         >
           {t("showTaskDates")}

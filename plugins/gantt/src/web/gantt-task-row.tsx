@@ -32,7 +32,7 @@ export function GanttTaskRow({
 
   return (
     <div
-      className="grid items-stretch border-b border-border/70"
+      className="gantt:grid gantt:items-stretch gantt:border-b gantt:border-border/70"
       style={{
         gridTemplateColumns: showTaskRail
           ? `${railWidthRem}rem max-content`
@@ -51,7 +51,7 @@ export function GanttTaskRow({
       ) : null}
 
       <div
-        className="relative min-h-11 shrink-0 select-none"
+        className="gantt:relative gantt:min-h-11 gantt:shrink-0 gantt:select-none"
         style={{
           minWidth: `${timeline.timelineMinWidthRem}rem`,
         }}

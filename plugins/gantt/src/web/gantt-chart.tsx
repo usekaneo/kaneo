@@ -43,10 +43,10 @@ export function GanttChart({
   return (
     <div
       data-testid="gantt-scroll-container"
-      className="min-h-0 flex-1 overflow-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+      className="gantt:min-h-0 gantt:flex-1 gantt:overflow-auto gantt:overscroll-x-contain gantt:[-webkit-overflow-scrolling:touch]"
       style={{ scrollPaddingLeft: `${railOffsetRem}rem` }}
     >
-      <div className="relative min-w-max touch-pan-x touch-pan-y">
+      <div className="gantt:relative gantt:min-w-max gantt:touch-pan-x gantt:touch-pan-y">
         <GanttDayHeader
           timeline={timeline}
           showTaskRail={showTaskRail}
@@ -55,10 +55,10 @@ export function GanttChart({
           todayCellRef={todayCellRef}
         />
 
-        <div className="relative">
+        <div className="gantt:relative">
           <div
             ref={timelineTrackRef}
-            className="absolute inset-y-0 z-0 grid"
+            className="gantt:absolute gantt:inset-y-0 gantt:z-0 gantt:grid"
             style={{
               left: `${railOffsetRem}rem`,
               gridTemplateColumns: timeline.gridTemplateColumns,
@@ -69,14 +69,14 @@ export function GanttChart({
               <div
                 key={`bg-line-${day.toISOString()}`}
                 className={cn(
-                  "h-full min-h-0 border-r border-border/60",
-                  isWeekend(day) && "bg-muted/25",
+                  "gantt:h-full gantt:min-h-0 gantt:border-r gantt:border-border/60",
+                  isWeekend(day) && "gantt:bg-muted/25",
                 )}
               />
             ))}
           </div>
 
-          <div className="relative z-10 flex flex-col">
+          <div className="gantt:relative gantt:z-10 gantt:flex gantt:flex-col">
             {tasks.map((task) => (
               <GanttTaskRow
                 key={task.id}

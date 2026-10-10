@@ -168,14 +168,14 @@ export function GanttTaskBar({
 
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-[1] grid items-center"
+      className="gantt:pointer-events-none gantt:absolute gantt:inset-0 gantt:z-[1] gantt:grid gantt:items-center"
       style={{
         gridTemplateColumns: timeline.gridTemplateColumns,
       }}
     >
       <div
         style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
-        className="group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40 sm:h-11 sm:min-h-0"
+        className="gantt:group gantt:pointer-events-auto gantt:relative gantt:mx-1 gantt:flex gantt:min-h-[44px] gantt:min-w-0 gantt:items-stretch gantt:overflow-hidden gantt:rounded-md gantt:border gantt:border-primary/25 gantt:bg-background gantt:text-left gantt:text-sm gantt:font-medium gantt:leading-none gantt:text-foreground gantt:shadow-sm gantt:transition-colors gantt:hover:border-primary/40 gantt:sm:h-11 gantt:sm:min-h-0"
       >
         {showResizeHandles && (
           <button
@@ -184,16 +184,16 @@ export function GanttTaskBar({
             disabled={!startIsVisible}
             onPointerDown={handleResizePointerDown("start")}
             className={cn(
-              "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
-              "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              "gantt:relative gantt:z-20 gantt:shrink-0 gantt:cursor-ew-resize gantt:touch-none gantt:border-r gantt:border-primary/15 gantt:bg-primary/8 gantt:hover:bg-primary/18",
+              "gantt:min-h-[44px] gantt:w-6 gantt:sm:min-h-0 gantt:sm:w-2",
+              "gantt:focus-visible:outline-none gantt:focus-visible:ring-2 gantt:focus-visible:ring-ring gantt:focus-visible:ring-offset-1",
             )}
           />
         )}
         <button
           type="button"
           aria-label={t("taskAriaLabel", { title: task.title })}
-          className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
+          className="gantt:relative gantt:z-10 gantt:min-h-[44px] gantt:min-w-0 gantt:flex-1 gantt:cursor-grab gantt:touch-manipulation gantt:overflow-hidden gantt:px-2 gantt:text-left gantt:active:cursor-grabbing gantt:sm:min-h-0 gantt:sm:px-2.5"
           onPointerDown={handleMovePointerDown}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
@@ -202,11 +202,11 @@ export function GanttTaskBar({
             }
           }}
         >
-          <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
+          <div className="gantt:absolute gantt:inset-0 gantt:z-0 gantt:bg-primary/12 gantt:transition-colors gantt:group-hover:bg-primary/18" />
           <span
             className={cn(
-              "relative z-10 block truncate",
-              labelOutside && "sr-only",
+              "gantt:relative gantt:z-10 gantt:block gantt:truncate",
+              labelOutside && "gantt:sr-only",
             )}
           >
             {task.title}
@@ -219,9 +219,9 @@ export function GanttTaskBar({
             disabled={!endIsVisible}
             onPointerDown={handleResizePointerDown("end")}
             className={cn(
-              "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
-              "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              "gantt:relative gantt:z-20 gantt:shrink-0 gantt:cursor-ew-resize gantt:touch-none gantt:border-l gantt:border-primary/15 gantt:bg-primary/8 gantt:hover:bg-primary/18",
+              "gantt:min-h-[44px] gantt:w-6 gantt:sm:min-h-0 gantt:sm:w-2",
+              "gantt:focus-visible:outline-none gantt:focus-visible:ring-2 gantt:focus-visible:ring-ring gantt:focus-visible:ring-offset-1",
             )}
           />
         )}
@@ -230,7 +230,7 @@ export function GanttTaskBar({
         <span
           aria-hidden="true"
           style={{ gridColumn: `${lineEnd} / ${trackCount + 1}` }}
-          className="min-w-0 truncate pl-1 text-xs font-medium text-foreground/80"
+          className="gantt:min-w-0 gantt:truncate gantt:pl-1 gantt:text-xs gantt:font-medium gantt:text-foreground/80"
         >
           {task.title}
         </span>

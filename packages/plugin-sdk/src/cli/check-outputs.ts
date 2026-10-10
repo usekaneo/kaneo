@@ -3,6 +3,10 @@ import { readFile } from "node:fs/promises";
 import { isBuiltin } from "node:module";
 import { join } from "node:path";
 import { SHARED_MODULES } from "../shared-modules.js";
+import {
+  describeHostCollisions,
+  findHostCollisions,
+} from "./css-collisions.js";
 import type { PluginEntries } from "./entries.js";
 import { listExportTargets } from "./export-targets.js";
 import { listFiles } from "./list-files.js";
@@ -80,6 +84,22 @@ async function checkBundleImports(root: string, issues: BuildIssues) {
   }
 }
 
+async function checkStylesheets(
+  root: string,
+  manifest: Manifest,
+  issues: BuildIssues,
+) {
+  for (const file of await listFiles(root, "dist")) {
+    if (!file.endsWith(".css")) continue;
+    const css = await readFile(join(root, file), "utf8");
+    const selectors = findHostCollisions(css);
+    if (selectors.length === 0) continue;
+    issues.errors.push(
+      describeHostCollisions(file, selectors, manifest.plugin.id),
+    );
+  }
+}
+
 export async function checkOutputs(
   root: string,
   manifest: Manifest,
@@ -90,5 +110,6 @@ export async function checkOutputs(
   checkExports(root, manifest, typesEmitted, issues);
   checkEntries(manifest, entries, issues);
   await checkBundleImports(root, issues);
+  await checkStylesheets(root, manifest, issues);
   return issues;
 }

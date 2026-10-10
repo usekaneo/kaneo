@@ -105,7 +105,7 @@ export function GanttView({ projectId }: ProjectViewProps) {
   }, [todayInRange, scrollToToday, projectId, scheduledTasks.length]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-background">
+    <div className="gantt:flex gantt:h-full gantt:min-h-0 gantt:flex-col gantt:bg-background">
       <GanttToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

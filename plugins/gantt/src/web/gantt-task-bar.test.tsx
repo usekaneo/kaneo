@@ -61,7 +61,7 @@ describe("GanttTaskBar", () => {
     const inside = screen
       .getByRole("button", { name: "taskAriaLabel" })
       .querySelector("span");
-    expect(inside?.className).toContain("sr-only");
+    expect(inside?.className).toContain("gantt:sr-only");
     const beside = container.querySelector<HTMLElement>(
       'span[aria-hidden="true"]',
     );
@@ -79,7 +79,7 @@ describe("GanttTaskBar", () => {
     const inside = screen
       .getByRole("button", { name: "taskAriaLabel" })
       .querySelector("span");
-    expect(inside?.className).not.toContain("sr-only");
+    expect(inside?.className).not.toContain("gantt:sr-only");
   });
 
   it("keeps resize handles and the inline title on wide phone bars and on desktop", () => {

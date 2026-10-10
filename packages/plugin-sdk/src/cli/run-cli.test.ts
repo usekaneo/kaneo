@@ -129,4 +129,46 @@ describe("kaneo-plugin", () => {
       expect.stringContaining("typescript is not installed"),
     ]);
   }, 60_000);
+
+  it("fails when the plugin's CSS reuses Kaneo's Tailwind class names", async () => {
+    const folder = await tempFolder();
+    await mkdir(join(folder, "src"));
+    await writeFile(
+      join(folder, "package.json"),
+      JSON.stringify({
+        name: "kaneo-plugin-styled",
+        version: "1.0.0",
+        type: "module",
+        engines: { kaneo: ">=2.29.0 <3" },
+        exports: { ".": "./dist/index.js", "./web": "./dist/web/index.js" },
+      }),
+    );
+    await writeFile(
+      join(folder, "src/index.ts"),
+      "export default function plugin() {\n  return { id: 'styled' };\n}\n",
+    );
+    await writeFile(
+      join(folder, "src/web.ts"),
+      'import "./web.css";\nexport default {};\n',
+    );
+    await writeFile(
+      join(folder, "src/web.css"),
+      ".hidden { display: none; }\n.styled-card { display: grid; }\n@media (min-width: 48rem) { .md\\:flex { display: flex; } }\n",
+    );
+
+    const problem = String.raw`dist/web/index.css defines class selectors that collide with Kaneo's own Tailwind classes: .hidden, .md\:flex. Plugin CSS loads into Kaneo's page, so these rules override Kaneo's layout. Set a Tailwind prefix with @import "tailwindcss/theme.css" layer(theme) prefix(kaneopluginstyled); and write classes as kaneopluginstyled:flex, or use namespaced class names such as .kaneopluginstyled-panel.`;
+    const message = `The build output is not a valid Kaneo plugin:\n  - ${problem}`;
+
+    const json = await run(["build", "--json"], folder, true);
+    expect(json).toEqual({
+      code: 1,
+      stdout: `${JSON.stringify({ error: message })}\n`,
+      stderr: "",
+    });
+
+    const human = await run(["build", "--human"], folder);
+    expect(human.code).toBe(1);
+    expect(human.stdout).not.toContain("error");
+    expect(human.stderr).toContain(`\nerror: ${message}\n`);
+  }, 60_000);
 });

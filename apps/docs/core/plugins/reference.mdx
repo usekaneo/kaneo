@@ -362,6 +362,8 @@ The variables change with Kaneo's light and dark theme. Tailwind's `dark:` varia
 
 All dependencies are bundled except the [shared modules](#shared-modules). Install scripts and native modules are not supported.
 
+The build fails when your CSS defines class names that Kaneo's own Tailwind classes also use, such as `.hidden` or `.md\:flex`. Give Tailwind a prefix, for example `@import "tailwindcss/theme.css" layer(theme) prefix(taskprogress);`, or use namespaced class names.
+
 ## REST endpoints
 
 Kaneo's API exposes two endpoints for managing plugins in a workspace. They accept a session or an [API key](/api-reference/authentication). The endpoint reference in the Developers tab lists their exact request and response fields.

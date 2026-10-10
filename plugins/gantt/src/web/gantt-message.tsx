@@ -5,10 +5,14 @@ type GanttMessageProps = {
 
 export function GanttMessage({ title, description }: GanttMessageProps) {
   return (
-    <div className="flex flex-1 items-center justify-center px-6">
-      <div className="max-w-sm text-center">
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+    <div className="gantt:flex gantt:flex-1 gantt:items-center gantt:justify-center gantt:px-6">
+      <div className="gantt:max-w-sm gantt:text-center">
+        <h2 className="gantt:text-sm gantt:font-semibold gantt:text-foreground">
+          {title}
+        </h2>
+        <p className="gantt:mt-1 gantt:text-sm gantt:text-muted-foreground">
+          {description}
+        </p>
       </div>
     </div>
   );

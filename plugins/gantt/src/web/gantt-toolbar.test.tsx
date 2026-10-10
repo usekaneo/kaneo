@@ -39,7 +39,9 @@ describe("GanttToolbar", () => {
     const { onJumpToToday } = renderToolbar(true);
 
     const button = screen.getByRole("button", { name: "jumpToToday" });
-    expect(button.querySelector("span")?.className).toBe("hidden sm:inline");
+    expect(button.querySelector("span")?.className).toBe(
+      "gantt:hidden gantt:sm:inline",
+    );
     fireEvent.click(button);
     expect(onJumpToToday).toHaveBeenCalledTimes(1);
   });

@@ -10,6 +10,7 @@ export default defineConfig({
         ],
         cache: {
           input: [
+            { auto: true },
             "src/**",
             "package.json",
             "tsconfig.json",

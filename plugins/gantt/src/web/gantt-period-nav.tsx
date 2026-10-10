@@ -27,12 +27,12 @@ export function GanttPeriodNav({ timeline, onShowDate }: GanttPeriodNavProps) {
           onShowDate(addDays(timeline.rangeStart, -GANTT_WINDOW_DAYS))
         }
       >
-        <ChevronLeft className="size-4" />
+        <ChevronLeft className="gantt:size-4" />
       </Button>
       <input
         type="date"
         aria-label={t("periodStart")}
-        className="h-9 min-w-0 rounded-md border border-border bg-background px-2 text-base sm:h-8 sm:text-sm"
+        className="gantt:h-9 gantt:min-w-0 gantt:rounded-md gantt:border gantt:border-border gantt:bg-background gantt:px-2 gantt:text-base gantt:sm:h-8 gantt:sm:text-sm"
         min={format(timeline.minimumStart, "yyyy-MM-dd")}
         max={format(timeline.maximumStart, "yyyy-MM-dd")}
         value={format(timeline.rangeStart, "yyyy-MM-dd")}
@@ -41,7 +41,7 @@ export function GanttPeriodNav({ timeline, onShowDate }: GanttPeriodNavProps) {
           if (date) onShowDate(date);
         }}
       />
-      <span className="hidden text-xs text-muted-foreground sm:inline">
+      <span className="gantt:hidden gantt:text-xs gantt:text-muted-foreground gantt:sm:inline">
         – {format(timeline.rangeEnd, "MMM d, yyyy")}
       </span>
       <Button
@@ -53,7 +53,7 @@ export function GanttPeriodNav({ timeline, onShowDate }: GanttPeriodNavProps) {
           onShowDate(addDays(timeline.rangeStart, GANTT_WINDOW_DAYS))
         }
       >
-        <ChevronRight className="size-4" />
+        <ChevronRight className="gantt:size-4" />
       </Button>
     </>
   );

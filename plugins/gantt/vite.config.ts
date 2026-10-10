@@ -15,6 +15,7 @@ export default defineConfig({
         dependsOn: [buildDependencies],
         cache: {
           input: [
+            { auto: true },
             "src/**",
             "package.json",
             "tsconfig.json",
