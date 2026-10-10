@@ -111,7 +111,7 @@ describe("withJobLease", () => {
 
     await db.execute(sql`
       INSERT INTO job_lease ("name", "owner", "expires_at")
-      VALUES (${LEASE}, 'dead-replica', timezone('UTC', now()) - interval '1 minute');
+      VALUES (${LEASE}, 'dead-replica', now() - interval '1 minute');
     `);
 
     const result = await withJobLease(
@@ -128,7 +128,7 @@ describe("withJobLease", () => {
 
     await db.execute(sql`
       INSERT INTO job_lease ("name", "owner", "expires_at")
-      VALUES (${LEASE}, 'other-replica', timezone('UTC', now()) + interval '10 minutes');
+      VALUES (${LEASE}, 'other-replica', now() + interval '10 minutes');
     `);
 
     const result = await withJobLease(

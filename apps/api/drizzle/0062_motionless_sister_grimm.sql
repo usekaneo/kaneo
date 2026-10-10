@@ -44,12 +44,23 @@ ALTER TABLE IF EXISTS "user" ALTER COLUMN "created_at" SET DEFAULT (now() AT TIM
 ALTER TABLE IF EXISTS "user" ALTER COLUMN "updated_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
 ALTER TABLE IF EXISTS "user_avatar" ALTER COLUMN "created_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
 ALTER TABLE IF EXISTS "user_avatar" ALTER COLUMN "updated_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
-ALTER TABLE IF EXISTS "user_notification_preference" ALTER COLUMN "created_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
-ALTER TABLE IF EXISTS "user_notification_preference" ALTER COLUMN "updated_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
-ALTER TABLE IF EXISTS "user_notification_workspace_project" ALTER COLUMN "created_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
-ALTER TABLE IF EXISTS "user_notification_workspace_project" ALTER COLUMN "updated_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
-ALTER TABLE IF EXISTS "user_notification_workspace_rule" ALTER COLUMN "created_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
-ALTER TABLE IF EXISTS "user_notification_workspace_rule" ALTER COLUMN "updated_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
+-- Drifted installs can lack these timestamp columns until the startup repair
+-- adds them, which runs after migrations. Only change columns that exist; the
+-- repair creates missing ones with this default.
+DO $$
+DECLARE
+	target record;
+BEGIN
+	FOR target IN
+		SELECT table_name, column_name
+		FROM information_schema.columns
+		WHERE table_schema = current_schema()
+			AND table_name IN ('user_notification_preference', 'user_notification_workspace_project', 'user_notification_workspace_rule')
+			AND column_name IN ('created_at', 'updated_at')
+	LOOP
+		EXECUTE format('ALTER TABLE %I ALTER COLUMN %I SET DEFAULT (now() AT TIME ZONE ''utc'')', target.table_name, target.column_name);
+	END LOOP;
+END $$;--> statement-breakpoint
 ALTER TABLE IF EXISTS "verification" ALTER COLUMN "created_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
 ALTER TABLE IF EXISTS "verification" ALTER COLUMN "updated_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint
 ALTER TABLE IF EXISTS "workflow_rule" ALTER COLUMN "created_at" SET DEFAULT (now() AT TIME ZONE 'utc');--> statement-breakpoint

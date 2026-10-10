@@ -1694,7 +1694,7 @@ it("skips provider reads and writes while another replica holds the worker lease
   const { link, integration } = await seed();
   await deferTaskSync(link, integration, ["title"]);
   await db.execute(sql`INSERT INTO job_lease (name, owner, expires_at)
-    VALUES ('deferred-issue-edits', 'other-replica', timezone('UTC', now()) + interval '10 minutes')`);
+    VALUES ('deferred-issue-edits', 'other-replica', now() + interval '10 minutes')`);
   expect(await replayDeferredIssueEdits()).toEqual({});
   expect(m.read).not.toHaveBeenCalled();
   expect(m.write).not.toHaveBeenCalled();
@@ -1716,7 +1716,7 @@ it("recovers a crashed replica lease and releases it after processing", async ()
   });
   await deferTaskSync(link, integration, ["title"]);
   await db.execute(sql`INSERT INTO job_lease (name, owner, expires_at)
-    VALUES ('deferred-issue-edits', 'crashed-replica', timezone('UTC', now()) - interval '1 minute')`);
+    VALUES ('deferred-issue-edits', 'crashed-replica', now() - interval '1 minute')`);
   await replayDeferredIssueEdits();
   expect(m.read).toHaveBeenCalledTimes(1);
   expect(m.write).toHaveBeenCalledTimes(1);

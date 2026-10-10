@@ -337,7 +337,7 @@ function ListView({
             </div>
           </button>
 
-          <div className="flex items-center gap-1 pointer-coarse:gap-4">
+          <div className="flex items-center gap-1 pointer-coarse:gap-6">
             <button
               type="button"
               onClick={() => {
