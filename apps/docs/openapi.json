@@ -1566,6 +1566,28 @@
             ],
             "format": "date-time"
           },
+          "carryOverTasks": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            },
+            "description": "Unfinished tasks moved out when the sprint was closed, frozen as a snapshot at close time. Null while the sprint is open."
+          },
           "position": {
             "type": "number",
             "description": "Backlog order, ascending. Sprints are always returned sorted by it."
@@ -1595,6 +1617,7 @@
           "status",
           "startDate",
           "endDate",
+          "carryOverTasks",
           "position",
           "taskCount",
           "completedTaskCount",
