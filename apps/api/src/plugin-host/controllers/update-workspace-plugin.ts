@@ -1,5 +1,6 @@
 import { parseSettings, type SettingsErrors } from "@kaneo/plugin-sdk";
 import { HTTPException } from "hono/http-exception";
+import { publishEvent } from "../../events";
 import {
   getWorkspacePlugin,
   saveWorkspacePlugin,
@@ -56,6 +57,11 @@ export async function updateWorkspacePlugin(
     workspaceId,
     enabled: input.enabled ?? resolvePluginEnabled(plugin, existing?.enabled),
     settings,
+  });
+  await publishEvent("workspace_plugin.updated", {
+    workspaceId,
+    pluginId,
+    enabled: row.enabled,
   });
   return { ok: true, state: toWorkspaceState(plugin, row) };
 }

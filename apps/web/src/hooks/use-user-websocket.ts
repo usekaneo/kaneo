@@ -155,6 +155,14 @@ export function useUserWebSocket() {
           if (message.type === "NOTIFICATION_CREATED") {
             queryClient.invalidateQueries({ queryKey: ["notifications"] });
           }
+          if (
+            message.type === "WORKSPACE_PLUGIN_UPDATED" &&
+            message.workspaceId
+          ) {
+            void queryClient.invalidateQueries({
+              queryKey: ["plugins", message.workspaceId],
+            });
+          }
         } catch {
           // Ignore malformed messages
         }
