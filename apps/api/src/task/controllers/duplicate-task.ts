@@ -257,6 +257,11 @@ async function duplicateTask({
       message: "Duplicating parent links requires task:update permission",
     });
   }
+  if (parentRelations.length > 1) {
+    throw new HTTPException(409, {
+      message: "Unlink extra parents before duplicating this task",
+    });
+  }
 
   // The destination object keys embed the new task id, so it is generated up front
   // instead of being left to the insert.

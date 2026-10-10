@@ -56,6 +56,7 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
     image: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
+    lastUsedAt: null,
     role: "user",
     banned: false,
     banReason: null,
@@ -139,6 +140,21 @@ afterEach(() => {
 });
 
 describe("UserManagementPanel", () => {
+  it("shows Last Used with a precise hover timestamp and Unknown without evidence", () => {
+    const lastUsedAt = "2026-02-03T12:00:00.000Z";
+    useAdminUsersMock.mockReturnValue(
+      success(2, [user({ lastUsedAt }), user({ id: "unknown" })]),
+    );
+    const { container } = render(<UserManagementPanel />);
+    expect(
+      screen.getByRole("columnheader", { name: "settings:adminLastUsed.label" })
+        .title,
+    ).toBe("settings:adminLastUsed.userHint");
+    const time = container.querySelector(`time[datetime="${lastUsedAt}"]`);
+    expect(time?.textContent).toBeTruthy();
+    expect(time?.getAttribute("title")).toBeTruthy();
+    expect(screen.getByText("settings:adminLastUsed.unknown")).toBeTruthy();
+  });
   it("keeps the current page when the query fails", () => {
     useAdminUsersMock.mockReturnValue(success(60));
     const view = render(<UserManagementPanel />);

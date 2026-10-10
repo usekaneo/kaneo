@@ -2,9 +2,11 @@ import { format, isSameMonth, isToday, isWeekend } from "date-fns";
 import { type JSX, useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/format";
+import CalendarDayCell from "./calendar-day-cell";
 import CalendarTaskBar, { type CalendarTask } from "./calendar-task-bar";
 import DayOverflowPopover from "./day-overflow-popover";
 import { packWeekLanes } from "./month-grid-model";
+import { useDayRangeSelection } from "./use-day-range-selection";
 
 type MonthGridProps = {
   weeks: Date[][];
@@ -13,6 +15,8 @@ type MonthGridProps = {
   maxLanes: number;
   projectSlug?: string;
   onOpenTask: (taskId: string) => void;
+  /** Omit to make the days read-only, e.g. without create permission. */
+  onSelectDays?: (from: Date, to: Date) => void;
 };
 
 export default function MonthGrid({
@@ -22,12 +26,14 @@ export default function MonthGrid({
   maxLanes,
   projectSlug,
   onOpenTask,
+  onSelectDays,
 }: MonthGridProps): JSX.Element {
   const weekdayTemplate = weeks[0] ?? [];
   const layouts = useMemo(
     () => weeks.map((week) => packWeekLanes(week, tasks, maxLanes)),
     [weeks, tasks, maxLanes],
   );
+  const { startSelection, isDaySelected } = useDayRangeSelection(onSelectDays);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto overscroll-x-contain">
@@ -56,22 +62,44 @@ export default function MonthGrid({
                 gridTemplateRows: `auto repeat(${maxLanes}, min-content) auto`,
               }}
             >
-              {week.map((day, dayIndex) => (
-                <div
-                  key={`cell-${day.toISOString()}`}
-                  style={{ gridColumn: dayIndex + 1, gridRow: "1 / -1" }}
-                  className={cn(
-                    "min-w-0 border-r border-border/60",
-                    isWeekend(day) && "bg-muted/25",
-                  )}
-                />
-              ))}
+              {week.map((day, dayIndex) => {
+                const cellStyle = {
+                  gridColumn: dayIndex + 1,
+                  gridRow: "1 / -1",
+                };
+                const cellClassName = cn(
+                  "min-w-0 border-r border-border/60",
+                  isWeekend(day) && "bg-muted/25",
+                );
+
+                if (!onSelectDays) {
+                  return (
+                    <div
+                      key={`cell-${day.toISOString()}`}
+                      style={cellStyle}
+                      className={cellClassName}
+                    />
+                  );
+                }
+
+                return (
+                  <CalendarDayCell
+                    key={`cell-${day.toISOString()}`}
+                    day={day}
+                    style={cellStyle}
+                    className={cellClassName}
+                    isSelected={isDaySelected(day)}
+                    onPointerDown={startSelection}
+                    onSelect={(selected) => onSelectDays(selected, selected)}
+                  />
+                );
+              })}
 
               {week.map((day, dayIndex) => (
                 <div
                   key={`number-${day.toISOString()}`}
                   style={{ gridColumn: dayIndex + 1, gridRow: 1 }}
-                  className="z-10 flex justify-end px-1 py-1"
+                  className="pointer-events-none z-10 flex justify-end px-1 py-1"
                 >
                   <span
                     className={cn(

@@ -11,6 +11,9 @@ import type { ReactNode } from "react";
 import type { TaskReorder } from "@/fetchers/task/reorder-tasks";
 import type { ProjectWithTasks } from "@/types/project";
 import KanbanBoard from "./index";
+vi.mock("../task/task-view-context-menu", () => ({
+  default: ({ children }: { children: ReactNode }) => children,
+}));
 
 const mocks = vi.hoisted(() => ({
   project: null as unknown,

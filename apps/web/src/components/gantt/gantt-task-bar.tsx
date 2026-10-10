@@ -1,6 +1,7 @@
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import TaskContextMenu from "@/components/task/task-context-menu";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -125,6 +126,7 @@ export function GanttTaskBar({
     : CLICK_MOVE_THRESHOLD_PX;
 
   const handleResizeLeftPointerDown = (event: React.PointerEvent) => {
+    if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
     const originX = event.clientX;
@@ -175,6 +177,7 @@ export function GanttTaskBar({
   };
 
   const handleResizeRightPointerDown = (event: React.PointerEvent) => {
+    if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
     const originX = event.clientX;
@@ -309,59 +312,61 @@ export function GanttTaskBar({
         gridTemplateColumns: timeline.gridTemplateColumns,
       }}
     >
-      <div
-        style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
-        className="group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40 sm:h-11 sm:min-h-0"
-      >
-        {showResizeHandles && (
-          <button
-            type="button"
-            aria-label={t("tasks:gantt.resizeStart")}
-            disabled={!startIsVisible}
-            onPointerDown={handleResizeLeftPointerDown}
-            className={cn(
-              "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
-              "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-            )}
-          />
-        )}
-        <button
-          type="button"
-          aria-label={t("tasks:gantt.taskAriaLabel", { title: task.title })}
-          className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
-          onPointerDown={handleMovePointerDown}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onOpenTask();
-            }
-          }}
+      <TaskContextMenu task={task} projectId={task.projectId}>
+        <div
+          style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
+          className="group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40 sm:h-11 sm:min-h-0"
         >
-          <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
-          <span
-            className={cn(
-              "relative z-10 block truncate",
-              labelOutside && "sr-only",
-            )}
-          >
-            {task.title}
-          </span>
-        </button>
-        {showResizeHandles && (
+          {showResizeHandles && (
+            <button
+              type="button"
+              aria-label={t("tasks:gantt.resizeStart")}
+              disabled={!startIsVisible}
+              onPointerDown={handleResizeLeftPointerDown}
+              className={cn(
+                "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
+                "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              )}
+            />
+          )}
           <button
             type="button"
-            aria-label={t("tasks:gantt.resizeDue")}
-            disabled={!endIsVisible}
-            onPointerDown={handleResizeRightPointerDown}
-            className={cn(
-              "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
-              "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-            )}
-          />
-        )}
-      </div>
+            aria-label={t("tasks:gantt.taskAriaLabel", { title: task.title })}
+            className="relative z-10 min-h-[44px] min-w-0 flex-1 cursor-grab touch-manipulation overflow-hidden px-2 text-left active:cursor-grabbing sm:min-h-0 sm:px-2.5"
+            onPointerDown={handleMovePointerDown}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onOpenTask();
+              }
+            }}
+          >
+            <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
+            <span
+              className={cn(
+                "relative z-10 block truncate",
+                labelOutside && "sr-only",
+              )}
+            >
+              {task.title}
+            </span>
+          </button>
+          {showResizeHandles && (
+            <button
+              type="button"
+              aria-label={t("tasks:gantt.resizeDue")}
+              disabled={!endIsVisible}
+              onPointerDown={handleResizeRightPointerDown}
+              className={cn(
+                "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
+                "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+              )}
+            />
+          )}
+        </div>
+      </TaskContextMenu>
       {labelOutside && (
         <span
           aria-hidden="true"

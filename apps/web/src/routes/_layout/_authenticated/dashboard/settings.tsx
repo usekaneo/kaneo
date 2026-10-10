@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
 import { SettingsShell } from "@/components/settings/settings-shell";
@@ -11,10 +11,13 @@ export const Route = createFileRoute(
 
 function SettingsLayout() {
   const { t } = useTranslation();
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   return (
     <>
-      <PageTitle title={t("navigation:page.settingsTitle")} />
+      {pathname.replace(/\/+$/, "") === "/dashboard/settings" && (
+        <PageTitle title={t("navigation:page.settingsTitle")} />
+      )}
       <SettingsShell>
         <Outlet />
       </SettingsShell>

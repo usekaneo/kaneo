@@ -21,6 +21,7 @@ const INITIAL_VISIBLE_USERS = 40;
 const VISIBLE_USERS_STEP = 40;
 
 type TaskAssigneePopoverProps = {
+  defaultOpen?: boolean;
   task: Task;
   workspaceId: string;
   children: React.ReactNode;
@@ -30,9 +31,10 @@ export default function TaskAssigneePopover({
   task,
   workspaceId,
   children,
+  defaultOpen = false,
 }: TaskAssigneePopoverProps) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [visibleUsersCount, setVisibleUsersCount] = useState(
     INITIAL_VISIBLE_USERS,
   );

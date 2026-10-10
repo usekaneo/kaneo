@@ -14,6 +14,11 @@ vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
+// The context menu needs workspace queries; these tests only cover the popover.
+vi.mock("@/components/task/task-context-menu", () => ({
+  default: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 vi.mock("@/lib/format", () => ({
   formatDate: () => "Monday, August 10",
   formatDateShort: (value: Date) => value.toISOString().slice(0, 10),
@@ -32,7 +37,17 @@ function task(
     id,
     title,
     number,
+    description: null,
     status: "to-do",
+    priority: null,
+    startDate: null,
+    dueDate: null,
+    position: 0,
+    createdAt: "2026-08-01T00:00:00.000Z",
+    userId: null,
+    assigneeId: null,
+    assigneeName: null,
+    projectId: "p1",
     scheduleStart: start,
     scheduleEnd: end,
   };

@@ -25,6 +25,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
 import { getStatusLabel } from "@/lib/i18n/domain";
+import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type GanttSearchParams = {
@@ -46,6 +47,12 @@ function RouteComponent() {
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: project } = useGetTasks(projectId);
+  const setProject = useProjectStore((state) => state.setProject);
+
+  // The task context menu reads columns from the project store.
+  useEffect(() => {
+    if (project) setProject(project);
+  }, [project, setProject]);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const [searchQuery, setSearchQuery] = useState("");
   const [windowStart, setWindowStart] = useState<{
@@ -230,10 +237,7 @@ function RouteComponent() {
       workspaceId={workspaceId}
       activeView="gantt"
     >
-      <PageTitle
-        title={t("tasks:gantt.pageTitle", { name: project?.name })}
-        hideAppName
-      />
+      <PageTitle title={project?.name ?? ""} suffix={t("tasks:view.gantt")} />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <div className="border-b border-border/80 px-3 py-3 sm:px-4">
           <div className="flex flex-col gap-2 sm:gap-3 lg:flex-row lg:items-center lg:justify-between">

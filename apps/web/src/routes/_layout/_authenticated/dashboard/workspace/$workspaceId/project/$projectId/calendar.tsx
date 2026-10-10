@@ -1,19 +1,26 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { addMonths, startOfMonth, subMonths } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  type CreateTaskDates,
+  getCreateTaskDates,
+} from "@/components/calendar/calendar-create-dates";
 import CalendarToolbar from "@/components/calendar/calendar-toolbar";
 import MonthAgenda from "@/components/calendar/month-agenda";
 import MonthGrid from "@/components/calendar/month-grid";
 import { buildMonthWeeks } from "@/components/calendar/month-grid-model";
 import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
+import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { shortcuts } from "@/constants/shortcuts";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toScheduledTasks } from "@/lib/task-schedule";
+import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type CalendarSearchParams = {
@@ -46,6 +53,19 @@ function RouteComponent() {
   const [visibleMonth, setVisibleMonth] = useState(() =>
     startOfMonth(new Date()),
   );
+  const [createTaskDates, setCreateTaskDates] =
+    useState<CreateTaskDates | null>(null);
+  const { canCreateTasks } = useWorkspacePermission();
+  const setProject = useProjectStore((state) => state.setProject);
+
+  // The task context menu reads columns from the project store.
+  useEffect(() => {
+    if (project) setProject(project);
+  }, [project, setProject]);
+
+  const handleSelectDays = useCallback((from: Date, to: Date) => {
+    setCreateTaskDates(getCreateTaskDates(from, to));
+  }, []);
 
   const scheduledTasks = useMemo(() => toScheduledTasks(project), [project]);
 
@@ -118,8 +138,8 @@ function RouteComponent() {
       activeView="calendar"
     >
       <PageTitle
-        title={t("tasks:calendar.pageTitle", { name: project?.name })}
-        hideAppName
+        title={project?.name ?? ""}
+        suffix={t("tasks:calendar.title")}
       />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <CalendarToolbar
@@ -169,8 +189,16 @@ function RouteComponent() {
             maxLanes={MAX_LANES_DESKTOP}
             projectSlug={project?.slug}
             onOpenTask={handleOpenTask}
+            onSelectDays={canCreateTasks() ? handleSelectDays : undefined}
           />
         )}
+        <CreateTaskModal
+          open={createTaskDates !== null}
+          onClose={() => setCreateTaskDates(null)}
+          projectId={projectId}
+          startDate={createTaskDates?.startDate}
+          dueDate={createTaskDates?.dueDate}
+        />
 
         <TaskDetailsSheet
           taskId={taskId}

@@ -154,7 +154,10 @@
 					"rose": "Троянда",
 					"crimson": "Багряний"
 				},
-				"statusLoadError": "Project statuses couldn’t be loaded."
+				"statusLoadError": "Project statuses couldn’t be loaded.",
+				"noStatuses": "No selectable statuses are available.",
+				"status": "Status",
+				"statusUnavailable": "The selected status is no longer available. Choose another status."
 			}
 		},
 		"boolean": {
@@ -2046,6 +2049,12 @@
 			"workspaceCount_many": "{{count}} workspaces",
 			"workspaceCount_one": "{{count}} workspace",
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"adminLastUsed": {
+			"label": "Last Used",
+			"unknown": "Unknown",
+			"userHint": "Latest retained login/session refresh or task activity. Reads are not tracked and deleted records are not included. This does not establish whether deletion is safe.",
+			"workspaceHint": "Latest recorded task activity, including integrations. Reads are not tracked and deleted tasks are not included. This does not establish whether deletion is safe."
 		}
 	},
 	"navigation": {
@@ -2357,7 +2366,11 @@
 			},
 			"importedFrom": "Imported from {{source}}",
 			"importedBy": "Imported by {{name}}",
-			"commentedOnForge": "прокоментував на {{forge}}"
+			"commentedOnForge": "прокоментував на {{forge}}",
+			"deleted": "Comment deleted",
+			"deleteDescription": "Are you sure you want to delete this comment? This action cannot be undone.",
+			"deleteTitle": "Delete comment?",
+			"failedToDelete": "Failed to delete comment"
 		},
 		"moved": "перемістив завдання з «{{from}}» до «{{to}}»",
 		"created": "створив це завдання",
@@ -2553,7 +2566,22 @@
 			"deleteAction": "Видалити завдання",
 			"completeAria": "Позначити підзавдання виконаним",
 			"progress": "Виконано підзавдань: {{completed}} із {{total}}",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"addExisting": "Add existing task",
+			"chooseParent": "Choose parent task",
+			"linkError": "Failed to link subtask",
+			"loadError": "Could not load parent tasks.",
+			"loading": "Loading tasks...",
+			"removeChild": "Unlink subtask {{title}}",
+			"removeParent": "Remove parent {{title}}",
+			"searchError": "Could not load tasks. Try searching again.",
+			"searchPlaceholder": "Search tasks by title or ID...",
+			"searchPrompt": "Search for a task in this workspace",
+			"unlinkError": "Failed to remove parent",
+			"unlink": "Unlink",
+			"create": "Create sub-task",
+			"parentIndicator": "Sub-task of {{title}}",
+			"unlinkParent": "Unlink Parent"
 		},
 		"properties": {
 			"title": "Властивості",
@@ -2619,6 +2647,7 @@
 					"rose": "Троянда",
 					"crimson": "Багряний"
 				},
+				"loadError": "Could not load labels. Click to retry.",
 				"editLabels": "Редагувати мітки"
 			}
 		},
@@ -2827,6 +2856,8 @@
 			"title": "Календар",
 			"today": "Сьогодні",
 			"loadError": "Не вдалося завантажити завдання.",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task",
 			"noTasksThisMonth": "Цього місяця нічого не заплановано"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",

@@ -154,7 +154,10 @@
 					"rose": "玫瑰紅",
 					"crimson": "緋紅"
 				},
-				"statusLoadError": "無法載入專案狀態。"
+				"statusLoadError": "無法載入專案狀態。",
+				"noStatuses": "No selectable statuses are available.",
+				"status": "Status",
+				"statusUnavailable": "The selected status is no longer available. Choose another status."
 			}
 		},
 		"boolean": {
@@ -2013,6 +2016,12 @@
 				"transferError": "Failed to transfer ownership"
 			},
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"adminLastUsed": {
+			"label": "Last Used",
+			"unknown": "Unknown",
+			"userHint": "Latest retained login/session refresh or task activity. Reads are not tracked and deleted records are not included. This does not establish whether deletion is safe.",
+			"workspaceHint": "Latest recorded task activity, including integrations. Reads are not tracked and deleted tasks are not included. This does not establish whether deletion is safe."
 		}
 	},
 	"navigation": {
@@ -2314,7 +2323,11 @@
 			},
 			"importedFrom": "匯入自 {{source}}",
 			"importedBy": "由 {{name}} 匯入",
-			"commentedOnForge": "在 {{forge}} 上留言"
+			"commentedOnForge": "在 {{forge}} 上留言",
+			"deleted": "Comment deleted",
+			"deleteDescription": "Are you sure you want to delete this comment? This action cannot be undone.",
+			"deleteTitle": "Delete comment?",
+			"failedToDelete": "Failed to delete comment"
 		},
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
@@ -2508,7 +2521,22 @@
 			"deleteAction": "刪除任務",
 			"completeAria": "將子任務標記為完成",
 			"progress": "已完成 {{completed}}/{{total}} 個子任務",
-			"noCompletionColumn": "此專案沒有對應的欄可用來完成或重新開啟這個子任務。"
+			"noCompletionColumn": "此專案沒有對應的欄可用來完成或重新開啟這個子任務。",
+			"addExisting": "Add existing task",
+			"chooseParent": "Choose parent task",
+			"linkError": "Failed to link subtask",
+			"loadError": "Could not load parent tasks.",
+			"loading": "Loading tasks...",
+			"removeChild": "Unlink subtask {{title}}",
+			"removeParent": "Remove parent {{title}}",
+			"searchError": "Could not load tasks. Try searching again.",
+			"searchPlaceholder": "Search tasks by title or ID...",
+			"searchPrompt": "Search for a task in this workspace",
+			"unlinkError": "Failed to remove parent",
+			"unlink": "Unlink",
+			"create": "Create sub-task",
+			"parentIndicator": "Sub-task of {{title}}",
+			"unlinkParent": "Unlink Parent"
 		},
 		"properties": {
 			"title": "屬性",
@@ -2574,6 +2602,7 @@
 					"rose": "玫瑰紅",
 					"crimson": "深紅"
 				},
+				"loadError": "Could not load labels. Click to retry.",
 				"editLabels": "編輯標籤"
 			}
 		},
@@ -2654,6 +2683,8 @@
 			"loadError": "載入任務失敗。",
 			"dayTasksAriaLabel": "查看 {{date}} 的所有任務",
 			"taskAriaLabel": "{{title}}，{{range}}：開啟任務",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task",
 			"noTasksThisMonth": "本月沒有排程"
 		},
 		"gantt": {

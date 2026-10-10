@@ -44,6 +44,7 @@ type LabelColor =
   | "red";
 
 type TaskLabelsPopoverProps = {
+  defaultOpen?: boolean;
   task: Task;
   workspaceId: string;
   children: React.ReactNode;
@@ -57,9 +58,10 @@ export default function TaskLabelsPopover({
   workspaceId,
   children,
   triggerNativeButton = true,
+  defaultOpen = false,
 }: TaskLabelsPopoverProps) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [step, setStep] = useState<PopoverStep>("select");
   const [searchValue, setSearchValue] = useState("");
   const [selectedColor, setSelectedColor] = useState<LabelColor>("gray");

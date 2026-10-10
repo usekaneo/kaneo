@@ -289,6 +289,29 @@
             ],
             "description": "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects."
           },
+          "subtaskParents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "projectId"
+              ]
+            },
+            "description": "Accessible direct parents in this workspace. Public boards include only parents in public projects."
+          },
           "labels": {
             "type": "array",
             "items": {
@@ -319,6 +342,7 @@
           "assigneeImage",
           "projectId",
           "subtaskCounts",
+          "subtaskParents",
           "labels",
           "externalLinks"
         ]
@@ -1151,6 +1175,98 @@
           "url"
         ]
       },
+      "CreatedTask": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Task"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "externalLinks": {
+                "type": "array",
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/CreatedExternalLink"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "metadata": {
+                          "type": "null"
+                        }
+                      },
+                      "required": [
+                        "metadata"
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            "required": [
+              "externalLinks"
+            ]
+          }
+        ]
+      },
+      "CreatedExternalLink": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "taskId": {
+            "type": "string"
+          },
+          "integrationId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceType": {
+            "type": "string",
+            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
+          },
+          "externalId": {
+            "type": "string",
+            "description": "The provider's resource identifier, or the URL for a manual link."
+          },
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "metadata": {
+            "description": "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "integrationId",
+          "resourceType",
+          "externalId",
+          "url",
+          "title",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "Task": {
         "type": "object",
         "properties": {
@@ -1219,6 +1335,29 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "subtaskParents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "projectId"
+              ]
+            },
+            "description": "Accessible direct parents in this workspace. Public boards include only parents in public projects."
           },
           "customFields": {
             "type": "array",
@@ -4019,62 +4158,6 @@
           "createdAt"
         ]
       },
-      "CreatedExternalLink": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "taskId": {
-            "type": "string"
-          },
-          "integrationId": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "resourceType": {
-            "type": "string",
-            "description": "The resource kind: `url` for a manual link, or an integration resource such as `issue` or `pull_request`."
-          },
-          "externalId": {
-            "type": "string",
-            "description": "The provider's resource identifier, or the URL for a manual link."
-          },
-          "url": {
-            "type": "string"
-          },
-          "title": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "metadata": {
-            "description": "Provider-specific payload, parsed from the stored JSON string. Null when the link has no metadata."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "taskId",
-          "integrationId",
-          "resourceType",
-          "externalId",
-          "url",
-          "title",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
       "DeletedExternalLink": {
         "type": "object",
         "properties": {
@@ -4792,6 +4875,14 @@
             "type": "string",
             "format": "date-time"
           },
+          "lastUsedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Latest retained non-impersonated session creation/refresh or recorded task activity. Null means no retained evidence; this is not proof of inactivity."
+          },
           "role": {
             "type": [
               "string",
@@ -4823,6 +4914,7 @@
           "image",
           "createdAt",
           "updatedAt",
+          "lastUsedAt",
           "role",
           "banned",
           "banReason",
@@ -4867,6 +4959,14 @@
           "memberCount": {
             "type": "integer"
           },
+          "lastUsedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Latest recorded task activity in this workspace, including integrations. Does not track reads; deleting tasks removes their activity. Null means no retained evidence."
+          },
           "projectCount": {
             "type": "integer"
           },
@@ -4899,6 +4999,7 @@
           "slug",
           "createdAt",
           "memberCount",
+          "lastUsedAt",
           "projectCount",
           "owners"
         ]
@@ -10760,7 +10861,7 @@
           "Tasks"
         ],
         "summary": "Create task",
-        "description": "Add a task to a project. It is placed in the column named by `status`.",
+        "description": "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`. With parentTaskId, create and link a subtask in the same transaction; the parent must belong to this project and task:update is also required.",
         "parameters": [
           {
             "schema": {
@@ -10815,6 +10916,33 @@
                     },
                     "maxItems": 100
                   },
+                  "externalLinks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "An HTTP or HTTPS URL"
+                        },
+                        "title": {
+                          "type": "string",
+                          "maxLength": 200
+                        }
+                      },
+                      "required": [
+                        "url"
+                      ]
+                    },
+                    "maxItems": 100,
+                    "description": "Manual HTTP/HTTPS resource links created atomically with the task."
+                  },
+                  "parentTaskId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Create and link a subtask atomically. The parent must be in the same project; requires task:update in addition to task:create."
+                  },
                   "customFields": {
                     "type": "array",
                     "items": {
@@ -10846,11 +10974,11 @@
         },
         "responses": {
           "200": {
-            "description": "The created task",
+            "description": "The created task and its resource links",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Task"
+                  "$ref": "#/components/schemas/CreatedTask"
                 }
               }
             }
@@ -10876,7 +11004,7 @@
             }
           },
           "403": {
-            "description": "No access to the project, or missing task:create permission",
+            "description": "No access to the project, or missing task:create or task:update permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -10908,7 +11036,7 @@
           "Tasks"
         ],
         "summary": "Duplicate a task",
-        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Copying parent links also requires task:update. Comments, time entries and child tasks are not copied.",
+        "description": "Copy a task into the same project and column, including custom fields, labels, description assets and its accessible same-workspace parent link. Copying a parent link also requires task:update; legacy tasks with multiple accessible parents must unlink extra parents first. Comments, time entries and child tasks are not copied.",
         "parameters": [
           {
             "schema": {
@@ -10986,7 +11114,7 @@
             }
           },
           "409": {
-            "description": "Task column has reached its capacity",
+            "description": "Task column has reached its capacity, or the task has multiple parents",
             "content": {
               "application/json": {
                 "schema": {
@@ -15495,6 +15623,28 @@
             },
             "required": false,
             "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only tasks eligible to become a child of this task. Requires type=tasks."
+            },
+            "required": false,
+            "description": "Only tasks eligible to become a child of this task. Requires type=tasks.",
+            "name": "subtaskOf",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only tasks eligible to become a parent of this task. Requires type=tasks."
+            },
+            "required": false,
+            "description": "Only tasks eligible to become a parent of this task. Requires type=tasks.",
+            "name": "parentOf",
             "in": "query"
           },
           {
@@ -20360,7 +20510,7 @@
           "Task Relations"
         ],
         "summary": "Create task relation",
-        "description": "Link two tasks. Authorization is scoped to the source task's workspace.",
+        "description": "Link two tasks in the same workspace. Authorization is scoped to the source task's workspace and both projects must be accessible. For subtasks, the source is the parent and the target is the child; the child must not already have a parent and circular hierarchies are rejected.",
         "requestBody": {
           "required": true,
           "content": {
@@ -20404,7 +20554,7 @@
             }
           },
           "400": {
-            "description": "Invalid body",
+            "description": "Invalid body, self-relation, or circular subtask hierarchy",
             "content": {
               "application/json": {
                 "schema": {
@@ -20444,7 +20594,7 @@
             }
           },
           "409": {
-            "description": "This relation already exists",
+            "description": "This relation already exists, or the child already has a parent",
             "content": {
               "application/json": {
                 "schema": {

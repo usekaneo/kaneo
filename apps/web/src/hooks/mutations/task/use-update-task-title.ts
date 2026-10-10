@@ -7,6 +7,7 @@ import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import updateTaskTitle from "@/fetchers/task/update-task-title";
 import type Task from "@/types/task";
 import { updateBoardTaskCache } from "@/lib/update-board-task-cache";
+import { invalidateSubtaskChildBoards } from "@/lib/invalidate-subtask-child-boards";
 
 export function useUpdateTaskTitle() {
   const queryClient = useQueryClient();
@@ -33,6 +34,7 @@ export function useUpdateTaskTitle() {
         },
         context?.version,
       );
+      void invalidateSubtaskChildBoards(queryClient, variables.id);
       queryClient.invalidateQueries({
         queryKey: ["notifications"],
       });

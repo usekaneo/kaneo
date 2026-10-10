@@ -1,9 +1,44 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import type { ReactElement, ReactNode } from "react";
 import { cloneElement, isValidElement } from "react";
-import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import CommentCard from "./comment-card";
+import { toast } from "@/lib/toast";
+
+const mocks = vi.hoisted(() => ({
+  currentUserId: null as string | null,
+  deleteComment: vi.fn(async () => ({})),
+  pending: false,
+}));
+beforeEach(() => {
+  mocks.currentUserId = null;
+  mocks.pending = false;
+  vi.clearAllMocks();
+});
+vi.mock("@/hooks/mutations/comment/use-delete-comment", () => ({
+  default: () => ({
+    mutateAsync: mocks.deleteComment,
+    isPending: mocks.pending,
+  }),
+}));
+vi.mock("@/lib/toast", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}));
 
 afterEach(cleanup);
 
@@ -12,7 +47,9 @@ vi.mock("@/components/activity/comment-editor", () => ({
 }));
 
 vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({
-  useAuth: () => ({ user: null }),
+  useAuth: () => ({
+    user: mocks.currentUserId ? { id: mocks.currentUserId } : null,
+  }),
 }));
 
 vi.mock("@/hooks/mutations/comment/use-update-comment", () => ({
@@ -125,6 +162,91 @@ function renderCommentCard(externalSource?: string, importedBy?: string) {
 }
 
 describe("CommentCard", () => {
+  it("disables the confirmation actions while deletion is pending", async () => {
+    mocks.currentUserId = "user-1";
+    mocks.pending = true;
+    renderCommentCard();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:actions.delete" }),
+    );
+    const dialog = await screen.findByRole("alertdialog");
+    const confirm = within(dialog).getByRole("button", {
+      name: "common:actions.deleting",
+    });
+    expect(confirm).toBeDisabled();
+    expect(
+      within(dialog).getByRole("button", { name: "common:actions.cancel" }),
+    ).toBeDisabled();
+    fireEvent.click(confirm);
+    expect(mocks.deleteComment).not.toHaveBeenCalled();
+  });
+  it("requires confirmation and lets the author cancel without deleting", async () => {
+    mocks.currentUserId = "user-1";
+    renderCommentCard();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:actions.delete" }),
+    );
+    const dialog = await screen.findByRole("alertdialog");
+    expect(
+      within(dialog).getByText("activity:comment.deleteDescription"),
+    ).toBeVisible();
+    expect(mocks.deleteComment).not.toHaveBeenCalled();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "common:actions.cancel" }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
+    );
+    expect(mocks.deleteComment).not.toHaveBeenCalled();
+  });
+
+  it("deletes the comment only after confirmation", async () => {
+    mocks.currentUserId = "user-1";
+    renderCommentCard();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:actions.delete" }),
+    );
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "common:actions.delete" }),
+    );
+    await waitFor(() =>
+      expect(mocks.deleteComment).toHaveBeenCalledExactlyOnceWith({
+        activityId: "comment-1",
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
+    );
+    expect(toast.success).toHaveBeenCalledWith("activity:comment.deleted");
+  });
+
+  it("keeps the confirmation and comment available after a failed deletion", async () => {
+    mocks.currentUserId = "user-1";
+    mocks.deleteComment.mockRejectedValueOnce(new Error("Deletion rejected"));
+    renderCommentCard();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:actions.delete" }),
+    );
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "common:actions.delete" }),
+    );
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("Deletion rejected"),
+    );
+    expect(dialog).toBeVisible();
+    expect(screen.getByText("Test comment")).toBeVisible();
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it("does not offer deletion for another user's comment", () => {
+    mocks.currentUserId = "user-2";
+    renderCommentCard();
+    expect(
+      screen.queryByRole("button", { name: "common:actions.delete" }),
+    ).not.toBeInTheDocument();
+  });
   it.each(["planka", "trello", "jira", "github"])(
     "visibly identifies %s authors as imported without hovering",
     (source) => {

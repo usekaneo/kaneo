@@ -431,9 +431,7 @@ function RouteComponent() {
       workspaceId={workspaceId}
       activeView="backlog"
     >
-      <PageTitle
-        title={t("tasks:backlog.pageTitle", { name: project?.name })}
-      />
+      <PageTitle title={project?.name ?? ""} suffix={t("tasks:view.backlog")} />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
         <div className="border-border/80 border-b bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/70">
           <div className="flex min-h-12 items-center px-3 py-2 md:px-4">

@@ -80,6 +80,7 @@ import {
   taskExportSchema,
   taskImportResultSchema,
   taskSchema,
+  createdTaskSchema,
   taskWithAssigneeSchema,
 } from "./response";
 import {
@@ -282,7 +283,7 @@ const createTaskRoute = createRoute({
   tags: ["Tasks"],
   summary: "Create task",
   description:
-    "Add a task to a project. It is placed in the column named by `status`.",
+    "Add a task to a project, optionally with manual HTTP/HTTPS resource links in the same transaction. It is placed in the column named by `status`. With parentTaskId, create and link a subtask in the same transaction; the parent must belong to this project and task:update is also required.",
   middleware: [
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ task: ["create"] }),
@@ -296,10 +297,13 @@ const createTaskRoute = createRoute({
     },
   },
   responses: {
-    200: jsonResponse("The created task", taskSchema),
+    200: jsonResponse(
+      "The created task and its resource links",
+      createdTaskSchema,
+    ),
     400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No access to the project, or missing task:create permission",
+      "No access to the project, or missing task:create or task:update permission",
     ),
     404: errorResponse("Project not found"),
   },
@@ -312,7 +316,7 @@ const duplicateTaskRoute = createRoute({
   tags: ["Tasks"],
   summary: "Duplicate a task",
   description:
-    "Copy a task into the same project and column, including custom fields, labels, description assets and same-workspace parent links. Copying parent links also requires task:update. Comments, time entries and child tasks are not copied.",
+    "Copy a task into the same project and column, including custom fields, labels, description assets and its accessible same-workspace parent link. Copying a parent link also requires task:update; legacy tasks with multiple accessible parents must unlink extra parents first. Comments, time entries and child tasks are not copied.",
   middleware: [
     workspaceAccess.fromTask(),
     requireWorkspacePermission({ task: ["create"] }),
@@ -333,7 +337,9 @@ const duplicateTaskRoute = createRoute({
       "No access to the project, missing task:create, or missing task:update when copying parent links",
     ),
     404: errorResponse("Task or project not found"),
-    409: errorResponse("Task column has reached its capacity"),
+    409: errorResponse(
+      "Task column has reached its capacity, or the task has multiple parents",
+    ),
     503: errorResponse("Unable to copy task attachments"),
   },
 });
@@ -889,7 +895,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       userId,
       customFields,
       draftAssetIds,
+      parentTaskId,
+      externalLinks,
     } = c.req.valid("json");
+
+    if (
+      parentTaskId &&
+      !(await hasWorkspacePermission(c, { task: ["update"] }))
+    ) {
+      throw new HTTPException(403, {
+        message: "Linking a subtask requires task:update permission",
+      });
+    }
 
     const parsedStartDate =
       startDate !== undefined
@@ -914,6 +931,8 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       status,
       customFields,
       draftAssetIds,
+      parentTaskId,
+      externalLinks,
     });
 
     return c.json(task, 200);

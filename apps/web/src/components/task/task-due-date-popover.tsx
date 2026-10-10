@@ -14,6 +14,7 @@ import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
 
 type TaskDueDatePopoverProps = {
+  defaultOpen?: boolean;
   task: Task;
   children: React.ReactNode;
 };
@@ -21,9 +22,10 @@ type TaskDueDatePopoverProps = {
 export default function TaskDueDatePopover({
   task,
   children,
+  defaultOpen = false,
 }: TaskDueDatePopoverProps) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();

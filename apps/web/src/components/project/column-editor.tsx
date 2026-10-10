@@ -29,10 +29,14 @@ type ColumnEditorProps = {
 export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   const { t } = useTranslation();
   const { data: columns, isLoading } = useGetColumns(projectId);
-  const { mutateAsync: createColumn } = useCreateColumn();
-  const { mutateAsync: updateColumn } = useUpdateColumn();
-  const { mutateAsync: deleteColumn } = useDeleteColumn();
-  const { mutateAsync: reorderColumns } = useReorderColumns();
+  const { mutateAsync: createColumn, isPending: isCreating } =
+    useCreateColumn();
+  const { mutateAsync: updateColumn, isPending: isUpdating } =
+    useUpdateColumn();
+  const { mutateAsync: deleteColumn, isPending: isDeleting } =
+    useDeleteColumn();
+  const { mutateAsync: reorderColumns, isPending: isReordering } =
+    useReorderColumns();
   const { canManageProjects } = useWorkspacePermission();
   const canEdit = canManageProjects();
   const [newColumnName, setNewColumnName] = useState("");
@@ -42,7 +46,16 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   );
   const [newIconPickerOpen, setNewIconPickerOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [draftColumns, setDraftColumns] = useState<typeof columns>();
+  const dragRef = useRef<{
+    id: string;
+    hoveredId: string | null;
+    original: NonNullable<typeof columns>;
+    columns: NonNullable<typeof columns>;
+  } | null>(null);
+  const savingRef = useRef(false);
+  const isBusy = isCreating || isUpdating || isDeleting || isReordering;
+  const canChange = canEdit && !isBusy && !draftColumns;
   const dragPreviewRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -52,7 +65,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   }, []);
 
   const handleCreate = async () => {
-    if (!newColumnName.trim()) return;
+    if (!canChange || !newColumnName.trim()) return;
     try {
       await createColumn({
         projectId,
@@ -128,11 +141,18 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     }
   };
 
-  const handleDragStart = (
-    e: React.DragEvent<HTMLDivElement>,
-    index: number,
-  ) => {
-    setDraggedIndex(index);
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
+    if (!canChange || savingRef.current || !columns) {
+      e.preventDefault();
+      return;
+    }
+    dragRef.current = {
+      id,
+      hoveredId: null,
+      original: columns,
+      columns: [...columns],
+    };
+    setDraftColumns(dragRef.current.columns);
 
     dragPreviewRef.current?.remove();
 
@@ -163,7 +183,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     dragPreviewRef.current = dragPreview;
 
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.setData("text/plain", id);
     e.dataTransfer.setDragImage(
       dragPreview,
       e.clientX - sourceRect.left,
@@ -171,24 +191,60 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
     );
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent, targetId: string) => {
+    const drag = dragRef.current;
+    if (!drag || savingRef.current) return;
     e.preventDefault();
-    if (draggedIndex === null || draggedIndex === index || !columns) return;
-
-    const reordered = [...columns];
-    const [removed] = reordered.splice(draggedIndex, 1);
-    reordered.splice(index, 0, removed);
-
-    const updates = reordered.map((col, i) => ({ id: col.id, position: i }));
-    reorderColumns({ projectId, columns: updates });
-    setDraggedIndex(index);
+    if (targetId === drag.id || targetId === drag.hoveredId) return;
+    const sourceIndex = drag.columns.findIndex((col) => col.id === drag.id);
+    const targetIndex = drag.columns.findIndex((col) => col.id === targetId);
+    if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex)
+      return;
+    drag.hoveredId = targetId;
+    const reordered = [...drag.columns];
+    const [removed] = reordered.splice(sourceIndex, 1);
+    reordered.splice(targetIndex, 0, removed);
+    drag.columns = reordered.map((col, position) => ({ ...col, position }));
+    setDraftColumns(drag.columns);
   };
 
   const handleDragEnd = () => {
-    setDraggedIndex(null);
-
+    dragRef.current = null;
+    if (!savingRef.current) setDraftColumns(undefined);
     dragPreviewRef.current?.remove();
     dragPreviewRef.current = null;
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    if (!dragRef.current || savingRef.current) return;
+    e.preventDefault();
+    const drag = dragRef.current;
+    if (
+      drag.columns.every((col, index) => col.id === drag.original[index]?.id)
+    ) {
+      handleDragEnd();
+      return;
+    }
+    savingRef.current = true;
+    handleDragEnd();
+    try {
+      await reorderColumns({
+        projectId,
+        columns: drag.columns.map((col, position) => ({
+          id: col.id,
+          position,
+        })),
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:columnEditor.toastUpdateError"),
+      );
+    } finally {
+      savingRef.current = false;
+      setDraftColumns(undefined);
+    }
   };
 
   const filteredIcons = Object.entries(columnIcons).filter(([iconName]) =>
@@ -206,14 +262,15 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        {columns?.map((col, index) => (
+        {(draftColumns ?? columns)?.map((col) => (
           // eslint-disable-next-line jsx-a11y/prefer-tag-over-role -- false positive for role="listitem"
           <div
             key={col.id}
             role="listitem"
-            draggable={canEdit}
-            onDragStart={(e) => handleDragStart(e, index)}
-            onDragOver={(e) => handleDragOver(e, index)}
+            draggable={canChange}
+            onDragStart={(e) => handleDragStart(e, col.id)}
+            onDragOver={(e) => handleDragOver(e, col.id)}
+            onDrop={handleDrop}
             onDragEnd={handleDragEnd}
             className="flex flex-wrap items-center gap-2 p-2 border border-border rounded-md bg-sidebar hover:bg-sidebar-accent/50 transition-colors"
           >
@@ -233,7 +290,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                   size="sm"
                   className="h-8 w-8 p-0 shrink-0"
                   title={t("settings:columnEditor.pickIconTitle")}
-                  disabled={!canEdit}
+                  disabled={!canChange}
                 >
                   {getColumnIcon(col.slug, col.isFinal, col.icon)}
                 </Button>
@@ -286,7 +343,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                 name: col.name,
               })}
               className="h-8 min-w-0 flex-1 basis-40 text-base sm:text-sm"
-              disabled={!canEdit}
+              disabled={!canChange}
               onBlur={(e) => {
                 if (e.target.value !== col.name) {
                   handleRename(col.id, e.target.value);
@@ -319,7 +376,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                       ? (checked) => handleToggleFinal(col.id, checked)
                       : undefined
                   }
-                  disabled={!canEdit}
+                  disabled={!canChange}
                   aria-label={t("settings:columnEditor.markDoneAria", {
                     name: col.name,
                   })}
@@ -340,6 +397,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                     name: col.name,
                   })}
                   onClick={() => handleDelete(col.id)}
+                  disabled={!canChange}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
@@ -366,6 +424,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
                 size="sm"
                 className="h-8 w-8 p-0 shrink-0"
                 title={t("settings:columnEditor.pickIconTitle")}
+                disabled={!canChange}
               >
                 {getColumnIcon("", false, newColumnIcon)}
               </Button>
@@ -416,6 +475,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
             value={newColumnName}
             onChange={(e) => setNewColumnName(e.target.value)}
             className="h-8 text-base sm:text-sm flex-1"
+            disabled={!canChange}
             onKeyDown={(e) => {
               if (e.key === "Enter") handleCreate();
             }}
@@ -424,7 +484,7 @@ export default function ColumnEditor({ projectId }: ColumnEditorProps) {
             variant="outline"
             size="sm"
             onClick={handleCreate}
-            disabled={!newColumnName.trim()}
+            disabled={!canChange || !newColumnName.trim()}
             className="h-8 gap-1"
           >
             <Plus className="w-3.5 h-3.5" />

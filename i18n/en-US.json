@@ -121,6 +121,9 @@
 				"title": "New Task",
 				"description": "Create a new task by providing a title, description, and other details.",
 				"statusLoadError": "Project statuses couldn’t be loaded.",
+				"status": "Status",
+				"statusUnavailable": "The selected status is no longer available. Choose another status.",
+				"noStatuses": "No selectable statuses are available.",
 				"taskTitlePlaceholder": "Task title",
 				"descriptionPlaceholder": "Add a description for your task...",
 				"chooseProjectForImages": "Choose a project before uploading images.",
@@ -490,6 +493,12 @@
 		"notifications": "Notifications",
 		"preferences": "Preferences",
 		"apiKeys": "API Keys",
+		"adminLastUsed": {
+			"label": "Last Used",
+			"unknown": "Unknown",
+			"userHint": "Latest retained login/session refresh or task activity. Reads are not tracked and deleted records are not included. This does not establish whether deletion is safe.",
+			"workspaceHint": "Latest recorded task activity, including integrations. Reads are not tracked and deleted tasks are not included. This does not establish whether deletion is safe."
+		},
 		"adminUsers": {
 			"title": "User management",
 			"subtitle": "Manage every account registered on this Kaneo instance.",
@@ -2239,6 +2248,10 @@
 			"mustBeLoggedInToEdit": "You must be logged in to edit comments",
 			"updated": "Comment updated",
 			"failedToUpdate": "Failed to update comment",
+			"deleteTitle": "Delete comment?",
+			"deleteDescription": "Are you sure you want to delete this comment? This action cannot be undone.",
+			"deleted": "Comment deleted",
+			"failedToDelete": "Failed to delete comment",
 			"edit": "Edit comment",
 			"editPlaceholder": "Edit comment...",
 			"save": "Save",
@@ -2512,6 +2525,21 @@
 			}
 		},
 		"subtasks": {
+			"create": "Create sub-task",
+			"parentIndicator": "Sub-task of {{title}}",
+			"unlink": "Unlink",
+			"unlinkParent": "Unlink Parent",
+			"chooseParent": "Choose parent task",
+			"removeParent": "Remove parent {{title}}",
+			"removeChild": "Unlink subtask {{title}}",
+			"addExisting": "Add existing task",
+			"searchPlaceholder": "Search tasks by title or ID...",
+			"searchPrompt": "Search for a task in this workspace",
+			"searchError": "Could not load tasks. Try searching again.",
+			"loadError": "Could not load parent tasks.",
+			"loading": "Loading tasks...",
+			"linkError": "Failed to link subtask",
+			"unlinkError": "Failed to remove parent",
 			"progress": "{{completed}} of {{total}} subtasks completed",
 			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
 			"title": "Sub-tasks",
@@ -2571,6 +2599,7 @@
 			},
 			"labels": {
 				"searchPlaceholder": "Search labels...",
+				"loadError": "Could not load labels. Click to retry.",
 				"empty": "No labels found",
 				"create": "Create \"{{name}}\"",
 				"chooseColor": "Choose color",
@@ -2670,6 +2699,8 @@
 			"loadError": "Failed to load tasks.",
 			"dayTasksAriaLabel": "Show all tasks for {{date}}",
 			"taskAriaLabel": "{{title}}, {{range}}: open task",
+			"createTaskOnDay": "Create task on {{date}}",
+			"newTask": "New task",
 			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"gantt": {

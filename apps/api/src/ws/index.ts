@@ -19,8 +19,9 @@ import {
 } from "../utils/instance-admin-role";
 import { isRedisConfigured } from "../redis";
 import {
-  getRelationSourceProject,
+  getRelationTaskProjects,
   getSubtaskParentProjects,
+  getSubtaskChildProjects,
 } from "../task/get-subtask-parent-projects";
 import type {
   BroadcastAdapter,
@@ -741,6 +742,7 @@ subscribeToEvent<{
     initiatorId,
   );
   refreshParentBoards(await getSubtaskParentProjects([taskId]), toProjectId);
+  refreshParentBoards(await getSubtaskChildProjects([taskId]), toProjectId);
 });
 
 subscribeToEvent<{
@@ -903,9 +905,21 @@ for (const eventName of taskUpdateEvents) {
     );
     if (eventName === "task.status_changed" && !data.skipSubtaskParentRefresh) {
       refreshParentBoards(await getSubtaskParentProjects([taskId]), projectId);
-    } else if (eventName === "task-relation.deleted" && data.sourceTaskId) {
+    } else if (
+      eventName === "task.title_changed" ||
+      eventName === "task.updated"
+    ) {
+      refreshParentBoards(await getSubtaskChildProjects([taskId]), projectId);
+    } else if (
+      eventName === "task-relation.created" ||
+      eventName === "task-relation.deleted"
+    ) {
       refreshParentBoards(
-        await getRelationSourceProject(data.sourceTaskId),
+        await getRelationTaskProjects(
+          [data.sourceTaskId, data.targetTaskId].filter((id): id is string =>
+            Boolean(id),
+          ),
+        ),
         projectId,
       );
     }

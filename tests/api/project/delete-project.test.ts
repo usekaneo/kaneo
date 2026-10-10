@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   retryStorageCleanup: vi.fn(),
   publishEvent: vi.fn(),
   getProjectSubtaskParentProjects: vi.fn(),
+  getProjectSubtaskChildProjects: vi.fn(),
 }));
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
@@ -24,6 +25,7 @@ vi.mock("../../../apps/api/src/events", () => ({
 }));
 vi.mock("../../../apps/api/src/task/get-subtask-parent-projects", () => ({
   getProjectSubtaskParentProjects: mocks.getProjectSubtaskParentProjects,
+  getProjectSubtaskChildProjects: mocks.getProjectSubtaskChildProjects,
 }));
 import deleteProject from "../../../apps/api/src/project/controllers/delete-project";
 function seed(backgroundObjectKey: string | null, assets: string[] = []) {
@@ -47,7 +49,7 @@ function seed(backgroundObjectKey: string | null, assets: string[] = []) {
 }
 describe("deleteProject", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     mocks.findFirst.mockResolvedValue({
       id: "project-1",
       workspaceId: "workspace-1",
@@ -55,6 +57,9 @@ describe("deleteProject", () => {
     });
     mocks.getProjectSubtaskParentProjects.mockResolvedValue([
       { projectId: "parent-project" },
+    ]);
+    mocks.getProjectSubtaskChildProjects.mockResolvedValue([
+      { projectId: "child-project" },
     ]);
     mocks.retryStorageCleanup.mockResolvedValue({ degraded: false });
   });
@@ -70,7 +75,10 @@ describe("deleteProject", () => {
       mocks.delete.mock.invocationCallOrder[0],
     );
     expect(mocks.publishEvent).toHaveBeenCalledWith("subtask-parents.refresh", {
-      projects: [{ projectId: "parent-project" }],
+      projects: [
+        { projectId: "parent-project" },
+        { projectId: "child-project" },
+      ],
     });
   });
   it("still succeeds while durable cleanup waits for storage recovery", async () => {

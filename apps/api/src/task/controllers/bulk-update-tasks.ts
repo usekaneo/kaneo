@@ -18,7 +18,10 @@ import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
 import { assertAssignableUser } from "../../utils/assert-assignable-user";
 import { publishTaskMutation } from "./task-mutation-effects";
-import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
+import {
+  getSubtaskChildProjects,
+  getSubtaskParentProjects,
+} from "../get-subtask-parent-projects";
 import {
   assertValidPriority,
   assertValidTaskStatus,
@@ -304,8 +307,9 @@ async function bulkUpdateTasks({
     }
 
     case "delete": {
-      // Relations cascade away with the children, so capture parents first.
+      // Relations cascade away, so capture dependent boards first.
       const parentProjects = await getSubtaskParentProjects(foundIds);
+      const childProjects = await getSubtaskChildProjects(foundIds);
       const result = await db.transaction(async (tx) => {
         const locked = await tx
           .select({ id: taskTable.id, projectId: taskTable.projectId })
@@ -347,7 +351,14 @@ async function bulkUpdateTasks({
         });
       }
       await publishEvent("subtask-parents.refresh", {
-        projects: parentProjects,
+        projects: Array.from(
+          new Map(
+            [...parentProjects, ...childProjects].map((project) => [
+              project.projectId,
+              project,
+            ]),
+          ).values(),
+        ),
       });
       break;
     }
