@@ -869,7 +869,9 @@
 			"on": "Вклучено",
 			"off": "Исклучено",
 			"newColumnPlaceholder": "Име на нова колона...",
-			"add": "Додади"
+			"add": "Додади",
+			"deleteAria": "Избриши ја колоната {{name}}",
+			"renameAria": "Преименувај ја колоната {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2109,7 +2111,8 @@
 			"deleteConfirmTitle": "Избриши проект?",
 			"deleteConfirmDescription": "Ова трајно ќе го отстрани проектот и сите негови податоци. Не можеш да ја вратиш оваа акција.",
 			"deletedToast": "Проектот е избришан",
-			"deleteProject": "Избриши проект"
+			"deleteProject": "Избриши проект",
+			"switcherLabel": "Промени проект или приказ"
 		},
 		"search": {
 			"inputPlaceholder": "Пребарај задачи, проекти, коментари...",
@@ -2395,7 +2398,10 @@
 		"boardSearchPlaceholder": "Пребарај тикети...",
 		"view": {
 			"board": "Табла",
-			"list": "Листа"
+			"list": "Листа",
+			"backlog": "Заостанати",
+			"gantt": "Gantt",
+			"heading": "Приказ"
 		},
 		"common": {
 			"selectTask": "Избери задача",
@@ -2625,7 +2631,8 @@
 					"terracotta": "Теракота",
 					"rose": "Роза",
 					"crimson": "Гримизна"
-				}
+				},
+				"editLabels": "Уреди етикети"
 			}
 		},
 		"backlog": {
@@ -2830,7 +2837,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: отвори задача",
 			"title": "Календар",
 			"today": "Денес",
-			"loadError": "Неуспешно вчитување на задачите."
+			"loadError": "Неуспешно вчитување на задачите.",
+			"noTasksThisMonth": "Ништо не е закажано овој месец"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

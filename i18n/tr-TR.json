@@ -869,7 +869,9 @@
 			"on": "Açık",
 			"off": "Kapalı",
 			"newColumnPlaceholder": "Yeni sütun adı...",
-			"add": "Ekle"
+			"add": "Ekle",
+			"deleteAria": "{{name}} sütununu sil",
+			"renameAria": "{{name}} sütununu yeniden adlandır"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2109,7 +2111,8 @@
 			"deleteConfirmTitle": "Proje Silinsin mi?",
 			"deleteConfirmDescription": "Bu, projeyi ve tüm verilerini kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
 			"deletedToast": "Proje silindi",
-			"deleteProject": "Projeyi Sil"
+			"deleteProject": "Projeyi Sil",
+			"switcherLabel": "Proje veya görünüm değiştir"
 		},
 		"search": {
 			"inputPlaceholder": "Talep, proje, yorum ara...",
@@ -2395,7 +2398,10 @@
 		"boardSearchPlaceholder": "Talep ara...",
 		"view": {
 			"board": "Pano",
-			"list": "Liste"
+			"list": "Liste",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Görünüm"
 		},
 		"common": {
 			"selectTask": "Talep seç",
@@ -2625,7 +2631,8 @@
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
-				}
+				},
+				"editLabels": "Etiketleri düzenle"
 			}
 		},
 		"backlog": {
@@ -2830,7 +2837,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: talebi aç",
 			"title": "Takvim",
 			"today": "Bugün",
-			"loadError": "Talepler yüklenemedi."
+			"loadError": "Talepler yüklenemedi.",
+			"noTasksThisMonth": "Bu ay planlanmış bir şey yok"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

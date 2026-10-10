@@ -48,10 +48,8 @@ const getCustomFieldsRoute = createRoute({
       "List of custom field definitions",
       customFieldDefinitionListSchema,
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No workspace access or missing read permission"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -72,10 +70,8 @@ const getCustomFieldValuesByProjectRoute = createRoute({
       "List of custom field values for the project",
       customFieldValueListSchema,
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No workspace access or missing read permission"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -96,10 +92,10 @@ const getCustomFieldValuesByTaskRoute = createRoute({
       "List of custom field values for the task",
       customFieldValueListSchema,
     ),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
+    403: errorResponse(
+      "No access to the project, or missing task:read permission",
     ),
-    403: errorResponse("No workspace access or missing task:read permission"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -121,10 +117,8 @@ const getCustomFieldFilterValuesRoute = createRoute({
       "Distinct values used for each custom field",
       customFieldFilterValuesListSchema,
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No workspace access or missing read permission"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -147,10 +141,11 @@ const createCustomFieldRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created custom field", customFieldDefinitionSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -179,8 +174,9 @@ const reorderCustomFieldsRoute = createRoute({
     ),
     400: errorResponse("A custom field does not belong to this project"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -206,10 +202,11 @@ const setCustomFieldValueRoute = createRoute({
       "The saved custom field value",
       setCustomFieldValueResponseSchema,
     ),
-    400: errorResponse("Invalid body, unknown task, or unknown custom field"),
+    400: errorResponse("Invalid body, or unknown custom field"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -227,12 +224,10 @@ const deleteCustomFieldRoute = createRoute({
   request: { params: customFieldIdParam },
   responses: {
     200: jsonResponse("The deleted custom field", customFieldDefinitionSchema),
-    400: errorResponse(
-      "Unknown custom field, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Custom field not found"),
   },
 });
 

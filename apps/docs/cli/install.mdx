@@ -1,0 +1,110 @@
+---
+title: Install the CLI
+sidebarTitle: Install
+description: Install, update and remove the kaneo binary on macOS, Linux and Windows.
+---
+
+The Kaneo CLI is a single `kaneo` binary. Install it with one command.
+
+On macOS and Linux:
+
+```bash
+curl -fsSL https://kaneo.app/cli/install.sh | sh
+```
+
+On Windows, in PowerShell:
+
+```powershell
+irm https://kaneo.app/cli/install.ps1 | iex
+```
+
+The script downloads the build for your system from the [GitHub release](https://github.com/usekaneo/kaneo/releases), checks it against the release's SHA-256 checksums, and only then replaces any existing `kaneo`. Nothing else is needed, not even Node.js.
+
+- On macOS and Linux it installs to `~/.local/bin/kaneo`. If that directory is not on your `PATH`, the script prints the command that adds it for your shell (bash, zsh, fish or another).
+- On Windows it installs to `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe` and adds that directory to your user `PATH`. Open a new terminal afterwards.
+
+Then [sign in](/cli/sign-in) and run `kaneo` on its own to see your account, your open tasks and the main commands.
+
+<Tip>
+Both scripts are plain text. Read them before running them: [install.sh](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.sh) and [install.ps1](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.ps1), or print one with `curl -fsSL https://kaneo.app/cli/install.sh | less`.
+</Tip>
+
+## Install options
+
+Set these environment variables to change what the script does:
+
+| Variable | What it does |
+| --- | --- |
+| `KANEO_VERSION` | Install this version, such as `0.1.0` or `cli-v0.1.0`, instead of the latest release |
+| `KANEO_INSTALL_DIR` | Install into this directory instead of the default |
+| `KANEO_DOWNLOAD_URL` | Download from a mirror instead of GitHub. Requires `KANEO_VERSION` |
+
+Pin a version, or install into another directory:
+
+```bash
+curl -fsSL https://kaneo.app/cli/install.sh | KANEO_VERSION=0.1.0 sh
+curl -fsSL https://kaneo.app/cli/install.sh | KANEO_INSTALL_DIR="$HOME/bin" sh
+```
+
+```powershell
+$env:KANEO_VERSION = "0.1.0"; irm https://kaneo.app/cli/install.ps1 | iex
+$env:KANEO_INSTALL_DIR = "C:\tools\kaneo"; irm https://kaneo.app/cli/install.ps1 | iex
+```
+
+Without `KANEO_VERSION`, the script asks the GitHub API for the newest CLI release (tags that start with `cli-v`). GitHub allows 60 of these lookups per hour from one IP address without a token, so set `KANEO_VERSION` in CI.
+
+## Mirrors and offline machines
+
+`KANEO_DOWNLOAD_URL` replaces `https://github.com/usekaneo/kaneo/releases/download`. The script then downloads `<url>/cli-v<version>/SHA256SUMS` and `<url>/cli-v<version>/<file>`, so a mirror keeps the same layout as the GitHub release. It makes no call to the GitHub API, which is why `KANEO_VERSION` is required.
+
+```bash
+curl -fsSL https://kaneo.app/cli/install.sh | KANEO_DOWNLOAD_URL=https://mirror.example.com/kaneo KANEO_VERSION=0.1.0 sh
+```
+
+For a machine without internet access, copy `install.sh` (or `install.ps1`), `SHA256SUMS` and the file for that machine from the release into a `cli-v<version>` folder, then point `KANEO_DOWNLOAD_URL` at the folder that contains it. `install.sh` accepts a `file://` URL when it downloads with curl, and `install.ps1` accepts a local or network path:
+
+```bash
+KANEO_DOWNLOAD_URL=file:///opt/kaneo-mirror KANEO_VERSION=0.1.0 sh install.sh
+```
+
+```powershell
+$env:KANEO_DOWNLOAD_URL = "\\fileserver\kaneo"; $env:KANEO_VERSION = "0.1.0"; Get-Content -Raw .\install.ps1 | iex
+```
+
+## Supported systems
+
+| System | Builds |
+| --- | --- |
+| macOS | Apple silicon and Intel. On Apple silicon the script installs the native build even when the terminal runs under Rosetta |
+| Linux | x64 and arm64, for glibc distributions and for musl distributions such as Alpine |
+| Windows | x64. Windows 11 on Arm runs the x64 build through emulation |
+
+The x64 builds are baseline builds, so they also run on older processors without AVX2. On Alpine and other musl distributions, the CLI needs the C++ runtime library. The script warns when it is missing:
+
+```bash
+apk add libstdc++
+```
+
+Prefer the install script to downloading a binary from the release page with a browser. The macOS builds are signed ad hoc but not notarized, so Gatekeeper can block a copy that a browser downloaded. Files downloaded with `curl`, as the script does, are not affected.
+
+## Update
+
+Run the install command again. It replaces `kaneo` with the latest release, or with the version in `KANEO_VERSION`, and keeps your logins and settings. Check the result with `kaneo --version`.
+
+If the script warns that another `kaneo` comes first on your `PATH`, for example an older community CLI, it shows both paths. Remove the other one, or move the install directory earlier in your `PATH`.
+
+## Uninstall
+
+Delete the binary. To also remove your stored logins and settings, delete the config directory:
+
+```bash
+rm ~/.local/bin/kaneo
+rm -rf ~/.config/kaneo
+```
+
+```powershell
+Remove-Item "$env:LOCALAPPDATA\Programs\kaneo" -Recurse
+Remove-Item "$HOME\.config\kaneo" -Recurse
+```
+
+On Windows, also remove `%LOCALAPPDATA%\Programs\kaneo` from your user `PATH` (search the Start menu for "Edit environment variables for your account"). If you set `KANEO_INSTALL_DIR`, `XDG_CONFIG_HOME` or `KANEO_CONFIG`, delete those locations instead.

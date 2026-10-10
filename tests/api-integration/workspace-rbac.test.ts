@@ -207,7 +207,7 @@ describe("API integration: workspace RBAC enforcement", () => {
       },
     );
 
-    it("returns 403 when the user has no row in workspace_member for the workspace", async () => {
+    it("returns 404 when the user has no row in workspace_member for the workspace", async () => {
       const member = await createWorkspaceMember({ role: "admin" });
       const { project } = await createProjectFixture({
         workspaceId: member.workspace.id,
@@ -229,7 +229,8 @@ describe("API integration: workspace RBAC enforcement", () => {
 
       const response = await postCreateTask(app, project.id);
       // workspaceAccess.fromProject runs first and rejects with its own message
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
+      expect(await response.text()).toContain("Project not found");
     });
 
     it("does not authorize a project through a conflicting workspaceId query", async () => {
@@ -256,7 +257,7 @@ describe("API integration: workspace RBAC enforcement", () => {
         },
       );
 
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
     });
   });
 
@@ -577,6 +578,64 @@ describe("API integration: workspace RBAC enforcement", () => {
           weird: { nested: true },
         }),
       );
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await postCreateTask(app, project.id);
+      expect(response.status).toBe(200);
+    });
+
+    it("allows a member with several roles when any role grants the permission", async () => {
+      const member = await createWorkspaceMember({ role: "readonly,member" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      await createWorkspaceRoleRow(member.workspace.id, "readonly", {
+        task: ["read"],
+      });
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await postCreateTask(app, project.id);
+      expect(response.status).toBe(200);
+    });
+
+    it("blocks a member with several roles when no role grants the permission", async () => {
+      const member = await createWorkspaceMember({ role: "readonly,viewer" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      await createWorkspaceRoleRow(member.workspace.id, "readonly", {
+        task: ["read"],
+      });
+
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+
+      const response = await postCreateTask(app, project.id);
+      expect(response.status).toBe(403);
+      expect(await readErrorBody(response)).toEqual({
+        message: "Insufficient permissions",
+        code: "MISSING_PERMISSION",
+        missingPermissions: ["task:create"],
+      });
+    });
+
+    it("allows a role when any duplicate workspace_role row grants the permission", async () => {
+      const member = await createWorkspaceMember({ role: "creator" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      await createWorkspaceRoleRow(member.workspace.id, "creator", {
+        task: ["read"],
+        project: ["read"],
+      });
+      await createWorkspaceRoleRow(member.workspace.id, "creator", {
+        task: ["create", "read"],
+        project: ["read"],
+      });
 
       mockAuthenticatedSession(member.user);
       const { app } = createApp();

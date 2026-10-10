@@ -411,7 +411,7 @@ describe("integration label policies", () => {
     ).toBe(403);
     const outsider = await createWorkspaceMember({ role: "owner" });
     mockAuthenticatedSession(outsider.user);
-    expect((await f.request("", "GET")).status).toBe(403);
+    expect((await f.request("", "GET")).status).toBe(404);
   });
 
   it("rejects a rule save if the project moves after workspace authorization", async () => {
@@ -860,7 +860,7 @@ describe("reviewed sync resume", () => {
     ).toBe(403);
     const outsider = await createWorkspaceMember({ role: "owner" });
     mockAuthenticatedSession(outsider.user);
-    expect((await f.request(`${suffix}/review`, "GET")).status).toBe(403);
+    expect((await f.request(`${suffix}/review`, "GET")).status).toBe(404);
     expect(
       (
         await f.request(`${suffix}/resume`, "POST", {
@@ -868,7 +868,7 @@ describe("reviewed sync resume", () => {
           token: "a".repeat(64),
         })
       ).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(provider.read).not.toHaveBeenCalled();
     expect(provider.write).not.toHaveBeenCalled();
   });

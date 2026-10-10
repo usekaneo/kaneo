@@ -233,7 +233,7 @@ describe("API integration: assigned tasks", () => {
       const response = await app.request(
         `/api/task/assigned?workspaceId=${member.workspace.id}&countOnly=${countOnly}`,
       );
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(404);
     }
   });
   it.each([

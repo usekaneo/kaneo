@@ -4,8 +4,8 @@ CREATE TABLE "plugin_storage" (
 	"workspace_id" text NOT NULL,
 	"key" text NOT NULL,
 	"value" jsonb NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+	"updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
 	CONSTRAINT "plugin_storage_plugin_workspace_key_unique" UNIQUE("plugin_id","workspace_id","key")
 );
 --> statement-breakpoint
@@ -15,8 +15,8 @@ CREATE TABLE "workspace_plugin" (
 	"plugin_id" text NOT NULL,
 	"enabled" boolean DEFAULT false NOT NULL,
 	"settings" jsonb DEFAULT '{}'::jsonb NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+	"updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
 	CONSTRAINT "workspace_plugin_workspace_plugin_unique" UNIQUE("workspace_id","plugin_id")
 );
 --> statement-breakpoint

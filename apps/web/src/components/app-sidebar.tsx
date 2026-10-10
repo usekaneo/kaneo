@@ -1,4 +1,6 @@
+import { useLocation } from "@tanstack/react-router";
 import type * as React from "react";
+import { useEffect } from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
@@ -18,7 +20,8 @@ import { shortcuts } from "@/constants/shortcuts";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { toggleSidebar } = useSidebar();
+  const { setOpenMobile, toggleSidebar } = useSidebar();
+  const pathname = useLocation({ select: (location) => location.pathname });
 
   useRegisterShortcuts({
     modifierShortcuts: {
@@ -27,6 +30,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     },
   });
+
+  // Navigation that doesn't start from a sidebar link (creating a project,
+  // the command palette) must still dismiss the mobile drawer.
+  useEffect(() => {
+    if (pathname) setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
 
   return (
     <Sidebar

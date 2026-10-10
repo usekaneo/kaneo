@@ -26,7 +26,7 @@ A browser on another computer cannot use your server's `localhost` URL. Use the 
 docker compose up -d --force-recreate kaneo
 ```
 
-Check the browser's Network panel for the failed request and its status. A `401` usually calls for checking authentication; a `403` calls for checking workspace access or the required permission.
+Check the browser's Network panel for the failed request and its status. A `401` usually calls for checking authentication; a `403` calls for checking the required permission or project access; a `404` calls for checking that the resource exists and that you are a member of its workspace.
 
 ## Changes only appear after refreshing
 

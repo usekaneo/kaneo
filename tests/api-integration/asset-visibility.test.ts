@@ -64,7 +64,7 @@ describe("API integration: public project asset visibility", () => {
     expect(readObject).toHaveBeenCalledTimes(1);
 
     mockAuthenticatedSession(outsider.user);
-    expect((await app.request(`/api/asset/${comment?.id}`)).status).toBe(403);
+    expect((await app.request(`/api/asset/${comment?.id}`)).status).toBe(404);
     expect(readObject).toHaveBeenCalledTimes(1);
 
     mockAuthenticatedSession(member.user);

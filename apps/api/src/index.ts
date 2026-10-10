@@ -33,6 +33,7 @@ import {
   notFoundResponse,
   withJsonNotFound,
 } from "./errors/not-found-response";
+import { withJsonRateLimit } from "./errors/rate-limit-response";
 import {
   validationHook,
   validationHookWithMessage,
@@ -91,6 +92,8 @@ import telegramIntegration from "./telegram-integration";
 import timeEntry from "./time-entry";
 import user from "./user";
 import getAvatar from "./user/controllers/get-avatar";
+import { apiKeyRejection } from "./utils/api-key-rejection";
+import { applyApiKeyHeaders } from "./utils/apply-api-key-headers";
 import { authenticateApiRequest } from "./utils/authenticate-api-request";
 import {
   authorizeAssetAccess,
@@ -106,7 +109,8 @@ import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
-import { verifyApiKey } from "./utils/verify-api-key";
+import { apiKeyResponseHeaders } from "./utils/rate-limit-headers";
+import { readApiKeyCheck, verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
 import workspace from "./workspace";
 import {
@@ -146,6 +150,7 @@ type ApiVariables = {
     userId: string;
     userEmail: string;
     apiKey?: ApiKey;
+    apiKeyHeaders?: Record<string, string>;
   };
 };
 
@@ -239,6 +244,12 @@ export function createApp() {
     "*",
     cors({
       credentials: true,
+      exposeHeaders: [
+        "Retry-After",
+        "X-RateLimit-Limit",
+        "X-RateLimit-Remaining",
+        "X-RateLimit-Reset",
+      ],
       origin: (origin) => {
         // Reflecting an arbitrary origin alongside credentials lets any site
         // read authenticated responses, so it stays a development convenience.
@@ -261,6 +272,41 @@ export function createApp() {
   app.use(compress());
 
   const api = new OpenAPIHono<ApiVariables>({ defaultHook: validationHook });
+
+  api.use("*", applyApiKeyHeaders);
+
+  const apiKeyRateLimited = api.openAPIRegistry.registerComponent(
+    "responses",
+    "ApiKeyRateLimited",
+    {
+      description:
+        "The API key exceeded its rate limit or usage quota. Wait the number of seconds in Retry-After before retrying. The X-RateLimit headers are sent only when the rate limit was hit.",
+      headers: {
+        "Retry-After": {
+          description:
+            "Seconds to wait before retrying. Omitted when an exhausted usage quota never refills.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Limit": {
+          description: "Requests the API key may make per window.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Remaining": {
+          description: "Requests left in the current window.",
+          schema: { type: "integer" },
+        },
+        "X-RateLimit-Reset": {
+          description: "Unix time in seconds when the current window resets.",
+          schema: { type: "integer" },
+        },
+      },
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/ApiError" },
+        },
+      },
+    },
+  );
 
   api.get("/health", (c) => {
     return c.json({ status: "ok" });
@@ -417,13 +463,18 @@ export function createApp() {
 
   api.use("/auth/*", async (c, next) => {
     const apiKeyHeader = c.req.header("x-api-key")?.trim();
-    if (
-      apiKeyHeader &&
-      !(await verifyApiKey(apiKeyHeader, { consume: false }))
-    ) {
-      throw new HTTPException(401, { message: "Unauthorized" });
-    }
-    return next();
+    if (!apiKeyHeader) return next();
+    const apiKeyResult = await verifyApiKey(apiKeyHeader, { consume: false });
+    if (apiKeyResult?.status !== "valid") throw apiKeyRejection(apiKeyResult);
+    await next();
+    c.set(
+      "apiKeyHeaders",
+      await apiKeyResponseHeaders(
+        await readApiKeyCheck(apiKeyHeader),
+        c.res,
+        new Date(),
+      ),
+    );
   });
 
   api.openapi(
@@ -440,9 +491,10 @@ export function createApp() {
         200: {
           description: "Current session details, or null when unauthenticated",
         },
+        429: apiKeyRateLimited.ref,
       },
     }),
-    async (c) => auth.handler(c.req.raw),
+    async (c) => withJsonRateLimit(await auth.handler(c.req.raw)),
   );
 
   api.openapi(
@@ -462,8 +514,11 @@ export function createApp() {
           content: { "*/*": { schema: { type: "string", format: "binary" } } },
         },
         304: { description: "Not modified" },
-        403: errorResponse("No access to this asset"),
+        403: errorResponse(
+          "Staged upload owned by another user, or no access to the asset's project",
+        ),
         404: errorResponse("Asset not found"),
+        429: apiKeyRateLimited.ref,
       },
     }),
     async (c) => {
@@ -607,9 +662,9 @@ export function createApp() {
     });
 
     // Every authenticated route sits behind the same app-wide
-    // authenticateApiRequest middleware, so the shared 401 is injected here
-    // rather than repeated on all ~120 route definitions. Routes that opt out
-    // of auth declare `security: []` and are skipped.
+    // authenticateApiRequest middleware, so the shared 401 and 429 are injected
+    // here rather than repeated on all ~120 route definitions. Routes that opt
+    // out of auth declare `security: []` and are skipped.
     const httpMethods = [
       "get",
       "post",
@@ -644,6 +699,7 @@ export function createApp() {
             },
           },
         };
+        operation.responses["429"] ??= apiKeyRateLimited.ref;
       }
     }
 
@@ -678,6 +734,7 @@ export function createApp() {
           description: "Redirects the browser to the web app device screen",
         },
         200: { description: "Device authorization payload from Better Auth" },
+        429: apiKeyRateLimited.ref,
       },
     }),
     async (c) => {
@@ -696,7 +753,7 @@ export function createApp() {
         }
         return c.redirect(deviceUrl.toString(), 302);
       }
-      return auth.handler(c.req.raw);
+      return withJsonRateLimit(await auth.handler(c.req.raw));
     },
   );
 
@@ -712,24 +769,38 @@ export function createApp() {
 
       // Preserve Better Auth bearer session tokens on auth routes.
       if (session?.session && session.user) {
-        return withJsonNotFound(
-          await auth.handler(new Request(c.req.raw, { headers })),
+        return withJsonRateLimit(
+          await withJsonNotFound(
+            await auth.handler(new Request(c.req.raw, { headers })),
+          ),
         );
       }
 
-      if (!(await verifyApiKey(bearerToken, { consume: false }))) {
-        throw new HTTPException(401, { message: "Unauthorized" });
-      }
+      const apiKeyResult = await verifyApiKey(bearerToken, { consume: false });
+      if (apiKeyResult?.status !== "valid") throw apiKeyRejection(apiKeyResult);
 
       // Better Auth API key plugin validates from x-api-key by default.
       headers.set("x-api-key", bearerToken);
 
-      return withJsonNotFound(
-        await auth.handler(new Request(c.req.raw, { headers })),
+      const response = await withJsonRateLimit(
+        await withJsonNotFound(
+          await auth.handler(new Request(c.req.raw, { headers })),
+        ),
       );
+      c.set(
+        "apiKeyHeaders",
+        await apiKeyResponseHeaders(
+          await readApiKeyCheck(bearerToken),
+          response,
+          new Date(),
+        ),
+      );
+      return response;
     }
 
-    return withJsonNotFound(await auth.handler(c.req.raw));
+    return withJsonRateLimit(
+      await withJsonNotFound(await auth.handler(c.req.raw)),
+    );
   });
 
   api.route("/", mcpRoutes);
@@ -872,10 +943,12 @@ export function createApp() {
           .limit(1);
 
         if (!project) {
-          throw new HTTPException(401, { message: "Unauthorized" });
+          throw new HTTPException(404, { message: "Project not found" });
         }
 
-        await validateWorkspaceAccess(userId, project.workspaceId);
+        await validateWorkspaceAccess(userId, project.workspaceId, undefined, {
+          notFoundMessage: "Project not found",
+        });
         await assertProjectAccess(userId, projectId);
         workspaceId = project.workspaceId;
       }

@@ -1,5 +1,11 @@
 import { Puzzle } from "lucide-react";
 
-export function PluginIconFallback() {
-  return <Puzzle className="size-3.5" />;
+type PluginIconFallbackProps = {
+  className?: string;
+};
+
+export function PluginIconFallback({
+  className = "size-3.5",
+}: PluginIconFallbackProps) {
+  return <Puzzle className={className} />;
 }

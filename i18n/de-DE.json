@@ -949,7 +949,9 @@
 			"on": "Ein",
 			"off": "Aus",
 			"newColumnPlaceholder": "Neuer Spaltenname...",
-			"add": "Hinzufügen"
+			"add": "Hinzufügen",
+			"deleteAria": "Spalte {{name}} löschen",
+			"renameAria": "Spalte {{name}} umbenennen"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2109,7 +2111,8 @@
 			"deleteConfirmTitle": "Projekt löschen?",
 			"deleteConfirmDescription": "Dadurch wird das Projekt und alle zugehörigen Daten dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
 			"deletedToast": "Projekt gelöscht",
-			"deleteProject": "Projekt löschen"
+			"deleteProject": "Projekt löschen",
+			"switcherLabel": "Projekt oder Ansicht wechseln"
 		},
 		"search": {
 			"inputPlaceholder": "Aufgaben, Projekte, Kommentare suchen...",
@@ -2395,7 +2398,10 @@
 		"boardSearchPlaceholder": "Tickets suchen...",
 		"view": {
 			"board": "Board",
-			"list": "Liste"
+			"list": "Liste",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Ansicht"
 		},
 		"common": {
 			"selectTask": "Aufgabe auswählen",
@@ -2625,7 +2631,8 @@
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
 					"crimson": "Karmesinrot"
-				}
+				},
+				"editLabels": "Labels bearbeiten"
 			}
 		},
 		"backlog": {
@@ -2830,7 +2837,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: Aufgabe öffnen",
 			"title": "Kalender",
 			"today": "Heute",
-			"loadError": "Aufgaben konnten nicht geladen werden."
+			"loadError": "Aufgaben konnten nicht geladen werden.",
+			"noTasksThisMonth": "Diesen Monat ist nichts geplant"
 		},
 		"descriptionSearchLoading": "Vollständige Beschreibungen werden durchsucht…",
 		"descriptionSearchError": "Die Suche in Beschreibungen ist fehlgeschlagen. Ergebnisse sind möglicherweise unvollständig.",

@@ -1101,7 +1101,9 @@
 			"on": "開",
 			"off": "關",
 			"newColumnPlaceholder": "新欄位名稱…",
-			"add": "新增"
+			"add": "新增",
+			"deleteAria": "刪除 {{name}} 欄",
+			"renameAria": "重新命名 {{name}} 欄"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2098,7 +2100,8 @@
 			"deleteConfirmTitle": "要刪除專案嗎？",
 			"deleteConfirmDescription": "這會永久移除專案及其所有資料，此操作無法復原。",
 			"deletedToast": "專案已刪除",
-			"deleteProject": "刪除專案"
+			"deleteProject": "刪除專案",
+			"switcherLabel": "切換專案或檢視"
 		},
 		"search": {
 			"inputPlaceholder": "搜尋任務、專案、留言...",
@@ -2380,7 +2383,10 @@
 		"boardSearchPlaceholder": "搜尋任務…",
 		"view": {
 			"board": "看板",
-			"list": "清單"
+			"list": "清單",
+			"backlog": "待辦",
+			"gantt": "甘特圖",
+			"heading": "檢視"
 		},
 		"common": {
 			"selectTask": "選取任務",
@@ -2610,7 +2616,8 @@
 					"terracotta": "赤陶",
 					"rose": "玫瑰紅",
 					"crimson": "深紅"
-				}
+				},
+				"editLabels": "編輯標籤"
 			}
 		},
 		"backlog": {
@@ -2689,7 +2696,8 @@
 			"moreTasks": "+{{count}} 項",
 			"loadError": "載入任務失敗。",
 			"dayTasksAriaLabel": "查看 {{date}} 的所有任務",
-			"taskAriaLabel": "{{title}}，{{range}}：開啟任務"
+			"taskAriaLabel": "{{title}}，{{range}}：開啟任務",
+			"noTasksThisMonth": "本月沒有排程"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} - 甘特圖",

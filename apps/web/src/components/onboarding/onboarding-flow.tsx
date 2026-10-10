@@ -372,7 +372,7 @@ export function OnboardingFlow() {
   return (
     <>
       <PageTitle title={t("auth:onboarding.workspacePageTitle")} />
-      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center p-4">
+      <div className="min-h-svh w-full bg-background flex flex-col items-center justify-center p-4">
         {/* The role refresh is a network round-trip that every visit makes,
             so without this the screen is blank for the length of it. It sits
             outside the AnimatePresence deliberately: as a child of it, its

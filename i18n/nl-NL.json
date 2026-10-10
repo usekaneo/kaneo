@@ -765,7 +765,9 @@
 			"on": "Aan",
 			"off": "Uit",
 			"newColumnPlaceholder": "Nieuwe kolomnaam...",
-			"add": "Toevoegen"
+			"add": "Toevoegen",
+			"deleteAria": "Kolom {{name}} verwijderen",
+			"renameAria": "Kolom {{name}} hernoemen"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2109,7 +2111,8 @@
 			"deleteConfirmTitle": "Project verwijderen?",
 			"deleteConfirmDescription": "Dit zal het project en alle data permanent verwijderen. Dit kan niet ongedaan worden gemaakt.",
 			"deletedToast": "Project verwijderd",
-			"deleteProject": "Project verwijderen"
+			"deleteProject": "Project verwijderen",
+			"switcherLabel": "Project of weergave wisselen"
 		},
 		"search": {
 			"inputPlaceholder": "Zoek taken, projecten, reacties...",
@@ -2395,7 +2398,10 @@
 		"boardSearchPlaceholder": "Tickets zoeken...",
 		"view": {
 			"board": "Bord",
-			"list": "Lijst"
+			"list": "Lijst",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Weergave"
 		},
 		"common": {
 			"selectTask": "Selecteer taak",
@@ -2614,7 +2620,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Roos",
 					"crimson": "Karmozijn"
-				}
+				},
+				"editLabels": "Labels bewerken"
 			}
 		},
 		"backlog": {
@@ -2830,7 +2837,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: taak openen",
 			"title": "Kalender",
 			"today": "Vandaag",
-			"loadError": "Taken konden niet worden geladen."
+			"loadError": "Taken konden niet worden geladen.",
+			"noTasksThisMonth": "Niets gepland deze maand"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

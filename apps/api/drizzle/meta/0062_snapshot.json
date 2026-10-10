@@ -1,5 +1,5 @@
 {
-  "id": "cd4b166d-5b07-45bb-a659-2f330ee20d14",
+  "id": "0466239b-b8ab-4220-a847-dde109ec6508",
   "prevId": "57657924-5578-41e7-99bd-b2e744037c44",
   "version": "7",
   "dialect": "postgresql",
@@ -79,7 +79,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
@@ -153,14 +153,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "user_id": {
           "name": "user_id",
@@ -624,7 +624,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -828,7 +828,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {},
@@ -878,14 +878,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -1003,7 +1003,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -1111,14 +1111,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -1192,14 +1192,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -1327,14 +1327,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -1408,14 +1408,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -1508,7 +1508,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {},
@@ -1552,14 +1552,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "expires_at": {
           "name": "expires_at",
@@ -1723,14 +1723,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -1872,7 +1872,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {},
@@ -2023,14 +2023,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -2147,7 +2147,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "inviter_id": {
           "name": "inviter_id",
@@ -2309,14 +2309,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "deletion_started_at": {
           "name": "deletion_started_at",
@@ -2507,14 +2507,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -2708,14 +2708,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -2771,103 +2771,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.plugin_storage": {
-      "name": "plugin_storage",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "plugin_id": {
-          "name": "plugin_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "key": {
-          "name": "key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "value": {
-          "name": "value",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "plugin_storage_workspaceId_idx": {
-          "name": "plugin_storage_workspaceId_idx",
-          "columns": [
-            {
-              "expression": "workspace_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "plugin_storage_workspace_id_workspace_id_fk": {
-          "name": "plugin_storage_workspace_id_workspace_id_fk",
-          "tableFrom": "plugin_storage",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "plugin_storage_plugin_workspace_key_unique": {
-          "name": "plugin_storage_plugin_workspace_key_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "plugin_id",
-            "workspace_id",
-            "key"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.project": {
       "name": "project",
       "schema": "",
@@ -2914,7 +2817,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "is_public": {
           "name": "is_public",
@@ -3058,7 +2961,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
@@ -3170,7 +3073,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {},
@@ -3214,7 +3117,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -3310,14 +3213,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -3452,14 +3355,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -3822,14 +3725,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -3919,7 +3822,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {},
@@ -3975,14 +3878,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "is_anonymous": {
           "name": "is_anonymous",
@@ -4072,14 +3975,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -4254,14 +4157,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {},
@@ -4327,14 +4230,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -4540,14 +4443,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -4666,14 +4569,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -4739,14 +4642,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -4967,14 +4870,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -5064,14 +4967,14 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -5167,7 +5070,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -5226,88 +5129,6 @@
             "workspace_id",
             "user_id",
             "project_id"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.workspace_plugin": {
-      "name": "workspace_plugin",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "workspace_id": {
-          "name": "workspace_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "plugin_id": {
-          "name": "plugin_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "enabled": {
-          "name": "enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "settings": {
-          "name": "settings",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "workspace_plugin_workspace_id_workspace_id_fk": {
-          "name": "workspace_plugin_workspace_id_workspace_id_fk",
-          "tableFrom": "workspace_plugin",
-          "tableTo": "workspace",
-          "columnsFrom": [
-            "workspace_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "workspace_plugin_workspace_plugin_unique": {
-          "name": "workspace_plugin_workspace_plugin_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "workspace_id",
-            "plugin_id"
           ]
         }
       },

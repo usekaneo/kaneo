@@ -56,6 +56,9 @@ describe("registerTools", () => {
       json: vi.fn().mockResolvedValue({
         id: "user-1",
         name: "Mohiuddin",
+        email: "user@example.com",
+        role: "user",
+        token: "unexpected-user-secret",
       }),
     };
 
@@ -70,39 +73,86 @@ describe("registerTools", () => {
     expect(result?.content).toEqual([
       {
         type: "text",
-        text: JSON.stringify({ id: "user-1", name: "Mohiuddin" }, null, 2),
+        text: JSON.stringify(
+          {
+            id: "user-1",
+            name: "Mohiuddin",
+            email: "user@example.com",
+            role: "user",
+          },
+          null,
+          2,
+        ),
       },
     ]);
   });
 
-  it("uses the session endpoint for whoami with device authentication", async () => {
+  it.each(["user", null, undefined])(
+    "returns only safe user fields for whoami with session authentication and role %s",
+    async (role) => {
+      const { server, tools } = createServerMock();
+      const client = {
+        usingApiKey: false,
+        json: vi.fn().mockResolvedValue({
+          user: {
+            id: "user-1",
+            name: "Mohiuddin",
+            email: "user@example.com",
+            role,
+            token: "unexpected-user-secret",
+          },
+          session: {
+            id: "session-1",
+            token: "live-session-secret",
+            expiresAt: "2026-11-08T00:00:00.000Z",
+            ipAddress: "192.0.2.1",
+            userAgent: "MCP client",
+          },
+          token: "unexpected-response-secret",
+        }),
+      };
+
+      registerTools(server as never, { client: client as never });
+
+      const result = await tools.get("whoami")?.handler({});
+
+      expect(client.json).toHaveBeenCalledWith("/api/auth/get-session", {
+        method: "GET",
+      });
+      expect(result?.isError).toBe(false);
+      expect(result?.content).toEqual([
+        {
+          type: "text",
+          text: JSON.stringify(
+            {
+              id: "user-1",
+              name: "Mohiuddin",
+              email: "user@example.com",
+              role,
+            },
+            null,
+            2,
+          ),
+        },
+      ]);
+    },
+  );
+
+  it("returns null for whoami when there is no session", async () => {
     const { server, tools } = createServerMock();
     const client = {
       usingApiKey: false,
-      json: vi.fn().mockResolvedValue({
-        user: { id: "user-1" },
-        session: { id: "session-1" },
-      }),
+      json: vi.fn().mockResolvedValue(null),
     };
 
     registerTools(server as never, { client: client as never });
 
     const result = await tools.get("whoami")?.handler({});
 
-    expect(client.json).toHaveBeenCalledWith("/api/auth/get-session", {
-      method: "GET",
+    expect(result).toEqual({
+      content: [{ type: "text", text: "null" }],
+      isError: false,
     });
-    expect(result?.isError).toBe(false);
-    expect(result?.content).toEqual([
-      {
-        type: "text",
-        text: JSON.stringify(
-          { user: { id: "user-1" }, session: { id: "session-1" } },
-          null,
-          2,
-        ),
-      },
-    ]);
   });
 
   it("builds the expected query string for list_tasks", async () => {

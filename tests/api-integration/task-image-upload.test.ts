@@ -462,10 +462,10 @@ describe("API integration: task image upload finalize", () => {
       },
     );
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
     expect(await readErrorBody(response)).toMatchObject({
-      message: "You don't have access to this workspace",
-      code: "FORBIDDEN",
+      message: "Task not found",
+      code: "NOT_FOUND",
     });
   });
 });

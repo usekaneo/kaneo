@@ -1,0 +1,70 @@
+---
+title: Kaneo CLI
+sidebarTitle: Overview
+description: Manage tasks and projects from your terminal with the official Kaneo command-line client.
+---
+
+The official Kaneo CLI is a single `kaneo` binary for macOS, Linux and Windows. It works with Kaneo Cloud and self-hosted instances, shows styled output in a terminal, and prints plain JSON for scripts and agents.
+
+## Quick start
+
+```bash
+curl -fsSL https://kaneo.app/cli/install.sh | sh
+kaneo login
+kaneo
+```
+
+On Windows, install it in PowerShell with `irm https://kaneo.app/cli/install.ps1 | iex`. [Install](/cli/install) covers versions, mirrors and supported systems, and [Sign in](/cli/sign-in) covers self-hosted servers and API keys.
+
+## Everyday commands
+
+```bash
+kaneo workspace list
+kaneo workspace use            # pick the default workspace
+kaneo project list
+kaneo task list -p KAN         # tasks grouped by column
+kaneo task list -p KAN --mine --open
+kaneo task mine                # your open tasks, soonest due first
+kaneo task view KAN-12
+kaneo task create "Fix login redirect" -p KAN --priority high --due tomorrow
+kaneo task status KAN-12 done
+kaneo task assign KAN-12 me
+kaneo comment add KAN-12 "Shipped in v2.35"
+kaneo time start KAN-12
+kaneo time stop
+kaneo task open KAN-12
+kaneo search "login redirect"
+```
+
+Tasks are addressed by their ticket ID, such as `KAN-12`, or by their ID. If a ticket ID exists in more than one of your workspaces, pass `-w` to choose one.
+
+When a workspace, project or column is missing and you are in a terminal, the CLI shows a searchable picker. In scripts it stops with an error that names the flag to pass.
+
+Every command has `--help`, and the [command reference](/cli/reference) lists every argument and flag. Print a shell completion script with `kaneo --completions zsh` (or `bash`, `fish`, `sh`).
+
+## Update
+
+Run the install command again. It replaces `kaneo` with the latest release and keeps your logins and settings. See [Install](/cli/install#update) for pinned versions and mirrors.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Install" icon="download" href="/cli/install">
+    Pin a version, use a mirror, update and uninstall.
+  </Card>
+  <Card title="Sign in" icon="key-round" href="/cli/sign-in">
+    Self-hosted servers, API keys for CI, and several logins.
+  </Card>
+  <Card title="Configuration" icon="settings" href="/cli/configuration">
+    Environment variables, repository defaults and inline images.
+  </Card>
+  <Card title="Scripts and agents" icon="braces" href="/cli/scripting">
+    JSON output, jq filters, raw API calls and the agent skill.
+  </Card>
+  <Card title="Command reference" icon="book-open" href="/cli/reference">
+    Every command with its arguments and flags.
+  </Card>
+  <Card title="MCP server" icon="bot" href="/core/integrations/mcp">
+    Connect AI assistants such as Claude and Cursor without a shell.
+  </Card>
+</CardGroup>

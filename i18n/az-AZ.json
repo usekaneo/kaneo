@@ -1104,7 +1104,9 @@
 			"on": "Aktiv",
 			"off": "Sönülü",
 			"newColumnPlaceholder": "Yeni sütunun adı...",
-			"add": "Əlavə et"
+			"add": "Əlavə et",
+			"deleteAria": "{{name}} sütununu sil",
+			"renameAria": "{{name}} sütununun adını dəyiş"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2109,7 +2111,8 @@
 			"deleteConfirmTitle": "Layihə silinsin?",
 			"deleteConfirmDescription": "Bu, layihəni və bütün məlumatlarını həmişəlik siləcək. Bu əməliyyatı geri qaytara bilməzsiniz.",
 			"deletedToast": "Layihə silindi",
-			"deleteProject": "Layihəni sil"
+			"deleteProject": "Layihəni sil",
+			"switcherLabel": "Layihəni və ya görünüşü dəyiş"
 		},
 		"search": {
 			"inputPlaceholder": "Tapşırıqları, layihələri və şərhləri axtar...",
@@ -2395,7 +2398,10 @@
 		"boardSearchPlaceholder": "Tapşırıqları axtar...",
 		"view": {
 			"board": "Lövhə",
-			"list": "Siyahı"
+			"list": "Siyahı",
+			"backlog": "Gözləyən tapşırıqlar",
+			"gantt": "Qant",
+			"heading": "Görünüş"
 		},
 		"common": {
 			"selectTask": "Tapşırıq seç",
@@ -2625,7 +2631,8 @@
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
 					"crimson": "Tünd qırmızı"
-				}
+				},
+				"editLabels": "Etiketləri redaktə et"
 			}
 		},
 		"backlog": {
@@ -2704,7 +2711,8 @@
 			"moreTasks": "Daha +{{count}}",
 			"loadError": "Tapşırıqları yükləmək alınmadı.",
 			"dayTasksAriaLabel": "{{date}} tarixi üçün bütün tapşırıqları göstər",
-			"taskAriaLabel": "{{title}}, {{range}}: tapşırığı aç"
+			"taskAriaLabel": "{{title}}, {{range}}: tapşırığı aç",
+			"noTasksThisMonth": "Bu ay heç nə planlaşdırılmayıb"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Qant diaqramı",

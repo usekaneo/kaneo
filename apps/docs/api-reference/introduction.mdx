@@ -5,6 +5,10 @@ description: "Authenticate, find a project, and read its tasks."
 
 Use the Kaneo API for scripts and integrations. Requests go to your instance's public API URL, usually `https://kaneo.example.com/api`.
 
+<Tip>
+Working from a terminal? The [Kaneo CLI](/cli) covers the same tasks with JSON output for scripts and agents, and `kaneo api` sends a request to any endpoint with your stored login.
+</Tip>
+
 ## 1. Create an API key
 
 Open **Settings → Account → API Keys** in Kaneo and create a key for your script. Copy it when it is shown. See [Authentication](/api-reference/authentication) for API keys and device authorization.
@@ -13,17 +17,24 @@ Keep keys in server-side scripts or secret storage. Do not put a personal API ke
 
 ## 2. Find your workspace and project IDs
 
-Open a project in the browser. Its URL includes both IDs:
+Set `KANEO_API_KEY` in your shell using your secret manager or a private environment file. Then list the workspaces you belong to with `GET /api/workspace`. Each item includes the workspace `id`, `name`, `slug`, and your `role`:
+
+```bash
+curl --fail-with-body 'https://kaneo.example.com/api/workspace' \
+  -H "Authorization: Bearer $KANEO_API_KEY"
+```
+
+You can also open a project in the browser. Its URL includes both IDs:
 
 ```text
 /dashboard/workspace/WORKSPACE_ID/project/PROJECT_ID/board
 ```
 
-Use the IDs from the URL, not the workspace name or a task number such as `WEB-22`.
+Use the IDs, not the workspace name or a task number such as `WEB-22`.
 
 ## 3. List the workspace's projects
 
-Set `KANEO_API_KEY` in your shell using your secret manager or a private environment file. Then replace the example workspace ID:
+Replace the example workspace ID:
 
 ```bash
 curl --fail-with-body --get 'https://kaneo.example.com/api/project' \
@@ -51,10 +62,12 @@ For a single task, request `GET /api/task/TASK_ID`. Check the endpoint reference
 | --- | --- |
 | 400 | Required IDs, query parameters, and request body |
 | 401 | Missing, invalid, or expired credentials |
-| 403 | Workspace membership and permission for the requested action |
-| 404 | The resource ID and endpoint path |
+| 403 | Your role's permission for the requested action, or your access to a restricted project |
+| 404 | The resource ID, the endpoint path, and your membership in the resource's workspace |
 | 429 | Rate limits; wait before retrying |
 | 5xx | Instance logs and service health |
+
+Resources in a workspace you are not a member of return `404`, the same response as a resource that does not exist.
 
 Error bodies are JSON with a human-readable `message` and a stable `code`. See [Errors](/api-reference/errors) for the codes, validation issues, and missing permissions. Do not retry a mutation blindly when you are unsure whether it already succeeded.
 

@@ -30,11 +30,12 @@ const sharingMiddleware = [
   requireWorkspacePermission({ project: ["share"] }),
 ];
 const managementErrors = {
-  400: errorResponse("Invalid request or unknown project"),
+  400: errorResponse("Invalid request"),
   401: errorResponse("Authentication required"),
   403: errorResponse(
-    "No workspace access or missing project sharing permission",
+    "No access to the project, or missing project sharing permission",
   ),
+  404: errorResponse("Project not found"),
 };
 
 export const publicCalendarFeed = apiRouter().openapi(
@@ -112,7 +113,7 @@ const calendarFeed = apiRouter<BaseVariables & { workspaceId: string }>()
         201: jsonResponse("Calendar feed created", calendarFeedSchema),
         ...managementErrors,
         403: errorResponse(
-          "No workspace access, missing project:share permission, or missing label:create permission for a new workspace label definition",
+          "No access to the project, missing project:share permission, or missing label:create permission for a new workspace label definition",
         ),
       },
     }),
@@ -147,8 +148,8 @@ const calendarFeed = apiRouter<BaseVariables & { workspaceId: string }>()
           "Calendar feed revoked",
           z.object({ success: z.boolean() }),
         ),
-        404: errorResponse("Calendar feed not found in this project"),
         ...managementErrors,
+        404: errorResponse("Project or calendar feed not found"),
       },
     }),
     async (c) =>

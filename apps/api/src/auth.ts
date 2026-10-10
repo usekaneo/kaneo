@@ -273,6 +273,7 @@ export const auth = betterAuth({
       // Require the provider's verified-email claim for implicit linking;
       // configuration alone must not make an unverified identity trusted.
       enabled: true,
+      allowDifferentEmails: true,
       // Only link to an existing local account after its email has been
       // verified. Without this check, an attacker could pre-register a victim's
       // email with a password account and retain access after the victim signs

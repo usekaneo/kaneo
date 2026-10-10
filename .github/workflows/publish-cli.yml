@@ -1,25 +1,39 @@
-name: Publish CLI Package
+name: Release CLI
 
 on:
-  release:
-    types: [published]
   push:
     branches: [main]
     paths:
       - packages/cli/package.json
+      - .github/workflows/publish-cli.yml
+  workflow_dispatch:
 
-permissions:
-  contents: write
-  id-token: write
+permissions: {}
 
 concurrency:
   group: publish-cli
   cancel-in-progress: false
 
+env:
+  CLI_ASSETS: >-
+    kaneo-darwin-arm64
+    kaneo-darwin-x64
+    kaneo-linux-arm64
+    kaneo-linux-arm64-musl
+    kaneo-linux-x64
+    kaneo-linux-x64-musl
+    kaneo-windows-x64.exe
+
 jobs:
-  publish:
+  check:
+    name: Check and bundle
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name == 'push' || startsWith(github.event.release.tag_name, 'cli-v') }}
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
+      release_exists: ${{ steps.release.outputs.release_exists }}
 
     steps:
       - name: Checkout repository
@@ -59,54 +73,239 @@ jobs:
           pnpm --filter @kaneo/cli build
           node packages/cli/dist/kaneo.mjs --version --json
 
-      - name: Validate CLI release tag
-        if: ${{ github.event_name == 'release' }}
+      - name: Upload CLI bundle
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cli-dist
+          path: packages/cli/dist
+          if-no-files-found: error
+
+      - name: Check for an existing release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          PACKAGE_VERSION=$(node -p "require('./packages/cli/package.json').version")
-          TAG_VERSION="${GITHUB_REF_NAME#cli-v}"
-
-          if [ "${GITHUB_REF_NAME}" = "${TAG_VERSION}" ]; then
-            echo "Release tag must start with cli-v, got ${GITHUB_REF_NAME}"
+          set -euo pipefail
+          version=$(node -p "require('./packages/cli/package.json').version")
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid packages/cli version: $version" >&2
             exit 1
           fi
-
-          if [ "${TAG_VERSION}" != "${PACKAGE_VERSION}" ]; then
-            echo "Release tag version (${TAG_VERSION}) does not match packages/cli version (${PACKAGE_VERSION})"
+          tag="cli-v$version"
+          prerelease=false
+          if [[ "$version" == *-* ]]; then
+            prerelease=true
+          fi
+          if release=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets,isDraft,isPrerelease 2> "$RUNNER_TEMP/release-view.err"); then
+            read -ra expected <<< "$CLI_ASSETS"
+            present=$(jq -r '.assets[].name' <<< "$release")
+            missing=$(comm -23 <(printf '%s\n' "${expected[@]}" SHA256SUMS | sort) <(printf '%s\n' "$present" | sort) | paste -sd ' ' -)
+            if [ -n "$missing" ]; then
+              echo "::error::Release $tag exists without every asset (missing: $missing). Delete it with \"gh release delete $tag --cleanup-tag\" and run this workflow again."
+              exit 1
+            fi
+            if [ "$(jq -r '.isDraft' <<< "$release")" != false ]; then
+              echo "::error::Release $tag is still a draft. Publish it with \"gh release edit $tag --draft=false\"."
+              exit 1
+            fi
+            if [ "$(jq -r '.isPrerelease' <<< "$release")" != "$prerelease" ]; then
+              echo "::error::Release $tag should have prerelease set to $prerelease. Fix it with \"gh release edit $tag --prerelease=$prerelease\"."
+              exit 1
+            fi
+            exists=true
+            echo "Release $tag is already published with every asset; skipping binaries and release."
+          elif grep -q "release not found" "$RUNNER_TEMP/release-view.err"; then
+            exists=false
+          else
+            cat "$RUNNER_TEMP/release-view.err" >&2
             exit 1
           fi
+          {
+            echo "version=$version"
+            echo "prerelease=$prerelease"
+            echo "release_exists=$exists"
+          } >> "$GITHUB_OUTPUT"
+
+  binaries:
+    name: Compile ${{ matrix.platform }} binaries
+    needs: check
+    if: needs.check.outputs.release_exists == 'false'
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux
+            native: kaneo-linux-x64
+            targets: >-
+              kaneo-linux-x64=bun-linux-x64-baseline
+              kaneo-linux-arm64=bun-linux-arm64
+              kaneo-linux-x64-musl=bun-linux-x64-musl-baseline
+              kaneo-linux-arm64-musl=bun-linux-arm64-musl
+              kaneo-windows-x64.exe=bun-windows-x64-baseline
+          - runner: macos-15
+            platform: darwin
+            native: kaneo-darwin-arm64
+            targets: >-
+              kaneo-darwin-arm64=bun-darwin-arm64
+              kaneo-darwin-x64=bun-darwin-x64-baseline
+
+    steps:
+      - name: Download CLI bundle
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: cli-dist
+          path: dist
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.2
+          no-cache: true
+
+      - name: Compile binaries
+        env:
+          TARGETS: ${{ matrix.targets }}
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          for pair in $TARGETS; do
+            asset="${pair%%=*}"
+            target="${pair#*=}"
+            bun build dist/kaneo.mjs --compile --minify \
+              --no-compile-autoload-dotenv --no-compile-autoload-bunfig \
+              --target="$target" --outfile "out/$asset"
+          done
+          ls -l out
+
+      - name: Sign macOS binaries
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          for binary in out/kaneo-darwin-*; do
+            codesign --force --sign - "$binary"
+            codesign --verify --strict "$binary"
+          done
+
+      - name: Smoke test native binary
+        env:
+          NATIVE: ${{ matrix.native }}
+          VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          set -euo pipefail
+          actual=$("out/$NATIVE" --version --json)
+          expected="{\"name\":\"kaneo\",\"version\":\"$VERSION\"}"
+          echo "$actual"
+          [ "$actual" = "$expected" ]
+          "out/$NATIVE" context --jq .server.url
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cli-binaries-${{ matrix.platform }}
+          path: out
+          if-no-files-found: error
+
+  release:
+    name: Create GitHub release
+    needs: [check, binaries]
+    if: needs.check.outputs.release_exists == 'false'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: cli-binaries-*
+          merge-multiple: true
+          path: assets
+
+      - name: Write checksums
+        working-directory: assets
+        run: |
+          set -euo pipefail
+          read -ra assets <<< "$CLI_ASSETS"
+          present=(*)
+          [ "$(printf '%s\n' "${present[@]}" | sort)" = "$(printf '%s\n' "${assets[@]}" | sort)" ]
+          sha256sum "${assets[@]}" > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Create CLI release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.check.outputs.version }}
+          PRERELEASE: ${{ needs.check.outputs.prerelease }}
+        run: |
+          set -euo pipefail
+          notes="$RUNNER_TEMP/notes.md"
+          cat > "$notes" <<'EOF'
+          Install or update the Kaneo CLI on macOS and Linux:
+
+          ```sh
+          curl -fsSL https://kaneo.app/cli/install.sh | sh
+          ```
+
+          On Windows, in PowerShell:
+
+          ```powershell
+          irm https://kaneo.app/cli/install.ps1 | iex
+          ```
+
+          Standalone binaries for each platform are attached below. Verify a download with `SHA256SUMS`.
+          EOF
+          gh release create "cli-v$VERSION" assets/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Kaneo CLI v$VERSION" \
+            --notes-file "$notes" \
+            --latest=false \
+            --prerelease="$PRERELEASE"
+
+  npm:
+    name: Publish to npm
+    needs: check
+    if: vars.CLI_NPM_PUBLISH == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Download CLI bundle
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: cli-dist
+          path: packages/cli/dist
 
       - name: Check whether @kaneo/cli version is already published
         id: version_check
+        env:
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
-          PACKAGE_VERSION=$(node -p "require('./packages/cli/package.json').version")
-
-          if npm view "@kaneo/cli@${PACKAGE_VERSION}" version >/dev/null 2>&1; then
+          if npm view "@kaneo/cli@${VERSION}" version > /dev/null 2>&1; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
-            echo "@kaneo/cli@${PACKAGE_VERSION} is already published; skipping publish."
+            echo "@kaneo/cli@${VERSION} is already published; skipping publish."
           else
             echo "already_published=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish @kaneo/cli
-        if: ${{ steps.version_check.outputs.already_published == 'false' }}
-        run: |
-          cd packages/cli
-          npm publish --access public --provenance
-
-      - name: Create CLI release
-        if: ${{ github.event_name == 'push' }}
-        run: |
-          PACKAGE_VERSION=$(node -p "require('./packages/cli/package.json').version")
-
-          if gh release view "cli-v${PACKAGE_VERSION}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            echo "Release cli-v${PACKAGE_VERSION} already exists; skipping."
-            exit 0
-          fi
-
-          gh release create "cli-v${PACKAGE_VERSION}" \
-            --target "${GITHUB_SHA}" \
-            --title "@kaneo/cli v${PACKAGE_VERSION}" \
-            --notes "Published [@kaneo/cli@${PACKAGE_VERSION}](https://www.npmjs.com/package/@kaneo/cli/v/${PACKAGE_VERSION}) to npm." \
-            --latest=false
-        env:
-          GH_TOKEN: ${{ github.token }}
+        if: steps.version_check.outputs.already_published == 'false'
+        working-directory: packages/cli
+        run: npm publish --access public --provenance --ignore-scripts

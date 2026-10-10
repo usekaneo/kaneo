@@ -279,7 +279,7 @@ function KanbanBoard({
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={`kanban-column-skeleton-${i}`}
-                className="h-full min-w-80 w-full flex-1 rounded-xl border border-border/70 bg-card"
+                className="h-full min-w-[min(20rem,calc(100vw-4.5rem))] w-full flex-1 rounded-xl border border-border/70 bg-card"
               >
                 <div className="px-4 py-3 flex items-center justify-between">
                   <div className="w-24 h-5 bg-muted/50 rounded animate-pulse" />
@@ -327,14 +327,24 @@ function KanbanBoard({
           "bg-linear-to-b from-muted/20 to-background": !background,
         })}
       >
-        <div className="min-h-0 flex-1 overflow-x-auto [-webkit-overflow-scrolling:touch]">
+        <div
+          className={cn(
+            "min-h-0 flex-1 scroll-px-4 overflow-x-auto [-webkit-overflow-scrolling:touch]",
+            // Snap whole columns into view on phones; off while dragging so it
+            // doesn't fight dnd-kit's auto-scroll.
+            activeId === null && "snap-x snap-mandatory sm:snap-none",
+          )}
+        >
           <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
             {(dragPreview.preview ?? project).columns.map((column) => (
               <div
                 key={column.id}
-                className={cn("h-full max-w-96 min-w-80 shrink-0 flex-1", {
-                  "h-fit": !!background,
-                })}
+                className={cn(
+                  "h-full max-w-96 min-w-[min(20rem,calc(100vw-4.5rem))] shrink-0 flex-1 snap-start",
+                  {
+                    "h-fit": !!background,
+                  },
+                )}
               >
                 <Column
                   column={column}
