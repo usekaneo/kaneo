@@ -17,6 +17,7 @@ export async function getSprintList(projectId: string) {
       status: sprintTable.status,
       startDate: sprintTable.startDate,
       endDate: sprintTable.endDate,
+      carryOverTasks: sprintTable.carryOverTasks,
       position: sprintTable.position,
       createdAt: sprintTable.createdAt,
       updatedAt: sprintTable.updatedAt,

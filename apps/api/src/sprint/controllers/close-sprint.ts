@@ -51,11 +51,19 @@ async function closeSprint(id: string, targetSprintId: string | null) {
       .where(
         and(eq(taskTable.sprintId, id), sql`not ${taskIsCompleted}`),
       )
-      .returning({ id: taskTable.id });
+      .returning({ id: taskTable.id, title: taskTable.title });
 
     await tx
       .update(sprintTable)
-      .set({ status: "closed" })
+      .set({
+        status: "closed",
+        // Freeze the carried-over tasks in the sprint itself, so the report
+        // of planned versus completed work survives the move.
+        carryOverTasks: moved.map((task) => ({
+          id: task.id,
+          title: task.title,
+        })),
+      })
       .where(eq(sprintTable.id, id));
 
     return moved.map((task) => task.id);

@@ -16,6 +16,13 @@ export const sprintSchema = z
     status: sprintStatus,
     startDate: nullableResponseTimestamp,
     endDate: nullableResponseTimestamp,
+    carryOverTasks: z
+      .array(z.object({ id: z.string(), title: z.string() }))
+      .nullable()
+      .openapi({
+        description:
+          "Unfinished tasks moved out when the sprint was closed, frozen as a snapshot at close time. Null while the sprint is open.",
+      }),
     position: z.number().openapi({
       description: "Backlog order, ascending. Sprints are always returned sorted by it.",
     }),
