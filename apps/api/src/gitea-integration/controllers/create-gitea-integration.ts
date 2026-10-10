@@ -13,6 +13,7 @@ import {
   validateGiteaConfig,
   giteaConfigSchema,
 } from "../../plugins/gitea/config";
+import { withGiteaAdmission } from "../../plugins/gitea/services/outbound-fence";
 import { retireGiteaIssueEdits } from "../../plugins/gitea/services/retire-issue-edits";
 
 import { resolveVerificationContext } from "./resolve-verification-context";
@@ -104,13 +105,21 @@ async function createGiteaIntegration({
   if (existingIntegration) {
     try {
       const savedConfig: unknown = JSON.parse(existingIntegration.config);
+      if (
+        savedConfig &&
+        typeof savedConfig === "object" &&
+        !Array.isArray(savedConfig) &&
+        "webhookSecret" in savedConfig &&
+        typeof savedConfig.webhookSecret === "string" &&
+        savedConfig.webhookSecret.trim()
+      ) {
+        webhookSecret = savedConfig.webhookSecret;
+      }
       previousConfig = v.parse(giteaConfigSchema, savedConfig);
-      webhookSecret = previousConfig.webhookSecret ?? webhookSecret;
       previousBaseUrl = normalizeGiteaBaseUrl(previousConfig.baseUrl);
-    } catch (error) {
-      console.warn("Failed to parse existing Gitea config for webhook secret", {
+    } catch {
+      console.warn("Failed to parse existing Gitea config during reconnect", {
         integrationId: existingIntegration.id,
-        error,
       });
     }
   }
@@ -161,46 +170,49 @@ async function createGiteaIntegration({
   }
 
   if (existingIntegration) {
-    const updated = await db.transaction(async (tx) => {
-      const [current] = await tx
-        .select()
-        .from(integrationTable)
-        .where(eq(integrationTable.id, existingIntegration.id))
-        .for("update");
-      if (
-        !current ||
-        current.config !== existingIntegration.config ||
-        current.isActive !== existingIntegration.isActive ||
-        current.updatedAt.getTime() !== existingIntegration.updatedAt.getTime()
-      ) {
-        throw new HTTPException(409, {
-          message: "Integration changed. Reload and try again.",
-        });
-      }
-      const [saved] = await tx
-        .update(integrationTable)
-        .set({
-          config: JSON.stringify(config),
-          isActive: true,
-          updatedAt: new Date(),
-        })
-        .where(
-          and(
-            eq(integrationTable.id, existingIntegration.id),
-            eq(integrationTable.config, existingIntegration.config),
-          ),
-        )
-        .returning();
-      if (
-        saved &&
-        targetMode !== "sync" &&
-        (!sameTarget ||
-          getGiteaIssueSyncMode(previousConfig ?? {}) !== targetMode)
-      ) {
-        await retireGiteaIssueEdits(saved.id, tx, targetMode);
-      }
-      return saved;
-    });
+    const updated = await withGiteaAdmission(() =>
+      db.transaction(async (tx) => {
+        const [current] = await tx
+          .select()
+          .from(integrationTable)
+          .where(eq(integrationTable.id, existingIntegration.id))
+          .for("update");
+        if (
+          !current ||
+          current.config !== existingIntegration.config ||
+          current.isActive !== existingIntegration.isActive ||
+          current.updatedAt.getTime() !==
+            existingIntegration.updatedAt.getTime()
+        ) {
+          throw new HTTPException(409, {
+            message: "Integration changed. Reload and try again.",
+          });
+        }
+        const [saved] = await tx
+          .update(integrationTable)
+          .set({
+            config: JSON.stringify(config),
+            isActive: true,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(integrationTable.id, existingIntegration.id),
+              eq(integrationTable.config, existingIntegration.config),
+            ),
+          )
+          .returning();
+        if (
+          saved &&
+          targetMode !== "sync" &&
+          (!sameTarget ||
+            getGiteaIssueSyncMode(previousConfig ?? {}) !== targetMode)
+        ) {
+          await retireGiteaIssueEdits(saved.id, tx, targetMode);
+        }
+        return saved;
+      }),
+    );
 
     if (!updated) {
       throw new HTTPException(409, {
@@ -222,15 +234,17 @@ async function createGiteaIntegration({
     };
   }
 
-  const [newIntegration] = await db
-    .insert(integrationTable)
-    .values({
-      projectId,
-      type: "gitea",
-      config: JSON.stringify(config),
-      isActive: true,
-    })
-    .returning();
+  const [newIntegration] = await withGiteaAdmission(() =>
+    db
+      .insert(integrationTable)
+      .values({
+        projectId,
+        type: "gitea",
+        config: JSON.stringify(config),
+        isActive: true,
+      })
+      .returning(),
+  );
 
   if (!newIntegration) {
     throw new HTTPException(500, {

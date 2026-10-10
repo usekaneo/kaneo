@@ -11,6 +11,7 @@ import {
   giteaConfigSchema,
 } from "../../plugins/gitea/config";
 import { retireGiteaIssueEdits } from "../../plugins/gitea/services/retire-issue-edits";
+import { withGiteaAdmission } from "../../plugins/gitea/services/outbound-fence";
 import getGiteaIntegration from "./get-gitea-integration";
 import verifyGiteaAccess from "./verify-gitea-access";
 
@@ -56,50 +57,52 @@ export default async function updateGiteaIntegration(
       throw new HTTPException(400, { message: result.message });
     }
   }
-  await db.transaction(async (tx) => {
-    const [row] = await tx
-      .select()
-      .from(integrationTable)
-      .where(where)
-      .for("update");
-    if (
-      !row ||
-      row.id !== snapshot.id ||
-      row.config !== snapshot.config ||
-      row.isActive !== snapshot.isActive ||
-      row.updatedAt.getTime() !== snapshot.updatedAt.getTime()
-    ) {
-      throw new HTTPException(409, {
-        message: "Integration changed. Reload and try again.",
-      });
-    }
-    // The locked row matches the already validated snapshot byte-for-byte.
-    const oldConfig = previous;
-    const config: GiteaConfig = {
-      ...oldConfig,
-      ...(body.commentTaskLinkOnGiteaIssue !== undefined
-        ? { commentTaskLinkOnGiteaIssue: body.commentTaskLinkOnGiteaIssue }
-        : {}),
-      ...(body.issueSyncMode !== undefined
-        ? { issueSyncMode: body.issueSyncMode }
-        : {}),
-    };
-    await tx
-      .update(integrationTable)
-      .set({
-        config: JSON.stringify(config),
-        isActive: body.isActive ?? row.isActive ?? true,
-        updatedAt: new Date(),
-      })
-      .where(eq(integrationTable.id, row.id));
-    const targetMode = getGiteaIssueSyncMode(config);
-    if (
-      targetMode !== "sync" &&
-      getGiteaIssueSyncMode(oldConfig) !== targetMode
-    ) {
-      await retireGiteaIssueEdits(row.id, tx, targetMode);
-    }
-  });
+  await withGiteaAdmission(() =>
+    db.transaction(async (tx) => {
+      const [row] = await tx
+        .select()
+        .from(integrationTable)
+        .where(where)
+        .for("update");
+      if (
+        !row ||
+        row.id !== snapshot.id ||
+        row.config !== snapshot.config ||
+        row.isActive !== snapshot.isActive ||
+        row.updatedAt.getTime() !== snapshot.updatedAt.getTime()
+      ) {
+        throw new HTTPException(409, {
+          message: "Integration changed. Reload and try again.",
+        });
+      }
+      // The locked row matches the already validated snapshot byte-for-byte.
+      const oldConfig = previous;
+      const config: GiteaConfig = {
+        ...oldConfig,
+        ...(body.commentTaskLinkOnGiteaIssue !== undefined
+          ? { commentTaskLinkOnGiteaIssue: body.commentTaskLinkOnGiteaIssue }
+          : {}),
+        ...(body.issueSyncMode !== undefined
+          ? { issueSyncMode: body.issueSyncMode }
+          : {}),
+      };
+      await tx
+        .update(integrationTable)
+        .set({
+          config: JSON.stringify(config),
+          isActive: body.isActive ?? row.isActive ?? true,
+          updatedAt: new Date(),
+        })
+        .where(eq(integrationTable.id, row.id));
+      const targetMode = getGiteaIssueSyncMode(config);
+      if (
+        targetMode !== "sync" &&
+        getGiteaIssueSyncMode(oldConfig) !== targetMode
+      ) {
+        await retireGiteaIssueEdits(row.id, tx, targetMode);
+      }
+    }),
+  );
   const modeChanged =
     body.issueSyncMode !== undefined &&
     body.issueSyncMode !== getGiteaIssueSyncMode(previous);

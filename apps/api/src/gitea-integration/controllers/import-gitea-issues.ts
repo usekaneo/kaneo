@@ -17,6 +17,7 @@ import {
   getGiteaIssueSyncMode,
   type GiteaConfig,
 } from "../../plugins/gitea/config";
+import { withGiteaAdmission } from "../../plugins/gitea/services/outbound-fence";
 import { isKaneoComment } from "../../plugins/gitea/utils/comment-origin";
 import {
   createGiteaClient,
@@ -295,13 +296,33 @@ async function importSingleIssue(
     return result ?? "skipped";
   }
 
-  const createdTask = await withIntegrationTask(
-    null,
-    { id: integrationId, projectId, project: { workspaceId } },
-    async (tx) => {
-      const binding = await tx.query.integrationTable.findFirst({
-        where: eq(integrationTable.id, integrationId),
-      });
+  const createdTask = await withGiteaAdmission(() =>
+    db.transaction(async (tx) => {
+      // Match webhook imports and rules saves: project→integration→link.
+      // Lock task-number allocation before any integration lock is retained.
+      const [project] = await tx
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(
+          and(
+            eq(projectTable.id, projectId),
+            eq(projectTable.workspaceId, workspaceId),
+          ),
+        )
+        .for("no key update");
+      if (!project) return null;
+      const [binding] = await tx
+        .select()
+        .from(integrationTable)
+        .where(
+          and(
+            eq(integrationTable.id, integrationId),
+            eq(integrationTable.projectId, projectId),
+            eq(integrationTable.type, "gitea"),
+            eq(integrationTable.isActive, true),
+          ),
+        )
+        .for("no key update");
       if (
         !binding ||
         !sameConfig(binding.config, JSON.stringify(config)) ||
@@ -358,7 +379,7 @@ async function importSingleIssue(
       await importCommentsForTask(comments, created.id, tx);
 
       return created;
-    },
+    }),
   );
   if (!createdTask) return "skipped";
 

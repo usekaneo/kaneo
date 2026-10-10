@@ -1,11 +1,13 @@
 import { canSyncTask } from "../../sync/eligibility";
-import { and, asc, gt, sql } from "drizzle-orm";
+import { readSyncRules } from "../../sync/rules";
+import { and, asc, eq, gt, sql } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
 import { withJobLease } from "../../../scheduler/leader-lock";
 import { getGiteaIssueSyncMode, type GiteaConfig } from "../../gitea/config";
 import { createGiteaClient } from "../../gitea/utils/gitea-api";
+import { withGiteaAdmission } from "../../gitea/services/outbound-fence";
 import type { GitHubConfig } from "../config";
 import {
   issueEditScope,
@@ -32,6 +34,8 @@ import { isTaskInFinalState } from "./task-service";
 import {
   linkedTaskScope,
   integrationTaskRevision,
+  withIntegrationTask,
+  type IntegrationDatabase,
 } from "./integration-task-scope";
 import { withIntegrationLink } from "./with-integration-link";
 
@@ -106,6 +110,50 @@ async function issueAccess(
   };
 }
 
+// These fields were already admitted as incoming work. In ingest-only their
+// delivery must not evaluate outgoing labels or mutate an existing link pause.
+// Retain current binding/rule validity and the scoped task/link transaction.
+async function withPreservedInboundLink<T>(
+  link: { id: string; taskId: string },
+  integration: Integration,
+  apply: (
+    database: IntegrationDatabase,
+    afterCommit: (effect: () => Promise<void>) => void,
+    locked: typeof externalLinkTable.$inferSelect,
+  ) => Promise<T>,
+  expectedBinding: Integration = integration,
+) {
+  const effects: Array<() => Promise<void>> = [];
+  const result = await withGiteaAdmission(() =>
+    withIntegrationTask(
+      link.taskId,
+      integration,
+      async (tx) => {
+        const [locked] = await tx
+          .select()
+          .from(externalLinkTable)
+          .where(
+            and(
+              eq(externalLinkTable.id, link.id),
+              eq(externalLinkTable.taskId, link.taskId),
+              eq(externalLinkTable.integrationId, integration.id),
+              eq(externalLinkTable.resourceType, "issue"),
+            ),
+          )
+          .for("update");
+        if (!locked) return;
+        return apply(tx, (effect) => effects.push(effect), locked);
+      },
+      {
+        ...expectedBinding,
+        validate: (binding) => !!readSyncRules(binding.config),
+      },
+    ),
+  );
+  for (const effect of effects) await effect();
+  return result;
+}
+
 let running = false;
 let cursor: string | undefined;
 export async function replayDeferredIssueEdits() {
@@ -160,14 +208,19 @@ async function replayClaimedIssueEdits() {
           continue;
         }
         if (
-          !(await canSyncTask(
-            link.taskId,
-            integration.id,
-            undefined,
-            integration.config,
-          ))
+          !(ingestOnly
+            ? readSyncRules(integration.config)
+            : await canSyncTask(
+                link.taskId,
+                integration.id,
+                undefined,
+                integration.config,
+              ))
         )
           continue;
+        const withReplayLink = ingestOnly
+          ? withPreservedInboundLink
+          : withIntegrationLink;
         const fields = [
           ...new Set([
             ...job.fields,
@@ -206,7 +259,7 @@ async function replayClaimedIssueEdits() {
             throw error;
           // Only retire this read's job; credentials, binding, or queued fields
           // may have changed while the provider request was in flight.
-          await withIntegrationLink(
+          await withReplayLink(
             link,
             integration,
             async (tx) => {
@@ -238,7 +291,7 @@ async function replayClaimedIssueEdits() {
           value: string;
           intentIds: string[];
         }> = [];
-        const applied = await withIntegrationLink(
+        const applied = await withReplayLink(
           link,
           integration,
           async (tx, afterCommit, locked) => {

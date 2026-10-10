@@ -29,11 +29,11 @@ Reactivating an inactive connection through the API is a separate operation: if 
 
 Switching to **Two-way sync** checks the saved connection's repository write permissions before saving; a failed check leaves the mode unchanged. The token must also have the required issue-write scopes. If the connection changes while verification is running, reload the settings and try again.
 
-Switching away from **Two-way sync** cancels queued outbound issue repairs. **Ingest only** still processes queued inbound Gitea updates; **Off** discards them. Saving an unchanged mode does not rewrite queued work.
+Switching away from **Two-way sync** cancels queued outbound issue repairs. **Ingest only** still processes queued inbound Gitea updates, including updates to linked tasks excluded by outgoing label rules or paused for outgoing sync; their outgoing pause and rules remain unchanged. **Off** discards queued issue updates. Saving an unchanged mode does not rewrite queued work.
 
 A mode change waits for admitted outbound requests to finish or time out before saving. Once **Ingest only** or **Off** is saved, stale work cannot start new outbound issue, comment, or label requests while that mode remains active. Requests already received by Gitea may still complete remotely after a timeout; they cannot be cancelled by a later mode change.
 
-Each API instance admits at most four coordinated Gitea writes at once. Other writes wait without reserving database connections; the ten-second DNS and HTTP deadline starts when a request is admitted, not while it is queued. This keeps a slow Gitea server from consuming the entire API database pool.
+Each API instance admits at most four coordinated Gitea operations at once. Outbound writes, issue-import transactions, connection changes, and sync-rule saves share this admission limit; queued operations wait without reserving database connections. Admission is released before follow-up events or outbound dispatch. The ten-second DNS and HTTP deadline starts when a provider request is admitted, not while it is queued. Database row locks still coordinate authorization across API instances.
 
 All three modes retain live branch, push, and pull-request linking and workflow automation while the connection is active. **Off** is not a connection-wide disable switch. Task-link comments are available only in **Two-way sync**; their saved preference is kept in the other modes.
 
@@ -105,6 +105,8 @@ The alphanumeric format only matches keys of one to ten uppercase letters. For a
 ## Replace a token or disconnect
 
 To rotate credentials, enter a replacement token, verify access, and save. On an existing connection, an empty token field keeps the saved token; it does not clear it.
+
+Reconnecting preserves an existing usable webhook secret even if unrelated saved settings are invalid. Invalid settings are not copied into the repaired connection; credentials and the resulting configuration are still verified before saving. If no usable saved secret exists, reconnect creates a new one: update the webhook secret in Gitea before expecting deliveries to succeed.
 
 Choose **Disconnect** to remove the Kaneo connection. This does not delete the Gitea repository or Kaneo tasks. Remove the webhook in Gitea as well, and revoke its token if nothing else uses it.
 

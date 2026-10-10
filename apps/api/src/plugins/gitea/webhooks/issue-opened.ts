@@ -4,6 +4,7 @@ import { importIssueLabels } from "../../sync/issue-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { and, eq } from "drizzle-orm";
+import { withGiteaAdmission } from "../services/outbound-fence";
 import db from "../../../database";
 import {
   columnTable,
@@ -93,93 +94,110 @@ export async function handleGiteaIssueOpened(
     const priority = extractIssuePriority(issue.labels);
     const status = extractIssueStatus(issue.labels);
 
-    const result = await db.transaction(async (tx) => {
-      const [current] = await tx
-        .select()
-        .from(integrationTable)
-        .where(eq(integrationTable.id, integration.id))
-        .for("update");
-      if (
-        !current?.isActive ||
-        current.config !== integration.config ||
-        !acceptsIssue(current.config, issue.labels)
-      )
-        return null;
-      if (
-        await findExternalLink(
-          integration.id,
-          "issue",
-          String(issue.number),
-          tx,
+    const result = await withGiteaAdmission(() =>
+      db.transaction(async (tx) => {
+        // Rules saves lock project→integration. Take the task-number lock in
+        // that order too, while allowing key-share ownership checks to proceed.
+        const [project] = await tx
+          .select({ id: projectTable.id })
+          .from(projectTable)
+          .where(
+            and(
+              eq(projectTable.id, projectId),
+              eq(projectTable.workspaceId, integration.project.workspaceId),
+            ),
+          )
+          .for("no key update");
+        if (!project) return null;
+        const [current] = await tx
+          .select()
+          .from(integrationTable)
+          .where(eq(integrationTable.id, integration.id))
+          .for("update");
+        if (
+          !current?.isActive ||
+          current.projectId !== projectId ||
+          current.type !== "gitea" ||
+          current.config !== integration.config ||
+          !acceptsIssue(current.config, issue.labels)
         )
-      )
-        return null;
-      const resolvedStatus = await resolveTargetStatus(
-        projectId,
-        closed ? "issue_closed" : "issue_opened",
-        closed ? "done" : status || "to-do",
-        tx,
-      );
-      let targetColumn = await tx.query.columnTable.findFirst({
-        where: and(
-          eq(columnTable.projectId, projectId),
-          eq(columnTable.slug, resolvedStatus),
-        ),
-      });
-      if (closed && !targetColumn?.isFinal)
-        targetColumn = await tx.query.columnTable.findFirst({
+          return null;
+        if (
+          await findExternalLink(
+            integration.id,
+            "issue",
+            String(issue.number),
+            tx,
+          )
+        )
+          return null;
+        const resolvedStatus = await resolveTargetStatus(
+          projectId,
+          closed ? "issue_closed" : "issue_opened",
+          closed ? "done" : status || "to-do",
+          tx,
+        );
+        let targetColumn = await tx.query.columnTable.findFirst({
           where: and(
             eq(columnTable.projectId, projectId),
-            eq(columnTable.isFinal, true),
+            eq(columnTable.slug, resolvedStatus),
           ),
-          orderBy: (column, { asc }) => [asc(column.position)],
         });
-      const nextTaskNumber = await claimTaskNumber(projectId, tx);
-      const [task] = await tx
-        .insert(taskTable)
-        .values({
-          projectId,
-          userId: null,
-          title: issue.title,
-          description: formatTaskDescriptionFromIssue(issue.body),
-          status: closed ? (targetColumn?.slug ?? "done") : resolvedStatus,
-          columnId: targetColumn?.id ?? null,
-          priority: priority ?? "low",
-          number: nextTaskNumber,
-        })
-        .returning();
-      if (!task) throw new Error("Failed to create task from gitea issue");
-      const linkMetadata = {
-        state: closed ? "closed" : "open",
-        createdFrom: "gitea",
-        author: issue.user?.login ?? issue.user?.username,
-      };
-      const link = await createExternalLink(
-        {
-          taskId: task.id,
-          integrationId: integration.id,
-          resourceType: "issue",
-          externalId: String(issue.number),
-          url: issue.html_url,
-          title: issue.title,
-          metadata: linkMetadata,
-        },
-        tx,
-      );
-      await importIssueLabels(
-        task.id,
-        integration.project.workspaceId,
-        issue.labels,
-        tx,
-      );
-      const eligible = await canSyncTask(
-        task.id,
-        integration.id,
-        tx,
-        integration.config,
-      );
-      return { task, link, linkMetadata, eligible };
-    });
+        if (closed && !targetColumn?.isFinal)
+          targetColumn = await tx.query.columnTable.findFirst({
+            where: and(
+              eq(columnTable.projectId, projectId),
+              eq(columnTable.isFinal, true),
+            ),
+            orderBy: (column, { asc }) => [asc(column.position)],
+          });
+        const nextTaskNumber = await claimTaskNumber(projectId, tx);
+        const [task] = await tx
+          .insert(taskTable)
+          .values({
+            projectId,
+            userId: null,
+            title: issue.title,
+            description: formatTaskDescriptionFromIssue(issue.body),
+            status: closed ? (targetColumn?.slug ?? "done") : resolvedStatus,
+            columnId: targetColumn?.id ?? null,
+            priority: priority ?? "low",
+            number: nextTaskNumber,
+          })
+          .returning();
+        if (!task) throw new Error("Failed to create task from gitea issue");
+        const linkMetadata = {
+          state: closed ? "closed" : "open",
+          createdFrom: "gitea",
+          author: issue.user?.login ?? issue.user?.username,
+        };
+        const link = await createExternalLink(
+          {
+            taskId: task.id,
+            integrationId: integration.id,
+            resourceType: "issue",
+            externalId: String(issue.number),
+            url: issue.html_url,
+            title: issue.title,
+            metadata: linkMetadata,
+          },
+          tx,
+        );
+        await importIssueLabels(
+          task.id,
+          integration.project.workspaceId,
+          issue.labels,
+          tx,
+        );
+        const eligible = await canSyncTask(
+          task.id,
+          integration.id,
+          tx,
+          integration.config,
+        );
+        return { task, link, linkMetadata, eligible };
+      }),
+    );
     if (!result) continue;
     const { task: createdTask, link, eligible } = result;
 

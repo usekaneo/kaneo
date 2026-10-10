@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => {
     resolveTargetStatus: vi.fn(),
     publishEvent: vi.fn(),
     lockedIntegration: vi.fn(),
+    lockedProject: vi.fn(),
     columnFindFirst: vi.fn(),
     projectFindFirst: vi.fn(),
     createGiteaClient: vi.fn(),
@@ -22,7 +23,14 @@ const mocks = vi.hoisted(() => {
       transaction: async (run: (tx: unknown) => Promise<unknown>) =>
         run(mocks.db),
       select: () => ({
-        from: () => ({ where: () => ({ for: mocks.lockedIntegration }) }),
+        from: () => ({
+          where: () => ({
+            for: (strength: string) =>
+              strength === "no key update"
+                ? mocks.lockedProject()
+                : mocks.lockedIntegration(),
+          }),
+        }),
       }),
       insert: () => ({
         values: (values: Record<string, unknown>) => {
@@ -143,6 +151,7 @@ function issueOpenedPayload(labels: Array<string | { name?: string }>) {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.lockedIntegration.mockResolvedValue([integration]);
+  mocks.lockedProject.mockResolvedValue([{ id: "project-1" }]);
   mocks.insertedValues.length = 0;
   mocks.findAllIntegrationsByGiteaRepo.mockResolvedValue([integration]);
   mocks.findExternalLink.mockResolvedValue(null);

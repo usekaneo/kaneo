@@ -498,41 +498,69 @@ it.each(["ingest-only", "off"])(
   },
 );
 
-it.each([
-  {
-    name: "title and body",
-    fields: ["title", "description"] as const,
-    repairs: ["state"] as const,
-    expected: {
-      title: "Incoming title",
-      description: "Incoming body",
-      status: "to-do",
+it.each(
+  [
+    {
+      name: "title and body",
+      fields: ["title", "description"] as const,
+      repairs: ["state"] as const,
+      expected: {
+        title: "Incoming title",
+        description: "Incoming body",
+        status: "to-do",
+      },
     },
-  },
-  {
-    name: "state",
-    fields: ["state"] as const,
-    repairs: ["title", "description"] as const,
-    expected: { title: "B", description: "old body", status: "done" },
-  },
-])(
-  "applies mixed deferred inbound $name in ingest-only despite orphaned outbound intents without repairing Gitea",
-  async ({ fields, repairs, expected }) => {
-    const { task, integration, link } = await seed("gitea");
+    {
+      name: "state",
+      fields: ["state"] as const,
+      repairs: ["title", "description"] as const,
+      expected: { title: "B", description: "old body", status: "done" },
+    },
+  ].flatMap((entry) =>
+    ["eligible", "outgoing-excluded", "paused"].map((admission) => ({
+      ...entry,
+      admission,
+    })),
+  ),
+)(
+  "applies mixed deferred inbound $name in ingest-only on an $admission link despite orphaned outbound intents without repairing Gitea",
+  async ({ fields, repairs, expected, admission }) => {
+    const { project, task, integration, link } = await seed("gitea");
     await deferIssueEdit(link, integration, [...fields]);
     await deferTaskSync(link, integration, [...repairs]);
     const queued = (await metadata(link.id)).deferredIssueEdit;
     expect(queued.fields).toEqual(fields);
     expect(queued.repairFields).toEqual(repairs);
+    const [label] = await db
+      .insert(schema.labelTable)
+      .values({
+        workspaceId: project.workspaceId,
+        name: "outgoing-required",
+        color: "#123456",
+      })
+      .returning();
+    const rules = {
+      outgoing:
+        admission === "outgoing-excluded"
+          ? { mode: "labels", match: "all", labels: [label.id] }
+          : { mode: "all" },
+      incoming: { mode: "all" },
+    };
+    const config = JSON.stringify({
+      ...JSON.parse(integration.config),
+      issueSyncMode: "ingest-only",
+      syncRules: rules,
+    });
     await db
       .update(schema.integrationTable)
-      .set({
-        config: JSON.stringify({
-          ...JSON.parse(integration.config),
-          issueSyncMode: "ingest-only",
-        }),
-      })
+      .set({ config })
       .where(eq(schema.integrationTable.id, integration.id));
+    await updateExternalLink(link.id, {
+      metadata: {
+        syncFilterPaused: admission === "paused",
+        retained: "keep-me",
+      },
+    });
     m.read.mockResolvedValue({
       title: "Incoming title",
       body: "Incoming body",
@@ -541,10 +569,107 @@ it.each([
     });
     await replayDeferredIssueEdits();
     expect(await current(task.id)).toMatchObject(expected);
-    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    const settled = await metadata(link.id);
+    expect(settled.deferredIssueEdit).toBeUndefined();
+    expect(settled.syncFilterPaused).toBe(admission === "paused");
+    expect(settled.retained).toBe("keep-me");
+    const saved = await db.query.integrationTable.findFirst({
+      where: eq(schema.integrationTable.id, integration.id),
+    });
+    expect(saved?.config).toBe(config);
+    expect(JSON.parse(saved!.config).syncRules).toEqual(rules);
+    expect(m.read).toHaveBeenCalledTimes(1);
+    expect(m.write).not.toHaveBeenCalled();
+    await replayDeferredIssueEdits();
+    expect(m.read).toHaveBeenCalledTimes(1);
     expect(m.write).not.toHaveBeenCalled();
   },
 );
+
+it.each(["task-edited", "link-rebound", "mode-off", "rules-invalid"])(
+  "keeps preserved ingest-only work when %s changes during the authoritative read",
+  async (change) => {
+    const { task, integration, link } = await seed("gitea");
+    await deferIssueEdit(link, integration, ["title", "description"]);
+    const config = JSON.stringify({
+      ...JSON.parse(integration.config),
+      issueSyncMode: "ingest-only",
+    });
+    await db
+      .update(schema.integrationTable)
+      .set({ config })
+      .where(eq(schema.integrationTable.id, integration.id));
+    await updateExternalLink(link.id, {
+      metadata: { syncFilterPaused: true },
+    });
+    const queued = (await metadata(link.id)).deferredIssueEdit;
+    m.read.mockImplementationOnce(async () => {
+      if (change === "task-edited") {
+        await db
+          .update(schema.taskTable)
+          .set({ title: "new local title" })
+          .where(eq(schema.taskTable.id, task.id));
+      } else if (change === "link-rebound") {
+        await db
+          .update(schema.externalLinkTable)
+          .set({ resourceType: "pull_request" })
+          .where(eq(schema.externalLinkTable.id, link.id));
+      } else {
+        await db
+          .update(schema.integrationTable)
+          .set({
+            config: JSON.stringify({
+              ...JSON.parse(config),
+              ...(change === "mode-off"
+                ? { issueSyncMode: "off" }
+                : { syncRules: null }),
+            }),
+          })
+          .where(eq(schema.integrationTable.id, integration.id));
+      }
+      return {
+        title: "authoritative title",
+        body: "authoritative body",
+        state: "open",
+        updated_at: "2026-10-01T00:00:01Z",
+      };
+    });
+    await replayDeferredIssueEdits();
+    expect(await current(task.id)).toMatchObject({
+      title: change === "task-edited" ? "new local title" : "B",
+      description: "old body",
+    });
+    expect((await metadata(link.id)).deferredIssueEdit).toEqual(queued);
+    expect((await metadata(link.id)).syncFilterPaused).toBe(true);
+    expect(m.read).toHaveBeenCalledTimes(1);
+    expect(m.write).not.toHaveBeenCalled();
+  },
+);
+
+it("retires missing-issue preserved ingest-only work on a paused link without outbound repair", async () => {
+  const { task, integration, link } = await seed("gitea");
+  await deferIssueEdit(link, integration, ["title"]);
+  await db
+    .update(schema.integrationTable)
+    .set({
+      config: JSON.stringify({
+        ...JSON.parse(integration.config),
+        issueSyncMode: "ingest-only",
+      }),
+    })
+    .where(eq(schema.integrationTable.id, integration.id));
+  await updateExternalLink(link.id, {
+    metadata: { syncFilterPaused: true },
+  });
+  m.read.mockRejectedValue(
+    Object.assign(new Error("not found"), { status: 404 }),
+  );
+  expect(await replayDeferredIssueEdits()).toEqual({ degraded: false });
+  expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+  expect((await metadata(link.id)).syncFilterPaused).toBe(true);
+  expect((await current(task.id))?.title).toBe("B");
+  expect(m.write).not.toHaveBeenCalled();
+});
 
 it("keeps a new ingest-only webhook delivery that encounters an old pending outbound echo", async () => {
   const { task, integration, link } = await seed("gitea");

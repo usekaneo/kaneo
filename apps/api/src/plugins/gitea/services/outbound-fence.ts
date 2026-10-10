@@ -73,6 +73,22 @@ function releaseOutboundFence(): void {
   else activeOutboundFences--;
 }
 
+/** Share the four outbound slots with integration-locking database work before
+ * acquiring a pooled connection. SQL locks still coordinate across processes.
+ * Call only outside transactions, and release before follow-up event dispatch
+ * or outbound work so callers never wait for another slot while holding one.
+ */
+export async function withGiteaAdmission<T>(
+  work: () => Promise<T>,
+): Promise<T> {
+  await acquireOutboundFence();
+  try {
+    return await work();
+  } finally {
+    releaseOutboundFence();
+  }
+}
+
 /** Serialize one bounded provider mutation with settings saves. The callback must
  * not acquire a database connection, lock task/link rows, or compose requests.
  * Completion metadata is recorded after this transaction releases its lock.

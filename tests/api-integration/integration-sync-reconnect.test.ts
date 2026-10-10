@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { beforeEach, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
@@ -7,6 +8,7 @@ import createGitlabIntegration from "../../apps/api/src/gitlab-integration/contr
 import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
 import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
 import { saveSyncRules } from "../../apps/api/src/integration-sync/controllers/save-rules";
+import { handleGiteaWebhookRequest } from "../../apps/api/src/plugins/gitea/webhook-handler";
 import {
   defaultSyncRules,
   type SyncRules,
@@ -127,3 +129,174 @@ it.each(["gitea", "gitlab"] as const)(
     ).toEqual(rules);
   },
 );
+
+it("preserves signed incoming webhooks when reconnecting with invalid saved rules", async () => {
+  const { workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const webhookSecret = " test-only-existing-secret ";
+  const [integration] = await db
+    .insert(schema.integrationTable)
+    .values({
+      projectId: project.id,
+      type: "gitea",
+      isActive: true,
+      config: JSON.stringify({
+        baseUrl: "https://git.example",
+        accessToken: "old-test-token",
+        repositoryOwner: "team",
+        repositoryName: "repo",
+        webhookSecret,
+        issueSyncMode: "ingest-only",
+        syncRules: { incoming: { mode: "invalid" } },
+        branchPattern: "invalid-config-must-not-carry-forward",
+        commentTaskLinkOnGiteaIssue: false,
+      }),
+    })
+    .returning();
+
+  const reconnected = await createGiteaIntegration({
+    projectId: project.id,
+    baseUrl: "https://git.example",
+    accessToken: "new-test-token",
+    repositoryOwner: "team",
+    repositoryName: "repo",
+  });
+  expect(reconnected.webhookSecret).toBe(webhookSecret);
+  expect(reconnected.issueSyncMode).toBe("ingest-only");
+  expect(verify).toHaveBeenCalledWith("https://git.example", "new-test-token");
+  const saved = await db.query.integrationTable.findFirst({
+    where: eq(schema.integrationTable.id, integration!.id),
+  });
+  expect(JSON.parse(saved!.config)).toMatchObject({
+    accessToken: "new-test-token",
+    webhookSecret,
+    issueSyncMode: "ingest-only",
+    branchPattern: "{slug}-{number}",
+    commentTaskLinkOnGiteaIssue: true,
+  });
+  expect(JSON.parse(saved!.config).syncRules).toBeUndefined();
+
+  const body = JSON.stringify({
+    action: "created",
+    repository: {
+      owner: { login: "team" },
+      name: "repo",
+      html_url: "https://git.example/team/repo",
+    },
+    issue: {
+      number: 42,
+      title: "Signed issue after reconnect",
+      body: "Still authenticated with the existing secret",
+      html_url: "https://git.example/team/repo/issues/42",
+      state: "open",
+      labels: [],
+      user: { login: "author" },
+    },
+  });
+  const signature = createHmac("sha256", webhookSecret)
+    .update(body)
+    .digest("hex");
+  expect(
+    await handleGiteaWebhookRequest(integration!.id, body, signature, "issues"),
+  ).toEqual({ success: true });
+  const tasks = await db.query.taskTable.findMany({
+    where: eq(schema.taskTable.projectId, project.id),
+  });
+  expect(tasks).toMatchObject([
+    {
+      title: "Signed issue after reconnect",
+      description: "Still authenticated with the existing secret",
+    },
+  ]);
+  expect(
+    await db.query.externalLinkTable.findMany({
+      where: eq(schema.externalLinkTable.integrationId, integration!.id),
+    }),
+  ).toMatchObject([
+    { taskId: tasks[0]!.id, externalId: "42", resourceType: "issue" },
+  ]);
+  const invalidSignature = createHmac("sha256", "different-test-secret")
+    .update(body)
+    .digest("hex");
+  expect(
+    await handleGiteaWebhookRequest(
+      integration!.id,
+      body,
+      invalidSignature,
+      "issues",
+    ),
+  ).toMatchObject({ success: false });
+});
+
+it.each([
+  "{not-json",
+  "null",
+  JSON.stringify({ webhookSecret: 42 }),
+  JSON.stringify({ webhookSecret: "" }),
+  JSON.stringify({ webhookSecret: "   " }),
+])(
+  "generates a usable reconnect secret for unusable saved configuration %s",
+  async (config) => {
+    const { workspace } = await createWorkspaceMember();
+    const { project } = await createProjectFixture({
+      workspaceId: workspace.id,
+    });
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({ projectId: project.id, type: "gitea", isActive: true, config })
+      .returning();
+    const reconnected = await createGiteaIntegration({
+      projectId: project.id,
+      baseUrl: "https://git.example",
+      accessToken: "explicit-test-token",
+      repositoryOwner: "team",
+      repositoryName: "repo",
+      issueSyncMode: "off",
+    });
+    expect(reconnected.webhookSecret).toMatch(/^[a-f0-9]{48}$/);
+    expect(reconnected.issueSyncMode).toBe("off");
+    expect(verify).toHaveBeenCalledWith(
+      "https://git.example",
+      "explicit-test-token",
+    );
+    const saved = await db.query.integrationTable.findFirst({
+      where: eq(schema.integrationTable.id, integration!.id),
+    });
+    expect(JSON.parse(saved!.config).webhookSecret).toBe(
+      reconnected.webhookSecret,
+    );
+  },
+);
+
+it("does not bypass sync write permission verification when recovering a saved secret", async () => {
+  const { workspace } = await createWorkspaceMember();
+  const { project } = await createProjectFixture({ workspaceId: workspace.id });
+  const config = JSON.stringify({
+    baseUrl: "https://git.example",
+    accessToken: "old-test-token",
+    repositoryOwner: "team",
+    repositoryName: "repo",
+    webhookSecret: "test-only-existing-secret",
+    issueSyncMode: "ingest-only",
+    syncRules: { incoming: { mode: "invalid" } },
+  });
+  const [integration] = await db
+    .insert(schema.integrationTable)
+    .values({ projectId: project.id, type: "gitea", isActive: true, config })
+    .returning();
+  await expect(
+    createGiteaIntegration({
+      projectId: project.id,
+      baseUrl: "https://git.example",
+      accessToken: "new-test-token",
+      repositoryOwner: "team",
+      repositoryName: "repo",
+      issueSyncMode: "sync",
+    }),
+  ).rejects.toMatchObject({ status: 400 });
+  expect(verify).toHaveBeenCalledWith("https://git.example", "new-test-token");
+  const saved = await db.query.integrationTable.findFirst({
+    where: eq(schema.integrationTable.id, integration!.id),
+  });
+  expect(saved!.config).toBe(config);
+});

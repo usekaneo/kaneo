@@ -1,10 +1,19 @@
+import { createServer } from "node:http";
 import { eq, getTableName } from "drizzle-orm";
 import { Client } from "pg";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { claimTaskNumber } from "../../apps/api/src/task/controllers/claim-task-numbers";
 import type { GiteaConfig } from "../../apps/api/src/plugins/gitea/config";
 import { withGiteaOutboundWrite } from "../../apps/api/src/plugins/gitea/services/outbound-fence";
+import * as outboundFence from "../../apps/api/src/plugins/gitea/services/outbound-fence";
+import * as events from "../../apps/api/src/events";
+import updateGiteaIntegration from "../../apps/api/src/gitea-integration/controllers/update-gitea-integration";
+import { getSyncIntegration } from "../../apps/api/src/integration-sync/controllers/get-integration";
+import { previewSyncRules } from "../../apps/api/src/integration-sync/controllers/preview-rules";
+import { saveSyncRules } from "../../apps/api/src/integration-sync/controllers/save-rules";
+import { defaultSyncRules } from "../../apps/api/src/plugins/sync/rules";
+import { sendOutboundRequest } from "../../apps/api/src/utils/outbound-request";
 import { handleTaskCommentCreated } from "../../apps/api/src/plugins/gitea/events/task-comment-created";
 import { handleTaskStatusChanged } from "../../apps/api/src/plugins/gitea/events/task-status-changed";
 import { handleGiteaIssueOpened } from "../../apps/api/src/plugins/gitea/webhooks/issue-opened";
@@ -784,3 +793,441 @@ it("issue-opened stops before the backlink when its label fence is skipped", asy
   expect(client.addLabelsToIssue).not.toHaveBeenCalled();
   expect(client.createIssueComment).not.toHaveBeenCalled();
 });
+
+async function gatedHttpProvider() {
+  const release = Promise.withResolvers<void>();
+  const requests: string[] = [];
+  let active = 0;
+  let maximumActive = 0;
+  const server = createServer(async (request, response) => {
+    request.resume();
+    const path = request.url ?? "/";
+    requests.push(path);
+    active++;
+    maximumActive = Math.max(maximumActive, active);
+    if (path.startsWith("/slow/")) await release.promise;
+    active--;
+    response.setHeader("Content-Type", "application/json");
+    response.end(JSON.stringify({ id: 3 }));
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  if (!address || typeof address === "string")
+    throw new Error("Missing test provider port");
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+  return {
+    baseUrl,
+    requests,
+    release,
+    maximumActive: () => maximumActive,
+    send: (path: string) =>
+      sendOutboundRequest(
+        `${baseUrl}${path}`,
+        { body: JSON.stringify({ body: "Kaneo provider mutation" }) },
+        { readJson: true },
+      ),
+    close: async () => {
+      release.resolve();
+      server.closeAllConnections();
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    },
+  };
+}
+
+it("queues mixed webhook, settings, rules and outbound pressure without consuming connections or sending stale writes", async () => {
+  const f = await fixture();
+  const rulesFixture = await fixture();
+  const provider = await gatedHttpProvider();
+  const config = {
+    ...f.config,
+    baseUrl: provider.baseUrl,
+    syncRules: defaultSyncRules,
+  };
+  const rulesConfig = { ...rulesFixture.config, syncRules: defaultSyncRules };
+  await db
+    .update(schema.integrationTable)
+    .set({ config: JSON.stringify(config) })
+    .where(eq(schema.integrationTable.id, f.integration.id));
+  await db
+    .update(schema.integrationTable)
+    .set({ config: JSON.stringify(rulesConfig) })
+    .where(eq(schema.integrationTable.id, rulesFixture.integration.id));
+  const [label] = await db
+    .insert(schema.labelTable)
+    .values({
+      workspaceId: rulesFixture.project.workspaceId,
+      name: "outbound-only",
+      color: "#123456",
+    })
+    .returning();
+  const rules = {
+    ...defaultSyncRules,
+    outgoing: {
+      mode: "labels" as const,
+      match: "any" as const,
+      labels: [label.id],
+    },
+  };
+  const preview = await previewSyncRules(
+    await getSyncIntegration(rulesFixture.project.id, "gitea"),
+    rules,
+  );
+  const queued: number[] = [];
+  const admitted: number[] = [];
+  const admission = outboundFence.withGiteaAdmission;
+  const admissionSpy = vi
+    .spyOn(outboundFence, "withGiteaAdmission")
+    .mockImplementation(async (work) => {
+      const position = queued.length;
+      queued.push(position);
+      return admission(async () => {
+        admitted.push(position);
+        return work();
+      });
+    });
+  const pending: Promise<unknown>[] = [];
+  const observe = <T>(operation: Promise<T>) => {
+    pending.push(operation);
+    void operation.catch(() => undefined);
+    return operation;
+  };
+  const writes = Array.from({ length: 4 }, (_, index) =>
+    observe(
+      withGiteaOutboundWrite({ ...f.binding, config }, () =>
+        provider.send(`/slow/${index}`),
+      ),
+    ),
+  );
+  const staleSend = vi.fn(() => provider.send("/stale"));
+  try {
+    await vi.waitFor(() => expect(provider.requests).toHaveLength(4));
+    const settings = observe(
+      updateGiteaIntegration(f.project.id, { issueSyncMode: "off" }),
+    );
+    await vi.waitFor(() => expect(queued).toHaveLength(1));
+    const savedRules = observe(
+      saveSyncRules(
+        rulesFixture.project.id,
+        "gitea",
+        rules,
+        preview.previewToken,
+        rulesFixture.project.workspaceId,
+      ),
+    );
+    await vi.waitFor(() => expect(queued).toHaveLength(2));
+    for (let index = 0; index < 12; index++) {
+      const payload = issueOpenedPayload();
+      payload.issue.number = 42 + index;
+      payload.issue.html_url = `${provider.baseUrl}/owner/repo/issues/${42 + index}`;
+      payload.repository.html_url = `${provider.baseUrl}/owner/repo`;
+      observe(handleGiteaIssueOpened(payload, f.integration.id));
+      await vi.waitFor(() => expect(queued).toHaveLength(index + 3));
+    }
+    const staleWrites = [
+      observe(withGiteaOutboundWrite({ ...f.binding, config }, staleSend)),
+      observe(
+        withGiteaOutboundWrite(
+          { ...rulesFixture.binding, config: rulesConfig },
+          staleSend,
+        ),
+      ),
+    ];
+    expect(admitted).toEqual([]);
+    const pool = getDatabasePool();
+    expect(pool.waitingCount).toBe(0);
+    expect(pool.totalCount - pool.idleCount).toBe(4);
+    const localEdit = observe(
+      db
+        .update(schema.taskTable)
+        .set({ title: "Local edit during mixed pressure" })
+        .where(eq(schema.taskTable.id, f.task.id))
+        .returning()
+        .then(async ([task]) => {
+          expect(task.title).toBe("Local edit during mixed pressure");
+          await db
+            .update(schema.externalLinkTable)
+            .set({ metadata: JSON.stringify({ retained: "local link edit" }) })
+            .where(eq(schema.externalLinkTable.id, f.link.id));
+          const current = await db.query.externalLinkTable.findFirst({
+            where: eq(schema.externalLinkTable.id, f.link.id),
+          });
+          expect(JSON.parse(current!.metadata!)).toEqual({
+            retained: "local link edit",
+          });
+          return true;
+        }),
+    );
+    let edited = false;
+    void localEdit.then(() => {
+      edited = true;
+    });
+    await vi.waitFor(() => expect(edited).toBe(true));
+    expect(await pool.query("select 1 as responsive")).toMatchObject({
+      rows: [{ responsive: 1 }],
+    });
+    expect(pool.waitingCount).toBe(0);
+    expect(pool.totalCount - pool.idleCount).toBe(4);
+    expect(admitted).toEqual([]);
+    expect(provider.maximumActive()).toBe(4);
+    expect(staleSend).not.toHaveBeenCalled();
+    provider.release.resolve();
+    await Promise.all(pending);
+    expect(admitted).toEqual(queued);
+    expect(await settings).toMatchObject({ issueSyncMode: "off" });
+    expect(await savedRules).toMatchObject({ rules, willPause: 0, paused: 1 });
+    expect(await Promise.all(staleWrites)).toEqual([
+      { sent: false },
+      { sent: false },
+    ]);
+    expect(await Promise.all(writes)).toEqual(
+      Array.from({ length: 4 }, () => ({ sent: true, value: { id: 3 } })),
+    );
+    expect(provider.requests).toEqual(
+      expect.arrayContaining(Array.from({ length: 4 }, (_, i) => `/slow/${i}`)),
+    );
+    expect(provider.requests).toHaveLength(4);
+    expect(provider.maximumActive()).toBe(4);
+    expect(staleSend).not.toHaveBeenCalled();
+    expect(client.createIssueComment).not.toHaveBeenCalled();
+    expect(client.addLabelsToIssue).not.toHaveBeenCalled();
+    const links = await db.query.externalLinkTable.findMany({
+      where: eq(schema.externalLinkTable.integrationId, f.integration.id),
+    });
+    expect(links).toHaveLength(1);
+    expect(JSON.parse(links[0].metadata!)).toEqual({
+      retained: "local link edit",
+    });
+    expect(
+      await db.query.taskTable.findFirst({
+        where: eq(schema.taskTable.id, f.task.id),
+      }),
+    ).toMatchObject({ title: "Local edit during mixed pressure" });
+    const paused = await db.query.externalLinkTable.findFirst({
+      where: eq(schema.externalLinkTable.id, rulesFixture.link.id),
+    });
+    expect(JSON.parse(paused!.metadata!)).toMatchObject({
+      syncFilterPaused: true,
+    });
+  } finally {
+    provider.release.resolve();
+    await Promise.allSettled(pending);
+    admissionSpy.mockRestore();
+    await provider.close();
+  }
+}, 20000);
+
+it("releases all four issue-opened admissions before publishing and dispatching backlinks", async () => {
+  const provider = await gatedHttpProvider();
+  const fixtures = await Promise.all(
+    Array.from({ length: 4 }, () => fixture()),
+  );
+  const dispatch = Promise.withResolvers<void>();
+  let imported = 0;
+  const publish = vi
+    .spyOn(events, "publishEvent")
+    .mockImplementation(async (name) => {
+      if (name !== "task.created") return;
+      imported++;
+      await dispatch.promise;
+    });
+  client.createIssueComment.mockImplementation(async (...args: unknown[]) => {
+    await provider.send(`/backlink/${args[2]}`);
+    return { id: 3 };
+  });
+  const pending: Promise<unknown>[] = [];
+  try {
+    for (const [index, f] of fixtures.entries()) {
+      await db
+        .update(schema.integrationTable)
+        .set({
+          config: JSON.stringify({ ...f.config, baseUrl: provider.baseUrl }),
+        })
+        .where(eq(schema.integrationTable.id, f.integration.id));
+      const payload = issueOpenedPayload();
+      payload.issue.number = 42 + index;
+      payload.issue.labels = [];
+      payload.issue.html_url = `${provider.baseUrl}/owner/repo/issues/${42 + index}`;
+      payload.repository.html_url = `${provider.baseUrl}/owner/repo`;
+      const webhook = handleGiteaIssueOpened(payload, f.integration.id);
+      pending.push(webhook);
+      void webhook.catch(() => undefined);
+    }
+    await vi.waitFor(() => expect(imported).toBe(4), { timeout: 5000 });
+    expect(client.createIssueComment).not.toHaveBeenCalled();
+    const f = fixtures[0];
+    const probe = withGiteaOutboundWrite(
+      { ...f.binding, config: { ...f.config, baseUrl: provider.baseUrl } },
+      () => provider.send("/before-dispatch"),
+    );
+    pending.push(probe);
+    void probe.catch(() => undefined);
+    await vi.waitFor(() =>
+      expect(provider.requests).toEqual(["/before-dispatch"]),
+    );
+    expect(await probe).toEqual({ sent: true, value: { id: 3 } });
+    for (const [index, fixture] of fixtures.entries()) {
+      const links = await db.query.externalLinkTable.findMany({
+        where: eq(
+          schema.externalLinkTable.integrationId,
+          fixture.integration.id,
+        ),
+        with: { task: true },
+      });
+      expect(links).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            externalId: String(42 + index),
+            task: expect.objectContaining({ title: "Imported issue" }),
+          }),
+        ]),
+      );
+    }
+    dispatch.resolve();
+    await Promise.all(pending);
+    expect(client.createIssueComment).toHaveBeenCalledTimes(4);
+    expect(provider.requests).toHaveLength(5);
+    expect(provider.requests).toEqual(
+      expect.arrayContaining([
+        "/before-dispatch",
+        ...Array.from({ length: 4 }, (_, index) => `/backlink/${42 + index}`),
+      ]),
+    );
+  } finally {
+    dispatch.resolve();
+    provider.release.resolve();
+    await Promise.allSettled(pending);
+    publish.mockRestore();
+    client.createIssueComment.mockReset().mockResolvedValue({ id: 3 });
+    await provider.close();
+  }
+}, 20000);
+
+it("lets a rules save commit while an issue import waits for task numbering and revalidates incoming rules", async () => {
+  const f = await fixture();
+  const config = {
+    ...f.config,
+    issueSyncMode: "ingest-only" as const,
+    syncRules: defaultSyncRules,
+  };
+  await db
+    .update(schema.integrationTable)
+    .set({ config: JSON.stringify(config) })
+    .where(eq(schema.integrationTable.id, f.integration.id));
+  const rules = {
+    ...defaultSyncRules,
+    incoming: {
+      mode: "labels" as const,
+      match: "all" as const,
+      labels: ["approved"],
+    },
+  };
+  const preview = await previewSyncRules(
+    await getSyncIntegration(f.project.id, "gitea"),
+    rules,
+  );
+  const holder = new Client({ connectionString: process.env.DATABASE_URL });
+  const observer = new Client({ connectionString: process.env.DATABASE_URL });
+  await holder.connect();
+  await observer.connect();
+  const [{ pid }] = (
+    await holder.query<{ pid: number }>("select pg_backend_pid() as pid")
+  ).rows;
+  const pending: Promise<unknown>[] = [];
+  try {
+    await holder.query("begin");
+    await holder.query(
+      `select id from "${getTableName(schema.projectTable)}" where id = $1 for share`,
+      [f.project.id],
+    );
+    const webhook = handleGiteaIssueOpened(
+      issueOpenedPayload(),
+      f.integration.id,
+    );
+    pending.push(webhook);
+    void webhook.catch(() => undefined);
+    await vi.waitFor(
+      async () => {
+        const { rows } = await observer.query<{ blocked: boolean }>(
+          `select exists (
+            select 1 from pg_stat_activity waiting
+            join pg_locks held on held.pid = $1
+            where $1 = any(pg_blocking_pids(waiting.pid))
+              and waiting.wait_event_type = 'Lock'
+              and held.locktype = 'relation' and held.relation = $2::regclass
+              and held.mode = 'RowShareLock' and held.granted
+          ) as blocked`,
+          [pid, getTableName(schema.projectTable)],
+        );
+        expect(rows[0].blocked).toBe(true);
+      },
+      { timeout: 5000, interval: 10 },
+    );
+    let committed = false;
+    const save = saveSyncRules(
+      f.project.id,
+      "gitea",
+      rules,
+      preview.previewToken,
+      f.project.workspaceId,
+    ).then((result) => {
+      committed = true;
+      return result;
+    });
+    pending.push(save);
+    void save.catch(() => undefined);
+    await vi.waitFor(() => expect(committed).toBe(true), { timeout: 5000 });
+    expect(await save).toMatchObject({ rules });
+    expect(
+      await db.query.externalLinkTable.findMany({
+        where: eq(schema.externalLinkTable.integrationId, f.integration.id),
+      }),
+    ).toHaveLength(1);
+    await holder.query("commit");
+    await webhook;
+    expect(
+      await db.query.externalLinkTable.findMany({
+        where: eq(schema.externalLinkTable.integrationId, f.integration.id),
+      }),
+    ).toHaveLength(1);
+    const accepted = issueOpenedPayload();
+    accepted.issue.labels = ["approved"];
+    await handleGiteaIssueOpened(accepted, f.integration.id);
+    await handleGiteaIssueOpened(accepted, f.integration.id);
+    const excluded = issueOpenedPayload();
+    excluded.issue.number = 43;
+    excluded.issue.html_url = "https://gitea.example/owner/repo/issues/43";
+    await handleGiteaIssueOpened(excluded, f.integration.id);
+    const links = await db.query.externalLinkTable.findMany({
+      where: eq(schema.externalLinkTable.integrationId, f.integration.id),
+      with: { task: true },
+    });
+    expect(links).toHaveLength(2);
+    expect(links).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          externalId: "42",
+          task: expect.objectContaining({
+            title: "Imported issue",
+            number: f.task.number! + 1,
+          }),
+        }),
+      ]),
+    );
+    const project = await db.query.projectTable.findFirst({
+      where: eq(schema.projectTable.id, f.project.id),
+    });
+    expect(project?.lastTaskNumber).toBe(f.task.number! + 1);
+    const integration = await db.query.integrationTable.findFirst({
+      where: eq(schema.integrationTable.id, f.integration.id),
+    });
+    expect(JSON.parse(integration!.config).syncRules).toEqual(rules);
+    expect(client.createIssueComment).not.toHaveBeenCalled();
+    expect(client.addLabelsToIssue).not.toHaveBeenCalled();
+    expect(client.updateIssue).not.toHaveBeenCalled();
+  } finally {
+    await holder.query("rollback");
+    await Promise.allSettled(pending);
+    await holder.end();
+    await observer.end();
+  }
+}, 20000);
