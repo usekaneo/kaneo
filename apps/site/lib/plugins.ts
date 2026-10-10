@@ -21,5 +21,5 @@ export const pluginLinks = {
 };
 
 export function installCommand(packageName: string) {
-  return `kaneo add ${packageName}`;
+  return `kaneo plugin add ${packageName}`;
 }

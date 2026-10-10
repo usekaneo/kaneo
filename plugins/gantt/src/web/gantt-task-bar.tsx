@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { getBarGridColumns } from "./bar-grid-columns.js";
+import { getBarLayout } from "./bar-layout.js";
 import { cn } from "./cn.js";
 import { type DateRange, type DragKind, dragRange } from "./drag-range.js";
 import type { ScheduledTask } from "./scheduled-task.js";
@@ -158,6 +159,13 @@ export function GanttTaskBar({
     return null;
   }
 
+  const { labelOutside, showResizeHandles } = getBarLayout({
+    isMobile,
+    barWidthPx: (lineEnd - lineStart) * pxPerDay,
+    lineEnd,
+    trackCount,
+  });
+
   return (
     <div
       className="pointer-events-none absolute inset-0 z-[1] grid items-center"
@@ -169,17 +177,19 @@ export function GanttTaskBar({
         style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
         className="group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40 sm:h-11 sm:min-h-0"
       >
-        <button
-          type="button"
-          aria-label={t("resizeStart")}
-          disabled={!startIsVisible}
-          onPointerDown={handleResizePointerDown("start")}
-          className={cn(
-            "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
-            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-          )}
-        />
+        {showResizeHandles && (
+          <button
+            type="button"
+            aria-label={t("resizeStart")}
+            disabled={!startIsVisible}
+            onPointerDown={handleResizePointerDown("start")}
+            className={cn(
+              "relative z-20 shrink-0 cursor-ew-resize touch-none border-r border-primary/15 bg-primary/8 hover:bg-primary/18",
+              "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+            )}
+          />
+        )}
         <button
           type="button"
           aria-label={t("taskAriaLabel", { title: task.title })}
@@ -193,20 +203,38 @@ export function GanttTaskBar({
           }}
         >
           <div className="absolute inset-0 z-0 bg-primary/12 transition-colors group-hover:bg-primary/18" />
-          <span className="relative z-10 block truncate">{task.title}</span>
+          <span
+            className={cn(
+              "relative z-10 block truncate",
+              labelOutside && "sr-only",
+            )}
+          >
+            {task.title}
+          </span>
         </button>
-        <button
-          type="button"
-          aria-label={t("resizeDue")}
-          disabled={!endIsVisible}
-          onPointerDown={handleResizePointerDown("end")}
-          className={cn(
-            "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
-            "min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 sm:w-2",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-          )}
-        />
+        {showResizeHandles && (
+          <button
+            type="button"
+            aria-label={t("resizeDue")}
+            disabled={!endIsVisible}
+            onPointerDown={handleResizePointerDown("end")}
+            className={cn(
+              "relative z-20 shrink-0 cursor-ew-resize touch-none border-l border-primary/15 bg-primary/8 hover:bg-primary/18",
+              "min-h-[44px] w-6 sm:min-h-0 sm:w-2",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+            )}
+          />
+        )}
       </div>
+      {labelOutside && (
+        <span
+          aria-hidden="true"
+          style={{ gridColumn: `${lineEnd} / ${trackCount + 1}` }}
+          className="min-w-0 truncate pl-1 text-xs font-medium text-foreground/80"
+        >
+          {task.title}
+        </span>
+      )}
     </div>
   );
 }

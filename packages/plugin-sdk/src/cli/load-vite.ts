@@ -1,7 +1,8 @@
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { CliError, errorMessage } from "./errors.js";
+import { errorMessage } from "./errors/error-message.js";
+import { ViteMissing, ViteTooOld, ViteUnloadable } from "./errors/errors.js";
 
 export type ViteConfig = Record<string, unknown>;
 
@@ -15,9 +16,6 @@ export type ViteFlavor = {
   rolldown: boolean;
   bundlerOptionsKey: "rollupOptions" | "rolldownOptions";
 };
-
-const MISSING_VITE =
-  "kaneo-plugin build needs Vite 7 or newer. Add it to the plugin: npm install --save-dev vite";
 
 function resolveFromRoot(root: string): string | null {
   try {
@@ -33,12 +31,12 @@ export async function loadVite(root: string): Promise<ViteModule> {
   try {
     vite = await import(resolved ? pathToFileURL(resolved).href : "vite");
   } catch (error) {
-    throw new CliError(
-      resolved ? `Could not load Vite: ${errorMessage(error)}` : MISSING_VITE,
-    );
+    throw resolved
+      ? new ViteUnloadable({ detail: errorMessage(error) })
+      : new ViteMissing();
   }
   if (typeof vite.build !== "function" || typeof vite.version !== "string") {
-    throw new CliError(MISSING_VITE);
+    throw new ViteMissing();
   }
   return vite as ViteModule;
 }
@@ -46,9 +44,7 @@ export async function loadVite(root: string): Promise<ViteModule> {
 export function describeVite(vite: ViteModule): ViteFlavor {
   const major = Number.parseInt(vite.version, 10);
   if (major < 7) {
-    throw new CliError(
-      `kaneo-plugin build needs Vite 7 or newer, found ${vite.version}`,
-    );
+    throw new ViteTooOld({ version: vite.version });
   }
   return {
     rolldown: typeof vite.rolldownVersion === "string",

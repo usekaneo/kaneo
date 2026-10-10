@@ -223,7 +223,7 @@ describe("plugin host API", () => {
     const response = await app.request(
       `/api/plugins?workspaceId=${workspace.id}`,
     );
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
   });
 
   it("enables a plugin, validates settings and keeps secrets write-only", async () => {
@@ -341,7 +341,7 @@ describe("plugin host API", () => {
       `/api/plugins/${PLUGIN_ID}/tasks/missing/progress?workspaceId=${workspace.id}`,
       json("PUT", { value: 1 }),
     );
-    expect(missingTask.status).toBe(400);
+    expect(missingTask.status).toBe(404);
 
     mockAuthenticatedSession(viewer);
     const forbidden = await app.request(progress, json("PUT", { value: 50 }));
@@ -349,7 +349,7 @@ describe("plugin host API", () => {
 
     mockAuthenticatedSession(outsider.user);
     const outside = await app.request(progress, json("PUT", { value: 60 }));
-    expect(outside.status).toBe(403);
+    expect(outside.status).toBe(404);
 
     mockAnonymousSession();
     const anonymous = await app.request(progress, json("PUT", { value: 70 }));

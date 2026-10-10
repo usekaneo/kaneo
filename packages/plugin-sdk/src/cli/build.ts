@@ -1,46 +1,54 @@
-import { rm } from "node:fs/promises";
-import { join, relative } from "node:path";
+import { relative } from "node:path";
+import { Effect } from "effect";
+import { attempt } from "./attempt.js";
+import { type BuildResult, describePlugin } from "./build-result.js";
+import { listBuiltFiles } from "./built-files.js";
 import { checkOutputs } from "./check-outputs.js";
 import { emitTypes } from "./emit-types.js";
-import { findEntries } from "./entries.js";
-import { CliError } from "./errors.js";
-import { describeVite, loadVite } from "./load-vite.js";
-import { log } from "./log.js";
-import { readManifest } from "./manifest.js";
+import { InvalidOutput } from "./errors/errors.js";
 import { createNodeConfig } from "./node-config.js";
-import { printSummary } from "./summary.js";
+import { step, warn } from "./output/progress.js";
+import { prepareBuild } from "./prepare-build.js";
 import { createWebConfig } from "./web-config.js";
 
-export async function buildPlugin(root: string): Promise<void> {
-  const manifest = await readManifest(root);
-  const entries = findEntries(root);
-  const vite = await loadVite(root);
-  const flavor = describeVite(vite);
+export const buildPlugin = Effect.fn("kaneo-plugin.build")(function* (
+  root: string,
+) {
+  const { manifest, entries, vite, flavor } = yield* prepareBuild(root);
   const nodeInputs = [entries.index, entries.server]
     .filter((entry): entry is string => entry !== null)
     .map((entry) => relative(root, entry));
 
-  await rm(join(root, "dist"), { recursive: true, force: true });
+  yield* step(`Building ${nodeInputs.join(" and ")} for Node`);
+  yield* attempt(() =>
+    vite.build(createNodeConfig(root, entries, flavor, false)),
+  );
 
-  log.step(`Building ${nodeInputs.join(" and ")} for Node`);
-  await vite.build(createNodeConfig(root, entries, flavor, false));
-
-  if (entries.web) {
-    log.step(`Building ${relative(root, entries.web)} for the browser`);
-    await vite.build(createWebConfig(root, entries.web, flavor, false));
+  const web = entries.web;
+  if (web) {
+    yield* step(`Building ${relative(root, web)} for the browser`);
+    yield* attempt(() => vite.build(createWebConfig(root, web, flavor, false)));
   }
 
-  log.step("Generating dist/index.d.ts");
-  const typesEmitted = await emitTypes(root, entries, manifest.packageJson);
+  yield* step("Generating dist/index.d.ts");
+  const types = yield* attempt(() =>
+    emitTypes(root, entries, manifest.packageJson),
+  );
+  yield* Effect.forEach(types.warnings, warn, { discard: true });
+  yield* Effect.forEach(types.notes, step, { discard: true });
 
-  const issues = await checkOutputs(root, manifest, entries, typesEmitted);
-  for (const warning of issues.warnings) log.warn(warning);
-  if (issues.errors.length > 0) {
-    const list = issues.errors.map((error) => `  - ${error}`).join("\n");
-    throw new CliError(
-      `The build output is not a valid Kaneo plugin:\n${list}`,
-    );
-  }
+  const issues = yield* attempt(() =>
+    checkOutputs(root, manifest, entries, types.emitted),
+  );
+  yield* Effect.forEach(issues.warnings, warn, { discard: true });
+  if (issues.errors.length > 0)
+    return yield* Effect.fail(new InvalidOutput({ problems: issues.errors }));
 
-  await printSummary(root, manifest.plugin);
-}
+  const files = yield* attempt(() => listBuiltFiles(root));
+  const result: BuildResult = {
+    plugin: describePlugin(manifest.plugin),
+    files,
+    warnings: [...types.warnings, ...issues.warnings],
+  };
+  return result;
+});

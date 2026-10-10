@@ -1,23 +1,26 @@
-import { writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { eq } from "drizzle-orm";
-import { afterAll, beforeEach, describe, expect, it } from "vite-plus/test";
-import { CliError } from "../../apps/api/src/cli/cli-error";
 import {
-  type PurgeDependencies,
-  runPurge,
-} from "../../apps/api/src/cli/commands/purge/run-purge";
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
-import {
-  countPluginData,
-  deletePluginData,
-} from "../../apps/api/src/plugin-host/data/plugin-data";
+import { stopPluginJobs } from "../../apps/api/src/plugin-host/context/plugin-jobs";
+import { loadPlugins } from "../../apps/api/src/plugin-host/loader/load-plugins";
+import { clearLoadedPlugins } from "../../apps/api/src/plugin-host/registry";
+import { createInstanceAdmin } from "./helpers/admin/create-instance-admin";
+import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
 import {
   removePluginPackage,
   writePluginPackage,
 } from "./helpers/plugin-package";
+import { projectAccessApi } from "./helpers/project-access/project-access-api";
 
 const REMOVED = "kaneo-plugin-removed";
 const KEPT = "kaneo-plugin-kept";
@@ -25,24 +28,6 @@ const SERVER =
   "export default { kind: 'kaneo-server', apiVersion: 1, settings: {}, setup() {} };\n";
 
 const pluginDirs: string[] = [];
-
-function dependencies({
-  interactive = false,
-  answer = "",
-}: { interactive?: boolean; answer?: string } = {}) {
-  const out: string[] = [];
-  const err: string[] = [];
-  const deps: PurgeDependencies = {
-    output: {
-      log: (message) => out.push(message),
-      error: (message) => err.push(message),
-    },
-    prompt: { interactive, ask: async () => answer },
-    countData: countPluginData,
-    deleteData: deletePluginData,
-  };
-  return { out, err, deps };
-}
 
 async function seed() {
   const first = await createWorkspaceMember();
@@ -62,6 +47,7 @@ async function seed() {
     { workspaceId: second.workspace.id, pluginId: REMOVED, key: "a", value: 3 },
     { workspaceId: first.workspace.id, pluginId: KEPT, key: "a", value: 4 },
   ]);
+  return first;
 }
 
 async function rowsFor(pluginId: string) {
@@ -76,126 +62,125 @@ async function rowsFor(pluginId: string) {
   return { storage: storage.length, workspaces: settings.length };
 }
 
-async function configWith(pluginId: string, extra = "") {
+async function install(pluginId: string, official: boolean) {
   const { dir, descriptor } = await writePluginPackage(pluginId, SERVER);
   pluginDirs.push(dir);
-  const configPath = join(dir, "kaneo.config.mjs");
-  await writeFile(
-    configPath,
-    `export default { ${extra} plugins: [${JSON.stringify(descriptor)}] };\n`,
-  );
-  return configPath;
+  await loadPlugins([descriptor], {
+    configPath: "/kaneo/kaneo.config.ts",
+    kaneoVersion: "2.29.3",
+    official: new Set(official ? [descriptor] : []),
+  });
+}
+
+async function purgeAsAdmin(pluginId: string) {
+  mockAuthenticatedSession(await createInstanceAdmin());
+  return projectAccessApi()(`/plugins/${pluginId}/data`, {
+    method: "DELETE",
+  });
 }
 
 beforeEach(async () => {
+  vi.stubEnv("KANEO_CONFIG", "");
+  vi.stubEnv("DISABLE_PLUGINS", "");
   await resetTestDatabase();
-  await seed();
+});
+
+afterEach(() => {
+  stopPluginJobs();
+  clearLoadedPlugins();
+  vi.unstubAllEnvs();
 });
 
 afterAll(async () => {
   await Promise.all(pluginDirs.map(removePluginPackage));
 });
 
-describe("kaneo plugin purge", () => {
+describe("DELETE /api/plugins/{pluginId}/data", () => {
   it("deletes only the purged plugin's rows and reports counts per table", async () => {
-    const { out, deps } = dependencies();
+    await seed();
 
-    expect(
-      await runPurge({ pluginId: REMOVED, yes: true, configPath: null }, deps),
-    ).toBe(0);
-    expect(out).toEqual([
-      `Plugin "${REMOVED}" has 3 rows in plugin_storage and 2 rows in workspace_plugin.`,
-      "Deleted 3 rows from plugin_storage.",
-      "Deleted 2 rows from workspace_plugin.",
-    ]);
+    const response = await purgeAsAdmin(REMOVED);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ storage: 3, workspaces: 2 });
     expect(await rowsFor(REMOVED)).toEqual({ storage: 0, workspaces: 0 });
     expect(await rowsFor(KEPT)).toEqual({ storage: 1, workspaces: 1 });
   });
 
-  it("asks for the plugin id in a terminal and keeps data on a wrong answer", async () => {
-    const wrong = dependencies({ interactive: true, answer: "yes" });
-    expect(
-      await runPurge(
-        { pluginId: REMOVED, yes: false, configPath: null },
-        wrong.deps,
-      ),
-    ).toBe(1);
-    expect(wrong.err).toEqual(["Cancelled. Nothing was deleted."]);
-    expect(await rowsFor(REMOVED)).toEqual({ storage: 3, workspaces: 2 });
+  it("reports zero rows when the plugin has no data", async () => {
+    const response = await purgeAsAdmin("kaneo-plugin-never");
 
-    const right = dependencies({ interactive: true, answer: REMOVED });
-    expect(
-      await runPurge(
-        { pluginId: REMOVED, yes: false, configPath: null },
-        right.deps,
-      ),
-    ).toBe(0);
-    expect(await rowsFor(REMOVED)).toEqual({ storage: 0, workspaces: 0 });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ storage: 0, workspaces: 0 });
   });
 
-  it("refuses to purge without --yes outside a terminal", async () => {
-    const { deps } = dependencies();
-    await expect(
-      runPurge({ pluginId: REMOVED, yes: false, configPath: null }, deps),
-    ).rejects.toThrow(`Run kaneo plugin purge ${REMOVED} --yes`);
-    expect(await rowsFor(REMOVED)).toEqual({ storage: 3, workspaces: 2 });
-  });
+  it("refuses a plugin that is still installed", async () => {
+    await seed();
+    await install(REMOVED, false);
 
-  it("refuses a plugin that is still in the config", async () => {
-    const configPath = await configWith(REMOVED);
-    const { deps } = dependencies();
+    const response = await purgeAsAdmin(REMOVED);
 
-    await expect(
-      runPurge({ pluginId: REMOVED, yes: true, configPath }, deps),
-    ).rejects.toThrow(
-      `Plugin "${REMOVED}" is still installed. Remove it from kaneo.config.mjs`,
-    );
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      message: `Plugin "${REMOVED}" is still installed. Remove it from kaneo.config.ts and restart Kaneo, then purge its data.`,
+    });
     expect(await rowsFor(REMOVED)).toEqual({ storage: 3, workspaces: 2 });
   });
 
   it("refuses a built-in plugin until the config turns it off", async () => {
+    const { workspace } = await seed();
     await db.insert(schema.workspacePluginTable).values({
-      workspaceId: (await createWorkspaceMember()).workspace.id,
-      pluginId: "gantt",
+      workspaceId: workspace.id,
+      pluginId: "gantt-integration",
       enabled: false,
     });
-    const refused = dependencies();
-    await expect(
-      runPurge(
-        { pluginId: "gantt", yes: true, configPath: null },
-        refused.deps,
-      ),
-    ).rejects.toThrow(CliError);
-    expect(await rowsFor("gantt")).toEqual({ storage: 0, workspaces: 1 });
+    await install("gantt-integration", true);
 
-    const configPath = await configWith(KEPT, "official: { gantt: false },");
-    const allowed = dependencies();
-    expect(
-      await runPurge(
-        { pluginId: "gantt", yes: true, configPath },
-        allowed.deps,
-      ),
-    ).toBe(0);
-    expect(await rowsFor("gantt")).toEqual({ storage: 0, workspaces: 0 });
+    const refused = await purgeAsAdmin("gantt-integration");
+    expect(refused.status).toBe(409);
+    expect((await refused.json()).message).toContain(
+      "official: { gantt-integration: false }",
+    );
+    expect(await rowsFor("gantt-integration")).toEqual({
+      storage: 0,
+      workspaces: 1,
+    });
+
+    clearLoadedPlugins();
+    const allowed = await purgeAsAdmin("gantt-integration");
+    expect(allowed.status).toBe(200);
+    expect(await rowsFor("gantt-integration")).toEqual({
+      storage: 0,
+      workspaces: 0,
+    });
   });
 
-  it("does nothing when the plugin has no data", async () => {
-    const { out, deps } = dependencies();
-    expect(
-      await runPurge(
-        { pluginId: "kaneo-plugin-never", yes: false, configPath: null },
-        deps,
-      ),
-    ).toBe(0);
-    expect(out).toEqual([
-      'Plugin "kaneo-plugin-never" has no stored data. Nothing to delete.',
-    ]);
+  it("refuses while plugins are turned off, because it cannot tell what is installed", async () => {
+    await seed();
+    vi.stubEnv("DISABLE_PLUGINS", "true");
+
+    const response = await purgeAsAdmin(REMOVED);
+
+    expect(response.status).toBe(409);
+    expect((await response.json()).message).toContain("DISABLE_PLUGINS=true");
+    expect(await rowsFor(REMOVED)).toEqual({ storage: 3, workspaces: 2 });
+  });
+
+  it("is limited to instance administrators", async () => {
+    const member = await seed();
+    mockAuthenticatedSession(member.user);
+
+    const response = await projectAccessApi()(`/plugins/${REMOVED}/data`, {
+      method: "DELETE",
+    });
+
+    expect(response.status).toBe(403);
+    expect(await rowsFor(REMOVED)).toEqual({ storage: 3, workspaces: 2 });
   });
 
   it("rejects values that cannot be plugin ids", async () => {
-    const { deps } = dependencies();
-    await expect(
-      runPurge({ pluginId: "Not An Id", yes: true, configPath: null }, deps),
-    ).rejects.toThrow("is not a plugin id");
+    const response = await purgeAsAdmin("Not_An_Id");
+
+    expect(response.status).toBe(400);
   });
 });

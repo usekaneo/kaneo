@@ -3,6 +3,7 @@ import type {
   PluginEventName,
   SettingsSchema,
 } from "@kaneo/plugin-sdk";
+import type { PluginWebAssets } from "@kaneo/plugin-loader";
 import type { Hono } from "hono";
 import type { BaseVariables } from "../openapi";
 
@@ -21,13 +22,6 @@ export type PluginServerRuntime = {
   routes: PluginRoutesApp;
   webhooks: Hono;
   handlers: PluginEventHandlers;
-};
-
-export type PluginWebAssets = {
-  root: string;
-  entry: string;
-  styles: string | null;
-  excluded: string[];
 };
 
 export type LoadedPlugin = {

@@ -1,7 +1,6 @@
 import { realpath, stat } from "node:fs/promises";
 import { join } from "node:path";
-import { isInsideDirectory } from "../is-inside-directory";
-import type { PluginWebAssets } from "../types";
+import { isInsideDirectory, type PluginWebAssets } from "@kaneo/plugin-loader";
 
 export type AssetFile = {
   path: string;

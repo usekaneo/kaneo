@@ -9,7 +9,17 @@ export default defineConfig({
           { task: "build", from: ["dependencies", "devDependencies"] },
         ],
         cache: {
-          input: ["src/**", "tsconfig.json", "package.json"],
+          input: [
+            { auto: true },
+            "src/**",
+            "tsconfig.json",
+            {
+              pattern: "packages/typescript-config/base.json",
+              base: "workspace",
+            },
+            "package.json",
+            { pattern: "pnpm-lock.yaml", base: "workspace" },
+          ],
           output: ["dist/**"],
         },
       },

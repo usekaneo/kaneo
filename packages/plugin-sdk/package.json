@@ -56,7 +56,8 @@
 		"prepublishOnly": "pnpm run build",
 		"lint": "vp check .",
 		"test": "vp run test:run",
-		"test:watch": "vp test --config vitest.config.ts"
+		"test:watch": "vp test --config vitest.config.ts",
+		"typecheck": "vp run check:types"
 	},
 	"peerDependencies": {
 		"@tanstack/react-query": "^5.0.0",

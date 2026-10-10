@@ -1,6 +1,6 @@
 # Kaneo plugin catalog
 
-`index.json` lists community plugins for Kaneo. It powers the [plugins page](https://kaneo.app/plugins) on kaneo.app, and `kaneo add` uses it to warn before adding a package that is not listed.
+`index.json` lists community plugins for Kaneo. It powers the [plugins page](https://kaneo.app/plugins) on kaneo.app, and `kaneo plugin add` uses it to warn before adding a package that is not listed.
 
 To build a plugin, start with [Writing plugins](https://kaneo.app/docs/core/plugins/writing-plugins).
 
@@ -27,11 +27,12 @@ You should also publish it with [npm provenance](https://docs.npmjs.com/generati
 
 1. Publish your plugin to npm.
 2. Fork [usekaneo/kaneo](https://github.com/usekaneo/kaneo) and add your entry to `catalog/index.json`. Keep the list sorted by package name.
-3. Run the checks from the repository root. They only need Node.js and npm, so you can skip `pnpm install`:
+3. Install the repository's dependencies, then run the checks from the repository root:
 
    ```bash
-   node scripts/catalog/check.mjs
-   node scripts/catalog/check.mjs --remote
+   pnpm install
+   pnpm catalog:check
+   pnpm catalog:check:remote
    ```
 
    The first command checks the file. The second also checks every listed package on npm.
@@ -56,7 +57,7 @@ A maintainer reviews the entry and merges it. Your plugin shows up on kaneo.app 
 
 | Field | Required | Description |
 | --- | --- | --- |
-| `package` | Yes | The npm package name, as people pass it to `kaneo add`. |
+| `package` | Yes | The npm package name, as people pass it to `kaneo plugin add`. |
 | `repository` | Yes | The public source repository, as an `https://` URL. |
 | `description` | Yes | One line, up to 160 characters, about what the plugin does. |
 | `maintainers` | Yes | GitHub usernames of the people responsible for the plugin, without `@`. |
@@ -84,4 +85,4 @@ A plugin is removed from the list when:
 - It is deprecated or unpublished on npm, or it no longer meets the requirements above and is not fixed after an issue is opened.
 - It has not supported a current Kaneo release for a long time and nobody responds to an issue about it.
 
-Removing an entry does not uninstall the plugin from instances that already use it. `kaneo add` treats it as unlisted from then on.
+Removing an entry does not uninstall the plugin from instances that already use it. `kaneo plugin add` treats it as unlisted from then on.

@@ -3,9 +3,8 @@ import { isBuiltin } from "node:module";
 import { dirname, join, relative, sep } from "node:path";
 import { readDeclarationGraph } from "./declaration-graph.js";
 import type { PluginEntries } from "./entries.js";
-import { CliError } from "./errors.js";
+import { TypesFailed } from "./errors/errors.js";
 import { renderInlineDeclaration } from "./inline-declaration.js";
-import { log } from "./log.js";
 import { declaredPackages } from "./manifest.js";
 import type { PackageJson } from "./manifest.js";
 import { findModuleSpecifiers, packageNameOf } from "./module-specifiers.js";
@@ -15,6 +14,12 @@ import { createTypesConfig } from "./types-config.js";
 
 const MISSING_TYPESCRIPT =
   "typescript is not installed in this plugin, so dist/index.d.ts was not generated. Add it to devDependencies so kaneo.config.ts can type-check the plugin's options.";
+
+export type TypesResult = {
+  readonly emitted: boolean;
+  readonly warnings: ReadonlyArray<string>;
+  readonly notes: ReadonlyArray<string>;
+};
 
 const FACTORY_HINT =
   "src/index.ts must default-export the factory returned by definePlugin(import.meta.url, { ... }).";
@@ -50,12 +55,10 @@ export async function emitTypes(
   root: string,
   entries: PluginEntries,
   packageJson: PackageJson,
-): Promise<boolean> {
+): Promise<TypesResult> {
   const tsc = resolveTsc(root);
-  if (!tsc) {
-    log.warn(MISSING_TYPESCRIPT);
-    return false;
-  }
+  if (!tsc)
+    return { emitted: false, warnings: [MISSING_TYPESCRIPT], notes: [] };
 
   const dist = join(root, "dist");
   const workDir = join(dist, ".kaneo-types");
@@ -84,9 +87,9 @@ export async function emitTypes(
       const hint = result.output.includes("probe.ts")
         ? `\n${FACTORY_HINT}`
         : "";
-      throw new CliError(
-        `TypeScript could not generate dist/index.d.ts:\n${result.output}${hint}`,
-      );
+      throw new TypesFailed({
+        message: `TypeScript could not generate dist/index.d.ts:\n${result.output}${hint}`,
+      });
     }
 
     const allowed = declaredPackages(packageJson);
@@ -98,31 +101,35 @@ export async function emitTypes(
     const undeclared = graph.packages.filter((name) => !allowed.has(name));
     if (graph.contained && undeclared.length === 0) {
       await copyDeclarations(graph.files, dirname(emittedIndex), dist);
-      return true;
+      return { emitted: true, warnings: [], notes: [] };
     }
 
     const probed = readProbedTypes(
       await readFile(declarationPath(outDir, root, probe), "utf8"),
     );
     if (!probed) {
-      throw new CliError(
-        `Could not read the plugin's options type from TypeScript's output. ${FACTORY_HINT}`,
-      );
+      throw new TypesFailed({
+        message: `Could not read the plugin's options type from TypeScript's output. ${FACTORY_HINT}`,
+      });
     }
     const declaration = renderInlineDeclaration(probed);
     const leftovers = undeclaredPackages(declaration, allowed);
-    if (leftovers.length > 0) {
-      log.warn(
-        `The options type in dist/index.d.ts still refers to ${leftovers.join(", ")}, which the plugin does not list in dependencies. Describe options with plain types so operators get type checking.`,
-      );
-    }
     await writeFile(join(dist, "index.d.ts"), declaration);
-    if (undeclared.length > 0) {
-      log.step(
-        `Inlined the options type into dist/index.d.ts instead of importing ${undeclared.join(", ")}`,
-      );
-    }
-    return true;
+    return {
+      emitted: true,
+      warnings:
+        leftovers.length > 0
+          ? [
+              `The options type in dist/index.d.ts still refers to ${leftovers.join(", ")}, which the plugin does not list in dependencies. Describe options with plain types so operators get type checking.`,
+            ]
+          : [],
+      notes:
+        undeclared.length > 0
+          ? [
+              `Inlined the options type into dist/index.d.ts instead of importing ${undeclared.join(", ")}`,
+            ]
+          : [],
+    };
   } finally {
     await rm(workDir, { recursive: true, force: true });
   }

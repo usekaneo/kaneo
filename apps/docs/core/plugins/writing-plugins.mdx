@@ -213,7 +213,7 @@ Plugins work through this context and never through Kaneo's database tables. Tha
 
 Routes go through Kaneo's normal session and API key authentication. Add a guard to any route that touches workspace data. A guard reads an ID from the named route parameter (`workspaceId`, `projectId`, or `taskId` by default), checks that the signed-in user can access that workspace and has the listed permissions, and sets `c.get("workspaceId")`. It responds with `404` when the plugin is off in that workspace.
 
-Return errors with `c.json(body, status)`. Do not register routes whose first path segment is `assets`, `workspace`, or `webhooks`; Kaneo uses those.
+Return errors with `c.json(body, status)`. Do not register routes whose first path segment is `assets`, `data`, `workspace`, or `webhooks`; Kaneo uses those.
 
 ### Events
 
@@ -469,6 +469,8 @@ npm run build
 
 Every dependency is bundled in, except the shared modules Kaneo provides. Plugins cannot use install scripts or native modules: the same files must work on a laptop, in a container, and on any CPU architecture.
 
+Run `kaneo-plugin build --watch` to rebuild when files change. In a terminal, the command prints each step and a summary of the files. When its output goes to a pipe or a CI log, or with `--json`, it prints one JSON object with the plugin, the files, and any warnings, or `{"error": "..."}` with exit code 1. Pass `--human` to keep the terminal output.
+
 ## Develop locally
 
 The Kaneo repository contains the task progress plugin in `examples/plugins/task-progress` and an instance that uses it in `examples/instance`.
@@ -509,6 +511,6 @@ Kaneo only makes incompatible changes to the plugin API in major versions, so an
 
 ## Get listed
 
-The [plugins page](https://kaneo.app/plugins) on kaneo.app lists community plugins, and `kaneo add` warns before adding a package that is not listed. To get listed, publish your plugin, then open a pull request that adds an entry to [`catalog/index.json`](https://github.com/usekaneo/kaneo/blob/main/catalog/index.json). The [catalog guide](https://github.com/usekaneo/kaneo/blob/main/catalog/README.md) has the requirements, the entry format, and the checks to run first.
+The [plugins page](https://kaneo.app/plugins) on kaneo.app lists community plugins, and `kaneo plugin add` warns before adding a package that is not listed. To get listed, publish your plugin, then open a pull request that adds an entry to [`catalog/index.json`](https://github.com/usekaneo/kaneo/blob/main/catalog/index.json). The [catalog guide](https://github.com/usekaneo/kaneo/blob/main/catalog/README.md) has the requirements, the entry format, and the checks to run first.
 
 Listing is a light review, not a security audit. A Kaneo maintainer checks the entry and the published package, not every line of your code.

@@ -250,7 +250,7 @@ export default defineConfig({
 
 - **Typed:** a wrong plugin name is an unresolved import, and a wrong option is a type error, all in the editor before anything is deployed.
 - **Versioned by npm:** the version is pinned in the lockfile. Operators never type version numbers.
-- **Compatible by default:** `kaneo add kaneo-plugin-progress` reads `engines.kaneo` from the registry and installs the newest version that supports the Kaneo you run. A plain `npm i` also works, and `kaneo check` and boot catch a version that does not fit.
+- **Compatible by default:** `kaneo plugin add kaneo-plugin-progress` reads `engines.kaneo` from the registry and installs the newest version that supports the Kaneo you run. A plain `npm i` also works, and `kaneo plugin check` and boot catch a version that does not fit.
 - **No build:** Node 24, which Kaneo's image already uses, runs TypeScript config files directly. Plugins are self-contained JavaScript, so the project's `node_modules` works inside the container as is.
 
 #### Deploying
@@ -276,12 +276,12 @@ RUN npm ci --prefix /kaneo --omit=dev
 Operators without Node can use the CLI shipped in the image:
 
 ```bash
-docker run --rm -v "$PWD:/kaneo" ghcr.io/usekaneo/kaneo kaneo add kaneo-plugin-progress
+docker run --rm -v "$PWD:/kaneo" ghcr.io/usekaneo/kaneo kaneo plugin add kaneo-plugin-progress
 ```
 
 #### Boot validation
 
-At boot, and in a `kaneo check` dry run, every plugin goes through the same stages:
+At boot, and in a `kaneo plugin check` dry run, every plugin goes through the same stages:
 
 | Stage | Checks |
 |---|---|
@@ -297,14 +297,14 @@ A failure stops the boot, the same way a broken compose file would. The message 
 ```
 Plugin "kaneo-plugin-progress" failed at compatibility:
 1.2.0 supports Kaneo >=2.31 <3, this is Kaneo 3.0.0.
-Run `kaneo add kaneo-plugin-progress` to pick a compatible version, or remove it from kaneo.config.ts.
+Run `kaneo plugin add kaneo-plugin-progress` to pick a compatible version, or remove it from kaneo.config.ts.
 ``` Kubernetes rolling updates then keep the old pods serving. Errors at runtime (an exception in an event handler, a failing route) are isolated, logged against the plugin and shown in the admin area. They never take Kaneo down.
 
 ### 3. Catalog
 
 A `usekaneo/plugins` repository holds an index of listed plugins: npm name, source repository, maintainers and supported Kaneo versions. Authors open a pull request to be listed. Automated checks verify that the package builds, the manifest is valid, a compatibility range is declared, there are no install scripts, and the package is published with [npm provenance](https://docs.npmjs.com/generating-provenance-statements). The index powers a plugins page on kaneo.app.
 
-`kaneo add` warns before adding an unlisted package, and the admin area marks installed plugins as listed or unlisted. Listing is a light review, not a security audit, and the docs say so plainly.
+`kaneo plugin add` warns before adding an unlisted package, and the admin area marks installed plugins as listed or unlisted. Listing is a light review, not a security audit, and the docs say so plainly.
 
 ### 4. Adoption: per workspace
 
@@ -334,7 +334,7 @@ Other features can move over time, for example the Calendar view and the built-i
 
 - `@kaneo/plugin-sdk` follows semver. The stable surface is the SDK API, the event catalog, the slot props and the shared dependency versions.
 - Breaking changes to that surface only happen in Kaneo major versions, with a deprecation period. A React major upgrade is an SDK major.
-- To upgrade Kaneo, bump the image tag and `@kaneo/config` together (Renovate can group them), then run `kaneo check`, then deploy. A plugin that does not support the new version fails the check, not production.
+- To upgrade Kaneo, bump the image tag and `@kaneo/config` together (Renovate can group them), then run `kaneo plugin check`, then deploy. A plugin that does not support the new version fails the check, not production.
 
 ## Trust and security
 
@@ -358,7 +358,7 @@ Plugins run in-process with the same access as Kaneo itself, like any npm depend
 
 1. **Foundation:** the SDK, the API and web hosts, `@kaneo/config`, the first five web extension points, an example third-party plugin (task progress), and documentation for operators and plugin authors.
 2. **Proof:** extract the Gantt view into `@kaneo/gantt`.
-3. **Ecosystem:** the `usekaneo/plugins` catalog, the kaneo.app plugins page, and the `kaneo add`, `kaneo check` and `kaneo plugin purge` commands.
+3. **Ecosystem:** the `usekaneo/plugins` catalog, the kaneo.app plugins page, and the `kaneo plugin add`, `kaneo plugin check` and `kaneo plugin purge` commands in `@kaneo/cli`.
 4. **Later:** hooks that shape operations (`task.create.before` and similar), more official plugins, board card badges, MCP tools, plugin realtime events, and an admin UI that edits the same declaration.
 
 ## Alternatives considered
@@ -371,8 +371,8 @@ Plugins run in-process with the same access as Kaneo itself, like any npm depend
 
 ## Open questions
 
-1. **Bad declaration at boot.** Proposed: refuse to start, with `kaneo check` to catch problems first. Alternative: start without the broken plugin and show the error in the admin area.
-2. **Unlisted plugins.** Proposed: allowed, with a warning from `kaneo add` and an "unlisted" badge, since private plugins need them. Alternative: catalog-only unless the operator opts out.
+1. **Bad declaration at boot.** Proposed: refuse to start, with `kaneo plugin check` to catch problems first. Alternative: start without the broken plugin and show the error in the admin area.
+2. **Unlisted plugins.** Proposed: allowed, with a warning from `kaneo plugin add` and an "unlisted" badge, since private plugins need them. Alternative: catalog-only unless the operator opts out.
 3. **First official plugin.** Proposed: Gantt, because it is the #1810 story. Alternative: Calendar, which is smaller.
-4. **Version of `@kaneo/config`.** It only provides types, since plugin compatibility comes from `engines.kaneo`. Proposed: publish it with every Kaneo release, and have `kaneo check` warn when it differs from the running image. Alternative: one version per Kaneo major.
+4. **Version of `@kaneo/config`.** It only provides types, since plugin compatibility comes from `engines.kaneo`. Proposed: publish it with every Kaneo release, and have `kaneo plugin check` warn when it differs from the running image. Alternative: one version per Kaneo major.
 5. **Kaneo Cloud.** Proposed: no third-party plugins in v1, official plugins only. Is there a future where listed plugins run there?

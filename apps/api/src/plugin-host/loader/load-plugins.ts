@@ -1,10 +1,12 @@
+import {
+  createStageRunner,
+  idClashError,
+  preparePlugin,
+} from "@kaneo/plugin-loader";
 import type { PluginDescriptor } from "@kaneo/plugin-sdk";
 import { startServerPlugin } from "../context/start-server-plugin";
 import { getLoadedPlugin, registerLoadedPlugin } from "../registry";
 import type { LoadedPlugin } from "../types";
-import { idClashError } from "./id-clash";
-import { preparePlugin } from "./prepare-plugin";
-import { createStageRunner } from "./stage-runner";
 
 export type LoadPluginsOptions = {
   configPath: string;
@@ -16,7 +18,11 @@ async function loadPlugin(
   descriptor: PluginDescriptor,
   { configPath, kaneoVersion, official }: LoadPluginsOptions,
 ): Promise<LoadedPlugin> {
-  const stage = createStageRunner(descriptor, { configPath, kaneoVersion });
+  const stage = createStageRunner(descriptor, {
+    configPath,
+    kaneoVersion,
+    official: official?.has(descriptor) ?? false,
+  });
   const { plugin, entries, options, definition } = await preparePlugin(
     descriptor,
     stage,

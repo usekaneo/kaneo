@@ -9,37 +9,24 @@ import {
 } from "vite-plus/test";
 import { loadConfiguredPlugins } from "../../../apps/api/src/plugin-host/config/load-configured-plugins";
 import { stopPluginJobs } from "../../../apps/api/src/plugin-host/context/plugin-jobs";
-import { PluginLoadError } from "../../../apps/api/src/plugin-host/load-error";
-import type { OfficialPlugin } from "../../../apps/api/src/plugin-host/official/official-plugins";
 import { clearLoadedPlugins } from "../../../apps/api/src/plugin-host/registry";
 import {
   createTempDir,
-  descriptor,
   removeTempDirs,
   writeFiles,
   writePluginPackage,
 } from "./fixtures";
 
-const official = vi.hoisted(() => [] as OfficialPlugin[]);
-
-vi.mock("../../../apps/api/src/plugin-host/official/official-plugins", () => ({
-  OFFICIAL_PLUGINS: official,
-}));
+const OFFICIAL_FACTORY =
+  "export default () => ({ kind: 'kaneo-plugin', apiVersion: 1, url: import.meta.url, options: undefined, schema: null });\n";
 
 async function officialGantt() {
-  const { url } = await writePluginPackage({
+  const { root } = await writePluginPackage({
     name: "@kaneo/gantt",
     kaneo: { id: "gantt", name: "Gantt" },
+    files: { "dist/index.js": OFFICIAL_FACTORY },
   });
-  const importFactory = vi.fn(async () => ({
-    default: () => descriptor(url),
-  }));
-  official.splice(0, official.length, {
-    id: "gantt",
-    packageName: "@kaneo/gantt",
-    importFactory,
-  });
-  return importFactory;
+  return join(root, "../../..");
 }
 
 async function writeConfig(source: string) {
@@ -70,14 +57,13 @@ afterEach(async () => {
   await removeTempDirs();
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
-  official.length = 0;
 });
 
 describe("loadConfiguredPlugins", () => {
   it("loads official plugins without a config file", async () => {
-    await officialGantt();
+    const officialBaseDir = await officialGantt();
 
-    const loaded = await loadConfiguredPlugins();
+    const loaded = await loadConfiguredPlugins({ officialBaseDir });
     expect(
       loaded.map(({ id, packageName, official }) => ({
         id,
@@ -88,18 +74,18 @@ describe("loadConfiguredPlugins", () => {
   });
 
   it("loads nothing when plugins are disabled", async () => {
-    const importFactory = await officialGantt();
     vi.stubEnv("DISABLE_PLUGINS", "true");
 
-    expect(await loadConfiguredPlugins()).toEqual([]);
-    expect(importFactory).not.toHaveBeenCalled();
+    expect(
+      await loadConfiguredPlugins({ officialBaseDir: await createTempDir() }),
+    ).toEqual([]);
   });
 
   it("loads official plugins before config plugins", async () => {
-    await officialGantt();
+    const officialBaseDir = await officialGantt();
     await configWithPlugin({});
 
-    const loaded = await loadConfiguredPlugins();
+    const loaded = await loadConfiguredPlugins({ officialBaseDir });
     expect(loaded.map(({ id, official }) => [id, official])).toEqual([
       ["gantt", true],
       ["kaneo-plugin-progress", false],
@@ -107,44 +93,46 @@ describe("loadConfiguredPlugins", () => {
   });
 
   it("skips an official plugin the config turns off", async () => {
-    const importFactory = await officialGantt();
     await configWithPlugin(
       { name: "@acme/gantt", kaneo: { id: "gantt" } },
       "official: { gantt: false },",
     );
 
-    const loaded = await loadConfiguredPlugins();
-    expect(importFactory).not.toHaveBeenCalled();
+    const loaded = await loadConfiguredPlugins({
+      officialBaseDir: await createTempDir(),
+    });
     expect(
       loaded.map(({ packageName, official }) => [packageName, official]),
     ).toEqual([["@acme/gantt", false]]);
   });
 
   it("fails at start when a config plugin takes an official plugin's id", async () => {
-    await officialGantt();
+    const officialBaseDir = await officialGantt();
     await configWithPlugin({ name: "@acme/gantt", kaneo: { id: "gantt" } });
 
-    const error = await loadConfiguredPlugins().catch((reason) => reason);
-    expect(error).toBeInstanceOf(PluginLoadError);
+    const error = await loadConfiguredPlugins({ officialBaseDir }).catch(
+      (reason) => reason,
+    );
+    expect(error).toMatchObject({ name: "PluginLoadError" });
     expect(error).toMatchObject({ stage: "start", plugin: "@acme/gantt" });
     expect(error.hint).toContain("official: { gantt: false }");
   });
 
   it("fails at resolve when an official plugin cannot be imported", async () => {
-    official.push({
-      id: "gantt",
-      packageName: "@kaneo/gantt",
-      importFactory: async () => {
-        throw new Error("Cannot find package '@kaneo/gantt'");
-      },
+    const officialBaseDir = await officialGantt();
+    await writeFiles(officialBaseDir, {
+      "node_modules/@kaneo/gantt/dist/index.js":
+        "throw new Error('Cannot load @kaneo/gantt');\n",
     });
 
-    const error = await loadConfiguredPlugins().catch((reason) => reason);
-    expect(error).toBeInstanceOf(PluginLoadError);
+    const error = await loadConfiguredPlugins({ officialBaseDir }).catch(
+      (reason) => reason,
+    );
+    expect(error).toMatchObject({ name: "PluginLoadError" });
     expect(error).toMatchObject({
       stage: "resolve",
       plugin: "@kaneo/gantt",
-      message: "Cannot find package '@kaneo/gantt'",
+      message: "Cannot load @kaneo/gantt",
     });
     expect(error.hint).toContain("official: { gantt: false }");
   });

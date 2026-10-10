@@ -4,7 +4,7 @@ import { attachPluginRequestAuth } from "../context/request-auth";
 import { pluginPathRest } from "../plugin-path";
 import { getLoadedPlugin } from "../registry";
 
-const RESERVED_SEGMENTS = new Set(["assets", "workspace", "webhooks"]);
+const RESERVED_SEGMENTS = new Set(["assets", "data", "workspace", "webhooks"]);
 
 export async function dispatchPluginRoute(
   c: Context<{ Variables: BaseVariables }>,

@@ -17,7 +17,7 @@ export function GanttPeriodNav({ timeline, onShowDate }: GanttPeriodNavProps) {
   const t = useT();
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <>
       <Button
         variant="outline"
         size="icon-sm"
@@ -32,7 +32,7 @@ export function GanttPeriodNav({ timeline, onShowDate }: GanttPeriodNavProps) {
       <input
         type="date"
         aria-label={t("periodStart")}
-        className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+        className="h-9 min-w-0 rounded-md border border-border bg-background px-2 text-base sm:h-8 sm:text-sm"
         min={format(timeline.minimumStart, "yyyy-MM-dd")}
         max={format(timeline.maximumStart, "yyyy-MM-dd")}
         value={format(timeline.rangeStart, "yyyy-MM-dd")}
@@ -41,7 +41,7 @@ export function GanttPeriodNav({ timeline, onShowDate }: GanttPeriodNavProps) {
           if (date) onShowDate(date);
         }}
       />
-      <span className="text-xs text-muted-foreground">
+      <span className="hidden text-xs text-muted-foreground sm:inline">
         – {format(timeline.rangeEnd, "MMM d, yyyy")}
       </span>
       <Button
@@ -55,6 +55,6 @@ export function GanttPeriodNav({ timeline, onShowDate }: GanttPeriodNavProps) {
       >
         <ChevronRight className="size-4" />
       </Button>
-    </div>
+    </>
   );
 }

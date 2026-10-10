@@ -1,68 +1,115 @@
-import { rm } from "node:fs/promises";
-import { join } from "node:path";
+import { Effect, Queue } from "effect";
+import { attempt } from "./attempt.js";
+import { describePlugin } from "./build-result.js";
 import { emitTypes } from "./emit-types.js";
-import { findEntries } from "./entries.js";
-import { errorMessage } from "./errors.js";
-import { describeVite, loadVite } from "./load-vite.js";
-import { log } from "./log.js";
-import { readManifest } from "./manifest.js";
+import { describeError } from "./errors/describe.js";
+import type { PluginEntries } from "./entries.js";
+import {
+  followWatcher,
+  isWatcher,
+  type WatchTarget,
+  type WatchUpdate,
+} from "./follow-watcher.js";
+import type { ViteConfig, ViteModule } from "./load-vite.js";
+import type { PackageJson } from "./manifest.js";
 import { createNodeConfig } from "./node-config.js";
+import { Output } from "./output/output.js";
+import { step, warn } from "./output/progress.js";
+import { prepareBuild } from "./prepare-build.js";
+import { renderWatchEvent, type WatchEvent } from "./watch-event.js";
 import { createWebConfig } from "./web-config.js";
 
-type WatcherEvent = {
-  code: string;
-  error?: unknown;
-  result?: { close?: () => unknown };
-};
+const report = Effect.fnUntraced(function* (event: WatchEvent) {
+  const output = yield* Output;
+  if (output.mode === "json") {
+    yield* output.out(`${JSON.stringify(event)}\n`);
+    return;
+  }
+  if (event.event === "error") {
+    yield* output.err(`${renderWatchEvent(output.errTheme, event)}\n`);
+    return;
+  }
+  yield* output.out(`${renderWatchEvent(output.theme, event)}\n`);
+});
 
-type Watcher = {
-  on(event: "event", listener: (event: WatcherEvent) => void): unknown;
-};
-
-function isWatcher(value: unknown): value is Watcher {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as { on?: unknown }).on === "function"
+const startWatcher = (
+  vite: ViteModule,
+  config: ViteConfig,
+  target: WatchTarget,
+  updates: Queue.Queue<WatchUpdate>,
+) =>
+  Effect.acquireRelease(
+    attempt(() => vite.build(config)),
+    (watcher) =>
+      isWatcher(watcher) && watcher.close
+        ? attempt(async () => watcher.close?.()).pipe(Effect.ignore)
+        : Effect.void,
+  ).pipe(
+    Effect.tap((watcher) =>
+      Effect.sync(() => {
+        if (isWatcher(watcher))
+          followWatcher(watcher, target, (update) => {
+            Queue.offerUnsafe(updates, update);
+          });
+      }),
+    ),
   );
-}
 
-function onBuilt(
-  watcher: unknown,
-  label: string,
-  afterBuild: () => Promise<unknown>,
+const finishUpdate = (
+  root: string,
+  entries: PluginEntries,
+  packageJson: PackageJson,
+  update: WatchUpdate,
+) =>
+  Effect.gen(function* () {
+    const { target } = update;
+    if (update.error !== null) {
+      return yield* report({ event: "error", target, error: update.error });
+    }
+    if (target === "web") {
+      return yield* report({ event: "built", target, warnings: [] });
+    }
+    const types = yield* attempt(() => emitTypes(root, entries, packageJson));
+    yield* Effect.forEach(types.warnings, warn, { discard: true });
+    yield* Effect.forEach(types.notes, step, { discard: true });
+    yield* report({ event: "built", target, warnings: types.warnings });
+  }).pipe(
+    Effect.catch((error) =>
+      report({
+        event: "error",
+        target: update.target,
+        error: describeError(error).message,
+      }),
+    ),
+  );
+
+export const watchPlugin = Effect.fn("kaneo-plugin.watch")(function* (
+  root: string,
 ) {
-  if (!isWatcher(watcher)) return;
-  watcher.on("event", (event) => {
-    if (event.code === "BUNDLE_END") void event.result?.close?.();
-    if (event.code === "ERROR") log.error(errorMessage(event.error));
-    if (event.code !== "END") return;
-    afterBuild().then(
-      () => log.success(`Built ${label}`),
-      (error) => log.error(errorMessage(error)),
-    );
-  });
-}
+  const { manifest, entries, vite, flavor } = yield* prepareBuild(root);
+  const updates = yield* Queue.unbounded<WatchUpdate>();
 
-export async function watchPlugin(root: string): Promise<void> {
-  const manifest = await readManifest(root);
-  const entries = findEntries(root);
-  const vite = await loadVite(root);
-  const flavor = describeVite(vite);
-
-  await rm(join(root, "dist"), { recursive: true, force: true });
-
-  const node = await vite.build(createNodeConfig(root, entries, flavor, true));
-  onBuilt(node, "server entries", () =>
-    emitTypes(root, entries, manifest.packageJson),
+  yield* startWatcher(
+    vite,
+    createNodeConfig(root, entries, flavor, true),
+    "node",
+    updates,
   );
-
   if (entries.web) {
-    const web = await vite.build(
+    yield* startWatcher(
+      vite,
       createWebConfig(root, entries.web, flavor, true),
+      "web",
+      updates,
     );
-    onBuilt(web, "web entry", async () => undefined);
   }
 
-  log.info("Watching for changes. Press Ctrl+C to stop.");
-}
+  yield* report({ event: "watching", plugin: describePlugin(manifest.plugin) });
+  return yield* Effect.forever(
+    Queue.take(updates).pipe(
+      Effect.flatMap((update) =>
+        finishUpdate(root, entries, manifest.packageJson, update),
+      ),
+    ),
+  );
+}, Effect.scoped);

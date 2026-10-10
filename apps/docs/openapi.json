@@ -5298,6 +5298,23 @@
             "description": "All settings values for the workspace. Omitted secret fields keep their stored value; other omitted fields are cleared."
           }
         }
+      },
+      "PluginDataPurge": {
+        "type": "object",
+        "properties": {
+          "storage": {
+            "type": "integer",
+            "description": "Rows deleted from the plugin's stored data."
+          },
+          "workspaces": {
+            "type": "integer",
+            "description": "Rows deleted from the plugin's per-workspace state and settings."
+          }
+        },
+        "required": [
+          "storage",
+          "workspaces"
+        ]
       }
     },
     "parameters": {}
@@ -23632,6 +23649,84 @@
           },
           "404": {
             "description": "Plugin not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/plugins/{pluginId}/data": {
+      "delete": {
+        "operationId": "purgePluginData",
+        "tags": [
+          "Plugins"
+        ],
+        "summary": "Delete a plugin's data",
+        "description": "Delete everything a plugin stored and its settings in every workspace. Only works for a plugin that is no longer installed: remove it from kaneo.config.ts, or turn a built-in plugin off there, and restart Kaneo first. Requires an instance administrator session; API keys are rejected. This cannot be undone.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,63}$",
+              "description": "The plugin's ID: lowercase letters, digits and dashes, like kaneo-plugin-task-progress."
+            },
+            "required": true,
+            "description": "The plugin's ID: lowercase letters, digits and dashes, like kaneo-plugin-task-progress.",
+            "name": "pluginId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rows deleted from each table",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginDataPurge"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid plugin ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The plugin is still installed, or plugins are turned off with DISABLE_PLUGINS",
             "content": {
               "application/json": {
                 "schema": {

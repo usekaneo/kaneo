@@ -31,7 +31,7 @@
 			],
 			"properties": {
 				"package": {
-					"description": "The npm package name, as passed to kaneo add.",
+					"description": "The npm package name, as passed to kaneo plugin add.",
 					"type": "string",
 					"maxLength": 214,
 					"pattern": "^(?:@[a-z0-9][a-z0-9._-]*/)?[a-z0-9][a-z0-9._-]*$"

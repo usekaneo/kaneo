@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { CliError } from "./errors.js";
+import { EntryMissing } from "./errors/errors.js";
 
 export type PluginEntries = {
   index: string;
@@ -18,11 +18,7 @@ function findFirst(root: string, candidates: string[]): string | null {
 
 export function findEntries(root: string): PluginEntries {
   const index = findFirst(root, ["src/index.ts"]);
-  if (!index) {
-    throw new CliError(
-      "src/index.ts is missing. It must default-export definePlugin(import.meta.url, { ... }).",
-    );
-  }
+  if (!index) throw new EntryMissing();
   return {
     index,
     server: findFirst(root, ["src/server.ts"]),

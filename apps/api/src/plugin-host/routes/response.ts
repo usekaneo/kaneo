@@ -107,3 +107,15 @@ export const pluginSettingsErrorSchema = z
     }),
   })
   .openapi("PluginSettingsError");
+
+export const pluginDataPurgeSchema = z
+  .object({
+    storage: z.number().int().openapi({
+      description: "Rows deleted from the plugin's stored data.",
+    }),
+    workspaces: z.number().int().openapi({
+      description:
+        "Rows deleted from the plugin's per-workspace state and settings.",
+    }),
+  })
+  .openapi("PluginDataPurge");

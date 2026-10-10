@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { Hono } from "hono";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { stopPluginJobs } from "../../../apps/api/src/plugin-host/context/plugin-jobs";
-import { PluginLoadError } from "../../../apps/api/src/plugin-host/load-error";
+import type { PluginLoadError } from "@kaneo/plugin-loader";
 import { loadPlugins } from "../../../apps/api/src/plugin-host/loader/load-plugins";
 import {
   clearLoadedPlugins,
@@ -29,7 +29,7 @@ async function loadError(promise: Promise<unknown>): Promise<PluginLoadError> {
     () => null,
     (reason: unknown) => reason,
   );
-  expect(error).toBeInstanceOf(PluginLoadError);
+  expect(error).toMatchObject({ name: "PluginLoadError" });
   return error as PluginLoadError;
 }
 
