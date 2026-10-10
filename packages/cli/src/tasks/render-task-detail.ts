@@ -9,6 +9,7 @@ import type { Ui } from "../render/ui.js";
 import { labelChips } from "../task-view/label-chips.js";
 import type { TaskViewJson } from "../task-view/task-view-json.js";
 import { hasTrackedTime, timeValue } from "../task-view/time-value.js";
+import { formatRecurrence } from "./format-recurrence.js";
 import { type DescriptionLine, plainDescription } from "./plain-description.js";
 
 export type TaskDetailView = {
@@ -80,6 +81,10 @@ export function renderTaskDetail(ui: Ui, view: TaskDetailView): string[] {
     ],
     ["Labels", labels],
     ["Due", due.length > 0 ? renderCell(due, ui) : none("None")],
+    [
+      "Repeats",
+      task.recurrence ? fit([text(formatRecurrence(task.recurrence))]) : null,
+    ],
     ["Start", formatDay(task.startDate, now) ?? none("None")],
     ["Created", formatDay(task.createdAt, now) ?? none("Unknown")],
     ["Time", time],

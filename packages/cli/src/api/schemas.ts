@@ -121,6 +121,14 @@ export const AssignedTasks = Schema.Struct({
   total: Schema.Number,
 });
 
+export const TaskRecurrence = Schema.Struct({
+  frequency: Schema.Literals(["daily", "weekly", "monthly", "yearly"]),
+  interval: Schema.Number,
+  weekdays: Schema.optionalKey(Schema.Array(Schema.Number)),
+  timeZone: Schema.String,
+});
+export type TaskRecurrence = typeof TaskRecurrence.Type;
+
 export const TaskDetail = Schema.Struct({
   id: Schema.String,
   projectId: Schema.String,
@@ -135,6 +143,8 @@ export const TaskDetail = Schema.Struct({
   createdAt: Schema.String,
   assigneeId: NullableString,
   assigneeName: NullableString,
+  // Servers without repeating tasks leave this out.
+  recurrence: Schema.optionalKey(Schema.NullOr(TaskRecurrence)),
 });
 export type TaskDetail = typeof TaskDetail.Type;
 
