@@ -3061,7 +3061,9 @@
 			"endsToday": "Kết thúc hôm nay",
 			"daysOverdue": "Trễ {{remaining}} ngày",
 			"noTasks": "Chưa có công việc nào trong sprint này",
-			"toggleTasks": "Hiển thị công việc của sprint"
+			"toggleTasks": "Hiển thị công việc của sprint",
+			"reportSummary": "Đã lập kế hoạch {{planned}}, đã hoàn thành {{completed}}, đã chuyển {{carriedOver}}",
+			"carriedOver": "Đã chuyển sang"
 		},
 		"type": {
 			"task": "Công việc",

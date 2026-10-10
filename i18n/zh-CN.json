@@ -3061,7 +3061,9 @@
 			"endsToday": "今天结束",
 			"daysOverdue": "已逾期 {{remaining}} 天",
 			"noTasks": "此冲刺中尚无任务",
-			"toggleTasks": "显示冲刺任务"
+			"toggleTasks": "显示冲刺任务",
+			"reportSummary": "已计划 {{planned}}，已完成 {{completed}}，已结转 {{carriedOver}}",
+			"carriedOver": "结转的任务"
 		},
 		"type": {
 			"task": "任务",

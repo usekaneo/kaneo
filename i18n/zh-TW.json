@@ -3061,7 +3061,9 @@
 			"endsToday": "今天結束",
 			"daysOverdue": "已逾期 {{remaining}} 天",
 			"noTasks": "此衝刺中尚無任務",
-			"toggleTasks": "顯示衝刺任務"
+			"toggleTasks": "顯示衝刺任務",
+			"reportSummary": "已規劃 {{planned}}，已完成 {{completed}}，已結轉 {{carriedOver}}",
+			"carriedOver": "結轉的任務"
 		},
 		"type": {
 			"task": "任務",
