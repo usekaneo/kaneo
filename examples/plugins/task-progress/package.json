@@ -26,7 +26,7 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "kaneo-plugin build --human"
+		"build": "vp run compile"
 	},
 	"devDependencies": {
 		"@kaneo/plugin-sdk": "workspace:*",
@@ -36,6 +36,7 @@
 		"react": "^19.3.0",
 		"typescript": "^7.0.2",
 		"vite": "catalog:",
+		"vite-plus": "catalog:",
 		"zod": "^4.6.5"
 	}
 }

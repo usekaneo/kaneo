@@ -26,9 +26,9 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "kaneo-plugin build --human",
-		"test": "vp test run",
-		"typecheck": "tsc -p tsconfig.json --noEmit"
+		"build": "vp run compile",
+		"test": "vp run test:run",
+		"typecheck": "vp run check:types"
 	},
 	"devDependencies": {
 		"@kaneo/plugin-sdk": "workspace:*",

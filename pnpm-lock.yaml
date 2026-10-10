@@ -691,6 +691,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@1.0.0(@types/node@26.6.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)'
+      vite-plus:
+        specifier: 'catalog:'
+        version: 1.0.0(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@5.0.3(vitest@5.0.3))(esbuild@0.28.1)(jiti@2.7.0)(jsdom@30.1.1(@noble/hashes@2.2.0))(msw@2.12.10(@types/node@26.6.3)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -930,7 +933,7 @@ importers:
         version: 7.0.2
       vite-plus:
         specifier: 'catalog:'
-        version: 1.0.0(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@5.0.3(vitest@5.0.3))(esbuild@0.28.1)(jiti@2.7.0)(jsdom@30.1.1(@noble/hashes@2.2.0))(msw@2.12.10(@types/node@26.6.3)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
+        version: 1.0.0(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(@vitest/coverage-v8@5.0.3)(esbuild@0.28.1)(jiti@2.7.0)(jsdom@30.1.1(@noble/hashes@2.2.0))(msw@2.12.10(@types/node@26.6.3)(typescript@7.0.2))(tsx@4.23.15)(typescript@7.0.2)(yaml@2.9.0)
 
   packages/plugin-sdk:
     dependencies:

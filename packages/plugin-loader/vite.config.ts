@@ -23,6 +23,13 @@ export default defineConfig({
           output: ["dist/**"],
         },
       },
+      "check:types": {
+        command: "tsc -p tsconfig.json --noEmit",
+        dependsOn: [
+          { task: "build", from: ["dependencies", "devDependencies"] },
+        ],
+        cache: false,
+      },
       "test:run": {
         command: "vp test run --config vitest.config.ts",
         dependsOn: [
