@@ -1,5 +1,22 @@
 ### Features
 
+- **cli:** add an agent skill for the kaneo CLI: #1974
+- **cli:** install the CLI with a one-line script: #1971
+
+### Bug Fixes
+
+- **build:** stop vp from replaying stale typechecks and builds: #1989
+- make the app usable on phones: #1983
+- **mcp:** omit session credentials from whoami: [cf44625](https://github.com/usekaneo/kaneo/commit/cf446256f39935e6067e70dbb57f429d4b7b7a5b)
+- **cli:** point the update hint at the install page: #1976
+- **cli:** say how to confirm in confirmation errors: #1975
+
+### Credits
+
+Huge thanks to @tinsever and @andrejsshell for helping!
+
+### Features
+
 - **cli:** add the official Kaneo command-line client: #1968
 - **api:** add workspace list and detail endpoints: #1960
 - allow manual AI comment scans for existing PRs: [70de375](https://github.com/usekaneo/kaneo/commit/70de375184e7908e8b54fda9abee37756ed20eb6)
