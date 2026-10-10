@@ -17,6 +17,8 @@ COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/mcp/package.json ./packages/mcp/
 COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
 COPY packages/plugin-sdk/bin ./packages/plugin-sdk/bin
+COPY packages/plugin-loader/package.json ./packages/plugin-loader/
+COPY packages/cli/package.json ./packages/cli/
 COPY plugins/gantt/package.json ./plugins/gantt/
 COPY apps/api/package.json ./apps/api/
 
@@ -30,6 +32,8 @@ COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
 COPY packages/mcp ./packages/mcp
 COPY packages/plugin-sdk ./packages/plugin-sdk
+COPY packages/plugin-loader ./packages/plugin-loader
+COPY packages/cli ./packages/cli
 COPY plugins/gantt ./plugins/gantt
 COPY i18n ./i18n
 COPY apps/api ./apps/api
@@ -46,6 +50,9 @@ WORKDIR /app/packages/plugin-sdk
 RUN pnpm run build
 
 WORKDIR /app/plugins/gantt
+RUN pnpm run build
+
+WORKDIR /app/packages/cli
 RUN pnpm run build
 
 # Fix TypeScript config and build API
@@ -69,6 +76,7 @@ COPY packages/email/package.json ./packages/email/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/mcp/package.json ./packages/mcp/
 COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
+COPY packages/plugin-loader/package.json ./packages/plugin-loader/
 COPY plugins/gantt/package.json ./plugins/gantt/
 COPY apps/api/package.json ./apps/api/
 
@@ -98,9 +106,11 @@ COPY --from=builder --chown=appuser:appuser /app/packages/permissions ./packages
 COPY --from=builder --chown=appuser:appuser /app/packages/mcp/dist ./packages/mcp/dist
 COPY --from=builder --chown=appuser:appuser /app/packages/plugin-sdk/dist ./packages/plugin-sdk/dist
 COPY --from=builder --chown=appuser:appuser /app/plugins/gantt/dist ./plugins/gantt/dist
+COPY --from=builder --chown=appuser:appuser /app/packages/plugin-loader/dist ./packages/plugin-loader/dist
+COPY --from=builder --chown=appuser:appuser /app/packages/cli/dist ./packages/cli/dist
 
 # Fail the build early if the runtime dependency layout is broken on the target architecture
-RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions','plugin-sdk','gantt']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}fs.accessSync('node_modules/@kaneo/gantt/dist/web/index.js')" && \
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions','plugin-sdk','plugin-loader','gantt']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}fs.accessSync('node_modules/@kaneo/gantt/dist/web/index.js');fs.accessSync('/app/packages/cli/dist/kaneo.mjs')" && \
   node -e "require.resolve('semver')" && \
   node --input-type=module -e "import { registerTools } from '@kaneo/mcp/tools'; if (typeof registerTools !== 'function') process.exit(1)"
 

@@ -79,10 +79,12 @@
 		}
 	},
 	"devDependencies": {
+		"@effect/platform-node": "4.0.2",
 		"@kaneo/typescript-config": "workspace:*",
 		"@tanstack/react-query": "^5.103.2",
 		"@types/node": "^26.6.2",
 		"@types/react": "^19.3.0",
+		"effect": "4.0.2",
 		"hono": "^4.13.9",
 		"react": "^19.3.0",
 		"typescript": "^7.0.2",

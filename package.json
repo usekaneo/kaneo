@@ -27,10 +27,12 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
+    "@effect/platform-node": "4.0.2",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^11.0.1",
     "conventional-changelog-conventionalcommits": "^10.4.0",
+    "effect": "4.0.2",
     "esbuild": "0.28.2",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.3",

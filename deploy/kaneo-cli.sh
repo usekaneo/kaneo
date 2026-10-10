@@ -1,2 +1,2 @@
 #!/bin/sh
-exec node /app/apps/api/dist/cli.js "$@"
+exec node /app/packages/cli/dist/kaneo.mjs "$@"

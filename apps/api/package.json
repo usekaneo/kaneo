@@ -37,6 +37,7 @@
     "@kaneo/gantt": "workspace:*",
     "@kaneo/mcp": "workspace:*",
     "@kaneo/permissions": "workspace:*",
+    "@kaneo/plugin-loader": "workspace:*",
     "@kaneo/plugin-sdk": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.31.0",
     "@modelcontextprotocol/server": "2.2.0",
