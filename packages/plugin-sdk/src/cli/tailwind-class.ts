@@ -120,13 +120,14 @@ const VARIANTS = new Set([
 const VARIANT_FAMILY =
   /^(?:group|peer|data|aria|has|not|in|nth|nth-last|nth-of-type|nth-last-of-type|supports|min|max|pointer|any-pointer)-|^@|^\[/;
 
-const SCALE = String.raw`(?:\d+(?:\.\d+)?|\d+\/\d+|px|auto|full|screen|min|max|fit|\[[^\]]+\]|\([^)]+\))`;
+const ARBITRARY = String.raw`(?:\[[^\]]+\]|\([^)]+\))`;
+const SCALE = String.raw`(?:\d+(?:\.\d+)?|\d+\/\d+|px|auto|full|screen|min|max|fit|${ARBITRARY})`;
 const SIZE = String.raw`(?:xs|sm|md|lg|xl|[2-9]xl|base|none|full)`;
 const PALETTE =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
 const KANEO_COLORS =
   "background|foreground|primary|secondary|muted|accent|destructive|border|input|ring|card|popover|sidebar|success|warning|info|code|chart-[1-5]";
-const COLOR = String.raw`(?:inherit|current|transparent|black|white|(?:${PALETTE})-(?:50|[1-9]00|950)|(?:${KANEO_COLORS})(?:-(?:primary|accent))?(?:-(?:foreground|border|ring|highlight))?)`;
+const COLOR = String.raw`(?:inherit|current|transparent|black|white|(?:${PALETTE})-(?:50|[1-9]00|950)|(?:${KANEO_COLORS})(?:-(?:primary|accent))?(?:-(?:foreground|border|ring|highlight))?|${ARBITRARY})`;
 
 const SCALED =
   "p|px|py|pt|pr|pb|pl|ps|pe|m|mx|my|mt|mr|mb|ml|ms|me|gap|gap-x|gap-y|space-x|space-y|w|h|size|min-w|min-h|max-w|max-h|inset|inset-x|inset-y|top|right|bottom|left|start|end|translate-x|translate-y|basis|z|order|opacity|col|row|col-span|row-span|col-start|col-end|row-start|row-end|grid-cols|grid-rows|line-clamp|leading|duration|delay|scale|rotate|border|border-t|border-r|border-b|border-l|border-x|border-y|ring|ring-offset|outline|outline-offset|underline-offset|indent|columns|flex|grow|shrink";
@@ -211,6 +212,7 @@ function isUtility(candidate: string): boolean {
 }
 
 export function isTailwindClass(name: string): boolean {
-  const [first = "", ...rest] = splitVariants(name);
-  return rest.length > 0 ? isVariant(first) : isUtility(first);
+  const variants = splitVariants(name);
+  const utility = variants.pop() ?? "";
+  return variants.every(isVariant) && isUtility(utility);
 }

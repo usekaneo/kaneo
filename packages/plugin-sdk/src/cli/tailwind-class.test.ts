@@ -28,6 +28,11 @@ describe("isTailwindClass", () => {
       "text-muted-foreground",
       "border-sidebar-accent-foreground",
       "bg-red-500",
+      "bg-[#fafafa]",
+      "bg-[#fafafa]/50",
+      "bg-(--brand)",
+      "text-[var(--muted-foreground)]",
+      "border-[color:var(--border)]",
       "flex!",
       "!flex",
     ]) {
@@ -48,6 +53,8 @@ describe("isTailwindClass", () => {
       "max-md:hidden",
       "[&_svg]:size-4",
       "@md:flex",
+      "md:hover:flex",
+      "hover:bg-[#fafafa]",
     ]) {
       expect(isTailwindClass(name), name).toBe(true);
     }
@@ -60,6 +67,10 @@ describe("isTailwindClass", () => {
       "gantt:sm:inline",
       "gantt:[&_[data-slot=input]]:pl-8",
       "gantt:group",
+      "gantt:bg-[#fafafa]",
+      "hover:plugin-panel",
+      "md:ktp-panel",
+      "dark:hover:ktp-row",
       "tw-flex",
       "ktp-panel",
       "ktp-bar-fill",

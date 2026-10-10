@@ -23,6 +23,14 @@ describe("findHostCollisions", () => {
     expect(findHostCollisions(tailwind)).toEqual([]);
     expect(findHostCollisions(plain)).toEqual([]);
   });
+
+  it("flags arbitrary value utilities and accepts variant namespaced classes", () => {
+    const css = String.raw`.bg-\[\#fafafa\]{background-color:#fafafa}.gantt\:bg-\[\#fafafa\]{background-color:#fafafa}.hover\:plugin-panel:hover{color:red}.hover\:bg-\[\#fafafa\]:hover{background-color:#fafafa}`;
+    expect(findHostCollisions(css)).toEqual([
+      String.raw`.bg-\[\#fafafa\]`,
+      String.raw`.hover\:bg-\[\#fafafa\]`,
+    ]);
+  });
 });
 
 describe("tailwindPrefixFor", () => {
