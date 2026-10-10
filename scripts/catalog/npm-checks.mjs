@@ -1,3 +1,4 @@
+import { isInsidePackage, readExport } from "./plugin-export.mjs";
 import { isValidRange } from "./semver-range.mjs";
 
 const INSTALL_SCRIPTS = ["preinstall", "install", "postinstall"];
@@ -51,8 +52,17 @@ export function checkPublishedPackage(entry, manifest) {
   }
 
   const exportsField = isRecord(manifest.exports) ? manifest.exports : {};
-  if (!("./server" in exportsField) && !("./web" in exportsField)) {
-    errors.push('"exports" has neither "./server" nor "./web"');
+  const entries = [
+    ["./server", readExport(exportsField["./server"])],
+    ["./web", readExport(exportsField["./web"])],
+  ];
+  if (entries.every(([, target]) => !target)) {
+    errors.push('"exports" has no usable "./server" or "./web" entry');
+  }
+  for (const [key, target] of entries) {
+    if (target && !isInsidePackage(target)) {
+      errors.push(`Export "${key}" must point to a file inside the package`);
+    }
   }
 
   const scripts = isRecord(manifest.scripts) ? manifest.scripts : {};

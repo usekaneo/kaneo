@@ -28,6 +28,8 @@ This page lists the contract between Kaneo and a plugin, as provided by `@kaneo/
 
 Entries must point to files inside the package, starting with `./`. Without `kaneo.id`, the ID is the package name in lowercase, without the leading `@`, with each run of characters other than `a-z` and `0-9` replaced by `-`, trimmed of leading and trailing `-`, and cut to 64 characters. For example, `@acme/kaneo-reports` becomes `acme-kaneo-reports`.
 
+Kaneo serves the folder that holds the `./web` entry, including its subfolders, at `/api/plugins/<id>/assets/` without authentication. That folder must not contain the `./server` or `.` entry, so keep the web entry in a folder of its own, such as `dist/web/`. Kaneo refuses to load a plugin whose web folder contains server code.
+
 ## definePlugin
 
 ```ts
@@ -361,6 +363,8 @@ The variables change with Kaneo's light and dark theme. Tailwind's `dark:` varia
 | `dist/web/index.css` | Styles imported by the web entry |
 
 All dependencies are bundled except the [shared modules](#shared-modules). Install scripts and native modules are not supported.
+
+`dist/web/` holds only web code, because Kaneo serves it publicly. If you use your own build, keep web code in a folder of its own, as described in [Package fields](#package-fields).
 
 The build fails when your CSS defines class names that Kaneo's own Tailwind classes also use, such as `.hidden` or `.md\:flex`. Give Tailwind a prefix, for example `@import "tailwindcss/theme.css" layer(theme) prefix(taskprogress);`, or use namespaced class names.
 

@@ -29,12 +29,14 @@ export async function preparePlugin(
   stage: StageRunner,
   { kaneoVersion, onWarning = warnInLog }: PreparePluginOptions,
 ): Promise<PreparedPlugin> {
-  const { root, plugin } = await stage.run("resolve", () =>
+  const { root, plugin, factory } = await stage.run("resolve", () =>
     resolvePackage(descriptor.url),
   );
   stage.rename(plugin.packageName);
 
-  const entries = await stage.run("entry", () => resolveEntries(root, plugin));
+  const entries = await stage.run("entry", () =>
+    resolveEntries(root, plugin, factory),
+  );
 
   await stage.run("compatibility", () => {
     const result = checkCompatibility(plugin, kaneoVersion);

@@ -21,8 +21,8 @@ export const zhCN = {
   resizeStart: "调整开始日期",
   resizeDue: "调整截止日期",
   taskAriaLabel: "{{title}}：打开或拖动以移动",
-  previousPeriod: "Previous period",
-  nextPeriod: "Next period",
-  periodStart: "Timeline start date",
-  showTaskDates: "Show task dates",
+  previousPeriod: "上一周期",
+  nextPeriod: "下一周期",
+  periodStart: "时间线开始日期",
+  showTaskDates: "显示任务日期",
 } satisfies Messages;

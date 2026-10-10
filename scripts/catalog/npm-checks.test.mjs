@@ -44,9 +44,61 @@ test("reports each missing plugin requirement as an error", () => {
   assert.deepEqual(errors, [
     '"keywords" does not include "kaneo-plugin"',
     '"engines.kaneo" is not declared',
-    '"exports" has neither "./server" nor "./web"',
+    '"exports" has no usable "./server" or "./web" entry',
     "has install scripts: preinstall, postinstall",
   ]);
+});
+
+test("rejects entries Kaneo cannot load", () => {
+  for (const exports of [
+    { ".": "./dist/index.js", "./server": null },
+    { "./web": null },
+    { "./server": {} },
+    { "./web": { types: "./dist/web/index.d.ts" } },
+    { "./server": { import: null, default: null } },
+    { "./web": "" },
+  ]) {
+    assert.deepEqual(
+      checkPublishedPackage(entry, { ...manifest, exports }).errors,
+      ['"exports" has no usable "./server" or "./web" entry'],
+      JSON.stringify(exports),
+    );
+  }
+});
+
+test("rejects entries that point outside the package", () => {
+  for (const [key, target] of [
+    ["./server", "../server.js"],
+    ["./web", { import: "/dist/web/index.js" }],
+    ["./web", { default: "./dist/../../web/index.js" }],
+  ]) {
+    assert.deepEqual(
+      checkPublishedPackage(entry, { ...manifest, exports: { [key]: target } })
+        .errors,
+      [`Export "${key}" must point to a file inside the package`],
+      JSON.stringify(target),
+    );
+  }
+});
+
+test("accepts string and conditional entries", () => {
+  for (const exports of [
+    { "./server": { import: "./dist/server.js" } },
+    {
+      "./web": {
+        types: "./dist/web/index.d.ts",
+        default: "./dist/web/index.js",
+      },
+    },
+    { "./server": { import: { default: "./dist/server.js" } } },
+    { "./server": null, "./web": "./dist/web/index.js" },
+  ]) {
+    assert.deepEqual(
+      checkPublishedPackage(entry, { ...manifest, exports }).errors,
+      [],
+      JSON.stringify(exports),
+    );
+  }
 });
 
 test("rejects an invalid engines range", () => {

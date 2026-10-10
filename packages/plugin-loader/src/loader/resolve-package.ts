@@ -8,6 +8,7 @@ import { StageError } from "./stage-error.js";
 export type ResolvedPackage = {
   root: string;
   plugin: PluginPackage;
+  factory: string;
 };
 
 async function readPackageJson(path: string): Promise<unknown> {
@@ -55,7 +56,7 @@ export async function resolvePackage(url: string): Promise<ResolvedPackage> {
       if (!parsed.ok) {
         throw new StageError(`${parsed.error} (${path}).`);
       }
-      return { root: dir, plugin: parsed.plugin };
+      return { root: dir, plugin: parsed.plugin, factory: file };
     }
     const parent = dirname(dir);
     if (parent === dir) {

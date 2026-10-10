@@ -1,8 +1,28 @@
 import type { PluginLogger } from "@kaneo/plugin-sdk/server";
 import { Cron } from "croner";
-import { withJobLease } from "../../scheduler/leader-lock";
+import { renewJobLease, withJobLease } from "../../scheduler/leader-lock";
+import { renewWhileRunning } from "./renew-while-running";
+
+const LEASE_MS = 15 * 60 * 1000;
+const RENEW_EVERY_MS = LEASE_MS / 3;
 
 const jobs = new Map<string, Cron>();
+
+async function renewLease(
+  lease: string,
+  name: string,
+  log: PluginLogger,
+): Promise<void> {
+  try {
+    if (!(await renewJobLease(lease, LEASE_MS))) {
+      log.warn(
+        `Scheduled job "${name}" lost its lease and may run again on another instance`,
+      );
+    }
+  } catch (error) {
+    log.warn(`Could not renew the lease for scheduled job "${name}"`, error);
+  }
+}
 
 export function schedulePluginJob(
   pluginId: string,
@@ -19,10 +39,16 @@ export function schedulePluginJob(
     try {
       await withJobLease(
         lease,
-        async () => {
-          await run();
-        },
+        () =>
+          renewWhileRunning(
+            async () => {
+              await run();
+            },
+            () => void renewLease(lease, name, log),
+            RENEW_EVERY_MS,
+          ),
         () => undefined,
+        LEASE_MS,
       );
     } catch (error) {
       log.error(`Scheduled job "${name}" failed`, error);

@@ -43,6 +43,14 @@ test("rejects strings that are not semver ranges", () => {
   }
 });
 
+test("rejects numeric prerelease identifiers with leading zeros", () => {
+  for (const range of [">=1.0.0-01", "^2.30.0-beta.01", "1.0.0-0.01 - 2.0.0"]) {
+    assert.equal(isValidRange(range), false, range);
+  }
+  assert.equal(isValidRange(">=1.0.0-0"), true);
+  assert.equal(isValidRange("^2.30.0-beta.10"), true);
+});
+
 test("rejects values that are not strings", () => {
   for (const value of [undefined, null, 2, [">=2"], { kaneo: ">=2" }]) {
     assert.equal(isValidRange(value), false);

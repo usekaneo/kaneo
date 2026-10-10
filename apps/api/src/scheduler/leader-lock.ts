@@ -8,6 +8,21 @@ export const SEAT_RECONCILIATION_LEASE = "seat-reconciliation";
 
 const DEFAULT_LEASE_MS = 15 * 60 * 1000;
 
+export async function renewJobLease(
+  name: string,
+  leaseMs: number = DEFAULT_LEASE_MS,
+): Promise<boolean> {
+  const expiresAt = new Date(Date.now() + leaseMs);
+
+  const renewed = await db.execute(sql`
+    UPDATE job_lease SET "expires_at" = ${expiresAt}
+    WHERE "name" = ${name} AND "owner" = ${INSTANCE_ID}
+    RETURNING "name";
+  `);
+
+  return (renewed.rowCount ?? 0) > 0;
+}
+
 export async function withJobLease<T>(
   name: string,
   run: () => Promise<T>,

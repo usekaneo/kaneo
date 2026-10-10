@@ -103,6 +103,9 @@ importers:
       semantic-release:
         specifier: ^25.0.9
         version: 25.0.9(typescript@7.0.2)
+      semver:
+        specifier: ^7.8.5
+        version: 7.8.5
       tar-fs:
         specifier: '>=3.1.3'
         version: 3.1.3

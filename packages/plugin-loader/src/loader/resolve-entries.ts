@@ -7,6 +7,9 @@ import { StageError } from "./stage-error.js";
 
 const WEB_ENTRY_EXTENSIONS = new Set([".js", ".mjs"]);
 
+const SHARED_WEB_FOLDER_HINT =
+  "Report this to the plugin's author. Plugins built with kaneo-plugin build keep the web entry in dist/web/.";
+
 export type ResolvedEntries = {
   root: string;
   server: string | null;
@@ -19,6 +22,28 @@ async function isFile(path: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+async function realFile(path: string): Promise<string> {
+  try {
+    return await realpath(path);
+  } catch {
+    return resolve(path);
+  }
+}
+
+function serverCodeInWebFolder(
+  webRoot: string,
+  server: string | null,
+  factory: string,
+): string | null {
+  if (server && isInsideDirectory(webRoot, server)) {
+    return "./server is inside it";
+  }
+  if (isInsideDirectory(webRoot, factory)) {
+    return 'the "." entry is inside it';
+  }
+  return null;
 }
 
 async function resolveEntryFile(
@@ -50,6 +75,7 @@ async function resolveEntryFile(
 async function resolveWebAssets(
   entry: string,
   server: string | null,
+  factory: string,
 ): Promise<PluginWebAssets> {
   const extension = extname(entry);
   if (!WEB_ENTRY_EXTENSIONS.has(extension)) {
@@ -58,6 +84,13 @@ async function resolveWebAssets(
     );
   }
   const root = dirname(entry);
+  const serverCode = serverCodeInWebFolder(root, server, factory);
+  if (serverCode) {
+    throw new StageError(
+      `Move the ./web export into its own folder; the web folder must not contain server code (${serverCode}).`,
+      SHARED_WEB_FOLDER_HINT,
+    );
+  }
   const styles = `${basename(entry, extension)}.css`;
   return {
     root,
@@ -70,6 +103,7 @@ async function resolveWebAssets(
 export async function resolveEntries(
   packageRoot: string,
   plugin: PluginPackage,
+  factory: string,
 ): Promise<ResolvedEntries> {
   const root = await realpath(packageRoot);
   const server = plugin.server
@@ -79,6 +113,7 @@ export async function resolveEntries(
     ? await resolveWebAssets(
         await resolveEntryFile(root, "./web", plugin.web),
         server,
+        await realFile(factory),
       )
     : null;
   return { root, server, web };

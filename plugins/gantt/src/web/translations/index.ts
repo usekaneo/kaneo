@@ -19,6 +19,7 @@ import { trTR } from "./tr-TR.js";
 import { ukUA } from "./uk-UA.js";
 import { viVN } from "./vi-VN.js";
 import { zhCN } from "./zh-CN.js";
+import { zhTW } from "./zh-TW.js";
 
 export const translations = {
   "az-AZ": azAZ,
@@ -41,4 +42,5 @@ export const translations = {
   "uk-UA": ukUA,
   "vi-VN": viVN,
   "zh-CN": zhCN,
+  "zh-TW": zhTW,
 } satisfies Translations;
