@@ -3079,7 +3079,9 @@
 			"endsToday": "Ends today",
 			"daysOverdue": "{{remaining}} days overdue",
 			"noTasks": "No tasks in this sprint yet",
-			"toggleTasks": "Show sprint tasks"
+			"toggleTasks": "Show sprint tasks",
+			"reportSummary": "Planned {{planned}}, completed {{completed}}, carried over {{carriedOver}}",
+			"carriedOver": "Carried over"
 		},
 		"type": {
 			"task": "Task",

@@ -3079,7 +3079,9 @@
 			"endsToday": "Endet heute",
 			"daysOverdue": "{{remaining}} Tage überfällig",
 			"noTasks": "Noch keine Aufgaben in diesem Sprint",
-			"toggleTasks": "Sprint-Aufgaben anzeigen"
+			"toggleTasks": "Sprint-Aufgaben anzeigen",
+			"reportSummary": "Geplant {{planned}}, abgeschlossen {{completed}}, übertragen {{carriedOver}}",
+			"carriedOver": "Übertragen"
 		},
 		"type": {
 			"task": "Aufgabe",
