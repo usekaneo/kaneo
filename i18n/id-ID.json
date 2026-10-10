@@ -3061,7 +3061,9 @@
 			"endsToday": "Berakhir hari ini",
 			"daysOverdue": "Terlambat {{remaining}} hari",
 			"noTasks": "Belum ada tugas dalam sprint ini",
-			"toggleTasks": "Tampilkan tugas sprint"
+			"toggleTasks": "Tampilkan tugas sprint",
+			"reportSummary": "Direncanakan {{planned}}, selesai {{completed}}, dipindahkan {{carriedOver}}",
+			"carriedOver": "Dipindahkan"
 		},
 		"type": {
 			"task": "Tugas",

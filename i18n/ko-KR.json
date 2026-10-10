@@ -3061,7 +3061,9 @@
 			"endsToday": "오늘 종료",
 			"daysOverdue": "{{remaining}}일 지연",
 			"noTasks": "이 스프린트에는 아직 작업이 없습니다",
-			"toggleTasks": "스프린트 작업 표시"
+			"toggleTasks": "스프린트 작업 표시",
+			"reportSummary": "계획 {{planned}}, 완료 {{completed}}, 이월 {{carriedOver}}",
+			"carriedOver": "이월됨"
 		},
 		"type": {
 			"task": "작업",

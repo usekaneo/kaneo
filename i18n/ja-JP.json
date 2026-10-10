@@ -3061,7 +3061,9 @@
 			"endsToday": "本日終了",
 			"daysOverdue": "{{remaining}}日超過",
 			"noTasks": "このスプリントにはまだタスクがありません",
-			"toggleTasks": "スプリントのタスクを表示"
+			"toggleTasks": "スプリントのタスクを表示",
+			"reportSummary": "計画 {{planned}}、完了 {{completed}}、繰り越し {{carriedOver}}",
+			"carriedOver": "繰り越されたタスク"
 		},
 		"type": {
 			"task": "タスク",
