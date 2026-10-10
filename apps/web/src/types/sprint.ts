@@ -8,6 +8,7 @@ export type Sprint = {
   status: SprintStatus;
   startDate: string | null;
   endDate: string | null;
+  carryOverTasks: { id: string; title: string }[] | null;
   position: number;
   taskCount: number;
   completedTaskCount: number;

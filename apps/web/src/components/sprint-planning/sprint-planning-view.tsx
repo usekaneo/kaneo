@@ -79,6 +79,16 @@ function SprintTaskRow({ task }: { task: Task }) {
   );
 }
 
+// Carried-over tasks may have been deleted since the sprint closed, so the
+// frozen snapshot title is the fallback when no live task matches.
+function CarriedOverTaskRow({ title }: { title: string }) {
+  return (
+    <span className="flex w-full items-center gap-2 rounded-md px-3 py-1 text-left text-xs text-muted-foreground">
+      <span className="truncate">{title}</span>
+    </span>
+  );
+}
+
 // Jira-style sprint planning above the backlog: the single active sprint,
 // the reorderable upcoming sprints, and the immutable closed history. Every
 // sprint section lists its own tasks, so sprint work is planned in context.
@@ -134,6 +144,45 @@ export default function SprintPlanningView({
     return tasks.map((task) => (
       <SprintTaskRow key={task.id} task={task} />
     ));
+  };
+
+  // The per-sprint report: planned work is what stayed plus what was moved
+  // out, so the numbers stay true even after the carried-over tasks moved on.
+  const renderSprintReport = (sprint: Sprint) => {
+    const carriedOver = sprint.carryOverTasks ?? [];
+    return (
+      <span className="px-3 py-1 text-xs text-muted-foreground">
+        {t("tasks:sprints.reportSummary", {
+          planned: sprint.completedTaskCount + carriedOver.length,
+          completed: sprint.completedTaskCount,
+          carriedOver: carriedOver.length,
+        })}
+      </span>
+    );
+  };
+
+  const renderCarriedOverList = (sprint: Sprint) => {
+    const carriedOver = sprint.carryOverTasks ?? [];
+    if (carriedOver.length === 0) {
+      return null;
+    }
+    return (
+      <div className="flex flex-col gap-0.5 pt-1">
+        <span className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          {t("tasks:sprints.carriedOver")}
+        </span>
+        {carriedOver.map((snapshot) => {
+          const liveTask = sprintTasks.find(
+            (task) => task.id === snapshot.id,
+          );
+          return liveTask ? (
+            <SprintTaskRow key={snapshot.id} task={liveTask} />
+          ) : (
+            <CarriedOverTaskRow key={snapshot.id} title={snapshot.title} />
+          );
+        })}
+      </div>
+    );
   };
 
   const handleStart = async (sprint: Sprint) => {
@@ -456,7 +505,9 @@ export default function SprintPlanningView({
                     </div>
                     <CollapsibleContent>
                       <div className="flex flex-col gap-0.5 pt-1 pl-2">
+                        {renderSprintReport(sprint)}
                         {renderSprintTaskList(sprint.id)}
+                        {renderCarriedOverList(sprint)}
                       </div>
                     </CollapsibleContent>
                   </Collapsible>
