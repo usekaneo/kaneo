@@ -3171,7 +3171,9 @@
 			"endsToday": "Заканчивается сегодня",
 			"daysOverdue": "Просрочено на {{remaining}} дн.",
 			"noTasks": "В этом спринте пока нет задач",
-			"toggleTasks": "Показать задачи спринта"
+			"toggleTasks": "Показать задачи спринта",
+			"reportSummary": "Запланировано {{planned}}, завершено {{completed}}, перенесено {{carriedOver}}",
+			"carriedOver": "Перенесено"
 		},
 		"type": {
 			"task": "Задача",

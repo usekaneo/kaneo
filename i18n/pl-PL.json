@@ -3390,7 +3390,9 @@
 			"endsToday": "Kończy się dziś",
 			"daysOverdue": "{{remaining}} dni po terminie",
 			"noTasks": "Brak zadań w tym sprincie",
-			"toggleTasks": "Pokaż zadania sprintu"
+			"toggleTasks": "Pokaż zadania sprintu",
+			"reportSummary": "Zaplanowane {{planned}}, ukończone {{completed}}, przeniesione {{carriedOver}}",
+			"carriedOver": "Przeniesione"
 		},
 		"type": {
 			"task": "Zadanie",

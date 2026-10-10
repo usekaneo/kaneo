@@ -3079,7 +3079,9 @@
 			"endsToday": "Eindigt vandaag",
 			"daysOverdue": "{{remaining}} dagen te laat",
 			"noTasks": "Nog geen taken in deze sprint",
-			"toggleTasks": "Sprinttaken weergeven"
+			"toggleTasks": "Sprinttaken weergeven",
+			"reportSummary": "Gepland {{planned}}, voltooid {{completed}}, doorgeschoven {{carriedOver}}",
+			"carriedOver": "Doorgeschoven"
 		},
 		"type": {
 			"task": "Taak",
