@@ -41,6 +41,7 @@ export default defineConfig({
               base: "workspace",
             },
             "package.json",
+            { pattern: "pnpm-lock.yaml", base: "workspace" },
           ],
           output: ["dist/**"],
         },
