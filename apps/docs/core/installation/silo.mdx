@@ -146,6 +146,6 @@ Test uploads and downloads before switching your team over. Image rollback alone
 
 ## Local-only trials
 
-A local setup still needs one storage hostname that both Docker and the browser can resolve. `localhost` inside the Kaneo container points to Kaneo, while `silo` usually resolves only inside Docker. Configure shared DNS and routing for your environment instead of copying either address into `S3_ENDPOINT`.
+A local setup still needs one storage hostname that both Docker and the browser can resolve. `localhost` inside the Kaneo container points to Kaneo, while `silo` usually resolves only inside Docker. Configure shared DNS and routing for your environment instead of copying either address into `S3_ENDPOINT`. Alternatively, keep `S3_ENDPOINT` on the private network and set `S3_PUBLIC_BASE_URL` to a public hostname so presigned upload URLs reach the browser while the API stays on the private network.
 
 For the least setup, try Kaneo without attachments first and add storage on a host with a reachable domain.
