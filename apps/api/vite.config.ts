@@ -10,8 +10,12 @@ export default defineConfig({
           { task: "build", from: ["dependencies", "devDependencies"] },
         ],
         cache: {
+          // `auto` can't see what native tools (tsc 7, esbuild) read, so list
+          // the sources explicitly or edits replay a stale build.
           input: [
             { auto: true },
+            "src/**",
+            "package.json",
             ".env*",
             { pattern: ".env*", base: "workspace" },
           ],
@@ -23,14 +27,9 @@ export default defineConfig({
         dependsOn: [
           { task: "build", from: ["dependencies", "devDependencies"] },
         ],
-        cache: {
-          input: [
-            { auto: true },
-            ".env*",
-            { pattern: ".env*", base: "workspace" },
-          ],
-          output: [],
-        },
+        // Typechecks read sources across the workspace and `auto` can't trace
+        // tsc 7, so a cached result can be stale; always run them (like cli).
+        cache: false,
       },
       "test:run": {
         command: "vp test run --config vitest.config.ts",
