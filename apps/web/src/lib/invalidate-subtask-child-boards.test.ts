@@ -8,7 +8,9 @@ it.each(["column", "planned", "archived"])(
     const client = new QueryClient();
     const child = {
       id: "child",
-      subtaskParents: [{ id: "parent", title: "Old title", projectId: "project" }],
+      subtaskParents: [
+        { id: "parent", title: "Old title", projectId: "project" },
+      ],
     };
     client.setQueryData(["tasks", "child-project"], {
       columns: [{ tasks: location === "column" ? [child] : [] }],

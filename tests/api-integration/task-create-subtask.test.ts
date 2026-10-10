@@ -62,7 +62,11 @@ describe("atomic subtask creation", () => {
     expect(response.status).toBe(200);
     const child = await response.json();
     expect(child.subtaskParents).toEqual([
-      { id: ctx.parent.id, title: ctx.parent.title, projectId: ctx.parent.projectId },
+      {
+        id: ctx.parent.id,
+        title: ctx.parent.title,
+        projectId: ctx.parent.projectId,
+      },
     ]);
     expect(await db.query.taskRelationTable.findMany()).toMatchObject([
       {

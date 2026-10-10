@@ -148,7 +148,9 @@ const createTaskRelationRoute = createRoute({
       "No access to the project, or missing task:update permission",
     ),
     404: errorResponse("Source or target task not found"),
-    409: errorResponse("This relation already exists, or the child already has a parent"),
+    409: errorResponse(
+      "This relation already exists, or the child already has a parent",
+    ),
   },
 });
 

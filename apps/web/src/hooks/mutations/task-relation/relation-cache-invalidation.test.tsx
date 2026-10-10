@@ -15,7 +15,7 @@ afterEach(cleanup);
 
 describe("relation cache updates", () => {
   it.each(["create", "delete"])(
-    "refreshes both endpoints and the parent board after %s",
+    "refreshes both endpoints and their boards after %s",
     async (operation) => {
       const client = new QueryClient({
         defaultOptions: { queries: { retry: false } },
@@ -27,6 +27,10 @@ describe("relation cache updates", () => {
       client.setQueryData(["tasks", "parent-project"], {
         columns: [],
         plannedTasks: [{ id: "parent" }],
+      });
+      client.setQueryData(["tasks", "child-project"], {
+        columns: [{ tasks: [{ id: "child" }] }],
+        plannedTasks: [],
       });
       client.setQueryData(["tasks", "unrelated-project"], {
         columns: [],
@@ -61,6 +65,9 @@ describe("relation cache updates", () => {
       }
       expect(
         client.getQueryState(["tasks", "parent-project"])?.isInvalidated,
+      ).toBe(true);
+      expect(
+        client.getQueryState(["tasks", "child-project"])?.isInvalidated,
       ).toBe(true);
       expect(
         client.getQueryState(["tasks", "unrelated-project"])?.isInvalidated,

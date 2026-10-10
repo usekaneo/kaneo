@@ -151,13 +151,15 @@ describe("TaskSubtasks", () => {
 
   it("keeps the parent linked and reports an unlink failure", async () => {
     mocks.getRelations.mockReturnValue({
-      data: [{
-        id: "relation",
-        relationType: "subtask",
-        sourceTaskId: "parent",
-        targetTaskId: "child",
-        sourceTask: { id: "parent", title: "Parent", projectId: "project-2" },
-      }],
+      data: [
+        {
+          id: "relation",
+          relationType: "subtask",
+          sourceTaskId: "parent",
+          targetTaskId: "child",
+          sourceTask: { id: "parent", title: "Parent", projectId: "project-2" },
+        },
+      ],
     });
     mocks.deleteRelation.mockRejectedValueOnce(new Error("Unlink failed"));
     render(

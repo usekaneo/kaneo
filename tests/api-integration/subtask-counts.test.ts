@@ -100,11 +100,13 @@ describe("API integration: subtask counters", () => {
     expect(
       board.data.columns.flatMap((c) => c.tasks).find((t) => t.id === child.id)
         ?.subtaskParents,
-    ).toEqual([{
-      id: visibleParent.id,
-      title: visibleParent.title,
-      projectId: visibleParent.projectId,
-    }]);
+    ).toEqual([
+      {
+        id: visibleParent.id,
+        title: visibleParent.title,
+        projectId: visibleParent.projectId,
+      },
+    ]);
     await db
       .update(schema.projectTable)
       .set({ isPublic: true })
@@ -114,11 +116,13 @@ describe("API integration: subtask counters", () => {
       publicBoard.data.columns
         .flatMap((c) => c.tasks)
         .find((t) => t.id === child.id)?.subtaskParents,
-    ).toEqual([{
-      id: visibleParent.id,
-      title: visibleParent.title,
-      projectId: visibleParent.projectId,
-    }]);
+    ).toEqual([
+      {
+        id: visibleParent.id,
+        title: visibleParent.title,
+        projectId: visibleParent.projectId,
+      },
+    ]);
     const revision = publicBoard.pagination.revision;
     await db
       .update(schema.taskTable)
@@ -189,11 +193,13 @@ describe("API integration: subtask counters", () => {
         (await getTasks(childProject.project.id)).data.columns
           .flatMap((c) => c.tasks)
           .find((t) => t.id === child.id)?.subtaskParents,
-      ).toEqual([{
-        id: parent.id,
-        title: "Renamed parent",
-        projectId: parent.projectId,
-      }]);
+      ).toEqual([
+        {
+          id: parent.id,
+          title: "Renamed parent",
+          projectId: parent.projectId,
+        },
+      ]);
       send.mockClear();
       await eventContext.run({ initiatorId: "same-window" }, () =>
         deleteTaskRelation(relation.id, member.user.id, member.workspace.id),

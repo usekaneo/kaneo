@@ -128,10 +128,13 @@ describe("API integration: task duplication", () => {
       projectId: project.id,
       columnId: columns.todo.id,
     });
-    const parents = await db.insert(schema.taskTable).values([
-      { projectId: project.id, title: "First parent", number: 2 },
-      { projectId: project.id, title: "Second parent", number: 3 },
-    ]).returning();
+    const parents = await db
+      .insert(schema.taskTable)
+      .values([
+        { projectId: project.id, title: "First parent", number: 2 },
+        { projectId: project.id, title: "Second parent", number: 3 },
+      ])
+      .returning();
     await db.insert(schema.taskRelationTable).values(
       parents.map((parent) => ({
         sourceTaskId: parent.id,

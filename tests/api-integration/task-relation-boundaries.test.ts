@@ -66,13 +66,19 @@ describe("task relation tenant boundaries", () => {
         targetTaskId: child.id,
         relationType: "subtask",
       });
-    const results = await Promise.all([link(own.task.id), link(otherParent.id)]);
-    expect(results.map((response) => response.status).sort()).toEqual([200, 409]);
-    expect(await results.find((response) => response.status === 409)?.json())
-      .toEqual({
-        message: "This task already has a parent",
-        code: "CONFLICT",
-      });
+    const results = await Promise.all([
+      link(own.task.id),
+      link(otherParent.id),
+    ]);
+    expect(results.map((response) => response.status).sort()).toEqual([
+      200, 409,
+    ]);
+    expect(
+      await results.find((response) => response.status === 409)?.json(),
+    ).toEqual({
+      message: "This task already has a parent",
+      code: "CONFLICT",
+    });
     expect(await db.query.taskRelationTable.findMany()).toHaveLength(1);
     expect(m.publish).toHaveBeenCalledTimes(1);
     const [relation] = await db.query.taskRelationTable.findMany();

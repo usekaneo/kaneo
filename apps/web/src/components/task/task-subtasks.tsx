@@ -394,7 +394,9 @@ export default function TaskSubtasks({
                   <Unlink className="size-3.5" />
                   {t("tasks:subtasks.unlinkParent")}
                   {parents.length > 1 && (
-                    <span className="max-w-32 truncate">{parent.sourceTask?.title}</span>
+                    <span className="max-w-32 truncate">
+                      {parent.sourceTask?.title}
+                    </span>
                   )}
                 </Button>
               ))}
