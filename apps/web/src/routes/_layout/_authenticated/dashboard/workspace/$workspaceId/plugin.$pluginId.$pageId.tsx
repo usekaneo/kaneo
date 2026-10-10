@@ -39,10 +39,7 @@ function RouteComponent() {
             <lookup.contribution.item.component workspaceId={workspaceId} />
           </PluginBoundary>
         ) : (
-          <PluginPageStatus
-            status={lookup.status}
-            error={lookup.status === "failed" ? lookup.error : undefined}
-          />
+          <PluginPageStatus status={lookup.status} />
         )}
       </WorkspaceLayout>
     </>

@@ -5,10 +5,9 @@ import { PluginFailedMessage } from "./plugin-failed-message";
 
 type PluginPageStatusProps = {
   status: "loading" | "missing" | "failed";
-  error?: Error;
 };
 
-export function PluginPageStatus({ status, error }: PluginPageStatusProps) {
+export function PluginPageStatus({ status }: PluginPageStatusProps) {
   const { t } = useTranslation();
 
   return (
@@ -16,7 +15,7 @@ export function PluginPageStatus({ status, error }: PluginPageStatusProps) {
       {status === "loading" ? (
         <Spinner className="size-5 text-muted-foreground" />
       ) : status === "failed" ? (
-        <PluginFailedMessage className="text-sm" error={error} />
+        <PluginFailedMessage className="text-sm" />
       ) : (
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <Puzzle className="size-4" />

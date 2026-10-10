@@ -4,19 +4,14 @@ import { cn } from "@/lib/cn";
 
 type PluginFailedMessageProps = {
   className?: string;
-  error?: Error;
 };
 
-export function PluginFailedMessage({
-  className,
-  error,
-}: PluginFailedMessageProps) {
+export function PluginFailedMessage({ className }: PluginFailedMessageProps) {
   const { t } = useTranslation();
 
   return (
     <p
       role="alert"
-      title={error?.message}
       className={cn(
         "flex items-center gap-1.5 text-xs text-muted-foreground",
         className,
