@@ -558,6 +558,9 @@ export function createApp() {
             "Content-Type": inline
               ? storedContentType
               : "application/octet-stream",
+            // The real type for API consumers (e.g. MCP metadata); the served
+            // Content-Type stays safe for non-inline downloads.
+            "X-Asset-Mime-Type": storedContentType,
             "X-Content-Type-Options": "nosniff",
             ETag: object.etag || "",
             "Last-Modified": object.lastModified?.toUTCString() || "",

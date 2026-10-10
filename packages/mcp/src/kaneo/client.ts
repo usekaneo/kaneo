@@ -8,6 +8,10 @@ export type Json =
   | Json[]
   | { [key: string]: Json };
 
+const DEFAULT_TIMEOUT_MS = 10_000;
+/** Binary downloads can be up to the asset size cap, so allow more time. */
+const ASSET_TIMEOUT_MS = 30_000;
+
 export class KaneoClient {
   readonly baseUrl: string;
   private readonly auth: AuthService;
@@ -25,6 +29,7 @@ export class KaneoClient {
     path: string,
     init?: RequestInit,
     didRetry = false,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
   ): Promise<Response> {
     const token = await this.auth.getAccessToken();
     const headers = new Headers(init?.headers);
@@ -34,7 +39,7 @@ export class KaneoClient {
     }
 
     const url = `${this.baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
-    const timeoutSignal = AbortSignal.timeout(10_000);
+    const timeoutSignal = AbortSignal.timeout(timeoutMs);
     const signal = init?.signal
       ? AbortSignal.any([init.signal, timeoutSignal])
       : timeoutSignal;
@@ -44,10 +49,15 @@ export class KaneoClient {
     // instead of looping back into the interactive device flow.
     if (res.status === 401 && !didRetry && !this.auth.usingApiKey) {
       await this.auth.clearToken();
-      return this.authorizedFetch(path, init, true);
+      return this.authorizedFetch(path, init, true, timeoutMs);
     }
 
     return res;
+  }
+
+  /** Returns the raw response for binary endpoints such as asset downloads. */
+  async raw(path: string, init?: RequestInit): Promise<Response> {
+    return this.authorizedFetch(path, init, false, ASSET_TIMEOUT_MS);
   }
 
   async json<T = Json>(path: string, init?: RequestInit): Promise<T> {

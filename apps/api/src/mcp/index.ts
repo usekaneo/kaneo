@@ -44,7 +44,12 @@ function createMcpServerForUser(token: string): LegacyMcpServer {
     name: "kaneo-mcp",
     version: "1.0.0",
   });
-  registerMcpTools(toMcpToolRegistrar(server), internalApiUrl, token);
+  registerMcpTools(
+    toMcpToolRegistrar(server),
+    internalApiUrl,
+    token,
+    publicApiUrl,
+  );
   return server;
 }
 
@@ -326,7 +331,11 @@ mcp.all("/mcp", async (c) => {
   }
 
   if (!(await isLegacyRequest(c.req.raw.clone()))) {
-    const modern = createModernMcpHandler(authResult.token, internalApiUrl);
+    const modern = createModernMcpHandler(
+      authResult.token,
+      internalApiUrl,
+      publicApiUrl,
+    );
     return modern.fetch(c.req.raw);
   }
 

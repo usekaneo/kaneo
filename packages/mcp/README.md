@@ -123,6 +123,7 @@ For headless or sandboxed environments where opening a browser is impractical, s
 - Comments: `list_task_comments`, `create_task_comment`, `update_task_comment`, `delete_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
 - Task relations: `create_task_relation`, `get_task_relations`, `delete_task_relation`
+- Assets: `get_asset`
 
 Call `list_project_columns` before setting a status: the column slugs it
 returns are the values `create_task` and `update_task_status` accept.
@@ -132,6 +133,11 @@ pass `workspaceId` or `projectId` to select one.
 `list_workspace_members` resolves the user IDs the assignee tools expect.
 Time entries have no delete endpoint on the API, so there is no
 `delete_time_entry` tool.
+
+`get_asset` accepts an asset ID or the `/api/asset/<id>` URL found in task and
+comment content. Images come back as viewable image content; other file types
+come back as a base64 resource (or a direct-download hint when the file is over
+10 MiB). Private assets still require access to their workspace.
 
 ## Releasing
 
