@@ -867,7 +867,9 @@
 			"on": "Açık",
 			"off": "Kapalı",
 			"newColumnPlaceholder": "Yeni sütun adı...",
-			"add": "Ekle"
+			"add": "Ekle",
+			"deleteAria": "{{name}} sütununu sil",
+			"renameAria": "{{name}} sütununu yeniden adlandır"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2075,7 +2077,8 @@
 			"deleteConfirmTitle": "Proje Silinsin mi?",
 			"deleteConfirmDescription": "Bu, projeyi ve tüm verilerini kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
 			"deletedToast": "Proje silindi",
-			"deleteProject": "Projeyi Sil"
+			"deleteProject": "Projeyi Sil",
+			"switcherLabel": "Proje veya görünüm değiştir"
 		},
 		"search": {
 			"inputPlaceholder": "Talep, proje, yorum ara...",
@@ -2367,7 +2370,8 @@
 			"board": "Pano",
 			"list": "Liste",
 			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"gantt": "Gantt",
+			"heading": "Görünüm"
 		},
 		"common": {
 			"selectTask": "Talep seç",
@@ -2613,7 +2617,8 @@
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Etiketleri düzenle"
 			}
 		},
 		"backlog": {
@@ -2820,7 +2825,8 @@
 			"today": "Bugün",
 			"loadError": "Talepler yüklenemedi.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Bu ay planlanmış bir şey yok"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

@@ -866,7 +866,9 @@
 			"on": "Aktif",
 			"off": "Nonaktif",
 			"newColumnPlaceholder": "Nama kolom baru...",
-			"add": "Tambah"
+			"add": "Tambah",
+			"deleteAria": "Hapus kolom {{name}}",
+			"renameAria": "Ganti nama kolom {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2064,7 +2066,8 @@
 			"deleteConfirmTitle": "Hapus Proyek?",
 			"deleteConfirmDescription": "Ini akan menghapus proyek dan semua datanya secara permanen. Anda tidak dapat membatalkan tindakan ini.",
 			"deletedToast": "Proyek dihapus",
-			"deleteProject": "Hapus Proyek"
+			"deleteProject": "Hapus Proyek",
+			"switcherLabel": "Ganti proyek atau tampilan"
 		},
 		"search": {
 			"inputPlaceholder": "Cari tugas, proyek, komentar...",
@@ -2352,7 +2355,8 @@
 			"board": "Papan",
 			"list": "Daftar",
 			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"gantt": "Gantt",
+			"heading": "Tampilan"
 		},
 		"common": {
 			"selectTask": "Pilih tugas",
@@ -2598,7 +2602,8 @@
 					"rose": "Rose",
 					"crimson": "Crimson"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Edit label"
 			}
 		},
 		"backlog": {
@@ -2804,7 +2809,8 @@
 			"today": "Hari ini",
 			"loadError": "Gagal memuat tugas.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Tidak ada yang terjadwal bulan ini"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

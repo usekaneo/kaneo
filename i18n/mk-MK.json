@@ -867,7 +867,9 @@
 			"on": "Вклучено",
 			"off": "Исклучено",
 			"newColumnPlaceholder": "Име на нова колона...",
-			"add": "Додади"
+			"add": "Додади",
+			"deleteAria": "Избриши ја колоната {{name}}",
+			"renameAria": "Преименувај ја колоната {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2075,7 +2077,8 @@
 			"deleteConfirmTitle": "Избриши проект?",
 			"deleteConfirmDescription": "Ова трајно ќе го отстрани проектот и сите негови податоци. Не можеш да ја вратиш оваа акција.",
 			"deletedToast": "Проектот е избришан",
-			"deleteProject": "Избриши проект"
+			"deleteProject": "Избриши проект",
+			"switcherLabel": "Промени проект или приказ"
 		},
 		"search": {
 			"inputPlaceholder": "Пребарај задачи, проекти, коментари...",
@@ -2366,8 +2369,9 @@
 		"view": {
 			"board": "Табла",
 			"list": "Листа",
-			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"backlog": "Заостанати",
+			"gantt": "Gantt",
+			"heading": "Приказ"
 		},
 		"common": {
 			"selectTask": "Избери задача",
@@ -2613,7 +2617,8 @@
 					"rose": "Роза",
 					"crimson": "Гримизна"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Уреди етикети"
 			}
 		},
 		"backlog": {
@@ -2820,7 +2825,8 @@
 			"today": "Денес",
 			"loadError": "Неуспешно вчитување на задачите.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Ништо не е закажано овој месец"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

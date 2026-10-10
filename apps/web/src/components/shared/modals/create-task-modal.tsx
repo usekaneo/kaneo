@@ -92,6 +92,8 @@ import { getInitials } from "@/lib/get-initials";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
+import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
+import { stripLineBreaks } from "@/lib/strip-line-breaks";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import CreateTaskStatusPicker from "./create-task-status-picker";
@@ -258,6 +260,7 @@ function CreateTaskModalContent({
   const canCreateLabelCapability = canCreateLabels();
 
   const [title, setTitle] = useState("");
+  const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
   const [assigneeId, setAssigneeId] = useState("");
@@ -824,7 +827,7 @@ function CreateTaskModalContent({
             value={value}
             onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
             required={field.required}
-            className="h-9 w-full text-sm bg-background"
+            className="h-9 w-full text-base sm:text-sm bg-background"
           />
         );
 
@@ -836,7 +839,7 @@ function CreateTaskModalContent({
             onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
             placeholder={field.defaultValue || ""}
             required={field.required}
-            className="h-9 w-full text-sm bg-background"
+            className="h-9 w-full text-base sm:text-sm bg-background"
           />
         );
 
@@ -1014,7 +1017,7 @@ function CreateTaskModalContent({
             onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
             placeholder={field.defaultValue || ""}
             required={field.required}
-            className="h-9 w-full text-sm bg-background"
+            className="h-9 w-full text-base sm:text-sm bg-background"
           />
         );
     }
@@ -1058,13 +1061,22 @@ function CreateTaskModalContent({
           className="flex flex-col flex-1 min-h-0 space-y-6"
         >
           <div className="flex-1 min-h-0 overflow-y-auto space-y-6 px-6">
-            <Input
-              unstyled
+            <textarea
+              ref={titleRef}
+              rows={1}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => setTitle(stripLineBreaks(e.target.value))}
+              onKeyDown={(e) => {
+                // Single-line title: Enter submits like the input it replaced.
+                if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  e.currentTarget.form?.requestSubmit();
+                }
+              }}
               autoFocus
               placeholder={t("common:modals.createTask.taskTitlePlaceholder")}
-              className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-3 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
+              aria-label={t("common:modals.createTask.taskTitlePlaceholder")}
+              className="block w-full resize-none overflow-hidden border-0 bg-transparent px-0 py-3 font-semibold text-2xl text-foreground leading-tight tracking-tight outline-none placeholder:text-muted-foreground"
               required
             />
 
@@ -1506,7 +1518,7 @@ function CreateTaskModalContent({
                           placeholder={t(
                             "common:modals.createTask.searchLabels",
                           )}
-                          className="w-full bg-transparent border-none text-foreground text-xs focus:outline-none placeholder:text-muted-foreground"
+                          className="w-full bg-transparent border-none text-foreground text-base focus:outline-none placeholder:text-muted-foreground sm:text-xs"
                         />
                       </div>
 

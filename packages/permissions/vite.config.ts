@@ -11,8 +11,12 @@ export default defineConfig({
         cache: {
           input: [
             { auto: true },
+            "src/**",
+            "tsconfig.json",
             ".env*",
             { pattern: ".env*", base: "workspace" },
+            "package.json",
+            { pattern: "pnpm-lock.yaml", base: "workspace" },
           ],
           output: ["dist/**"],
         },

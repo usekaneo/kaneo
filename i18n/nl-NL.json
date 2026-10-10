@@ -763,7 +763,9 @@
 			"on": "Aan",
 			"off": "Uit",
 			"newColumnPlaceholder": "Nieuwe kolomnaam...",
-			"add": "Toevoegen"
+			"add": "Toevoegen",
+			"deleteAria": "Kolom {{name}} verwijderen",
+			"renameAria": "Kolom {{name}} hernoemen"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2075,7 +2077,8 @@
 			"deleteConfirmTitle": "Project verwijderen?",
 			"deleteConfirmDescription": "Dit zal het project en alle data permanent verwijderen. Dit kan niet ongedaan worden gemaakt.",
 			"deletedToast": "Project verwijderd",
-			"deleteProject": "Project verwijderen"
+			"deleteProject": "Project verwijderen",
+			"switcherLabel": "Project of weergave wisselen"
 		},
 		"search": {
 			"inputPlaceholder": "Zoek taken, projecten, reacties...",
@@ -2367,7 +2370,8 @@
 			"board": "Bord",
 			"list": "Lijst",
 			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"gantt": "Gantt",
+			"heading": "Weergave"
 		},
 		"common": {
 			"selectTask": "Selecteer taak",
@@ -2602,7 +2606,8 @@
 					"rose": "Roos",
 					"crimson": "Karmozijn"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Labels bewerken"
 			}
 		},
 		"backlog": {
@@ -2820,7 +2825,8 @@
 			"today": "Vandaag",
 			"loadError": "Taken konden niet worden geladen.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Niets gepland deze maand"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

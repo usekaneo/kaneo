@@ -1100,7 +1100,9 @@
 			"on": "オン",
 			"off": "オフ",
 			"newColumnPlaceholder": "新しいカラム名...",
-			"add": "追加"
+			"add": "追加",
+			"deleteAria": "{{name}} 列を削除",
+			"renameAria": "{{name}} 列の名前を変更"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2064,7 +2066,8 @@
 			"deleteConfirmTitle": "プロジェクトを削除しますか？",
 			"deleteConfirmDescription": "これにより、プロジェクトとそのすべてのデータが完全に削除されます。この操作は取り消せません。",
 			"deletedToast": "プロジェクトを削除しました",
-			"deleteProject": "プロジェクトを削除"
+			"deleteProject": "プロジェクトを削除",
+			"switcherLabel": "プロジェクトまたはビューを切り替え"
 		},
 		"search": {
 			"inputPlaceholder": "タスク、プロジェクト、コメントを検索...",
@@ -2351,8 +2354,9 @@
 		"view": {
 			"board": "ボード",
 			"list": "リスト",
-			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"backlog": "バックログ",
+			"gantt": "ガント",
+			"heading": "ビュー"
 		},
 		"common": {
 			"selectTask": "タスクを選択",
@@ -2598,7 +2602,8 @@
 					"rose": "ローズ",
 					"crimson": "クリムゾン"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "ラベルを編集"
 			}
 		},
 		"backlog": {
@@ -2679,7 +2684,8 @@
 			"dayTasksAriaLabel": "{{date}}のすべてのタスクを表示",
 			"taskAriaLabel": "{{title}}、{{range}}: タスクを開く",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "今月の予定はありません"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – ガントチャート",

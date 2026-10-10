@@ -868,7 +868,9 @@
 			"on": "On",
 			"off": "Off",
 			"newColumnPlaceholder": "Nouveau nom de colonne...",
-			"add": "Ajouter"
+			"add": "Ajouter",
+			"deleteAria": "Supprimer la colonne {{name}}",
+			"renameAria": "Renommer la colonne {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2086,7 +2088,8 @@
 			"deleteConfirmTitle": "Supprimer le projet?",
 			"deleteConfirmDescription": "Cela supprimera définitivement le projet et toutes ses données. Vous ne pouvez pas annuler cette action.",
 			"deletedToast": "Projet supprimé",
-			"deleteProject": "Supprimer le projet"
+			"deleteProject": "Supprimer le projet",
+			"switcherLabel": "Changer de projet ou de vue"
 		},
 		"search": {
 			"inputPlaceholder": "Rechercher des tâches, projets, commentaires...",
@@ -2382,7 +2385,8 @@
 			"board": "Tableau",
 			"list": "Liste",
 			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"gantt": "Gantt",
+			"heading": "Vue"
 		},
 		"common": {
 			"selectTask": "Sélectionner une tâche",
@@ -2628,7 +2632,8 @@
 					"rose": "Rose",
 					"crimson": "Cramoisi"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Modifier les labels"
 			}
 		},
 		"backlog": {
@@ -2836,7 +2841,8 @@
 			"today": "Aujourd’hui",
 			"loadError": "Échec du chargement des tâches.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Rien de planifié ce mois-ci"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

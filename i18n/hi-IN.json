@@ -1102,7 +1102,9 @@
 			"on": "चालू",
 			"off": "बंद",
 			"newColumnPlaceholder": "नया कॉलम नाम...",
-			"add": "जोड़ें"
+			"add": "जोड़ें",
+			"deleteAria": "{{name}} कॉलम हटाएँ",
+			"renameAria": "{{name}} कॉलम का नाम बदलें"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2075,7 +2077,8 @@
 			"deleteConfirmTitle": "प्रोजेक्ट हटाएँ?",
 			"deleteConfirmDescription": "यह प्रोजेक्ट और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
 			"deletedToast": "प्रोजेक्ट हटाया गया",
-			"deleteProject": "प्रोजेक्ट हटाएँ"
+			"deleteProject": "प्रोजेक्ट हटाएँ",
+			"switcherLabel": "प्रोजेक्ट या व्यू बदलें"
 		},
 		"search": {
 			"inputPlaceholder": "कार्य, प्रोजेक्ट, टिप्पणियाँ खोजें...",
@@ -2366,8 +2369,9 @@
 		"view": {
 			"board": "बोर्ड",
 			"list": "सूची",
-			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"backlog": "बैकलॉग",
+			"gantt": "गैंट",
+			"heading": "व्यू"
 		},
 		"common": {
 			"selectTask": "कार्य चुनें",
@@ -2613,7 +2617,8 @@
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "लेबल संपादित करें"
 			}
 		},
 		"backlog": {
@@ -2820,7 +2825,8 @@
 			"today": "आज",
 			"loadError": "कार्य लोड नहीं हो सके।",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "इस महीने कुछ भी शेड्यूल नहीं है"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

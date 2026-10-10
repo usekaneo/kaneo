@@ -5,8 +5,10 @@ import { useTranslation } from "react-i18next";
 import { Form, FormField } from "@/components/ui/form";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import useGetTask from "@/hooks/queries/task/use-get-task";
+import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import debounce from "@/lib/debounce";
+import { stripLineBreaks } from "@/lib/strip-line-breaks";
 
 type TaskTitleProps = {
   taskId: string;
@@ -66,6 +68,9 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
     [],
   );
 
+  const title = form.watch("title");
+  const textareaRef = useAutoGrowTextarea(title);
+
   const handleTitleChange = useCallback(
     (value: string) => {
       if (!isInitializedRef.current) return;
@@ -81,15 +86,27 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
         control={form.control}
         name="title"
         render={({ field }) => (
-          <input
+          <textarea
             {...field}
-            type="text"
+            ref={(element) => {
+              field.ref(element);
+              textareaRef.current = element;
+            }}
+            rows={1}
             placeholder={t("tasks:detail.titlePlaceholder")}
             readOnly={!canEdit}
-            className="block h-auto w-full appearance-none border-0 bg-transparent p-0 font-heading text-[2rem] leading-[1.15] font-semibold tracking-[-0.02em] text-foreground outline-none placeholder:text-foreground/45"
+            className="block h-auto w-full resize-none appearance-none overflow-hidden border-0 bg-transparent p-0 font-heading text-2xl leading-[1.15] font-semibold tracking-[-0.02em] text-foreground outline-none placeholder:text-foreground/45 sm:text-[2rem]"
+            onKeyDown={(e) => {
+              // Titles are single-line; Enter commits instead of adding a break.
+              if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                e.currentTarget.blur();
+              }
+            }}
             onChange={(e) => {
-              field.onChange(e);
-              handleTitleChange(e.target.value);
+              const value = stripLineBreaks(e.target.value);
+              field.onChange(value);
+              handleTitleChange(value);
             }}
           />
         )}

@@ -1,3 +1,7 @@
+import {
+  WORKSPACE_CAPABILITY_NAMES,
+  type WorkspaceCapability,
+} from "@kaneo/permissions";
 import { PROJECT_ACCESS_MODES } from "../project-access/project-access-mode";
 import { responseTimestamp, z } from "../openapi";
 
@@ -46,4 +50,15 @@ export const memberProjectAccessListSchema = z
   .openapi({
     description:
       "Members limited to selected projects. Members not listed can access every project. Project IDs only include projects the caller can access.",
+  });
+
+const capabilityShape = Object.fromEntries(
+  WORKSPACE_CAPABILITY_NAMES.map((name) => [name, z.boolean()]),
+) as Record<WorkspaceCapability, z.ZodBoolean>;
+
+export const workspaceCapabilitiesSchema = z
+  .object(capabilityShape)
+  .openapi("WorkspaceCapabilities", {
+    description:
+      "Whether the caller's roles (and API key scope, if any) allow each named action in the workspace. Mirrors the checks the API enforces.",
   });

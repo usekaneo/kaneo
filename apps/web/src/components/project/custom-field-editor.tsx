@@ -617,7 +617,7 @@ export default function CustomFieldEditor({
             value={optionsText}
             onChange={(e) => setOptionsText(e.target.value)}
             placeholder={t("settings:customFields.optionsPlaceholder")}
-            className="h-8 text-sm w-48 flex-[2_0_0]"
+            className="h-8 text-base sm:text-sm w-48 flex-[2_0_0]"
           />
         )}
 
@@ -913,7 +913,7 @@ export default function CustomFieldEditor({
             type="number"
             onChange={(e) => setDefaultValue(e.target.value)}
             placeholder={t("settings:customFields.defaultValuePlaceholder")}
-            className="h-8 text-sm w-48 flex-[2_0_0]"
+            className="h-8 text-base sm:text-sm w-48 flex-[2_0_0]"
           />
         ) : (
           type !== "date" && (
@@ -921,7 +921,7 @@ export default function CustomFieldEditor({
               value={defaultValue}
               onChange={(e) => setDefaultValue(e.target.value)}
               placeholder={t("settings:customFields.defaultValuePlaceholder")}
-              className="h-8 text-sm w-48 flex-[2_0_0]"
+              className="h-8 text-base sm:text-sm w-48 flex-[2_0_0]"
             />
           )
         )}

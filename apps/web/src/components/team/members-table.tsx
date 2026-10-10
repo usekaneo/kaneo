@@ -271,9 +271,11 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                         {getInitials(member.user.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="min-w-0">
+                    {/* Capped on phones so the email truncates and the role column
+                        peeks in, hinting that the table scrolls sideways. */}
+                    <div className="min-w-0 max-w-[55vw] sm:max-w-none">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
+                        <span className="truncate text-sm font-medium">
                           {member.user.name}
                         </span>
                         {isSelf ? (

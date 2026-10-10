@@ -869,7 +869,9 @@
 			"on": "Увімк.",
 			"off": "Вимк.",
 			"newColumnPlaceholder": "Назва нової колонки...",
-			"add": "Додати"
+			"add": "Додати",
+			"deleteAria": "Видалити стовпець {{name}}",
+			"renameAria": "Перейменувати стовпець {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2097,7 +2099,8 @@
 			"deleteConfirmTitle": "Видалити проєкт?",
 			"deleteConfirmDescription": "Це назавжди видалить проєкт та всі його дані. Цю дію неможливо скасувати.",
 			"deletedToast": "Проєкт видалено",
-			"deleteProject": "Видалити проєкт"
+			"deleteProject": "Видалити проєкт",
+			"switcherLabel": "Змінити проєкт або вигляд"
 		},
 		"search": {
 			"inputPlaceholder": "Пошук завдань, проєктів, коментарів...",
@@ -2396,8 +2399,9 @@
 		"view": {
 			"board": "Дошка",
 			"list": "Список",
-			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"backlog": "Беклог",
+			"gantt": "Ґант",
+			"heading": "Вигляд"
 		},
 		"common": {
 			"selectTask": "Обрати завдання",
@@ -2643,7 +2647,8 @@
 					"rose": "Троянда",
 					"crimson": "Багряний"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Редагувати мітки"
 			}
 		},
 		"backlog": {
@@ -2852,7 +2857,8 @@
 			"today": "Сьогодні",
 			"loadError": "Не вдалося завантажити завдання.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Цього місяця нічого не заплановано"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

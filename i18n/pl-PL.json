@@ -469,7 +469,8 @@
 			"deleteConfirmTitle": "Usunąć projekt?",
 			"deleteConfirmDescription": "Spowoduje to trwałe usunięcie projektu i wszystkich jego danych. Nie można tego cofnąć.",
 			"deletedToast": "Projekt usunięty",
-			"deleteProject": "Usuń projekt"
+			"deleteProject": "Usuń projekt",
+			"switcherLabel": "Przełącz projekt lub widok"
 		},
 		"search": {
 			"inputPlaceholder": "Szukaj zadań, projektów i komentarzy...",
@@ -1101,7 +1102,9 @@
 			"toastIconUpdated": "Zaktualizowano ikonę kolumny",
 			"toastRenamed": "Zmieniono nazwę kolumny",
 			"toastRenameError": "Nie udało się zmienić nazwy kolumny",
-			"toastUpdateError": "Nie udało się zaktualizować kolumny"
+			"toastUpdateError": "Nie udało się zaktualizować kolumny",
+			"deleteAria": "Usuń kolumnę {{name}}",
+			"renameAria": "Zmień nazwę kolumny {{name}}"
 		},
 		"developer": "Deweloper",
 		"developerPage": {
@@ -2921,7 +2924,8 @@
 			"dayTasksAriaLabel": "Pokaż wszystkie zadania z dnia {{date}}",
 			"taskAriaLabel": "{{title}}, {{range}}: otwórz zadanie",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Nic nie zaplanowano w tym miesiącu"
 		},
 		"gantt": {
 			"hideTasks": "Ukryj zadania",
@@ -2999,7 +3003,8 @@
 				"removeSuccess": "Usunięto etykietę",
 				"searchPlaceholder": "Szukaj etykiet...",
 				"updateError": "Nie udało się zaktualizować etykiety",
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Edytuj etykiety"
 			},
 			"priority": {
 				"updateError": "Nie udało się zaktualizować priorytetu zadania"
@@ -3122,7 +3127,8 @@
 			"board": "Tablica",
 			"list": "Lista",
 			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"gantt": "Gantt",
+			"heading": "Widok"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

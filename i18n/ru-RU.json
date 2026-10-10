@@ -869,7 +869,9 @@
 			"on": "Вкл",
 			"off": "Выкл",
 			"newColumnPlaceholder": "Название новой колонки...",
-			"add": "Добавить"
+			"add": "Добавить",
+			"deleteAria": "Удалить столбец {{name}}",
+			"renameAria": "Переименовать столбец {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2105,7 +2107,8 @@
 			"deleteConfirmTitle": "Удалить проект?",
 			"deleteConfirmDescription": "Проект и все его данные будут безвозвратно удалены. Это действие нельзя отменить.",
 			"deletedToast": "Проект удалён",
-			"deleteProject": "Удалить проект"
+			"deleteProject": "Удалить проект",
+			"switcherLabel": "Сменить проект или вид"
 		},
 		"search": {
 			"inputPlaceholder": "Поиск задач, проектов, комментариев...",
@@ -2404,8 +2407,9 @@
 		"view": {
 			"board": "Доска",
 			"list": "Список",
-			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"backlog": "Бэклог",
+			"gantt": "Гант",
+			"heading": "Вид"
 		},
 		"common": {
 			"selectTask": "Выбрать задачу",
@@ -2651,7 +2655,8 @@
 					"rose": "Роза",
 					"crimson": "Малиновый"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Изменить метки"
 			}
 		},
 		"backlog": {
@@ -2908,7 +2913,8 @@
 			"today": "Сегодня",
 			"loadError": "Не удалось загрузить задачи.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "В этом месяце ничего не запланировано"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

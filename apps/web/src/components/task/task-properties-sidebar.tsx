@@ -620,7 +620,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    aria-label={t("tasks:properties.labels")}
+                    aria-label={t("tasks:popover.labels.editLabels")}
                     className="h-5 w-5 p-0 shrink-0 rounded-full"
                   >
                     <Plus className="h-3 w-3" />

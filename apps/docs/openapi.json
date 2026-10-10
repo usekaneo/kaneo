@@ -4536,6 +4536,90 @@
           "projectIds"
         ]
       },
+      "WorkspaceCapabilities": {
+        "type": "object",
+        "properties": {
+          "manageProjects": {
+            "type": "boolean"
+          },
+          "createProjects": {
+            "type": "boolean"
+          },
+          "updateProjects": {
+            "type": "boolean"
+          },
+          "shareProjects": {
+            "type": "boolean"
+          },
+          "deleteProjects": {
+            "type": "boolean"
+          },
+          "updateTasks": {
+            "type": "boolean"
+          },
+          "createTasks": {
+            "type": "boolean"
+          },
+          "deleteTasks": {
+            "type": "boolean"
+          },
+          "assignTasks": {
+            "type": "boolean"
+          },
+          "createLabels": {
+            "type": "boolean"
+          },
+          "updateLabels": {
+            "type": "boolean"
+          },
+          "deleteLabels": {
+            "type": "boolean"
+          },
+          "manageWorkspace": {
+            "type": "boolean"
+          },
+          "manageSettings": {
+            "type": "boolean"
+          },
+          "deleteWorkspace": {
+            "type": "boolean"
+          },
+          "inviteUsers": {
+            "type": "boolean"
+          },
+          "manageTeam": {
+            "type": "boolean"
+          },
+          "updateMembers": {
+            "type": "boolean"
+          },
+          "removeMembers": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "manageProjects",
+          "createProjects",
+          "updateProjects",
+          "shareProjects",
+          "deleteProjects",
+          "updateTasks",
+          "createTasks",
+          "deleteTasks",
+          "assignTasks",
+          "createLabels",
+          "updateLabels",
+          "deleteLabels",
+          "manageWorkspace",
+          "manageSettings",
+          "deleteWorkspace",
+          "inviteUsers",
+          "manageTeam",
+          "updateMembers",
+          "removeMembers"
+        ],
+        "description": "Whether the caller's roles (and API key scope, if any) allow each named action in the workspace. Mirrors the checks the API enforces."
+      },
       "CustomFieldDefinition": {
         "type": "object",
         "properties": {
@@ -21369,6 +21453,61 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MemberProjectAccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/capabilities": {
+      "get": {
+        "operationId": "getMyWorkspaceCapabilities",
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "Get my workspace capabilities",
+        "description": "Check every named workspace action for the caller in one request: which of them the caller's roles allow, narrowed by the API key's scope when one is used. Instance admins are allowed everything.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's capabilities in the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceCapabilities"
                 }
               }
             }

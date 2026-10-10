@@ -240,91 +240,95 @@ function RouteComponent() {
       <PageTitle title={project?.name ?? ""} suffix={t("tasks:view.gantt")} />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <div className="border-b border-border/80 px-3 py-3 sm:px-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-1">
-              <h1 className="text-sm font-semibold text-foreground">
-                {t("tasks:gantt.title")}
-              </h1>
-            </div>
+          <div className="flex flex-col gap-2 sm:gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <h1 className="sr-only text-sm font-semibold text-foreground sm:not-sr-only">
+              {t("tasks:gantt.title")}
+            </h1>
 
-            <div className="relative w-full max-w-sm">
+            <div className="relative w-full lg:max-w-sm">
               <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder={t("tasks:gantt.searchPlaceholder")}
-                className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
+                className="h-9 touch-manipulation sm:h-8 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-base sm:[&_[data-slot=input]]:text-xs"
               />
             </div>
 
-            {timeline && (
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  aria-label={t("tasks:gantt.previousPeriod")}
-                  disabled={!timeline.hasPrevious}
-                  onClick={() =>
-                    showDate(addDays(timeline.rangeStart, -GANTT_WINDOW_DAYS))
-                  }
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
-                <input
-                  type="date"
-                  aria-label={t("tasks:gantt.periodStart")}
-                  className="h-9 rounded-md border border-border bg-background px-2 text-sm"
-                  min={format(timeline.minimumStart, "yyyy-MM-dd")}
-                  max={format(timeline.maximumStart, "yyyy-MM-dd")}
-                  value={format(timeline.rangeStart, "yyyy-MM-dd")}
-                  onChange={(event) => {
-                    const date = parseTaskDate(event.target.value);
-                    if (date) showDate(date);
-                  }}
-                />
-                <span className="text-xs text-muted-foreground">
-                  – {format(timeline.rangeEnd, "MMM d, yyyy")}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  aria-label={t("tasks:gantt.nextPeriod")}
-                  disabled={!timeline.hasNext}
-                  onClick={() =>
-                    showDate(addDays(timeline.rangeStart, GANTT_WINDOW_DAYS))
-                  }
-                >
-                  <ChevronRight className="size-4" />
-                </Button>
-              </div>
-            )}
-
-            <Button
-              variant="outline"
-              size="xs"
-              className="min-h-11 touch-manipulation sm:min-h-0"
-              onClick={() => scrollToToday()}
-              disabled={!todayInRange || scheduledTasks.length === 0}
-            >
-              <Calendar className="size-3.5" />
-              {t("tasks:gantt.jumpToToday")}
-            </Button>
-
-            <Button
-              variant="outline"
-              size="xs"
-              className="min-h-11 touch-manipulation sm:hidden"
-              onClick={() => setIsTaskRailOpen((current) => !current)}
-            >
-              {showTaskRail ? (
-                <ChevronLeft className="size-3.5" />
-              ) : (
-                <ChevronRight className="size-3.5" />
+            <div className="flex flex-wrap items-center gap-2">
+              {timeline && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label={t("tasks:gantt.previousPeriod")}
+                    disabled={!timeline.hasPrevious}
+                    onClick={() =>
+                      showDate(addDays(timeline.rangeStart, -GANTT_WINDOW_DAYS))
+                    }
+                  >
+                    <ChevronLeft className="size-4" />
+                  </Button>
+                  <input
+                    type="date"
+                    aria-label={t("tasks:gantt.periodStart")}
+                    className="h-9 min-w-0 rounded-md border border-border bg-background px-2 text-base sm:h-8 sm:text-sm"
+                    min={format(timeline.minimumStart, "yyyy-MM-dd")}
+                    max={format(timeline.maximumStart, "yyyy-MM-dd")}
+                    value={format(timeline.rangeStart, "yyyy-MM-dd")}
+                    onChange={(event) => {
+                      const date = parseTaskDate(event.target.value);
+                      if (date) showDate(date);
+                    }}
+                  />
+                  <span className="hidden text-xs text-muted-foreground sm:inline">
+                    – {format(timeline.rangeEnd, "MMM d, yyyy")}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label={t("tasks:gantt.nextPeriod")}
+                    disabled={!timeline.hasNext}
+                    onClick={() =>
+                      showDate(addDays(timeline.rangeStart, GANTT_WINDOW_DAYS))
+                    }
+                  >
+                    <ChevronRight className="size-4" />
+                  </Button>
+                </>
               )}
-              {showTaskRail
-                ? t("tasks:gantt.hideTasks")
-                : t("tasks:gantt.showTasks")}
-            </Button>
+
+              <Button
+                variant="outline"
+                size="xs"
+                className="h-9 touch-manipulation sm:h-auto"
+                aria-label={t("tasks:gantt.jumpToToday")}
+                onClick={() => scrollToToday()}
+                disabled={!todayInRange || scheduledTasks.length === 0}
+              >
+                <Calendar className="size-3.5" />
+                <span className="hidden sm:inline">
+                  {t("tasks:gantt.jumpToToday")}
+                </span>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="xs"
+                className="h-9 touch-manipulation sm:hidden"
+                aria-pressed={showTaskRail}
+                onClick={() => setIsTaskRailOpen((current) => !current)}
+              >
+                {showTaskRail ? (
+                  <ChevronLeft className="size-3.5" />
+                ) : (
+                  <ChevronRight className="size-3.5" />
+                )}
+                {showTaskRail
+                  ? t("tasks:gantt.hideTasks")
+                  : t("tasks:gantt.showTasks")}
+              </Button>
+            </div>
           </div>
         </div>
 

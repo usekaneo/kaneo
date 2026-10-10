@@ -50,7 +50,6 @@ import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activitie
 import useGetCustomFieldValuesByTask from "@/hooks/queries/custom-field/use-get-custom-field-values-by-task";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
-import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
@@ -114,7 +113,6 @@ export default function TaskDetailsContent({
 }: TaskDetailsContentProps) {
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId ?? "");
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: activities = [] } = useGetActivitiesByTaskId(taskId ?? "");
   const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
     useExternalLinks(taskId ?? "");
@@ -207,10 +205,6 @@ export default function TaskDetailsContent({
     <div className={`${className} gap-4`}>
       <div className="flex flex-col gap-2.5">
         <TaskParents taskId={taskId} workspaceId={workspaceId} />
-
-        <p className="text-xs font-semibold text-foreground/70">
-          {project?.slug}-{task?.number}
-        </p>
 
         <TaskTitle taskId={taskId} />
         <TaskDescription taskId={taskId} />

@@ -10,8 +10,14 @@ export const Route = createFileRoute("/_layout/_authenticated")({
     let session = null;
     let sessionError = false;
     try {
-      const { data } = await authClient.getSession();
+      // better-auth reports failures (429, 5xx, network) in `error` rather
+      // than throwing; a missing session is `data: null` with no error.
+      const { data, error } = await authClient.getSession();
       session = data;
+      if (error) {
+        sessionError = true;
+        if (import.meta.env.DEV) console.warn("getSession failed", error);
+      }
     } catch (error) {
       sessionError = true;
       if (import.meta.env.DEV) console.warn("getSession failed", error);

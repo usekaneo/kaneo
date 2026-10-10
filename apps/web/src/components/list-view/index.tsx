@@ -319,7 +319,8 @@ function ListView({
           <button
             type="button"
             onClick={() => toggleSection(column.id)}
-            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
+            aria-expanded={Boolean(expandedSections[column.id])}
+            className="touch-hitbox relative flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
           >
             <ChevronRight
               className={cn(
@@ -338,15 +339,16 @@ function ListView({
             </div>
           </button>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 pointer-coarse:gap-6">
             <button
               type="button"
               onClick={() => {
                 setIsTaskModalOpen(true);
                 setActiveColumn(column.id);
               }}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+              className="touch-hitbox relative p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
               title={t("tasks:listView.addTask")}
+              aria-label={t("tasks:listView.addTask")}
             >
               <Plus className="w-3 h-3" />
             </button>
@@ -356,8 +358,9 @@ function ListView({
                 type="button"
                 disabled={disableCollectionActions}
                 onClick={() => handleArchiveClick(column)}
-                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+                className="touch-hitbox relative p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
                 title={t("tasks:listView.archiveAllTooltip")}
+                aria-label={t("tasks:listView.archiveAllTooltip")}
               >
                 <Archive className="w-3 h-3" />
               </button>

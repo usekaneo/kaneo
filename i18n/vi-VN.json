@@ -1100,7 +1100,9 @@
 			"on": "Bật",
 			"off": "Tắt",
 			"newColumnPlaceholder": "Tên cột mới...",
-			"add": "Thêm"
+			"add": "Thêm",
+			"deleteAria": "Xóa cột {{name}}",
+			"renameAria": "Đổi tên cột {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2064,7 +2066,8 @@
 			"deleteConfirmTitle": "Xóa dự án?",
 			"deleteConfirmDescription": "Thao tác này sẽ xóa vĩnh viễn dự án và toàn bộ dữ liệu của nó. Bạn không thể hoàn tác hành động này.",
 			"deletedToast": "Đã xóa dự án",
-			"deleteProject": "Xóa dự án"
+			"deleteProject": "Xóa dự án",
+			"switcherLabel": "Chuyển dự án hoặc chế độ xem"
 		},
 		"search": {
 			"inputPlaceholder": "Tìm công việc, dự án, bình luận...",
@@ -2352,7 +2355,8 @@
 			"board": "Bảng",
 			"list": "Danh sách",
 			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"gantt": "Gantt",
+			"heading": "Chế độ xem"
 		},
 		"common": {
 			"selectTask": "Chọn công việc",
@@ -2598,7 +2602,8 @@
 					"rose": "Hồng",
 					"crimson": "Đỏ thẫm"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "Chỉnh sửa nhãn"
 			}
 		},
 		"backlog": {
@@ -2804,7 +2809,8 @@
 			"today": "Hôm nay",
 			"loadError": "Không thể tải công việc.",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Không có gì được lên lịch trong tháng này"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

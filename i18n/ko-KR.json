@@ -866,7 +866,9 @@
 			"on": "켜짐",
 			"off": "꺼짐",
 			"newColumnPlaceholder": "새 컬럼 이름...",
-			"add": "추가"
+			"add": "추가",
+			"deleteAria": "{{name}} 열 삭제",
+			"renameAria": "{{name}} 열 이름 변경"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -2064,7 +2066,8 @@
 			"deleteConfirmTitle": "프로젝트를 삭제하시겠습니까?",
 			"deleteConfirmDescription": "프로젝트와 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
 			"deletedToast": "프로젝트가 삭제되었습니다",
-			"deleteProject": "프로젝트 삭제"
+			"deleteProject": "프로젝트 삭제",
+			"switcherLabel": "프로젝트 또는 보기 전환"
 		},
 		"search": {
 			"inputPlaceholder": "작업, 프로젝트, 댓글 검색...",
@@ -2351,8 +2354,9 @@
 		"view": {
 			"board": "보드",
 			"list": "목록",
-			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"backlog": "백로그",
+			"gantt": "간트",
+			"heading": "보기"
 		},
 		"common": {
 			"selectTask": "작업 선택",
@@ -2598,7 +2602,8 @@
 					"rose": "로즈",
 					"crimson": "크림슨"
 				},
-				"loadError": "Could not load labels. Click to retry."
+				"loadError": "Could not load labels. Click to retry.",
+				"editLabels": "라벨 편집"
 			}
 		},
 		"backlog": {
@@ -2679,7 +2684,8 @@
 			"dayTasksAriaLabel": "{{date}}의 모든 작업 보기",
 			"taskAriaLabel": "{{title}}, {{range}}: 작업 열기",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "이번 달 예정된 항목이 없습니다"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 간트",

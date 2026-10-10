@@ -90,6 +90,26 @@ export async function hasWorkspacePermission(
   return rolesAllow(roles, stored, permissions);
 }
 
+// Same rules as `hasWorkspacePermission`, but resolves the caller's roles once
+// so many checks (the UI's capability map) cost a single lookup.
+export async function workspacePermissionChecker(
+  c: Context,
+): Promise<(permissions: PermissionMap) => boolean> {
+  const workspaceId = c.get("workspaceId");
+  if (!workspaceId) return () => false;
+
+  const scope = apiKeyPermissions(c);
+  const isAdmin = await isInstanceAdmin(c);
+  const { roles, stored } = isAdmin
+    ? { roles: [], stored: [] }
+    : await memberRoles(c, workspaceId);
+
+  return (permissions) => {
+    if (scope && !satisfies(scope, permissions)) return false;
+    return isAdmin || rolesAllow(roles, stored, permissions);
+  };
+}
+
 async function memberRoles(
   c: Context,
   workspaceId: string,

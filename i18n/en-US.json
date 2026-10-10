@@ -1336,7 +1336,9 @@
 			"on": "On",
 			"off": "Off",
 			"newColumnPlaceholder": "New column name...",
-			"add": "Add"
+			"add": "Add",
+			"deleteAria": "Delete {{name}} column",
+			"renameAria": "Rename {{name}} column"
 		},
 		"customFields": {
 			"namePlaceholder": "Field name",
@@ -2075,7 +2077,8 @@
 			"deleteConfirmTitle": "Delete Project?",
 			"deleteConfirmDescription": "This will permanently remove the project and all its data. You can't undo this action.",
 			"deletedToast": "Project deleted",
-			"deleteProject": "Delete Project"
+			"deleteProject": "Delete Project",
+			"switcherLabel": "Switch project or view"
 		},
 		"search": {
 			"inputPlaceholder": "Search tasks, projects, comments...",
@@ -2368,7 +2371,8 @@
 			"board": "Board",
 			"list": "List",
 			"backlog": "Backlog",
-			"gantt": "Gantt"
+			"gantt": "Gantt",
+			"heading": "View"
 		},
 		"common": {
 			"selectTask": "Select task",
@@ -2614,7 +2618,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Rose",
 					"crimson": "Crimson"
-				}
+				},
+				"editLabels": "Edit labels"
 			}
 		},
 		"backlog": {
@@ -2695,7 +2700,8 @@
 			"dayTasksAriaLabel": "Show all tasks for {{date}}",
 			"taskAriaLabel": "{{title}}, {{range}}: open task",
 			"createTaskOnDay": "Create task on {{date}}",
-			"newTask": "New task"
+			"newTask": "New task",
+			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
