@@ -3097,7 +3097,9 @@
 			"endsToday": "Se termine aujourd'hui",
 			"daysOverdue": "{{remaining}} jours de retard",
 			"noTasks": "Aucune tâche dans ce sprint pour le moment",
-			"toggleTasks": "Afficher les tâches du sprint"
+			"toggleTasks": "Afficher les tâches du sprint",
+			"reportSummary": "Prévues {{planned}}, terminées {{completed}}, reportées {{carriedOver}}",
+			"carriedOver": "Reportées"
 		},
 		"type": {
 			"task": "Tâche",
