@@ -39,6 +39,13 @@ services:
       retries: 30
   app:
     image: ${KANEO_CI_IMAGE:-kaneo:ci}
+    # Exercise the bundled image under OpenShift-style filesystem restrictions.
+    user: "1001230000:1001230000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /var/lib/kaneo:rw,mode=0770,gid=1001230000
     environment: &app-env
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:ci-only-password@postgres:5432/kaneo_ci_test

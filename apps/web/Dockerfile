@@ -50,31 +50,18 @@ RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,required=false \
 # Production stage with specific version
 FROM nginx:1.29.5-alpine AS runtime
 
-# Create non-root user and configure nginx in a single layer
+# Only runtime storage needs write access, including for an arbitrary UID.
 RUN addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
-  # Set permissions for nginx directories
-  chown -R appuser:appuser /var/cache/nginx && \
-  chmod -R 755 /var/cache/nginx && \
-  # Create directory for pid file
-  mkdir -p /var/run/nginx && \
-  chown -R appuser:appuser /var/run/nginx && \
-  chmod -R 755 /var/run/nginx && \
-  # Set permissions for nginx pid file
-  touch /var/run/nginx.pid && \
-  chown appuser:appuser /var/run/nginx.pid && \
-  chmod 644 /var/run/nginx.pid && \
-  # Update nginx configuration to run as non-root
-  sed -i 's/user  nginx;/user  appuser;/' /etc/nginx/nginx.conf && \
-  # Remove the user directive completely to avoid warnings
-  sed -i 's/user  appuser;//' /etc/nginx/nginx.conf
+  mkdir -p /var/lib/kaneo && \
+  chown appuser:root /var/lib/kaneo && \
+  chmod 2775 /var/lib/kaneo
 
 # Copy built files from builder stage
 COPY --from=builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
-# The inherited web root must be writable for atomic runtime configuration updates.
-RUN chown appuser:appuser /usr/share/nginx/html
 
 # Copy nginx configuration and public runtime configuration renderer
+COPY apps/web/nginx.main.conf /etc/nginx/nginx.conf
 COPY --chown=appuser:appuser apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 RUN chown -R appuser:appuser /etc/nginx/conf.d
 
@@ -84,7 +71,8 @@ COPY --chown=appuser:appuser apps/web/env.awk /docker-entrypoint.d/env.awk
 RUN chmod +x /docker-entrypoint.d/env.sh
 
 # Switch to non-root user
-USER appuser
+ENV TMPDIR=/var/lib/kaneo/tmp
+USER 1001:0
 EXPOSE 5173
 
 # Use exec form of CMD for proper signal handling

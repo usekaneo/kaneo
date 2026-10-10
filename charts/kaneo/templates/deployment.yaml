@@ -108,6 +108,12 @@ spec:
             {{- toYaml .Values.kaneo.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.kaneo.resources | nindent 12 }}
+          volumeMounts:
+            - name: runtime
+              mountPath: /var/lib/kaneo
+      volumes:
+        - name: runtime
+          emptyDir: {}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:
