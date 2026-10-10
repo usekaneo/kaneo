@@ -37,6 +37,8 @@ export default function SubtaskLinkPicker({
     type: "tasks",
     q: debouncedQuery,
     limit: 50,
+    subtaskOf: direction === "child" ? taskId : undefined,
+    parentOf: direction === "parent" ? taskId : undefined,
   });
   const relations = useGetTaskRelations(taskId);
   const createRelation = useCreateTaskRelation();

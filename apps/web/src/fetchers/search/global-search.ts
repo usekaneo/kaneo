@@ -13,6 +13,8 @@ type SearchParams = {
     | "activities";
   workspaceId: string;
   projectId?: string;
+  subtaskOf?: string;
+  parentOf?: string;
   limit?: number;
 };
 

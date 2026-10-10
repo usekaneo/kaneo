@@ -15544,6 +15544,28 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "description": "Only tasks eligible to become a child of this task. Requires type=tasks."
+            },
+            "required": false,
+            "description": "Only tasks eligible to become a child of this task. Requires type=tasks.",
+            "name": "subtaskOf",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Only tasks eligible to become a parent of this task. Requires type=tasks."
+            },
+            "required": false,
+            "description": "Only tasks eligible to become a parent of this task. Requires type=tasks.",
+            "name": "parentOf",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
               "default": "20"
             },
             "required": false,

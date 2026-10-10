@@ -98,6 +98,8 @@ describe("SubtaskLinkPicker", () => {
         expect.objectContaining({
           workspaceId: "workspace",
           type: "tasks",
+          subtaskOf: direction === "child" ? "current" : undefined,
+          parentOf: direction === "parent" ? "current" : undefined,
         }),
       );
     },
