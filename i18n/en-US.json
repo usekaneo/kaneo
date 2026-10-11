@@ -2845,7 +2845,14 @@
 			"cta": "Accept invitation",
 			"sameEmail": "You can accept with the same email that received this message.",
 			"ignore": "If this wasn't expected, you can safely ignore this email.",
-			"footer": "Kaneo workspace invitation"
+			"footer": "Kaneo workspace invitation",
+			"details": {
+				"title": "Invitation details",
+				"sentTo": "Sent to",
+				"instance": "Instance",
+				"role": "Role",
+				"expires": "Expires"
+			}
 		},
 		"pageTitle": "Invitations",
 		"pendingInvitations": "Pending Invitations",

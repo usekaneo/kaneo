@@ -2829,7 +2829,14 @@
 			"cta": "招待を承諾",
 			"sameEmail": "このメッセージを受信したメールアドレスで承諾できます。",
 			"ignore": "心当たりがない場合は、このメールを無視していただいて構いません。",
-			"footer": "Kaneo ワークスペース招待"
+			"footer": "Kaneo ワークスペース招待",
+			"details": {
+				"title": "招待の詳細",
+				"sentTo": "送信先",
+				"instance": "インスタンス",
+				"role": "ロール",
+				"expires": "有効期限"
+			}
 		},
 		"pageTitle": "招待",
 		"pendingInvitations": "保留中の招待",

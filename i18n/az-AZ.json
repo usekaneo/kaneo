@@ -2845,7 +2845,14 @@
 			"cta": "Dəvəti qəbul et",
 			"sameEmail": "Dəvəti bu məktubu aldığınız e-poçt ünvanı ilə qəbul edə bilərsiniz.",
 			"ignore": "Bu məktubu gözləmirdinizsə, ona məhəl qoymaya bilərsiniz.",
-			"footer": "Kaneo iş sahəsi dəvəti"
+			"footer": "Kaneo iş sahəsi dəvəti",
+			"details": {
+				"title": "Dəvət təfərrüatları",
+				"sentTo": "Göndərildi",
+				"instance": "Server",
+				"role": "Rol",
+				"expires": "Bitmə vaxtı"
+			}
 		},
 		"pageTitle": "Dəvətlər",
 		"pendingInvitations": "Gözləyən dəvətlər",

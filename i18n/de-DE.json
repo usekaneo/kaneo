@@ -2845,7 +2845,14 @@
 			"cta": "Einladung annehmen",
 			"sameEmail": "Du kannst die Einladung mit derselben E-Mail-Adresse annehmen, die diese Nachricht erhalten hat.",
 			"ignore": "Falls du damit nicht gerechnet hast, kannst du diese E-Mail einfach ignorieren.",
-			"footer": "Kaneo Workspace-Einladung"
+			"footer": "Kaneo Workspace-Einladung",
+			"details": {
+				"title": "Einladungsdetails",
+				"sentTo": "Gesendet an",
+				"instance": "Instanz",
+				"role": "Rolle",
+				"expires": "Läuft ab"
+			}
 		},
 		"pageTitle": "Einladungen",
 		"pendingInvitations": "Ausstehende Einladungen",

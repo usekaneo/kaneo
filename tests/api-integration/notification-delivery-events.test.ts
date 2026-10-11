@@ -120,6 +120,18 @@ describe("status, comment and mention delivery", () => {
       }
       await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
       expect(send.mock.calls[0][0]).toBe(recipient.user.email);
+      expect(send.mock.calls[0][2]).toEqual(
+        expect.objectContaining({
+          breadcrumb: expect.stringContaining(" / "),
+          settingsUrl: expect.stringContaining(
+            "/dashboard/settings/account/notifications",
+          ),
+          task: expect.objectContaining({
+            title: task.title,
+            ticket: expect.stringMatching(/-\d+$/),
+          }),
+        }),
+      );
       await vi.waitFor(() =>
         expect(sendOutboundRequest).toHaveBeenCalledTimes(1),
       );

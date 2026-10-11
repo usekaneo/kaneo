@@ -2829,7 +2829,14 @@
 			"cta": "Chấp nhận lời mời",
 			"sameEmail": "Bạn có thể chấp nhận bằng email đã nhận thư này.",
 			"ignore": "Nếu bạn không mong đợi email này, bạn có thể yên tâm bỏ qua.",
-			"footer": "Lời mời không gian làm việc Kaneo"
+			"footer": "Lời mời không gian làm việc Kaneo",
+			"details": {
+				"title": "Chi tiết lời mời",
+				"sentTo": "Gửi đến",
+				"instance": "Máy chủ",
+				"role": "Vai trò",
+				"expires": "Hết hạn"
+			}
 		},
 		"pageTitle": "Lời mời",
 		"pendingInvitations": "Lời mời đang chờ",

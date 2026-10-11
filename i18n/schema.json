@@ -11713,6 +11713,28 @@
 						},
 						"footer": {
 							"type": "string"
+						},
+						"details": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"sentTo": {
+									"type": "string"
+								},
+								"instance": {
+									"type": "string"
+								},
+								"role": {
+									"type": "string"
+								},
+								"expires": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "sentTo", "instance", "role", "expires"]
 						}
 					},
 					"required": [
@@ -11723,7 +11745,8 @@
 						"cta",
 						"sameEmail",
 						"ignore",
-						"footer"
+						"footer",
+						"details"
 					]
 				},
 				"pageTitle": {

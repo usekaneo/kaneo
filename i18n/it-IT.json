@@ -2861,7 +2861,14 @@
 			"cta": "Accetta invito",
 			"sameEmail": "Puoi accettare con la stessa email che ha ricevuto questo messaggio.",
 			"ignore": "Se non era previsto, puoi ignorare questa email.",
-			"footer": "Invito workspace Kaneo"
+			"footer": "Invito workspace Kaneo",
+			"details": {
+				"title": "Dettagli dell’invito",
+				"sentTo": "Inviato a",
+				"instance": "Istanza",
+				"role": "Ruolo",
+				"expires": "Scade"
+			}
 		},
 		"pageTitle": "Inviti",
 		"pendingInvitations": "Inviti in Sospeso",

@@ -2845,7 +2845,14 @@
 			"cta": "Uitnodiging accepteren",
 			"sameEmail": "Je kunt accepteren met hetzelfde e-mailadres waarop dit bericht is ontvangen.",
 			"ignore": "Verwachtte je deze e-mail niet, dan kun je deze veilig negeren.",
-			"footer": "Kaneo werkruimte-uitnodiging"
+			"footer": "Kaneo werkruimte-uitnodiging",
+			"details": {
+				"title": "Uitnodigingsdetails",
+				"sentTo": "Verzonden naar",
+				"instance": "Instantie",
+				"role": "Rol",
+				"expires": "Verloopt op"
+			}
 		},
 		"pageTitle": "Uitnodigingen",
 		"pendingInvitations": "Openstaande uitnodigingen",
