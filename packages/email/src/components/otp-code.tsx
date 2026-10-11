@@ -1,5 +1,7 @@
-import { Column, Row, Section, Text } from "@react-email/components";
+import { Column, Text } from "@react-email/components";
 import React from "react";
+import { Row } from "./row";
+import { Section } from "./section";
 import { colors, shadow } from "./tokens";
 
 void React;
@@ -22,15 +24,12 @@ export function OtpCode({ code, label, hint }: OtpCodeProps) {
       <Text className="k-text" style={labelStyle}>
         {label}
       </Text>
-      <Row
-        align={undefined}
-        width={String(slots.length * (SLOT_WIDTH + SLOT_GAP))}
-      >
+      <Row style={{ maxWidth: `${slots.length * (SLOT_WIDTH + SLOT_GAP)}px` }}>
         {slots.map(({ digit, slot }) => (
           <Column
             key={slot}
             style={{
-              width: `${SLOT_WIDTH}px`,
+              width: `${100 / slots.length}%`,
               paddingRight: slot < last ? `${SLOT_GAP}px` : 0,
             }}
           >

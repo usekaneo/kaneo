@@ -1,5 +1,6 @@
-import { Column, Row } from "@react-email/components";
+import { Column } from "@react-email/components";
 import React from "react";
+import { Row } from "./row";
 import { colors } from "./tokens";
 
 void React;
@@ -56,6 +57,8 @@ const cell = {
 
 const label = {
   ...cell,
+  paddingRight: "16px",
+  whiteSpace: "nowrap" as const,
   color: colors.mutedForeground,
 };
 

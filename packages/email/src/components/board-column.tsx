@@ -1,5 +1,6 @@
-import { Section, Text } from "@react-email/components";
+import { Text } from "@react-email/components";
 import React from "react";
+import { Section } from "./section";
 import { ThemedImg } from "./themed-img";
 import { colors, shadow } from "./tokens";
 
@@ -27,7 +28,7 @@ export function BoardColumn({
   children,
 }: BoardColumnProps) {
   return (
-    <Section align={undefined} width="320" className="k-column" style={column}>
+    <Section className="k-column" style={column}>
       <Section className="k-divider" style={header}>
         <Text style={headerText}>
           <ThemedImg
@@ -52,8 +53,8 @@ export function BoardColumn({
 }
 
 const column = {
-  width: "320px",
-  maxWidth: "100%",
+  width: "100%",
+  maxWidth: "320px",
   margin: "0",
   borderRadius: "14px",
   borderWidth: "1px",

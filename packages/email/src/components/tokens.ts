@@ -13,7 +13,6 @@ export const colors = {
   column: "#FCFCFC",
   columnBorder: "#EFEFEF",
   columnHeaderBorder: "#F2F2F2",
-  primarySubtle: "#E9E9E9",
   warningForeground: "#BB4D00",
   destructiveForeground: "#C10007",
 } as const;

@@ -5,9 +5,9 @@ import {
   Html,
   Img,
   Preview,
-  Row,
 } from "@react-email/components";
 import React from "react";
+import { Row } from "./row";
 import { emailAsset } from "./assets";
 import { themeCss } from "./theme";
 import { colors, fontFamily } from "./tokens";
@@ -31,12 +31,17 @@ export function EmailShell({
     <Html lang={lang} dir="ltr">
       <Head>
         <title>{title}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="color-scheme" content="light dark" />
         <meta name="supported-color-schemes" content="light dark" />
+        <meta
+          name="format-detection"
+          content="telephone=no, date=no, address=no, email=no, url=no"
+        />
         <style>{themeCss}</style>
       </Head>
       <Preview>{preview}</Preview>
-      <body className="k-bg" style={body}>
+      <body id="body" className="k-bg" style={body}>
         <div
           role="article"
           aria-roledescription="email"

@@ -1,6 +1,6 @@
-import { Button } from "@react-email/components";
+import { Button, Img } from "@react-email/components";
 import React from "react";
-import { ThemedImg } from "./themed-img";
+import { emailAsset } from "./assets";
 import { colors, fontFamily } from "./tokens";
 
 void React;
@@ -29,7 +29,13 @@ export function EmailButton({
       }}
     >
       {icon ? (
-        <ThemedImg name={icon} width={16} height={16} style={iconStyle} />
+        <Img
+          src={emailAsset(icon)}
+          width="16"
+          height="16"
+          alt=""
+          style={iconStyle}
+        />
       ) : null}
       {children}
     </Button>
@@ -61,6 +67,9 @@ const block = {
 };
 
 const iconStyle = {
+  display: "inline-block",
+  border: "0",
+  mixBlendMode: "difference" as const,
   margin: "0 8px 0 0",
   verticalAlign: "-3px",
   opacity: "0.8",

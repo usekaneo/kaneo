@@ -13,7 +13,6 @@ export const darkColors = {
   input: "#272727",
   control: "#1A1A1A",
   muted: "#1E1E1E",
-  primarySubtle: "#2E2E2E",
   warningForeground: "#FFB900",
   destructiveForeground: "#FF6467",
 } as const;
@@ -57,7 +56,6 @@ const rules: Array<[string, string]> = [
   ],
   [".k-track", `background-color:${darkColors.input}`],
   [".k-bar", `background-color:${darkColors.foreground}`],
-  [".k-icon-circle", `background-color:${darkColors.primarySubtle}`],
   [".k-link", `color:${darkColors.foreground}`],
 ];
 
@@ -79,8 +77,13 @@ const outlookRules = rules
   )
   .join("");
 
+const autolinkReset =
+  "color:inherit!important;text-decoration:none!important;font-size:inherit!important;font-family:inherit!important;font-weight:inherit!important;line-height:inherit!important";
+
 export const themeCss = [
   ":root{color-scheme:light dark;supported-color-schemes:light dark}",
+  `a[x-apple-data-detectors]{${autolinkReset}}`,
+  "u + #body a{color:inherit;text-decoration:none;font-size:inherit;font-family:inherit;font-weight:inherit;line-height:inherit}",
   ".k-dark-img{display:none;max-height:0;overflow:hidden}",
   "@media (prefers-color-scheme: dark){",
   darkRules,

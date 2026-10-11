@@ -1,5 +1,6 @@
-import { Heading, Section, Text } from "@react-email/components";
+import { Heading, Text } from "@react-email/components";
 import React from "react";
+import { Section } from "./section";
 import { EmailButton } from "./email-button";
 import { ThemedImg } from "./themed-img";
 import { colors, shadow } from "./tokens";
@@ -21,8 +22,8 @@ export function InvitationCard({
 }: InvitationCardProps) {
   return (
     <Section className="k-card" style={card}>
-      <div className="k-icon-circle" style={iconCircle}>
-        <ThemedImg name="users-dark" width={24} height={24} style={icon} />
+      <div style={iconWrap}>
+        <ThemedImg name="users-circle" width={48} height={48} />
       </div>
       <Heading as="h2" className="k-text" style={name}>
         {workspaceName}
@@ -48,15 +49,9 @@ const card = {
   textAlign: "center" as const,
 };
 
-const iconCircle = {
-  width: "48px",
-  margin: "0 auto 16px",
-  borderRadius: "50%",
-  backgroundColor: colors.primarySubtle,
-};
-
-const icon = {
-  padding: "12px",
+const iconWrap = {
+  margin: "0 0 16px",
+  lineHeight: "0",
 };
 
 const name = {

@@ -1,5 +1,7 @@
-import { Column, Row, Section, Text } from "@react-email/components";
+import { Column, Text } from "@react-email/components";
 import React from "react";
+import { Row } from "./row";
+import { Section } from "./section";
 import { ThemedImg } from "./themed-img";
 import { colors, shadow } from "./tokens";
 
@@ -63,7 +65,7 @@ export function TaskCard({
         </Column>
         <Column align="right" style={avatarCell}>
           {assigneeInitials ? (
-            <div className="k-chip k-text" style={avatar}>
+            <div className="k-chip k-text k-divider" style={avatar}>
               {assigneeInitials}
             </div>
           ) : null}
@@ -137,26 +139,31 @@ const card = {
 };
 
 const ticketCell = {
-  paddingBottom: "8px",
-  verticalAlign: "top" as const,
+  width: "100%",
+  paddingBottom: "4px",
+  verticalAlign: "middle" as const,
   color: colors.mutedForeground,
   fontSize: "11px",
-  lineHeight: "16px",
+  lineHeight: "20px",
   fontWeight: "500",
 };
 
 const avatarCell = {
   width: "20px",
-  verticalAlign: "top" as const,
+  paddingBottom: "4px",
+  verticalAlign: "middle" as const,
 };
 
 const avatar = {
-  width: "20px",
+  width: "18px",
+  borderWidth: "1px",
+  borderStyle: "solid",
+  borderColor: colors.input,
   borderRadius: "50%",
   backgroundColor: colors.muted,
   color: colors.foreground,
-  fontSize: "12px",
-  lineHeight: "20px",
+  fontSize: "10px",
+  lineHeight: "18px",
   fontWeight: "500",
   textAlign: "center" as const,
 };

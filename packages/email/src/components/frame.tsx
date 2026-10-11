@@ -1,5 +1,6 @@
-import { Heading, Section, Text } from "@react-email/components";
+import { Heading, Text } from "@react-email/components";
 import React from "react";
+import { Section } from "./section";
 import { colors, shadow } from "./tokens";
 
 void React;
