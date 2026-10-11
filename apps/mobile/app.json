@@ -1,0 +1,82 @@
+{
+	"expo": {
+		"name": "Kaneo",
+		"slug": "kaneo",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/images/icon.png",
+		"scheme": "kaneo",
+		"userInterfaceStyle": "automatic",
+		"backgroundColor": "#FAFAFA",
+		"ios": {
+			"bundleIdentifier": "de.usekaneo.kaneo",
+			"supportsTablet": true,
+			"icon": "./assets/images/icon.png",
+			"config": {
+				"usesNonExemptEncryption": false
+			},
+			"infoPlist": {
+				"NSAppTransportSecurity": {
+					"NSAllowsArbitraryLoads": true
+				}
+			}
+		},
+		"android": {
+			"package": "de.usekaneo.kaneo",
+			"adaptiveIcon": {
+				"backgroundColor": "#141414",
+				"foregroundImage": "./assets/images/android-icon-foreground.png",
+				"backgroundImage": "./assets/images/android-icon-background.png",
+				"monochromeImage": "./assets/images/android-icon-monochrome.png"
+			},
+			"predictiveBackGestureEnabled": false
+		},
+		"plugins": [
+			"expo-router",
+			[
+				"expo-splash-screen",
+				{
+					"backgroundColor": "#FAFAFA",
+					"image": "./assets/images/splash-icon.png",
+					"imageWidth": 64,
+					"dark": {
+						"backgroundColor": "#141414",
+						"image": "./assets/images/splash-icon-dark.png"
+					}
+				}
+			],
+			[
+				"expo-notifications",
+				{
+					"icon": "./assets/images/notification-icon.png",
+					"color": "#141414",
+					"defaultChannel": "kaneo_activity"
+				}
+			],
+			[
+				"expo-image-picker",
+				{
+					"photosPermission": "Kaneo uses your photos to attach images to tasks and comments, and for your profile photo.",
+					"cameraPermission": false,
+					"microphonePermission": false
+				}
+			],
+			"expo-secure-store",
+			"expo-background-task",
+			"expo-font",
+			"./plugins/with-gradle-memory",
+			[
+				"expo-build-properties",
+				{
+					"android": {
+						"usesCleartextTraffic": true
+					}
+				}
+			]
+		],
+		"experiments": {
+			"typedRoutes": true,
+			"reactCompiler": true
+		}
+	}
+}

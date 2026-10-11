@@ -1,0 +1,268 @@
+import {
+  Bold,
+  Code,
+  Heading1,
+  Image as ImageIcon,
+  Italic,
+  Link2,
+  List,
+} from "lucide-react-native";
+import { useRef, useState, type ReactNode } from "react";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  TextInput,
+  View,
+} from "react-native";
+
+import { MarkdownText } from "@/components/markdown";
+import { BackButton, Screen } from "@/components/screen";
+import { Txt } from "@/components/text";
+import { useToast } from "@/components/toast";
+import { IconButton, Segmented, Touch } from "@/components/ui";
+import { userMessage } from "@/lib/api/client";
+import { uploadTaskImage } from "@/lib/upload";
+import { font, useColors } from "@/theme";
+
+/** Full-screen Markdown editor with Write/Preview and a formatting bar above the keyboard. */
+export function DescriptionEditor(props: {
+  visible: boolean;
+  onClose: () => void;
+  taskId: string;
+  initial: string;
+  onSave: (text: string) => void;
+}) {
+  return (
+    <Modal
+      visible={props.visible}
+      animationType="slide"
+      onRequestClose={props.onClose}
+      statusBarTranslucent
+      navigationBarTranslucent
+    >
+      {props.visible ? <EditorBody {...props} /> : null}
+    </Modal>
+  );
+}
+
+function Tool({
+  label,
+  onPress,
+  children,
+}: {
+  label: string;
+  onPress: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <IconButton label={label} onPress={onPress} size={40}>
+      {children}
+    </IconButton>
+  );
+}
+
+function EditorBody({
+  onClose,
+  taskId,
+  initial,
+  onSave,
+}: {
+  onClose: () => void;
+  taskId: string;
+  initial: string;
+  onSave: (text: string) => void;
+}) {
+  const c = useColors();
+  const toast = useToast();
+  const [text, setText] = useState(initial);
+  const [mode, setMode] = useState<"write" | "preview">("write");
+  const [selection, setSelection] = useState({
+    start: initial.length,
+    end: initial.length,
+  });
+  const [uploading, setUploading] = useState(false);
+  const input = useRef<TextInput>(null);
+
+  const focus = () => input.current?.focus();
+
+  const wrap = (before: string, after = before, placeholder = "") => {
+    const { start, end } = selection;
+    const selected = text.slice(start, end) || placeholder;
+    setText(text.slice(0, start) + before + selected + after + text.slice(end));
+    const cursor = start + before.length + selected.length;
+    setSelection({ start: cursor, end: cursor });
+    focus();
+  };
+
+  const linePrefix = (prefix: string) => {
+    const lineStart = text.lastIndexOf("\n", selection.start - 1) + 1;
+    setText(text.slice(0, lineStart) + prefix + text.slice(lineStart));
+    setSelection({
+      start: selection.start + prefix.length,
+      end: selection.end + prefix.length,
+    });
+    focus();
+  };
+
+  const insertImage = async () => {
+    setUploading(true);
+    try {
+      const md = await uploadTaskImage(taskId, "description");
+      if (md)
+        setText(
+          (t) =>
+            `${t.slice(0, selection.start)}\n${md}\n${t.slice(selection.end)}`,
+        );
+    } catch (e) {
+      toast.show(userMessage(e), "error");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const ic = { size: 18, color: c.body, strokeWidth: 2 } as const;
+
+  return (
+    <Screen surface>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            height: 52,
+            paddingLeft: 6,
+            paddingRight: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: c.divider,
+          }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
+            <BackButton close onPress={onClose} />
+            <Txt variant="body" weight="semibold" style={{ fontSize: 16 }}>
+              Description
+            </Txt>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <Segmented
+              style={{ padding: 2 }}
+              value={mode}
+              onChange={setMode}
+              options={[
+                { value: "write", label: "Write" },
+                { value: "preview", label: "Preview" },
+              ]}
+            />
+            <Touch
+              onPress={() => {
+                onSave(text);
+                onClose();
+              }}
+              style={{
+                height: 32,
+                paddingHorizontal: 14,
+                borderRadius: 9,
+                backgroundColor: c.primary,
+                justifyContent: "center",
+              }}
+            >
+              <Txt variant="bodySm" weight="medium" color={c.onPrimary}>
+                Save
+              </Txt>
+            </Touch>
+          </View>
+        </View>
+        {mode === "write" ? (
+          <TextInput
+            ref={input}
+            value={text}
+            onChangeText={setText}
+            selection={selection}
+            onSelectionChange={(e) => setSelection(e.nativeEvent.selection)}
+            multiline
+            autoFocus
+            placeholder="Add a description… Markdown works."
+            placeholderTextColor={c.placeholder}
+            selectionColor={c.ink}
+            textAlignVertical="top"
+            style={{
+              flex: 1,
+              padding: 20,
+              fontFamily: font.mono,
+              fontSize: 14,
+              lineHeight: 22,
+              color: c.ink,
+            }}
+          />
+        ) : (
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ padding: 20 }}
+          >
+            {text.trim() ? (
+              <MarkdownText>{text}</MarkdownText>
+            ) : (
+              <Txt tone="placeholder">Nothing to preview</Txt>
+            )}
+          </ScrollView>
+        )}
+        {mode === "write" ? (
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              height: 48,
+              paddingHorizontal: 12,
+              borderTopWidth: 1,
+              borderTopColor: c.hairline,
+              backgroundColor: c.ground,
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Tool label="Bold" onPress={() => wrap("**", "**", "bold")}>
+                <Bold {...ic} />
+              </Tool>
+              <Tool label="Italic" onPress={() => wrap("_", "_", "italic")}>
+                <Italic {...ic} />
+              </Tool>
+              <Tool label="Heading" onPress={() => linePrefix("## ")}>
+                <Heading1 {...ic} />
+              </Tool>
+              <Tool label="List" onPress={() => linePrefix("- ")}>
+                <List {...ic} />
+              </Tool>
+              <Tool label="Code" onPress={() => wrap("`", "`", "code")}>
+                <Code {...ic} />
+              </Tool>
+              <Tool
+                label="Link"
+                onPress={() => wrap("[", "](https://)", "link")}
+              >
+                <Link2 {...ic} />
+              </Tool>
+            </View>
+            <IconButton
+              label="Insert image"
+              onPress={insertImage}
+              size={40}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <ActivityIndicator size="small" color={c.muted} />
+              ) : (
+                <ImageIcon {...ic} />
+              )}
+            </IconButton>
+          </View>
+        ) : null}
+      </KeyboardAvoidingView>
+    </Screen>
+  );
+}
