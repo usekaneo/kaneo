@@ -1,0 +1,81 @@
+---
+title: Import from other tools
+description: Bring projects from Linear, Trello, Plane, PLANKA, or another Kaneo instance into a Kaneo workspace.
+---
+
+Kaneo can copy projects from another tool into your workspace. You connect a source with a key, choose the projects you want, and Kaneo recreates them as new Kaneo projects. Kaneo only reads from the source; nothing there is changed.
+
+## Sources
+
+| Source | Each of these becomes a Kaneo project | Guide |
+| --- | --- | --- |
+| Linear | Team | [Import from Linear](/core/migrations/from-linear) |
+| Trello | Board | [Import from Trello](/core/migrations/from-trello) |
+| Plane (cloud or self-hosted) | Project | [Import from Plane](/core/migrations/from-plane) |
+| PLANKA | Board | [Import from PLANKA](/core/migrations/from-planka) |
+| Another Kaneo instance | Project | [Import from another Kaneo instance](/core/migrations/from-kaneo) |
+
+## Start an import
+
+Only workspace admins can import. Importing needs permission to manage workspace settings and to create projects, which owners and admins have by default.
+
+<Steps>
+  <Step title="Open the importer">
+    Open **Settings → Workspace → Import**. You can also click **Import from another tool** on the projects page while the workspace has no projects, or **Import your projects** in the dialog for creating a new project.
+  </Step>
+  <Step title="Pick a source and connect">
+    Choose where you are importing from and paste the key or token it needs. Each source guide explains where to find it.
+  </Step>
+  <Step title="Choose projects">
+    Select the projects to import, up to 50 at a time. Comments are included by default; turn them off if you don't need them.
+  </Step>
+  <Step title="Watch the progress">
+    The import runs on the server, so you can leave the page and come back. A workspace runs one import at a time. **Recent imports** lists past runs with a report for each project (counts and warnings) and a link to the new project.
+  </Step>
+</Steps>
+
+## How imports work
+
+These rules apply to every source.
+
+### Each import creates new projects
+
+Every selected source project becomes a new Kaneo project. Kaneo never updates or merges into an existing project, so running the same import twice gives you two copies.
+
+If a project fails to import, nothing of it is left behind. If an import finishes but the result is not what you want, delete the project and import it again.
+
+### Project keys and task numbers
+
+The new project keeps the source's project key, for example `WEB` from Plane or `ENG` from Linear, when no other project in the workspace uses it. If the key is taken, Kaneo adds a suffix, for example `WEB-2`.
+
+Tasks keep their numbers from the source, so `WEB-12` stays `WEB-12`. A task without a number in the source, or with a number another task in the same import already has, gets the next number after the highest one. Tasks you create later continue from there.
+
+Trello boards have no key, so Kaneo makes one from the board name. PLANKA boards have no key or task numbers either, so Kaneo makes a key from the new project's name and numbers the tasks from 1 in board order.
+
+### Invite your team first
+
+Assignees are matched to workspace members by email. Anyone who isn't a member when you import gets their tasks imported unassigned. [Invite your team](/core/functional/collaborate-with-team) before you start.
+
+Some sources hide email addresses. Trello never shares other people's emails, and PLANKA hides them from accounts that are not admins. In those cases Kaneo matches by full name, ignoring case, and only when exactly one workspace member has that name.
+
+Kaneo has one assignee per task. When an item has several assignees, only the first is kept, and the report says how many items had more than one.
+
+### Comments and notifications
+
+Imported comments keep the original author's name and date, and are marked **Imported from** followed by the source name, for example **Imported from Linear**.
+
+Imported tasks do not send notifications.
+
+### Your key is not stored
+
+The key or token you paste is used for that one import and is not stored. Kaneo only reads from the source. To import again later, paste the key again. You can revoke it in the source once the import is done.
+
+## Self-hosted instances
+
+The import runs on the Kaneo API server, not in your browser. The server must be able to reach the source.
+
+By default, Kaneo blocks imports from addresses on a private network, for example a PLANKA container in the same Docker network or a Plane server on your LAN. To allow them, set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the API. This is the same switch that notification destinations (such as ntfy, Gotify, and webhooks) and the Gitea and GitLab integrations use, so only enable it on a trusted deployment. See [environment variables](/core/installation/environment-variables#imports).
+
+The one-click **Authorize on Trello** button needs `TRELLO_API_KEY` on the API. See [Set up Trello on a self-hosted instance](/core/migrations/from-trello#set-up-trello-on-a-self-hosted-instance).
+
+If your source is on a private network and your Kaneo instance can't reach it (for example, you use Kaneo Cloud), the in-app importer can't connect. For PLANKA, use the [command line importer](/core/migrations/from-planka#import-with-the-cli), which runs on your own machine.

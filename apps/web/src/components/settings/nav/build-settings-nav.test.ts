@@ -10,6 +10,7 @@ function build(
     t,
     workspaceName: "Acme",
     billingEnabled: false,
+    canImport: false,
     hasAdminAccess: false,
     projects: [],
     ...overrides,
@@ -32,6 +33,22 @@ describe("buildSettingsNav", () => {
     expect(linkIds(build({ billingEnabled: true }))).toContain(
       "workspace-billing",
     );
+  });
+
+  it("only offers import to people who can import", () => {
+    const links = (nav: ReturnType<typeof build>) =>
+      nav.workspace.links.map((link) => link.to);
+
+    expect(links(build())).not.toContain(
+      "/dashboard/settings/workspace/import",
+    );
+    expect(links(build({ canImport: true, billingEnabled: true }))).toEqual([
+      "/dashboard/settings/workspace/general",
+      "/dashboard/settings/workspace/roles",
+      "/dashboard/settings/workspace/labels",
+      "/dashboard/settings/workspace/import",
+      "/dashboard/settings/workspace/billing",
+    ]);
   });
 
   it("only shows administration to instance admins", () => {
