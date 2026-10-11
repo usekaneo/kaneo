@@ -146,7 +146,7 @@ export async function runImportJob(job: ImportJob): Promise<void> {
   if (error) {
     job.state.projects = failUnfinishedProjects(job.state.projects, error);
   }
-  await store.save({
+  await store.finish({
     status: error ? "failed" : "completed",
     error,
     message: null,

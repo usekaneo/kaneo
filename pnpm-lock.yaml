@@ -196,6 +196,9 @@ importers:
       pg:
         specifier: ^8.23.1
         version: 8.23.1
+      undici:
+        specifier: '>=7.29.0 <8'
+        version: 7.30.0
       valibot:
         specifier: '>=1.4.2'
         version: 1.4.2(typescript@7.0.2)
@@ -9435,8 +9438,8 @@ packages:
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
-  undici@7.29.0:
-    resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
+  undici@7.30.0:
+    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
     engines: {node: '>=20.18.1'}
 
   unicode-emoji-modifier-base@1.0.0:
@@ -9931,7 +9934,7 @@ snapshots:
   '@actions/http-client@4.0.1':
     dependencies:
       tunnel: 0.0.6
-      undici: 7.29.0
+      undici: 7.30.0
 
   '@actions/io@3.0.2': {}
 
@@ -10687,7 +10690,7 @@ snapshots:
       '@effect/platform-node-shared': 4.0.2(effect@4.0.2)
       effect: 4.0.2
       redis: 6.3.0(@opentelemetry/api@1.9.1)
-      undici: 7.29.0
+      undici: 7.30.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -12880,7 +12883,7 @@ snapshots:
       p-filter: 4.1.0
       semantic-release: 25.0.9(typescript@7.0.2)
       tinyglobby: 0.2.17
-      undici: 7.29.0
+      undici: 7.30.0
       url-join: 5.0.0
     transitivePeerDependencies:
       - kerberos
@@ -16050,7 +16053,7 @@ snapshots:
       parse5: 8.0.1
       saxes: 6.0.0
       tough-cookie: 6.0.2
-      undici: 7.29.0
+      undici: 7.30.0
       w3c-xmlserializer: 6.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -17954,7 +17957,7 @@ snapshots:
       stringify-object: 5.0.0
       ts-morph: 26.0.0
       tsconfig-paths: 4.2.0
-      undici: 7.29.0
+      undici: 7.30.0
       validate-npm-package-name: 7.0.2
       zod: 3.25.76
       zod-to-json-schema: 3.25.2(zod@3.25.76)
@@ -18509,7 +18512,7 @@ snapshots:
 
   undici-types@8.9.0: {}
 
-  undici@7.29.0: {}
+  undici@7.30.0: {}
 
   unicode-emoji-modifier-base@1.0.0: {}
 

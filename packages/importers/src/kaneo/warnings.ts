@@ -17,6 +17,8 @@ export const RELATIONS_UNAVAILABLE_WARNING =
   "This Kaneo version does not expose task links, so they are not copied.";
 export const COMMENTS_UNAVAILABLE_WARNING =
   "This Kaneo version does not expose comments, so they are not copied.";
+export const CUSTOM_FIELDS_UNREADABLE_WARNING =
+  "Custom fields could not be read with this API key, so they are not listed here.";
 
 export function buildWarnings(facts: WarningFacts): string[] {
   const warnings: string[] = [];

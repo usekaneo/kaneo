@@ -1,6 +1,11 @@
 import type { FetchLike } from "@kaneo/importers";
-import { assertPublicDestination } from "../utils/assert-public-destination";
+import {
+  assertPublicDestination,
+  nonRoutableDestinationMessage,
+} from "../utils/assert-public-destination";
 import { withoutOutboundTelemetry } from "../utils/sensitive-outbound";
+import { isBlockedDestinationError } from "./blocked-destination-error";
+import { destinationFetch } from "./destination-fetch";
 
 export const MAX_IMPORT_REDIRECTS = 3;
 
@@ -77,10 +82,7 @@ function redirectInit(
 
 export function createGuardedFetch(
   label: string,
-  {
-    cancelSignal,
-    baseFetch = (input, init) => fetch(input, init),
-  }: GuardOptions = {},
+  { cancelSignal, baseFetch = destinationFetch }: GuardOptions = {},
 ): GuardedFetch {
   let failure: GuardFailure | null = null;
   let lastHost: string | null = null;
@@ -129,6 +131,10 @@ export function createGuardedFetch(
           baseFetch(url.href, { ...request, redirect: "manual" }),
         );
       } catch (error) {
+        if (isBlockedDestinationError(error)) {
+          const message = nonRoutableDestinationMessage(label);
+          fail({ kind: "destination", message }, message);
+        }
         if (!cancelSignal?.aborted) {
           failure = { kind: "unreachable", host: url.host };
         }

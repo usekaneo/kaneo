@@ -6,6 +6,7 @@ import {
   it,
   vi,
 } from "vite-plus/test";
+import { blockedDestinationError } from "./blocked-destination-error";
 import { createGuardedFetch, MAX_IMPORT_REDIRECTS } from "./guarded-fetch";
 
 const PUBLIC = "http://93.184.216.34";
@@ -143,6 +144,23 @@ describe("createGuardedFetch", () => {
     });
     await expect(cancelled.fetch(`${PUBLIC}/api`)).rejects.toThrow();
     expect(cancelled.failure()).toBeNull();
+  });
+
+  it("reports a host that resolves to a private address at connect time as a destination problem", async () => {
+    const baseFetch = vi.fn(async () => {
+      throw new TypeError("fetch failed", {
+        cause: blockedDestinationError(),
+      });
+    });
+    const guard = createGuardedFetch("PLANKA", { baseFetch });
+
+    await expect(guard.fetch(`${PUBLIC}/api`)).rejects.toThrow(
+      "PLANKA destination resolves to a non-routable address",
+    );
+    expect(guard.failure()).toEqual({
+      kind: "destination",
+      message: "PLANKA destination resolves to a non-routable address",
+    });
   });
 
   it("rejects malformed URLs as a destination problem", async () => {

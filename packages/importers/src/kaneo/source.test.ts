@@ -519,6 +519,61 @@ describe("readProject", () => {
     ).toHaveLength(1);
   });
 
+  it("leaves custom fields out quietly when the instance has none", async () => {
+    const fake = fakeFetch({
+      ...routes(),
+      "/api/custom-field/project/p1": fail(404, "Not found"),
+    });
+    const source = await connectKaneo(
+      { url: BASE, apiKey: API_KEY },
+      { fetch: fake.fetch },
+    );
+
+    const project = await source.readProject("p1", { includeComments: false });
+
+    expect(
+      project.warnings.filter((warning) => warning.includes("Custom fields")),
+    ).toEqual([]);
+  });
+
+  it("continues with a warning when the API key may not read custom fields", async () => {
+    const fake = fakeFetch({
+      ...routes(),
+      "/api/custom-field/project/p1": fail(403, "Forbidden"),
+    });
+    const source = await connectKaneo(
+      { url: BASE, apiKey: API_KEY },
+      { fetch: fake.fetch },
+    );
+
+    const project = await source.readProject("p1", { includeComments: false });
+
+    expect(project.tasks).toHaveLength(5);
+    expect(
+      project.warnings.filter((warning) => warning.includes("Custom fields")),
+    ).toEqual([
+      "Custom fields could not be read with this API key, so they are not listed here.",
+    ]);
+  });
+
+  it.each([401, 400, 500])(
+    "stops when reading custom fields fails with HTTP %i",
+    async (status) => {
+      const fake = fakeFetch({
+        ...routes(),
+        "/api/custom-field/project/p1": fail(status, "Nope"),
+      });
+      const source = await connectKaneo(
+        { url: BASE, apiKey: API_KEY },
+        { fetch: fake.fetch },
+      );
+
+      await expect(
+        source.readProject("p1", { includeComments: false }),
+      ).rejects.toMatchObject({ name: "SourceHttpError", status });
+    },
+  );
+
   it("skips tasks deleted while reading", async () => {
     const fake = fakeFetch({
       ...routes(),

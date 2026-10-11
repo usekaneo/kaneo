@@ -32,10 +32,11 @@ export async function writeImportComments(
         type: "comment",
         userId: importedBy,
         content: comment.body,
-        externalUserName: (comment.author.name?.trim() || "Unknown user").slice(
-          0,
-          MAX_EXTERNAL_NAME_LENGTH,
-        ),
+        externalUserName: (
+          comment.author.name?.trim() ||
+          comment.author.email?.trim() ||
+          "Unknown user"
+        ).slice(0, MAX_EXTERNAL_NAME_LENGTH),
         externalSource: source,
         createdAt: parseImportDate(comment.createdAt) ?? now,
       })),

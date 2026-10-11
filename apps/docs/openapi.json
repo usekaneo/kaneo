@@ -22888,6 +22888,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "The server is restarting and not starting new imports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         }
       }

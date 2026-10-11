@@ -8,6 +8,7 @@ import type {
 } from "../../packages/importers/dist/index.js";
 import db, { schema } from "../../apps/api/src/database";
 import { waitForActiveImports } from "../../apps/api/src/import/active-imports";
+import { writeImportRelations } from "../../apps/api/src/import/writer/write-import-relations";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
@@ -24,6 +25,20 @@ vi.mock("../../packages/importers/dist/index.js", async (original) => ({
   >()),
   connectSource: importers.connectSource,
 }));
+
+vi.mock(
+  "../../apps/api/src/import/writer/write-import-relations",
+  async (original) => {
+    const actual =
+      await original<
+        typeof import("../../apps/api/src/import/writer/write-import-relations")
+      >();
+    return {
+      ...actual,
+      writeImportRelations: vi.fn(actual.writeImportRelations),
+    };
+  },
+);
 
 const SECRET = "planka-secret-key-0123456789";
 
@@ -623,6 +638,51 @@ describe("API integration: import from other tools", () => {
     const listedText = await listed.text();
     expect(listedText).not.toContain(SECRET);
     expect(JSON.parse(listedText).runs).toHaveLength(1);
+  });
+
+  it("leaves no project behind when saving its content fails", async () => {
+    const admin = await createAdmin();
+    const workspaceId = admin.workspace.id;
+    importers.connectSource.mockResolvedValue(
+      fakeSource(async () => plankaProject("")),
+    );
+    vi.mocked(writeImportRelations).mockRejectedValueOnce(
+      new Error("relations failed"),
+    );
+    const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockAuthenticatedSession(admin.user);
+
+    try {
+      const started = await post("/runs", {
+        workspaceId,
+        connection,
+        projectIds: ["p1"],
+      });
+      expect(started.status).toBe(202);
+      const { run } = (await started.json()) as { run: { id: string } };
+      await waitForActiveImports();
+
+      const polled = await get(`/runs/${workspaceId}/${run.id}`);
+      const { run: finished } = (await polled.json()) as {
+        run: { projects: Record<string, unknown>[] };
+      };
+      expect(finished.projects).toEqual([
+        expect.objectContaining({
+          status: "failed",
+          projectId: null,
+          error: "Kaneo could not save this project.",
+        }),
+      ]);
+      expect(writeImportRelations).toHaveBeenCalled();
+
+      const projects = await db
+        .select({ id: schema.projectTable.id })
+        .from(schema.projectTable)
+        .where(eq(schema.projectTable.workspaceId, workspaceId));
+      expect(projects).toEqual([]);
+    } finally {
+      logged.mockRestore();
+    }
   });
 
   it("keeps the source key and task numbers", async () => {

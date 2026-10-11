@@ -107,6 +107,7 @@ const startImportRunRoute = createRoute({
     502: errorResponse(
       "The source could not be reached or answered with an error",
     ),
+    503: errorResponse("The server is restarting and not starting new imports"),
   },
 });
 

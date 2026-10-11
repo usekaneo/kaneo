@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { importRunTable } from "../../database/schema";
-import { activeImportSlots } from "../active-imports";
+import { activeImportSlots, stopAcceptingImports } from "../active-imports";
 import {
   failUnfinishedProjects,
   type ImportRunProject,
@@ -31,19 +31,30 @@ async function markStopped(runId: string, projects: ImportRunProject[]) {
   }
 }
 
-export async function stopActiveImports(graceMs = SHUTDOWN_GRACE_MS) {
-  const slots = activeImportSlots();
-  if (slots.length === 0) return;
+function settledBefore(deadline: Promise<void>, promises: unknown[]) {
+  return Promise.race([Promise.allSettled(promises), deadline]);
+}
 
-  for (const slot of slots) slot.controller.abort(new Error(RESTART_ERROR));
+export async function stopActiveImports(graceMs = SHUTDOWN_GRACE_MS) {
+  stopAcceptingImports();
+  if (activeImportSlots().length === 0) return;
 
   let timer: ReturnType<typeof setTimeout> | undefined;
-  await Promise.race([
-    Promise.allSettled(slots.map((slot) => slot.job)),
-    new Promise((resolve) => {
-      timer = setTimeout(resolve, graceMs);
-    }),
-  ]);
+  const deadline = new Promise<void>((resolve) => {
+    timer = setTimeout(resolve, graceMs);
+  });
+
+  await settledBefore(
+    deadline,
+    activeImportSlots().map((slot) => slot.settled),
+  );
+
+  const slots = activeImportSlots();
+  for (const slot of slots) slot.controller.abort(new Error(RESTART_ERROR));
+  await settledBefore(
+    deadline,
+    slots.map((slot) => slot.job),
+  );
   clearTimeout(timer);
 
   await Promise.all(

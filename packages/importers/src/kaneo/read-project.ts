@@ -6,7 +6,11 @@ import { collectLabels, mapColumns, mapRelations, mapTask } from "./mapping.js";
 import { readOptional } from "./optional.js";
 import { readBoard } from "./read-board.js";
 import { readTaskDetails } from "./read-task-details.js";
-import { buildWarnings, MEMBERS_UNAVAILABLE_WARNING } from "./warnings.js";
+import {
+  buildWarnings,
+  CUSTOM_FIELDS_UNREADABLE_WARNING,
+  MEMBERS_UNAVAILABLE_WARNING,
+} from "./warnings.js";
 
 export async function readKaneoProject(
   client: KaneoClient,
@@ -30,7 +34,8 @@ export async function readKaneoProject(
       : [],
   );
 
-  const customFieldNames = await readCustomFieldNames(client, projectId);
+  const customFields = await readCustomFieldNames(client, projectId);
+  if (customFields.unreadable) warnings.push(CUSTOM_FIELDS_UNREADABLE_WARNING);
   const description = project.descriptionDeferred
     ? await client.getProjectDescription(projectId)
     : project.description;
@@ -61,7 +66,7 @@ export async function readKaneoProject(
       tasks: ordered,
       imported: importedTasks,
       members,
-      customFieldNames,
+      customFieldNames: customFields.names,
       relationsOutsideProject: outsideProject,
     }),
   );
@@ -82,12 +87,17 @@ export async function readKaneoProject(
 async function readCustomFieldNames(
   client: KaneoClient,
   projectId: string,
-): Promise<string[]> {
+): Promise<{ names: string[]; unreadable: boolean }> {
   try {
     const fields = await client.listCustomFields(projectId);
-    return fields.map((field) => field.name.trim()).filter(Boolean);
+    return {
+      names: fields.map((field) => field.name.trim()).filter(Boolean),
+      unreadable: false,
+    };
   } catch (error) {
-    if (error instanceof SourceHttpError && error.status < 500) return [];
+    if (!(error instanceof SourceHttpError)) throw error;
+    if (error.status === 404) return { names: [], unreadable: false };
+    if (error.status === 403) return { names: [], unreadable: true };
     throw error;
   }
 }
