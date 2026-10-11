@@ -87,6 +87,7 @@ import { isDisposableEmail } from "./utils/is-disposable-email";
 import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
 import { trackPasswordResetDelivery } from "./utils/password-reset-delivery";
 import {
+  assertEmailCodeRecipientAllowed,
   assertGuestRegistrationAllowed,
   assertUserRegistrationAllowed,
   normalizeInvitationId,
@@ -154,6 +155,12 @@ function getLocaleKey(locale?: string | null) {
   if (normalized?.startsWith("ja")) return "ja";
   if (normalized === "zh-tw") return "zh-tw";
   return "en";
+}
+
+function isEmailCodeSignInAvailable() {
+  return (
+    isSmtpConfigured() && !isEmailOtpSignInDisabled && !isLoginFormDisabled
+  );
 }
 
 // Reads env at call time (not module scope) so tests can stub it.
@@ -827,6 +834,14 @@ export const auth = betterAuth({
           });
       }
 
+      if (
+        (ctx.path === "/email-otp/send-verification-otp" &&
+          ctx.body?.type === "sign-in") ||
+        ctx.path === "/sign-in/magic-link"
+      ) {
+        await assertEmailCodeRecipientAllowed(ctx.body?.email);
+      }
+
       // Block invite-member calls on cloud from anonymous users or to
       // disposable-email addresses. The 2026-05-28 incident saw ~14k phishing
       // invites sent from throwaway disposable-email signups; gating here
@@ -877,17 +892,15 @@ export const auth = betterAuth({
           });
         }
 
-        // Cloud-only disposable-email check; CAPTCHA is enforced above
-        // on every account-creation initiation when configured.
-        if (isCloud() && !isInstanceAdminSetup) {
-          const signupEmail = (ctx.body?.email as string | undefined) ?? "";
-          if (signupEmail && isDisposableEmail(signupEmail)) {
-            throw new APIError("BAD_REQUEST", {
-              code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
-              message:
-                "Sign-up with disposable email addresses is not allowed.",
-            });
-          }
+        if (
+          isCloud() &&
+          !isInstanceAdminSetup &&
+          isEmailCodeSignInAvailable()
+        ) {
+          throw new APIError("FORBIDDEN", {
+            code: "EMAIL_CODE_REGISTRATION_REQUIRED",
+            message: "Create your account with an email code.",
+          });
         }
       }
 

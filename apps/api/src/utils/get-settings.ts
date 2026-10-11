@@ -34,6 +34,7 @@ function getSettings() {
       "DISABLE_LOGIN_FORM",
     ].every((key) => process.env[key] !== "true"),
     disableLoginForm: process.env.DISABLE_LOGIN_FORM === "true",
+    customOAuthName: process.env.CUSTOM_OAUTH_NAME?.trim() || null,
     customOAuthAutoLogin: process.env.CUSTOM_OAUTH_AUTO_LOGIN === "true",
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
     billingEnabled: isBillingEnabled(),
