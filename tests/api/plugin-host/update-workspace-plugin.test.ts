@@ -40,7 +40,9 @@ describe("updateWorkspacePlugin", () => {
 
   it("tells other clients about the change without sending settings", async () => {
     getWorkspacePlugin.mockResolvedValue(undefined);
-    saveWorkspacePlugin.mockImplementation(async (row) => row);
+    saveWorkspacePlugin.mockImplementation(
+      async (pluginId, _workspaceId, write) => ({ pluginId, ...write.insert }),
+    );
 
     await updateWorkspacePlugin("progress", "workspace-1", {
       enabled: true,
@@ -52,6 +54,58 @@ describe("updateWorkspacePlugin", () => {
       pluginId: "progress",
       enabled: true,
     });
+  });
+
+  it("writes only the enabled state and reports the row as stored", async () => {
+    getWorkspacePlugin.mockResolvedValue({
+      pluginId: "progress",
+      enabled: true,
+      settings: {},
+    });
+    saveWorkspacePlugin.mockResolvedValue({
+      pluginId: "progress",
+      enabled: false,
+      settings: { token: "saved-meanwhile" },
+    });
+
+    const result = await updateWorkspacePlugin("progress", "workspace-1", {
+      enabled: false,
+    });
+
+    expect(saveWorkspacePlugin).toHaveBeenCalledWith(
+      "progress",
+      "workspace-1",
+      {
+        insert: { enabled: false, settings: {} },
+        update: { enabled: false },
+      },
+    );
+    expect(result).toEqual({
+      ok: true,
+      state: { enabled: false, settings: {}, configuredSecrets: ["token"] },
+    });
+  });
+
+  it("writes only the settings when the request leaves enabled out", async () => {
+    getWorkspacePlugin.mockResolvedValue({
+      pluginId: "progress",
+      enabled: false,
+      settings: { token: "kept" },
+    });
+    saveWorkspacePlugin.mockImplementation(
+      async (pluginId, _workspaceId, write) => ({ pluginId, ...write.insert }),
+    );
+
+    await updateWorkspacePlugin("progress", "workspace-1", { settings: {} });
+
+    expect(saveWorkspacePlugin).toHaveBeenCalledWith(
+      "progress",
+      "workspace-1",
+      {
+        insert: { enabled: false, settings: { token: "kept" } },
+        update: { settings: { token: "kept" } },
+      },
+    );
   });
 
   it("does not announce a change it refused to save", async () => {

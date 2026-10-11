@@ -5,7 +5,7 @@ import {
   getWorkspacePlugin,
   saveWorkspacePlugin,
 } from "../data/workspace-plugins";
-import { resolvePluginEnabled } from "../enablement/resolve-enabled";
+import { toWorkspacePluginWrite } from "../data/workspace-plugin-write";
 import { getLoadedPlugin } from "../registry";
 import {
   toWorkspaceState,
@@ -27,10 +27,11 @@ export async function updateWorkspacePlugin(
   }
 
   const existing = await getWorkspacePlugin(pluginId, workspaceId);
-  let settings = existing?.settings ?? {};
+  const stored = existing?.settings ?? {};
+  let settings: Record<string, unknown> | undefined;
 
   if (input.settings !== undefined) {
-    const parsed = parseSettings(plugin.settings, input.settings, settings);
+    const parsed = parseSettings(plugin.settings, input.settings, stored);
     if (!parsed.ok) {
       return {
         ok: false,
@@ -42,7 +43,8 @@ export async function updateWorkspacePlugin(
   }
 
   if (input.enabled === true) {
-    const complete = parseSettings(plugin.settings, settings, settings);
+    const current = settings ?? stored;
+    const complete = parseSettings(plugin.settings, current, current);
     if (!complete.ok) {
       return {
         ok: false,
@@ -52,12 +54,11 @@ export async function updateWorkspacePlugin(
     }
   }
 
-  const row = await saveWorkspacePlugin({
+  const row = await saveWorkspacePlugin(
     pluginId,
     workspaceId,
-    enabled: input.enabled ?? resolvePluginEnabled(plugin, existing?.enabled),
-    settings,
-  });
+    toWorkspacePluginWrite(plugin, { enabled: input.enabled, settings }),
+  );
   await publishEvent("workspace_plugin.updated", {
     workspaceId,
     pluginId,

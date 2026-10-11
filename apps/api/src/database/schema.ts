@@ -18,7 +18,7 @@ import type { GitHubImportState } from "../github-integration/import-state";
 // Timestamp columns without a time zone hold UTC (Drizzle reads and writes
 // them as UTC). A bare now() default would be cast through the session time
 // zone, storing shifted times on servers not running in UTC.
-const utcNow = sql`(now() AT TIME ZONE 'utc')`;
+export const utcNow = sql`(now() AT TIME ZONE 'utc')`;
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType() {

@@ -1,11 +1,16 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
-import { workspacePluginTable, workspaceTable } from "../../database/schema";
+import {
+  utcNow,
+  workspacePluginTable,
+  workspaceTable,
+} from "../../database/schema";
 import {
   type EnablementPlugin,
   enabledWorkspaceIds,
   resolvePluginEnabled,
 } from "../enablement/resolve-enabled";
+import type { WorkspacePluginWrite } from "./workspace-plugin-write";
 
 export type WorkspacePluginRow = {
   pluginId: string;
@@ -73,22 +78,17 @@ export async function listEnabledWorkspaceIds(
   return enabledWorkspaceIds(plugin, workspaces);
 }
 
-export async function saveWorkspacePlugin(values: {
-  pluginId: string;
-  workspaceId: string;
-  enabled: boolean;
-  settings: Record<string, unknown>;
-}): Promise<WorkspacePluginRow> {
+export async function saveWorkspacePlugin(
+  pluginId: string,
+  workspaceId: string,
+  write: WorkspacePluginWrite,
+): Promise<WorkspacePluginRow> {
   const [row] = await db
     .insert(workspacePluginTable)
-    .values(values)
+    .values({ pluginId, workspaceId, ...write.insert })
     .onConflictDoUpdate({
       target: [workspacePluginTable.workspaceId, workspacePluginTable.pluginId],
-      set: {
-        enabled: values.enabled,
-        settings: values.settings,
-        updatedAt: new Date(),
-      },
+      set: { ...write.update, updatedAt: utcNow },
     })
     .returning(columns);
   if (!row) {
