@@ -3,6 +3,7 @@ import {
   Building2,
   Code,
   CreditCard,
+  Import,
   KeyRound,
   Server,
   Settings,
@@ -23,6 +24,7 @@ type BuildSettingsNavInput = {
   t: Translate;
   workspaceName?: string;
   billingEnabled: boolean;
+  canImport: boolean;
   hasAdminAccess: boolean;
   projects: { id: string; name: string; icon?: string | null }[];
 };
@@ -59,6 +61,7 @@ export function buildSettingsNav({
   t,
   workspaceName,
   billingEnabled,
+  canImport,
   hasAdminAccess,
   projects,
 }: BuildSettingsNavInput): SettingsNav {
@@ -121,6 +124,16 @@ export function buildSettingsNav({
           to: "/dashboard/settings/workspace/labels",
           icon: Tag,
         },
+        ...(canImport
+          ? [
+              {
+                id: "workspace-import",
+                label: t("settings:workspaceImport.title"),
+                to: "/dashboard/settings/workspace/import",
+                icon: Import,
+              },
+            ]
+          : []),
         ...(billingEnabled
           ? [
               {

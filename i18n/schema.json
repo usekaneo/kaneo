@@ -4778,6 +4778,1208 @@
 						"resumeDeletion"
 					]
 				},
+				"workspaceImport": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"pageTitle": {
+							"type": "string"
+						},
+						"title": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "string"
+						},
+						"opensInNewTab": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						},
+						"notAllowed": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"sources": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"connect": {
+									"type": "string"
+								},
+								"connectTo": {
+									"type": "string"
+								},
+								"linear": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"description": {
+											"type": "string"
+										},
+										"intro": {
+											"type": "string"
+										}
+									},
+									"required": ["description", "intro"]
+								},
+								"trello": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"description": {
+											"type": "string"
+										},
+										"intro": {
+											"type": "string"
+										}
+									},
+									"required": ["description", "intro"]
+								},
+								"plane": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"description": {
+											"type": "string"
+										},
+										"intro": {
+											"type": "string"
+										}
+									},
+									"required": ["description", "intro"]
+								},
+								"planka": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"description": {
+											"type": "string"
+										},
+										"intro": {
+											"type": "string"
+										}
+									},
+									"required": ["description", "intro"]
+								},
+								"kaneo": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"pickerName": {
+											"type": "string"
+										},
+										"description": {
+											"type": "string"
+										},
+										"intro": {
+											"type": "string"
+										}
+									},
+									"required": ["pickerName", "description", "intro"]
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"connect",
+								"connectTo",
+								"linear",
+								"trello",
+								"plane",
+								"planka",
+								"kaneo"
+							]
+						},
+						"history": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"started": {
+									"type": "string"
+								},
+								"empty": {
+									"type": "string"
+								},
+								"loadError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"started",
+								"empty",
+								"loadError"
+							]
+						},
+						"status": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"importing": {
+									"type": "string"
+								},
+								"warnings_one": {
+									"type": "string"
+								},
+								"warnings_zero": {
+									"type": "string"
+								},
+								"warnings_two": {
+									"type": "string"
+								},
+								"warnings_few": {
+									"type": "string"
+								},
+								"warnings_many": {
+									"type": "string"
+								},
+								"warnings_other": {
+									"type": "string"
+								},
+								"partial": {
+									"type": "string"
+								},
+								"failed": {
+									"type": "string"
+								},
+								"imported": {
+									"type": "string"
+								}
+							},
+							"required": ["importing", "partial", "failed", "imported"]
+						},
+						"steps": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"connect": {
+									"type": "string"
+								},
+								"import": {
+									"type": "string"
+								},
+								"done": {
+									"type": "string"
+								}
+							},
+							"required": ["label", "connect", "import", "done"]
+						},
+						"back": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"allSources": {
+									"type": "string"
+								},
+								"changeKey": {
+									"type": "string"
+								},
+								"overview": {
+									"type": "string"
+								}
+							},
+							"required": ["allSources", "changeKey", "overview"]
+						},
+						"connect": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"sectionTitle": {
+									"type": "string"
+								},
+								"sectionDescription": {
+									"type": "string"
+								},
+								"cancel": {
+									"type": "string"
+								},
+								"continue": {
+									"type": "string"
+								},
+								"whereToFind": {
+									"type": "string"
+								},
+								"showSecret": {
+									"type": "string"
+								},
+								"hideSecret": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"sectionTitle",
+								"sectionDescription",
+								"cancel",
+								"continue",
+								"whereToFind",
+								"showSecret",
+								"hideSecret"
+							]
+						},
+						"linear": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"apiKeyLabel": {
+									"type": "string"
+								},
+								"apiKeyDescription": {
+									"type": "string"
+								},
+								"openSettings": {
+									"type": "string"
+								},
+								"stepOpen": {
+									"type": "string"
+								},
+								"stepCreate": {
+									"type": "string"
+								},
+								"stepPaste": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"apiKeyLabel",
+								"apiKeyDescription",
+								"openSettings",
+								"stepOpen",
+								"stepCreate",
+								"stepPaste"
+							]
+						},
+						"trello": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"apiKeyLabel": {
+									"type": "string"
+								},
+								"apiKeyDescription": {
+									"type": "string"
+								},
+								"apiKeyPlaceholder": {
+									"type": "string"
+								},
+								"authorizeLabel": {
+									"type": "string"
+								},
+								"authorizeDescription": {
+									"type": "string"
+								},
+								"authorizeNeedsKey": {
+									"type": "string"
+								},
+								"authorizeButton": {
+									"type": "string"
+								},
+								"tokenLabel": {
+									"type": "string"
+								},
+								"tokenDescription": {
+									"type": "string"
+								},
+								"tokenPlaceholder": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"apiKeyLabel",
+								"apiKeyDescription",
+								"apiKeyPlaceholder",
+								"authorizeLabel",
+								"authorizeDescription",
+								"authorizeNeedsKey",
+								"authorizeButton",
+								"tokenLabel",
+								"tokenDescription",
+								"tokenPlaceholder"
+							]
+						},
+						"plane": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"urlLabel": {
+									"type": "string"
+								},
+								"urlDescription": {
+									"type": "string"
+								},
+								"urlPlaceholder": {
+									"type": "string"
+								},
+								"tokenLabel": {
+									"type": "string"
+								},
+								"tokenDescription": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"urlLabel",
+								"urlDescription",
+								"urlPlaceholder",
+								"tokenLabel",
+								"tokenDescription"
+							]
+						},
+						"planka": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"urlLabel": {
+									"type": "string"
+								},
+								"urlDescription": {
+									"type": "string"
+								},
+								"signInLabel": {
+									"type": "string"
+								},
+								"signInDescription": {
+									"type": "string"
+								},
+								"signInApiKey": {
+									"type": "string"
+								},
+								"signInPassword": {
+									"type": "string"
+								},
+								"apiKeyLabel": {
+									"type": "string"
+								},
+								"apiKeyDescription": {
+									"type": "string"
+								},
+								"apiKeyPlaceholder": {
+									"type": "string"
+								},
+								"usernameLabel": {
+									"type": "string"
+								},
+								"usernameDescription": {
+									"type": "string"
+								},
+								"passwordLabel": {
+									"type": "string"
+								},
+								"passwordDescription": {
+									"type": "string"
+								},
+								"adminTip": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"urlLabel",
+								"urlDescription",
+								"signInLabel",
+								"signInDescription",
+								"signInApiKey",
+								"signInPassword",
+								"apiKeyLabel",
+								"apiKeyDescription",
+								"apiKeyPlaceholder",
+								"usernameLabel",
+								"usernameDescription",
+								"passwordLabel",
+								"passwordDescription",
+								"adminTip"
+							]
+						},
+						"kaneo": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"urlLabel": {
+									"type": "string"
+								},
+								"urlDescription": {
+									"type": "string"
+								},
+								"apiKeyLabel": {
+									"type": "string"
+								},
+								"apiKeyDescription": {
+									"type": "string"
+								},
+								"apiKeyPlaceholder": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"urlLabel",
+								"urlDescription",
+								"apiKeyLabel",
+								"apiKeyDescription",
+								"apiKeyPlaceholder"
+							]
+						},
+						"select": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"selectAll": {
+									"type": "string"
+								},
+								"clear": {
+									"type": "string"
+								},
+								"back": {
+									"type": "string"
+								},
+								"commentsLabel": {
+									"type": "string"
+								},
+								"commentsDescription": {
+									"type": "string"
+								},
+								"membersNote": {
+									"type": "string"
+								},
+								"membersNoteTrello": {
+									"type": "string"
+								},
+								"inviteMembers": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"selectAll",
+								"clear",
+								"back",
+								"commentsLabel",
+								"commentsDescription",
+								"membersNote",
+								"membersNoteTrello",
+								"inviteMembers"
+							]
+						},
+						"units": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"team": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"step": {
+											"type": "string"
+										},
+										"section": {
+											"type": "string"
+										},
+										"pick": {
+											"type": "string"
+										},
+										"found_one": {
+											"type": "string"
+										},
+										"found_zero": {
+											"type": "string"
+										},
+										"found_two": {
+											"type": "string"
+										},
+										"found_few": {
+											"type": "string"
+										},
+										"found_many": {
+											"type": "string"
+										},
+										"found_other": {
+											"type": "string"
+										},
+										"empty": {
+											"type": "string"
+										},
+										"limit": {
+											"type": "string"
+										},
+										"importButton_one": {
+											"type": "string"
+										},
+										"importButton_zero": {
+											"type": "string"
+										},
+										"importButton_two": {
+											"type": "string"
+										},
+										"importButton_few": {
+											"type": "string"
+										},
+										"importButton_many": {
+											"type": "string"
+										},
+										"importButton_other": {
+											"type": "string"
+										},
+										"progress_one": {
+											"type": "string"
+										},
+										"progress_zero": {
+											"type": "string"
+										},
+										"progress_two": {
+											"type": "string"
+										},
+										"progress_few": {
+											"type": "string"
+										},
+										"progress_many": {
+											"type": "string"
+										},
+										"progress_other": {
+											"type": "string"
+										},
+										"runTitle_one": {
+											"type": "string"
+										},
+										"runTitle_zero": {
+											"type": "string"
+										},
+										"runTitle_two": {
+											"type": "string"
+										},
+										"runTitle_few": {
+											"type": "string"
+										},
+										"runTitle_many": {
+											"type": "string"
+										},
+										"runTitle_other": {
+											"type": "string"
+										},
+										"allImported_one": {
+											"type": "string"
+										},
+										"allImported_zero": {
+											"type": "string"
+										},
+										"allImported_two": {
+											"type": "string"
+										},
+										"allImported_few": {
+											"type": "string"
+										},
+										"allImported_many": {
+											"type": "string"
+										},
+										"allImported_other": {
+											"type": "string"
+										},
+										"someImported_one": {
+											"type": "string"
+										},
+										"someImported_zero": {
+											"type": "string"
+										},
+										"someImported_two": {
+											"type": "string"
+										},
+										"someImported_few": {
+											"type": "string"
+										},
+										"someImported_many": {
+											"type": "string"
+										},
+										"someImported_other": {
+											"type": "string"
+										}
+									},
+									"required": ["step", "section", "pick", "empty", "limit"]
+								},
+								"board": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"step": {
+											"type": "string"
+										},
+										"section": {
+											"type": "string"
+										},
+										"pick": {
+											"type": "string"
+										},
+										"found_one": {
+											"type": "string"
+										},
+										"found_zero": {
+											"type": "string"
+										},
+										"found_two": {
+											"type": "string"
+										},
+										"found_few": {
+											"type": "string"
+										},
+										"found_many": {
+											"type": "string"
+										},
+										"found_other": {
+											"type": "string"
+										},
+										"empty": {
+											"type": "string"
+										},
+										"limit": {
+											"type": "string"
+										},
+										"importButton_one": {
+											"type": "string"
+										},
+										"importButton_zero": {
+											"type": "string"
+										},
+										"importButton_two": {
+											"type": "string"
+										},
+										"importButton_few": {
+											"type": "string"
+										},
+										"importButton_many": {
+											"type": "string"
+										},
+										"importButton_other": {
+											"type": "string"
+										},
+										"progress_one": {
+											"type": "string"
+										},
+										"progress_zero": {
+											"type": "string"
+										},
+										"progress_two": {
+											"type": "string"
+										},
+										"progress_few": {
+											"type": "string"
+										},
+										"progress_many": {
+											"type": "string"
+										},
+										"progress_other": {
+											"type": "string"
+										},
+										"runTitle_one": {
+											"type": "string"
+										},
+										"runTitle_zero": {
+											"type": "string"
+										},
+										"runTitle_two": {
+											"type": "string"
+										},
+										"runTitle_few": {
+											"type": "string"
+										},
+										"runTitle_many": {
+											"type": "string"
+										},
+										"runTitle_other": {
+											"type": "string"
+										},
+										"allImported_one": {
+											"type": "string"
+										},
+										"allImported_zero": {
+											"type": "string"
+										},
+										"allImported_two": {
+											"type": "string"
+										},
+										"allImported_few": {
+											"type": "string"
+										},
+										"allImported_many": {
+											"type": "string"
+										},
+										"allImported_other": {
+											"type": "string"
+										},
+										"someImported_one": {
+											"type": "string"
+										},
+										"someImported_zero": {
+											"type": "string"
+										},
+										"someImported_two": {
+											"type": "string"
+										},
+										"someImported_few": {
+											"type": "string"
+										},
+										"someImported_many": {
+											"type": "string"
+										},
+										"someImported_other": {
+											"type": "string"
+										}
+									},
+									"required": ["step", "section", "pick", "empty", "limit"]
+								},
+								"project": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"step": {
+											"type": "string"
+										},
+										"section": {
+											"type": "string"
+										},
+										"pick": {
+											"type": "string"
+										},
+										"found_one": {
+											"type": "string"
+										},
+										"found_zero": {
+											"type": "string"
+										},
+										"found_two": {
+											"type": "string"
+										},
+										"found_few": {
+											"type": "string"
+										},
+										"found_many": {
+											"type": "string"
+										},
+										"found_other": {
+											"type": "string"
+										},
+										"empty": {
+											"type": "string"
+										},
+										"limit": {
+											"type": "string"
+										},
+										"importButton_one": {
+											"type": "string"
+										},
+										"importButton_zero": {
+											"type": "string"
+										},
+										"importButton_two": {
+											"type": "string"
+										},
+										"importButton_few": {
+											"type": "string"
+										},
+										"importButton_many": {
+											"type": "string"
+										},
+										"importButton_other": {
+											"type": "string"
+										},
+										"progress_one": {
+											"type": "string"
+										},
+										"progress_zero": {
+											"type": "string"
+										},
+										"progress_two": {
+											"type": "string"
+										},
+										"progress_few": {
+											"type": "string"
+										},
+										"progress_many": {
+											"type": "string"
+										},
+										"progress_other": {
+											"type": "string"
+										},
+										"runTitle_one": {
+											"type": "string"
+										},
+										"runTitle_zero": {
+											"type": "string"
+										},
+										"runTitle_two": {
+											"type": "string"
+										},
+										"runTitle_few": {
+											"type": "string"
+										},
+										"runTitle_many": {
+											"type": "string"
+										},
+										"runTitle_other": {
+											"type": "string"
+										},
+										"allImported_one": {
+											"type": "string"
+										},
+										"allImported_zero": {
+											"type": "string"
+										},
+										"allImported_two": {
+											"type": "string"
+										},
+										"allImported_few": {
+											"type": "string"
+										},
+										"allImported_many": {
+											"type": "string"
+										},
+										"allImported_other": {
+											"type": "string"
+										},
+										"someImported_one": {
+											"type": "string"
+										},
+										"someImported_zero": {
+											"type": "string"
+										},
+										"someImported_two": {
+											"type": "string"
+										},
+										"someImported_few": {
+											"type": "string"
+										},
+										"someImported_many": {
+											"type": "string"
+										},
+										"someImported_other": {
+											"type": "string"
+										}
+									},
+									"required": ["step", "section", "pick", "empty", "limit"]
+								}
+							},
+							"required": ["team", "board", "project"]
+						},
+						"counts": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"tasks_one": {
+									"type": "string"
+								},
+								"tasks_zero": {
+									"type": "string"
+								},
+								"tasks_two": {
+									"type": "string"
+								},
+								"tasks_few": {
+									"type": "string"
+								},
+								"tasks_many": {
+									"type": "string"
+								},
+								"tasks_other": {
+									"type": "string"
+								},
+								"columns_one": {
+									"type": "string"
+								},
+								"columns_zero": {
+									"type": "string"
+								},
+								"columns_two": {
+									"type": "string"
+								},
+								"columns_few": {
+									"type": "string"
+								},
+								"columns_many": {
+									"type": "string"
+								},
+								"columns_other": {
+									"type": "string"
+								},
+								"labels_one": {
+									"type": "string"
+								},
+								"labels_zero": {
+									"type": "string"
+								},
+								"labels_two": {
+									"type": "string"
+								},
+								"labels_few": {
+									"type": "string"
+								},
+								"labels_many": {
+									"type": "string"
+								},
+								"labels_other": {
+									"type": "string"
+								},
+								"comments_one": {
+									"type": "string"
+								},
+								"comments_zero": {
+									"type": "string"
+								},
+								"comments_two": {
+									"type": "string"
+								},
+								"comments_few": {
+									"type": "string"
+								},
+								"comments_many": {
+									"type": "string"
+								},
+								"comments_other": {
+									"type": "string"
+								}
+							},
+							"required": []
+						},
+						"run": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"importingTitle": {
+									"type": "string"
+								},
+								"finishedTitle": {
+									"type": "string"
+								},
+								"failedTitle": {
+									"type": "string"
+								},
+								"leavePage": {
+									"type": "string"
+								},
+								"started": {
+									"type": "string"
+								},
+								"took_one": {
+									"type": "string"
+								},
+								"took_zero": {
+									"type": "string"
+								},
+								"took_two": {
+									"type": "string"
+								},
+								"took_few": {
+									"type": "string"
+								},
+								"took_many": {
+									"type": "string"
+								},
+								"took_other": {
+									"type": "string"
+								},
+								"tookUnderMinute": {
+									"type": "string"
+								},
+								"totals": {
+									"type": "string"
+								},
+								"nothingImported": {
+									"type": "string"
+								},
+								"keyInMemory": {
+									"type": "string"
+								},
+								"finishedNote": {
+									"type": "string"
+								},
+								"finishedNoteNoComments": {
+									"type": "string"
+								},
+								"importMore": {
+									"type": "string"
+								},
+								"goToProjects": {
+									"type": "string"
+								},
+								"open": {
+									"type": "string"
+								},
+								"openProject": {
+									"type": "string"
+								},
+								"waiting": {
+									"type": "string"
+								},
+								"queued": {
+									"type": "string"
+								},
+								"starting": {
+									"type": "string"
+								},
+								"importingBadge": {
+									"type": "string"
+								},
+								"failedBadge": {
+									"type": "string"
+								},
+								"warnings_one": {
+									"type": "string"
+								},
+								"warnings_zero": {
+									"type": "string"
+								},
+								"warnings_two": {
+									"type": "string"
+								},
+								"warnings_few": {
+									"type": "string"
+								},
+								"warnings_many": {
+									"type": "string"
+								},
+								"warnings_other": {
+									"type": "string"
+								},
+								"noTasks": {
+									"type": "string"
+								},
+								"notImported": {
+									"type": "string"
+								},
+								"failedNames_one": {
+									"type": "string"
+								},
+								"failedNames_zero": {
+									"type": "string"
+								},
+								"failedNames_two": {
+									"type": "string"
+								},
+								"failedNames_few": {
+									"type": "string"
+								},
+								"failedNames_many": {
+									"type": "string"
+								},
+								"failedNames_other": {
+									"type": "string"
+								},
+								"loadError": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"importingTitle",
+								"finishedTitle",
+								"failedTitle",
+								"leavePage",
+								"started",
+								"tookUnderMinute",
+								"totals",
+								"nothingImported",
+								"keyInMemory",
+								"finishedNote",
+								"finishedNoteNoComments",
+								"importMore",
+								"goToProjects",
+								"open",
+								"openProject",
+								"waiting",
+								"queued",
+								"starting",
+								"importingBadge",
+								"failedBadge",
+								"noTasks",
+								"notImported",
+								"loadError"
+							]
+						},
+						"toast": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"finished": {
+									"type": "string"
+								},
+								"partial": {
+									"type": "string"
+								},
+								"failed": {
+									"type": "string"
+								}
+							},
+							"required": ["finished", "partial", "failed"]
+						},
+						"entry": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"projectsEmpty": {
+									"type": "string"
+								},
+								"createProjectPrompt": {
+									"type": "string"
+								},
+								"createProjectLink": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"projectsEmpty",
+								"createProjectPrompt",
+								"createProjectLink"
+							]
+						}
+					},
+					"required": [
+						"pageTitle",
+						"title",
+						"subtitle",
+						"opensInNewTab",
+						"retry",
+						"notAllowed",
+						"sources",
+						"history",
+						"status",
+						"steps",
+						"back",
+						"connect",
+						"linear",
+						"trello",
+						"plane",
+						"planka",
+						"kaneo",
+						"select",
+						"units",
+						"counts",
+						"run",
+						"toast",
+						"entry"
+					]
+				},
 				"projectGeneral": {
 					"type": "object",
 					"additionalProperties": false,
@@ -8289,6 +9491,7 @@
 				"workspaceGeneral",
 				"workspaceRoles",
 				"workspaceLabels",
+				"workspaceImport",
 				"projectGeneral",
 				"projectIntegrations",
 				"projectVisibility",
