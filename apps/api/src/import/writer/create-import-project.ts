@@ -1,12 +1,17 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
-import { insertProject } from "../../project/controllers/insert-project";
+import {
+  insertUnplacedProject,
+  placeProject,
+} from "../../project/controllers/insert-project";
 import { createWithUniqueKey } from "./create-with-unique-key";
 
 type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
-type CreatedProject = NonNullable<Awaited<ReturnType<typeof insertProject>>>;
+type CreatedProject = NonNullable<
+  Awaited<ReturnType<typeof insertUnplacedProject>>
+>;
 
 export type ImportProjectInput = {
   workspaceId: string;
@@ -29,15 +34,21 @@ export async function createImportProject<T>(
     existing.map((row) => row.slug),
     (slug) =>
       db.transaction(async (tx) => {
-        const project = await insertProject(tx, {
+        const project = await insertUnplacedProject(tx, {
           workspaceId,
           name,
           icon: "Layout",
           slug,
-          userId,
         });
         if (!project) throw new Error("Failed to create the imported project");
-        return fill(tx, project);
+        const result = await fill(tx, project);
+        await placeProject(tx, {
+          workspaceId,
+          projectId: project.id,
+          slug,
+          userId,
+        });
+        return result;
       }),
     { preferredKey },
   );
