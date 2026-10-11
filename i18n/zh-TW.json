@@ -240,24 +240,6 @@
 			"emailFallback": "你的電子郵件地址",
 			"backToLogin": "返回登入"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "接下來的步驟",
-				"description": "建立帳號後，你會為工作區命名。接著就可以新增專案並開始撰寫任務。"
-			},
-			"onboarding": {
-				"title": "什麼是工作區",
-				"description": "工作區包含你的專案、專案內的任務，以及一起工作的夥伴。設定完成後就可以邀請隊友。"
-			},
-			"invite": {
-				"description": "工作區內的每個人看到的都是同一個看板，任務移動時也會即時更新。角色決定誰可以變更什麼。",
-				"title": "一起合作更順暢"
-			},
-			"plan": {
-				"description": "所有方案都包含無限專案與任務、自動備份和更新。隨時都可以在帳單設定中取消。",
-				"title": "先試用所有功能"
-			}
-		},
 		"signUp": {
 			"pageTitle": "建立帳號",
 			"registrationDisabledAlert": "目前已停用註冊。如果你收到邀請，請輸入收到邀請的電子郵件地址來建立帳號。",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "歡迎使用 Kaneo",
-			"workspacePageTitle": "建立工作區",
-			"createWorkspaceTitle": "建立工作區",
-			"createWorkspaceSubtitle": "設定工作區，開始管理專案",
 			"workspaceName": "工作區名稱",
 			"workspaceNamePlaceholder": "例如：Acme Inc、我的團隊",
-			"descriptionOptional": "說明（選填）",
-			"descriptionPlaceholder": "你的團隊在做什麼？",
-			"creating": "建立中...",
-			"createWorkspace": "建立工作區",
-			"workspaceCreatedTitle": "工作區已建立",
-			"redirectingToWorkspace": "正在帶你前往 <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "工作區已建立",
 				"createFailed": "無法建立工作區"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "查看邀請",
 			"restrictedTitle": "你需要一份邀請",
 			"cloud": {
-				"title": "為你的工作區命名",
-				"subtitle": "可使用你的團隊或公司名稱，之後也能在設定中變更。",
-				"continue": "繼續",
 				"invite": {
 					"addAnother": "再新增一位",
 					"emailLabel": "隊友電子郵件 {{index}}",
@@ -378,20 +347,12 @@
 					"failed": "無法邀請 {{email}}：{{message}}",
 					"invalidEmail": "請輸入有效的電子郵件地址",
 					"remove": "移除電子郵件 {{index}}",
-					"send": "寄送邀請",
-					"sending": "寄送中...",
 					"sent_other": "已寄出 {{count}} 份邀請",
-					"skip": "暫時略過",
-					"subtitle": "對方會收到一封附有加入 {{name}} 連結的電子郵件。之後也能在「成員」頁面邀請更多人。",
-					"title": "邀請你的隊友"
+					"skip": "暫時略過"
 				},
 				"plan": {
 					"continueTrial": "開始免費試用",
-					"continueWithoutPlan": "繼續前往工作區",
-					"note": "你隨時可以在「設定」的「帳單」中選擇或變更方案。",
 					"recommended": "推薦",
-					"title": "選擇方案",
-					"trialActive": "你的免費試用將持續到 {{date}}，無需信用卡，在此之前隨時可以選擇方案。",
 					"trialUsed": "你已經用過免費試用。請選擇方案以開始建立專案與任務。"
 				},
 				"usageLabel": "誰會使用這個工作區？",
@@ -400,9 +361,7 @@
 				"usageTeam": "我的團隊",
 				"usageTeamDescription": "一起規劃並交付工作"
 			},
-			"projectName": "你的第一個專案",
 			"projectNameDefault": "我的第一個專案",
-			"projectNameHint": "我們會新增幾個入門任務，幫你快速上手。",
 			"starterTasks": {
 				"drag": {
 					"title": "把這張卡片拖到下一欄",
@@ -424,6 +383,65 @@
 					"title": "建立你自己的任務",
 					"description": "使用欄位名稱旁的 **+**，或先按 **T** 再按 **C**。準備好後，就可以刪除這些入門任務。"
 				}
+			},
+			"progress": "第 {{current}} 步，共 {{total}} 步",
+			"welcome": "歡迎，{{name}}",
+			"settingUp": "正在設定 {{name}}",
+			"continue": "繼續",
+			"signedInAs": "已登入為 {{email}}",
+			"signOut": "登出",
+			"workspace": {
+				"title": "為工作區命名",
+				"description": "你的專案都會放在這裡。可以使用團隊或公司名稱，之後也能修改。"
+			},
+			"usage": {
+				"title": "給誰使用？",
+				"description": "我們會依此設定 {{name}}。之後隨時都能邀請成員。"
+			},
+			"project": {
+				"title": "建立第一個專案",
+				"description": "我們會加入幾個入門任務，幫助你熟悉操作。你可以隨時重新命名或刪除。",
+				"label": "專案名稱",
+				"numbered": "任務編號範例"
+			},
+			"invite": {
+				"title": "邀請你的團隊",
+				"description": "他們會收到加入 {{name}} 的電子郵件。如果想先四處看看，可以略過這一步。",
+				"label": "團隊成員的電子郵件",
+				"send_other": "寄出 {{count}} 份邀請",
+				"sendNone": "寄出邀請"
+			},
+			"plan": {
+				"title": "你想如何開始？",
+				"descriptionTrial_other": "所有方案都包含無限專案與任務。免費試用 {{name}} {{count}} 天，或立即訂閱。",
+				"choose": "選擇方案",
+				"description": {
+					"team": "不限成員人數，支援角色與權限",
+					"personal": "適合個人使用"
+				},
+				"perUserMonth": "每位使用者 / 月",
+				"perMonth": "每月",
+				"subscribe": "訂閱 {{plan}}",
+				"checkout": "前往結帳",
+				"trialNote": "試用不需要信用卡。付款由 Creem 處理。",
+				"paymentNote": "付款由 Creem 處理。"
+			},
+			"ready": {
+				"eyebrow": "一切就緒",
+				"title": "{{name}} 已準備就緒",
+				"description": "以下是我們為你設定的內容，之後都可以修改。",
+				"workspace": "工作區",
+				"project": "第一個專案",
+				"projectValue_other": "{{name}}，含 {{count}} 個入門任務",
+				"invitations": "邀請",
+				"invitationsValue_other": "已寄給 {{count}} 人",
+				"open": "開啟 {{name}}"
+			},
+			"preview": {
+				"live": "{{name}} 即時預覽",
+				"liveNoName": "即時預覽",
+				"ready": "{{name}} 已準備就緒",
+				"untitled": "你的工作區"
 			}
 		},
 		"profileSetup": {

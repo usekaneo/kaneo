@@ -240,24 +240,6 @@
 			"emailFallback": "il tuo indirizzo email",
 			"backToLogin": "Torna al login"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Cosa succede dopo",
-				"description": "Dopo aver creato il tuo account, darai un nome a un workspace. Da lì puoi aggiungere un progetto e iniziare a scrivere attività."
-			},
-			"onboarding": {
-				"title": "Cos'è un workspace",
-				"description": "Un workspace contiene i tuoi progetti, le loro attività e le persone con cui lavori. Invita i colleghi una volta configurato."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Crea Account",
 			"registrationDisabledAlert": "La registrazione è attualmente disabilitata. Se sei stato invitato, inserisci l'indirizzo email che ha ricevuto l'invito per creare il tuo account.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Benvenuto su Kaneo",
-			"workspacePageTitle": "Crea Workspace",
-			"createWorkspaceTitle": "Crea workspace",
-			"createWorkspaceSubtitle": "Configura il tuo workspace per iniziare a gestire i progetti",
 			"workspaceName": "Nome workspace",
 			"workspaceNamePlaceholder": "es. Acme Inc, Il Mio Team",
-			"descriptionOptional": "Descrizione (opzionale)",
-			"descriptionPlaceholder": "Su cosa lavora il tuo team?",
-			"creating": "Creazione in corso...",
-			"createWorkspace": "Crea workspace",
-			"workspaceCreatedTitle": "Workspace creato",
-			"redirectingToWorkspace": "Ti stiamo portando a <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Workspace creato con successo",
 				"createFailed": "Creazione workspace fallita"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Controlla gli inviti",
 			"restrictedTitle": "Ti serve un invito",
 			"cloud": {
-				"title": "Dai un nome al tuo workspace",
-				"subtitle": "Usa il nome del tuo team o della tua azienda. Puoi cambiarlo più tardi nelle impostazioni.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,22 +347,14 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_many": "{{count}} invitations sent",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -402,9 +363,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "Il tuo primo progetto",
 			"projectNameDefault": "Il mio primo progetto",
-			"projectNameHint": "Aggiungeremo alcune attività iniziali per aiutarti a orientarti.",
 			"starterTasks": {
 				"drag": {
 					"title": "Trascina questa scheda nella colonna successiva",
@@ -426,6 +385,73 @@
 					"title": "Crea la tua attività",
 					"description": "Usa il **+** accanto al nome di una colonna, oppure premi **T** e poi **C**. Elimina queste attività iniziali quando vuoi."
 				}
+			},
+			"progress": "Passaggio {{current}} di {{total}}",
+			"welcome": "Ti diamo il benvenuto, {{name}}",
+			"settingUp": "Configurazione di {{name}}",
+			"continue": "Continua",
+			"signedInAs": "Accesso effettuato come {{email}}",
+			"signOut": "Esci",
+			"workspace": {
+				"title": "Dai un nome al tuo workspace",
+				"description": "Qui vivranno i tuoi progetti. Usa il nome del tuo team o della tua azienda, potrai cambiarlo in seguito."
+			},
+			"usage": {
+				"title": "Per chi è?",
+				"description": "Configureremo {{name}} di conseguenza. Potrai sempre invitare altre persone in seguito."
+			},
+			"project": {
+				"title": "Avvia il tuo primo progetto",
+				"description": "Aggiungeremo alcune attività iniziali per aiutarti a orientarti. Rinominale o eliminale quando vuoi.",
+				"label": "Nome del progetto",
+				"numbered": "Le attività saranno numerate"
+			},
+			"invite": {
+				"title": "Porta il tuo team",
+				"description": "Riceveranno un'email per unirsi a {{name}}. Salta questo passaggio se preferisci dare prima un'occhiata.",
+				"label": "Email dei membri del team",
+				"send_many": "Invia {{count}} inviti",
+				"send_one": "Invia {{count}} invito",
+				"send_other": "Invia {{count}} inviti",
+				"sendNone": "Invia inviti"
+			},
+			"plan": {
+				"title": "Come vuoi iniziare?",
+				"descriptionTrial_many": "Ogni piano include progetti e attività illimitati. Prova {{name}} gratis per {{count}} giorni o abbonati subito.",
+				"descriptionTrial_one": "Ogni piano include progetti e attività illimitati. Prova {{name}} gratis per {{count}} giorno o abbonati subito.",
+				"descriptionTrial_other": "Ogni piano include progetti e attività illimitati. Prova {{name}} gratis per {{count}} giorni o abbonati subito.",
+				"choose": "Scegli un piano",
+				"description": {
+					"team": "Membri, ruoli e permessi illimitati",
+					"personal": "Per una persona"
+				},
+				"perUserMonth": "per utente / mese",
+				"perMonth": "al mese",
+				"subscribe": "Abbonati a {{plan}}",
+				"checkout": "Procedi al pagamento",
+				"trialNote": "Nessuna carta richiesta per la prova. I pagamenti sono gestiti da Creem.",
+				"paymentNote": "I pagamenti sono gestiti da Creem."
+			},
+			"ready": {
+				"eyebrow": "Tutto pronto",
+				"title": "{{name}} è pronto",
+				"description": "Ecco cosa abbiamo configurato. Puoi modificare tutto in seguito.",
+				"workspace": "Workspace",
+				"project": "Primo progetto",
+				"projectValue_many": "{{name}}, con {{count}} attività iniziali",
+				"projectValue_one": "{{name}}, con {{count}} attività iniziale",
+				"projectValue_other": "{{name}}, con {{count}} attività iniziali",
+				"invitations": "Inviti",
+				"invitationsValue_many": "Inviati a {{count}} persone",
+				"invitationsValue_one": "Inviato a {{count}} persona",
+				"invitationsValue_other": "Inviati a {{count}} persone",
+				"open": "Apri {{name}}"
+			},
+			"preview": {
+				"live": "Anteprima dal vivo di {{name}}",
+				"liveNoName": "Anteprima dal vivo",
+				"ready": "{{name}} è pronto",
+				"untitled": "Il tuo workspace"
 			}
 		},
 		"profileSetup": {

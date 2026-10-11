@@ -240,24 +240,6 @@
 			"emailFallback": "이메일 주소",
 			"backToLogin": "로그인으로 돌아가기"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "다음 단계",
-				"description": "계정을 만든 후 워크스페이스 이름을 정합니다. 그다음 프로젝트를 추가하고 작업을 작성할 수 있습니다."
-			},
-			"onboarding": {
-				"title": "워크스페이스란",
-				"description": "워크스페이스에는 프로젝트와 그 작업, 함께 일하는 사람들이 모입니다. 설정이 끝나면 팀원을 초대하세요."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "계정 만들기",
 			"registrationDisabledAlert": "현재 회원가입이 비활성화되어 있습니다. 초대를 받으셨다면, 초대를 받은 이메일 주소를 입력하여 계정을 만드세요.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo에 오신 것을 환영합니다",
-			"workspacePageTitle": "워크스페이스 만들기",
-			"createWorkspaceTitle": "워크스페이스 만들기",
-			"createWorkspaceSubtitle": "프로젝트를 관리하기 위해 워크스페이스를 설정하세요",
 			"workspaceName": "워크스페이스 이름",
 			"workspaceNamePlaceholder": "예: Acme Inc, 우리 팀",
-			"descriptionOptional": "설명 (선택)",
-			"descriptionPlaceholder": "팀에서 어떤 일을 하시나요?",
-			"creating": "생성 중...",
-			"createWorkspace": "워크스페이스 만들기",
-			"workspaceCreatedTitle": "워크스페이스가 생성되었습니다",
-			"redirectingToWorkspace": "<name>{{name}}</name>(으)로 이동 중...",
 			"toast": {
-				"workspaceCreated": "워크스페이스가 생성되었습니다",
 				"createFailed": "워크스페이스 생성에 실패했습니다"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "초대 확인",
 			"restrictedTitle": "초대가 필요합니다",
 			"cloud": {
-				"title": "워크스페이스 이름 정하기",
-				"subtitle": "팀이나 회사 이름을 사용하세요. 나중에 설정에서 변경할 수 있습니다.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,20 +347,12 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -400,9 +361,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "첫 번째 프로젝트",
 			"projectNameDefault": "나의 첫 프로젝트",
-			"projectNameHint": "시작을 돕기 위해 몇 가지 시작 작업을 추가해 드려요.",
 			"starterTasks": {
 				"drag": {
 					"title": "이 카드를 다음 열로 드래그하기",
@@ -424,6 +383,65 @@
 					"title": "나만의 작업 만들기",
 					"description": "열 이름 옆의 **+**를 사용하거나 **T**를 누른 뒤 **C**를 누르세요. 준비가 되면 이 시작 작업들은 삭제하세요."
 				}
+			},
+			"progress": "{{total}}단계 중 {{current}}단계",
+			"welcome": "{{name}}님, 환영합니다",
+			"settingUp": "{{name}} 설정 중",
+			"continue": "계속",
+			"signedInAs": "{{email}} 계정으로 로그인됨",
+			"signOut": "로그아웃",
+			"workspace": {
+				"title": "워크스페이스 이름 정하기",
+				"description": "프로젝트가 모이는 곳입니다. 팀이나 회사 이름을 사용하세요. 나중에 변경할 수 있습니다."
+			},
+			"usage": {
+				"title": "누가 사용하나요?",
+				"description": "용도에 맞게 {{name}} 워크스페이스를 설정합니다. 사람들은 언제든 나중에 초대할 수 있습니다."
+			},
+			"project": {
+				"title": "첫 프로젝트 시작하기",
+				"description": "사용법을 익힐 수 있도록 시작 작업 몇 개를 추가합니다. 언제든 이름을 바꾸거나 삭제할 수 있습니다.",
+				"label": "프로젝트 이름",
+				"numbered": "작업 번호 예시"
+			},
+			"invite": {
+				"title": "팀원 초대하기",
+				"description": "{{name}} 워크스페이스에 참여할 수 있는 이메일이 발송됩니다. 먼저 둘러보고 싶다면 이 단계를 건너뛰세요.",
+				"label": "팀원 이메일",
+				"send_other": "초대 {{count}}개 보내기",
+				"sendNone": "초대 보내기"
+			},
+			"plan": {
+				"title": "어떻게 시작할까요?",
+				"descriptionTrial_other": "모든 플랜에 프로젝트와 작업이 무제한으로 포함됩니다. {{name}} 워크스페이스를 {{count}}일 동안 무료로 체험하거나 지금 구독하세요.",
+				"choose": "플랜 선택",
+				"description": {
+					"team": "무제한 멤버, 역할 및 권한",
+					"personal": "1인용"
+				},
+				"perUserMonth": "사용자당 월 요금",
+				"perMonth": "월 요금",
+				"subscribe": "{{plan}} 플랜 구독",
+				"checkout": "결제 계속하기",
+				"trialNote": "체험판에는 카드가 필요 없습니다. 결제는 Creem에서 처리합니다.",
+				"paymentNote": "결제는 Creem에서 처리합니다."
+			},
+			"ready": {
+				"eyebrow": "준비 완료",
+				"title": "{{name}} 준비 완료",
+				"description": "설정한 내용은 다음과 같습니다. 언제든 변경할 수 있습니다.",
+				"workspace": "워크스페이스",
+				"project": "첫 프로젝트",
+				"projectValue_other": "{{name}}, 시작 작업 {{count}}개",
+				"invitations": "초대",
+				"invitationsValue_other": "{{count}}명에게 발송됨",
+				"open": "{{name}} 열기"
+			},
+			"preview": {
+				"live": "{{name}} 실시간 미리보기",
+				"liveNoName": "실시간 미리보기",
+				"ready": "{{name}} 준비 완료",
+				"untitled": "내 워크스페이스"
 			}
 		},
 		"profileSetup": {

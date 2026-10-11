@@ -240,24 +240,6 @@
 			"emailFallback": "twój adres e-mail",
 			"backToLogin": "Wróć do logowania"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Co dalej",
-				"description": "Po utworzeniu konta nadasz nazwę obszarowi roboczemu. Następnie możesz dodać projekt i zacząć pisać zadania."
-			},
-			"onboarding": {
-				"title": "Czym jest obszar roboczy",
-				"description": "Obszar roboczy zawiera Twoje projekty, ich zadania i osoby, z którymi pracujesz. Zaproś współpracowników, gdy będzie gotowy."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Utwórz konto",
 			"registrationDisabledAlert": "Rejestracja jest obecnie wyłączona. Jeśli otrzymałeś zaproszenie, wpisz adres e-mail, na który zostało wysłane, aby utworzyć konto.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Witamy w Kaneo",
-			"workspacePageTitle": "Utwórz obszar roboczy",
-			"createWorkspaceTitle": "Utwórz obszar roboczy",
-			"createWorkspaceSubtitle": "Skonfiguruj obszar roboczy, aby zacząć zarządzać projektami",
 			"workspaceName": "Nazwa obszaru roboczego",
 			"workspaceNamePlaceholder": "np. Acme Inc, Mój zespół",
-			"descriptionOptional": "Opis (opcjonalnie)",
-			"descriptionPlaceholder": "Czym zajmuje się Twój zespół?",
-			"creating": "Tworzenie...",
-			"createWorkspace": "Utwórz obszar roboczy",
-			"workspaceCreatedTitle": "Obszar roboczy utworzony",
-			"redirectingToWorkspace": "Przenoszenie do <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Obszar roboczy został utworzony",
 				"createFailed": "Nie udało się utworzyć obszaru roboczego"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Sprawdź zaproszenia",
 			"restrictedTitle": "Potrzebujesz zaproszenia",
 			"cloud": {
-				"title": "Nazwij obszar roboczy",
-				"subtitle": "Użyj nazwy swojego zespołu lub firmy. Możesz ją później zmienić w ustawieniach.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,23 +347,15 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_few": "{{count}} invitations sent",
 					"sent_many": "{{count}} invitations sent",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -403,9 +364,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "Twój pierwszy projekt",
 			"projectNameDefault": "Mój pierwszy projekt",
-			"projectNameHint": "Dodamy kilka zadań na start, żeby łatwiej było się odnaleźć.",
 			"starterTasks": {
 				"drag": {
 					"title": "Przeciągnij tę kartę do następnej kolumny",
@@ -427,6 +386,77 @@
 					"title": "Utwórz własne zadanie",
 					"description": "Użyj **+** obok nazwy kolumny albo naciśnij **T**, a potem **C**. Usuń te zadania na start, kiedy zechcesz."
 				}
+			},
+			"progress": "Krok {{current}} z {{total}}",
+			"welcome": "Witaj, {{name}}",
+			"settingUp": "Konfiguracja: {{name}}",
+			"continue": "Dalej",
+			"signedInAs": "Zalogowano jako {{email}}",
+			"signOut": "Wyloguj się",
+			"workspace": {
+				"title": "Nazwij swój obszar roboczy",
+				"description": "Tu będą Twoje projekty. Użyj nazwy zespołu lub firmy, możesz ją później zmienić."
+			},
+			"usage": {
+				"title": "Kto będzie z niego korzystać?",
+				"description": "Dostosujemy obszar {{name}} do Twoich potrzeb. Zawsze możesz później zaprosić inne osoby."
+			},
+			"project": {
+				"title": "Utwórz pierwszy projekt",
+				"description": "Dodamy kilka zadań startowych, które pomogą Ci się zorientować. Możesz je w każdej chwili zmienić lub usunąć.",
+				"label": "Nazwa projektu",
+				"numbered": "Zadania będą numerowane jako"
+			},
+			"invite": {
+				"title": "Zaproś swój zespół",
+				"description": "Otrzymają e-mail z zaproszeniem do {{name}}. Pomiń ten krok, jeśli wolisz najpierw się rozejrzeć.",
+				"label": "Adresy e-mail członków zespołu",
+				"send_few": "Wyślij {{count}} zaproszenia",
+				"send_many": "Wyślij {{count}} zaproszeń",
+				"send_one": "Wyślij {{count}} zaproszenie",
+				"send_other": "Wyślij {{count}} zaproszenia",
+				"sendNone": "Wyślij zaproszenia"
+			},
+			"plan": {
+				"title": "Jak chcesz zacząć?",
+				"descriptionTrial_few": "Każdy plan obejmuje nieograniczoną liczbę projektów i zadań. Wypróbuj {{name}} za darmo przez {{count}} dni lub od razu wykup subskrypcję.",
+				"descriptionTrial_many": "Każdy plan obejmuje nieograniczoną liczbę projektów i zadań. Wypróbuj {{name}} za darmo przez {{count}} dni lub od razu wykup subskrypcję.",
+				"descriptionTrial_one": "Każdy plan obejmuje nieograniczoną liczbę projektów i zadań. Wypróbuj {{name}} za darmo przez {{count}} dzień lub od razu wykup subskrypcję.",
+				"descriptionTrial_other": "Każdy plan obejmuje nieograniczoną liczbę projektów i zadań. Wypróbuj {{name}} za darmo przez {{count}} dnia lub od razu wykup subskrypcję.",
+				"choose": "Wybierz plan",
+				"description": {
+					"team": "Nieograniczona liczba członków, role i uprawnienia",
+					"personal": "Dla jednej osoby"
+				},
+				"perUserMonth": "za użytkownika / miesiąc",
+				"perMonth": "miesięcznie",
+				"subscribe": "Subskrybuj plan {{plan}}",
+				"checkout": "Przejdź do płatności",
+				"trialNote": "Okres próbny nie wymaga karty. Płatności obsługuje Creem.",
+				"paymentNote": "Płatności obsługuje Creem."
+			},
+			"ready": {
+				"eyebrow": "Gotowe",
+				"title": "Obszar {{name}} jest gotowy",
+				"description": "Oto, co przygotowaliśmy. Wszystko możesz później zmienić.",
+				"workspace": "Obszar roboczy",
+				"project": "Pierwszy projekt",
+				"projectValue_few": "{{name}}, {{count}} zadania startowe",
+				"projectValue_many": "{{name}}, {{count}} zadań startowych",
+				"projectValue_one": "{{name}}, {{count}} zadanie startowe",
+				"projectValue_other": "{{name}}, {{count}} zadania startowego",
+				"invitations": "Zaproszenia",
+				"invitationsValue_few": "Wysłano do {{count}} osób",
+				"invitationsValue_many": "Wysłano do {{count}} osób",
+				"invitationsValue_one": "Wysłano do {{count}} osoby",
+				"invitationsValue_other": "Wysłano do {{count}} osoby",
+				"open": "Otwórz {{name}}"
+			},
+			"preview": {
+				"live": "Podgląd na żywo: {{name}}",
+				"liveNoName": "Podgląd na żywo",
+				"ready": "Obszar {{name}} jest gotowy",
+				"untitled": "Twój obszar roboczy"
 			}
 		},
 		"profileSetup": {

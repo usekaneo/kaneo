@@ -240,24 +240,6 @@
 			"emailFallback": "твојата е-пошта",
 			"backToLogin": "Назад кон најава"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Што следува",
-				"description": "Откако ќе ја креираш сметката, ќе му дадеш име на работниот простор. Потоа можеш да додадеш проект и да почнеш да пишуваш задачи."
-			},
-			"onboarding": {
-				"title": "Што е работен простор",
-				"description": "Работниот простор ги содржи твоите проекти, нивните задачи и луѓето со кои работиш. Покани ги соработниците откако ќе биде поставен."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Креирај сметка",
 			"registrationDisabledAlert": "Регистрацијата е моментално оневозможена. Ако си поканет, внеси ја е-поштата на која ја доби поканата за да ја креираш сметката.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Добредојде на Kaneo",
-			"workspacePageTitle": "Креирај работен простор",
-			"createWorkspaceTitle": "Креирај работен простор",
-			"createWorkspaceSubtitle": "Постави го твојот работен простор за да почнеш со управување на проекти",
 			"workspaceName": "Име на работен простор",
 			"workspaceNamePlaceholder": "пр. Acme Inc, Мојот тим",
-			"descriptionOptional": "Опис (опционално)",
-			"descriptionPlaceholder": "На што работи твојот тим?",
-			"creating": "Се креира...",
-			"createWorkspace": "Креирај работен простор",
-			"workspaceCreatedTitle": "Работниот простор е креиран",
-			"redirectingToWorkspace": "Те носиме на <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Работниот простор е успешно креиран",
 				"createFailed": "Неуспешно креирање на работен простор"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Провери покани",
 			"restrictedTitle": "Ви треба покана",
 			"cloud": {
-				"title": "Именувај го работниот простор",
-				"subtitle": "Користи го името на твојот тим или компанија. Можеш да го смениш подоцна во поставките.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -401,9 +362,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "Твојот прв проект",
 			"projectNameDefault": "Мој прв проект",
-			"projectNameHint": "Ќе додадеме неколку почетни задачи за полесно да се снајдеш.",
 			"starterTasks": {
 				"drag": {
 					"title": "Повлечи ја оваа картичка во следната колона",
@@ -425,6 +384,69 @@
 					"title": "Создај своја задача",
 					"description": "Користи го **+** до името на колоната или притисни **T**, па **C**. Избриши ги овие почетни задачи кога ќе бидеш подготвен."
 				}
+			},
+			"progress": "Чекор {{current}} од {{total}}",
+			"welcome": "Добредојде, {{name}}",
+			"settingUp": "Го поставуваме {{name}}",
+			"continue": "Продолжи",
+			"signedInAs": "Најавена сметка: {{email}}",
+			"signOut": "Одјави се",
+			"workspace": {
+				"title": "Именувај го работниот простор",
+				"description": "Тука ќе бидат твоите проекти. Користи го името на твојот тим или компанија, можеш да го смениш подоцна."
+			},
+			"usage": {
+				"title": "За кого е?",
+				"description": "Ќе го прилагодиме {{name}} според тоа. Секогаш можеш да поканиш луѓе подоцна."
+			},
+			"project": {
+				"title": "Започни го првиот проект",
+				"description": "Ќе додадеме неколку почетни задачи за да се снајдеш. Преименувај ги или избриши ги кога сакаш.",
+				"label": "Име на проектот",
+				"numbered": "Задачите ќе бидат нумерирани"
+			},
+			"invite": {
+				"title": "Доведи го твојот тим",
+				"description": "Ќе добијат е-пошта за да се приклучат на {{name}}. Прескокни го ова ако сакаш прво да разгледаш.",
+				"label": "Е-пошти на членовите на тимот",
+				"send_one": "Испрати {{count}} покана",
+				"send_other": "Испрати {{count}} покани",
+				"sendNone": "Испрати покани"
+			},
+			"plan": {
+				"title": "Како сакаш да започнеш?",
+				"descriptionTrial_one": "Секој план вклучува неограничени проекти и задачи. Пробај го {{name}} бесплатно {{count}} ден или претплати се сега.",
+				"descriptionTrial_other": "Секој план вклучува неограничени проекти и задачи. Пробај го {{name}} бесплатно {{count}} дена или претплати се сега.",
+				"choose": "Избери план",
+				"description": {
+					"team": "Неограничени членови, улоги и дозволи",
+					"personal": "За една личност"
+				},
+				"perUserMonth": "по корисник / месец",
+				"perMonth": "месечно",
+				"subscribe": "Претплати се на {{plan}}",
+				"checkout": "Продолжи кон плаќање",
+				"trialNote": "За пробниот период не ти треба картичка. Плаќањата ги обработува Creem.",
+				"paymentNote": "Плаќањата ги обработува Creem."
+			},
+			"ready": {
+				"eyebrow": "Сè е подготвено",
+				"title": "{{name}} е подготвен",
+				"description": "Ова е она што го поставивме. Сè можеш да смениш подоцна.",
+				"workspace": "Работен простор",
+				"project": "Прв проект",
+				"projectValue_one": "{{name}}, со {{count}} почетна задача",
+				"projectValue_other": "{{name}}, со {{count}} почетни задачи",
+				"invitations": "Покани",
+				"invitationsValue_one": "Испратено до {{count}} личност",
+				"invitationsValue_other": "Испратено до {{count}} луѓе",
+				"open": "Отвори го {{name}}"
+			},
+			"preview": {
+				"live": "Преглед во живо на {{name}}",
+				"liveNoName": "Преглед во живо",
+				"ready": "{{name}} е подготвен",
+				"untitled": "Твојот работен простор"
 			}
 		},
 		"profileSetup": {

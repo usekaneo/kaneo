@@ -240,24 +240,6 @@
 			"emailFallback": "आपका ईमेल पता",
 			"backToLogin": "लॉगिन पर वापस जाएँ"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "आगे क्या होगा",
-				"description": "अपना खाता बनाने के बाद, आप एक वर्कस्पेस का नाम रखेंगे। वहाँ से आप एक प्रोजेक्ट जोड़कर टास्क लिखना शुरू कर सकते हैं।"
-			},
-			"onboarding": {
-				"title": "वर्कस्पेस क्या है",
-				"description": "वर्कस्पेस में आपके प्रोजेक्ट, उनके टास्क और वे लोग होते हैं जिनके साथ आप काम करते हैं। सेटअप होने के बाद टीम के सदस्यों को आमंत्रित करें।"
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "खाता बनाएँ",
 			"registrationDisabledAlert": "पंजीकरण वर्तमान में अक्षम है। यदि आपको निमंत्रित किया गया था, तो वह ईमेल पता दर्ज करें जिसे निमंत्रण मिला था।",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo में आपका स्वागत है",
-			"workspacePageTitle": "वर्कस्पेस बनाएँ",
-			"createWorkspaceTitle": "वर्कस्पेस बनाएँ",
-			"createWorkspaceSubtitle": "प्रोजेक्ट प्रबंधित करना शुरू करने के लिए अपना वर्कस्पेस सेटअप करें",
 			"workspaceName": "वर्कस्पेस का नाम",
 			"workspaceNamePlaceholder": "जैसे Acme Inc, मेरी टीम",
-			"descriptionOptional": "विवरण (वैकल्पिक)",
-			"descriptionPlaceholder": "आपकी टीम किस पर काम करती है?",
-			"creating": "बना रहे हैं...",
-			"createWorkspace": "वर्कस्पेस बनाएँ",
-			"workspaceCreatedTitle": "वर्कस्पेस बनाया गया",
-			"redirectingToWorkspace": "आपको <name>{{name}}</name> पर ले जा रहे हैं...",
 			"toast": {
-				"workspaceCreated": "वर्कस्पेस सफलतापूर्वक बनाया गया",
 				"createFailed": "वर्कस्पेस बनाने में विफल"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "आमंत्रण देखें",
 			"restrictedTitle": "आपको आमंत्रण चाहिए",
 			"cloud": {
-				"title": "अपने वर्कस्पेस का नाम रखें",
-				"subtitle": "अपनी टीम या कंपनी का नाम इस्तेमाल करें। आप इसे बाद में सेटिंग्स में बदल सकते हैं।",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -401,9 +362,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "आपका पहला प्रोजेक्ट",
 			"projectNameDefault": "मेरा पहला प्रोजेक्ट",
-			"projectNameHint": "शुरुआत में मदद के लिए हम कुछ स्टार्टर टास्क जोड़ देंगे।",
 			"starterTasks": {
 				"drag": {
 					"title": "इस कार्ड को अगले कॉलम में खींचें",
@@ -425,6 +384,69 @@
 					"title": "अपना खुद का टास्क बनाएँ",
 					"description": "किसी कॉलम के नाम के पास **+** का इस्तेमाल करें, या **T** और फिर **C** दबाएँ। तैयार होने पर इन स्टार्टर टास्क को हटा दें।"
 				}
+			},
+			"progress": "चरण {{current}} / {{total}}",
+			"welcome": "स्वागत है, {{name}}",
+			"settingUp": "{{name}} सेट अप हो रहा है",
+			"continue": "जारी रखें",
+			"signedInAs": "{{email}} के रूप में साइन इन",
+			"signOut": "साइन आउट करें",
+			"workspace": {
+				"title": "अपने वर्कस्पेस को नाम दें",
+				"description": "यहीं आपके प्रोजेक्ट रहेंगे। अपनी टीम या कंपनी का नाम इस्तेमाल करें, आप इसे बाद में बदल सकते हैं।"
+			},
+			"usage": {
+				"title": "यह किसके लिए है?",
+				"description": "हम {{name}} को उसी हिसाब से सेट करेंगे। आप लोगों को बाद में भी कभी भी निमंत्रित कर सकते हैं।"
+			},
+			"project": {
+				"title": "अपना पहला प्रोजेक्ट शुरू करें",
+				"description": "शुरुआत में मदद के लिए हम कुछ स्टार्टर टास्क जोड़ेंगे। आप कभी भी इनका नाम बदल सकते हैं या इन्हें हटा सकते हैं।",
+				"label": "प्रोजेक्ट का नाम",
+				"numbered": "टास्क इस तरह क्रमांकित होंगे"
+			},
+			"invite": {
+				"title": "अपनी टीम को जोड़ें",
+				"description": "उन्हें {{name}} में शामिल होने के लिए एक ईमेल मिलेगा। अगर आप पहले देखना चाहते हैं तो इसे छोड़ दें।",
+				"label": "टीम के साथियों के ईमेल",
+				"send_one": "{{count}} निमंत्रण भेजें",
+				"send_other": "{{count}} निमंत्रण भेजें",
+				"sendNone": "निमंत्रण भेजें"
+			},
+			"plan": {
+				"title": "आप कैसे शुरू करना चाहते हैं?",
+				"descriptionTrial_one": "हर प्लान में अनलिमिटेड प्रोजेक्ट और टास्क शामिल हैं। {{name}} को {{count}} दिन मुफ़्त आज़माएँ, या अभी सब्सक्राइब करें।",
+				"descriptionTrial_other": "हर प्लान में अनलिमिटेड प्रोजेक्ट और टास्क शामिल हैं। {{name}} को {{count}} दिन मुफ़्त आज़माएँ, या अभी सब्सक्राइब करें।",
+				"choose": "प्लान चुनें",
+				"description": {
+					"team": "अनलिमिटेड सदस्य, भूमिकाएँ और अनुमतियाँ",
+					"personal": "एक व्यक्ति के लिए"
+				},
+				"perUserMonth": "प्रति उपयोगकर्ता / माह",
+				"perMonth": "प्रति माह",
+				"subscribe": "{{plan}} सब्सक्राइब करें",
+				"checkout": "चेकआउट पर जाएँ",
+				"trialNote": "ट्रायल के लिए कार्ड की ज़रूरत नहीं है। भुगतान Creem द्वारा प्रोसेस किए जाते हैं।",
+				"paymentNote": "भुगतान Creem द्वारा प्रोसेस किए जाते हैं।"
+			},
+			"ready": {
+				"eyebrow": "सब तैयार है",
+				"title": "{{name}} तैयार है",
+				"description": "हमने यह सब सेट किया है। आप इनमें से कुछ भी बाद में बदल सकते हैं।",
+				"workspace": "वर्कस्पेस",
+				"project": "पहला प्रोजेक्ट",
+				"projectValue_one": "{{name}}, {{count}} स्टार्टर टास्क के साथ",
+				"projectValue_other": "{{name}}, {{count}} स्टार्टर टास्क के साथ",
+				"invitations": "निमंत्रण",
+				"invitationsValue_one": "{{count}} व्यक्ति को भेजा गया",
+				"invitationsValue_other": "{{count}} लोगों को भेजा गया",
+				"open": "{{name}} खोलें"
+			},
+			"preview": {
+				"live": "{{name}} का लाइव प्रीव्यू",
+				"liveNoName": "लाइव प्रीव्यू",
+				"ready": "{{name}} तैयार है",
+				"untitled": "आपका वर्कस्पेस"
 			}
 		},
 		"profileSetup": {

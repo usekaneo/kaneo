@@ -240,24 +240,6 @@
 			"emailFallback": "τη διεύθυνση email σας",
 			"backToLogin": "Επιστροφή στη σύνδεση"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Τι ακολουθεί",
-				"description": "Αφού δημιουργήσετε τον λογαριασμό σας, θα δώσετε όνομα σε έναν χώρο εργασίας. Από εκεί μπορείτε να προσθέσετε ένα έργο και να αρχίσετε να γράφετε εργασίες."
-			},
-			"onboarding": {
-				"title": "Τι είναι ένας χώρος εργασίας",
-				"description": "Ένας χώρος εργασίας περιέχει τα έργα σας, τις εργασίες τους και τους ανθρώπους με τους οποίους συνεργάζεστε. Προσκαλέστε συνεργάτες μόλις ρυθμιστεί."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Δημιουργία λογαριασμού",
 			"registrationDisabledAlert": "Η εγγραφή είναι προσωρινά απενεργοποιημένη. Αν έχετε προσκληθεί, εισάγετε τη διεύθυνση email που έλαβε την πρόσκληση για να δημιουργήσετε λογαριασμό.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Καλώς ήρθατε στο Kaneo",
-			"workspacePageTitle": "Δημιουργία χώρου εργασίας",
-			"createWorkspaceTitle": "Δημιουργία χώρου εργασίας",
-			"createWorkspaceSubtitle": "Ρυθμίστε τον χώρο εργασίας σας για να ξεκινήσετε τη διαχείριση έργων",
 			"workspaceName": "Όνομα χώρου εργασίας",
 			"workspaceNamePlaceholder": "π.χ. Acme Inc, My Team",
-			"descriptionOptional": "Περιγραφή (προαιρετικό)",
-			"descriptionPlaceholder": "Με τι ασχολείται η ομάδα σας;",
-			"creating": "Γίνεται δημιουργία...",
-			"createWorkspace": "Δημιουργία χώρου εργασίας",
-			"workspaceCreatedTitle": "Ο χώρος εργασίας δημιουργήθηκε",
-			"redirectingToWorkspace": "Μεταφορά στο <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Ο χώρος εργασίας δημιουργήθηκε με επιτυχία",
 				"createFailed": "Αποτυχία δημιουργίας χώρου εργασίας"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Έλεγχος προσκλήσεων",
 			"restrictedTitle": "Χρειάζεστε πρόσκληση",
 			"cloud": {
-				"title": "Ονομάστε τον χώρο εργασίας σας",
-				"subtitle": "Χρησιμοποιήστε το όνομα της ομάδας ή της εταιρείας σας. Μπορείτε να το αλλάξετε αργότερα στις ρυθμίσεις.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -401,9 +362,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "Το πρώτο σας έργο",
 			"projectNameDefault": "Το πρώτο μου έργο",
-			"projectNameHint": "Θα προσθέσουμε μερικές εργασίες εκκίνησης για να σας δείξουμε πώς λειτουργεί.",
 			"starterTasks": {
 				"drag": {
 					"title": "Σύρετε αυτή την κάρτα στην επόμενη στήλη",
@@ -425,6 +384,69 @@
 					"title": "Δημιουργήστε τη δική σας εργασία",
 					"description": "Χρησιμοποιήστε το **+** δίπλα στο όνομα μιας στήλης ή πατήστε **T** και μετά **C**. Διαγράψτε αυτές τις εργασίες εκκίνησης όποτε είστε έτοιμοι."
 				}
+			},
+			"progress": "Βήμα {{current}} από {{total}}",
+			"welcome": "Καλώς ήρθατε, {{name}}",
+			"settingUp": "Ρύθμιση του {{name}}",
+			"continue": "Συνέχεια",
+			"signedInAs": "Σύνδεση ως {{email}}",
+			"signOut": "Αποσύνδεση",
+			"workspace": {
+				"title": "Ονομάστε τον χώρο εργασίας σας",
+				"description": "Εδώ θα βρίσκονται τα έργα σας. Χρησιμοποιήστε το όνομα της ομάδας ή της εταιρείας σας, μπορείτε να το αλλάξετε αργότερα."
+			},
+			"usage": {
+				"title": "Για ποιον είναι;",
+				"description": "Θα προσαρμόσουμε το {{name}} ανάλογα. Μπορείτε πάντα να προσκαλέσετε άτομα αργότερα."
+			},
+			"project": {
+				"title": "Ξεκινήστε το πρώτο σας έργο",
+				"description": "Θα προσθέσουμε μερικές αρχικές εργασίες για να σας βοηθήσουμε να εξοικειωθείτε. Μετονομάστε τις ή διαγράψτε τις όποτε θέλετε.",
+				"label": "Όνομα έργου",
+				"numbered": "Οι εργασίες θα αριθμούνται"
+			},
+			"invite": {
+				"title": "Φέρτε την ομάδα σας",
+				"description": "Θα λάβουν ένα email για να συμμετάσχουν στο {{name}}. Παραλείψτε αυτό το βήμα αν προτιμάτε να ρίξετε πρώτα μια ματιά.",
+				"label": "Email συνεργατών",
+				"send_one": "Αποστολή {{count}} πρόσκλησης",
+				"send_other": "Αποστολή {{count}} προσκλήσεων",
+				"sendNone": "Αποστολή προσκλήσεων"
+			},
+			"plan": {
+				"title": "Πώς θέλετε να ξεκινήσετε;",
+				"descriptionTrial_one": "Κάθε πρόγραμμα περιλαμβάνει απεριόριστα έργα και εργασίες. Δοκιμάστε το {{name}} δωρεάν για {{count}} ημέρα ή γίνετε συνδρομητές τώρα.",
+				"descriptionTrial_other": "Κάθε πρόγραμμα περιλαμβάνει απεριόριστα έργα και εργασίες. Δοκιμάστε το {{name}} δωρεάν για {{count}} ημέρες ή γίνετε συνδρομητές τώρα.",
+				"choose": "Επιλέξτε πρόγραμμα",
+				"description": {
+					"team": "Απεριόριστα μέλη, ρόλοι και δικαιώματα",
+					"personal": "Για ένα άτομο"
+				},
+				"perUserMonth": "ανά χρήστη / μήνα",
+				"perMonth": "ανά μήνα",
+				"subscribe": "Συνδρομή στο {{plan}}",
+				"checkout": "Συνέχεια στην πληρωμή",
+				"trialNote": "Δεν χρειάζεται κάρτα για τη δοκιμή. Οι πληρωμές διεκπεραιώνονται από την Creem.",
+				"paymentNote": "Οι πληρωμές διεκπεραιώνονται από την Creem."
+			},
+			"ready": {
+				"eyebrow": "Όλα έτοιμα",
+				"title": "Το {{name}} είναι έτοιμο",
+				"description": "Αυτά ρυθμίσαμε. Μπορείτε να αλλάξετε οτιδήποτε αργότερα.",
+				"workspace": "Χώρος εργασίας",
+				"project": "Πρώτο έργο",
+				"projectValue_one": "{{name}}, με {{count}} αρχική εργασία",
+				"projectValue_other": "{{name}}, με {{count}} αρχικές εργασίες",
+				"invitations": "Προσκλήσεις",
+				"invitationsValue_one": "Στάλθηκε σε {{count}} άτομο",
+				"invitationsValue_other": "Στάλθηκαν σε {{count}} άτομα",
+				"open": "Άνοιγμα του {{name}}"
+			},
+			"preview": {
+				"live": "Ζωντανή προεπισκόπηση του {{name}}",
+				"liveNoName": "Ζωντανή προεπισκόπηση",
+				"ready": "Το {{name}} είναι έτοιμο",
+				"untitled": "Ο χώρος εργασίας σας"
 			}
 		},
 		"profileSetup": {

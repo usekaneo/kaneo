@@ -240,24 +240,6 @@
 			"emailFallback": "ご登録のメールアドレス",
 			"backToLogin": "サインインに戻る"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "次のステップ",
-				"description": "アカウントを作成したら、ワークスペースに名前を付けます。その後、プロジェクトを追加してタスクを書き始められます。"
-			},
-			"onboarding": {
-				"title": "ワークスペースとは",
-				"description": "ワークスペースには、プロジェクト、そのタスク、一緒に働くメンバーがまとまります。準備ができたらチームメンバーを招待しましょう。"
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "アカウント作成",
 			"registrationDisabledAlert": "現在、新規登録は無効になっています。招待を受け取っている場合は、招待を受信したメールアドレスを入力してアカウントを作成してください。",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo へようこそ",
-			"workspacePageTitle": "ワークスペースを作成",
-			"createWorkspaceTitle": "ワークスペースを作成",
-			"createWorkspaceSubtitle": "プロジェクトの管理を始めるためにワークスペースをセットアップしましょう",
 			"workspaceName": "ワークスペース名",
 			"workspaceNamePlaceholder": "例: Acme Inc, 開発チーム",
-			"descriptionOptional": "説明 (任意)",
-			"descriptionPlaceholder": "チームの主な業務内容は何ですか？",
-			"creating": "作成中...",
-			"createWorkspace": "ワークスペースを作成",
-			"workspaceCreatedTitle": "ワークスペースを作成しました",
-			"redirectingToWorkspace": "<name>{{name}}</name> に移動しています...",
 			"toast": {
-				"workspaceCreated": "ワークスペースを作成しました",
 				"createFailed": "ワークスペースの作成に失敗しました"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "招待を確認",
 			"restrictedTitle": "招待が必要です",
 			"cloud": {
-				"title": "ワークスペースに名前を付ける",
-				"subtitle": "チーム名や会社名を使いましょう。名前は後から設定で変更できます。",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,20 +347,12 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -400,9 +361,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "最初のプロジェクト",
 			"projectNameDefault": "はじめてのプロジェクト",
-			"projectNameHint": "使い方がわかるように、いくつかのスタータータスクを追加します。",
 			"starterTasks": {
 				"drag": {
 					"title": "このカードを次の列へドラッグする",
@@ -424,6 +383,65 @@
 					"title": "自分のタスクを作成する",
 					"description": "列名の横にある **+** を使うか、**T** を押してから **C** を押します。準備ができたら、これらのスタータータスクは削除してください。"
 				}
+			},
+			"progress": "ステップ {{current}}/{{total}}",
+			"welcome": "ようこそ、{{name}} さん",
+			"settingUp": "{{name}} をセットアップ中",
+			"continue": "続ける",
+			"signedInAs": "{{email}} でサインイン中",
+			"signOut": "サインアウト",
+			"workspace": {
+				"title": "ワークスペースに名前を付けましょう",
+				"description": "ここにプロジェクトがまとまります。チーム名や会社名がおすすめです。名前は後から変更できます。"
+			},
+			"usage": {
+				"title": "誰が使いますか？",
+				"description": "使い方に合わせて {{name}} を設定します。メンバーはいつでも後から招待できます。"
+			},
+			"project": {
+				"title": "最初のプロジェクトを作成しましょう",
+				"description": "使い方がわかるように、いくつかのサンプルタスクを追加します。名前の変更や削除はいつでもできます。",
+				"label": "プロジェクト名",
+				"numbered": "タスク番号の例"
+			},
+			"invite": {
+				"title": "チームを招待しましょう",
+				"description": "{{name}} への参加用メールが届きます。先に中を見てみたい場合は、このステップをスキップできます。",
+				"label": "チームメンバーのメールアドレス",
+				"send_other": "{{count}}件の招待を送信",
+				"sendNone": "招待を送信"
+			},
+			"plan": {
+				"title": "どのように始めますか？",
+				"descriptionTrial_other": "すべてのプランでプロジェクトとタスクを無制限に利用できます。{{name}} を{{count}}日間無料でお試しいただくか、今すぐお申し込みください。",
+				"choose": "プランを選択",
+				"description": {
+					"team": "メンバー、ロール、権限が無制限",
+					"personal": "個人向け"
+				},
+				"perUserMonth": "ユーザーあたり / 月",
+				"perMonth": "月あたり",
+				"subscribe": "{{plan}} プランに申し込む",
+				"checkout": "お支払いに進む",
+				"trialNote": "トライアルにカードは不要です。お支払いは Creem によって処理されます。",
+				"paymentNote": "お支払いは Creem によって処理されます。"
+			},
+			"ready": {
+				"eyebrow": "準備完了",
+				"title": "{{name}} の準備ができました",
+				"description": "以下の内容を設定しました。すべて後から変更できます。",
+				"workspace": "ワークスペース",
+				"project": "最初のプロジェクト",
+				"projectValue_other": "{{name}}（サンプルタスク{{count}}件）",
+				"invitations": "招待",
+				"invitationsValue_other": "{{count}}人に送信済み",
+				"open": "{{name}} を開く"
+			},
+			"preview": {
+				"live": "{{name}} のライブプレビュー",
+				"liveNoName": "ライブプレビュー",
+				"ready": "{{name}} の準備ができました",
+				"untitled": "あなたのワークスペース"
 			}
 		},
 		"profileSetup": {

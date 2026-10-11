@@ -240,24 +240,6 @@
 			"emailFallback": "your email address",
 			"backToLogin": "Back to login"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "What happens next",
-				"description": "After you create your account, you'll name a workspace. From there you can add a project and start writing tasks."
-			},
-			"onboarding": {
-				"title": "What a workspace is",
-				"description": "A workspace holds your projects, their tasks, and the people you work with. Invite teammates once it's set up."
-			},
-			"invite": {
-				"title": "Work better together",
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what."
-			},
-			"plan": {
-				"title": "Try everything first",
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings."
-			}
-		},
 		"signUp": {
 			"pageTitle": "Create Account",
 			"registrationDisabledAlert": "Registration is currently disabled. If you were invited, enter the email address that received the invitation to create your account.",
@@ -345,22 +327,12 @@
 		},
 		"onboarding": {
 			"pageTitle": "Welcome to Kaneo",
-			"workspacePageTitle": "Create Workspace",
-			"createWorkspaceTitle": "Create workspace",
-			"createWorkspaceSubtitle": "Set up your workspace to start managing projects",
 			"workspaceName": "Workspace name",
 			"workspaceNamePlaceholder": "e.g. Acme Inc, My Team",
-			"descriptionOptional": "Description (optional)",
-			"descriptionPlaceholder": "What does your team work on?",
-			"creating": "Creating...",
-			"createWorkspace": "Create workspace",
 			"restrictedTitle": "You need an invitation",
 			"restrictedSubtitle": "Only an instance administrator can create workspaces here. Ask one to invite you, then reload this page.",
 			"restrictedCheckInvitations": "Check invitations",
-			"workspaceCreatedTitle": "Workspace created",
-			"redirectingToWorkspace": "Taking you to <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Workspace created successfully",
 				"createFailed": "Failed to create workspace"
 			},
 			"validation": {
@@ -368,23 +340,16 @@
 				"projectNameRequired": "Give your first project a name"
 			},
 			"cloud": {
-				"title": "Name your workspace",
-				"subtitle": "Use your team or company name. You can change it later in settings.",
 				"usageLabel": "Who will use this workspace?",
 				"usageSolo": "Just me",
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together",
-				"continue": "Continue",
 				"invite": {
-					"title": "Invite your teammates",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
 					"emailLabel": "Teammate email {{index}}",
 					"emailPlaceholder": "teammate@company.com",
 					"addAnother": "Add another",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"skip": "Skip for now",
 					"invalidEmail": "Enter a valid email address",
 					"sent_one": "Invitation sent",
@@ -392,18 +357,12 @@
 					"failed": "Couldn't invite {{email}}: {{message}}"
 				},
 				"plan": {
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks.",
 					"recommended": "Recommended",
-					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing."
+					"continueTrial": "Start free trial"
 				}
 			},
-			"projectName": "Your first project",
 			"projectNameDefault": "My first project",
-			"projectNameHint": "We'll add a few starter tasks to show you around.",
 			"starterTasks": {
 				"drag": {
 					"title": "Drag this card to the next column",
@@ -425,6 +384,69 @@
 					"title": "Create your own task",
 					"description": "Use the **+** next to a column name, or press **T** then **C**. Delete these starter tasks whenever you're ready."
 				}
+			},
+			"progress": "Step {{current}} of {{total}}",
+			"welcome": "Welcome, {{name}}",
+			"settingUp": "Setting up {{name}}",
+			"continue": "Continue",
+			"signedInAs": "Signed in as {{email}}",
+			"signOut": "Sign out",
+			"workspace": {
+				"title": "Name your workspace",
+				"description": "This is where your projects live. Use your team or company name, you can change it later."
+			},
+			"usage": {
+				"title": "Who's it for?",
+				"description": "We'll set {{name}} up to match. You can always invite people later."
+			},
+			"project": {
+				"title": "Start your first project",
+				"description": "We'll add a few starter tasks to show you around. Rename or delete them anytime.",
+				"label": "Project name",
+				"numbered": "Tasks will be numbered"
+			},
+			"invite": {
+				"title": "Bring your team",
+				"description": "They'll get an email to join {{name}}. Skip this if you'd rather look around first.",
+				"label": "Teammate emails",
+				"send_one": "Send {{count}} invite",
+				"send_other": "Send {{count}} invites",
+				"sendNone": "Send invites"
+			},
+			"plan": {
+				"title": "How do you want to start?",
+				"descriptionTrial_one": "Every plan includes unlimited projects and tasks. Try {{name}} free for {{count}} day, or subscribe now.",
+				"descriptionTrial_other": "Every plan includes unlimited projects and tasks. Try {{name}} free for {{count}} days, or subscribe now.",
+				"choose": "Choose a plan",
+				"description": {
+					"team": "Unlimited members, roles and permissions",
+					"personal": "For one person"
+				},
+				"perUserMonth": "per user / month",
+				"perMonth": "per month",
+				"subscribe": "Subscribe to {{plan}}",
+				"checkout": "Continue to checkout",
+				"trialNote": "No card needed for the trial. Payments are processed by Creem.",
+				"paymentNote": "Payments are processed by Creem."
+			},
+			"ready": {
+				"eyebrow": "All set",
+				"title": "{{name}} is ready",
+				"description": "Here's what we set up. You can change any of it later.",
+				"workspace": "Workspace",
+				"project": "First project",
+				"projectValue_one": "{{name}}, with {{count}} starter task",
+				"projectValue_other": "{{name}}, with {{count}} starter tasks",
+				"invitations": "Invitations",
+				"invitationsValue_one": "Sent to {{count}} person",
+				"invitationsValue_other": "Sent to {{count}} people",
+				"open": "Open {{name}}"
+			},
+			"preview": {
+				"live": "Live preview of {{name}}",
+				"liveNoName": "Live preview",
+				"ready": "{{name}} is ready",
+				"untitled": "Your workspace"
 			}
 		},
 		"profileSetup": {

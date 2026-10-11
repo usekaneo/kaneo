@@ -240,24 +240,6 @@
 			"emailFallback": "ваш адрес электронной почты",
 			"backToLogin": "Вернуться к входу"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Что дальше",
-				"description": "После создания аккаунта вы дадите название рабочей области. Затем можно добавить проект и начать записывать задачи."
-			},
-			"onboarding": {
-				"title": "Что такое рабочая область",
-				"description": "Рабочая область объединяет ваши проекты, их задачи и людей, с которыми вы работаете. Пригласите коллег, когда она будет настроена."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Создание аккаунта",
 			"registrationDisabledAlert": "Регистрация в данный момент отключена. Если вы получили приглашение, введите адрес электронной почты, на который оно было отправлено.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Добро пожаловать в Kaneo",
-			"workspacePageTitle": "Создание рабочей области",
-			"createWorkspaceTitle": "Создать рабочую область",
-			"createWorkspaceSubtitle": "Настройте рабочую область, чтобы начать управление проектами",
 			"workspaceName": "Название рабочей области",
 			"workspaceNamePlaceholder": "например, Acme Inc, Моя команда",
-			"descriptionOptional": "Описание (необязательно)",
-			"descriptionPlaceholder": "Чем занимается ваша команда?",
-			"creating": "Создание...",
-			"createWorkspace": "Создать рабочую область",
-			"workspaceCreatedTitle": "Рабочая область создана",
-			"redirectingToWorkspace": "Переход к <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Рабочая область успешно создана",
 				"createFailed": "Не удалось создать рабочую область"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Проверить приглашения",
 			"restrictedTitle": "Нужно приглашение",
 			"cloud": {
-				"title": "Назовите рабочую область",
-				"subtitle": "Используйте название вашей команды или компании. Его можно изменить позже в настройках.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,23 +347,15 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_few": "{{count}} invitations sent",
 					"sent_many": "{{count}} invitations sent",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -403,9 +364,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "Ваш первый проект",
 			"projectNameDefault": "Мой первый проект",
-			"projectNameHint": "Мы добавим несколько стартовых задач, чтобы помочь вам освоиться.",
 			"starterTasks": {
 				"drag": {
 					"title": "Перетащите эту карточку в следующую колонку",
@@ -427,6 +386,77 @@
 					"title": "Создайте свою задачу",
 					"description": "Используйте **+** рядом с названием колонки или нажмите **T**, а затем **C**. Удалите эти стартовые задачи, когда будете готовы."
 				}
+			},
+			"progress": "Шаг {{current}} из {{total}}",
+			"welcome": "Добро пожаловать, {{name}}",
+			"settingUp": "Настройка: {{name}}",
+			"continue": "Продолжить",
+			"signedInAs": "Вы вошли как {{email}}",
+			"signOut": "Выйти",
+			"workspace": {
+				"title": "Назовите рабочую область",
+				"description": "Здесь будут ваши проекты. Используйте название команды или компании, его можно изменить позже."
+			},
+			"usage": {
+				"title": "Кто будет ею пользоваться?",
+				"description": "Мы настроим рабочую область {{name}} под ваши задачи. Пригласить людей можно и позже."
+			},
+			"project": {
+				"title": "Создайте первый проект",
+				"description": "Мы добавим несколько стартовых задач, чтобы помочь вам освоиться. Их можно переименовать или удалить в любой момент.",
+				"label": "Название проекта",
+				"numbered": "Задачи будут нумероваться так:"
+			},
+			"invite": {
+				"title": "Пригласите команду",
+				"description": "Они получат письмо с приглашением в {{name}}. Пропустите этот шаг, если хотите сначала осмотреться.",
+				"label": "Адреса электронной почты коллег",
+				"send_few": "Отправить {{count}} приглашения",
+				"send_many": "Отправить {{count}} приглашений",
+				"send_one": "Отправить {{count}} приглашение",
+				"send_other": "Отправить {{count}} приглашения",
+				"sendNone": "Отправить приглашения"
+			},
+			"plan": {
+				"title": "С чего хотите начать?",
+				"descriptionTrial_few": "Все тарифы включают неограниченное число проектов и задач. Попробуйте {{name}} бесплатно в течение {{count}} дней или оформите подписку сейчас.",
+				"descriptionTrial_many": "Все тарифы включают неограниченное число проектов и задач. Попробуйте {{name}} бесплатно в течение {{count}} дней или оформите подписку сейчас.",
+				"descriptionTrial_one": "Все тарифы включают неограниченное число проектов и задач. Попробуйте {{name}} бесплатно в течение {{count}} дня или оформите подписку сейчас.",
+				"descriptionTrial_other": "Все тарифы включают неограниченное число проектов и задач. Попробуйте {{name}} бесплатно в течение {{count}} дня или оформите подписку сейчас.",
+				"choose": "Выберите тариф",
+				"description": {
+					"team": "Неограниченное число участников, роли и права доступа",
+					"personal": "Для одного человека"
+				},
+				"perUserMonth": "за пользователя / месяц",
+				"perMonth": "в месяц",
+				"subscribe": "Оформить тариф {{plan}}",
+				"checkout": "Перейти к оплате",
+				"trialNote": "Для пробного периода карта не нужна. Платежи обрабатывает Creem.",
+				"paymentNote": "Платежи обрабатывает Creem."
+			},
+			"ready": {
+				"eyebrow": "Всё готово",
+				"title": "Рабочая область {{name}} готова",
+				"description": "Вот что мы настроили. Всё это можно изменить позже.",
+				"workspace": "Рабочая область",
+				"project": "Первый проект",
+				"projectValue_few": "{{name}}, {{count}} стартовые задачи",
+				"projectValue_many": "{{name}}, {{count}} стартовых задач",
+				"projectValue_one": "{{name}}, {{count}} стартовая задача",
+				"projectValue_other": "{{name}}, {{count}} стартовой задачи",
+				"invitations": "Приглашения",
+				"invitationsValue_few": "Отправлено {{count}} приглашения",
+				"invitationsValue_many": "Отправлено {{count}} приглашений",
+				"invitationsValue_one": "Отправлено {{count}} приглашение",
+				"invitationsValue_other": "Отправлено {{count}} приглашения",
+				"open": "Открыть {{name}}"
+			},
+			"preview": {
+				"live": "Предпросмотр: {{name}}",
+				"liveNoName": "Предпросмотр",
+				"ready": "Рабочая область {{name}} готова",
+				"untitled": "Ваша рабочая область"
 			}
 		},
 		"profileSetup": {

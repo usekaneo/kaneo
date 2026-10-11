@@ -240,24 +240,6 @@
 			"emailFallback": "e-posta adresiniz",
 			"backToLogin": "Girişe dön"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Sırada ne var",
-				"description": "Hesabınızı oluşturduktan sonra çalışma alanınıza bir ad vereceksiniz. Ardından bir proje ekleyip görev yazmaya başlayabilirsiniz."
-			},
-			"onboarding": {
-				"title": "Çalışma alanı nedir",
-				"description": "Çalışma alanı projelerinizi, bunların görevlerini ve birlikte çalıştığınız kişileri bir arada tutar. Kurulduktan sonra ekip arkadaşlarınızı davet edin."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Hesap Oluştur",
 			"registrationDisabledAlert": "Kayıt şu anda devre dışı. Davet edildiyseniz, hesap oluşturmak için davetin gönderildiği e-posta adresini girin.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo'ya Hoş Geldiniz",
-			"workspacePageTitle": "Çalışma Alanı Oluştur",
-			"createWorkspaceTitle": "Çalışma alanı oluştur",
-			"createWorkspaceSubtitle": "Projeleri yönetmeye başlamak için çalışma alanınızı kurun",
 			"workspaceName": "Çalışma alanı adı",
 			"workspaceNamePlaceholder": "örn. Acme Inc, Ekibim",
-			"descriptionOptional": "Açıklama (isteğe bağlı)",
-			"descriptionPlaceholder": "Ekibiniz ne üzerinde çalışıyor?",
-			"creating": "Oluşturuluyor...",
-			"createWorkspace": "Çalışma alanı oluştur",
-			"workspaceCreatedTitle": "Çalışma alanı oluşturuldu",
-			"redirectingToWorkspace": "Sizi <name>{{name}}</name> çalışma alanına götürüyorum...",
 			"toast": {
-				"workspaceCreated": "Çalışma alanı başarıyla oluşturuldu",
 				"createFailed": "Çalışma alanı oluşturulamadı"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Davetleri görüntüle",
 			"restrictedTitle": "Davet gerekiyor",
 			"cloud": {
-				"title": "Çalışma alanınıza ad verin",
-				"subtitle": "Ekibinizin veya şirketinizin adını kullanın. Daha sonra ayarlardan değiştirebilirsiniz.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -401,9 +362,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "İlk projeniz",
 			"projectNameDefault": "İlk projem",
-			"projectNameHint": "Yolunuzu bulmanız için birkaç başlangıç görevi ekleyeceğiz.",
 			"starterTasks": {
 				"drag": {
 					"title": "Bu kartı bir sonraki sütuna sürükleyin",
@@ -425,6 +384,69 @@
 					"title": "Kendi görevinizi oluşturun",
 					"description": "Bir sütun adının yanındaki **+** düğmesini kullanın ya da önce **T**, sonra **C** tuşuna basın. Hazır olduğunuzda bu başlangıç görevlerini silin."
 				}
+			},
+			"progress": "Adım {{current}} / {{total}}",
+			"welcome": "Hoş geldiniz, {{name}}",
+			"settingUp": "{{name}} hazırlanıyor",
+			"continue": "Devam et",
+			"signedInAs": "{{email}} olarak giriş yapıldı",
+			"signOut": "Çıkış yap",
+			"workspace": {
+				"title": "Çalışma alanınıza bir ad verin",
+				"description": "Projeleriniz burada yer alır. Ekibinizin veya şirketinizin adını kullanın, daha sonra değiştirebilirsiniz."
+			},
+			"usage": {
+				"title": "Kimler kullanacak?",
+				"description": "{{name}} çalışma alanını buna göre ayarlayacağız. İnsanları daha sonra da davet edebilirsiniz."
+			},
+			"project": {
+				"title": "İlk projenizi başlatın",
+				"description": "Size yol göstermesi için birkaç başlangıç görevi ekleyeceğiz. Bunları istediğiniz zaman yeniden adlandırabilir veya silebilirsiniz.",
+				"label": "Proje adı",
+				"numbered": "Görevler şöyle numaralandırılacak:"
+			},
+			"invite": {
+				"title": "Ekibinizi getirin",
+				"description": "{{name}} çalışma alanına katılmaları için bir e-posta alacaklar. Önce etrafa göz atmak isterseniz bu adımı atlayın.",
+				"label": "Ekip arkadaşlarının e-postaları",
+				"send_one": "{{count}} davet gönder",
+				"send_other": "{{count}} davet gönder",
+				"sendNone": "Davet gönder"
+			},
+			"plan": {
+				"title": "Nasıl başlamak istersiniz?",
+				"descriptionTrial_one": "Her plan sınırsız proje ve görev içerir. {{name}} çalışma alanını {{count}} gün ücretsiz deneyin veya hemen abone olun.",
+				"descriptionTrial_other": "Her plan sınırsız proje ve görev içerir. {{name}} çalışma alanını {{count}} gün ücretsiz deneyin veya hemen abone olun.",
+				"choose": "Bir plan seçin",
+				"description": {
+					"team": "Sınırsız üye, rol ve izin",
+					"personal": "Tek kişi için"
+				},
+				"perUserMonth": "kullanıcı başına / ay",
+				"perMonth": "aylık",
+				"subscribe": "{{plan}} planına abone ol",
+				"checkout": "Ödemeye geç",
+				"trialNote": "Deneme için kart gerekmez. Ödemeler Creem tarafından işlenir.",
+				"paymentNote": "Ödemeler Creem tarafından işlenir."
+			},
+			"ready": {
+				"eyebrow": "Her şey hazır",
+				"title": "{{name}} hazır",
+				"description": "Kurduklarımız burada. Hepsini daha sonra değiştirebilirsiniz.",
+				"workspace": "Çalışma alanı",
+				"project": "İlk proje",
+				"projectValue_one": "{{name}}, {{count}} başlangıç göreviyle",
+				"projectValue_other": "{{name}}, {{count}} başlangıç göreviyle",
+				"invitations": "Davetler",
+				"invitationsValue_one": "{{count}} kişiye gönderildi",
+				"invitationsValue_other": "{{count}} kişiye gönderildi",
+				"open": "{{name}} çalışma alanını aç"
+			},
+			"preview": {
+				"live": "Canlı önizleme: {{name}}",
+				"liveNoName": "Canlı önizleme",
+				"ready": "{{name}} hazır",
+				"untitled": "Çalışma alanınız"
 			}
 		},
 		"profileSetup": {

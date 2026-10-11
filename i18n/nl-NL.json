@@ -240,24 +240,6 @@
 			"emailFallback": "je e-mailadres",
 			"backToLogin": "Terug naar inloggen"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Wat er nu gebeurt",
-				"description": "Nadat je je account hebt gemaakt, geef je een werkruimte een naam. Daarna kun je een project toevoegen en taken gaan schrijven."
-			},
-			"onboarding": {
-				"title": "Wat een werkruimte is",
-				"description": "Een werkruimte bevat je projecten, hun taken en de mensen met wie je samenwerkt. Nodig teamgenoten uit zodra hij klaar is."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Account aanmaken",
 			"registrationDisabledAlert": "Registratie is momenteel uitgeschakeld. Als je bent uitgenodigd, voer dan het e-mailadres in waarop je de uitnodiging hebt ontvangen.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Welkom bij Kaneo",
-			"workspacePageTitle": "Werkruimte maken",
-			"createWorkspaceTitle": "Werkruimte maken",
-			"createWorkspaceSubtitle": "Stel je werkruimte in om projecten te beheren",
 			"workspaceName": "Werkruimtenaam",
 			"workspaceNamePlaceholder": "bijv. Acme Inc, Mijn Team",
-			"descriptionOptional": "Beschrijving (optioneel)",
-			"descriptionPlaceholder": "Waar werkt je team aan?",
-			"creating": "Aanmaken...",
-			"createWorkspace": "Werkruimte maken",
-			"workspaceCreatedTitle": "Werkruimte aangemaakt",
-			"redirectingToWorkspace": "Je wordt doorverbonden naar <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Werkruimte succesvol aangemaakt",
 				"createFailed": "Aanmaken werkruimte mislukt"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Uitnodigingen bekijken",
 			"restrictedTitle": "Je hebt een uitnodiging nodig",
 			"cloud": {
-				"title": "Geef je werkruimte een naam",
-				"subtitle": "Gebruik de naam van je team of bedrijf. Je kunt hem later wijzigen in de instellingen.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -401,9 +362,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "Je eerste project",
 			"projectNameDefault": "Mijn eerste project",
-			"projectNameHint": "We voegen een paar starttaken toe om je op weg te helpen.",
 			"starterTasks": {
 				"drag": {
 					"title": "Sleep deze kaart naar de volgende kolom",
@@ -425,6 +384,69 @@
 					"title": "Maak je eigen taak",
 					"description": "Gebruik de **+** naast een kolomnaam, of druk op **T** en dan **C**. Verwijder deze starttaken wanneer je er klaar voor bent."
 				}
+			},
+			"progress": "Stap {{current}} van {{total}}",
+			"welcome": "Welkom, {{name}}",
+			"settingUp": "{{name}} instellen",
+			"continue": "Doorgaan",
+			"signedInAs": "Ingelogd als {{email}}",
+			"signOut": "Uitloggen",
+			"workspace": {
+				"title": "Geef je werkruimte een naam",
+				"description": "Hier staan je projecten. Gebruik de naam van je team of bedrijf, je kunt die later nog wijzigen."
+			},
+			"usage": {
+				"title": "Voor wie is het?",
+				"description": "We stemmen {{name}} hierop af. Je kunt later altijd mensen uitnodigen."
+			},
+			"project": {
+				"title": "Start je eerste project",
+				"description": "We voegen een paar starttaken toe om je wegwijs te maken. Je kunt ze altijd hernoemen of verwijderen.",
+				"label": "Projectnaam",
+				"numbered": "Taken worden genummerd als"
+			},
+			"invite": {
+				"title": "Haal je team erbij",
+				"description": "Ze krijgen een e-mail om lid te worden van {{name}}. Sla dit over als je eerst wilt rondkijken.",
+				"label": "E-mailadressen van teamgenoten",
+				"send_one": "{{count}} uitnodiging versturen",
+				"send_other": "{{count}} uitnodigingen versturen",
+				"sendNone": "Uitnodigingen versturen"
+			},
+			"plan": {
+				"title": "Hoe wil je beginnen?",
+				"descriptionTrial_one": "Elk abonnement bevat onbeperkt projecten en taken. Probeer {{name}} {{count}} dag gratis, of neem nu een abonnement.",
+				"descriptionTrial_other": "Elk abonnement bevat onbeperkt projecten en taken. Probeer {{name}} {{count}} dagen gratis, of neem nu een abonnement.",
+				"choose": "Kies een abonnement",
+				"description": {
+					"team": "Onbeperkt leden, rollen en rechten",
+					"personal": "Voor één persoon"
+				},
+				"perUserMonth": "per gebruiker / maand",
+				"perMonth": "per maand",
+				"subscribe": "Abonneren op {{plan}}",
+				"checkout": "Doorgaan naar afrekenen",
+				"trialNote": "Geen kaart nodig voor de proefperiode. Betalingen worden verwerkt door Creem.",
+				"paymentNote": "Betalingen worden verwerkt door Creem."
+			},
+			"ready": {
+				"eyebrow": "Klaar",
+				"title": "{{name}} is klaar",
+				"description": "Dit hebben we ingesteld. Je kunt alles later nog wijzigen.",
+				"workspace": "Werkruimte",
+				"project": "Eerste project",
+				"projectValue_one": "{{name}}, met {{count}} starttaak",
+				"projectValue_other": "{{name}}, met {{count}} starttaken",
+				"invitations": "Uitnodigingen",
+				"invitationsValue_one": "Verstuurd naar {{count}} persoon",
+				"invitationsValue_other": "Verstuurd naar {{count}} personen",
+				"open": "{{name}} openen"
+			},
+			"preview": {
+				"live": "Livevoorbeeld van {{name}}",
+				"liveNoName": "Livevoorbeeld",
+				"ready": "{{name}} is klaar",
+				"untitled": "Je werkruimte"
 			}
 		},
 		"profileSetup": {

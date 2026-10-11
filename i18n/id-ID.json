@@ -240,24 +240,6 @@
 			"emailFallback": "alamat email Anda",
 			"backToLogin": "Kembali ke masuk"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Apa selanjutnya",
-				"description": "Setelah membuat akun, Anda akan memberi nama ruang kerja. Dari sana Anda bisa menambahkan proyek dan mulai menulis tugas."
-			},
-			"onboarding": {
-				"title": "Apa itu ruang kerja",
-				"description": "Ruang kerja berisi proyek Anda, tugas-tugasnya, dan orang-orang yang bekerja dengan Anda. Undang rekan tim setelah ruang kerja siap."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Buat Akun",
 			"registrationDisabledAlert": "Pendaftaran saat ini dinonaktifkan. Jika Anda diundang, masukkan alamat email yang menerima undangan untuk membuat akun.",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "Selamat datang di Kaneo",
-			"workspacePageTitle": "Buat Ruang Kerja",
-			"createWorkspaceTitle": "Buat ruang kerja",
-			"createWorkspaceSubtitle": "Siapkan ruang kerja Anda untuk mulai mengelola proyek",
 			"workspaceName": "Nama ruang kerja",
 			"workspaceNamePlaceholder": "contohnya: Acme Inc, Tim Saya",
-			"descriptionOptional": "Deskripsi (opsional)",
-			"descriptionPlaceholder": "Tim Anda mengerjakan apa?",
-			"creating": "Membuat...",
-			"createWorkspace": "Buat ruang kerja",
-			"workspaceCreatedTitle": "Ruang kerja dibuat",
-			"redirectingToWorkspace": "Mengarahkan Anda ke <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Ruang kerja berhasil dibuat",
 				"createFailed": "Gagal membuat ruang kerja"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "Lihat undangan",
 			"restrictedTitle": "Anda perlu undangan",
 			"cloud": {
-				"title": "Beri nama ruang kerja Anda",
-				"subtitle": "Gunakan nama tim atau perusahaan Anda. Anda bisa mengubahnya nanti di pengaturan.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -378,20 +347,12 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -400,9 +361,7 @@
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
 			},
-			"projectName": "Proyek pertama Anda",
 			"projectNameDefault": "Proyek pertama saya",
-			"projectNameHint": "Kami akan menambahkan beberapa tugas awal untuk membantu Anda memulai.",
 			"starterTasks": {
 				"drag": {
 					"title": "Seret kartu ini ke kolom berikutnya",
@@ -424,6 +383,65 @@
 					"title": "Buat tugas Anda sendiri",
 					"description": "Gunakan **+** di samping nama kolom, atau tekan **T** lalu **C**. Hapus tugas awal ini kapan pun Anda siap."
 				}
+			},
+			"progress": "Langkah {{current}} dari {{total}}",
+			"welcome": "Selamat datang, {{name}}",
+			"settingUp": "Menyiapkan {{name}}",
+			"continue": "Lanjutkan",
+			"signedInAs": "Masuk sebagai {{email}}",
+			"signOut": "Keluar",
+			"workspace": {
+				"title": "Beri nama ruang kerja Anda",
+				"description": "Di sinilah proyek Anda berada. Gunakan nama tim atau perusahaan Anda, Anda dapat mengubahnya nanti."
+			},
+			"usage": {
+				"title": "Untuk siapa?",
+				"description": "Kami akan menyiapkan {{name}} sesuai kebutuhan. Anda selalu bisa mengundang orang lain nanti."
+			},
+			"project": {
+				"title": "Mulai proyek pertama Anda",
+				"description": "Kami akan menambahkan beberapa tugas awal untuk memandu Anda. Ganti nama atau hapus kapan saja.",
+				"label": "Nama proyek",
+				"numbered": "Tugas akan diberi nomor"
+			},
+			"invite": {
+				"title": "Ajak tim Anda",
+				"description": "Mereka akan menerima email untuk bergabung ke {{name}}. Lewati langkah ini jika Anda ingin melihat-lihat dulu.",
+				"label": "Email rekan tim",
+				"send_other": "Kirim {{count}} undangan",
+				"sendNone": "Kirim undangan"
+			},
+			"plan": {
+				"title": "Bagaimana Anda ingin memulai?",
+				"descriptionTrial_other": "Setiap paket mencakup proyek dan tugas tanpa batas. Coba {{name}} gratis selama {{count}} hari, atau berlangganan sekarang.",
+				"choose": "Pilih paket",
+				"description": {
+					"team": "Anggota, peran, dan izin tanpa batas",
+					"personal": "Untuk satu orang"
+				},
+				"perUserMonth": "per pengguna / bulan",
+				"perMonth": "per bulan",
+				"subscribe": "Berlangganan {{plan}}",
+				"checkout": "Lanjut ke pembayaran",
+				"trialNote": "Tidak perlu kartu untuk uji coba. Pembayaran diproses oleh Creem.",
+				"paymentNote": "Pembayaran diproses oleh Creem."
+			},
+			"ready": {
+				"eyebrow": "Semua siap",
+				"title": "{{name}} sudah siap",
+				"description": "Inilah yang kami siapkan. Anda dapat mengubah semuanya nanti.",
+				"workspace": "Ruang kerja",
+				"project": "Proyek pertama",
+				"projectValue_other": "{{name}}, dengan {{count}} tugas awal",
+				"invitations": "Undangan",
+				"invitationsValue_other": "Dikirim ke {{count}} orang",
+				"open": "Buka {{name}}"
+			},
+			"preview": {
+				"live": "Pratinjau langsung {{name}}",
+				"liveNoName": "Pratinjau langsung",
+				"ready": "{{name}} sudah siap",
+				"untitled": "Ruang kerja Anda"
 			}
 		},
 		"profileSetup": {

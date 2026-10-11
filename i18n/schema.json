@@ -951,65 +951,6 @@
 						"backToLogin"
 					]
 				},
-				"cloud": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"signUp": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"title": {
-									"type": "string"
-								},
-								"description": {
-									"type": "string"
-								}
-							},
-							"required": ["title", "description"]
-						},
-						"onboarding": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"title": {
-									"type": "string"
-								},
-								"description": {
-									"type": "string"
-								}
-							},
-							"required": ["title", "description"]
-						},
-						"invite": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"title": {
-									"type": "string"
-								},
-								"description": {
-									"type": "string"
-								}
-							},
-							"required": ["title", "description"]
-						},
-						"plan": {
-							"type": "object",
-							"additionalProperties": false,
-							"properties": {
-								"title": {
-									"type": "string"
-								},
-								"description": {
-									"type": "string"
-								}
-							},
-							"required": ["title", "description"]
-						}
-					},
-					"required": ["signUp", "onboarding", "invite", "plan"]
-				},
 				"signUp": {
 					"type": "object",
 					"additionalProperties": false,
@@ -1339,31 +1280,10 @@
 						"pageTitle": {
 							"type": "string"
 						},
-						"workspacePageTitle": {
-							"type": "string"
-						},
-						"createWorkspaceTitle": {
-							"type": "string"
-						},
-						"createWorkspaceSubtitle": {
-							"type": "string"
-						},
 						"workspaceName": {
 							"type": "string"
 						},
 						"workspaceNamePlaceholder": {
-							"type": "string"
-						},
-						"descriptionOptional": {
-							"type": "string"
-						},
-						"descriptionPlaceholder": {
-							"type": "string"
-						},
-						"creating": {
-							"type": "string"
-						},
-						"createWorkspace": {
 							"type": "string"
 						},
 						"restrictedTitle": {
@@ -1375,24 +1295,15 @@
 						"restrictedCheckInvitations": {
 							"type": "string"
 						},
-						"workspaceCreatedTitle": {
-							"type": "string"
-						},
-						"redirectingToWorkspace": {
-							"type": "string"
-						},
 						"toast": {
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
-								"workspaceCreated": {
-									"type": "string"
-								},
 								"createFailed": {
 									"type": "string"
 								}
 							},
-							"required": ["workspaceCreated", "createFailed"]
+							"required": ["createFailed"]
 						},
 						"validation": {
 							"type": "object",
@@ -1411,12 +1322,6 @@
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
-								"title": {
-									"type": "string"
-								},
-								"subtitle": {
-									"type": "string"
-								},
 								"usageLabel": {
 									"type": "string"
 								},
@@ -1432,19 +1337,10 @@
 								"usageTeamDescription": {
 									"type": "string"
 								},
-								"continue": {
-									"type": "string"
-								},
 								"invite": {
 									"type": "object",
 									"additionalProperties": false,
 									"properties": {
-										"title": {
-											"type": "string"
-										},
-										"subtitle": {
-											"type": "string"
-										},
 										"emailLabel": {
 											"type": "string"
 										},
@@ -1455,12 +1351,6 @@
 											"type": "string"
 										},
 										"remove": {
-											"type": "string"
-										},
-										"send": {
-											"type": "string"
-										},
-										"sending": {
 											"type": "string"
 										},
 										"skip": {
@@ -1492,14 +1382,10 @@
 										}
 									},
 									"required": [
-										"title",
-										"subtitle",
 										"emailLabel",
 										"emailPlaceholder",
 										"addAnother",
 										"remove",
-										"send",
-										"sending",
 										"skip",
 										"invalidEmail",
 										"failed"
@@ -1509,12 +1395,6 @@
 									"type": "object",
 									"additionalProperties": false,
 									"properties": {
-										"title": {
-											"type": "string"
-										},
-										"trialActive": {
-											"type": "string"
-										},
 										"trialUsed": {
 											"type": "string"
 										},
@@ -1523,45 +1403,22 @@
 										},
 										"continueTrial": {
 											"type": "string"
-										},
-										"continueWithoutPlan": {
-											"type": "string"
-										},
-										"note": {
-											"type": "string"
 										}
 									},
-									"required": [
-										"title",
-										"trialActive",
-										"trialUsed",
-										"recommended",
-										"continueTrial",
-										"continueWithoutPlan",
-										"note"
-									]
+									"required": ["trialUsed", "recommended", "continueTrial"]
 								}
 							},
 							"required": [
-								"title",
-								"subtitle",
 								"usageLabel",
 								"usageSolo",
 								"usageSoloDescription",
 								"usageTeam",
 								"usageTeamDescription",
-								"continue",
 								"invite",
 								"plan"
 							]
 						},
-						"projectName": {
-							"type": "string"
-						},
 						"projectNameDefault": {
-							"type": "string"
-						},
-						"projectNameHint": {
 							"type": "string"
 						},
 						"starterTasks": {
@@ -1641,31 +1498,296 @@
 								"integrations",
 								"create"
 							]
+						},
+						"progress": {
+							"type": "string"
+						},
+						"welcome": {
+							"type": "string"
+						},
+						"settingUp": {
+							"type": "string"
+						},
+						"continue": {
+							"type": "string"
+						},
+						"signedInAs": {
+							"type": "string"
+						},
+						"signOut": {
+							"type": "string"
+						},
+						"workspace": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"usage": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"project": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"label": {
+									"type": "string"
+								},
+								"numbered": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "label", "numbered"]
+						},
+						"invite": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"label": {
+									"type": "string"
+								},
+								"send_one": {
+									"type": "string"
+								},
+								"send_zero": {
+									"type": "string"
+								},
+								"send_two": {
+									"type": "string"
+								},
+								"send_few": {
+									"type": "string"
+								},
+								"send_many": {
+									"type": "string"
+								},
+								"send_other": {
+									"type": "string"
+								},
+								"sendNone": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "label", "sendNone"]
+						},
+						"plan": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"descriptionTrial_one": {
+									"type": "string"
+								},
+								"descriptionTrial_zero": {
+									"type": "string"
+								},
+								"descriptionTrial_two": {
+									"type": "string"
+								},
+								"descriptionTrial_few": {
+									"type": "string"
+								},
+								"descriptionTrial_many": {
+									"type": "string"
+								},
+								"descriptionTrial_other": {
+									"type": "string"
+								},
+								"choose": {
+									"type": "string"
+								},
+								"description": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"team": {
+											"type": "string"
+										},
+										"personal": {
+											"type": "string"
+										}
+									},
+									"required": ["team", "personal"]
+								},
+								"perUserMonth": {
+									"type": "string"
+								},
+								"perMonth": {
+									"type": "string"
+								},
+								"subscribe": {
+									"type": "string"
+								},
+								"checkout": {
+									"type": "string"
+								},
+								"trialNote": {
+									"type": "string"
+								},
+								"paymentNote": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"choose",
+								"description",
+								"perUserMonth",
+								"perMonth",
+								"subscribe",
+								"checkout",
+								"trialNote",
+								"paymentNote"
+							]
+						},
+						"ready": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"eyebrow": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"workspace": {
+									"type": "string"
+								},
+								"project": {
+									"type": "string"
+								},
+								"projectValue_one": {
+									"type": "string"
+								},
+								"projectValue_zero": {
+									"type": "string"
+								},
+								"projectValue_two": {
+									"type": "string"
+								},
+								"projectValue_few": {
+									"type": "string"
+								},
+								"projectValue_many": {
+									"type": "string"
+								},
+								"projectValue_other": {
+									"type": "string"
+								},
+								"invitations": {
+									"type": "string"
+								},
+								"invitationsValue_one": {
+									"type": "string"
+								},
+								"invitationsValue_zero": {
+									"type": "string"
+								},
+								"invitationsValue_two": {
+									"type": "string"
+								},
+								"invitationsValue_few": {
+									"type": "string"
+								},
+								"invitationsValue_many": {
+									"type": "string"
+								},
+								"invitationsValue_other": {
+									"type": "string"
+								},
+								"open": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"eyebrow",
+								"title",
+								"description",
+								"workspace",
+								"project",
+								"invitations",
+								"open"
+							]
+						},
+						"preview": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"live": {
+									"type": "string"
+								},
+								"liveNoName": {
+									"type": "string"
+								},
+								"ready": {
+									"type": "string"
+								},
+								"untitled": {
+									"type": "string"
+								}
+							},
+							"required": ["live", "liveNoName", "ready", "untitled"]
 						}
 					},
 					"required": [
 						"pageTitle",
-						"workspacePageTitle",
-						"createWorkspaceTitle",
-						"createWorkspaceSubtitle",
 						"workspaceName",
 						"workspaceNamePlaceholder",
-						"descriptionOptional",
-						"descriptionPlaceholder",
-						"creating",
-						"createWorkspace",
 						"restrictedTitle",
 						"restrictedSubtitle",
 						"restrictedCheckInvitations",
-						"workspaceCreatedTitle",
-						"redirectingToWorkspace",
 						"toast",
 						"validation",
 						"cloud",
-						"projectName",
 						"projectNameDefault",
-						"projectNameHint",
-						"starterTasks"
+						"starterTasks",
+						"progress",
+						"welcome",
+						"settingUp",
+						"continue",
+						"signedInAs",
+						"signOut",
+						"workspace",
+						"usage",
+						"project",
+						"invite",
+						"plan",
+						"ready",
+						"preview"
 					]
 				},
 				"profileSetup": {
@@ -2099,7 +2221,6 @@
 				"providers",
 				"forms",
 				"checkEmail",
-				"cloud",
 				"signUp",
 				"verifyOtp",
 				"otpSignIn",

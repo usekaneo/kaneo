@@ -240,24 +240,6 @@
 			"emailFallback": "你的邮箱",
 			"backToLogin": "返回登录"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "接下来",
-				"description": "创建账户后，你需要为工作区命名。之后就可以添加项目并开始编写任务。"
-			},
-			"onboarding": {
-				"title": "什么是工作区",
-				"description": "工作区包含你的项目、项目中的任务以及与你协作的成员。设置完成后即可邀请团队成员。"
-			},
-			"invite": {
-				"description": "同一工作区的成员共享同一套看板，任务一有变动就实时同步。谁能改什么，由角色决定。",
-				"title": "一起协作更高效"
-			},
-			"plan": {
-				"description": "所有套餐都包含不限量的项目和任务、自动备份和更新。随时可以在账单设置里取消。",
-				"title": "先试遍全部功能"
-			}
-		},
 		"signUp": {
 			"pageTitle": "创建账户",
 			"registrationDisabledAlert": "已关闭注册。如果你收到了邀请，请使用收到邀请的邮箱地址来创建账户。",
@@ -345,19 +327,9 @@
 		},
 		"onboarding": {
 			"pageTitle": "欢迎使用 Kaneo",
-			"workspacePageTitle": "创建工作区",
-			"createWorkspaceTitle": "创建工作区",
-			"createWorkspaceSubtitle": "设置你的工作区以开始管理项目",
 			"workspaceName": "工作区名称",
 			"workspaceNamePlaceholder": "例如：某某公司、我的团队",
-			"descriptionOptional": "描述（可选）",
-			"descriptionPlaceholder": "你的团队做什么？",
-			"creating": "创建中…",
-			"createWorkspace": "创建工作区",
-			"workspaceCreatedTitle": "工作区已创建",
-			"redirectingToWorkspace": "正在前往 <name>{{name}}</name>…",
 			"toast": {
-				"workspaceCreated": "工作区创建成功",
 				"createFailed": "工作区创建失败"
 			},
 			"validation": {
@@ -368,9 +340,6 @@
 			"restrictedCheckInvitations": "查看邀请",
 			"restrictedTitle": "你需要一份邀请",
 			"cloud": {
-				"title": "为工作区命名",
-				"subtitle": "使用你的团队或公司名称。之后可以在设置中修改。",
-				"continue": "继续",
 				"invite": {
 					"addAnother": "再添加一个",
 					"emailLabel": "成员邮箱 {{index}}",
@@ -378,20 +347,12 @@
 					"failed": "无法邀请 {{email}}：{{message}}",
 					"invalidEmail": "请输入有效的邮箱地址",
 					"remove": "移除邮箱 {{index}}",
-					"send": "发送邀请",
-					"sending": "正在发送…",
 					"sent_other": "已发送 {{count}} 个邀请",
-					"skip": "暂时跳过",
-					"subtitle": "他们会收到一封邮件，里面有加入 {{name}} 的链接。之后还可以随时在成员页面继续邀请。",
-					"title": "邀请你的团队成员"
+					"skip": "暂时跳过"
 				},
 				"plan": {
 					"continueTrial": "开始免费试用",
-					"continueWithoutPlan": "进入工作区",
-					"note": "随时可以在“设置 → 账单”里选择或更换套餐。",
 					"recommended": "推荐",
-					"title": "选择套餐",
-					"trialActive": "免费试用可用到 {{date}}。无需绑定银行卡，在此之前随时都可以选择套餐。",
 					"trialUsed": "你的免费试用已经用过了。选择一个套餐，即可开始创建项目和任务。"
 				},
 				"usageLabel": "这个工作区主要由谁使用？",
@@ -400,9 +361,7 @@
 				"usageTeam": "我的团队",
 				"usageTeamDescription": "一起规划，一起交付"
 			},
-			"projectName": "你的第一个项目",
 			"projectNameDefault": "我的第一个项目",
-			"projectNameHint": "我们会添加几个入门任务，帮你快速上手。",
 			"starterTasks": {
 				"drag": {
 					"title": "把这张卡片拖到下一列",
@@ -424,6 +383,65 @@
 					"title": "创建你自己的任务",
 					"description": "使用列名旁边的 **+**，或先按 **T** 再按 **C**。准备好后，就可以删除这些入门任务。"
 				}
+			},
+			"progress": "第 {{current}} 步，共 {{total}} 步",
+			"welcome": "欢迎，{{name}}",
+			"settingUp": "正在设置 {{name}}",
+			"continue": "继续",
+			"signedInAs": "已登录为 {{email}}",
+			"signOut": "退出登录",
+			"workspace": {
+				"title": "为工作区命名",
+				"description": "你的项目都会放在这里。可以使用团队或公司名称，之后也能修改。"
+			},
+			"usage": {
+				"title": "给谁用？",
+				"description": "我们会据此设置 {{name}}。之后随时可以邀请成员。"
+			},
+			"project": {
+				"title": "创建第一个项目",
+				"description": "我们会添加几个入门任务帮你熟悉。你可以随时重命名或删除它们。",
+				"label": "项目名称",
+				"numbered": "任务编号示例"
+			},
+			"invite": {
+				"title": "邀请你的团队",
+				"description": "他们会收到加入 {{name}} 的邮件。如果想先四处看看，可以跳过这一步。",
+				"label": "队友邮箱",
+				"send_other": "发送 {{count}} 份邀请",
+				"sendNone": "发送邀请"
+			},
+			"plan": {
+				"title": "你想如何开始？",
+				"descriptionTrial_other": "所有套餐都包含无限项目和任务。免费试用 {{name}} {{count}} 天，或立即订阅。",
+				"choose": "选择套餐",
+				"description": {
+					"team": "不限成员数量，支持角色和权限",
+					"personal": "适合个人使用"
+				},
+				"perUserMonth": "每人 / 月",
+				"perMonth": "每月",
+				"subscribe": "订阅 {{plan}}",
+				"checkout": "前往结账",
+				"trialNote": "试用无需绑定银行卡。付款由 Creem 处理。",
+				"paymentNote": "付款由 Creem 处理。"
+			},
+			"ready": {
+				"eyebrow": "一切就绪",
+				"title": "{{name}} 已准备就绪",
+				"description": "以下是我们为你设置的内容，之后都可以修改。",
+				"workspace": "工作区",
+				"project": "第一个项目",
+				"projectValue_other": "{{name}}，含 {{count}} 个入门任务",
+				"invitations": "邀请",
+				"invitationsValue_other": "已发送给 {{count}} 人",
+				"open": "打开 {{name}}"
+			},
+			"preview": {
+				"live": "{{name}} 实时预览",
+				"liveNoName": "实时预览",
+				"ready": "{{name}} 已准备就绪",
+				"untitled": "你的工作区"
 			}
 		},
 		"profileSetup": {
