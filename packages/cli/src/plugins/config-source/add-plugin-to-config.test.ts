@@ -274,13 +274,13 @@ describe("addPluginToConfig", () => {
     );
   });
 
-  it("leaves the source alone when the package is already imported", () => {
+  it("leaves the source alone when the plugin is already listed", () => {
     expect(
       addPluginToConfig(
         lines(
           'import { defineConfig } from "@kaneo/config";',
           "import report from 'kaneo-plugin-time-report';",
-          "export default defineConfig({});",
+          "export default defineConfig({ plugins: [report({ weekly: true })] });",
         ),
         "kaneo-plugin-time-report",
       ),
@@ -294,6 +294,52 @@ describe("addPluginToConfig", () => {
         "kaneo-plugin-time-report",
       ).status,
     ).toBe("updated");
+  });
+
+  it("lists an imported plugin that is missing from plugins without importing it again", () => {
+    const result = addPluginToConfig(
+      lines(
+        'import { defineConfig } from "@kaneo/config";',
+        "import report from 'kaneo-plugin-time-report';",
+        "export default defineConfig({});",
+      ),
+      "kaneo-plugin-time-report",
+    );
+    expect(result).toEqual({
+      status: "updated",
+      importName: "report",
+      source: lines(
+        'import { defineConfig } from "@kaneo/config";',
+        "import report from 'kaneo-plugin-time-report';",
+        "export default defineConfig({ plugins: [report()] });",
+      ),
+    });
+  });
+
+  it("asks for a manual edit when the import cannot be matched to a listed plugin", () => {
+    expect(
+      manualReason(
+        lines(
+          'import type { Options } from "kaneo-plugin-time-report";',
+          "export default { plugins: [] };",
+        ),
+      ),
+    ).toBe("it imports kaneo-plugin-time-report without a default import");
+
+    const reused = addPluginToConfig(
+      lines(
+        'import report from "kaneo-plugin-time-report";',
+        "const weekly = report({ weekly: true });",
+        "export default { plugins: [] };",
+      ),
+      "kaneo-plugin-time-report",
+    );
+    expect(reused).toEqual({
+      status: "manual",
+      importName: "report",
+      reason:
+        "it imports kaneo-plugin-time-report as report but does not list it in plugins",
+    });
   });
 
   it("falls back to manual instructions when it cannot edit safely", () => {
