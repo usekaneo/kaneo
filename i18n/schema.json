@@ -4839,6 +4839,19 @@
 									},
 									"required": ["description", "intro"]
 								},
+								"jira": {
+									"type": "object",
+									"additionalProperties": false,
+									"properties": {
+										"description": {
+											"type": "string"
+										},
+										"intro": {
+											"type": "string"
+										}
+									},
+									"required": ["description", "intro"]
+								},
 								"trello": {
 									"type": "object",
 									"additionalProperties": false,
@@ -4901,6 +4914,7 @@
 								"connect",
 								"connectTo",
 								"linear",
+								"jira",
 								"trello",
 								"plane",
 								"planka",
@@ -5077,6 +5091,66 @@
 								"stepOpen",
 								"stepCreate",
 								"stepPaste"
+							]
+						},
+						"jira": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"urlLabel": {
+									"type": "string"
+								},
+								"urlDescription": {
+									"type": "string"
+								},
+								"urlPlaceholder": {
+									"type": "string"
+								},
+								"emailLabel": {
+									"type": "string"
+								},
+								"emailDescription": {
+									"type": "string"
+								},
+								"tokenLabel": {
+									"type": "string"
+								},
+								"tokenDescription": {
+									"type": "string"
+								},
+								"tokenPlaceholder": {
+									"type": "string"
+								},
+								"openSettings": {
+									"type": "string"
+								},
+								"stepOpen": {
+									"type": "string"
+								},
+								"stepCreate": {
+									"type": "string"
+								},
+								"stepPaste": {
+									"type": "string"
+								},
+								"nameMatchTip": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"urlLabel",
+								"urlDescription",
+								"urlPlaceholder",
+								"emailLabel",
+								"emailDescription",
+								"tokenLabel",
+								"tokenDescription",
+								"tokenPlaceholder",
+								"openSettings",
+								"stepOpen",
+								"stepCreate",
+								"stepPaste",
+								"nameMatchTip"
 							]
 						},
 						"trello": {
@@ -5272,6 +5346,9 @@
 								"membersNoteTrello": {
 									"type": "string"
 								},
+								"membersNoteJira": {
+									"type": "string"
+								},
 								"inviteMembers": {
 									"type": "string"
 								}
@@ -5284,6 +5361,7 @@
 								"commentsDescription",
 								"membersNote",
 								"membersNoteTrello",
+								"membersNoteJira",
 								"inviteMembers"
 							]
 						},
@@ -5968,6 +6046,7 @@
 						"back",
 						"connect",
 						"linear",
+						"jira",
 						"trello",
 						"plane",
 						"planka",

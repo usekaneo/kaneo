@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { ImportUnit } from "@/components/import/import-unit-copy";
+import { JiraLogo } from "@/components/import/source-logos/jira-logo";
 import { KaneoLogo } from "@/components/import/source-logos/kaneo-logo";
 import { LinearLogo } from "@/components/import/source-logos/linear-logo";
 import { PlaneLogo } from "@/components/import/source-logos/plane-logo";
@@ -28,6 +29,14 @@ export const IMPORT_SOURCES: ImportSourceDefinition[] = [
     descriptionKey: "settings:workspaceImport.sources.linear.description",
     introKey: "settings:workspaceImport.sources.linear.intro",
     unit: "team",
+  },
+  {
+    id: "jira",
+    name: "Jira",
+    Logo: JiraLogo,
+    descriptionKey: "settings:workspaceImport.sources.jira.description",
+    introKey: "settings:workspaceImport.sources.jira.intro",
+    unit: "project",
   },
   {
     id: "trello",
