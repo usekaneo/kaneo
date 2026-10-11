@@ -3,6 +3,7 @@ import { checkSettingsSchema } from "@kaneo/plugin-sdk";
 import {
   isServerPluginDefinition,
   type ServerPluginDefinition,
+  type SettingsSchema,
 } from "@kaneo/plugin-sdk/server";
 import { StageError } from "./stage-error.js";
 
@@ -18,12 +19,14 @@ export async function importServer(
       REPORT_TO_AUTHOR,
     );
   }
-  const [problem] = checkSettingsSchema(module.default.settings ?? {});
+  const definition = module.default;
+  const settings: unknown = definition.settings ?? {};
+  const [problem] = checkSettingsSchema(settings);
   if (problem) {
     throw new StageError(
       `The plugin's settings schema is invalid. ${problem}.`,
       REPORT_TO_AUTHOR,
     );
   }
-  return module.default;
+  return { ...definition, settings: settings as SettingsSchema };
 }
