@@ -55,7 +55,8 @@
     "pg": "^8.23.1",
     "valibot": "^1.5.0",
     "zod": "^4.6.5",
-    "@kaneo/mcp": "workspace:*"
+    "@kaneo/mcp": "workspace:*",
+    "@kaneo/importers": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",

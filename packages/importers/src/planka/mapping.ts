@@ -1,12 +1,16 @@
-import { RESERVED_COLUMN_SLUGS, toColumnSlug } from "./keys.js";
+import { RESERVED_COLUMN_SLUGS, toColumnSlug } from "../keys.js";
+import { checklistSection, joinSections } from "../markdown.js";
 import type {
+  PlankaBoard,
   PlankaCard,
   PlankaComment,
   PlankaList,
+  PlankaProject,
   PlankaTask,
   PlankaTaskList,
   PlankaUser,
-} from "./planka.js";
+  ProjectsBundle,
+} from "./client.js";
 
 export type PlannedColumn = {
   listId: string;
@@ -16,10 +20,8 @@ export type PlannedColumn = {
   renamedFrom?: string;
 };
 
-const UNTITLED_COLUMN = "Untitled";
+export const UNTITLED_COLUMN = "Untitled";
 
-// Kaneo rejects duplicate and reserved slugs, so a colliding name has to be
-// adjusted before the column is created.
 export function planColumns(lists: PlankaList[]): PlannedColumn[] {
   const ordered = [...lists].sort(
     (a, b) => (a.position ?? 0) - (b.position ?? 0),
@@ -64,26 +66,27 @@ export function buildDescription(
   taskLists: PlankaTaskList[],
   tasks: PlankaTask[],
 ): string {
-  const sections: string[] = [];
-  const description = card.description?.trim();
-  if (description) sections.push(description);
+  const sections: string[] = [card.description ?? ""];
 
   for (const taskList of taskLists) {
-    // Items pointing at another card become task relations instead, so they
-    // are not also flattened into checkbox text.
     const items = tasks
       .filter((task) => task.taskListId === taskList.id && !task.linkedCardId)
       .sort((a, b) => a.position - b.position);
 
     if (items.length === 0) continue;
 
-    const lines = items.map(
-      (item) => `- [${item.isCompleted ? "x" : " "}] ${item.name}`,
+    sections.push(
+      checklistSection(
+        taskList.name,
+        items.map((item) => ({
+          name: item.name,
+          done: Boolean(item.isCompleted),
+        })),
+      ),
     );
-    sections.push(`## ${taskList.name}\n\n${lines.join("\n")}`);
   }
 
-  return sections.join("\n\n");
+  return joinSections(sections);
 }
 
 export function displayName(user: PlankaUser | undefined): string {
@@ -103,7 +106,6 @@ export function formatComment(comment: PlankaComment): string {
     : comment.text;
 }
 
-/** PLANKA has no priority field; Kaneo requires one on create. */
 export const DEFAULT_PRIORITY = "no-priority";
 
 export function toDueDate(card: PlankaCard): string | undefined {
@@ -119,4 +121,31 @@ export function boardProjectName(
 ): string {
   if (boardCountInProject <= 1) return projectName;
   return `${projectName} - ${boardName}`;
+}
+
+export type PlankaBoardEntry = {
+  project: PlankaProject;
+  board: PlankaBoard;
+  boardCountInProject: number;
+};
+
+export function listBoardEntries(bundle: ProjectsBundle): PlankaBoardEntry[] {
+  const boards = bundle.included.boards ?? [];
+  const entries: PlankaBoardEntry[] = [];
+
+  for (const project of bundle.items) {
+    const projectBoards = boards
+      .filter((board) => board.projectId === project.id)
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+
+    for (const board of projectBoards) {
+      entries.push({
+        project,
+        board,
+        boardCountInProject: projectBoards.length,
+      });
+    }
+  }
+
+  return entries;
 }

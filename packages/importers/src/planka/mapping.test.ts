@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vite-plus/test";
+import type { PlankaCard, PlankaList } from "./client.js";
 import {
   boardProjectName,
   buildDescription,
   formatComment,
+  listBoardEntries,
   planColumns,
   sortCards,
   toDueDate,
 } from "./mapping.js";
-import type { PlankaCard, PlankaList } from "./planka.js";
 
 function list(partial: Partial<PlankaList> & { id: string }): PlankaList {
   return {
@@ -185,5 +186,35 @@ describe("boardProjectName", () => {
     expect(boardProjectName("Marketing", "Campaigns", 3)).toBe(
       "Marketing - Campaigns",
     );
+  });
+});
+
+describe("listBoardEntries", () => {
+  it("lists every board under its project in position order with the board count", () => {
+    const entries = listBoardEntries({
+      items: [
+        { id: "p1", name: "Marketing" },
+        { id: "p2", name: "Ops" },
+      ],
+      included: {
+        boards: [
+          { id: "b2", projectId: "p1", name: "Campaigns", position: 2 },
+          { id: "b3", projectId: "p2", name: "Main", position: 1 },
+          { id: "b1", projectId: "p1", name: "Content", position: 1 },
+        ],
+      },
+    });
+
+    expect(
+      entries.map((entry) => [
+        entry.project.id,
+        entry.board.id,
+        entry.boardCountInProject,
+      ]),
+    ).toEqual([
+      ["p1", "b1", 2],
+      ["p1", "b2", 2],
+      ["p2", "b3", 1],
+    ]);
   });
 });

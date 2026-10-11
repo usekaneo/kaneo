@@ -16,6 +16,7 @@ export function toColumnSlug(name: string): string {
 export const RESERVED_COLUMN_SLUGS = ["planned", "archived"];
 
 const PROJECT_KEY_MAX = 8;
+export const SOURCE_PROJECT_KEY_MAX = 16;
 
 export function toProjectKey(name: string): string {
   const words = name
@@ -29,11 +30,24 @@ export function toProjectKey(name: string): string {
 
   const key =
     words.length > 1
-      ? words.map((word) => word[0]).join("")
+      ? words.map((word) => Array.from(word)[0]).join("")
       : (words[0] as string);
 
-  const normalized = key.toUpperCase().slice(0, PROJECT_KEY_MAX);
+  const normalized = Array.from(key.toUpperCase())
+    .slice(0, PROJECT_KEY_MAX)
+    .join("");
   return normalized.length > 0 ? normalized : "PROJ";
+}
+
+export function sanitizeProjectKey(
+  raw: string | null | undefined,
+): string | null {
+  if (!raw) return null;
+  const key = Array.from(raw.normalize("NFKC").toUpperCase())
+    .filter((char) => /^[\p{L}\p{N}]$/u.test(char))
+    .slice(0, SOURCE_PROJECT_KEY_MAX)
+    .join("");
+  return key.length > 0 ? key : null;
 }
 
 export function uniqueKey(
@@ -43,9 +57,12 @@ export function uniqueKey(
 ): string {
   if (!taken.has(candidate)) return candidate;
 
+  const chars = Array.from(candidate);
   for (let suffix = 2; ; suffix++) {
     const tail = String(suffix);
-    const head = candidate.slice(0, Math.max(1, maxLength - tail.length - 1));
+    const head = chars
+      .slice(0, Math.max(1, maxLength - tail.length - 1))
+      .join("");
     const next = `${head}-${tail}`;
     if (!taken.has(next)) return next;
   }

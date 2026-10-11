@@ -1,4 +1,3 @@
-// Hex values taken from PLANKA's own stylesheet.
 const LABEL_COLORS: Record<string, string> = {
   "muddy-grey": "#69655a",
   "autumn-leafs": "#c9b037",
@@ -18,7 +17,6 @@ const LABEL_COLORS: Record<string, string> = {
   "lilac-eyes": "#406cbd",
   "apricot-red": "#fc736c",
   "orange-peel": "#de692f",
-  // Gradient in PLANKA; collapsed to its dominant stop.
   "silver-glint": "#92908d",
   "bright-moss": "#96b352",
   "deep-ocean": "#004c70",
@@ -42,7 +40,6 @@ const LABEL_COLORS: Record<string, string> = {
   "french-coast": "#00b4b1",
   "sweet-lilac": "#975298",
   "red-burgundy": "#ad5f7d",
-  // Gradient in PLANKA; collapsed to its dominant stop.
   "pirate-gold": "#b47e11",
 };
 
