@@ -91,10 +91,10 @@ Save this as `package.json`:
 }
 ```
 
-Install the config package and the plugins you want:
+Install the config package and the plugins you want. `@kaneo/config` is released with Kaneo under the same version, so use the version of the image you deploy:
 
 ```bash
-npm i @kaneo/config kaneo-plugin-task-progress
+npm i @kaneo/config@<version> kaneo-plugin-task-progress
 ```
 
 This adds both as dependencies and writes `package-lock.json`, which pins the exact versions. Install plugins as regular dependencies, not with `-D`, so the image install step below keeps them.
@@ -240,7 +240,7 @@ npm view kaneo-plugin-task-progress engines.kaneo
 To upgrade:
 
 1. Prepare as described in [Upgrade Kaneo](/core/operations/upgrades), including a backup.
-2. Change the image tag and update `@kaneo/config` together. When moving to the newest Kaneo, run `npm i @kaneo/config@latest` in `my-kaneo`.
+2. Change the image tag and move `@kaneo/config` to the same version: run `npm i @kaneo/config@<new version>` in `my-kaneo`.
 3. Check the project with the new image, before you deploy it:
 
    ```bash

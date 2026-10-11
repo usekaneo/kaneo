@@ -4,7 +4,7 @@ Typed configuration for self-hosted [Kaneo](https://kaneo.app) instances. Use it
 
 ## Set up
 
-Create a small project next to your deployment and install the config package with the plugins you want:
+Create a small project next to your deployment and install the config package with the plugins you want. `@kaneo/config` is released with Kaneo under the same version, so install the one that matches your image tag, for example `@kaneo/config@<version>`:
 
 ```bash
 mkdir my-kaneo && cd my-kaneo
