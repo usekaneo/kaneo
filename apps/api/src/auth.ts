@@ -66,9 +66,13 @@ import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import { resolveFileSecret } from "./utils/file-secret";
 import { generateDemoName } from "./utils/generate-demo-name";
+import { getEmailRequestContext } from "./utils/email-request-context";
 import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attributes";
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
-import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
+import {
+  getInvitationRoleLabel,
+  getWorkspaceInvitationEmailCopy,
+} from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
 import {
   hasInstanceAdminRole,
@@ -174,7 +178,7 @@ function getAuthEmailCopy(locale?: string | null) {
   if (localeKey === "de") {
     return {
       magicLinkSubject: "Anmeldelink für Kaneo",
-      otpSubject: "Bestätigungscode für Kaneo",
+      otpSubject: (otp: string) => `${otp} ist dein Kaneo-Anmeldecode`,
       passwordResetSubject: "Kaneo-Passwort zurücksetzen",
     };
   }
@@ -182,7 +186,7 @@ function getAuthEmailCopy(locale?: string | null) {
   if (localeKey === "vi") {
     return {
       magicLinkSubject: "Liên kết đăng nhập Kaneo",
-      otpSubject: "Mã xác minh Kaneo",
+      otpSubject: (otp: string) => `${otp} là mã đăng nhập Kaneo của bạn`,
       passwordResetSubject: "Đặt lại mật khẩu Kaneo",
     };
   }
@@ -190,7 +194,7 @@ function getAuthEmailCopy(locale?: string | null) {
   if (localeKey === "ja") {
     return {
       magicLinkSubject: "Kaneo ログインリンク",
-      otpSubject: "Kaneo 認証コード",
+      otpSubject: (otp: string) => `Kaneo のサインインコード: ${otp}`,
       passwordResetSubject: "Kaneo のパスワードをリセット",
     };
   }
@@ -198,14 +202,14 @@ function getAuthEmailCopy(locale?: string | null) {
   if (localeKey === "zh-tw") {
     return {
       magicLinkSubject: "Kaneo 登入連結",
-      otpSubject: "Kaneo 驗證碼",
+      otpSubject: (otp: string) => `你的 Kaneo 登入驗證碼：${otp}`,
       passwordResetSubject: "重設 Kaneo 密碼",
     };
   }
 
   return {
     magicLinkSubject: "Login for Kaneo",
-    otpSubject: "Authentication code for Kaneo",
+    otpSubject: (otp: string) => `${otp} is your Kaneo sign-in code`,
     passwordResetSubject: "Reset your Kaneo password",
   };
 }
@@ -286,14 +290,20 @@ export const auth = betterAuth({
     autoSignIn: true,
     revokeSessionsOnPasswordReset: true,
     resetPasswordTokenExpiresIn: 60 * 60,
-    sendResetPassword: async ({ user, url }) => {
+    sendResetPassword: async ({ user, url }, request) => {
+      const requestContext = getEmailRequestContext(request?.headers);
       // Keep SMTP latency out of the response so it cannot reveal accounts.
       trackPasswordResetDelivery(
         getUserLocale(user.email).then((locale) =>
           sendPasswordResetEmail(
             user.email,
             getAuthEmailCopy(locale).passwordResetSubject,
-            { resetLink: url, userName: user.name, locale },
+            {
+              resetLink: url,
+              userName: user.name,
+              locale,
+              ...requestContext,
+            },
           ),
         ),
       );
@@ -334,7 +344,10 @@ export const auth = betterAuth({
     lastLoginMethod(),
     magicLink({
       disableSignUp: isPasswordRegistrationDisabled,
-      sendMagicLink: async ({ email, url }) => {
+      sendMagicLink: async ({ email, url }, ctx) => {
+        const requestContext = getEmailRequestContext(
+          ctx?.request?.headers ?? ctx?.headers,
+        );
         queueSignInEmail(async () => {
           if (!(await shouldDeliverSignInEmail(email))) {
             return;
@@ -344,6 +357,7 @@ export const auth = betterAuth({
           await sendMagicLinkEmail(email, copy.magicLinkSubject, {
             magicLink: url,
             locale,
+            ...requestContext,
           });
         });
       },
@@ -354,17 +368,21 @@ export const auth = betterAuth({
           emailOTP({
             expiresIn: OTP_EXPIRY_SECONDS,
             disableSignUp: isPasswordRegistrationDisabled,
-            async sendVerificationOTP({ email, otp, type }) {
+            async sendVerificationOTP({ email, otp, type }, ctx) {
               if (type === "sign-in") {
+                const requestContext = getEmailRequestContext(
+                  ctx?.request?.headers ?? ctx?.headers,
+                );
                 queueSignInEmail(async () => {
                   if (!(await shouldDeliverSignInEmail(email))) {
                     return;
                   }
                   const locale = await getUserLocale(email);
                   const copy = getAuthEmailCopy(locale);
-                  await sendOtpEmail(email, copy.otpSubject, {
+                  await sendOtpEmail(email, copy.otpSubject(otp), {
                     otp,
                     locale,
+                    ...requestContext,
                   });
                 });
               }
@@ -619,6 +637,9 @@ export const auth = betterAuth({
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
             to: data.email,
+            locale,
+            role: getInvitationRoleLabel(locale, data.role),
+            expiresAt: data.invitation.expiresAt,
             copy,
           },
         );

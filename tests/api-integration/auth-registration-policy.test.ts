@@ -21,6 +21,9 @@ const headers = {
   "content-type": "application/json",
   Origin: "http://localhost:5173",
 };
+
+const iphoneSafari =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 async function post(
   path: string,
   body: unknown,
@@ -226,14 +229,21 @@ describe("auth registration and bootstrap boundaries", () => {
     for (const address of ["new-otp@example.com", member.user.email]) {
       expect(
         (
-          await post("/email-otp/send-verification-otp", {
-            email: address,
-            type: "sign-in",
-          })
+          await post(
+            "/email-otp/send-verification-otp",
+            { email: address, type: "sign-in" },
+            { "user-agent": iphoneSafari },
+          )
         ).status,
       ).toBe(200);
       expect(
-        (await post("/sign-in/magic-link", { email: address })).status,
+        (
+          await post(
+            "/sign-in/magic-link",
+            { email: address },
+            { "user-agent": iphoneSafari },
+          )
+        ).status,
       ).toBe(200);
     }
     expect(send).toHaveBeenCalledTimes(1);
@@ -242,6 +252,15 @@ describe("auth registration and bootstrap boundaries", () => {
     expect(sendMagicLink.mock.lastCall?.[0]).toBe(member.user.email);
     const data = send.mock.lastCall?.[2] as { otp: string } | undefined;
     expect(data?.otp).toBeTruthy();
+    expect(send.mock.lastCall?.[1]).toBe(
+      `${data?.otp} is your Kaneo sign-in code`,
+    );
+    const requestContext = expect.objectContaining({
+      device: { browser: "Safari", os: "iPhone" },
+      requestedAt: expect.any(Date),
+    });
+    expect(send.mock.lastCall?.[2]).toEqual(requestContext);
+    expect(sendMagicLink.mock.lastCall?.[2]).toEqual(requestContext);
     const response = await post("/sign-in/email-otp", {
       email: member.user.email,
       otp: data?.otp,

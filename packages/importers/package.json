@@ -1,0 +1,37 @@
+{
+	"name": "@kaneo/importers",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Read projects from PLANKA, Plane, Linear, Trello and other Kaneo instances into one import model",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./planka": {
+			"types": "./dist/planka/index.d.ts",
+			"default": "./dist/planka/index.js"
+		}
+	},
+	"license": "MIT",
+	"scripts": {
+		"build": "vp run compile",
+		"lint": "vp check .",
+		"test": "vp run test:run",
+		"test:watch": "vp test --config vitest.config.ts"
+	},
+	"dependencies": {
+		"turndown": "^7.2.4",
+		"turndown-plugin-gfm": "^1.0.2"
+	},
+	"devDependencies": {
+		"@kaneo/typescript-config": "workspace:*",
+		"@types/node": "^26.6.2",
+		"typescript": "^7.0.2",
+		"vite-plus": "catalog:",
+		"@types/turndown": "^5.0.5"
+	}
+}

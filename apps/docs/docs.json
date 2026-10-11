@@ -124,7 +124,12 @@
 					{
 						"group": "Move to Kaneo",
 						"pages": [
+							"core/migrations/index",
+							"core/migrations/from-linear",
+							"core/migrations/from-trello",
+							"core/migrations/from-plane",
 							"core/migrations/from-planka",
+							"core/migrations/from-kaneo",
 							"core/installation/migration",
 							"core/installation/drim-migration"
 						]
