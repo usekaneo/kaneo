@@ -98,6 +98,7 @@ Credentials are resolved in this order: `--token`, then `KANEO_API_KEY`, then th
 | `kaneo member list`, `invite`, `role`, `remove` | Manage workspace members |
 | `kaneo invitation list`, `pending`, `accept`, `decline`, `cancel` | Manage invitations you sent or received |
 | `kaneo notification list`, `read` | Read your notifications (also `kaneo inbox`) |
+| `kaneo plugin list`, `add`, `check`, `purge` | List a server's plugins, add one to a self-hosted instance's `kaneo.config.ts`, run the plugin startup checks, and delete a removed plugin's data |
 | `kaneo search` | Search tasks, projects and comments |
 | `kaneo link`, `unlink` | Save or remove the workspace and project for a repository |
 | `kaneo context` | Show the settings in use and where each came from |

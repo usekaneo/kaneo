@@ -162,6 +162,12 @@
 			"notSet": "未設定",
 			"true": "是",
 			"undefined": "未定義"
+		},
+		"plugins": {
+			"commandFailed": "外掛程式指令執行失敗",
+			"failedToLoad": "此外掛程式載入失敗",
+			"openTaskFailed": "無法開啟任務",
+			"unavailable": "此外掛程式檢視無法使用"
 		}
 	},
 	"auth": {
@@ -624,7 +630,6 @@
 			"selectViewMode": "選擇檢視模式",
 			"board": "看板",
 			"list": "清單",
-			"gantt": "甘特圖",
 			"sidebarDefault": "預設展開側邊欄",
 			"sidebarDefaultDescription": "啟動時保持側邊欄展開",
 			"displayOptions": "顯示選項",
@@ -2039,6 +2044,43 @@
 				"transferError": "Failed to transfer ownership"
 			},
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"workspacePlugins": {
+			"builtIn": "內建",
+			"empty": {
+				"description": "外掛程式由執行個體管理員在 kaneo.config.ts 中新增。外掛程式安裝後會顯示在這裡，供工作區管理員啟用。",
+				"link": "瞭解外掛程式",
+				"title": "未安裝任何外掛程式"
+			},
+			"enable": "啟用 {{name}}",
+			"form": {
+				"none": "無",
+				"save": "儲存設定",
+				"secretCancel": "取消",
+				"secretClear": "清除",
+				"secretConfigured": "已設定",
+				"secretPlaceholder": "輸入新值",
+				"secretReplace": "取代",
+				"secretUndo": "復原",
+				"secretWillClear": "儲存後將清除",
+				"selectPlaceholder": "選擇一個選項"
+			},
+			"loadError": "無法載入外掛程式，請重新整理頁面後再試一次。",
+			"pageTitle": "外掛程式設定",
+			"status": {
+				"failed": "載入失敗",
+				"loaded": "運作中",
+				"loading": "載入中"
+			},
+			"subtitle": "選擇此工作區要使用哪些已安裝的外掛程式，並進行設定。",
+			"title": "外掛程式",
+			"toast": {
+				"disabled": "已停用 {{name}}",
+				"enabled": "已啟用 {{name}}",
+				"invalid": "部分設定需要處理",
+				"saved": "外掛程式設定已儲存",
+				"updateError": "無法更新外掛程式"
+			}
 		}
 	},
 	"navigation": {
@@ -2061,7 +2103,8 @@
 				"navigate": "移動",
 				"open": "開啟",
 				"close": "關閉"
-			}
+			},
+			"plugins": "外掛程式"
 		},
 		"sidebar": {
 			"projects": "專案",

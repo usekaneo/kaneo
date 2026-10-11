@@ -21,6 +21,11 @@ const workflow = readFileSync(
 const command = workflow.match(
   /run: (node scripts\/release\/apply-version\.mjs[^\n]*)/,
 )[1];
+const manifests = [
+  "package.json",
+  "packages/config/package.json",
+  "packages/plugin-sdk/package.json",
+];
 
 for (const version of [
   "1.2.3",
@@ -39,13 +44,18 @@ for (const version of [
     try {
       mkdirSync(resolve(fixture, "scripts/release"), { recursive: true });
       mkdirSync(resolve(fixture, "charts/kaneo"), { recursive: true });
+      for (const manifest of manifests) {
+        mkdirSync(resolve(fixture, manifest, ".."), { recursive: true });
+      }
       copyFileSync(
         resolve(root, "scripts/release/apply-version.mjs"),
         resolve(fixture, "scripts/release/apply-version.mjs"),
       );
       const originalPackage = '{\n  "version": "0.0.0"\n}\n';
       const originalChart = 'version: 0.0.0\nappVersion: "0.0.0"\n';
-      writeFileSync(resolve(fixture, "package.json"), originalPackage);
+      for (const manifest of manifests) {
+        writeFileSync(resolve(fixture, manifest), originalPackage);
+      }
       writeFileSync(resolve(fixture, "charts/kaneo/Chart.yaml"), originalChart);
       const result = spawnSync("sh", ["-c", command], {
         cwd: fixture,
@@ -55,16 +65,20 @@ for (const version of [
       assert.equal(existsSync(resolve(fixture, "injected")), false);
       if (["1.2.3", "1.2.3-rc.1"].includes(version)) {
         assert.equal(result.status, 0, result.stderr);
-        assert.equal(
-          JSON.parse(readFileSync(resolve(fixture, "package.json"))).version,
-          version,
-        );
+        for (const manifest of manifests) {
+          assert.equal(
+            JSON.parse(readFileSync(resolve(fixture, manifest))).version,
+            version,
+          );
+        }
       } else {
         assert.notEqual(result.status, 0);
-        assert.equal(
-          readFileSync(resolve(fixture, "package.json"), "utf8"),
-          originalPackage,
-        );
+        for (const manifest of manifests) {
+          assert.equal(
+            readFileSync(resolve(fixture, manifest), "utf8"),
+            originalPackage,
+          );
+        }
         assert.equal(
           readFileSync(resolve(fixture, "charts/kaneo/Chart.yaml"), "utf8"),
           originalChart,

@@ -35,11 +35,18 @@ function rewrite(relativePath, transform, expected) {
   console.log(`apply-version: ${relativePath} -> ${version}`);
 }
 
-rewrite(
+for (const manifest of [
   "package.json",
-  (source) => source.replace(/^(\s*"version":\s*")[^"]*(")/m, `$1${version}$2`),
-  [`"version": "${version}"`],
-);
+  "packages/config/package.json",
+  "packages/plugin-sdk/package.json",
+]) {
+  rewrite(
+    manifest,
+    (source) =>
+      source.replace(/^(\s*"version":\s*")[^"]*(")/m, `$1${version}$2`),
+    [`"version": "${version}"`],
+  );
+}
 
 rewrite(
   "charts/kaneo/Chart.yaml",

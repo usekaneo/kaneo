@@ -162,6 +162,12 @@
 			"notSet": "未设置",
 			"true": "是",
 			"undefined": "未定义"
+		},
+		"plugins": {
+			"commandFailed": "插件命令执行失败",
+			"failedToLoad": "此插件加载失败",
+			"openTaskFailed": "无法打开任务",
+			"unavailable": "此插件视图不可用"
 		}
 	},
 	"auth": {
@@ -625,7 +631,6 @@
 			"selectViewMode": "选择视图模式",
 			"board": "看板",
 			"list": "列表",
-			"gantt": "甘特图",
 			"sidebarDefault": "默认展开侧边栏",
 			"sidebarDefaultDescription": "启动时保持侧边栏展开",
 			"displayOptions": "显示选项",
@@ -1896,6 +1901,43 @@
 			},
 			"openFailed": "无法打开此工作区的账单页面"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "插件由实例管理员在 kaneo.config.ts 中添加。插件安装后会显示在这里，供工作区管理员启用。",
+				"link": "了解插件",
+				"title": "未安装插件"
+			},
+			"enable": "启用 {{name}}",
+			"form": {
+				"none": "无",
+				"save": "保存设置",
+				"secretCancel": "取消",
+				"secretClear": "清除",
+				"secretConfigured": "已配置",
+				"secretPlaceholder": "输入新值",
+				"secretReplace": "替换",
+				"secretUndo": "撤销",
+				"secretWillClear": "保存后将清除",
+				"selectPlaceholder": "选择一个选项"
+			},
+			"loadError": "无法加载插件。请刷新页面后重试。",
+			"pageTitle": "插件设置",
+			"status": {
+				"failed": "加载失败",
+				"loaded": "运行中",
+				"loading": "加载中"
+			},
+			"subtitle": "选择此工作区使用哪些已安装的插件，并进行配置。",
+			"title": "插件",
+			"toast": {
+				"disabled": "已停用 {{name}}",
+				"enabled": "已启用 {{name}}",
+				"invalid": "部分设置需要处理",
+				"saved": "插件设置已保存",
+				"updateError": "无法更新插件"
+			},
+			"builtIn": "内置"
+		},
 		"syncRules": {
 			"addLabel": "添加标签",
 			"advancedHint": "开启「偏好设置」里的高级设置后，才能编辑这些规则。",
@@ -2061,7 +2103,8 @@
 				"navigate": "导航",
 				"open": "打开",
 				"close": "关闭"
-			}
+			},
+			"plugins": "插件"
 		},
 		"sidebar": {
 			"projects": "项目",

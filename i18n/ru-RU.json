@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Не удалось выполнить команду плагина",
+			"failedToLoad": "Не удалось загрузить этот плагин",
+			"openTaskFailed": "Не удалось открыть задачу",
+			"unavailable": "Это представление плагина недоступно"
 		}
 	},
 	"auth": {
@@ -628,7 +634,6 @@
 			"selectViewMode": "Выберите режим просмотра",
 			"board": "Доска",
 			"list": "Список",
-			"gantt": "Гант",
 			"sidebarDefault": "Боковая панель по умолчанию",
 			"sidebarDefaultDescription": "Оставлять боковую панель раскрытой при запуске",
 			"displayOptions": "Параметры отображения",
@@ -1925,6 +1930,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Плагины добавляет администратор экземпляра в kaneo.config.ts. После установки плагин появится здесь, и администраторы рабочей области смогут его включить.",
+				"link": "Подробнее о плагинах",
+				"title": "Нет установленных плагинов"
+			},
+			"enable": "Включить {{name}}",
+			"form": {
+				"none": "Нет",
+				"save": "Сохранить настройки",
+				"secretCancel": "Отмена",
+				"secretClear": "Очистить",
+				"secretConfigured": "Настроено",
+				"secretPlaceholder": "Введите новое значение",
+				"secretReplace": "Заменить",
+				"secretUndo": "Отменить",
+				"secretWillClear": "Будет очищено при сохранении",
+				"selectPlaceholder": "Выберите вариант"
+			},
+			"loadError": "Не удалось загрузить плагины. Обновите страницу, чтобы повторить попытку.",
+			"pageTitle": "Настройки плагинов",
+			"status": {
+				"failed": "Ошибка загрузки",
+				"loaded": "Активен",
+				"loading": "Загрузка"
+			},
+			"subtitle": "Выберите, какие установленные плагины использует эта рабочая область, и настройте их.",
+			"title": "Плагины",
+			"toast": {
+				"disabled": "Плагин {{name}} отключён",
+				"enabled": "Плагин {{name}} включён",
+				"invalid": "Некоторые настройки требуют внимания",
+				"saved": "Настройки плагина сохранены",
+				"updateError": "Не удалось обновить плагин"
+			},
+			"builtIn": "Встроенный"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2102,7 +2144,8 @@
 				"navigate": "Навигация",
 				"open": "Открыть",
 				"close": "Закрыть"
-			}
+			},
+			"plugins": "Плагины"
 		},
 		"sidebar": {
 			"projects": "Проекты",

@@ -40,6 +40,9 @@ vi.mock("@/store/user-preferences", () => ({
 vi.mock("@/store/background", () => ({
   useBackgroundStore: () => ({ background: null }),
 }));
+vi.mock("@/lib/plugins/runtime/use-plugin-view-shortcuts", () => ({
+  usePluginViewShortcuts: vi.fn(),
+}));
 vi.mock("@/hooks/use-board-sort", () => ({
   useBoardSort: () => ({ sort: { field: "position" }, setSort: vi.fn() }),
 }));

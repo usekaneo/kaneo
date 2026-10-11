@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Lệnh của plugin không thành công",
+			"failedToLoad": "Không thể tải plugin này",
+			"openTaskFailed": "Không thể mở công việc",
+			"unavailable": "Chế độ xem của plugin này không khả dụng"
 		}
 	},
 	"auth": {
@@ -625,7 +631,6 @@
 			"selectViewMode": "Chọn chế độ xem",
 			"board": "Bảng",
 			"list": "Danh sách",
-			"gantt": "Gantt",
 			"sidebarDefault": "Thanh bên mặc định",
 			"sidebarDefaultDescription": "Giữ thanh bên mở rộng khi khởi động",
 			"displayOptions": "Tùy chọn hiển thị",
@@ -1896,6 +1901,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Plugin do quản trị viên hệ thống thêm vào kaneo.config.ts. Sau khi được cài đặt, plugin sẽ xuất hiện tại đây để quản trị viên không gian làm việc bật.",
+				"link": "Tìm hiểu về plugin",
+				"title": "Chưa cài đặt plugin nào"
+			},
+			"enable": "Bật {{name}}",
+			"form": {
+				"none": "Không có",
+				"save": "Lưu cài đặt",
+				"secretCancel": "Hủy",
+				"secretClear": "Xóa",
+				"secretConfigured": "Đã cấu hình",
+				"secretPlaceholder": "Nhập giá trị mới",
+				"secretReplace": "Thay thế",
+				"secretUndo": "Hoàn tác",
+				"secretWillClear": "Sẽ bị xóa khi bạn lưu",
+				"selectPlaceholder": "Chọn một tùy chọn"
+			},
+			"loadError": "Không thể tải plugin. Hãy tải lại trang để thử lại.",
+			"pageTitle": "Cài đặt plugin",
+			"status": {
+				"failed": "Không tải được",
+				"loaded": "Đang hoạt động",
+				"loading": "Đang tải"
+			},
+			"subtitle": "Chọn các plugin đã cài đặt mà không gian làm việc này sử dụng và cấu hình chúng.",
+			"title": "Plugin",
+			"toast": {
+				"disabled": "Đã tắt {{name}}",
+				"enabled": "Đã bật {{name}}",
+				"invalid": "Một số cài đặt cần được kiểm tra",
+				"saved": "Đã lưu cài đặt plugin",
+				"updateError": "Không thể cập nhật plugin"
+			},
+			"builtIn": "Tích hợp sẵn"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2061,7 +2103,8 @@
 				"navigate": "Điều hướng",
 				"open": "Mở",
 				"close": "Đóng"
-			}
+			},
+			"plugins": "Plugin"
 		},
 		"sidebar": {
 			"projects": "Dự án",

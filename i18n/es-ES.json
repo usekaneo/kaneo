@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "El comando del complemento ha fallado",
+			"failedToLoad": "No se ha podido cargar este complemento",
+			"openTaskFailed": "No se ha podido abrir la tarea",
+			"unavailable": "Esta vista del complemento no está disponible"
 		}
 	},
 	"auth": {
@@ -523,7 +529,6 @@
 			"selectViewMode": "Elige una vista por defecto",
 			"board": "Tablero",
 			"list": "Lista",
-			"gantt": "Gantt",
 			"sidebarDefault": "Barra lateral por defecto",
 			"sidebarDefaultDescription": "Mantener la barra lateral al iniciar",
 			"displayOptions": "Ver opciones",
@@ -1910,6 +1915,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "El administrador de la instancia añade los complementos en kaneo.config.ts. Cuando se instala un complemento, aparece aquí para que los admins del espacio de trabajo lo activen.",
+				"link": "Más información sobre complementos",
+				"title": "No hay complementos instalados"
+			},
+			"enable": "Activar {{name}}",
+			"form": {
+				"none": "Ninguno",
+				"save": "Guardar ajustes",
+				"secretCancel": "Cancelar",
+				"secretClear": "Borrar",
+				"secretConfigured": "Configurado",
+				"secretPlaceholder": "Introduce un valor nuevo",
+				"secretReplace": "Reemplazar",
+				"secretUndo": "Deshacer",
+				"secretWillClear": "Se borrará al guardar",
+				"selectPlaceholder": "Selecciona una opción"
+			},
+			"loadError": "No se han podido cargar los complementos. Recarga la página para intentarlo de nuevo.",
+			"pageTitle": "Ajustes de complementos",
+			"status": {
+				"failed": "Error al cargar",
+				"loaded": "Activo",
+				"loading": "Cargando"
+			},
+			"subtitle": "Elige qué complementos instalados usa este espacio de trabajo y configúralos.",
+			"title": "Complementos",
+			"toast": {
+				"disabled": "{{name}} desactivado",
+				"enabled": "{{name}} activado",
+				"invalid": "Algunos ajustes requieren atención",
+				"saved": "Ajustes del complemento guardados",
+				"updateError": "No se ha podido actualizar el complemento"
+			},
+			"builtIn": "Integrado"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2083,7 +2125,8 @@
 				"navigate": "Navegar",
 				"open": "Abrir",
 				"close": "Cerrar"
-			}
+			},
+			"plugins": "Complementos"
 		},
 		"sidebar": {
 			"projects": "Proyectos",

@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Il comando del plugin non è riuscito",
+			"failedToLoad": "Impossibile caricare questo plugin",
+			"openTaskFailed": "Impossibile aprire l'attività",
+			"unavailable": "Questa vista del plugin non è disponibile"
 		}
 	},
 	"auth": {
@@ -627,7 +633,6 @@
 			"selectViewMode": "Seleziona una modalità di visualizzazione",
 			"board": "Board",
 			"list": "Elenco",
-			"gantt": "Gantt",
 			"sidebarDefault": "Barra laterale predefinita",
 			"sidebarDefaultDescription": "Mantieni la barra laterale espansa all'avvio",
 			"displayOptions": "Opzioni di visualizzazione",
@@ -1910,6 +1915,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "I plugin vengono aggiunti dall'amministratore dell'istanza in kaneo.config.ts. Una volta installato, un plugin compare qui e gli admin del workspace possono attivarlo.",
+				"link": "Scopri di più sui plugin",
+				"title": "Nessun plugin installato"
+			},
+			"enable": "Abilita {{name}}",
+			"form": {
+				"none": "Nessuno",
+				"save": "Salva impostazioni",
+				"secretCancel": "Annulla",
+				"secretClear": "Cancella",
+				"secretConfigured": "Configurato",
+				"secretPlaceholder": "Inserisci un nuovo valore",
+				"secretReplace": "Sostituisci",
+				"secretUndo": "Ripristina",
+				"secretWillClear": "Verrà cancellato al salvataggio",
+				"selectPlaceholder": "Seleziona un'opzione"
+			},
+			"loadError": "Impossibile caricare i plugin. Ricarica la pagina per riprovare.",
+			"pageTitle": "Impostazioni Plugin",
+			"status": {
+				"failed": "Caricamento non riuscito",
+				"loaded": "Attivo",
+				"loading": "Caricamento"
+			},
+			"subtitle": "Scegli quali plugin installati usa questo workspace e configurali.",
+			"title": "Plugin",
+			"toast": {
+				"disabled": "{{name}} disattivato",
+				"enabled": "{{name}} attivato",
+				"invalid": "Alcune impostazioni richiedono attenzione",
+				"saved": "Impostazioni del plugin salvate",
+				"updateError": "Impossibile aggiornare il plugin"
+			},
+			"builtIn": "Integrato"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2083,7 +2125,8 @@
 				"navigate": "Naviga",
 				"open": "Apri",
 				"close": "Chiudi"
-			}
+			},
+			"plugins": "Plugin"
 		},
 		"sidebar": {
 			"projects": "Progetti",

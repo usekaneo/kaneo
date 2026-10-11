@@ -14,6 +14,7 @@ import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toScheduledTasks } from "@/lib/task-schedule";
+import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type CalendarSearchParams = {
@@ -100,16 +101,12 @@ function RouteComponent() {
             params: { workspaceId, projectId },
           });
         },
-        [shortcuts.view.gantt]: () => {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
-            params: { workspaceId, projectId },
-          });
-        },
         [shortcuts.view.calendar]: () => {},
       },
     },
   });
+
+  usePluginViewShortcuts(workspaceId, projectId);
 
   return (
     <ProjectLayout

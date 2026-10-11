@@ -67,6 +67,15 @@ Name | Description | Default |
 --- | --- | --- |
 | `KANEO_INTERNAL_API_URL` | API origin used only for server-side requests from the built-in HTTP MCP endpoint. Override it only if the API is not reachable at the default loopback address from its own process. | `http://127.0.0.1:1337` |
 
+### Plugins
+
+Kaneo loads the plugins declared in a config file when it starts. See [Plugins](/core/plugins/index) for setup.
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_CONFIG` | Path to the config file that declares plugins. Accepts `.ts`, `.js`, or `.mjs`. When unset, Kaneo looks for `kaneo.config.ts`, `kaneo.config.js`, or `kaneo.config.mjs` in `/kaneo`, and starts without plugins if there is none. | `/kaneo/kaneo.config.ts` |
+| `DISABLE_PLUGINS` | Set to `true` to start without loading any plugins, even when a config file exists. Workspace plugin settings and plugin data are kept. | `false` |
+
 ### Object Storage
 
 Kaneo uses S3-compatible object storage for private uploads in task descriptions and task comments.

@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Perintah plugin gagal",
+			"failedToLoad": "Plugin ini gagal dimuat",
+			"openTaskFailed": "Tidak dapat membuka tugas",
+			"unavailable": "Tampilan plugin ini tidak tersedia"
 		}
 	},
 	"auth": {
@@ -625,7 +631,6 @@
 			"selectViewMode": "Pilih mode tampilan",
 			"board": "Papan",
 			"list": "Daftar",
-			"gantt": "Gantt",
 			"sidebarDefault": "Default panel samping",
 			"sidebarDefaultDescription": "Biarkan sanel samping terbuka saat mulai",
 			"displayOptions": "Opsi tampilan",
@@ -1896,6 +1901,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Plugin ditambahkan oleh administrator instans di kaneo.config.ts. Setelah dipasang, plugin akan muncul di sini agar admin ruang kerja dapat mengaktifkannya.",
+				"link": "Pelajari tentang plugin",
+				"title": "Belum ada plugin terpasang"
+			},
+			"enable": "Aktifkan {{name}}",
+			"form": {
+				"none": "Tidak ada",
+				"save": "Simpan pengaturan",
+				"secretCancel": "Batal",
+				"secretClear": "Hapus",
+				"secretConfigured": "Dikonfigurasi",
+				"secretPlaceholder": "Masukkan nilai baru",
+				"secretReplace": "Ganti",
+				"secretUndo": "Urungkan",
+				"secretWillClear": "Akan dihapus saat Anda menyimpan",
+				"selectPlaceholder": "Pilih opsi"
+			},
+			"loadError": "Tidak dapat memuat plugin. Muat ulang halaman untuk mencoba lagi.",
+			"pageTitle": "Pengaturan Plugin",
+			"status": {
+				"failed": "Gagal dimuat",
+				"loaded": "Aktif",
+				"loading": "Memuat"
+			},
+			"subtitle": "Pilih plugin terpasang yang digunakan ruang kerja ini dan konfigurasikan.",
+			"title": "Plugin",
+			"toast": {
+				"disabled": "{{name}} dinonaktifkan",
+				"enabled": "{{name}} diaktifkan",
+				"invalid": "Beberapa pengaturan perlu diperiksa",
+				"saved": "Pengaturan plugin disimpan",
+				"updateError": "Tidak dapat memperbarui plugin"
+			},
+			"builtIn": "Bawaan"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2061,7 +2103,8 @@
 				"navigate": "Navigasi",
 				"open": "Buka",
 				"close": "Tutup"
-			}
+			},
+			"plugins": "Plugin"
 		},
 		"sidebar": {
 			"projects": "Proyek",

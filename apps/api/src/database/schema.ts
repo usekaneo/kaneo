@@ -18,7 +18,7 @@ import type { GitHubImportState } from "../github-integration/import-state";
 // Timestamp columns without a time zone hold UTC (Drizzle reads and writes
 // them as UTC). A bare now() default would be cast through the session time
 // zone, storing shifted times on servers not running in UTC.
-const utcNow = sql`(now() AT TIME ZONE 'utc')`;
+export const utcNow = sql`(now() AT TIME ZONE 'utc')`;
 
 const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType() {
@@ -1455,3 +1455,70 @@ export const dataMigrationTable = pgTable("data_migration", {
     .default(utcNow)
     .notNull(),
 });
+
+export const workspacePluginTable = pgTable(
+  "workspace_plugin",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    pluginId: text("plugin_id").notNull(),
+    enabled: boolean("enabled").default(false).notNull(),
+    settings: jsonb("settings")
+      .$type<Record<string, unknown>>()
+      .default({})
+      .notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    unique("workspace_plugin_workspace_plugin_unique").on(
+      table.workspaceId,
+      table.pluginId,
+    ),
+  ],
+);
+
+export const pluginStorageTable = pgTable(
+  "plugin_storage",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    pluginId: text("plugin_id").notNull(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    key: text("key").notNull(),
+    value: jsonb("value").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("plugin_storage_workspaceId_idx").on(table.workspaceId),
+    unique("plugin_storage_plugin_workspace_key_unique").on(
+      table.pluginId,
+      table.workspaceId,
+      table.key,
+    ),
+  ],
+);

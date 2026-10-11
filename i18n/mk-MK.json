@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Командата на приклучокот не успеа",
+			"failedToLoad": "Овој приклучок не можеше да се вчита",
+			"openTaskFailed": "Задачата не можеше да се отвори",
+			"unavailable": "Овој приказ на приклучокот не е достапен"
 		}
 	},
 	"auth": {
@@ -626,7 +632,6 @@
 			"selectViewMode": "Избери режим на приказ",
 			"board": "Табла",
 			"list": "Листа",
-			"gantt": "Gantt",
 			"sidebarDefault": "Стандардна странична лента",
 			"sidebarDefaultDescription": "Задржи ја страничната лента отворена при стартување",
 			"displayOptions": "Опции за приказ",
@@ -1903,6 +1908,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Приклучоците ги додава администраторот на инстанцата во kaneo.config.ts. Откако ќе се инсталира, приклучокот се појавува тука и администраторите на работниот простор можат да го вклучат.",
+				"link": "Дознај повеќе за приклучоците",
+				"title": "Нема инсталирани приклучоци"
+			},
+			"enable": "Вклучи {{name}}",
+			"form": {
+				"none": "Ниедно",
+				"save": "Зачувај поставки",
+				"secretCancel": "Откажи",
+				"secretClear": "Исчисти",
+				"secretConfigured": "Конфигурирано",
+				"secretPlaceholder": "Внеси нова вредност",
+				"secretReplace": "Замени",
+				"secretUndo": "Врати",
+				"secretWillClear": "Ќе се исчисти кога ќе зачуваш",
+				"selectPlaceholder": "Избери опција"
+			},
+			"loadError": "Приклучоците не можеа да се вчитаат. Освежи ја страницата за да пробаш повторно.",
+			"pageTitle": "Поставки за приклучоци",
+			"status": {
+				"failed": "Неуспешно вчитување",
+				"loaded": "Активен",
+				"loading": "Се вчитува"
+			},
+			"subtitle": "Избери кои инсталирани приклучоци ги користи овој работен простор и конфигурирај ги.",
+			"title": "Приклучоци",
+			"toast": {
+				"disabled": "{{name}} е исклучен",
+				"enabled": "{{name}} е вклучен",
+				"invalid": "Некои поставки бараат внимание",
+				"saved": "Поставките за приклучокот се зачувани",
+				"updateError": "Приклучокот не можеше да се ажурира"
+			},
+			"builtIn": "Вграден"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2072,7 +2114,8 @@
 				"navigate": "Навигирај",
 				"open": "Отвори",
 				"close": "Затвори"
-			}
+			},
+			"plugins": "Приклучоци"
 		},
 		"sidebar": {
 			"projects": "Проекти",

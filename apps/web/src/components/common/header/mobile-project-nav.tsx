@@ -1,6 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  CalendarDays,
   CalendarRange,
   Check,
   ChevronsUpDown,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PluginIcon } from "@/components/plugins/plugin-icon";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -19,18 +19,25 @@ import {
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
+import {
+  isSamePluginView,
+  type PluginViewRef,
+  type ProjectPluginView,
+} from "@/lib/plugins/runtime/use-project-plugin-views";
 
-type ProjectView = "backlog" | "board" | "calendar" | "gantt";
+type ProjectView = "backlog" | "board" | "calendar";
 
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
   projectName?: string;
-  activeView: ProjectView;
+  activeView: ProjectView | null;
   onSelectBoard: () => void;
   onSelectBacklog: () => void;
   onSelectCalendar: () => void;
-  onSelectGantt: () => void;
+  pluginViews: ProjectPluginView[];
+  activePluginView: PluginViewRef | undefined;
+  onSelectPluginView: (view: PluginViewRef) => void;
   onSelectProject: (projectId: string) => void;
   onAddProject: () => void;
 };
@@ -43,7 +50,9 @@ export default function MobileProjectNav({
   onSelectBoard,
   onSelectBacklog,
   onSelectCalendar,
-  onSelectGantt,
+  pluginViews,
+  activePluginView,
+  onSelectPluginView,
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
@@ -77,12 +86,6 @@ export default function MobileProjectNav({
       label: t("tasks:calendar.title"),
       icon: CalendarRange,
       onSelect: onSelectCalendar,
-    },
-    {
-      id: "gantt",
-      label: t("tasks:view.gantt"),
-      icon: CalendarDays,
-      onSelect: onSelectGantt,
     },
   ];
 
@@ -133,6 +136,26 @@ export default function MobileProjectNav({
                   <span className="truncate">{label}</span>
                 </button>
               ))}
+              {pluginViews.map((view) => {
+                const isActive = isSamePluginView(activePluginView, view);
+                return (
+                  <button
+                    key={`${view.pluginId}:${view.viewId}`}
+                    type="button"
+                    onClick={select(() => onSelectPluginView(view))}
+                    aria-pressed={isActive}
+                    className={cn(
+                      "flex h-10 w-full items-center gap-2 rounded-md border px-2.5 text-sm font-medium transition-colors",
+                      isActive
+                        ? "border-border bg-secondary text-foreground"
+                        : "border-transparent text-muted-foreground hover:bg-accent",
+                    )}
+                  >
+                    <PluginIcon icon={view.icon} className="size-4 shrink-0" />
+                    <span className="truncate">{view.title}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

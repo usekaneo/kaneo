@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "प्लगइन कमांड विफल रहा",
+			"failedToLoad": "यह प्लगइन लोड नहीं हो सका",
+			"openTaskFailed": "कार्य नहीं खोला जा सका",
+			"unavailable": "यह प्लगइन व्यू उपलब्ध नहीं है"
 		}
 	},
 	"auth": {
@@ -626,7 +632,6 @@
 			"selectViewMode": "दृश्य मोड चुनें",
 			"board": "बोर्ड",
 			"list": "सूची",
-			"gantt": "गैंट",
 			"sidebarDefault": "साइडबार डिफ़ॉल्ट",
 			"sidebarDefaultDescription": "शुरुआत पर साइडबार विस्तारित रखें",
 			"displayOptions": "प्रदर्शन विकल्प",
@@ -1903,6 +1908,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "प्लगइन इंस्टेंस व्यवस्थापक द्वारा kaneo.config.ts में जोड़े जाते हैं। इंस्टॉल होने के बाद प्लगइन यहाँ दिखाई देता है, ताकि वर्कस्पेस व्यवस्थापक उसे चालू कर सकें।",
+				"link": "प्लगइन के बारे में जानें",
+				"title": "कोई प्लगइन इंस्टॉल नहीं है"
+			},
+			"enable": "{{name}} सक्षम करें",
+			"form": {
+				"none": "कोई नहीं",
+				"save": "सेटिंग सहेजें",
+				"secretCancel": "रद्द करें",
+				"secretClear": "साफ़ करें",
+				"secretConfigured": "कॉन्फ़िगर किया गया",
+				"secretPlaceholder": "नया मान दर्ज करें",
+				"secretReplace": "बदलें",
+				"secretUndo": "पूर्ववत करें",
+				"secretWillClear": "सहेजने पर साफ़ हो जाएगा",
+				"selectPlaceholder": "कोई विकल्प चुनें"
+			},
+			"loadError": "प्लगइन लोड नहीं हो सके। फिर से प्रयास करने के लिए पेज रिफ़्रेश करें।",
+			"pageTitle": "प्लगइन सेटिंग",
+			"status": {
+				"failed": "लोड करने में विफल",
+				"loaded": "सक्रिय",
+				"loading": "लोड हो रहा है"
+			},
+			"subtitle": "चुनें कि यह वर्कस्पेस कौन से इंस्टॉल किए गए प्लगइन उपयोग करता है और उन्हें कॉन्फ़िगर करें।",
+			"title": "प्लगइन",
+			"toast": {
+				"disabled": "{{name}} अक्षम किया गया",
+				"enabled": "{{name}} सक्षम किया गया",
+				"invalid": "कुछ सेटिंग पर ध्यान देना आवश्यक है",
+				"saved": "प्लगइन सेटिंग सहेजी गईं",
+				"updateError": "प्लगइन अपडेट नहीं हो सका"
+			},
+			"builtIn": "अंतर्निहित"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2072,7 +2114,8 @@
 				"navigate": "नेविगेट करें",
 				"open": "खोलें",
 				"close": "बंद करें"
-			}
+			},
+			"plugins": "प्लगइन"
 		},
 		"sidebar": {
 			"projects": "प्रोजेक्ट",

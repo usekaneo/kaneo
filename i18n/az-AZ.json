@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Plagin əmri uğursuz oldu",
+			"failedToLoad": "Bu plagin yüklənə bilmədi",
+			"openTaskFailed": "Tapşırığı açmaq alınmadı",
+			"unavailable": "Bu plagin görünüşü əlçatan deyil"
 		}
 	},
 	"auth": {
@@ -626,7 +632,6 @@
 			"selectViewMode": "Görünüş rejimini seçin",
 			"board": "Lövhə",
 			"list": "Siyahı",
-			"gantt": "Qant diaqramı",
 			"sidebarDefault": "Yan panelin standart vəziyyəti",
 			"sidebarDefaultDescription": "Başlanğıcda yan paneli açıq saxla",
 			"displayOptions": "Göstərmə seçimləri",
@@ -1903,6 +1908,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Plaginlər instans administratoru tərəfindən kaneo.config.ts faylına əlavə edilir. Plagin quraşdırıldıqdan sonra burada görünür və iş sahəsinin inzibatçıları onu aktivləşdirə bilər.",
+				"link": "Plaginlər haqqında ətraflı",
+				"title": "Quraşdırılmış plagin yoxdur"
+			},
+			"enable": "{{name}} plaginini aktivləşdir",
+			"form": {
+				"none": "Heç biri",
+				"save": "Parametrləri yadda saxla",
+				"secretCancel": "Ləğv et",
+				"secretClear": "Təmizlə",
+				"secretConfigured": "Tənzimlənib",
+				"secretPlaceholder": "Yeni dəyər daxil edin",
+				"secretReplace": "Əvəzlə",
+				"secretUndo": "Geri qaytar",
+				"secretWillClear": "Yadda saxladıqda təmizlənəcək",
+				"selectPlaceholder": "Seçim edin"
+			},
+			"loadError": "Plaginləri yükləmək alınmadı. Yenidən cəhd etmək üçün səhifəni yeniləyin.",
+			"pageTitle": "Plagin parametrləri",
+			"status": {
+				"failed": "Yüklənə bilmədi",
+				"loaded": "Aktiv",
+				"loading": "Yüklənir"
+			},
+			"subtitle": "Bu iş sahəsinin hansı quraşdırılmış plaginlərdən istifadə edəcəyini seçin və onları tənzimləyin.",
+			"title": "Plaginlər",
+			"toast": {
+				"disabled": "{{name}} söndürüldü",
+				"enabled": "{{name}} aktivləşdirildi",
+				"invalid": "Bəzi parametrlər diqqət tələb edir",
+				"saved": "Plagin parametrləri yadda saxlanıldı",
+				"updateError": "Plagini yeniləmək alınmadı"
+			},
+			"builtIn": "Daxili"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2072,7 +2114,8 @@
 				"navigate": "Keçid et",
 				"open": "Aç",
 				"close": "Bağla"
-			}
+			},
+			"plugins": "Plaginlər"
 		},
 		"sidebar": {
 			"projects": "Layihələr",

@@ -4937,6 +4937,384 @@
           "role",
           "joinedAt"
         ]
+      },
+      "PluginList": {
+        "type": "object",
+        "properties": {
+          "plugins": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Plugin"
+            }
+          }
+        },
+        "required": [
+          "plugins"
+        ]
+      },
+      "Plugin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "packageName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "description": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "official": {
+            "type": "boolean",
+            "description": "Ships with Kaneo. Official plugins are enabled in every workspace until a workspace admin turns them off."
+          },
+          "settings": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PluginSettingField"
+            },
+            "description": "The workspace settings the plugin declares."
+          },
+          "web": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "entry": {
+                "type": "string"
+              },
+              "styles": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "entry",
+              "styles"
+            ],
+            "description": "Web bundle paths, relative to the API base URL. Null when the plugin has no web entry."
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/WorkspacePluginState"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "packageName",
+          "version",
+          "description",
+          "official",
+          "settings",
+          "web",
+          "workspace"
+        ]
+      },
+      "PluginSettingField": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "text"
+                ]
+              },
+              "placeholder": {
+                "type": "string"
+              },
+              "multiline": {
+                "type": "boolean"
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "default": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "secret"
+                ]
+              },
+              "placeholder": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "label",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "number"
+                ]
+              },
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              },
+              "step": {
+                "type": "number"
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "default": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "label",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "boolean"
+                ]
+              },
+              "default": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "label",
+              "type"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "select"
+                ]
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "label"
+                  ]
+                }
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "default": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "type",
+              "options"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "multiselect"
+                ]
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "label"
+                  ]
+                }
+              },
+              "default": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "label",
+              "type",
+              "options"
+            ]
+          }
+        ]
+      },
+      "WorkspacePluginState": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "settings": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Current settings values. Secret fields are never returned."
+          },
+          "configuredSecrets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Secret fields that have a stored value."
+          }
+        },
+        "required": [
+          "enabled",
+          "settings",
+          "configuredSecrets"
+        ],
+        "description": "Workspace state. Null unless workspaceId was given."
+      },
+      "PluginSettingsError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Error message per settings field."
+          }
+        },
+        "required": [
+          "message",
+          "errors"
+        ]
+      },
+      "UpdateWorkspacePlugin": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "settings": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "All settings values for the workspace. Omitted secret fields keep their stored value; other omitted fields are cleared."
+          }
+        }
+      },
+      "PluginDataPurge": {
+        "type": "object",
+        "properties": {
+          "storage": {
+            "type": "integer",
+            "description": "Rows deleted from the plugin's stored data."
+          },
+          "workspaces": {
+            "type": "integer",
+            "description": "Rows deleted from the plugin's per-workspace state and settings."
+          }
+        },
+        "required": [
+          "storage",
+          "workspaces"
+        ]
       }
     },
     "parameters": {}
@@ -23105,6 +23483,250 @@
           },
           "404": {
             "description": "Workspace or member not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/plugins": {
+      "get": {
+        "operationId": "listPlugins",
+        "tags": [
+          "Plugins"
+        ],
+        "summary": "List plugins",
+        "description": "List the plugins installed on this instance. With workspaceId, each plugin also includes whether it is enabled in that workspace and its settings. Secret settings are never returned.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Include whether each plugin is enabled in this workspace, and its settings. Requires membership."
+            },
+            "required": false,
+            "description": "Include whether each plugin is enabled in this workspace, and its settings. Requires membership.",
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Installed plugins",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/plugins/{pluginId}/workspace/{workspaceId}": {
+      "put": {
+        "operationId": "updateWorkspacePlugin",
+        "tags": [
+          "Plugins"
+        ],
+        "summary": "Update a plugin in a workspace",
+        "description": "Enable or disable a plugin in a workspace and save its settings. Omitted fields keep their current value. Enabling a plugin requires its required settings to be filled in.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "pluginId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateWorkspacePlugin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The plugin's state in the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspacePluginState"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, or settings that failed validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginSettingsError"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No workspace access, or missing workspace:manage_settings permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Plugin not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/plugins/{pluginId}/data": {
+      "delete": {
+        "operationId": "purgePluginData",
+        "tags": [
+          "Plugins"
+        ],
+        "summary": "Delete a plugin's data",
+        "description": "Delete everything a plugin stored and its settings in every workspace. Only works for a plugin that is no longer installed: remove it from kaneo.config.ts, or turn a built-in plugin off there, and restart Kaneo first. Requires an instance administrator session; API keys are rejected. This cannot be undone.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,63}$",
+              "description": "The plugin's ID: lowercase letters, digits and dashes, like kaneo-plugin-task-progress."
+            },
+            "required": true,
+            "description": "The plugin's ID: lowercase letters, digits and dashes, like kaneo-plugin-task-progress.",
+            "name": "pluginId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rows deleted from each table",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PluginDataPurge"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid plugin ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The plugin is still installed, or plugins are turned off with DISABLE_PLUGINS",
             "content": {
               "application/json": {
                 "schema": {

@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Der Plug-in-Befehl ist fehlgeschlagen",
+			"failedToLoad": "Dieses Plug-in konnte nicht geladen werden",
+			"openTaskFailed": "Die Aufgabe konnte nicht geöffnet werden",
+			"unavailable": "Diese Plug-in-Ansicht ist nicht verfügbar"
 		}
 	},
 	"auth": {
@@ -706,7 +712,6 @@
 			"selectViewMode": "Ansicht auswählen",
 			"board": "Board",
 			"list": "Liste",
-			"gantt": "Gantt",
 			"sidebarDefault": "Standard-Sidebar",
 			"sidebarDefaultDescription": "Sidebar beim Start erweitert geöffnet halten",
 			"displayOptions": "Anzeigeoptionen",
@@ -1903,6 +1908,43 @@
 			},
 			"openFailed": "Couldn't open billing for this workspace"
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Plug-ins werden von der Instanzadministration in kaneo.config.ts hinzugefügt. Sobald ein Plug-in installiert ist, erscheint es hier und Workspace-Admins können es aktivieren.",
+				"link": "Mehr über Plug-ins erfahren",
+				"title": "Keine Plug-ins installiert"
+			},
+			"enable": "{{name}} aktivieren",
+			"form": {
+				"none": "Keine",
+				"save": "Einstellungen speichern",
+				"secretCancel": "Abbrechen",
+				"secretClear": "Löschen",
+				"secretConfigured": "Konfiguriert",
+				"secretPlaceholder": "Neuen Wert eingeben",
+				"secretReplace": "Ersetzen",
+				"secretUndo": "Rückgängig",
+				"secretWillClear": "Wird beim Speichern gelöscht",
+				"selectPlaceholder": "Option auswählen"
+			},
+			"loadError": "Plug-ins konnten nicht geladen werden. Lade die Seite neu, um es erneut zu versuchen.",
+			"pageTitle": "Plug-in-Einstellungen",
+			"status": {
+				"failed": "Laden fehlgeschlagen",
+				"loaded": "Aktiv",
+				"loading": "Lädt"
+			},
+			"subtitle": "Wähle, welche installierten Plug-ins dieser Workspace nutzt, und konfiguriere sie.",
+			"title": "Plug-ins",
+			"toast": {
+				"disabled": "{{name}} deaktiviert",
+				"enabled": "{{name}} aktiviert",
+				"invalid": "Einige Einstellungen müssen geprüft werden",
+				"saved": "Plug-in-Einstellungen gespeichert",
+				"updateError": "Das Plug-in konnte nicht aktualisiert werden"
+			},
+			"builtIn": "Integriert"
+		},
 		"syncRules": {
 			"addLabel": "Label hinzufügen",
 			"advancedHint": "Aktiviere die erweiterten Einstellungen unter Präferenzen, um diese Regeln zu bearbeiten.",
@@ -2072,7 +2114,8 @@
 				"navigate": "Navigieren",
 				"open": "Öffnen",
 				"close": "Schließen"
-			}
+			},
+			"plugins": "Plug-ins"
 		},
 		"sidebar": {
 			"projects": "Projekte",

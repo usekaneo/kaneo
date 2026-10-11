@@ -12,6 +12,11 @@ COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
 COPY packages/mcp/package.json ./packages/mcp/
+COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
+COPY packages/plugin-sdk/bin ./packages/plugin-sdk/bin
+COPY packages/plugin-loader/package.json ./packages/plugin-loader/
+COPY packages/cli/package.json ./packages/cli/
+COPY plugins/gantt/package.json ./plugins/gantt/
 COPY apps/api/package.json ./apps/api/
 
 RUN pnpm install --frozen-lockfile
@@ -21,6 +26,10 @@ COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
 COPY packages/mcp ./packages/mcp
+COPY packages/plugin-sdk ./packages/plugin-sdk
+COPY packages/plugin-loader ./packages/plugin-loader
+COPY packages/cli ./packages/cli
+COPY plugins/gantt ./plugins/gantt
 COPY i18n ./i18n
 COPY apps/api ./apps/api
 
@@ -28,6 +37,15 @@ WORKDIR /app/packages/email
 RUN pnpm run build
 
 WORKDIR /app/packages/permissions
+RUN pnpm run build
+
+WORKDIR /app/packages/plugin-sdk
+RUN pnpm run build
+
+WORKDIR /app/plugins/gantt
+RUN pnpm run build
+
+WORKDIR /app/packages/cli
 RUN pnpm run build
 
 WORKDIR /app/apps/api
@@ -47,6 +65,9 @@ COPY --from=api-builder /app/packages/libs/package.json ./packages/libs/
 COPY --from=api-builder /app/packages/email/package.json ./packages/email/
 COPY --from=api-builder /app/packages/permissions/package.json ./packages/permissions/
 COPY --from=api-builder /app/packages/mcp/package.json ./packages/mcp/
+COPY --from=api-builder /app/packages/plugin-sdk/package.json ./packages/plugin-sdk/
+COPY --from=api-builder /app/packages/plugin-loader/package.json ./packages/plugin-loader/
+COPY --from=api-builder /app/plugins/gantt/package.json ./plugins/gantt/
 
 RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
   corepack enable && \
@@ -58,6 +79,10 @@ COPY --from=api-builder /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=api-builder /app/packages/email ./packages/email
 COPY --from=api-builder /app/packages/permissions ./packages/permissions
 COPY --from=api-builder /app/packages/mcp/dist ./packages/mcp/dist
+COPY --from=api-builder /app/packages/plugin-sdk/dist ./packages/plugin-sdk/dist
+COPY --from=api-builder /app/plugins/gantt/dist ./plugins/gantt/dist
+COPY --from=api-builder /app/packages/plugin-loader/dist ./packages/plugin-loader/dist
+COPY --from=api-builder /app/packages/cli/dist ./packages/cli/dist
 
 FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS web-builder
 
@@ -74,12 +99,16 @@ COPY packages/libs/package.json ./packages/libs/
 COPY packages/typescript-config ./packages/typescript-config
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
+COPY packages/plugin-sdk ./packages/plugin-sdk
 COPY i18n ./i18n
 COPY apps/web ./apps/web
 
 RUN pnpm install --frozen-lockfile
 
 WORKDIR /app/packages/permissions
+RUN pnpm run build
+
+WORKDIR /app/packages/plugin-sdk
 RUN pnpm run build
 
 WORKDIR /app/apps/web
@@ -101,7 +130,8 @@ WORKDIR /app
 COPY --from=api-runtime --chown=appuser:appuser /app /app
 
 # Fail the build early if the runtime dependency layout is broken on the target architecture
-RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}" && \
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions','plugin-sdk','plugin-loader','gantt']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}fs.accessSync('node_modules/@kaneo/gantt/dist/web/index.js');fs.accessSync('/app/packages/cli/dist/kaneo.mjs')" && \
+  node -e "require.resolve('semver')" && \
   node --input-type=module -e "import { registerTools } from '@kaneo/mcp/tools'; if (typeof registerTools !== 'function') process.exit(1)"
 
 COPY --from=web-builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
@@ -110,8 +140,9 @@ RUN chown -R appuser:appuser /etc/nginx/conf.d
 COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
 COPY --chown=appuser:appuser apps/web/env.awk /docker-entrypoint.d/env.awk
 COPY --chown=appuser:appuser deploy/kaneo-entrypoint.sh /usr/local/bin/kaneo-entrypoint.sh
+COPY --chown=appuser:appuser deploy/kaneo-cli.sh /usr/local/bin/kaneo
 
-RUN chmod +x /docker-entrypoint.d/env.sh /usr/local/bin/kaneo-entrypoint.sh
+RUN chmod +x /docker-entrypoint.d/env.sh /usr/local/bin/kaneo-entrypoint.sh /usr/local/bin/kaneo
 
 ENV NODE_ENV=production
 

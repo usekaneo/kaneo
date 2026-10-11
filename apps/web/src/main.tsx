@@ -1,3 +1,4 @@
+import "./lib/plugins/install-shared-modules";
 import "./instrument";
 
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -15,11 +16,13 @@ import { ErrorBoundary } from "./components/ui/error-boundary";
 import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
 import { captureCheckoutIntent } from "./lib/checkout-intent";
 import { AppI18nProvider } from "./lib/i18n/provider";
+import { installPluginHost } from "./lib/plugins/host/plugin-host";
 import { routeTree } from "./routeTree.gen";
 
 // Capture a pricing-page `?checkout=<plan>-<interval>` deep link before the
 // router runs and strips it across the sign-up → onboarding redirect chain.
 captureCheckoutIntent();
+installPluginHost();
 
 console.log(`
                      ////////  

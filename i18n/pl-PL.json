@@ -162,6 +162,12 @@
 			"notSet": "Not Set",
 			"true": "True",
 			"undefined": "Undefined"
+		},
+		"plugins": {
+			"commandFailed": "Polecenie wtyczki nie powiodło się",
+			"failedToLoad": "Nie udało się załadować tej wtyczki",
+			"openTaskFailed": "Nie udało się otworzyć zadania",
+			"unavailable": "Ten widok wtyczki jest niedostępny"
 		}
 	},
 	"auth": {
@@ -470,7 +476,8 @@
 				"navigate": "Nawiguj",
 				"open": "Otwórz",
 				"close": "Zamknij"
-			}
+			},
+			"plugins": "Wtyczki"
 		},
 		"sidebar": {
 			"projects": "Projekty",
@@ -1539,7 +1546,6 @@
 			"dueDatesDescription": "Wyświetlaj terminy zadań",
 			"firstDayOfWeek": "Pierwszy dzień tygodnia",
 			"firstDayOfWeekDescription": "Wybierz dzień, od którego rozpoczynają się kalendarze i widoki tygodniowe",
-			"gantt": "Wykres Gantta",
 			"labels": "Etykiety",
 			"labelsDescription": "Pokaż etykiety i tagi zadań",
 			"language": "Język",
@@ -2506,6 +2512,43 @@
 				"viewPlans": "View plans"
 			},
 			"openFailed": "Couldn't open billing for this workspace"
+		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Wtyczki dodaje administrator instancji w kaneo.config.ts. Zainstalowana wtyczka pojawi się tutaj, a administratorzy obszaru roboczego będą mogli ją włączyć.",
+				"link": "Dowiedz się więcej o wtyczkach",
+				"title": "Brak zainstalowanych wtyczek"
+			},
+			"enable": "Włącz {{name}}",
+			"form": {
+				"none": "Brak",
+				"save": "Zapisz ustawienia",
+				"secretCancel": "Anuluj",
+				"secretClear": "Wyczyść",
+				"secretConfigured": "Skonfigurowano",
+				"secretPlaceholder": "Wpisz nową wartość",
+				"secretReplace": "Zastąp",
+				"secretUndo": "Cofnij",
+				"secretWillClear": "Zostanie wyczyszczone po zapisaniu",
+				"selectPlaceholder": "Wybierz opcję"
+			},
+			"loadError": "Nie udało się załadować wtyczek. Odśwież stronę, aby spróbować ponownie.",
+			"pageTitle": "Ustawienia wtyczek",
+			"status": {
+				"failed": "Błąd ładowania",
+				"loaded": "Aktywna",
+				"loading": "Ładowanie"
+			},
+			"subtitle": "Wybierz, których zainstalowanych wtyczek używa ten obszar roboczy, i skonfiguruj je.",
+			"title": "Wtyczki",
+			"toast": {
+				"disabled": "Wyłączono {{name}}",
+				"enabled": "Włączono {{name}}",
+				"invalid": "Niektóre ustawienia wymagają uwagi",
+				"saved": "Zapisano ustawienia wtyczki",
+				"updateError": "Nie udało się zaktualizować wtyczki"
+			},
+			"builtIn": "Wbudowana"
 		},
 		"syncRules": {
 			"addLabel": "Add label",

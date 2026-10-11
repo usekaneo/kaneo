@@ -4,6 +4,7 @@ import {
   Code,
   CreditCard,
   KeyRound,
+  Puzzle,
   Server,
   Settings,
   Shield,
@@ -120,6 +121,12 @@ export function buildSettingsNav({
           label: t("settings:workspaceLabels.title"),
           to: "/dashboard/settings/workspace/labels",
           icon: Tag,
+        },
+        {
+          id: "workspace-plugins",
+          label: t("settings:workspacePlugins.title"),
+          to: "/dashboard/settings/workspace/plugins",
+          icon: Puzzle,
         },
         ...(billingEnabled
           ? [
