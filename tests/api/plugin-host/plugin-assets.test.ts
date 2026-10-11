@@ -46,6 +46,10 @@ describe("asset helpers", () => {
       "text/javascript; charset=utf-8",
     );
     expect(assetContentType("font.woff2")).toBe("font/woff2");
+    expect(assetContentType("spinner.GIF")).toBe("image/gif");
+    expect(assetContentType("hero.avif")).toBe("image/avif");
+    expect(assetContentType("inter.ttf")).toBe("font/ttf");
+    expect(assetContentType("parser.wasm")).toBe("application/wasm");
     expect(assetContentType("index.ts")).toBeNull();
     expect(assetContentType("index.html")).toBeNull();
     expect(assetContentType("README")).toBeNull();
