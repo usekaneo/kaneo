@@ -738,6 +738,45 @@ describe("API integration: import from other tools", () => {
     expect(((await created.json()) as { number: number }).number).toBe(10);
   });
 
+  it("keeps assignments to an importer limited to selected projects", async () => {
+    const admin = await createAdmin();
+    const workspaceId = admin.workspace.id;
+    await db.insert(schema.workspaceMemberAccessTable).values({
+      workspaceId,
+      userId: admin.user.id,
+      projectAccess: "selected",
+    });
+    const project = numberedProject();
+    const [first] = project.tasks;
+    if (first) first.assignee = { email: admin.user.email };
+    importers.connectSource.mockResolvedValue(fakeSource(async () => project));
+    mockAuthenticatedSession(admin.user);
+
+    const imported = await importProject(workspaceId);
+
+    const grants = await db
+      .select()
+      .from(schema.workspaceMemberProjectTable)
+      .where(
+        and(
+          eq(schema.workspaceMemberProjectTable.userId, admin.user.id),
+          eq(schema.workspaceMemberProjectTable.projectId, imported.projectId),
+        ),
+      );
+    expect(grants).toHaveLength(1);
+
+    const [assigned] = await db
+      .select({ userId: schema.taskTable.userId })
+      .from(schema.taskTable)
+      .where(
+        and(
+          eq(schema.taskTable.projectId, imported.projectId),
+          eq(schema.taskTable.number, 7),
+        ),
+      );
+    expect(assigned?.userId).toBe(admin.user.id);
+  });
+
   it("suffixes the source key when the workspace already uses it", async () => {
     const admin = await createAdmin();
     const workspaceId = admin.workspace.id;

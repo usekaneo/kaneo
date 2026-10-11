@@ -39,15 +39,11 @@ export async function createImportProject<T>(
           name,
           icon: "Layout",
           slug,
+          userId,
         });
         if (!project) throw new Error("Failed to create the imported project");
         const result = await fill(tx, project);
-        await placeProject(tx, {
-          workspaceId,
-          projectId: project.id,
-          slug,
-          userId,
-        });
+        await placeProject(tx, { workspaceId, projectId: project.id, slug });
         return result;
       }),
     { preferredKey },

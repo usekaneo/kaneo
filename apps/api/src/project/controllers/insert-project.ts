@@ -22,7 +22,6 @@ export type ProjectPlacement = {
   workspaceId: string;
   projectId: string;
   slug: string;
-  userId: string;
 };
 
 export const DEFAULT_PROJECT_COLUMNS = [
@@ -77,20 +76,28 @@ export async function insertProject(
 
 export async function insertUnplacedProject(
   tx: Transaction,
-  { workspaceId, name, icon, slug }: Omit<NewProject, "userId">,
+  { workspaceId, name, icon, slug, userId }: NewProject,
 ) {
   const [createdProject] = await tx
     .insert(projectTable)
     .values({ workspaceId, name, icon, slug, position: 0 })
     .returning();
 
-  if (createdProject) await seedDefaultColumns(tx, createdProject.id);
+  if (createdProject) {
+    await seedDefaultColumns(tx, createdProject.id);
+    await grantProjectToRestrictedMember(tx, {
+      workspaceId,
+      userId,
+      projectId: createdProject.id,
+    });
+  }
+
   return createdProject;
 }
 
 export async function placeProject(
   tx: Transaction,
-  { workspaceId, projectId, slug, userId }: ProjectPlacement,
+  { workspaceId, projectId, slug }: ProjectPlacement,
 ) {
   await lockProjectOrdering(tx, workspaceId);
   await assertProjectKeyAvailable(tx, workspaceId, slug, projectId);
@@ -100,6 +107,4 @@ export async function placeProject(
     .update(projectTable)
     .set({ position })
     .where(eq(projectTable.id, projectId));
-
-  await grantProjectToRestrictedMember(tx, { workspaceId, userId, projectId });
 }

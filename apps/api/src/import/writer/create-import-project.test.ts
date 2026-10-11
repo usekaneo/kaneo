@@ -72,13 +72,13 @@ describe("createImportProject", () => {
       name: "Website",
       icon: "Layout",
       slug: "WEB",
+      userId: "user-1",
     });
     expect(fill).toHaveBeenCalledWith(tx, { id: "project-WEB", slug: "WEB" });
     expect(mocks.placeProject).toHaveBeenCalledWith(tx, {
       workspaceId: "workspace-1",
       projectId: "project-WEB",
       slug: "WEB",
-      userId: "user-1",
     });
     expect(mocks.transactions).toEqual([{ id: 1, outcome: "committed" }]);
   });
