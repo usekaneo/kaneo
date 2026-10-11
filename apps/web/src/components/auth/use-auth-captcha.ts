@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
+import { getTurnstileSiteKey } from "./turnstile-site-key";
 
 export function useAuthCaptcha() {
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+  const siteKey = getTurnstileSiteKey();
   const [token, setToken] = useState<string | null>(null);
   const [key, setKey] = useState(0);
   const clear = useCallback(() => setToken(null), []);
