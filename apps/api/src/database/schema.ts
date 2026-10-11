@@ -14,6 +14,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import type { GitHubImportState } from "../github-integration/import-state";
+import type { ImportRunProject } from "../import/import-run-project";
 
 // Timestamp columns without a time zone hold UTC (Drizzle reads and writes
 // them as UTC). A bare now() default would be cast through the session time
@@ -1071,6 +1072,44 @@ export const githubImportTable = pgTable("github_import", {
     .notNull()
     .$onUpdate(() => new Date()),
 });
+
+export const importRunTable = pgTable(
+  "import_run",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    source: text("source").notNull(),
+    status: text("status").notNull().default("running"),
+    includeComments: boolean("include_comments").notNull().default(true),
+    message: text("message"),
+    projects: jsonb("projects").$type<ImportRunProject[]>().notNull(),
+    error: text("error"),
+    heartbeatAt: timestamp("heartbeat_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    finishedAt: timestamp("finished_at", { mode: "date" }),
+  },
+  (table) => [
+    index("import_run_workspace_created_idx").on(
+      table.workspaceId,
+      table.createdAt,
+    ),
+  ],
+);
 
 export const externalLinkTable = pgTable(
   "external_link",
