@@ -1244,6 +1244,10 @@
 					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
 					"intro": "Each Linear team becomes a project, with its workflow as columns."
 				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+				},
 				"trello": {
 					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
 					"intro": "Each Trello board becomes a project, with its lists as columns."
@@ -1306,6 +1310,21 @@
 				"stepCreate": "Under Personal API keys, create a key with Read access.",
 				"stepPaste": "Copy it and paste it above."
 			},
+			"jira": {
+				"urlLabel": "Jira site URL",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlPlaceholder": "https://your-site.atlassian.net",
+				"emailLabel": "Email",
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"tokenLabel": "API token",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenPlaceholder": "Paste token",
+				"openSettings": "Open Atlassian API tokens",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepCreate": "Create an API token and copy it.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name."
+			},
 			"trello": {
 				"apiKeyLabel": "API key",
 				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
@@ -1356,6 +1375,7 @@
 				"commentsDescription": "Keeps each comment's original author and date.",
 				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
 				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned.",
 				"inviteMembers": "Invite members"
 			},
 			"units": {
@@ -1465,7 +1485,7 @@
 			},
 			"entry": {
 				"projectsEmpty": "Import from another tool",
-				"createProjectPrompt": "Moving from Linear, Trello or Plane?",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
 				"createProjectLink": "Import your projects"
 			}
 		},

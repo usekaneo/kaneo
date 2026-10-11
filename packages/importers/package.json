@@ -2,7 +2,7 @@
 	"name": "@kaneo/importers",
 	"version": "0.0.0",
 	"private": true,
-	"description": "Read projects from PLANKA, Plane, Linear, Trello and other Kaneo instances into one import model",
+	"description": "Read projects from PLANKA, Plane, Linear, Jira, Trello and other Kaneo instances into one import model",
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",

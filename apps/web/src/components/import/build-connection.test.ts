@@ -26,6 +26,55 @@ describe("buildConnection", () => {
     ).toEqual({ source: "linear", apiKey: "lin_api_1" });
   });
 
+  it("needs the Jira URL and token, and sends the email only when typed", () => {
+    expect(
+      buildConnection(
+        "jira",
+        values({ token: "jira-token", email: "ana@example.com" }),
+        withServerKey,
+      ),
+    ).toBeNull();
+    expect(
+      buildConnection(
+        "jira",
+        values({ url: "https://acme.atlassian.net", email: "ana@example.com" }),
+        withServerKey,
+      ),
+    ).toBeNull();
+    expect(
+      buildConnection(
+        "jira",
+        values({
+          url: " https://acme.atlassian.net ",
+          email: " ana@example.com ",
+          token: " jira-token ",
+          apiKey: "ignored",
+        }),
+        withServerKey,
+      ),
+    ).toEqual({
+      source: "jira",
+      url: "https://acme.atlassian.net",
+      email: "ana@example.com",
+      apiToken: "jira-token",
+    });
+    expect(
+      buildConnection(
+        "jira",
+        values({
+          url: "https://jira.example.com",
+          email: "  ",
+          token: "pat-token",
+        }),
+        withServerKey,
+      ),
+    ).toEqual({
+      source: "jira",
+      url: "https://jira.example.com",
+      apiToken: "pat-token",
+    });
+  });
+
   it("leaves the Trello key to the server when it has one", () => {
     expect(
       buildConnection(

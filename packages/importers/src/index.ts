@@ -1,3 +1,4 @@
+import { connectJira, type JiraCredentials } from "./jira/index.js";
 import { connectKaneo, type KaneoCredentials } from "./kaneo/index.js";
 import { connectLinear, type LinearCredentials } from "./linear/index.js";
 import { connectPlane, type PlaneCredentials } from "./plane/index.js";
@@ -6,6 +7,7 @@ import { connectTrello, type TrelloCredentials } from "./trello/index.js";
 import type { ConnectOptions, ImportSource } from "./types.js";
 
 export { normalizeBaseUrl, SourceHttpError } from "./http.js";
+export { type JiraSite, parseJiraUrl } from "./jira/index.js";
 export {
   SOURCE_PROJECT_KEY_MAX,
   sanitizeProjectKey,
@@ -15,6 +17,7 @@ export {
 export { trelloAuthorizeUrl } from "./trello/index.js";
 export type * from "./types.js";
 export type {
+  JiraCredentials,
   KaneoCredentials,
   LinearCredentials,
   PlaneCredentials,
@@ -26,6 +29,7 @@ export const IMPORT_SOURCE_IDS = [
   "planka",
   "plane",
   "linear",
+  "jira",
   "trello",
   "kaneo",
 ] as const;
@@ -36,6 +40,7 @@ export type ImportCredentials = {
   planka: PlankaCredentials;
   plane: PlaneCredentials;
   linear: LinearCredentials;
+  jira: JiraCredentials;
   trello: TrelloCredentials;
   kaneo: KaneoCredentials;
 };
@@ -55,6 +60,8 @@ export function connectSource(
       return connectPlane(connection, options);
     case "linear":
       return connectLinear(connection, options);
+    case "jira":
+      return connectJira(connection, options);
     case "trello":
       return connectTrello(connection, options);
     case "kaneo":
