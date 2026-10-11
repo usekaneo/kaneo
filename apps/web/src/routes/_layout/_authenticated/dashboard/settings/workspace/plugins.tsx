@@ -45,7 +45,7 @@ function RouteComponent() {
           <div className="space-y-4">
             {installed.map((plugin) => (
               <PluginSettingsCard
-                key={plugin.id}
+                key={`${workspaceId}:${plugin.id}`}
                 plugin={plugin}
                 runtime={runtimePlugins.find(
                   (runtime) => runtime.plugin.id === plugin.id,

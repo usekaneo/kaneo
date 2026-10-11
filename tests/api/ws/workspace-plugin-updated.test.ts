@@ -19,8 +19,8 @@ vi.mock("../../../apps/api/src/events", () => ({
   ),
   publishEvent: vi.fn(),
 }));
-vi.mock("../../../apps/api/src/ws/list-workspace-member-ids", () => ({
-  listWorkspaceMemberIds: vi.fn(async (workspaceId: string) =>
+vi.mock("../../../apps/api/src/ws/list-workspace-recipient-ids", () => ({
+  listWorkspaceRecipientIds: vi.fn(async (workspaceId: string) =>
     workspaceId === "workspace-1" ? ["member-1", "member-2"] : [],
   ),
 }));
@@ -66,7 +66,7 @@ describe("workspace_plugin.updated", () => {
     }
   });
 
-  it("tells every member of the workspace and nobody else", async () => {
+  it("tells everyone with access to the workspace and nobody else", async () => {
     const member = makeFakeWs();
     const otherMember = makeFakeWs();
     const outsider = makeFakeWs();

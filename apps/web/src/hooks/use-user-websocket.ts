@@ -44,6 +44,7 @@ export function useUserWebSocket() {
     let retryDelay = BASE_DELAY;
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
     let pingInterval: ReturnType<typeof setInterval> | null = null;
+    let hasConnected = false;
 
     function clearPing() {
       if (pingInterval !== null) {
@@ -83,6 +84,10 @@ export function useUserWebSocket() {
 
       ws.onopen = () => {
         if (disposed || activeSocket !== ws) return;
+        if (hasConnected) {
+          void queryClient.invalidateQueries({ queryKey: ["plugins"] });
+        }
+        hasConnected = true;
         retryDelay = BASE_DELAY;
         clearPing();
         pingInterval = setInterval(() => {

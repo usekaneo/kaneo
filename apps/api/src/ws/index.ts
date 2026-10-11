@@ -1,6 +1,6 @@
 import { hasWorkspaceAccess, syncWorkspaceAccess } from "./workspace-access";
 import { createRevocationDelivery } from "./revocation-delivery";
-import { listWorkspaceMemberIds } from "./list-workspace-member-ids";
+import { listWorkspaceRecipientIds } from "./list-workspace-recipient-ids";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
@@ -802,7 +802,7 @@ subscribeToEvent<{ workspaceId: string; pluginId: string; enabled: boolean }>(
       pluginId,
       enabled: enabled === true,
     };
-    for (const userId of await listWorkspaceMemberIds(workspaceId))
+    for (const userId of await listWorkspaceRecipientIds(workspaceId))
       broadcastToUser(userId, message);
   },
 );

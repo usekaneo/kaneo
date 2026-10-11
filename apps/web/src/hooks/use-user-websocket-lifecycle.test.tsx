@@ -155,6 +155,22 @@ describe("user WebSocket lifecycle", () => {
     });
   });
 
+  it("refetches plugins after reconnecting, since updates sent while offline are lost", () => {
+    renderHook(useUserWebSocket);
+    const first = TestSocket.instances[0];
+    act(() => first.open());
+    expect(client.invalidateQueries).not.toHaveBeenCalled();
+    act(() => {
+      first.onclose?.();
+      vi.runOnlyPendingTimers();
+    });
+    const second = TestSocket.instances[1];
+    act(() => second.open());
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["plugins"],
+    });
+  });
+
   it("ignores events from an old account without stopping the new account's keepalive", () => {
     const { rerender, unmount } = renderHook(useUserWebSocket);
     const old = TestSocket.instances[0];
