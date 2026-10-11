@@ -42,7 +42,7 @@ const listImportSourceProjectsRoute = createRoute({
   tags: ["Import"],
   summary: "List projects in an import source",
   description:
-    "Sign in to PLANKA, Plane, Linear, Trello or another Kaneo instance and list the projects that can be imported. The credentials are used only for this request; they are never stored, logged, or returned.",
+    "Sign in to PLANKA, Plane, Linear, Jira, Trello or another Kaneo instance and list the projects that can be imported. The credentials are used only for this request; they are never stored, logged, or returned.",
   middleware: [
     workspaceAccess.fromBody(),
     importPermission,

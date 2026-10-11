@@ -61,6 +61,51 @@ describe("resolveImportConnection", () => {
     ).toEqual({ source: "trello", apiKey: "own-key", token: "token-123456" });
   });
 
+  it("signs in to Jira with or without an email", () => {
+    const hint =
+      "Check the email and API token, or the personal access token for Jira Data Center.";
+
+    expect(
+      resolveImportConnection(
+        {
+          source: "jira",
+          url: "https://acme.atlassian.net",
+          email: "ana@example.com",
+          apiToken: "jira-token-123456",
+        },
+        {},
+      ),
+    ).toEqual({
+      connection: {
+        source: "jira",
+        url: "https://acme.atlassian.net",
+        email: "ana@example.com",
+        apiToken: "jira-token-123456",
+      },
+      secrets: ["jira-token-123456"],
+      credentialHint: hint,
+    });
+
+    expect(
+      resolveImportConnection(
+        {
+          source: "jira",
+          url: "https://jira.example.com",
+          apiToken: "pat-123456",
+        },
+        {},
+      ),
+    ).toEqual({
+      connection: {
+        source: "jira",
+        url: "https://jira.example.com",
+        apiToken: "pat-123456",
+      },
+      secrets: ["pat-123456"],
+      credentialHint: hint,
+    });
+  });
+
   it("asks for a Trello API key when there is none", () => {
     expect(() =>
       resolveImportConnection({ source: "trello", token: "token-123456" }, {}),

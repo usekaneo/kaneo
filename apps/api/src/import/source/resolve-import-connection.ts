@@ -52,6 +52,13 @@ export function resolveImportConnection(
         secrets: [input.apiKey],
         credentialHint: "Check the API key.",
       };
+    case "jira":
+      return {
+        connection: input,
+        secrets: [input.apiToken],
+        credentialHint:
+          "Check the email and API token, or the personal access token for Jira Data Center.",
+      };
     case "kaneo":
       return {
         connection: input,

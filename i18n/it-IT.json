@@ -2094,7 +2094,7 @@
 			},
 			"entry": {
 				"createProjectLink": "Import your projects",
-				"createProjectPrompt": "Moving from Linear, Trello or Plane?",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
 				"projectsEmpty": "Import from another tool"
 			},
 			"history": {
@@ -2191,7 +2191,8 @@
 				"inviteMembers": "Invite members",
 				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
 				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
-				"selectAll": "Select all"
+				"selectAll": "Select all",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
 			},
 			"sources": {
 				"connect": "Connect",
@@ -2218,6 +2219,10 @@
 				"trello": {
 					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
 					"intro": "Each Trello board becomes a project, with its lists as columns."
+				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
 				}
 			},
 			"status": {
@@ -2330,6 +2335,21 @@
 					"someImported_other": "{{done}} of {{count}} teams imported.",
 					"step": "Choose teams"
 				}
+			},
+			"jira": {
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"emailLabel": "Email",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name.",
+				"openSettings": "Open Atlassian API tokens",
+				"stepCreate": "Create an API token and copy it.",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenLabel": "API token",
+				"tokenPlaceholder": "Paste token",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlLabel": "Jira site URL",
+				"urlPlaceholder": "https://your-site.atlassian.net"
 			}
 		}
 	},

@@ -2,13 +2,11 @@ import { z } from "../openapi";
 
 const NEVER_STORED = "Used only for this import and never stored or logged.";
 
-function sourceUrl(description: string) {
-  return z
-    .string()
-    .trim()
-    .min(1)
-    .max(2048)
-    .openapi({ description, example: "https://planka.example.com" });
+function sourceUrl(
+  description: string,
+  example = "https://planka.example.com",
+) {
+  return z.string().trim().min(1).max(2048).openapi({ description, example });
 }
 
 function secret(description: string) {
@@ -72,6 +70,23 @@ const linearConnection = z
   })
   .openapi("LinearImportConnection");
 
+const jiraConnection = z
+  .object({
+    source: z.literal("jira"),
+    url: sourceUrl(
+      "Address of the Jira site, e.g. https://your-site.atlassian.net for Jira Cloud, or your own domain for Jira Data Center.",
+      "https://your-site.atlassian.net",
+    ),
+    email: z.string().trim().min(1).max(320).optional().openapi({
+      description:
+        "Email of the Atlassian account the API token belongs to. Required for Jira Cloud; leave it out for Jira Data Center.",
+    }),
+    apiToken: secret(
+      "A Jira Cloud API token, sent with email, or a Jira Data Center personal access token, sent without email.",
+    ),
+  })
+  .openapi("JiraImportConnection");
+
 const trelloConnection = z
   .object({
     source: z.literal("trello"),
@@ -96,6 +111,7 @@ export const importConnectionSchema = z
     plankaConnection,
     planeConnection,
     linearConnection,
+    jiraConnection,
     trelloConnection,
     kaneoConnection,
   ])

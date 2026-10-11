@@ -4723,6 +4723,9 @@
             "$ref": "#/components/schemas/LinearImportConnection"
           },
           {
+            "$ref": "#/components/schemas/JiraImportConnection"
+          },
+          {
             "$ref": "#/components/schemas/TrelloImportConnection"
           },
           {
@@ -4735,6 +4738,7 @@
             "planka": "#/components/schemas/PlankaImportConnection",
             "plane": "#/components/schemas/PlaneImportConnection",
             "linear": "#/components/schemas/LinearImportConnection",
+            "jira": "#/components/schemas/JiraImportConnection",
             "trello": "#/components/schemas/TrelloImportConnection",
             "kaneo": "#/components/schemas/KaneoImportConnection"
           }
@@ -4837,6 +4841,41 @@
           "apiKey"
         ]
       },
+      "JiraImportConnection": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "jira"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "Address of the Jira site, e.g. https://your-site.atlassian.net for Jira Cloud, or your own domain for Jira Data Center.",
+            "example": "https://your-site.atlassian.net"
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 320,
+            "description": "Email of the Atlassian account the API token belongs to. Required for Jira Cloud; leave it out for Jira Data Center."
+          },
+          "apiToken": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "A Jira Cloud API token, sent with email, or a Jira Data Center personal access token, sent without email. Used only for this import and never stored or logged."
+          }
+        },
+        "required": [
+          "source",
+          "url",
+          "apiToken"
+        ]
+      },
       "TrelloImportConnection": {
         "type": "object",
         "properties": {
@@ -4919,6 +4958,7 @@
               "planka",
               "plane",
               "linear",
+              "jira",
               "trello",
               "kaneo"
             ]
@@ -22649,7 +22689,7 @@
           "Import"
         ],
         "summary": "List projects in an import source",
-        "description": "Sign in to PLANKA, Plane, Linear, Trello or another Kaneo instance and list the projects that can be imported. The credentials are used only for this request; they are never stored, logged, or returned.",
+        "description": "Sign in to PLANKA, Plane, Linear, Jira, Trello or another Kaneo instance and list the projects that can be imported. The credentials are used only for this request; they are never stored, logged, or returned.",
         "requestBody": {
           "required": true,
           "content": {

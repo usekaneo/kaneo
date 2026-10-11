@@ -15,10 +15,16 @@ export function buildConnection(
   const apiKey = values.apiKey.trim();
   const token = values.token.trim();
   const username = values.username.trim();
+  const email = values.email.trim();
 
   switch (source) {
     case "linear":
       return apiKey ? { source, apiKey } : null;
+    case "jira":
+      if (!url || !token) return null;
+      return email
+        ? { source, url, email, apiToken: token }
+        : { source, url, apiToken: token };
     case "trello":
       if (!token) return null;
       if (serverHasTrelloKey) return { source, token };

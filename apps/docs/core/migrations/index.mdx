@@ -1,6 +1,6 @@
 ---
 title: Import from other tools
-description: Bring projects from Linear, Trello, Plane, PLANKA, or another Kaneo instance into a Kaneo workspace.
+description: Bring projects from Linear, Jira, Trello, Plane, PLANKA, or another Kaneo instance into a Kaneo workspace.
 ---
 
 Kaneo can copy projects from another tool into your workspace. You connect a source with a key, choose the projects you want, and Kaneo recreates them as new Kaneo projects. Kaneo only reads from the source; nothing there is changed.
@@ -10,6 +10,7 @@ Kaneo can copy projects from another tool into your workspace. You connect a sou
 | Source | Each of these becomes a Kaneo project | Guide |
 | --- | --- | --- |
 | Linear | Team | [Import from Linear](/core/migrations/from-linear) |
+| Jira (Cloud or Data Center) | Project | [Import from Jira](/core/migrations/from-jira) |
 | Trello | Board | [Import from Trello](/core/migrations/from-trello) |
 | Plane (cloud or self-hosted) | Project | [Import from Plane](/core/migrations/from-plane) |
 | PLANKA | Board | [Import from PLANKA](/core/migrations/from-planka) |
@@ -56,7 +57,7 @@ Trello boards have no key, so Kaneo makes one from the board name. PLANKA boards
 
 Assignees are matched to workspace members by email. Anyone who isn't a member when you import gets their tasks imported unassigned. [Invite your team](/core/functional/collaborate-with-team) before you start.
 
-Some sources hide email addresses. Trello never shares other people's emails, and PLANKA hides them from accounts that are not admins. In those cases Kaneo matches by full name, ignoring case, and only when exactly one workspace member has that name.
+Some sources hide email addresses. Trello never shares other people's emails, Jira often hides them depending on each person's profile settings, and PLANKA hides them from accounts that are not admins. In those cases Kaneo matches by full name, ignoring case, and only when exactly one workspace member has that name.
 
 Kaneo has one assignee per task. When an item has several assignees, only the first is kept, and the report says how many items had more than one.
 

@@ -54,9 +54,13 @@ export function ImportOptionsCard({
               ? t("settings:workspaceImport.select.membersNoteTrello", {
                   workspace: workspaceName,
                 })
-              : t("settings:workspaceImport.select.membersNote", {
-                  workspace: workspaceName,
-                })}
+              : sourceId === "jira"
+                ? t("settings:workspaceImport.select.membersNoteJira", {
+                    workspace: workspaceName,
+                  })
+                : t("settings:workspaceImport.select.membersNote", {
+                    workspace: workspaceName,
+                  })}
           </p>
         </div>
         <Button
