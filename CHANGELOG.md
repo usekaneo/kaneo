@@ -1,5 +1,13 @@
 ### Features
 
+- **import:** add Jira as an import source: #2010
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
 - import projects from other tools in the UI: #2007
 
 ### Credits
