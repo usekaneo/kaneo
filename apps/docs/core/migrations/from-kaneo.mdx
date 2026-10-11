@@ -1,0 +1,59 @@
+---
+title: Import from another Kaneo instance
+description: Copy projects between Kaneo instances, for example from Kaneo Cloud to a self-hosted instance or back.
+---
+
+Use this to move projects between Kaneo instances, for example from Kaneo Cloud to your own server, or from your server to Kaneo Cloud. Each project you select becomes a new project in the workspace you import into. Read [Import from other tools](/core/migrations) first for the rules that apply to every import.
+
+## Before you start
+
+You need:
+
+- To be an admin of the Kaneo workspace you are importing into.
+- The URL of the other instance, for example `https://cloud.kaneo.app`.
+- An API key created on the other instance. Sign in there and open **Settings → Account → API Keys**.
+
+Invite your team to the workspace you are importing into first. Assignees are matched by email, so anyone who isn't a member yet will have their tasks imported unassigned.
+
+## Connect
+
+1. On the instance you are importing into, open **Settings → Workspace → Import** and choose **Another Kaneo**.
+2. Paste the other instance's URL and the API key you created there.
+3. Select the projects to import. The list includes projects from every workspace the key can see. Leave comments on, or turn them off.
+4. Start the import. You can leave the page while it runs and check **Recent imports** later.
+
+## What carries over
+
+| Other instance | This instance |
+| --- | --- |
+| Project | Project |
+| Project key, for example `WEB` | Project key. If another project in the workspace uses it, Kaneo adds a suffix, for example `WEB-2`. Characters other than letters and digits are dropped, so `MY-APP` becomes `MYAPP` |
+| Columns | Columns |
+| Tasks, including planned and archived ones | Tasks, still planned or archived |
+| Task numbers | Task numbers, so `WEB-12` stays `WEB-12` |
+| Priority | Priority |
+| Dates | Dates |
+| Labels | Labels |
+| Assignee | Assignee, matched by email |
+| Comments | Comments, with the original author's name and date |
+| Task relations within the project | Task relations |
+
+## What doesn't
+
+- **Custom fields.**
+- **Time entries.**
+- **Attachments.** Images and files in descriptions and comments still point to the other instance and may not display. Download any files you need from the other instance first.
+- **Task relations to tasks in other projects.**
+- **Integration links on tasks**, such as linked GitHub issues.
+
+Project integrations and other project settings are not copied. Set them up again after the import.
+
+## Troubleshooting
+
+**The key is rejected**: check that you created the key on the instance whose URL you entered, and that it hasn't been revoked.
+
+**A project is missing from the list**: the key has the same access as the account that created it. If that account is limited to selected projects in a workspace, only those projects are listed.
+
+**The other instance can't be reached**: the instance you import into must be able to reach the other one over the network. Kaneo Cloud can't import from a self-hosted instance that is only reachable inside your network. Between two self-hosted instances on a private network, the operator of the importing instance must set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true`. See [Self-hosted instances](/core/migrations#self-hosted-instances).
+
+**Tasks are unassigned**: the assignee's email must match a member of the workspace you import into. Invite them, delete the imported project, and import it again, or assign the tasks by hand.
