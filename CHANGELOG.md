@@ -1,5 +1,9 @@
 ### Features
 
+- **web:** redesign onboarding with a live preview: [4bc1a9b](https://github.com/usekaneo/kaneo/commit/4bc1a9b4cb801fc6dd0faefbc7503231173186ad)
+
+### Features
+
 - **web:** redesign auth and access pages: [5565833](https://github.com/usekaneo/kaneo/commit/5565833474175ad42ac365ec2c1b992920277d78)
 - **auth:** require email codes for cloud sign-up: [f974b05](https://github.com/usekaneo/kaneo/commit/f974b0529d36bc60caac510d169417633459f381)
 
