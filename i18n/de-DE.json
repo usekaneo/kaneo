@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Anmelden",
-			"title": "Willkommen zurück",
-			"subtitle": "Gib deine Zugangsdaten ein, um auf deinen Workspace zuzugreifen",
-			"invitationSubtitle": "Melde dich an, um deine Einladung anzunehmen",
-			"invitationAlert": "Nach der Anmeldung kannst du deine Workspace-Einladung annehmen.",
-			"signingIn": "Wird angemeldet...",
-			"continueWithGoogle": "Mit Google fortfahren",
-			"continueWithGithub": "Mit GitHub fortfahren",
-			"continueWithDiscord": "Mit Discord fortfahren",
-			"continueWithOidc": "Mit OIDC fortfahren",
+			"subtitle": {
+				"emailOrProvider": "Nutze deine E-Mail-Adresse oder ein verknüpftes Konto.",
+				"email": "Gib deine E-Mail-Adresse ein, und wir senden dir einen Anmeldecode.",
+				"password": "Nutze deine E-Mail-Adresse und dein Passwort.",
+				"passwordOrProvider": "Nutze dein Passwort oder ein verknüpftes Konto.",
+				"providers": "Wähle, wie du dich anmelden möchtest.",
+				"sso": "Die Anmeldung wird hier von deiner Organisation verwaltet."
+			},
 			"lastUsed": "Zuletzt verwendet",
-			"registrationDisabled": "Die öffentliche Registrierung ist deaktiviert. Nutze eine Einladung, um ein Konto zu erstellen.",
-			"passwordRegistrationDisabled": "Die Registrierung per Passwort ist deaktiviert. Nutze eine konfigurierte Social- oder OIDC-Anmeldemethode, um ein Konto zu erstellen.",
-			"toggleMessage": "Du hast noch kein Konto?",
-			"toggleLink": "Konto erstellen",
-			"guestSuccess": "Als Gast angemeldet",
 			"guestError": "Anmeldung als Gast fehlgeschlagen",
-			"oidcError": "Anmeldung mit OIDC fehlgeschlagen",
-			"googleError": "Anmeldung mit Google fehlgeschlagen",
-			"githubError": "Anmeldung mit GitHub fehlgeschlagen",
-			"discordError": "Anmeldung mit Discord fehlgeschlagen",
 			"errors": {
 				"account_not_linked": "Diese Identität konnte nicht mit dem bestehenden Konto verknüpft werden. Melde dich per E-Mail an, um das Konto zu bestätigen, und versuche SSO danach erneut. Falls die Anmeldung per E-Mail nicht verfügbar ist, wende dich an deinen Administrator.",
 				"oauth_code_verification_failed": "OAuth-Verifizierung fehlgeschlagen. Bitte versuche es erneut.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Die Registrierung ist derzeit deaktiviert. Du benötigst eine gültige Einladung, um ein Konto zu erstellen."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Die Registrierung ist derzeit deaktiviert. Du benötigst eine gültige Einladung, um ein Konto zu erstellen.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Verwende eine dauerhafte E-Mail-Adresse. Mit Wegwerfadressen können keine Konten erstellt werden."
 			},
-			"instanceStatusError": "Der Server konnte nicht erreicht werden. Bitte versuche es gleich noch einmal."
+			"instanceStatusError": "Der Server konnte nicht erreicht werden. Bitte versuche es gleich noch einmal.",
+			"heading": "Bei Kaneo anmelden",
+			"submitPassword": "Anmelden",
+			"invitation": {
+				"title": "{{inviterName}} hat dich zu {{workspaceName}} eingeladen",
+				"fallbackTitle": "Du wurdest eingeladen",
+				"description": "Melde dich mit der E-Mail-Adresse an, an die die Einladung ging. Danach trittst du dem Workspace direkt bei."
+			},
+			"footer": {
+				"newHere": "Neu bei Kaneo?",
+				"createAccount": "Konto erstellen",
+				"inviteOnly": "Konten gibt es hier nur auf Einladung. Bitte deinen Administrator um eine Einladung.",
+				"providerSignUp": "Neu hier? Melde dich oben mit einem Anbieter an, um ein Konto zu erstellen.",
+				"anyProvider": "Neu hier? Mit jeder Option oben wird dein Konto erstellt.",
+				"contactAdmin": "Probleme bei der Anmeldung? Wende dich an deinen Administrator.",
+				"justLooking": "Willst du dich nur umsehen?"
+			},
+			"autoLogin": {
+				"title": "Du wirst angemeldet",
+				"subtitle": "Du wirst zur Anmeldeseite deiner Organisation weitergeleitet.",
+				"opening": "{{provider}} wird geöffnet…",
+				"stuck": "Geht es nicht weiter?",
+				"continue": "Weiter zu {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Weiter mit {{provider}}",
+			"error": "Anmeldung mit {{provider}} fehlgeschlagen. Versuche es erneut."
 		},
 		"forms": {
 			"or": "oder",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Passwort anzeigen",
-			"hidePassword": "Passwort ausblenden"
+			"hidePassword": "Passwort ausblenden",
+			"name": "Name",
+			"namePlaceholder": "Erika Mustermann",
+			"invalidEmail": "Gib eine vollständige E-Mail-Adresse ein, z. B. name@firma.de.",
+			"nameRequired": "Gib deinen Namen ein.",
+			"passwordRequired": "Gib dein Passwort ein.",
+			"passwordTooShort": "Verwende mindestens 8 Zeichen.",
+			"disposableEmail": "Verwende eine dauerhafte E-Mail-Adresse. Mit Wegwerfadressen können keine Konten erstellt werden.",
+			"continueWithEmail": "Weiter mit E-Mail"
 		},
 		"checkEmail": {
 			"pageTitle": "Prüfe deine E-Mails",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Konto erstellen",
-			"title": "Konto erstellen",
-			"subtitleInvitation": "Erstelle ein Konto, um deine Einladung anzunehmen",
-			"subtitleRegistrationDisabled": "Für die Registrierung ist eine Einladung erforderlich",
-			"subtitlePasswordDisabled": "Nutze Social- oder OIDC-Anmeldung, um ein Konto zu erstellen",
-			"subtitleDefault": "Lege mit deinem Workspace los",
-			"invitationAlert": "Nach dem Erstellen deines Kontos kannst du deine Workspace-Einladung annehmen.",
 			"registrationDisabledAlert": "Die Registrierung ist derzeit deaktiviert. Wenn du eingeladen wurdest, gib die E-Mail-Adresse ein, die die Einladung erhalten hat, um dein Konto zu erstellen.",
-			"passwordDisabledAlert": "Die kontoerstellung per Passwort ist deaktiviert. Nutze eine konfigurierte Social- oder OIDC-Anmeldemethode auf der Anmeldeseite.",
-			"signingIn": "Anmeldung läuft...",
 			"continueAsGuest": "Als Gast fortfahren",
 			"toggleMessage": "Du hast bereits ein Konto?",
 			"toggleLink": "Anmelden",
 			"instanceStatusError": "Der Server konnte nicht erreicht werden. Bitte versuche es gleich noch einmal.",
 			"instanceAdminTitle": "Richte deine Kaneo-Instanz ein",
-			"instanceAdminSubtitle": "Dieses Konto wird zum Instanz-Administrator mit vollem Zugriff."
+			"instanceAdminSubtitle": "Dieses Konto wird zum Instanz-Administrator mit vollem Zugriff.",
+			"heading": "Erstelle dein Konto",
+			"submitPassword": "Konto erstellen",
+			"failed": "Dein Konto konnte nicht erstellt werden. Versuche es erneut.",
+			"subtitle": {
+				"email": "Starte mit deiner E-Mail-Adresse. Wir senden dir einen Code, kein Passwort nötig.",
+				"password": "Gib deinen Namen, deine E-Mail-Adresse und ein Passwort ein, um loszulegen.",
+				"providers": "Nutze ein verknüpftes Konto, um deins zu erstellen."
+			},
+			"invitation": {
+				"description": "Verwende die E-Mail-Adresse, an die die Einladung ging. Danach trittst du dem Workspace direkt bei."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Code verifizieren",
-			"title": "Bestätigungscode eingeben",
-			"subtitle": "Nutze den 6-stelligen Code, der an deine E-Mail gesendet wurde, um fortzufahren",
-			"codeSentTo": "Code gesendet an {{email}}",
-			"verificationCodeLabel": "Bestätigungscode",
-			"verifying": "Wird verifiziert...",
-			"verifyAndSignIn": "Verifizieren & anmelden",
-			"changeEmail": "E-Mail ändern",
-			"resend": "Erneut senden",
 			"validation": {
 				"codeLength": "Der Code muss 6 Ziffern haben"
 			},
 			"toast": {
 				"invalidCode": "Ungültiger Bestätigungscode",
-				"signedInSuccess": "Erfolgreich angemeldet!",
 				"verifyFailed": "Code konnte nicht verifiziert werden",
 				"resendFailed": "Code konnte nicht erneut gesendet werden",
 				"resendSuccess": "Neuer Bestätigungscode gesendet!"
-			}
+			},
+			"heading": "Prüfe deine E-Mails",
+			"description": "Wir haben einen 6-stelligen Code an {{email}} gesendet. Er läuft in {{minutes}} Minuten ab.",
+			"label": "Bestätigungscode",
+			"submit": "Bestätigen und weiter",
+			"didntGetIt": "Nichts erhalten?",
+			"resendCode": "Code erneut senden",
+			"useDifferentEmail": "Andere E-Mail-Adresse verwenden",
+			"expired": "Dieser Code ist abgelaufen. Fordere einen neuen an.",
+			"tooManyAttempts": "Zu viele Versuche. Fordere einen neuen Code an."
 		},
 		"otpSignIn": {
-			"sendFailed": "Bestätigungscode konnte nicht gesendet werden",
-			"codeSent": "Bestätigungscode gesendet! Prüfe deine E-Mails.",
-			"sending": "Wird gesendet...",
-			"sendVerificationCode": "Bestätigungscode senden"
+			"sendFailed": "Bestätigungscode konnte nicht gesendet werden"
 		},
 		"signInForm": {
-			"failedSignIn": "Anmeldung fehlgeschlagen",
-			"signedInSuccess": "Erfolgreich angemeldet",
-			"signingIn": "Wird angemeldet...",
-			"signIn": "Anmelden"
-		},
-		"signUpForm": {
-			"fullName": "Vollständiger Name",
-			"namePlaceholder": "Max Mustermann",
-			"failedSignUp": "Registrierung fehlgeschlagen",
-			"accountCreated": "Konto erfolgreich erstellt",
-			"passwordTooShort": "Das Passwort ist zu kurz",
-			"creatingAccount": "Konto wird erstellt...",
-			"createAccount": "Konto erstellen"
+			"failedSignIn": "Anmeldung fehlgeschlagen"
 		},
 		"invitation": {
 			"pageTitleAccept": "Einladung annehmen",
 			"pageTitleError": "Einladungsfehler",
 			"pageTitleInvalid": "Ungültige Einladung",
-			"loadingTitle": "Einladung wird geladen...",
-			"errorTitle": "Einladungsfehler",
-			"invalidTitle": "Ungültige Einladung",
-			"invitationExpired": "Einladung abgelaufen",
-			"errorLoadDescription": "Die Einladungsdetails konnten nicht geladen werden. Die Einladung ist möglicherweise ungültig oder abgelaufen.",
-			"goToSignIn": "Zur Anmeldung",
-			"workspaceLabel": "Workspace: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} beitreten",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace beizutreten.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> hat dich eingeladen, ihrem Workspace auf Kaneo beizutreten.",
-			"createAccountOrSignIn": "Erstelle ein Konto, um diese Einladung anzunehmen, oder melde dich an, falls du bereits eines hast.",
 			"createAccount": "Konto erstellen",
-			"accepting": "Wird angenommen...",
-			"acceptInvitation": "Einladung annehmen",
-			"goToDashboard": "Zum Dashboard",
-			"signedInAs": "Angemeldet als <email>{{email}}</email>",
-			"youveBeenInvited": "Du wurdest eingeladen!",
-			"invitationFor": "Einladung für: <email>{{email}}</email>",
 			"signIn": "Anmelden",
 			"toast": {
 				"acceptFailed": "Einladung konnte nicht angenommen werden",
 				"acceptSuccess": "Einladung angenommen! Willkommen im Team."
+			},
+			"description": "{{inviterName}} hat dich zu diesem Workspace auf Kaneo eingeladen.",
+			"invitedBy": "Eingeladen von",
+			"sentTo": "Gesendet an",
+			"signedInAs": "Angemeldet als",
+			"expires": "Läuft ab am",
+			"notNow": "Nicht jetzt",
+			"join": "Workspace beitreten",
+			"switchAccount": "Konto wechseln",
+			"goToKaneo": "Zu Kaneo",
+			"mismatch": {
+				"title": "Mit einer anderen E-Mail-Adresse angemeldet",
+				"description": "Diese Einladung wurde an {{invitedEmail}} gesendet. Du bist als {{email}} angemeldet."
+			},
+			"expired": {
+				"title": "Diese Einladung ist abgelaufen",
+				"description": "Bitte {{inviterName}}, dir eine neue Einladung für {{workspaceName}} zu senden."
+			},
+			"invalid": {
+				"title": "Diese Einladung ist nicht mehr gültig",
+				"description": "Sie wurde möglicherweise bereits angenommen oder widerrufen. Bitte einen Workspace-Admin um eine neue Einladung."
+			},
+			"loadFailed": {
+				"title": "Einladung konnte nicht geladen werden",
+				"description": "Prüfe deine Verbindung und lade die Seite neu."
 			}
 		},
 		"onboarding": {
@@ -428,24 +451,93 @@
 			"requestTitle": "Passwort zurücksetzen",
 			"requestSubtitle": "Gib deine E-Mail-Adresse ein. Wir senden dir einen Link zum Zurücksetzen deines Passworts.",
 			"sendLink": "Link senden",
-			"sending": "Wird gesendet…",
-			"sent": "Wenn ein Konto mit dieser E-Mail-Adresse existiert, erhältst du einen Link zum Zurücksetzen deines Passworts. Prüfe deinen Posteingang und Spamordner.",
 			"requestError": "Der Link konnte nicht angefordert werden. Bitte versuche es erneut.",
 			"unavailable": "Das Zurücksetzen des Passworts ist nicht verfügbar. Wende dich an die Administration deiner Instanz.",
 			"configError": "Der Server ist nicht erreichbar. Lade die Seite neu, um es erneut zu versuchen.",
 			"resetTitle": "Neues Passwort wählen",
-			"resetSubtitle": "Verwende 8–128 Zeichen für dein neues Passwort.",
 			"newPassword": "Neues Passwort",
 			"confirmPassword": "Neues Passwort bestätigen",
 			"passwordMismatch": "Die Passwörter stimmen nicht überein.",
 			"passwordLength": "Verwende zwischen 8 und 128 Zeichen.",
-			"resetPassword": "Passwort zurücksetzen",
-			"resetting": "Wird zurückgesetzt…",
 			"invalidLink": "Dieser Link ist ungültig oder abgelaufen. Fordere einen neuen Link an.",
 			"requestNewLink": "Neuen Link anfordern",
 			"resetError": "Das Passwort konnte nicht zurückgesetzt werden. Bitte versuche es erneut.",
 			"success": "Dein Passwort wurde zurückgesetzt. Melde dich mit deinem neuen Passwort an.",
-			"backToSignIn": "Zurück zur Anmeldung"
+			"backToSignIn": "Zurück zur Anmeldung",
+			"sentTitle": "Prüfe dein Postfach",
+			"sentDescription": "Falls ein Konto für {{email}} existiert, ist ein Link zum Zurücksetzen deines Passworts unterwegs. Er läuft in 1 Stunde ab.",
+			"sentHelpTitle": "Nichts erhalten?",
+			"sentHelpDescription": "Sieh in deinem Spam-Ordner nach oder fordere in einer Minute einen neuen Link an.",
+			"rememberedIt": "Doch wieder eingefallen?",
+			"resetDescription": "Verwende 8 bis 128 Zeichen. Andere Geräte werden abgemeldet.",
+			"updatePassword": "Passwort aktualisieren",
+			"changedMind": "Doch anders überlegt?",
+			"invalidLinkTitle": "Dieser Link ist abgelaufen",
+			"successTitle": "Passwort aktualisiert"
+		},
+		"page": {
+			"terms": "Nutzungsbedingungen",
+			"privacy": "Datenschutz"
+		},
+		"device": {
+			"connect": {
+				"title": "Gerät verbinden",
+				"description": "Gib den Code ein, der in deinem Terminal oder deiner App angezeigt wird, um das Gerät mit deinem Kaneo-Konto zu verknüpfen.",
+				"label": "Gerätecode",
+				"submit": "Weiter",
+				"noCode": "Noch keinen Code? Starte die Anmeldung zuerst in deiner App.",
+				"codeRequired": "Gib den Code ein, der auf deinem Gerät angezeigt wird.",
+				"invalidCode": "Dieser Code ist ungültig oder abgelaufen."
+			},
+			"approve": {
+				"pageTitle": "Gerät genehmigen",
+				"title": "Dieses Gerät verbinden?",
+				"description": "Ein Gerät möchte sich als {{email}} anmelden. Genehmige es nur, wenn du das selbst gestartet hast.",
+				"matchCode": "Prüfe, ob dieser Code mit dem auf deinem Gerät übereinstimmt",
+				"deny": "Ablehnen",
+				"approve": "Genehmigen",
+				"failed": "Die Anfrage konnte nicht aktualisiert werden. Versuche es erneut."
+			},
+			"approved": {
+				"title": "Gerät verbunden",
+				"description": "Kehre zu deinem Terminal oder deiner App zurück. Du kannst diesen Tab schließen."
+			},
+			"denied": {
+				"title": "Anfrage abgelehnt",
+				"description": "Es wurde nichts verbunden. Du kannst diesen Tab schließen."
+			},
+			"missing": {
+				"title": "Kein Gerätecode",
+				"description": "Öffne diese Seite von deinem Gerät aus oder gib den Code selbst ein.",
+				"enterCode": "Code eingeben"
+			},
+			"signIn": {
+				"title": "Melde dich an, um dein Gerät zu verbinden",
+				"description": "Danach kommst du direkt hierher zurück, um es zu genehmigen.",
+				"submit": "Anmelden"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "MCP-Client autorisieren",
+				"description": "Er kann in jedem Workspace, auf den du Zugriff hast, in deinem Namen handeln. Fahre nur fort, wenn du diese Verbindung selbst gestartet hast.",
+				"client": "Client",
+				"unknownClient": "MCP-Client",
+				"selfReported": "Eigenangabe",
+				"redirect": "Leitet dich zurück zu",
+				"signedInAs": "Angemeldet als",
+				"deny": "Ablehnen",
+				"allow": "Zugriff erlauben"
+			},
+			"expired": {
+				"title": "Diese Anfrage ist abgelaufen",
+				"description": "Kehre zu deinem MCP-Client zurück und verbinde dich erneut."
+			},
+			"signIn": {
+				"title": "Melde dich an, um diesen Client zu autorisieren",
+				"description": "Danach kommst du direkt hierher zurück, um ihn zu prüfen.",
+				"submit": "Anmelden"
+			}
 		}
 	},
 	"settings": {

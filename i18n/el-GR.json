@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Σύνδεση",
-			"title": "Καλώς ήρθατε ξανά",
-			"subtitle": "Εισάγετε τα στοιχεία σας για να αποκτήσετε πρόσβαση στον χώρο εργασίας σας",
-			"invitationSubtitle": "Συνδεθείτε για να αποδεχτείτε την πρόσκλησή σας",
-			"invitationAlert": "Μετά τη σύνδεση, θα μπορείτε να αποδεχτείτε την πρόσκληση για τον χώρο εργασίας σας.",
-			"signingIn": "Γίνεται σύνδεση...",
-			"continueWithGoogle": "Συνέχεια με Google",
-			"continueWithGithub": "Συνέχεια με GitHub",
-			"continueWithDiscord": "Συνέχεια με Discord",
-			"continueWithOidc": "Συνέχεια με OIDC",
+			"subtitle": {
+				"emailOrProvider": "Χρησιμοποιήστε το email σας ή έναν συνδεδεμένο λογαριασμό.",
+				"email": "Εισάγετε το email σας και θα σας στείλουμε έναν κωδικό σύνδεσης.",
+				"password": "Χρησιμοποιήστε το email και τον κωδικό πρόσβασής σας.",
+				"passwordOrProvider": "Χρησιμοποιήστε τον κωδικό πρόσβασής σας ή έναν συνδεδεμένο λογαριασμό.",
+				"providers": "Επιλέξτε πώς θέλετε να συνδεθείτε.",
+				"sso": "Τη σύνδεση εδώ τη διαχειρίζεται ο οργανισμός σας."
+			},
 			"lastUsed": "Τελευταία χρήση",
-			"registrationDisabled": "Η δημόσια εγγραφή είναι απενεργοποιημένη. Χρησιμοποιήστε μια πρόσκληση για να δημιουργήσετε λογαριασμό.",
-			"passwordRegistrationDisabled": "Η εγγραφή με κωδικό είναι απενεργοποιημένη. Χρησιμοποιήστε μια διαθέσιμη μέθοδο σύνδεσης μέσω social ή OIDC για να δημιουργήσετε λογαριασμό.",
-			"toggleMessage": "Δεν έχετε λογαριασμό;",
-			"toggleLink": "Δημιουργία λογαριασμού",
-			"guestSuccess": "Συνδεθήκατε ως επισκέπτης",
 			"guestError": "Αποτυχία σύνδεσης ως επισκέπτης",
-			"oidcError": "Αποτυχία σύνδεσης με OIDC",
-			"googleError": "Αποτυχία σύνδεσης με Google",
-			"githubError": "Αποτυχία σύνδεσης με GitHub",
-			"discordError": "Αποτυχία σύνδεσης με Discord",
 			"errors": {
 				"account_not_linked": "Αυτή η ταυτότητα δεν ήταν δυνατό να συνδεθεί με τον υπάρχοντα λογαριασμό. Συνδεθείτε με email για να επαληθεύσετε τον λογαριασμό και έπειτα δοκιμάστε ξανά το SSO. Αν η σύνδεση με email δεν είναι διαθέσιμη, επικοινωνήστε με τον διαχειριστή σας.",
 				"oauth_code_verification_failed": "Η επαλήθευση OAuth απέτυχε. Δοκιμάστε ξανά.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Η εγγραφή είναι προς το παρόν απενεργοποιημένη. Χρειάζεστε έγκυρη πρόσκληση για να δημιουργήσετε λογαριασμό."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Η εγγραφή είναι προς το παρόν απενεργοποιημένη. Χρειάζεστε έγκυρη πρόσκληση για να δημιουργήσετε λογαριασμό.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Χρησιμοποιήστε μια μόνιμη διεύθυνση email. Με προσωρινές διευθύνσεις δεν μπορούν να δημιουργηθούν λογαριασμοί."
 			},
-			"instanceStatusError": "Δεν ήταν δυνατή η επικοινωνία με τον διακομιστή. Δοκιμάστε ξανά σε λίγο."
+			"instanceStatusError": "Δεν ήταν δυνατή η επικοινωνία με τον διακομιστή. Δοκιμάστε ξανά σε λίγο.",
+			"heading": "Σύνδεση στο Kaneo",
+			"submitPassword": "Σύνδεση",
+			"invitation": {
+				"title": "Ο/Η {{inviterName}} σας προσκάλεσε στο {{workspaceName}}",
+				"fallbackTitle": "Έχετε λάβει πρόσκληση",
+				"description": "Συνδεθείτε με το email που έλαβε την πρόσκληση. Θα μπείτε στον χώρο εργασίας αμέσως μετά."
+			},
+			"footer": {
+				"newHere": "Πρώτη φορά στο Kaneo;",
+				"createAccount": "Δημιουργία λογαριασμού",
+				"inviteOnly": "Οι λογαριασμοί εδώ δημιουργούνται μόνο με πρόσκληση. Ζητήστε πρόσκληση από έναν διαχειριστή.",
+				"providerSignUp": "Πρώτη φορά εδώ; Συνδεθείτε με έναν από τους παρόχους παραπάνω για να δημιουργήσετε λογαριασμό.",
+				"anyProvider": "Πρώτη φορά εδώ; Οποιαδήποτε επιλογή παραπάνω δημιουργεί τον λογαριασμό σας.",
+				"contactAdmin": "Πρόβλημα με τη σύνδεση; Επικοινωνήστε με τον διαχειριστή σας.",
+				"justLooking": "Απλώς ρίχνετε μια ματιά;"
+			},
+			"autoLogin": {
+				"title": "Γίνεται σύνδεση",
+				"subtitle": "Σας μεταφέρουμε στη σελίδα σύνδεσης του οργανισμού σας.",
+				"opening": "Άνοιγμα {{provider}}…",
+				"stuck": "Δεν προχωράει;",
+				"continue": "Συνέχεια στο {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Συνέχεια με {{provider}}",
+			"error": "Δεν ήταν δυνατή η σύνδεση με {{provider}}. Δοκιμάστε ξανά."
 		},
 		"forms": {
 			"or": "ή",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Εμφάνιση κωδικού",
-			"hidePassword": "Απόκρυψη κωδικού"
+			"hidePassword": "Απόκρυψη κωδικού",
+			"name": "Όνομα",
+			"namePlaceholder": "Μαρία Παπαδοπούλου",
+			"invalidEmail": "Εισάγετε μια πλήρη διεύθυνση email, π.χ. name@company.com.",
+			"nameRequired": "Εισάγετε το όνομά σας.",
+			"passwordRequired": "Εισάγετε τον κωδικό πρόσβασής σας.",
+			"passwordTooShort": "Χρησιμοποιήστε τουλάχιστον 8 χαρακτήρες.",
+			"disposableEmail": "Χρησιμοποιήστε μια μόνιμη διεύθυνση email. Με προσωρινές διευθύνσεις δεν μπορούν να δημιουργηθούν λογαριασμοί.",
+			"continueWithEmail": "Συνέχεια με email"
 		},
 		"checkEmail": {
 			"pageTitle": "Ελέγξτε το email σας",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Δημιουργία λογαριασμού",
-			"title": "Δημιουργία λογαριασμού",
-			"subtitleInvitation": "Δημιουργήστε λογαριασμό για να αποδεχτείτε την πρόσκλησή σας",
-			"subtitleRegistrationDisabled": "Η εγγραφή απαιτεί πρόσκληση",
-			"subtitlePasswordDisabled": "Χρησιμοποιήστε social ή OIDC σύνδεση για να δημιουργήσετε λογαριασμό",
-			"subtitleDefault": "Ξεκινήστε με τον χώρο εργασίας σας",
-			"invitationAlert": "Μετά τη δημιουργία του λογαριασμού σας, θα μπορείτε να αποδεχτείτε την πρόσκληση για τον χώρο εργασίας σας.",
 			"registrationDisabledAlert": "Η εγγραφή είναι προσωρινά απενεργοποιημένη. Αν έχετε προσκληθεί, εισάγετε τη διεύθυνση email που έλαβε την πρόσκληση για να δημιουργήσετε λογαριασμό.",
-			"passwordDisabledAlert": "Η δημιουργία λογαριασμού με κωδικό είναι απενεργοποιημένη. Χρησιμοποιήστε μια διαθέσιμη μέθοδο social ή OIDC από τη σελίδα σύνδεσης.",
-			"signingIn": "Γίνεται σύνδεση...",
 			"continueAsGuest": "Συνέχεια ως επισκέπτης",
 			"toggleMessage": "Έχετε ήδη λογαριασμό;",
 			"toggleLink": "Σύνδεση",
 			"instanceStatusError": "Δεν ήταν δυνατή η επικοινωνία με τον διακομιστή. Δοκιμάστε ξανά σε λίγο.",
 			"instanceAdminTitle": "Ρυθμίστε την εγκατάσταση Kaneo σας",
-			"instanceAdminSubtitle": "Αυτός ο λογαριασμός γίνεται ο διαχειριστής της εγκατάστασης με πλήρη πρόσβαση."
+			"instanceAdminSubtitle": "Αυτός ο λογαριασμός γίνεται ο διαχειριστής της εγκατάστασης με πλήρη πρόσβαση.",
+			"heading": "Δημιουργήστε τον λογαριασμό σας",
+			"submitPassword": "Δημιουργία λογαριασμού",
+			"failed": "Δεν ήταν δυνατή η δημιουργία του λογαριασμού σας. Δοκιμάστε ξανά.",
+			"subtitle": {
+				"email": "Ξεκινήστε με το email σας. Θα σας στείλουμε έναν κωδικό, χωρίς να χρειάζεται κωδικός πρόσβασης.",
+				"password": "Προσθέστε το όνομά σας, το email σας και έναν κωδικό πρόσβασης για να ξεκινήσετε.",
+				"providers": "Χρησιμοποιήστε έναν συνδεδεμένο λογαριασμό για να δημιουργήσετε τον δικό σας."
+			},
+			"invitation": {
+				"description": "Χρησιμοποιήστε το email που έλαβε την πρόσκληση. Θα μπείτε στον χώρο εργασίας αμέσως μετά."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Επαλήθευση κωδικού",
-			"title": "Εισαγάγετε τον κωδικό επαλήθευσης",
-			"subtitle": "Χρησιμοποιήστε τον 6ψήφιο κωδικό που στάλθηκε στο email σας για να συνεχίσετε",
-			"codeSentTo": "Ο κωδικός στάλθηκε στο {{email}}",
-			"verificationCodeLabel": "Κωδικός επαλήθευσης",
-			"verifying": "Γίνεται επαλήθευση...",
-			"verifyAndSignIn": "Επαλήθευση & Σύνδεση",
-			"changeEmail": "Αλλαγή email",
-			"resend": "Επανάληψη αποστολής",
 			"validation": {
 				"codeLength": "Ο κωδικός πρέπει να αποτελείται από 6 ψηφία"
 			},
 			"toast": {
 				"invalidCode": "Μη έγκυρος κωδικός επαλήθευσης",
-				"signedInSuccess": "Η σύνδεση ολοκληρώθηκε με επιτυχία!",
 				"verifyFailed": "Αποτυχία επαλήθευσης κωδικού",
 				"resendFailed": "Αποτυχία επαναποστολής κωδικού",
 				"resendSuccess": "Στάλθηκε νέος κωδικός επαλήθευσης!"
-			}
+			},
+			"heading": "Ελέγξτε το email σας",
+			"description": "Στείλαμε έναν 6ψήφιο κωδικό στο {{email}}. Λήγει σε {{minutes}} λεπτά.",
+			"label": "Κωδικός επαλήθευσης",
+			"submit": "Επαλήθευση και συνέχεια",
+			"didntGetIt": "Δεν λάβατε τον κωδικό;",
+			"resendCode": "Επαναποστολή κωδικού",
+			"useDifferentEmail": "Χρήση άλλου email",
+			"expired": "Αυτός ο κωδικός έληξε. Ζητήστε νέο.",
+			"tooManyAttempts": "Πάρα πολλές προσπάθειες. Ζητήστε νέο κωδικό."
 		},
 		"otpSignIn": {
-			"sendFailed": "Αποτυχία αποστολής κωδικού επαλήθευσης",
-			"codeSent": "Ο κωδικός επαλήθευσης στάλθηκε! Ελέγξτε το email σας.",
-			"sending": "Γίνεται αποστολή...",
-			"sendVerificationCode": "Αποστολή κωδικού επαλήθευσης"
+			"sendFailed": "Αποτυχία αποστολής κωδικού επαλήθευσης"
 		},
 		"signInForm": {
-			"failedSignIn": "Αποτυχία σύνδεσης",
-			"signedInSuccess": "Η σύνδεση ολοκληρώθηκε με επιτυχία",
-			"signingIn": "Γίνεται σύνδεση...",
-			"signIn": "Σύνδεση"
-		},
-		"signUpForm": {
-			"fullName": "Ονοματεπώνυμο",
-			"namePlaceholder": "John Doe",
-			"failedSignUp": "Αποτυχία εγγραφής",
-			"accountCreated": "Ο λογαριασμός δημιουργήθηκε με επιτυχία",
-			"passwordTooShort": "Ο κωδικός είναι πολύ σύντομος",
-			"creatingAccount": "Γίνεται δημιουργία λογαριασμού...",
-			"createAccount": "Δημιουργία λογαριασμού"
+			"failedSignIn": "Αποτυχία σύνδεσης"
 		},
 		"invitation": {
 			"pageTitleAccept": "Αποδοχή πρόσκλησης",
 			"pageTitleError": "Σφάλμα πρόσκλησης",
 			"pageTitleInvalid": "Μη έγκυρη πρόσκληση",
-			"loadingTitle": "Φόρτωση πρόσκλησης...",
-			"errorTitle": "Σφάλμα πρόσκλησης",
-			"invalidTitle": "Μη έγκυρη πρόσκληση",
-			"invitationExpired": "Η πρόσκληση έληξε",
-			"errorLoadDescription": "Αποτυχία φόρτωσης των στοιχείων της πρόσκλησης. Η πρόσκληση ενδέχεται να είναι μη έγκυρη ή να έχει λήξει.",
-			"goToSignIn": "Μετάβαση στη σύνδεση",
-			"workspaceLabel": "Χώρος εργασίας: {{workspaceName}}",
 			"joinWorkspace": "Συμμετοχή στο {{workspaceName}}",
-			"inviteBodySignedIn": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της.",
-			"inviteBodySignedOut": "Ο/Η <inviter>{{inviterName}}</inviter> σας προσκάλεσε να συμμετάσχετε στον χώρο εργασίας του/της στο Kaneo.",
-			"createAccountOrSignIn": "Δημιουργήστε λογαριασμό για να αποδεχτείτε αυτήν την πρόσκληση ή συνδεθείτε αν έχετε ήδη.",
 			"createAccount": "Δημιουργία λογαριασμού",
-			"accepting": "Γίνεται αποδοχή...",
-			"acceptInvitation": "Αποδοχή πρόσκλησης",
-			"goToDashboard": "Μετάβαση στον πίνακα ελέγχου",
-			"signedInAs": "Συνδεδεμένος ως <email>{{email}}</email>",
-			"youveBeenInvited": "Έχετε προσκληθεί!",
-			"invitationFor": "Πρόσκληση για: <email>{{email}}</email>",
 			"signIn": "Σύνδεση",
 			"toast": {
 				"acceptFailed": "Αποτυχία αποδοχής πρόσκλησης",
 				"acceptSuccess": "Η πρόσκληση έγινε αποδεκτή! Καλώς ήρθατε στην ομάδα."
+			},
+			"description": "Ο/Η {{inviterName}} σας προσκάλεσε σε αυτόν τον χώρο εργασίας στο Kaneo.",
+			"invitedBy": "Πρόσκληση από",
+			"sentTo": "Στάλθηκε στο",
+			"signedInAs": "Σύνδεση ως",
+			"expires": "Λήγει",
+			"notNow": "Όχι τώρα",
+			"join": "Συμμετοχή στον χώρο εργασίας",
+			"switchAccount": "Αλλαγή λογαριασμού",
+			"goToKaneo": "Μετάβαση στο Kaneo",
+			"mismatch": {
+				"title": "Έχετε συνδεθεί με διαφορετικό email",
+				"description": "Αυτή η πρόσκληση στάλθηκε στο {{invitedEmail}}. Έχετε συνδεθεί ως {{email}}."
+			},
+			"expired": {
+				"title": "Αυτή η πρόσκληση έχει λήξει",
+				"description": "Ζητήστε από τον/την {{inviterName}} να σας στείλει νέα πρόσκληση για το {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Αυτή η πρόσκληση δεν ισχύει πλέον",
+				"description": "Μπορεί να έχει ήδη γίνει αποδεκτή ή να έχει ακυρωθεί. Ζητήστε νέα από έναν διαχειριστή του χώρου εργασίας."
+			},
+			"loadFailed": {
+				"title": "Δεν ήταν δυνατή η φόρτωση της πρόσκλησης",
+				"description": "Ελέγξτε τη σύνδεσή σας και ανανεώστε τη σελίδα."
 			}
 		},
 		"onboarding": {
@@ -428,24 +451,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Ελέγξτε τα εισερχόμενά σας",
+			"sentDescription": "Αν υπάρχει λογαριασμός για το {{email}}, ένας σύνδεσμος επαναφοράς κωδικού πρόσβασης είναι καθ' οδόν. Λήγει σε 1 ώρα.",
+			"sentHelpTitle": "Δεν λάβατε τίποτα;",
+			"sentHelpDescription": "Ελέγξτε τον φάκελο ανεπιθύμητης αλληλογραφίας ή ζητήστε νέο σύνδεσμο σε ένα λεπτό.",
+			"rememberedIt": "Τον θυμηθήκατε;",
+			"resetDescription": "Χρησιμοποιήστε από 8 έως 128 χαρακτήρες. Οι άλλες συσκευές θα αποσυνδεθούν.",
+			"updatePassword": "Ενημέρωση κωδικού πρόσβασης",
+			"changedMind": "Αλλάξατε γνώμη;",
+			"invalidLinkTitle": "Αυτός ο σύνδεσμος έληξε",
+			"successTitle": "Ο κωδικός πρόσβασης ενημερώθηκε"
+		},
+		"page": {
+			"terms": "Όροι",
+			"privacy": "Απόρρητο"
+		},
+		"device": {
+			"connect": {
+				"title": "Σύνδεση συσκευής",
+				"description": "Εισάγετε τον κωδικό που εμφανίζεται στο τερματικό ή στην εφαρμογή σας για να τη συνδέσετε με τον λογαριασμό σας στο Kaneo.",
+				"label": "Κωδικός συσκευής",
+				"submit": "Συνέχεια",
+				"noCode": "Δεν έχετε κωδικό ακόμη; Ξεκινήστε πρώτα τη σύνδεση από την εφαρμογή σας.",
+				"codeRequired": "Εισάγετε τον κωδικό που εμφανίζεται στη συσκευή σας.",
+				"invalidCode": "Ο κωδικός δεν είναι έγκυρος ή έχει λήξει."
+			},
+			"approve": {
+				"pageTitle": "Έγκριση συσκευής",
+				"title": "Σύνδεση αυτής της συσκευής;",
+				"description": "Μια συσκευή θέλει να συνδεθεί ως {{email}}. Εγκρίνετέ την μόνο αν ξεκινήσατε εσείς αυτή τη διαδικασία.",
+				"matchCode": "Βεβαιωθείτε ότι ταιριάζει με τον κωδικό στη συσκευή σας",
+				"deny": "Απόρριψη",
+				"approve": "Έγκριση",
+				"failed": "Δεν ήταν δυνατή η ενημέρωση του αιτήματος. Δοκιμάστε ξανά."
+			},
+			"approved": {
+				"title": "Η συσκευή συνδέθηκε",
+				"description": "Επιστρέψτε στο τερματικό ή στην εφαρμογή σας. Μπορείτε να κλείσετε αυτή την καρτέλα."
+			},
+			"denied": {
+				"title": "Το αίτημα απορρίφθηκε",
+				"description": "Δεν συνδέθηκε τίποτα. Μπορείτε να κλείσετε αυτή την καρτέλα."
+			},
+			"missing": {
+				"title": "Δεν υπάρχει κωδικός συσκευής",
+				"description": "Ανοίξτε αυτή τη σελίδα από τη συσκευή σας ή εισάγετε τον κωδικό χειροκίνητα.",
+				"enterCode": "Εισαγωγή κωδικού"
+			},
+			"signIn": {
+				"title": "Συνδεθείτε για να συνδέσετε τη συσκευή σας",
+				"description": "Θα επιστρέψετε αμέσως εδώ για να την εγκρίνετε.",
+				"submit": "Σύνδεση"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Εξουσιοδότηση πελάτη MCP",
+				"description": "Θα μπορεί να ενεργεί εκ μέρους σας σε κάθε χώρο εργασίας στον οποίο έχετε πρόσβαση. Συνεχίστε μόνο αν ξεκινήσατε εσείς αυτή τη σύνδεση.",
+				"client": "Πελάτης",
+				"unknownClient": "Πελάτης MCP",
+				"selfReported": "Δηλωμένο από τον πελάτη",
+				"redirect": "Σας επιστρέφει στο",
+				"signedInAs": "Σύνδεση ως",
+				"deny": "Απόρριψη",
+				"allow": "Παραχώρηση πρόσβασης"
+			},
+			"expired": {
+				"title": "Αυτό το αίτημα έχει λήξει",
+				"description": "Επιστρέψτε στον πελάτη MCP και συνδεθείτε ξανά."
+			},
+			"signIn": {
+				"title": "Συνδεθείτε για να εξουσιοδοτήσετε αυτόν τον πελάτη",
+				"description": "Θα επιστρέψετε αμέσως εδώ για να το ελέγξετε.",
+				"submit": "Σύνδεση"
+			}
 		}
 	},
 	"settings": {

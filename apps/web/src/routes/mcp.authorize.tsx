@@ -3,12 +3,17 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
-import { AuthLayout } from "@/components/auth/layout";
+import { AuthDetails } from "@/components/auth/auth-details";
+import { AuthFormSkeleton } from "@/components/auth/auth-form-skeleton";
+import { AuthPage } from "@/components/auth/auth-page";
+import { useSettledSession } from "@/components/auth/use-settled-session";
+import PageTitle from "@/components/page-title";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useMcpAuthorizationDecision } from "@/hooks/mutations/mcp/use-authorization-decision";
 import { useMcpAuthorizationRequest } from "@/hooks/queries/mcp/use-authorization-request";
-import { authClient } from "@/lib/auth-client";
 
 const authorizationSearchSchema = z.object({
   request_id: z.string().optional(),
@@ -20,118 +25,128 @@ export const Route = createFileRoute("/mcp/authorize")({
 });
 
 function McpAuthorizePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const search = useSearch({ from: "/mcp/authorize" });
   const requestId = search.request_id ?? "";
   const request = useMcpAuthorizationRequest(requestId);
   const decision = useMcpAuthorizationDecision();
-  const { data: session, isPending: isSessionPending } =
-    authClient.useSession();
+  const { session, isLoading: isSessionPending } = useSettledSession();
+  const pageTitle = <PageTitle title={t("auth:mcp.authorize.title")} />;
 
   if (!requestId || request.isError) {
     return (
-      <AuthLayout
-        title="Authorization failed"
-        subtitle="This authorization request is invalid or has expired."
-      >
-        <p className="text-sm text-muted-foreground">
-          Return to your MCP client and start the connection again.
-        </p>
-      </AuthLayout>
+      <>
+        {pageTitle}
+        <AuthPage
+          title={t("auth:mcp.expired.title")}
+          description={t("auth:mcp.expired.description")}
+        />
+      </>
     );
   }
 
   if (request.isLoading || isSessionPending) {
     return (
-      <AuthLayout title="Authorize MCP client" subtitle="Loading request…">
-        <p className="text-sm text-muted-foreground">
-          Checking the authorization request.
-        </p>
-      </AuthLayout>
+      <>
+        {pageTitle}
+        <AuthPage title={t("auth:mcp.authorize.title")}>
+          <AuthFormSkeleton />
+        </AuthPage>
+      </>
     );
   }
 
   if (!session?.user) {
-    const redirectTarget = `/mcp/authorize?request_id=${encodeURIComponent(requestId)}`;
     return (
-      <AuthLayout
-        title="Sign in to continue"
-        subtitle="Sign in before approving this MCP client."
-      >
-        <Button
-          type="button"
-          className="w-full"
-          onClick={() =>
-            void navigate({
-              to: "/auth/sign-in",
-              search: { redirect: redirectTarget },
-            })
-          }
+      <>
+        {pageTitle}
+        <AuthPage
+          title={t("auth:mcp.signIn.title")}
+          description={t("auth:mcp.signIn.description")}
         >
-          Sign in
-        </Button>
-      </AuthLayout>
+          <Button
+            size="lg"
+            className="w-full"
+            onClick={() =>
+              void navigate({
+                to: "/auth/sign-in",
+                search: {
+                  redirect: `/mcp/authorize?request_id=${encodeURIComponent(requestId)}`,
+                },
+              })
+            }
+          >
+            {t("auth:mcp.signIn.submit")}
+          </Button>
+        </AuthPage>
+      </>
     );
   }
 
   const submitDecision = (approved: boolean) => {
     decision.mutate(
       { requestId, approved },
-      {
-        onSuccess: (redirect) => window.location.assign(redirect),
-      },
+      { onSuccess: (redirect) => window.location.assign(redirect) },
     );
   };
 
   return (
-    <AuthLayout
-      title="Authorize MCP client"
-      subtitle="Review this request before granting access to your Kaneo account."
-    >
-      <div className="space-y-4">
-        <p className="text-sm text-muted-foreground">
-          This client will be able to act as you and access your workspaces.
-          Only continue if you initiated this connection.
-        </p>
-        <div className="space-y-3 rounded-md border bg-muted/40 p-3">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">
-              Client name (self-reported)
-            </p>
-            <p className="mt-1 text-sm">
-              {request.data?.clientName ?? "MCP client"}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">
-              Redirect URI
-            </p>
-            <p className="mt-1 break-all font-mono text-xs">
-              {request.data?.redirectUri}
-            </p>
+    <>
+      {pageTitle}
+      <AuthPage
+        title={t("auth:mcp.authorize.title")}
+        description={t("auth:mcp.authorize.description")}
+      >
+        <div className="flex flex-col gap-4">
+          <AuthDetails
+            rows={[
+              {
+                label: t("auth:mcp.authorize.client"),
+                value: (
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="truncate font-medium">
+                      {request.data?.clientName ||
+                        t("auth:mcp.authorize.unknownClient")}
+                    </span>
+                    <Badge variant="outline">
+                      {t("auth:mcp.authorize.selfReported")}
+                    </Badge>
+                  </span>
+                ),
+              },
+              {
+                label: t("auth:mcp.authorize.redirect"),
+                value: request.data?.redirectUri,
+                mono: true,
+              },
+              {
+                label: t("auth:mcp.authorize.signedInAs"),
+                value: session.user.email,
+              },
+            ]}
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              loading={decision.isPending && !decision.variables?.approved}
+              disabled={decision.isPending}
+              onClick={() => submitDecision(false)}
+            >
+              {t("auth:mcp.authorize.deny")}
+            </Button>
+            <Button
+              size="lg"
+              loading={decision.isPending && decision.variables?.approved}
+              disabled={decision.isPending}
+              onClick={() => submitDecision(true)}
+            >
+              {t("auth:mcp.authorize.allow")}
+            </Button>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            className="flex-1"
-            loading={decision.isPending && decision.variables?.approved}
-            disabled={decision.isPending}
-            onClick={() => submitDecision(true)}
-          >
-            Approve
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            loading={decision.isPending && !decision.variables?.approved}
-            disabled={decision.isPending}
-            onClick={() => submitDecision(false)}
-          >
-            Deny
-          </Button>
-        </div>
-      </div>
-    </AuthLayout>
+      </AuthPage>
+    </>
   );
 }

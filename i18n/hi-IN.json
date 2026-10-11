@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "साइन इन",
-			"title": "वापस स्वागत है",
-			"subtitle": "अपने वर्कस्पेस तक पहुँचने के लिए अपनी जानकारी दर्ज करें",
-			"invitationSubtitle": "अपना निमंत्रण स्वीकार करने के लिए साइन इन करें",
-			"invitationAlert": "साइन इन करने के बाद, आप अपना वर्कस्पेस निमंत्रण स्वीकार कर सकेंगे।",
-			"signingIn": "साइन इन हो रहा है...",
-			"continueWithGoogle": "Google से जारी रखें",
-			"continueWithGithub": "GitHub से जारी रखें",
-			"continueWithDiscord": "Discord से जारी रखें",
-			"continueWithOidc": "OIDC से जारी रखें",
+			"subtitle": {
+				"emailOrProvider": "अपने ईमेल या किसी कनेक्टेड खाते का उपयोग करें।",
+				"email": "अपना ईमेल दर्ज करें, हम आपको साइन-इन कोड भेजेंगे।",
+				"password": "अपने ईमेल और पासवर्ड का उपयोग करें।",
+				"passwordOrProvider": "अपने पासवर्ड या किसी कनेक्टेड खाते का उपयोग करें।",
+				"providers": "चुनें कि आप कैसे साइन इन करना चाहते हैं।",
+				"sso": "यहाँ साइन-इन आपका संगठन प्रबंधित करता है।"
+			},
 			"lastUsed": "पिछली बार उपयोग किया",
-			"registrationDisabled": "सार्वजनिक पंजीकरण अक्षम है। खाता बनाने के लिए निमंत्रण का उपयोग करें।",
-			"passwordRegistrationDisabled": "पासवर्ड पंजीकरण अक्षम है। खाता बनाने के लिए कॉन्फ़िगर की गई सामाजिक या OIDC साइन-इन विधि का उपयोग करें।",
-			"toggleMessage": "खाता नहीं है?",
-			"toggleLink": "खाता बनाएँ",
-			"guestSuccess": "अतिथि के रूप में साइन इन किया",
 			"guestError": "अतिथि के रूप में साइन इन विफल",
-			"oidcError": "OIDC से साइन इन विफल",
-			"googleError": "Google से साइन इन विफल",
-			"githubError": "GitHub से साइन इन विफल",
-			"discordError": "Discord से साइन इन विफल",
 			"errors": {
 				"account_not_linked": "यह पहचान मौजूदा खाते से लिंक नहीं हो सकी। खाते की पुष्टि के लिए ईमेल से साइन इन करें, फिर SSO पुनः प्रयास करें। यदि ईमेल साइन-इन उपलब्ध नहीं है, तो अपने व्यवस्थापक से संपर्क करें।",
 				"oauth_code_verification_failed": "OAuth सत्यापन विफल। कृपया पुनः प्रयास करें।",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "पंजीकरण वर्तमान में अक्षम है। खाता बनाने के लिए आपको वैध निमंत्रण चाहिए।"
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "पंजीकरण वर्तमान में अक्षम है। खाता बनाने के लिए आपको वैध निमंत्रण चाहिए।",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "स्थायी ईमेल पते का उपयोग करें। अस्थायी पतों से खाते नहीं बनाए जा सकते।"
 			},
-			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।"
+			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।",
+			"heading": "Kaneo में साइन इन करें",
+			"submitPassword": "साइन इन करें",
+			"invitation": {
+				"title": "{{inviterName}} ने आपको {{workspaceName}} में निमंत्रित किया है",
+				"fallbackTitle": "आपको निमंत्रित किया गया है",
+				"description": "उसी ईमेल से साइन इन करें जिस पर निमंत्रण मिला था। इसके तुरंत बाद आप वर्कस्पेस में शामिल हो जाएँगे।"
+			},
+			"footer": {
+				"newHere": "Kaneo पर नए हैं?",
+				"createAccount": "खाता बनाएँ",
+				"inviteOnly": "यहाँ खाते केवल निमंत्रण से बनते हैं। किसी व्यवस्थापक से निमंत्रण माँगें।",
+				"providerSignUp": "नए हैं? खाता बनाने के लिए ऊपर दिए किसी प्रदाता से साइन इन करें।",
+				"anyProvider": "नए हैं? ऊपर दिया कोई भी विकल्प आपका खाता बना देगा।",
+				"contactAdmin": "साइन इन करने में समस्या है? अपने व्यवस्थापक से संपर्क करें।",
+				"justLooking": "बस देख रहे हैं?"
+			},
+			"autoLogin": {
+				"title": "आपको साइन इन किया जा रहा है",
+				"subtitle": "आपको आपके संगठन के साइन-इन पेज पर ले जाया जा रहा है।",
+				"opening": "{{provider}} खोला जा रहा है…",
+				"stuck": "आगे नहीं बढ़ रहा?",
+				"continue": "{{provider}} पर जाएँ"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "{{provider}} के साथ जारी रखें",
+			"error": "{{provider}} से साइन इन नहीं हो सका। फिर से कोशिश करें।"
 		},
 		"forms": {
 			"or": "या",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "पासवर्ड दिखाएँ",
-			"hidePassword": "पासवर्ड छिपाएँ"
+			"hidePassword": "पासवर्ड छिपाएँ",
+			"name": "नाम",
+			"namePlaceholder": "प्रिया शर्मा",
+			"invalidEmail": "पूरा ईमेल पता दर्ज करें, जैसे name@company.com",
+			"nameRequired": "अपना नाम दर्ज करें।",
+			"passwordRequired": "अपना पासवर्ड दर्ज करें।",
+			"passwordTooShort": "कम से कम 8 वर्णों का उपयोग करें।",
+			"disposableEmail": "स्थायी ईमेल पते का उपयोग करें। अस्थायी पतों से खाते नहीं बनाए जा सकते।",
+			"continueWithEmail": "ईमेल के साथ जारी रखें"
 		},
 		"checkEmail": {
 			"pageTitle": "अपना ईमेल जाँचें",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "खाता बनाएँ",
-			"title": "खाता बनाएँ",
-			"subtitleInvitation": "अपना निमंत्रण स्वीकार करने के लिए खाता बनाएँ",
-			"subtitleRegistrationDisabled": "पंजीकरण के लिए निमंत्रण आवश्यक है",
-			"subtitlePasswordDisabled": "खाता बनाने के लिए सामाजिक या OIDC साइन-इन का उपयोग करें",
-			"subtitleDefault": "अपने वर्कस्पेस के साथ शुरू करें",
-			"invitationAlert": "खाता बनाने के बाद, आप अपना वर्कस्पेस निमंत्रण स्वीकार कर सकेंगे।",
 			"registrationDisabledAlert": "पंजीकरण वर्तमान में अक्षम है। यदि आपको निमंत्रित किया गया था, तो वह ईमेल पता दर्ज करें जिसे निमंत्रण मिला था।",
-			"passwordDisabledAlert": "पासवर्ड-आधारित खाता निर्माण अक्षम है। साइन-इन पेज से कॉन्फ़िगर की गई सामाजिक या OIDC साइन-इन विधि का उपयोग करें।",
-			"signingIn": "साइन इन हो रहा है...",
 			"continueAsGuest": "अतिथि के रूप में जारी रखें",
 			"toggleMessage": "पहले से खाता है?",
 			"toggleLink": "साइन इन करें",
 			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।",
 			"instanceAdminTitle": "अपना Kaneo इंस्टेंस सेट अप करें",
-			"instanceAdminSubtitle": "यह खाता पूर्ण पहुँच के साथ इंस्टेंस व्यवस्थापक बन जाता है।"
+			"instanceAdminSubtitle": "यह खाता पूर्ण पहुँच के साथ इंस्टेंस व्यवस्थापक बन जाता है।",
+			"heading": "अपना खाता बनाएँ",
+			"submitPassword": "खाता बनाएँ",
+			"failed": "आपका खाता नहीं बन सका। फिर से कोशिश करें।",
+			"subtitle": {
+				"email": "अपने ईमेल से शुरू करें। हम एक कोड भेजेंगे, पासवर्ड की ज़रूरत नहीं।",
+				"password": "शुरू करने के लिए अपना नाम, ईमेल और एक पासवर्ड जोड़ें।",
+				"providers": "अपना खाता बनाने के लिए किसी कनेक्टेड खाते का उपयोग करें।"
+			},
+			"invitation": {
+				"description": "उसी ईमेल का उपयोग करें जिस पर निमंत्रण मिला था। इसके तुरंत बाद आप वर्कस्पेस में शामिल हो जाएँगे।"
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "कोड सत्यापित करें",
-			"title": "सत्यापन कोड दर्ज करें",
-			"subtitle": "जारी रखने के लिए अपने ईमेल पर भेजे गए 6 अंकों के कोड का उपयोग करें",
-			"codeSentTo": "कोड {{email}} पर भेजा गया",
-			"verificationCodeLabel": "सत्यापन कोड",
-			"verifying": "सत्यापित हो रहा है...",
-			"verifyAndSignIn": "सत्यापित करें और साइन इन करें",
-			"changeEmail": "ईमेल बदलें",
-			"resend": "पुनः भेजें",
 			"validation": {
 				"codeLength": "कोड 6 अंकों का होना चाहिए"
 			},
 			"toast": {
 				"invalidCode": "अमान्य सत्यापन कोड",
-				"signedInSuccess": "सफलतापूर्वक साइन इन किया!",
 				"verifyFailed": "कोड सत्यापित करने में विफल",
 				"resendFailed": "कोड पुनः भेजने में विफल",
 				"resendSuccess": "नया सत्यापन कोड भेजा गया!"
-			}
+			},
+			"heading": "अपना ईमेल जाँचें",
+			"description": "हमने {{email}} पर 6 अंकों का कोड भेजा है। यह {{minutes}} मिनट में समाप्त हो जाएगा।",
+			"label": "सत्यापन कोड",
+			"submit": "सत्यापित करें और जारी रखें",
+			"didntGetIt": "कोड नहीं मिला?",
+			"resendCode": "कोड फिर से भेजें",
+			"useDifferentEmail": "दूसरा ईमेल इस्तेमाल करें",
+			"expired": "यह कोड समाप्त हो गया है। नया कोड मँगवाएँ।",
+			"tooManyAttempts": "बहुत अधिक प्रयास हो गए। नया कोड मँगवाएँ।"
 		},
 		"otpSignIn": {
-			"sendFailed": "सत्यापन कोड भेजने में विफल",
-			"codeSent": "सत्यापन कोड भेजा गया! अपना ईमेल जाँचें।",
-			"sending": "भेज रहे हैं...",
-			"sendVerificationCode": "सत्यापन कोड भेजें"
+			"sendFailed": "सत्यापन कोड भेजने में विफल"
 		},
 		"signInForm": {
-			"failedSignIn": "साइन इन विफल",
-			"signedInSuccess": "सफलतापूर्वक साइन इन किया",
-			"signingIn": "साइन इन हो रहा है...",
-			"signIn": "साइन इन"
-		},
-		"signUpForm": {
-			"fullName": "पूरा नाम",
-			"namePlaceholder": "राहुल शर्मा",
-			"failedSignUp": "साइन अप विफल",
-			"accountCreated": "खाता सफलतापूर्वक बनाया गया",
-			"passwordTooShort": "पासवर्ड बहुत छोटा है",
-			"creatingAccount": "खाता बना रहे हैं...",
-			"createAccount": "खाता बनाएँ"
+			"failedSignIn": "साइन इन विफल"
 		},
 		"invitation": {
 			"pageTitleAccept": "निमंत्रण स्वीकार करें",
 			"pageTitleError": "निमंत्रण त्रुटि",
 			"pageTitleInvalid": "अमान्य निमंत्रण",
-			"loadingTitle": "निमंत्रण लोड हो रहा है...",
-			"errorTitle": "निमंत्रण त्रुटि",
-			"invalidTitle": "अमान्य निमंत्रण",
-			"invitationExpired": "निमंत्रण समाप्त हो गया",
-			"errorLoadDescription": "निमंत्रण विवरण लोड करने में विफल। निमंत्रण अमान्य या समाप्त हो सकता है।",
-			"goToSignIn": "साइन इन पर जाएँ",
-			"workspaceLabel": "वर्कस्पेस: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} में शामिल हों",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> ने आपको अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> ने आपको Kaneo पर अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
-			"createAccountOrSignIn": "इस निमंत्रण को स्वीकार करने के लिए खाता बनाएँ, या यदि आपके पास पहले से खाता है तो साइन इन करें।",
 			"createAccount": "खाता बनाएँ",
-			"accepting": "स्वीकार हो रहा है...",
-			"acceptInvitation": "निमंत्रण स्वीकार करें",
-			"goToDashboard": "डैशबोर्ड पर जाएँ",
-			"signedInAs": "<email>{{email}}</email> के रूप में साइन इन",
-			"youveBeenInvited": "आपको निमंत्रित किया गया है!",
-			"invitationFor": "निमंत्रण: <email>{{email}}</email> के लिए",
 			"signIn": "साइन इन",
 			"toast": {
 				"acceptFailed": "निमंत्रण स्वीकार करने में विफल",
 				"acceptSuccess": "निमंत्रण स्वीकार किया! टीम में स्वागत है।"
+			},
+			"description": "{{inviterName}} ने आपको Kaneo पर इस वर्कस्पेस में निमंत्रित किया है।",
+			"invitedBy": "निमंत्रण भेजने वाले",
+			"sentTo": "इस पते पर भेजा गया",
+			"signedInAs": "साइन इन किया गया खाता",
+			"expires": "समाप्ति",
+			"notNow": "अभी नहीं",
+			"join": "वर्कस्पेस में शामिल हों",
+			"switchAccount": "खाता बदलें",
+			"goToKaneo": "Kaneo पर जाएँ",
+			"mismatch": {
+				"title": "आपने किसी दूसरे ईमेल से साइन इन किया है",
+				"description": "यह निमंत्रण {{invitedEmail}} पर भेजा गया था। आपने {{email}} से साइन इन किया है।"
+			},
+			"expired": {
+				"title": "इस निमंत्रण की समय-सीमा समाप्त हो गई है",
+				"description": "{{inviterName}} से {{workspaceName}} के लिए नया निमंत्रण भेजने को कहें।"
+			},
+			"invalid": {
+				"title": "यह निमंत्रण अब मान्य नहीं है",
+				"description": "हो सकता है इसे स्वीकार या रद्द कर दिया गया हो। वर्कस्पेस के किसी व्यवस्थापक से नया निमंत्रण माँगें।"
+			},
+			"loadFailed": {
+				"title": "यह निमंत्रण लोड नहीं हो सका",
+				"description": "अपना कनेक्शन जाँचें और पेज फिर से लोड करें।"
 			}
 		},
 		"onboarding": {
@@ -428,24 +451,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "अपना इनबॉक्स जाँचें",
+			"sentDescription": "अगर {{email}} के लिए कोई खाता है, तो पासवर्ड रीसेट करने का लिंक भेजा जा रहा है। यह 1 घंटे में समाप्त हो जाएगा।",
+			"sentHelpTitle": "ईमेल नहीं मिला?",
+			"sentHelpDescription": "अपना स्पैम फ़ोल्डर देखें, या एक मिनट बाद दूसरा लिंक माँगें।",
+			"rememberedIt": "याद आ गया?",
+			"resetDescription": "8 से 128 वर्णों का उपयोग करें। अन्य डिवाइस से साइन आउट हो जाएगा।",
+			"updatePassword": "पासवर्ड अपडेट करें",
+			"changedMind": "इरादा बदल गया?",
+			"invalidLinkTitle": "इस लिंक की समय-सीमा समाप्त हो गई है",
+			"successTitle": "पासवर्ड अपडेट हो गया"
+		},
+		"page": {
+			"terms": "शर्तें",
+			"privacy": "गोपनीयता"
+		},
+		"device": {
+			"connect": {
+				"title": "डिवाइस कनेक्ट करें",
+				"description": "अपने Kaneo खाते से लिंक करने के लिए अपने टर्मिनल या ऐप में दिखाया गया कोड दर्ज करें।",
+				"label": "डिवाइस कोड",
+				"submit": "जारी रखें",
+				"noCode": "अभी तक कोड नहीं है? पहले अपने ऐप से साइन इन शुरू करें।",
+				"codeRequired": "अपने डिवाइस पर दिखाया गया कोड दर्ज करें।",
+				"invalidCode": "यह कोड अमान्य है या समाप्त हो गया है।"
+			},
+			"approve": {
+				"pageTitle": "डिवाइस स्वीकृत करें",
+				"title": "इस डिवाइस को कनेक्ट करें?",
+				"description": "एक डिवाइस {{email}} के रूप में साइन इन करना चाहता है। इसे तभी स्वीकृत करें जब आपने ही यह शुरू किया हो।",
+				"matchCode": "जाँचें कि यह आपके डिवाइस पर दिखे कोड से मेल खाता है",
+				"deny": "अस्वीकार करें",
+				"approve": "स्वीकृत करें",
+				"failed": "अनुरोध अपडेट नहीं हो सका। फिर से कोशिश करें।"
+			},
+			"approved": {
+				"title": "डिवाइस कनेक्ट हो गया",
+				"description": "अपने टर्मिनल या ऐप पर वापस जाएँ। आप यह टैब बंद कर सकते हैं।"
+			},
+			"denied": {
+				"title": "अनुरोध अस्वीकार किया गया",
+				"description": "कुछ भी कनेक्ट नहीं हुआ। आप यह टैब बंद कर सकते हैं।"
+			},
+			"missing": {
+				"title": "कोई डिवाइस कोड नहीं",
+				"description": "यह पेज अपने डिवाइस से खोलें, या कोड खुद दर्ज करें।",
+				"enterCode": "कोड दर्ज करें"
+			},
+			"signIn": {
+				"title": "अपना डिवाइस कनेक्ट करने के लिए साइन इन करें",
+				"description": "इसे स्वीकृत करने के लिए आप तुरंत यहीं वापस आएँगे।",
+				"submit": "साइन इन करें"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "MCP क्लाइंट को अधिकृत करें",
+				"description": "यह आपकी पहुँच वाले हर वर्कस्पेस में आपकी ओर से काम कर सकता है। तभी जारी रखें जब यह कनेक्शन आपने शुरू किया हो।",
+				"client": "क्लाइंट",
+				"unknownClient": "MCP क्लाइंट",
+				"selfReported": "क्लाइंट द्वारा बताया गया",
+				"redirect": "वापस भेजने का पता",
+				"signedInAs": "साइन इन किया गया खाता",
+				"deny": "अस्वीकार करें",
+				"allow": "एक्सेस दें"
+			},
+			"expired": {
+				"title": "इस अनुरोध की समय-सीमा समाप्त हो गई है",
+				"description": "अपने MCP क्लाइंट पर वापस जाएँ और फिर से कनेक्ट करें।"
+			},
+			"signIn": {
+				"title": "इस क्लाइंट को अधिकृत करने के लिए साइन इन करें",
+				"description": "इसकी समीक्षा करने के लिए आप तुरंत यहीं वापस आएँगे।",
+				"submit": "साइन इन करें"
+			}
 		}
 	},
 	"settings": {

@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Zaloguj się",
-			"title": "Witaj ponownie",
-			"subtitle": "Wprowadź dane logowania, aby uzyskać dostęp do swojego obszaru roboczego",
-			"invitationSubtitle": "Zaloguj się, aby zaakceptować zaproszenie",
-			"invitationAlert": "Po zalogowaniu będziesz mógł zaakceptować zaproszenie do obszaru roboczego.",
-			"signingIn": "Logowanie...",
-			"continueWithGoogle": "Kontynuuj z Google",
-			"continueWithGithub": "Kontynuuj z GitHub",
-			"continueWithDiscord": "Kontynuuj z Discord",
-			"continueWithOidc": "Kontynuuj z OIDC",
+			"subtitle": {
+				"emailOrProvider": "Użyj adresu e-mail lub połączonego konta.",
+				"email": "Podaj adres e-mail, a wyślemy Ci kod logowania.",
+				"password": "Użyj adresu e-mail i hasła.",
+				"passwordOrProvider": "Użyj hasła lub połączonego konta.",
+				"providers": "Wybierz sposób logowania.",
+				"sso": "Logowaniem zarządza tutaj Twoja organizacja."
+			},
 			"lastUsed": "Ostatnio używane",
-			"registrationDisabled": "Publiczna rejestracja jest wyłączona. Użyj zaproszenia, aby utworzyć konto.",
-			"passwordRegistrationDisabled": "Rejestracja hasłem jest wyłączona. Użyj skonfigurowanej metody logowania społecznościowego lub OIDC, aby utworzyć konto.",
-			"toggleMessage": "Nie masz konta?",
-			"toggleLink": "Utwórz konto",
-			"guestSuccess": "Zalogowano jako gość",
 			"guestError": "Nie udało się zalogować jako gość",
-			"oidcError": "Nie udało się zalogować przez OIDC",
-			"googleError": "Nie udało się zalogować przez Google",
-			"githubError": "Nie udało się zalogować przez GitHub",
-			"discordError": "Nie udało się zalogować przez Discord",
 			"errors": {
 				"account_not_linked": "Nie można było powiązać tej tożsamości z istniejącym kontem. Zaloguj się przez e-mail, aby zweryfikować konto, a następnie spróbuj ponownie SSO. Jeśli logowanie e-mail nie jest dostępne, skontaktuj się z administratorem.",
 				"oauth_code_verification_failed": "Weryfikacja OAuth nie powiodła się. Spróbuj ponownie.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Rejestracja jest obecnie wyłączona. Do utworzenia konta potrzebujesz prawidłowego zaproszenia."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Rejestracja jest obecnie wyłączona. Do utworzenia konta potrzebujesz prawidłowego zaproszenia.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Użyj stałego adresu e-mail. Na adresy jednorazowe nie można zakładać kont."
 			},
-			"instanceStatusError": "Nie można połączyć się z serwerem. Spróbuj ponownie za chwilę."
+			"instanceStatusError": "Nie można połączyć się z serwerem. Spróbuj ponownie za chwilę.",
+			"heading": "Zaloguj się do Kaneo",
+			"submitPassword": "Zaloguj się",
+			"invitation": {
+				"title": "{{inviterName}} zaprasza Cię do {{workspaceName}}",
+				"fallbackTitle": "Masz zaproszenie",
+				"description": "Zaloguj się adresem e-mail, na który przyszło zaproszenie. Zaraz potem dołączysz do obszaru roboczego."
+			},
+			"footer": {
+				"newHere": "Pierwszy raz w Kaneo?",
+				"createAccount": "Utwórz konto",
+				"inviteOnly": "Konta są tutaj dostępne tylko na zaproszenie. Poproś administratora o zaproszenie.",
+				"providerSignUp": "Pierwszy raz tutaj? Zaloguj się przez jednego z dostawców powyżej, aby utworzyć konto.",
+				"anyProvider": "Pierwszy raz tutaj? Każda z opcji powyżej utworzy Twoje konto.",
+				"contactAdmin": "Problem z logowaniem? Skontaktuj się z administratorem.",
+				"justLooking": "Chcesz się tylko rozejrzeć?"
+			},
+			"autoLogin": {
+				"title": "Trwa logowanie",
+				"subtitle": "Przekierowujemy Cię na stronę logowania Twojej organizacji.",
+				"opening": "Otwieranie {{provider}}…",
+				"stuck": "Nic się nie dzieje?",
+				"continue": "Przejdź do {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Kontynuuj z {{provider}}",
+			"error": "Nie udało się zalogować przez {{provider}}. Spróbuj ponownie."
 		},
 		"forms": {
 			"or": "lub",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "ja@przyklad.pl",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Pokaż hasło",
-			"hidePassword": "Ukryj hasło"
+			"hidePassword": "Ukryj hasło",
+			"name": "Imię i nazwisko",
+			"namePlaceholder": "Anna Kowalska",
+			"invalidEmail": "Podaj pełny adres e-mail, np. imie@firma.pl.",
+			"nameRequired": "Podaj imię i nazwisko.",
+			"passwordRequired": "Podaj hasło.",
+			"passwordTooShort": "Użyj co najmniej 8 znaków.",
+			"disposableEmail": "Użyj stałego adresu e-mail. Na adresy jednorazowe nie można zakładać kont.",
+			"continueWithEmail": "Kontynuuj z e-mailem"
 		},
 		"checkEmail": {
 			"pageTitle": "Sprawdź e-mail",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Utwórz konto",
-			"title": "Utwórz konto",
-			"subtitleInvitation": "Utwórz konto, aby zaakceptować zaproszenie",
-			"subtitleRegistrationDisabled": "Rejestracja wymaga zaproszenia",
-			"subtitlePasswordDisabled": "Użyj logowania społecznościowego lub OIDC, aby utworzyć konto",
-			"subtitleDefault": "Zacznij korzystać ze swojego obszaru roboczego",
-			"invitationAlert": "Po utworzeniu konta będziesz mógł zaakceptować zaproszenie do obszaru roboczego.",
 			"registrationDisabledAlert": "Rejestracja jest obecnie wyłączona. Jeśli otrzymałeś zaproszenie, wpisz adres e-mail, na który zostało wysłane, aby utworzyć konto.",
-			"passwordDisabledAlert": "Tworzenie konta z hasłem jest wyłączone. Użyj skonfigurowanej metody logowania społecznościowego lub OIDC na stronie logowania.",
-			"signingIn": "Logowanie...",
 			"continueAsGuest": "Kontynuuj jako gość",
 			"toggleMessage": "Masz już konto?",
 			"toggleLink": "Zaloguj się",
 			"instanceStatusError": "Nie można połączyć się z serwerem. Spróbuj ponownie za chwilę.",
 			"instanceAdminTitle": "Skonfiguruj swoją instancję Kaneo",
-			"instanceAdminSubtitle": "To konto stanie się administratorem instancji z pełnym dostępem."
+			"instanceAdminSubtitle": "To konto stanie się administratorem instancji z pełnym dostępem.",
+			"heading": "Utwórz konto",
+			"submitPassword": "Utwórz konto",
+			"failed": "Nie udało się utworzyć konta. Spróbuj ponownie.",
+			"subtitle": {
+				"email": "Zacznij od adresu e-mail. Wyślemy Ci kod, hasło nie jest potrzebne.",
+				"password": "Podaj imię i nazwisko, adres e-mail i hasło, aby zacząć.",
+				"providers": "Użyj połączonego konta, aby utworzyć własne."
+			},
+			"invitation": {
+				"description": "Użyj adresu e-mail, na który przyszło zaproszenie. Zaraz potem dołączysz do obszaru roboczego."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Zweryfikuj kod",
-			"title": "Wpisz kod weryfikacyjny",
-			"subtitle": "Użyj 6-cyfrowego kodu wysłanego na e-mail, aby kontynuować",
-			"codeSentTo": "Kod wysłany do {{email}}",
-			"verificationCodeLabel": "Kod weryfikacyjny",
-			"verifying": "Weryfikowanie...",
-			"verifyAndSignIn": "Zweryfikuj i zaloguj się",
-			"changeEmail": "Zmień e-mail",
-			"resend": "Wyślij ponownie",
 			"validation": {
 				"codeLength": "Kod musi mieć 6 cyfr"
 			},
 			"toast": {
 				"invalidCode": "Nieprawidłowy kod weryfikacyjny",
-				"signedInSuccess": "Pomyślnie zalogowano!",
 				"verifyFailed": "Nie udało się zweryfikować kodu",
 				"resendFailed": "Nie udało się ponownie wysłać kodu",
 				"resendSuccess": "Nowy kod weryfikacyjny został wysłany!"
-			}
+			},
+			"heading": "Sprawdź skrzynkę e-mail",
+			"description": "Wysłaliśmy 6-cyfrowy kod na adres {{email}}. Kod wygaśnie za {{minutes}} min.",
+			"label": "Kod weryfikacyjny",
+			"submit": "Zweryfikuj i kontynuuj",
+			"didntGetIt": "Kod nie dotarł?",
+			"resendCode": "Wyślij kod ponownie",
+			"useDifferentEmail": "Użyj innego adresu e-mail",
+			"expired": "Ten kod wygasł. Poproś o nowy.",
+			"tooManyAttempts": "Zbyt wiele prób. Poproś o nowy kod."
 		},
 		"otpSignIn": {
-			"sendFailed": "Nie udało się wysłać kodu weryfikacyjnego",
-			"codeSent": "Kod weryfikacyjny został wysłany! Sprawdź e-mail.",
-			"sending": "Wysyłanie...",
-			"sendVerificationCode": "Wyślij kod weryfikacyjny"
+			"sendFailed": "Nie udało się wysłać kodu weryfikacyjnego"
 		},
 		"signInForm": {
-			"failedSignIn": "Nie udało się zalogować",
-			"signedInSuccess": "Pomyślnie zalogowano",
-			"signingIn": "Logowanie...",
-			"signIn": "Zaloguj się"
-		},
-		"signUpForm": {
-			"fullName": "Imię i nazwisko",
-			"namePlaceholder": "Jan Kowalski",
-			"failedSignUp": "Nie udało się zarejestrować",
-			"accountCreated": "Konto zostało utworzone",
-			"passwordTooShort": "Hasło jest zbyt krótkie",
-			"creatingAccount": "Tworzenie konta...",
-			"createAccount": "Utwórz konto"
+			"failedSignIn": "Nie udało się zalogować"
 		},
 		"invitation": {
 			"pageTitleAccept": "Zaakceptuj zaproszenie",
 			"pageTitleError": "Błąd zaproszenia",
 			"pageTitleInvalid": "Nieprawidłowe zaproszenie",
-			"loadingTitle": "Ładowanie zaproszenia...",
-			"errorTitle": "Błąd zaproszenia",
-			"invalidTitle": "Nieprawidłowe zaproszenie",
-			"invitationExpired": "Zaproszenie wygasło",
-			"errorLoadDescription": "Nie udało się wczytać szczegółów zaproszenia. Zaproszenie może być nieprawidłowe lub wygasłe.",
-			"goToSignIn": "Przejdź do logowania",
-			"workspaceLabel": "Obszar roboczy: {{workspaceName}}",
 			"joinWorkspace": "Dołącz do {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> zaprosił Cię do dołączenia do swojego obszaru roboczego.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> zaprosił Cię do dołączenia do swojego obszaru roboczego w Kaneo.",
-			"createAccountOrSignIn": "Utwórz konto, aby zaakceptować to zaproszenie, albo zaloguj się, jeśli już je masz.",
 			"createAccount": "Utwórz konto",
-			"accepting": "Akceptowanie...",
-			"acceptInvitation": "Zaakceptuj zaproszenie",
-			"goToDashboard": "Przejdź do pulpitu",
-			"signedInAs": "Zalogowano jako <email>{{email}}</email>",
-			"youveBeenInvited": "Zostałeś zaproszony!",
-			"invitationFor": "Zaproszenie dla: <email>{{email}}</email>",
 			"signIn": "Zaloguj się",
 			"toast": {
 				"acceptFailed": "Nie udało się zaakceptować zaproszenia",
 				"acceptSuccess": "Zaproszenie zaakceptowane! Witamy w zespole."
+			},
+			"description": "{{inviterName}} zaprasza Cię do tego obszaru roboczego w Kaneo.",
+			"invitedBy": "Zaproszenie od",
+			"sentTo": "Wysłane na adres",
+			"signedInAs": "Zalogowano jako",
+			"expires": "Wygasa",
+			"notNow": "Nie teraz",
+			"join": "Dołącz do obszaru roboczego",
+			"switchAccount": "Zmień konto",
+			"goToKaneo": "Przejdź do Kaneo",
+			"mismatch": {
+				"title": "Zalogowano na inny adres e-mail",
+				"description": "To zaproszenie zostało wysłane na adres {{invitedEmail}}. Zalogowano jako {{email}}."
+			},
+			"expired": {
+				"title": "To zaproszenie wygasło",
+				"description": "Poproś osobę zapraszającą ({{inviterName}}) o nowe zaproszenie do {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "To zaproszenie jest już nieważne",
+				"description": "Mogło zostać zaakceptowane lub anulowane. Poproś administratora obszaru roboczego o nowe."
+			},
+			"loadFailed": {
+				"title": "Nie udało się wczytać zaproszenia",
+				"description": "Sprawdź połączenie i odśwież stronę."
 			}
 		},
 		"onboarding": {
@@ -430,24 +453,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Sprawdź skrzynkę odbiorczą",
+			"sentDescription": "Jeśli istnieje konto dla {{email}}, link do zresetowania hasła jest już w drodze. Wygaśnie za 1 godzinę.",
+			"sentHelpTitle": "Wiadomość nie dotarła?",
+			"sentHelpDescription": "Sprawdź folder ze spamem lub poproś o kolejny link za minutę.",
+			"rememberedIt": "Już pamiętasz?",
+			"resetDescription": "Użyj od 8 do 128 znaków. Inne urządzenia zostaną wylogowane.",
+			"updatePassword": "Zaktualizuj hasło",
+			"changedMind": "Zmiana planów?",
+			"invalidLinkTitle": "Ten link wygasł",
+			"successTitle": "Hasło zostało zaktualizowane"
+		},
+		"page": {
+			"terms": "Regulamin",
+			"privacy": "Prywatność"
+		},
+		"device": {
+			"connect": {
+				"title": "Połącz urządzenie",
+				"description": "Wpisz kod wyświetlony w terminalu lub aplikacji, aby powiązać je z kontem Kaneo.",
+				"label": "Kod urządzenia",
+				"submit": "Dalej",
+				"noCode": "Nie masz jeszcze kodu? Najpierw rozpocznij logowanie w aplikacji.",
+				"codeRequired": "Wpisz kod wyświetlony na urządzeniu.",
+				"invalidCode": "Ten kod jest nieprawidłowy lub wygasł."
+			},
+			"approve": {
+				"pageTitle": "Zatwierdź urządzenie",
+				"title": "Połączyć to urządzenie?",
+				"description": "Urządzenie chce zalogować się jako {{email}}. Zatwierdź tylko wtedy, gdy ta prośba pochodzi od Ciebie.",
+				"matchCode": "Sprawdź, czy kod zgadza się z tym na urządzeniu",
+				"deny": "Odrzuć",
+				"approve": "Zatwierdź",
+				"failed": "Nie udało się zaktualizować prośby. Spróbuj ponownie."
+			},
+			"approved": {
+				"title": "Urządzenie połączone",
+				"description": "Wróć do terminala lub aplikacji. Możesz zamknąć tę kartę."
+			},
+			"denied": {
+				"title": "Prośba odrzucona",
+				"description": "Nic nie zostało połączone. Możesz zamknąć tę kartę."
+			},
+			"missing": {
+				"title": "Brak kodu urządzenia",
+				"description": "Otwórz tę stronę z urządzenia albo wpisz kod samodzielnie.",
+				"enterCode": "Wpisz kod"
+			},
+			"signIn": {
+				"title": "Zaloguj się, aby połączyć urządzenie",
+				"description": "Zaraz potem wrócisz tutaj, aby je zatwierdzić.",
+				"submit": "Zaloguj się"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Autoryzuj klienta MCP",
+				"description": "Będzie mógł działać w Twoim imieniu w każdym obszarze roboczym, do którego masz dostęp. Kontynuuj tylko wtedy, gdy to połączenie zostało zainicjowane przez Ciebie.",
+				"client": "Klient",
+				"unknownClient": "Klient MCP",
+				"selfReported": "Podane przez klienta",
+				"redirect": "Przekieruje Cię do",
+				"signedInAs": "Zalogowano jako",
+				"deny": "Odrzuć",
+				"allow": "Zezwól na dostęp"
+			},
+			"expired": {
+				"title": "Ta prośba wygasła",
+				"description": "Wróć do klienta MCP i połącz się ponownie."
+			},
+			"signIn": {
+				"title": "Zaloguj się, aby autoryzować tego klienta",
+				"description": "Zaraz potem wrócisz tutaj, aby go sprawdzić.",
+				"submit": "Zaloguj się"
+			}
 		}
 	},
 	"navigation": {

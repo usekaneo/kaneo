@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Daxil ol",
-			"title": "Yenidən xoş gəlmisiniz",
-			"subtitle": "İş sahənizə daxil olmaq üçün giriş məlumatlarınızı yazın",
-			"invitationSubtitle": "Dəvətinizi qəbul etmək üçün daxil olun",
-			"invitationAlert": "Daxil olduqdan sonra iş sahəsi dəvətinizi qəbul edə biləcəksiniz.",
-			"signingIn": "Daxil olunur...",
-			"continueWithGoogle": "Google ilə davam et",
-			"continueWithGithub": "GitHub ilə davam et",
-			"continueWithDiscord": "Discord ilə davam et",
-			"continueWithOidc": "OIDC ilə davam et",
+			"subtitle": {
+				"emailOrProvider": "E-poçtunuzdan və ya qoşulmuş hesabdan istifadə edin.",
+				"email": "E-poçtunuzu daxil edin, sizə giriş kodu göndərək.",
+				"password": "E-poçtunuzdan və parolunuzdan istifadə edin.",
+				"passwordOrProvider": "Parolunuzdan və ya qoşulmuş hesabdan istifadə edin.",
+				"providers": "Necə daxil olmaq istədiyinizi seçin.",
+				"sso": "Buradakı girişi təşkilatınız idarə edir."
+			},
 			"lastUsed": "Son istifadə edilən",
-			"registrationDisabled": "İctimai qeydiyyat söndürülüb. Hesab yaratmaq üçün dəvətdən istifadə edin.",
-			"passwordRegistrationDisabled": "Parolla qeydiyyat söndürülüb. Hesab yaratmaq üçün quraşdırılmış sosial və ya OIDC giriş üsulundan istifadə edin.",
-			"toggleMessage": "Hesabınız yoxdur?",
-			"toggleLink": "Hesab yarat",
-			"guestSuccess": "Qonaq kimi daxil olundu",
 			"guestError": "Qonaq kimi daxil olmaq alınmadı",
-			"oidcError": "OIDC ilə daxil olmaq alınmadı",
-			"googleError": "Google ilə daxil olmaq alınmadı",
-			"githubError": "GitHub ilə daxil olmaq alınmadı",
-			"discordError": "Discord ilə daxil olmaq alınmadı",
 			"errors": {
 				"account_not_linked": "Bu kimliyi mövcud hesabla əlaqələndirmək mümkün olmadı. Hesabı təsdiqləmək üçün e-poçtla daxil olun, sonra SSO ilə yenidən cəhd edin. E-poçtla giriş mümkün deyilsə, inzibatçınızla əlaqə saxlayın.",
 				"oauth_code_verification_failed": "OAuth doğrulaması alınmadı. Yenidən cəhd edin.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Qeydiyyat hazırda söndürülüb. Hesab yaratmaq üçün etibarlı dəvətiniz olmalıdır."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Qeydiyyat hazırda söndürülüb. Hesab yaratmaq üçün etibarlı dəvətiniz olmalıdır.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Daimi e-poçt ünvanından istifadə edin. Birdəfəlik ünvanlarla hesab yaratmaq olmur."
 			},
-			"instanceStatusError": "Serverə çatmaq mümkün olmadı. Bir az sonra yenidən cəhd edin."
+			"instanceStatusError": "Serverə çatmaq mümkün olmadı. Bir az sonra yenidən cəhd edin.",
+			"heading": "Kaneo-ya daxil olun",
+			"submitPassword": "Daxil ol",
+			"invitation": {
+				"title": "{{inviterName}} sizi {{workspaceName}} iş sahəsinə dəvət edib",
+				"fallbackTitle": "Dəvət almısınız",
+				"description": "Dəvətin göndərildiyi e-poçtla daxil olun. Dərhal sonra iş sahəsinə qoşulacaqsınız."
+			},
+			"footer": {
+				"newHere": "Kaneo-da yenisiniz?",
+				"createAccount": "Hesab yarat",
+				"inviteOnly": "Burada hesablar yalnız dəvətlə yaradılır. Administratordan dəvət istəyin.",
+				"providerSignUp": "Yenisiniz? Hesab yaratmaq üçün yuxarıdakı provayderlərdən biri ilə daxil olun.",
+				"anyProvider": "Yenisiniz? Yuxarıdakı istənilən seçim hesabınızı yaradır.",
+				"contactAdmin": "Daxil olmaqda çətinlik çəkirsiniz? Administratorunuzla əlaqə saxlayın.",
+				"justLooking": "Sadəcə baxırsınız?"
+			},
+			"autoLogin": {
+				"title": "Daxil olursunuz",
+				"subtitle": "Təşkilatınızın giriş səhifəsinə yönləndirilirsiniz.",
+				"opening": "{{provider}} açılır…",
+				"stuck": "İrəliləmir?",
+				"continue": "{{provider}} səhifəsinə keç"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "{{provider}} ilə davam et",
+			"error": "{{provider}} ilə daxil olmaq alınmadı. Yenidən cəhd edin."
 		},
 		"forms": {
 			"or": "və ya",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Parolu göstər",
-			"hidePassword": "Parolu gizlət"
+			"hidePassword": "Parolu gizlət",
+			"name": "Ad",
+			"namePlaceholder": "Aysel Məmmədova",
+			"invalidEmail": "Tam e-poçt ünvanı daxil edin, məsələn, name@company.com.",
+			"nameRequired": "Adınızı daxil edin.",
+			"passwordRequired": "Parolunuzu daxil edin.",
+			"passwordTooShort": "Ən azı 8 simvoldan istifadə edin.",
+			"disposableEmail": "Daimi e-poçt ünvanından istifadə edin. Birdəfəlik ünvanlarla hesab yaratmaq olmur.",
+			"continueWithEmail": "E-poçtla davam et"
 		},
 		"checkEmail": {
 			"pageTitle": "E-poçtunuzu yoxlayın",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Hesab yarat",
-			"title": "Hesab yarat",
-			"subtitleInvitation": "Dəvətinizi qəbul etmək üçün hesab yaradın",
-			"subtitleRegistrationDisabled": "Qeydiyyat üçün dəvət tələb olunur",
-			"subtitlePasswordDisabled": "Hesab yaratmaq üçün sosial və ya OIDC girişindən istifadə edin",
-			"subtitleDefault": "İş sahənizlə işə başlayın",
-			"invitationAlert": "Hesabınızı yaratdıqdan sonra iş sahəsi dəvətinizi qəbul edə biləcəksiniz.",
 			"registrationDisabledAlert": "Qeydiyyat hazırda söndürülüb. Dəvət almısınızsa, hesabınızı yaratmaq üçün dəvətin göndərildiyi e-poçt ünvanını daxil edin.",
-			"passwordDisabledAlert": "Parolla hesab yaratmaq söndürülüb. Giriş səhifəsindəki quraşdırılmış sosial və ya OIDC giriş üsulundan istifadə edin.",
-			"signingIn": "Daxil olunur...",
 			"continueAsGuest": "Qonaq kimi davam et",
 			"toggleMessage": "Artıq hesabınız var?",
 			"toggleLink": "Daxil ol",
 			"instanceStatusError": "Serverə çatmaq mümkün olmadı. Bir az sonra yenidən cəhd edin.",
 			"instanceAdminTitle": "Kaneo quraşdırmanızı hazırlayın",
-			"instanceAdminSubtitle": "Bu hesab tam giriş hüququ ilə quraşdırmanın inzibatçısı olur."
+			"instanceAdminSubtitle": "Bu hesab tam giriş hüququ ilə quraşdırmanın inzibatçısı olur.",
+			"heading": "Hesabınızı yaradın",
+			"submitPassword": "Hesab yarat",
+			"failed": "Hesabınızı yaratmaq alınmadı. Yenidən cəhd edin.",
+			"subtitle": {
+				"email": "E-poçtunuzla başlayın. Sizə kod göndərəcəyik, parol lazım deyil.",
+				"password": "Başlamaq üçün adınızı, e-poçtunuzu və parolu daxil edin.",
+				"providers": "Hesabınızı yaratmaq üçün qoşulmuş hesabdan istifadə edin."
+			},
+			"invitation": {
+				"description": "Dəvətin göndərildiyi e-poçtdan istifadə edin. Dərhal sonra iş sahəsinə qoşulacaqsınız."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Kodu doğrula",
-			"title": "Doğrulama kodunu daxil edin",
-			"subtitle": "Davam etmək üçün e-poçtunuza göndərilmiş 6 rəqəmli koddan istifadə edin",
-			"codeSentTo": "Kod {{email}} ünvanına göndərildi",
-			"verificationCodeLabel": "Doğrulama kodu",
-			"verifying": "Doğrulanır...",
-			"verifyAndSignIn": "Doğrula və daxil ol",
-			"changeEmail": "E-poçtu dəyiş",
-			"resend": "Yenidən göndər",
 			"validation": {
 				"codeLength": "Kod 6 rəqəmdən ibarət olmalıdır"
 			},
 			"toast": {
 				"invalidCode": "Yanlış doğrulama kodu",
-				"signedInSuccess": "Uğurla daxil olundu!",
 				"verifyFailed": "Kodu doğrulamaq alınmadı",
 				"resendFailed": "Kodu yenidən göndərmək alınmadı",
 				"resendSuccess": "Yeni doğrulama kodu göndərildi!"
-			}
+			},
+			"heading": "E-poçtunuzu yoxlayın",
+			"description": "{{email}} ünvanına 6 rəqəmli kod göndərdik. Kodun müddəti {{minutes}} dəqiqəyə bitir.",
+			"label": "Doğrulama kodu",
+			"submit": "Doğrula və davam et",
+			"didntGetIt": "Kod gəlmədi?",
+			"resendCode": "Kodu yenidən göndər",
+			"useDifferentEmail": "Başqa e-poçtdan istifadə et",
+			"expired": "Bu kodun müddəti bitib. Yenisini istəyin.",
+			"tooManyAttempts": "Həddindən çox cəhd edildi. Yeni kod istəyin."
 		},
 		"otpSignIn": {
-			"sendFailed": "Doğrulama kodunu göndərmək alınmadı",
-			"codeSent": "Doğrulama kodu göndərildi! E-poçtunuzu yoxlayın.",
-			"sending": "Göndərilir...",
-			"sendVerificationCode": "Doğrulama kodunu göndər"
+			"sendFailed": "Doğrulama kodunu göndərmək alınmadı"
 		},
 		"signInForm": {
-			"failedSignIn": "Daxil olmaq alınmadı",
-			"signedInSuccess": "Uğurla daxil olundu",
-			"signingIn": "Daxil olunur...",
-			"signIn": "Daxil ol"
-		},
-		"signUpForm": {
-			"fullName": "Tam ad",
-			"namePlaceholder": "John Doe",
-			"failedSignUp": "Qeydiyyatdan keçmək alınmadı",
-			"accountCreated": "Hesab uğurla yaradıldı",
-			"passwordTooShort": "Parol çox qısadır",
-			"creatingAccount": "Hesab yaradılır...",
-			"createAccount": "Hesab yarat"
+			"failedSignIn": "Daxil olmaq alınmadı"
 		},
 		"invitation": {
 			"pageTitleAccept": "Dəvəti qəbul et",
 			"pageTitleError": "Dəvət xətası",
 			"pageTitleInvalid": "Etibarsız dəvət",
-			"loadingTitle": "Dəvət yüklənir...",
-			"errorTitle": "Dəvət xətası",
-			"invalidTitle": "Etibarsız dəvət",
-			"invitationExpired": "Dəvətin vaxtı bitib",
-			"errorLoadDescription": "Dəvətin təfərrüatlarını yükləmək alınmadı. Dəvət etibarsız ola və ya vaxtı bitmiş ola bilər.",
-			"goToSignIn": "Girişə keç",
-			"workspaceLabel": "İş sahəsi: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} iş sahəsinə qoşul",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> sizi öz iş sahəsinə qoşulmağa dəvət edib.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> sizi Kaneo-da öz iş sahəsinə qoşulmağa dəvət edib.",
-			"createAccountOrSignIn": "Bu dəvəti qəbul etmək üçün hesab yaradın və ya hesabınız varsa, daxil olun.",
 			"createAccount": "Hesab yarat",
-			"accepting": "Qəbul edilir...",
-			"acceptInvitation": "Dəvəti qəbul et",
-			"goToDashboard": "İdarəetmə panelinə keç",
-			"signedInAs": "<email>{{email}}</email> kimi daxil olunub",
-			"youveBeenInvited": "Dəvət almısınız!",
-			"invitationFor": "Dəvət alan: <email>{{email}}</email>",
 			"signIn": "Daxil ol",
 			"toast": {
 				"acceptFailed": "Dəvəti qəbul etmək alınmadı",
 				"acceptSuccess": "Dəvət qəbul edildi! Komandaya xoş gəlmisiniz."
+			},
+			"description": "{{inviterName}} sizi Kaneo-da bu iş sahəsinə dəvət edib.",
+			"invitedBy": "Dəvət edən",
+			"sentTo": "Göndərildiyi ünvan",
+			"signedInAs": "Daxil olduğunuz hesab",
+			"expires": "Bitmə tarixi",
+			"notNow": "İndi yox",
+			"join": "İş sahəsinə qoşul",
+			"switchAccount": "Hesabı dəyiş",
+			"goToKaneo": "Kaneo-ya keç",
+			"mismatch": {
+				"title": "Başqa e-poçtla daxil olmusunuz",
+				"description": "Bu dəvət {{invitedEmail}} ünvanına göndərilib. Siz {{email}} hesabı ilə daxil olmusunuz."
+			},
+			"expired": {
+				"title": "Bu dəvətin müddəti bitib",
+				"description": "{{inviterName}} ilə əlaqə saxlayın və {{workspaceName}} iş sahəsi üçün yeni dəvət istəyin."
+			},
+			"invalid": {
+				"title": "Bu dəvət artıq etibarlı deyil",
+				"description": "Ola bilsin ki, artıq qəbul edilib və ya ləğv olunub. İş sahəsinin administratorundan yenisini istəyin."
+			},
+			"loadFailed": {
+				"title": "Bu dəvəti yükləmək alınmadı",
+				"description": "Bağlantınızı yoxlayın və səhifəni yeniləyin."
 			}
 		},
 		"onboarding": {
@@ -428,24 +451,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Gələnlər qutunuzu yoxlayın",
+			"sentDescription": "{{email}} üçün hesab varsa, parolu sıfırlamaq üçün keçid artıq yoldadır. Keçidin müddəti 1 saata bitir.",
+			"sentHelpTitle": "Məktub gəlmədi?",
+			"sentHelpDescription": "Spam qovluğunu yoxlayın və ya bir dəqiqə sonra yeni keçid istəyin.",
+			"rememberedIt": "Yadınıza düşdü?",
+			"resetDescription": "8 ilə 128 arasında simvoldan istifadə edin. Digər cihazlarda sessiya bağlanacaq.",
+			"updatePassword": "Parolu yenilə",
+			"changedMind": "Fikrinizi dəyişdiniz?",
+			"invalidLinkTitle": "Bu keçidin müddəti bitib",
+			"successTitle": "Parol yeniləndi"
+		},
+		"page": {
+			"terms": "Şərtlər",
+			"privacy": "Məxfilik"
+		},
+		"device": {
+			"connect": {
+				"title": "Cihaz qoşun",
+				"description": "Kaneo hesabınıza bağlamaq üçün terminalda və ya tətbiqdə göstərilən kodu daxil edin.",
+				"label": "Cihaz kodu",
+				"submit": "Davam et",
+				"noCode": "Hələ kodunuz yoxdur? Əvvəlcə tətbiqinizdən girişə başlayın.",
+				"codeRequired": "Cihazınızda göstərilən kodu daxil edin.",
+				"invalidCode": "Bu kod yanlışdır və ya müddəti bitib."
+			},
+			"approve": {
+				"pageTitle": "Cihazı təsdiqlə",
+				"title": "Bu cihaz qoşulsun?",
+				"description": "Bir cihaz {{email}} kimi daxil olmaq istəyir. Yalnız bunu siz başlatmısınızsa təsdiqləyin.",
+				"matchCode": "Bunun cihazınızdakı kodla eyni olduğunu yoxlayın",
+				"deny": "Rədd et",
+				"approve": "Təsdiqlə",
+				"failed": "Sorğunu yeniləmək alınmadı. Yenidən cəhd edin."
+			},
+			"approved": {
+				"title": "Cihaz qoşuldu",
+				"description": "Terminala və ya tətbiqə qayıdın. Bu səkməni bağlaya bilərsiniz."
+			},
+			"denied": {
+				"title": "Sorğu rədd edildi",
+				"description": "Heç nə qoşulmadı. Bu səkməni bağlaya bilərsiniz."
+			},
+			"missing": {
+				"title": "Cihaz kodu yoxdur",
+				"description": "Bu səhifəni cihazınızdan açın və ya kodu özünüz daxil edin.",
+				"enterCode": "Kod daxil et"
+			},
+			"signIn": {
+				"title": "Cihazınızı qoşmaq üçün daxil olun",
+				"description": "Təsdiqləmək üçün dərhal bura qayıdacaqsınız.",
+				"submit": "Daxil ol"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "MCP klientinə icazə verin",
+				"description": "O, giriş imkanınız olan bütün iş sahələrində sizin adınızdan hərəkət edə bilər. Yalnız bu qoşulmanı siz başlatmısınızsa davam edin.",
+				"client": "Klient",
+				"unknownClient": "MCP klienti",
+				"selfReported": "Klientin bildirdiyi",
+				"redirect": "Qayıdış ünvanı",
+				"signedInAs": "Daxil olduğunuz hesab",
+				"deny": "Rədd et",
+				"allow": "Girişə icazə ver"
+			},
+			"expired": {
+				"title": "Bu sorğunun müddəti bitib",
+				"description": "MCP klientinizə qayıdın və yenidən qoşulun."
+			},
+			"signIn": {
+				"title": "Bu klientə icazə vermək üçün daxil olun",
+				"description": "Yoxlamaq üçün dərhal bura qayıdacaqsınız.",
+				"submit": "Daxil ol"
+			}
 		}
 	},
 	"settings": {

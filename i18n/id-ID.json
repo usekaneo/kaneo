@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Masuk",
-			"title": "Selamat datang kembali",
-			"subtitle": "Masukkan kredensial Anda untuk mengakses ruang kerja",
-			"invitationSubtitle": "Masuk untuk menerima undangan Anda",
-			"invitationAlert": "Setelah masuk, Anda dapat menerima undangan ruang kerja.",
-			"signingIn": "Masuk...",
-			"continueWithGoogle": "Lanjutkan dengan Google",
-			"continueWithGithub": "Lanjutkan dengan GitHub",
-			"continueWithDiscord": "Lanjutkan dengan Discord",
-			"continueWithOidc": "Lanjutkan dengan OIDC",
+			"subtitle": {
+				"emailOrProvider": "Gunakan email Anda atau akun yang terhubung.",
+				"email": "Masukkan email Anda dan kami akan mengirimkan kode masuk.",
+				"password": "Gunakan email dan kata sandi Anda.",
+				"passwordOrProvider": "Gunakan kata sandi Anda atau akun yang terhubung.",
+				"providers": "Pilih cara Anda ingin masuk.",
+				"sso": "Proses masuk di sini dikelola oleh organisasi Anda."
+			},
 			"lastUsed": "Terakhir digunakan",
-			"registrationDisabled": "Pendaftaran publik dinonaktifkan. Gunakan undangan untuk membuat akun.",
-			"passwordRegistrationDisabled": "Pendaftaran dengan kata sandi dinonaktifkan. Gunakan metode masuk sosial atau OIDC yang telah dikonfigurasi untuk membuat akun.",
-			"toggleMessage": "Belum punya akun?",
-			"toggleLink": "Buat akun",
-			"guestSuccess": "Masuk sebagai tamu",
 			"guestError": "Gagal masuk sebagai tamu",
-			"oidcError": "Gagal masuk dengan OIDC",
-			"googleError": "Gagal masuk dengan Google",
-			"githubError": "Gagal masuk dengan GitHub",
-			"discordError": "Gagal masuk dengan Discord",
 			"errors": {
 				"account_not_linked": "Identitas ini tidak dapat ditautkan ke akun yang sudah ada. Masuk dengan email untuk memverifikasi akun, lalu coba SSO lagi. Jika masuk dengan email tidak tersedia, hubungi administrator Anda.",
 				"oauth_code_verification_failed": "Verifikasi OAuth gagal. Silakan coba lagi.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Pendaftaran saat ini dinonaktifkan. Anda memerlukan undangan yang valid untuk membuat akun."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Pendaftaran saat ini dinonaktifkan. Anda memerlukan undangan yang valid untuk membuat akun.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Gunakan alamat email permanen. Alamat email sekali pakai tidak dapat digunakan untuk membuat akun."
 			},
-			"instanceStatusError": "Tidak dapat menghubungi server. Silakan coba lagi beberapa saat lagi."
+			"instanceStatusError": "Tidak dapat menghubungi server. Silakan coba lagi beberapa saat lagi.",
+			"heading": "Masuk ke Kaneo",
+			"submitPassword": "Masuk",
+			"invitation": {
+				"title": "{{inviterName}} mengundang Anda ke {{workspaceName}}",
+				"fallbackTitle": "Anda telah diundang",
+				"description": "Masuk dengan email yang menerima undangan. Anda akan langsung bergabung ke ruang kerja setelahnya."
+			},
+			"footer": {
+				"newHere": "Baru di Kaneo?",
+				"createAccount": "Buat akun",
+				"inviteOnly": "Akun di sini hanya bisa dibuat melalui undangan. Minta undangan kepada admin.",
+				"providerSignUp": "Baru di sini? Masuk dengan salah satu penyedia di atas untuk membuat akun.",
+				"anyProvider": "Baru di sini? Opsi mana pun di atas akan membuat akun Anda.",
+				"contactAdmin": "Kesulitan masuk? Hubungi administrator Anda.",
+				"justLooking": "Hanya ingin melihat-lihat?"
+			},
+			"autoLogin": {
+				"title": "Sedang memproses masuk",
+				"subtitle": "Mengarahkan Anda ke halaman masuk organisasi Anda.",
+				"opening": "Membuka {{provider}}…",
+				"stuck": "Tidak ada yang terjadi?",
+				"continue": "Lanjutkan ke {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Lanjutkan dengan {{provider}}",
+			"error": "Tidak dapat masuk dengan {{provider}}. Coba lagi."
 		},
 		"forms": {
 			"or": "atau",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "saya@contoh.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Tampilkan kata sandi",
-			"hidePassword": "Sembunyikan kata sandi"
+			"hidePassword": "Sembunyikan kata sandi",
+			"name": "Nama",
+			"namePlaceholder": "Siti Rahayu",
+			"invalidEmail": "Masukkan alamat email lengkap, seperti nama@perusahaan.com.",
+			"nameRequired": "Masukkan nama Anda.",
+			"passwordRequired": "Masukkan kata sandi Anda.",
+			"passwordTooShort": "Gunakan minimal 8 karakter.",
+			"disposableEmail": "Gunakan alamat email permanen. Alamat email sekali pakai tidak dapat digunakan untuk membuat akun.",
+			"continueWithEmail": "Lanjutkan dengan email"
 		},
 		"checkEmail": {
 			"pageTitle": "Periksa Email Anda",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Buat Akun",
-			"title": "Buat akun",
-			"subtitleInvitation": "Buat akun untuk menerima undangan Anda",
-			"subtitleRegistrationDisabled": "Pendaftaran memerlukan undangan",
-			"subtitlePasswordDisabled": "Gunakan masuk sosial atau OIDC untuk membuat akun",
-			"subtitleDefault": "Mulai dengan ruang kerja Anda",
-			"invitationAlert": "Setelah membuat akun, Anda dapat menerima undangan ruang kerja.",
 			"registrationDisabledAlert": "Pendaftaran saat ini dinonaktifkan. Jika Anda diundang, masukkan alamat email yang menerima undangan untuk membuat akun.",
-			"passwordDisabledAlert": "Pembuatan akun berbasis kata sandi dinonaktifkan. Gunakan metode masuk sosial atau OIDC yang telah dikonfigurasi dari halaman masuk.",
-			"signingIn": "Masuk...",
 			"continueAsGuest": "Lanjutkan sebagai tamu",
 			"toggleMessage": "Sudah punya akun?",
 			"toggleLink": "Masuk",
 			"instanceStatusError": "Tidak dapat menghubungi server. Silakan coba lagi beberapa saat lagi.",
 			"instanceAdminTitle": "Siapkan instans Kaneo Anda",
-			"instanceAdminSubtitle": "Akun ini menjadi administrator instans dengan akses penuh."
+			"instanceAdminSubtitle": "Akun ini menjadi administrator instans dengan akses penuh.",
+			"heading": "Buat akun Anda",
+			"submitPassword": "Buat akun",
+			"failed": "Tidak dapat membuat akun Anda. Coba lagi.",
+			"subtitle": {
+				"email": "Mulai dengan email Anda. Kami akan mengirimkan kode, tanpa perlu kata sandi.",
+				"password": "Masukkan nama, email, dan kata sandi untuk memulai.",
+				"providers": "Gunakan akun yang terhubung untuk membuat akun Anda."
+			},
+			"invitation": {
+				"description": "Gunakan email yang menerima undangan. Anda akan langsung bergabung ke ruang kerja setelahnya."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Verifikasi Kode",
-			"title": "Masukkan kode verifikasi",
-			"subtitle": "Gunakan kode 6 digit yang dikirim ke email Anda untuk melanjutkan",
-			"codeSentTo": "Kode dikirim ke {{email}}",
-			"verificationCodeLabel": "Kode Verifikasi",
-			"verifying": "Memverifikasi...",
-			"verifyAndSignIn": "Verifikasi & Masuk",
-			"changeEmail": "Ubah email",
-			"resend": "Kirim ulang",
 			"validation": {
 				"codeLength": "Kode harus 6 digit"
 			},
 			"toast": {
 				"invalidCode": "Kode verifikasi tidak valid",
-				"signedInSuccess": "Berhasil masuk!",
 				"verifyFailed": "Gagal memverifikasi kode",
 				"resendFailed": "Gagal mengirim ulang kode",
 				"resendSuccess": "Kode verifikasi baru dikirim!"
-			}
+			},
+			"heading": "Periksa email Anda",
+			"description": "Kami telah mengirim kode 6 digit ke {{email}}. Kode ini berlaku selama {{minutes}} menit.",
+			"label": "Kode verifikasi",
+			"submit": "Verifikasi dan lanjutkan",
+			"didntGetIt": "Tidak menerima kode?",
+			"resendCode": "Kirim ulang kode",
+			"useDifferentEmail": "Gunakan email lain",
+			"expired": "Kode ini sudah kedaluwarsa. Minta kode baru.",
+			"tooManyAttempts": "Terlalu banyak percobaan. Minta kode baru."
 		},
 		"otpSignIn": {
-			"sendFailed": "Gagal mengirim kode verifikasi",
-			"codeSent": "Kode verifikasi dikirim! Periksa email Anda.",
-			"sending": "Mengirim...",
-			"sendVerificationCode": "Kirim Kode Verifikasi"
+			"sendFailed": "Gagal mengirim kode verifikasi"
 		},
 		"signInForm": {
-			"failedSignIn": "Gagal masuk",
-			"signedInSuccess": "Berhasil masuk",
-			"signingIn": "Masuk...",
-			"signIn": "Masuk"
-		},
-		"signUpForm": {
-			"fullName": "Nama Lengkap",
-			"namePlaceholder": "John Doe",
-			"failedSignUp": "Gagal mendaftar",
-			"accountCreated": "Akun berhasil dibuat",
-			"passwordTooShort": "Kata sandi terlalu pendek",
-			"creatingAccount": "Membuat Akun...",
-			"createAccount": "Buat Akun"
+			"failedSignIn": "Gagal masuk"
 		},
 		"invitation": {
 			"pageTitleAccept": "Terima Undangan",
 			"pageTitleError": "Kesalahan Undangan",
 			"pageTitleInvalid": "Undangan Tidak Valid",
-			"loadingTitle": "Memuat undangan...",
-			"errorTitle": "Kesalahan Undangan",
-			"invalidTitle": "Undangan Tidak Valid",
-			"invitationExpired": "Undangan Kedaluwarsa",
-			"errorLoadDescription": "Gagal memuat detail undangan. Undangan mungkin tidak valid atau sudah kedaluwarsa.",
-			"goToSignIn": "Buka Masuk",
-			"workspaceLabel": "Ruang kerja: {{workspaceName}}",
 			"joinWorkspace": "Gabung {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> mengundang Anda untuk bergabung ke ruang kerjanya di Kaneo.",
-			"createAccountOrSignIn": "Buat akun untuk menerima undangan ini, atau masuk jika Anda sudah memilikinya.",
-			"createAccount": "Buat Akun",
-			"accepting": "Menerima...",
-			"acceptInvitation": "Terima Undangan",
-			"goToDashboard": "Buka Dasbor",
-			"signedInAs": "Masuk sebagai <email>{{email}}</email>",
-			"youveBeenInvited": "Anda telah diundang!",
-			"invitationFor": "Undangan untuk: <email>{{email}}</email>",
+			"createAccount": "Buat akun",
 			"signIn": "Masuk",
 			"toast": {
 				"acceptFailed": "Gagal menerima undangan",
 				"acceptSuccess": "Undangan diterima! Selamat bergabung dengan tim."
+			},
+			"description": "{{inviterName}} mengundang Anda ke ruang kerja ini di Kaneo.",
+			"invitedBy": "Diundang oleh",
+			"sentTo": "Dikirim ke",
+			"signedInAs": "Masuk sebagai",
+			"expires": "Kedaluwarsa",
+			"notNow": "Nanti saja",
+			"join": "Gabung ke ruang kerja",
+			"switchAccount": "Ganti akun",
+			"goToKaneo": "Buka Kaneo",
+			"mismatch": {
+				"title": "Anda masuk dengan email lain",
+				"description": "Undangan ini dikirim ke {{invitedEmail}}. Anda masuk sebagai {{email}}."
+			},
+			"expired": {
+				"title": "Undangan ini sudah kedaluwarsa",
+				"description": "Minta {{inviterName}} mengirimkan undangan baru ke {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Undangan ini tidak berlaku lagi",
+				"description": "Undangan ini mungkin sudah diterima atau dibatalkan. Minta undangan baru kepada admin ruang kerja."
+			},
+			"loadFailed": {
+				"title": "Tidak dapat memuat undangan ini",
+				"description": "Periksa koneksi Anda dan muat ulang halaman."
 			}
 		},
 		"onboarding": {
@@ -427,24 +450,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Periksa kotak masuk Anda",
+			"sentDescription": "Jika ada akun untuk {{email}}, tautan untuk mengatur ulang kata sandi Anda sedang dikirim. Tautan ini berlaku selama 1 jam.",
+			"sentHelpTitle": "Tidak menerima email?",
+			"sentHelpDescription": "Periksa folder spam Anda, atau minta tautan lain dalam satu menit.",
+			"rememberedIt": "Sudah ingat?",
+			"resetDescription": "Gunakan 8 hingga 128 karakter. Perangkat lain akan dikeluarkan dari akun.",
+			"updatePassword": "Perbarui kata sandi",
+			"changedMind": "Berubah pikiran?",
+			"invalidLinkTitle": "Tautan ini sudah kedaluwarsa",
+			"successTitle": "Kata sandi diperbarui"
+		},
+		"page": {
+			"terms": "Ketentuan",
+			"privacy": "Privasi"
+		},
+		"device": {
+			"connect": {
+				"title": "Hubungkan perangkat",
+				"description": "Masukkan kode yang ditampilkan di terminal atau aplikasi Anda untuk menautkannya ke akun Kaneo Anda.",
+				"label": "Kode perangkat",
+				"submit": "Lanjutkan",
+				"noCode": "Belum punya kode? Mulai proses masuk dari aplikasi Anda terlebih dahulu.",
+				"codeRequired": "Masukkan kode yang ditampilkan di perangkat Anda.",
+				"invalidCode": "Kode tersebut tidak valid atau sudah kedaluwarsa."
+			},
+			"approve": {
+				"pageTitle": "Setujui perangkat",
+				"title": "Hubungkan perangkat ini?",
+				"description": "Sebuah perangkat ingin masuk sebagai {{email}}. Setujui hanya jika Anda yang memulainya.",
+				"matchCode": "Pastikan kode ini sama dengan yang ada di perangkat Anda",
+				"deny": "Tolak",
+				"approve": "Setujui",
+				"failed": "Tidak dapat memperbarui permintaan. Coba lagi."
+			},
+			"approved": {
+				"title": "Perangkat terhubung",
+				"description": "Kembali ke terminal atau aplikasi Anda. Anda dapat menutup tab ini."
+			},
+			"denied": {
+				"title": "Permintaan ditolak",
+				"description": "Tidak ada yang terhubung. Anda dapat menutup tab ini."
+			},
+			"missing": {
+				"title": "Tidak ada kode perangkat",
+				"description": "Buka halaman ini dari perangkat Anda, atau masukkan kodenya secara manual.",
+				"enterCode": "Masukkan kode"
+			},
+			"signIn": {
+				"title": "Masuk untuk menghubungkan perangkat Anda",
+				"description": "Anda akan langsung kembali ke sini untuk menyetujuinya.",
+				"submit": "Masuk"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Otorisasi klien MCP",
+				"description": "Klien ini dapat bertindak atas nama Anda di setiap ruang kerja yang dapat Anda akses. Lanjutkan hanya jika Anda yang memulai koneksi ini.",
+				"client": "Klien",
+				"unknownClient": "Klien MCP",
+				"selfReported": "Dilaporkan sendiri",
+				"redirect": "Mengarahkan Anda kembali ke",
+				"signedInAs": "Masuk sebagai",
+				"deny": "Tolak",
+				"allow": "Izinkan akses"
+			},
+			"expired": {
+				"title": "Permintaan ini sudah kedaluwarsa",
+				"description": "Kembali ke klien MCP Anda dan hubungkan lagi."
+			},
+			"signIn": {
+				"title": "Masuk untuk mengotorisasi klien ini",
+				"description": "Anda akan langsung kembali ke sini untuk meninjaunya.",
+				"submit": "Masuk"
+			}
 		}
 	},
 	"settings": {

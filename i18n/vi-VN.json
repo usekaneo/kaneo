@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Đăng nhập",
-			"title": "Chào mừng trở lại",
-			"subtitle": "Nhập thông tin đăng nhập để truy cập không gian làm việc của bạn",
-			"invitationSubtitle": "Đăng nhập để chấp nhận lời mời của bạn",
-			"invitationAlert": "Sau khi đăng nhập, bạn sẽ có thể chấp nhận lời mời tham gia không gian làm việc.",
-			"signingIn": "Đang đăng nhập...",
-			"continueWithGoogle": "Tiếp tục với Google",
-			"continueWithGithub": "Tiếp tục với GitHub",
-			"continueWithDiscord": "Tiếp tục với Discord",
-			"continueWithOidc": "Tiếp tục với OIDC",
+			"subtitle": {
+				"emailOrProvider": "Dùng email của bạn hoặc một tài khoản đã liên kết.",
+				"email": "Nhập email và chúng tôi sẽ gửi cho bạn mã đăng nhập.",
+				"password": "Dùng email và mật khẩu của bạn.",
+				"passwordOrProvider": "Dùng mật khẩu hoặc một tài khoản đã liên kết.",
+				"providers": "Chọn cách bạn muốn đăng nhập.",
+				"sso": "Tổ chức của bạn quản lý việc đăng nhập tại đây."
+			},
 			"lastUsed": "Dùng lần cuối",
-			"registrationDisabled": "Đăng ký công khai đã bị tắt. Hãy dùng lời mời để tạo tài khoản.",
-			"passwordRegistrationDisabled": "Đăng ký bằng mật khẩu đã bị tắt. Hãy dùng phương thức đăng nhập mạng xã hội hoặc OIDC đã cấu hình để tạo tài khoản.",
-			"toggleMessage": "Chưa có tài khoản?",
-			"toggleLink": "Tạo tài khoản",
-			"guestSuccess": "Đã đăng nhập với tư cách khách",
 			"guestError": "Không thể đăng nhập với tư cách khách",
-			"oidcError": "Không thể đăng nhập bằng OIDC",
-			"googleError": "Không thể đăng nhập bằng Google",
-			"githubError": "Không thể đăng nhập bằng GitHub",
-			"discordError": "Không thể đăng nhập bằng Discord",
 			"errors": {
 				"account_not_linked": "Không thể liên kết danh tính này với tài khoản hiện có. Hãy đăng nhập bằng email để xác minh tài khoản, sau đó thử SSO lại. Nếu không thể đăng nhập bằng email, hãy liên hệ quản trị viên của bạn.",
 				"oauth_code_verification_failed": "Xác minh OAuth thất bại. Vui lòng thử lại.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Đăng ký hiện đang bị tắt. Bạn cần có lời mời hợp lệ để tạo tài khoản."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Đăng ký hiện đang bị tắt. Bạn cần có lời mời hợp lệ để tạo tài khoản.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Hãy dùng địa chỉ email cố định. Không thể tạo tài khoản bằng địa chỉ email dùng một lần."
 			},
-			"instanceStatusError": "Không thể kết nối đến máy chủ. Vui lòng thử lại sau giây lát."
+			"instanceStatusError": "Không thể kết nối đến máy chủ. Vui lòng thử lại sau giây lát.",
+			"heading": "Đăng nhập vào Kaneo",
+			"submitPassword": "Đăng nhập",
+			"invitation": {
+				"title": "{{inviterName}} đã mời bạn tham gia {{workspaceName}}",
+				"fallbackTitle": "Bạn đã được mời",
+				"description": "Đăng nhập bằng email đã nhận lời mời. Bạn sẽ tham gia không gian làm việc ngay sau đó."
+			},
+			"footer": {
+				"newHere": "Mới dùng Kaneo?",
+				"createAccount": "Tạo tài khoản",
+				"inviteOnly": "Tài khoản tại đây chỉ được tạo qua lời mời. Hãy xin lời mời từ quản trị viên.",
+				"providerSignUp": "Bạn mới đến? Đăng nhập bằng một nhà cung cấp ở trên để tạo tài khoản.",
+				"anyProvider": "Bạn mới đến? Bất kỳ lựa chọn nào ở trên cũng sẽ tạo tài khoản cho bạn.",
+				"contactAdmin": "Gặp sự cố khi đăng nhập? Hãy liên hệ quản trị viên của bạn.",
+				"justLooking": "Chỉ muốn xem thử?"
+			},
+			"autoLogin": {
+				"title": "Đang đăng nhập",
+				"subtitle": "Đang chuyển bạn đến trang đăng nhập của tổ chức.",
+				"opening": "Đang mở {{provider}}…",
+				"stuck": "Trang không chuyển tiếp?",
+				"continue": "Tiếp tục đến {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Tiếp tục với {{provider}}",
+			"error": "Không thể đăng nhập bằng {{provider}}. Hãy thử lại."
 		},
 		"forms": {
 			"or": "hoặc",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Hiện mật khẩu",
-			"hidePassword": "Ẩn mật khẩu"
+			"hidePassword": "Ẩn mật khẩu",
+			"name": "Tên",
+			"namePlaceholder": "Nguyễn Văn A",
+			"invalidEmail": "Nhập địa chỉ email đầy đủ, ví dụ name@company.com.",
+			"nameRequired": "Nhập tên của bạn.",
+			"passwordRequired": "Nhập mật khẩu của bạn.",
+			"passwordTooShort": "Dùng ít nhất 8 ký tự.",
+			"disposableEmail": "Hãy dùng địa chỉ email cố định. Không thể tạo tài khoản bằng địa chỉ email dùng một lần.",
+			"continueWithEmail": "Tiếp tục với email"
 		},
 		"checkEmail": {
 			"pageTitle": "Kiểm tra email",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Tạo tài khoản",
-			"title": "Tạo tài khoản",
-			"subtitleInvitation": "Tạo tài khoản để chấp nhận lời mời của bạn",
-			"subtitleRegistrationDisabled": "Đăng ký yêu cầu có lời mời",
-			"subtitlePasswordDisabled": "Dùng đăng nhập mạng xã hội hoặc OIDC để tạo tài khoản",
-			"subtitleDefault": "Bắt đầu với không gian làm việc của bạn",
-			"invitationAlert": "Sau khi tạo tài khoản, bạn sẽ có thể chấp nhận lời mời tham gia không gian làm việc.",
 			"registrationDisabledAlert": "Đăng ký hiện đang bị tắt. Nếu bạn đã được mời, hãy nhập địa chỉ email đã nhận lời mời để tạo tài khoản.",
-			"passwordDisabledAlert": "Tạo tài khoản bằng mật khẩu đã bị tắt. Hãy dùng phương thức đăng nhập mạng xã hội hoặc OIDC đã cấu hình từ trang đăng nhập.",
-			"signingIn": "Đang đăng nhập...",
 			"continueAsGuest": "Tiếp tục với tư cách khách",
 			"toggleMessage": "Đã có tài khoản?",
 			"toggleLink": "Đăng nhập",
 			"instanceStatusError": "Không thể kết nối đến máy chủ. Vui lòng thử lại sau giây lát.",
 			"instanceAdminTitle": "Thiết lập phiên bản Kaneo của bạn",
-			"instanceAdminSubtitle": "Tài khoản này sẽ trở thành quản trị viên của phiên bản với toàn quyền truy cập."
+			"instanceAdminSubtitle": "Tài khoản này sẽ trở thành quản trị viên của phiên bản với toàn quyền truy cập.",
+			"heading": "Tạo tài khoản của bạn",
+			"submitPassword": "Tạo tài khoản",
+			"failed": "Không thể tạo tài khoản của bạn. Hãy thử lại.",
+			"subtitle": {
+				"email": "Bắt đầu với email của bạn. Chúng tôi sẽ gửi mã, không cần mật khẩu.",
+				"password": "Nhập tên, email và mật khẩu để bắt đầu.",
+				"providers": "Dùng một tài khoản đã liên kết để tạo tài khoản của bạn."
+			},
+			"invitation": {
+				"description": "Dùng email đã nhận lời mời. Bạn sẽ tham gia không gian làm việc ngay sau đó."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Xác minh mã",
-			"title": "Nhập mã xác minh",
-			"subtitle": "Dùng mã 6 chữ số đã gửi đến email của bạn để tiếp tục",
-			"codeSentTo": "Đã gửi mã đến {{email}}",
-			"verificationCodeLabel": "Mã xác minh",
-			"verifying": "Đang xác minh...",
-			"verifyAndSignIn": "Xác minh & Đăng nhập",
-			"changeEmail": "Đổi email",
-			"resend": "Gửi lại",
 			"validation": {
 				"codeLength": "Mã phải có 6 chữ số"
 			},
 			"toast": {
 				"invalidCode": "Mã xác minh không hợp lệ",
-				"signedInSuccess": "Đăng nhập thành công!",
 				"verifyFailed": "Không thể xác minh mã",
 				"resendFailed": "Không thể gửi lại mã",
 				"resendSuccess": "Đã gửi mã xác minh mới!"
-			}
+			},
+			"heading": "Kiểm tra email của bạn",
+			"description": "Chúng tôi đã gửi mã gồm 6 chữ số đến {{email}}. Mã sẽ hết hạn sau {{minutes}} phút.",
+			"label": "Mã xác minh",
+			"submit": "Xác minh và tiếp tục",
+			"didntGetIt": "Chưa nhận được mã?",
+			"resendCode": "Gửi lại mã",
+			"useDifferentEmail": "Dùng email khác",
+			"expired": "Mã này đã hết hạn. Hãy yêu cầu mã mới.",
+			"tooManyAttempts": "Quá nhiều lần thử. Hãy yêu cầu mã mới."
 		},
 		"otpSignIn": {
-			"sendFailed": "Không thể gửi mã xác minh",
-			"codeSent": "Đã gửi mã xác minh! Hãy kiểm tra email của bạn.",
-			"sending": "Đang gửi...",
-			"sendVerificationCode": "Gửi mã xác minh"
+			"sendFailed": "Không thể gửi mã xác minh"
 		},
 		"signInForm": {
-			"failedSignIn": "Đăng nhập thất bại",
-			"signedInSuccess": "Đăng nhập thành công",
-			"signingIn": "Đang đăng nhập...",
-			"signIn": "Đăng nhập"
-		},
-		"signUpForm": {
-			"fullName": "Họ và tên",
-			"namePlaceholder": "Nguyễn Văn A",
-			"failedSignUp": "Đăng ký thất bại",
-			"accountCreated": "Tạo tài khoản thành công",
-			"passwordTooShort": "Mật khẩu quá ngắn",
-			"creatingAccount": "Đang tạo tài khoản...",
-			"createAccount": "Tạo tài khoản"
+			"failedSignIn": "Đăng nhập thất bại"
 		},
 		"invitation": {
 			"pageTitleAccept": "Chấp nhận lời mời",
 			"pageTitleError": "Lỗi lời mời",
 			"pageTitleInvalid": "Lời mời không hợp lệ",
-			"loadingTitle": "Đang tải lời mời...",
-			"errorTitle": "Lỗi lời mời",
-			"invalidTitle": "Lời mời không hợp lệ",
-			"invitationExpired": "Lời mời đã hết hạn",
-			"errorLoadDescription": "Không thể tải thông tin lời mời. Lời mời có thể không hợp lệ hoặc đã hết hạn.",
-			"goToSignIn": "Đến trang đăng nhập",
-			"workspaceLabel": "Không gian làm việc: {{workspaceName}}",
 			"joinWorkspace": "Tham gia {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> đã mời bạn tham gia không gian làm việc của họ.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> đã mời bạn tham gia không gian làm việc của họ trên Kaneo.",
-			"createAccountOrSignIn": "Tạo tài khoản để chấp nhận lời mời này, hoặc đăng nhập nếu bạn đã có tài khoản.",
 			"createAccount": "Tạo tài khoản",
-			"accepting": "Đang chấp nhận...",
-			"acceptInvitation": "Chấp nhận lời mời",
-			"goToDashboard": "Đến bảng điều khiển",
-			"signedInAs": "Đã đăng nhập với <email>{{email}}</email>",
-			"youveBeenInvited": "Bạn đã được mời!",
-			"invitationFor": "Lời mời dành cho: <email>{{email}}</email>",
 			"signIn": "Đăng nhập",
 			"toast": {
 				"acceptFailed": "Không thể chấp nhận lời mời",
 				"acceptSuccess": "Đã chấp nhận lời mời! Chào mừng bạn đến với nhóm."
+			},
+			"description": "{{inviterName}} đã mời bạn tham gia không gian làm việc này trên Kaneo.",
+			"invitedBy": "Người mời",
+			"sentTo": "Gửi đến",
+			"signedInAs": "Đăng nhập với tư cách",
+			"expires": "Hết hạn",
+			"notNow": "Để sau",
+			"join": "Tham gia không gian làm việc",
+			"switchAccount": "Đổi tài khoản",
+			"goToKaneo": "Đến Kaneo",
+			"mismatch": {
+				"title": "Bạn đang đăng nhập bằng email khác",
+				"description": "Lời mời này đã được gửi đến {{invitedEmail}}. Bạn đang đăng nhập với tư cách {{email}}."
+			},
+			"expired": {
+				"title": "Lời mời này đã hết hạn",
+				"description": "Hãy nhờ {{inviterName}} gửi cho bạn lời mời mới vào {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Lời mời này không còn hợp lệ",
+				"description": "Lời mời có thể đã được chấp nhận hoặc bị hủy. Hãy xin lời mời mới từ quản trị viên không gian làm việc."
+			},
+			"loadFailed": {
+				"title": "Không thể tải lời mời này",
+				"description": "Hãy kiểm tra kết nối và tải lại trang."
 			}
 		},
 		"onboarding": {
@@ -427,24 +450,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Kiểm tra hộp thư đến",
+			"sentDescription": "Nếu có tài khoản dùng {{email}}, liên kết đặt lại mật khẩu đang được gửi đến bạn. Liên kết sẽ hết hạn sau 1 giờ.",
+			"sentHelpTitle": "Chưa nhận được email?",
+			"sentHelpDescription": "Hãy kiểm tra thư mục thư rác, hoặc yêu cầu liên kết khác sau một phút.",
+			"rememberedIt": "Đã nhớ ra?",
+			"resetDescription": "Dùng từ 8 đến 128 ký tự. Các thiết bị khác sẽ bị đăng xuất.",
+			"updatePassword": "Cập nhật mật khẩu",
+			"changedMind": "Bạn đổi ý?",
+			"invalidLinkTitle": "Liên kết này đã hết hạn",
+			"successTitle": "Đã cập nhật mật khẩu"
+		},
+		"page": {
+			"terms": "Điều khoản",
+			"privacy": "Quyền riêng tư"
+		},
+		"device": {
+			"connect": {
+				"title": "Kết nối thiết bị",
+				"description": "Nhập mã hiển thị trong terminal hoặc ứng dụng để liên kết với tài khoản Kaneo của bạn.",
+				"label": "Mã thiết bị",
+				"submit": "Tiếp tục",
+				"noCode": "Chưa có mã? Hãy bắt đầu đăng nhập từ ứng dụng của bạn trước.",
+				"codeRequired": "Nhập mã hiển thị trên thiết bị của bạn.",
+				"invalidCode": "Mã này không hợp lệ hoặc đã hết hạn."
+			},
+			"approve": {
+				"pageTitle": "Phê duyệt thiết bị",
+				"title": "Kết nối thiết bị này?",
+				"description": "Một thiết bị muốn đăng nhập với tư cách {{email}}. Chỉ phê duyệt nếu chính bạn đã bắt đầu việc này.",
+				"matchCode": "Kiểm tra xem mã này có khớp với mã trên thiết bị của bạn không",
+				"deny": "Từ chối",
+				"approve": "Phê duyệt",
+				"failed": "Không thể cập nhật yêu cầu. Hãy thử lại."
+			},
+			"approved": {
+				"title": "Đã kết nối thiết bị",
+				"description": "Hãy quay lại terminal hoặc ứng dụng. Bạn có thể đóng tab này."
+			},
+			"denied": {
+				"title": "Đã từ chối yêu cầu",
+				"description": "Không có gì được kết nối. Bạn có thể đóng tab này."
+			},
+			"missing": {
+				"title": "Không có mã thiết bị",
+				"description": "Mở trang này từ thiết bị của bạn, hoặc tự nhập mã.",
+				"enterCode": "Nhập mã"
+			},
+			"signIn": {
+				"title": "Đăng nhập để kết nối thiết bị",
+				"description": "Bạn sẽ quay lại đây ngay để phê duyệt.",
+				"submit": "Đăng nhập"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Cấp quyền cho ứng dụng khách MCP",
+				"description": "Ứng dụng này có thể thay mặt bạn hành động trong mọi không gian làm việc mà bạn có quyền truy cập. Chỉ tiếp tục nếu chính bạn đã bắt đầu kết nối này.",
+				"client": "Ứng dụng khách",
+				"unknownClient": "Ứng dụng khách MCP",
+				"selfReported": "Tự khai báo",
+				"redirect": "Chuyển bạn về",
+				"signedInAs": "Đăng nhập với tư cách",
+				"deny": "Từ chối",
+				"allow": "Cho phép truy cập"
+			},
+			"expired": {
+				"title": "Yêu cầu này đã hết hạn",
+				"description": "Hãy quay lại ứng dụng khách MCP và kết nối lại."
+			},
+			"signIn": {
+				"title": "Đăng nhập để cấp quyền cho ứng dụng này",
+				"description": "Bạn sẽ quay lại đây ngay để xem xét.",
+				"submit": "Đăng nhập"
+			}
 		}
 	},
 	"settings": {

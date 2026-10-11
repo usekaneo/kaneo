@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Најава",
-			"title": "Добредојде назад",
-			"subtitle": "Внеси ги твоите податоци за да пристапиш до работниот простор",
-			"invitationSubtitle": "Најави се за да ја прифатиш поканата",
-			"invitationAlert": "По најавувањето, ќе можеш да ја прифатиш поканата за работниот простор.",
-			"signingIn": "Се најавува...",
-			"continueWithGoogle": "Продолжи со Google",
-			"continueWithGithub": "Продолжи со GitHub",
-			"continueWithDiscord": "Продолжи со Discord",
-			"continueWithOidc": "Продолжи со OIDC",
+			"subtitle": {
+				"emailOrProvider": "Користи ја твојата е-пошта или поврзана сметка.",
+				"email": "Внеси ја твојата е-пошта и ќе ти испратиме код за најава.",
+				"password": "Користи ја твојата е-пошта и лозинка.",
+				"passwordOrProvider": "Користи ја твојата лозинка или поврзана сметка.",
+				"providers": "Избери како сакаш да се најавиш.",
+				"sso": "Со најавата овде управува твојата организација."
+			},
 			"lastUsed": "Последно користено",
-			"registrationDisabled": "Јавната регистрација е оневозможена. Користи покана за да креираш сметка.",
-			"passwordRegistrationDisabled": "Регистрацијата со лозинка е оневозможена. Користи социјална или OIDC метода за најава за да креираш сметка.",
-			"toggleMessage": "Немаш сметка?",
-			"toggleLink": "Креирај сметка",
-			"guestSuccess": "Најавен како гостин",
 			"guestError": "Неуспешна најава како гостин",
-			"oidcError": "Неуспешна најава со OIDC",
-			"googleError": "Неуспешна најава со Google",
-			"githubError": "Неуспешна најава со GitHub",
-			"discordError": "Неуспешна најава со Discord",
 			"errors": {
 				"account_not_linked": "Овој идентитет не можеше да се поврзе со постоечката сметка. Најави се преку е-пошта за да ја потврдиш сметката, па обиди се повторно со SSO. Ако најавата преку е-пошта не е достапна, контактирај го твојот администратор.",
 				"oauth_code_verification_failed": "OAuth верификацијата не успеа. Обиди се повторно.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Регистрацијата е моментално оневозможена. Потребна ти е валидна покана за да креираш сметка."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Регистрацијата е моментално оневозможена. Потребна ти е валидна покана за да креираш сметка.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Користи трајна адреса за е-пошта. Со привремени адреси не може да се креираат сметки."
 			},
-			"instanceStatusError": "Не можеше да се воспостави врска со серверот. Обиди се повторно за момент."
+			"instanceStatusError": "Не можеше да се воспостави врска со серверот. Обиди се повторно за момент.",
+			"heading": "Најави се на Kaneo",
+			"submitPassword": "Најави се",
+			"invitation": {
+				"title": "{{inviterName}} те покани во {{workspaceName}}",
+				"fallbackTitle": "Имаш покана",
+				"description": "Најави се со е-поштата на која ја доби поканата. Веднаш потоа ќе се приклучиш на работниот простор."
+			},
+			"footer": {
+				"newHere": "Прв пат на Kaneo?",
+				"createAccount": "Креирај сметка",
+				"inviteOnly": "Сметките овде се само со покана. Побарај покана од администратор.",
+				"providerSignUp": "Прв пат тука? Најави се со некој од провајдерите погоре за да креираш сметка.",
+				"anyProvider": "Прв пат тука? Која било опција погоре ќе ти креира сметка.",
+				"contactAdmin": "Проблем со најавата? Контактирај го администраторот.",
+				"justLooking": "Само разгледуваш?"
+			},
+			"autoLogin": {
+				"title": "Те најавуваме",
+				"subtitle": "Те носиме до страницата за најава на твојата организација.",
+				"opening": "Се отвора {{provider}}…",
+				"stuck": "Не се случува ништо?",
+				"continue": "Продолжи кон {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Продолжи со {{provider}}",
+			"error": "Најавата со {{provider}} не успеа. Обиди се повторно."
 		},
 		"forms": {
 			"or": "или",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Прикажи лозинка",
-			"hidePassword": "Сокриј лозинка"
+			"hidePassword": "Сокриј лозинка",
+			"name": "Име",
+			"namePlaceholder": "Марија Петровска",
+			"invalidEmail": "Внеси целосна адреса за е-пошта, на пр. name@company.com.",
+			"nameRequired": "Внеси го твоето име.",
+			"passwordRequired": "Внеси ја твојата лозинка.",
+			"passwordTooShort": "Користи најмалку 8 знаци.",
+			"disposableEmail": "Користи трајна адреса за е-пошта. Со привремени адреси не може да се креираат сметки.",
+			"continueWithEmail": "Продолжи со е-пошта"
 		},
 		"checkEmail": {
 			"pageTitle": "Провери ја е-поштата",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Креирај сметка",
-			"title": "Креирај сметка",
-			"subtitleInvitation": "Креирај сметка за да ја прифатиш поканата",
-			"subtitleRegistrationDisabled": "Регистрацијата бара покана",
-			"subtitlePasswordDisabled": "Користи социјална или OIDC најава за да креираш сметка",
-			"subtitleDefault": "Започни со твојот работен простор",
-			"invitationAlert": "По креирањето на сметката, ќе можеш да ја прифатиш поканата за работниот простор.",
 			"registrationDisabledAlert": "Регистрацијата е моментално оневозможена. Ако си поканет, внеси ја е-поштата на која ја доби поканата за да ја креираш сметката.",
-			"passwordDisabledAlert": "Креирањето сметка со лозинка е оневозможено. Користи социјална или OIDC метода за најава од страницата за најава.",
-			"signingIn": "Се најавува...",
 			"continueAsGuest": "Продолжи како гостин",
 			"toggleMessage": "Веќе имаш сметка?",
 			"toggleLink": "Најави се",
 			"instanceStatusError": "Не можеше да се воспостави врска со серверот. Обиди се повторно за момент.",
 			"instanceAdminTitle": "Постави ја твојата Kaneo инстанца",
-			"instanceAdminSubtitle": "Оваа сметка станува администратор на инстанцата со целосен пристап."
+			"instanceAdminSubtitle": "Оваа сметка станува администратор на инстанцата со целосен пристап.",
+			"heading": "Креирај ја твојата сметка",
+			"submitPassword": "Креирај сметка",
+			"failed": "Не можевме да ја креираме твојата сметка. Обиди се повторно.",
+			"subtitle": {
+				"email": "Започни со твојата е-пошта. Ќе ти испратиме код, не ти треба лозинка.",
+				"password": "Внеси име, е-пошта и лозинка за да започнеш.",
+				"providers": "Користи поврзана сметка за да ја креираш твојата."
+			},
+			"invitation": {
+				"description": "Користи ја е-поштата на која ја доби поканата. Веднаш потоа ќе се приклучиш на работниот простор."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Потврди код",
-			"title": "Внеси го кодот за потврда",
-			"subtitle": "Користи го 6-цифрениот код испратен на твојата е-пошта за да продолжиш",
-			"codeSentTo": "Кодот е испратен на {{email}}",
-			"verificationCodeLabel": "Код за потврда",
-			"verifying": "Се потврдува...",
-			"verifyAndSignIn": "Потврди и најави се",
-			"changeEmail": "Промени е-пошта",
-			"resend": "Испрати повторно",
 			"validation": {
 				"codeLength": "Кодот мора да има 6 цифри"
 			},
 			"toast": {
 				"invalidCode": "Невалиден код за потврда",
-				"signedInSuccess": "Успешно најавен!",
 				"verifyFailed": "Неуспешна потврда на кодот",
 				"resendFailed": "Неуспешно повторно испраќање на кодот",
 				"resendSuccess": "Нов код за потврда е испратен!"
-			}
+			},
+			"heading": "Провери ја е-поштата",
+			"description": "Испративме 6-цифрен код на {{email}}. Истекува за {{minutes}} минути.",
+			"label": "Код за потврда",
+			"submit": "Потврди и продолжи",
+			"didntGetIt": "Не стигна?",
+			"resendCode": "Испрати го кодот повторно",
+			"useDifferentEmail": "Користи друга е-пошта",
+			"expired": "Овој код истече. Побарај нов.",
+			"tooManyAttempts": "Премногу обиди. Побарај нов код."
 		},
 		"otpSignIn": {
-			"sendFailed": "Неуспешно испраќање на кодот за потврда",
-			"codeSent": "Кодот за потврда е испратен! Провери ја е-поштата.",
-			"sending": "Се испраќа...",
-			"sendVerificationCode": "Испрати код за потврда"
+			"sendFailed": "Неуспешно испраќање на кодот за потврда"
 		},
 		"signInForm": {
-			"failedSignIn": "Неуспешна најава",
-			"signedInSuccess": "Успешно најавен",
-			"signingIn": "Се најавува...",
-			"signIn": "Најави се"
-		},
-		"signUpForm": {
-			"fullName": "Целосно име",
-			"namePlaceholder": "Петар Петровски",
-			"failedSignUp": "Неуспешна регистрација",
-			"accountCreated": "Сметката е успешно креирана",
-			"passwordTooShort": "Лозинката е прекратка",
-			"creatingAccount": "Се креира сметка...",
-			"createAccount": "Креирај сметка"
+			"failedSignIn": "Неуспешна најава"
 		},
 		"invitation": {
 			"pageTitleAccept": "Прифати покана",
 			"pageTitleError": "Грешка со поканата",
 			"pageTitleInvalid": "Невалидна покана",
-			"loadingTitle": "Се вчитува поканата...",
-			"errorTitle": "Грешка со поканата",
-			"invalidTitle": "Невалидна покана",
-			"invitationExpired": "Поканата истече",
-			"errorLoadDescription": "Неуспешно вчитување на деталите за поканата. Поканата може да е невалидна или истечена.",
-			"goToSignIn": "Оди на најава",
-			"workspaceLabel": "Работен простор: {{workspaceName}}",
 			"joinWorkspace": "Приклучи се на {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор на Kaneo.",
-			"createAccountOrSignIn": "Креирај сметка за да ја прифатиш оваа покана, или најави се ако веќе имаш.",
 			"createAccount": "Креирај сметка",
-			"accepting": "Се прифаќа...",
-			"acceptInvitation": "Прифати покана",
-			"goToDashboard": "Оди на контролна табла",
-			"signedInAs": "Најавен како <email>{{email}}</email>",
-			"youveBeenInvited": "Поканет си!",
-			"invitationFor": "Покана за: <email>{{email}}</email>",
 			"signIn": "Најави се",
 			"toast": {
 				"acceptFailed": "Неуспешно прифаќање на поканата",
 				"acceptSuccess": "Поканата е прифатена! Добредојде во тимот."
+			},
+			"description": "{{inviterName}} те покани во овој работен простор на Kaneo.",
+			"invitedBy": "Покана од",
+			"sentTo": "Испратена до",
+			"signedInAs": "Најавена сметка",
+			"expires": "Истекува на",
+			"notNow": "Не сега",
+			"join": "Приклучи се на работниот простор",
+			"switchAccount": "Смени сметка",
+			"goToKaneo": "Оди на Kaneo",
+			"mismatch": {
+				"title": "Најавата е со друга е-пошта",
+				"description": "Оваа покана е испратена до {{invitedEmail}}. Моментално е најавена сметката {{email}}."
+			},
+			"expired": {
+				"title": "Оваа покана истече",
+				"description": "Побарај од {{inviterName}} да ти испрати нова покана за {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Оваа покана повеќе не важи",
+				"description": "Можеби е веќе прифатена или откажана. Побарај нова од администратор на работниот простор."
+			},
+			"loadFailed": {
+				"title": "Поканата не можеше да се вчита",
+				"description": "Провери ја врската и освежи ја страницата."
 			}
 		},
 		"onboarding": {
@@ -428,24 +451,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Провери го сандачето",
+			"sentDescription": "Ако постои сметка за {{email}}, линкот за ресетирање на лозинката е на пат. Истекува за 1 час.",
+			"sentHelpTitle": "Не стигна?",
+			"sentHelpDescription": "Провери ја папката за спам или побарај нов линк за една минута.",
+			"rememberedIt": "Се сети?",
+			"resetDescription": "Користи од 8 до 128 знаци. Другите уреди ќе бидат одјавени.",
+			"updatePassword": "Ажурирај лозинка",
+			"changedMind": "Се предомисли?",
+			"invalidLinkTitle": "Овој линк истече",
+			"successTitle": "Лозинката е ажурирана"
+		},
+		"page": {
+			"terms": "Услови",
+			"privacy": "Приватност"
+		},
+		"device": {
+			"connect": {
+				"title": "Поврзи уред",
+				"description": "Внеси го кодот прикажан во терминалот или апликацијата за да го поврзеш со твојата Kaneo сметка.",
+				"label": "Код на уредот",
+				"submit": "Продолжи",
+				"noCode": "Сè уште немаш код? Прво започни ја најавата од апликацијата.",
+				"codeRequired": "Внеси го кодот прикажан на уредот.",
+				"invalidCode": "Тој код е невалиден или истечен."
+			},
+			"approve": {
+				"pageTitle": "Одобри уред",
+				"title": "Да се поврзе овој уред?",
+				"description": "Уред сака да се најави како {{email}}. Одобри го само ако ти го започна ова.",
+				"matchCode": "Провери дали се совпаѓа со кодот на уредот",
+				"deny": "Одбиј",
+				"approve": "Одобри",
+				"failed": "Барањето не можеше да се ажурира. Обиди се повторно."
+			},
+			"approved": {
+				"title": "Уредот е поврзан",
+				"description": "Врати се во терминалот или апликацијата. Можеш да го затвориш овој таб."
+			},
+			"denied": {
+				"title": "Барањето е одбиено",
+				"description": "Ништо не е поврзано. Можеш да го затвориш овој таб."
+			},
+			"missing": {
+				"title": "Нема код на уред",
+				"description": "Отвори ја оваа страница од уредот или рачно внеси го кодот.",
+				"enterCode": "Внеси код"
+			},
+			"signIn": {
+				"title": "Најави се за да го поврзеш уредот",
+				"description": "Веднаш потоа ќе се вратиш тука за да го одобриш.",
+				"submit": "Најави се"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Овласти MCP клиент",
+				"description": "Ќе може да дејствува во твое име во секој работен простор до кој имаш пристап. Продолжи само ако ти ја започна оваа врска.",
+				"client": "Клиент",
+				"unknownClient": "MCP клиент",
+				"selfReported": "Според клиентот",
+				"redirect": "Те враќа на",
+				"signedInAs": "Најавена сметка",
+				"deny": "Одбиј",
+				"allow": "Дозволи пристап"
+			},
+			"expired": {
+				"title": "Ова барање истече",
+				"description": "Врати се во твојот MCP клиент и поврзи се повторно."
+			},
+			"signIn": {
+				"title": "Најави се за да го овластиш овој клиент",
+				"description": "Веднаш потоа ќе се вратиш тука за да го прегледаш.",
+				"submit": "Најави се"
+			}
 		}
 	},
 	"settings": {

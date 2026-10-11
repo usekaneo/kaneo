@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Inloggen",
-			"title": "Welkom terug",
-			"subtitle": "Voer je gegevens in om toegang te krijgen tot je werkruimte",
-			"invitationSubtitle": "Log in om je uitnodiging te accepteren",
-			"invitationAlert": "Na het inloggen kun je de uitnodiging voor de werkruimte accepteren.",
-			"signingIn": "Inloggen...",
-			"continueWithGoogle": "Doorgaan met Google",
-			"continueWithGithub": "Doorgaan met GitHub",
-			"continueWithDiscord": "Doorgaan met Discord",
-			"continueWithOidc": "Doorgaan met OIDC",
+			"subtitle": {
+				"emailOrProvider": "Gebruik je e-mailadres of een gekoppeld account.",
+				"email": "Vul je e-mailadres in, dan sturen we je een inlogcode.",
+				"password": "Gebruik je e-mailadres en wachtwoord.",
+				"passwordOrProvider": "Gebruik je wachtwoord of een gekoppeld account.",
+				"providers": "Kies hoe je wilt inloggen.",
+				"sso": "Je organisatie beheert hier het inloggen."
+			},
 			"lastUsed": "Laatst gebruikt",
-			"registrationDisabled": "Publieke registratie is uitgeschakeld. Gebruik een uitnodiging om een account aan te maken.",
-			"passwordRegistrationDisabled": "Registratie met wachtwoord is uitgeschakeld. Gebruik een geconfigureerde sociale of OIDC-aanmeldmethode om een account aan te maken.",
-			"toggleMessage": "Nog geen account?",
-			"toggleLink": "Account aanmaken",
-			"guestSuccess": "Ingelogd als gast",
 			"guestError": "Inloggen als gast mislukt",
-			"oidcError": "Inloggen met OIDC mislukt",
-			"googleError": "Inloggen met Google mislukt",
-			"githubError": "Inloggen met GitHub mislukt",
-			"discordError": "Inloggen met Discord mislukt",
 			"errors": {
 				"account_not_linked": "Deze identiteit kon niet aan het bestaande account worden gekoppeld. Log in met e-mail om het account te verifiëren en probeer SSO daarna opnieuw. Als inloggen met e-mail niet beschikbaar is, neem dan contact op met je beheerder.",
 				"oauth_code_verification_failed": "OAuth-verificatie mislukt. Probeer het opnieuw.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registratie is momenteel uitgeschakeld. Je hebt een geldige uitnodiging nodig om een account aan te maken."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registratie is momenteel uitgeschakeld. Je hebt een geldige uitnodiging nodig om een account aan te maken.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Gebruik een permanent e-mailadres. Met wegwerpadressen kun je geen account aanmaken."
 			},
-			"instanceStatusError": "Kan de server niet bereiken. Probeer het over een moment opnieuw."
+			"instanceStatusError": "Kan de server niet bereiken. Probeer het over een moment opnieuw.",
+			"heading": "Inloggen bij Kaneo",
+			"submitPassword": "Inloggen",
+			"invitation": {
+				"title": "{{inviterName}} heeft je uitgenodigd voor {{workspaceName}}",
+				"fallbackTitle": "Je bent uitgenodigd",
+				"description": "Log in met het e-mailadres waarop je de uitnodiging hebt ontvangen. Daarna word je meteen lid van de werkruimte."
+			},
+			"footer": {
+				"newHere": "Nieuw bij Kaneo?",
+				"createAccount": "Account aanmaken",
+				"inviteOnly": "Accounts zijn hier alleen op uitnodiging. Vraag een beheerder om een uitnodiging.",
+				"providerSignUp": "Nieuw hier? Log in met een van de providers hierboven om een account aan te maken.",
+				"anyProvider": "Nieuw hier? Met elke optie hierboven maak je je account aan.",
+				"contactAdmin": "Problemen met inloggen? Neem contact op met je beheerder.",
+				"justLooking": "Even rondkijken?"
+			},
+			"autoLogin": {
+				"title": "Je wordt ingelogd",
+				"subtitle": "We sturen je door naar de inlogpagina van je organisatie.",
+				"opening": "{{provider}} wordt geopend…",
+				"stuck": "Gebeurt er niets?",
+				"continue": "Doorgaan naar {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Doorgaan met {{provider}}",
+			"error": "Inloggen met {{provider}} is mislukt. Probeer het opnieuw."
 		},
 		"forms": {
 			"or": "of",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "naam@voorbeeld.nl",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Wachtwoord weergeven",
-			"hidePassword": "Wachtwoord verbergen"
+			"hidePassword": "Wachtwoord verbergen",
+			"name": "Naam",
+			"namePlaceholder": "Anna de Vries",
+			"invalidEmail": "Vul een volledig e-mailadres in, zoals naam@bedrijf.nl.",
+			"nameRequired": "Vul je naam in.",
+			"passwordRequired": "Vul je wachtwoord in.",
+			"passwordTooShort": "Gebruik minimaal 8 tekens.",
+			"disposableEmail": "Gebruik een permanent e-mailadres. Met wegwerpadressen kun je geen account aanmaken.",
+			"continueWithEmail": "Doorgaan met e-mail"
 		},
 		"checkEmail": {
 			"pageTitle": "Controleer je e-mail",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Account aanmaken",
-			"title": "Maak account aan",
-			"subtitleInvitation": "Maak een account aan om je uitnodiging te accepteren",
-			"subtitleRegistrationDisabled": "Registratie vereist een uitnodiging",
-			"subtitlePasswordDisabled": "Gebruik sociale media of OIDC om een account aan te maken",
-			"subtitleDefault": "Aan de slag met je werkruimte",
-			"invitationAlert": "Na het aanmaken van je account kun je de uitnodiging accepteren.",
 			"registrationDisabledAlert": "Registratie is momenteel uitgeschakeld. Als je bent uitgenodigd, voer dan het e-mailadres in waarop je de uitnodiging hebt ontvangen.",
-			"passwordDisabledAlert": "Account aanmaken met wachtwoord is uitgeschakeld. Gebruik een sociale of OIDC-methode.",
-			"signingIn": "Inloggen...",
 			"continueAsGuest": "Doorgaan als gast",
 			"toggleMessage": "Heb je al een account?",
 			"toggleLink": "Inloggen",
 			"instanceStatusError": "Kan de server niet bereiken. Probeer het over een moment opnieuw.",
 			"instanceAdminTitle": "Stel je Kaneo-instantie in",
-			"instanceAdminSubtitle": "Dit account wordt de instantiebeheerder met volledige toegang."
+			"instanceAdminSubtitle": "Dit account wordt de instantiebeheerder met volledige toegang.",
+			"heading": "Maak je account aan",
+			"submitPassword": "Account aanmaken",
+			"failed": "Je account kon niet worden aangemaakt. Probeer het opnieuw.",
+			"subtitle": {
+				"email": "Begin met je e-mailadres. We sturen je een code, geen wachtwoord nodig.",
+				"password": "Vul je naam, e-mailadres en een wachtwoord in om te beginnen.",
+				"providers": "Gebruik een gekoppeld account om je eigen account aan te maken."
+			},
+			"invitation": {
+				"description": "Gebruik het e-mailadres waarop je de uitnodiging hebt ontvangen. Daarna word je meteen lid van de werkruimte."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Code verifiëren",
-			"title": "Voer verificatiecode in",
-			"subtitle": "Gebruik de 6-cijferige code die naar je e-mail is gestuurd om door te gaan",
-			"codeSentTo": "Code gestuurd naar {{email}}",
-			"verificationCodeLabel": "Verificatiecode",
-			"verifying": "Verifiëren...",
-			"verifyAndSignIn": "Verifiëren & Inloggen",
-			"changeEmail": "E-mail wijzigen",
-			"resend": "Opnieuw versturen",
 			"validation": {
 				"codeLength": "Code moet uit 6 cijfers bestaan"
 			},
 			"toast": {
 				"invalidCode": "Ongeldige verificatiecode",
-				"signedInSuccess": "Succesvol ingelogd!",
 				"verifyFailed": "Verificatie mislukt",
 				"resendFailed": "Opnieuw versturen mislukt",
 				"resendSuccess": "Nieuwe verificatiecode verzonden!"
-			}
+			},
+			"heading": "Controleer je e-mail",
+			"description": "We hebben een 6-cijferige code naar {{email}} gestuurd. Deze verloopt over {{minutes}} minuten.",
+			"label": "Verificatiecode",
+			"submit": "Verifiëren en doorgaan",
+			"didntGetIt": "Niets ontvangen?",
+			"resendCode": "Code opnieuw sturen",
+			"useDifferentEmail": "Ander e-mailadres gebruiken",
+			"expired": "Deze code is verlopen. Vraag een nieuwe aan.",
+			"tooManyAttempts": "Te veel pogingen. Vraag een nieuwe code aan."
 		},
 		"otpSignIn": {
-			"sendFailed": "Versturen verificatiecode mislukt",
-			"codeSent": "Verificatiecode verzonden! Check je e-mail.",
-			"sending": "Versturen...",
-			"sendVerificationCode": "Verstuur verificatiecode"
+			"sendFailed": "Versturen verificatiecode mislukt"
 		},
 		"signInForm": {
-			"failedSignIn": "Inloggen mislukt",
-			"signedInSuccess": "Succesvol ingelogd",
-			"signingIn": "Inloggen...",
-			"signIn": "Inloggen"
-		},
-		"signUpForm": {
-			"fullName": "Volledige naam",
-			"namePlaceholder": "Jan Janssen",
-			"failedSignUp": "Registratie mislukt",
-			"accountCreated": "Account succesvol aangemaakt",
-			"passwordTooShort": "Wachtwoord is te kort",
-			"creatingAccount": "Account aanmaken...",
-			"createAccount": "Account aanmaken"
+			"failedSignIn": "Inloggen mislukt"
 		},
 		"invitation": {
 			"pageTitleAccept": "Uitnodiging accepteren",
 			"pageTitleError": "Uitnodigingsfout",
 			"pageTitleInvalid": "Ongeldige uitnodiging",
-			"loadingTitle": "Uitnodiging laden...",
-			"errorTitle": "Fout bij uitnodiging",
-			"invalidTitle": "Ongeldige uitnodiging",
-			"invitationExpired": "Uitnodiging verlopen",
-			"errorLoadDescription": "Laden van uitnodigingsgegevens mislukt. De uitnodiging is mogelijk ongeldig of verlopen.",
-			"goToSignIn": "Ga naar inloggen",
-			"workspaceLabel": "Werkruimte: {{workspaceName}}",
 			"joinWorkspace": "Deelnemen aan {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd voor hun werkruimte.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> heeft je uitgenodigd om deel te nemen aan hun werkruimte op Kaneo.",
-			"createAccountOrSignIn": "Maak een account aan om deze uitnodiging te accepteren, of log in als je er al een hebt.",
 			"createAccount": "Account aanmaken",
-			"accepting": "Accepteren...",
-			"acceptInvitation": "Uitnodiging accepteren",
-			"goToDashboard": "Naar dashboard",
-			"signedInAs": "Ingelogd als <email>{{email}}</email>",
-			"youveBeenInvited": "Je bent uitgenodigd!",
-			"invitationFor": "Uitnodiging voor: <email>{{email}}</email>",
 			"signIn": "Inloggen",
 			"toast": {
 				"acceptFailed": "Accepteren van uitnodiging mislukt",
 				"acceptSuccess": "Uitnodiging geaccepteerd! Welkom bij het team."
+			},
+			"description": "{{inviterName}} heeft je uitgenodigd voor deze werkruimte op Kaneo.",
+			"invitedBy": "Uitgenodigd door",
+			"sentTo": "Verzonden naar",
+			"signedInAs": "Ingelogd als",
+			"expires": "Verloopt op",
+			"notNow": "Niet nu",
+			"join": "Deelnemen aan werkruimte",
+			"switchAccount": "Account wisselen",
+			"goToKaneo": "Naar Kaneo",
+			"mismatch": {
+				"title": "Ingelogd met een ander e-mailadres",
+				"description": "Deze uitnodiging is verzonden naar {{invitedEmail}}. Je bent ingelogd als {{email}}."
+			},
+			"expired": {
+				"title": "Deze uitnodiging is verlopen",
+				"description": "Vraag {{inviterName}} om je een nieuwe uitnodiging voor {{workspaceName}} te sturen."
+			},
+			"invalid": {
+				"title": "Deze uitnodiging is niet meer geldig",
+				"description": "Mogelijk is ze al geaccepteerd of geannuleerd. Vraag een werkruimtebeheerder om een nieuwe."
+			},
+			"loadFailed": {
+				"title": "Kan deze uitnodiging niet laden",
+				"description": "Controleer je verbinding en laad de pagina opnieuw."
 			}
 		},
 		"onboarding": {
@@ -428,24 +451,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Controleer je inbox",
+			"sentDescription": "Als er een account bestaat voor {{email}}, is er een link onderweg om je wachtwoord opnieuw in te stellen. Deze verloopt over 1 uur.",
+			"sentHelpTitle": "Niets ontvangen?",
+			"sentHelpDescription": "Kijk in je spammap, of vraag over een minuut een nieuwe link aan.",
+			"rememberedIt": "Weet je het weer?",
+			"resetDescription": "Gebruik 8 tot 128 tekens. Andere apparaten worden uitgelogd.",
+			"updatePassword": "Wachtwoord bijwerken",
+			"changedMind": "Van gedachten veranderd?",
+			"invalidLinkTitle": "Deze link is verlopen",
+			"successTitle": "Wachtwoord bijgewerkt"
+		},
+		"page": {
+			"terms": "Voorwaarden",
+			"privacy": "Privacy"
+		},
+		"device": {
+			"connect": {
+				"title": "Apparaat koppelen",
+				"description": "Vul de code in die in je terminal of app wordt getoond om deze aan je Kaneo-account te koppelen.",
+				"label": "Apparaatcode",
+				"submit": "Doorgaan",
+				"noCode": "Nog geen code? Begin eerst met inloggen vanuit je app.",
+				"codeRequired": "Vul de code in die op je apparaat wordt getoond.",
+				"invalidCode": "Die code is ongeldig of verlopen."
+			},
+			"approve": {
+				"pageTitle": "Apparaat goedkeuren",
+				"title": "Dit apparaat koppelen?",
+				"description": "Een apparaat wil inloggen als {{email}}. Keur het alleen goed als je dit zelf hebt gestart.",
+				"matchCode": "Controleer of dit overeenkomt met de code op je apparaat",
+				"deny": "Weigeren",
+				"approve": "Goedkeuren",
+				"failed": "Het verzoek kon niet worden bijgewerkt. Probeer het opnieuw."
+			},
+			"approved": {
+				"title": "Apparaat gekoppeld",
+				"description": "Ga terug naar je terminal of app. Je kunt dit tabblad sluiten."
+			},
+			"denied": {
+				"title": "Verzoek geweigerd",
+				"description": "Er is niets gekoppeld. Je kunt dit tabblad sluiten."
+			},
+			"missing": {
+				"title": "Geen apparaatcode",
+				"description": "Open deze pagina vanaf je apparaat, of vul de code zelf in.",
+				"enterCode": "Code invullen"
+			},
+			"signIn": {
+				"title": "Log in om je apparaat te koppelen",
+				"description": "Daarna kom je meteen hier terug om het goed te keuren.",
+				"submit": "Inloggen"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Een MCP-client autoriseren",
+				"description": "Deze kan namens jou handelen in elke werkruimte waartoe je toegang hebt. Ga alleen door als je deze verbinding zelf hebt gestart.",
+				"client": "Client",
+				"unknownClient": "MCP-client",
+				"selfReported": "Door de client opgegeven",
+				"redirect": "Stuurt je terug naar",
+				"signedInAs": "Ingelogd als",
+				"deny": "Weigeren",
+				"allow": "Toegang toestaan"
+			},
+			"expired": {
+				"title": "Dit verzoek is verlopen",
+				"description": "Ga terug naar je MCP-client en maak opnieuw verbinding."
+			},
+			"signIn": {
+				"title": "Log in om deze client te autoriseren",
+				"description": "Daarna kom je meteen hier terug om het te controleren.",
+				"submit": "Inloggen"
+			}
 		}
 	},
 	"settings": {

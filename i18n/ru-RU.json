@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Вход",
-			"title": "С возвращением",
-			"subtitle": "Введите свои учётные данные для доступа к рабочей области",
-			"invitationSubtitle": "Войдите, чтобы принять приглашение",
-			"invitationAlert": "После входа вы сможете принять приглашение в рабочую область.",
-			"signingIn": "Вход...",
-			"continueWithGoogle": "Продолжить с Google",
-			"continueWithGithub": "Продолжить с GitHub",
-			"continueWithDiscord": "Продолжить с Discord",
-			"continueWithOidc": "Продолжить с OIDC",
+			"subtitle": {
+				"emailOrProvider": "Войдите по электронной почте или через подключённый аккаунт.",
+				"email": "Введите адрес электронной почты, и мы отправим вам код для входа.",
+				"password": "Войдите с помощью электронной почты и пароля.",
+				"passwordOrProvider": "Войдите с паролем или через подключённый аккаунт.",
+				"providers": "Выберите способ входа.",
+				"sso": "Входом здесь управляет ваша организация."
+			},
 			"lastUsed": "Использовался последним",
-			"registrationDisabled": "Публичная регистрация отключена. Используйте приглашение для создания аккаунта.",
-			"passwordRegistrationDisabled": "Регистрация по паролю отключена. Используйте настроенный метод входа через социальные сети или OIDC для создания аккаунта.",
-			"toggleMessage": "Нет аккаунта?",
-			"toggleLink": "Создать аккаунт",
-			"guestSuccess": "Вход выполнен как гость",
 			"guestError": "Не удалось войти как гость",
-			"oidcError": "Не удалось войти через OIDC",
-			"googleError": "Не удалось войти через Google",
-			"githubError": "Не удалось войти через GitHub",
-			"discordError": "Не удалось войти через Discord",
 			"errors": {
 				"account_not_linked": "Не удалось привязать эту учётную запись к существующему аккаунту. Войдите по электронной почте, чтобы подтвердить аккаунт, затем повторите вход через SSO. Если вход по почте недоступен, обратитесь к администратору.",
 				"oauth_code_verification_failed": "Не удалось выполнить проверку OAuth. Попробуйте ещё раз.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Регистрация в данный момент отключена. Для создания аккаунта требуется действительное приглашение."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Регистрация в данный момент отключена. Для создания аккаунта требуется действительное приглашение.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Используйте постоянный адрес электронной почты. С одноразовыми адресами создать аккаунт нельзя."
 			},
-			"instanceStatusError": "Не удалось связаться с сервером. Повторите попытку чуть позже."
+			"instanceStatusError": "Не удалось связаться с сервером. Повторите попытку чуть позже.",
+			"heading": "Вход в Kaneo",
+			"submitPassword": "Войти",
+			"invitation": {
+				"title": "{{inviterName}} приглашает вас в {{workspaceName}}",
+				"fallbackTitle": "Вас пригласили",
+				"description": "Войдите с адресом электронной почты, на который пришло приглашение. Сразу после этого вы присоединитесь к рабочей области."
+			},
+			"footer": {
+				"newHere": "Впервые в Kaneo?",
+				"createAccount": "Создать аккаунт",
+				"inviteOnly": "Аккаунты здесь создаются только по приглашению. Попросите приглашение у администратора.",
+				"providerSignUp": "Впервые здесь? Войдите через одного из провайдеров выше, чтобы создать аккаунт.",
+				"anyProvider": "Впервые здесь? Любой из вариантов выше создаст ваш аккаунт.",
+				"contactAdmin": "Не получается войти? Обратитесь к администратору.",
+				"justLooking": "Просто хотите осмотреться?"
+			},
+			"autoLogin": {
+				"title": "Выполняется вход",
+				"subtitle": "Перенаправляем вас на страницу входа вашей организации.",
+				"opening": "Открываем {{provider}}…",
+				"stuck": "Ничего не происходит?",
+				"continue": "Перейти в {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Продолжить через {{provider}}",
+			"error": "Не удалось войти через {{provider}}. Попробуйте ещё раз."
 		},
 		"forms": {
 			"or": "или",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Показать пароль",
-			"hidePassword": "Скрыть пароль"
+			"hidePassword": "Скрыть пароль",
+			"name": "Имя",
+			"namePlaceholder": "Анна Иванова",
+			"invalidEmail": "Введите полный адрес электронной почты, например name@company.com.",
+			"nameRequired": "Введите имя.",
+			"passwordRequired": "Введите пароль.",
+			"passwordTooShort": "Используйте не менее 8 символов.",
+			"disposableEmail": "Используйте постоянный адрес электронной почты. С одноразовыми адресами создать аккаунт нельзя.",
+			"continueWithEmail": "Продолжить по электронной почте"
 		},
 		"checkEmail": {
 			"pageTitle": "Проверьте почту",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Создание аккаунта",
-			"title": "Создать аккаунт",
-			"subtitleInvitation": "Создайте аккаунт, чтобы принять приглашение",
-			"subtitleRegistrationDisabled": "Для регистрации требуется приглашение",
-			"subtitlePasswordDisabled": "Используйте вход через социальные сети или OIDC для создания аккаунта",
-			"subtitleDefault": "Начните работу с рабочей областью",
-			"invitationAlert": "После создания аккаунта вы сможете принять приглашение в рабочую область.",
 			"registrationDisabledAlert": "Регистрация в данный момент отключена. Если вы получили приглашение, введите адрес электронной почты, на который оно было отправлено.",
-			"passwordDisabledAlert": "Создание аккаунта по паролю отключено. Используйте настроенный метод входа через социальные сети или OIDC на странице входа.",
-			"signingIn": "Вход...",
 			"continueAsGuest": "Продолжить как гость",
 			"toggleMessage": "Уже есть аккаунт?",
 			"toggleLink": "Войти",
 			"instanceStatusError": "Не удалось связаться с сервером. Повторите попытку чуть позже.",
 			"instanceAdminTitle": "Настройте свой экземпляр Kaneo",
-			"instanceAdminSubtitle": "Этот аккаунт станет администратором экземпляра с полным доступом."
+			"instanceAdminSubtitle": "Этот аккаунт станет администратором экземпляра с полным доступом.",
+			"heading": "Создайте аккаунт",
+			"submitPassword": "Создать аккаунт",
+			"failed": "Не удалось создать аккаунт. Попробуйте ещё раз.",
+			"subtitle": {
+				"email": "Начните с адреса электронной почты. Мы отправим код, пароль не нужен.",
+				"password": "Укажите имя, адрес электронной почты и пароль, чтобы начать.",
+				"providers": "Используйте подключённый аккаунт, чтобы создать свой."
+			},
+			"invitation": {
+				"description": "Используйте адрес электронной почты, на который пришло приглашение. Сразу после этого вы присоединитесь к рабочей области."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Проверка кода",
-			"title": "Введите код подтверждения",
-			"subtitle": "Используйте 6-значный код, отправленный на вашу почту",
-			"codeSentTo": "Код отправлен на {{email}}",
-			"verificationCodeLabel": "Код подтверждения",
-			"verifying": "Проверка...",
-			"verifyAndSignIn": "Подтвердить и войти",
-			"changeEmail": "Изменить адрес",
-			"resend": "Отправить повторно",
 			"validation": {
 				"codeLength": "Код должен содержать 6 цифр"
 			},
 			"toast": {
 				"invalidCode": "Неверный код подтверждения",
-				"signedInSuccess": "Вход выполнен успешно!",
 				"verifyFailed": "Не удалось проверить код",
 				"resendFailed": "Не удалось отправить код повторно",
 				"resendSuccess": "Новый код подтверждения отправлен!"
-			}
+			},
+			"heading": "Проверьте почту",
+			"description": "Мы отправили 6-значный код на {{email}}. Он действует {{minutes}} мин.",
+			"label": "Код подтверждения",
+			"submit": "Подтвердить и продолжить",
+			"didntGetIt": "Код не пришёл?",
+			"resendCode": "Отправить код повторно",
+			"useDifferentEmail": "Использовать другой адрес",
+			"expired": "Срок действия кода истёк. Запросите новый.",
+			"tooManyAttempts": "Слишком много попыток. Запросите новый код."
 		},
 		"otpSignIn": {
-			"sendFailed": "Не удалось отправить код подтверждения",
-			"codeSent": "Код подтверждения отправлен! Проверьте почту.",
-			"sending": "Отправка...",
-			"sendVerificationCode": "Отправить код подтверждения"
+			"sendFailed": "Не удалось отправить код подтверждения"
 		},
 		"signInForm": {
-			"failedSignIn": "Не удалось войти",
-			"signedInSuccess": "Вход выполнен успешно",
-			"signingIn": "Вход...",
-			"signIn": "Войти"
-		},
-		"signUpForm": {
-			"fullName": "Полное имя",
-			"namePlaceholder": "Иван Иванов",
-			"failedSignUp": "Не удалось зарегистрироваться",
-			"accountCreated": "Аккаунт успешно создан",
-			"passwordTooShort": "Пароль слишком короткий",
-			"creatingAccount": "Создание аккаунта...",
-			"createAccount": "Создать аккаунт"
+			"failedSignIn": "Не удалось войти"
 		},
 		"invitation": {
 			"pageTitleAccept": "Принять приглашение",
 			"pageTitleError": "Ошибка приглашения",
 			"pageTitleInvalid": "Недействительное приглашение",
-			"loadingTitle": "Загрузка приглашения...",
-			"errorTitle": "Ошибка приглашения",
-			"invalidTitle": "Недействительное приглашение",
-			"invitationExpired": "Приглашение истекло",
-			"errorLoadDescription": "Не удалось загрузить данные приглашения. Приглашение может быть недействительным или просроченным.",
-			"goToSignIn": "Перейти к входу",
-			"workspaceLabel": "Рабочая область: {{workspaceName}}",
 			"joinWorkspace": "Присоединиться к {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> приглашает вас присоединиться к рабочей области в Kaneo.",
-			"createAccountOrSignIn": "Создайте аккаунт, чтобы принять это приглашение, или войдите, если он у вас уже есть.",
 			"createAccount": "Создать аккаунт",
-			"accepting": "Принятие...",
-			"acceptInvitation": "Принять приглашение",
-			"goToDashboard": "Перейти к панели управления",
-			"signedInAs": "Вы вошли как <email>{{email}}</email>",
-			"youveBeenInvited": "Вас пригласили!",
-			"invitationFor": "Приглашение для: <email>{{email}}</email>",
 			"signIn": "Войти",
 			"toast": {
 				"acceptFailed": "Не удалось принять приглашение",
 				"acceptSuccess": "Приглашение принято! Добро пожаловать в команду."
+			},
+			"description": "{{inviterName}} приглашает вас в эту рабочую область в Kaneo.",
+			"invitedBy": "Приглашение от",
+			"sentTo": "Отправлено на",
+			"signedInAs": "Вы вошли как",
+			"expires": "Действует до",
+			"notNow": "Не сейчас",
+			"join": "Присоединиться к рабочей области",
+			"switchAccount": "Сменить аккаунт",
+			"goToKaneo": "Перейти в Kaneo",
+			"mismatch": {
+				"title": "Вы вошли с другим адресом",
+				"description": "Это приглашение отправлено на {{invitedEmail}}. Вы вошли как {{email}}."
+			},
+			"expired": {
+				"title": "Срок действия приглашения истёк",
+				"description": "Попросите пользователя {{inviterName}} отправить вам новое приглашение в {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Приглашение больше недействительно",
+				"description": "Возможно, его уже приняли или отменили. Попросите новое у администратора рабочей области."
+			},
+			"loadFailed": {
+				"title": "Не удалось загрузить приглашение",
+				"description": "Проверьте подключение и перезагрузите страницу."
 			}
 		},
 		"onboarding": {
@@ -430,24 +453,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Проверьте почтовый ящик",
+			"sentDescription": "Если аккаунт для {{email}} существует, на эту почту уже отправлена ссылка для сброса пароля. Она действует 1 час.",
+			"sentHelpTitle": "Письмо не пришло?",
+			"sentHelpDescription": "Проверьте папку «Спам» или запросите новую ссылку через минуту.",
+			"rememberedIt": "Вспомнили пароль?",
+			"resetDescription": "Используйте от 8 до 128 символов. На других устройствах будет выполнен выход.",
+			"updatePassword": "Обновить пароль",
+			"changedMind": "Передумали?",
+			"invalidLinkTitle": "Срок действия ссылки истёк",
+			"successTitle": "Пароль обновлён"
+		},
+		"page": {
+			"terms": "Условия",
+			"privacy": "Конфиденциальность"
+		},
+		"device": {
+			"connect": {
+				"title": "Подключение устройства",
+				"description": "Введите код из терминала или приложения, чтобы привязать его к аккаунту Kaneo.",
+				"label": "Код устройства",
+				"submit": "Продолжить",
+				"noCode": "Ещё нет кода? Сначала начните вход в приложении.",
+				"codeRequired": "Введите код, показанный на устройстве.",
+				"invalidCode": "Код недействителен или срок его действия истёк."
+			},
+			"approve": {
+				"pageTitle": "Подтверждение устройства",
+				"title": "Подключить это устройство?",
+				"description": "Устройство пытается войти как {{email}}. Подтверждайте, только если вы сами начали этот вход.",
+				"matchCode": "Убедитесь, что код совпадает с кодом на устройстве",
+				"deny": "Отклонить",
+				"approve": "Подтвердить",
+				"failed": "Не удалось обновить запрос. Попробуйте ещё раз."
+			},
+			"approved": {
+				"title": "Устройство подключено",
+				"description": "Вернитесь в терминал или приложение. Эту вкладку можно закрыть."
+			},
+			"denied": {
+				"title": "Запрос отклонён",
+				"description": "Ничего не было подключено. Эту вкладку можно закрыть."
+			},
+			"missing": {
+				"title": "Нет кода устройства",
+				"description": "Откройте эту страницу с устройства или введите код вручную.",
+				"enterCode": "Ввести код"
+			},
+			"signIn": {
+				"title": "Войдите, чтобы подключить устройство",
+				"description": "Сразу после входа вы вернётесь сюда, чтобы подтвердить его.",
+				"submit": "Войти"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Авторизация MCP-клиента",
+				"description": "Он сможет действовать от вашего имени во всех рабочих областях, к которым у вас есть доступ. Продолжайте, только если вы сами начали это подключение.",
+				"client": "Клиент",
+				"unknownClient": "MCP-клиент",
+				"selfReported": "Со слов клиента",
+				"redirect": "Вернёт вас на",
+				"signedInAs": "Вы вошли как",
+				"deny": "Отклонить",
+				"allow": "Разрешить доступ"
+			},
+			"expired": {
+				"title": "Срок действия запроса истёк",
+				"description": "Вернитесь в MCP-клиент и подключитесь снова."
+			},
+			"signIn": {
+				"title": "Войдите, чтобы авторизовать этот клиент",
+				"description": "Сразу после входа вы вернётесь сюда, чтобы проверить запрос.",
+				"submit": "Войти"
+			}
 		}
 	},
 	"settings": {

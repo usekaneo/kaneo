@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Iniciar sesión",
-			"title": "Bienvenido",
-			"subtitle": "Introduce tus credenciales para acceder a tu espacio de trabajo",
-			"invitationSubtitle": "Inicia sesión para aceptar la invitación",
-			"invitationAlert": "Al iniciar sesión, podrás aceptar la invitación al espacio de trabajo.",
-			"signingIn": "Iniciando sesión...",
-			"continueWithGoogle": "Continuar con Google",
-			"continueWithGithub": "Continuar con GitHub",
-			"continueWithDiscord": "Continuar con Discord",
-			"continueWithOidc": "Continuar con OIDC",
+			"subtitle": {
+				"emailOrProvider": "Usa tu correo electrónico o una cuenta conectada.",
+				"email": "Introduce tu correo electrónico y te enviaremos un código para iniciar sesión.",
+				"password": "Usa tu correo electrónico y tu contraseña.",
+				"passwordOrProvider": "Usa tu contraseña o una cuenta conectada.",
+				"providers": "Elige cómo quieres iniciar sesión.",
+				"sso": "Aquí el inicio de sesión lo gestiona tu organización."
+			},
 			"lastUsed": "Usado por última vez",
-			"registrationDisabled": "El registro está deshabilitado. Usa una invitación para crearte una cuenta.",
-			"passwordRegistrationDisabled": "El registro con contraseña está deshabilitado. Usa algún proveedor social o OIDC para crear una cuenta.",
-			"toggleMessage": "¿No tienes cuenta?",
-			"toggleLink": "Crear cuenta",
-			"guestSuccess": "Sesión iniciada como invitado",
 			"guestError": "Error al iniciar sesión como invitado",
-			"oidcError": "Error al iniciar sesión con OIDC",
-			"googleError": "Error al iniciar sesión con Google",
-			"githubError": "Error al iniciar sesión con GitHub",
-			"discordError": "Error al iniciar sesión con Discord",
 			"errors": {
 				"account_not_linked": "No se ha podido vincular esta identidad a la cuenta existente. Inicia sesión con tu correo electrónico para verificar la cuenta y vuelve a intentar el SSO. Si el inicio de sesión por correo no está disponible, contacta con tu administrador.",
 				"oauth_code_verification_failed": "La verificación OAuth ha fallado. Por favor, inténtalo de nuevo.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "El registro está actualmente deshabilitado. Necesitas una invitación válida para crear una cuenta."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "El registro está actualmente deshabilitado. Necesitas una invitación válida para crear una cuenta.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Usa una dirección de correo permanente. Con direcciones desechables no se pueden crear cuentas."
 			},
-			"instanceStatusError": "No se ha podido contactar con el servidor. Vuelve a intentarlo en un momento."
+			"instanceStatusError": "No se ha podido contactar con el servidor. Vuelve a intentarlo en un momento.",
+			"heading": "Inicia sesión en Kaneo",
+			"submitPassword": "Iniciar sesión",
+			"invitation": {
+				"title": "{{inviterName}} te ha invitado a {{workspaceName}}",
+				"fallbackTitle": "Has recibido una invitación",
+				"description": "Inicia sesión con el correo que recibió la invitación. Te unirás al espacio de trabajo justo después."
+			},
+			"footer": {
+				"newHere": "¿Primera vez en Kaneo?",
+				"createAccount": "Crear una cuenta",
+				"inviteOnly": "Aquí las cuentas son solo por invitación. Pide una invitación a un administrador.",
+				"providerSignUp": "¿Primera vez aquí? Inicia sesión con uno de los proveedores de arriba para crear una cuenta.",
+				"anyProvider": "¿Primera vez aquí? Cualquiera de las opciones de arriba crea tu cuenta.",
+				"contactAdmin": "¿Problemas para iniciar sesión? Contacta con tu administrador.",
+				"justLooking": "¿Solo quieres echar un vistazo?"
+			},
+			"autoLogin": {
+				"title": "Iniciando sesión",
+				"subtitle": "Te llevamos a la página de inicio de sesión de tu organización.",
+				"opening": "Abriendo {{provider}}…",
+				"stuck": "¿No avanza?",
+				"continue": "Continuar a {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Continuar con {{provider}}",
+			"error": "No se ha podido iniciar sesión con {{provider}}. Inténtalo de nuevo."
 		},
 		"forms": {
 			"or": "o",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "yo@ejemplo.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Mostrar contraseña",
-			"hidePassword": "Ocultar contraseña"
+			"hidePassword": "Ocultar contraseña",
+			"name": "Nombre",
+			"namePlaceholder": "María García",
+			"invalidEmail": "Introduce una dirección de correo completa, como nombre@empresa.com.",
+			"nameRequired": "Introduce tu nombre.",
+			"passwordRequired": "Introduce tu contraseña.",
+			"passwordTooShort": "Usa al menos 8 caracteres.",
+			"disposableEmail": "Usa una dirección de correo permanente. Con direcciones desechables no se pueden crear cuentas.",
+			"continueWithEmail": "Continuar con correo electrónico"
 		},
 		"checkEmail": {
 			"pageTitle": "Verifica tu email",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Crear Cuenta",
-			"title": "Crear cuenta",
-			"subtitleInvitation": "Crea una cuenta para aceptar tu invitación",
-			"subtitleRegistrationDisabled": "El registro requiere una invitación",
-			"subtitlePasswordDisabled": "Usa un proveedor social o OIDC para crear una cuenta",
-			"subtitleDefault": "Comienza con tu espacio de trabajo",
-			"invitationAlert": "Al crear tu cuenta podrás aceptar la invitación al espacio de trabajo.",
 			"registrationDisabledAlert": "El registro está actualmente deshabilitado. Si has sido invitado, introduce la dirección de correo electrónico en la que has recibido la invitación para crear tu cuenta.",
-			"passwordDisabledAlert": "El registro con contraseña está deshabilitado. Usa un proveedor social o OIDC desde la página de registro.",
-			"signingIn": "Iniciando sesión...",
 			"continueAsGuest": "Continuar como invitado",
 			"toggleMessage": "¿Ya tienes cuenta?",
 			"toggleLink": "Iniciar sesión",
 			"instanceStatusError": "No se ha podido contactar con el servidor. Vuelve a intentarlo en un momento.",
 			"instanceAdminTitle": "Configura tu instancia de Kaneo",
-			"instanceAdminSubtitle": "Esta cuenta se convierte en la administradora de la instancia con acceso completo."
+			"instanceAdminSubtitle": "Esta cuenta se convierte en la administradora de la instancia con acceso completo.",
+			"heading": "Crea tu cuenta",
+			"submitPassword": "Crear cuenta",
+			"failed": "No se ha podido crear tu cuenta. Inténtalo de nuevo.",
+			"subtitle": {
+				"email": "Empieza con tu correo electrónico. Te enviaremos un código, sin necesidad de contraseña.",
+				"password": "Añade tu nombre, tu correo electrónico y una contraseña para empezar.",
+				"providers": "Usa una cuenta conectada para crear la tuya."
+			},
+			"invitation": {
+				"description": "Usa el correo que recibió la invitación. Te unirás al espacio de trabajo justo después."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Verificar Código",
-			"title": "Introduce tu código de verificación",
-			"subtitle": "Usa el código de 6 dígitos enviado a tu email para continuar",
-			"codeSentTo": "Código de verificación enviado a {{email}}",
-			"verificationCodeLabel": "Código de Verificación",
-			"verifying": "Verificando...",
-			"verifyAndSignIn": "Verificar e iniciar sesión",
-			"changeEmail": "Cambiar dirección de correo electrónico",
-			"resend": "Volver a enviar",
 			"validation": {
 				"codeLength": "El código debe contener 6 dígitos"
 			},
 			"toast": {
 				"invalidCode": "El código de verificación no es válido",
-				"signedInSuccess": "¡Has iniciado sesión correctamente!",
 				"verifyFailed": "Fallo al verificar el código",
 				"resendFailed": "Error al reenviar el código",
 				"resendSuccess": "¡Nuevo código de verificación enviado!"
-			}
+			},
+			"heading": "Revisa tu correo",
+			"description": "Hemos enviado un código de 6 dígitos a {{email}}. Caduca en {{minutes}} minutos.",
+			"label": "Código de verificación",
+			"submit": "Verificar y continuar",
+			"didntGetIt": "¿No te ha llegado?",
+			"resendCode": "Reenviar código",
+			"useDifferentEmail": "Usar otro correo",
+			"expired": "Este código ha caducado. Solicita uno nuevo.",
+			"tooManyAttempts": "Demasiados intentos. Solicita un código nuevo."
 		},
 		"otpSignIn": {
-			"sendFailed": "Error al enviar el código de verificación",
-			"codeSent": "¡Código de verificación enviado! Revisa tu correo electrónico.",
-			"sending": "Enviando...",
-			"sendVerificationCode": "Enviar código de verificación"
+			"sendFailed": "Error al enviar el código de verificación"
 		},
 		"signInForm": {
-			"failedSignIn": "Error al iniciar sesión",
-			"signedInSuccess": "¡Has iniciado sesión correctamente!",
-			"signingIn": "Iniciando sesión...",
-			"signIn": "Iniciar sesión"
-		},
-		"signUpForm": {
-			"fullName": "Nombre completo",
-			"namePlaceholder": "Pepe Pérez",
-			"failedSignUp": "Error al registrarse",
-			"accountCreated": "Cuenta creada satisfactoriamente",
-			"passwordTooShort": "La contraseña es demasiado corta",
-			"creatingAccount": "Creando cuenta...",
-			"createAccount": "Crear cuenta"
+			"failedSignIn": "Error al iniciar sesión"
 		},
 		"invitation": {
 			"pageTitleAccept": "Aceptar Invitación",
 			"pageTitleError": "Error en la invitación",
 			"pageTitleInvalid": "Invitación no válida",
-			"loadingTitle": "Cargando invitación...",
-			"errorTitle": "Error en la invitación",
-			"invalidTitle": "Invitación no válida",
-			"invitationExpired": "Invitación expirada",
-			"errorLoadDescription": "Error al cargar detalles de la invitación. La invitación puede no ser válida o haber expirado.",
-			"goToSignIn": "Ir a Iniciar Sesión",
-			"workspaceLabel": "Espacio de trabajo: {{workspaceName}}",
 			"joinWorkspace": "Unirse a {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> te ha invitado a unirse a su espacio de trabajo.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> te ha invitado a unirse a su espacio de trabajo en Kaneo.",
-			"createAccountOrSignIn": "Crea una cuenta para aceptar esta invitación o inicia sesión si ya tienes una.",
 			"createAccount": "Crear cuenta",
-			"accepting": "Aceptando...",
-			"acceptInvitation": "Aceptar invitación",
-			"goToDashboard": "Ir al Panel de Control",
-			"signedInAs": "Sesión iniciada como <email>{{email}}</email>",
-			"youveBeenInvited": "¡Has sido invitado!",
-			"invitationFor": "Invitación para: <email>{{email}}</email>",
 			"signIn": "Iniciar sesión",
 			"toast": {
 				"acceptFailed": "Error al aceptar la invitación",
 				"acceptSuccess": "¡Invitación aceptada! Bienvenido al equipo."
+			},
+			"description": "{{inviterName}} te ha invitado a este espacio de trabajo en Kaneo.",
+			"invitedBy": "Invitación de",
+			"sentTo": "Enviada a",
+			"signedInAs": "Sesión iniciada como",
+			"expires": "Caduca el",
+			"notNow": "Ahora no",
+			"join": "Unirse al espacio de trabajo",
+			"switchAccount": "Cambiar de cuenta",
+			"goToKaneo": "Ir a Kaneo",
+			"mismatch": {
+				"title": "Has iniciado sesión con otro correo",
+				"description": "Esta invitación se envió a {{invitedEmail}}. Has iniciado sesión como {{email}}."
+			},
+			"expired": {
+				"title": "Esta invitación ha caducado",
+				"description": "Pide a {{inviterName}} que te envíe una nueva para {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Esta invitación ya no es válida",
+				"description": "Puede que ya se haya aceptado o cancelado. Pide una nueva a un administrador del espacio de trabajo."
+			},
+			"loadFailed": {
+				"title": "No se ha podido cargar esta invitación",
+				"description": "Comprueba tu conexión y recarga la página."
 			}
 		},
 		"onboarding": {
@@ -429,24 +452,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Revisa tu bandeja de entrada",
+			"sentDescription": "Si existe una cuenta para {{email}}, recibirás un enlace para restablecer tu contraseña. Caduca en 1 hora.",
+			"sentHelpTitle": "¿No te ha llegado?",
+			"sentHelpDescription": "Revisa tu carpeta de spam o solicita otro enlace dentro de un minuto.",
+			"rememberedIt": "¿Ya la recuerdas?",
+			"resetDescription": "Usa entre 8 y 128 caracteres. Se cerrará la sesión en los demás dispositivos.",
+			"updatePassword": "Actualizar contraseña",
+			"changedMind": "¿Has cambiado de opinión?",
+			"invalidLinkTitle": "Este enlace ha caducado",
+			"successTitle": "Contraseña actualizada"
+		},
+		"page": {
+			"terms": "Términos",
+			"privacy": "Privacidad"
+		},
+		"device": {
+			"connect": {
+				"title": "Conectar un dispositivo",
+				"description": "Introduce el código que aparece en tu terminal o aplicación para vincularlo a tu cuenta de Kaneo.",
+				"label": "Código del dispositivo",
+				"submit": "Continuar",
+				"noCode": "¿Aún no tienes código? Empieza a iniciar sesión desde tu aplicación.",
+				"codeRequired": "Introduce el código que aparece en tu dispositivo.",
+				"invalidCode": "Ese código no es válido o ha caducado."
+			},
+			"approve": {
+				"pageTitle": "Aprobar dispositivo",
+				"title": "¿Conectar este dispositivo?",
+				"description": "Un dispositivo quiere iniciar sesión como {{email}}. Apruébalo solo si lo has iniciado tú.",
+				"matchCode": "Comprueba que coincide con el código de tu dispositivo",
+				"deny": "Denegar",
+				"approve": "Aprobar",
+				"failed": "No se ha podido actualizar la solicitud. Inténtalo de nuevo."
+			},
+			"approved": {
+				"title": "Dispositivo conectado",
+				"description": "Vuelve a tu terminal o aplicación. Ya puedes cerrar esta pestaña."
+			},
+			"denied": {
+				"title": "Solicitud denegada",
+				"description": "No se ha conectado nada. Ya puedes cerrar esta pestaña."
+			},
+			"missing": {
+				"title": "Sin código de dispositivo",
+				"description": "Abre esta página desde tu dispositivo o introduce tú el código.",
+				"enterCode": "Introducir un código"
+			},
+			"signIn": {
+				"title": "Inicia sesión para conectar tu dispositivo",
+				"description": "Volverás aquí enseguida para aprobarlo.",
+				"submit": "Iniciar sesión"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Autorizar un cliente MCP",
+				"description": "Podrá actuar en tu nombre en todos los espacios de trabajo a los que tienes acceso. Continúa solo si has iniciado tú esta conexión.",
+				"client": "Cliente",
+				"unknownClient": "Cliente MCP",
+				"selfReported": "Declarado por el cliente",
+				"redirect": "Te redirige a",
+				"signedInAs": "Sesión iniciada como",
+				"deny": "Denegar",
+				"allow": "Permitir acceso"
+			},
+			"expired": {
+				"title": "Esta solicitud ha caducado",
+				"description": "Vuelve a tu cliente MCP y conéctate de nuevo."
+			},
+			"signIn": {
+				"title": "Inicia sesión para autorizar este cliente",
+				"description": "Volverás aquí enseguida para revisarlo.",
+				"submit": "Iniciar sesión"
+			}
 		}
 	},
 	"settings": {

@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "登入",
-			"title": "歡迎回來",
-			"subtitle": "輸入你的登入資訊以進入工作區",
-			"invitationSubtitle": "登入以接受邀請",
-			"invitationAlert": "登入後，你就可以接受工作區邀請。",
-			"signingIn": "登入中...",
-			"continueWithGoogle": "使用 Google 繼續",
-			"continueWithGithub": "使用 GitHub 繼續",
-			"continueWithDiscord": "使用 Discord 繼續",
-			"continueWithOidc": "使用 OIDC 繼續",
+			"subtitle": {
+				"emailOrProvider": "使用電子郵件或已連結的帳號。",
+				"email": "輸入你的電子郵件，我們會寄送登入驗證碼給你。",
+				"password": "使用電子郵件和密碼登入。",
+				"passwordOrProvider": "使用密碼或已連結的帳號。",
+				"providers": "選擇你的登入方式。",
+				"sso": "此處的登入由你的組織管理。"
+			},
 			"lastUsed": "上次使用",
-			"registrationDisabled": "已停用公開註冊，請透過邀請建立帳號。",
-			"passwordRegistrationDisabled": "已停用密碼註冊，請使用已設定的社群帳號或 OIDC 登入方式建立帳號。",
-			"toggleMessage": "還沒有帳號？",
-			"toggleLink": "建立帳號",
-			"guestSuccess": "已以訪客身分登入",
 			"guestError": "無法以訪客身分登入",
-			"oidcError": "無法使用 OIDC 登入",
-			"googleError": "無法使用 Google 登入",
-			"githubError": "無法使用 GitHub 登入",
-			"discordError": "無法使用 Discord 登入",
 			"errors": {
 				"account_not_linked": "此身分無法連結到現有帳號。請先以電子郵件登入驗證帳號，再重新嘗試 SSO。若無法使用電子郵件登入，請聯絡你的管理員。",
 				"oauth_code_verification_failed": "OAuth 驗證失敗，請再試一次。",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "目前已停用註冊，你需要有效的邀請才能建立帳號。"
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "目前已停用註冊，你需要有效的邀請才能建立帳號。",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "請使用長期有效的電子郵件地址。拋棄式地址無法建立帳號。"
 			},
-			"instanceStatusError": "無法連線到伺服器，請稍後再試。"
+			"instanceStatusError": "無法連線到伺服器，請稍後再試。",
+			"heading": "登入 Kaneo",
+			"submitPassword": "登入",
+			"invitation": {
+				"title": "{{inviterName}} 邀請你加入 {{workspaceName}}",
+				"fallbackTitle": "你收到邀請了",
+				"description": "請使用收到邀請的電子郵件登入。登入後你會立即加入該工作區。"
+			},
+			"footer": {
+				"newHere": "第一次使用 Kaneo？",
+				"createAccount": "建立帳號",
+				"inviteOnly": "此處僅限受邀者建立帳號。請向管理員索取邀請。",
+				"providerSignUp": "新使用者？使用上方任一服務登入即可建立帳號。",
+				"anyProvider": "新使用者？使用上方任一方式即可建立帳號。",
+				"contactAdmin": "登入遇到問題？請聯絡你的管理員。",
+				"justLooking": "只是看看？"
+			},
+			"autoLogin": {
+				"title": "正在登入",
+				"subtitle": "正在前往你組織的登入頁面。",
+				"opening": "正在開啟 {{provider}}…",
+				"stuck": "頁面沒有反應？",
+				"continue": "前往 {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "使用 {{provider}} 繼續",
+			"error": "無法使用 {{provider}} 登入，請再試一次。"
 		},
 		"forms": {
 			"or": "或",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "顯示密碼",
-			"hidePassword": "隱藏密碼"
+			"hidePassword": "隱藏密碼",
+			"name": "姓名",
+			"namePlaceholder": "王小明",
+			"invalidEmail": "請輸入完整的電子郵件地址，例如 name@company.com。",
+			"nameRequired": "請輸入你的姓名。",
+			"passwordRequired": "請輸入密碼。",
+			"passwordTooShort": "請至少使用 8 個字元。",
+			"disposableEmail": "請使用長期有效的電子郵件地址。拋棄式地址無法建立帳號。",
+			"continueWithEmail": "使用電子郵件繼續"
 		},
 		"checkEmail": {
 			"pageTitle": "請查看你的電子郵件",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "建立帳號",
-			"title": "建立帳號",
-			"subtitleInvitation": "建立帳號以接受邀請",
-			"subtitleRegistrationDisabled": "註冊需要邀請",
-			"subtitlePasswordDisabled": "請使用社群帳號或 OIDC 登入來建立帳號",
-			"subtitleDefault": "開始使用你的工作區",
-			"invitationAlert": "建立帳號後，你就可以接受工作區邀請。",
 			"registrationDisabledAlert": "目前已停用註冊。如果你收到邀請，請輸入收到邀請的電子郵件地址來建立帳號。",
-			"passwordDisabledAlert": "已停用以密碼建立帳號，請在登入頁面使用已設定的社群帳號或 OIDC 登入方式。",
-			"signingIn": "登入中...",
 			"continueAsGuest": "以訪客身分繼續",
 			"toggleMessage": "已經有帳號了？",
 			"toggleLink": "登入",
 			"instanceStatusError": "無法連線到伺服器，請稍後再試。",
 			"instanceAdminTitle": "設定你的 Kaneo 執行個體",
-			"instanceAdminSubtitle": "此帳號將成為擁有完整權限的執行個體管理員。"
+			"instanceAdminSubtitle": "此帳號將成為擁有完整權限的執行個體管理員。",
+			"heading": "建立你的帳號",
+			"submitPassword": "建立帳號",
+			"failed": "無法建立帳號，請再試一次。",
+			"subtitle": {
+				"email": "從電子郵件開始。我們會寄送驗證碼給你，不需要密碼。",
+				"password": "填寫姓名、電子郵件和密碼即可開始。",
+				"providers": "使用已連結的帳號建立你的帳號。"
+			},
+			"invitation": {
+				"description": "請使用收到邀請的電子郵件。註冊後你會立即加入該工作區。"
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "確認驗證碼",
-			"title": "輸入驗證碼",
-			"subtitle": "請輸入寄到你電子郵件的 6 位數驗證碼以繼續",
-			"codeSentTo": "驗證碼已寄至 {{email}}",
-			"verificationCodeLabel": "驗證碼",
-			"verifying": "驗證中...",
-			"verifyAndSignIn": "驗證並登入",
-			"changeEmail": "變更電子郵件",
-			"resend": "重新寄送",
 			"validation": {
 				"codeLength": "驗證碼必須為 6 位數"
 			},
 			"toast": {
 				"invalidCode": "驗證碼無效",
-				"signedInSuccess": "登入成功！",
 				"verifyFailed": "無法驗證驗證碼",
 				"resendFailed": "無法重新寄送驗證碼",
 				"resendSuccess": "已寄出新的驗證碼！"
-			}
+			},
+			"heading": "請查看你的電子郵件",
+			"description": "我們已將 6 位數驗證碼寄到 {{email}}，{{minutes}} 分鐘內有效。",
+			"label": "驗證碼",
+			"submit": "驗證並繼續",
+			"didntGetIt": "沒有收到驗證碼？",
+			"resendCode": "重新寄送驗證碼",
+			"useDifferentEmail": "使用其他電子郵件",
+			"expired": "此驗證碼已過期，請重新取得。",
+			"tooManyAttempts": "嘗試次數過多，請重新取得驗證碼。"
 		},
 		"otpSignIn": {
-			"sendFailed": "無法寄送驗證碼",
-			"codeSent": "驗證碼已寄出！請查看你的電子郵件。",
-			"sending": "寄送中...",
-			"sendVerificationCode": "寄送驗證碼"
+			"sendFailed": "無法寄送驗證碼"
 		},
 		"signInForm": {
-			"failedSignIn": "登入失敗",
-			"signedInSuccess": "登入成功",
-			"signingIn": "登入中...",
-			"signIn": "登入"
-		},
-		"signUpForm": {
-			"fullName": "全名",
-			"namePlaceholder": "王小明",
-			"failedSignUp": "註冊失敗",
-			"accountCreated": "帳號已建立",
-			"passwordTooShort": "密碼太短",
-			"creatingAccount": "建立帳號中...",
-			"createAccount": "建立帳號"
+			"failedSignIn": "登入失敗"
 		},
 		"invitation": {
 			"pageTitleAccept": "接受邀請",
 			"pageTitleError": "邀請錯誤",
 			"pageTitleInvalid": "無效的邀請",
-			"loadingTitle": "載入邀請中...",
-			"errorTitle": "邀請錯誤",
-			"invalidTitle": "無效的邀請",
-			"invitationExpired": "邀請已過期",
-			"errorLoadDescription": "無法載入邀請詳細資料，邀請可能無效或已過期。",
-			"goToSignIn": "前往登入",
-			"workspaceLabel": "工作區：{{workspaceName}}",
 			"joinWorkspace": "加入 {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> 邀請你加入他們的工作區。",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> 邀請你加入他們在 Kaneo 上的工作區。",
-			"createAccountOrSignIn": "請建立帳號以接受此邀請；如果已有帳號，請直接登入。",
 			"createAccount": "建立帳號",
-			"accepting": "接受中...",
-			"acceptInvitation": "接受邀請",
-			"goToDashboard": "前往儀表板",
-			"signedInAs": "目前登入身分：<email>{{email}}</email>",
-			"youveBeenInvited": "你收到邀請了！",
-			"invitationFor": "受邀對象：<email>{{email}}</email>",
 			"signIn": "登入",
 			"toast": {
 				"acceptFailed": "無法接受邀請",
 				"acceptSuccess": "已接受邀請！歡迎加入團隊。"
+			},
+			"description": "{{inviterName}} 邀請你加入 Kaneo 上的這個工作區。",
+			"invitedBy": "邀請人",
+			"sentTo": "寄送至",
+			"signedInAs": "目前登入帳號",
+			"expires": "到期日",
+			"notNow": "暫時不要",
+			"join": "加入工作區",
+			"switchAccount": "切換帳號",
+			"goToKaneo": "前往 Kaneo",
+			"mismatch": {
+				"title": "目前登入的電子郵件不同",
+				"description": "此邀請寄送至 {{invitedEmail}}，但你目前以 {{email}} 登入。"
+			},
+			"expired": {
+				"title": "此邀請已過期",
+				"description": "請 {{inviterName}} 重新寄送 {{workspaceName}} 的邀請給你。"
+			},
+			"invalid": {
+				"title": "此邀請已失效",
+				"description": "此邀請可能已被接受或取消。請向工作區管理員索取新的邀請。"
+			},
+			"loadFailed": {
+				"title": "無法載入此邀請",
+				"description": "請檢查網路連線並重新整理頁面。"
 			}
 		},
 		"onboarding": {
@@ -427,24 +450,93 @@
 			"requestTitle": "重設你的密碼",
 			"requestSubtitle": "輸入你的電子郵件，我們會寄給你重設密碼的連結。",
 			"sendLink": "寄送重設連結",
-			"sending": "寄送中…",
-			"sent": "如果此電子郵件有對應的帳號，你會收到重設密碼的連結。請查看收件匣與垃圾郵件匣。",
 			"requestError": "無法要求重設連結，請再試一次。",
 			"unavailable": "無法使用密碼重設功能，請聯絡你的執行個體管理員。",
 			"configError": "無法連線到伺服器，請重新載入頁面後再試一次。",
 			"resetTitle": "設定新密碼",
-			"resetSubtitle": "新密碼長度須為 8 至 128 個字元。",
 			"newPassword": "新密碼",
 			"confirmPassword": "確認新密碼",
 			"passwordMismatch": "兩次輸入的密碼不一致。",
 			"passwordLength": "長度須介於 8 至 128 個字元。",
-			"resetPassword": "重設密碼",
-			"resetting": "重設中…",
 			"invalidLink": "此重設連結無效或已過期，請重新申請新連結以繼續。",
 			"requestNewLink": "重新申請連結",
 			"resetError": "無法重設密碼，請再試一次。",
 			"success": "你的密碼已重設，請使用新密碼登入。",
-			"backToSignIn": "返回登入"
+			"backToSignIn": "返回登入",
+			"sentTitle": "請查看收件匣",
+			"sentDescription": "如果 {{email}} 有對應的帳號，重設密碼的連結已寄出。連結 1 小時內有效。",
+			"sentHelpTitle": "沒有收到郵件？",
+			"sentHelpDescription": "請檢查垃圾郵件資料夾，或等一分鐘後再申請新連結。",
+			"rememberedIt": "想起來了？",
+			"resetDescription": "長度須介於 8 至 128 個字元。其他裝置將會登出。",
+			"updatePassword": "更新密碼",
+			"changedMind": "改變主意了？",
+			"invalidLinkTitle": "此連結已過期",
+			"successTitle": "密碼已更新"
+		},
+		"page": {
+			"terms": "條款",
+			"privacy": "隱私權"
+		},
+		"device": {
+			"connect": {
+				"title": "連結裝置",
+				"description": "輸入終端機或應用程式中顯示的代碼，將其連結到你的 Kaneo 帳號。",
+				"label": "裝置代碼",
+				"submit": "繼續",
+				"noCode": "還沒有代碼？請先從應用程式開始登入。",
+				"codeRequired": "請輸入裝置上顯示的代碼。",
+				"invalidCode": "此代碼無效或已過期。"
+			},
+			"approve": {
+				"pageTitle": "核准裝置",
+				"title": "要連結此裝置嗎？",
+				"description": "有裝置要求以 {{email}} 的身分登入。只有在你親自發起時才核准。",
+				"matchCode": "請確認此代碼與裝置上顯示的一致",
+				"deny": "拒絕",
+				"approve": "核准",
+				"failed": "無法更新此要求，請再試一次。"
+			},
+			"approved": {
+				"title": "裝置已連結",
+				"description": "請返回終端機或應用程式。你可以關閉此分頁。"
+			},
+			"denied": {
+				"title": "已拒絕要求",
+				"description": "沒有連結任何裝置。你可以關閉此分頁。"
+			},
+			"missing": {
+				"title": "沒有裝置代碼",
+				"description": "請從裝置開啟此頁面，或自行輸入代碼。",
+				"enterCode": "輸入代碼"
+			},
+			"signIn": {
+				"title": "登入以連結你的裝置",
+				"description": "登入後會立即回到這裡進行核准。",
+				"submit": "登入"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "授權 MCP 用戶端",
+				"description": "它可以在你有權存取的所有工作區中以你的身分執行操作。只有在你親自發起此連線時才繼續。",
+				"client": "用戶端",
+				"unknownClient": "MCP 用戶端",
+				"selfReported": "用戶端自行提供",
+				"redirect": "完成後返回",
+				"signedInAs": "目前登入帳號",
+				"deny": "拒絕",
+				"allow": "允許存取"
+			},
+			"expired": {
+				"title": "此要求已過期",
+				"description": "請返回 MCP 用戶端並重新連線。"
+			},
+			"signIn": {
+				"title": "登入以授權此用戶端",
+				"description": "登入後會立即回到這裡進行審查。",
+				"submit": "登入"
+			}
 		}
 	},
 	"settings": {

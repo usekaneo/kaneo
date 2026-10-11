@@ -663,64 +663,42 @@
 						"pageTitle": {
 							"type": "string"
 						},
-						"title": {
-							"type": "string"
-						},
 						"subtitle": {
-							"type": "string"
-						},
-						"invitationSubtitle": {
-							"type": "string"
-						},
-						"invitationAlert": {
-							"type": "string"
-						},
-						"signingIn": {
-							"type": "string"
-						},
-						"continueWithGoogle": {
-							"type": "string"
-						},
-						"continueWithGithub": {
-							"type": "string"
-						},
-						"continueWithDiscord": {
-							"type": "string"
-						},
-						"continueWithOidc": {
-							"type": "string"
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"emailOrProvider": {
+									"type": "string"
+								},
+								"email": {
+									"type": "string"
+								},
+								"password": {
+									"type": "string"
+								},
+								"passwordOrProvider": {
+									"type": "string"
+								},
+								"providers": {
+									"type": "string"
+								},
+								"sso": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"emailOrProvider",
+								"email",
+								"password",
+								"passwordOrProvider",
+								"providers",
+								"sso"
+							]
 						},
 						"lastUsed": {
 							"type": "string"
 						},
-						"registrationDisabled": {
-							"type": "string"
-						},
-						"passwordRegistrationDisabled": {
-							"type": "string"
-						},
-						"toggleMessage": {
-							"type": "string"
-						},
-						"toggleLink": {
-							"type": "string"
-						},
-						"guestSuccess": {
-							"type": "string"
-						},
 						"guestError": {
-							"type": "string"
-						},
-						"oidcError": {
-							"type": "string"
-						},
-						"googleError": {
-							"type": "string"
-						},
-						"githubError": {
-							"type": "string"
-						},
-						"discordError": {
 							"type": "string"
 						},
 						"errors": {
@@ -735,42 +713,114 @@
 								},
 								"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": {
 									"type": "string"
+								},
+								"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": {
+									"type": "string"
 								}
 							},
 							"required": [
 								"account_not_linked",
 								"oauth_code_verification_failed",
-								"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_"
+								"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_",
+								"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_"
 							]
 						},
 						"instanceStatusError": {
 							"type": "string"
+						},
+						"heading": {
+							"type": "string"
+						},
+						"submitPassword": {
+							"type": "string"
+						},
+						"invitation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"fallbackTitle": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "fallbackTitle", "description"]
+						},
+						"footer": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"newHere": {
+									"type": "string"
+								},
+								"createAccount": {
+									"type": "string"
+								},
+								"inviteOnly": {
+									"type": "string"
+								},
+								"providerSignUp": {
+									"type": "string"
+								},
+								"anyProvider": {
+									"type": "string"
+								},
+								"contactAdmin": {
+									"type": "string"
+								},
+								"justLooking": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"newHere",
+								"createAccount",
+								"inviteOnly",
+								"providerSignUp",
+								"anyProvider",
+								"contactAdmin",
+								"justLooking"
+							]
+						},
+						"autoLogin": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"subtitle": {
+									"type": "string"
+								},
+								"opening": {
+									"type": "string"
+								},
+								"stuck": {
+									"type": "string"
+								},
+								"continue": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "subtitle", "opening", "stuck", "continue"]
 						}
 					},
 					"required": [
 						"pageTitle",
-						"title",
 						"subtitle",
-						"invitationSubtitle",
-						"invitationAlert",
-						"signingIn",
-						"continueWithGoogle",
-						"continueWithGithub",
-						"continueWithDiscord",
-						"continueWithOidc",
 						"lastUsed",
-						"registrationDisabled",
-						"passwordRegistrationDisabled",
-						"toggleMessage",
-						"toggleLink",
-						"guestSuccess",
 						"guestError",
-						"oidcError",
-						"googleError",
-						"githubError",
-						"discordError",
 						"errors",
-						"instanceStatusError"
+						"instanceStatusError",
+						"heading",
+						"submitPassword",
+						"invitation",
+						"footer",
+						"autoLogin"
 					]
 				},
 				"providers": {
@@ -782,9 +832,28 @@
 						},
 						"discord": {
 							"type": "string"
+						},
+						"github": {
+							"type": "string"
+						},
+						"sso": {
+							"type": "string"
+						},
+						"continueWith": {
+							"type": "string"
+						},
+						"error": {
+							"type": "string"
 						}
 					},
-					"required": ["google", "discord"]
+					"required": [
+						"google",
+						"discord",
+						"github",
+						"sso",
+						"continueWith",
+						"error"
+					]
 				},
 				"forms": {
 					"type": "object",
@@ -810,6 +879,30 @@
 						},
 						"hidePassword": {
 							"type": "string"
+						},
+						"name": {
+							"type": "string"
+						},
+						"namePlaceholder": {
+							"type": "string"
+						},
+						"invalidEmail": {
+							"type": "string"
+						},
+						"nameRequired": {
+							"type": "string"
+						},
+						"passwordRequired": {
+							"type": "string"
+						},
+						"passwordTooShort": {
+							"type": "string"
+						},
+						"disposableEmail": {
+							"type": "string"
+						},
+						"continueWithEmail": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -819,7 +912,15 @@
 						"emailPlaceholder",
 						"passwordPlaceholder",
 						"showPassword",
-						"hidePassword"
+						"hidePassword",
+						"name",
+						"namePlaceholder",
+						"invalidEmail",
+						"nameRequired",
+						"passwordRequired",
+						"passwordTooShort",
+						"disposableEmail",
+						"continueWithEmail"
 					]
 				},
 				"checkEmail": {
@@ -916,31 +1017,7 @@
 						"pageTitle": {
 							"type": "string"
 						},
-						"title": {
-							"type": "string"
-						},
-						"subtitleInvitation": {
-							"type": "string"
-						},
-						"subtitleRegistrationDisabled": {
-							"type": "string"
-						},
-						"subtitlePasswordDisabled": {
-							"type": "string"
-						},
-						"subtitleDefault": {
-							"type": "string"
-						},
-						"invitationAlert": {
-							"type": "string"
-						},
 						"registrationDisabledAlert": {
-							"type": "string"
-						},
-						"passwordDisabledAlert": {
-							"type": "string"
-						},
-						"signingIn": {
 							"type": "string"
 						},
 						"continueAsGuest": {
@@ -960,25 +1037,57 @@
 						},
 						"instanceAdminSubtitle": {
 							"type": "string"
+						},
+						"heading": {
+							"type": "string"
+						},
+						"submitPassword": {
+							"type": "string"
+						},
+						"failed": {
+							"type": "string"
+						},
+						"subtitle": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"email": {
+									"type": "string"
+								},
+								"password": {
+									"type": "string"
+								},
+								"providers": {
+									"type": "string"
+								}
+							},
+							"required": ["email", "password", "providers"]
+						},
+						"invitation": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["description"]
 						}
 					},
 					"required": [
 						"pageTitle",
-						"title",
-						"subtitleInvitation",
-						"subtitleRegistrationDisabled",
-						"subtitlePasswordDisabled",
-						"subtitleDefault",
-						"invitationAlert",
 						"registrationDisabledAlert",
-						"passwordDisabledAlert",
-						"signingIn",
 						"continueAsGuest",
 						"toggleMessage",
 						"toggleLink",
 						"instanceStatusError",
 						"instanceAdminTitle",
-						"instanceAdminSubtitle"
+						"instanceAdminSubtitle",
+						"heading",
+						"submitPassword",
+						"failed",
+						"subtitle",
+						"invitation"
 					]
 				},
 				"verifyOtp": {
@@ -986,30 +1095,6 @@
 					"additionalProperties": false,
 					"properties": {
 						"pageTitle": {
-							"type": "string"
-						},
-						"title": {
-							"type": "string"
-						},
-						"subtitle": {
-							"type": "string"
-						},
-						"codeSentTo": {
-							"type": "string"
-						},
-						"verificationCodeLabel": {
-							"type": "string"
-						},
-						"verifying": {
-							"type": "string"
-						},
-						"verifyAndSignIn": {
-							"type": "string"
-						},
-						"changeEmail": {
-							"type": "string"
-						},
-						"resend": {
 							"type": "string"
 						},
 						"validation": {
@@ -1029,9 +1114,6 @@
 								"invalidCode": {
 									"type": "string"
 								},
-								"signedInSuccess": {
-									"type": "string"
-								},
 								"verifyFailed": {
 									"type": "string"
 								},
@@ -1044,25 +1126,52 @@
 							},
 							"required": [
 								"invalidCode",
-								"signedInSuccess",
 								"verifyFailed",
 								"resendFailed",
 								"resendSuccess"
 							]
+						},
+						"heading": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"label": {
+							"type": "string"
+						},
+						"submit": {
+							"type": "string"
+						},
+						"didntGetIt": {
+							"type": "string"
+						},
+						"resendCode": {
+							"type": "string"
+						},
+						"useDifferentEmail": {
+							"type": "string"
+						},
+						"expired": {
+							"type": "string"
+						},
+						"tooManyAttempts": {
+							"type": "string"
 						}
 					},
 					"required": [
 						"pageTitle",
-						"title",
-						"subtitle",
-						"codeSentTo",
-						"verificationCodeLabel",
-						"verifying",
-						"verifyAndSignIn",
-						"changeEmail",
-						"resend",
 						"validation",
-						"toast"
+						"toast",
+						"heading",
+						"description",
+						"label",
+						"submit",
+						"didntGetIt",
+						"resendCode",
+						"useDifferentEmail",
+						"expired",
+						"tooManyAttempts"
 					]
 				},
 				"otpSignIn": {
@@ -1071,23 +1180,9 @@
 					"properties": {
 						"sendFailed": {
 							"type": "string"
-						},
-						"codeSent": {
-							"type": "string"
-						},
-						"sending": {
-							"type": "string"
-						},
-						"sendVerificationCode": {
-							"type": "string"
 						}
 					},
-					"required": [
-						"sendFailed",
-						"codeSent",
-						"sending",
-						"sendVerificationCode"
-					]
+					"required": ["sendFailed"]
 				},
 				"signInForm": {
 					"type": "object",
@@ -1095,54 +1190,9 @@
 					"properties": {
 						"failedSignIn": {
 							"type": "string"
-						},
-						"signedInSuccess": {
-							"type": "string"
-						},
-						"signingIn": {
-							"type": "string"
-						},
-						"signIn": {
-							"type": "string"
 						}
 					},
-					"required": ["failedSignIn", "signedInSuccess", "signingIn", "signIn"]
-				},
-				"signUpForm": {
-					"type": "object",
-					"additionalProperties": false,
-					"properties": {
-						"fullName": {
-							"type": "string"
-						},
-						"namePlaceholder": {
-							"type": "string"
-						},
-						"failedSignUp": {
-							"type": "string"
-						},
-						"accountCreated": {
-							"type": "string"
-						},
-						"passwordTooShort": {
-							"type": "string"
-						},
-						"creatingAccount": {
-							"type": "string"
-						},
-						"createAccount": {
-							"type": "string"
-						}
-					},
-					"required": [
-						"fullName",
-						"namePlaceholder",
-						"failedSignUp",
-						"accountCreated",
-						"passwordTooShort",
-						"creatingAccount",
-						"createAccount"
-					]
+					"required": ["failedSignIn"]
 				},
 				"invitation": {
 					"type": "object",
@@ -1157,58 +1207,10 @@
 						"pageTitleInvalid": {
 							"type": "string"
 						},
-						"loadingTitle": {
-							"type": "string"
-						},
-						"errorTitle": {
-							"type": "string"
-						},
-						"invalidTitle": {
-							"type": "string"
-						},
-						"invitationExpired": {
-							"type": "string"
-						},
-						"errorLoadDescription": {
-							"type": "string"
-						},
-						"goToSignIn": {
-							"type": "string"
-						},
-						"workspaceLabel": {
-							"type": "string"
-						},
 						"joinWorkspace": {
 							"type": "string"
 						},
-						"inviteBodySignedIn": {
-							"type": "string"
-						},
-						"inviteBodySignedOut": {
-							"type": "string"
-						},
-						"createAccountOrSignIn": {
-							"type": "string"
-						},
 						"createAccount": {
-							"type": "string"
-						},
-						"accepting": {
-							"type": "string"
-						},
-						"acceptInvitation": {
-							"type": "string"
-						},
-						"goToDashboard": {
-							"type": "string"
-						},
-						"signedInAs": {
-							"type": "string"
-						},
-						"youveBeenInvited": {
-							"type": "string"
-						},
-						"invitationFor": {
 							"type": "string"
 						},
 						"signIn": {
@@ -1226,32 +1228,108 @@
 								}
 							},
 							"required": ["acceptFailed", "acceptSuccess"]
+						},
+						"description": {
+							"type": "string"
+						},
+						"invitedBy": {
+							"type": "string"
+						},
+						"sentTo": {
+							"type": "string"
+						},
+						"signedInAs": {
+							"type": "string"
+						},
+						"expires": {
+							"type": "string"
+						},
+						"notNow": {
+							"type": "string"
+						},
+						"join": {
+							"type": "string"
+						},
+						"switchAccount": {
+							"type": "string"
+						},
+						"goToKaneo": {
+							"type": "string"
+						},
+						"mismatch": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"expired": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"invalid": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"loadFailed": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
 						}
 					},
 					"required": [
 						"pageTitleAccept",
 						"pageTitleError",
 						"pageTitleInvalid",
-						"loadingTitle",
-						"errorTitle",
-						"invalidTitle",
-						"invitationExpired",
-						"errorLoadDescription",
-						"goToSignIn",
-						"workspaceLabel",
 						"joinWorkspace",
-						"inviteBodySignedIn",
-						"inviteBodySignedOut",
-						"createAccountOrSignIn",
 						"createAccount",
-						"accepting",
-						"acceptInvitation",
-						"goToDashboard",
-						"signedInAs",
-						"youveBeenInvited",
-						"invitationFor",
 						"signIn",
-						"toast"
+						"toast",
+						"description",
+						"invitedBy",
+						"sentTo",
+						"signedInAs",
+						"expires",
+						"notNow",
+						"join",
+						"switchAccount",
+						"goToKaneo",
+						"mismatch",
+						"expired",
+						"invalid",
+						"loadFailed"
 					]
 				},
 				"onboarding": {
@@ -1678,12 +1756,6 @@
 						"sendLink": {
 							"type": "string"
 						},
-						"sending": {
-							"type": "string"
-						},
-						"sent": {
-							"type": "string"
-						},
 						"requestError": {
 							"type": "string"
 						},
@@ -1696,9 +1768,6 @@
 						"resetTitle": {
 							"type": "string"
 						},
-						"resetSubtitle": {
-							"type": "string"
-						},
 						"newPassword": {
 							"type": "string"
 						},
@@ -1709,12 +1778,6 @@
 							"type": "string"
 						},
 						"passwordLength": {
-							"type": "string"
-						},
-						"resetPassword": {
-							"type": "string"
-						},
-						"resetting": {
 							"type": "string"
 						},
 						"invalidLink": {
@@ -1731,6 +1794,36 @@
 						},
 						"backToSignIn": {
 							"type": "string"
+						},
+						"sentTitle": {
+							"type": "string"
+						},
+						"sentDescription": {
+							"type": "string"
+						},
+						"sentHelpTitle": {
+							"type": "string"
+						},
+						"sentHelpDescription": {
+							"type": "string"
+						},
+						"rememberedIt": {
+							"type": "string"
+						},
+						"resetDescription": {
+							"type": "string"
+						},
+						"updatePassword": {
+							"type": "string"
+						},
+						"changedMind": {
+							"type": "string"
+						},
+						"invalidLinkTitle": {
+							"type": "string"
+						},
+						"successTitle": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -1738,25 +1831,267 @@
 						"requestTitle",
 						"requestSubtitle",
 						"sendLink",
-						"sending",
-						"sent",
 						"requestError",
 						"unavailable",
 						"configError",
 						"resetTitle",
-						"resetSubtitle",
 						"newPassword",
 						"confirmPassword",
 						"passwordMismatch",
 						"passwordLength",
-						"resetPassword",
-						"resetting",
 						"invalidLink",
 						"requestNewLink",
 						"resetError",
 						"success",
-						"backToSignIn"
+						"backToSignIn",
+						"sentTitle",
+						"sentDescription",
+						"sentHelpTitle",
+						"sentHelpDescription",
+						"rememberedIt",
+						"resetDescription",
+						"updatePassword",
+						"changedMind",
+						"invalidLinkTitle",
+						"successTitle"
 					]
+				},
+				"page": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"terms": {
+							"type": "string"
+						},
+						"privacy": {
+							"type": "string"
+						}
+					},
+					"required": ["terms", "privacy"]
+				},
+				"device": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"connect": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"label": {
+									"type": "string"
+								},
+								"submit": {
+									"type": "string"
+								},
+								"noCode": {
+									"type": "string"
+								},
+								"codeRequired": {
+									"type": "string"
+								},
+								"invalidCode": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"label",
+								"submit",
+								"noCode",
+								"codeRequired",
+								"invalidCode"
+							]
+						},
+						"approve": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"pageTitle": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"matchCode": {
+									"type": "string"
+								},
+								"deny": {
+									"type": "string"
+								},
+								"approve": {
+									"type": "string"
+								},
+								"failed": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"pageTitle",
+								"title",
+								"description",
+								"matchCode",
+								"deny",
+								"approve",
+								"failed"
+							]
+						},
+						"approved": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"denied": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"missing": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"enterCode": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "enterCode"]
+						},
+						"signIn": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"submit": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "submit"]
+						}
+					},
+					"required": [
+						"connect",
+						"approve",
+						"approved",
+						"denied",
+						"missing",
+						"signIn"
+					]
+				},
+				"mcp": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"authorize": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"client": {
+									"type": "string"
+								},
+								"unknownClient": {
+									"type": "string"
+								},
+								"selfReported": {
+									"type": "string"
+								},
+								"redirect": {
+									"type": "string"
+								},
+								"signedInAs": {
+									"type": "string"
+								},
+								"deny": {
+									"type": "string"
+								},
+								"allow": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"title",
+								"description",
+								"client",
+								"unknownClient",
+								"selfReported",
+								"redirect",
+								"signedInAs",
+								"deny",
+								"allow"
+							]
+						},
+						"expired": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description"]
+						},
+						"signIn": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"description": {
+									"type": "string"
+								},
+								"submit": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "description", "submit"]
+						}
+					},
+					"required": ["authorize", "expired", "signIn"]
 				}
 			},
 			"required": [
@@ -1769,11 +2104,13 @@
 				"verifyOtp",
 				"otpSignIn",
 				"signInForm",
-				"signUpForm",
 				"invitation",
 				"onboarding",
 				"profileSetup",
-				"passwordReset"
+				"passwordReset",
+				"page",
+				"device",
+				"mcp"
 			]
 		},
 		"settings": {

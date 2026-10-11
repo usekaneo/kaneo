@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "サインイン",
-			"title": "おかえりなさい",
-			"subtitle": "ワークスペースにアクセスするには認証情報を入力してください",
-			"invitationSubtitle": "招待を承諾するにはサインインしてください",
-			"invitationAlert": "サインイン後、ワークスペースへの招待を承諾できるようになります。",
-			"signingIn": "サインイン中...",
-			"continueWithGoogle": "Google で続ける",
-			"continueWithGithub": "GitHub で続ける",
-			"continueWithDiscord": "Discord で続ける",
-			"continueWithOidc": "OIDC で続ける",
+			"subtitle": {
+				"emailOrProvider": "メールアドレスまたは連携済みのアカウントを使用してください。",
+				"email": "メールアドレスを入力すると、サインイン用のコードをお送りします。",
+				"password": "メールアドレスとパスワードを使用してください。",
+				"passwordOrProvider": "パスワードまたは連携済みのアカウントを使用してください。",
+				"providers": "サインイン方法を選択してください。",
+				"sso": "ここでのサインインは組織によって管理されています。"
+			},
 			"lastUsed": "前回使用",
-			"registrationDisabled": "一般登録は無効化されています。アカウントを作成するには招待が必要です。",
-			"passwordRegistrationDisabled": "パスワードによる登録は無効化されています。アカウントを作成するにはソーシャルログインまたはOIDCログインを使用してください。",
-			"toggleMessage": "アカウントをお持ちでないですか？",
-			"toggleLink": "アカウント作成",
-			"guestSuccess": "ゲストとしてサインインしました",
 			"guestError": "ゲストとしてのサインインに失敗しました",
-			"oidcError": "OIDC でのサインインに失敗しました",
-			"googleError": "Google でのサインインに失敗しました",
-			"githubError": "GitHub でのサインインに失敗しました",
-			"discordError": "Discord でのサインインに失敗しました",
 			"errors": {
 				"account_not_linked": "この認証情報は既存のアカウントにリンクできませんでした。メールでサインインしてアカウントを確認後、再度SSOをお試しください。メールサインインが利用できない場合は、管理者にお問い合わせください。",
 				"oauth_code_verification_failed": "OAuth 認証に失敗しました。もう一度お試しください。",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "現在、新規登録は無効になっています。アカウントを作成するには有効な招待が必要です。"
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "現在、新規登録は無効になっています。アカウントを作成するには有効な招待が必要です。",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "恒久的なメールアドレスを使用してください。使い捨てのメールアドレスではアカウントを作成できません。"
 			},
-			"instanceStatusError": "サーバーに接続できませんでした。しばらくしてから再試行してください。"
+			"instanceStatusError": "サーバーに接続できませんでした。しばらくしてから再試行してください。",
+			"heading": "Kaneo にサインイン",
+			"submitPassword": "サインイン",
+			"invitation": {
+				"title": "{{inviterName}} さんから {{workspaceName}} への招待が届いています",
+				"fallbackTitle": "招待が届いています",
+				"description": "招待を受け取ったメールアドレスでサインインしてください。サインイン後すぐにワークスペースに参加できます。"
+			},
+			"footer": {
+				"newHere": "Kaneo は初めてですか？",
+				"createAccount": "アカウントを作成",
+				"inviteOnly": "このインスタンスのアカウントは招待制です。管理者に招待を依頼してください。",
+				"providerSignUp": "初めての方は、上のいずれかのプロバイダーでサインインするとアカウントが作成されます。",
+				"anyProvider": "初めての方は、上のどの方法でもアカウントが作成されます。",
+				"contactAdmin": "サインインできない場合は、管理者にお問い合わせください。",
+				"justLooking": "見てみるだけですか？"
+			},
+			"autoLogin": {
+				"title": "サインインしています",
+				"subtitle": "組織のサインインページに移動しています。",
+				"opening": "{{provider}} を開いています…",
+				"stuck": "画面が切り替わりませんか？",
+				"continue": "{{provider}} に進む"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "{{provider}} で続ける",
+			"error": "{{provider}} でサインインできませんでした。もう一度お試しください。"
 		},
 		"forms": {
 			"or": "または",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "パスワードを表示",
-			"hidePassword": "パスワードを非表示"
+			"hidePassword": "パスワードを非表示",
+			"name": "名前",
+			"namePlaceholder": "山田 花子",
+			"invalidEmail": "name@company.com のような完全なメールアドレスを入力してください。",
+			"nameRequired": "名前を入力してください。",
+			"passwordRequired": "パスワードを入力してください。",
+			"passwordTooShort": "8文字以上で入力してください。",
+			"disposableEmail": "恒久的なメールアドレスを使用してください。使い捨てのメールアドレスではアカウントを作成できません。",
+			"continueWithEmail": "メールアドレスで続ける"
 		},
 		"checkEmail": {
 			"pageTitle": "メールを確認してください",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "アカウント作成",
-			"title": "アカウントを作成",
-			"subtitleInvitation": "招待を承諾するにはアカウントを作成してください",
-			"subtitleRegistrationDisabled": "登録には招待が必要です",
-			"subtitlePasswordDisabled": "ソーシャルログインまたはOIDCログインを使用してアカウントを作成してください",
-			"subtitleDefault": "ワークスペースを始めましょう",
-			"invitationAlert": "アカウント作成後、ワークスペースへの招待を承諾できるようになります。",
 			"registrationDisabledAlert": "現在、新規登録は無効になっています。招待を受け取っている場合は、招待を受信したメールアドレスを入力してアカウントを作成してください。",
-			"passwordDisabledAlert": "パスワードによるアカウント作成は無効化されています。サインインページから設定済みのソーシャルログインまたはOIDCログインをご利用ください。",
-			"signingIn": "サインイン中...",
 			"continueAsGuest": "ゲストとして続ける",
 			"toggleMessage": "すでにアカウントをお持ちですか？",
 			"toggleLink": "サインイン",
 			"instanceStatusError": "サーバーに接続できませんでした。しばらくしてから再試行してください。",
 			"instanceAdminTitle": "Kaneo インスタンスのセットアップ",
-			"instanceAdminSubtitle": "このアカウントはフルアクセス権を持つインスタンス管理者になります。"
+			"instanceAdminSubtitle": "このアカウントはフルアクセス権を持つインスタンス管理者になります。",
+			"heading": "アカウントを作成",
+			"submitPassword": "アカウントを作成",
+			"failed": "アカウントを作成できませんでした。もう一度お試しください。",
+			"subtitle": {
+				"email": "まずはメールアドレスを入力してください。パスワードは不要で、コードをお送りします。",
+				"password": "名前、メールアドレス、パスワードを入力して始めましょう。",
+				"providers": "連携済みのアカウントを使ってアカウントを作成できます。"
+			},
+			"invitation": {
+				"description": "招待を受け取ったメールアドレスを使用してください。登録後すぐにワークスペースに参加できます。"
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "認証コードの確認",
-			"title": "認証コードを入力",
-			"subtitle": "続行するには、メールに送信された6桁のコードを入力してください",
-			"codeSentTo": "{{email}} にコードを送信しました",
-			"verificationCodeLabel": "認証コード",
-			"verifying": "確認中...",
-			"verifyAndSignIn": "認証してサインイン",
-			"changeEmail": "メールアドレスを変更",
-			"resend": "再送信",
 			"validation": {
 				"codeLength": "6桁のコードを入力してください"
 			},
 			"toast": {
 				"invalidCode": "無効な認証コードです",
-				"signedInSuccess": "サインインしました！",
 				"verifyFailed": "コードの確認に失敗しました",
 				"resendFailed": "コードの再送信に失敗しました",
 				"resendSuccess": "新しい認証コードを送信しました！"
-			}
+			},
+			"heading": "メールを確認してください",
+			"description": "{{email}} に6桁のコードを送信しました。有効期限は{{minutes}}分です。",
+			"label": "認証コード",
+			"submit": "確認して続ける",
+			"didntGetIt": "コードが届きませんか？",
+			"resendCode": "コードを再送信",
+			"useDifferentEmail": "別のメールアドレスを使う",
+			"expired": "このコードは有効期限が切れています。新しいコードを送信してください。",
+			"tooManyAttempts": "試行回数が多すぎます。新しいコードを送信してください。"
 		},
 		"otpSignIn": {
-			"sendFailed": "認証コードの送信に失敗しました",
-			"codeSent": "認証コードを送信しました！メールをご確認ください。",
-			"sending": "送信中...",
-			"sendVerificationCode": "認証コードを送信"
+			"sendFailed": "認証コードの送信に失敗しました"
 		},
 		"signInForm": {
-			"failedSignIn": "サインインに失敗しました",
-			"signedInSuccess": "サインインしました",
-			"signingIn": "サインイン中...",
-			"signIn": "サインイン"
-		},
-		"signUpForm": {
-			"fullName": "名前",
-			"namePlaceholder": "山田 太郎",
-			"failedSignUp": "アカウント作成に失敗しました",
-			"accountCreated": "アカウントを作成しました",
-			"passwordTooShort": "パスワードが短すぎます",
-			"creatingAccount": "アカウント作成中...",
-			"createAccount": "アカウントを作成"
+			"failedSignIn": "サインインに失敗しました"
 		},
 		"invitation": {
 			"pageTitleAccept": "招待を承諾",
 			"pageTitleError": "招待エラー",
 			"pageTitleInvalid": "無効な招待",
-			"loadingTitle": "招待を読み込み中...",
-			"errorTitle": "招待エラー",
-			"invalidTitle": "無効な招待",
-			"invitationExpired": "招待の有効期限が切れています",
-			"errorLoadDescription": "招待情報の読み込みに失敗しました。招待が無効であるか、有効期限が切れている可能性があります。",
-			"goToSignIn": "サインインへ移動",
-			"workspaceLabel": "ワークスペース: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} に参加",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> さんからワークスペースへの招待が届いています。",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> さんから Kaneo のワークスペースへの招待が届いています。",
-			"createAccountOrSignIn": "この招待を承諾するにはアカウントを作成するか、すでにお持ちの場合はサインインしてください。",
 			"createAccount": "アカウント作成",
-			"accepting": "承諾中...",
-			"acceptInvitation": "招待を承諾",
-			"goToDashboard": "ダッシュボードへ移動",
-			"signedInAs": "<email>{{email}}</email> としてサインイン中",
-			"youveBeenInvited": "招待が届いています！",
-			"invitationFor": "招待先: <email>{{email}}</email>",
 			"signIn": "サインイン",
 			"toast": {
 				"acceptFailed": "招待の承諾に失敗しました",
 				"acceptSuccess": "招待を承諾しました！チームへようこそ。"
+			},
+			"description": "{{inviterName}} さんから Kaneo のこのワークスペースに招待されました。",
+			"invitedBy": "招待者",
+			"sentTo": "送信先",
+			"signedInAs": "サインイン中のアカウント",
+			"expires": "有効期限",
+			"notNow": "今はしない",
+			"join": "ワークスペースに参加",
+			"switchAccount": "アカウントを切り替え",
+			"goToKaneo": "Kaneo に移動",
+			"mismatch": {
+				"title": "別のメールアドレスでサインインしています",
+				"description": "この招待は {{invitedEmail}} 宛てに送信されました。現在 {{email}} でサインインしています。"
+			},
+			"expired": {
+				"title": "この招待は有効期限が切れています",
+				"description": "{{inviterName}} さんに {{workspaceName}} への招待を再送してもらってください。"
+			},
+			"invalid": {
+				"title": "この招待は無効になりました",
+				"description": "すでに承諾されたか、取り消された可能性があります。ワークスペースの管理者に新しい招待を依頼してください。"
+			},
+			"loadFailed": {
+				"title": "招待を読み込めませんでした",
+				"description": "接続を確認して、ページを再読み込みしてください。"
 			}
 		},
 		"onboarding": {
@@ -427,24 +450,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "受信トレイを確認してください",
+			"sentDescription": "{{email}} のアカウントが存在する場合、パスワード再設定用のリンクをお送りしています。有効期限は1時間です。",
+			"sentHelpTitle": "メールが届きませんか？",
+			"sentHelpDescription": "迷惑メールフォルダを確認するか、1分ほど待ってから別のリンクをリクエストしてください。",
+			"rememberedIt": "思い出しましたか？",
+			"resetDescription": "8文字以上128文字以下で入力してください。他のデバイスからはサインアウトされます。",
+			"updatePassword": "パスワードを更新",
+			"changedMind": "やめておきますか？",
+			"invalidLinkTitle": "このリンクは有効期限切れです",
+			"successTitle": "パスワードを更新しました"
+		},
+		"page": {
+			"terms": "利用規約",
+			"privacy": "プライバシー"
+		},
+		"device": {
+			"connect": {
+				"title": "デバイスを接続",
+				"description": "ターミナルまたはアプリに表示されたコードを入力して、Kaneo アカウントと連携します。",
+				"label": "デバイスコード",
+				"submit": "続ける",
+				"noCode": "コードがまだありませんか？先にアプリからサインインを開始してください。",
+				"codeRequired": "デバイスに表示されたコードを入力してください。",
+				"invalidCode": "このコードは無効か、有効期限が切れています。"
+			},
+			"approve": {
+				"pageTitle": "デバイスの承認",
+				"title": "このデバイスを接続しますか？",
+				"description": "デバイスが {{email}} としてサインインしようとしています。ご自身で開始した場合のみ承認してください。",
+				"matchCode": "デバイスに表示されたコードと一致することを確認してください",
+				"deny": "拒否",
+				"approve": "承認",
+				"failed": "リクエストを更新できませんでした。もう一度お試しください。"
+			},
+			"approved": {
+				"title": "デバイスを接続しました",
+				"description": "ターミナルまたはアプリに戻ってください。このタブは閉じてかまいません。"
+			},
+			"denied": {
+				"title": "リクエストを拒否しました",
+				"description": "何も接続されていません。このタブは閉じてかまいません。"
+			},
+			"missing": {
+				"title": "デバイスコードがありません",
+				"description": "デバイスからこのページを開くか、コードを手動で入力してください。",
+				"enterCode": "コードを入力"
+			},
+			"signIn": {
+				"title": "サインインしてデバイスを接続",
+				"description": "サインイン後すぐにこのページに戻り、承認できます。",
+				"submit": "サインイン"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "MCP クライアントを承認",
+				"description": "このクライアントは、あなたがアクセスできるすべてのワークスペースであなたとして操作できます。この接続をご自身で開始した場合のみ続行してください。",
+				"client": "クライアント",
+				"unknownClient": "MCP クライアント",
+				"selfReported": "自己申告",
+				"redirect": "戻り先",
+				"signedInAs": "サインイン中のアカウント",
+				"deny": "拒否",
+				"allow": "アクセスを許可"
+			},
+			"expired": {
+				"title": "このリクエストは有効期限が切れています",
+				"description": "MCP クライアントに戻り、もう一度接続してください。"
+			},
+			"signIn": {
+				"title": "サインインしてこのクライアントを承認",
+				"description": "サインイン後すぐにこのページに戻り、内容を確認できます。",
+				"submit": "サインイン"
+			}
 		}
 	},
 	"settings": {

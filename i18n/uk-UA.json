@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Вхід",
-			"title": "З поверненням",
-			"subtitle": "Введіть ваші облікові дані для доступу до робочого простору",
-			"invitationSubtitle": "Увійдіть, щоб прийняти запрошення",
-			"invitationAlert": "Після входу ви зможете прийняти запрошення до робочого простору.",
-			"signingIn": "Вхід...",
-			"continueWithGoogle": "Продовжити з Google",
-			"continueWithGithub": "Продовжити з GitHub",
-			"continueWithDiscord": "Продовжити з Discord",
-			"continueWithOidc": "Продовжити з OIDC",
+			"subtitle": {
+				"emailOrProvider": "Увійдіть через електронну пошту або підключений обліковий запис.",
+				"email": "Введіть адресу електронної пошти, і ми надішлемо вам код для входу.",
+				"password": "Увійдіть за допомогою електронної пошти та пароля.",
+				"passwordOrProvider": "Увійдіть за допомогою пароля або підключеного облікового запису.",
+				"providers": "Оберіть спосіб входу.",
+				"sso": "Входом тут керує ваша організація."
+			},
 			"lastUsed": "Останній використаний",
-			"registrationDisabled": "Публічну реєстрацію вимкнено. Використовуйте запрошення для створення облікового запису.",
-			"passwordRegistrationDisabled": "Реєстрацію за допомогою пароля вимкнено. Використовуйте налаштований метод входу через соціальну мережу або OIDC.",
-			"toggleMessage": "Не маєте облікового запису?",
-			"toggleLink": "Створити обліковий запис",
-			"guestSuccess": "Вхід як гість виконано",
 			"guestError": "Не вдалося увійти як гість",
-			"oidcError": "Не вдалося увійти через OIDC",
-			"googleError": "Не вдалося увійти через Google",
-			"githubError": "Не вдалося увійти через GitHub",
-			"discordError": "Не вдалося увійти через Discord",
 			"errors": {
 				"account_not_linked": "Не вдалося пов'язати цей ідентифікатор з наявним обліковим записом. Увійдіть за допомогою електронної пошти, щоб підтвердити обліковий запис, а потім спробуйте SSO знову. Якщо вхід через пошту недоступний, зверніться до свого адміністратора.",
 				"oauth_code_verification_failed": "Не вдалося пройти перевірку OAuth. Спробуйте ще раз.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Реєстрацію наразі вимкнено. Для створення облікового запису потрібне дійсне запрошення."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Реєстрацію наразі вимкнено. Для створення облікового запису потрібне дійсне запрошення.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Використовуйте постійну адресу електронної пошти. З одноразовими адресами не можна створити обліковий запис."
 			},
-			"instanceStatusError": "Не вдалося зв'язатися із сервером. Повторіть спробу за мить."
+			"instanceStatusError": "Не вдалося зв'язатися із сервером. Повторіть спробу за мить.",
+			"heading": "Вхід у Kaneo",
+			"submitPassword": "Увійти",
+			"invitation": {
+				"title": "{{inviterName}} запрошує вас до {{workspaceName}}",
+				"fallbackTitle": "Вас запрошено",
+				"description": "Увійдіть з адресою електронної пошти, на яку надійшло запрошення. Одразу після цього ви приєднаєтеся до робочого простору."
+			},
+			"footer": {
+				"newHere": "Вперше в Kaneo?",
+				"createAccount": "Створити обліковий запис",
+				"inviteOnly": "Облікові записи тут створюються лише за запрошенням. Попросіть запрошення в адміністратора.",
+				"providerSignUp": "Вперше тут? Увійдіть через одного з провайдерів вище, щоб створити обліковий запис.",
+				"anyProvider": "Вперше тут? Будь-який варіант вище створить ваш обліковий запис.",
+				"contactAdmin": "Не вдається увійти? Зверніться до адміністратора.",
+				"justLooking": "Просто хочете роздивитися?"
+			},
+			"autoLogin": {
+				"title": "Виконується вхід",
+				"subtitle": "Перенаправляємо вас на сторінку входу вашої організації.",
+				"opening": "Відкриваємо {{provider}}…",
+				"stuck": "Нічого не відбувається?",
+				"continue": "Перейти до {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Продовжити через {{provider}}",
+			"error": "Не вдалося увійти через {{provider}}. Спробуйте ще раз."
 		},
 		"forms": {
 			"or": "або",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Показати пароль",
-			"hidePassword": "Сховати пароль"
+			"hidePassword": "Сховати пароль",
+			"name": "Ім'я",
+			"namePlaceholder": "Олена Петренко",
+			"invalidEmail": "Введіть повну адресу електронної пошти, наприклад name@company.com.",
+			"nameRequired": "Введіть ім'я.",
+			"passwordRequired": "Введіть пароль.",
+			"passwordTooShort": "Використовуйте щонайменше 8 символів.",
+			"disposableEmail": "Використовуйте постійну адресу електронної пошти. З одноразовими адресами не можна створити обліковий запис.",
+			"continueWithEmail": "Продовжити через електронну пошту"
 		},
 		"checkEmail": {
 			"pageTitle": "Перевірте пошту",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Створення облікового запису",
-			"title": "Створити обліковий запис",
-			"subtitleInvitation": "Створіть обліковий запис, щоб прийняти запрошення",
-			"subtitleRegistrationDisabled": "Для реєстрації потрібне запрошення",
-			"subtitlePasswordDisabled": "Використовуйте вхід через соціальну мережу або OIDC для створення облікового запису",
-			"subtitleDefault": "Почніть роботу з вашим робочим простором",
-			"invitationAlert": "Після створення облікового запису ви зможете прийняти запрошення до робочого простору.",
 			"registrationDisabledAlert": "Реєстрацію наразі вимкнено. Якщо вас запросили, введіть адресу електронної пошти, на яку було надіслано запрошення.",
-			"passwordDisabledAlert": "Створення облікового запису за допомогою пароля вимкнено. Використовуйте налаштований метод входу через соціальну мережу або OIDC на сторінці входу.",
-			"signingIn": "Вхід...",
 			"continueAsGuest": "Продовжити як гість",
 			"toggleMessage": "Вже маєте обліковий запис?",
 			"toggleLink": "Увійти",
 			"instanceStatusError": "Не вдалося зв'язатися із сервером. Повторіть спробу за мить.",
 			"instanceAdminTitle": "Налаштуйте ваш інстанс Kaneo",
-			"instanceAdminSubtitle": "Цей обліковий запис стане адміністратором інстансу з повним доступом."
+			"instanceAdminSubtitle": "Цей обліковий запис стане адміністратором інстансу з повним доступом.",
+			"heading": "Створіть обліковий запис",
+			"submitPassword": "Створити обліковий запис",
+			"failed": "Не вдалося створити обліковий запис. Спробуйте ще раз.",
+			"subtitle": {
+				"email": "Почніть з електронної пошти. Ми надішлемо код, пароль не потрібен.",
+				"password": "Вкажіть ім'я, адресу електронної пошти та пароль, щоб почати.",
+				"providers": "Скористайтеся підключеним обліковим записом, щоб створити свій."
+			},
+			"invitation": {
+				"description": "Використайте адресу електронної пошти, на яку надійшло запрошення. Одразу після цього ви приєднаєтеся до робочого простору."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Підтвердження коду",
-			"title": "Введіть код підтвердження",
-			"subtitle": "Використовуйте 6-значний код, надісланий на вашу пошту, щоб продовжити",
-			"codeSentTo": "Код надіслано на {{email}}",
-			"verificationCodeLabel": "Код підтвердження",
-			"verifying": "Перевірка...",
-			"verifyAndSignIn": "Підтвердити та увійти",
-			"changeEmail": "Змінити пошту",
-			"resend": "Надіслати повторно",
 			"validation": {
 				"codeLength": "Код має містити 6 цифр"
 			},
 			"toast": {
 				"invalidCode": "Невірний код підтвердження",
-				"signedInSuccess": "Вхід виконано успішно!",
 				"verifyFailed": "Не вдалося підтвердити код",
 				"resendFailed": "Не вдалося надіслати код повторно",
 				"resendSuccess": "Новий код підтвердження надіслано!"
-			}
+			},
+			"heading": "Перевірте пошту",
+			"description": "Ми надіслали 6-значний код на {{email}}. Він дійсний {{minutes}} хв.",
+			"label": "Код підтвердження",
+			"submit": "Підтвердити й продовжити",
+			"didntGetIt": "Код не надійшов?",
+			"resendCode": "Надіслати код повторно",
+			"useDifferentEmail": "Використати іншу адресу",
+			"expired": "Термін дії коду минув. Запросіть новий.",
+			"tooManyAttempts": "Забагато спроб. Запросіть новий код."
 		},
 		"otpSignIn": {
-			"sendFailed": "Не вдалося надіслати код підтвердження",
-			"codeSent": "Код підтвердження надіслано! Перевірте вашу пошту.",
-			"sending": "Надсилання...",
-			"sendVerificationCode": "Надіслати код підтвердження"
+			"sendFailed": "Не вдалося надіслати код підтвердження"
 		},
 		"signInForm": {
-			"failedSignIn": "Не вдалося увійти",
-			"signedInSuccess": "Вхід виконано успішно",
-			"signingIn": "Вхід...",
-			"signIn": "Увійти"
-		},
-		"signUpForm": {
-			"fullName": "Повне ім'я",
-			"namePlaceholder": "Іван Петренко",
-			"failedSignUp": "Не вдалося зареєструватися",
-			"accountCreated": "Обліковий запис успішно створено",
-			"passwordTooShort": "Пароль занадто короткий",
-			"creatingAccount": "Створення облікового запису...",
-			"createAccount": "Створити обліковий запис"
+			"failedSignIn": "Не вдалося увійти"
 		},
 		"invitation": {
 			"pageTitleAccept": "Прийняти запрошення",
 			"pageTitleError": "Помилка запрошення",
 			"pageTitleInvalid": "Недійсне запрошення",
-			"loadingTitle": "Завантаження запрошення...",
-			"errorTitle": "Помилка запрошення",
-			"invalidTitle": "Недійсне запрошення",
-			"invitationExpired": "Запрошення прострочено",
-			"errorLoadDescription": "Не вдалося завантажити деталі запрошення. Запрошення може бути недійсним або простроченим.",
-			"goToSignIn": "Перейти до входу",
-			"workspaceLabel": "Робочий простір: {{workspaceName}}",
 			"joinWorkspace": "Приєднатися до {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> запросив вас приєднатися до свого робочого простору в Kaneo.",
-			"createAccountOrSignIn": "Створіть обліковий запис, щоб прийняти це запрошення, або увійдіть, якщо він у вас вже є.",
 			"createAccount": "Створити обліковий запис",
-			"accepting": "Приймається...",
-			"acceptInvitation": "Прийняти запрошення",
-			"goToDashboard": "Перейти до панелі керування",
-			"signedInAs": "Ви увійшли як <email>{{email}}</email>",
-			"youveBeenInvited": "Вас запрошено!",
-			"invitationFor": "Запрошення для: <email>{{email}}</email>",
 			"signIn": "Увійти",
 			"toast": {
 				"acceptFailed": "Не вдалося прийняти запрошення",
 				"acceptSuccess": "Запрошення прийнято! Ласкаво просимо до команди."
+			},
+			"description": "{{inviterName}} запрошує вас до цього робочого простору в Kaneo.",
+			"invitedBy": "Запрошення від",
+			"sentTo": "Надіслано на",
+			"signedInAs": "Ви увійшли як",
+			"expires": "Дійсне до",
+			"notNow": "Не зараз",
+			"join": "Приєднатися до робочого простору",
+			"switchAccount": "Змінити обліковий запис",
+			"goToKaneo": "Перейти до Kaneo",
+			"mismatch": {
+				"title": "Ви увійшли з іншою адресою",
+				"description": "Це запрошення надіслано на {{invitedEmail}}. Ви увійшли як {{email}}."
+			},
+			"expired": {
+				"title": "Термін дії запрошення минув",
+				"description": "Попросіть користувача {{inviterName}} надіслати вам нове запрошення до {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Запрошення більше не дійсне",
+				"description": "Можливо, його вже прийняли або скасували. Попросіть нове в адміністратора робочого простору."
+			},
+			"loadFailed": {
+				"title": "Не вдалося завантажити запрошення",
+				"description": "Перевірте з'єднання та перезавантажте сторінку."
 			}
 		},
 		"onboarding": {
@@ -430,24 +453,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Перевірте вхідні",
+			"sentDescription": "Якщо обліковий запис для {{email}} існує, на цю пошту вже надіслано посилання для скидання пароля. Воно дійсне 1 годину.",
+			"sentHelpTitle": "Лист не надійшов?",
+			"sentHelpDescription": "Перевірте папку «Спам» або запросіть нове посилання за хвилину.",
+			"rememberedIt": "Згадали пароль?",
+			"resetDescription": "Використовуйте від 8 до 128 символів. На інших пристроях буде виконано вихід.",
+			"updatePassword": "Оновити пароль",
+			"changedMind": "Передумали?",
+			"invalidLinkTitle": "Термін дії посилання минув",
+			"successTitle": "Пароль оновлено"
+		},
+		"page": {
+			"terms": "Умови",
+			"privacy": "Конфіденційність"
+		},
+		"device": {
+			"connect": {
+				"title": "Підключення пристрою",
+				"description": "Введіть код із термінала або застосунку, щоб прив'язати його до облікового запису Kaneo.",
+				"label": "Код пристрою",
+				"submit": "Продовжити",
+				"noCode": "Ще немає коду? Спершу почніть вхід у застосунку.",
+				"codeRequired": "Введіть код, показаний на пристрої.",
+				"invalidCode": "Код недійсний або термін його дії минув."
+			},
+			"approve": {
+				"pageTitle": "Підтвердження пристрою",
+				"title": "Підключити цей пристрій?",
+				"description": "Пристрій намагається увійти як {{email}}. Підтверджуйте, лише якщо ви самі розпочали цей вхід.",
+				"matchCode": "Переконайтеся, що код збігається з кодом на пристрої",
+				"deny": "Відхилити",
+				"approve": "Підтвердити",
+				"failed": "Не вдалося оновити запит. Спробуйте ще раз."
+			},
+			"approved": {
+				"title": "Пристрій підключено",
+				"description": "Поверніться до термінала або застосунку. Цю вкладку можна закрити."
+			},
+			"denied": {
+				"title": "Запит відхилено",
+				"description": "Нічого не було підключено. Цю вкладку можна закрити."
+			},
+			"missing": {
+				"title": "Немає коду пристрою",
+				"description": "Відкрийте цю сторінку з пристрою або введіть код вручну.",
+				"enterCode": "Ввести код"
+			},
+			"signIn": {
+				"title": "Увійдіть, щоб підключити пристрій",
+				"description": "Одразу після входу ви повернетеся сюди, щоб підтвердити його.",
+				"submit": "Увійти"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Авторизація MCP-клієнта",
+				"description": "Він зможе діяти від вашого імені в усіх робочих просторах, до яких ви маєте доступ. Продовжуйте, лише якщо ви самі розпочали це підключення.",
+				"client": "Клієнт",
+				"unknownClient": "MCP-клієнт",
+				"selfReported": "Зі слів клієнта",
+				"redirect": "Поверне вас на",
+				"signedInAs": "Ви увійшли як",
+				"deny": "Відхилити",
+				"allow": "Дозволити доступ"
+			},
+			"expired": {
+				"title": "Термін дії запиту минув",
+				"description": "Поверніться до MCP-клієнта та підключіться знову."
+			},
+			"signIn": {
+				"title": "Увійдіть, щоб авторизувати цей клієнт",
+				"description": "Одразу після входу ви повернетеся сюди, щоб перевірити запит.",
+				"submit": "Увійти"
+			}
 		}
 	},
 	"settings": {

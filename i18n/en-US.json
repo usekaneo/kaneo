@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Sign In",
-			"title": "Welcome back",
-			"subtitle": "Enter your credentials to access your workspace",
-			"invitationSubtitle": "Sign in to accept your invitation",
-			"invitationAlert": "After signing in, you'll be able to accept your workspace invitation.",
-			"signingIn": "Signing in...",
-			"continueWithGoogle": "Continue with Google",
-			"continueWithGithub": "Continue with GitHub",
-			"continueWithDiscord": "Continue with Discord",
-			"continueWithOidc": "Continue with OIDC",
+			"subtitle": {
+				"emailOrProvider": "Use your email or a connected account.",
+				"email": "Enter your email and we'll send you a sign-in code.",
+				"password": "Use your email and password.",
+				"passwordOrProvider": "Use your password or a connected account.",
+				"providers": "Choose how you want to sign in.",
+				"sso": "Your organization manages sign-in here."
+			},
 			"lastUsed": "Last used",
-			"registrationDisabled": "Public registration is disabled. Use an invitation to create an account.",
-			"passwordRegistrationDisabled": "Password registration is disabled. Use a configured social or OIDC sign-in method to create an account.",
-			"toggleMessage": "Don't have an account?",
-			"toggleLink": "Create account",
-			"guestSuccess": "Signed in as guest",
 			"guestError": "Failed to sign in as guest",
-			"oidcError": "Failed to sign in with OIDC",
-			"googleError": "Failed to sign in with Google",
-			"githubError": "Failed to sign in with GitHub",
-			"discordError": "Failed to sign in with Discord",
 			"errors": {
 				"account_not_linked": "This identity could not be linked to the existing account. Sign in by email to verify the account, then try SSO again. If email sign-in is unavailable, contact your administrator.",
 				"oauth_code_verification_failed": "OAuth verification failed. Please try again.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Registration is currently disabled. You need a valid invitation to create an account.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Use a permanent email address. Disposable addresses cannot create accounts."
 			},
-			"instanceStatusError": "Couldn't reach the server. Please retry in a moment."
+			"instanceStatusError": "Couldn't reach the server. Please retry in a moment.",
+			"heading": "Sign in to Kaneo",
+			"submitPassword": "Sign in",
+			"invitation": {
+				"title": "{{inviterName}} invited you to {{workspaceName}}",
+				"fallbackTitle": "You've been invited",
+				"description": "Sign in with the email that received the invitation. You'll join the workspace right after."
+			},
+			"footer": {
+				"newHere": "New to Kaneo?",
+				"createAccount": "Create an account",
+				"inviteOnly": "Accounts here are invite-only. Ask an admin for an invitation.",
+				"providerSignUp": "New here? Sign in with a provider above to create an account.",
+				"anyProvider": "New here? Any option above creates your account.",
+				"contactAdmin": "Trouble signing in? Contact your administrator.",
+				"justLooking": "Just looking?"
+			},
+			"autoLogin": {
+				"title": "Signing you in",
+				"subtitle": "Taking you to your organization's sign-in page.",
+				"opening": "Opening {{provider}}…",
+				"stuck": "Not moving?",
+				"continue": "Continue to {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Continue with {{provider}}",
+			"error": "Couldn't sign in with {{provider}}. Try again."
 		},
 		"forms": {
 			"or": "or",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Show password",
-			"hidePassword": "Hide password"
+			"hidePassword": "Hide password",
+			"name": "Name",
+			"namePlaceholder": "Jane Doe",
+			"invalidEmail": "Enter a full email address, like name@company.com.",
+			"nameRequired": "Enter your name.",
+			"passwordRequired": "Enter your password.",
+			"passwordTooShort": "Use at least 8 characters.",
+			"disposableEmail": "Use a permanent email address. Disposable addresses cannot create accounts.",
+			"continueWithEmail": "Continue with email"
 		},
 		"checkEmail": {
 			"pageTitle": "Check Your Email",
@@ -234,90 +260,87 @@
 		},
 		"signUp": {
 			"pageTitle": "Create Account",
-			"title": "Create account",
-			"subtitleInvitation": "Create an account to accept your invitation",
-			"subtitleRegistrationDisabled": "Registration requires an invitation",
-			"subtitlePasswordDisabled": "Use social or OIDC sign-in to create an account",
-			"subtitleDefault": "Get started with your workspace",
-			"invitationAlert": "After creating your account, you'll be able to accept your workspace invitation.",
 			"registrationDisabledAlert": "Registration is currently disabled. If you were invited, enter the email address that received the invitation to create your account.",
-			"passwordDisabledAlert": "Password-based account creation is disabled. Use a configured social or OIDC sign-in method from the sign-in page.",
-			"signingIn": "Signing in...",
 			"continueAsGuest": "Continue as guest",
 			"toggleMessage": "Already have an account?",
 			"toggleLink": "Sign in",
 			"instanceStatusError": "Couldn't reach the server. Please retry in a moment.",
 			"instanceAdminTitle": "Set up your Kaneo instance",
-			"instanceAdminSubtitle": "This account becomes the instance administrator with full access."
+			"instanceAdminSubtitle": "This account becomes the instance administrator with full access.",
+			"heading": "Create your account",
+			"submitPassword": "Create account",
+			"failed": "Couldn't create your account. Try again.",
+			"subtitle": {
+				"email": "Start with your email. We'll send a code, no password needed.",
+				"password": "Add your name, email, and a password to get started.",
+				"providers": "Use a connected account to create yours."
+			},
+			"invitation": {
+				"description": "Use the email that received the invitation. You'll join the workspace right after."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Verify Code",
-			"title": "Enter verification code",
-			"subtitle": "Use the 6-digit code sent to your email to continue",
-			"codeSentTo": "Code sent to {{email}}",
-			"verificationCodeLabel": "Verification Code",
-			"verifying": "Verifying...",
-			"verifyAndSignIn": "Verify & Sign In",
-			"changeEmail": "Change email",
-			"resend": "Resend",
 			"validation": {
 				"codeLength": "Code must be 6 digits"
 			},
 			"toast": {
 				"invalidCode": "Invalid verification code",
-				"signedInSuccess": "Signed in successfully!",
 				"verifyFailed": "Failed to verify code",
 				"resendFailed": "Failed to resend code",
 				"resendSuccess": "New verification code sent!"
-			}
+			},
+			"heading": "Check your email",
+			"description": "We sent a 6-digit code to {{email}}. It expires in {{minutes}} minutes.",
+			"label": "Verification code",
+			"submit": "Verify and continue",
+			"didntGetIt": "Didn't get it?",
+			"resendCode": "Resend code",
+			"useDifferentEmail": "Use a different email",
+			"expired": "This code expired. Send a new one.",
+			"tooManyAttempts": "Too many attempts. Send a new code."
 		},
 		"otpSignIn": {
-			"sendFailed": "Failed to send verification code",
-			"codeSent": "Verification code sent! Check your email.",
-			"sending": "Sending...",
-			"sendVerificationCode": "Send Verification Code"
+			"sendFailed": "Failed to send verification code"
 		},
 		"signInForm": {
-			"failedSignIn": "Failed to sign in",
-			"signedInSuccess": "Signed in successfully",
-			"signingIn": "Signing In...",
-			"signIn": "Sign In"
-		},
-		"signUpForm": {
-			"fullName": "Full Name",
-			"namePlaceholder": "John Doe",
-			"failedSignUp": "Failed to sign up",
-			"accountCreated": "Account created successfully",
-			"passwordTooShort": "Password is too short",
-			"creatingAccount": "Creating Account...",
-			"createAccount": "Create Account"
+			"failedSignIn": "Failed to sign in"
 		},
 		"invitation": {
 			"pageTitleAccept": "Accept Invitation",
 			"pageTitleError": "Invitation Error",
 			"pageTitleInvalid": "Invalid Invitation",
-			"loadingTitle": "Loading invitation...",
-			"errorTitle": "Invitation Error",
-			"invalidTitle": "Invalid Invitation",
-			"invitationExpired": "Invitation Expired",
-			"errorLoadDescription": "Failed to load invitation details. The invitation may be invalid or expired.",
-			"goToSignIn": "Go to Sign In",
-			"workspaceLabel": "Workspace: {{workspaceName}}",
 			"joinWorkspace": "Join {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> has invited you to join their workspace on Kaneo.",
-			"createAccountOrSignIn": "Create an account to accept this invitation, or sign in if you already have one.",
-			"createAccount": "Create Account",
-			"accepting": "Accepting...",
-			"acceptInvitation": "Accept Invitation",
-			"goToDashboard": "Go to Dashboard",
-			"signedInAs": "Signed in as <email>{{email}}</email>",
-			"youveBeenInvited": "You've been invited!",
-			"invitationFor": "Invitation for: <email>{{email}}</email>",
-			"signIn": "Sign In",
+			"createAccount": "Create account",
+			"signIn": "Sign in",
 			"toast": {
 				"acceptFailed": "Failed to accept invitation",
 				"acceptSuccess": "Invitation accepted! Welcome to the team."
+			},
+			"description": "{{inviterName}} invited you to this workspace on Kaneo.",
+			"invitedBy": "Invited by",
+			"sentTo": "Sent to",
+			"signedInAs": "Signed in as",
+			"expires": "Expires",
+			"notNow": "Not now",
+			"join": "Join workspace",
+			"switchAccount": "Switch account",
+			"goToKaneo": "Go to Kaneo",
+			"mismatch": {
+				"title": "Signed in with a different email",
+				"description": "This invitation was sent to {{invitedEmail}}. You're signed in as {{email}}."
+			},
+			"expired": {
+				"title": "This invitation has expired",
+				"description": "Ask {{inviterName}} to send you a new one for {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "This invitation is no longer valid",
+				"description": "It may have been accepted or canceled. Ask a workspace admin for a new one."
+			},
+			"loadFailed": {
+				"title": "Couldn't load this invitation",
+				"description": "Check your connection and reload the page."
 			}
 		},
 		"onboarding": {
@@ -428,24 +451,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Check your inbox",
+			"sentDescription": "If an account exists for {{email}}, a link to reset your password is on its way. It expires in 1 hour.",
+			"sentHelpTitle": "Didn't get it?",
+			"sentHelpDescription": "Check your spam folder, or request another link in a minute.",
+			"rememberedIt": "Remembered it?",
+			"resetDescription": "Use 8 to 128 characters. Other devices will be signed out.",
+			"updatePassword": "Update password",
+			"changedMind": "Changed your mind?",
+			"invalidLinkTitle": "This link has expired",
+			"successTitle": "Password updated"
+		},
+		"page": {
+			"terms": "Terms",
+			"privacy": "Privacy"
+		},
+		"device": {
+			"connect": {
+				"title": "Connect a device",
+				"description": "Enter the code shown in your terminal or app to link it to your Kaneo account.",
+				"label": "Device code",
+				"submit": "Continue",
+				"noCode": "No code yet? Start signing in from your app first.",
+				"codeRequired": "Enter the code shown on your device.",
+				"invalidCode": "That code is invalid or has expired."
+			},
+			"approve": {
+				"pageTitle": "Approve device",
+				"title": "Connect this device?",
+				"description": "A device wants to sign in as {{email}}. Approve it only if you started this.",
+				"matchCode": "Check that this matches your device",
+				"deny": "Deny",
+				"approve": "Approve",
+				"failed": "Couldn't update the request. Try again."
+			},
+			"approved": {
+				"title": "Device connected",
+				"description": "Go back to your terminal or app. You can close this tab."
+			},
+			"denied": {
+				"title": "Request denied",
+				"description": "Nothing was connected. You can close this tab."
+			},
+			"missing": {
+				"title": "No device code",
+				"description": "Open this page from your device, or enter the code yourself.",
+				"enterCode": "Enter a code"
+			},
+			"signIn": {
+				"title": "Sign in to connect your device",
+				"description": "You'll come right back here to approve it.",
+				"submit": "Sign in"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Authorize an MCP client",
+				"description": "It can act as you in every workspace you can access. Only continue if you started this connection.",
+				"client": "Client",
+				"unknownClient": "MCP client",
+				"selfReported": "Self-reported",
+				"redirect": "Sends you back to",
+				"signedInAs": "Signed in as",
+				"deny": "Deny",
+				"allow": "Allow access"
+			},
+			"expired": {
+				"title": "This request has expired",
+				"description": "Go back to your MCP client and connect again."
+			},
+			"signIn": {
+				"title": "Sign in to authorize this client",
+				"description": "You'll come right back here to review it.",
+				"submit": "Sign in"
+			}
 		}
 	},
 	"settings": {
