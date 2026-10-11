@@ -200,7 +200,7 @@ Every plugin goes through these stages, in order:
 | entry | Its `exports` point to files that exist inside the package. |
 | compatibility | The running Kaneo version is inside the plugin's `engines.kaneo` range. |
 | options | The options in `kaneo.config.ts` pass the plugin's schema. |
-| import | The plugin's server code loads. |
+| import | The plugin's server code loads, and its settings fields are well formed. |
 | start | The plugin's setup finishes without an error, and its ID is not already taken. |
 
 A failure stops the boot, the same way a broken Compose file would. The log names the plugin, the stage, and the fix:

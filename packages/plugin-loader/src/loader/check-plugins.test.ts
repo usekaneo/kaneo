@@ -90,6 +90,30 @@ describe("checkPlugins", () => {
     });
   });
 
+  it("reports a server plugin with a malformed settings schema", async () => {
+    const plugin = await writePluginPackage({
+      name: "kaneo-plugin-modes",
+      files: {
+        "dist/server.js":
+          "export default { kind: 'kaneo-server', apiVersion: 1, settings: { mode: { type: 'select', label: 'Mode' } }, setup() {} };\n",
+      },
+    });
+
+    const [result] = await checkPlugins([descriptor(plugin.url)], options);
+
+    expect(result).toMatchObject({
+      ok: false,
+      error: { stage: "import", plugin: "kaneo-plugin-modes" },
+    });
+    expect(result?.ok === false && result.error.format()).toBe(
+      [
+        'Plugin "kaneo-plugin-modes" failed at import:',
+        'The plugin\'s settings schema is invalid. Setting "mode" is a select without options.',
+        "Report this to the plugin's author.",
+      ].join("\n"),
+    );
+  });
+
   it("reports an id that a built-in plugin already uses", async () => {
     const gantt = await writePluginPackage({
       name: "@kaneo/gantt",

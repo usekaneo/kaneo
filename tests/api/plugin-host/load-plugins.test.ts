@@ -296,6 +296,22 @@ describe("loadPlugins", () => {
     expect(error.message).toContain("defineServer()");
   });
 
+  it("fails at import when the settings schema is malformed", async () => {
+    const { url } = await writePluginPackage({
+      files: {
+        "dist/server.js":
+          "export default { kind: 'kaneo-server', apiVersion: 1, settings: { mode: { type: 'select', label: 'Mode' } }, setup() {} };\n",
+      },
+    });
+    const error = await loadError(loadPlugins([descriptor(url)], options));
+    expect(error.stage).toBe("import");
+    expect(error.message).toBe(
+      'The plugin\'s settings schema is invalid. Setting "mode" is a select without options.',
+    );
+    expect(error.hint).toBe("Report this to the plugin's author.");
+    expect(getLoadedPlugin("kaneo-plugin-progress")).toBeUndefined();
+  });
+
   it("fails at import when the server entry throws while loading", async () => {
     const { url } = await writePluginPackage({
       files: { "dist/server.js": "throw new Error('cannot load');\n" },

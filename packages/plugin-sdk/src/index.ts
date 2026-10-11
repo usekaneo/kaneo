@@ -19,6 +19,7 @@ export type {
   PluginPackage,
 } from "./package/parse-plugin-package.js";
 export { PLUGIN_ID_PATTERN, derivePluginId } from "./package/plugin-id.js";
+export { checkSettingsSchema } from "./settings/check-settings-schema.js";
 export { parseSettings } from "./settings/parse-settings.js";
 export { readSettings, toPublicSettings } from "./settings/read-settings.js";
 export type * from "./settings/types.js";

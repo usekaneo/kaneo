@@ -3,11 +3,8 @@ import type {
   SettingsErrors,
   SettingsSchema,
 } from "./types.js";
+import { isRecord } from "./is-record.js";
 import { defaultValue, isRequired, validateField } from "./validate-field.js";
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 export function parseSettings(
   schema: SettingsSchema,
