@@ -5,7 +5,9 @@ import PageTitle from "@/components/page-title";
 import { PluginBoundary } from "@/components/plugins/plugin-boundary";
 import { PluginPageStatus } from "@/components/plugins/plugin-page-status";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
+import useGetProject from "@/hooks/queries/project/use-get-project";
 import { usePlugins } from "@/lib/plugins/runtime/plugins-context";
+import { pluginsForWorkspace } from "@/lib/plugins/runtime/plugins-for-workspace";
 import { findContribution } from "@/lib/plugins/runtime/select-contributions";
 import { usePluginLabel } from "@/lib/plugins/runtime/use-plugin-label";
 import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
@@ -30,13 +32,17 @@ function RouteComponent() {
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
   const { plugins, isPending } = usePlugins();
+  const { data: project, isPending: isProjectPending } = useGetProject({
+    id: projectId,
+    workspaceId,
+  });
   const label = usePluginLabel();
   const lookup = findContribution(
-    plugins,
+    pluginsForWorkspace(plugins, workspaceId, project?.workspaceId),
     "projectViews",
     pluginId,
     viewId,
-    isPending,
+    isPending || isProjectPending,
   );
 
   const handleCloseTaskSheet = useCallback(() => {

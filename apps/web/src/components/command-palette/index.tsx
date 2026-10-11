@@ -24,6 +24,7 @@ import {
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { authClient } from "@/lib/auth-client";
@@ -69,6 +70,14 @@ function CommandPalette() {
   const isBacklogView = location.pathname.endsWith("/backlog");
   const { plugins, workspaceId: pluginWorkspaceId } = usePlugins();
   const pluginLabel = usePluginLabel();
+  const { data: routeProject } = useGetProject({
+    id: projectIdFromRoute ?? "",
+    workspaceId: pluginWorkspaceId ?? "",
+  });
+  const pluginProjectId =
+    routeProject && routeProject.workspaceId === pluginWorkspaceId
+      ? routeProject.id
+      : null;
 
   useRegisterShortcuts({
     shortcuts: {
@@ -128,7 +137,7 @@ function CommandPalette() {
               .then(() =>
                 item.run({
                   workspaceId: pluginWorkspaceId,
-                  projectId: projectIdFromRoute ?? null,
+                  projectId: pluginProjectId,
                   navigate: (to: string) => void navigate({ to }),
                 }),
               )
@@ -140,14 +149,7 @@ function CommandPalette() {
         })),
       },
     ];
-  }, [
-    plugins,
-    pluginWorkspaceId,
-    pluginLabel,
-    projectIdFromRoute,
-    navigate,
-    t,
-  ]);
+  }, [plugins, pluginWorkspaceId, pluginLabel, pluginProjectId, navigate, t]);
 
   const groupedItems = useMemo<PaletteGroup[]>(
     () => [

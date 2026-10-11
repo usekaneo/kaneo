@@ -20,7 +20,7 @@ export function usePluginViewShortcuts(
   projectId: string,
 ): void {
   const navigate = useNavigate();
-  const views = useProjectPluginViews();
+  const views = useProjectPluginViews(workspaceId, projectId);
   const signature = JSON.stringify(
     selectViewShortcuts(views, BUILT_IN_VIEW_KEYS),
   );

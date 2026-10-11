@@ -674,6 +674,7 @@ export default function TaskDetailsContent({
         taskId={taskId}
         projectId={projectId}
         workspaceId={workspaceId}
+        taskWorkspaceId={task?.workspaceId}
       />
       <span className="text-sm font-medium text-muted-foreground h-[1px] bg-border w-full block shrink-0" />
       <div className="flex flex-col gap-4">

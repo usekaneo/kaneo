@@ -60,7 +60,7 @@ export default function ProjectLayout({
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
     useState(false);
   const { background } = useBackgroundStore();
-  const pluginViews = useProjectPluginViews();
+  const pluginViews = useProjectPluginViews(workspaceId, projectId);
 
   useProjectWebSocket(unavailableReason ? "" : projectId);
 
