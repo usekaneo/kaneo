@@ -3107,7 +3107,14 @@
 			"cta": "Daveti kabul et",
 			"sameEmail": "Daveti, bu mesajı alan e-posta adresiyle kabul edebilirsiniz.",
 			"ignore": "Bu davet beklenmedikse bu e-postayı güvenle yok sayabilirsiniz.",
-			"footer": "Kaneo çalışma alanı daveti"
+			"footer": "Kaneo çalışma alanı daveti",
+			"details": {
+				"title": "Davet ayrıntıları",
+				"sentTo": "Gönderilen adres",
+				"instance": "Sunucu",
+				"role": "Rol",
+				"expires": "Süre Sonu"
+			}
 		}
 	},
 	"workspace": {

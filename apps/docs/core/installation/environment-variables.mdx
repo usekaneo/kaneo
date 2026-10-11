@@ -233,6 +233,7 @@ Name | Description |
 | `SMTP_REQUIRE_TLS` | Require STARTTLS when `SMTP_SECURE=false` (default: `true`). Sending fails if the server cannot upgrade. Only use `false` for an intentionally unencrypted local development relay.
 | `SMTP_IGNORE_TLS` | Removed: `true` is rejected. This option disabled STARTTLS; it never bypassed certificate validation.
 | `NODE_EXTRA_CA_CERTS` | Path to a trusted CA PEM file for a private SMTP certificate authority. Set before starting the API; certificate expiry and hostname checks remain enabled.
+| `KANEO_EMAIL_ASSETS_URL` | Optional base URL for the logo and icons in emails (default: `KANEO_CLIENT_URL` followed by `/email`). Mail clients load these images directly, so set this to a public URL if your instance is only reachable on a private network.
 
 When upgrading, remove `SMTP_IGNORE_TLS=true` and verify delivery with the corrected certificate trust configuration before rollout. Fix invalid certificates instead of disabling validation. [Nodemailer documents the difference between STARTTLS and certificate validation](https://nodemailer.com/smtp#tls-options).
 

@@ -3047,7 +3047,14 @@
 			"cta": "Terima undangan",
 			"sameEmail": "Anda dapat menerima undangan menggunakan alamat email yang menerima pesan ini.",
 			"ignore": "Jika ini tidak Anda harapkan, Anda dapat mengabaikan email ini dengan aman.",
-			"footer": "Undangan ruang kerja Kaneo"
+			"footer": "Undangan ruang kerja Kaneo",
+			"details": {
+				"title": "Detail undangan",
+				"sentTo": "Dikirim ke",
+				"instance": "Instans",
+				"role": "Peran",
+				"expires": "Kedaluwarsa"
+			}
 		},
 		"pageTitle": "Undangan",
 		"pendingInvitations": "Undangan Tertunda",

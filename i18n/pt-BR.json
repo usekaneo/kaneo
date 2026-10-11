@@ -3131,7 +3131,14 @@
 			"cta": "Aceitar convite",
 			"sameEmail": "Você pode aceitar com o mesmo e-mail que recebeu esta mensagem.",
 			"ignore": "Se isso não era esperado, você pode ignorar este e-mail com segurança.",
-			"footer": "Convite para espaço de trabalho do Kaneo"
+			"footer": "Convite para espaço de trabalho do Kaneo",
+			"details": {
+				"title": "Detalhes do convite",
+				"sentTo": "Enviado para",
+				"instance": "Instância",
+				"role": "Função",
+				"expires": "Expira"
+			}
 		},
 		"pageTitle": "Convites",
 		"pendingInvitations": "Convites pendentes",

@@ -3131,7 +3131,14 @@
 			"cta": "Accepter l’invitation",
 			"sameEmail": "Vous pouvez accepter l’invitation avec l’adresse e-mail qui a reçu ce message.",
 			"ignore": "Si vous ne vous attendiez pas à recevoir ce message, vous pouvez l’ignorer.",
-			"footer": "Invitation à un espace de travail Kaneo"
+			"footer": "Invitation à un espace de travail Kaneo",
+			"details": {
+				"title": "Détails de l’invitation",
+				"sentTo": "Envoyée à",
+				"instance": "Instance",
+				"role": "Rôle",
+				"expires": "Expire"
+			}
 		},
 		"pageTitle": "Invitations",
 		"pendingInvitations": "Invitations en attente",

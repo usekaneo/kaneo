@@ -3047,7 +3047,14 @@
 			"cta": "接受邀请",
 			"sameEmail": "你可以使用收到此邮件的同一邮箱接受。",
 			"ignore": "如果这不是你预期的，可以安全忽略此邮件。",
-			"footer": "Kaneo 工作区邀请"
+			"footer": "Kaneo 工作区邀请",
+			"details": {
+				"title": "邀请详情",
+				"sentTo": "发送至",
+				"instance": "实例",
+				"role": "角色",
+				"expires": "过期时间"
+			}
 		},
 		"pageTitle": "邀请",
 		"pendingInvitations": "待处理的邀请",

@@ -904,7 +904,14 @@
 			"cta": "Zaakceptuj zaproszenie",
 			"sameEmail": "Możesz zaakceptować zaproszenie przy użyciu tego samego adresu e-mail, na który wysłano tę wiadomość.",
 			"ignore": "Jeśli nie było to oczekiwane, możesz bezpiecznie zignorować tego e-maila.",
-			"footer": "Zaproszenie do obszaru roboczego Kaneo"
+			"footer": "Zaproszenie do obszaru roboczego Kaneo",
+			"details": {
+				"title": "Szczegóły zaproszenia",
+				"sentTo": "Wysłano do",
+				"instance": "Instancja",
+				"role": "Rola",
+				"expires": "Wygasa"
+			}
 		},
 		"pageTitle": "Zaproszenia",
 		"pendingInvitations": "Oczekujące zaproszenia",

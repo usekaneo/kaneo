@@ -3047,7 +3047,14 @@
 			"cta": "초대 수락",
 			"sameEmail": "이 메시지를 받은 이메일과 동일한 이메일로 수락할 수 있습니다.",
 			"ignore": "예상하지 못한 초대라면 이 이메일을 무시하셔도 됩니다.",
-			"footer": "Kaneo 워크스페이스 초대"
+			"footer": "Kaneo 워크스페이스 초대",
+			"details": {
+				"title": "초대 세부 정보",
+				"sentTo": "받는 사람",
+				"instance": "인스턴스",
+				"role": "역할",
+				"expires": "만료"
+			}
 		},
 		"pageTitle": "초대",
 		"pendingInvitations": "대기 중인 초대",
