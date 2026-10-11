@@ -28,7 +28,7 @@
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^11.0.1",
-    "conventional-changelog-conventionalcommits": "^10.4.0",
+    "conventional-changelog-conventionalcommits": "^10.4.1",
     "esbuild": "0.28.2",
     "husky": "^9.1.7",
     "linkifyjs": ">=4.3.3",
