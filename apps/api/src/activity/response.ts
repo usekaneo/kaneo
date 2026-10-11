@@ -21,7 +21,8 @@ export const activitySchema = z
     }),
     externalUserAvatar: z.string().nullable(),
     externalSource: z.string().nullable().openapi({
-      description: "The tool it was imported from, e.g. planka, trello, jira.",
+      description:
+        "The tool it was imported from: planka, trello, jira, plane, linear, kaneo, or a connected forge such as github.",
     }),
     externalUrl: z.string().nullable(),
   })

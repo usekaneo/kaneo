@@ -83,7 +83,13 @@ export default function CommentCard({
         ? "Trello"
         : externalSource === "jira"
           ? "Jira"
-          : externalSource;
+          : externalSource === "plane"
+            ? "Plane"
+            : externalSource === "linear"
+              ? "Linear"
+              : externalSource === "kaneo"
+                ? "Kaneo"
+                : externalSource;
   // Gitea and GitLab profile URLs depend on the instance.
   const githubProfileUrl =
     forge?.name === "GitHub" && user?.name

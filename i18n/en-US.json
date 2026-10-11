@@ -1308,6 +1308,270 @@
 			"deletionPending": "Deletion pending",
 			"resumeDeletion": "Resume deletion"
 		},
+		"workspaceImport": {
+			"pageTitle": "Import",
+			"title": "Import",
+			"subtitle": "Bring your projects from another tool into {{workspace}}. Kaneo only reads from the source.",
+			"opensInNewTab": "(opens in a new tab)",
+			"retry": "Try again",
+			"notAllowed": {
+				"title": "Only workspace admins can import",
+				"description": "Importing creates projects, so it needs permission to manage workspace settings and create projects. Ask a workspace admin to run it."
+			},
+			"sources": {
+				"title": "Choose a source",
+				"description": "Pick the tool you are moving from. Each project you choose becomes a new project here.",
+				"connect": "Connect",
+				"connectTo": "Connect {{source}}",
+				"linear": {
+					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
+					"intro": "Each Linear team becomes a project, with its workflow as columns."
+				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+				},
+				"trello": {
+					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
+					"intro": "Each Trello board becomes a project, with its lists as columns."
+				},
+				"plane": {
+					"description": "Projects, work items, sub-issues and comments. Cloud or self-hosted.",
+					"intro": "Each Plane project becomes a project here, with its states as columns."
+				},
+				"planka": {
+					"description": "Boards, lists, cards, checklists and comments from your PLANKA instance.",
+					"intro": "Each PLANKA board becomes a project, with its lists as columns."
+				},
+				"kaneo": {
+					"pickerName": "Another Kaneo",
+					"description": "Move projects between Kaneo Cloud and a self-hosted instance.",
+					"intro": "Projects from every workspace the key can see. Each one you pick is copied here."
+				}
+			},
+			"history": {
+				"title": "Recent imports",
+				"description": "Imports keep running on the server if you leave this page.",
+				"started": "Started {{time}}",
+				"empty": "No imports yet. Imports you start show up here.",
+				"loadError": "Recent imports could not be loaded."
+			},
+			"status": {
+				"importing": "Importing {{current}} of {{total}}",
+				"warnings_one": "Done with {{count}} warning",
+				"warnings_other": "Done with {{count}} warnings",
+				"partial": "{{done}} of {{total}} imported",
+				"failed": "Failed",
+				"imported": "Imported"
+			},
+			"steps": {
+				"label": "Import steps",
+				"connect": "Connect",
+				"import": "Import",
+				"done": "(completed)"
+			},
+			"back": {
+				"allSources": "All sources",
+				"changeKey": "Change key",
+				"overview": "Import overview"
+			},
+			"connect": {
+				"title": "Import from {{source}}",
+				"sectionTitle": "Connect",
+				"sectionDescription": "Kaneo only reads from {{source}}. The key is used for this import and never stored.",
+				"cancel": "Cancel",
+				"continue": "Continue",
+				"whereToFind": "Where to find it",
+				"showSecret": "Show {{field}}",
+				"hideSecret": "Hide {{field}}"
+			},
+			"linear": {
+				"apiKeyLabel": "Personal API key",
+				"apiKeyDescription": "Read access is enough. You can revoke it after the import.",
+				"openSettings": "Open Linear settings",
+				"stepOpen": "In Linear, open Settings, then Security and access.",
+				"stepCreate": "Under Personal API keys, create a key with Read access.",
+				"stepPaste": "Copy it and paste it above."
+			},
+			"jira": {
+				"urlLabel": "Jira site URL",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlPlaceholder": "https://your-site.atlassian.net",
+				"emailLabel": "Email",
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"tokenLabel": "API token",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenPlaceholder": "Paste token",
+				"openSettings": "Open Atlassian API tokens",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepCreate": "Create an API token and copy it.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name."
+			},
+			"trello": {
+				"apiKeyLabel": "API key",
+				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
+				"apiKeyPlaceholder": "Paste API key",
+				"authorizeLabel": "Authorize Kaneo",
+				"authorizeDescription": "Opens Trello in a new tab. Read only, expires after a day.",
+				"authorizeNeedsKey": "Enter the API key first. Read only, expires after a day.",
+				"authorizeButton": "Authorize on Trello",
+				"tokenLabel": "Token",
+				"tokenDescription": "Click Allow on Trello, then paste the token it shows you.",
+				"tokenPlaceholder": "Paste token"
+			},
+			"plane": {
+				"urlLabel": "Workspace URL",
+				"urlDescription": "Copy it from your browser while in Plane. Self-hosted works too.",
+				"urlPlaceholder": "https://app.plane.so/your-workspace",
+				"tokenLabel": "Personal access token",
+				"tokenDescription": "Profile settings, Developer, then Personal Access Tokens."
+			},
+			"planka": {
+				"urlLabel": "PLANKA URL",
+				"urlDescription": "The address you open PLANKA at.",
+				"signInLabel": "Sign in with",
+				"signInDescription": "Use an API key if your account signs in through SSO.",
+				"signInApiKey": "API key",
+				"signInPassword": "Email and password",
+				"apiKeyLabel": "API key",
+				"apiKeyDescription": "Created in PLANKA under your account settings.",
+				"apiKeyPlaceholder": "Paste API key",
+				"usernameLabel": "Email or username",
+				"usernameDescription": "The account you sign in to PLANKA with.",
+				"passwordLabel": "Password",
+				"passwordDescription": "Used only to sign in for this import.",
+				"adminTip": "Use a PLANKA admin account. PLANKA only shows email addresses to admins, and card members are matched to people here by email."
+			},
+			"kaneo": {
+				"urlLabel": "Kaneo URL",
+				"urlDescription": "The instance you are moving from.",
+				"apiKeyLabel": "API key",
+				"apiKeyDescription": "In that Kaneo, open Settings, then API Keys.",
+				"apiKeyPlaceholder": "Paste API key"
+			},
+			"select": {
+				"selectAll": "Select all",
+				"clear": "Clear",
+				"back": "Back",
+				"commentsLabel": "Import comments",
+				"commentsDescription": "Keeps each comment's original author and date.",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned.",
+				"inviteMembers": "Invite members"
+			},
+			"units": {
+				"team": {
+					"step": "Choose teams",
+					"section": "Teams",
+					"pick": "Pick the teams to bring over.",
+					"found_one": "{{count}} team found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
+					"empty": "No teams found. Check that this key can see the teams you want to import.",
+					"limit": "Pick up to {{max}} teams per import.",
+					"importButton_one": "Import {{count}} team",
+					"importButton_other": "Import {{count}} teams",
+					"progress_one": "{{done}} of {{count}} team imported",
+					"progress_other": "{{done}} of {{count}} teams imported",
+					"runTitle_one": "{{source}}, {{count}} team",
+					"runTitle_other": "{{source}}, {{count}} teams",
+					"allImported_one": "{{count}} team imported.",
+					"allImported_other": "All {{count}} teams imported.",
+					"someImported_one": "{{done}} of {{count}} team imported.",
+					"someImported_other": "{{done}} of {{count}} teams imported."
+				},
+				"board": {
+					"step": "Choose boards",
+					"section": "Boards",
+					"pick": "Pick the boards to bring over.",
+					"found_one": "{{count}} board found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
+					"empty": "No boards found. Check that this key can see the boards you want to import.",
+					"limit": "Pick up to {{max}} boards per import.",
+					"importButton_one": "Import {{count}} board",
+					"importButton_other": "Import {{count}} boards",
+					"progress_one": "{{done}} of {{count}} board imported",
+					"progress_other": "{{done}} of {{count}} boards imported",
+					"runTitle_one": "{{source}}, {{count}} board",
+					"runTitle_other": "{{source}}, {{count}} boards",
+					"allImported_one": "{{count}} board imported.",
+					"allImported_other": "All {{count}} boards imported.",
+					"someImported_one": "{{done}} of {{count}} board imported.",
+					"someImported_other": "{{done}} of {{count}} boards imported."
+				},
+				"project": {
+					"step": "Choose projects",
+					"section": "Projects",
+					"pick": "Pick the projects to bring over.",
+					"found_one": "{{count}} project found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
+					"empty": "No projects found. Check that this key can see the projects you want to import.",
+					"limit": "Pick up to {{max}} projects per import.",
+					"importButton_one": "Import {{count}} project",
+					"importButton_other": "Import {{count}} projects",
+					"progress_one": "{{done}} of {{count}} project imported",
+					"progress_other": "{{done}} of {{count}} projects imported",
+					"runTitle_one": "{{source}}, {{count}} project",
+					"runTitle_other": "{{source}}, {{count}} projects",
+					"allImported_one": "{{count}} project imported.",
+					"allImported_other": "All {{count}} projects imported.",
+					"someImported_one": "{{done}} of {{count}} project imported.",
+					"someImported_other": "{{done}} of {{count}} projects imported."
+				}
+			},
+			"counts": {
+				"tasks_one": "{{count, number}} task",
+				"tasks_other": "{{count, number}} tasks",
+				"columns_one": "{{count, number}} column",
+				"columns_other": "{{count, number}} columns",
+				"labels_one": "{{count, number}} label",
+				"labels_other": "{{count, number}} labels",
+				"comments_one": "{{count, number}} comment",
+				"comments_other": "{{count, number}} comments"
+			},
+			"run": {
+				"importingTitle": "Importing from {{source}}",
+				"finishedTitle": "Import finished",
+				"failedTitle": "Import failed",
+				"leavePage": "You can leave this page. The import keeps running on the server.",
+				"started": "Started {{time}}",
+				"took_one": "Took {{count}} minute",
+				"took_other": "Took {{count}} minutes",
+				"tookUnderMinute": "Took less than a minute",
+				"totals": "{{parts, list}} imported",
+				"nothingImported": "Nothing was imported",
+				"keyInMemory": "Your {{source}} key is only kept in memory until this import finishes.",
+				"finishedNote": "Imported tasks did not send notifications. Comments keep their original author and date.",
+				"finishedNoteNoComments": "Imported tasks did not send notifications.",
+				"importMore": "Import more",
+				"goToProjects": "Go to projects",
+				"open": "Open",
+				"openProject": "Open {{name}}",
+				"waiting": "Waiting",
+				"queued": "Queued",
+				"starting": "Starting",
+				"importingBadge": "Importing",
+				"failedBadge": "Failed",
+				"warnings_one": "{{count}} warning",
+				"warnings_other": "{{count}} warnings",
+				"noTasks": "No tasks",
+				"notImported": "Not imported",
+				"failedNames_one": "{{names, list}} failed, so nothing was created for it.",
+				"failedNames_other": "{{names, list}} failed, so nothing was created for them.",
+				"loadError": "This import could not be loaded"
+			},
+			"toast": {
+				"finished": "Import from {{source}} finished",
+				"partial": "Import from {{source}} finished with errors",
+				"failed": "Import from {{source}} failed"
+			},
+			"entry": {
+				"projectsEmpty": "Import from another tool",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
+				"createProjectLink": "Import your projects"
+			}
+		},
 		"projectGeneral": {
 			"pageTitle": "Project Settings",
 			"title": "General Settings",

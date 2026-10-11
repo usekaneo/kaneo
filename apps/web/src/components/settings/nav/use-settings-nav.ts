@@ -5,6 +5,7 @@ import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { useCanImport } from "@/hooks/use-can-import";
 
 export function useSettingsNav() {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ export function useSettingsNav() {
   });
   const { data: config } = useGetConfig();
   const { data: hasAdminAccess } = useAdminAccess();
+  const { canImport } = useCanImport();
 
   return useMemo(
     () =>
@@ -21,9 +23,17 @@ export function useSettingsNav() {
         t,
         workspaceName: workspace?.name,
         billingEnabled: Boolean(config?.billingEnabled),
+        canImport,
         hasAdminAccess: Boolean(hasAdminAccess),
         projects: projects ?? [],
       }),
-    [t, workspace?.name, config?.billingEnabled, hasAdminAccess, projects],
+    [
+      t,
+      workspace?.name,
+      config?.billingEnabled,
+      canImport,
+      hasAdminAccess,
+      projects,
+    ],
   );
 }

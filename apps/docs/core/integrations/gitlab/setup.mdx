@@ -63,7 +63,7 @@ The webhook URL includes your integration id, for example:
 
 ## GitLab on a private network
 
-By default Kaneo refuses a GitLab URL that resolves to a private or loopback address. If your instance is only reachable inside your network, set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the API. The same variable lifts the check for Gitea and notification destinations, so only enable it on a trusted deployment.
+By default Kaneo refuses a GitLab URL that resolves to a private or loopback address. If your instance is only reachable inside your network, set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the API. The same variable lifts the check for Gitea, notification destinations, and [import sources](/core/migrations), so only enable it on a trusted deployment.
 
 Without this variable the GitLab URL must use `https`, since the access token is sent with every request.
 

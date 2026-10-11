@@ -1,0 +1,69 @@
+---
+title: Import from Jira
+description: Move Jira Cloud or Jira Data Center projects into Kaneo, including board columns, issues, priorities, labels, assignees, sub-tasks, issue links, and comments.
+---
+
+Each Jira project becomes a Kaneo project. This works with Jira Cloud and Jira Data Center. Read [Import from other tools](/core/migrations) first for the rules that apply to every import.
+
+## Before you start
+
+You need:
+
+- To be an admin of the Kaneo workspace you are importing into.
+- Your Jira site URL. Open Jira and copy the address from the browser, for example `https://your-site.atlassian.net`. For Jira Data Center, the address is on your own domain, for example `https://jira.example.com`.
+- A way to sign in to Jira:
+  - **Jira Cloud**: the email of your Atlassian account and an API token. Open [id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens) and create an API token. Copy it right away, because Atlassian only shows it once.
+  - **Jira Data Center**: a personal access token. In Jira, open your profile, then **Personal Access Tokens**, and create one. Leave the email empty when you use it.
+
+Invite your team to the Kaneo workspace first. Assignees are matched by email. Jira often hides email addresses, depending on each person's profile settings, so when it does, Kaneo matches by full name instead, ignoring case, and only when exactly one workspace member has that name. Anyone who isn't a member yet will have their issues imported unassigned.
+
+If you run Kaneo yourself and Jira is on a private network, for example a Jira Data Center server on your LAN, the Kaneo server must be able to reach it. The operator must set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the Kaneo API. See [Self-hosted instances](/core/migrations#self-hosted-instances).
+
+## Connect
+
+1. In Kaneo, open **Settings → Workspace → Import** and choose **Jira**.
+2. Paste your Jira site URL.
+3. For Jira Cloud, enter your email and paste your API token. For Jira Data Center, leave the email empty and paste your personal access token.
+4. Select the projects to import. Leave comments on, or turn them off.
+5. Start the import. You can leave the page while it runs and check **Recent imports** later.
+
+## What carries over
+
+| Jira | Kaneo |
+| --- | --- |
+| Project | Project |
+| Project key, for example `PROJ` | Project key. If another project in the workspace uses it, Kaneo adds a suffix, for example `PROJ-2` |
+| Columns of the project's Jira Software board, or its statuses when there is no board Kaneo can read | Columns, in Jira's order. The last board column, and columns that only hold done statuses, become final columns. Issues in a **Backlog** column or status go to the project's **Backlog** instead of the board |
+| Issue | Task |
+| Issue number, for example `PROJ-123` | Task number, so `PROJ-123` stays `PROJ-123` |
+| Description | Task description, converted from Jira's rich text to Markdown |
+| Priority | The closest Kaneo priority. Highest, Blocker, and Critical become Urgent. High and Major become High. Medium stays Medium. Low, Lowest, Minor, and Trivial become Low. Other priorities become no priority |
+| Due date | Due date |
+| Labels | Labels. Jira labels have no colors, so Kaneo picks one for each |
+| Assignee | Assignee, matched by email, or by full name when Jira hides the email |
+| Sub-tasks, and issues that have a parent issue such as an epic | Subtask relations |
+| Issue links | **Blocks** links stay blocks relations. Other links, such as **Relates**, become related relations |
+| Comments | Comments, with the original author's name and date |
+
+## What doesn't
+
+- **Attachments.** Download anything you need from Jira before you stop using it.
+- **Sprints.**
+- **Epics**, other than as parent issues. An epic is imported as a task, with its issues as subtasks.
+- **Components and fix versions.**
+- **Custom fields.**
+- **Worklogs.**
+- **Watchers.**
+- **Parent and issue links to issues in other projects.** The report says how many were left out.
+
+## Troubleshooting
+
+**The token is rejected**: for Jira Cloud, check that the email belongs to the Atlassian account that created the token, that you copied the whole token, and that it has not expired. For Jira Data Center, leave the email empty and paste a personal access token, not your password.
+
+**A project is missing from the list**: your Jira account can't browse it. Ask a Jira admin for access to the project, or sign in with an account that has it.
+
+**Columns follow statuses instead of the board**: Kaneo could not read the project's board, and the report says so. Check that your account can see the board in Jira, then delete the imported project and import it again.
+
+**A large import is slow**: Jira Cloud limits how many requests Kaneo can make, so large projects take a while. With comments on, Kaneo reads them separately for each issue that has any. You don't need to keep the page open. Check **Recent imports** later. If you don't need the comments, turn them off to finish faster.
+
+**Tasks are unassigned**: the assignee's Jira email, or their full name when Jira hides the email, must match a member of the Kaneo workspace. Invite them or fix the name, delete the imported project, and import it again. You can also assign the tasks by hand.
