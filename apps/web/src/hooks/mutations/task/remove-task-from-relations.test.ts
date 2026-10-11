@@ -33,5 +33,8 @@ describe("removeTasksFromRelations", () => {
     expect(
       queryClient.getQueryData(["task-relations", "sub-a"]),
     ).toBeUndefined();
+    expect(
+      queryClient.getQueryState(["task-relations", "parent"])?.isInvalidated,
+    ).toBe(true);
   });
 });

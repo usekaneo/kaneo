@@ -26,4 +26,7 @@ export function removeTasksFromRelations(
           !deleted.has(relation.targetTaskId),
       ),
   );
+
+  // Restart any relation fetch still in flight so it can't write the old list back.
+  void queryClient.invalidateQueries({ queryKey: ["task-relations"] });
 }
