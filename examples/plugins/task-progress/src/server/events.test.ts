@@ -64,7 +64,22 @@ function setup() {
       fromWorkspaceId: from,
       toWorkspaceId: to,
     });
-  return { storage, moveProject };
+  const moveTask = (
+    taskId: string,
+    workspaceId: string,
+    from: string,
+    to: string,
+  ) =>
+    handlers.get("task.moved")!({
+      type: "task.moved",
+      workspaceId,
+      projectId: to,
+      taskId,
+      actorId: "user-1",
+      fromProjectId: from,
+      toProjectId: to,
+    } as PluginEvent);
+  return { storage, moveProject, moveTask };
 }
 
 describe("project.moved", () => {
@@ -95,6 +110,21 @@ describe("project.moved", () => {
     await moveProject("project-1", "workspace-a", "workspace-b");
 
     expect(await storage("workspace-b").get(key)).toBe(75);
+    expect(storage("workspace-a").data.size).toBe(0);
+  });
+
+  it("moves a task's progress when the task moves while its project is still moving", async () => {
+    const { storage, moveProject, moveTask } = setup();
+    await storage("workspace-a").set(progressKey("project-1", "task-1"), 40);
+
+    await Promise.all([
+      moveProject("project-1", "workspace-a", "workspace-b"),
+      moveTask("task-1", "workspace-b", "project-1", "project-2"),
+    ]);
+
+    expect(Object.fromEntries(storage("workspace-b").data)).toEqual({
+      [progressKey("project-2", "task-1")]: 40,
+    });
     expect(storage("workspace-a").data.size).toBe(0);
   });
 
