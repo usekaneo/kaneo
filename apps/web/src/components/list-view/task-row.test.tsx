@@ -35,6 +35,16 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => navigate,
 }));
 
+vi.mock("@/hooks/use-workspace-permission", () => ({
+  useWorkspacePermission: () => ({
+    canUpdateTasks: () => false,
+    canAssignTasks: () => false,
+    canUpdateLabels: () => false,
+  }),
+}));
+
+vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
+
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
   default: function useMockExternalLinks(taskId: string) {
     return useExternalLinks(taskId);

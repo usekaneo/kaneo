@@ -18,7 +18,7 @@ export function TaskLabels({
   );
 
   return (
-    <div className="flex min-w-0 flex-wrap gap-x-2.5 gap-y-1">
+    <span className="flex min-w-0 flex-wrap gap-x-2.5 gap-y-1">
       {sortedLabels.map((label) => (
         <span
           key={label.id}
@@ -37,6 +37,6 @@ export function TaskLabels({
           </span>
         </span>
       ))}
-    </div>
+    </span>
   );
 }

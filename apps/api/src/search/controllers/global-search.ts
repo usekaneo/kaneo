@@ -12,6 +12,7 @@ import { canAccessProject } from "../../project-access/can-access-project";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { escapeLikePattern } from "../like-pattern";
 import { TASK_SHORT_ID_PATTERN } from "../task-short-id";
+import { subtaskCandidateCondition } from "../subtask-candidate-condition";
 
 type SearchParams = {
   query: string;
@@ -26,6 +27,8 @@ type SearchParams = {
     | "activities";
   workspaceId?: string;
   projectId?: string;
+  subtaskOf?: string;
+  parentOf?: string;
   limit?: number;
 };
 
@@ -155,6 +158,16 @@ async function globalSearch(params: SearchParams): Promise<{
       : inArray(projectTable.workspaceId, accessibleWorkspaceIds),
     projectAccessCondition(resolvedUserId, projectTable.id),
   );
+  const candidateTaskId = params.subtaskOf ?? params.parentOf;
+  const candidateCondition =
+    candidateTaskId && workspaceId
+      ? subtaskCandidateCondition({
+          taskId: candidateTaskId,
+          direction: params.subtaskOf ? "child" : "parent",
+          workspaceId,
+          userId: resolvedUserId,
+        })
+      : undefined;
 
   // Check if query matches short-id pattern (e.g. "DEP-23"). `generateProjectSlug`
   // normalizes to NFKC before it stores a key, so the query is normalized too,
@@ -203,6 +216,7 @@ async function globalSearch(params: SearchParams): Promise<{
         .where(
           and(
             workspaceFilter,
+            candidateCondition,
             projectId ? eq(taskTable.projectId, projectId) : undefined,
             // A project key may hold `_`, which `ilike` reads as "any one
             // character", so `DE_-23` would also match a task in `DEP` and the
@@ -271,6 +285,7 @@ async function globalSearch(params: SearchParams): Promise<{
       .where(
         and(
           workspaceFilter,
+          candidateCondition,
           projectId ? eq(taskTable.projectId, projectId) : undefined,
           or(
             ilike(taskTable.title, searchPattern),

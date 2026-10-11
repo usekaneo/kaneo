@@ -265,8 +265,10 @@ function RouteComponent() {
       headerActions={boardHeaderSearch}
     >
       <PageTitle
-        title={`${project?.name} · ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`}
-        hideAppName
+        title={project?.name ?? ""}
+        suffix={
+          viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")
+        }
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
         <BoardToolbar

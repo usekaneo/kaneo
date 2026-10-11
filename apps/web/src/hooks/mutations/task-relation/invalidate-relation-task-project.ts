@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 import type { ProjectWithTasks } from "@/types/project";
 
-/** Refresh only cached boards that contain the relation's parent task. */
+/** Refresh only cached boards that contain the given relation endpoint. */
 export function invalidateRelationTaskProject(
   queryClient: QueryClient,
   taskId: string,

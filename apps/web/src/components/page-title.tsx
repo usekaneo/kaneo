@@ -12,12 +12,9 @@ export default function PageTitle({
   hideAppName = false,
 }: PageTitleProps) {
   useEffect(() => {
-    const formattedTitle = hideAppName
-      ? title
-      : suffix
-        ? `${title} · ${suffix}`
-        : title;
-    document.title = formattedTitle;
+    document.title = [title, hideAppName ? null : suffix]
+      .filter(Boolean)
+      .join(" · ");
   }, [title, suffix, hideAppName]);
 
   return null;

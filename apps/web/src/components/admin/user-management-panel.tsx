@@ -82,6 +82,7 @@ import {
   withInstanceAdminRole,
 } from "@/lib/instance-admin";
 import { SettingsPage } from "@/components/settings/settings-page";
+import LastUsed from "./last-used";
 
 type PendingAction = {
   type: "deactivate" | "reactivate" | "delete";
@@ -281,6 +282,9 @@ function UserManagementPanel() {
                 <TableHead>{t("settings:adminUsers.columns.role")}</TableHead>
                 <TableHead>{t("settings:adminUsers.columns.status")}</TableHead>
                 <TableHead>{t("settings:adminUsers.columns.joined")}</TableHead>
+                <TableHead title={t("settings:adminLastUsed.userHint")}>
+                  {t("settings:adminLastUsed.label")}
+                </TableHead>
                 <TableHead className="w-px pe-6">
                   <span className="sr-only">
                     {t("settings:adminUsers.columns.actions")}
@@ -293,7 +297,7 @@ function UserManagementPanel() {
                 ? ["first", "second", "third", "fourth", "fifth"].map(
                     (skeleton) => (
                       <TableRow key={skeleton}>
-                        <TableCell className="ps-6 py-3" colSpan={5}>
+                        <TableCell className="ps-6 py-3" colSpan={6}>
                           <Skeleton className="h-9 w-full" />
                         </TableCell>
                       </TableRow>
@@ -303,7 +307,7 @@ function UserManagementPanel() {
 
               {!isLoading && isError ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-56 text-center">
+                  <TableCell colSpan={6} className="h-56 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <p className="text-sm text-muted-foreground">
                         {t("settings:adminUsers.loadError")}
@@ -324,7 +328,7 @@ function UserManagementPanel() {
 
               {!isLoading && !isError && data?.users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-56 text-center">
+                  <TableCell colSpan={6} className="h-56 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
                         <UsersRoundIcon aria-hidden="true" />
@@ -432,6 +436,9 @@ function UserManagementPanel() {
                         </TableCell>
                         <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
                           {formatDateMedium(managedUser.createdAt)}
+                        </TableCell>
+                        <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
+                          <LastUsed value={managedUser.lastUsedAt} />
                         </TableCell>
                         <TableCell className="pe-6 py-3 text-right">
                           <Menu>

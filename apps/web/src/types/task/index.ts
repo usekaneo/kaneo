@@ -40,6 +40,7 @@ type Task = {
   projectId: string;
   columnId?: string | null;
   subtaskCounts?: { completed: number; total: number };
+  subtaskParents?: { id: string; title: string; projectId: string }[];
   labels?: TaskLabel[];
   externalLinks?: TaskExternalLink[];
   customFieldValues?: TaskCustomFieldValue[];

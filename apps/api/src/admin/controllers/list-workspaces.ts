@@ -2,6 +2,8 @@ import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   projectTable,
+  activityTable,
+  taskTable,
   userTable,
   workspaceTable,
   workspaceUserTable,
@@ -45,36 +47,49 @@ async function listWorkspaces({ search, page, limit }: ListWorkspacesInput) {
   }
 
   const workspaceIds = rows.map((row) => row.id);
-  const [owners, memberCounts, projectCounts] = await Promise.all([
-    db
-      .select({
-        workspaceId: workspaceUserTable.workspaceId,
-        id: userTable.id,
-        name: userTable.name,
-        email: userTable.email,
-      })
-      .from(workspaceUserTable)
-      .innerJoin(userTable, eq(workspaceUserTable.userId, userTable.id))
-      .where(
-        and(
-          inArray(workspaceUserTable.workspaceId, workspaceIds),
-          sql`'owner' = any(string_to_array(${workspaceUserTable.role}, ','))`,
+  const [owners, memberCounts, projectCounts, activityDates] =
+    await Promise.all([
+      db
+        .select({
+          workspaceId: workspaceUserTable.workspaceId,
+          id: userTable.id,
+          name: userTable.name,
+          email: userTable.email,
+        })
+        .from(workspaceUserTable)
+        .innerJoin(userTable, eq(workspaceUserTable.userId, userTable.id))
+        .where(
+          and(
+            inArray(workspaceUserTable.workspaceId, workspaceIds),
+            sql`'owner' = any(string_to_array(${workspaceUserTable.role}, ','))`,
+          ),
         ),
-      ),
-    db
-      .select({
-        workspaceId: workspaceUserTable.workspaceId,
-        value: count(),
-      })
-      .from(workspaceUserTable)
-      .where(inArray(workspaceUserTable.workspaceId, workspaceIds))
-      .groupBy(workspaceUserTable.workspaceId),
-    db
-      .select({ workspaceId: projectTable.workspaceId, value: count() })
-      .from(projectTable)
-      .where(inArray(projectTable.workspaceId, workspaceIds))
-      .groupBy(projectTable.workspaceId),
-  ]);
+      db
+        .select({
+          workspaceId: workspaceUserTable.workspaceId,
+          value: count(),
+        })
+        .from(workspaceUserTable)
+        .where(inArray(workspaceUserTable.workspaceId, workspaceIds))
+        .groupBy(workspaceUserTable.workspaceId),
+      db
+        .select({ workspaceId: projectTable.workspaceId, value: count() })
+        .from(projectTable)
+        .where(inArray(projectTable.workspaceId, workspaceIds))
+        .groupBy(projectTable.workspaceId),
+      db
+        .select({
+          workspaceId: projectTable.workspaceId,
+          lastUsedAt: sql<Date | null>`max(${activityTable.createdAt})`.mapWith(
+            activityTable.createdAt,
+          ),
+        })
+        .from(projectTable)
+        .innerJoin(taskTable, eq(taskTable.projectId, projectTable.id))
+        .innerJoin(activityTable, eq(activityTable.taskId, taskTable.id))
+        .where(inArray(projectTable.workspaceId, workspaceIds))
+        .groupBy(projectTable.workspaceId),
+    ]);
 
   const members = new Map(
     memberCounts.map((row) => [row.workspaceId, row.value]),
@@ -82,11 +97,15 @@ async function listWorkspaces({ search, page, limit }: ListWorkspacesInput) {
   const projects = new Map(
     projectCounts.map((row) => [row.workspaceId, row.value]),
   );
+  const lastUsed = new Map(
+    activityDates.map((row) => [row.workspaceId, row.lastUsedAt]),
+  );
 
   return {
     workspaces: rows.map((row) => ({
       ...row,
       createdAt: row.createdAt.toISOString(),
+      lastUsedAt: lastUsed.get(row.id)?.toISOString() ?? null,
       memberCount: members.get(row.id) ?? 0,
       projectCount: projects.get(row.id) ?? 0,
       owners: owners

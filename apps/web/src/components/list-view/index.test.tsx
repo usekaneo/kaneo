@@ -9,6 +9,9 @@ import { afterEach, expect, it, vi } from "vite-plus/test";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { ProjectWithTasks } from "@/types/project";
 import ListView from "./index";
+vi.mock("../task/task-view-context-menu", () => ({
+  default: ({ children }: { children: React.ReactNode }) => children,
+}));
 const m = vi.hoisted(() => ({
   props: {} as {
     sensors?: unknown[];

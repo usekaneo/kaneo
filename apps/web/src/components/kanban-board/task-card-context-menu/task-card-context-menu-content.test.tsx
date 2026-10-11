@@ -5,12 +5,32 @@ import TaskCardContextMenuContent from "./task-card-context-menu-content";
 
 const duplicateTask = vi.fn();
 const canCreateTasks = vi.fn(() => true);
+const canUpdateTasks = vi.fn(() => true);
+vi.mock("./task-labels-context-menu", () => ({
+  default: () => <div>Labels menu</div>,
+}));
+vi.mock("@/components/shared/modals/create-task-modal", () => ({
+  default: ({
+    projectId,
+    parentTaskId,
+  }: {
+    projectId: string;
+    parentTaskId?: string;
+  }) => (
+    <div
+      data-testid="creation-modal"
+      data-project={projectId}
+      data-parent={parentTaskId}
+    />
+  ),
+}));
 vi.mock("@/hooks/mutations/task/use-duplicate-task", () => ({
   useDuplicateTask: () => ({ mutate: duplicateTask }),
 }));
 
 afterEach(() => {
   canCreateTasks.mockReturnValue(true);
+  canUpdateTasks.mockReturnValue(true);
   cleanup();
   vi.clearAllMocks();
 });
@@ -110,9 +130,10 @@ vi.mock("@/hooks/mutations/task/use-update-task-title", () => ({
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks,
-    canUpdateTasks: () => true,
+    canUpdateTasks,
     canDeleteTasks: () => true,
     canAssignTasks: () => true,
+    canUpdateLabels: () => false,
   }),
 }));
 
@@ -196,4 +217,42 @@ it("hides duplication without task-create permission", () => {
   canCreateTasks.mockReturnValue(false);
   renderTask(task);
   expect(screen.queryByText("tasks:actions.duplicate")).toBeNull();
+});
+
+it("opens subtask creation in the task's project with the correct parent", () => {
+  renderTask(task);
+  fireEvent.click(
+    screen.getByRole("button", { name: "tasks:subtasks.create" }),
+  );
+  expect(screen.getByTestId("creation-modal")).toHaveAttribute(
+    "data-project",
+    task.projectId,
+  );
+  expect(screen.getByTestId("creation-modal")).toHaveAttribute(
+    "data-parent",
+    task.id,
+  );
+});
+
+it("opens normal task creation without a parent", () => {
+  renderTask(task);
+  fireEvent.click(
+    screen.getByRole("button", { name: "tasks:calendar.newTask" }),
+  );
+  expect(screen.getByTestId("creation-modal")).not.toHaveAttribute(
+    "data-parent",
+  );
+});
+
+it("requires both create and update permissions to offer subtask creation", () => {
+  canUpdateTasks.mockReturnValue(false);
+  renderTask(task);
+  expect(screen.queryByText("tasks:subtasks.create")).not.toBeInTheDocument();
+  expect(screen.getByText("tasks:calendar.newTask")).toBeInTheDocument();
+  cleanup();
+  canCreateTasks.mockReturnValue(false);
+  canUpdateTasks.mockReturnValue(true);
+  renderTask(task);
+  expect(screen.queryByText("tasks:subtasks.create")).not.toBeInTheDocument();
+  expect(screen.queryByText("tasks:calendar.newTask")).not.toBeInTheDocument();
 });

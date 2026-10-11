@@ -1,6 +1,7 @@
 import { isBefore, isToday, startOfToday } from "date-fns";
 import { type JSX, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import TaskContextMenu from "@/components/task/task-context-menu";
 import { cn } from "@/lib/cn";
 import { formatDate, formatDateShort } from "@/lib/format";
 import {
@@ -86,26 +87,28 @@ export default function MonthAgenda({
                 const range = `${formatDateShort(task.scheduleStart)} – ${formatDateShort(task.scheduleEnd)}`;
                 return (
                   <li key={task.id}>
-                    <button
-                      type="button"
-                      onClick={() => onOpenTask(task.id)}
-                      aria-label={t("tasks:calendar.taskAriaLabel", {
-                        title: task.title,
-                        range,
-                      })}
-                      data-task-status={task.status}
-                      className={cn(
-                        "flex min-h-11 w-full flex-col justify-center gap-0.5 rounded-md border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        getCalendarTaskStatusClass(task.status),
-                      )}
-                    >
-                      <span className="text-sm font-medium text-foreground">
-                        {task.title}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {taskKey ? `${taskKey} · ${range}` : range}
-                      </span>
-                    </button>
+                    <TaskContextMenu task={task} projectId={task.projectId}>
+                      <button
+                        type="button"
+                        onClick={() => onOpenTask(task.id)}
+                        aria-label={t("tasks:calendar.taskAriaLabel", {
+                          title: task.title,
+                          range,
+                        })}
+                        data-task-status={task.status}
+                        className={cn(
+                          "flex min-h-11 w-full flex-col justify-center gap-0.5 rounded-md border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          getCalendarTaskStatusClass(task.status),
+                        )}
+                      >
+                        <span className="text-sm font-medium text-foreground">
+                          {task.title}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {taskKey ? `${taskKey} · ${range}` : range}
+                        </span>
+                      </button>
+                    </TaskContextMenu>
                   </li>
                 );
               })}

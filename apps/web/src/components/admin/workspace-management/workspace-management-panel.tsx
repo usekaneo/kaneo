@@ -33,7 +33,7 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import WorkspaceMembersDialog from "./workspace-members-dialog";
 import WorkspaceTableRow from "./workspace-table-row";
 
-const COLUMN_COUNT = 6;
+const COLUMN_COUNT = 7;
 
 function WorkspaceManagementPanel() {
   const { t } = useTranslation();
@@ -134,6 +134,9 @@ function WorkspaceManagementPanel() {
                 </TableHead>
                 <TableHead>
                   {t("settings:adminWorkspaces.columns.created")}
+                </TableHead>
+                <TableHead title={t("settings:adminLastUsed.workspaceHint")}>
+                  {t("settings:adminLastUsed.label")}
                 </TableHead>
                 <TableHead className="w-px pe-6">
                   <span className="sr-only">

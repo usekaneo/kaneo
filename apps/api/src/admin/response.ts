@@ -11,6 +11,10 @@ export const adminUserSchema = z
     image: z.string().nullable(),
     createdAt: isoTimestamp,
     updatedAt: isoTimestamp,
+    lastUsedAt: isoTimestamp.nullable().openapi({
+      description:
+        "Latest retained non-impersonated session creation/refresh or recorded task activity. Null means no retained evidence; this is not proof of inactivity.",
+    }),
     role: z.string().nullable(),
     banned: z.boolean(),
     banReason: z.string().nullable(),
@@ -40,6 +44,10 @@ export const adminWorkspaceSchema = z
     slug: z.string(),
     createdAt: isoTimestamp,
     memberCount: z.number().int(),
+    lastUsedAt: isoTimestamp.nullable().openapi({
+      description:
+        "Latest recorded task activity in this workspace, including integrations. Does not track reads; deleting tasks removes their activity. Null means no retained evidence.",
+    }),
     projectCount: z.number().int(),
     owners: z.array(adminWorkspaceOwnerSchema),
   })

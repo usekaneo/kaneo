@@ -51,3 +51,10 @@ export const dueDateStatusIcons = {
   "far-future": "calendar",
   "no-due-date": "calendar",
 } as const;
+
+export const dueDateTextColors: Record<DueDateStatus, string> = {
+  overdue: "text-destructive-foreground",
+  "due-soon": "text-warning-foreground",
+  "far-future": "text-muted-foreground",
+  "no-due-date": "text-muted-foreground",
+};

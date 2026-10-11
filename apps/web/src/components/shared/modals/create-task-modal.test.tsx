@@ -5,6 +5,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import {
@@ -17,6 +18,7 @@ import {
 } from "vite-plus/test";
 
 import CreateTaskModal from "./create-task-modal";
+import { toast } from "@/lib/toast";
 
 function createTestQueryClient() {
   return new QueryClient({
@@ -42,10 +44,17 @@ const useLocation = vi.fn();
 const deleteTask = vi.fn(async () => {});
 const updateTask = vi.fn(async (input: Record<string, unknown>) => input);
 const setProject = vi.fn();
+let canUpdateTasks = true;
 let workspaceId = "workspace-1";
 let projects: { id: string; name: string; slug: string }[] | undefined;
 let columnsError = false;
 let columnsFetching = false;
+let workspaceLabels: {
+  id: string;
+  name: string;
+  color: string;
+  taskId: null;
+}[] = [];
 const refetchColumns = vi.fn();
 let projectColumns:
   | { id: string; slug: string; name: string; isFinal: boolean }[]
@@ -58,6 +67,7 @@ vi.mock("@/lib/upload-draft-asset", () => ({
 }));
 
 beforeEach(() => {
+  canUpdateTasks = true;
   workspaceId = "workspace-1";
   projects = [
     { id: "project-1", name: "Alpha", slug: "alp" },
@@ -66,6 +76,7 @@ beforeEach(() => {
   storedProject = null;
   columnsError = false;
   columnsFetching = false;
+  workspaceLabels = [];
   refetchColumns.mockImplementation(async () => ({
     data: projectColumns,
     isError: columnsError,
@@ -82,6 +93,171 @@ const createTask = vi.fn(async (input: Record<string, unknown>) => ({
   projectId: input.projectId,
   createdAt: "2026-08-05T00:00:00.000Z",
 }));
+
+it("submits the parent with task creation and keeps the draft on failure", async () => {
+  const onClose = vi.fn();
+  render(
+    <CreateTaskModal
+      open
+      projectId="project-1"
+      parentTaskId="parent"
+      onClose={onClose}
+    />,
+    { wrapper: createWrapper() },
+  );
+  const input = screen.getByPlaceholderText(
+    "common:modals.createTask.taskTitlePlaceholder",
+  );
+  fireEvent.change(input, { target: { value: "New subtask" } });
+  createTask.mockRejectedValueOnce(new Error("Parent unavailable"));
+  fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+  await vi.waitFor(() =>
+    expect(createTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        parentTaskId: "parent",
+        projectId: "project-1",
+      }),
+    ),
+  );
+  await vi.waitFor(() =>
+    expect(toast.error).toHaveBeenCalledWith("Parent unavailable"),
+  );
+  expect(onClose).not.toHaveBeenCalled();
+  expect(input).toHaveValue("New subtask");
+  fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+  await vi.waitFor(() => expect(onClose).toHaveBeenCalled());
+});
+
+it("does not create a subtask without update permission", () => {
+  canUpdateTasks = false;
+  render(
+    <CreateTaskModal
+      open
+      projectId="project-1"
+      parentTaskId="parent"
+      onClose={vi.fn()}
+    />,
+    { wrapper: createWrapper() },
+  );
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(createTask).not.toHaveBeenCalled();
+});
+
+it("treats staged resources as unsaved input and allows removing them", async () => {
+  const onClose = vi.fn();
+  render(<CreateTaskModal open projectId="project-1" onClose={onClose} />, {
+    wrapper: createWrapper(),
+  });
+  fireEvent.click(
+    screen.getByRole("button", { name: "settings:externalLinks.addResource" }),
+  );
+  const dialog = await screen.findByRole("dialog", {
+    name: "settings:externalLinks.addResource",
+  });
+  const url = within(dialog).getByLabelText("settings:externalLinks.url");
+  fireEvent.change(url, { target: { value: "ftp://example.com" } });
+  fireEvent.submit(url.closest("form")!);
+  expect(dialog).toBeVisible();
+  expect(createTask).not.toHaveBeenCalled();
+  fireEvent.change(url, { target: { value: "https://example.com" } });
+  fireEvent.submit(url.closest("form")!);
+  await vi.waitFor(() =>
+    expect(
+      screen.queryByRole("dialog", {
+        name: "settings:externalLinks.addResource",
+      }),
+    ).not.toBeInTheDocument(),
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "common:actions.cancel" }),
+  );
+  await screen.findByText("common:modals.createTask.discardTitle");
+  expect(onClose).not.toHaveBeenCalled();
+  fireEvent.click(
+    within(screen.getByRole("alertdialog")).getByRole("button", {
+      name: "common:actions.cancel",
+    }),
+  );
+  await vi.waitFor(() =>
+    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument(),
+  );
+  const resources = screen.getByRole("region", {
+    name: "settings:externalLinks.resources",
+  });
+  fireEvent.click(
+    within(resources).getByRole("button", {
+      name: "settings:externalLinks.remove",
+    }),
+  );
+  expect(
+    within(resources).queryByText("https://example.com"),
+  ).not.toBeInTheDocument();
+  fireEvent.click(
+    screen.getByRole("button", { name: "common:actions.cancel" }),
+  );
+  expect(onClose).toHaveBeenCalledOnce();
+  expect(createTask).not.toHaveBeenCalled();
+});
+
+it("stages resources without creating a task, keeps them on failure, and clears them for Create more", async () => {
+  const onClose = vi.fn();
+  render(<CreateTaskModal open projectId="project-1" onClose={onClose} />, {
+    wrapper: createWrapper(),
+  });
+  fireEvent.change(
+    screen.getByPlaceholderText(
+      "common:modals.createTask.taskTitlePlaceholder",
+    ),
+    { target: { value: "With resource" } },
+  );
+  fireEvent.click(
+    screen.getByRole("button", { name: "settings:externalLinks.addResource" }),
+  );
+  const resourceDialog = await screen.findByRole("dialog", {
+    name: "settings:externalLinks.addResource",
+  });
+  const url = within(resourceDialog).getByLabelText(
+    "settings:externalLinks.url",
+  );
+  fireEvent.change(url, { target: { value: "https://example.com/design" } });
+  fireEvent.change(
+    within(resourceDialog).getByLabelText(
+      "settings:externalLinks.titleOptional",
+    ),
+    { target: { value: "Design" } },
+  );
+  fireEvent.keyDown(url, { key: "Enter", ctrlKey: true });
+  await vi.waitFor(() =>
+    expect(
+      screen.queryByRole("dialog", {
+        name: "settings:externalLinks.addResource",
+      }),
+    ).not.toBeInTheDocument(),
+  );
+  expect(createTask).not.toHaveBeenCalled();
+  expect(screen.getByText("Design")).toBeVisible();
+  createTask.mockRejectedValueOnce(new Error("Create failed"));
+  fireEvent.submit(document.querySelector("form")!);
+  await vi.waitFor(() =>
+    expect(toast.error).toHaveBeenCalledWith("Create failed"),
+  );
+  expect(screen.getByText("Design")).toBeVisible();
+  expect(onClose).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("switch"));
+  fireEvent.submit(document.querySelector("form")!);
+  await vi.waitFor(() =>
+    expect(createTask).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        externalLinks: [{ url: "https://example.com/design", title: "Design" }],
+      }),
+    ),
+  );
+  await vi.waitFor(() =>
+    expect(screen.queryByText("Design")).not.toBeInTheDocument(),
+  );
+  expect(screen.getByRole("switch")).toHaveAttribute("aria-checked", "true");
+  expect(onClose).not.toHaveBeenCalled();
+});
 
 afterEach(() => {
   cleanup();
@@ -135,7 +311,7 @@ vi.mock("@/hooks/mutations/task/use-update-task", () => ({
 }));
 
 vi.mock("@/hooks/queries/label/use-get-labels-by-workspace", () => ({
-  default: () => ({ data: [] }),
+  default: () => ({ data: workspaceLabels }),
 }));
 
 vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
@@ -156,6 +332,7 @@ vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
+    canUpdateTasks: () => canUpdateTasks,
     canCreateLabels: () => true,
   }),
 }));
@@ -187,6 +364,34 @@ vi.mock("react-i18next", () => ({
 }));
 
 describe("CreateTaskModal", () => {
+  it("keeps labels open for multiple selections and spaces the selected badges evenly", async () => {
+    workspaceLabels = [
+      { id: "label-1", name: "Frontend", color: "blue", taskId: null },
+      { id: "label-2", name: "Urgent", color: "red", taskId: null },
+    ];
+    render(<CreateTaskModal open projectId="project-1" onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    const trigger = screen
+      .getByText("common:modals.createTask.labels")
+      .closest("button");
+    if (!trigger) throw new Error("Labels trigger is missing");
+    fireEvent.click(trigger);
+    fireEvent.click(await screen.findByRole("button", { name: "Frontend" }));
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Urgent" }));
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+
+    const badges = Array.from(document.querySelectorAll('[data-slot="badge"]'));
+    expect(badges).toHaveLength(2);
+    expect(badges[0]).toHaveTextContent("Frontend");
+    expect(badges[1]).toHaveTextContent("Urgent");
+
+    fireEvent.click(screen.getByRole("button", { name: "Frontend" }));
+    expect(trigger).toHaveAttribute("aria-expanded", "true");
+    expect(document.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
+  });
+
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
@@ -285,6 +490,10 @@ describe("CreateTaskModal", () => {
     );
     fireEvent.click(pickerTrigger);
     fireEvent.click(await screen.findByText("Beta"));
+    expect(pickerTrigger.closest("button")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
 
     fireEvent.change(
       screen.getByPlaceholderText(
@@ -305,6 +514,308 @@ describe("CreateTaskModal", () => {
       );
     });
   });
+
+  it("closes priority and assignee pickers after selecting one option", async () => {
+    render(<CreateTaskModal open projectId="project-1" onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+
+    const priorityTrigger = screen
+      .getByText("tasks:priority.no-priority")
+      .closest('[data-slot="popover-trigger"]');
+    expect(priorityTrigger).not.toBeNull();
+    fireEvent.click(priorityTrigger as HTMLElement);
+    fireEvent.click(await screen.findByText("tasks:priority.low"));
+    expect(priorityTrigger).toHaveAttribute("aria-expanded", "false");
+
+    const assigneeTrigger = screen.getByText("common:modals.createTask.assign");
+    fireEvent.click(assigneeTrigger);
+    fireEvent.click(
+      await screen.findByText("common:modals.createTask.assignUnassigned"),
+    );
+    expect(assigneeTrigger.closest("button")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  });
+
+  it.each([undefined, "to-do", "planned"])(
+    "creates with the chosen workflow status instead of the initial status (%s)",
+    async (initialStatus) => {
+      projectColumns = [
+        { id: "todo", slug: "to-do", name: "Ready", isFinal: false },
+        { id: "done", slug: "done", name: "Finished", isFinal: true },
+      ];
+      const onClose = vi.fn();
+      render(
+        <CreateTaskModal
+          open
+          projectId="project-1"
+          status={initialStatus}
+          onClose={onClose}
+        />,
+        { wrapper: createWrapper() },
+      );
+      const trigger = screen.getByRole("button", {
+        name: "common:modals.createTask.status",
+      });
+      fireEvent.click(trigger);
+      fireEvent.click(await screen.findByText("Finished"));
+      expect(trigger).toHaveAttribute("aria-expanded", "false");
+      expect(trigger).toHaveTextContent("Finished");
+      expect(onClose).not.toHaveBeenCalled();
+      enterTitle();
+      submit();
+      await vi.waitFor(() =>
+        expect(createTask).toHaveBeenCalledWith(
+          expect.objectContaining({ status: "done", projectId: "project-1" }),
+        ),
+      );
+    },
+  );
+
+  it("reports an error rather than replacing a selected status removed before submission", async () => {
+    projectColumns = [
+      { id: "todo", slug: "to-do", name: "Ready", isFinal: false },
+      { id: "review", slug: "review", name: "Review", isFinal: false },
+    ];
+    refetchColumns.mockResolvedValue({
+      data: [projectColumns[0]],
+      isError: false,
+    });
+    const onClose = vi.fn();
+    render(<CreateTaskModal open projectId="project-1" onClose={onClose} />, {
+      wrapper: createWrapper(),
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:modals.createTask.status" }),
+    );
+    fireEvent.click(await screen.findByText("Review"));
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        "common:modals.createTask.statusUnavailable",
+      ),
+    );
+    expect(createTask).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(
+      screen.getByPlaceholderText(
+        "common:modals.createTask.taskTitlePlaceholder",
+      ),
+    ).toHaveValue("Private task");
+  });
+
+  it("treats a status-only change as unsaved input", async () => {
+    projectColumns = [
+      { id: "todo", slug: "to-do", name: "Ready", isFinal: false },
+      { id: "review", slug: "review", name: "Review", isFinal: false },
+    ];
+    const onClose = vi.fn();
+    render(<CreateTaskModal open projectId="project-1" onClose={onClose} />, {
+      wrapper: createWrapper(),
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:modals.createTask.status" }),
+    );
+    fireEvent.click(await screen.findByText("Review"));
+    fireEvent.click(screen.getByText("common:actions.cancel"));
+    expect(
+      await screen.findByText("common:modals.createTask.discardTitle"),
+    ).toBeVisible();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("resets a chosen status when switching projects", async () => {
+    projectColumns = [
+      { id: "todo", slug: "to-do", name: "Ready", isFinal: false },
+      { id: "review", slug: "review", name: "Review", isFinal: false },
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:modals.createTask.status" }),
+    );
+    fireEvent.click(await screen.findByText("Review"));
+    fireEvent.click(screen.getByText("Beta"));
+    fireEvent.click(await screen.findByText("Alpha"));
+    expect(
+      screen.getByRole("button", { name: "common:modals.createTask.status" }),
+    ).toHaveTextContent("Ready");
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "to-do", projectId: "project-1" }),
+      ),
+    );
+  });
+
+  it("lets the Create more switch be turned on and off without submitting", async () => {
+    const onClose = vi.fn();
+    render(<CreateTaskModal open projectId="project-1" onClose={onClose} />, {
+      wrapper: createWrapper(),
+    });
+    const toggle = screen.getByRole("switch", {
+      name: "common:modals.createTask.createMore",
+    });
+    expect(toggle).not.toBeChecked();
+    fireEvent.click(toggle);
+    expect(toggle).toBeChecked();
+    fireEvent.click(screen.getByText("common:modals.createTask.createMore"));
+    expect(toggle).not.toBeChecked();
+    expect(createTask).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    enterTitle();
+    submit();
+    await vi.waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+  });
+
+  it("resets the status to the supplied default when creating another task", async () => {
+    projectColumns = [
+      { id: "todo", slug: "to-do", name: "Ready", isFinal: false },
+      { id: "review", slug: "review", name: "Review", isFinal: false },
+    ];
+    render(
+      <CreateTaskModal
+        open
+        projectId="project-1"
+        status="to-do"
+        onClose={vi.fn()}
+      />,
+      { wrapper: createWrapper() },
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:modals.createTask.status" }),
+    );
+    fireEvent.click(await screen.findByText("Review"));
+    fireEvent.click(
+      screen.getByRole("switch", {
+        name: "common:modals.createTask.createMore",
+      }),
+    );
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(
+        screen.getByRole("button", {
+          name: "common:modals.createTask.status",
+        }),
+      ).toHaveTextContent("Ready"),
+    );
+    expect(createTask).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "review" }),
+    );
+  });
+
+  it.each([undefined, "parent"])(
+    "keeps Create more enabled across two submissions with parent %s",
+    async (parentTaskId) => {
+      const onClose = vi.fn();
+      render(
+        <CreateTaskModal
+          open
+          projectId="project-1"
+          parentTaskId={parentTaskId}
+          onClose={onClose}
+        />,
+        { wrapper: createWrapper() },
+      );
+      const toggle = screen.getByRole("switch", {
+        name: "common:modals.createTask.createMore",
+      });
+      fireEvent.click(toggle);
+      for (const title of ["First task", "Second task"]) {
+        enterTitle(title);
+        submit();
+        await vi.waitFor(() =>
+          expect(
+            screen.getByPlaceholderText(
+              "common:modals.createTask.taskTitlePlaceholder",
+            ),
+          ).toHaveValue(""),
+        );
+        expect(toggle).toBeChecked();
+        expect(createTask).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            title,
+            projectId: "project-1",
+            ...(parentTaskId ? { parentTaskId } : {}),
+          }),
+        );
+        expect(onClose).not.toHaveBeenCalled();
+      }
+    },
+  );
+
+  it.each(["startDate", "dueDate"])(
+    "submits the selected %s even after its calendar closes",
+    async (dateKey) => {
+      render(<CreateTaskModal open projectId="project-1" onClose={vi.fn()} />, {
+        wrapper: createWrapper(),
+      });
+      fireEvent.click(screen.getByText(`common:modals.createTask.${dateKey}`));
+      const grid = await screen.findByRole("grid");
+      const day = within(grid)
+        .getAllByRole("button")
+        .find((button) => button.textContent === "15");
+      if (!day) throw new Error("Calendar day is missing");
+      fireEvent.click(day);
+      const today = new Date();
+      const selectedDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        15,
+      ).toISOString();
+      enterTitle();
+      submit();
+      await vi.waitFor(() =>
+        expect(createTask).toHaveBeenCalledWith(
+          expect.objectContaining({
+            [dateKey]: selectedDate,
+          }),
+        ),
+      );
+    },
+  );
+
+  it.each([
+    ["startDate", "clearStartDate"],
+    ["dueDate", "clearDueDate"],
+  ])(
+    "closes the %s calendar after selection and clearing",
+    async (dateKey, clearKey) => {
+      const onClose = vi.fn();
+      render(<CreateTaskModal open projectId="project-1" onClose={onClose} />, {
+        wrapper: createWrapper(),
+      });
+      const trigger = screen
+        .getByText(`common:modals.createTask.${dateKey}`)
+        .closest("button");
+      if (!trigger) throw new Error("Date picker trigger is missing");
+      fireEvent.click(trigger);
+      const grid = await screen.findByRole("grid");
+      const day = within(grid)
+        .getAllByRole("button")
+        .find((button) => button.textContent === "15");
+      if (!day) throw new Error("Calendar day is missing");
+      fireEvent.click(day);
+      expect(trigger).toHaveAttribute("aria-expanded", "false");
+      expect(trigger).not.toHaveTextContent(
+        `common:modals.createTask.${dateKey}`,
+      );
+      fireEvent.click(trigger);
+      fireEvent.click(
+        await screen.findByText(`common:modals.createTask.${clearKey}`),
+      );
+      expect(trigger).toHaveAttribute("aria-expanded", "false");
+      expect(trigger).toHaveTextContent(`common:modals.createTask.${dateKey}`);
+      expect(onClose).not.toHaveBeenCalled();
+    },
+  );
 
   it("creates Home tasks in the first open custom column and shows its name", async () => {
     projectColumns = [

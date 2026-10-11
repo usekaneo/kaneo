@@ -45,12 +45,27 @@ vi.mock("react-i18next", () => ({
   }),
 }));
 
+// The context menu needs workspace queries; these tests only cover the bar.
+vi.mock("@/components/task/task-context-menu", () => ({
+  default: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 const segment = {
   task: {
     id: "t1",
     title: "Design review",
     number: 12,
+    description: null,
     status: "in-review",
+    priority: null,
+    startDate: null,
+    dueDate: null,
+    position: 0,
+    createdAt: "2026-08-01T00:00:00.000Z",
+    userId: null,
+    assigneeId: null,
+    assigneeName: null,
+    projectId: "p1",
     scheduleStart: new Date(2026, 7, 10),
     scheduleEnd: new Date(2026, 7, 12),
   },

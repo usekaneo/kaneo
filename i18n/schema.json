@@ -462,6 +462,15 @@
 								"statusLoadError": {
 									"type": "string"
 								},
+								"status": {
+									"type": "string"
+								},
+								"statusUnavailable": {
+									"type": "string"
+								},
+								"noStatuses": {
+									"type": "string"
+								},
 								"taskTitlePlaceholder": {
 									"type": "string"
 								},
@@ -600,6 +609,9 @@
 								"title",
 								"description",
 								"statusLoadError",
+								"status",
+								"statusUnavailable",
+								"noStatuses",
 								"taskTitlePlaceholder",
 								"descriptionPlaceholder",
 								"chooseProjectForImages",
@@ -2048,6 +2060,25 @@
 				},
 				"apiKeys": {
 					"type": "string"
+				},
+				"adminLastUsed": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"label": {
+							"type": "string"
+						},
+						"unknown": {
+							"type": "string"
+						},
+						"userHint": {
+							"type": "string"
+						},
+						"workspaceHint": {
+							"type": "string"
+						}
+					},
+					"required": ["label", "unknown", "userHint", "workspaceHint"]
 				},
 				"adminUsers": {
 					"type": "object",
@@ -9560,6 +9591,7 @@
 				"notifications",
 				"preferences",
 				"apiKeys",
+				"adminLastUsed",
 				"adminUsers",
 				"adminWorkspaces",
 				"informationPage",
@@ -10450,6 +10482,18 @@
 						"failedToUpdate": {
 							"type": "string"
 						},
+						"deleteTitle": {
+							"type": "string"
+						},
+						"deleteDescription": {
+							"type": "string"
+						},
+						"deleted": {
+							"type": "string"
+						},
+						"failedToDelete": {
+							"type": "string"
+						},
 						"edit": {
 							"type": "string"
 						},
@@ -10817,6 +10861,10 @@
 						"mustBeLoggedInToEdit",
 						"updated",
 						"failedToUpdate",
+						"deleteTitle",
+						"deleteDescription",
+						"deleted",
+						"failedToDelete",
 						"edit",
 						"editPlaceholder",
 						"save",
@@ -11543,6 +11591,51 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
+						"create": {
+							"type": "string"
+						},
+						"parentIndicator": {
+							"type": "string"
+						},
+						"unlink": {
+							"type": "string"
+						},
+						"unlinkParent": {
+							"type": "string"
+						},
+						"chooseParent": {
+							"type": "string"
+						},
+						"removeParent": {
+							"type": "string"
+						},
+						"removeChild": {
+							"type": "string"
+						},
+						"addExisting": {
+							"type": "string"
+						},
+						"searchPlaceholder": {
+							"type": "string"
+						},
+						"searchPrompt": {
+							"type": "string"
+						},
+						"searchError": {
+							"type": "string"
+						},
+						"loadError": {
+							"type": "string"
+						},
+						"loading": {
+							"type": "string"
+						},
+						"linkError": {
+							"type": "string"
+						},
+						"unlinkError": {
+							"type": "string"
+						},
 						"progress": {
 							"type": "string"
 						},
@@ -11584,6 +11677,21 @@
 						}
 					},
 					"required": [
+						"create",
+						"parentIndicator",
+						"unlink",
+						"unlinkParent",
+						"chooseParent",
+						"removeParent",
+						"removeChild",
+						"addExisting",
+						"searchPlaceholder",
+						"searchPrompt",
+						"searchError",
+						"loadError",
+						"loading",
+						"linkError",
+						"unlinkError",
 						"progress",
 						"noCompletionColumn",
 						"title",
@@ -11763,6 +11871,9 @@
 								"searchPlaceholder": {
 									"type": "string"
 								},
+								"loadError": {
+									"type": "string"
+								},
 								"empty": {
 									"type": "string"
 								},
@@ -11837,6 +11948,7 @@
 							},
 							"required": [
 								"searchPlaceholder",
+								"loadError",
 								"empty",
 								"create",
 								"chooseColor",
@@ -12224,6 +12336,12 @@
 						"taskAriaLabel": {
 							"type": "string"
 						},
+						"createTaskOnDay": {
+							"type": "string"
+						},
+						"newTask": {
+							"type": "string"
+						},
 						"noTasksThisMonth": {
 							"type": "string"
 						}
@@ -12239,6 +12357,8 @@
 						"loadError",
 						"dayTasksAriaLabel",
 						"taskAriaLabel",
+						"createTaskOnDay",
+						"newTask",
 						"noTasksThisMonth"
 					]
 				},

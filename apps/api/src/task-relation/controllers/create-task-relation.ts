@@ -8,6 +8,7 @@ import {
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { assertProjectAccess } from "../../project-access/assert-project-access";
+import { assertSubtaskAcyclic } from "../assert-subtask-acyclic";
 
 async function createTaskRelation({
   sourceTaskId,
@@ -86,6 +87,25 @@ async function createTaskRelation({
     }
 
     await assertProjectAccess(userId, targetTask.projectId);
+
+    if (relationType === "subtask") {
+      await assertSubtaskAcyclic(tx, workspaceId, sourceTaskId, targetTaskId);
+      const [parent] = await tx
+        .select({ id: taskRelationTable.id })
+        .from(taskRelationTable)
+        .where(
+          and(
+            eq(taskRelationTable.relationType, "subtask"),
+            eq(taskRelationTable.targetTaskId, targetTaskId),
+          ),
+        )
+        .limit(1);
+      if (parent) {
+        throw new HTTPException(409, {
+          message: "This task already has a parent",
+        });
+      }
+    }
 
     const existing = await tx
       .select({ id: taskRelationTable.id })

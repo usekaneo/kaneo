@@ -7,6 +7,15 @@ Instance administrators manage the whole Kaneo instance, not just the workspaces
 
 Both pages live under **Settings → Administration** and are only visible to instance administrators.
 
+## Last Used
+
+Both directories show **Last Used** using existing records, without additional tracking:
+
+- **Users:** the latest retained login/session refresh (excluding impersonation sessions) or recorded task activity attributed to the user.
+- **Workspaces:** the latest recorded task activity in the workspace, including activity from integrations.
+
+Hover over a date for its time, or over the column heading for the source and limitations. **Unknown** means no evidence remains, not that the account or workspace was never used. Reading boards is not tracked, signing out or revoking sessions can remove login evidence, and deleting tasks removes their activity. Workspace membership and user profile edits do not count as use. These dates are an approximate aid, not proof that deletion is safe.
+
 ## Manage users
 
 Open **Settings → Administration → User management** to search every account on the instance. From a user's menu you can edit their name, email, and instance role, deactivate or reactivate the account, or delete it.

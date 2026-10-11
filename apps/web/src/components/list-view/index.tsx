@@ -34,6 +34,7 @@ import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
+import TaskViewContextMenu from "../task/task-view-context-menu";
 import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
 import TaskRow from "./task-row";
@@ -308,6 +309,7 @@ function ListView({
 
     return (
       <div
+        data-task-status={column.slug}
         className={cn(
           "border-b border-border/50 transition-colors duration-150 overflow-auto",
           showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
@@ -420,13 +422,18 @@ function ListView({
       onDragEnd={handleDragEnd}
       modifiers={[snapCenterToCursor]}
     >
-      <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
-          {project.columns.map((column) => (
-            <ColumnSection key={column.id} column={column} />
-          ))}
+      <TaskViewContextMenu
+        projectId={project.id}
+        disabled={disableCollectionActions}
+      >
+        <div className="w-full h-full overflow-auto bg-muted/20">
+          <div className="divide-y divide-border/50">
+            {project.columns.map((column) => (
+              <ColumnSection key={column.id} column={column} />
+            ))}
+          </div>
         </div>
-      </div>
+      </TaskViewContextMenu>
 
       <DragOverlay>
         {activeTask && (

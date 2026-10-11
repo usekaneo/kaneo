@@ -29,7 +29,7 @@ function RouteComponent() {
             title={t("settings:projectWorkflow.columnsTitle")}
             description={t("settings:projectWorkflow.columnsDescription")}
           />
-          <ColumnEditor projectId={projectId} />
+          <ColumnEditor key={projectId} projectId={projectId} />
         </div>
 
         <div className="space-y-3">

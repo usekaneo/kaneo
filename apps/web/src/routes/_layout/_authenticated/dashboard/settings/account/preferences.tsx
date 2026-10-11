@@ -7,6 +7,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { List, RotateCcw, SquareKanban } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ThemePicker } from "@/components/account/theme-picker";
+import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -77,6 +78,7 @@ function RouteComponent() {
       title={t("settings:preferencesPage.title")}
       description={t("settings:preferencesPage.subtitle")}
     >
+      <PageTitle title={t("settings:preferencesPage.title")} />
       <div className="space-y-3">
         <SettingsSectionHeader
           title={t("settings:preferencesPage.theme")}

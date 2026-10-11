@@ -38,6 +38,14 @@ vi.mock("@/hooks/mutations/task/use-delete-task", () => ({
 vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
   default: () => ({ data: { id: "workspace-1" } }),
 }));
+vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
+vi.mock("@/hooks/use-workspace-permission", () => ({
+  useWorkspacePermission: () => ({
+    canUpdateTasks: () => false,
+    canAssignTasks: () => false,
+    canUpdateLabels: () => false,
+  }),
+}));
 vi.mock(
   "@/hooks/queries/workspace-users/use-get-active-workspace-users",
   () => ({
