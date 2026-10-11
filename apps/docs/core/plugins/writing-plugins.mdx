@@ -201,7 +201,7 @@ A plugin without options calls `defineServer({ settings, setup })` instead.
 | `kaneo.routes` | Add authenticated routes under `/api/plugins/<id>/`. It is a [Hono](https://hono.dev) app. |
 | `kaneo.webhooks` | Add unauthenticated routes under `/api/plugins/<id>/webhooks/`. |
 | `kaneo.guard` | Check workspace access, permissions, and that the plugin is on, with `workspace`, `project`, and `task`. |
-| `kaneo.on` | React to task and comment events. |
+| `kaneo.on` | React to task, comment, and project events. |
 | `kaneo.storage(workspaceId)` | Read and write JSON values for one workspace. |
 | `kaneo.settings(workspaceId)` | Read one workspace's settings, with defaults applied. |
 | `kaneo.enabledWorkspaces()` | List the IDs of workspaces that turned the plugin on. |
@@ -217,7 +217,7 @@ Return errors with `c.json(body, status)`. Do not register routes whose first pa
 
 ### Events
 
-`kaneo.on` handlers receive typed events such as `task.created`, `task.status_changed`, and `comment.created`. Every event carries `workspaceId`, `projectId`, `taskId`, and `actorId`, and only reaches workspaces that turned your plugin on. Events report changes that already happened; a handler cannot change or block them. An error in a handler is logged and does not affect Kaneo. See the [event list](/core/plugins/reference#events).
+`kaneo.on` handlers receive typed events such as `task.created`, `task.status_changed`, and `comment.created`. Every event carries `workspaceId`, `projectId`, and `actorId`; task and comment events also carry `taskId`. Events only reach workspaces that turned your plugin on. Storage belongs to a workspace, so if you store data per project, handle `project.moved` to move it when a project changes workspace. Events report changes that already happened; a handler cannot change or block them. An error in a handler is logged and does not affect Kaneo. See the [event list](/core/plugins/reference#events).
 
 ### Webhooks
 

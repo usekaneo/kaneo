@@ -1,4 +1,5 @@
 import type { Kaneo } from "./context.js";
+import { moveProjectProgress } from "./move-project-progress.js";
 import { progressKey } from "./progress-key.js";
 
 export function registerEvents(kaneo: Kaneo) {
@@ -24,5 +25,13 @@ export function registerEvents(kaneo: Kaneo) {
     await kaneo
       .storage(event.workspaceId)
       .delete(progressKey(event.projectId, event.taskId));
+  });
+
+  kaneo.on("project.moved", async (event) => {
+    await moveProjectProgress(
+      kaneo.storage(event.fromWorkspaceId),
+      kaneo.storage(event.toWorkspaceId),
+      event.projectId,
+    );
   });
 }

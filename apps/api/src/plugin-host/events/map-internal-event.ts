@@ -155,6 +155,19 @@ const mappers: Record<string, (data: Data) => MappedPluginEvent | null> = {
         }
       : null;
   },
+  "project.moved": (data) => {
+    const projectId = text(data, "projectId");
+    const fromWorkspaceId = text(data, "fromWorkspaceId");
+    const toWorkspaceId = text(data, "toWorkspaceId");
+    if (!projectId || !fromWorkspaceId || !toWorkspaceId) return null;
+    return {
+      type: "project.moved",
+      projectId,
+      actorId: nonEmpty(data.userId),
+      fromWorkspaceId,
+      toWorkspaceId,
+    };
+  },
 };
 
 export const INTERNAL_EVENT_NAMES = Object.keys(mappers);

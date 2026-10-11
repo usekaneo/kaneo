@@ -1,8 +1,11 @@
-export type TaskEventBase = {
+export type ProjectEventBase = {
   workspaceId: string;
   projectId: string;
-  taskId: string;
   actorId: string | null;
+};
+
+export type TaskEventBase = ProjectEventBase & {
+  taskId: string;
 };
 
 type Change<T> = {
@@ -31,6 +34,10 @@ export type PluginEventMap = {
   "comment.created": TaskEventBase & {
     commentId: string;
     content: string;
+  };
+  "project.moved": ProjectEventBase & {
+    fromWorkspaceId: string;
+    toWorkspaceId: string;
   };
 };
 

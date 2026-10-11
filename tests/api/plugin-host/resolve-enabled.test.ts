@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
+  enabledInAnyWorkspace,
   enabledPluginIds,
   enabledWorkspaceIds,
   resolvePluginEnabled,
@@ -42,6 +43,34 @@ describe("enabledPluginIds", () => {
       enabledPluginIds(
         [official, thirdParty],
         [{ pluginId: "gantt", enabled: false }],
+      ),
+    ).toEqual(new Set());
+  });
+});
+
+describe("enabledInAnyWorkspace", () => {
+  it("includes each plugin once when it is on in any of the workspaces", () => {
+    const other = { id: "reports", official: false };
+    expect(
+      enabledInAnyWorkspace(
+        [official, thirdParty, other],
+        [
+          [{ pluginId: "progress", enabled: true }],
+          [
+            { pluginId: "progress", enabled: true },
+            { pluginId: "gantt", enabled: false },
+          ],
+        ],
+      ),
+    ).toEqual(new Set(["gantt", "progress"]));
+
+    expect(
+      enabledInAnyWorkspace(
+        [official, thirdParty],
+        [
+          [{ pluginId: "gantt", enabled: false }],
+          [{ pluginId: "gantt", enabled: false }],
+        ],
       ),
     ).toEqual(new Set());
   });

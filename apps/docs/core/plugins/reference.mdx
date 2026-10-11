@@ -132,7 +132,7 @@ These are the same permissions that workspace [roles](/core/functional/collabora
 
 #### on
 
-`on(event, handler)` registers a handler for one of the [events](#events). Handlers only receive events from workspaces where the plugin is on. An error in a handler is logged against the plugin and does not affect Kaneo or other plugins.
+`on(event, handler)` registers a handler for one of the [events](#events). Handlers only receive events from workspaces where the plugin is on; `project.moved` arrives when the plugin is on in either workspace. An error in a handler is logged against the plugin and does not affect Kaneo or other plugins.
 
 #### storage
 
@@ -146,6 +146,8 @@ These are the same permissions that workspace [roles](/core/functional/collabora
 | `list<T>({ prefix?, limit? })` | Resolves to entries `{ key, value, updatedAt }`, optionally filtered by key prefix and limited in number |
 
 Storage is kept when the plugin is turned off or removed from the config, and deleted with the workspace.
+
+Storage stays with the workspace when a project moves, so plugins that store project data should handle [`project.moved`](#events) and move it to the new workspace.
 
 #### settings
 
@@ -165,9 +167,9 @@ Storage is kept when the plugin is turned off or removed from the config, and de
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `workspaceId` | `string` | Workspace of the task |
-| `projectId` | `string` | Project of the task |
-| `taskId` | `string` | The task |
+| `workspaceId` | `string` | Workspace of the task or project |
+| `projectId` | `string` | Project of the task, or the project itself |
+| `taskId` | `string` | The task. Task and comment events only. |
 | `actorId` | `string` or `null` | The user who made the change, or `null` when no user did |
 
 | Event | When | Additional fields |
@@ -182,8 +184,9 @@ Storage is kept when the plugin is turned off or removed from the config, and de
 | `task.moved` | A task moves to another project | `fromProjectId`, `toProjectId` (`string`) |
 | `task.deleted` | A task is deleted | `title` (`string`) |
 | `comment.created` | A comment is added to a task | `commentId`, `content` (`string`) |
+| `project.moved` | A project moves to another workspace | `fromWorkspaceId`, `toWorkspaceId` (`string`). `workspaceId` is the new workspace. |
 
-Events are delivered only to workspaces that turned the plugin on. They report changes that already happened and cannot change or block them. The catalog is mapped from Kaneo's internal events, so it stays stable when Kaneo's internals change.
+Events are delivered only to workspaces that turned the plugin on. `project.moved` is delivered once to a plugin that is on in the old workspace, the new one, or both, because its data for the project may be in either. Events report changes that already happened and cannot change or block them. The catalog is mapped from Kaneo's internal events, so it stays stable when Kaneo's internals change.
 
 ## Settings fields
 

@@ -20,6 +20,13 @@ export default defineConfig({
           output: ["dist/**"],
         },
       },
+      "test:run": {
+        command: "vp test run",
+        dependsOn: [
+          { task: "build", from: ["dependencies", "devDependencies"] },
+        ],
+        cache: false,
+      },
     },
   },
 });

@@ -10,6 +10,7 @@ export type {
   PluginEvent,
   PluginEventMap,
   PluginEventName,
+  ProjectEventBase,
   TaskEventBase,
 } from "./events/types.js";
 export { parsePluginPackage } from "./package/parse-plugin-package.js";

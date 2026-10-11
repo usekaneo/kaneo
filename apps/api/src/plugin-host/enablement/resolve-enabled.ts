@@ -21,6 +21,18 @@ export function enabledPluginIds(
   );
 }
 
+export function enabledInAnyWorkspace(
+  plugins: readonly EnablementPlugin[],
+  rowsByWorkspace: readonly (readonly {
+    pluginId: string;
+    enabled: boolean;
+  }[])[],
+): Set<string> {
+  return new Set(
+    rowsByWorkspace.flatMap((rows) => [...enabledPluginIds(plugins, rows)]),
+  );
+}
+
 export function enabledWorkspaceIds(
   plugin: Pick<LoadedPlugin, "official">,
   workspaces: readonly { workspaceId: string; enabled: boolean | null }[],

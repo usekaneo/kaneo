@@ -45,7 +45,9 @@ export function createServerContext(
         );
       }
       const handlers = runtime.handlers.get(event) ?? [];
-      handlers.push(handler as (event: PluginEvent) => void | Promise<void>);
+      handlers.push(
+        handler as unknown as (event: PluginEvent) => void | Promise<void>,
+      );
       runtime.handlers.set(event, handlers);
     },
     storage: (workspaceId) => createPluginStorage(plugin.id, workspaceId),

@@ -73,6 +73,9 @@ export default {
     kaneo.on("task.status_changed", (event) => {
       events.push(event);
     });
+    kaneo.on("project.moved", (event) => {
+      events.push(event);
+    });
   },
 };
 `;
@@ -96,6 +99,9 @@ export default {
     );
     kaneo.on("task.status_changed", (event) => {
       events.push(event.workspaceId);
+    });
+    kaneo.on("project.moved", (event) => {
+      events.push("moved:" + event.projectId);
     });
   },
 };
@@ -631,5 +637,91 @@ describe("official plugins", () => {
       `/api/plugins/${OFFICIAL_ID}/workspaces/${off.workspace.id}/ping`,
     );
     expect(pingAgain.status).toBe(200);
+  });
+});
+
+describe("project.moved", () => {
+  async function projectBetweenWorkspaces() {
+    const source = await workspaceWithAdmin();
+    const target = await createWorkspaceMember({ role: "owner" });
+    await db.insert(schema.workspaceUserTable).values({
+      workspaceId: target.workspace.id,
+      userId: source.user.id,
+      role: "owner",
+      joinedAt: new Date(),
+    });
+    return { ...source, target: target.workspace };
+  }
+
+  it.each([
+    { enabledIn: ["source"], delivered: 1 },
+    { enabledIn: ["target"], delivered: 1 },
+    { enabledIn: ["source", "target"], delivered: 1 },
+    { enabledIn: [], delivered: 0 },
+  ] as const)(
+    "delivers once to a plugin on in $enabledIn",
+    async ({ enabledIn, delivered }) => {
+      const { user, workspace, project, target } =
+        await projectBetweenWorkspaces();
+      const ids = { source: workspace.id, target: target.id };
+      if (enabledIn.length > 0) {
+        await db.insert(schema.workspacePluginTable).values(
+          enabledIn.map((side) => ({
+            pluginId: PLUGIN_ID,
+            workspaceId: ids[side],
+            enabled: true,
+          })),
+        );
+      }
+
+      await publishEvent(
+        "project.moved",
+        {
+          projectId: project.id,
+          fromWorkspaceId: workspace.id,
+          toWorkspaceId: target.id,
+          userId: user.id,
+        },
+        { waitForHandlers: true },
+      );
+
+      expect(receivedEvents()).toEqual(
+        Array.from({ length: delivered }, () => ({
+          type: "project.moved",
+          workspaceId: target.id,
+          projectId: project.id,
+          actorId: user.id,
+          fromWorkspaceId: workspace.id,
+          toWorkspaceId: target.id,
+        })),
+      );
+      expect(officialEvents()).toEqual([`moved:${project.id}`]);
+    },
+  );
+
+  it("bridges a real project move made through the API", async () => {
+    const { user, workspace, project, target } =
+      await projectBetweenWorkspaces();
+    mockAuthenticatedSession(user);
+    const { app } = createApp();
+    await app.request(
+      `/api/plugins/${PLUGIN_ID}/workspace/${workspace.id}`,
+      json("PUT", { enabled: true }),
+    );
+
+    const response = await app.request(
+      `/api/project/${project.id}/move`,
+      json("PUT", { workspaceId: target.id }),
+    );
+    expect(response.status).toBe(200);
+    await vi.waitFor(() => expect(receivedEvents()).toHaveLength(1));
+    expect(receivedEvents()[0]).toEqual({
+      type: "project.moved",
+      workspaceId: target.id,
+      projectId: project.id,
+      actorId: user.id,
+      fromWorkspaceId: workspace.id,
+      toWorkspaceId: target.id,
+    });
   });
 });

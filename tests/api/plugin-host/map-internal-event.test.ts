@@ -11,6 +11,7 @@ describe("mapInternalEvent", () => {
     expect([...INTERNAL_EVENT_NAMES].sort()).toEqual(
       [
         "comment.created",
+        "project.moved",
         "task.assignee_changed",
         "task.created",
         "task.deleted",
@@ -220,6 +221,30 @@ describe("mapInternalEvent", () => {
       commentId: "activity-1",
       content: "Looks good",
     });
+  });
+
+  it("maps project.moved with both workspaces and the acting user", () => {
+    expect(
+      mapInternalEvent("project.moved", {
+        projectId: "project-1",
+        fromWorkspaceId: "workspace-1",
+        toWorkspaceId: "workspace-2",
+        userId: "user-1",
+        initiatorId: "user-1",
+      }),
+    ).toEqual({
+      type: "project.moved",
+      projectId: "project-1",
+      actorId: "user-1",
+      fromWorkspaceId: "workspace-1",
+      toWorkspaceId: "workspace-2",
+    });
+    expect(
+      mapInternalEvent("project.moved", {
+        projectId: "project-1",
+        fromWorkspaceId: "workspace-1",
+      }),
+    ).toBeNull();
   });
 
   it("drops malformed or unknown events", () => {

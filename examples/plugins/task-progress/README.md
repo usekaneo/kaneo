@@ -28,6 +28,7 @@ Values are stored under `progress:<projectId>:<taskId>`. The plugin also reacts 
 - `task.status_changed`: sets the task to 100 when the `autoComplete` option is on and the new status matches the workspace's `doneStatus` setting.
 - `task.moved`: moves the stored value to the new project.
 - `task.deleted`: removes the stored value.
+- `project.moved`: moves the project's values from the old workspace's storage to the new one, keeping any value already set there.
 
 ### Web
 

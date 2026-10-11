@@ -11,4 +11,5 @@ export const PLUGIN_EVENT_NAMES = [
   "task.moved",
   "task.deleted",
   "comment.created",
+  "project.moved",
 ] as const satisfies readonly PluginEventName[];

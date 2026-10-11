@@ -26,7 +26,8 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "vp run compile"
+		"build": "vp run compile",
+		"test": "vp run test:run"
 	},
 	"devDependencies": {
 		"@kaneo/plugin-sdk": "workspace:*",

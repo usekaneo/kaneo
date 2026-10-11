@@ -4,10 +4,15 @@ import db from "../../database";
 import { projectTable } from "../../database/schema";
 import { subscribeToEvent } from "../../events";
 import { listWorkspacePlugins } from "../data/workspace-plugins";
-import { enabledPluginIds } from "../enablement/resolve-enabled";
+import { enabledInAnyWorkspace } from "../enablement/resolve-enabled";
 import { listLoadedPlugins } from "../registry";
 import { deliverEvent, pluginsHandling } from "./deliver-event";
-import { INTERNAL_EVENT_NAMES, mapInternalEvent } from "./map-internal-event";
+import { type EventWorkspaces, explicitWorkspaces } from "./event-workspaces";
+import {
+  INTERNAL_EVENT_NAMES,
+  type MappedPluginEvent,
+  mapInternalEvent,
+} from "./map-internal-event";
 
 let started = false;
 
@@ -20,6 +25,15 @@ async function getProjectWorkspaceId(projectId: string) {
   return project?.workspaceId ?? null;
 }
 
+async function resolveWorkspaces(
+  event: MappedPluginEvent,
+): Promise<EventWorkspaces | null> {
+  const explicit = explicitWorkspaces(event);
+  if (explicit) return explicit;
+  const workspaceId = await getProjectWorkspaceId(event.projectId);
+  return workspaceId ? { workspaceId, enabledIn: [workspaceId] } : null;
+}
+
 export async function bridgeInternalEvent(
   name: string,
   data: unknown,
@@ -30,16 +44,16 @@ export async function bridgeInternalEvent(
   const plugins = pluginsHandling(listLoadedPlugins(), mapped.type);
   if (plugins.length === 0) return;
 
-  const workspaceId = await getProjectWorkspaceId(mapped.projectId);
-  if (!workspaceId) return;
+  const workspaces = await resolveWorkspaces(mapped);
+  if (!workspaces) return;
 
-  const enabled = enabledPluginIds(
+  const enabled = enabledInAnyWorkspace(
     plugins,
-    await listWorkspacePlugins(workspaceId),
+    await Promise.all(workspaces.enabledIn.map(listWorkspacePlugins)),
   );
   await deliverEvent(plugins, enabled, {
     ...mapped,
-    workspaceId,
+    workspaceId: workspaces.workspaceId,
   } as PluginEvent);
 }
 
