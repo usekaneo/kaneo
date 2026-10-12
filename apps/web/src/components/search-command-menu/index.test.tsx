@@ -24,14 +24,6 @@ const searchResults = {
   ],
 };
 
-vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
-}));
-
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
-}));
-
 vi.mock("@/hooks/queries/search/use-global-search", () => ({
   default: () => ({ data: searchResults }),
 }));
