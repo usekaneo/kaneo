@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "लिंक URL",
+				"placeholder": "लिंक पेस्ट करें या लिखें…",
+				"apply": "लिंक लागू करें",
+				"remove": "लिंक हटाएँ"
+			}
 		}
 	},
 	"auth": {
@@ -2576,7 +2584,6 @@
 				"imageUploaded": "चित्र अपलोड किया गया",
 				"fileAttached": "फ़ाइल संलग्न की गई",
 				"failedToUploadFile": "फ़ाइल अपलोड करने में विफल",
-				"enterUrl": "URL दर्ज करें",
 				"plaintext": "सादा पाठ",
 				"autoDetect": "स्वतः पहचान",
 				"slashGroupText": "पाठ",
@@ -2705,7 +2712,6 @@
 				"ariaLabel": "कार्य विवरण संपादक",
 				"placeholder": "विवरण लिखें...",
 				"previewImage": "पूर्वावलोकन चित्र",
-				"enterUrl": "URL दर्ज करें",
 				"autoDetect": "स्वतः पहचान",
 				"copyCode": "कोड कॉपी करें",
 				"copy": "कॉपी करें",

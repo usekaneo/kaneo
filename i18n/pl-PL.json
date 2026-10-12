@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "Adres URL linku",
+				"placeholder": "Wklej lub wpisz link…",
+				"apply": "Zastosuj link",
+				"remove": "Usuń link"
+			}
 		}
 	},
 	"auth": {
@@ -1093,7 +1101,6 @@
 				"embedErrorInvalidUrl": "Wprowadź prawidłowy adres URL",
 				"embedErrorYoutubeOnly": "Można osadzać tylko linki YouTube.",
 				"embedVideo": "Osadź wideo",
-				"enterUrl": "Wprowadź adres URL",
 				"failedToUploadFile": "Nie udało się przesłać pliku",
 				"fileAttached": "Dołączono plik",
 				"hintEsc": "Esc",
@@ -3181,7 +3188,6 @@
 					"onlyYoutubeInline": "Można osadzać tylko adresy URL YouTube. Użyj trybu linku.",
 					"submit": "Osadź"
 				},
-				"enterUrl": "Wprowadź adres URL",
 				"languages": {
 					"bash": "Bash",
 					"clojure": "Clojure",

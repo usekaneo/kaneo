@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "Keçid URL-i",
+				"placeholder": "Keçidi yapışdırın və ya yazın…",
+				"apply": "Keçidi tətbiq et",
+				"remove": "Keçidi sil"
+			}
 		}
 	},
 	"auth": {
@@ -2576,7 +2584,6 @@
 				"imageUploaded": "Şəkil yükləndi",
 				"fileAttached": "Fayl əlavə edildi",
 				"failedToUploadFile": "Faylı yükləmək alınmadı",
-				"enterUrl": "URL daxil edin",
 				"plaintext": "Sadə mətn",
 				"autoDetect": "Avtomatik müəyyən et",
 				"slashGroupText": "Mətn",
@@ -2705,7 +2712,6 @@
 				"ariaLabel": "Tapşırıq təsviri redaktoru",
 				"placeholder": "Təsvir yazın...",
 				"previewImage": "Şəklə önbaxış",
-				"enterUrl": "URL daxil edin",
 				"autoDetect": "Avtomatik müəyyən et",
 				"copyCode": "Kodu kopyala",
 				"copy": "Kopyala",

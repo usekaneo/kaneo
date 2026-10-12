@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "Link-URL",
+				"placeholder": "Plak of typ een link…",
+				"apply": "Link toepassen",
+				"remove": "Link verwijderen"
+			}
 		}
 	},
 	"auth": {
@@ -2576,7 +2584,6 @@
 				"imageUploaded": "Afbeelding geüpload",
 				"fileAttached": "Bestand bijgevoegd",
 				"failedToUploadFile": "Uploaden bestand mislukt",
-				"enterUrl": "URL invoeren",
 				"plaintext": "Platte tekst",
 				"autoDetect": "Automatisch detecteren",
 				"slashGroupText": "Tekst",
@@ -2705,7 +2712,6 @@
 				"ariaLabel": "Taakbeschrijving editor",
 				"placeholder": "Schrijf een beschrijving...",
 				"previewImage": "Voorbeeld afbeelding",
-				"enterUrl": "URL invoeren",
 				"autoDetect": "Automatisch detecteren",
 				"copyCode": "Code kopiëren",
 				"copy": "Kopiëren",

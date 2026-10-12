@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "リンク URL",
+				"placeholder": "リンクを貼り付けるか入力…",
+				"apply": "リンクを適用",
+				"remove": "リンクを削除"
+			}
 		}
 	},
 	"auth": {
@@ -2530,7 +2538,6 @@
 				"imageUploaded": "画像をアップロードしました",
 				"fileAttached": "ファイルを添付しました",
 				"failedToUploadFile": "ファイルのアップロードに失敗しました",
-				"enterUrl": "URLを入力",
 				"plaintext": "プレーンテキスト",
 				"autoDetect": "自動検出",
 				"slashGroupText": "テキスト",
@@ -2659,7 +2666,6 @@
 				"ariaLabel": "タスク説明エディター",
 				"placeholder": "説明を入力...",
 				"previewImage": "画像をプレビュー",
-				"enterUrl": "URLを入力",
 				"autoDetect": "自動検出",
 				"copyCode": "コードをコピー",
 				"copy": "コピー",

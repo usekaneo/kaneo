@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "URL do link",
+				"placeholder": "Cole ou digite um link…",
+				"apply": "Aplicar link",
+				"remove": "Remover link"
+			}
 		}
 	},
 	"auth": {
@@ -2622,7 +2630,6 @@
 				"imageUploaded": "Imagem enviada",
 				"fileAttached": "Arquivo anexado",
 				"failedToUploadFile": "Falha ao enviar arquivo",
-				"enterUrl": "Digite a URL",
 				"plaintext": "Texto simples",
 				"autoDetect": "Detecção automática",
 				"slashGroupText": "Texto",
@@ -2751,7 +2758,6 @@
 				"ariaLabel": "Editor de descrição da tarefa",
 				"placeholder": "Escreva uma descrição...",
 				"previewImage": "Pré-visualizar imagem",
-				"enterUrl": "Digite a URL",
 				"autoDetect": "Detecção automática",
 				"copyCode": "Copiar código",
 				"copy": "Copiar",

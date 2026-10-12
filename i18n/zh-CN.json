@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "项目状态加载失败。"
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "链接 URL",
+				"placeholder": "粘贴或输入链接…",
+				"apply": "应用链接",
+				"remove": "移除链接"
+			}
 		}
 	},
 	"auth": {
@@ -2530,7 +2538,6 @@
 				"imageUploaded": "图片已上传",
 				"fileAttached": "文件已附加",
 				"failedToUploadFile": "上传文件失败",
-				"enterUrl": "输入 URL",
 				"plaintext": "纯文本",
 				"autoDetect": "自动检测",
 				"slashGroupText": "文本",
@@ -2659,7 +2666,6 @@
 				"ariaLabel": "任务描述编辑器",
 				"placeholder": "编写描述…",
 				"previewImage": "预览图片",
-				"enterUrl": "输入 URL",
 				"autoDetect": "自动检测",
 				"copyCode": "复制代码",
 				"copy": "复制",

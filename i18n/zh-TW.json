@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "無法載入專案狀態。"
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "連結 URL",
+				"placeholder": "貼上或輸入連結…",
+				"apply": "套用連結",
+				"remove": "移除連結"
+			}
 		}
 	},
 	"auth": {
@@ -2530,7 +2538,6 @@
 				"imageUploaded": "圖片已上傳",
 				"fileAttached": "檔案已附加",
 				"failedToUploadFile": "上傳檔案失敗",
-				"enterUrl": "輸入 URL",
 				"plaintext": "純文字",
 				"autoDetect": "自動偵測",
 				"slashGroupText": "文字",
@@ -2659,7 +2666,6 @@
 				"ariaLabel": "任務描述編輯器",
 				"placeholder": "撰寫描述…",
 				"previewImage": "預覽圖片",
-				"enterUrl": "輸入 URL",
 				"autoDetect": "自動偵測",
 				"copyCode": "複製程式碼",
 				"copy": "複製",

@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "URL ссылки",
+				"placeholder": "Вставьте или введите ссылку…",
+				"apply": "Применить ссылку",
+				"remove": "Удалить ссылку"
+			}
 		}
 	},
 	"auth": {
@@ -2674,7 +2682,6 @@
 				"imageUploaded": "Изображение загружено",
 				"fileAttached": "Файл прикреплён",
 				"failedToUploadFile": "Не удалось загрузить файл",
-				"enterUrl": "Введите URL",
 				"plaintext": "Простой текст",
 				"autoDetect": "Автоопределение",
 				"slashGroupText": "Текст",
@@ -2805,7 +2812,6 @@
 				"ariaLabel": "Редактор описания задачи",
 				"placeholder": "Напишите описание...",
 				"previewImage": "Предпросмотр изображения",
-				"enterUrl": "Введите URL",
 				"autoDetect": "Автоопределение",
 				"copyCode": "Скопировать код",
 				"copy": "Копировать",

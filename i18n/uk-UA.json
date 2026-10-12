@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "URL посилання",
+				"placeholder": "Вставте або введіть посилання…",
+				"apply": "Застосувати посилання",
+				"remove": "Видалити посилання"
+			}
 		}
 	},
 	"auth": {
@@ -2666,7 +2674,6 @@
 				"imageUploaded": "Зображення завантажено",
 				"fileAttached": "Файл прикріплено",
 				"failedToUploadFile": "Не вдалося завантажити файл",
-				"enterUrl": "Введіть URL",
 				"plaintext": "Звичайний текст",
 				"autoDetect": "Автовизначення",
 				"slashGroupText": "Текст",
@@ -2797,7 +2804,6 @@
 				"ariaLabel": "Редактор опису завдання",
 				"placeholder": "Напишіть опис...",
 				"previewImage": "Попередній перегляд зображення",
-				"enterUrl": "Введіть URL",
 				"autoDetect": "Автовизначення",
 				"copyCode": "Копіювати код",
 				"copy": "Копіювати",

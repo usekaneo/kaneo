@@ -663,22 +663,15 @@ input:-webkit-autofill:active {
   }
 
   .kaneo-tiptap-content .ProseMirror a {
-    color: var(--primary);
+    color: var(--info-foreground);
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
-    text-decoration-color: color-mix(
-      in srgb,
-      var(--primary) 68%,
-      transparent
-    );
-    transition:
-      color 0.12s ease,
-      text-decoration-color 0.12s ease;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    transition: text-decoration-color 0.12s ease;
   }
 
   .kaneo-tiptap-content .ProseMirror a:hover {
-    color: color-mix(in srgb, var(--primary) 84%, var(--foreground));
     text-decoration-color: currentColor;
   }
 
@@ -1341,11 +1334,18 @@ input:-webkit-autofill:active {
 
   .kaneo-comment-editor-prose a,
   .kaneo-tiptap-prose a {
-    color: color-mix(in srgb, var(--foreground) 88%, #4c9aff 12%);
+    color: var(--info-foreground);
     cursor: pointer;
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--ring) 44%, transparent);
-    text-underline-offset: 2px;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    transition: text-decoration-color 0.12s ease;
+  }
+
+  .kaneo-comment-editor-prose a:hover,
+  .kaneo-tiptap-prose a:hover {
+    text-decoration-color: currentColor;
   }
 
   .kaneo-comment-editor-prose :not(pre) > code {

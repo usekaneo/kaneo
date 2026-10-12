@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "URL на врската",
+				"placeholder": "Залепете или внесете врска…",
+				"apply": "Примени врска",
+				"remove": "Отстрани врска"
+			}
 		}
 	},
 	"auth": {
@@ -2576,7 +2584,6 @@
 				"imageUploaded": "Сликата е прикачена",
 				"fileAttached": "Датотеката е прикачена",
 				"failedToUploadFile": "Неуспешно прикачување на датотека",
-				"enterUrl": "Внеси URL",
 				"plaintext": "Обичен текст",
 				"autoDetect": "Автоматско откривање",
 				"slashGroupText": "Текст",
@@ -2705,7 +2712,6 @@
 				"ariaLabel": "Уредувач на опис на задача",
 				"placeholder": "Напиши опис...",
 				"previewImage": "Преглед на слика",
-				"enterUrl": "Внеси URL",
 				"autoDetect": "Автоматско откривање",
 				"copyCode": "Копирај код",
 				"copy": "Копирај",

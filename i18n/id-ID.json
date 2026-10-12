@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "URL tautan",
+				"placeholder": "Tempel atau ketik tautan…",
+				"apply": "Terapkan tautan",
+				"remove": "Hapus tautan"
+			}
 		}
 	},
 	"auth": {
@@ -2530,7 +2538,6 @@
 				"imageUploaded": "Gambar diunggah",
 				"fileAttached": "File dilampirkan",
 				"failedToUploadFile": "Gagal mengunggah file",
-				"enterUrl": "Masukkan URL",
 				"plaintext": "Teks biasa",
 				"autoDetect": "Deteksi otomatis",
 				"slashGroupText": "Teks",
@@ -2659,7 +2666,6 @@
 				"ariaLabel": "Editor deskripsi tugas",
 				"placeholder": "Tulis deskripsi...",
 				"previewImage": "Pratinjau gambar",
-				"enterUrl": "Masukkan URL",
 				"autoDetect": "Deteksi otomatis",
 				"copyCode": "Salin kode",
 				"copy": "Salin",

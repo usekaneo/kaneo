@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "URL liên kết",
+				"placeholder": "Dán hoặc nhập liên kết…",
+				"apply": "Áp dụng liên kết",
+				"remove": "Xóa liên kết"
+			}
 		}
 	},
 	"auth": {
@@ -2530,7 +2538,6 @@
 				"imageUploaded": "Đã tải ảnh lên",
 				"fileAttached": "Đã đính kèm file",
 				"failedToUploadFile": "Không thể tải file lên",
-				"enterUrl": "Nhập URL",
 				"plaintext": "Văn bản thuần",
 				"autoDetect": "Tự động nhận diện",
 				"slashGroupText": "Văn bản",
@@ -2659,7 +2666,6 @@
 				"ariaLabel": "Trình soạn thảo mô tả công việc",
 				"placeholder": "Viết mô tả...",
 				"previewImage": "Xem trước ảnh",
-				"enterUrl": "Nhập URL",
 				"autoDetect": "Tự động nhận diện",
 				"copyCode": "Sao chép mã",
 				"copy": "Sao chép",

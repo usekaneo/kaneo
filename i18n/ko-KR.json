@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "링크 URL",
+				"placeholder": "링크를 붙여넣거나 입력하세요…",
+				"apply": "링크 적용",
+				"remove": "링크 제거"
+			}
 		}
 	},
 	"auth": {
@@ -2530,7 +2538,6 @@
 				"imageUploaded": "이미지가 업로드되었습니다",
 				"fileAttached": "파일이 첨부되었습니다",
 				"failedToUploadFile": "파일 업로드에 실패했습니다",
-				"enterUrl": "URL 입력",
 				"plaintext": "일반 텍스트",
 				"autoDetect": "자동 감지",
 				"slashGroupText": "텍스트",
@@ -2659,7 +2666,6 @@
 				"ariaLabel": "작업 설명 편집기",
 				"placeholder": "설명을 작성하세요...",
 				"previewImage": "이미지 미리보기",
-				"enterUrl": "URL 입력",
 				"autoDetect": "자동 감지",
 				"copyCode": "코드 복사",
 				"copy": "복사",

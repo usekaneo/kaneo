@@ -152,6 +152,14 @@
 					"crimson": "Crimson"
 				}
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "Link URL",
+				"placeholder": "Paste or type a link…",
+				"apply": "Apply link",
+				"remove": "Remove link"
+			}
 		}
 	},
 	"auth": {
@@ -2578,7 +2586,6 @@
 				"imageUploaded": "Image uploaded",
 				"fileAttached": "File attached",
 				"failedToUploadFile": "Failed to upload file",
-				"enterUrl": "Enter URL",
 				"plaintext": "Plaintext",
 				"autoDetect": "Auto detect",
 				"slashGroupText": "Text",
@@ -2706,7 +2713,6 @@
 				"ariaLabel": "Task description editor",
 				"placeholder": "Write a description...",
 				"previewImage": "Preview image",
-				"enterUrl": "Enter URL",
 				"autoDetect": "Auto detect",
 				"copyCode": "Copy code",
 				"copy": "Copy",

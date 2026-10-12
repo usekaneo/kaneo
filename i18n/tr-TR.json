@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "Bağlantı URL'si",
+				"placeholder": "Bir bağlantı yapıştırın veya yazın…",
+				"apply": "Bağlantıyı uygula",
+				"remove": "Bağlantıyı kaldır"
+			}
 		}
 	},
 	"auth": {
@@ -2576,7 +2584,6 @@
 				"imageUploaded": "Görsel yüklendi",
 				"fileAttached": "Dosya eklendi",
 				"failedToUploadFile": "Dosya yüklenemedi",
-				"enterUrl": "URL girin",
 				"plaintext": "Düz metin",
 				"autoDetect": "Otomatik algıla",
 				"slashGroupText": "Metin",
@@ -2705,7 +2712,6 @@
 				"ariaLabel": "Talep açıklama düzenleyici",
 				"placeholder": "Açıklama yazın...",
 				"previewImage": "Önizleme görseli",
-				"enterUrl": "URL girin",
 				"autoDetect": "Otomatik algıla",
 				"copyCode": "Kodu kopyala",
 				"copy": "Kopyala",

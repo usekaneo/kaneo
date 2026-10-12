@@ -152,6 +152,14 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
+		},
+		"editor": {
+			"link": {
+				"label": "URL συνδέσμου",
+				"placeholder": "Επικολλήστε ή πληκτρολογήστε έναν σύνδεσμο…",
+				"apply": "Εφαρμογή συνδέσμου",
+				"remove": "Αφαίρεση συνδέσμου"
+			}
 		}
 	},
 	"auth": {
@@ -2576,7 +2584,6 @@
 				"imageUploaded": "Η εικόνα μεταφορτώθηκε",
 				"fileAttached": "Το αρχείο επισυνάφθηκε",
 				"failedToUploadFile": "Αποτυχία μεταφόρτωσης αρχείου",
-				"enterUrl": "Εισαγάγετε URL",
 				"plaintext": "Απλό κείμενο",
 				"autoDetect": "Αυτόματη ανίχνευση",
 				"slashGroupText": "Κείμενο",
@@ -2705,7 +2712,6 @@
 				"ariaLabel": "Επεξεργαστής περιγραφής εργασίας",
 				"placeholder": "Γράψτε μια περιγραφή...",
 				"previewImage": "Προεπισκόπηση εικόνας",
-				"enterUrl": "Εισαγάγετε URL",
 				"autoDetect": "Αυτόματη ανίχνευση",
 				"copyCode": "Αντιγραφή κώδικα",
 				"copy": "Αντιγραφή",
