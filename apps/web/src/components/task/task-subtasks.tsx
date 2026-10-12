@@ -206,18 +206,21 @@ export default function TaskSubtasks({
         case "ArrowDown":
         case "j": {
           e.preventDefault();
+          e.stopPropagation();
           setFocusedIndex((prev) => (prev < totalCount - 1 ? prev + 1 : prev));
           break;
         }
         case "ArrowUp":
         case "k": {
           e.preventDefault();
+          e.stopPropagation();
           setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
           break;
         }
         case " ": {
           if (focusedIndex >= 0 && focusedIndex < totalCount) {
             e.preventDefault();
+            e.stopPropagation();
             toggleSelection(subtasks[focusedIndex].task.id);
           }
           break;
@@ -225,6 +228,7 @@ export default function TaskSubtasks({
         case "Enter": {
           if (focusedIndex >= 0 && focusedIndex < totalCount) {
             e.preventDefault();
+            e.stopPropagation();
             navigate({
               to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
               params: {
@@ -239,9 +243,11 @@ export default function TaskSubtasks({
         case "Escape": {
           if (hasSelection) {
             e.preventDefault();
+            e.stopPropagation();
             clearSelection();
           } else if (focusedIndex >= 0) {
             e.preventDefault();
+            e.stopPropagation();
             setFocusedIndex(-1);
           }
           break;
@@ -249,8 +255,8 @@ export default function TaskSubtasks({
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
   }, [
     focusedIndex,
     totalCount,
@@ -347,6 +353,7 @@ export default function TaskSubtasks({
               variant="ghost"
               size="xs"
               className="text-muted-foreground"
+              data-task-action="addSubtask"
               aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
               onClick={() => setIsAdding(true)}
               disabled={!canCreateSubtask}
@@ -419,6 +426,7 @@ export default function TaskSubtasks({
                 onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === "Enter") handleAddSubtask();
                   if (e.key === "Escape") {
+                    e.stopPropagation();
                     setIsAdding(false);
                     setNewTitle("");
                   }

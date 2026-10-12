@@ -15,7 +15,7 @@ import {
   vi,
 } from "vite-plus/test";
 import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
-import { KeyboardShortcutsProvider } from "@/hooks/use-keyboard-shortcuts";
+import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
 import TaskDeleteButton from "./task-delete-button";
 import TaskDeleteDialog from "./task-delete-dialog";
 
@@ -51,7 +51,7 @@ function renderTaskDelete({
 }: { onDeleted?: () => void; shortcutEnabled?: boolean } = {}) {
   const handle = AlertDialogCreateHandle();
   const renderView = (taskId: string) => (
-    <KeyboardShortcutsProvider>
+    <ShortcutTestWrapper>
       <TaskDeleteButton handle={handle} />
       <TaskDeleteDialog
         handle={handle}
@@ -59,7 +59,7 @@ function renderTaskDelete({
         onDeleted={onDeleted}
         shortcutEnabled={shortcutEnabled}
       />
-    </KeyboardShortcutsProvider>
+    </ShortcutTestWrapper>
   );
   const { rerender } = render(renderView("task-1"));
   return {

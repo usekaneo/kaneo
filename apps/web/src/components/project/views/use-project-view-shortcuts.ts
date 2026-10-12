@@ -1,22 +1,22 @@
-import { useMemo } from "react";
-import { shortcuts } from "@/constants/shortcuts";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { PROJECT_VIEWS, type ProjectView } from "./project-views";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
+import { useUserPreferencesStore } from "@/store/user-preferences";
+import { type ProjectView, tasksViewFor } from "./project-views";
 
 export function useProjectViewShortcuts(
   goToView: (view: ProjectView) => void,
+  currentView: ProjectView,
   enabled: boolean,
 ) {
-  const config = useMemo(() => {
-    const viewShortcuts: Record<string, () => void> = Object.fromEntries(
-      PROJECT_VIEWS.map((view) => [view.shortcut, () => goToView(view.id)]),
-    );
-    const sequentialShortcuts: Record<
-      string,
-      Record<string, () => void>
-    > = enabled ? { [shortcuts.view.prefix]: viewShortcuts } : {};
-    return { sequentialShortcuts };
-  }, [enabled, goToView]);
+  const taskLayout = useUserPreferencesStore((state) => state.taskLayout);
+  const viewMode = useUserPreferencesStore((state) => state.viewMode);
 
-  useRegisterShortcuts(config);
+  useShortcut(
+    "toggleLayout",
+    () => goToView(currentView === "list" ? "board" : "list"),
+    { enabled },
+  );
+  useShortcut("goToTasks", () => goToView(tasksViewFor(taskLayout, viewMode)), {
+    enabled,
+  });
+  useShortcut("goToBacklog", () => goToView("backlog"), { enabled });
 }

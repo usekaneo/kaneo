@@ -17,7 +17,11 @@ export function useBulkSelectionKeys({ selectAll, clearSelection }: Selection) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target;
-      if ((event.metaKey || event.ctrlKey) && event.key === "a") {
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        !event.altKey &&
+        event.key === "a"
+      ) {
         if (target instanceof Element && target.closest(TYPING)) return;
         event.preventDefault();
         selectAll();

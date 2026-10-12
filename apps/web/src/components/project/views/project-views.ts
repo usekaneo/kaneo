@@ -6,7 +6,6 @@ import {
   SquareKanban,
   SquircleDashed,
 } from "lucide-react";
-import { shortcuts } from "@/constants/shortcuts";
 import type { TaskLayout } from "@/store/user-preferences";
 
 export type ProjectView = "board" | "list" | "backlog" | "calendar" | "gantt";
@@ -24,37 +23,31 @@ export const PROJECT_VIEWS: ReadonlyArray<{
   id: ProjectView;
   labelKey: string;
   icon: LucideIcon;
-  shortcut: string;
 }> = [
   {
     id: "board",
     labelKey: "tasks:view.board",
     icon: SquareKanban,
-    shortcut: shortcuts.view.board,
   },
   {
     id: "list",
     labelKey: "tasks:view.list",
     icon: Rows3,
-    shortcut: shortcuts.view.list,
   },
   {
     id: "backlog",
     labelKey: "tasks:view.backlog",
     icon: SquircleDashed,
-    shortcut: shortcuts.view.backlog,
   },
   {
     id: "calendar",
     labelKey: "tasks:calendar.title",
     icon: CalendarDays,
-    shortcut: shortcuts.view.calendar,
   },
   {
     id: "gantt",
     labelKey: "tasks:view.gantt",
     icon: ChartGantt,
-    shortcut: shortcuts.view.gantt,
   },
 ];
 

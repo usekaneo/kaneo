@@ -1,3 +1,4 @@
+import { useRestoreTaskFocus } from "@/components/project/task-view-keys/use-restore-task-focus";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
@@ -81,6 +82,8 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     (state) => state.toggleSelection,
   );
   const selectRange = useBulkSelectionStore((state) => state.selectRange);
+  const setFocusedTask = useBulkSelectionStore((state) => state.setFocusedTask);
+  useRestoreTaskFocus(task.id, useBulkSelectionStore);
   const setSelectionAnchor = useBulkSelectionStore(
     (state) => state.setSelectionAnchor,
   );
@@ -107,7 +110,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     if (!project || !task) return;
     if (e.defaultPrevented) return;
 
@@ -142,11 +145,9 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.defaultPrevented || e.target !== e.currentTarget) return;
-    if (e.key === "Enter") {
-      handleClick(e);
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
-    } else {
-      listeners?.onKeyDown?.(e);
+      selectRange(task.id);
     }
   };
 
@@ -184,12 +185,15 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           <div
             onClick={handleClick}
             className={cn(
-              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
+              "group relative flex cursor-pointer items-center gap-3 px-4 py-1.5 outline-none transition-colors",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
+            data-task-id={task.id}
+            data-shortcut-surface
             {...attributes}
             {...listeners}
             onKeyDown={handleKeyDown}
+            onFocus={() => setFocusedTask(task.id)}
           >
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">

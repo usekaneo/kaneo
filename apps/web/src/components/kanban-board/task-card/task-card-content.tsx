@@ -37,7 +37,6 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../task-card-context-menu/task-card-context-menu-content";
 import { TaskLabels } from "../task-labels";
-import type { DragListeners } from "./drag-listeners";
 import { useTaskCardClick } from "./use-task-card-click";
 
 const dueDateTextColors: Record<DueDateStatus, string> = {
@@ -52,7 +51,6 @@ type TaskCardContentProps = {
   disableDragDrop: boolean;
   isFinalColumn?: boolean;
   isDragging: boolean;
-  dragListeners: DragListeners;
 };
 
 function TaskCardContent({
@@ -60,7 +58,6 @@ function TaskCardContent({
   disableDragDrop,
   isFinalColumn,
   isDragging,
-  dragListeners,
 }: TaskCardContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
@@ -101,7 +98,7 @@ function TaskCardContent({
     );
   }, [workspaceUsers, task.userId]);
 
-  const { handleClick, handleKeyDown } = useTaskCardClick(task, dragListeners);
+  const { handleClick } = useTaskCardClick(task);
 
   const handleDeleteTask = async () => {
     try {
@@ -122,10 +119,9 @@ function TaskCardContent({
         }}
       >
         <ContextMenuTrigger asChild>
-          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- the focusable sortable wrapper owns keyboard access */}
           <div
             onClick={handleClick}
-            onKeyDown={handleKeyDown}
             className={cn(
               "group relative rounded-lg border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98]",
               disableDragDrop ? "cursor-default" : "cursor-move",

@@ -14,6 +14,7 @@ import {
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import TaskDeleteDialog from "./task-delete-dialog";
+import { TaskShortcuts } from "./task-shortcuts";
 import TaskDetailsContent from "./task-details-content";
 import TaskPropertiesSidebar from "./task-properties-sidebar";
 
@@ -40,8 +41,11 @@ export default function TaskDetailsSheet({
   const { data: task } = useGetTask(currentTaskId ?? "");
   const { data: project } = useGetProject({ id: projectId, workspaceId });
 
+  const lastTaskIdRef = useRef(taskId);
+
   useEffect(() => {
     if (taskId) {
+      lastTaskIdRef.current = taskId;
       // Update taskId immediately without closing/reopening
       setCurrentTaskId(taskId);
     } else {
@@ -71,10 +75,17 @@ export default function TaskDetailsSheet({
     <Sheet open={!!taskId} onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="right"
+        data-task-view
+        data-shortcuts="allow"
         className="w-full max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl p-0 gap-0 [&>button]:hidden"
         // Focusing the first control would pop the "open in full page"
         // tooltip over the actions every time the sheet opens on touch.
         initialFocus={closeButtonRef}
+        finalFocus={() =>
+          document.querySelector<HTMLElement>(
+            `[data-task-id="${lastTaskIdRef.current}"]`,
+          ) ?? true
+        }
       >
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background shrink-0">
           <div className="flex items-center gap-2">
@@ -114,6 +125,14 @@ export default function TaskDetailsSheet({
           </div>
         </div>
 
+        {currentTaskId && (
+          <TaskShortcuts
+            taskId={currentTaskId}
+            projectId={projectId}
+            workspaceId={workspaceId}
+            enabled={Boolean(taskId)}
+          />
+        )}
         {currentTaskId && (
           <TaskDeleteDialog
             handle={deleteHandle}

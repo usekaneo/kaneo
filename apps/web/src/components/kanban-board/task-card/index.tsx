@@ -1,6 +1,8 @@
+import { useRestoreTaskFocus } from "@/components/project/task-view-keys/use-restore-task-focus";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { CSSProperties } from "react";
+import useBulkSelectionStore from "@/store/bulk-selection";
 import type Task from "@/types/task";
 import TaskCardContent from "./task-card-content";
 import { useTaskCardClick } from "./use-task-card-click";
@@ -30,7 +32,9 @@ function TaskCard({
     data: { isFinalColumn },
     transition: { duration: 200, easing: EASE_OUT_CSS },
   });
-  const { handleKeyDown } = useTaskCardClick(task, listeners);
+  const { handleKeyDown } = useTaskCardClick(task);
+  const setFocusedTask = useBulkSelectionStore((state) => state.setFocusedTask);
+  useRestoreTaskFocus(task.id, useBulkSelectionStore);
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -45,18 +49,21 @@ function TaskCard({
       ref={setNodeRef}
       style={style}
       data-kaneo-sortable
+      data-task-id={task.id}
+      data-shortcut-surface
       {...attributes}
       {...listeners}
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
+      onFocus={() => setFocusedTask(task.id)}
+      className="outline-none"
     >
       <TaskCardContent
         task={task}
         disableDragDrop={disableDragDrop}
         isFinalColumn={isFinalColumn}
         isDragging={isDragging}
-        dragListeners={listeners}
       />
     </div>
   );

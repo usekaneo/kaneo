@@ -2,14 +2,13 @@ import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-d
 import { Copy, GitBranch } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
-import { KbdSequence } from "@/components/ui/kbd";
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
 import type Task from "@/types/task";
 import TaskDeleteButton from "./task-delete-button";
 import TaskMovePopover from "./task-move-popover";
@@ -32,7 +31,6 @@ export default function TaskActions({
   deleteHandle,
 }: TaskActionsProps) {
   const { t } = useTranslation();
-  const copyModifiers = shortcuts.copyTask.prefix.split("+");
 
   return (
     <div className="flex *:not-first:rounded-s-none *:not-first:before:rounded-s-none *:not-last:rounded-e-none *:not-last:border-e-0 *:not-last:before:rounded-e-none">
@@ -55,10 +53,7 @@ export default function TaskActions({
           <TooltipContent>
             <span className="flex items-center gap-2">
               {t("tasks:properties.copyTaskLink")}
-              <KbdSequence
-                keys={[...copyModifiers, shortcuts.copyTask.link.toUpperCase()]}
-                separator=""
-              />
+              <ShortcutKeys id="copyTaskUrl" />
             </span>
           </TooltipContent>
         </Tooltip>
@@ -77,13 +72,7 @@ export default function TaskActions({
           <TooltipContent>
             <span className="flex items-center gap-2">
               {t("tasks:properties.copyTaskBranch")}
-              <KbdSequence
-                keys={[
-                  ...copyModifiers,
-                  shortcuts.copyTask.branch.toUpperCase(),
-                ]}
-                separator=""
-              />
+              <ShortcutKeys id="copyBranchName" />
             </span>
           </TooltipContent>
         </Tooltip>

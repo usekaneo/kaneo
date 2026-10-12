@@ -130,6 +130,7 @@ export default function TaskMovePopover({
       <PopoverTrigger asChild>
         <Button
           type="button"
+          data-task-action="move"
           variant="outline"
           size="sm"
           className="text-foreground"

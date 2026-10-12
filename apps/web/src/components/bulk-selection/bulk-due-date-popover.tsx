@@ -9,14 +9,23 @@ import {
 } from "@/components/ui/popover";
 import { barButtonClass } from "./bar-button-class";
 import { BarTooltip } from "./bar-tooltip";
+import { useBulkPickerRequest } from "./use-bulk-picker-request";
 
 export function BulkDueDatePopover({
   onSelect,
+  onDismiss,
+  returnFocus,
 }: {
   onSelect: (date: Date | undefined) => void;
+  onDismiss?: () => void;
+  returnFocus?: () => HTMLElement | null;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const { openedByRequest, openedManually } = useBulkPickerRequest(
+    "dueDate",
+    setOpen,
+  );
   const label = t("tasks:dueDate.label");
 
   const select = (date: Date | undefined) => {
@@ -25,7 +34,14 @@ export function BulkDueDatePopover({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) openedManually();
+        else onDismiss?.();
+      }}
+    >
       <BarTooltip label={label}>
         <PopoverTrigger
           render={<button type="button" className={barButtonClass} />}
@@ -34,7 +50,13 @@ export function BulkDueDatePopover({
           <span className="max-lg:sr-only">{label}</span>
         </PopoverTrigger>
       </BarTooltip>
-      <PopoverContent side="top" align="start" sideOffset={8} className="p-0">
+      <PopoverContent
+        side="top"
+        align="start"
+        sideOffset={8}
+        className="p-0"
+        finalFocus={() => (openedByRequest() && returnFocus?.()) || true}
+      >
         <Calendar mode="single" onSelect={select} className="bg-popover" />
         <div className="border-border/80 border-t p-1">
           <button

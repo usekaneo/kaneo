@@ -1,3 +1,4 @@
+import { TaskShortcuts } from "@/components/task/task-shortcuts";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -100,6 +101,13 @@ function RouteComponent() {
         }
         hideAppName
       />
+      {!isLoading && task && (
+        <TaskShortcuts
+          taskId={taskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+        />
+      )}
       {!isLoading && task && (
         <TaskDeleteDialog
           handle={deleteHandle}

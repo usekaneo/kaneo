@@ -8,11 +8,12 @@ import { useTranslation } from "react-i18next";
 import queryClient from "@/query-client";
 import "@/index.css";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
-import { KeyboardShortcutsHelp } from "./components/keyboard-shortcuts-help";
+import { SequenceHint } from "./components/shortcuts/sequence-hint";
+import { ShortcutsPanel } from "./components/shortcuts/shortcuts-panel";
 import AuthProvider from "./components/providers/auth-provider";
 import { ThemeProvider } from "./components/providers/theme-provider";
 import { ErrorBoundary } from "./components/ui/error-boundary";
-import { KeyboardShortcutsProvider } from "./hooks/use-keyboard-shortcuts";
+import { ShortcutListener } from "./lib/shortcuts/shortcut-listener";
 import { captureCheckoutIntent } from "./lib/checkout-intent";
 import { AppI18nProvider } from "./lib/i18n/provider";
 import { routeTree } from "./routeTree.gen";
@@ -100,10 +101,10 @@ if (!rootElement.innerHTML) {
           <ThemeProvider>
             <AuthProvider>
               <AppI18nProvider>
-                <KeyboardShortcutsProvider>
-                  <App />
-                  <KeyboardShortcutsHelp />
-                </KeyboardShortcutsProvider>
+                <ShortcutListener />
+                <App />
+                <ShortcutsPanel />
+                <SequenceHint />
               </AppI18nProvider>
             </AuthProvider>
           </ThemeProvider>

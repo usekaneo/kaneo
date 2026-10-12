@@ -180,6 +180,7 @@ export function ExternalLinksAccordion({
         <div className="flex items-center justify-between">
           <CollapsibleTrigger asChild>
             <Button
+              data-task-action="resources"
               variant="ghost"
               size="sm"
               className="justify-start gap-1 px-0 h-8 hover:bg-transparent"
@@ -201,6 +202,7 @@ export function ExternalLinksAccordion({
               variant="ghost"
               size="xs"
               className="text-muted-foreground"
+              data-task-action="addLink"
               aria-label={t("settings:externalLinks.addResource")}
               title={t("settings:externalLinks.addResource")}
               onClick={() => setIsDialogOpen(true)}

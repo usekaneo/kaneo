@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { DisplayMenu } from "@/components/project/display/display-menu";
 import { FilterMenu } from "@/components/project/task-filters/filter-menu";
+import { useFilterShortcuts } from "@/components/project/task-filters/use-filter-shortcuts";
 import { ProjectSearch } from "./project-search";
 import type { ProjectTaskView } from "./use-project-task-view";
 
@@ -15,6 +16,8 @@ export function ProjectToolbar({
   display,
   actions,
 }: ProjectToolbarProps) {
+  useFilterShortcuts(view.subjects, view.filters.clearFilters);
+
   return (
     <>
       {actions && (

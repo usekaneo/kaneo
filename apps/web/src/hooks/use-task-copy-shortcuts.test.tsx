@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import { KeyboardShortcutsProvider } from "./use-keyboard-shortcuts";
+import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
 import { useTaskCopyShortcuts } from "./use-task-copy-shortcuts";
 
 afterEach(cleanup);
@@ -11,7 +11,7 @@ function renderCopyShortcuts(enabled: boolean) {
   const view = renderHook(
     (props: { enabled: boolean }) =>
       useTaskCopyShortcuts({ ...props, onCopyLink, onCopyBranch }),
-    { initialProps: { enabled }, wrapper: KeyboardShortcutsProvider },
+    { initialProps: { enabled }, wrapper: ShortcutTestWrapper },
   );
   return { ...view, onCopyLink, onCopyBranch };
 }
@@ -21,12 +21,14 @@ describe("useTaskCopyShortcuts", () => {
     const { onCopyLink, onCopyBranch } = renderCopyShortcuts(true);
 
     fireEvent.keyDown(document.body, {
-      key: "C",
+      key: "<",
+      code: "Comma",
       ctrlKey: true,
       shiftKey: true,
     });
     fireEvent.keyDown(document.body, {
-      key: "G",
+      key: ">",
+      code: "Period",
       ctrlKey: true,
       shiftKey: true,
     });
@@ -40,12 +42,14 @@ describe("useTaskCopyShortcuts", () => {
 
     rerender({ enabled: false });
     fireEvent.keyDown(document.body, {
-      key: "C",
+      key: "<",
+      code: "Comma",
       ctrlKey: true,
       shiftKey: true,
     });
     fireEvent.keyDown(document.body, {
-      key: "G",
+      key: ">",
+      code: "Period",
       ctrlKey: true,
       shiftKey: true,
     });
@@ -69,13 +73,14 @@ describe("useTaskCopyShortcuts", () => {
       },
       {
         initialProps: { onCopyLink: firstLink },
-        wrapper: KeyboardShortcutsProvider,
+        wrapper: ShortcutTestWrapper,
       },
     );
 
     rerender({ onCopyLink: latestLink });
     fireEvent.keyDown(document.body, {
-      key: "C",
+      key: "<",
+      code: "Comma",
       ctrlKey: true,
       shiftKey: true,
     });

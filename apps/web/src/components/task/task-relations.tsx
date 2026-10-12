@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import {
+  Ban,
   ChevronDown,
   ChevronRight,
   Link2,
@@ -9,6 +10,15 @@ import {
 } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  buildRelationLink,
+  findParentRelation,
+  unpickableTaskIds,
+} from "./task-relation-link";
+import {
+  type RelationPickerMode,
+  useRelationPickerStore,
+} from "./task-relation-picker-store";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -82,9 +92,10 @@ export default function TaskRelations({
   const [isOpen, setIsOpen] = useState(true);
   const [commandOpen, setCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRelationType, setSelectedRelationType] = useState<
-    "blocks" | "related"
-  >("related");
+  const [selectedRelationType, setSelectedRelationType] =
+    useState<RelationPickerMode>("related");
+  const relationRequest = useRelationPickerStore((state) => state.request);
+  const clearRelationRequest = useRelationPickerStore((state) => state.clear);
 
   const { data: relations = [] } = useGetTaskRelations(taskId);
   const { data: projectData } = useGetTasks(projectId);
@@ -97,6 +108,14 @@ export default function TaskRelations({
   const deleteRelation = useDeleteTaskRelation(taskId);
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
+
+  useEffect(() => {
+    if (!relationRequest || relationRequest.taskId !== taskId) return;
+    clearRelationRequest();
+    if (!canEdit) return;
+    setSelectedRelationType(relationRequest.mode);
+    setCommandOpen(true);
+  }, [relationRequest, taskId, canEdit, clearRelationRequest]);
 
   useEffect(() => {
     if (!commandOpen) {
@@ -142,10 +161,11 @@ export default function TaskRelations({
     return groups;
   }, [nonSubtaskRelations, taskId]);
 
-  const existingRelatedTaskIds = new Set(
-    nonSubtaskRelations.flatMap((rel) => [rel.sourceTaskId, rel.targetTaskId]),
+  const existingRelatedTaskIds = unpickableTaskIds(
+    selectedRelationType,
+    taskId,
+    relations,
   );
-  existingRelatedTaskIds.add(taskId);
 
   const allTasks = useMemo(() => {
     if (!projectData) return [];
@@ -206,13 +226,18 @@ export default function TaskRelations({
     ];
   }, [filteredTasks, t]);
 
-  const handleLinkTask = async (targetTaskId: string) => {
+  const handleLinkTask = async (pickedTaskId: string) => {
+    const previousParent =
+      selectedRelationType === "parent"
+        ? findParentRelation(taskId, relations)
+        : undefined;
     try {
-      await createRelation.mutateAsync({
-        sourceTaskId: taskId,
-        targetTaskId,
-        relationType: selectedRelationType,
-      });
+      await createRelation.mutateAsync(
+        buildRelationLink(selectedRelationType, taskId, pickedTaskId),
+      );
+      if (previousParent) {
+        await deleteRelation.mutateAsync(previousParent.id);
+      }
       setCommandOpen(false);
       setSearchQuery("");
     } catch {
@@ -410,7 +435,11 @@ export default function TaskRelations({
         <CommandDialogPopup>
           <Command items={commandGroups}>
             <CommandInput
-              placeholder={t("tasks:relations.searchPlaceholder")}
+              placeholder={
+                selectedRelationType === "parent"
+                  ? t("tasks:relations.parentPlaceholder")
+                  : t("tasks:relations.searchPlaceholder")
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -459,7 +488,9 @@ export default function TaskRelations({
               </CommandList>
             </CommandPanel>
             <CommandFooter>
-              <div className="flex items-center gap-3">
+              <div
+                className={`flex items-center gap-3 ${selectedRelationType === "parent" ? "hidden" : ""}`}
+              >
                 <button
                   type="button"
                   className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "related" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
@@ -475,6 +506,14 @@ export default function TaskRelations({
                 >
                   <X className="size-3" />
                   {t("tasks:relations.blocks")}
+                </button>
+                <button
+                  type="button"
+                  className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "blockedBy" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setSelectedRelationType("blockedBy")}
+                >
+                  <Ban className="size-3" />
+                  {t("tasks:relations.blockedBy")}
                 </button>
               </div>
               <span className="text-muted-foreground/60">

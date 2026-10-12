@@ -1,6 +1,7 @@
 import { SlidersHorizontal } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -13,13 +14,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 
 export function DisplayMenu({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const title = t("tasks:display.title");
+  const [open, setOpen] = useState(false);
+  useShortcut("showDisplayOptions", () => setOpen((value) => !value));
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <Tooltip>
         <TooltipTrigger
           render={
@@ -37,7 +41,10 @@ export function DisplayMenu({ children }: { children: ReactNode }) {
         >
           <SlidersHorizontal />
         </TooltipTrigger>
-        <TooltipContent>{title}</TooltipContent>
+        <TooltipContent className="flex items-center gap-2">
+          {title}
+          <ShortcutKeys id="showDisplayOptions" tone="tooltip" />
+        </TooltipContent>
       </Tooltip>
       <PopoverContent align="end" className="w-80">
         <PopoverTitle className="sr-only">{title}</PopoverTitle>

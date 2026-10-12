@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { LogOut, Settings, LogOutIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -30,10 +31,6 @@ export function UserAvatar() {
   const { setProject } = useProjectStore();
   const navigate = useNavigate();
 
-  if (!user) {
-    return null;
-  }
-
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -50,6 +47,12 @@ export function UserAvatar() {
       );
     }
   };
+
+  useShortcut("logOut", () => void handleSignOut(), { enabled: Boolean(user) });
+
+  if (!user) {
+    return null;
+  }
 
   const handleSettings = () => {
     navigate({ to: "/dashboard/settings/account/information" });

@@ -9,7 +9,6 @@ import {
   type DragStartEvent,
   type DropAnimation,
   defaultDropAnimationSideEffects,
-  KeyboardSensor,
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
@@ -17,7 +16,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
 import { toast } from "@/lib/toast";
@@ -29,7 +27,7 @@ import { moveBoardTask } from "./move-task";
 import { useDragPreview } from "./drag-preview/use-drag-preview";
 import { useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
 import { useProjectBackground } from "@/hooks/use-project-background";
 import { cn } from "@/lib/cn";
 import { EASE_OUT_CSS } from "@/lib/motion";
@@ -62,9 +60,6 @@ function KanbanBoard({
   const setAvailableTasks = useBulkSelectionStore(
     (state) => state.setAvailableTasks,
   );
-  const focusNext = useBulkSelectionStore((state) => state.focusNext);
-  const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
-  const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
   const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const [activeIsFinal, setActiveIsFinal] = useState<boolean | undefined>();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -115,7 +110,6 @@ function KanbanBoard({
     viewMode: "board",
   });
   const { setBackground } = useBackgroundStore();
-  const navigate = useNavigate();
 
   useEffect(() => {
     setBackground(background);
@@ -138,37 +132,6 @@ function KanbanBoard({
     clearFocus();
   }, [clearFocus]);
 
-  useRegisterShortcuts({
-    shortcuts: {
-      j: () => {
-        focusNext();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      k: () => {
-        focusPrevious();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      Enter: () => {
-        if (focusedTaskId && project) {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-            params: {
-              workspaceId: project.workspaceId,
-              projectId: project.id,
-              taskId: focusedTaskId,
-            },
-          });
-        }
-      },
-    },
-  });
-
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
@@ -179,7 +142,6 @@ function KanbanBoard({
         tolerance: 10,
       },
     }),
-    useSensor(KeyboardSensor),
   );
 
   const reduceMotion = useReducedMotion();
@@ -228,16 +190,12 @@ function KanbanBoard({
     );
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    const activeId = active.id.toString();
-    const overId = over?.id.toString();
-    const placement = overId
-      ? dragPreview.getDropPlacement(activeId, overId)
-      : null;
-    resetDrag();
-
-    if (!overId || !project?.columns || isDropBlocked()) return;
+  const commitMove = (
+    activeId: string,
+    overId: string,
+    insertAfterTarget?: boolean,
+  ) => {
+    if (!project?.columns || isDropBlocked()) return;
     const canonical = selectReorderBoard(
       project.id,
       activeId,
@@ -246,15 +204,10 @@ function KanbanBoard({
     );
     if (!canonical) return;
 
-    const moved = placement
-      ? moveBoardTask(
-          canonical,
-          activeId,
-          placement.overId,
-          false,
-          placement.insertAfterTarget,
-        )
-      : moveBoardTask(canonical, activeId, overId, isAutomaticallySorted);
+    const moved =
+      insertAfterTarget === undefined
+        ? moveBoardTask(canonical, activeId, overId, isAutomaticallySorted)
+        : moveBoardTask(canonical, activeId, overId, false, insertAfterTarget);
     if (!moved || !moved.tasks.length) return;
     for (const task of moved.tasks)
       markBoardCacheChanged(queryClient, project.id, task.id);
@@ -267,6 +220,33 @@ function KanbanBoard({
       previousBoard: canonical,
     });
   };
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    const activeId = active.id.toString();
+    const overId = over?.id.toString();
+    const placement = overId
+      ? dragPreview.getDropPlacement(activeId, overId)
+      : null;
+    resetDrag();
+    if (!overId) return;
+    if (placement)
+      commitMove(activeId, placement.overId, placement.insertAfterTarget);
+    else commitMove(activeId, overId);
+  };
+
+  useTaskViewShortcuts({
+    layout: "board",
+    selection: useBulkSelectionStore,
+    getGroups: () =>
+      (project?.columns ?? []).map((column) => ({
+        id: column.id,
+        taskIds: column.tasks.map((task) => task.id),
+      })),
+    project,
+    enabled: activeId === null,
+    canMove: !disableDragDrop,
+    onMove: (taskId, overId) => commitMove(taskId, overId),
+  });
 
   if (!project?.columns) {
     return (
@@ -319,6 +299,11 @@ function KanbanBoard({
   return (
     <DndContext
       sensors={sensors}
+      accessibility={{
+        screenReaderInstructions: {
+          draggable: t("tasks:board.keyboardInstructions"),
+        },
+      }}
       collisionDetection={boardCollisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}

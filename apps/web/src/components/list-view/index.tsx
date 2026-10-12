@@ -5,7 +5,6 @@ import {
   type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
-  KeyboardSensor,
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
@@ -13,7 +12,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
-import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Flag, ArchiveIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -21,7 +19,7 @@ import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -49,12 +47,8 @@ function ListView({
   const setAvailableTasks = useBulkSelectionStore(
     (state) => state.setAvailableTasks,
   );
-  const focusNext = useBulkSelectionStore((state) => state.focusNext);
-  const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
-  const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
   const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const { mutate: updateTask } = useUpdateTask();
-  const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<
@@ -89,37 +83,6 @@ function ListView({
     clearFocus();
   }, [clearFocus]);
 
-  useRegisterShortcuts({
-    shortcuts: {
-      j: () => {
-        focusNext();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      k: () => {
-        focusPrevious();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      Enter: () => {
-        if (focusedTaskId && project) {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-            params: {
-              workspaceId: project.workspaceId,
-              projectId: project.id,
-              taskId: focusedTaskId,
-            },
-          });
-        }
-      },
-    },
-  });
-
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
@@ -130,7 +93,6 @@ function ListView({
         tolerance: 8,
       },
     }),
-    useSensor(KeyboardSensor),
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -162,15 +124,8 @@ function ListView({
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-    setOverColumnId(null);
-
-    if (disableDragDrop || !over || !project?.columns) return;
-
-    const activeTaskId = active.id.toString();
-    const overId = over.id.toString();
+  const moveTask = (activeTaskId: string, overId: string) => {
+    if (disableDragDrop || !project?.columns) return;
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
@@ -240,12 +195,44 @@ function ListView({
     setProject(updatedProject);
   };
 
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    setActiveId(null);
+    setOverColumnId(null);
+    if (over) moveTask(active.id.toString(), over.id.toString());
+  };
+
   const toggleSection = useCallback((sectionId: string) => {
     setExpandedSections((prev) => ({
       ...prev,
       [sectionId]: !prev[sectionId],
     }));
   }, []);
+
+  const toggleAllSections = useCallback(() => {
+    setExpandedSections((prev) => {
+      const expand = !project.columns.some((column) => prev[column.id]);
+      return Object.fromEntries(
+        project.columns.map((column) => [column.id, expand]),
+      );
+    });
+  }, [project.columns]);
+
+  useTaskViewShortcuts({
+    layout: "list",
+    selection: useBulkSelectionStore,
+    getGroups: () =>
+      project.columns.map((column) => ({
+        id: column.id,
+        taskIds: column.tasks.map((task) => task.id),
+        collapsed: !expandedSections[column.id],
+      })),
+    project,
+    enabled: activeId === null,
+    canMove: !disableDragDrop,
+    onMove: moveTask,
+    onToggleGroup: toggleSection,
+    onToggleAllGroups: toggleAllSections,
+  });
 
   const handleAddTask = useCallback((columnId: string) => {
     setIsTaskModalOpen(true);
@@ -308,6 +295,11 @@ function ListView({
   return (
     <DndContext
       sensors={disableDragDrop ? [] : sensors}
+      accessibility={{
+        screenReaderInstructions: {
+          draggable: t("tasks:board.keyboardInstructions"),
+        },
+      }}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}

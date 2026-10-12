@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/popover";
 import { barButtonClass } from "./bar-button-class";
 import { BarTooltip } from "./bar-tooltip";
+import type { BulkPicker } from "./bulk-request-store";
+import { useBulkPickerRequest } from "./use-bulk-picker-request";
 
 export type BulkOption = {
   value: string;
@@ -22,6 +24,9 @@ type BulkOptionPopoverProps = {
   options: BulkOption[];
   onSelect: (value: string) => void;
   className?: string;
+  picker?: BulkPicker;
+  onDismiss?: () => void;
+  returnFocus?: () => HTMLElement | null;
 };
 
 export function BulkOptionPopover({
@@ -31,9 +36,16 @@ export function BulkOptionPopover({
   options,
   onSelect,
   className,
+  picker,
+  onDismiss,
+  returnFocus,
 }: BulkOptionPopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const { openedByRequest, openedManually } = useBulkPickerRequest(
+    picker,
+    setOpen,
+  );
   const [query, setQuery] = useState("");
   const needle = query.trim().toLowerCase();
   const filtered = options.filter((option) =>
@@ -50,7 +62,12 @@ export function BulkOptionPopover({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next) setQuery("");
+        if (next) {
+          openedManually();
+          return;
+        }
+        setQuery("");
+        onDismiss?.();
       }}
     >
       <BarTooltip label={label}>
@@ -73,6 +90,7 @@ export function BulkOptionPopover({
         align="start"
         sideOffset={8}
         className="w-60 p-0"
+        finalFocus={() => (openedByRequest() && returnFocus?.()) || true}
       >
         <Autocomplete.Root
           items={options}

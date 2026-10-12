@@ -15,6 +15,7 @@ import { MermaidBlock } from "@/components/task/extensions/mermaid-block";
 import { SafeHardBreak } from "@/components/task/extensions/safe-hard-break";
 import { ShikiCodeBlock } from "@/components/task/extensions/shiki-code-block";
 import { TaskItemWithCheckbox } from "@/components/task/extensions/task-item-with-checkbox";
+import { EditorKeymap } from "./editor-keymap";
 
 export function createEditorExtensions({
   placeholder,
@@ -39,6 +40,7 @@ export function createEditorExtensions({
       hardBreak: false,
     }),
     SafeHardBreak,
+    EditorKeymap,
     Markdown.configure({ markedOptions: { breaks: true, gfm: true } }),
     ShikiCodeBlock.configure({
       highlighter,

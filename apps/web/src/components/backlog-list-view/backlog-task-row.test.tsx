@@ -159,12 +159,19 @@ describe("backlog row subscriptions", () => {
     expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
       new Set([task.id, otherTask.id]),
     );
-    expect(sortableKeyDown).not.toHaveBeenCalled();
     fireEvent.keyDown(screen.getByRole("button", { name: /Second task/ }), {
       key: " ",
       code: "Space",
     });
-    expect(sortableKeyDown).toHaveBeenCalledOnce();
+    expect(sortableKeyDown).not.toHaveBeenCalled();
+  });
+
+  it("takes keyboard focus when the row is focused", () => {
+    render(<BacklogTaskRow task={task} />);
+
+    fireEvent.focus(screen.getByRole("button", { name: /First task/ }));
+
+    expect(useBacklogBulkSelectionStore.getState().focusedTaskId).toBe(task.id);
   });
 
   it("only renders the row whose selection changes, including deselection", () => {
@@ -211,7 +218,7 @@ describe("backlog row subscriptions", () => {
     );
     expect(useSortable).not.toHaveBeenCalled();
 
-    act(() => useBacklogBulkSelectionStore.getState().focusNext());
+    act(() => useBacklogBulkSelectionStore.getState().setFocusedTask(task.id));
     expect(useSortable.mock.calls.map(([options]) => options.id)).toEqual([
       "task-1",
     ]);
@@ -220,7 +227,9 @@ describe("backlog row subscriptions", () => {
     ).not.toBeNull();
 
     useSortable.mockClear();
-    act(() => useBacklogBulkSelectionStore.getState().focusNext());
+    act(() =>
+      useBacklogBulkSelectionStore.getState().setFocusedTask(otherTask.id),
+    );
     expect(
       useSortable.mock.calls.map(([options]) => options.id).sort(),
     ).toEqual(["task-1", "task-2"]);

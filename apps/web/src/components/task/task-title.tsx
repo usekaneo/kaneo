@@ -88,6 +88,7 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
         render={({ field }) => (
           <textarea
             {...field}
+            data-task-action="title"
             ref={(element) => {
               field.ref(element);
               textareaRef.current = element;

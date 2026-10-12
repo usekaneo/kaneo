@@ -3,13 +3,12 @@ import { Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { KbdSequence } from "@/components/ui/kbd";
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 
 type TaskDeleteButtonProps = {
@@ -44,7 +43,7 @@ export default function TaskDeleteButton({ handle }: TaskDeleteButtonProps) {
       <TooltipContent>
         <span className="flex items-center gap-2">
           {t("tasks:delete.action")}
-          <KbdSequence keys={[shortcuts.deleteTask.prefix, "⌫"]} separator="" />
+          <ShortcutKeys id="deleteTask" />
         </span>
       </TooltipContent>
     </Tooltip>

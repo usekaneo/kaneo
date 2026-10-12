@@ -46,5 +46,7 @@ describe("useBulkSelectionKeys", () => {
     expect(selectAll).not.toHaveBeenCalled();
     press(document.body, { key: "a", ctrlKey: true });
     expect(selectAll).toHaveBeenCalledTimes(1);
+    press(document.body, { key: "a", ctrlKey: true, altKey: true });
+    expect(selectAll).toHaveBeenCalledTimes(1);
   });
 });

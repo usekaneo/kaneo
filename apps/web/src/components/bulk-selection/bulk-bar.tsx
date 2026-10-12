@@ -8,7 +8,7 @@ import {
   Trash2,
   UserRound,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 import { Toolbar } from "../ui/toolbar";
@@ -22,6 +22,7 @@ import {
 import { BulkCountChip } from "./bulk-count-chip";
 import { BulkDeleteConfirm } from "./bulk-delete-confirm";
 import { BulkDueDatePopover } from "./bulk-due-date-popover";
+import { useBulkRequestStore } from "./bulk-request-store";
 import { BulkMoreMenu } from "./bulk-more-menu";
 import { type BulkOption, BulkOptionPopover } from "./bulk-option-popover";
 import { toolbarPresenceClass } from "./toolbar-presence-class";
@@ -35,6 +36,7 @@ type BulkBarProps = {
   selectedTaskIds: Set<string>;
   clearSelection: () => void;
   selectAll: () => void;
+  getFocusedTaskId: () => string | null;
 };
 
 const toCommandItems = (
@@ -54,6 +56,7 @@ export function BulkBar({
   selectedTaskIds,
   clearSelection,
   selectAll,
+  getFocusedTaskId,
 }: BulkBarProps) {
   const { t } = useTranslation();
   const actions = useBulkActions(selectedTaskIds, clearSelection);
@@ -61,6 +64,35 @@ export function BulkBar({
   const { mounted, hidden, displayCount } = useToolbarPresence(actions.count);
   const [commandOpen, setCommandOpen] = useState(false);
   useBulkSelectionKeys({ selectAll, clearSelection });
+  const request = useBulkRequestStore((state) => state.request);
+
+  useEffect(() => {
+    if (actions.count === 0) useBulkRequestStore.getState().release();
+  }, [actions.count]);
+
+  useEffect(() => {
+    if (request !== "delete" || actions.count === 0) return;
+    useBulkRequestStore.getState().consume();
+    actions.deleteConfirm.request();
+  }, [request, actions]);
+
+  const focusedTaskElement = () => {
+    const taskId = getFocusedTaskId();
+    return taskId
+      ? document.querySelector<HTMLElement>(`[data-task-id="${taskId}"]`)
+      : null;
+  };
+
+  const dismissTemporary = () => {
+    const { temporaryTaskId, release } = useBulkRequestStore.getState();
+    release();
+    if (
+      temporaryTaskId &&
+      selectedTaskIds.size === 1 &&
+      selectedTaskIds.has(temporaryTaskId)
+    )
+      clearSelection();
+  };
 
   const can = actions.permissions;
   if (!mounted) return null;
@@ -164,6 +196,9 @@ export function BulkBar({
               placeholder={t("tasks:bulk.statusPlaceholder")}
               options={options.columnOptions}
               onSelect={(value) => void actions.changeStatus(value)}
+              picker="status"
+              onDismiss={dismissTemporary}
+              returnFocus={focusedTaskElement}
             />
           )}
           {can.edit && (
@@ -173,6 +208,9 @@ export function BulkBar({
               placeholder={t("tasks:bulk.priorityPlaceholder")}
               options={options.priorityOptions}
               onSelect={(value) => void actions.setPriority(value)}
+              picker="priority"
+              onDismiss={dismissTemporary}
+              returnFocus={focusedTaskElement}
             />
           )}
           {can.assign && (
@@ -182,6 +220,9 @@ export function BulkBar({
               placeholder={t("tasks:bulk.assigneePlaceholder")}
               options={options.memberOptions}
               onSelect={(value) => void actions.assign(value)}
+              picker="assignee"
+              onDismiss={dismissTemporary}
+              returnFocus={focusedTaskElement}
             />
           )}
           {can.labels && (
@@ -191,11 +232,16 @@ export function BulkBar({
               placeholder={t("tasks:bulk.labelPlaceholder")}
               options={options.labelOptions}
               onSelect={(value) => void actions.addLabel(value)}
+              picker="labels"
+              onDismiss={dismissTemporary}
+              returnFocus={focusedTaskElement}
             />
           )}
           {can.edit && (
             <BulkDueDatePopover
               onSelect={(date) => void actions.setDueDate(date)}
+              onDismiss={dismissTemporary}
+              returnFocus={focusedTaskElement}
             />
           )}
           {can.edit &&
@@ -218,6 +264,9 @@ export function BulkBar({
                 options={options.columnOptions}
                 onSelect={(value) => void actions.moveToBoard(value)}
                 className="ms-1.5"
+                picker="status"
+                onDismiss={dismissTemporary}
+                returnFocus={focusedTaskElement}
               />
             ))}
           {groups.length > 0 && (
@@ -240,7 +289,10 @@ export function BulkBar({
         open={actions.deleteConfirm.open}
         count={actions.deleteConfirm.count}
         pending={actions.deleteConfirm.pending}
-        onOpenChange={actions.deleteConfirm.onOpenChange}
+        onOpenChange={(open) => {
+          actions.deleteConfirm.onOpenChange(open);
+          if (!open) dismissTemporary();
+        }}
         onConfirm={() => void actions.deleteConfirm.confirm()}
       />
     </div>

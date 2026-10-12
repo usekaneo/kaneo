@@ -15,12 +15,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { shortcuts } from "@/constants/shortcuts";
 import { usePendingInvitations } from "@/hooks/queries/invitation/use-pending-invitations";
 import useGetNotifications from "@/hooks/queries/notification/use-get-notifications";
 import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 
 type NavItem = {
@@ -41,20 +39,6 @@ export function NavMain() {
   const { data: invitations = [] } = usePendingInvitations();
   const { data: notifications = [] } = useGetNotifications(workspace?.id);
   const { data: assignedTasks } = useGetAssignedTasks(workspace?.id, true);
-
-  const inboxUrl = workspace
-    ? `/dashboard/workspace/${workspace.id}/inbox`
-    : undefined;
-
-  useRegisterShortcuts({
-    sequentialShortcuts: {
-      [shortcuts.notification.prefix]: {
-        [shortcuts.notification.open]: () => {
-          if (inboxUrl) navigate({ to: inboxUrl });
-        },
-      },
-    },
-  });
 
   if (!workspace) return null;
 

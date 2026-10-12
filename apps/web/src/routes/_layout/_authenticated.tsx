@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { GlobalShortcuts } from "@/components/shortcuts/global-shortcuts";
 import { useTrackSignup } from "@/hooks/use-track-signup";
 import { useUserWebSocket } from "@/hooks/use-user-websocket";
 import { authClient } from "@/lib/auth-client";
@@ -44,5 +45,10 @@ function AuthenticatedLayout() {
   const { session } = Route.useRouteContext();
   useUserWebSocket();
   useTrackSignup(session?.user);
-  return <Outlet />;
+  return (
+    <>
+      <GlobalShortcuts />
+      <Outlet />
+    </>
+  );
 }

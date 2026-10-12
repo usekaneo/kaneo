@@ -186,6 +186,7 @@ export default function TaskPropertiesSidebar({
               {task && (
                 <TaskStatusPopover task={task}>
                   <Button
+                    data-task-action="status"
                     variant="ghost"
                     size="sm"
                     className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -204,6 +205,7 @@ export default function TaskPropertiesSidebar({
               {task && (
                 <TaskPriorityPopover task={task}>
                   <Button
+                    data-task-action="priority"
                     variant="ghost"
                     size="sm"
                     className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -218,6 +220,7 @@ export default function TaskPropertiesSidebar({
               {task && (
                 <TaskAssigneePopover task={task} workspaceId={workspaceId}>
                   <Button
+                    data-task-action="assignee"
                     variant="ghost"
                     size="sm"
                     className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -271,6 +274,7 @@ export default function TaskPropertiesSidebar({
               {task && (
                 <TaskDueDatePopover task={task}>
                   <Button
+                    data-task-action="dueDate"
                     variant="ghost"
                     size="sm"
                     className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -338,6 +342,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskStatusPopover task={task}>
                     <Button
+                      data-task-action="status"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -356,6 +361,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskPriorityPopover task={task}>
                     <Button
+                      data-task-action="priority"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -370,6 +376,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskAssigneePopover task={task} workspaceId={workspaceId}>
                     <Button
+                      data-task-action="assignee"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -423,6 +430,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskDueDatePopover task={task}>
                     <Button
+                      data-task-action="dueDate"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
@@ -490,6 +498,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskStatusPopover task={task}>
                     <Button
+                      data-task-action="status"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5 w-full"
@@ -508,6 +517,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskPriorityPopover task={task}>
                     <Button
+                      data-task-action="priority"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5 w-full"
@@ -522,6 +532,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskAssigneePopover task={task} workspaceId={workspaceId}>
                     <Button
+                      data-task-action="assignee"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5 w-full"
@@ -575,6 +586,7 @@ export default function TaskPropertiesSidebar({
                 {task && (
                   <TaskDueDatePopover task={task}>
                     <Button
+                      data-task-action="dueDate"
                       variant="ghost"
                       size="sm"
                       className="justify-start h-7 px-1.5 gap-1.5 w-full"
@@ -658,6 +670,7 @@ export default function TaskPropertiesSidebar({
               {task && (
                 <TaskLabelsPopover task={task} workspaceId={workspaceId}>
                   <Button
+                    data-task-action="labels"
                     variant="ghost"
                     size="sm"
                     aria-label={t("tasks:popover.labels.editLabels")}
