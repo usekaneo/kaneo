@@ -12,6 +12,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createId } from "@paralleldrive/cuid2";
 import { config } from "dotenv-mono";
+import { describeStorageError } from "./describe-storage-error";
 
 config();
 
@@ -447,6 +448,10 @@ export async function verifyTaskAssetUpload(
       throw new InvalidUploadedAssetError("Uploaded object was not found.");
     }
     // Provider errors may include endpoints, signed URLs or other secrets.
+    console.error(
+      "Unable to verify uploaded object:",
+      describeStorageError(error),
+    );
     throw new Error("Unable to verify uploaded object.");
   }
 
@@ -459,7 +464,11 @@ export async function verifyTaskAssetUpload(
         new DeleteObjectCommand({ Bucket: config.bucket, Key: key }),
         { abortSignal },
       );
-    } catch {
+    } catch (error) {
+      console.error(
+        "Unable to remove oversized uploaded object:",
+        describeStorageError(error),
+      );
       throw new Error("Unable to remove oversized uploaded object.");
     }
     throw new InvalidUploadedAssetError(
