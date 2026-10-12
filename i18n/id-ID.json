@@ -148,7 +148,11 @@
 					"amber": "Kuning Ambar",
 					"terracotta": "Merah Bata",
 					"rose": "Merah Mawar",
-					"crimson": "Merah Tua"
+					"crimson": "Merah Tua",
+					"lagoon": "Biru Laguna",
+					"ocean": "Biru Laut",
+					"orchid": "Ungu Anggrek",
+					"sky": "Biru Langit"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2957,7 +2961,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"lagoon": "Biru Laguna",
+					"ocean": "Biru Laut",
+					"orchid": "Ungu Anggrek",
+					"sky": "Biru Langit"
 				},
 				"editLabels": "Edit label"
 			}

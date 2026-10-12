@@ -148,7 +148,11 @@
 					"amber": "Bernstein",
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
-					"crimson": "Karmesinrot"
+					"crimson": "Karmesinrot",
+					"lagoon": "Lagune",
+					"ocean": "Ozean",
+					"orchid": "Orchidee",
+					"sky": "Himmel"
 				},
 				"statusLoadError": "Die Projektstatus konnten nicht geladen werden."
 			}
@@ -3004,7 +3008,11 @@
 					"amber": "Bernstein",
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
-					"crimson": "Karmesinrot"
+					"crimson": "Karmesinrot",
+					"lagoon": "Lagune",
+					"ocean": "Ozean",
+					"orchid": "Orchidee",
+					"sky": "Himmel"
 				},
 				"editLabels": "Labels bearbeiten"
 			}

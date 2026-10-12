@@ -148,7 +148,11 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"lagoon": "Xanh ngọc",
+					"ocean": "Xanh đại dương",
+					"orchid": "Tím phong lan",
+					"sky": "Xanh da trời"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2957,7 +2961,11 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"lagoon": "Xanh ngọc",
+					"ocean": "Xanh đại dương",
+					"orchid": "Tím phong lan",
+					"sky": "Xanh da trời"
 				},
 				"editLabels": "Chỉnh sửa nhãn"
 			}

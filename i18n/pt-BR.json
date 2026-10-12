@@ -148,7 +148,11 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3051,7 +3055,11 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"editLabels": "Editar etiquetas"
 			}
