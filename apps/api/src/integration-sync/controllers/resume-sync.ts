@@ -11,9 +11,12 @@ import { reviewSyncResume } from "./review-resume";
 import { verifyResumeProvider } from "./verify-resume-provider";
 import type { ResumeProviderSnapshot } from "./resume-provider-snapshot";
 
+// RFC 0001 WP5: keyed by integration id. The sync lease is already per link,
+// and links are looked up within the addressed binding only, so sibling
+// bindings never contend. The provider for the status resolution is the
+// binding's integration type.
 export async function resumeSync(
-  projectId: string,
-  provider: string,
+  integrationId: string,
   linkId: string,
   token: string,
   source: "kaneo" | "provider",
@@ -22,8 +25,7 @@ export async function resumeSync(
   try {
     return await withSyncLease(`sync-resume:${linkId}`, () =>
       resumeWithLease(
-        projectId,
-        provider,
+        integrationId,
         linkId,
         token,
         source,
@@ -38,8 +40,7 @@ export async function resumeSync(
 }
 
 async function resumeWithLease(
-  projectId: string,
-  provider: string,
+  integrationId: string,
   linkId: string,
   token: string,
   source: "kaneo" | "provider",
@@ -47,11 +48,12 @@ async function resumeWithLease(
 ) {
   // Provider latency must not retain a pooled connection or block local edits.
   const initial = await reviewSyncResume(
-    projectId,
-    provider,
+    integrationId,
     linkId,
     authorizedWorkspaceId,
   );
+  const projectId = initial.integration.projectId;
+  const provider = initial.integration.type;
   const { snapshot } = initial;
   let request:
     | Promise<
@@ -66,17 +68,10 @@ async function resumeWithLease(
   let providerWritten = false;
   let updatedAt: string | null = null;
   let adoption: Awaited<ReturnType<typeof applySyncResume>>;
-  const validate = async (tx: Parameters<typeof lockResumeScope>[4]) => {
-    await lockResumeScope(
-      projectId,
-      provider,
-      linkId,
-      authorizedWorkspaceId,
-      tx,
-    );
+  const validate = async (tx: Parameters<typeof lockResumeScope>[3]) => {
+    await lockResumeScope(integrationId, linkId, authorizedWorkspaceId, tx);
     const review = await reviewSyncResume(
-      projectId,
-      provider,
+      integrationId,
       linkId,
       authorizedWorkspaceId,
       tx,
@@ -103,7 +98,7 @@ async function resumeWithLease(
       if ("error" in result) {
         console.error("Sync resume provider write failed", {
           projectId,
-          provider,
+          integrationId,
           linkId,
         });
         throw new HTTPException(502, {
@@ -146,7 +141,7 @@ async function resumeWithLease(
     verificationError = error;
     console.error("Sync resume provider verification failed", {
       projectId,
-      provider,
+      integrationId,
       linkId,
     });
     await updateExternalLink(linkId, {

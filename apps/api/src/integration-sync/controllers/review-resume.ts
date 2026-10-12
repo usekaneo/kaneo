@@ -12,15 +12,18 @@ import { getAuthorizedSyncProject } from "./authorized-project";
 import type { IntegrationDatabase } from "../../plugins/github/services/integration-task-scope";
 import type { ResumeProviderSnapshot } from "./resume-provider-snapshot";
 
+// RFC 0001 WP5: keyed by integration id. The comparison token binds the
+// addressed binding's id and config, so a token cannot be replayed against a
+// sibling binding. Paused links are looked up per binding only.
 export async function reviewSyncResume(
-  projectId: string,
-  provider: string,
+  integrationId: string,
   linkId: string,
   authorizedWorkspaceId: string,
   database: IntegrationDatabase = db,
   providerSnapshot?: ResumeProviderSnapshot,
 ) {
-  const integration = await getSyncIntegration(projectId, provider, database);
+  const integration = await getSyncIntegration(integrationId, database);
+  const projectId = integration.projectId;
   if (integration.project.workspaceId !== authorizedWorkspaceId)
     throw new HTTPException(403, {
       message: "Project no longer belongs to the authorized workspace",
@@ -71,7 +74,7 @@ export async function reviewSyncResume(
     } catch {
       console.error("Sync resume provider read failed", {
         projectId,
-        provider,
+        integrationId,
         linkId,
       });
       throw new HTTPException(502, {

@@ -10,14 +10,17 @@ import { getSyncIntegration } from "./get-integration";
 import { getAuthorizedSyncProject } from "./authorized-project";
 import { previewSyncRules } from "./preview-rules";
 
+// RFC 0001 WP5: keyed by integration id. Rules, the optimistic-concurrency
+// compare, and the emitted event are scoped to the addressed row; saving
+// rules on one binding leaves sibling bindings untouched.
 export async function saveSyncRules(
-  projectId: string,
-  provider: string,
+  integrationId: string,
   rules: SyncRules,
   previewToken: string,
   authorizedWorkspaceId: string,
 ) {
-  const integration = await getSyncIntegration(projectId, provider);
+  const integration = await getSyncIntegration(integrationId);
+  const projectId = integration.projectId;
   const savedPreview = await db.transaction(async (tx) => {
     // Keep the workspace authorized by middleware stable through the save.
     const project = await getAuthorizedSyncProject(
