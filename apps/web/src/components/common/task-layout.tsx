@@ -23,7 +23,7 @@ type TaskLayoutProps = {
   workspaceId: string;
   headerActions?: ReactNode;
   children: ReactNode;
-  rightSidebar?: ReactNode;
+  rail?: ReactNode;
 };
 
 export default function TaskLayout({
@@ -32,7 +32,7 @@ export default function TaskLayout({
   workspaceId,
   headerActions,
   children,
-  rightSidebar,
+  rail,
 }: TaskLayoutProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -116,20 +116,15 @@ export default function TaskLayout({
                 workspaceId={workspaceId}
               />
             ) : (
-              <div className="flex h-full min-h-0 flex-col overflow-hidden lg:flex-row">
-                <div className="order-2 min-h-0 flex-1 overflow-y-auto overscroll-contain lg:order-1">
-                  {children}
-                </div>
-                <div className="order-1 border-b border-border/80 lg:order-2 lg:hidden">
-                  {rightSidebar}
-                </div>
+              <div className="h-full min-h-0 overflow-y-auto overscroll-contain">
+                {children}
               </div>
             )}
           </Layout.Content>
         </div>
         {unavailableReason ? null : (
-          <div className="hidden border-l border-border/80 bg-card lg:flex lg:h-full lg:overflow-y-auto">
-            {rightSidebar}
+          <div className="hidden border-border/80 border-l lg:flex lg:h-full lg:overflow-y-auto">
+            {rail}
           </div>
         )}
       </Layout>

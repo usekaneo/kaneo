@@ -2945,13 +2945,16 @@
 		"properties": {
 			"title": "Eigenschappen",
 			"labels": "Labels",
+			"addLabels": "Labels toevoegen",
 			"copyTaskLink": "Taaklink kopiëren",
 			"copyTaskBranch": "Taakbranch kopiëren",
 			"taskLinkCopied": "Taaklink gekopieerd",
 			"taskBranchCopied": "Branchnaam gekopieerd",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Geen datum"
+			"noDate": "Geen datum",
+			"dates": "Datums",
+			"project": "Project"
 		},
 		"popover": {
 			"assignee": {
@@ -3227,7 +3230,8 @@
 			"missingRequired_other": "{{count}} verplichte velden zijn leeg",
 			"saveError": "{{field}} kon niet worden opgeslagen",
 			"moreFields_one": "Nog {{count}} veld",
-			"moreFields_other": "Nog {{count}} velden"
+			"moreFields_other": "Nog {{count}} velden",
+			"manage": "Velden beheren"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

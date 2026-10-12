@@ -2898,13 +2898,16 @@
 		"properties": {
 			"title": "屬性",
 			"labels": "標籤",
+			"addLabels": "新增標籤",
 			"copyTaskLink": "複製任務連結",
 			"copyTaskBranch": "複製任務分支",
 			"taskLinkCopied": "已複製任務連結",
 			"taskBranchCopied": "已複製分支名稱",
 			"start": "開始",
 			"startDate": "開始日期",
-			"noDate": "無日期"
+			"noDate": "無日期",
+			"dates": "日期",
+			"project": "專案"
 		},
 		"move": {
 			"title": "移動任務",
@@ -3175,7 +3178,8 @@
 			"noMatches": "沒有符合的選項",
 			"missingRequired_other": "有 {{count}} 個必填欄位是空的",
 			"saveError": "無法儲存{{field}}",
-			"moreFields_other": "另外 {{count}} 個欄位"
+			"moreFields_other": "另外 {{count}} 個欄位",
+			"manage": "管理欄位"
 		},
 		"board": {
 			"reorderFailed": "無法移動任務，請再試一次。",

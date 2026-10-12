@@ -24,7 +24,8 @@ import { BulkDeleteConfirm } from "./bulk-delete-confirm";
 import { BulkDueDatePopover } from "./bulk-due-date-popover";
 import { useBulkRequestStore } from "./bulk-request-store";
 import { BulkMoreMenu } from "./bulk-more-menu";
-import { type BulkOption, BulkOptionPopover } from "./bulk-option-popover";
+import type { OptionMenuItem } from "@/components/common/option-menu/option-menu-item";
+import { BulkOptionPopover } from "./bulk-option-popover";
 import { toolbarPresenceClass } from "./toolbar-presence-class";
 import { useBulkActions } from "./use-bulk-actions";
 import { useBulkOptions } from "./use-bulk-options";
@@ -41,7 +42,7 @@ type BulkBarProps = {
 
 const toCommandItems = (
   prefix: string,
-  options: BulkOption[],
+  options: OptionMenuItem[],
   run: (value: string) => unknown,
 ): BulkCommandItem[] =>
   options.map((option) => ({

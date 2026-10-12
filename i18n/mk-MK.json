@@ -2945,13 +2945,16 @@
 		"properties": {
 			"title": "Својства",
 			"labels": "Етикети",
+			"addLabels": "Додај ознаки",
 			"copyTaskLink": "Копирај линк на задача",
 			"copyTaskBranch": "Копирај гранка на задача",
 			"taskLinkCopied": "Врската до задачата е копирана",
 			"taskBranchCopied": "Името на гранката е копирано",
 			"start": "Почеток",
 			"startDate": "Почетен датум",
-			"noDate": "Без датум"
+			"noDate": "Без датум",
+			"dates": "Датуми",
+			"project": "Проект"
 		},
 		"move": {
 			"title": "Премести задача",
@@ -3227,7 +3230,8 @@
 			"missingRequired_other": "{{count}} задолжителни полиња се празни",
 			"saveError": "{{field}} не може да се зачува",
 			"moreFields_one": "Уште {{count}} поле",
-			"moreFields_other": "Уште {{count}} полиња"
+			"moreFields_other": "Уште {{count}} полиња",
+			"manage": "Управувај со полиња"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

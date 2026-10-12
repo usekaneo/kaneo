@@ -2992,13 +2992,16 @@
 		"properties": {
 			"title": "Proprietà",
 			"labels": "Etichette",
+			"addLabels": "Aggiungi etichette",
 			"copyTaskLink": "Copia link attività",
 			"copyTaskBranch": "Copia ramo attività",
 			"taskLinkCopied": "Link dell'attività copiato",
 			"taskBranchCopied": "Nome del branch copiato",
 			"start": "Inizio",
 			"startDate": "Data inizio",
-			"noDate": "Nessuna data"
+			"noDate": "Nessuna data",
+			"dates": "Date",
+			"project": "Progetto"
 		},
 		"move": {
 			"title": "Sposta attività",
@@ -3279,7 +3282,8 @@
 			"saveError": "Impossibile salvare {{field}}",
 			"moreFields_one": "Altro {{count}} campo",
 			"moreFields_many": "Altri {{count}} campi",
-			"moreFields_other": "Altri {{count}} campi"
+			"moreFields_other": "Altri {{count}} campi",
+			"manage": "Gestisci campi"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

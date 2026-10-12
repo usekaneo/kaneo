@@ -2945,13 +2945,16 @@
 		"properties": {
 			"title": "Eigenschaften",
 			"labels": "Labels",
+			"addLabels": "Labels hinzufügen",
 			"copyTaskLink": "Aufgabenlink kopieren",
 			"copyTaskBranch": "Aufgaben-Branch kopieren",
 			"taskLinkCopied": "Aufgabenlink kopiert",
 			"taskBranchCopied": "Branch-Name kopiert",
 			"start": "Start",
 			"startDate": "Startdatum",
-			"noDate": "Kein Datum"
+			"noDate": "Kein Datum",
+			"dates": "Termine",
+			"project": "Projekt"
 		},
 		"move": {
 			"title": "Aufgabe verschieben",
@@ -3227,7 +3230,8 @@
 			"missingRequired_other": "{{count}} Pflichtfelder sind leer",
 			"saveError": "{{field}} konnte nicht gespeichert werden",
 			"moreFields_one": "{{count}} weiteres Feld",
-			"moreFields_other": "{{count}} weitere Felder"
+			"moreFields_other": "{{count}} weitere Felder",
+			"manage": "Felder verwalten"
 		},
 		"board": {
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden.",

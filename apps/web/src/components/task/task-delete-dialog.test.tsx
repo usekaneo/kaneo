@@ -16,7 +16,6 @@ import {
 } from "vite-plus/test";
 import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
 import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
-import TaskDeleteButton from "./task-delete-button";
 import TaskDeleteDialog from "./task-delete-dialog";
 
 const mocks = vi.hoisted(() => ({
@@ -52,7 +51,9 @@ function renderTaskDelete({
   const handle = AlertDialogCreateHandle();
   const renderView = (taskId: string) => (
     <ShortcutTestWrapper>
-      <TaskDeleteButton handle={handle} />
+      <button type="button" onClick={() => handle.open(null)}>
+        tasks:delete.action
+      </button>
       <TaskDeleteDialog
         handle={handle}
         taskId={taskId}
@@ -84,16 +85,13 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe("TaskDeleteButton", () => {
-  it("is only available to users with task deletion permission", async () => {
+describe("TaskDeleteDialog", () => {
+  it("keeps the shortcut off without task deletion permission", async () => {
     mocks.canDeleteTasks.mockReturnValue(false);
     renderTaskDelete();
 
     fireEvent.keyDown(document, { key: "Backspace", ctrlKey: true });
 
-    expect(
-      screen.queryByRole("button", { name: "tasks:delete.action" }),
-    ).toBeNull();
     await waitFor(() =>
       expect(screen.queryByText("tasks:delete.title")).toBeNull(),
     );

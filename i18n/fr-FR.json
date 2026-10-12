@@ -2992,13 +2992,16 @@
 		"properties": {
 			"title": "Propriétés",
 			"labels": "Labels",
+			"addLabels": "Ajouter des étiquettes",
 			"copyTaskLink": "Copier le lien de la tâche",
 			"copyTaskBranch": "Copier la branche de la tâche",
 			"taskLinkCopied": "Lien de la tâche copié",
 			"taskBranchCopied": "Nom de la branche copié",
 			"start": "Début",
 			"startDate": "Date de début",
-			"noDate": "Pas de date"
+			"noDate": "Pas de date",
+			"dates": "Dates",
+			"project": "Projet"
 		},
 		"move": {
 			"title": "Déplacer la tâche",
@@ -3279,7 +3282,8 @@
 			"saveError": "Impossible d'enregistrer {{field}}",
 			"moreFields_one": "{{count}} champ de plus",
 			"moreFields_many": "{{count}} champs de plus",
-			"moreFields_other": "{{count}} champs de plus"
+			"moreFields_other": "{{count}} champs de plus",
+			"manage": "Gérer les champs"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

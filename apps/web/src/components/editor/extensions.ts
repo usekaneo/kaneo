@@ -16,6 +16,7 @@ import { SafeHardBreak } from "@/components/task/extensions/safe-hard-break";
 import { ShikiCodeBlock } from "@/components/task/extensions/shiki-code-block";
 import { TaskItemWithCheckbox } from "@/components/task/extensions/task-item-with-checkbox";
 import { EditorKeymap } from "./editor-keymap";
+import { detectCodeLanguage } from "./detect-code-language";
 
 export function createEditorExtensions({
   placeholder,
@@ -45,6 +46,7 @@ export function createEditorExtensions({
     ShikiCodeBlock.configure({
       highlighter,
       resolveLanguage,
+      detectLanguage: detectCodeLanguage,
       themeDark: "github-dark",
       themeLight: "github-light",
     }),

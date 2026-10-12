@@ -2898,13 +2898,16 @@
 		"properties": {
 			"title": "Properti",
 			"labels": "Label",
+			"addLabels": "Tambahkan label",
 			"copyTaskLink": "Salin tautan tugas",
 			"copyTaskBranch": "Salin branch tugas",
 			"taskLinkCopied": "Tautan tugas disalin",
 			"taskBranchCopied": "Nama branch disalin",
 			"start": "Mulai",
 			"startDate": "Tanggal mulai",
-			"noDate": "Tanpa tanggal"
+			"noDate": "Tanpa tanggal",
+			"dates": "Tanggal",
+			"project": "Proyek"
 		},
 		"move": {
 			"title": "Pindahkan tugas",
@@ -3175,7 +3178,8 @@
 			"noMatches": "Tidak ada opsi yang cocok",
 			"missingRequired_other": "{{count}} kolom wajib masih kosong",
 			"saveError": "Gagal menyimpan {{field}}",
-			"moreFields_other": "{{count}} kolom lainnya"
+			"moreFields_other": "{{count}} kolom lainnya",
+			"manage": "Kelola kolom"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

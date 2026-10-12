@@ -2945,13 +2945,16 @@
 		"properties": {
 			"title": "गुण",
 			"labels": "लेबल",
+			"addLabels": "लेबल जोड़ें",
 			"copyTaskLink": "कार्य लिंक कॉपी करें",
 			"copyTaskBranch": "कार्य शाखा कॉपी करें",
 			"taskLinkCopied": "कार्य का लिंक कॉपी किया गया",
 			"taskBranchCopied": "ब्रांच का नाम कॉपी किया गया",
 			"start": "शुरू",
 			"startDate": "शुरू की तारीख",
-			"noDate": "कोई तारीख नहीं"
+			"noDate": "कोई तारीख नहीं",
+			"dates": "तारीखें",
+			"project": "प्रोजेक्ट"
 		},
 		"move": {
 			"title": "कार्य ले जाएँ",
@@ -3227,7 +3230,8 @@
 			"missingRequired_other": "{{count}} आवश्यक फ़ील्ड खाली हैं",
 			"saveError": "{{field}} सहेजा नहीं जा सका",
 			"moreFields_one": "{{count}} और फ़ील्ड",
-			"moreFields_other": "{{count}} और फ़ील्ड"
+			"moreFields_other": "{{count}} और फ़ील्ड",
+			"manage": "फ़ील्ड प्रबंधित करें"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

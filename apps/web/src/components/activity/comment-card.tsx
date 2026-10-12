@@ -150,18 +150,18 @@ export default function CommentCard({
 
   return (
     <TooltipProvider>
-      <div className="group relative w-full rounded-xl border border-border/80 bg-card/60">
-        <div className="flex flex-wrap items-center gap-2 px-3 pt-2.5">
+      <div className="group relative w-full rounded-lg border border-border/80 bg-foreground/2">
+        <div className="flex flex-wrap items-center gap-2 px-3 pt-3">
           <HoverCard>
             <HoverCardTrigger>
               <div className="flex cursor-pointer items-center gap-2">
-                <Avatar className="h-6 w-6">
+                <Avatar className="size-5">
                   <AvatarImage src={user?.image ?? ""} alt={user?.name || ""} />
-                  <AvatarFallback className="bg-muted text-xs font-medium">
+                  <AvatarFallback className="bg-muted font-semibold text-[9px]">
                     {getInitials(user?.name)}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium text-foreground/92 hover:text-foreground transition-colors">
+                <span className="font-medium text-[13px] text-foreground transition-colors hover:text-foreground/80">
                   {user?.name}
                 </span>
               </div>
@@ -218,7 +218,7 @@ export default function CommentCard({
             <TooltipTrigger asChild>
               <button
                 type="button"
-                className="cursor-default text-xs text-muted-foreground/62 outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="cursor-default text-xs text-muted-foreground/60 outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 aria-label={fullTimestamp}
                 title={fullTimestamp}
               >
@@ -294,7 +294,7 @@ export default function CommentCard({
             className={
               isEditing
                 ? "[&_.kaneo-comment-editor-content_.ProseMirror]:min-h-[3rem] [&_.kaneo-comment-editor-content_.ProseMirror]:max-h-none [&_.kaneo-comment-editor-content_.ProseMirror]:overflow-visible [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-2"
-                : "kaneo-comment-viewer [&_.kaneo-comment-editor-content_.ProseMirror]:px-3 [&_.kaneo-comment-editor-content_.ProseMirror]:pt-2 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-3"
+                : "kaneo-comment-viewer [&_.kaneo-comment-editor-content_.ProseMirror]:pt-1.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pr-3.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pb-3.5 [&_.kaneo-comment-editor-content_.ProseMirror]:pl-10"
             }
             autoFocus={isEditing}
             readOnly={!isEditing}

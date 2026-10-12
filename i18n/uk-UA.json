@@ -3039,13 +3039,16 @@
 		"properties": {
 			"title": "Властивості",
 			"labels": "Мітки",
+			"addLabels": "Додати мітки",
 			"copyTaskLink": "Копіювати посилання на завдання",
 			"copyTaskBranch": "Копіювати гілку завдання",
 			"taskLinkCopied": "Посилання на завдання скопійовано",
 			"taskBranchCopied": "Назву гілки скопійовано",
 			"start": "Початок",
 			"startDate": "Дата початку",
-			"noDate": "Немає дати"
+			"noDate": "Немає дати",
+			"dates": "Дати",
+			"project": "Проєкт"
 		},
 		"move": {
 			"title": "Перемістити завдання",
@@ -3331,7 +3334,8 @@
 			"moreFields_one": "Ще {{count}} поле",
 			"moreFields_few": "Ще {{count}} поля",
 			"moreFields_many": "Ще {{count}} полів",
-			"moreFields_other": "Ще {{count}} поля"
+			"moreFields_other": "Ще {{count}} поля",
+			"manage": "Керувати полями"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

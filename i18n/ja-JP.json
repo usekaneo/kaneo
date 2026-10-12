@@ -2898,13 +2898,16 @@
 		"properties": {
 			"title": "プロパティ",
 			"labels": "ラベル",
+			"addLabels": "ラベルを追加",
 			"copyTaskLink": "タスクのリンクをコピー",
 			"copyTaskBranch": "タスクのブランチ名をコピー",
 			"taskLinkCopied": "タスクのリンクをコピーしました",
 			"taskBranchCopied": "ブランチ名をコピーしました",
 			"start": "開始",
 			"startDate": "開始日",
-			"noDate": "日付なし"
+			"noDate": "日付なし",
+			"dates": "日付",
+			"project": "プロジェクト"
 		},
 		"move": {
 			"title": "タスクを移動",
@@ -3175,7 +3178,8 @@
 			"noMatches": "一致するオプションがありません",
 			"missingRequired_other": "必須フィールドが {{count}} 件未入力です",
 			"saveError": "{{field}}を保存できませんでした",
-			"moreFields_other": "ほか {{count}} 件のフィールド"
+			"moreFields_other": "ほか {{count}} 件のフィールド",
+			"manage": "フィールドを管理"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

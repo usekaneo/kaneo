@@ -6,7 +6,7 @@ import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
-import type { BulkOption } from "./bulk-option-popover";
+import type { OptionMenuItem } from "@/components/common/option-menu/option-menu-item";
 import type { BulkActions } from "./use-bulk-actions";
 
 const PRIORITIES = ["urgent", "high", "medium", "low", "no-priority"];
@@ -16,17 +16,17 @@ export function useBulkOptions(actions: BulkActions) {
   const { columns, members, labels } = actions;
 
   return useMemo(() => {
-    const columnOptions: BulkOption[] = columns.map((column) => ({
+    const columnOptions: OptionMenuItem[] = columns.map((column) => ({
       value: column.id,
       label: column.name,
       icon: getColumnIcon(column.id, column.isFinal, column.icon),
     }));
-    const priorityOptions: BulkOption[] = PRIORITIES.map((priority) => ({
+    const priorityOptions: OptionMenuItem[] = PRIORITIES.map((priority) => ({
       value: priority,
       label: getPriorityLabel(priority),
       icon: getPriorityIcon(priority),
     }));
-    const memberOptions: BulkOption[] = members.map((member) => ({
+    const memberOptions: OptionMenuItem[] = members.map((member) => ({
       value: member.id,
       label: member.name || t("common:people.someone"),
       icon: (
@@ -38,7 +38,7 @@ export function useBulkOptions(actions: BulkActions) {
         </Avatar>
       ),
     }));
-    const labelOptions: BulkOption[] = labels.map((label) => ({
+    const labelOptions: OptionMenuItem[] = labels.map((label) => ({
       value: label.id,
       label: label.name,
       icon: (

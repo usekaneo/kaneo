@@ -2898,13 +2898,16 @@
 		"properties": {
 			"title": "속성",
 			"labels": "라벨",
+			"addLabels": "라벨 추가",
 			"copyTaskLink": "작업 링크 복사",
 			"copyTaskBranch": "작업 브랜치 복사",
 			"taskLinkCopied": "작업 링크를 복사했습니다",
 			"taskBranchCopied": "브랜치 이름을 복사했습니다",
 			"start": "시작",
 			"startDate": "시작일",
-			"noDate": "날짜 없음"
+			"noDate": "날짜 없음",
+			"dates": "날짜",
+			"project": "프로젝트"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -3175,7 +3178,8 @@
 			"noMatches": "일치하는 옵션이 없습니다",
 			"missingRequired_other": "필수 필드 {{count}}개가 비어 있습니다",
 			"saveError": "{{field}}을(를) 저장하지 못했습니다",
-			"moreFields_other": "필드 {{count}}개 더 보기"
+			"moreFields_other": "필드 {{count}}개 더 보기",
+			"manage": "필드 관리"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

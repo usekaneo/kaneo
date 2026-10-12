@@ -2898,13 +2898,16 @@
 		"properties": {
 			"title": "Thuộc tính",
 			"labels": "Nhãn",
+			"addLabels": "Thêm nhãn",
 			"copyTaskLink": "Sao chép liên kết công việc",
 			"copyTaskBranch": "Sao chép nhánh công việc",
 			"taskLinkCopied": "Đã sao chép liên kết công việc",
 			"taskBranchCopied": "Đã sao chép tên nhánh",
 			"start": "Bắt đầu",
 			"startDate": "Ngày bắt đầu",
-			"noDate": "Không có ngày"
+			"noDate": "Không có ngày",
+			"dates": "Ngày",
+			"project": "Dự án"
 		},
 		"move": {
 			"title": "Di chuyển công việc",
@@ -3175,7 +3178,8 @@
 			"noMatches": "Không có tùy chọn phù hợp",
 			"missingRequired_other": "{{count}} trường bắt buộc còn trống",
 			"saveError": "Không thể lưu {{field}}",
-			"moreFields_other": "Thêm {{count}} trường"
+			"moreFields_other": "Thêm {{count}} trường",
+			"manage": "Quản lý trường"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

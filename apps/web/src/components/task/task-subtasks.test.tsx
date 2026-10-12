@@ -67,6 +67,9 @@ vi.mock(
     useGetActiveWorkspaceUsers: () => ({ data: { members: [] } }),
   }),
 );
+vi.mock("@/hooks/queries/project/use-get-projects", () => ({
+  default: () => ({ data: [] }),
+}));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: mocks.canCreateTasks,

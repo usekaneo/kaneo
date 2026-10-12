@@ -66,6 +66,27 @@ vi.mock("@/hooks/queries/task/use-get-task", () => ({
 vi.mock("@/hooks/queries/project/use-get-project", () => ({
   default: () => ({ data: { slug: "KAN" } }),
 }));
+vi.mock("@/hooks/queries/project/use-get-projects", () => ({
+  default: () => ({ data: [] }),
+}));
+vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
+  default: () => ({ data: undefined }),
+}));
+vi.mock(
+  "@/hooks/queries/github-integration/use-get-github-integration",
+  () => ({
+    default: () => ({ data: undefined }),
+  }),
+);
+vi.mock("@/hooks/queries/gitea-integration/use-get-gitea-integration", () => ({
+  default: () => ({ data: undefined }),
+}));
+vi.mock(
+  "@/hooks/queries/gitlab-integration/use-get-gitlab-integration",
+  () => ({
+    default: () => ({ data: undefined }),
+  }),
+);
 vi.mock("@/hooks/queries/task-relation/use-get-task-relations", () => ({
   default: () => ({ data: mocks.relations }),
 }));

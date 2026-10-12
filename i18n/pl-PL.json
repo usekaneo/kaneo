@@ -3512,10 +3512,13 @@
 			"taskBranchCopied": "Skopiowano nazwę gałęzi",
 			"copyTaskLink": "Kopiuj link do zadania",
 			"labels": "Etykiety",
+			"addLabels": "Dodaj etykiety",
 			"noDate": "Brak daty",
 			"start": "Początek",
 			"startDate": "Data rozpoczęcia",
-			"title": "Właściwości"
+			"title": "Właściwości",
+			"dates": "Daty",
+			"project": "Projekt"
 		},
 		"relations": {
 			"blocks": "Blokuje",
@@ -3613,7 +3616,8 @@
 			"moreFields_one": "Jeszcze {{count}} pole",
 			"moreFields_few": "Jeszcze {{count}} pola",
 			"moreFields_many": "Jeszcze {{count}} pól",
-			"moreFields_other": "Jeszcze {{count}} pola"
+			"moreFields_other": "Jeszcze {{count}} pola",
+			"manage": "Zarządzaj polami"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

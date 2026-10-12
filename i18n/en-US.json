@@ -2946,13 +2946,16 @@
 		"properties": {
 			"title": "Properties",
 			"labels": "Labels",
+			"addLabels": "Add labels",
 			"copyTaskLink": "Copy task link",
 			"copyTaskBranch": "Copy task branch",
 			"taskLinkCopied": "Copied task link",
 			"taskBranchCopied": "Copied branch name",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"dates": "Dates",
+			"project": "Project"
 		},
 		"move": {
 			"title": "Move task",
@@ -3222,7 +3225,8 @@
 			"missingRequired_other": "{{count}} required fields are empty",
 			"saveError": "Couldn't save {{field}}",
 			"moreFields_one": "{{count}} more field",
-			"moreFields_other": "{{count}} more fields"
+			"moreFields_other": "{{count}} more fields",
+			"manage": "Manage fields"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",

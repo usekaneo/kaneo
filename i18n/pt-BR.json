@@ -2992,13 +2992,16 @@
 		"properties": {
 			"title": "Propriedades",
 			"labels": "Etiquetas",
+			"addLabels": "Adicionar etiquetas",
 			"copyTaskLink": "Copiar link da tarefa",
 			"copyTaskBranch": "Copiar branch da tarefa",
 			"taskLinkCopied": "Link da tarefa copiado",
 			"taskBranchCopied": "Nome da branch copiado",
 			"start": "Início",
 			"startDate": "Data de início",
-			"noDate": "Sem data"
+			"noDate": "Sem data",
+			"dates": "Datas",
+			"project": "Projeto"
 		},
 		"move": {
 			"title": "Mover tarefa",
@@ -3279,7 +3282,8 @@
 			"saveError": "Não foi possível salvar {{field}}",
 			"moreFields_one": "Mais {{count}} campo",
 			"moreFields_many": "Mais {{count}} campos",
-			"moreFields_other": "Mais {{count}} campos"
+			"moreFields_other": "Mais {{count}} campos",
+			"manage": "Gerenciar campos"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

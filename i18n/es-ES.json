@@ -2992,13 +2992,16 @@
 		"properties": {
 			"title": "Propiedades",
 			"labels": "Etiquetas",
+			"addLabels": "Añadir etiquetas",
 			"copyTaskLink": "Copiar enlace a tarea",
 			"copyTaskBranch": "Copiar la rama de la tarea",
 			"taskLinkCopied": "Enlace de la tarea copiado",
 			"taskBranchCopied": "Nombre de la rama copiado",
 			"start": "Comenzar",
 			"startDate": "Fecha de inicio",
-			"noDate": "Sin fecha"
+			"noDate": "Sin fecha",
+			"dates": "Fechas",
+			"project": "Proyecto"
 		},
 		"popover": {
 			"assignee": {
@@ -3279,7 +3282,8 @@
 			"saveError": "No se pudo guardar {{field}}",
 			"moreFields_one": "{{count}} campo más",
 			"moreFields_many": "{{count}} campos más",
-			"moreFields_other": "{{count}} campos más"
+			"moreFields_other": "{{count}} campos más",
+			"manage": "Gestionar campos"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

@@ -7,14 +7,16 @@ import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { cn } from "@/lib/cn";
 import debounce from "@/lib/debounce";
 import { stripLineBreaks } from "@/lib/strip-line-breaks";
 
 type TaskTitleProps = {
   taskId: string;
+  size?: "md" | "lg";
 };
 
-export default function TaskTitle({ taskId }: TaskTitleProps) {
+export default function TaskTitle({ taskId, size = "md" }: TaskTitleProps) {
   const { t } = useTranslation();
   const { data: task } = useGetTask(taskId);
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
@@ -96,7 +98,10 @@ export default function TaskTitle({ taskId }: TaskTitleProps) {
             rows={1}
             placeholder={t("tasks:detail.titlePlaceholder")}
             readOnly={!canEdit}
-            className="block h-auto w-full resize-none appearance-none overflow-hidden border-0 bg-transparent p-0 font-heading text-2xl leading-[1.15] font-semibold tracking-[-0.02em] text-foreground outline-none placeholder:text-foreground/45 sm:text-[2rem]"
+            className={cn(
+              "block h-auto w-full resize-none appearance-none overflow-hidden border-0 bg-transparent p-0 font-heading font-semibold text-2xl text-foreground leading-[1.25] tracking-[-0.02em] outline-none placeholder:text-foreground/45",
+              size === "lg" && "sm:text-[1.75rem] sm:leading-[1.2]",
+            )}
             onKeyDown={(e) => {
               // Titles are single-line; Enter commits instead of adding a break.
               if (e.key === "Enter" && !e.nativeEvent.isComposing) {

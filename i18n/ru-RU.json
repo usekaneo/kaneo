@@ -3047,13 +3047,16 @@
 		"properties": {
 			"title": "Свойства",
 			"labels": "Метки",
+			"addLabels": "Добавить метки",
 			"copyTaskLink": "Скопировать ссылку на задачу",
 			"copyTaskBranch": "Скопировать ветку задачи",
 			"taskLinkCopied": "Ссылка на задачу скопирована",
 			"taskBranchCopied": "Название ветки скопировано",
 			"start": "Начало",
 			"startDate": "Дата начала",
-			"noDate": "Без даты"
+			"noDate": "Без даты",
+			"dates": "Даты",
+			"project": "Проект"
 		},
 		"move": {
 			"title": "Переместить задачу",
@@ -3383,7 +3386,8 @@
 			"moreFields_one": "Ещё {{count}} поле",
 			"moreFields_few": "Ещё {{count}} поля",
 			"moreFields_many": "Ещё {{count}} полей",
-			"moreFields_other": "Ещё {{count}} поля"
+			"moreFields_other": "Ещё {{count}} поля",
+			"manage": "Управлять полями"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

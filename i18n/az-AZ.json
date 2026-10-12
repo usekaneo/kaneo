@@ -2945,13 +2945,16 @@
 		"properties": {
 			"title": "Xüsusiyyətlər",
 			"labels": "Etiketlər",
+			"addLabels": "Etiket əlavə et",
 			"copyTaskLink": "Tapşırığın keçidini kopyala",
 			"copyTaskBranch": "Tapşırığın budağını kopyala",
 			"taskLinkCopied": "Tapşırıq keçidi kopyalandı",
 			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
-			"noDate": "Tarix yoxdur"
+			"noDate": "Tarix yoxdur",
+			"dates": "Tarixlər",
+			"project": "Layihə"
 		},
 		"move": {
 			"title": "Tapşırığı köçür",
@@ -3227,7 +3230,8 @@
 			"missingRequired_other": "{{count}} məcburi sahə boşdur",
 			"saveError": "{{field}} saxlanılmadı",
 			"moreFields_one": "Daha {{count}} sahə",
-			"moreFields_other": "Daha {{count}} sahə"
+			"moreFields_other": "Daha {{count}} sahə",
+			"manage": "Sahələri idarə et"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

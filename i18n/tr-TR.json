@@ -2945,13 +2945,16 @@
 		"properties": {
 			"title": "Özellikler",
 			"labels": "Etiketler",
+			"addLabels": "Etiket ekle",
 			"copyTaskLink": "Talep bağlantısını kopyala",
 			"copyTaskBranch": "Talep dalını kopyala",
 			"taskLinkCopied": "Görev bağlantısı kopyalandı",
 			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlangıç tarihi",
-			"noDate": "Tarih yok"
+			"noDate": "Tarih yok",
+			"dates": "Tarihler",
+			"project": "Proje"
 		},
 		"move": {
 			"title": "Talebi taşı",
@@ -3227,7 +3230,8 @@
 			"missingRequired_other": "{{count}} zorunlu alan boş",
 			"saveError": "{{field}} kaydedilemedi",
 			"moreFields_one": "{{count}} alan daha",
-			"moreFields_other": "{{count}} alan daha"
+			"moreFields_other": "{{count}} alan daha",
+			"manage": "Alanları yönet"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

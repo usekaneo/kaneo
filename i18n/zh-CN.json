@@ -2898,13 +2898,16 @@
 		"properties": {
 			"title": "属性",
 			"labels": "标签",
+			"addLabels": "添加标签",
 			"copyTaskLink": "复制任务链接",
 			"copyTaskBranch": "复制任务分支",
 			"taskLinkCopied": "已复制任务链接",
 			"taskBranchCopied": "已复制分支名称",
 			"start": "开始",
 			"startDate": "开始日期",
-			"noDate": "无日期"
+			"noDate": "无日期",
+			"dates": "日期",
+			"project": "项目"
 		},
 		"move": {
 			"title": "移动任务",
@@ -3175,7 +3178,8 @@
 			"noMatches": "没有匹配的选项",
 			"missingRequired_other": "有 {{count}} 个必填字段为空",
 			"saveError": "无法保存{{field}}",
-			"moreFields_other": "另外 {{count}} 个字段"
+			"moreFields_other": "另外 {{count}} 个字段",
+			"manage": "管理字段"
 		},
 		"board": {
 			"reorderFailed": "无法移动任务，请重试。",

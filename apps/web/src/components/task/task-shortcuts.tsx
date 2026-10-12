@@ -1,15 +1,15 @@
 import { useNavigate } from "@tanstack/react-router";
-import { CopyIcon, FileTextIcon, HashIcon, UserRoundIcon } from "lucide-react";
+import { UserRoundIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
-import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { toast } from "@/lib/toast";
+import { useTaskCopyActions } from "./header/use-task-copy-actions";
 import { clickTaskAction, focusTaskAction } from "./task-action-target";
 import { useRelationPickerStore } from "./task-relation-picker-store";
 
@@ -30,7 +30,7 @@ export function TaskShortcuts({
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: task } = useGetTask(taskId);
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
+  const copyActions = useTaskCopyActions({ taskId, projectId, workspaceId });
   const { data: relations = [] } = useGetTaskRelations(taskId);
   const { mutateAsync: updateAssignee } = useUpdateTaskAssignee();
   const { mutateAsync: updateDueDate } = useUpdateTaskDueDate();
@@ -39,15 +39,6 @@ export function TaskShortcuts({
   const active = { enabled: enabled && Boolean(task) };
   const editable = { enabled: active.enabled && canUpdateTasks() };
   const assignable = { enabled: active.enabled && canAssignTasks() };
-
-  const copy = async (text: string, message: string, icon: typeof CopyIcon) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.message(message, { icon });
-    } catch {
-      toast.error(t("tasks:shortcuts.copyFailed"));
-    }
-  };
 
   const openTask = (id: string | undefined) => {
     if (!id) return;
@@ -157,37 +148,11 @@ export function TaskShortcuts({
     active,
   );
 
-  useShortcut(
-    "copyTaskId",
-    () => {
-      if (!task || !project) return;
-      void copy(
-        `${project.slug}-${task.number}`,
-        t("tasks:shortcuts.idCopied"),
-        HashIcon,
-      );
-    },
-    active,
-  );
-  useShortcut(
-    "copyTaskTitle",
-    () => {
-      if (!task) return;
-      void copy(task.title, t("tasks:shortcuts.titleCopied"), CopyIcon);
-    },
-    active,
-  );
-  useShortcut(
-    "copyAsMarkdown",
-    () => {
-      if (!task) return;
-      const markdown = [`# ${task.title}`, task.description?.trim()]
-        .filter(Boolean)
-        .join("\n\n");
-      void copy(markdown, t("tasks:shortcuts.markdownCopied"), FileTextIcon);
-    },
-    active,
-  );
+  useShortcut("copyTaskId", copyActions.copyId, active);
+  useShortcut("copyTaskTitle", copyActions.copyTitle, active);
+  useShortcut("copyAsMarkdown", copyActions.copyMarkdown, active);
+  useShortcut("copyTaskUrl", copyActions.copyLink, active);
+  useShortcut("copyBranchName", copyActions.copyBranch, active);
 
   return null;
 }

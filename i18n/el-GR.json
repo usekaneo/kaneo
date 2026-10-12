@@ -2945,13 +2945,16 @@
 		"properties": {
 			"title": "Ιδιότητες",
 			"labels": "Ετικέτες",
+			"addLabels": "Προσθήκη ετικετών",
 			"copyTaskLink": "Αντιγραφή συνδέσμου εργασίας",
 			"copyTaskBranch": "Αντιγραφή κλάδου εργασίας",
 			"taskLinkCopied": "Ο σύνδεσμος της εργασίας αντιγράφηκε",
 			"taskBranchCopied": "Το όνομα του branch αντιγράφηκε",
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
-			"noDate": "Χωρίς ημερομηνία"
+			"noDate": "Χωρίς ημερομηνία",
+			"dates": "Ημερομηνίες",
+			"project": "Έργο"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -3227,7 +3230,8 @@
 			"missingRequired_other": "{{count}} υποχρεωτικά πεδία είναι κενά",
 			"saveError": "Δεν ήταν δυνατή η αποθήκευση του πεδίου {{field}}",
 			"moreFields_one": "{{count}} ακόμη πεδίο",
-			"moreFields_other": "{{count}} ακόμη πεδία"
+			"moreFields_other": "{{count}} ακόμη πεδία",
+			"manage": "Διαχείριση πεδίων"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",

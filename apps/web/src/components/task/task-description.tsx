@@ -1180,6 +1180,24 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, [hoveredCodeBlock, updateHoveredCodeBlockFromElement]);
 
+  useEffect(() => {
+    if (!editor || !hoveredCodeBlock) return;
+    const syncAfterEdit = () => {
+      const element = hoveredCodeBlockElementRef.current;
+      if (element?.isConnected) {
+        updateHoveredCodeBlockFromElement(element);
+        return;
+      }
+      hoveredCodeBlockElementRef.current = null;
+      setHoveredCodeBlock(null);
+      setIsCodeLanguageMenuOpen(false);
+    };
+    editor.on("update", syncAfterEdit);
+    return () => {
+      editor.off("update", syncAfterEdit);
+    };
+  }, [editor, hoveredCodeBlock, updateHoveredCodeBlockFromElement]);
+
   const handleEditorMouseMove = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
       const target = event.target as HTMLElement;
@@ -1218,7 +1236,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       data-task-action="description"
       aria-label={t("tasks:detail.editor.ariaLabel")}
       className={cn(
-        "kaneo-tiptap-shell group",
+        "kaneo-tiptap-shell group relative",
         isDragActive && "is-drag-active",
       )}
       onDragEnter={handleShellDragEnter}
@@ -1230,7 +1248,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center gap-2 text-xs text-muted-foreground"
+          className={cn(
+            "absolute right-0 -top-6 flex h-6 items-center gap-2 text-muted-foreground text-xs",
+            saveState === "saved" && "sr-only",
+          )}
         >
           {saveState === "failed"
             ? t("tasks:detail.editor.saveFailed")

@@ -1,22 +1,13 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Maximize2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import useGetProject from "@/hooks/queries/project/use-get-project";
-import useGetTask from "@/hooks/queries/task/use-get-task";
+import { TaskSheetHeader } from "./header/task-sheet-header";
+import { PropertiesRail } from "./properties/properties-rail";
+import { PropertyChips } from "./properties/property-chips";
 import TaskDeleteDialog from "./task-delete-dialog";
-import { TaskShortcuts } from "./task-shortcuts";
 import TaskDetailsContent from "./task-details-content";
-import TaskPropertiesSidebar from "./task-properties-sidebar";
+import { TaskShortcuts } from "./task-shortcuts";
 
 type TaskDetailsSheetProps = {
   taskId: string | undefined;
@@ -31,15 +22,11 @@ export default function TaskDetailsSheet({
   workspaceId,
   onClose,
 }: TaskDetailsSheetProps) {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentTaskId, setCurrentTaskId] = useState<string | undefined>(
     taskId,
   );
   const [deleteHandle] = useState(() => AlertDialogCreateHandle());
-
-  const { data: task } = useGetTask(currentTaskId ?? "");
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
 
   const lastTaskIdRef = useRef(taskId);
 
@@ -77,7 +64,7 @@ export default function TaskDetailsSheet({
         side="right"
         data-task-view
         data-shortcuts="allow"
-        className="w-full max-w-full sm:max-w-lg md:max-w-2xl lg:max-w-4xl p-0 gap-0 [&>button]:hidden"
+        className="w-full max-w-full gap-0 p-0 sm:max-w-lg md:max-w-2xl lg:max-w-4xl [&>button]:hidden"
         // Focusing the first control would pop the "open in full page"
         // tooltip over the actions every time the sheet opens on touch.
         initialFocus={closeButtonRef}
@@ -87,43 +74,17 @@ export default function TaskDetailsSheet({
           ) ?? true
         }
       >
-        <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-background shrink-0">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground">
-              {project?.slug}-{task?.number}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleOpenFullPage}
-                    aria-label={t("tasks:detail.openInFullPage")}
-                    className="text-foreground"
-                  >
-                    <Maximize2 className="size-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {t("tasks:detail.openInFullPage")}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <Button
-              ref={closeButtonRef}
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              aria-label={t("common:actions.close")}
-              className="text-foreground"
-            >
-              <X className="size-4" />
-            </Button>
-          </div>
-        </div>
+        {currentTaskId && (
+          <TaskSheetHeader
+            taskId={currentTaskId}
+            projectId={projectId}
+            workspaceId={workspaceId}
+            deleteHandle={deleteHandle}
+            onOpenFullPage={handleOpenFullPage}
+            onClose={onClose}
+            closeButtonRef={closeButtonRef}
+          />
+        )}
 
         {currentTaskId && (
           <TaskShortcuts
@@ -141,33 +102,35 @@ export default function TaskDetailsSheet({
             shortcutEnabled={Boolean(taskId)}
           />
         )}
-        <div
-          // Phones scroll properties and content together so the property
-          // block doesn't pin a quarter of the screen.
-          className="flex flex-col flex-1 min-h-0 overflow-y-auto sm:overflow-hidden"
-          key={currentTaskId}
-        >
-          <TaskPropertiesSidebar
-            taskId={currentTaskId}
-            projectId={projectId}
-            workspaceId={workspaceId}
-            className="w-full bg-sidebar border-b border-border flex flex-col gap-0 shrink-0 sm:overflow-y-auto"
-            compact={true}
-            deleteHandle={deleteHandle}
-            shortcutsEnabled={Boolean(taskId)}
-          />
-
-          <div className="sm:flex-1 sm:overflow-y-auto sm:min-h-0">
-            <div className="px-4 py-4">
+        {currentTaskId && (
+          <div
+            key={currentTaskId}
+            className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden"
+          >
+            <div className="min-w-0 flex-1 lg:overflow-y-auto">
               <TaskDetailsContent
                 taskId={currentTaskId}
                 projectId={projectId}
                 workspaceId={workspaceId}
-                className="flex flex-col gap-3"
+                className="px-5 pt-5 pb-10 lg:px-9 lg:pt-7"
+                properties={
+                  <PropertyChips
+                    taskId={currentTaskId}
+                    projectId={projectId}
+                    workspaceId={workspaceId}
+                    className="pb-5 lg:hidden"
+                  />
+                }
               />
             </div>
+            <PropertiesRail
+              taskId={currentTaskId}
+              projectId={projectId}
+              workspaceId={workspaceId}
+              className="hidden w-73 shrink-0 overflow-y-auto border-border border-l lg:flex"
+            />
           </div>
-        </div>
+        )}
       </SheetContent>
     </Sheet>
   );
