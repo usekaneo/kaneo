@@ -152,7 +152,11 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхідея",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3081,7 +3085,11 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхідея",
+					"sky": "Небо"
 				},
 				"editLabels": "Редагувати мітки"
 			}

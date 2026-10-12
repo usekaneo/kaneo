@@ -152,7 +152,11 @@
 					"amber": "Bursztyn",
 					"terracotta": "Terakota",
 					"rose": "Róża",
-					"crimson": "Karmazyn"
+					"crimson": "Karmazyn",
+					"lagoon": "Laguna",
+					"ocean": "Ocean",
+					"orchid": "Orchidea",
+					"sky": "Niebo"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3450,7 +3454,11 @@
 					"sage": "Szałwia",
 					"slate": "Łupek",
 					"stone": "Kamień",
-					"terracotta": "Terakota"
+					"terracotta": "Terakota",
+					"lagoon": "Laguna",
+					"ocean": "Ocean",
+					"orchid": "Orchidea",
+					"sky": "Niebo"
 				},
 				"create": "Utwórz „{{name}}”",
 				"createError": "Nie udało się utworzyć etykiety",

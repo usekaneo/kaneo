@@ -152,7 +152,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2980,7 +2984,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"editLabels": "Labels bewerken"
 			}
