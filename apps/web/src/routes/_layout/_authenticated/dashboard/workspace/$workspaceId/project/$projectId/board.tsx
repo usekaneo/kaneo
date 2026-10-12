@@ -7,7 +7,7 @@ import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
-import type { CustomFieldDefinition } from "@/components/project/custom-field-editor";
+import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Input } from "@/components/ui/input";

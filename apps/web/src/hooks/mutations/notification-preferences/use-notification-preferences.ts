@@ -9,17 +9,24 @@ import upsertNotificationWorkspaceRule, {
 } from "@/fetchers/notification-preferences/upsert-notification-workspace-rule";
 import { toast } from "@/lib/toast";
 
-export function useUpdateNotificationPreferences() {
+export function useUpdateNotificationPreferences({
+  silent = false,
+}: { silent?: boolean } = {}) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (json: UpdateNotificationPreferencesRequest) =>
       updateNotificationPreferences(json),
-    onSuccess: () => {
+    onSuccess: (preferences) => {
+      queryClient.setQueryData(["notification-preferences"], preferences);
       void queryClient.invalidateQueries({
         queryKey: ["notification-preferences"],
       });
-      toast.success(i18n.t("settings:notificationsPage.toastPreferencesSaved"));
+      if (!silent) {
+        toast.success(
+          i18n.t("settings:notificationsPage.toastPreferencesSaved"),
+        );
+      }
     },
     onError: (error) => {
       toast.error(
@@ -42,7 +49,8 @@ export function useUpsertNotificationWorkspaceRule() {
       workspaceId: string;
       json: UpsertNotificationWorkspaceRuleRequest;
     }) => upsertNotificationWorkspaceRule(workspaceId, json),
-    onSuccess: () => {
+    onSuccess: (preferences) => {
+      queryClient.setQueryData(["notification-preferences"], preferences);
       void queryClient.invalidateQueries({
         queryKey: ["notification-preferences"],
       });
@@ -64,7 +72,8 @@ export function useDeleteNotificationWorkspaceRule() {
   return useMutation({
     mutationFn: (workspaceId: string) =>
       deleteNotificationWorkspaceRule(workspaceId),
-    onSuccess: () => {
+    onSuccess: (preferences) => {
+      queryClient.setQueryData(["notification-preferences"], preferences);
       void queryClient.invalidateQueries({
         queryKey: ["notification-preferences"],
       });

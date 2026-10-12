@@ -49,7 +49,7 @@ export function HomeProjects({
           {t("workspace:home.projects.loadError")}
         </p>
       ) : !projects?.length ? (
-        <div className="flex flex-col items-start gap-3 rounded-lg border border-border border-dashed p-5">
+        <div className="flex flex-col items-start gap-3 rounded-lg border border-border bg-card p-5">
           <div className="flex flex-col gap-1">
             <p className="font-medium text-foreground text-sm">
               {t("workspace:projects.emptyTitle")}

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { NotificationPreferencesSettings } from "@/components/account/notification-preferences-settings";
 import PageTitle from "@/components/page-title";
+import { NotificationSettings } from "@/components/settings/notifications/notification-settings";
 import { SettingsPage } from "@/components/settings/settings-page";
 
 export const Route = createFileRoute(
@@ -20,7 +20,7 @@ function RouteComponent() {
         title={t("settings:notificationsPage.title")}
         description={t("settings:notificationsPage.subtitle")}
       >
-        <NotificationPreferencesSettings />
+        <NotificationSettings />
       </SettingsPage>
     </>
   );

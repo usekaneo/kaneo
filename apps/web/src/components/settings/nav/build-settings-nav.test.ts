@@ -70,10 +70,14 @@ describe("buildSettingsNav", () => {
     expect(nav.projects[0]?.links.map((link) => link.to)).toEqual([
       "/dashboard/settings/projects/p1/general",
       "/dashboard/settings/projects/p1/workflow",
+      "/dashboard/settings/projects/p1/custom-fields",
       "/dashboard/settings/projects/p1/visibility",
       "/dashboard/settings/projects/p1/integrations",
       "/dashboard/settings/projects/p1/calendar",
     ]);
+    expect(nav.projects[0]?.links[2]?.label).toBe(
+      "settings:projectCustomFields.title",
+    );
     expect(nav.projects[0]?.icon).toBeDefined();
   });
 });

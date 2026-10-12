@@ -14,7 +14,7 @@ export function ImportNotAllowed() {
 
   return (
     <SettingsPage title={t("settings:workspaceImport.title")}>
-      <Empty className="rounded-xl border border-border border-dashed">
+      <Empty className="rounded-xl border border-border bg-card">
         <EmptyHeader>
           <EmptyMedia variant="icon">
             <Import />

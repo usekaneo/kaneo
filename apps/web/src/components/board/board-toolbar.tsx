@@ -2,7 +2,7 @@ import { Filter, PanelsTopLeft, Rows3, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import SortControl from "@/components/common/sort-control";
-import type { CustomFieldDefinition } from "@/components/project/custom-field-editor";
+import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,

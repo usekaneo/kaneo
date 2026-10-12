@@ -61,7 +61,7 @@ export function ImportRunHistory({ workspaceId }: ImportRunHistoryProps) {
           </Button>
         </div>
       ) : !runs || runs.length === 0 ? (
-        <p className="rounded-xl border border-border border-dashed px-4 py-6 text-center text-muted-foreground text-sm">
+        <p className="rounded-xl border border-border bg-card px-4 py-6 text-center text-muted-foreground text-sm">
           {t("settings:workspaceImport.history.empty")}
         </p>
       ) : (
