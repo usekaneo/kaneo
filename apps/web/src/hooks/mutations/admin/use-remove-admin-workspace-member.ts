@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { UserMinusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { removeAdminWorkspaceMember } from "@/fetchers/admin/remove-admin-workspace-member";
 import { toast } from "@/lib/toast";
@@ -11,7 +12,9 @@ function useRemoveAdminWorkspaceMember() {
   return useMutation({
     mutationFn: removeAdminWorkspaceMember,
     onSuccess: (members, { workspaceId }) => {
-      toast.success(t("settings:adminWorkspaces.toast.removed"));
+      toast.success(t("settings:adminWorkspaces.toast.removed"), {
+        icon: UserMinusIcon,
+      });
       syncAdminWorkspaceMembers(queryClient, workspaceId, members);
     },
     onError: (error) => {

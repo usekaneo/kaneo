@@ -42,6 +42,11 @@ export const linear: Comparison = {
       body: "Free forever to self-host with every feature, including SSO. Managed cloud from $4/month, with no seats-gated features.",
     },
   ],
+  migration: {
+    body: "Kaneo imports Linear teams from the app with a personal API key: workflow states, issues with their numbers, priorities, labels, assignees, comments, and relations. Linear is only read, never changed.",
+    href: "https://kaneo.app/docs/core/migrations/from-linear",
+    linkText: "Read the import guide",
+  },
   honestNote:
     "Linear sets the bar for polish, speed, and deep product-team features like cycles and triage. If you're committed to cloud SaaS and want that specific, highly-refined workflow, it's excellent. Kaneo is for teams who want a clean experience they can actually own.",
   faq: [

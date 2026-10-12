@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { X } from "lucide-react";
+import { X, LinkIcon } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -116,7 +116,7 @@ export default function TaskCardContextMenuContent({
     const taskLink = generateLink(path);
 
     navigator.clipboard.writeText(taskLink);
-    toast.success(t("tasks:contextMenu.copyLinkSuccess"));
+    toast.success(t("tasks:contextMenu.copyLinkSuccess"), { icon: LinkIcon });
   };
 
   const handleDuplicateTask = () => {
@@ -157,8 +157,6 @@ export default function TaskCardContextMenuContent({
       toast.error(
         error instanceof Error ? error.message : t("tasks:update.error"),
       );
-    } finally {
-      toast.success(t("tasks:update.success"));
     }
   };
 
@@ -240,7 +238,6 @@ export default function TaskCardContextMenuContent({
                       ...task,
                       dueDate: date?.toISOString() || null,
                     });
-                    toast.success(t("tasks:dueDate.updateSuccess"));
                   } catch (error) {
                     toast.error(
                       error instanceof Error
@@ -263,7 +260,6 @@ export default function TaskCardContextMenuContent({
                         ...task,
                         dueDate: null,
                       });
-                      toast.success(t("tasks:dueDate.clearSuccess"));
                     } catch (error) {
                       toast.error(
                         error instanceof Error

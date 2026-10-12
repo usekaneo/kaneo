@@ -1,4 +1,5 @@
 import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 
 async function getGitlabIntegration(projectId: string) {
   const response = await client["gitlab-integration"].project[
@@ -8,12 +9,15 @@ async function getGitlabIntegration(projectId: string) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();
   return data;
 }
+
+export type GitlabIntegration = NonNullable<
+  Awaited<ReturnType<typeof getGitlabIntegration>>
+>;
 
 export default getGitlabIntegration;

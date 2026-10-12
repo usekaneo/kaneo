@@ -34,7 +34,6 @@ export default function TaskDueDatePopover({
         ...task,
         dueDate: date?.toISOString() || null,
       });
-      toast.success(t("tasks:popover.dueDate.updateSuccess"));
       setOpen(false);
     } catch (error) {
       toast.error(

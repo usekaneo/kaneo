@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Building2 } from "lucide-react";
+import { Building2, SquarePlusIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
@@ -40,7 +40,7 @@ function RouteComponent() {
 
     try {
       const createdWorkspace = await mutateAsync({ name, description });
-      toast.success(t("workspace:create.success"));
+      toast.success(t("workspace:create.success"), { icon: SquarePlusIcon });
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
       await authClient.organization.setActive({
@@ -64,7 +64,7 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("workspace:create.pageTitle")} />
-      <div className="min-h-screen w-full bg-background flex items-center justify-center p-4 overflow-y-auto">
+      <div className="min-h-svh w-full bg-background flex items-center justify-center p-4 overflow-y-auto">
         <div className="w-full max-w-md">
           <Card className="shadow-sm">
             <CardContent className="p-8">

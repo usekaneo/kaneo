@@ -33,8 +33,7 @@ async function getPublicProject(
             },
             { init: { signal } },
           );
-          if (!response.ok)
-            throw new HttpError(response.status, await response.text());
+          if (!response.ok) throw await HttpError.fromResponse(response);
           const { pagination, ...data } = await response.json();
           if (page === 1 && !relatedPage) revision = pagination.revision;
           else if (revision !== undefined && pagination.revision !== revision)

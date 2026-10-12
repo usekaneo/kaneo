@@ -102,14 +102,17 @@ describe("GitHub binding HTTP and webhook tenant boundaries", () => {
     const member = await fixture("member");
     const outsider = await fixture();
     const { app } = createApp();
-    for (const user of [member.user, outsider.user]) {
+    for (const [user, status] of [
+      [member.user, 403],
+      [outsider.user, 404],
+    ] as const) {
       mockAuthenticatedSession(user);
       for (const [url, options] of calls(member.project.id)) {
         const response = await app.request(url, {
           ...options,
           headers: { "content-type": "application/json" },
         });
-        expect(response.status).toBe(403);
+        expect(response.status).toBe(status);
       }
     }
     expect(m.installation).not.toHaveBeenCalled();

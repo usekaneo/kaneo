@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -14,11 +14,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import CircularProgress from "@/components/ui/circular-progress";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import getColumns from "@/fetchers/column/get-columns";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
@@ -33,6 +28,9 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 import queryClient from "@/query-client";
 import type Task from "@/types/task";
+import { SectionAddButton } from "./sections/section-add-button";
+import { SectionHeader } from "./sections/section-header";
+import { useProjectSlugs } from "./sections/use-project-slugs";
 import SubtaskRow from "./subtask-row";
 
 type TaskSubtasksProps = {
@@ -50,7 +48,6 @@ export default function TaskSubtasks({
 }: TaskSubtasksProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
@@ -58,7 +55,8 @@ export default function TaskSubtasks({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: relations = [] } = useGetTaskRelations(taskId);
+  const { data: relations = [], isSuccess: relationsLoaded } =
+    useGetTaskRelations(taskId);
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -70,6 +68,7 @@ export default function TaskSubtasks({
   const { data: columns = [], isLoading: isLoadingColumns } =
     useGetColumns(projectId);
   const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
+  const displayIdOf = useProjectSlugs(workspaceId);
   const canEdit = canUpdateTasks();
   const canCreate = canCreateTasks();
 
@@ -205,18 +204,21 @@ export default function TaskSubtasks({
         case "ArrowDown":
         case "j": {
           e.preventDefault();
+          e.stopPropagation();
           setFocusedIndex((prev) => (prev < totalCount - 1 ? prev + 1 : prev));
           break;
         }
         case "ArrowUp":
         case "k": {
           e.preventDefault();
+          e.stopPropagation();
           setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
           break;
         }
         case " ": {
           if (focusedIndex >= 0 && focusedIndex < totalCount) {
             e.preventDefault();
+            e.stopPropagation();
             toggleSelection(subtasks[focusedIndex].task.id);
           }
           break;
@@ -224,6 +226,7 @@ export default function TaskSubtasks({
         case "Enter": {
           if (focusedIndex >= 0 && focusedIndex < totalCount) {
             e.preventDefault();
+            e.stopPropagation();
             navigate({
               to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
               params: {
@@ -238,9 +241,11 @@ export default function TaskSubtasks({
         case "Escape": {
           if (hasSelection) {
             e.preventDefault();
+            e.stopPropagation();
             clearSelection();
           } else if (focusedIndex >= 0) {
             e.preventDefault();
+            e.stopPropagation();
             setFocusedIndex(-1);
           }
           break;
@@ -248,8 +253,8 @@ export default function TaskSubtasks({
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
   }, [
     focusedIndex,
     totalCount,
@@ -299,7 +304,7 @@ export default function TaskSubtasks({
         next.delete(deleteTaskId);
         return next;
       });
-      toast.success(t("tasks:subtasks.deleteSuccess"));
+      toast.success(t("tasks:subtasks.deleteSuccess"), { icon: Trash2Icon });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -313,143 +318,135 @@ export default function TaskSubtasks({
 
   return (
     <>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {isOpen ? (
-                  <ChevronDown className="size-4" />
-                ) : (
-                  <ChevronRight className="size-4" />
-                )}
-                <span>{t("tasks:subtasks.title")}</span>
-              </button>
-            </CollapsibleTrigger>
-            {totalCount > 0 && (
-              <span className="flex items-center gap-1.5 ml-0.5">
+      <section className="flex flex-col gap-1">
+        <SectionHeader
+          title={t("tasks:subtasks.title")}
+          meta={
+            totalCount > 0 && (
+              <span className="flex items-center gap-1.5 text-muted-foreground text-xs tabular-nums">
                 <CircularProgress
                   completed={completedCount}
                   total={totalCount}
+                  size={14}
                 />
-                <span className="text-xs text-muted-foreground">
-                  {completedCount}/{totalCount}
-                </span>
+                {completedCount}/{totalCount}
               </span>
-            )}
-          </div>
-          {canEdit && canCreate && (
+            )
+          }
+          action={
+            canEdit &&
+            canCreate && (
+              <SectionAddButton
+                data-task-action="addSubtask"
+                aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
+                onClick={() => setIsAdding(true)}
+                disabled={!canCreateSubtask}
+              />
+            )
+          }
+        />
+
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- keyboard nav managed via document listener */}
+        <div
+          ref={containerRef}
+          className="flex flex-col"
+          onMouseDown={() => {
+            if (focusedIndex === -1 && !hasSelection) {
+              setFocusedIndex(0);
+            }
+          }}
+        >
+          <AnimatePresence
+            key={relationsLoaded ? "loaded" : "loading"}
+            initial={false}
+          >
+            {subtasks.map((subtask, index) => {
+              const taskObj = buildTaskObject(subtask);
+              const isSelected = selectedIds.has(subtask.task.id);
+
+              return (
+                <SubtaskRow
+                  key={subtask.task.id}
+                  task={taskObj}
+                  tasks={getTargetTasks(taskObj)}
+                  displayId={displayIdOf(
+                    subtask.task.projectId,
+                    subtask.task.number,
+                  )}
+                  projectId={subtask.task.projectId}
+                  workspaceId={workspace?.id ?? workspaceId}
+                  workspaceSlug={workspace?.slug}
+                  isSelected={isSelected}
+                  isFocused={focusedIndex === index}
+                  isCompleted={subtask.task.isCompleted}
+                  canEdit={canEdit}
+                  selectionRadius={getSelectionRadius(index, isSelected)}
+                  assignee={getAssignee(subtask.task.userId)}
+                  onToggleComplete={() => handleToggleComplete(taskObj)}
+                  onNavigate={() =>
+                    navigate({
+                      to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+                      params: {
+                        workspaceId,
+                        projectId: subtask.task.projectId,
+                        taskId: subtask.task.id,
+                      },
+                    })
+                  }
+                  onDeleteClick={() => setDeleteTaskId(subtask.task.id)}
+                />
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {isAdding && canEdit && canCreate && (
+          <div className="flex items-center gap-2 px-1 pt-1">
+            <Input
+              size="sm"
+              placeholder={t("tasks:subtasks.inputPlaceholder")}
+              value={newTitle}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setNewTitle(e.target.value)
+              }
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === "Enter") handleAddSubtask();
+                if (e.key === "Escape") {
+                  e.stopPropagation();
+                  setIsAdding(false);
+                  setNewTitle("");
+                }
+              }}
+              autoFocus
+            />
+            <Button
+              size="xs"
+              onClick={handleAddSubtask}
+              disabled={
+                !newTitle.trim() || createTask.isPending || !canCreateSubtask
+              }
+            >
+              {t("tasks:subtasks.addAction")}
+            </Button>
             <Button
               variant="ghost"
               size="xs"
-              className="text-muted-foreground"
-              aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
-              onClick={() => setIsAdding(true)}
-              disabled={!canCreateSubtask}
+              onClick={() => {
+                setIsAdding(false);
+                setNewTitle("");
+              }}
             >
-              <Plus className="size-3.5" />
+              {t("common:actions.cancel")}
             </Button>
-          )}
-        </div>
-
-        <CollapsibleContent>
-          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- keyboard nav managed via document listener */}
-          <div
-            ref={containerRef}
-            className="flex flex-col mt-1"
-            onMouseDown={() => {
-              if (focusedIndex === -1 && !hasSelection) {
-                setFocusedIndex(0);
-              }
-            }}
-          >
-            <AnimatePresence initial={false}>
-              {subtasks.map((subtask, index) => {
-                const taskObj = buildTaskObject(subtask);
-                const isSelected = selectedIds.has(subtask.task.id);
-
-                return (
-                  <SubtaskRow
-                    key={subtask.task.id}
-                    task={taskObj}
-                    tasks={getTargetTasks(taskObj)}
-                    projectId={subtask.task.projectId}
-                    workspaceId={workspace?.id ?? workspaceId}
-                    workspaceSlug={workspace?.slug}
-                    isSelected={isSelected}
-                    isFocused={focusedIndex === index}
-                    isCompleted={subtask.task.isCompleted}
-                    canEdit={canEdit}
-                    selectionRadius={getSelectionRadius(index, isSelected)}
-                    assignee={getAssignee(subtask.task.userId)}
-                    onToggleComplete={() => handleToggleComplete(taskObj)}
-                    onNavigate={() =>
-                      navigate({
-                        to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-                        params: {
-                          workspaceId,
-                          projectId: subtask.task.projectId,
-                          taskId: subtask.task.id,
-                        },
-                      })
-                    }
-                    onDeleteClick={() => setDeleteTaskId(subtask.task.id)}
-                  />
-                );
-              })}
-            </AnimatePresence>
           </div>
+        )}
 
-          {isAdding && canEdit && canCreate && (
-            <div className="flex items-center gap-2 mt-2">
-              <Input
-                size="sm"
-                placeholder={t("tasks:subtasks.inputPlaceholder")}
-                value={newTitle}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setNewTitle(e.target.value)
-                }
-                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                  if (e.key === "Enter") handleAddSubtask();
-                  if (e.key === "Escape") {
-                    setIsAdding(false);
-                    setNewTitle("");
-                  }
-                }}
-                autoFocus
-              />
-              <Button
-                size="xs"
-                onClick={handleAddSubtask}
-                disabled={
-                  !newTitle.trim() || createTask.isPending || !canCreateSubtask
-                }
-              >
-                {t("tasks:subtasks.addAction")}
-              </Button>
-              <Button
-                variant="ghost"
-                size="xs"
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewTitle("");
-                }}
-              >
-                {t("common:actions.cancel")}
-              </Button>
-            </div>
-          )}
-
-          {!isAdding && totalCount === 0 && (
-            <p className="text-xs text-muted-foreground px-2 py-1">
-              {t("tasks:subtasks.empty")}
-            </p>
-          )}
-        </CollapsibleContent>
-      </Collapsible>
+        {!isAdding && totalCount === 0 && (
+          <p className="px-2 py-1 text-muted-foreground text-xs">
+            {t("tasks:subtasks.empty")}
+          </p>
+        )}
+      </section>
 
       <AlertDialog
         open={!!deleteTaskId}

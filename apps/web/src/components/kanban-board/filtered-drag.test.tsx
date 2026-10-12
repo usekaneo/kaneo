@@ -51,9 +51,6 @@ vi.mock("@/store/project", () => ({
 vi.mock("@/store/background", () => ({
   useBackgroundStore: () => ({ setBackground: vi.fn() }),
 }));
-vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
-  useRegisterShortcuts: vi.fn(),
-}));
 vi.mock("@/hooks/use-project-background", () => ({
   useProjectBackground: () => null,
 }));

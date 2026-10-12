@@ -1,27 +1,12 @@
-import {
-  CrownIcon,
-  EllipsisIcon,
-  PencilIcon,
-  ShieldIcon,
-  UserMinusIcon,
-} from "lucide-react";
+import { CrownIcon, ShieldIcon, UserMinusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { DirectoryAvatar } from "@/components/admin/directory/directory-avatar";
+import { RowActionsMenu } from "@/components/settings/row-actions-menu";
 import type { ProjectAccessValue } from "@/components/team/project-access/project-access-value";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Menu,
-  MenuItem,
-  MenuPopup,
-  MenuSeparator,
-  MenuTrigger,
-} from "@/components/ui/menu";
-import { TableCell, TableRow } from "@/components/ui/table";
 import type { AdminWorkspaceMember } from "@/fetchers/admin/workspace-types";
-import { formatDateMedium } from "@/lib/format";
-import { getInitials } from "@/lib/get-initials";
 import { isWorkspaceOwnerRole } from "./is-workspace-owner-role";
+import { MemberAccessButton } from "./member-access-button";
 import WorkspaceRoleSelect from "./workspace-role-select";
 
 type Props = {
@@ -50,113 +35,74 @@ function WorkspaceMemberRow({
   const { t } = useTranslation();
   const isOwner = isWorkspaceOwnerRole(member.role);
   const name = member.name || member.email;
-  const accessLabel = access
-    ? access.projectAccess === "all"
-      ? t("team:projectAccess.allProjects")
-      : t("team:projectAccess.projectCount", {
-          count: access.projectIds.length,
-        })
-    : null;
 
   return (
-    <TableRow>
-      <TableCell className="py-3">
-        <div className="flex items-center gap-3">
-          <Avatar className="size-8 border bg-muted">
-            {member.image ? (
-              <AvatarImage src={member.image} alt={name} />
-            ) : null}
-            <AvatarFallback className="text-xs font-medium">
-              {getInitials(member.name, "?")}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <span className="block max-w-56 truncate text-sm font-medium">
-              {name}
-            </span>
-            <span className="block max-w-56 truncate text-xs text-muted-foreground">
-              {member.email}
-            </span>
-          </div>
+    <div
+      role="listitem"
+      className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-4"
+    >
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <DirectoryAvatar name={name} image={member.image} />
+        <div className="min-w-0">
+          <span className="block truncate text-sm font-medium">{name}</span>
+          <span className="block truncate text-xs text-muted-foreground">
+            {member.email}
+          </span>
         </div>
-      </TableCell>
-      <TableCell className="py-3">
-        {isOwner ? (
-          <Badge variant="outline" className="gap-1">
-            <ShieldIcon aria-hidden="true" />
-            {t("team:roles.owner")}
-          </Badge>
-        ) : (
-          <WorkspaceRoleSelect
-            size="sm"
-            className="w-36"
-            label={t("settings:adminWorkspaces.members.roleLabel", { name })}
-            value={member.role}
-            options={roleOptions}
-            disabled={isUpdatingRole}
-            onValueChange={(role) => {
-              if (role !== member.role) onRoleChange(role);
-            }}
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1 sm:w-36 sm:flex-none">
+          {isOwner ? (
+            <Badge variant="outline" className="gap-1 px-1.5">
+              <ShieldIcon aria-hidden="true" />
+              {t("team:roles.owner")}
+            </Badge>
+          ) : (
+            <WorkspaceRoleSelect
+              size="sm"
+              className="w-full"
+              label={t("settings:adminWorkspaces.members.roleLabel", { name })}
+              value={member.role}
+              options={roleOptions}
+              disabled={isUpdatingRole}
+              onValueChange={(role) => {
+                if (role !== member.role) onRoleChange(role);
+              }}
+            />
+          )}
+        </div>
+        <div className="shrink-0 sm:w-28">
+          <MemberAccessButton
+            name={name}
+            isOwner={isOwner}
+            access={access}
+            onEditAccess={onEditAccess}
           />
-        )}
-      </TableCell>
-      <TableCell className="py-3 text-sm text-muted-foreground">
-        {isOwner ? (
-          t("team:projectAccess.allProjects")
-        ) : accessLabel ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground"
-            aria-label={t("settings:adminWorkspaces.members.editAccess", {
-              name,
-              access: accessLabel,
-            })}
-            onClick={onEditAccess}
-          >
-            {accessLabel}
-            <PencilIcon aria-hidden="true" />
-          </Button>
-        ) : (
-          "–"
-        )}
-      </TableCell>
-      <TableCell className="py-3 text-sm text-muted-foreground tabular-nums">
-        {formatDateMedium(member.joinedAt)}
-      </TableCell>
-      <TableCell className="py-3 text-right">
-        {isOnlyOwner ? null : (
-          <Menu>
-            <MenuTrigger
-              render={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={t("settings:adminWorkspaces.members.actions", {
-                    name,
-                  })}
-                />
-              }
-            >
-              <EllipsisIcon aria-hidden="true" />
-            </MenuTrigger>
-            <MenuPopup align="end">
-              <MenuItem closeOnClick onClick={onMakeOwner}>
-                <CrownIcon aria-hidden="true" />
-                {t("settings:adminWorkspaces.members.makeOwner")}
-              </MenuItem>
-              <MenuSeparator />
-              <MenuItem closeOnClick variant="destructive" onClick={onRemove}>
-                <UserMinusIcon aria-hidden="true" />
-                {t("settings:adminWorkspaces.members.remove")}
-              </MenuItem>
-            </MenuPopup>
-          </Menu>
-        )}
-      </TableCell>
-    </TableRow>
+        </div>
+        <div className="flex w-7 shrink-0 justify-end">
+          {isOnlyOwner ? null : (
+            <RowActionsMenu
+              label={t("settings:adminWorkspaces.members.actions", { name })}
+              actions={[
+                {
+                  id: "make-owner",
+                  label: t("settings:adminWorkspaces.members.makeOwner"),
+                  icon: CrownIcon,
+                  onSelect: onMakeOwner,
+                },
+                {
+                  id: "remove",
+                  label: t("settings:adminWorkspaces.members.remove"),
+                  icon: UserMinusIcon,
+                  destructive: true,
+                  onSelect: onRemove,
+                },
+              ]}
+            />
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

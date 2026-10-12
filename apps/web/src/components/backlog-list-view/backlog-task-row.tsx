@@ -1,13 +1,9 @@
+import { useRestoreTaskFocus } from "@/components/project/task-view-keys/use-restore-task-focus";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import {
-  Calendar,
-  CalendarClock,
-  CalendarX,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Calendar, CalendarClock, CalendarX, Trash2Icon } from "lucide-react";
 import { type CSSProperties, memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
@@ -22,13 +18,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/preview-card";
+import { CardFieldList } from "@/components/custom-fields/card-field-list";
+import { useTaskCardFields } from "@/components/custom-fields/use-task-card-fields";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
@@ -47,6 +39,7 @@ import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
 import { TaskLabels } from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
+import { EASE_OUT_CSS } from "@/lib/motion";
 
 type BacklogTaskRowProps = {
   task: Task;
@@ -64,7 +57,10 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({
+    id: task.id,
+    transition: { duration: 200, easing: EASE_OUT_CSS },
+  });
 
   const projectId = useProjectStore((state) => state.project?.id);
   const projectSlug = useProjectStore((state) => state.project?.slug);
@@ -86,6 +82,10 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
   const selectRange = useBacklogBulkSelectionStore(
     (state) => state.selectRange,
   );
+  const setFocusedTask = useBacklogBulkSelectionStore(
+    (state) => state.setFocusedTask,
+  );
+  useRestoreTaskFocus(task.id, useBacklogBulkSelectionStore);
   const setSelectionAnchor = useBacklogBulkSelectionStore(
     (state) => state.setSelectionAnchor,
   );
@@ -106,29 +106,15 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     );
   }, [workspaceUsers, task.userId]);
 
-  const { data: projectCustomFieldValues = [] } =
-    useGetCustomFieldValuesByProject(task.projectId);
-
-  const customFieldValues = useMemo(
-    () => projectCustomFieldValues.filter((field) => field.taskId === task.id),
-    [projectCustomFieldValues, task.id],
-  );
-
-  const activeCustomFieldValues = useMemo(
-    () =>
-      customFieldValues.filter(
-        (field) => field.value !== null && field.value !== "",
-      ),
-    [customFieldValues],
-  );
+  const cardFields = useTaskCardFields(task.projectId, task.id);
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+    transition: transition || `transform 200ms ${EASE_OUT_CSS}`,
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     if (!projectId || !task) return;
     if (e.defaultPrevented) return;
 
@@ -163,18 +149,16 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.defaultPrevented || e.target !== e.currentTarget) return;
-    if (e.key === "Enter") {
-      handleClick(e);
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
-    } else {
-      listeners?.onKeyDown?.(e);
+      selectRange(task.id);
     }
   };
 
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      toast.success(t("tasks:delete.success"));
+      toast.success(t("tasks:delete.success"), { icon: Trash2Icon });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
@@ -186,6 +170,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
     <div
       ref={setNodeRef}
       style={style}
+      data-kaneo-sortable
       className={cn(
         "border-b border-border/50 transition-colors duration-150",
         isDragging && "opacity-50",
@@ -200,12 +185,15 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
           <div
             onClick={handleClick}
             className={cn(
-              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
+              "group relative flex cursor-pointer items-center gap-3 px-4 py-1.5 outline-none transition-colors",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
+            data-task-id={task.id}
+            data-shortcut-surface
             {...attributes}
             {...listeners}
             onKeyDown={handleKeyDown}
+            onFocus={() => setFocusedTask(task.id)}
           >
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
@@ -225,6 +213,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
                 </span>
                 <div className="flex items-center gap-1">
                   <TaskProgressBadges task={task} />
+                  <CardFieldList fields={cardFields} max={3} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
                 </div>
               </div>
@@ -244,53 +233,6 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
                     "no-due-date") && <Calendar className="w-3 h-3" />}
                 <span>{format(new Date(task.dueDate), "MMM d")}</span>
               </div>
-            )}
-
-            {activeCustomFieldValues.length > 0 && (
-              <HoverCard openDelay={200} closeDelay={100}>
-                <HoverCardTrigger asChild>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                    }}
-                    onPointerDown={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                    }}
-                    aria-label={t("tasks:customFields.ariaLabel", {
-                      count: activeCustomFieldValues.length,
-                    })}
-                  >
-                    <SlidersHorizontal className="w-3 h-3" />
-                    <span>{activeCustomFieldValues.length}</span>
-                  </button>
-                </HoverCardTrigger>
-                <HoverCardContent
-                  className="w-fit p-2.5"
-                  side="bottom"
-                  onClick={(e) => e.stopPropagation()}
-                  onPointerDown={(e) => e.stopPropagation()}
-                >
-                  <div className="space-y-1.5">
-                    {activeCustomFieldValues.map((field) => (
-                      <div
-                        key={field.id}
-                        className="flex items-center justify-between gap-2 text-xs"
-                      >
-                        <span className="font-medium text-muted-foreground truncate">
-                          {field.fieldName}
-                        </span>
-                        <span className="text-foreground truncate max-w-24">
-                          {field.value}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
             )}
 
             {showAssignees && (

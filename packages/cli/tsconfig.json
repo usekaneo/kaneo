@@ -1,0 +1,10 @@
+{
+	"extends": "../typescript-config/base.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"declaration": false,
+		"declarationMap": false,
+		"types": ["node"]
+	},
+	"include": ["src/**/*.ts", "vite.config.ts", "vitest.config.ts"]
+}

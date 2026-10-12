@@ -1,10 +1,5 @@
 import { format } from "date-fns";
-import {
-  Calendar,
-  CalendarClock,
-  CalendarX,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Calendar, CalendarClock, CalendarX, Trash2Icon } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
@@ -21,13 +16,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/preview-card";
+import { CardFieldList } from "@/components/custom-fields/card-field-list";
+import { useTaskCardFields } from "@/components/custom-fields/use-task-card-fields";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import useGetCustomFieldValuesByProject from "@/hooks/queries/custom-field/use-get-custom-field-values-by-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
@@ -46,7 +37,6 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../task-card-context-menu/task-card-context-menu-content";
 import { TaskLabels } from "../task-labels";
-import type { DragListeners } from "./drag-listeners";
 import { useTaskCardClick } from "./use-task-card-click";
 
 const dueDateTextColors: Record<DueDateStatus, string> = {
@@ -61,7 +51,6 @@ type TaskCardContentProps = {
   disableDragDrop: boolean;
   isFinalColumn?: boolean;
   isDragging: boolean;
-  dragListeners: DragListeners;
 };
 
 function TaskCardContent({
@@ -69,7 +58,6 @@ function TaskCardContent({
   disableDragDrop,
   isFinalColumn,
   isDragging,
-  dragListeners,
 }: TaskCardContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
@@ -98,33 +86,7 @@ function TaskCardContent({
     (state) => state.focusedTaskId === task.id,
   );
 
-  const { data: projectCustomFieldValues = [] } =
-    useGetCustomFieldValuesByProject(task.projectId);
-
-  const customFieldValues = useMemo(
-    () =>
-      projectCustomFieldValues
-        .filter((field) => field.taskId === task.id)
-        .sort((a, b) => a.fieldPosition - b.fieldPosition),
-    [projectCustomFieldValues, task.id],
-  );
-
-  const activeCustomFieldValues = useMemo(
-    () =>
-      customFieldValues.filter((field) => {
-        if (field.value === null || field.value === "") return false;
-        if (field.fieldType === "multiselect") {
-          try {
-            const parsed = JSON.parse(field.value);
-            return Array.isArray(parsed) && parsed.length > 0;
-          } catch {
-            return false;
-          }
-        }
-        return true;
-      }),
-    [customFieldValues],
-  );
+  const cardFields = useTaskCardFields(task.projectId, task.id);
 
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -136,12 +98,12 @@ function TaskCardContent({
     );
   }, [workspaceUsers, task.userId]);
 
-  const { handleClick, handleKeyDown } = useTaskCardClick(task, dragListeners);
+  const { handleClick } = useTaskCardClick(task);
 
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      toast.success(t("tasks:delete.success"));
+      toast.success(t("tasks:delete.success"), { icon: Trash2Icon });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
@@ -157,10 +119,9 @@ function TaskCardContent({
         }}
       >
         <ContextMenuTrigger asChild>
-          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- the focusable sortable wrapper owns keyboard access */}
           <div
             onClick={handleClick}
-            onKeyDown={handleKeyDown}
             className={cn(
               "group relative rounded-lg border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out active:scale-[0.98]",
               disableDragDrop ? "cursor-default" : "cursor-move",
@@ -176,7 +137,7 @@ function TaskCardContent({
                 : isOverdue
                   ? "border-destructive/70 ring-[3px] ring-destructive/10"
                   : "border-border hover:border-border/90",
-              isTaskFocused && "ring-2 ring-inset ring-ring/50",
+              isTaskFocused && "outline-2 -outline-offset-2 outline-ring/50",
             )}
           >
             {showTaskNumbers && (
@@ -236,6 +197,10 @@ function TaskCardContent({
               </div>
             )}
 
+            {!taskIsCompleted && (
+              <CardFieldList fields={cardFields} max={2} className="mb-2.5" />
+            )}
+
             <div
               className={cn(
                 "flex flex-wrap items-center gap-x-2.5 gap-y-1.5 empty:hidden",
@@ -249,71 +214,6 @@ function TaskCardContent({
                 >
                   {getPriorityIcon(task.priority ?? "")}
                 </span>
-              )}
-
-              {activeCustomFieldValues.length > 0 && (
-                <HoverCard openDelay={200} closeDelay={100}>
-                  <HoverCardTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1 rounded border border-border/70 bg-muted/55 px-2 py-1 text-[10px] font-medium text-muted-foreground cursor-default focus:outline-none focus:ring-2 focus:ring-ring/50 focus:ring-offset-1"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                      onPointerDown={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                      }}
-                      aria-label={t("tasks:customFields.ariaLabel", {
-                        count: activeCustomFieldValues.length,
-                      })}
-                    >
-                      <SlidersHorizontal className="w-3 h-3" />
-                      <span>{activeCustomFieldValues.length}</span>
-                    </button>
-                  </HoverCardTrigger>
-                  <HoverCardContent
-                    className="w-fit p-2.5"
-                    side="bottom"
-                    onClick={(e) => e.stopPropagation()}
-                    onPointerDown={(e) => e.stopPropagation()}
-                  >
-                    <div className="space-y-1.5">
-                      {activeCustomFieldValues.map((field) => {
-                        const value = field.value;
-
-                        if (!value) return null;
-
-                        let displayValue: string = value;
-                        if (field.fieldType === "multiselect") {
-                          try {
-                            const parsed = JSON.parse(value);
-                            if (Array.isArray(parsed)) {
-                              displayValue = parsed.join(", ");
-                            }
-                          } catch {
-                            displayValue = value;
-                          }
-                        }
-
-                        return (
-                          <div
-                            key={field.id}
-                            className="flex items-center justify-between gap-2 text-xs"
-                          >
-                            <span className="font-medium text-muted-foreground truncate">
-                              {field.fieldName}
-                            </span>
-                            <span className="text-foreground truncate max-w-24">
-                              {displayValue}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
               )}
 
               <TaskProgressBadges task={task} />

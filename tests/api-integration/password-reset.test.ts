@@ -25,7 +25,12 @@ const redirectTo = `${origin}/auth/reset-password`;
 function post(path: string, body: unknown) {
   return createApp().app.request(`/api/auth${path}`, {
     method: "POST",
-    headers: { "content-type": "application/json", Origin: origin },
+    headers: {
+      "content-type": "application/json",
+      Origin: origin,
+      "user-agent":
+        "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0",
+    },
     body: JSON.stringify(body),
   });
 }
@@ -60,7 +65,12 @@ async function requestReset() {
   );
   const props = vi.mocked(email.sendPasswordResetEmail).mock.calls.at(-1)?.[2];
   expect(props).toEqual(
-    expect.objectContaining({ locale: "de-DE", userName: "Reset user" }),
+    expect.objectContaining({
+      locale: "de-DE",
+      userName: "Reset user",
+      device: { browser: "Firefox", os: "Linux" },
+      requestedAt: expect.any(Date),
+    }),
   );
   const link = new URL((props as { resetLink: string }).resetLink);
   expect(link.origin).toBe("http://localhost:1337");

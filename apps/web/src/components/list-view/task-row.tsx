@@ -1,8 +1,9 @@
+import { useRestoreTaskFocus } from "@/components/project/task-view-keys/use-restore-task-focus";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import { Calendar, CalendarClock, CalendarX, Trash2Icon } from "lucide-react";
 import { type CSSProperties, useMemo, useState, memo } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
@@ -35,8 +36,11 @@ import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
+import { CardFieldList } from "@/components/custom-fields/card-field-list";
+import { useTaskCardFields } from "@/components/custom-fields/use-task-card-fields";
 import { TaskLabels } from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
+import { EASE_OUT_CSS } from "@/lib/motion";
 
 type TaskRowProps = {
   task: Task;
@@ -53,7 +57,10 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({
+    id: task.id,
+    transition: { duration: 200, easing: EASE_OUT_CSS },
+  });
 
   const { project } = useProjectStore();
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
@@ -65,6 +72,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     showLabels,
     showTaskNumbers,
   } = useUserPreferencesStore();
+  const cardFields = useTaskCardFields(task.projectId, task.id);
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState<
     boolean | null
   >(null);
@@ -74,6 +82,8 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     (state) => state.toggleSelection,
   );
   const selectRange = useBulkSelectionStore((state) => state.selectRange);
+  const setFocusedTask = useBulkSelectionStore((state) => state.setFocusedTask);
+  useRestoreTaskFocus(task.id, useBulkSelectionStore);
   const setSelectionAnchor = useBulkSelectionStore(
     (state) => state.setSelectionAnchor,
   );
@@ -96,11 +106,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+    transition: transition || `transform 200ms ${EASE_OUT_CSS}`,
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent | React.KeyboardEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     if (!project || !task) return;
     if (e.defaultPrevented) return;
 
@@ -135,18 +145,16 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.defaultPrevented || e.target !== e.currentTarget) return;
-    if (e.key === "Enter") {
-      handleClick(e);
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
-    } else {
-      listeners?.onKeyDown?.(e);
+      selectRange(task.id);
     }
   };
 
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      toast.success(t("tasks:delete.success"));
+      toast.success(t("tasks:delete.success"), { icon: Trash2Icon });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
@@ -158,6 +166,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     <div
       ref={setNodeRef}
       style={style}
+      data-kaneo-sortable
       className={cn(
         "border-b border-border/50 transition-colors duration-150",
         isDragging && "opacity-50",
@@ -176,12 +185,15 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           <div
             onClick={handleClick}
             className={cn(
-              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
+              "group relative flex cursor-pointer items-center gap-3 px-4 py-1.5 outline-none transition-colors",
               isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
             )}
+            data-task-id={task.id}
+            data-shortcut-surface
             {...attributes}
             {...listeners}
             onKeyDown={handleKeyDown}
+            onFocus={() => setFocusedTask(task.id)}
           >
             {showPriority && (
               <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
@@ -201,6 +213,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                 </span>
                 <div className="flex items-center gap-1">
                   <TaskProgressBadges task={task} />
+                  <CardFieldList fields={cardFields} max={3} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
 
                   <TaskPullRequests

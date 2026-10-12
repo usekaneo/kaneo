@@ -3,9 +3,8 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
-import type { DragListeners } from "./drag-listeners";
 
-export function useTaskCardClick(task: Task, dragListeners: DragListeners) {
+export function useTaskCardClick(task: Task) {
   const { project } = useProjectStore();
   const { data: workspace } = useActiveWorkspace();
   const navigate = useNavigate();
@@ -17,9 +16,7 @@ export function useTaskCardClick(task: Task, dragListeners: DragListeners) {
     (state) => state.setSelectionAnchor,
   );
 
-  function handleClick(
-    e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>,
-  ) {
+  function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (!project || !task || !workspace) return;
 
     if (e.shiftKey) {
@@ -53,14 +50,9 @@ export function useTaskCardClick(task: Task, dragListeners: DragListeners) {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.defaultPrevented || e.target !== e.currentTarget) return;
-    if (e.key === "Enter") {
-      handleClick(e);
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
-    } else {
-      if (e.key === "Escape") {
-        toggleSelection(task.id);
-      }
-      dragListeners?.onKeyDown?.(e);
+      selectRange(task.id);
     }
   };
 

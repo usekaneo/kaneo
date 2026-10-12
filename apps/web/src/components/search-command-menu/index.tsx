@@ -24,10 +24,8 @@ import {
   CommandPanel,
   CommandSeparator,
 } from "@/components/ui/command";
-import { shortcuts } from "@/constants/shortcuts";
 import useGlobalSearch from "@/hooks/queries/search/use-global-search";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 type SearchResultItem = {
   id: string;
@@ -67,14 +65,6 @@ function SearchCommandMenu({ open, setOpen }: SearchCommandMenuProps) {
     type: "all",
     workspaceId: workspace?.id,
     limit: 20,
-  });
-
-  useRegisterShortcuts({
-    shortcuts: {
-      [shortcuts.search.prefix]: () => {
-        setOpen(true);
-      },
-    },
   });
 
   useEffect(() => {

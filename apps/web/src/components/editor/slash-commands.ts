@@ -1,11 +1,12 @@
 import type { Editor } from "@tiptap/core";
+import type { ShortcutId } from "@/lib/shortcuts/catalog";
 
 export type SlashRange = { from: number; to: number };
 export type SlashCommand = {
   id: string;
   label: string;
   group: "text" | "lists" | "insert";
-  shortcut?: string;
+  shortcutId?: ShortcutId;
   search: string;
   run: (editor: Editor, range: SlashRange) => void;
 };
@@ -13,6 +14,7 @@ export type SlashCommand = {
 export const richTextCommands: SlashCommand[] = [
   {
     id: "paragraph",
+    shortcutId: "editorParagraph",
     label: "Text",
     group: "text",
     search: "text paragraph normal",
@@ -22,9 +24,9 @@ export const richTextCommands: SlashCommand[] = [
   },
   {
     id: "heading-2",
+    shortcutId: "editorHeading2",
     label: "Heading",
     group: "text",
-    shortcut: "Ctrl Alt 2",
     search: "heading title h2",
     run: (editor, range) => {
       editor
@@ -37,9 +39,9 @@ export const richTextCommands: SlashCommand[] = [
   },
   {
     id: "bullet-list",
+    shortcutId: "editorBulletList",
     label: "Bulleted list",
     group: "lists",
-    shortcut: "Ctrl Alt 8",
     search: "list bullet unordered",
     run: (editor, range) => {
       editor.chain().focus().deleteRange(range).toggleBulletList().run();
@@ -47,6 +49,7 @@ export const richTextCommands: SlashCommand[] = [
   },
   {
     id: "task-list",
+    shortcutId: "editorChecklist",
     label: "To-do list",
     group: "lists",
     search: "todo to-do checklist checkbox task list",
@@ -56,9 +59,9 @@ export const richTextCommands: SlashCommand[] = [
   },
   {
     id: "ordered-list",
+    shortcutId: "editorNumberedList",
     label: "Numbered list",
     group: "lists",
-    shortcut: "Ctrl Alt 9",
     search: "list ordered numbered",
     run: (editor, range) => {
       editor.chain().focus().deleteRange(range).toggleOrderedList().run();
@@ -66,6 +69,7 @@ export const richTextCommands: SlashCommand[] = [
   },
   {
     id: "blockquote",
+    shortcutId: "editorQuote",
     label: "Quote",
     group: "insert",
     search: "quote blockquote",
@@ -75,9 +79,9 @@ export const richTextCommands: SlashCommand[] = [
   },
   {
     id: "code-block",
+    shortcutId: "editorCodeBlock",
     label: "Code block",
     group: "insert",
-    shortcut: "Ctrl Alt \\",
     search: "code snippet",
     run: (editor, range) => {
       editor.chain().focus().deleteRange(range).toggleCodeBlock().run();

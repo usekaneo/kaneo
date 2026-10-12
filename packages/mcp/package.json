@@ -1,6 +1,6 @@
 {
 	"name": "@kaneo/mcp",
-	"version": "0.1.12",
+	"version": "0.1.13",
 	"mcpName": "io.github.usekaneo/kaneo",
 	"description": "Official MCP (Model Context Protocol) server for Kaneo, the open source project management platform: manage tasks, projects, and labels from Claude, Cursor, and other MCP clients",
 	"license": "MIT",
@@ -23,6 +23,14 @@
 		"./tools": {
 			"types": "./dist/tools/register.d.ts",
 			"import": "./dist/tools/register.js"
+		},
+		"./device-flow": {
+			"types": "./dist/auth/device-flow.d.ts",
+			"import": "./dist/auth/device-flow.js"
+		},
+		"./normalize-base-url": {
+			"types": "./dist/utils/normalize-base-url.d.ts",
+			"import": "./dist/utils/normalize-base-url.js"
 		}
 	},
 	"publishConfig": {

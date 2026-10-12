@@ -30,9 +30,6 @@ vi.mock("@dnd-kit/core", async (original) => ({
   },
 }));
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
-vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
-  useRegisterShortcuts: () => {},
-}));
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutate: m.mutate }),
 }));

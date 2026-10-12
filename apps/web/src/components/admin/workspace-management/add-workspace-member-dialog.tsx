@@ -109,7 +109,7 @@ function AddWorkspaceMemberDialog({
           </DialogPanel>
           <DialogFooter>
             <DialogClose
-              render={<Button type="button" variant="ghost" />}
+              render={<Button type="button" variant="outline" />}
               disabled={isPending}
             >
               {t("common:actions.cancel")}

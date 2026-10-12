@@ -148,6 +148,7 @@ export function useBulkOperations() {
 
   return {
     bulkDelete: bulkDelete.mutateAsync,
+    isDeleting: bulkDelete.isPending,
     bulkArchive: bulkArchive.mutateAsync,
     bulkChangeStatus: bulkChangeStatus.mutateAsync,
     bulkAssign: bulkAssign.mutateAsync,

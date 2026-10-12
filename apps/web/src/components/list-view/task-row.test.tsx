@@ -166,13 +166,32 @@ describe("TaskRow", () => {
         screen.getByRole("button", { name: /Row from payload/ }),
         { key: "Enter" },
       );
-      expect(navigate).toHaveBeenCalled();
-      expect(onDragStart).not.toHaveBeenCalled();
       fireEvent.keyDown(
         screen.getByRole("button", { name: /Row from payload/ }),
         { key: " ", code: "Space" },
       );
-      expect(onDragStart).toHaveBeenCalledOnce();
+      expect(navigate).not.toHaveBeenCalled();
+      expect(onDragStart).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["board", "list"])(
+    "takes keyboard focus and marks itself as a shortcut surface in the %s view",
+    (view) => {
+      render(
+        view === "board" ? (
+          <TaskCard task={task} />
+        ) : (
+          <TaskRow task={task} projectSlug="kan" />
+        ),
+      );
+      const row = screen.getByRole("button", { name: /Row from payload/ });
+
+      fireEvent.focus(row);
+
+      expect(useBulkSelectionStore.getState().focusedTaskId).toBe(task.id);
+      expect(row).toHaveAttribute("data-task-id", task.id);
+      expect(row).toHaveAttribute("data-shortcut-surface");
     },
   );
 
