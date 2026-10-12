@@ -1,6 +1,11 @@
 import { responseTimestamp, z } from "../openapi";
+import {
+  repositoryBindingUsageSchema,
+  repositoryLinkedToSchema,
+} from "../integrations/response";
 
-// Tokens are masked; the webhook secret needs manage_settings.
+// Tokens are masked; the webhook secret needs manage_settings. The secret is
+// per binding now, so each project owner sees only their own binding's secret.
 export const gitlabIntegrationSchema = z
   .object({
     id: z.string(),
@@ -17,11 +22,11 @@ export const gitlabIntegrationSchema = z
         "First and last characters of the stored token, only returned to callers with workspace:manage_settings.",
     }),
     webhookUrl: z.string().optional().openapi({
-      description: "Where GitLab should POST events for this project.",
+      description: "Where GitLab should POST events for this binding.",
     }),
     webhookSecret: z.string().optional().openapi({
       description:
-        "Only returned to callers with workspace:manage_settings, so the value can be pasted into GitLab.",
+        "Only returned to callers with workspace:manage_settings, so the value can be pasted into GitLab. Per binding.",
     }),
     branchPattern: z.string().optional(),
     commentTaskLinkOnGitlabIssue: z.boolean().optional().openapi({
@@ -34,6 +39,14 @@ export const gitlabIntegrationSchema = z
   })
   .openapi("GitlabIntegration");
 
+// RFC 0001 WP4: array shape for the list route plus the WP10 usage summary.
+export const gitlabIntegrationListSchema = z
+  .object({
+    integrations: z.array(gitlabIntegrationSchema),
+    usage: repositoryBindingUsageSchema,
+  })
+  .openapi("GitlabIntegrationList");
+
 export const gitlabProjectSchema = z
   .object({
     id: z.number(),
@@ -42,6 +55,13 @@ export const gitlabProjectSchema = z
     name_with_namespace: z.string(),
     visibility: z.string(),
     web_url: z.string(),
+    linkedTo: repositoryLinkedToSchema
+      .nullable()
+      .optional()
+      .openapi({
+        description:
+          "The binding this GitLab project is already linked to, when any. Same-project links block selection; cross-project links (allowed per RFC decision D1) are informational only.",
+      }),
   })
   .openapi("GitlabProject");
 

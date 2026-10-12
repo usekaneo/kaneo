@@ -51,31 +51,43 @@ import {
 
 const MAX_PAGES = 50;
 
-export async function importGitlabIssues(
-  projectId: string,
-): Promise<ImportResult> {
+// RFC 0001 WP4: import is keyed by integration id; the binding decides the
+// GitLab project, and a projectId in the request is accepted for compat and
+// must match the binding's project.
+export async function importGitlabIssues({
+  integrationId,
+  projectId,
+}: {
+  integrationId: string;
+  projectId?: string;
+}): Promise<ImportResult> {
   const errors: string[] = [];
   let imported = 0;
   let updated = 0;
   let skipped = 0;
 
+  const integration = await db.query.integrationTable.findFirst({
+    where: eq(integrationTable.id, integrationId),
+  });
+
+  if (!integration || integration.type !== "gitlab") {
+    throw new HTTPException(404, { message: "GitLab integration not found" });
+  }
+
+  if (projectId && projectId !== integration.projectId) {
+    throw new HTTPException(400, {
+      message: "Integration does not belong to this project",
+    });
+  }
+
+  const projectIdResolved = integration.projectId;
+
   const project = await db.query.projectTable.findFirst({
-    where: eq(projectTable.id, projectId),
+    where: eq(projectTable.id, projectIdResolved),
   });
 
   if (!project) {
     throw new HTTPException(404, { message: "Project not found" });
-  }
-
-  const integration = await db.query.integrationTable.findFirst({
-    where: and(
-      eq(integrationTable.projectId, projectId),
-      eq(integrationTable.type, "gitlab"),
-    ),
-  });
-
-  if (!integration) {
-    throw new HTTPException(404, { message: "GitLab integration not found" });
   }
 
   if (!integration.isActive) {
@@ -125,7 +137,7 @@ export async function importGitlabIssues(
       const result = await importSingleIssue(
         issue,
         integration.id,
-        projectId,
+        projectIdResolved,
         project.workspaceId,
         config,
         client,
@@ -160,7 +172,7 @@ export async function importGitlabIssues(
       await linkMergeRequestToTask(
         mergeRequest,
         integration.id,
-        projectId,
+        projectIdResolved,
         project.slug,
         config,
       );

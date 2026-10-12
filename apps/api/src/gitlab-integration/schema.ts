@@ -26,7 +26,7 @@ export const createGitlabBody = z.object({
   baseUrl: z.url(),
   accessToken: z.string().optional().openapi({
     description:
-      "Omit to keep the stored token only when the GitLab base URL is unchanged. A changed URL requires a new token.",
+      "Omit to reuse a token already stored for this project and instance. A changed URL requires a new token.",
   }),
   tokenType,
   projectPath: z.string().min(1),
@@ -35,4 +35,18 @@ export const createGitlabBody = z.object({
 export const updateGitlabBody = z.object({
   isActive: z.boolean().optional(),
   commentTaskLinkOnGitlabIssue: z.boolean().optional(),
+});
+
+// RFC 0001 WP4: import is keyed by integration id; a projectId in the body is
+// accepted for compat and must match the binding's project.
+export const importGitlabIssuesBody = z.object({
+  integrationId: z.string().min(1),
+  projectId: z
+    .string()
+    .min(1)
+    .optional()
+    .openapi({
+      description:
+        "Compat only; when present it must match the binding's project.",
+    }),
 });
