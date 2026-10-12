@@ -24,7 +24,10 @@ export function PropertyValue({
     >
       {children}
       {shortcutId && (
-        <span className="ms-auto hidden shrink-0 opacity-0 transition-opacity group-hover/value:opacity-100 sm:inline-flex">
+        <span
+          aria-hidden="true"
+          className="ms-auto hidden shrink-0 opacity-0 transition-opacity group-hover/value:opacity-100 sm:inline-flex"
+        >
           <ShortcutKeys id={shortcutId} />
         </span>
       )}

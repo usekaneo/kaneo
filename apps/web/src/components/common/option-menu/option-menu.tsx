@@ -112,7 +112,10 @@ export function OptionMenu({
                   ) : (
                     !query &&
                     index < 9 && (
-                      <span className="shrink-0 text-muted-foreground text-xs tabular-nums">
+                      <span
+                        aria-hidden="true"
+                        className="shrink-0 text-muted-foreground text-xs tabular-nums"
+                      >
                         {index + 1}
                       </span>
                     )
