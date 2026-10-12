@@ -1,0 +1,50 @@
+import { renderHook } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { useBulkSelectionKeys } from "./use-bulk-selection-keys";
+
+afterEach(() => {
+  document.body.innerHTML = "";
+});
+
+const press = (target: Element, init: KeyboardEventInit) =>
+  target.dispatchEvent(
+    new KeyboardEvent("keydown", { bubbles: true, cancelable: true, ...init }),
+  );
+
+describe("useBulkSelectionKeys", () => {
+  it("clears the selection on Escape outside popups", () => {
+    const clearSelection = vi.fn();
+    renderHook(() =>
+      useBulkSelectionKeys({ selectAll: vi.fn(), clearSelection }),
+    );
+    press(document.body, { key: "Escape" });
+    expect(clearSelection).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves the selection alone when Escape closes a menu or popover", () => {
+    const clearSelection = vi.fn();
+    renderHook(() =>
+      useBulkSelectionKeys({ selectAll: vi.fn(), clearSelection }),
+    );
+    document.body.innerHTML =
+      '<div role="dialog"><input /></div><div role="menu"><button>x</button></div>';
+    press(document.querySelector("input") as Element, { key: "Escape" });
+    press(document.querySelector("button") as Element, { key: "Escape" });
+    expect(clearSelection).not.toHaveBeenCalled();
+  });
+
+  it("selects all with the modifier key unless the person is typing", () => {
+    const selectAll = vi.fn();
+    renderHook(() =>
+      useBulkSelectionKeys({ selectAll, clearSelection: vi.fn() }),
+    );
+    document.body.innerHTML = "<input />";
+    press(document.querySelector("input") as Element, {
+      key: "a",
+      metaKey: true,
+    });
+    expect(selectAll).not.toHaveBeenCalled();
+    press(document.body, { key: "a", ctrlKey: true });
+    expect(selectAll).toHaveBeenCalledTimes(1);
+  });
+});

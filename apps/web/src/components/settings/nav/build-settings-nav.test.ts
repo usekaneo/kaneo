@@ -10,6 +10,7 @@ function build(
     t,
     workspaceName: "Acme",
     billingEnabled: false,
+    canImport: false,
     hasAdminAccess: false,
     projects: [],
     ...overrides,
@@ -34,6 +35,22 @@ describe("buildSettingsNav", () => {
     );
   });
 
+  it("only offers import to people who can import", () => {
+    const links = (nav: ReturnType<typeof build>) =>
+      nav.workspace.links.map((link) => link.to);
+
+    expect(links(build())).not.toContain(
+      "/dashboard/settings/workspace/import",
+    );
+    expect(links(build({ canImport: true, billingEnabled: true }))).toEqual([
+      "/dashboard/settings/workspace/general",
+      "/dashboard/settings/workspace/roles",
+      "/dashboard/settings/workspace/labels",
+      "/dashboard/settings/workspace/import",
+      "/dashboard/settings/workspace/billing",
+    ]);
+  });
+
   it("only shows administration to instance admins", () => {
     expect(build().admin).toBeNull();
     expect(
@@ -53,10 +70,14 @@ describe("buildSettingsNav", () => {
     expect(nav.projects[0]?.links.map((link) => link.to)).toEqual([
       "/dashboard/settings/projects/p1/general",
       "/dashboard/settings/projects/p1/workflow",
+      "/dashboard/settings/projects/p1/custom-fields",
       "/dashboard/settings/projects/p1/visibility",
       "/dashboard/settings/projects/p1/integrations",
       "/dashboard/settings/projects/p1/calendar",
     ]);
+    expect(nav.projects[0]?.links[2]?.label).toBe(
+      "settings:projectCustomFields.title",
+    );
     expect(nav.projects[0]?.icon).toBeDefined();
   });
 });

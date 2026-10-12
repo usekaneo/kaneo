@@ -12,10 +12,9 @@ export function useUpsertWorkflowRule() {
       projectId: string;
       data: { integrationType: string; eventType: string; columnId: string };
     }) => upsertWorkflowRule(projectId, data),
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables) =>
       queryClient.invalidateQueries({
         queryKey: ["workflow-rules", variables.projectId],
-      });
-    },
+      }),
   });
 }

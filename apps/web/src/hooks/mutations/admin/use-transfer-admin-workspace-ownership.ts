@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CrownIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { transferAdminWorkspaceOwnership } from "@/fetchers/admin/transfer-admin-workspace-ownership";
 import { toast } from "@/lib/toast";
@@ -11,7 +12,9 @@ function useTransferAdminWorkspaceOwnership() {
   return useMutation({
     mutationFn: transferAdminWorkspaceOwnership,
     onSuccess: (members, { workspaceId }) => {
-      toast.success(t("settings:adminWorkspaces.toast.ownershipTransferred"));
+      toast.success(t("settings:adminWorkspaces.toast.ownershipTransferred"), {
+        icon: CrownIcon,
+      });
       syncAdminWorkspaceMembers(queryClient, workspaceId, members);
     },
     onError: (error) => {

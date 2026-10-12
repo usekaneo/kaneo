@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { Trans, useTranslation } from "react-i18next";
+import { authLinkClassName } from "@/components/auth/auth-link-class";
+import { AuthPage } from "@/components/auth/auth-page";
 import PageTitle from "@/components/page-title";
-import { Button } from "@/components/ui/button";
-import { AuthLayout } from "../../components/auth/layout";
 
 export const Route = createFileRoute("/auth/check-email")({
   component: CheckEmail,
@@ -18,33 +18,22 @@ function CheckEmail() {
   return (
     <>
       <PageTitle title={t("auth:checkEmail.pageTitle")} />
-      <AuthLayout title={t("auth:checkEmail.title")}>
-        <div className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              <Trans
-                i18nKey="auth:checkEmail.inboxMessage"
-                values={{
-                  email: email || t("auth:checkEmail.emailFallback"),
-                }}
-                components={{
-                  email: <span className="text-foreground font-medium" />,
-                }}
-              />
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <Button
-              variant="ghost"
-              render={<Link to="/auth/sign-in" />}
-              className="w-full h-8 text-xs text-muted-foreground hover:text-foreground"
-            >
-              {t("auth:checkEmail.backToLogin")}
-            </Button>
-          </div>
-        </div>
-      </AuthLayout>
+      <AuthPage
+        title={t("auth:checkEmail.title")}
+        description={
+          <Trans
+            i18nKey="auth:checkEmail.inboxMessage"
+            values={{ email: email || t("auth:checkEmail.emailFallback") }}
+            components={{ email: <span className="text-foreground" /> }}
+          />
+        }
+      >
+        <p className="text-muted-foreground text-sm">
+          <Link to="/auth/sign-in" className={authLinkClassName}>
+            {t("auth:checkEmail.backToLogin")}
+          </Link>
+        </p>
+      </AuthPage>
     </>
   );
 }

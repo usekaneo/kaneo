@@ -44,7 +44,6 @@ export default function TaskDueDatePopover({
         ...task,
         dueDate: date?.toISOString() || null,
       });
-      toast.success(t("tasks:popover.dueDate.updateSuccess"));
       // Keep a repeating task's picker open to show its upcoming dates.
       if (!recurrence) setOpen(false);
     } catch (error) {

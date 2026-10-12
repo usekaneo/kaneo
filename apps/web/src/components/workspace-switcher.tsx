@@ -18,6 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Spinner } from "@/components/ui/spinner";
 import { UserAvatar } from "@/components/user-avatar";
 import { shortcuts } from "@/constants/shortcuts";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
@@ -137,10 +138,14 @@ export function WorkspaceSwitcher() {
                     {workspace.name}
                   </span>
                 </div>
-                <ChevronDown
-                  className={`ml-1 size-3.5 text-foreground/70 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-[rotate,opacity] duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
-                  data-state={isOpen ? "open" : "closed"}
-                />
+                {isSwitching ? (
+                  <Spinner className="ml-1 size-3.5 text-foreground/70" />
+                ) : (
+                  <ChevronDown
+                    className="ml-1 size-3.5 text-foreground/70 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-[rotate,opacity] duration-200 ease-out"
+                    data-state={isOpen ? "open" : "closed"}
+                  />
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="min-w-(--anchor-width) text-sidebar-foreground"

@@ -34,7 +34,6 @@ export default function TaskStartDatePopover({
         ...task,
         startDate: date?.toISOString() || null,
       });
-      toast.success(t("tasks:popover.startDate.updateSuccess"));
       setOpen(false);
     } catch (error) {
       toast.error(

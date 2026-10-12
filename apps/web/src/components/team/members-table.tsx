@@ -6,6 +6,9 @@ import {
   PencilIcon,
   ShieldIcon,
   TrashIcon,
+  MailXIcon,
+  UserMinusIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -167,7 +170,9 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
     if (role === member.role) return;
     try {
       await updateMemberRole({ workspaceId, memberId: member.id, role });
-      toast.success(t("team:membersTable.roleUpdateSuccess"));
+      toast.success(t("team:membersTable.roleUpdateSuccess"), {
+        icon: ShieldCheckIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -184,7 +189,9 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
         workspaceId,
         userId: memberToDelete.user.email,
       });
-      toast.success(t("team:membersTable.removeSuccess"));
+      toast.success(t("team:membersTable.removeSuccess"), {
+        icon: UserMinusIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -203,7 +210,9 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
         invitationId: invitationToCancel.id,
         workspaceId,
       });
-      toast.success(t("team:membersTable.cancelInviteSuccess"));
+      toast.success(t("team:membersTable.cancelInviteSuccess"), {
+        icon: MailXIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error

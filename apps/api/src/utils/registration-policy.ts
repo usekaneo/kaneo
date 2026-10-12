@@ -1,6 +1,11 @@
 import { APIError } from "better-auth/api";
-import { checkRegistrationAllowed } from "./check-registration-allowed";
+import {
+  checkRegistrationAllowed,
+  userExistsByEmail,
+} from "./check-registration-allowed";
 import { hasRegisteredUsers } from "./instance-bootstrap";
+import { isCloud } from "./is-cloud";
+import { isDisposableEmail } from "./is-disposable-email";
 
 export function normalizeInvitationId(value: unknown): string | undefined {
   if (typeof value !== "string") return undefined;
@@ -13,6 +18,23 @@ export function isOAuthCallbackPath(path: unknown): boolean {
     typeof path === "string" &&
     (path.startsWith("/callback/") || path.startsWith("/oauth2/callback/"))
   );
+}
+
+function disposableEmailError() {
+  return new APIError("BAD_REQUEST", {
+    code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
+    message:
+      "Use a permanent email address. Disposable addresses cannot create accounts.",
+  });
+}
+
+export async function assertEmailCodeRecipientAllowed(
+  email: unknown,
+): Promise<void> {
+  if (!isCloud() || typeof email !== "string" || !isDisposableEmail(email))
+    return;
+  if (!(await hasRegisteredUsers()) || (await userExistsByEmail(email))) return;
+  throw disposableEmailError();
 }
 
 export async function assertGuestRegistrationAllowed(): Promise<void> {
@@ -43,6 +65,7 @@ export async function assertUserRegistrationAllowed(
     return;
   }
   if (!(await hasRegisteredUsers())) return;
+  if (isCloud() && isDisposableEmail(user.email)) throw disposableEmailError();
   if (
     process.env.DISABLE_PASSWORD_REGISTRATION === "true" &&
     !isOAuthCallbackPath(context?.path)

@@ -18,8 +18,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LayoutGrid, Plus } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Import, LayoutGrid, Plus } from "lucide-react";
 import {
   type CSSProperties,
   type ReactNode,
@@ -56,9 +56,11 @@ import icons from "@/constants/project-icons";
 import { shortcuts } from "@/constants/shortcuts";
 import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
+import { useCanImport } from "@/hooks/use-can-import";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { formatDateMedium } from "@/lib/format";
+import { EASE_OUT_CSS } from "@/lib/motion";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -93,7 +95,7 @@ function SortableProjectRow({
     // replays the same move from a stale offset.
     animateLayoutChanges: () => false,
     // dnd-kit defaults to `ease`; this is the app's curve.
-    transition: { duration: 200, easing: "var(--ease-out)" },
+    transition: { duration: 200, easing: EASE_OUT_CSS },
   });
 
   const style: CSSProperties = {
@@ -159,6 +161,7 @@ function RouteComponent() {
 
   const { canCreateProjects, canUpdateProjects } = useWorkspacePermission();
   const canCreate = canCreateProjects();
+  const { canImport } = useCanImport();
   // Matches the API, which gates /project/reorder on `project: ["update"]`
   // alone — not the create+update+delete bundle.
   const canReorder = canUpdateProjects();
@@ -323,11 +326,20 @@ function RouteComponent() {
                   : t("workspace:projects.emptyDescriptionReadOnly")}
               </EmptyDescription>
             </EmptyHeader>
-            <EmptyContent>
+            <EmptyContent className="flex-row flex-wrap justify-center">
               {canCreate && (
                 <Button onClick={handleCreateProject}>
                   <Plus />
                   {t("workspace:projects.createProject")}
+                </Button>
+              )}
+              {canImport && (
+                <Button
+                  variant="outline"
+                  render={<Link to="/dashboard/settings/workspace/import" />}
+                >
+                  <Import />
+                  {t("settings:workspaceImport.entry.projectsEmpty")}
                 </Button>
               )}
             </EmptyContent>

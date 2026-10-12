@@ -17,6 +17,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
 import { Archive, Clock, Flag } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
@@ -39,6 +40,7 @@ function BacklogListView({
   disableDragDrop = false,
 }: BacklogListViewProps) {
   const { t } = useTranslation();
+  const reduceMotion = useReducedMotion();
   const { mutate: updateTask } = useUpdateTask();
   const setProject = useProjectStore((state) => state.setProject);
   const setAvailableTasks = useBacklogBulkSelectionStore(
@@ -337,7 +339,7 @@ function BacklogListView({
         </div>
       </div>
 
-      <DragOverlay>
+      <DragOverlay dropAnimation={reduceMotion ? null : undefined}>
         {activeTask && (
           <div className="bg-card border border-border rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
             <div className="flex items-center gap-2">

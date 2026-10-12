@@ -113,7 +113,7 @@ export function LabelRuleEditor({
             </SelectContent>
           </Select>
           {outgoing ? (
-            <div className="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-border p-3">
+            <div className="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-border bg-card p-3">
               {labels.length === 0 && (
                 <p className="text-xs text-muted-foreground">
                   {t("settings:syncRules.noLabels")}
@@ -121,7 +121,8 @@ export function LabelRuleEditor({
               )}
               {rule.labels.some((id) => !availableLabelIds.has(id)) && (
                 <Button
-                  size="xs"
+                  type="button"
+                  size="sm"
                   variant="outline"
                   onClick={() =>
                     onChange({
@@ -179,6 +180,7 @@ export function LabelRuleEditor({
                   }}
                 />
                 <Button
+                  type="button"
                   size="icon"
                   variant="outline"
                   onClick={addLabel}
@@ -192,6 +194,7 @@ export function LabelRuleEditor({
                 {rule.labels.map((name) => (
                   <Button
                     key={name}
+                    type="button"
                     size="xs"
                     variant="secondary"
                     onClick={() =>

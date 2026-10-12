@@ -3,6 +3,8 @@ import {
   type SlashCommand,
   type SlashRange,
 } from "@/components/editor/slash-commands";
+import { BubbleLinkEditor } from "@/components/editor/bubble-link-editor";
+import { selectionStartAnchor } from "@/components/editor/selection-start-anchor";
 import { TableToolbar } from "@/components/editor/table-toolbar";
 import { createEditorExtensions } from "@/components/editor/extensions";
 import { insertUploadedAsset as insertEditorAsset } from "@/components/editor/insert-uploaded-asset";
@@ -24,6 +26,7 @@ import {
   ListTodo,
   Paperclip,
   UnderlineIcon,
+  ImageUpIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -348,6 +351,7 @@ export default function CommentEditor({
           uploadedAsset.kind === "image"
             ? t("activity:comment.editor.imageUploaded")
             : t("activity:comment.editor.fileAttached"),
+          { icon: ImageUpIcon },
         );
       } catch (error) {
         toast.dismiss(loadingToast);
@@ -955,20 +959,22 @@ export default function CommentEditor({
     });
   }, [editor, value]);
 
+  const [isEditingLink, setIsEditingLink] = useState(false);
+
   const setLink = useCallback(() => {
     if (readOnly || disabled || !editor) return;
-    const previousUrl = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt(
-      t("activity:comment.editor.enterUrl"),
-      previousUrl || "",
-    );
-    if (url === null) return;
-    if (!url.trim()) {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [disabled, editor, readOnly, t]);
+    setIsEditingLink(true);
+  }, [disabled, editor, readOnly]);
+
+  const bubbleAnchor = useCallback(
+    () => (editor ? selectionStartAnchor(editor) : null),
+    [editor],
+  );
+
+  const bubbleOptions = useMemo(
+    () => ({ onHide: () => setIsEditingLink(false) }),
+    [],
+  );
 
   const resolveCodeBlockNodeData = useCallback(
     (pos: number) => {
@@ -1429,6 +1435,8 @@ export default function CommentEditor({
         <BubbleMenu
           editor={editor}
           className="kaneo-comment-editor-bubble"
+          getReferencedVirtualElement={bubbleAnchor}
+          options={bubbleOptions}
           shouldShow={({ editor: activeEditor, from, to }) => {
             if (activeEditor.isActive("embedBlock")) return false;
             if (activeEditor.isActive("image")) return false;
@@ -1436,102 +1444,114 @@ export default function CommentEditor({
             return from !== to;
           }}
         >
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("bold") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBold().run()}
-          >
-            <Bold className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("italic") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-          >
-            <Italic className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("underline") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-          >
-            <UnderlineIcon className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("bulletList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-          >
-            <List className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("taskList") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleTaskList().run()}
-          >
-            <ListTodo className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("orderedList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          >
-            <ListOrdered className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("link") && "bg-accent text-accent-foreground",
-            )}
-            onClick={setLink}
-          >
-            <Link2 className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className="kaneo-comment-editor-bubble-btn"
-            onClick={() => openImagePicker(editor)}
-          >
-            <Paperclip className="size-3.5" />
-          </Button>
+          {isEditingLink ? (
+            <BubbleLinkEditor
+              editor={editor}
+              buttonClassName="kaneo-comment-editor-bubble-btn"
+              onClose={() => setIsEditingLink(false)}
+            />
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("bold") && "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleBold().run()}
+              >
+                <Bold className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("italic") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+              >
+                <Italic className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("underline") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+              >
+                <UnderlineIcon className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("bulletList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              >
+                <List className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("taskList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleTaskList().run()}
+              >
+                <ListTodo className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("orderedList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                <ListOrdered className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("link") && "bg-accent text-accent-foreground",
+                )}
+                onClick={setLink}
+              >
+                <Link2 className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className="kaneo-comment-editor-bubble-btn"
+                onClick={() => openImagePicker(editor)}
+              >
+                <Paperclip className="size-3.5" />
+              </Button>
+            </>
+          )}
         </BubbleMenu>
       )}
       {editor && !readOnly && !disabled && showBubbleMenu && (

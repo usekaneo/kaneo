@@ -5,6 +5,8 @@ import {
   CalendarDays,
   CalendarX,
   Plus,
+  GitBranchIcon,
+  LinkIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,6 +37,8 @@ import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { getTaskPath } from "@/lib/task-link";
 import { toast } from "@/lib/toast";
+import { TaskCustomFieldChips } from "./custom-fields/task-custom-field-chips";
+import { TaskCustomFieldRows } from "./custom-fields/task-custom-field-rows";
 import TaskActions from "./task-actions";
 import TaskAssigneePopover from "./task-assignee-popover";
 import TaskDueDatePopover from "./task-due-date-popover";
@@ -140,7 +144,7 @@ export default function TaskPropertiesSidebar({
         }),
       ),
     );
-    toast.message(t("tasks:properties.taskLinkCopied"));
+    toast.message(t("tasks:properties.taskLinkCopied"), { icon: LinkIcon });
   };
 
   const handleCopyTaskBranch = () => {
@@ -151,7 +155,9 @@ export default function TaskPropertiesSidebar({
       task?.title,
     );
     navigator.clipboard.writeText(branchName);
-    toast.message(t("tasks:properties.taskBranchCopied"));
+    toast.message(t("tasks:properties.taskBranchCopied"), {
+      icon: GitBranchIcon,
+    });
   };
 
   useTaskCopyShortcuts({
@@ -177,13 +183,13 @@ export default function TaskPropertiesSidebar({
               />
             </div>
 
-            <div className="flex flex-row flex-wrap gap-1 items-center p-2 w-full">
+            <div className="flex flex-row flex-wrap gap-1.5 items-center p-2 w-full">
               {task && (
                 <TaskStatusPopover task={task}>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1.5"
+                    className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                   >
                     {getColumnIcon(
                       task.status ?? "",
@@ -201,7 +207,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1.5"
+                    className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                   >
                     {getPriorityIcon(task.priority ?? "")}
                     <span className="text-xs font-semibold truncate">
@@ -215,7 +221,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1.5"
+                    className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                   >
                     {task.userId ? (
                       <Avatar className="h-[16px] w-[16px]">
@@ -250,7 +256,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1.5"
+                    className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                   >
                     <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
                     <span
@@ -268,7 +274,7 @@ export default function TaskPropertiesSidebar({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="justify-start h-7 px-1.5 gap-1.5"
+                    className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                   >
                     {task.dueDate ? (
                       <>
@@ -308,6 +314,9 @@ export default function TaskPropertiesSidebar({
                   </Button>
                 </TaskDueDatePopover>
               )}
+              {taskId && (
+                <TaskCustomFieldChips taskId={taskId} projectId={projectId} />
+              )}
             </div>
           </div>
         )}
@@ -327,13 +336,13 @@ export default function TaskPropertiesSidebar({
                 />
               </div>
 
-              <div className="flex flex-row flex-wrap gap-1 items-center p-2 w-full">
+              <div className="flex flex-row flex-wrap gap-1.5 items-center p-2 w-full">
                 {task && (
                   <TaskStatusPopover task={task}>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="justify-start h-7 px-1.5 gap-1.5"
+                      className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                     >
                       {getColumnIcon(
                         task.status ?? "",
@@ -351,7 +360,7 @@ export default function TaskPropertiesSidebar({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="justify-start h-7 px-1.5 gap-1.5"
+                      className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                     >
                       {getPriorityIcon(task.priority ?? "")}
                       <span className="text-xs font-semibold truncate">
@@ -365,7 +374,7 @@ export default function TaskPropertiesSidebar({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="justify-start h-7 px-1.5 gap-1.5"
+                      className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                     >
                       {task.userId ? (
                         <Avatar className="h-[16px] w-[16px]">
@@ -400,7 +409,7 @@ export default function TaskPropertiesSidebar({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="justify-start h-7 px-1.5 gap-1.5"
+                      className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                     >
                       <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
                       <span
@@ -418,7 +427,7 @@ export default function TaskPropertiesSidebar({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="justify-start h-7 px-1.5 gap-1.5"
+                      className="justify-start h-7 px-2.5 gap-1.5 rounded-md border-border hover:bg-accent/50"
                     >
                       {task.dueDate ? (
                         <>
@@ -458,6 +467,9 @@ export default function TaskPropertiesSidebar({
                     </Button>
                   </TaskDueDatePopover>
                 )}
+                {taskId && (
+                  <TaskCustomFieldChips taskId={taskId} projectId={projectId} />
+                )}
               </div>
             </div>
 
@@ -477,7 +489,7 @@ export default function TaskPropertiesSidebar({
                 />
               </div>
 
-              <div className="flex flex-col gap-2 px-3 py-3">
+              <div className="flex flex-col gap-1 px-3 py-3">
                 {task && (
                   <TaskStatusPopover task={task}>
                     <Button
@@ -661,6 +673,11 @@ export default function TaskPropertiesSidebar({
               )}
             </div>
           </div>
+          {!compact && taskId && (
+            <div className="hidden lg:block">
+              <TaskCustomFieldRows taskId={taskId} projectId={projectId} />
+            </div>
+          )}
         </div>
       </div>
     </div>

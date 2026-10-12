@@ -334,6 +334,7 @@ function CommandPalette() {
         projectId={projectIdFromRoute}
         status={isBacklogView ? "planned" : undefined}
         onClose={() => setIsCreateTaskOpen(false)}
+        instant
       />
       <CreateWorkspaceModal
         open={isCreateWorkspaceOpen}

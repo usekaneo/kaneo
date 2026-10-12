@@ -53,6 +53,7 @@ let projectColumns:
 let storedProject: { id: string; columns: unknown[] } | null = null;
 let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
+let customFieldDefs: unknown[] | undefined;
 vi.mock("@/lib/upload-draft-asset", () => ({
   uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
 }));
@@ -64,6 +65,7 @@ beforeEach(() => {
     { id: "project-2", name: "Beta", slug: "bet" },
   ];
   storedProject = null;
+  customFieldDefs = undefined;
   columnsError = false;
   columnsFetching = false;
   refetchColumns.mockImplementation(async () => ({
@@ -168,6 +170,13 @@ vi.mock("@/hooks/queries/column/use-get-columns", () => ({
     refetch: refetchColumns,
   }),
 }));
+
+vi.mock(
+  "@/hooks/queries/custom-field/use-get-custom-fields-by-project",
+  () => ({
+    default: () => ({ data: customFieldDefs }),
+  }),
+);
 
 vi.mock("@/hooks/queries/project/use-get-projects", () => ({
   default: () => ({ data: projects }),
@@ -696,5 +705,69 @@ describe("CreateTaskModal context isolation", () => {
     expect(createTask).not.toHaveBeenCalled();
     expect(deleteTask).not.toHaveBeenCalled();
     expect(setProject).not.toHaveBeenCalled();
+  });
+});
+
+const customField = (
+  id: string,
+  type: string,
+  required: boolean,
+  defaultValue: string | null = null,
+) => ({
+  id,
+  projectId: "project-2",
+  name: id,
+  type,
+  required,
+  defaultValue,
+  options: null,
+  position: 0,
+  createdAt: "",
+  updatedAt: "",
+});
+
+describe("CreateTaskModal custom fields", () => {
+  it("flags empty required fields instead of creating, then sends the filled values", async () => {
+    customFieldDefs = [
+      customField("customer", "text", true),
+      customField("billable", "boolean", true, "false"),
+      customField("points", "number", false),
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} projectId="project-2" />, {
+      wrapper: createWrapper(),
+    });
+    enterTitle();
+    submit();
+
+    expect(
+      await screen.findByText("tasks:customFields.missingRequired"),
+    ).toBeInTheDocument();
+    expect(createTask).not.toHaveBeenCalled();
+    const customerChip = document.querySelector(
+      '[data-custom-field="customer"]',
+    ) as HTMLElement;
+    expect(document.activeElement).toBe(customerChip);
+
+    fireEvent.click(customerChip);
+    const input = await screen.findByLabelText("customer");
+    fireEvent.change(input, { target: { value: "Acme Corp" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await vi.waitFor(() =>
+      expect(
+        screen.queryByText("tasks:customFields.missingRequired"),
+      ).not.toBeInTheDocument(),
+    );
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customFields: [
+            { fieldId: "customer", value: "Acme Corp" },
+            { fieldId: "billable", value: "false" },
+          ],
+        }),
+      ),
+    );
   });
 });

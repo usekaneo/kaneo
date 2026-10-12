@@ -2,7 +2,7 @@ import createProject from "@/fetchers/project/create-project";
 import importTasks, { type TaskToImport } from "@/fetchers/task/import-tasks";
 import generateProjectSlug from "@/lib/generate-project-id";
 
-const FALLBACK_SLUG = "PRJ";
+export const FALLBACK_PROJECT_SLUG = "PRJ";
 
 export async function createStarterProject({
   workspaceId,
@@ -15,7 +15,7 @@ export async function createStarterProject({
 }) {
   const project = await createProject({
     name,
-    slug: generateProjectSlug(name) || FALLBACK_SLUG,
+    slug: generateProjectSlug(name) || FALLBACK_PROJECT_SLUG,
     workspaceId,
     icon: "Layout",
   });

@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { EASE_OUT } from "@/lib/motion";
 import TaskCardContextMenuContent from "@/components/kanban-board/task-card-context-menu/task-card-context-menu-content";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -50,17 +51,11 @@ export default function SubtaskRow({
 
   return (
     <motion.div
-      layout
-      initial={
-        reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, scale: 0.98 }
-      }
-      animate={
-        reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto", scale: 1 }
-      }
-      exit={
-        reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, scale: 0.98 }
-      }
-      transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
+      layout={!reduceMotion}
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+      transition={{ duration: 0.2, ease: EASE_OUT }}
     >
       <ContextMenu>
         <ContextMenuTrigger asChild>
