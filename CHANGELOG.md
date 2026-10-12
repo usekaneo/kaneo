@@ -1,5 +1,13 @@
 ### Features
 
+- **web:** redesign task details: [d9cb555](https://github.com/usekaneo/kaneo/commit/d9cb5558893c32c2202505afc5ca37f1c35ccd08)
+
+### Bug Fixes
+
+- **web:** keep key hints out of accessible names: [23b07b4](https://github.com/usekaneo/kaneo/commit/23b07b4931548a3bcfe29f81b7f5e333733d000a)
+
+### Features
+
 - **web:** add keyboard shortcuts across the app: [16648d4](https://github.com/usekaneo/kaneo/commit/16648d43c18ccdca5730f9323de421c0a6fac4f9)
 - **api:** add notification unread and delete: [425a8af](https://github.com/usekaneo/kaneo/commit/425a8af085fe193204a0539878d6ff892b8c3d87)
 
