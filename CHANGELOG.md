@@ -1,5 +1,10 @@
 ### Features
 
+- **web:** redesign the bulk selection bar: [51af01d](https://github.com/usekaneo/kaneo/commit/51af01d77f07186b63bae8a290c4681e3e88c63d)
+- **web:** edit links inline and make them legible: [9431c14](https://github.com/usekaneo/kaneo/commit/9431c14469bbc071642f83904e8f9a89d3bbaf5e)
+
+### Features
+
 - **web:** rework project views and custom fields: [93f328d](https://github.com/usekaneo/kaneo/commit/93f328d7382e6a54cfe615d7b94cf76a033b414f)
 
 ### Bug Fixes
