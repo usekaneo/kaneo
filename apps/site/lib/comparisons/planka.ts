@@ -44,7 +44,7 @@ export const planka: Comparison = {
     },
   ],
   migration: {
-    body: "PLANKA has no export feature, so we wrote an importer that reads your boards straight from its API and recreates them in Kaneo: lists, cards, labels, assignees, checklists, and comments. Start with a dry run, which writes nothing.",
+    body: "PLANKA has no export feature, so we wrote an importer that reads your boards straight from its API and recreates them in Kaneo: lists, cards, labels, assignees, checklists, and comments. Run it from the Kaneo app, or use the command line importer when PLANKA sits on a private network.",
     href: "https://kaneo.app/docs/core/migrations/from-planka",
     linkText: "Read the migration guide",
   },
@@ -59,7 +59,7 @@ export const planka: Comparison = {
     {
       question: "How do I migrate from PLANKA to Kaneo?",
       answer:
-        "Use the @kaneo/planka-import package. It reads boards from the PLANKA API with an API key and recreates them in Kaneo, including lists, cards, labels, assignees, checklists, and comments. Run it in dry-run mode first, which writes nothing.",
+        "In Settings, open Workspace, then Import, choose PLANKA, and connect with your PLANKA URL and an API key. Kaneo recreates lists, cards, labels, assignees, checklists, and comments. If Kaneo cannot reach your PLANKA server, use the @kaneo/planka-import command line tool, which runs on your own machine and has a dry-run mode.",
     },
     {
       question: "Is Kaneo's licence really MIT?",
