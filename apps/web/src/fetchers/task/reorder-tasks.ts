@@ -8,6 +8,6 @@ export type TaskReorder = {
 };
 export default async function reorderTasks(json: TaskReorder) {
   const response = await client.task.reorder.$post({ json });
-  if (!response.ok) throw new HttpError(response.status, await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }

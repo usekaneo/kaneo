@@ -8,7 +8,10 @@ export const calendarFeedDeleteParam = calendarFeedProjectParam.extend({
   id: z.string(),
 });
 export const createCalendarFeedBody = z.object({
-  labelIds: z.array(z.string().min(1)).min(1).max(100),
+  labelIds: z.array(z.string().min(1)).max(100).default([]).openapi({
+    description:
+      "Match any selected label. Omit or leave empty to include all scheduled project tasks.",
+  }),
   timeZone: z
     .string()
     .refine((value) => {

@@ -752,11 +752,11 @@ describe("bounded resumable GitHub import", () => {
     const calls = mocks.graphql.mock.calls.length;
     const other = await createWorkspaceMember({ role: "admin" });
     mockAuthenticatedSession(other.user);
-    expect((await request(first.runId)).status).toBe(403);
+    expect((await request(first.runId)).status).toBe(404);
     expect(
       (await app.request(`/api/github-integration/project/${project.id}`))
         .status,
-    ).toBe(403);
+    ).toBe(404);
     expect(mocks.graphql).toHaveBeenCalledTimes(calls);
   });
 

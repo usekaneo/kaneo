@@ -1,6 +1,6 @@
 import { isSmtpConfigured, sendTrialReminderEmail } from "@kaneo/email";
 import { and, asc, eq, gt, isNotNull, isNull, lte } from "drizzle-orm";
-import { isBillingEnabled } from "../billing/config";
+import { isBillingEnabled, trialDays } from "../billing/config";
 import db from "../database";
 import {
   billingReminderSentTable,
@@ -190,6 +190,8 @@ export async function checkTrialReminders(): Promise<{ degraded: boolean }> {
           workspaceName: row.workspaceName,
           daysLeft,
           billingUrl: `${clientUrl()}/dashboard/settings/workspace/billing`,
+          trialDays: trialDays(),
+          endsAt: row.trialEndsAt,
         },
       );
       sent++;

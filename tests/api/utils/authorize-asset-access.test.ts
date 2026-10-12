@@ -34,11 +34,16 @@ vi.mock("../../../apps/api/src/utils/authenticate-api-request", () => ({
 }));
 
 vi.mock("../../../apps/api/src/utils/validate-workspace-access", () => ({
-  validateWorkspaceAccess: async (userId: string, workspaceId: string) => {
+  validateWorkspaceAccess: async (
+    userId: string,
+    workspaceId: string,
+    _apiKeyId?: string,
+    options: { notFoundMessage?: string } = {},
+  ) => {
     state.validateCalls.push({ userId, workspaceId });
     if (userId !== "user-member") {
-      throw new HTTPException(403, {
-        message: "You don't have access to this workspace",
+      throw new HTTPException(404, {
+        message: options.notFoundMessage ?? "Workspace not found",
       });
     }
   },
@@ -95,19 +100,19 @@ describe("authorizeAssetAccess", () => {
     expect(status).toBe(401);
   });
 
-  it("rejects an authenticated non-member for a private asset", async () => {
+  it("hides a private asset from an authenticated non-member", async () => {
     state.caller = "outsider";
 
-    const status = await statusOf(
-      authorizeAssetAccess(context, {
-        workspaceId: "workspace-1",
-        projectId: "project-1",
-        surface: "description",
-        isPublic: null,
-      }),
-    );
+    const error = await authorizeAssetAccess(context, {
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      surface: "description",
+      isPublic: null,
+    }).catch((caught: unknown) => caught);
 
-    expect(status).toBe(403);
+    expect(error).toBeInstanceOf(HTTPException);
+    expect((error as HTTPException).status).toBe(404);
+    expect((error as HTTPException).message).toBe("Asset not found");
   });
 
   it("allows a workspace member to read a private asset", async () => {
@@ -139,7 +144,7 @@ describe("authorizeAssetAccess", () => {
       expect(isPublicAsset(asset)).toBe(false);
       expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(401);
       state.caller = "outsider";
-      expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(403);
+      expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(404);
       state.caller = "member";
       expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(200);
     },
@@ -157,7 +162,9 @@ describe("authorizeAssetAccess", () => {
       };
       expect(isPublicAsset(asset)).toBe(false);
       expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(403);
-      expect(state.validateCalls).toHaveLength(0);
+      state.caller = "outsider";
+      expect(await statusOf(authorizeAssetAccess(context, asset))).toBe(404);
+      state.caller = "member";
       expect(
         await statusOf(
           authorizeAssetAccess(context, { ...asset, createdBy: "user-member" }),

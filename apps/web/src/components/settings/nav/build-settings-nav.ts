@@ -3,6 +3,7 @@ import {
   Building2,
   Code,
   CreditCard,
+  Import,
   KeyRound,
   Server,
   Settings,
@@ -23,6 +24,7 @@ type BuildSettingsNavInput = {
   t: Translate;
   workspaceName?: string;
   billingEnabled: boolean;
+  canImport: boolean;
   hasAdminAccess: boolean;
   projects: { id: string; name: string; icon?: string | null }[];
 };
@@ -30,6 +32,7 @@ type BuildSettingsNavInput = {
 const PROJECT_SECTIONS = [
   { id: "general", labelKey: "settings:projectGeneral.title" },
   { id: "workflow", labelKey: "settings:projectWorkflow.title" },
+  { id: "custom-fields", labelKey: "settings:projectCustomFields.title" },
   { id: "visibility", labelKey: "settings:projectVisibility.title" },
   { id: "integrations", labelKey: "settings:projectIntegrations.title" },
   { id: "calendar", labelKey: "settings:calendarFeeds.title" },
@@ -59,6 +62,7 @@ export function buildSettingsNav({
   t,
   workspaceName,
   billingEnabled,
+  canImport,
   hasAdminAccess,
   projects,
 }: BuildSettingsNavInput): SettingsNav {
@@ -121,6 +125,16 @@ export function buildSettingsNav({
           to: "/dashboard/settings/workspace/labels",
           icon: Tag,
         },
+        ...(canImport
+          ? [
+              {
+                id: "workspace-import",
+                label: t("settings:workspaceImport.title"),
+                to: "/dashboard/settings/workspace/import",
+                icon: Import,
+              },
+            ]
+          : []),
         ...(billingEnabled
           ? [
               {

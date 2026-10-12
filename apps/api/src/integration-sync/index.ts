@@ -36,8 +36,10 @@ const manage = [
 ];
 const errors = {
   400: errorResponse("Invalid rule or workspace label"),
-  403: errorResponse("No workspace access or required permission"),
-  404: errorResponse("Integration or linked task not found"),
+  403: errorResponse(
+    "No access to the project, or missing required permission",
+  ),
+  404: errorResponse("Project, integration, or linked task not found"),
   409: errorResponse(
     "Configuration, impact or comparison changed; review again",
   ),

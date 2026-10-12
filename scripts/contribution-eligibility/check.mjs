@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { GitHub } from "./github.mjs";
 import { checkPublisher } from "./check-runs.mjs";
+import { draftComment } from "./draft-comment.mjs";
 import { assessIssues, authorExemption, validatePolicy } from "./policy.mjs";
 
 async function checkPullRequest(github, pull, policy, policyError) {
@@ -36,6 +37,10 @@ async function checkPullRequest(github, pull, policy, policyError) {
   }
   if (result.state === "failure" && !current.draft) {
     await github.convertToDraft(current.node_id);
+    await github.request(
+      `repos/${github.repository}/issues/${current.number}/comments`,
+      { method: "POST", body: { body: draftComment } },
+    );
   }
   return result;
 }

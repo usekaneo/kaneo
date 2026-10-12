@@ -85,6 +85,10 @@ export function privateDestinationsAllowed(): boolean {
   );
 }
 
+export function nonRoutableDestinationMessage(label: string): string {
+  return `${label} destination resolves to a non-routable address`;
+}
+
 export async function assertPublicDestination(
   destinationUrl: string,
   label: string,
@@ -100,7 +104,7 @@ export async function assertPublicDestination(
   }
 
   if (isDisallowedAddress(url.hostname)) {
-    throw new Error(`${label} destination resolves to a non-routable address`);
+    throw new Error(nonRoutableDestinationMessage(label));
   }
 
   const addresses = await lookup(url.hostname, { all: true, verbatim: true });
@@ -109,6 +113,6 @@ export async function assertPublicDestination(
   }
 
   if (addresses.some((entry) => isDisallowedAddress(entry.address))) {
-    throw new Error(`${label} destination resolves to a non-routable address`);
+    throw new Error(nonRoutableDestinationMessage(label));
   }
 }

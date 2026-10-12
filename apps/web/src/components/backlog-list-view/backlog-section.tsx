@@ -51,7 +51,7 @@ const BacklogSection = memo(function BacklogSection({
           type="button"
           onClick={() => onToggle(sectionId)}
           aria-expanded={isExpanded}
-          className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
+          className="touch-hitbox relative flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
         >
           <ChevronRight
             className={cn(
@@ -79,8 +79,9 @@ const BacklogSection = memo(function BacklogSection({
             <button
               type="button"
               onClick={onAddTask}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
+              className="touch-hitbox relative p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
               title={t("tasks:backlog.addTask")}
+              aria-label={t("tasks:backlog.addTask")}
             >
               <Plus className="w-3 h-3" />
             </button>

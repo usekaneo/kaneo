@@ -1,11 +1,20 @@
 import {
   createFileRoute,
+  Link,
   useNavigate,
   useSearch,
 } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
-import { AuthLayout } from "@/components/auth/layout";
+import { AuthFormSkeleton } from "@/components/auth/auth-form-skeleton";
+import { AuthPage } from "@/components/auth/auth-page";
+import { useSettledSession } from "@/components/auth/use-settled-session";
+import {
+  formatDeviceCode,
+  normalizeDeviceCode,
+} from "@/components/auth/device-code";
+import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
@@ -19,148 +28,158 @@ export const Route = createFileRoute("/device/approve")({
   validateSearch: approveSearchSchema,
 });
 
+type Decision = "approve" | "deny";
+
 function DeviceApprovePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const search = useSearch({ from: "/device/approve" });
-  const { data: session, isPending } = authClient.useSession();
-  const [processing, setProcessing] = useState(false);
+  const { session, isLoading: isSessionPending } = useSettledSession();
+  const [pending, setPending] = useState<Decision | null>(null);
+  const [result, setResult] = useState<Decision | null>(null);
+  const userCode = normalizeDeviceCode(search.user_code);
+  const pageTitle = <PageTitle title={t("auth:device.approve.pageTitle")} />;
 
-  const normalizedCode =
-    search.user_code?.trim().replace(/-/g, "").toUpperCase() ?? "";
-
-  if (isPending) {
+  if (result) {
     return (
-      <AuthLayout title="Approve device" subtitle="Loading…">
-        <div className="text-sm text-muted-foreground">Checking session…</div>
-      </AuthLayout>
+      <>
+        {pageTitle}
+        <AuthPage
+          title={
+            result === "approve"
+              ? t("auth:device.approved.title")
+              : t("auth:device.denied.title")
+          }
+          description={
+            <span role="status">
+              {result === "approve"
+                ? t("auth:device.approved.description")
+                : t("auth:device.denied.description")}
+            </span>
+          }
+        />
+      </>
+    );
+  }
+
+  if (isSessionPending) {
+    return (
+      <>
+        {pageTitle}
+        <AuthPage title={t("auth:device.approve.title")}>
+          <AuthFormSkeleton />
+        </AuthPage>
+      </>
+    );
+  }
+
+  if (!userCode) {
+    return (
+      <>
+        {pageTitle}
+        <AuthPage
+          title={t("auth:device.missing.title")}
+          description={t("auth:device.missing.description")}
+        >
+          <Button size="lg" className="w-full" render={<Link to="/device" />}>
+            {t("auth:device.missing.enterCode")}
+          </Button>
+        </AuthPage>
+      </>
     );
   }
 
   if (!session?.user) {
-    if (!normalizedCode) {
-      return (
-        <AuthLayout
-          title="Approve device"
-          subtitle="No device code was provided."
+    return (
+      <>
+        {pageTitle}
+        <AuthPage
+          title={t("auth:device.signIn.title")}
+          description={t("auth:device.signIn.description")}
         >
           <Button
+            size="lg"
             className="w-full"
-            variant="secondary"
-            onClick={() => void navigate({ to: "/device" })}
+            onClick={() =>
+              void navigate({
+                to: "/auth/sign-in",
+                search: {
+                  redirect: `/device/approve?user_code=${encodeURIComponent(userCode)}`,
+                },
+              })
+            }
           >
-            Enter a code
+            {t("auth:device.signIn.submit")}
           </Button>
-        </AuthLayout>
-      );
-    }
-    const redirectTarget = `/device/approve?user_code=${encodeURIComponent(normalizedCode)}`;
-    return (
-      <AuthLayout
-        title="Sign in to continue"
-        subtitle="Sign in to approve or deny this device request."
-      >
-        <Button
-          className="w-full"
-          onClick={() =>
-            void navigate({
-              to: "/auth/sign-in",
-              search: { redirect: redirectTarget },
-            })
-          }
-        >
-          Sign in
-        </Button>
-      </AuthLayout>
+        </AuthPage>
+      </>
     );
   }
 
-  if (!normalizedCode) {
-    return (
-      <AuthLayout
-        title="Approve device"
-        subtitle="No device code was provided."
-      >
-        <Button
-          className="w-full"
-          variant="secondary"
-          onClick={() => void navigate({ to: "/device" })}
-        >
-          Enter a code
-        </Button>
-      </AuthLayout>
-    );
-  }
-
-  const handleApprove = async () => {
-    setProcessing(true);
+  const decide = async (decision: Decision) => {
+    setPending(decision);
     try {
       // better-auth >= 1.6.11 requires the signed-in user to claim the code
-      // (GET /device) before it can be approved. No-op if already claimed.
-      await authClient.device({ query: { user_code: normalizedCode } });
-      const res = await authClient.device.approve({
-        userCode: normalizedCode,
-      });
-      if (res.error) {
-        toast.error(res.error.error_description ?? "Could not approve");
+      // (GET /device) before it can be approved or denied. No-op if already
+      // claimed.
+      await authClient.device({ query: { user_code: userCode } });
+      const response =
+        decision === "approve"
+          ? await authClient.device.approve({ userCode })
+          : await authClient.device.deny({ userCode });
+      if (response.error) {
+        toast.error(
+          response.error.error_description ?? t("auth:device.approve.failed"),
+        );
+        setPending(null);
         return;
       }
-      toast.success("Device connected");
-      void navigate({ to: "/dashboard" });
+      setResult(decision);
     } catch {
-      toast.error("Could not approve");
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const handleDeny = async () => {
-    setProcessing(true);
-    try {
-      // Claim the code first (see handleApprove) so deny is authorized in
-      // better-auth >= 1.6.11.
-      await authClient.device({ query: { user_code: normalizedCode } });
-      const res = await authClient.device.deny({
-        userCode: normalizedCode,
-      });
-      if (res.error) {
-        toast.error(res.error.error_description ?? "Could not deny");
-        return;
-      }
-      toast.message("Request cancelled");
-      void navigate({ to: "/dashboard" });
-    } catch {
-      toast.error("Could not deny");
-    } finally {
-      setProcessing(false);
+      toast.error(t("auth:device.approve.failed"));
+      setPending(null);
     }
   };
 
   return (
-    <AuthLayout
-      title="Approve device"
-      subtitle="A device is requesting access to your Kaneo account."
-    >
-      <div className="space-y-4">
-        <p className="text-center font-mono text-sm tracking-wide">
-          {normalizedCode}
-        </p>
-        <div className="flex gap-2">
-          <Button
-            className="flex-1"
-            disabled={processing}
-            onClick={() => void handleApprove()}
-          >
-            Approve
-          </Button>
-          <Button
-            variant="outline"
-            disabled={processing}
-            onClick={() => void handleDeny()}
-          >
-            Deny
-          </Button>
+    <>
+      {pageTitle}
+      <AuthPage
+        title={t("auth:device.approve.title")}
+        description={t("auth:device.approve.description", {
+          email: session.user.email,
+        })}
+      >
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col items-center gap-2 rounded-xl border border-border px-4 py-5 dark:bg-input/16">
+            <p className="text-muted-foreground text-xs">
+              {t("auth:device.approve.matchCode")}
+            </p>
+            <p className="font-mono text-[22px] text-foreground leading-7 tracking-[0.12em]">
+              {formatDeviceCode(userCode)}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              loading={pending === "deny"}
+              disabled={pending !== null}
+              onClick={() => void decide("deny")}
+            >
+              {t("auth:device.approve.deny")}
+            </Button>
+            <Button
+              size="lg"
+              loading={pending === "approve"}
+              disabled={pending !== null}
+              onClick={() => void decide("approve")}
+            >
+              {t("auth:device.approve.approve")}
+            </Button>
+          </div>
         </div>
-      </div>
-    </AuthLayout>
+      </AuthPage>
+    </>
   );
 }

@@ -71,6 +71,7 @@ export async function deleteAccountData(userId: string) {
 
   if (plan.blockedWorkspaceNames.length > 0) {
     throw new APIError("CONFLICT", {
+      code: "SOLE_WORKSPACE_OWNER",
       message: formatBlockedWorkspacesMessage(plan.blockedWorkspaceNames),
     });
   }
@@ -78,6 +79,7 @@ export async function deleteAccountData(userId: string) {
   const billable = await findBillableWorkspaces(plan.workspaceIdsToDelete);
   if (billable.length > 0) {
     throw new APIError("CONFLICT", {
+      code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
       message: formatBillableWorkspacesMessage(
         billable.map((workspace) => workspace.name),
       ),

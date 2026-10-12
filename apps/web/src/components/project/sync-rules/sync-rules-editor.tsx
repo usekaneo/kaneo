@@ -13,9 +13,11 @@ import { LabelRuleEditor } from "./label-rule-editor";
 export function SyncRulesEditor({
   param,
   saved,
+  onDone,
 }: {
   param: SyncParams;
   saved: SyncPreview;
+  onDone: () => void;
 }) {
   const { t } = useTranslation();
   const [rules, setRules] = useState(saved.rules);
@@ -46,15 +48,19 @@ export function SyncRulesEditor({
   );
   const impact = dirty ? preview.data : saved;
   return (
-    <div className="space-y-5 border-t border-border pt-5">
+    <div className="space-y-5 rounded-lg border border-border bg-background p-3">
+      <p className="text-xs text-muted-foreground">
+        {t("settings:syncRules.sharedHint")}
+      </p>
       {savedChanged && dirty && (
         <div role="alert" className="space-y-2">
           <p className="text-xs text-muted-foreground">
             {t("settings:syncRules.rulesChanged")}
           </p>
           <Button
+            type="button"
             variant="outline"
-            size="xs"
+            size="sm"
             disabled={save.isPending}
             onClick={resetDraft}
           >
@@ -84,7 +90,7 @@ export function SyncRulesEditor({
       </div>
       {valid && impact && (
         <div
-          className="space-y-3 rounded-lg border border-border bg-background p-3"
+          className="space-y-2 rounded-lg border border-border bg-muted/40 p-3"
           aria-live="polite"
         >
           <p className="text-sm font-medium">
@@ -121,12 +127,13 @@ export function SyncRulesEditor({
       )}
       {(preview.isError || save.isError) && (
         <div role="alert" className="space-y-2">
-          <p className="text-xs text-destructive">
+          <p className="text-xs text-destructive-foreground">
             {t("settings:syncRules.saveError")}
           </p>
           <Button
+            type="button"
             variant="outline"
-            size="xs"
+            size="sm"
             onClick={() => {
               save.reset();
               void preview.refetch();
@@ -137,12 +144,25 @@ export function SyncRulesEditor({
         </div>
       )}
       {impact?.missingLabels.length ? (
-        <p role="alert" className="text-xs text-destructive">
+        <p role="alert" className="text-xs text-destructive-foreground">
           {t("settings:syncRules.missingLabels")}
         </p>
       ) : null}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-end gap-2">
         <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={save.isPending}
+          onClick={() => {
+            resetDraft();
+            onDone();
+          }}
+        >
+          {t("common:actions.cancel")}
+        </Button>
+        <Button
+          type="button"
           size="sm"
           loading={save.isPending}
           disabled={
@@ -158,7 +178,10 @@ export function SyncRulesEditor({
               save.mutate(
                 { rules, previewToken: preview.data.previewToken },
                 {
-                  onSuccess: () => toast.success(t("settings:syncRules.saved")),
+                  onSuccess: () => {
+                    toast.success(t("settings:syncRules.saved"));
+                    onDone();
+                  },
                 },
               );
           }}
@@ -167,16 +190,6 @@ export function SyncRulesEditor({
             ? t("settings:syncRules.exportPending")
             : t("settings:syncRules.apply")}
         </Button>
-        {dirty && (
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={save.isPending}
-            onClick={resetDraft}
-          >
-            {t("common:actions.cancel")}
-          </Button>
-        )}
       </div>
     </div>
   );

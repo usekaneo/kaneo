@@ -51,7 +51,6 @@ import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activitie
 import useGetCustomFieldValuesByTask from "@/hooks/queries/custom-field/use-get-custom-field-values-by-task";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
-import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -116,7 +115,6 @@ export default function TaskDetailsContent({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: task } = useGetTask(taskId ?? "");
-  const { data: project } = useGetProject({ id: projectId, workspaceId });
   const { data: activities = [] } = useGetActivitiesByTaskId(taskId ?? "");
   const { data: externalLinks = [], isLoading: isLoadingExternalLinks } =
     useExternalLinks(taskId ?? "");
@@ -236,10 +234,6 @@ export default function TaskDetailsContent({
             </span>
           </button>
         )}
-
-        <p className="text-xs font-semibold text-foreground/70">
-          {project?.slug}-{task?.number}
-        </p>
 
         <TaskTitle taskId={taskId} />
         <TaskDescription taskId={taskId} />

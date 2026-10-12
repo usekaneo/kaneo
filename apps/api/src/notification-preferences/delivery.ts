@@ -16,6 +16,7 @@ import {
   safeOutboundError,
   sendOutboundRequest,
 } from "../utils/outbound-request";
+import { resolveEmailTask } from "./resolve-email-task";
 import { decryptSecret } from "./secrets";
 
 type ResolvedNotificationContext = {
@@ -33,9 +34,12 @@ type DeliveryContent = {
   body: string;
 };
 
+function getClientUrl() {
+  return process.env.KANEO_CLIENT_URL || "http://localhost:5173";
+}
+
 function buildTaskUrl(workspaceId: string, projectId: string, taskId: string) {
-  const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
-  return `${clientUrl}/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`;
+  return `${getClientUrl()}/dashboard/workspace/${workspaceId}/project/${projectId}/task/${taskId}`;
 }
 
 function getStringValue(
@@ -476,14 +480,24 @@ export async function deliverNotification(
   const deliveries: Array<Promise<void>> = [];
 
   if (decryptedPreference.emailEnabled && rule.emailEnabled && user.email) {
+    const recipient = user.email;
     deliveries.push(
-      sendNotificationEmail(user.email, content.title, {
-        title: content.title,
-        message: content.body,
-        actionUrl: context.taskUrl,
-        actionLabel: context.taskUrl ? "Open in Kaneo" : undefined,
-        locale: user.locale ?? null,
-      }).then(() => undefined),
+      (async () => {
+        const task = context.taskId
+          ? await resolveEmailTask(context.taskId)
+          : undefined;
+        await sendNotificationEmail(recipient, content.title, {
+          title: content.title,
+          message: content.body,
+          actionUrl: context.taskUrl,
+          locale: user.locale ?? null,
+          breadcrumb: context.projectName
+            ? `${context.workspaceName} / ${context.projectName}`
+            : context.workspaceName,
+          task,
+          settingsUrl: `${getClientUrl()}/dashboard/settings/account/notifications`,
+        });
+      })(),
     );
   }
 

@@ -7,10 +7,9 @@ export function useDeleteWorkflowRule() {
   return useMutation({
     mutationFn: ({ id }: { id: string; projectId: string }) =>
       deleteWorkflowRule(id),
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables) =>
       queryClient.invalidateQueries({
         queryKey: ["workflow-rules", variables.projectId],
-      });
-    },
+      }),
   });
 }

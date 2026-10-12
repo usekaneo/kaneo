@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
-test("sign up, create a workspace, and sign in again", async ({
+test("sign up, create a workspace with a starter project, and sign in again", async ({
   page,
   context,
 }) => {
@@ -23,23 +23,31 @@ test("sign up, create a workspace, and sign in again", async ({
   await page
     .getByRole("button", { name: "Create workspace", exact: true })
     .click();
-  await expect(page).toHaveURL(/\/dashboard\/workspace\/[^/]+\/?$/);
-  const workspaceUrl = page.url();
+  await expect(page).toHaveURL(
+    /\/dashboard\/workspace\/[^/]+\/project\/[^/]+\/board$/,
+  );
+  await expect(
+    page.getByText("Drag this card to the next column", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("My first project", { exact: true }).first(),
+  ).toBeVisible();
+  const boardUrl = page.url();
 
   // A reload proves that the server persisted the workspace and session.
   await page.reload();
-  await expect(page).toHaveURL(workspaceUrl);
+  await expect(page).toHaveURL(boardUrl);
   await expect(
     page.getByText(workspaceName, { exact: true }).first(),
   ).toBeVisible();
 
   await context.clearCookies();
-  await page.goto(workspaceUrl);
+  await page.goto(boardUrl);
   await expect(page).toHaveURL(/\/auth\/sign-in/);
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.locator('input[name="password"]').fill(password);
   await page.getByRole("button", { name: "Sign In", exact: true }).click();
-  await expect(page).toHaveURL(workspaceUrl);
+  await expect(page).toHaveURL(boardUrl);
   await expect(
     page.getByText(workspaceName, { exact: true }).first(),
   ).toBeVisible();

@@ -67,7 +67,8 @@ describe("github integration routes are workspace scoped", () => {
       `/api/github-integration/repositories/${project.id}`,
     );
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
+    expect(await response.text()).toContain("Project not found");
   });
 });
 

@@ -40,6 +40,7 @@ Follow the [local development setup guide](ENVIRONMENT_SETUP.md) for prerequisit
 - **Browse [issues ready for contribution](https://github.com/usekaneo/kaneo/issues?q=is%3Aissue%20is%3Aopen%20label%3Aready-for-contribution)** - the "good first issue" ones are a nice place to start
 - **Check our [Discord](https://discord.gg/rU4tSyhXXU)** - we often discuss features and bugs there
 - **Found a bug?** Open an issue first and wait for a maintainer to give the go-ahead before sending a PR (unless you're [exempt](#contribution-eligibility))
+- **Have a feature idea?** Submit it at [Kaneo Feedback](https://feedback.kaneo.app). Accepted requests become GitHub issues for implementation.
 
 ### Contribution Eligibility
 
@@ -281,7 +282,8 @@ Please read and follow our [AI Contribution Policy](AI_POLICY.md), which adopts 
 ## Need Help?
 
 - **Discord**: Join our [Discord server](https://discord.gg/rU4tSyhXXU) for real-time help
-- **Issues**: Open a [GitHub issue](https://github.com/usekaneo/kaneo/issues) for bugs or feature requests
+- **Bugs**: Open a [GitHub issue](https://github.com/usekaneo/kaneo/issues)
+- **Feature requests**: Submit and vote on ideas at [Kaneo Feedback](https://feedback.kaneo.app)
 - **Discussions**: Use GitHub Discussions for questions about contributing
 
 ## Types of Contributions We Love

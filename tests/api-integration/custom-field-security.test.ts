@@ -114,7 +114,7 @@ describe("custom field read authorization", () => {
     const outsider = await createWorkspaceMember({ role: "admin" });
     mockAuthenticatedSession(outsider.user);
     for (const path of paths)
-      expect((await app.request(path)).status).toBe(403);
+      expect((await app.request(path)).status).toBe(404);
   });
 });
 

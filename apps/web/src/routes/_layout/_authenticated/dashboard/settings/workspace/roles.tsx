@@ -39,8 +39,10 @@ import useWorkspaceRoles, {
 } from "@/hooks/queries/workspace/use-workspace-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
+import { SettingsCard } from "@/components/settings/settings-card";
+import { SettingsIconTile } from "@/components/settings/settings-icon-tile";
 import { SettingsPage } from "@/components/settings/settings-page";
-import { SettingsSectionHeader } from "@/components/settings/settings-section-header";
+import { SettingsSection } from "@/components/settings/settings-section";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/roles",
@@ -293,15 +295,14 @@ function RouteComponent() {
             workspace?.name ?? t("settings:workspaceRoles.thisWorkspace"),
         })}
       >
-        <div className="space-y-6">
-          <div className="flex items-start justify-between gap-4">
-            <SettingsSectionHeader
-              title={t("settings:workspaceRoles.sectionTitle")}
-              description={t("settings:workspaceRoles.sectionSubtitle")}
-            />
+        <SettingsSection
+          title={t("settings:workspaceRoles.sectionTitle")}
+          description={t("settings:workspaceRoles.sectionSubtitle")}
+          action={
             <Button
+              type="button"
+              variant="outline"
               size="sm"
-              className="gap-1.5"
               onClick={() => {
                 setDraftActive(true);
                 setOpenCustom((prev) =>
@@ -310,11 +311,12 @@ function RouteComponent() {
               }}
               disabled={draftActive}
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus aria-hidden="true" />
               {t("settings:workspaceRoles.newRole")}
             </Button>
-          </div>
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
+          }
+        >
+          <SettingsCard>
             {isLoading && !draftActive ? (
               <p className="text-xs text-muted-foreground px-4 py-6">
                 {t("settings:workspaceRoles.loading")}
@@ -353,8 +355,10 @@ function RouteComponent() {
                     className="border-b border-border last:border-b-0"
                   >
                     <AccordionTrigger className="px-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <SettingsIconTile>
+                          <Shield />
+                        </SettingsIconTile>
                         <p className="text-sm font-medium italic">
                           {t("settings:workspaceRoles.newRole")}
                         </p>
@@ -408,8 +412,10 @@ function RouteComponent() {
                     >
                       <AccordionTrigger className="px-4">
                         <div className="flex items-center justify-between gap-4 flex-1 min-w-0">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <SettingsIconTile>
+                              <Shield />
+                            </SettingsIconTile>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
                                 <p
@@ -432,7 +438,7 @@ function RouteComponent() {
                               )}
                             </div>
                           </div>
-                          <p className="text-xs font-normal text-muted-foreground shrink-0">
+                          <p className="hidden text-xs font-normal text-muted-foreground shrink-0 sm:block">
                             {t("settings:workspaceRoles.permissionCount", {
                               count: permissionCount(role.permission),
                             })}
@@ -453,8 +459,8 @@ function RouteComponent() {
                 })}
               </Accordion>
             )}
-          </div>
-        </div>
+          </SettingsCard>
+        </SettingsSection>
       </SettingsPage>
 
       <AlertDialog

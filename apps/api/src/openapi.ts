@@ -1,6 +1,7 @@
 import { OpenAPIHono, z } from "@hono/zod-openapi";
 import type { Session, User } from "better-auth/types";
-import { HTTPException } from "hono/http-exception";
+import { apiErrorSchema } from "./errors/api-error-schema";
+import { validationHook } from "./errors/validation-error";
 
 export { createRoute } from "@hono/zod-openapi";
 export { z };
@@ -23,19 +24,7 @@ export type BaseVariables = {
 // createRoute({ middleware }) registers middleware BEFORE the request
 // validators, so middleware must read the raw request, not c.req.valid().
 export function apiRouter<V extends BaseVariables = BaseVariables>() {
-  return new OpenAPIHono<{ Variables: V }>({
-    defaultHook: (result) => {
-      if (!result.success) {
-        const issue = result.error.issues[0];
-        const field = issue?.path.join(".");
-        throw new HTTPException(400, {
-          message: issue
-            ? `${field || "request"}: ${issue.message}`
-            : "Invalid request",
-        });
-      }
-    },
-  });
+  return new OpenAPIHono<{ Variables: V }>({ defaultHook: validationHook });
 }
 
 export const pagingNumber = (min: number, max: number, fallback?: number) => {
@@ -67,7 +56,7 @@ export const nullableResponseTimestamp = responseTimestamp
 export function errorResponse(description: string) {
   return {
     description,
-    content: { "text/plain": { schema: z.string() } },
+    content: { "application/json": { schema: apiErrorSchema } },
   };
 }
 

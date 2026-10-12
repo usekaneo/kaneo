@@ -35,6 +35,14 @@
 		{
 			"source": "/core/guide/migrating-from-v1",
 			"destination": "/core/installation/environment-variables"
+		},
+		{
+			"source": "/core/integrations/cli",
+			"destination": "/cli"
+		},
+		{
+			"source": "/core/integrations/cli-commands",
+			"destination": "/cli/reference"
 		}
 	],
 	"navigation": {
@@ -68,6 +76,18 @@
 							"core/functional/account-notifications",
 							"core/functional/personalize-your-workspace",
 							"core/functional/manage-your-account"
+						]
+					},
+					{
+						"group": "Import from other tools",
+						"pages": [
+							"core/migrations/index",
+							"core/migrations/from-linear",
+							"core/migrations/from-jira",
+							"core/migrations/from-trello",
+							"core/migrations/from-plane",
+							"core/migrations/from-planka",
+							"core/migrations/from-kaneo"
 						]
 					}
 				]
@@ -114,9 +134,8 @@
 						]
 					},
 					{
-						"group": "Move to Kaneo",
+						"group": "Migrate a deployment",
 						"pages": [
-							"core/migrations/from-planka",
 							"core/installation/migration",
 							"core/installation/drim-migration"
 						]
@@ -172,7 +191,19 @@
 						"pages": [
 							"api-reference/introduction",
 							"api-reference/authentication",
+							"api-reference/errors",
 							"core/integrations/mcp-stateless"
+						]
+					},
+					{
+						"group": "Command line",
+						"pages": [
+							"cli/index",
+							"cli/install",
+							"cli/sign-in",
+							"cli/configuration",
+							"cli/scripting",
+							"cli/reference"
 						]
 					},
 					{

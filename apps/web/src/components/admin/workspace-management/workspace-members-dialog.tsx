@@ -1,4 +1,4 @@
-import { RefreshCwIcon, UserPlusIcon } from "lucide-react";
+import { UserPlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import MemberProjectAccessDialog from "@/components/team/member-project-access-dialog";
@@ -16,16 +16,6 @@ import {
   DialogPopup,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Frame } from "@/components/ui/frame";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type { AdminWorkspace } from "@/fetchers/admin/workspace-types";
 import useRemoveAdminWorkspaceMember from "@/hooks/mutations/admin/use-remove-admin-workspace-member";
 import useTransferAdminWorkspaceOwnership from "@/hooks/mutations/admin/use-transfer-admin-workspace-ownership";
@@ -40,8 +30,7 @@ import type { PendingMemberAction } from "./pending-member-action";
 import { sortWorkspaceMembers } from "./sort-workspace-members";
 import WorkspaceMemberConfirmDialog from "./workspace-member-confirm-dialog";
 import WorkspaceMemberRow from "./workspace-member-row";
-
-const COLUMN_COUNT = 5;
+import { WorkspaceMembersCard } from "./workspace-members-card";
 
 type AccessTarget = {
   userId: string;
@@ -105,7 +94,7 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPopup className="sm:max-w-4xl">
+      <DialogPopup className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
             {t("settings:adminWorkspaces.members.title", {
@@ -128,6 +117,7 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
               ) : null}
               <Button
                 type="button"
+                variant="outline"
                 size="sm"
                 className="ms-auto"
                 disabled={!members}
@@ -138,128 +128,55 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
               </Button>
             </div>
 
-            <Frame>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      {t("settings:adminWorkspaces.members.columns.member")}
-                    </TableHead>
-                    <TableHead>
-                      {t("settings:adminWorkspaces.members.columns.role")}
-                    </TableHead>
-                    <TableHead>
-                      {t("settings:adminWorkspaces.members.columns.projects")}
-                    </TableHead>
-                    <TableHead>
-                      {t("settings:adminWorkspaces.members.columns.joined")}
-                    </TableHead>
-                    <TableHead className="w-px">
-                      <span className="sr-only">
-                        {t("settings:adminWorkspaces.members.columns.actions")}
-                      </span>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading
-                    ? ["first", "second", "third"].map((skeleton) => (
-                        <TableRow key={skeleton}>
-                          <TableCell className="py-3" colSpan={COLUMN_COUNT}>
-                            <Skeleton className="h-8 w-full" />
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    : null}
+            <WorkspaceMembersCard
+              isLoading={isLoading}
+              isError={isError}
+              isEmpty={sortedMembers.length === 0}
+              onRetry={() => refetch()}
+            >
+              {sortedMembers.map((member) => {
+                const isOwner = isWorkspaceOwnerRole(member.role);
+                const access = accessEntries
+                  ? findMemberProjectAccess(accessEntries, member.userId)
+                  : undefined;
 
-                  {!isLoading && isError ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={COLUMN_COUNT}
-                        className="h-40 text-center"
-                      >
-                        <div className="flex flex-col items-center gap-3">
-                          <p className="text-sm text-muted-foreground">
-                            {t("settings:adminWorkspaces.members.loadError")}
-                          </p>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => refetch()}
-                          >
-                            <RefreshCwIcon aria-hidden="true" />
-                            {t("settings:adminWorkspaces.retry")}
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : null}
-
-                  {!isLoading && !isError && sortedMembers.length === 0 ? (
-                    <TableRow>
-                      <TableCell
-                        colSpan={COLUMN_COUNT}
-                        className="h-40 text-center text-sm text-muted-foreground"
-                      >
-                        {t("settings:adminWorkspaces.members.empty")}
-                      </TableCell>
-                    </TableRow>
-                  ) : null}
-
-                  {!isLoading && !isError
-                    ? sortedMembers.map((member) => {
-                        const isOwner = isWorkspaceOwnerRole(member.role);
-                        const access = accessEntries
-                          ? findMemberProjectAccess(
-                              accessEntries,
-                              member.userId,
-                            )
-                          : undefined;
-
-                        return (
-                          <WorkspaceMemberRow
-                            key={member.userId}
-                            member={member}
-                            roleOptions={getAssignableRoleOptions(
-                              roles,
-                              member.role,
-                            )}
-                            access={access}
-                            isOnlyOwner={isOwner && ownerCount === 1}
-                            isUpdatingRole={
-                              updateRole.isPending &&
-                              updateRole.variables?.userId === member.userId
-                            }
-                            onRoleChange={(role) =>
-                              updateRole.mutate({
-                                workspaceId,
-                                userId: member.userId,
-                                role,
-                              })
-                            }
-                            onEditAccess={() => {
-                              if (!access) return;
-                              setAccessTarget({
-                                userId: member.userId,
-                                name: member.name || member.email,
-                                access,
-                              });
-                              setIsAccessOpen(true);
-                            }}
-                            onMakeOwner={() =>
-                              setPendingAction({ type: "transfer", member })
-                            }
-                            onRemove={() =>
-                              setPendingAction({ type: "remove", member })
-                            }
-                          />
-                        );
+                return (
+                  <WorkspaceMemberRow
+                    key={member.userId}
+                    member={member}
+                    roleOptions={getAssignableRoleOptions(roles, member.role)}
+                    access={access}
+                    isOnlyOwner={isOwner && ownerCount === 1}
+                    isUpdatingRole={
+                      updateRole.isPending &&
+                      updateRole.variables?.userId === member.userId
+                    }
+                    onRoleChange={(role) =>
+                      updateRole.mutate({
+                        workspaceId,
+                        userId: member.userId,
+                        role,
                       })
-                    : null}
-                </TableBody>
-              </Table>
-            </Frame>
+                    }
+                    onEditAccess={() => {
+                      if (!access) return;
+                      setAccessTarget({
+                        userId: member.userId,
+                        name: member.name || member.email,
+                        access,
+                      });
+                      setIsAccessOpen(true);
+                    }}
+                    onMakeOwner={() =>
+                      setPendingAction({ type: "transfer", member })
+                    }
+                    onRemove={() =>
+                      setPendingAction({ type: "remove", member })
+                    }
+                  />
+                );
+              })}
+            </WorkspaceMembersCard>
           </div>
         </DialogPanel>
 

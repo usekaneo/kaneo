@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { AssignedTask } from "@/fetchers/task/get-assigned-tasks";
 import { useLocalDay } from "@/hooks/use-local-day";
@@ -18,13 +18,29 @@ export function WeekStrip({ tasks, workspaceId }: WeekStripProps) {
   const { t } = useTranslation();
   const day = useLocalDay();
   const week = useMemo(() => buildWeek(tasks, new Date(day)), [tasks, day]);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const todayRef = useRef<HTMLLIElement>(null);
+
+  // On narrow screens the strip scrolls; open it centred on today rather than
+  // on the oldest past day.
+  useLayoutEffect(() => {
+    const scroller = scrollerRef.current;
+    const today = todayRef.current;
+    if (!scroller || !today) return;
+    scroller.scrollLeft =
+      today.offsetLeft - (scroller.clientWidth - today.offsetWidth) / 2;
+  }, [day]);
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card">
+    <div
+      ref={scrollerRef}
+      className="relative overflow-x-auto rounded-xl border border-border bg-card"
+    >
       <ol className="flex min-w-[46rem] divide-x divide-border/70">
         {week.map((day) => (
           <li
             key={day.date.toISOString()}
+            ref={day.isToday ? todayRef : undefined}
             className={cn(
               "flex min-h-28 min-w-0 flex-1 flex-col gap-2.5 px-3 py-3",
               day.isToday && "bg-muted/50",

@@ -15,6 +15,7 @@ import {
   getValidTaskStatuses,
 } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
+import { nextTaskPosition } from "./next-task-position";
 
 export type ImportTask = {
   title: string;
@@ -93,6 +94,12 @@ async function importTasks(
 
       const createdTask = await db.transaction(async (tx) => {
         const taskNumber = await claimTaskNumber(projectId, tx);
+        const position = await nextTaskPosition(
+          tx,
+          projectId,
+          status,
+          column?.id ?? null,
+        );
 
         const [task] = await tx
           .insert(taskTable)
@@ -107,6 +114,7 @@ async function importTasks(
             description: taskData.description || "",
             priority,
             number: taskNumber,
+            position,
           })
           .returning();
 

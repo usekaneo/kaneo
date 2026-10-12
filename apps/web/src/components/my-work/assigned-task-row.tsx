@@ -21,7 +21,7 @@ export function AssignedTaskRow({
     <Link
       to="/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId"
       params={{ workspaceId, projectId: task.projectId, taskId: task.id }}
-      className="flex h-11 items-center gap-3 border-border/50 border-b px-1 outline-none transition-colors hover:bg-accent/50 focus-visible:bg-accent/50"
+      className="flex h-11 items-center gap-2.5 border-border/50 border-b px-1 outline-none transition-colors hover:bg-accent/50 focus-visible:bg-accent/50"
     >
       <span className="flex w-4 shrink-0 justify-center [&_svg]:size-3.5">
         {getPriorityIcon(task.priority)}
@@ -32,7 +32,7 @@ export function AssignedTaskRow({
       >
         {getColumnIcon(task.status, false, task.statusIcon)}
       </span>
-      <span className="w-16 shrink-0 truncate font-medium text-muted-foreground text-xs">
+      <span className="hidden w-16 shrink-0 truncate font-medium text-muted-foreground text-xs sm:block">
         {task.number == null
           ? task.projectSlug
           : `${task.projectSlug}-${task.number}`}
@@ -62,7 +62,7 @@ export function AssignedTaskRow({
       </span>
       <DueDateText
         dueDate={task.dueDate}
-        className="w-20 shrink-0 text-right"
+        className="shrink-0 text-right sm:w-20"
       />
     </Link>
   );

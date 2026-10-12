@@ -6,25 +6,40 @@ import ptBR from "../../../../i18n/pt-BR.json";
 import viVN from "../../../../i18n/vi-VN.json";
 import zhTW from "../../../../i18n/zh-TW.json";
 
-const messages = {
-  de: deDE.invitations.email,
-  en: enUS.invitations.email,
-  fr: frFR.invitations.email,
-  ja: jaJP.invitations.email,
-  pt: ptBR.invitations.email,
-  vi: viVN.invitations.email,
-  zhTW: zhTW.invitations.email,
+const bundles = {
+  de: deDE,
+  en: enUS,
+  fr: frFR,
+  ja: jaJP,
+  pt: ptBR,
+  vi: viVN,
+  zhTW: zhTW,
 } as const;
 
-export function getWorkspaceInvitationEmailCopy(locale?: string | null) {
+function getBundle(locale?: string | null) {
   const normalizedLocale = locale?.toLowerCase();
 
-  if (normalizedLocale?.startsWith("de")) return messages.de;
-  if (normalizedLocale?.startsWith("fr")) return messages.fr;
-  if (normalizedLocale?.startsWith("ja")) return messages.ja;
-  if (normalizedLocale?.startsWith("pt")) return messages.pt;
-  if (normalizedLocale?.startsWith("vi")) return messages.vi;
-  if (normalizedLocale === "zh-tw") return messages.zhTW;
+  if (normalizedLocale?.startsWith("de")) return bundles.de;
+  if (normalizedLocale?.startsWith("fr")) return bundles.fr;
+  if (normalizedLocale?.startsWith("ja")) return bundles.ja;
+  if (normalizedLocale?.startsWith("pt")) return bundles.pt;
+  if (normalizedLocale?.startsWith("vi")) return bundles.vi;
+  if (normalizedLocale === "zh-tw") return bundles.zhTW;
 
-  return messages.en;
+  return bundles.en;
+}
+
+export function getWorkspaceInvitationEmailCopy(locale?: string | null) {
+  return getBundle(locale).invitations.email;
+}
+
+export function getInvitationRoleLabel(locale: string | null, role: string) {
+  const labels: Record<string, string> = getBundle(locale).team.roles;
+
+  return role
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .map((name) => (Object.hasOwn(labels, name) ? labels[name] : name))
+    .join(", ");
 }
