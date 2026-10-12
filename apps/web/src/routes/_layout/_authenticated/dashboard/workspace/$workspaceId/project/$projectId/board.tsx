@@ -1,28 +1,24 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import BoardToolbar from "@/components/board/board-toolbar";
 import ProjectLayout from "@/components/common/project-layout";
 import KanbanBoard from "@/components/kanban-board";
 import ListView from "@/components/list-view";
 import PageTitle from "@/components/page-title";
-import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
+import { DisplaySection } from "@/components/project/display/display-section";
+import { TaskDisplayOptions } from "@/components/project/display/task-display-options";
+import { ActiveFiltersBar } from "@/components/project/task-filters/active-filters-bar";
+import { ProjectToolbar } from "@/components/project/toolbar/project-toolbar";
+import { TaskCount } from "@/components/project/toolbar/task-count";
+import { useProjectTaskView } from "@/components/project/toolbar/use-project-task-view";
+import { LayoutSwitch } from "@/components/project/views/layout-switch";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
-import { Input } from "@/components/ui/input";
-import { shortcuts } from "@/constants/shortcuts";
-import useGetCustomFieldFilterValues from "@/hooks/queries/custom-field/use-get-custom-field-filter-values";
-import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
-import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
-import { useDescriptionMatches } from "@/hooks/queries/task/use-description-matches";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
-import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useBoardSort } from "@/hooks/use-board-sort";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { useTaskFiltersWithLabelsSupport } from "@/hooks/use-task-filters-with-labels-support";
 import { cn } from "@/lib/cn";
 import { sortTasks } from "@/lib/sort-tasks";
+import { countColumnTasks } from "@/lib/task-filters/count-tasks";
 import { useBackgroundStore } from "@/store/background";
 import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -92,40 +88,17 @@ function RouteComponent() {
     refetch: retryBoard,
   } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
-  const { viewMode, setViewMode } = useUserPreferencesStore();
+  const viewMode = useUserPreferencesStore((state) => state.viewMode);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [boardSearchQuery, setBoardSearchQuery] = useState("");
-  const [isBoardSearchMounted, setIsBoardSearchMounted] = useState(false);
-  const [isBoardSearchVisible, setIsBoardSearchVisible] = useState(false);
-  const [boardSearchInput, setBoardSearchInput] =
-    useState<HTMLInputElement | null>(null);
   const { sort, setSort } = useBoardSort(projectId);
   const { background } = useBackgroundStore();
-
-  const { data: users } = useGetActiveWorkspaceUsers(workspaceId);
-  const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
-
-  const { data: rawCustomFields = [] } = useGetCustomFieldsByProject(projectId);
-
-  const { data: filterValuesData = [] } =
-    useGetCustomFieldFilterValues(projectId);
-
-  const customFieldDefinitions = useMemo<CustomFieldDefinition[]>(
-    () =>
-      rawCustomFields.map((f, index) => ({
-        ...f,
-        type: f.type as CustomFieldDefinition["type"],
-        options: Array.isArray(f.options) ? (f.options as string[]) : null,
-        position: index,
-      })),
-    [rawCustomFields],
-  );
-
-  const usedCustomFieldValues = useMemo<Record<string, string[]>>(() => {
-    return Object.fromEntries(
-      filterValuesData.map((f) => [f.fieldId, f.values]),
-    );
-  }, [filterValuesData]);
+  const view = useProjectTaskView({
+    project,
+    projectId,
+    workspaceId,
+    scope: "board",
+  });
+  const { descriptionSearch, filters } = view;
 
   const handleCloseTaskSheet = useCallback(() => {
     navigate({
@@ -135,88 +108,14 @@ function RouteComponent() {
     });
   }, [navigate]);
 
-  useRegisterShortcuts({
-    sequentialShortcuts: {
-      [shortcuts.view.prefix]: {
-        [shortcuts.view.board]: () => setViewMode("board"),
-        [shortcuts.view.list]: () => setViewMode("list"),
-        [shortcuts.view.calendar]: () =>
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
-            params: { workspaceId, projectId },
-          }),
-        [shortcuts.view.gantt]: () =>
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
-            params: { workspaceId, projectId },
-          }),
-        [shortcuts.view.backlog]: () =>
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
-            params: { workspaceId, projectId },
-          }),
-      },
-    },
-  });
-
   useEffect(() => {
     if (data) {
       setProject(data);
     }
   }, [data, setProject]);
 
-  const openBoardSearch = useCallback(() => {
-    setIsBoardSearchMounted(true);
-    window.requestAnimationFrame(() => setIsBoardSearchVisible(true));
-  }, []);
-
-  const closeBoardSearch = useCallback(() => {
-    setIsBoardSearchVisible(false);
-    window.setTimeout(() => setIsBoardSearchMounted(false), 180);
-  }, []);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      const isFindShortcut =
-        (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "f";
-
-      if (!isFindShortcut) return;
-
-      event.preventDefault();
-      openBoardSearch();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [openBoardSearch]);
-
-  useEffect(() => {
-    if (!isBoardSearchMounted) return;
-    window.requestAnimationFrame(() => boardSearchInput?.focus());
-  }, [isBoardSearchMounted, boardSearchInput]);
-
-  const descriptionSearch = useDescriptionMatches(
-    projectId,
-    project,
-    boardSearchQuery,
-  );
-
-  const {
-    filters,
-    updateFilter,
-    updateLabelFilter,
-    updateCustomFieldFilter,
-    filteredProject,
-    hasActiveFilters,
-    clearFilters,
-  } = useTaskFiltersWithLabelsSupport(
-    project,
-    projectId,
-    boardSearchQuery,
-    descriptionSearch.ids,
-  );
-
   const sortedProject = useMemo(() => {
+    const filteredProject = filters.filteredProject;
     if (!filteredProject || sort.field === "position") return filteredProject;
     return {
       ...filteredProject,
@@ -225,68 +124,57 @@ function RouteComponent() {
         tasks: sortTasks(column.tasks, sort),
       })),
     };
-  }, [filteredProject, sort]);
-
-  const boardHeaderSearch = isBoardSearchMounted ? (
-    <div
-      className={`relative w-[240px] origin-top transition-[translate,scale,opacity] duration-180 ease-out ${
-        isBoardSearchVisible
-          ? "translate-y-0 scale-y-100 opacity-100"
-          : "pointer-events-none -translate-y-1 scale-y-95 opacity-0"
-      }`}
-    >
-      <Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 text-muted-foreground" />
-      <Input
-        ref={setBoardSearchInput}
-        value={boardSearchQuery}
-        maxLength={256}
-        onChange={(event) => setBoardSearchQuery(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape" && !boardSearchQuery.trim()) {
-            closeBoardSearch();
-          }
-        }}
-        onBlur={() => {
-          if (!boardSearchQuery.trim()) {
-            closeBoardSearch();
-          }
-        }}
-        placeholder={t("tasks:boardSearchPlaceholder")}
-        className="h-7.5 [&_[data-slot=input]]:h-7 [&_[data-slot=input]]:leading-7 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs [&_[data-slot=input]]:placeholder:text-xs [&_[data-slot=input]]:placeholder:leading-7"
-      />
-    </div>
-  ) : null;
+  }, [filters.filteredProject, sort]);
 
   return (
     <ProjectLayout
       projectId={projectId}
       workspaceId={workspaceId}
       activeView="board"
-      headerActions={boardHeaderSearch}
+      toolbar={
+        <ProjectToolbar
+          view={view}
+          display={
+            <>
+              <DisplaySection>
+                <LayoutSwitch
+                  workspaceId={workspaceId}
+                  projectId={projectId}
+                  currentRoute="board"
+                  currentView={viewMode}
+                />
+              </DisplaySection>
+              <TaskDisplayOptions
+                projectId={projectId}
+                sort={sort}
+                onSortChange={setSort}
+                layout={viewMode === "board" ? "cards" : "rows"}
+                showBackgroundSwitch={
+                  viewMode === "board" && !!project?.backgroundVersion
+                }
+              />
+            </>
+          }
+        />
+      }
+      summary={
+        <TaskCount
+          shown={countColumnTasks(filters.filteredProject)}
+          total={countColumnTasks(project)}
+        />
+      }
+      filterBar={
+        <ActiveFiltersBar
+          subjects={view.subjects}
+          onClear={filters.clearFilters}
+        />
+      }
     >
       <PageTitle
         title={`${project?.name} · ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`}
         hideAppName
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
-        <BoardToolbar
-          project={project}
-          filters={filters}
-          updateFilter={updateFilter}
-          updateLabelFilter={updateLabelFilter}
-          updateCustomFieldFilter={updateCustomFieldFilter}
-          clearFilters={clearFilters}
-          hasActiveFilters={hasActiveFilters}
-          users={users}
-          workspaceLabels={workspaceLabels}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          sort={sort}
-          onSortChange={setSort}
-          customFieldDefinitions={customFieldDefinitions}
-          usedCustomFieldValues={usedCustomFieldValues}
-        />
-
         {descriptionSearch.isLoading && (
           <p role="status" className="px-4 py-2 text-sm text-muted-foreground">
             {t("tasks:descriptionSearchLoading")}

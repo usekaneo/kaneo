@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { BellOffIcon, BellIcon } from "lucide-react";
 import i18n from "i18next";
 import deleteNotificationWorkspaceRule from "@/fetchers/notification-preferences/delete-notification-workspace-rule";
 import updateNotificationPreferences, {
@@ -25,6 +26,7 @@ export function useUpdateNotificationPreferences({
       if (!silent) {
         toast.success(
           i18n.t("settings:notificationsPage.toastPreferencesSaved"),
+          { icon: BellIcon },
         );
       }
     },
@@ -54,7 +56,10 @@ export function useUpsertNotificationWorkspaceRule() {
       void queryClient.invalidateQueries({
         queryKey: ["notification-preferences"],
       });
-      toast.success(i18n.t("settings:notificationsPage.toastRuleSavedGeneric"));
+      toast.success(
+        i18n.t("settings:notificationsPage.toastRuleSavedGeneric"),
+        { icon: BellIcon },
+      );
     },
     onError: (error) => {
       toast.error(
@@ -79,6 +84,7 @@ export function useDeleteNotificationWorkspaceRule() {
       });
       toast.success(
         i18n.t("settings:notificationsPage.toastRuleRemovedGeneric"),
+        { icon: BellOffIcon },
       );
     },
     onError: (error) => {

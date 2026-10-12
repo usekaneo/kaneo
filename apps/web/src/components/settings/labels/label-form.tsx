@@ -1,3 +1,4 @@
+import { TagIcon } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { LabelColorSwatches } from "@/components/settings/labels/label-color-swatches";
@@ -49,10 +50,14 @@ export function LabelForm({ label, workspaceId, onClose }: LabelFormProps) {
     try {
       if (label) {
         await updateLabel.mutateAsync({ id: label.id, name: trimmed, color });
-        toast.success(t("settings:workspaceLabels.updateSuccess"));
+        toast.success(t("settings:workspaceLabels.updateSuccess"), {
+          icon: TagIcon,
+        });
       } else {
         await createLabel.mutateAsync({ name: trimmed, color, workspaceId });
-        toast.success(t("settings:workspaceLabels.createSuccess"));
+        toast.success(t("settings:workspaceLabels.createSuccess"), {
+          icon: TagIcon,
+        });
       }
       onClose();
     } catch (submitError) {

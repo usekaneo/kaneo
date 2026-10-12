@@ -60,6 +60,7 @@ import { useCanImport } from "@/hooks/use-can-import";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { formatDateMedium } from "@/lib/format";
+import { EASE_OUT_CSS } from "@/lib/motion";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
@@ -94,7 +95,7 @@ function SortableProjectRow({
     // replays the same move from a stale offset.
     animateLayoutChanges: () => false,
     // dnd-kit defaults to `ease`; this is the app's curve.
-    transition: { duration: 200, easing: "var(--ease-out)" },
+    transition: { duration: 200, easing: EASE_OUT_CSS },
   });
 
   const style: CSSProperties = {

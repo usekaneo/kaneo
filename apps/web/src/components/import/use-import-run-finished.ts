@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { ImportIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { getImportRunOutcome } from "@/components/import/get-import-run-progress";
@@ -29,7 +30,9 @@ export function useImportRunFinished(run: ImportRun | undefined) {
     } else if (outcome === "partial") {
       toast.warning(t("settings:workspaceImport.toast.partial", { source }));
     } else {
-      toast.success(t("settings:workspaceImport.toast.finished", { source }));
+      toast.success(t("settings:workspaceImport.toast.finished", { source }), {
+        icon: ImportIcon,
+      });
     }
   }, [run, queryClient, t]);
 }

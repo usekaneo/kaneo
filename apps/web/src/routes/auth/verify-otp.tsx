@@ -5,6 +5,7 @@ import {
   useRouter,
   useSearch,
 } from "@tanstack/react-router";
+import { MailIcon } from "lucide-react";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -120,7 +121,9 @@ function VerifyOtp() {
         );
         return;
       }
-      toast.success(t("auth:verifyOtp.toast.resendSuccess"));
+      toast.success(t("auth:verifyOtp.toast.resendSuccess"), {
+        icon: MailIcon,
+      });
       setCode("");
       setError(null);
     } catch (caught) {

@@ -10,8 +10,7 @@
 			"markAllRead": "Позначити все як прочитане",
 			"remove": "Прибрати",
 			"reset": "Скинути",
-			"filter": "Фільтр",
-			"clearAllFilters": "Очистити всі фільтри"
+			"filter": "Фільтр"
 		},
 		"a11y": {
 			"toggleSidebar": "Перемикач бічної панелі"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1535,12 +1528,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Прапорець",
@@ -1550,7 +1541,6 @@
 				"text": "Text",
 				"multiselect": "Випадний список, кілька значень"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Очистити значення за замовчуванням",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1891,7 +1881,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Дякуємо за підписку",
+				"description": "Платіж отримано. План нижче оновиться, щойно його буде підтверджено."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2552,7 +2546,8 @@
 				"prevTask": "Попереднє завдання",
 				"openTask": "Відкрити обране завдання",
 				"quickSelectNumber": "Обрати варіант за номером",
-				"calendarView": "Перемкнути на вигляд календаря"
+				"calendarView": "Перемкнути на вигляд календаря",
+				"ganttView": "Перемкнути на діаграму Ганта"
 			}
 		}
 	},
@@ -2774,7 +2769,6 @@
 			"high": "Високий",
 			"urgent": "Терміновий"
 		},
-		"boardSearchPlaceholder": "Пошук тікетів...",
 		"view": {
 			"board": "Дошка",
 			"list": "Список",
@@ -2907,9 +2901,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Завдання"
@@ -2981,12 +2973,10 @@
 				"updateError": "Не вдалося оновити пріоритет завдання"
 			},
 			"dueDate": {
-				"updateSuccess": "Дату завершення завдання успішно оновлено",
 				"updateError": "Не вдалося оновити дату завершення завдання",
 				"clear": "Очистити дату"
 			},
 			"startDate": {
-				"updateSuccess": "Дату початку завдання успішно оновлено",
 				"updateError": "Не вдалося оновити дату початку завдання",
 				"clear": "Очистити дату початку"
 			},
@@ -2995,8 +2985,6 @@
 				"empty": "Мітки не знайдено",
 				"create": "Створити «{{name}}»",
 				"chooseColor": "Оберіть колір",
-				"addSuccess": "Мітку додано",
-				"removeSuccess": "Мітку видалено",
 				"updateError": "Не вдалося оновити мітку",
 				"createSuccess": "Мітку створено та додано",
 				"createError": "Не вдалося створити мітку",
@@ -3023,26 +3011,18 @@
 			"moveAllTooltip": "Перемістити всі заплановані до «До виконання»",
 			"moveAll": "Перемістити всі",
 			"addTask": "Додати завдання",
-			"filter": "Фільтр",
-			"addFilter": "Додати фільтр...",
 			"sections": {
 				"planned": "Заплановані",
 				"archived": "Архівовані"
 			},
 			"noTasksInSection": "Немає завдань у розділі «{{section}}»",
 			"filters": {
-				"priority": "Пріоритет: {{name}}",
-				"assignee": "Виконавець: {{name}}",
-				"due": "Термін: {{date}}",
-				"label": "Мітка: {{name}}",
 				"dueThisWeek": "Термін цього тижня",
 				"dueNextWeek": "Термін наступного тижня",
 				"noDueDate": "Без дати завершення"
 			}
 		},
 		"sort": {
-			"label": "Сортування",
-			"by": "Сортувати за",
 			"direction": "Напрямок",
 			"ascending": "За зростанням",
 			"descending": "За спаданням",
@@ -3056,12 +3036,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Фільтрувати за",
-			"allStatuses": "Усі статуси",
-			"allPriorities": "Усі пріоритети",
-			"allAssignees": "Усі виконавці",
-			"allDueDates": "Усі дати завершення",
-			"allLabels": "Усі мітки",
 			"selectedCount": "{{count}} обрано",
 			"subjects": {
 				"status": "Статус",
@@ -3072,9 +3046,13 @@
 			},
 			"operators": {
 				"isAnyOf": "є будь-яким з",
-				"includeAnyOf": "включає будь-який з"
+				"includeAnyOf": "включає будь-який з",
+				"is": "дорівнює",
+				"isNot": "не дорівнює",
+				"isNoneOf": "жоден з",
+				"include": "включає",
+				"exclude": "виключає"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -3082,13 +3060,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Ґант",
 			"title": "Часова шкала Ґанта",
-			"searchPlaceholder": "Пошук запланованих тікетів...",
 			"hideTasks": "Сховати завдання",
 			"showTasks": "Показати завдання",
 			"noTasks": "Немає запланованих завдань",
 			"noTasksSubtitle": "Додайте дату початку, дату завершення або обидві до завдань, щоб розмістити їх на часовій шкалі проєкту.",
 			"noTasksFound": "Завдання не знайдено",
-			"noTasksMatch": "Жодне заплановане завдання не відповідає «{{query}}»",
 			"taskHeader": "Завдання",
 			"updateDatesError": "Не вдалося оновити дати завдання",
 			"resizeStart": "Змінити дату початку",
@@ -3113,7 +3089,12 @@
 			"error": "Не вдалося дублювати завдання"
 		},
 		"archive": {
-			"success": "Архівовано {{count}} завдань"
+			"success": "Архівовано {{count}} завдань",
+			"confirmTitle_one": "Архівувати {{count}} завершене завдання?",
+			"confirmTitle_few": "Архівувати {{count}} завершені завдання?",
+			"confirmTitle_many": "Архівувати {{count}} завершених завдань?",
+			"confirmTitle_other": "Архівувати {{count}} завершеного завдання?",
+			"confirmDescription": "Вони зникнуть з дошки й перейдуть до розділу «Архівовані» беклогу."
 		},
 		"listView": {
 			"addTask": "Додати завдання",
@@ -3141,17 +3122,13 @@
 		"dueDate": {
 			"label": "Дата завершення",
 			"clear": "Очистити дату",
-			"updateSuccess": "Дату завершення завдання успішно оновлено",
 			"updateError": "Не вдалося оновити дату завершення завдання",
-			"clearSuccess": "Дату завершення завдання очищено",
 			"clearError": "Не вдалося очистити дату завершення"
 		},
 		"labels": {
-			"label": "Мітки",
 			"empty": "Немає доступних міток"
 		},
 		"update": {
-			"success": "Завдання успішно оновлено",
 			"error": "Не вдалося оновити завдання"
 		},
 		"contextMenu": {
@@ -3173,7 +3150,11 @@
 			"moveToBoardSuccess": "{{count}} завдань переміщено на дошку",
 			"moveToBoardError": "Не вдалося перемістити завдання на дошку",
 			"delete": "Видалити завдання",
-			"deleteConfirm": "Видалити {{count}} завдань? Цю дію неможливо скасувати.",
+			"deleteConfirmTitle_one": "Видалити {{count}} завдання?",
+			"deleteConfirmTitle_few": "Видалити {{count}} завдання?",
+			"deleteConfirmTitle_many": "Видалити {{count}} завдань?",
+			"deleteConfirmTitle_other": "Видалити {{count}} завдання?",
+			"deleteConfirmDescription": "Вибрані завдання та всі їхні дані буде назавжди видалено. Цю дію неможливо скасувати.",
 			"deleteSuccess": "{{count}} завдань видалено",
 			"deleteError": "Не вдалося видалити завдання",
 			"archive": "Архівувати завдання",
@@ -3228,10 +3209,58 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "Виконано пунктів списку: {{completed}} із {{total}}",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Поля",
+			"empty": "Порожньо",
+			"required": "Обов'язково",
+			"enterKey": "Enter",
+			"toSave": "щоб зберегти",
+			"today": "Сьогодні",
+			"clear": "Очистити",
+			"setValue": "Задати {{field}}…",
+			"noMatches": "Немає відповідних варіантів",
+			"missingRequired_one": "{{count}} обов'язкове поле не заповнено",
+			"missingRequired_few": "{{count}} обов'язкові поля не заповнені",
+			"missingRequired_many": "{{count}} обов'язкових полів не заповнено",
+			"missingRequired_other": "{{count}} обов'язкового поля не заповнено",
+			"saveError": "Не вдалося зберегти поле «{{field}}»",
+			"moreFields_one": "Ще {{count}} поле",
+			"moreFields_few": "Ще {{count}} поля",
+			"moreFields_many": "Ще {{count}} полів",
+			"moreFields_other": "Ще {{count}} поля"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Пошук завдань",
+			"clearSearch": "Очистити пошук",
+			"taskCount_one": "{{count}} завдання",
+			"taskCount_few": "{{count}} завдання",
+			"taskCount_many": "{{count}} завдань",
+			"taskCount_other": "{{count}} завдання",
+			"shownCount_one": "{{shown}} з {{count}} завдання",
+			"shownCount_few": "{{shown}} з {{count}} завдань",
+			"shownCount_many": "{{shown}} з {{count}} завдань",
+			"shownCount_other": "{{shown}} з {{count}} завдання"
+		},
+		"display": {
+			"title": "Відображення",
+			"sortBy": "Сортувати за",
+			"showOnCards": "Показувати на картках",
+			"showOnRows": "Показувати в рядках",
+			"checklistProgress": "Прогрес чек-листа",
+			"projectBackground": "Фон проєкту",
+			"layout": "Макет"
+		},
+		"filterBar": {
+			"label": "Активні фільтри",
+			"removeFilter": "Прибрати фільтр «{{name}}»",
+			"noMatches": "Немає завдань, що відповідають пошуку чи фільтрам."
+		},
+		"filterMenu": {
+			"addFilter": "Додати фільтр…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Нічого не знайдено"
 		}
 	},
 	"invitations": {

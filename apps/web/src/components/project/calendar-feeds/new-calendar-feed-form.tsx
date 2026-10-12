@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { LockIcon } from "lucide-react";
+import { LockIcon, CalendarPlusIcon } from "lucide-react";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CalendarFeedLabelPicker } from "@/components/project/calendar-feeds/calendar-feed-label-picker";
@@ -58,7 +58,9 @@ export function NewCalendarFeedForm({
       await queryClient.invalidateQueries({
         queryKey: calendarFeedsQueryKey(projectId),
       });
-      toast.success(t("settings:calendarFeeds.created"));
+      toast.success(t("settings:calendarFeeds.created"), {
+        icon: CalendarPlusIcon,
+      });
       onClose();
     },
     onError: () => toast.error(t("settings:calendarFeeds.createError")),

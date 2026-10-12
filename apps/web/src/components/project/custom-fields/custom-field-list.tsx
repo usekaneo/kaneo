@@ -1,4 +1,4 @@
-import { List, Plus } from "lucide-react";
+import { List, Plus, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CustomFieldListSkeleton } from "@/components/project/custom-fields/custom-field-list-skeleton";
@@ -54,7 +54,9 @@ export function CustomFieldList({
     try {
       await deleteField({ id: pendingDelete.id });
       setPendingDelete(null);
-      toast.success(t("settings:customFields.deleteSuccess"));
+      toast.success(t("settings:customFields.deleteSuccess"), {
+        icon: Trash2Icon,
+      });
     } catch (error) {
       toast.error(errorMessage(error, t("settings:customFields.deleteError")));
     }

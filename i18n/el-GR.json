@@ -10,8 +10,7 @@
 			"markAllRead": "Επισήμανση όλων ως αναγνωσμένα",
 			"remove": "Αφαίρεση",
 			"reset": "Επαναφορά",
-			"filter": "Φίλτρο",
-			"clearAllFilters": "Εκκαθάριση όλων των φίλτρων"
+			"filter": "Φίλτρο"
 		},
 		"a11y": {
 			"toggleSidebar": "Εναλλαγή πλαϊνής μπάρας"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1517,12 +1510,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Πλαίσιο ελέγχου",
@@ -1532,7 +1523,6 @@
 				"text": "Text",
 				"multiselect": "Λίστα, πολλαπλή επιλογή"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Καθαρισμός προεπιλογής",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1865,7 +1855,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Ευχαριστούμε για τη συνδρομή σας",
+				"description": "Η πληρωμή ελήφθη. Το πρόγραμμα παρακάτω θα ενημερωθεί μόλις επιβεβαιωθεί."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2468,7 +2462,8 @@
 				"prevTask": "Προηγούμενη εργασία",
 				"openTask": "Άνοιγμα επιλεγμένης εργασίας",
 				"quickSelectNumber": "Επιλογή επιλογής με αριθμό",
-				"calendarView": "Μετάβαση σε προβολή ημερολογίου"
+				"calendarView": "Μετάβαση σε προβολή ημερολογίου",
+				"ganttView": "Μετάβαση σε προβολή Gantt"
 			}
 		}
 	},
@@ -2682,7 +2677,6 @@
 			"high": "Υψηλή",
 			"urgent": "Επείγουσα"
 		},
-		"boardSearchPlaceholder": "Αναζήτηση αιτημάτων...",
 		"view": {
 			"board": "Πίνακας",
 			"list": "Λίστα",
@@ -2815,9 +2809,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Εργασία"
@@ -2889,12 +2881,10 @@
 				"updateError": "Αποτυχία ενημέρωσης προτεραιότητας εργασίας"
 			},
 			"dueDate": {
-				"updateSuccess": "Η ημερομηνία λήξης της εργασίας ενημερώθηκε με επιτυχία",
 				"updateError": "Αποτυχία ενημέρωσης ημερομηνίας λήξης εργασίας",
 				"clear": "Εκκαθάριση ημερομηνίας"
 			},
 			"startDate": {
-				"updateSuccess": "Η ημερομηνία έναρξης της εργασίας ενημερώθηκε με επιτυχία",
 				"updateError": "Αποτυχία ενημέρωσης ημερομηνίας έναρξης εργασίας",
 				"clear": "Εκκαθάριση ημερομηνίας έναρξης"
 			},
@@ -2903,8 +2893,6 @@
 				"empty": "Δεν βρέθηκαν ετικέτες",
 				"create": "Δημιουργία \"{{name}}\"",
 				"chooseColor": "Επιλογή χρώματος",
-				"addSuccess": "Η ετικέτα προστέθηκε",
-				"removeSuccess": "Η ετικέτα αφαιρέθηκε",
 				"updateError": "Αποτυχία ενημέρωσης ετικέτας",
 				"createSuccess": "Η ετικέτα δημιουργήθηκε και προστέθηκε",
 				"createError": "Αποτυχία δημιουργίας ετικέτας",
@@ -2931,26 +2919,18 @@
 			"moveAllTooltip": "Μετακίνηση όλων των προγραμματισμένων στο Προς υλοποίηση",
 			"moveAll": "Μετακίνηση όλων",
 			"addTask": "Προσθήκη εργασίας",
-			"filter": "Φίλτρο",
-			"addFilter": "Προσθήκη φίλτρου...",
 			"sections": {
 				"planned": "Προγραμματισμένα",
 				"archived": "Αρχειοθετημένα"
 			},
 			"noTasksInSection": "Δεν υπάρχουν {{section}} εργασίες",
 			"filters": {
-				"priority": "Προτεραιότητα: {{name}}",
-				"assignee": "Ανατεθειμένος: {{name}}",
-				"due": "Λήξη: {{date}}",
-				"label": "Ετικέτα: {{name}}",
 				"dueThisWeek": "Λήγει αυτή την εβδομάδα",
 				"dueNextWeek": "Λήγει την επόμενη εβδομάδα",
 				"noDueDate": "Χωρίς ημερομηνία λήξης"
 			}
 		},
 		"sort": {
-			"label": "Ταξινόμηση",
-			"by": "Ταξινόμηση κατά",
 			"direction": "Κατεύθυνση",
 			"ascending": "Αύξουσα",
 			"descending": "Φθίνουσα",
@@ -2964,12 +2944,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Φιλτράρισμα κατά",
-			"allStatuses": "Όλες οι καταστάσεις",
-			"allPriorities": "Όλες οι προτεραιότητες",
-			"allAssignees": "Όλοι οι ανατεθειμένοι",
-			"allDueDates": "Όλες οι ημερομηνίες λήξης",
-			"allLabels": "Όλες οι ετικέτες",
 			"selectedCount": "{{count}} επιλεγμένα",
 			"subjects": {
 				"status": "Κατάσταση",
@@ -2980,9 +2954,13 @@
 			},
 			"operators": {
 				"isAnyOf": "είναι ένα από",
-				"includeAnyOf": "περιλαμβάνει κάποιο από"
+				"includeAnyOf": "περιλαμβάνει κάποιο από",
+				"is": "είναι",
+				"isNot": "δεν είναι",
+				"isNoneOf": "δεν είναι κανένα από",
+				"include": "περιλαμβάνει",
+				"exclude": "εξαιρεί"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -2990,13 +2968,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Χρονοδιάγραμμα Gantt",
-			"searchPlaceholder": "Αναζήτηση προγραμματισμένων αιτημάτων...",
 			"hideTasks": "Απόκρυψη εργασιών",
 			"showTasks": "Εμφάνιση εργασιών",
 			"noTasks": "Δεν υπάρχουν προγραμματισμένες εργασίες",
 			"noTasksSubtitle": "Προσθέστε ημερομηνία έναρξης, ημερομηνία λήξης ή και τα δύο στις εργασίες για να τοποθετηθούν στο χρονοδιάγραμμα του έργου.",
 			"noTasksFound": "Δεν βρέθηκαν εργασίες",
-			"noTasksMatch": "Δεν υπάρχουν προγραμματισμένες εργασίες που να ταιριάζουν με \"{{query}}\"",
 			"taskHeader": "Εργασία",
 			"updateDatesError": "Αποτυχία ενημέρωσης ημερομηνιών εργασίας",
 			"resizeStart": "Αλλαγή μεγέθους ημερομηνίας έναρξης",
@@ -3021,7 +2997,10 @@
 			"error": "Αποτυχία δημιουργίας αντιγράφου εργασίας"
 		},
 		"archive": {
-			"success": "Αρχειοθετήθηκαν {{count}} εργασίες"
+			"success": "Αρχειοθετήθηκαν {{count}} εργασίες",
+			"confirmTitle_one": "Αρχειοθέτηση {{count}} ολοκληρωμένης εργασίας;",
+			"confirmTitle_other": "Αρχειοθέτηση {{count}} ολοκληρωμένων εργασιών;",
+			"confirmDescription": "Θα αφαιρεθούν από τον πίνακα και θα μεταφερθούν στην ενότητα «Αρχειοθετημένα» του Backlog."
 		},
 		"listView": {
 			"addTask": "Προσθήκη εργασίας",
@@ -3047,17 +3026,13 @@
 		"dueDate": {
 			"label": "Ημερομηνία λήξης",
 			"clear": "Εκκαθάριση ημερομηνίας",
-			"updateSuccess": "Η ημερομηνία λήξης της εργασίας ενημερώθηκε με επιτυχία",
 			"updateError": "Αποτυχία ενημέρωσης ημερομηνίας λήξης εργασίας",
-			"clearSuccess": "Η ημερομηνία λήξης της εργασίας αφαιρέθηκε",
 			"clearError": "Αποτυχία αφαίρεσης ημερομηνίας λήξης"
 		},
 		"labels": {
-			"label": "Ετικέτες",
 			"empty": "Δεν υπάρχουν διαθέσιμες ετικέτες"
 		},
 		"update": {
-			"success": "Η εργασία ενημερώθηκε με επιτυχία",
 			"error": "Αποτυχία ενημέρωσης εργασίας"
 		},
 		"contextMenu": {
@@ -3079,7 +3054,9 @@
 			"moveToBoardSuccess": "{{count}} εργασίες μετακινήθηκαν στον πίνακα",
 			"moveToBoardError": "Αποτυχία μετακίνησης εργασιών στον πίνακα",
 			"delete": "Διαγραφή εργασιών",
-			"deleteConfirm": "Διαγραφή {{count}} εργασιών; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+			"deleteConfirmTitle_one": "Διαγραφή {{count}} εργασίας;",
+			"deleteConfirmTitle_other": "Διαγραφή {{count}} εργασιών;",
+			"deleteConfirmDescription": "Αυτό θα αφαιρέσει οριστικά τις επιλεγμένες εργασίες και όλα τα δεδομένα τους. Δεν μπορείτε να αναιρέσετε αυτήν την ενέργεια.",
 			"deleteSuccess": "{{count}} εργασίες διαγράφηκαν",
 			"deleteError": "Αποτυχία διαγραφής εργασιών",
 			"archive": "Αρχειοθέτηση εργασιών",
@@ -3134,10 +3111,50 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "Ολοκληρώθηκαν {{completed}} από {{total}} στοιχεία λίστας ελέγχου",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Πεδία",
+			"empty": "Κενό",
+			"required": "Υποχρεωτικό",
+			"enterKey": "Enter",
+			"toSave": "για αποθήκευση",
+			"today": "Σήμερα",
+			"clear": "Εκκαθάριση",
+			"setValue": "Ορισμός {{field}}…",
+			"noMatches": "Δεν βρέθηκαν επιλογές",
+			"missingRequired_one": "{{count}} υποχρεωτικό πεδίο είναι κενό",
+			"missingRequired_other": "{{count}} υποχρεωτικά πεδία είναι κενά",
+			"saveError": "Δεν ήταν δυνατή η αποθήκευση του πεδίου {{field}}",
+			"moreFields_one": "{{count}} ακόμη πεδίο",
+			"moreFields_other": "{{count}} ακόμη πεδία"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Αναζήτηση εργασιών",
+			"clearSearch": "Εκκαθάριση αναζήτησης",
+			"taskCount_one": "{{count}} εργασία",
+			"taskCount_other": "{{count}} εργασίες",
+			"shownCount_one": "{{shown}} από {{count}} εργασία",
+			"shownCount_other": "{{shown}} από {{count}} εργασίες"
+		},
+		"display": {
+			"title": "Εμφάνιση",
+			"sortBy": "Ταξινόμηση κατά",
+			"showOnCards": "Εμφάνιση στις κάρτες",
+			"showOnRows": "Εμφάνιση στις γραμμές",
+			"checklistProgress": "Πρόοδος λίστας ελέγχου",
+			"projectBackground": "Φόντο έργου",
+			"layout": "Διάταξη"
+		},
+		"filterBar": {
+			"label": "Ενεργά φίλτρα",
+			"removeFilter": "Αφαίρεση φίλτρου {{name}}",
+			"noMatches": "Καμία εργασία δεν ταιριάζει με την αναζήτηση ή τα φίλτρα σας."
+		},
+		"filterMenu": {
+			"addFilter": "Προσθήκη φίλτρου…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Κανένα αποτέλεσμα"
 		}
 	},
 	"invitations": {

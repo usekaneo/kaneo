@@ -10,8 +10,7 @@
 			"markAllRead": "Đánh dấu đã đọc tất cả",
 			"remove": "Gỡ bỏ",
 			"reset": "Đặt lại",
-			"filter": "Lọc",
-			"clearAllFilters": "Xóa tất cả bộ lọc"
+			"filter": "Lọc"
 		},
 		"a11y": {
 			"toggleSidebar": "Bật/tắt thanh bên"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1508,12 +1501,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Hộp kiểm",
@@ -1523,7 +1514,6 @@
 				"text": "Text",
 				"multiselect": "Danh sách thả xuống, chọn nhiều"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Xóa mặc định",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1852,7 +1842,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Cảm ơn bạn đã đăng ký",
+				"description": "Đã nhận thanh toán. Gói bên dưới sẽ được cập nhật ngay khi thanh toán được xác nhận."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2426,7 +2420,8 @@
 				"prevTask": "Công việc trước đó",
 				"openTask": "Mở công việc đã chọn",
 				"quickSelectNumber": "Chọn tùy chọn theo số",
-				"calendarView": "Chuyển sang chế độ xem lịch"
+				"calendarView": "Chuyển sang chế độ xem lịch",
+				"ganttView": "Chuyển sang chế độ xem Gantt"
 			}
 		}
 	},
@@ -2636,7 +2631,6 @@
 			"high": "Cao",
 			"urgent": "Khẩn cấp"
 		},
-		"boardSearchPlaceholder": "Tìm phiếu...",
 		"view": {
 			"board": "Bảng",
 			"list": "Danh sách",
@@ -2769,9 +2763,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Công việc"
@@ -2843,12 +2835,10 @@
 				"updateError": "Không thể cập nhật mức ưu tiên công việc"
 			},
 			"dueDate": {
-				"updateSuccess": "Cập nhật ngày đến hạn công việc thành công",
 				"updateError": "Không thể cập nhật ngày đến hạn công việc",
 				"clear": "Xóa ngày"
 			},
 			"startDate": {
-				"updateSuccess": "Cập nhật ngày bắt đầu công việc thành công",
 				"updateError": "Không thể cập nhật ngày bắt đầu công việc",
 				"clear": "Xóa ngày bắt đầu"
 			},
@@ -2857,8 +2847,6 @@
 				"empty": "Không tìm thấy nhãn",
 				"create": "Tạo \"{{name}}\"",
 				"chooseColor": "Chọn màu",
-				"addSuccess": "Đã thêm nhãn",
-				"removeSuccess": "Đã gỡ nhãn",
 				"updateError": "Không thể cập nhật nhãn",
 				"createSuccess": "Đã tạo và thêm nhãn",
 				"createError": "Không thể tạo nhãn",
@@ -2885,26 +2873,18 @@
 			"moveAllTooltip": "Di chuyển tất cả công việc đã lên kế hoạch sang Cần làm",
 			"moveAll": "Di chuyển tất cả",
 			"addTask": "Thêm công việc",
-			"filter": "Lọc",
-			"addFilter": "Thêm bộ lọc...",
 			"sections": {
 				"planned": "Đã lên kế hoạch",
 				"archived": "Đã lưu trữ"
 			},
 			"noTasksInSection": "Không có công việc {{section}}",
 			"filters": {
-				"priority": "Mức ưu tiên: {{name}}",
-				"assignee": "Người được giao: {{name}}",
-				"due": "Đến hạn: {{date}}",
-				"label": "Nhãn: {{name}}",
 				"dueThisWeek": "Đến hạn tuần này",
 				"dueNextWeek": "Đến hạn tuần sau",
 				"noDueDate": "Không có ngày đến hạn"
 			}
 		},
 		"sort": {
-			"label": "Sắp xếp",
-			"by": "Sắp xếp theo",
 			"direction": "Chiều",
 			"ascending": "Tăng dần",
 			"descending": "Giảm dần",
@@ -2918,12 +2898,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Lọc theo",
-			"allStatuses": "Tất cả trạng thái",
-			"allPriorities": "Tất cả mức ưu tiên",
-			"allAssignees": "Tất cả người được giao",
-			"allDueDates": "Tất cả ngày đến hạn",
-			"allLabels": "Tất cả nhãn",
 			"selectedCount": "Đã chọn {{count}}",
 			"subjects": {
 				"status": "Trạng thái",
@@ -2934,9 +2908,13 @@
 			},
 			"operators": {
 				"isAnyOf": "là một trong",
-				"includeAnyOf": "bao gồm một trong"
+				"includeAnyOf": "bao gồm một trong",
+				"is": "là",
+				"isNot": "không phải",
+				"isNoneOf": "không phải bất kỳ",
+				"include": "bao gồm",
+				"exclude": "loại trừ"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -2944,13 +2922,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Dòng thời gian Gantt",
-			"searchPlaceholder": "Tìm phiếu đã lên lịch...",
 			"hideTasks": "Ẩn công việc",
 			"showTasks": "Hiện công việc",
 			"noTasks": "Không có công việc đã lên lịch",
 			"noTasksSubtitle": "Thêm ngày bắt đầu, ngày đến hạn, hoặc cả hai cho công việc để đặt chúng lên dòng thời gian dự án.",
 			"noTasksFound": "Không tìm thấy công việc nào",
-			"noTasksMatch": "Không có công việc đã lên lịch khớp với \"{{query}}\"",
 			"taskHeader": "Công việc",
 			"updateDatesError": "Không thể cập nhật ngày của công việc",
 			"resizeStart": "Thay đổi kích thước ngày bắt đầu",
@@ -2975,7 +2951,9 @@
 			"error": "Không thể nhân bản công việc"
 		},
 		"archive": {
-			"success": "Đã lưu trữ {{count}} công việc"
+			"success": "Đã lưu trữ {{count}} công việc",
+			"confirmTitle_other": "Lưu trữ {{count}} công việc đã hoàn thành?",
+			"confirmDescription": "Chúng sẽ rời khỏi bảng và chuyển sang mục \"Đã lưu trữ\" trong Backlog."
 		},
 		"listView": {
 			"addTask": "Thêm công việc",
@@ -3000,17 +2978,13 @@
 		"dueDate": {
 			"label": "Ngày đến hạn",
 			"clear": "Xóa ngày",
-			"updateSuccess": "Cập nhật ngày đến hạn công việc thành công",
 			"updateError": "Không thể cập nhật ngày đến hạn công việc",
-			"clearSuccess": "Đã xóa ngày đến hạn công việc",
 			"clearError": "Không thể xóa ngày đến hạn"
 		},
 		"labels": {
-			"label": "Nhãn",
 			"empty": "Không có nhãn khả dụng"
 		},
 		"update": {
-			"success": "Cập nhật công việc thành công",
 			"error": "Không thể cập nhật công việc"
 		},
 		"contextMenu": {
@@ -3032,7 +3006,8 @@
 			"moveToBoardSuccess": "Đã chuyển {{count}} công việc sang bảng",
 			"moveToBoardError": "Không thể chuyển công việc sang bảng",
 			"delete": "Xóa công việc",
-			"deleteConfirm": "Xóa {{count}} công việc? Hành động này không thể hoàn tác.",
+			"deleteConfirmTitle_other": "Xóa {{count}} công việc?",
+			"deleteConfirmDescription": "Thao tác này sẽ xóa vĩnh viễn các công việc đã chọn và toàn bộ dữ liệu của chúng. Bạn không thể hoàn tác hành động này.",
 			"deleteSuccess": "Đã xóa {{count}} công việc",
 			"deleteError": "Không thể xóa công việc",
 			"archive": "Lưu trữ công việc",
@@ -3087,10 +3062,46 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "Đã hoàn thành {{completed}} trên {{total}} mục trong danh sách kiểm tra",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Trường",
+			"empty": "Trống",
+			"required": "Bắt buộc",
+			"enterKey": "Enter",
+			"toSave": "để lưu",
+			"today": "Hôm nay",
+			"clear": "Xóa",
+			"setValue": "Đặt {{field}}…",
+			"noMatches": "Không có tùy chọn phù hợp",
+			"missingRequired_other": "{{count}} trường bắt buộc còn trống",
+			"saveError": "Không thể lưu {{field}}",
+			"moreFields_other": "Thêm {{count}} trường"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Tìm công việc",
+			"clearSearch": "Xóa tìm kiếm",
+			"taskCount_other": "{{count}} công việc",
+			"shownCount_other": "{{shown}} trên {{count}} công việc"
+		},
+		"display": {
+			"title": "Hiển thị",
+			"sortBy": "Sắp xếp theo",
+			"showOnCards": "Hiện trên thẻ",
+			"showOnRows": "Hiện trên hàng",
+			"checklistProgress": "Tiến độ danh sách kiểm tra",
+			"projectBackground": "Hình nền dự án",
+			"layout": "Bố cục"
+		},
+		"filterBar": {
+			"label": "Bộ lọc đang áp dụng",
+			"removeFilter": "Xóa bộ lọc {{name}}",
+			"noMatches": "Không có công việc nào khớp với tìm kiếm hoặc bộ lọc của bạn."
+		},
+		"filterMenu": {
+			"addFilter": "Thêm bộ lọc…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Không có kết quả"
 		}
 	},
 	"invitations": {

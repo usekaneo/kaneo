@@ -10,8 +10,7 @@
 			"markAllRead": "全部标为已读",
 			"remove": "移除",
 			"reset": "重置",
-			"filter": "筛选",
-			"clearAllFilters": "清除全部筛选"
+			"filter": "筛选"
 		},
 		"a11y": {
 			"toggleSidebar": "切换侧边栏"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "项目状态加载失败。"
 			}
-		},
-		"boolean": {
-			"false": "否",
-			"notSet": "未设置",
-			"true": "是",
-			"undefined": "未定义"
 		}
 	},
 	"auth": {
@@ -1508,12 +1501,10 @@
 			"createSuccess": "自定义字段已创建。",
 			"creating": "正在创建…",
 			"defaultLabel": "默认",
-			"defaultValuePlaceholder": "默认值",
 			"deleteError": "删除自定义字段失败。",
 			"deleteSuccess": "自定义字段已删除。",
 			"deleting": "正在删除…",
 			"namePlaceholder": "字段名称",
-			"noOptionsPlaceholder": "暂无选项",
 			"required": "必填",
 			"types": {
 				"boolean": "复选框",
@@ -1523,7 +1514,6 @@
 				"text": "文本",
 				"multiselect": "下拉选择（多选）"
 			},
-			"availableOptions": "可选项",
 			"clearDefault": "清除默认值",
 			"moreOptions": "还有 {{hiddenCount}} 项",
 			"reorderError": "字段排序失败",
@@ -1852,7 +1842,11 @@
 				"expiredDescription": "订阅后即可继续创建和编辑。",
 				"viewPlans": "查看套餐"
 			},
-			"openFailed": "无法打开此工作区的账单页面"
+			"openFailed": "无法打开此工作区的账单页面",
+			"checkoutSuccess": {
+				"title": "感谢订阅",
+				"description": "已收到付款。确认后，下方的方案会随即更新。"
+			}
 		},
 		"syncRules": {
 			"addLabel": "添加标签",
@@ -2426,7 +2420,8 @@
 				"nextTask": "下一任务",
 				"prevTask": "上一任务",
 				"openTask": "打开所选任务",
-				"quickSelectNumber": "按数字选择选项"
+				"quickSelectNumber": "按数字选择选项",
+				"ganttView": "切换到甘特图视图"
 			}
 		}
 	},
@@ -2636,7 +2631,6 @@
 			"high": "高",
 			"urgent": "紧急"
 		},
-		"boardSearchPlaceholder": "搜索工单…",
 		"view": {
 			"board": "看板",
 			"list": "列表",
@@ -2769,9 +2763,7 @@
 				"saving": "正在保存…",
 				"saveFailed": "更改保存失败",
 				"retrySave": "重试"
-			},
-			"customFieldUpdated": "字段已更新",
-			"selectOption": "选择选项"
+			}
 		},
 		"entity": {
 			"task": "任务"
@@ -2843,12 +2835,10 @@
 				"updateError": "更新任务优先级失败"
 			},
 			"dueDate": {
-				"updateSuccess": "任务截止日期更新成功",
 				"updateError": "更新任务截止日期失败",
 				"clear": "清除日期"
 			},
 			"startDate": {
-				"updateSuccess": "任务开始日期更新成功",
 				"updateError": "更新任务开始日期失败",
 				"clear": "清除开始日期"
 			},
@@ -2857,8 +2847,6 @@
 				"empty": "未找到标签",
 				"create": "创建 \"{{name}}\"",
 				"chooseColor": "选择颜色",
-				"addSuccess": "标签已添加",
-				"removeSuccess": "标签已移除",
 				"updateError": "更新标签失败",
 				"createSuccess": "标签已创建并添加",
 				"createError": "创建标签失败",
@@ -2885,26 +2873,18 @@
 			"moveAllTooltip": "将所有已计划任务移至待办",
 			"moveAll": "全部移动",
 			"addTask": "添加任务",
-			"filter": "筛选",
-			"addFilter": "添加筛选…",
 			"sections": {
 				"planned": "已计划",
 				"archived": "已归档"
 			},
 			"noTasksInSection": "无 {{section}} 任务",
 			"filters": {
-				"priority": "优先级：{{name}}",
-				"assignee": "负责人：{{name}}",
-				"due": "截止：{{date}}",
-				"label": "标签：{{name}}",
 				"dueThisWeek": "本周到期",
 				"dueNextWeek": "下周到期",
 				"noDueDate": "无截止日期"
 			}
 		},
 		"sort": {
-			"label": "排序",
-			"by": "排序方式",
 			"direction": "方向",
 			"ascending": "升序",
 			"descending": "降序",
@@ -2918,12 +2898,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "筛选条件",
-			"allStatuses": "所有状态",
-			"allPriorities": "所有优先级",
-			"allAssignees": "所有负责人",
-			"allDueDates": "所有截止日期",
-			"allLabels": "所有标签",
 			"selectedCount": "已选 {{count}} 个",
 			"subjects": {
 				"status": "状态",
@@ -2934,9 +2908,13 @@
 			},
 			"operators": {
 				"isAnyOf": "为以下任一",
-				"includeAnyOf": "包含以下任一"
+				"includeAnyOf": "包含以下任一",
+				"is": "为",
+				"isNot": "不为",
+				"isNoneOf": "不为以下任一",
+				"include": "包含",
+				"exclude": "不包含"
 			},
-			"all": "全部",
 			"allCustomFieldValues": "所有值",
 			"noCustomFieldValues": "没有自定义字段的值",
 			"noValuesUsedYet": "还没有使用过任何值"
@@ -2959,13 +2937,11 @@
 			"pageTitle": "{{name}} – 甘特图",
 			"title": "甘特图时间线",
 			"jumpToToday": "回到今天",
-			"searchPlaceholder": "搜索已排期工单…",
 			"hideTasks": "隐藏任务",
 			"showTasks": "显示任务",
 			"noTasks": "无已排期任务",
 			"noTasksSubtitle": "为任务添加开始日期、截止日期或两者，以将其放入项目时间线。",
 			"noTasksFound": "未找到任务",
-			"noTasksMatch": "没有匹配 \"{{query}}\" 的已排期任务",
 			"taskHeader": "任务",
 			"updateDatesError": "更新任务日期失败",
 			"resizeStart": "调整开始日期",
@@ -2989,7 +2965,9 @@
 			"error": "创建任务副本失败"
 		},
 		"archive": {
-			"success": "已归档 {{count}} 个任务"
+			"success": "已归档 {{count}} 个任务",
+			"confirmTitle_other": "归档 {{count}} 个已完成的任务？",
+			"confirmDescription": "这些任务将离开看板，移至待办中的“已归档”分区。"
 		},
 		"listView": {
 			"addTask": "添加任务",
@@ -3014,17 +2992,13 @@
 		"dueDate": {
 			"label": "截止日期",
 			"clear": "清除日期",
-			"updateSuccess": "任务截止日期更新成功",
 			"updateError": "更新任务截止日期失败",
-			"clearSuccess": "任务截止日期已清除",
 			"clearError": "清除截止日期失败"
 		},
 		"labels": {
-			"label": "标签",
 			"empty": "无可用标签"
 		},
 		"update": {
-			"success": "任务更新成功",
 			"error": "更新任务失败"
 		},
 		"contextMenu": {
@@ -3046,7 +3020,8 @@
 			"moveToBoardSuccess": "{{count}} 个任务已移至看板",
 			"moveToBoardError": "将任务移至看板失败",
 			"delete": "删除任务",
-			"deleteConfirm": "删除 {{count}} 个任务？此操作不可撤销。",
+			"deleteConfirmTitle_other": "删除 {{count}} 个任务？",
+			"deleteConfirmDescription": "这将永久删除所选任务及其所有数据，此操作不可撤销。",
 			"deleteSuccess": "已删除 {{count}} 个任务",
 			"deleteError": "删除任务失败",
 			"archive": "归档任务",
@@ -3087,10 +3062,46 @@
 		"descriptionLoadError": "描述加载失败，请重试载入当前版本。",
 		"checklistProgress": "已完成 {{completed}}/{{total}} 个清单项",
 		"customFields": {
-			"ariaLabel": "自定义字段"
+			"fields": "字段",
+			"empty": "空",
+			"required": "必填",
+			"enterKey": "Enter",
+			"toSave": "保存",
+			"today": "今天",
+			"clear": "清除",
+			"setValue": "设置{{field}}…",
+			"noMatches": "没有匹配的选项",
+			"missingRequired_other": "有 {{count}} 个必填字段为空",
+			"saveError": "无法保存{{field}}",
+			"moreFields_other": "另外 {{count}} 个字段"
 		},
 		"board": {
 			"reorderFailed": "无法移动任务，请重试。"
+		},
+		"toolbar": {
+			"search": "搜索任务",
+			"clearSearch": "清除搜索",
+			"taskCount_other": "{{count}} 个任务",
+			"shownCount_other": "{{shown}} / {{count}} 个任务"
+		},
+		"display": {
+			"title": "显示",
+			"sortBy": "排序方式",
+			"showOnCards": "在卡片上显示",
+			"showOnRows": "在行中显示",
+			"checklistProgress": "清单进度",
+			"projectBackground": "项目背景",
+			"layout": "布局"
+		},
+		"filterBar": {
+			"label": "已应用的筛选",
+			"removeFilter": "移除“{{name}}”筛选",
+			"noMatches": "没有任务符合你的搜索或筛选条件。"
+		},
+		"filterMenu": {
+			"addFilter": "添加筛选…",
+			"searchSubject": "{{name}}…",
+			"noResults": "无结果"
 		}
 	},
 	"invitations": {

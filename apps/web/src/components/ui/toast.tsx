@@ -6,9 +6,11 @@ import {
   CircleCheckIcon,
   InfoIcon,
   LoaderCircleIcon,
+  type LucideIcon,
   TriangleAlertIcon,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { ToastShakeRoot } from "@/components/ui/toast-shake-root";
 import { cn } from "@/lib/cn";
 
 const toastManager = Toast.createToastManager();
@@ -68,14 +70,20 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
         data-slot="toast-viewport"
       >
         {toasts.map((toast) => {
-          const Icon = toast.type
-            ? TOAST_ICONS[toast.type as keyof typeof TOAST_ICONS]
-            : null;
+          const data = toast.data as
+            | { icon?: LucideIcon; repeat?: number }
+            | undefined;
+          const Icon =
+            data?.icon ??
+            (toast.type
+              ? TOAST_ICONS[toast.type as keyof typeof TOAST_ICONS]
+              : null);
 
           return (
-            <Toast.Root
+            <ToastShakeRoot
+              shakeKey={data?.repeat}
               className={cn(
-                "absolute z-[calc(9999-var(--toast-index))] h-(--toast-calc-height) w-full select-none rounded-lg border bg-popover not-dark:bg-clip-padding text-popover-foreground shadow-lg/5 [transition:transform_.5s_cubic-bezier(.22,1,.36,1),opacity_.5s,height_.15s] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
+                "absolute z-[calc(9999-var(--toast-index))] h-(--toast-calc-height) w-full select-none rounded-lg border bg-popover not-dark:bg-clip-padding text-popover-foreground shadow-lg/5 [transition:transform_.3s_var(--ease-out),opacity_.3s_var(--ease-out),height_.15s_var(--ease-out)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[calc(var(--radius-lg)-1px)] before:shadow-[0_1px_--theme(--color-black/4%)] dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
                 // Base positioning using data-position
                 "data-[position*=right]:right-0 data-[position*=right]:left-auto",
                 "data-[position*=left]:right-auto data-[position*=left]:left-0",
@@ -116,6 +124,7 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
                 "data-expanded:data-ending-style:data-[swipe-direction=down]:transform-[translateY(calc(var(--toast-swipe-movement-y)+100%+var(--toast-inset)))]",
               )}
               data-position={position}
+              data-slot="toast"
               key={toast.id}
               swipeDirection={
                 position.includes("center")
@@ -133,7 +142,13 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
                       className="[&>svg]:h-lh [&>svg]:w-4 [&_svg]:pointer-events-none [&_svg]:shrink-0"
                       data-slot="toast-icon"
                     >
-                      <Icon className="in-data-[type=loading]:animate-spin in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=loading]:opacity-80" />
+                      <Icon
+                        className={cn(
+                          data?.icon
+                            ? "text-muted-foreground"
+                            : "in-data-[type=loading]:animate-spin in-data-[type=error]:text-destructive in-data-[type=info]:text-info in-data-[type=success]:text-success in-data-[type=warning]:text-warning in-data-[type=loading]:opacity-80",
+                        )}
+                      />
                     </div>
                   )}
 
@@ -157,7 +172,7 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
                   </Toast.Action>
                 )}
               </Toast.Content>
-            </Toast.Root>
+            </ToastShakeRoot>
           );
         })}
       </Toast.Viewport>
@@ -205,7 +220,7 @@ function AnchoredToasts() {
             >
               <Toast.Root
                 className={cn(
-                  "relative text-balance border bg-popover not-dark:bg-clip-padding text-popover-foreground text-xs transition-[scale,opacity] before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] data-ending-style:scale-98 data-starting-style:scale-98 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
+                  "relative origin-(--transform-origin) text-balance border bg-popover not-dark:bg-clip-padding text-popover-foreground text-xs transition-[scale,opacity] duration-150 ease-out before:pointer-events-none before:absolute before:inset-0 before:shadow-[0_1px_--theme(--color-black/4%)] data-ending-style:scale-98 data-starting-style:scale-98 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:before:shadow-[0_-1px_--theme(--color-white/6%)]",
                   tooltipStyle
                     ? "rounded-md shadow-md/5 before:rounded-[calc(var(--radius-md)-1px)]"
                     : "rounded-lg shadow-lg/5 before:rounded-[calc(var(--radius-lg)-1px)]",

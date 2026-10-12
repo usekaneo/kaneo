@@ -10,8 +10,7 @@
 			"markAllRead": "Mark all read",
 			"remove": "Remove",
 			"reset": "Reset",
-			"filter": "Filter",
-			"clearAllFilters": "Clear all filters"
+			"filter": "Filter"
 		},
 		"a11y": {
 			"toggleSidebar": "Toggle sidebar"
@@ -34,12 +33,6 @@
 		"breadcrumb": {
 			"label": "Breadcrumb",
 			"more": "More"
-		},
-		"boolean": {
-			"true": "True",
-			"false": "False",
-			"undefined": "Undefined",
-			"notSet": "Not Set"
 		},
 		"language": {
 			"english": "English",
@@ -1730,8 +1723,6 @@
 		},
 		"customFields": {
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
-			"defaultValuePlaceholder": "Default value",
 			"selectPlaceholder": "Select option(s)",
 			"required": "Required",
 			"creating": "Creating...",
@@ -1744,7 +1735,6 @@
 			"reorderError": "Failed to reorder fields",
 			"moreOptions": "+{{hiddenCount}} more",
 			"clearDefault": "Clear default",
-			"availableOptions": "Available options",
 			"types": {
 				"text": "Text",
 				"number": "Number",
@@ -2275,7 +2265,11 @@
 				"memberDescription": "You can still view everything, but creating and editing are paused until a workspace owner or admin chooses a plan.",
 				"action": "Choose a plan"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Thanks for subscribing",
+				"description": "Payment received. The plan below updates once it's confirmed."
+			}
 		},
 		"chatIntegrations": {
 			"optional": "Optional",
@@ -2468,7 +2462,8 @@
 				"nextTask": "Next task",
 				"prevTask": "Previous task",
 				"openTask": "Open selected task",
-				"quickSelectNumber": "Select option by number"
+				"quickSelectNumber": "Select option by number",
+				"ganttView": "Switch to Gantt view"
 			}
 		}
 	},
@@ -2683,7 +2678,6 @@
 			"high": "High",
 			"urgent": "Urgent"
 		},
-		"boardSearchPlaceholder": "Search tickets...",
 		"view": {
 			"board": "Board",
 			"list": "List",
@@ -2703,8 +2697,6 @@
 		},
 		"detail": {
 			"subtaskOf": "Subtask of",
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option",
 			"activity": "Activity",
 			"noActivity": "No activity found",
 			"openInFullPage": "Open in full page",
@@ -2890,12 +2882,10 @@
 				"updateError": "Failed to update task priority"
 			},
 			"dueDate": {
-				"updateSuccess": "Task due date updated successfully",
 				"updateError": "Failed to update task due date",
 				"clear": "Clear date"
 			},
 			"startDate": {
-				"updateSuccess": "Task start date updated successfully",
 				"updateError": "Failed to update task start date",
 				"clear": "Clear start date"
 			},
@@ -2904,8 +2894,6 @@
 				"empty": "No labels found",
 				"create": "Create \"{{name}}\"",
 				"chooseColor": "Choose color",
-				"addSuccess": "Label added",
-				"removeSuccess": "Label removed",
 				"updateError": "Failed to update label",
 				"createSuccess": "Label created and added",
 				"createError": "Failed to create label",
@@ -2932,26 +2920,18 @@
 			"moveAllTooltip": "Move All Planned to To Do",
 			"moveAll": "Move All",
 			"addTask": "Add task",
-			"filter": "Filter",
-			"addFilter": "Add filter...",
 			"sections": {
 				"planned": "Planned",
 				"archived": "Archived"
 			},
 			"noTasksInSection": "No {{section}} tasks",
 			"filters": {
-				"priority": "Priority: {{name}}",
-				"assignee": "Assignee: {{name}}",
-				"due": "Due: {{date}}",
-				"label": "Label: {{name}}",
 				"dueThisWeek": "Due this week",
 				"dueNextWeek": "Due next week",
 				"noDueDate": "No due date"
 			}
 		},
 		"sort": {
-			"label": "Sort",
-			"by": "Sort By",
 			"direction": "Direction",
 			"ascending": "Ascending",
 			"descending": "Descending",
@@ -2965,17 +2945,10 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Filter By",
-			"allStatuses": "All statuses",
-			"allPriorities": "All priorities",
-			"allAssignees": "All assignees",
-			"allDueDates": "All due dates",
-			"allLabels": "All labels",
 			"noValuesUsedYet": "No values used yet",
 			"noCustomFieldValues": "No custom field values",
 			"allCustomFieldValues": "All values",
 			"selectedCount": "{{count}} selected",
-			"all": "All",
 			"subjects": {
 				"status": "Status",
 				"priority": "Priority",
@@ -2985,7 +2958,12 @@
 			},
 			"operators": {
 				"isAnyOf": "is any of",
-				"includeAnyOf": "include any of"
+				"includeAnyOf": "include any of",
+				"is": "is",
+				"isNot": "is not",
+				"isNoneOf": "is none of",
+				"include": "include",
+				"exclude": "exclude"
 			}
 		},
 		"calendar": {
@@ -3006,13 +2984,11 @@
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt Timeline",
 			"jumpToToday": "Jump to today",
-			"searchPlaceholder": "Search scheduled tickets...",
 			"hideTasks": "Hide tasks",
 			"showTasks": "Show tasks",
 			"noTasks": "No scheduled tasks",
 			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the project timeline.",
 			"noTasksFound": "No tasks found",
-			"noTasksMatch": "No scheduled tasks match \"{{query}}\"",
 			"taskHeader": "Task",
 			"updateDatesError": "Failed to update task dates",
 			"resizeStart": "Resize start date",
@@ -3036,7 +3012,10 @@
 			"error": "Failed to duplicate task"
 		},
 		"archive": {
-			"success": "Archived {{count}} tasks"
+			"success": "Archived {{count}} tasks",
+			"confirmTitle_one": "Archive {{count}} completed task?",
+			"confirmTitle_other": "Archive {{count}} completed tasks?",
+			"confirmDescription": "They leave the board and move to the Archived section of the backlog."
 		},
 		"listView": {
 			"addTask": "Add task",
@@ -3062,17 +3041,13 @@
 		"dueDate": {
 			"label": "Due date",
 			"clear": "Clear date",
-			"updateSuccess": "Task due date updated successfully",
 			"updateError": "Failed to update task due date",
-			"clearSuccess": "Task due date cleared",
 			"clearError": "Failed to clear due date"
 		},
 		"labels": {
-			"label": "Labels",
 			"empty": "No labels available"
 		},
 		"update": {
-			"success": "Task updated successfully",
 			"error": "Failed to update task"
 		},
 		"contextMenu": {
@@ -3094,7 +3069,9 @@
 			"moveToBoardSuccess": "{{count}} tasks moved to board",
 			"moveToBoardError": "Failed to move tasks to board",
 			"delete": "Delete tasks",
-			"deleteConfirm": "Delete {{count}} tasks? This action cannot be undone.",
+			"deleteConfirmTitle_one": "Delete {{count}} task?",
+			"deleteConfirmTitle_other": "Delete {{count}} tasks?",
+			"deleteConfirmDescription": "This will permanently remove the selected tasks and all their data. You can't undo this action.",
 			"deleteSuccess": "{{count}} tasks deleted",
 			"deleteError": "Failed to delete tasks",
 			"archive": "Archive tasks",
@@ -3129,7 +3106,20 @@
 			}
 		},
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Fields",
+			"empty": "Empty",
+			"required": "Required",
+			"enterKey": "Enter",
+			"toSave": "to save",
+			"today": "Today",
+			"clear": "Clear",
+			"setValue": "Set {{field}}…",
+			"noMatches": "No matching options",
+			"missingRequired_one": "{{count}} required field is empty",
+			"missingRequired_other": "{{count}} required fields are empty",
+			"saveError": "Couldn't save {{field}}",
+			"moreFields_one": "{{count}} more field",
+			"moreFields_other": "{{count}} more fields"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
@@ -3138,6 +3128,33 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Search tasks",
+			"clearSearch": "Clear search",
+			"taskCount_one": "{{count}} task",
+			"taskCount_other": "{{count}} tasks",
+			"shownCount_one": "{{shown}} of {{count}} task",
+			"shownCount_other": "{{shown}} of {{count}} tasks"
+		},
+		"display": {
+			"title": "Display",
+			"sortBy": "Sort by",
+			"showOnCards": "Show on cards",
+			"showOnRows": "Show on rows",
+			"checklistProgress": "Checklist progress",
+			"projectBackground": "Project background",
+			"layout": "Layout"
+		},
+		"filterBar": {
+			"label": "Active filters",
+			"removeFilter": "Remove {{name}} filter",
+			"noMatches": "No tasks match your search or filters."
+		},
+		"filterMenu": {
+			"addFilter": "Add filter…",
+			"searchSubject": "{{name}}…",
+			"noResults": "No results"
 		}
 	},
 	"invitations": {

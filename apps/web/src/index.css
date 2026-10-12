@@ -40,18 +40,20 @@ input:-webkit-autofill:active {
   [data-slot="menu-popup"],
   [data-slot="menu-sub-content"],
   [data-slot="tooltip-popup"],
+  [data-slot="context-menu-content"],
   [data-slot="dialog-popup"],
   [data-slot="alert-dialog-popup"],
   [data-slot="command-dialog-popup"],
   [data-slot="sheet-popup"],
+  [data-slot="sidebar"][data-mobile="true"],
+  [data-slot="toast"],
   [data-slot="toast-popup"] {
     transition-property: opacity !important;
   }
 
-  [data-slot="sidebar-gap"],
-  [data-slot="sidebar-container"],
-  [data-slot="sidebar-group-content"],
-  [data-slot="sidebar-menu-badge"] {
+  [data-slot="sidebar-menu-badge"],
+  [data-slot="collapsible-panel"],
+  [data-slot="accordion-panel"] {
     transition: none !important;
   }
 
@@ -67,6 +69,7 @@ input:-webkit-autofill:active {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --animate-skeleton: skeleton 2s -1s infinite linear;
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
   --font-mono: var(--font-mono);
@@ -118,6 +121,17 @@ input:-webkit-autofill:active {
   @keyframes skeleton {
     to {
       background-position: -200% 0;
+    }
+  }
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
     }
   }
 }
@@ -306,14 +320,17 @@ input:-webkit-autofill:active {
       background-color 0.15s ease,
       border-color 0.15s ease,
       color 0.15s ease,
-      transform 0.15s ease;
+      transform 0.15s var(--ease-out);
   }
 
   .kaneo-editor-quick-attach:hover {
     border-color: color-mix(in srgb, var(--foreground) 18%, var(--border));
     background: color-mix(in srgb, var(--accent) 72%, transparent);
     color: var(--foreground);
-    transform: translateY(-1px);
+  }
+
+  .kaneo-editor-quick-attach:active {
+    transform: scale(0.97);
   }
 
   .kaneo-editor-quick-attach:focus-visible {
@@ -765,7 +782,7 @@ input:-webkit-autofill:active {
     box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 12%, transparent);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 120ms ease-in-out;
+    transition: opacity 120ms ease;
   }
 
   /* Clicking the image opens the preview dialog, so the controls reveal on
@@ -805,7 +822,7 @@ input:-webkit-autofill:active {
     background: var(--primary);
     opacity: 0;
     cursor: ew-resize;
-    transition: opacity 120ms ease-in-out;
+    transition: opacity 120ms ease;
   }
 
   .kaneo-resizable-image:hover .kaneo-resizable-image-handle,
@@ -1020,9 +1037,8 @@ input:-webkit-autofill:active {
     );
     text-decoration: none;
     transition:
-      border-color 0.18s ease,
-      background-color 0.18s ease,
-      transform 0.18s ease;
+      border-color 0.15s ease,
+      background-color 0.15s ease;
   }
 
   .kaneo-attachment-card:hover {
@@ -1032,7 +1048,6 @@ input:-webkit-autofill:active {
       color-mix(in srgb, var(--accent) 62%, transparent),
       color-mix(in srgb, var(--accent) 30%, transparent)
     );
-    transform: translateY(-1px);
   }
 
   .kaneo-attachment-card-icon {

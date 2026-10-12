@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Plus, Search, X } from "lucide-react";
+import { Check, Plus, Search, X, TagIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
@@ -136,7 +136,6 @@ export default function TaskLabelsPopover({
         );
         if (taskLabel?.id) {
           await detachLabel({ labelId: taskLabel.id });
-          toast.success(t("tasks:popover.labels.removeSuccess"));
         }
       } else {
         if (workspaceLabel.taskId !== null) return;
@@ -144,7 +143,6 @@ export default function TaskLabelsPopover({
           labelId: workspaceLabel.id,
           taskId: task.id,
         });
-        toast.success(t("tasks:popover.labels.addSuccess"));
       }
 
       await queryClient.invalidateQueries({
@@ -187,7 +185,7 @@ export default function TaskLabelsPopover({
         queryKey: ["tasks", task.projectId],
       });
 
-      toast.success(t("tasks:popover.labels.createSuccess"));
+      toast.success(t("tasks:popover.labels.createSuccess"), { icon: TagIcon });
       handleClose();
     } catch (error) {
       toast.error(

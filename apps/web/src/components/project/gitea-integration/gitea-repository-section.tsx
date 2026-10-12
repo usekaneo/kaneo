@@ -1,3 +1,4 @@
+import { MessageSquareIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AccessStatusLine } from "@/components/project/code-hosting/access-status-line";
 import type { AccessVerificationResult } from "@/components/project/code-hosting/access-verification-tone";
@@ -51,6 +52,7 @@ export function GiteaRepositorySection({
         next
           ? t("settings:giteaIntegration.toast.commentOnEnabled")
           : t("settings:giteaIntegration.toast.commentOnDisabled"),
+        { icon: MessageSquareIcon },
       );
     } catch (error) {
       toast.error(

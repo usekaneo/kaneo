@@ -1,3 +1,4 @@
+import { MessageSquareIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { CommentLinkRow } from "@/components/project/code-hosting/comment-link-row";
 import { RepositoryLink } from "@/components/project/code-hosting/repository-link";
@@ -43,6 +44,7 @@ export function GithubRepositorySection({
         checked
           ? t("settings:githubIntegration.toast.commentOnEnabled")
           : t("settings:githubIntegration.toast.commentOnDisabled"),
+        { icon: MessageSquareIcon },
       );
     } catch (error) {
       toast.error(

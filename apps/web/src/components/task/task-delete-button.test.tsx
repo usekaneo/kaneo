@@ -111,7 +111,9 @@ describe("TaskDeleteButton", () => {
     await waitFor(() =>
       expect(mocks.deleteTask).toHaveBeenCalledWith("task-1"),
     );
-    expect(mocks.success).toHaveBeenCalledWith("tasks:delete.success");
+    expect(mocks.success).toHaveBeenCalledWith("tasks:delete.success", {
+      icon: expect.anything(),
+    });
     expect(onDeleted).toHaveBeenCalledTimes(1);
   });
 

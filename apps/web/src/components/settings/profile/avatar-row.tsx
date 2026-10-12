@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Loader2, ImageMinusIcon, ImageUpIcon } from "lucide-react";
 import { type ChangeEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,7 +32,9 @@ export function AvatarRow({ name, image, refetchUser }: AvatarRowProps) {
     try {
       await updateAvatar(file);
       await refetchUser();
-      toast.success(t("settings:informationPage.avatar.updateSuccess"));
+      toast.success(t("settings:informationPage.avatar.updateSuccess"), {
+        icon: ImageUpIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -46,7 +48,9 @@ export function AvatarRow({ name, image, refetchUser }: AvatarRowProps) {
     try {
       await removeAvatar();
       await refetchUser();
-      toast.success(t("settings:informationPage.avatar.removeSuccess"));
+      toast.success(t("settings:informationPage.avatar.removeSuccess"), {
+        icon: ImageMinusIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error

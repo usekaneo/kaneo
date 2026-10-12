@@ -1,3 +1,4 @@
+import { Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
 import type { WorkspaceLabel } from "@/components/settings/labels/workspace-label";
@@ -24,7 +25,9 @@ export function DeleteLabelDialog({
 
     try {
       await deleteLabel.mutateAsync({ id: label.id });
-      toast.success(t("settings:workspaceLabels.deleteSuccess"));
+      toast.success(t("settings:workspaceLabels.deleteSuccess"), {
+        icon: Trash2Icon,
+      });
       onOpenChange(false);
     } catch (error) {
       toast.error(

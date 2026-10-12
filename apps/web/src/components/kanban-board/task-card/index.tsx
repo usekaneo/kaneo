@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import type Task from "@/types/task";
 import TaskCardContent from "./task-card-content";
 import { useTaskCardClick } from "./use-task-card-click";
+import { EASE_OUT_CSS } from "@/lib/motion";
 
 type TaskCardProps = {
   task: Task;
@@ -27,13 +28,13 @@ function TaskCard({
     id: task.id,
     disabled: disableDragDrop,
     data: { isFinalColumn },
+    transition: { duration: 200, easing: EASE_OUT_CSS },
   });
   const { handleKeyDown } = useTaskCardClick(task, listeners);
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition:
-      transition || "transform 250ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+    transition: transition || `transform 200ms ${EASE_OUT_CSS}`,
     opacity: isDragging ? 0.6 : 1,
     touchAction: isDragging ? "none" : "auto",
     zIndex: isDragging ? 999 : "auto",
@@ -43,6 +44,7 @@ function TaskCard({
     <div
       ref={setNodeRef}
       style={style}
+      data-kaneo-sortable
       {...attributes}
       {...listeners}
       role="button"

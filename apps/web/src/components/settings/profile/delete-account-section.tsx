@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { Trash2Icon } from "lucide-react";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isDeleteConfirmationValid } from "@/components/settings/profile/is-delete-confirmation-valid";
@@ -41,7 +42,9 @@ export function DeleteAccountSection({ email }: DeleteAccountSectionProps) {
       await deleteAccount();
       setOpen(false);
       queryClient.clear();
-      toast.success(t("settings:informationPage.deleteAccount.success"));
+      toast.success(t("settings:informationPage.deleteAccount.success"), {
+        icon: Trash2Icon,
+      });
       navigate({ to: "/auth/sign-in" });
     } catch (error) {
       if (error instanceof Error && error.message === SESSION_TOO_OLD) {

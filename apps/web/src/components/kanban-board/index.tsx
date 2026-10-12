@@ -27,10 +27,12 @@ import { boardCollisionDetection } from "./board-collision-detection";
 import { findTaskColumn } from "./drag-preview/find-task-column";
 import { moveBoardTask } from "./move-task";
 import { useDragPreview } from "./drag-preview/use-drag-preview";
+import { useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useProjectBackground } from "@/hooks/use-project-background";
 import { cn } from "@/lib/cn";
+import { EASE_OUT_CSS } from "@/lib/motion";
 import { useBackgroundStore } from "@/store/background";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -180,6 +182,7 @@ function KanbanBoard({
     useSensor(KeyboardSensor),
   );
 
+  const reduceMotion = useReducedMotion();
   const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
       styles: {
@@ -188,8 +191,8 @@ function KanbanBoard({
         },
       },
     }),
-    duration: 300,
-    easing: "cubic-bezier(0.23, 1, 0.32, 1)",
+    duration: 250,
+    easing: EASE_OUT_CSS,
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -369,9 +372,9 @@ function KanbanBoard({
           </div>
         </div>
       </div>
-      <DragOverlay dropAnimation={dropAnimation}>
+      <DragOverlay dropAnimation={reduceMotion ? null : dropAnimation}>
         {activeTask ? (
-          <div className="transform rotate-1 scale-[1.03] shadow-lg">
+          <div className="rotate-1 scale-[1.03] shadow-lg transition-[rotate,scale] duration-150 ease-out starting:rotate-0 starting:scale-100 motion-reduce:transition-none">
             <div className="ring-2 ring-ring/35 rounded-lg">
               <TaskCard task={activeTask} isFinalColumn={activeIsFinal} />
             </div>

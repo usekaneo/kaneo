@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, FolderInputIcon } from "lucide-react";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
@@ -69,6 +69,7 @@ export function MoveProjectRow({
               taskCount: moved.unassignedTaskCount,
             })
           : t("settings:projectGeneral.toastMoved"),
+        { icon: FolderInputIcon },
       );
       handleOpenChange(false);
 

@@ -14,7 +14,7 @@ export function CopyValueButton({ value, label }: CopyValueButtonProps) {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(value);
-      toast.success(t("settings:codeHosting.copied"));
+      toast.success(t("settings:codeHosting.copied"), { icon: CopyIcon });
     } catch (error) {
       toast.error(
         error instanceof Error && error.message

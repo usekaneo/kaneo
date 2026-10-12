@@ -1,4 +1,5 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { UnplugIcon, PlugIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -91,6 +92,7 @@ export function ChatWebhookSettings({
       await updateIntegration({ projectId, json: { isActive: checked } });
       toast.success(
         checked ? t(provider.keys.enabled) : t(provider.keys.disabled),
+        { icon: checked ? PlugIcon : UnplugIcon },
       );
     } catch (error) {
       toast.error(
@@ -103,7 +105,7 @@ export function ChatWebhookSettings({
     try {
       await deleteIntegration(projectId);
       form.reset(toChatWebhookFormValues(null));
-      toast.success(t(provider.keys.removed));
+      toast.success(t(provider.keys.removed), { icon: UnplugIcon });
       return true;
     } catch (error) {
       toast.error(

@@ -1,5 +1,5 @@
 import { saveAs } from "file-saver";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, DownloadIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SettingsRow } from "@/components/settings/settings-row";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,9 @@ export function ExportTasksRow({ project }: ExportTasksRowProps) {
       saveAs(blob, `${project.slug}-tasks-export.json`);
 
       toast.dismiss();
-      toast.success(t("settings:tasksImportExport.exportSuccess"));
+      toast.success(t("settings:tasksImportExport.exportSuccess"), {
+        icon: DownloadIcon,
+      });
     } catch (error) {
       toast.dismiss();
       toast.error(t("settings:tasksImportExport.exportError"));

@@ -1,3 +1,4 @@
+import { ImportIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ImportIssuesSection } from "@/components/project/code-hosting/import-issues-section";
 import useImportGiteaIssues from "@/hooks/mutations/gitea-integration/use-import-gitea-issues";
@@ -27,7 +28,9 @@ export function GiteaIssuesSection({
     if (!canImport) return;
     try {
       await importIssues(projectId);
-      toast.success(t("settings:giteaIntegration.toast.issuesImported"));
+      toast.success(t("settings:giteaIntegration.toast.issuesImported"), {
+        icon: ImportIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error

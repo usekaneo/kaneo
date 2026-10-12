@@ -1,3 +1,4 @@
+import { Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ApiKeyItem } from "@/components/settings/api-keys/api-key-item";
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
@@ -24,7 +25,9 @@ export function DeleteApiKeyDialog({
 
     try {
       await deleteApiKey(apiKey.id);
-      toast.success(t("settings:apiKey.table.toastDeleted"));
+      toast.success(t("settings:apiKey.table.toastDeleted"), {
+        icon: Trash2Icon,
+      });
       onOpenChange(false);
     } catch (error) {
       toast.error(

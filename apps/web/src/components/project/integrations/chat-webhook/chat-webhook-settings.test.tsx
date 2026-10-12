@@ -220,6 +220,7 @@ describe("ChatWebhookSettings", () => {
     );
     expect(mocks.toastSuccess).toHaveBeenCalledWith(
       "settings:slackIntegration.toast.disabled",
+      { icon: expect.anything() },
     );
   });
 
@@ -248,6 +249,7 @@ describe("ChatWebhookSettings", () => {
     );
     expect(mocks.toastSuccess).toHaveBeenCalledWith(
       "settings:slackIntegration.toast.removed",
+      { icon: expect.anything() },
     );
   });
 

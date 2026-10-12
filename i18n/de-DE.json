@@ -10,8 +10,7 @@
 			"markAllRead": "Alle als gelesen markieren",
 			"remove": "Entfernen",
 			"reset": "Zurücksetzen",
-			"filter": "Filter",
-			"clearAllFilters": "Alle Filter löschen"
+			"filter": "Filter"
 		},
 		"a11y": {
 			"toggleSidebar": "Sidebar umschalten"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1594,12 +1587,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Kontrollkästchen",
@@ -1609,7 +1600,6 @@
 				"text": "Text",
 				"multiselect": "Dropdown, Mehrfachauswahl"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Standardwert entfernen",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1865,7 +1855,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Danke für dein Abo",
+				"description": "Zahlung erhalten. Der Plan unten wird aktualisiert, sobald sie bestätigt ist."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Label hinzufügen",
@@ -2468,7 +2462,8 @@
 				"prevTask": "Vorherige Aufgabe",
 				"openTask": "Ausgewählte Aufgabe öffnen",
 				"quickSelectNumber": "Option per Nummer auswählen",
-				"calendarView": "Zur Kalenderansicht wechseln"
+				"calendarView": "Zur Kalenderansicht wechseln",
+				"ganttView": "Zur Gantt-Ansicht wechseln"
 			}
 		}
 	},
@@ -2682,7 +2677,6 @@
 			"high": "Hoch",
 			"urgent": "Dringend"
 		},
-		"boardSearchPlaceholder": "Tickets suchen...",
 		"view": {
 			"board": "Board",
 			"list": "Liste",
@@ -2815,9 +2809,7 @@
 				"saving": "Wird gespeichert…",
 				"saveFailed": "Speichern fehlgeschlagen",
 				"retrySave": "Erneut speichern"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Aufgabe"
@@ -2889,12 +2881,10 @@
 				"updateError": "Aufgabenpriorität konnte nicht aktualisiert werden"
 			},
 			"dueDate": {
-				"updateSuccess": "Fälligkeitsdatum erfolgreich aktualisiert",
 				"updateError": "Fälligkeitsdatum konnte nicht aktualisiert werden",
 				"clear": "Datum entfernen"
 			},
 			"startDate": {
-				"updateSuccess": "Startdatum erfolgreich aktualisiert",
 				"updateError": "Startdatum konnte nicht aktualisiert werden",
 				"clear": "Startdatum entfernen"
 			},
@@ -2903,8 +2893,6 @@
 				"empty": "Keine Labels gefunden",
 				"create": "\"{{name}}\" erstellen",
 				"chooseColor": "Farbe auswählen",
-				"addSuccess": "Label hinzugefügt",
-				"removeSuccess": "Label entfernt",
 				"updateError": "Label konnte nicht aktualisiert werden",
 				"createSuccess": "Label erstellt und hinzugefügt",
 				"createError": "Label konnte nicht erstellt werden",
@@ -2931,26 +2919,18 @@
 			"moveAllTooltip": "Alle geplanten Aufgaben nach „Zu erledigen“ verschieben",
 			"moveAll": "Alle verschieben",
 			"addTask": "Aufgabe hinzufügen",
-			"filter": "Filter",
-			"addFilter": "Filter hinzufügen...",
 			"sections": {
 				"planned": "Geplant",
 				"archived": "Archiviert"
 			},
 			"noTasksInSection": "Keine {{section}}-Aufgaben",
 			"filters": {
-				"priority": "Priorität: {{name}}",
-				"assignee": "Zugewiesen: {{name}}",
-				"due": "Fällig: {{date}}",
-				"label": "Label: {{name}}",
 				"dueThisWeek": "Diese Woche fällig",
 				"dueNextWeek": "Nächste Woche fällig",
 				"noDueDate": "Kein Fälligkeitsdatum"
 			}
 		},
 		"sort": {
-			"label": "Sortieren",
-			"by": "Sortieren nach",
 			"direction": "Richtung",
 			"ascending": "Aufsteigend",
 			"descending": "Absteigend",
@@ -2964,12 +2944,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Filtern nach",
-			"allStatuses": "Alle Status",
-			"allPriorities": "Alle Prioritäten",
-			"allAssignees": "Alle Zugewiesenen",
-			"allDueDates": "Alle Fälligkeitsdaten",
-			"allLabels": "Alle Labels",
 			"selectedCount": "{{count}} ausgewählt",
 			"subjects": {
 				"status": "Status",
@@ -2980,9 +2954,13 @@
 			},
 			"operators": {
 				"isAnyOf": "ist einer von",
-				"includeAnyOf": "enthält einen von"
+				"includeAnyOf": "enthält einen von",
+				"is": "ist",
+				"isNot": "ist nicht",
+				"isNoneOf": "ist keiner von",
+				"include": "enthält",
+				"exclude": "enthält nicht"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -2990,13 +2968,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt-Zeitachse",
-			"searchPlaceholder": "Geplante Tickets suchen...",
 			"hideTasks": "Aufgaben ausblenden",
 			"showTasks": "Aufgaben anzeigen",
 			"noTasks": "Keine geplanten Aufgaben",
 			"noTasksSubtitle": "Füge Aufgaben ein Startdatum, ein Fälligkeitsdatum oder beides hinzu, um sie auf der Projektzeitleiste zu platzieren.",
 			"noTasksFound": "Keine Aufgaben gefunden",
-			"noTasksMatch": "Keine geplanten Aufgaben entsprechen \"{{query}}\"",
 			"taskHeader": "Aufgabe",
 			"updateDatesError": "Aufgabendaten konnten nicht aktualisiert werden",
 			"resizeStart": "Startdatum anpassen",
@@ -3021,7 +2997,10 @@
 			"error": "Aufgabe konnte nicht dupliziert werden"
 		},
 		"archive": {
-			"success": "{{count}} Aufgaben archiviert"
+			"success": "{{count}} Aufgaben archiviert",
+			"confirmTitle_one": "{{count}} erledigte Aufgabe archivieren?",
+			"confirmTitle_other": "{{count}} erledigte Aufgaben archivieren?",
+			"confirmDescription": "Sie verschwinden vom Board und landen im Bereich „Archiviert“ des Backlogs."
 		},
 		"listView": {
 			"addTask": "Aufgabe hinzufügen",
@@ -3047,17 +3026,13 @@
 		"dueDate": {
 			"label": "Fälligkeitsdatum",
 			"clear": "Datum entfernen",
-			"updateSuccess": "Fälligkeitsdatum erfolgreich aktualisiert",
 			"updateError": "Fälligkeitsdatum konnte nicht aktualisiert werden",
-			"clearSuccess": "Fälligkeitsdatum entfernt",
 			"clearError": "Fälligkeitsdatum konnte nicht entfernt werden"
 		},
 		"labels": {
-			"label": "Labels",
 			"empty": "Keine Labels verfügbar"
 		},
 		"update": {
-			"success": "Aufgabe erfolgreich aktualisiert",
 			"error": "Aufgabe konnte nicht aktualisiert werden"
 		},
 		"contextMenu": {
@@ -3079,7 +3054,9 @@
 			"moveToBoardSuccess": "{{count}} Aufgaben aufs Board verschoben",
 			"moveToBoardError": "Aufgaben konnten nicht aufs Board verschoben werden",
 			"delete": "Aufgaben löschen",
-			"deleteConfirm": "{{count}} Aufgaben löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+			"deleteConfirmTitle_one": "{{count}} Aufgabe löschen?",
+			"deleteConfirmTitle_other": "{{count}} Aufgaben löschen?",
+			"deleteConfirmDescription": "Dadurch werden die ausgewählten Aufgaben und alle zugehörigen Daten dauerhaft entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
 			"deleteSuccess": "{{count}} Aufgaben gelöscht",
 			"deleteError": "Aufgaben konnten nicht gelöscht werden",
 			"archive": "Aufgaben archivieren",
@@ -3134,10 +3111,50 @@
 		"descriptionLoadError": "Die Beschreibung konnte nicht geladen werden. Versuche es erneut, um die aktuelle Version zu laden.",
 		"checklistProgress": "{{completed}} von {{total}} Checklistenpunkten abgeschlossen",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Felder",
+			"empty": "Leer",
+			"required": "Pflichtfeld",
+			"enterKey": "Enter",
+			"toSave": "zum Speichern",
+			"today": "Heute",
+			"clear": "Leeren",
+			"setValue": "{{field}} festlegen…",
+			"noMatches": "Keine passenden Optionen",
+			"missingRequired_one": "{{count}} Pflichtfeld ist leer",
+			"missingRequired_other": "{{count}} Pflichtfelder sind leer",
+			"saveError": "{{field}} konnte nicht gespeichert werden",
+			"moreFields_one": "{{count}} weiteres Feld",
+			"moreFields_other": "{{count}} weitere Felder"
 		},
 		"board": {
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden."
+		},
+		"toolbar": {
+			"search": "Aufgaben suchen",
+			"clearSearch": "Suche leeren",
+			"taskCount_one": "{{count}} Aufgabe",
+			"taskCount_other": "{{count}} Aufgaben",
+			"shownCount_one": "{{shown}} von {{count}} Aufgabe",
+			"shownCount_other": "{{shown}} von {{count}} Aufgaben"
+		},
+		"display": {
+			"title": "Anzeige",
+			"sortBy": "Sortieren nach",
+			"showOnCards": "Auf Karten anzeigen",
+			"showOnRows": "In Zeilen anzeigen",
+			"checklistProgress": "Checklisten-Fortschritt",
+			"projectBackground": "Projekthintergrund",
+			"layout": "Layout"
+		},
+		"filterBar": {
+			"label": "Aktive Filter",
+			"removeFilter": "Filter {{name}} entfernen",
+			"noMatches": "Keine Aufgaben passen zu deiner Suche oder deinen Filtern."
+		},
+		"filterMenu": {
+			"addFilter": "Filter hinzufügen…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Keine Ergebnisse"
 		}
 	},
 	"invitations": {

@@ -376,7 +376,10 @@ describe("connected GitHub repository", () => {
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
         "settings:githubIntegration.toast.issuesImported",
-        { description: "settings:githubIntegration.importSummary" },
+        {
+          description: "settings:githubIntegration.importSummary",
+          icon: expect.anything(),
+        },
       ),
     );
   });

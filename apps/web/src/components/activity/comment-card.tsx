@@ -1,5 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, FolderGit, Pencil, Trash2 } from "lucide-react";
+import {
+  ExternalLink,
+  FolderGit,
+  Pencil,
+  Trash2,
+  MessageSquareIcon,
+} from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
@@ -127,7 +133,7 @@ export default function CommentCard({
 
       setIsEditing(false);
       await queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
-      toast.success(t("activity:comment.updated"));
+      toast.success(t("activity:comment.updated"), { icon: MessageSquareIcon });
     } catch (error) {
       console.error("Failed to update comment:", error);
       toast.error(t("activity:comment.failedToUpdate"));

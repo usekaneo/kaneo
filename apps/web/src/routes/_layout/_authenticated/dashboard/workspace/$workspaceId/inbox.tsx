@@ -25,6 +25,7 @@ function RouteComponent() {
     useGetNotifications(workspaceId);
   const { mutate: markAsRead } = useMarkNotificationAsRead();
   const [selectedId, setSelectedId] = useState<string>();
+  const [wentBack, setWentBack] = useState(false);
 
   const notifications = data ?? [];
   const selected = notifications.find(
@@ -46,6 +47,8 @@ function RouteComponent() {
             className={cn(
               "w-full shrink-0 border-border/60 lg:block lg:w-[26rem] lg:border-r",
               selected && "hidden",
+              wentBack &&
+                "max-lg:transition-[translate,opacity] max-lg:duration-200 max-lg:ease-out max-lg:starting:-translate-x-6 max-lg:starting:opacity-0 motion-reduce:max-lg:starting:translate-x-0",
             )}
           >
             {isPending ? (
@@ -70,12 +73,20 @@ function RouteComponent() {
               />
             )}
           </div>
-          <div className={cn("min-w-0 flex-1", !selected && "hidden lg:block")}>
+          <div
+            className={cn(
+              "min-w-0 flex-1 max-lg:transition-[translate,opacity] max-lg:duration-200 max-lg:ease-out max-lg:starting:translate-x-6 max-lg:starting:opacity-0 motion-reduce:max-lg:starting:translate-x-0",
+              !selected && "hidden lg:block",
+            )}
+          >
             {selected ? (
               <InboxDetail
                 notification={selected}
                 workspaceId={workspaceId}
-                onBack={() => setSelectedId(undefined)}
+                onBack={() => {
+                  setWentBack(true);
+                  setSelectedId(undefined);
+                }}
               />
             ) : (
               <div className="flex h-full flex-col items-center justify-center gap-2 text-center">

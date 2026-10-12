@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CopyPlusIcon } from "lucide-react";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { useTranslation } from "react-i18next";
 import duplicateTask from "@/fetchers/task/duplicate-task";
@@ -13,7 +14,7 @@ export function useDuplicateTask() {
     onSuccess: (task) => {
       invalidateMyWork(queryClient);
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
-      toast.success(t("tasks:duplicate.success"));
+      toast.success(t("tasks:duplicate.success"), { icon: CopyPlusIcon });
       queryClient.invalidateQueries({
         queryKey: ["tasks", task.projectId],
       });

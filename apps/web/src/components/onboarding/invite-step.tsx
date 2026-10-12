@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, SendIcon } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -84,7 +84,9 @@ export function InviteStep({
 
     const sent = results.filter((r) => r.status === "fulfilled").length;
     if (sent > 0) {
-      toast.success(t("auth:onboarding.cloud.invite.sent", { count: sent }));
+      toast.success(t("auth:onboarding.cloud.invite.sent", { count: sent }), {
+        icon: SendIcon,
+      });
     }
     const failed: string[] = [];
     results.forEach((result, i) => {

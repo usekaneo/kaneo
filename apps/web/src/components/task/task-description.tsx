@@ -29,6 +29,7 @@ import {
   Strikethrough,
   Table2,
   Underline as UnderlineIcon,
+  ImageUpIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import {
@@ -338,6 +339,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           uploadedAsset.kind === "image"
             ? t("tasks:detail.editor.upload.imageSuccess")
             : t("tasks:detail.editor.upload.fileSuccess"),
+          { icon: ImageUpIcon },
         );
       } catch (error) {
         toast.dismiss(loadingToast);

@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronRight, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -58,7 +58,8 @@ export default function TaskSubtasks({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: relations = [] } = useGetTaskRelations(taskId);
+  const { data: relations = [], isSuccess: relationsLoaded } =
+    useGetTaskRelations(taskId);
   const { data: workspace } = useActiveWorkspace();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
@@ -299,7 +300,7 @@ export default function TaskSubtasks({
         next.delete(deleteTaskId);
         return next;
       });
-      toast.success(t("tasks:subtasks.deleteSuccess"));
+      toast.success(t("tasks:subtasks.deleteSuccess"), { icon: Trash2Icon });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -366,7 +367,10 @@ export default function TaskSubtasks({
               }
             }}
           >
-            <AnimatePresence initial={false}>
+            <AnimatePresence
+              key={relationsLoaded ? "loaded" : "loading"}
+              initial={false}
+            >
               {subtasks.map((subtask, index) => {
                 const taskObj = buildTaskObject(subtask);
                 const isSelected = selectedIds.has(subtask.task.id);

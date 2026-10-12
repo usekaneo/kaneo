@@ -1,6 +1,14 @@
 import { DEFAULT_ROLE_NAMES, statement } from "@kaneo/permissions";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Shield, Trash2, X } from "lucide-react";
+import {
+  Plus,
+  Shield,
+  Trash2,
+  X,
+  Trash2Icon,
+  ShieldCheckIcon,
+  ShieldPlusIcon,
+} from "lucide-react";
 import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
@@ -649,7 +657,9 @@ function DraftEditor({
     }
     try {
       await createRole({ workspaceId, role: trimmed, permission });
-      toast.success(t("settings:workspaceRoles.toast.created"));
+      toast.success(t("settings:workspaceRoles.toast.created"), {
+        icon: ShieldPlusIcon,
+      });
       onCreated(trimmed);
     } catch (error) {
       toast.error(
@@ -760,7 +770,9 @@ export function CustomRoleEditor({
         roleName: role.role,
         permission: currentPermissions,
       });
-      toast.success(t("settings:workspaceRoles.toast.updated"));
+      toast.success(t("settings:workspaceRoles.toast.updated"), {
+        icon: ShieldCheckIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -867,7 +879,9 @@ function DeleteRoleConfirm({
             if (!role) return;
             try {
               await deleteRole({ workspaceId, roleName: role.role });
-              toast.success(t("settings:workspaceRoles.toast.deleted"));
+              toast.success(t("settings:workspaceRoles.toast.deleted"), {
+                icon: Trash2Icon,
+              });
               // Caller closes the dialog after the mutation succeeds so a
               // failed delete leaves the confirmation visible.
               onDeleted();

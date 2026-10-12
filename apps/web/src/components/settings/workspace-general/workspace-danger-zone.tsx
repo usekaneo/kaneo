@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
@@ -30,7 +31,9 @@ export function WorkspaceDangerZone({
 
     try {
       await deleteWorkspace({ workspaceId });
-      toast.success(t("settings:workspaceGeneral.toastDeleted"));
+      toast.success(t("settings:workspaceGeneral.toastDeleted"), {
+        icon: Trash2Icon,
+      });
       setOpen(false);
 
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });

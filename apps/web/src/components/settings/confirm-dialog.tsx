@@ -53,6 +53,7 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={pending}
           >
@@ -61,6 +62,7 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant={destructive ? "destructive" : "default"}
+            size="sm"
             onClick={onConfirm}
             disabled={pending || confirmDisabled}
           >

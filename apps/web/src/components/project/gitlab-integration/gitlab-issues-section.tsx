@@ -1,3 +1,4 @@
+import { ImportIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ImportIssuesSection } from "@/components/project/code-hosting/import-issues-section";
 import useImportGitlabIssues from "@/hooks/mutations/gitlab-integration/use-import-gitlab-issues";
@@ -23,7 +24,9 @@ export function GitlabIssuesSection({
     if (!canImport) return;
     try {
       await importIssues(projectId);
-      toast.success(t("settings:gitlabIntegration.toast.issuesImported"));
+      toast.success(t("settings:gitlabIntegration.toast.issuesImported"), {
+        icon: ImportIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error

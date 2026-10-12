@@ -1,3 +1,4 @@
+import { ListPlusIcon } from "lucide-react";
 import { type FormEvent, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -82,7 +83,9 @@ export function CustomFieldDialog({
         toast.success(t("settings:customFields.updateSuccess"));
       } else {
         await createField(toCreatePayload(form, projectId));
-        toast.success(t("settings:customFields.createSuccess"));
+        toast.success(t("settings:customFields.createSuccess"), {
+          icon: ListPlusIcon,
+        });
       }
       onOpenChange(false);
     } catch (error) {

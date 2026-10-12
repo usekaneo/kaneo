@@ -1,3 +1,4 @@
+import { CrownIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
@@ -53,6 +54,7 @@ export function TransferOwnershipRow({
       });
       toast.success(
         t("settings:workspaceGeneral.transferOwnership.toastSuccess"),
+        { icon: CrownIcon },
       );
       setOpen(false);
       setSelectedId("");

@@ -1,3 +1,4 @@
+import { UnplugIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { isAccessVerified } from "@/components/project/code-hosting/access-verification-tone";
@@ -43,7 +44,9 @@ export function GiteaConnectedPanel({
   const disconnect = async () => {
     try {
       await remove(projectId);
-      toast.success(t("settings:giteaIntegration.toast.removed"));
+      toast.success(t("settings:giteaIntegration.toast.removed"), {
+        icon: UnplugIcon,
+      });
       return true;
     } catch (error) {
       toast.error(

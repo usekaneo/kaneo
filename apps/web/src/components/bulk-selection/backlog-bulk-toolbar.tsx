@@ -6,6 +6,13 @@ import {
   Menu,
   Trash2,
   X,
+  CalendarDaysIcon,
+  TagIcon,
+  SignalHighIcon,
+  UserRoundIcon,
+  ArchiveIcon,
+  Trash2Icon,
+  SquareKanbanIcon,
 } from "lucide-react";
 import {
   Fragment,
@@ -58,6 +65,10 @@ import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import { Button } from "../ui/button";
 import { Toolbar, ToolbarGroup, ToolbarSeparator } from "../ui/toolbar";
+import { cn } from "@/lib/cn";
+import { BulkDeleteConfirm } from "./bulk-delete-confirm";
+import { toolbarPresenceClass } from "./toolbar-presence-class";
+import { useToolbarPresence } from "./use-toolbar-presence";
 
 type BacklogActionItem = {
   value: string;
@@ -91,6 +102,7 @@ function BacklogBulkToolbar() {
   const {
     bulkMoveToBoard,
     bulkDelete,
+    isDeleting,
     bulkArchive,
     bulkAssign,
     bulkPriority,
@@ -112,9 +124,12 @@ function BacklogBulkToolbar() {
   const canAssign = canAssignTasks();
   const canEditLabels = canUpdateLabels();
   const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deleteCount, setDeleteCount] = useState(0);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const selectedCount = selectedTaskIds.size;
+  const { mounted, hidden, displayCount } = useToolbarPresence(selectedCount);
 
   const uniqueLabels = useMemo(() => {
     const labelMap = new Map<string, (typeof workspaceLabels)[0]>();
@@ -161,6 +176,7 @@ function BacklogBulkToolbar() {
         });
         toast.success(
           t("tasks:bulk.moveToBoardSuccess", { count: selectedCount }),
+          { icon: SquareKanbanIcon },
         );
         clearSelection();
       } catch (_error) {
@@ -170,25 +186,31 @@ function BacklogBulkToolbar() {
     [bulkMoveToBoard, selectedTaskIds, selectedCount, clearSelection, t],
   );
 
-  const handleBulkDelete = useCallback(async () => {
-    if (!confirm(t("tasks:bulk.deleteConfirm", { count: selectedCount }))) {
-      return;
-    }
+  const requestBulkDelete = useCallback(() => {
+    setDeleteCount(selectedCount);
+    setIsActionsOpen(false);
+    setIsDeleteConfirmOpen(true);
+  }, [selectedCount]);
 
+  const handleBulkDelete = useCallback(async () => {
     try {
       await bulkDelete(Array.from(selectedTaskIds));
-      toast.success(t("tasks:bulk.deleteSuccess", { count: selectedCount }));
+      toast.success(t("tasks:bulk.deleteSuccess", { count: deleteCount }), {
+        icon: Trash2Icon,
+      });
+      setIsDeleteConfirmOpen(false);
       clearSelection();
-      setIsActionsOpen(false);
     } catch (_error) {
       toast.error(t("tasks:bulk.deleteError"));
     }
-  }, [bulkDelete, selectedTaskIds, selectedCount, clearSelection, t]);
+  }, [bulkDelete, selectedTaskIds, deleteCount, clearSelection, t]);
 
   const handleBulkArchive = useCallback(async () => {
     try {
       await bulkArchive(Array.from(selectedTaskIds));
-      toast.success(t("tasks:bulk.archiveSuccess", { count: selectedCount }));
+      toast.success(t("tasks:bulk.archiveSuccess", { count: selectedCount }), {
+        icon: ArchiveIcon,
+      });
       clearSelection();
       setIsActionsOpen(false);
     } catch (_error) {
@@ -200,7 +222,9 @@ function BacklogBulkToolbar() {
     async (userId: string) => {
       try {
         await bulkAssign({ taskIds: Array.from(selectedTaskIds), userId });
-        toast.success(t("tasks:bulk.assignSuccess", { count: selectedCount }));
+        toast.success(t("tasks:bulk.assignSuccess", { count: selectedCount }), {
+          icon: UserRoundIcon,
+        });
         clearSelection();
         setIsActionsOpen(false);
       } catch (_error) {
@@ -217,7 +241,9 @@ function BacklogBulkToolbar() {
           taskIds: Array.from(selectedTaskIds),
           priority,
         });
-        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }));
+        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }), {
+          icon: SignalHighIcon,
+        });
         clearSelection();
         setIsActionsOpen(false);
       } catch (_error) {
@@ -236,6 +262,7 @@ function BacklogBulkToolbar() {
         });
         toast.success(
           t("tasks:bulk.addLabelSuccess", { count: selectedCount }),
+          { icon: TagIcon },
         );
         clearSelection();
         setIsActionsOpen(false);
@@ -253,7 +280,9 @@ function BacklogBulkToolbar() {
           taskIds: Array.from(selectedTaskIds),
           dueDate: date?.toISOString() ?? null,
         });
-        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }));
+        toast.success(t("tasks:bulk.updateSuccess", { count: selectedCount }), {
+          icon: CalendarDaysIcon,
+        });
         clearSelection();
         setIsDatePickerOpen(false);
       } catch (_error) {
@@ -276,9 +305,7 @@ function BacklogBulkToolbar() {
                   value: "bulk-delete",
                   label: t("tasks:bulk.delete"),
                   icon: <Trash2 className="h-4 w-4 text-muted-foreground" />,
-                  onRun: () => {
-                    void handleBulkDelete();
-                  },
+                  onRun: requestBulkDelete,
                 },
               ]
             : []),
@@ -361,7 +388,7 @@ function BacklogBulkToolbar() {
     canEditLabels,
     projectMembers,
     uniqueLabels,
-    handleBulkDelete,
+    requestBulkDelete,
     handleBulkArchive,
     handleBulkAssign,
     handleBulkPriority,
@@ -370,15 +397,21 @@ function BacklogBulkToolbar() {
     t,
   ]);
 
-  if (selectedCount === 0) return null;
+  if (!mounted) return null;
   if (!canEdit && !canDelete && !canAssign && !canEditLabels) return null;
 
   return (
-    <div className="-translate-x-1/2 fixed bottom-6 left-1/2 z-50 transition-[translate,opacity] duration-200 ease-out starting:translate-y-3 starting:opacity-0 motion-reduce:starting:translate-y-0">
+    <div
+      inert={hidden}
+      className={cn(
+        "-translate-x-1/2 fixed bottom-6 left-1/2 z-50 transition-[translate,opacity,visibility] ease-out",
+        toolbarPresenceClass(hidden),
+      )}
+    >
       <Toolbar className="items-center gap-1 rounded-xl border-border/80 bg-background px-1.5 py-1 shadow-lg/8">
         <ToolbarGroup className="px-1.5">
           <span className="text-sm font-medium text-foreground">
-            {t("tasks:bulk.selectedCount", { count: selectedCount })}
+            {t("tasks:bulk.selectedCount", { count: displayCount })}
           </span>
         </ToolbarGroup>
 
@@ -469,7 +502,7 @@ function BacklogBulkToolbar() {
       </Toolbar>
 
       <CommandDialog open={isActionsOpen} onOpenChange={setIsActionsOpen}>
-        <CommandDialogPopup>
+        <CommandDialogPopup instant>
           <Command items={groupedItems}>
             <CommandInput placeholder={t("tasks:bulk.searchActions")} />
             <CommandPanel>
@@ -503,6 +536,14 @@ function BacklogBulkToolbar() {
           </Command>
         </CommandDialogPopup>
       </CommandDialog>
+
+      <BulkDeleteConfirm
+        open={isDeleteConfirmOpen}
+        count={deleteCount}
+        pending={isDeleting}
+        onOpenChange={setIsDeleteConfirmOpen}
+        onConfirm={() => void handleBulkDelete()}
+      />
     </div>
   );
 }

@@ -12,6 +12,14 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { checkout } = Route.useSearch();
+  const navigate = Route.useNavigate();
 
-  return <BillingSettingsPage checkout={checkout} />;
+  return (
+    <BillingSettingsPage
+      checkout={checkout}
+      onDismissCheckout={() =>
+        navigate({ search: { checkout: undefined }, replace: true })
+      }
+    />
+  );
 }

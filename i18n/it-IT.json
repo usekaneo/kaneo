@@ -10,8 +10,7 @@
 			"markAllRead": "Segna tutti come letti",
 			"remove": "Rimuovi",
 			"reset": "Reimposta",
-			"filter": "Filtra",
-			"clearAllFilters": "Cancella tutti i filtri"
+			"filter": "Filtra"
 		},
 		"a11y": {
 			"toggleSidebar": "Attiva/disattiva barra laterale"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1526,12 +1519,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Casella di controllo",
@@ -1541,7 +1532,6 @@
 				"text": "Text",
 				"multiselect": "Menu a tendina, scelta multipla"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Rimuovi valore predefinito",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1878,7 +1868,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Grazie per l'abbonamento",
+				"description": "Pagamento ricevuto. Il piano qui sotto si aggiornerà appena sarà confermato."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2510,7 +2504,8 @@
 				"prevTask": "Attività precedente",
 				"openTask": "Apri attività selezionata",
 				"quickSelectNumber": "Seleziona opzione per numero",
-				"calendarView": "Passa alla vista calendario"
+				"calendarView": "Passa alla vista calendario",
+				"ganttView": "Passa alla vista Gantt"
 			}
 		}
 	},
@@ -2728,7 +2723,6 @@
 			"high": "Alta",
 			"urgent": "Urgente"
 		},
-		"boardSearchPlaceholder": "Cerca ticket...",
 		"view": {
 			"board": "Board",
 			"list": "Elenco",
@@ -2861,9 +2855,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Attività"
@@ -2935,12 +2927,10 @@
 				"updateError": "Aggiornamento priorità attività fallito"
 			},
 			"dueDate": {
-				"updateSuccess": "Data scadenza attività aggiornata con successo",
 				"updateError": "Aggiornamento data scadenza attività fallito",
 				"clear": "Cancella data"
 			},
 			"startDate": {
-				"updateSuccess": "Data inizio attività aggiornata con successo",
 				"updateError": "Aggiornamento data inizio attività fallito",
 				"clear": "Cancella data inizio"
 			},
@@ -2949,8 +2939,6 @@
 				"empty": "Nessuna etichetta trovata",
 				"create": "Crea \"{{name}}\"",
 				"chooseColor": "Scegli colore",
-				"addSuccess": "Etichetta aggiunta",
-				"removeSuccess": "Etichetta rimossa",
 				"updateError": "Aggiornamento etichetta fallito",
 				"createSuccess": "Etichetta creata e aggiunta",
 				"createError": "Creazione etichetta fallita",
@@ -2977,26 +2965,18 @@
 			"moveAllTooltip": "Sposta Tutte le Pianificate in Da Fare",
 			"moveAll": "Sposta Tutte",
 			"addTask": "Aggiungi attività",
-			"filter": "Filtra",
-			"addFilter": "Aggiungi filtro...",
 			"sections": {
 				"planned": "Pianificate",
 				"archived": "Archiviate"
 			},
 			"noTasksInSection": "Nessuna attività {{section}}",
 			"filters": {
-				"priority": "Priorità: {{name}}",
-				"assignee": "Assegnatario: {{name}}",
-				"due": "Scadenza: {{date}}",
-				"label": "Etichetta: {{name}}",
 				"dueThisWeek": "Scade questa settimana",
 				"dueNextWeek": "Scade la prossima settimana",
 				"noDueDate": "Nessuna scadenza"
 			}
 		},
 		"sort": {
-			"label": "Ordina",
-			"by": "Ordina Per",
 			"direction": "Direzione",
 			"ascending": "Crescente",
 			"descending": "Decrescente",
@@ -3010,12 +2990,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Filtra Per",
-			"allStatuses": "Tutti gli stati",
-			"allPriorities": "Tutte le priorità",
-			"allAssignees": "Tutti gli assegnatari",
-			"allDueDates": "Tutte le scadenze",
-			"allLabels": "Tutte le etichette",
 			"selectedCount": "{{count}} selezionati",
 			"subjects": {
 				"status": "Stato",
@@ -3026,9 +3000,13 @@
 			},
 			"operators": {
 				"isAnyOf": "è uno di",
-				"includeAnyOf": "include uno di"
+				"includeAnyOf": "include uno di",
+				"is": "è",
+				"isNot": "non è",
+				"isNoneOf": "non è nessuno di",
+				"include": "include",
+				"exclude": "esclude"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -3036,13 +3014,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Cronologia Gantt",
-			"searchPlaceholder": "Cerca ticket programmati...",
 			"hideTasks": "Nascondi attività",
 			"showTasks": "Mostra attività",
 			"noTasks": "Nessuna attività programmata",
 			"noTasksSubtitle": "Aggiungi una data di inizio, scadenza, o entrambe alle attività per posizionarle sulla cronologia del progetto.",
 			"noTasksFound": "Nessuna attività trovata",
-			"noTasksMatch": "Nessuna attività programmata corrisponde a \"{{query}}\"",
 			"taskHeader": "Attività",
 			"updateDatesError": "Aggiornamento date attività fallito",
 			"resizeStart": "Ridimensiona data inizio",
@@ -3067,7 +3043,11 @@
 			"error": "Duplicazione attività fallita"
 		},
 		"archive": {
-			"success": "{{count}} attività archiviate"
+			"success": "{{count}} attività archiviate",
+			"confirmTitle_one": "Archiviare {{count}} attività completata?",
+			"confirmTitle_many": "Archiviare {{count}} attività completate?",
+			"confirmTitle_other": "Archiviare {{count}} attività completate?",
+			"confirmDescription": "Lasceranno la board e passeranno alla sezione \"Archiviate\" del backlog."
 		},
 		"listView": {
 			"addTask": "Aggiungi attività",
@@ -3094,17 +3074,13 @@
 		"dueDate": {
 			"label": "Data scadenza",
 			"clear": "Cancella data",
-			"updateSuccess": "Data scadenza attività aggiornata con successo",
 			"updateError": "Aggiornamento data scadenza attività fallito",
-			"clearSuccess": "Data scadenza attività cancellata",
 			"clearError": "Cancellazione data scadenza fallita"
 		},
 		"labels": {
-			"label": "Etichette",
 			"empty": "Nessuna etichetta disponibile"
 		},
 		"update": {
-			"success": "Attività aggiornata con successo",
 			"error": "Aggiornamento attività fallito"
 		},
 		"contextMenu": {
@@ -3126,7 +3102,10 @@
 			"moveToBoardSuccess": "{{count}} attività spostate nella board",
 			"moveToBoardError": "Spostamento attività nella board fallito",
 			"delete": "Elimina attività",
-			"deleteConfirm": "Eliminare {{count}} attività? Questa azione non può essere annullata.",
+			"deleteConfirmTitle_one": "Eliminare {{count}} attività?",
+			"deleteConfirmTitle_many": "Eliminare {{count}} attività?",
+			"deleteConfirmTitle_other": "Eliminare {{count}} attività?",
+			"deleteConfirmDescription": "Questo rimuoverà permanentemente le attività selezionate e tutti i loro dati. Non puoi annullare questa azione.",
 			"deleteSuccess": "{{count}} attività eliminate",
 			"deleteError": "Eliminazione attività fallita",
 			"archive": "Archivia attività",
@@ -3181,10 +3160,54 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "{{completed}} di {{total}} elementi della checklist completati",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Campi",
+			"empty": "Vuoto",
+			"required": "Obbligatorio",
+			"enterKey": "Invio",
+			"toSave": "per salvare",
+			"today": "Oggi",
+			"clear": "Cancella",
+			"setValue": "Imposta {{field}}…",
+			"noMatches": "Nessuna opzione corrispondente",
+			"missingRequired_one": "{{count}} campo obbligatorio è vuoto",
+			"missingRequired_many": "{{count}} campi obbligatori sono vuoti",
+			"missingRequired_other": "{{count}} campi obbligatori sono vuoti",
+			"saveError": "Impossibile salvare {{field}}",
+			"moreFields_one": "Altro {{count}} campo",
+			"moreFields_many": "Altri {{count}} campi",
+			"moreFields_other": "Altri {{count}} campi"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Cerca attività",
+			"clearSearch": "Cancella ricerca",
+			"taskCount_one": "{{count}} attività",
+			"taskCount_many": "{{count}} attività",
+			"taskCount_other": "{{count}} attività",
+			"shownCount_one": "{{shown}} di {{count}} attività",
+			"shownCount_many": "{{shown}} di {{count}} attività",
+			"shownCount_other": "{{shown}} di {{count}} attività"
+		},
+		"display": {
+			"title": "Visualizzazione",
+			"sortBy": "Ordina per",
+			"showOnCards": "Mostra sulle schede",
+			"showOnRows": "Mostra nelle righe",
+			"checklistProgress": "Avanzamento checklist",
+			"projectBackground": "Sfondo del progetto",
+			"layout": "Layout"
+		},
+		"filterBar": {
+			"label": "Filtri attivi",
+			"removeFilter": "Rimuovi filtro {{name}}",
+			"noMatches": "Nessuna attività corrisponde alla tua ricerca o ai tuoi filtri."
+		},
+		"filterMenu": {
+			"addFilter": "Aggiungi filtro…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Nessun risultato"
 		}
 	},
 	"invitations": {

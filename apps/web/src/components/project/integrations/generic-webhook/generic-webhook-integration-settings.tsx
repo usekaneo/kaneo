@@ -1,4 +1,5 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { UnplugIcon, PlugIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -102,6 +103,7 @@ export function GenericWebhookIntegrationSettings({
         checked
           ? t("settings:genericWebhookIntegration.toast.enabled")
           : t("settings:genericWebhookIntegration.toast.disabled"),
+        { icon: checked ? PlugIcon : UnplugIcon },
       );
     } catch (error) {
       toast.error(
@@ -116,7 +118,9 @@ export function GenericWebhookIntegrationSettings({
     try {
       await deleteIntegration(projectId);
       form.reset(toGenericWebhookFormValues(null));
-      toast.success(t("settings:genericWebhookIntegration.toast.removed"));
+      toast.success(t("settings:genericWebhookIntegration.toast.removed"), {
+        icon: UnplugIcon,
+      });
       return true;
     } catch (error) {
       toast.error(

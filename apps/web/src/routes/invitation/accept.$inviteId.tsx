@@ -4,7 +4,7 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import { TriangleAlert } from "lucide-react";
+import { TriangleAlert, UserCheckIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AuthDetails } from "@/components/auth/auth-details";
@@ -173,7 +173,9 @@ function AcceptInvitation() {
       }
       const workspaceId = data?.invitation.organizationId ?? "";
       await authClient.organization.setActive({ organizationId: workspaceId });
-      toast.success(t("auth:invitation.toast.acceptSuccess"));
+      toast.success(t("auth:invitation.toast.acceptSuccess"), {
+        icon: UserCheckIcon,
+      });
       if (!session.user.name) {
         navigate({ to: "/profile-setup" });
         return;

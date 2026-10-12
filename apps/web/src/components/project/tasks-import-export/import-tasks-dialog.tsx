@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, UploadIcon } from "lucide-react";
 import { type ChangeEvent, type DragEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -71,6 +71,7 @@ export function ImportTasksDialog({
         t("settings:tasksImportExport.importSuccess", {
           count: result.results.successful,
         }),
+        { icon: UploadIcon },
       );
 
       if (result.results.failed > 0) {

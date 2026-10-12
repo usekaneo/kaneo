@@ -1,3 +1,4 @@
+import { UnplugIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { DisconnectIntegrationButton } from "@/components/project/code-hosting/disconnect-integration-button";
 import { GithubIssuesSection } from "@/components/project/github-integration/github-issues-section";
@@ -40,7 +41,9 @@ export function GithubConnectedPanel({
   const disconnect = async () => {
     try {
       await remove(projectId);
-      toast.success(t("settings:githubIntegration.toast.removed"));
+      toast.success(t("settings:githubIntegration.toast.removed"), {
+        icon: UnplugIcon,
+      });
       return true;
     } catch (error) {
       toast.error(

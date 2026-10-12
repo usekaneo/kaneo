@@ -206,6 +206,7 @@ describe("creating and editing labels", () => {
     );
     expect(m.success).toHaveBeenCalledWith(
       "settings:workspaceLabels.createSuccess",
+      { icon: expect.anything() },
     );
   });
 
@@ -260,6 +261,7 @@ describe("deleting workspace labels", () => {
     await waitFor(() => expect(m.remove).toHaveBeenCalledWith({ id: "bug" }));
     expect(m.success).toHaveBeenCalledWith(
       "settings:workspaceLabels.deleteSuccess",
+      { icon: expect.anything() },
     );
   });
 
@@ -295,6 +297,7 @@ describe("deleting workspace labels", () => {
     await waitFor(() =>
       expect(m.success).toHaveBeenCalledWith(
         "settings:workspaceLabels.deleteSuccess",
+        { icon: expect.anything() },
       ),
     );
   });

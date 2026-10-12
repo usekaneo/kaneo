@@ -1,4 +1,5 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { KeyRoundIcon } from "lucide-react";
 import { useMemo } from "react";
 import { type Path, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -90,7 +91,9 @@ export function ChangePasswordDialog({
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
-      toast.success(t("settings:securityPage.updateSuccess"));
+      toast.success(t("settings:securityPage.updateSuccess"), {
+        icon: KeyRoundIcon,
+      });
       handleOpenChange(false);
     } catch (error) {
       toast.error(

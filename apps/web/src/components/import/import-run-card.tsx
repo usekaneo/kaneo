@@ -12,7 +12,11 @@ import {
 } from "@/components/import/summarize-import-counts";
 import { Progress } from "@/components/ui/progress";
 import type { ImportRun } from "@/fetchers/import/get-import-run";
+import { cn } from "@/lib/cn";
 import { formatRelativeTime } from "@/lib/format";
+import { useCompletionLinger } from "./use-completion-linger";
+
+const FINISH_LINGER_MS = 750;
 
 type ImportRunCardProps = {
   run: ImportRun;
@@ -23,6 +27,7 @@ type ImportRunCardProps = {
 export function ImportRunCard({ run, source, progress }: ImportRunCardProps) {
   const { t } = useTranslation();
   const running = run.status === "running";
+  const finishing = useCompletionLinger(running, FINISH_LINGER_MS);
   const copy = IMPORT_UNIT_COPY[source.unit];
   const totals = summarizeImportCounts(
     sumImportCounts(run.projects),
@@ -57,8 +62,15 @@ export function ImportRunCard({ run, source, progress }: ImportRunCardProps) {
             <p className="text-muted-foreground text-xs">{meta}</p>
           ) : null}
         </div>
-        {running ? (
-          <Progress value={progress.percent} aria-label={headline} />
+        {running || finishing ? (
+          <Progress
+            value={finishing ? 100 : progress.percent}
+            aria-label={headline}
+            className={cn(
+              finishing &&
+                "opacity-0 transition-opacity delay-500 duration-200 ease-out",
+            )}
+          />
         ) : null}
       </div>
       <ul className="divide-y divide-border border-border border-t">

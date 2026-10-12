@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ImageUpIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { uploadProjectBackground } from "@/fetchers/project/background";
 import { toast } from "@/lib/toast";
@@ -20,7 +21,9 @@ function useUploadProjectBackground() {
         queryClient.invalidateQueries({ queryKey: ["tasks", projectId] }),
         queryClient.invalidateQueries({ queryKey: ["projects"] }),
       ]);
-      toast.success(t("settings:projectGeneral.backgroundUploadSuccess"));
+      toast.success(t("settings:projectGeneral.backgroundUploadSuccess"), {
+        icon: ImageUpIcon,
+      });
     },
     onError: () => {
       toast.error(t("settings:projectGeneral.backgroundUploadError"));

@@ -10,8 +10,7 @@
 			"markAllRead": "すべて既読にする",
 			"remove": "削除",
 			"reset": "リセット",
-			"filter": "フィルター",
-			"clearAllFilters": "すべてのフィルターをクリア"
+			"filter": "フィルター"
 		},
 		"a11y": {
 			"toggleSidebar": "サイドバーを切り替え"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1508,12 +1501,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "チェックボックス",
@@ -1523,7 +1514,6 @@
 				"text": "Text",
 				"multiselect": "ドロップダウン（複数選択）"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "デフォルトをクリア",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1852,7 +1842,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "ご登録ありがとうございます",
+				"description": "お支払いを受け付けました。確認され次第、下のプランが更新されます。"
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2426,7 +2420,8 @@
 				"nextTask": "次のタスク",
 				"prevTask": "前のタスク",
 				"openTask": "選択したタスクを開く",
-				"quickSelectNumber": "番号で項目を選択"
+				"quickSelectNumber": "番号で項目を選択",
+				"ganttView": "ガントビューに切り替え"
 			}
 		}
 	},
@@ -2636,7 +2631,6 @@
 			"high": "高",
 			"urgent": "緊急"
 		},
-		"boardSearchPlaceholder": "チケットを検索...",
 		"view": {
 			"board": "ボード",
 			"list": "リスト",
@@ -2769,9 +2763,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "タスク"
@@ -2843,12 +2835,10 @@
 				"updateError": "優先度の更新に失敗しました"
 			},
 			"dueDate": {
-				"updateSuccess": "期限を更新しました",
 				"updateError": "期限の更新に失敗しました",
 				"clear": "日付をクリア"
 			},
 			"startDate": {
-				"updateSuccess": "開始日を更新しました",
 				"updateError": "開始日の更新に失敗しました",
 				"clear": "開始日をクリア"
 			},
@@ -2857,8 +2847,6 @@
 				"empty": "ラベルが見つかりません",
 				"create": "「{{name}}」を作成",
 				"chooseColor": "色を選択",
-				"addSuccess": "ラベルを追加しました",
-				"removeSuccess": "ラベルを削除しました",
 				"updateError": "ラベルの更新に失敗しました",
 				"createSuccess": "ラベルを作成して追加しました",
 				"createError": "ラベルの作成に失敗しました",
@@ -2885,26 +2873,18 @@
 			"moveAllTooltip": "計画中のタスクをすべて To Do に移動",
 			"moveAll": "すべて移動",
 			"addTask": "タスクを追加",
-			"filter": "フィルター",
-			"addFilter": "フィルターを追加...",
 			"sections": {
 				"planned": "計画中",
 				"archived": "アーカイブ済み"
 			},
 			"noTasksInSection": "{{section}} のタスクはありません",
 			"filters": {
-				"priority": "優先度: {{name}}",
-				"assignee": "担当者: {{name}}",
-				"due": "期限: {{date}}",
-				"label": "ラベル: {{name}}",
 				"dueThisWeek": "今週が期限",
 				"dueNextWeek": "来週が期限",
 				"noDueDate": "期限なし"
 			}
 		},
 		"sort": {
-			"label": "並び替え",
-			"by": "並び替え基準",
 			"direction": "順序",
 			"ascending": "昇順",
 			"descending": "降順",
@@ -2918,12 +2898,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "フィルター条件",
-			"allStatuses": "すべてのステータス",
-			"allPriorities": "すべての優先度",
-			"allAssignees": "すべての担当者",
-			"allDueDates": "すべての期限",
-			"allLabels": "すべてのラベル",
 			"selectedCount": "{{count}} 件選択中",
 			"subjects": {
 				"status": "ステータス",
@@ -2934,9 +2908,13 @@
 			},
 			"operators": {
 				"isAnyOf": "次のいずれか",
-				"includeAnyOf": "次のいずれかを含む"
+				"includeAnyOf": "次のいずれかを含む",
+				"is": "が次と一致",
+				"isNot": "が次と一致しない",
+				"isNoneOf": "次のいずれでもない",
+				"include": "を含む",
+				"exclude": "を含まない"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -2958,13 +2936,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – ガントチャート",
 			"title": "ガントタイムライン",
-			"searchPlaceholder": "スケジュール済みのチケットを検索...",
 			"hideTasks": "タスクを非表示",
 			"showTasks": "タスクを表示",
 			"noTasks": "スケジュール済みのタスクはありません",
 			"noTasksSubtitle": "タスクに開始日や期限を設定して、プロジェクトのタイムラインに配置します。",
 			"noTasksFound": "タスクが見つかりません",
-			"noTasksMatch": "「{{query}}」に一致するスケジュール済みタスクはありません",
 			"taskHeader": "タスク",
 			"updateDatesError": "タスクの日程の更新に失敗しました",
 			"resizeStart": "開始日を変更",
@@ -2984,7 +2960,9 @@
 			"error": "タスクの削除に失敗しました"
 		},
 		"archive": {
-			"success": "{{count}} 件のタスクをアーカイブしました"
+			"success": "{{count}} 件のタスクをアーカイブしました",
+			"confirmTitle_other": "完了したタスク {{count}} 件をアーカイブしますか？",
+			"confirmDescription": "ボードから外れ、バックログの「アーカイブ済み」セクションに移動します。"
 		},
 		"listView": {
 			"addTask": "タスクを追加",
@@ -3009,17 +2987,13 @@
 		"dueDate": {
 			"label": "期限",
 			"clear": "日付をクリア",
-			"updateSuccess": "期限を更新しました",
 			"updateError": "期限の更新に失敗しました",
-			"clearSuccess": "期限をクリアしました",
 			"clearError": "期限のクリアに失敗しました"
 		},
 		"labels": {
-			"label": "ラベル",
 			"empty": "利用可能なラベルがありません"
 		},
 		"update": {
-			"success": "タスクを更新しました",
 			"error": "タスクの更新に失敗しました"
 		},
 		"contextMenu": {
@@ -3041,7 +3015,8 @@
 			"moveToBoardSuccess": "{{count}} 件のタスクをボードに移動しました",
 			"moveToBoardError": "ボードへの移動に失敗しました",
 			"delete": "タスクを削除",
-			"deleteConfirm": "{{count}} 件のタスクを削除しますか？この操作は取り消せません。",
+			"deleteConfirmTitle_other": "{{count}} 件のタスクを削除しますか？",
+			"deleteConfirmDescription": "選択したタスクとそのすべてのデータが完全に削除されます。この操作は取り消せません。",
 			"deleteSuccess": "{{count}} 件のタスクを削除しました",
 			"deleteError": "タスクの削除に失敗しました",
 			"archive": "タスクをアーカイブ",
@@ -3087,10 +3062,46 @@
 		},
 		"checklistProgress": "チェックリスト {{total}} 項目中 {{completed}} 項目完了",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "フィールド",
+			"empty": "未設定",
+			"required": "必須",
+			"enterKey": "Enter",
+			"toSave": "で保存",
+			"today": "今日",
+			"clear": "クリア",
+			"setValue": "{{field}}を設定…",
+			"noMatches": "一致するオプションがありません",
+			"missingRequired_other": "必須フィールドが {{count}} 件未入力です",
+			"saveError": "{{field}}を保存できませんでした",
+			"moreFields_other": "ほか {{count}} 件のフィールド"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "タスクを検索",
+			"clearSearch": "検索をクリア",
+			"taskCount_other": "{{count}} 件のタスク",
+			"shownCount_other": "{{count}} 件中 {{shown}} 件"
+		},
+		"display": {
+			"title": "表示",
+			"sortBy": "並び替え",
+			"showOnCards": "カードに表示",
+			"showOnRows": "行に表示",
+			"checklistProgress": "チェックリストの進捗",
+			"projectBackground": "プロジェクトの背景",
+			"layout": "レイアウト"
+		},
+		"filterBar": {
+			"label": "適用中のフィルター",
+			"removeFilter": "{{name}} フィルターを削除",
+			"noMatches": "検索またはフィルターに一致するタスクはありません。"
+		},
+		"filterMenu": {
+			"addFilter": "フィルターを追加…",
+			"searchSubject": "{{name}}…",
+			"noResults": "結果がありません"
 		}
 	},
 	"invitations": {

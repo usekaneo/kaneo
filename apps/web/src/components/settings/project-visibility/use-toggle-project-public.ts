@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { GlobeIcon } from "lucide-react";
 import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
@@ -34,7 +35,9 @@ export function useToggleProjectPublic(
           queryKey: ["projects", workspaceId, project.id],
         }),
       ]);
-      toast.success(t("settings:projectVisibility.toastUpdated"));
+      toast.success(t("settings:projectVisibility.toastUpdated"), {
+        icon: GlobeIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error

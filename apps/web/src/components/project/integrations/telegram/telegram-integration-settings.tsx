@@ -1,4 +1,5 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { UnplugIcon, PlugIcon } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -110,6 +111,7 @@ export function TelegramIntegrationSettings({
         checked
           ? t("settings:telegramIntegration.toast.enabled")
           : t("settings:telegramIntegration.toast.disabled"),
+        { icon: checked ? PlugIcon : UnplugIcon },
       );
     } catch (error) {
       toast.error(
@@ -124,7 +126,9 @@ export function TelegramIntegrationSettings({
     try {
       await deleteIntegration(projectId);
       form.reset(toTelegramFormValues(null));
-      toast.success(t("settings:telegramIntegration.toast.removed"));
+      toast.success(t("settings:telegramIntegration.toast.removed"), {
+        icon: UnplugIcon,
+      });
       return true;
     } catch (error) {
       toast.error(

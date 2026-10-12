@@ -150,6 +150,7 @@ describe("CalendarFeedSettings", () => {
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
         "settings:calendarFeeds.created",
+        { icon: expect.anything() },
       ),
     );
     await waitFor(() =>
@@ -244,6 +245,7 @@ describe("CalendarFeedSettings", () => {
     await waitFor(() =>
       expect(toast.success).toHaveBeenCalledWith(
         "settings:calendarFeeds.revoked",
+        { icon: expect.anything() },
       ),
     );
   });

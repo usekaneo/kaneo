@@ -10,8 +10,7 @@
 			"markAllRead": "모두 읽음으로 표시",
 			"remove": "제거",
 			"reset": "재설정",
-			"filter": "필터",
-			"clearAllFilters": "모든 필터 지우기"
+			"filter": "필터"
 		},
 		"a11y": {
 			"toggleSidebar": "사이드바 토글"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1508,12 +1501,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "체크박스",
@@ -1523,7 +1514,6 @@
 				"text": "Text",
 				"multiselect": "드롭다운(여러 개 선택)"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "기본값 지우기",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1852,7 +1842,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "구독해 주셔서 감사합니다",
+				"description": "결제가 접수되었습니다. 확인되는 대로 아래 플랜이 업데이트됩니다."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2426,7 +2420,8 @@
 				"nextTask": "다음 작업",
 				"prevTask": "이전 작업",
 				"openTask": "선택한 작업 열기",
-				"quickSelectNumber": "번호로 옵션 선택"
+				"quickSelectNumber": "번호로 옵션 선택",
+				"ganttView": "간트 보기로 전환"
 			}
 		}
 	},
@@ -2636,7 +2631,6 @@
 			"high": "높음",
 			"urgent": "긴급"
 		},
-		"boardSearchPlaceholder": "티켓 검색...",
 		"view": {
 			"board": "보드",
 			"list": "목록",
@@ -2769,9 +2763,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "작업"
@@ -2843,12 +2835,10 @@
 				"updateError": "작업 우선순위 업데이트에 실패했습니다"
 			},
 			"dueDate": {
-				"updateSuccess": "작업 마감일이 업데이트되었습니다",
 				"updateError": "작업 마감일 업데이트에 실패했습니다",
 				"clear": "날짜 지우기"
 			},
 			"startDate": {
-				"updateSuccess": "작업 시작일이 업데이트되었습니다",
 				"updateError": "작업 시작일 업데이트에 실패했습니다",
 				"clear": "시작일 지우기"
 			},
@@ -2857,8 +2847,6 @@
 				"empty": "라벨을 찾을 수 없음",
 				"create": "\"{{name}}\" 만들기",
 				"chooseColor": "색상 선택",
-				"addSuccess": "라벨이 추가되었습니다",
-				"removeSuccess": "라벨이 제거되었습니다",
 				"updateError": "라벨 업데이트에 실패했습니다",
 				"createSuccess": "라벨이 생성되어 추가되었습니다",
 				"createError": "라벨 생성에 실패했습니다",
@@ -2885,26 +2873,18 @@
 			"moveAllTooltip": "계획된 작업 모두 할 일로 이동",
 			"moveAll": "모두 이동",
 			"addTask": "작업 추가",
-			"filter": "필터",
-			"addFilter": "필터 추가...",
 			"sections": {
 				"planned": "계획됨",
 				"archived": "보관됨"
 			},
 			"noTasksInSection": "{{section}} 작업이 없습니다",
 			"filters": {
-				"priority": "우선순위: {{name}}",
-				"assignee": "담당자: {{name}}",
-				"due": "마감일: {{date}}",
-				"label": "라벨: {{name}}",
 				"dueThisWeek": "이번 주 마감",
 				"dueNextWeek": "다음 주 마감",
 				"noDueDate": "마감일 없음"
 			}
 		},
 		"sort": {
-			"label": "정렬",
-			"by": "정렬 기준",
 			"direction": "방향",
 			"ascending": "오름차순",
 			"descending": "내림차순",
@@ -2918,12 +2898,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "필터 기준",
-			"allStatuses": "모든 상태",
-			"allPriorities": "모든 우선순위",
-			"allAssignees": "모든 담당자",
-			"allDueDates": "모든 마감일",
-			"allLabels": "모든 라벨",
 			"selectedCount": "{{count}}개 선택됨",
 			"subjects": {
 				"status": "상태",
@@ -2934,9 +2908,13 @@
 			},
 			"operators": {
 				"isAnyOf": "다음 중 하나",
-				"includeAnyOf": "다음 중 하나 포함"
+				"includeAnyOf": "다음 중 하나 포함",
+				"is": "일치",
+				"isNot": "일치하지 않음",
+				"isNoneOf": "다음 중 해당 없음",
+				"include": "포함",
+				"exclude": "제외"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -2958,13 +2936,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – 간트",
 			"title": "간트 타임라인",
-			"searchPlaceholder": "예약된 티켓 검색...",
 			"hideTasks": "작업 숨기기",
 			"showTasks": "작업 표시",
 			"noTasks": "예약된 작업 없음",
 			"noTasksSubtitle": "프로젝트 타임라인에 작업을 배치하려면 시작일, 마감일 또는 둘 다 추가하세요.",
 			"noTasksFound": "작업을 찾을 수 없음",
-			"noTasksMatch": "\"{{query}}\"와(과) 일치하는 예약된 작업이 없습니다",
 			"taskHeader": "작업",
 			"updateDatesError": "작업 날짜 업데이트에 실패했습니다",
 			"resizeStart": "시작일 크기 조정",
@@ -2989,7 +2965,9 @@
 			"error": "작업 복제에 실패했습니다"
 		},
 		"archive": {
-			"success": "작업 {{count}}개를 보관했습니다"
+			"success": "작업 {{count}}개를 보관했습니다",
+			"confirmTitle_other": "완료된 작업 {{count}}개를 보관하시겠습니까?",
+			"confirmDescription": "보드에서 빠지고 백로그의 '보관됨' 섹션으로 이동합니다."
 		},
 		"listView": {
 			"addTask": "작업 추가",
@@ -3014,17 +2992,13 @@
 		"dueDate": {
 			"label": "마감일",
 			"clear": "날짜 지우기",
-			"updateSuccess": "작업 마감일이 업데이트되었습니다",
 			"updateError": "작업 마감일 업데이트에 실패했습니다",
-			"clearSuccess": "작업 마감일이 지워졌습니다",
 			"clearError": "마감일 지우기에 실패했습니다"
 		},
 		"labels": {
-			"label": "라벨",
 			"empty": "사용 가능한 라벨이 없습니다"
 		},
 		"update": {
-			"success": "작업이 업데이트되었습니다",
 			"error": "작업 업데이트에 실패했습니다"
 		},
 		"contextMenu": {
@@ -3046,7 +3020,8 @@
 			"moveToBoardSuccess": "작업 {{count}}개를 보드로 이동했습니다",
 			"moveToBoardError": "작업을 보드로 이동하지 못했습니다",
 			"delete": "작업 삭제",
-			"deleteConfirm": "작업 {{count}}개를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+			"deleteConfirmTitle_other": "작업 {{count}}개를 삭제하시겠습니까?",
+			"deleteConfirmDescription": "선택한 작업과 모든 데이터가 영구적으로 제거됩니다. 이 작업은 취소할 수 없습니다.",
 			"deleteSuccess": "작업 {{count}}개가 삭제되었습니다",
 			"deleteError": "작업 삭제에 실패했습니다",
 			"archive": "작업 보관",
@@ -3087,10 +3062,46 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "체크리스트 항목 {{total}}개 중 {{completed}}개 완료",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "필드",
+			"empty": "비어 있음",
+			"required": "필수",
+			"enterKey": "Enter",
+			"toSave": "키로 저장",
+			"today": "오늘",
+			"clear": "지우기",
+			"setValue": "{{field}} 설정…",
+			"noMatches": "일치하는 옵션이 없습니다",
+			"missingRequired_other": "필수 필드 {{count}}개가 비어 있습니다",
+			"saveError": "{{field}}을(를) 저장하지 못했습니다",
+			"moreFields_other": "필드 {{count}}개 더 보기"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "작업 검색",
+			"clearSearch": "검색 지우기",
+			"taskCount_other": "작업 {{count}}개",
+			"shownCount_other": "{{count}}개 중 {{shown}}개 작업"
+		},
+		"display": {
+			"title": "표시",
+			"sortBy": "정렬 기준",
+			"showOnCards": "카드에 표시",
+			"showOnRows": "행에 표시",
+			"checklistProgress": "체크리스트 진행률",
+			"projectBackground": "프로젝트 배경",
+			"layout": "레이아웃"
+		},
+		"filterBar": {
+			"label": "적용된 필터",
+			"removeFilter": "{{name}} 필터 제거",
+			"noMatches": "검색 또는 필터와 일치하는 작업이 없습니다."
+		},
+		"filterMenu": {
+			"addFilter": "필터 추가…",
+			"searchSubject": "{{name}}…",
+			"noResults": "결과 없음"
 		}
 	},
 	"invitations": {

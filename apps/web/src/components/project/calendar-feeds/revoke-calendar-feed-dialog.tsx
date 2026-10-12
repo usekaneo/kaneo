@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CalendarXIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { calendarFeedsQueryKey } from "@/components/project/calendar-feeds/use-calendar-feeds";
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
@@ -26,7 +27,9 @@ export function RevokeCalendarFeedDialog({
       await queryClient.invalidateQueries({
         queryKey: calendarFeedsQueryKey(projectId),
       });
-      toast.success(t("settings:calendarFeeds.revoked"));
+      toast.success(t("settings:calendarFeeds.revoked"), {
+        icon: CalendarXIcon,
+      });
       onOpenChange(false);
     },
     onError: () => toast.error(t("settings:calendarFeeds.revokeError")),

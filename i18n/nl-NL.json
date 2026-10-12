@@ -10,8 +10,7 @@
 			"markAllRead": "Alles als gelezen markeren",
 			"remove": "Verwijderen",
 			"reset": "Herstellen",
-			"filter": "Filteren",
-			"clearAllFilters": "Alle filters wissen"
+			"filter": "Filteren"
 		},
 		"a11y": {
 			"toggleSidebar": "Zijbalk in-/uitschakelen"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1517,12 +1510,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Selectievakje",
@@ -1532,7 +1523,6 @@
 				"text": "Text",
 				"multiselect": "Dropdown, meerdere keuzes"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Standaardwaarde wissen",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1865,7 +1855,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Bedankt voor je abonnement",
+				"description": "Betaling ontvangen. Het abonnement hieronder wordt bijgewerkt zodra die is bevestigd."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2468,7 +2462,8 @@
 				"prevTask": "Vorige taak",
 				"openTask": "Geselecteerde taak openen",
 				"quickSelectNumber": "Selecteer optie via nummer",
-				"calendarView": "Naar kalenderweergave schakelen"
+				"calendarView": "Naar kalenderweergave schakelen",
+				"ganttView": "Naar Gantt-weergave schakelen"
 			}
 		}
 	},
@@ -2682,7 +2677,6 @@
 			"high": "Hoog",
 			"urgent": "Urgent"
 		},
-		"boardSearchPlaceholder": "Tickets zoeken...",
 		"view": {
 			"board": "Bord",
 			"list": "Lijst",
@@ -2815,9 +2809,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Taak"
@@ -2878,12 +2870,10 @@
 				"updateError": "Bijwerken taakprioriteit mislukt"
 			},
 			"dueDate": {
-				"updateSuccess": "Taak-einddatum succesvol bijgewerkt",
 				"updateError": "Bijwerken einddatum mislukt",
 				"clear": "Datum wissen"
 			},
 			"startDate": {
-				"updateSuccess": "Taak-startdatum succesvol bijgewerkt",
 				"updateError": "Bijwerken startdatum mislukt",
 				"clear": "Startdatum wissen"
 			},
@@ -2892,8 +2882,6 @@
 				"empty": "Geen labels gevonden",
 				"create": "Maak \"{{name}}\"",
 				"chooseColor": "Kleur kiezen",
-				"addSuccess": "Label toegevoegd",
-				"removeSuccess": "Label verwijderd",
 				"updateError": "Bijwerken label mislukt",
 				"createSuccess": "Label aangemaakt en toegevoegd",
 				"createError": "Aanmaken label mislukt",
@@ -2920,26 +2908,18 @@
 			"moveAllTooltip": "Alles gepland naar Te Doen verplaatsen",
 			"moveAll": "Alles verplaatsen",
 			"addTask": "Taak toevoegen",
-			"filter": "Filteren",
-			"addFilter": "Filter toevoegen...",
 			"sections": {
 				"planned": "Gepland",
 				"archived": "Gearchiveerd"
 			},
 			"noTasksInSection": "Geen {{section}} taken",
 			"filters": {
-				"priority": "Prioriteit: {{name}}",
-				"assignee": "Toegewezen aan: {{name}}",
-				"due": "Einddatum: {{date}}",
-				"label": "Label: {{name}}",
 				"dueThisWeek": "Deze week vervallen",
 				"dueNextWeek": "Volgende week vervallen",
 				"noDueDate": "Geen einddatum"
 			}
 		},
 		"sort": {
-			"label": "Sorteren",
-			"by": "Sorteren op",
 			"direction": "Richting",
 			"ascending": "Oplopend",
 			"descending": "Aflopend",
@@ -2953,12 +2933,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Filteren op",
-			"allStatuses": "Alle statussen",
-			"allPriorities": "Alle prioriteiten",
-			"allAssignees": "Alle personen",
-			"allDueDates": "Alle einddatums",
-			"allLabels": "Alle labels",
 			"selectedCount": "{{count}} geselecteerd",
 			"subjects": {
 				"status": "Status",
@@ -2969,9 +2943,13 @@
 			},
 			"operators": {
 				"isAnyOf": "is een van",
-				"includeAnyOf": "bevat een van"
+				"includeAnyOf": "bevat een van",
+				"is": "is",
+				"isNot": "is niet",
+				"isNoneOf": "is geen van",
+				"include": "bevat",
+				"exclude": "bevat niet"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -2979,13 +2957,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt-tijdlijn",
-			"searchPlaceholder": "Zoek geplande tickets...",
 			"hideTasks": "Taken verbergen",
 			"showTasks": "Taken tonen",
 			"noTasks": "Geen geplande taken",
 			"noTasksSubtitle": "Voeg een startdatum en/of einddatum toe aan taken om ze op de tijdlijn te plaatsen.",
 			"noTasksFound": "Geen taken gevonden",
-			"noTasksMatch": "Geen geplande taken die overeenkomen met \"{{query}}\"",
 			"taskHeader": "Taak",
 			"updateDatesError": "Bijwerken taakdatums mislukt",
 			"resizeStart": "Startdatum wijzigen",
@@ -3010,7 +2986,10 @@
 			"error": "Dupliceren taak mislukt"
 		},
 		"archive": {
-			"success": "{{count}} taken gearchiveerd"
+			"success": "{{count}} taken gearchiveerd",
+			"confirmTitle_one": "{{count}} voltooide taak archiveren?",
+			"confirmTitle_other": "{{count}} voltooide taken archiveren?",
+			"confirmDescription": "Ze verdwijnen van het bord en gaan naar de sectie 'Gearchiveerd' van de backlog."
 		},
 		"listView": {
 			"addTask": "Taak toevoegen",
@@ -3036,17 +3015,13 @@
 		"dueDate": {
 			"label": "Einddatum",
 			"clear": "Datum wissen",
-			"updateSuccess": "Einddatum taak succesvol bijgewerkt",
 			"updateError": "Bijwerken einddatum mislukt",
-			"clearSuccess": "Einddatum taak verwijderd",
 			"clearError": "Verwijderen einddatum mislukt"
 		},
 		"labels": {
-			"label": "Labels",
 			"empty": "Geen labels beschikbaar"
 		},
 		"update": {
-			"success": "Taak succesvol bijgewerkt",
 			"error": "Bijwerken taak mislukt"
 		},
 		"contextMenu": {
@@ -3068,7 +3043,9 @@
 			"moveToBoardSuccess": "{{count}} taken naar bord verplaatst",
 			"moveToBoardError": "Verplaatsen naar bord mislukt",
 			"delete": "Taken verwijderen",
-			"deleteConfirm": "Verwijder {{count}} taken? Dit kan niet ongedaan worden gemaakt.",
+			"deleteConfirmTitle_one": "{{count}} taak verwijderen?",
+			"deleteConfirmTitle_other": "{{count}} taken verwijderen?",
+			"deleteConfirmDescription": "Dit verwijdert de geselecteerde taken en al hun data permanent. Dit kan niet ongedaan worden gemaakt.",
 			"deleteSuccess": "{{count}} taken verwijderd",
 			"deleteError": "Verwijderen taken mislukt",
 			"archive": "Taken archiveren",
@@ -3134,10 +3111,50 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "{{completed}} van {{total}} checklistitems voltooid",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Velden",
+			"empty": "Leeg",
+			"required": "Verplicht",
+			"enterKey": "Enter",
+			"toSave": "om op te slaan",
+			"today": "Vandaag",
+			"clear": "Wissen",
+			"setValue": "{{field}} instellen…",
+			"noMatches": "Geen overeenkomende opties",
+			"missingRequired_one": "{{count}} verplicht veld is leeg",
+			"missingRequired_other": "{{count}} verplichte velden zijn leeg",
+			"saveError": "{{field}} kon niet worden opgeslagen",
+			"moreFields_one": "Nog {{count}} veld",
+			"moreFields_other": "Nog {{count}} velden"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Taken zoeken",
+			"clearSearch": "Zoekopdracht wissen",
+			"taskCount_one": "{{count}} taak",
+			"taskCount_other": "{{count}} taken",
+			"shownCount_one": "{{shown}} van {{count}} taak",
+			"shownCount_other": "{{shown}} van {{count}} taken"
+		},
+		"display": {
+			"title": "Weergave",
+			"sortBy": "Sorteren op",
+			"showOnCards": "Tonen op kaarten",
+			"showOnRows": "Tonen in rijen",
+			"checklistProgress": "Voortgang checklist",
+			"projectBackground": "Projectachtergrond",
+			"layout": "Indeling"
+		},
+		"filterBar": {
+			"label": "Actieve filters",
+			"removeFilter": "Filter {{name}} verwijderen",
+			"noMatches": "Geen taken komen overeen met je zoekopdracht of filters."
+		},
+		"filterMenu": {
+			"addFilter": "Filter toevoegen…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Geen resultaten"
 		}
 	},
 	"invitations": {

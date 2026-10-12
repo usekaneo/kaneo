@@ -1,6 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { CSSProperties } from "react";
+import { EASE_OUT_CSS } from "@/lib/motion";
 
 export function useSortableRow(id: string, disabled: boolean) {
   const {
@@ -11,7 +12,11 @@ export function useSortableRow(id: string, disabled: boolean) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id, disabled });
+  } = useSortable({
+    id,
+    disabled,
+    transition: { duration: 200, easing: EASE_OUT_CSS },
+  });
 
   const rowStyle: CSSProperties = {
     transform: CSS.Translate.toString(transform),

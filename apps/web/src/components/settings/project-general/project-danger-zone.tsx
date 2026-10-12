@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
@@ -34,7 +35,9 @@ export function ProjectDangerZone({
 
     try {
       await deleteProject({ id: project.id });
-      toast.success(t("settings:projectGeneral.toastDeleted"));
+      toast.success(t("settings:projectGeneral.toastDeleted"), {
+        icon: Trash2Icon,
+      });
       setOpen(false);
 
       await queryClient.invalidateQueries({ queryKey: ["projects"] });

@@ -139,6 +139,7 @@ describe("CustomFieldDialog", () => {
     );
     expect(toast.success).toHaveBeenCalledWith(
       "settings:customFields.createSuccess",
+      { icon: expect.anything() },
     );
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

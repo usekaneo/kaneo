@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowUp, Paperclip } from "lucide-react";
+import { ArrowUp, Paperclip, MessageSquareIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
@@ -43,7 +43,7 @@ export default function CommentInput({ taskId, projectId }: CommentInputProps) {
       setContent("");
       await queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
 
-      toast.success(t("activity:comment.added"));
+      toast.success(t("activity:comment.added"), { icon: MessageSquareIcon });
     } catch (error) {
       console.error("Failed to create comment:", error);
       toast.error(t("activity:comment.failedToAdd"));

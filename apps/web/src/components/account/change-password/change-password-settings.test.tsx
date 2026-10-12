@@ -165,6 +165,7 @@ describe("ChangePasswordSettings", () => {
     );
     expect(m.success).toHaveBeenCalledWith(
       "settings:securityPage.updateSuccess",
+      { icon: expect.anything() },
     );
     await waitFor(() =>
       expect(

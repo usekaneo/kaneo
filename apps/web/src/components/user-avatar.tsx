@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, Settings, LogOutIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -39,7 +39,9 @@ export function UserAvatar() {
       await signOut();
       queryClient.clear();
       setProject(undefined);
-      toast.success(t("navigation:userMenu.signedOutSuccess"));
+      toast.success(t("navigation:userMenu.signedOutSuccess"), {
+        icon: LogOutIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error

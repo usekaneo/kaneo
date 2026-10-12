@@ -10,8 +10,7 @@
 			"markAllRead": "Отметить все как прочитанные",
 			"remove": "Убрать",
 			"reset": "Сбросить",
-			"filter": "Фильтр",
-			"clearAllFilters": "Сбросить все фильтры"
+			"filter": "Фильтр"
 		},
 		"a11y": {
 			"toggleSidebar": "Переключить боковую панель"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1543,12 +1536,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Флажок",
@@ -1558,7 +1549,6 @@
 				"text": "Text",
 				"multiselect": "Выпадающий список, несколько значений"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Очистить значение по умолчанию",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1899,7 +1889,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Спасибо за подписку",
+				"description": "Платёж получен. План ниже обновится, как только он будет подтверждён."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2560,7 +2554,8 @@
 				"prevTask": "Предыдущая задача",
 				"openTask": "Открыть выбранную задачу",
 				"quickSelectNumber": "Выбрать вариант по номеру",
-				"calendarView": "Переключиться на календарь"
+				"calendarView": "Переключиться на календарь",
+				"ganttView": "Переключиться на диаграмму Ганта"
 			}
 		}
 	},
@@ -2782,7 +2777,6 @@
 			"high": "Высокий",
 			"urgent": "Срочный"
 		},
-		"boardSearchPlaceholder": "Поиск задач...",
 		"view": {
 			"board": "Доска",
 			"list": "Список",
@@ -2915,9 +2909,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Задача"
@@ -2989,12 +2981,10 @@
 				"updateError": "Не удалось обновить приоритет задачи"
 			},
 			"dueDate": {
-				"updateSuccess": "Срок выполнения задачи успешно обновлён",
 				"updateError": "Не удалось обновить срок выполнения задачи",
 				"clear": "Очистить дату"
 			},
 			"startDate": {
-				"updateSuccess": "Дата начала задачи успешно обновлена",
 				"updateError": "Не удалось обновить дату начала задачи",
 				"clear": "Очистить дату начала"
 			},
@@ -3003,8 +2993,6 @@
 				"empty": "Метки не найдены",
 				"create": "Создать «{{name}}»",
 				"chooseColor": "Выберите цвет",
-				"addSuccess": "Метка добавлена",
-				"removeSuccess": "Метка удалена",
 				"updateError": "Не удалось обновить метку",
 				"createSuccess": "Метка создана и добавлена",
 				"createError": "Не удалось создать метку",
@@ -3034,18 +3022,12 @@
 			"moveAllTooltip": "Переместить все запланированные в «К выполнению»",
 			"moveAll": "Переместить все",
 			"addTask": "Добавить задачу",
-			"filter": "Фильтр",
-			"addFilter": "Добавить фильтр...",
 			"sections": {
 				"planned": "Запланировано",
 				"archived": "В архиве"
 			},
 			"noTasksInSection": "Нет задач в разделе «{{section}}»",
 			"filters": {
-				"priority": "Приоритет: {{name}}",
-				"assignee": "Исполнитель: {{name}}",
-				"due": "Срок: {{date}}",
-				"label": "Метка: {{name}}",
 				"dueThisWeek": "Срок на этой неделе",
 				"dueNextWeek": "Срок на следующей неделе",
 				"noDueDate": "Без срока"
@@ -3053,8 +3035,6 @@
 			"moveAllSuccess": "{{count}} задач перемещено в «К выполнению»"
 		},
 		"sort": {
-			"label": "Сортировка",
-			"by": "Сортировать по",
 			"direction": "Направление",
 			"ascending": "По возрастанию",
 			"descending": "По убыванию",
@@ -3068,12 +3048,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Фильтровать по",
-			"allStatuses": "Все статусы",
-			"allPriorities": "Все приоритеты",
-			"allAssignees": "Все исполнители",
-			"allDueDates": "Все сроки",
-			"allLabels": "Все метки",
 			"selectedCount_one": "{{count}} выбран",
 			"selectedCount_few": "{{count}} выбрано",
 			"selectedCount_many": "{{count}} выбрано",
@@ -3087,10 +3061,14 @@
 			},
 			"operators": {
 				"isAnyOf": "любой из",
-				"includeAnyOf": "включает любой из"
+				"includeAnyOf": "включает любой из",
+				"is": "равно",
+				"isNot": "не равно",
+				"isNoneOf": "ни один из",
+				"include": "включает",
+				"exclude": "исключает"
 			},
 			"selectedCount": "{{count}} выбрано",
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -3098,13 +3076,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Гант",
 			"title": "Временная шкала Ганта",
-			"searchPlaceholder": "Поиск запланированных задач...",
 			"hideTasks": "Скрыть задачи",
 			"showTasks": "Показать задачи",
 			"noTasks": "Нет запланированных задач",
 			"noTasksSubtitle": "Добавьте дату начала, срок выполнения или оба значения к задачам, чтобы разместить их на временной шкале проекта.",
 			"noTasksFound": "Задачи не найдены",
-			"noTasksMatch": "Нет запланированных задач, соответствующих «{{query}}»",
 			"taskHeader": "Задача",
 			"updateDatesError": "Не удалось обновить даты задачи",
 			"resizeStart": "Изменить дату начала",
@@ -3133,7 +3109,12 @@
 			"success_few": "{{count}} задачи архивированы",
 			"success_many": "{{count}} задач архивировано",
 			"success_other": "{{count}} задач архивировано",
-			"success": "{{count}} задач архивировано"
+			"success": "{{count}} задач архивировано",
+			"confirmTitle_one": "Архивировать {{count}} завершённую задачу?",
+			"confirmTitle_few": "Архивировать {{count}} завершённые задачи?",
+			"confirmTitle_many": "Архивировать {{count}} завершённых задач?",
+			"confirmTitle_other": "Архивировать {{count}} завершённой задачи?",
+			"confirmDescription": "Они исчезнут с доски и перейдут в раздел «В архиве» бэклога."
 		},
 		"listView": {
 			"addTask": "Добавить задачу",
@@ -3161,17 +3142,13 @@
 		"dueDate": {
 			"label": "Срок выполнения",
 			"clear": "Очистить дату",
-			"updateSuccess": "Срок выполнения задачи успешно обновлён",
 			"updateError": "Не удалось обновить срок выполнения задачи",
-			"clearSuccess": "Срок выполнения задачи очищен",
 			"clearError": "Не удалось очистить срок выполнения"
 		},
 		"labels": {
-			"label": "Метки",
 			"empty": "Нет доступных меток"
 		},
 		"update": {
-			"success": "Задача успешно обновлена",
 			"error": "Не удалось обновить задачу"
 		},
 		"contextMenu": {
@@ -3202,10 +3179,6 @@
 			"moveToBoardSuccess_other": "{{count}} задач перемещено на доску",
 			"moveToBoardError": "Не удалось переместить задачи на доску",
 			"delete": "Удалить задачи",
-			"deleteConfirm_one": "Удалить {{count}} задачу? Это действие нельзя отменить.",
-			"deleteConfirm_few": "Удалить {{count}} задачи? Это действие нельзя отменить.",
-			"deleteConfirm_many": "Удалить {{count}} задач? Это действие нельзя отменить.",
-			"deleteConfirm_other": "Удалить {{count}} задач? Это действие нельзя отменить.",
 			"deleteSuccess_one": "{{count}} задача удалена",
 			"deleteSuccess_few": "{{count}} задачи удалены",
 			"deleteSuccess_many": "{{count}} задач удалено",
@@ -3245,7 +3218,11 @@
 			"selectedCount": "{{count}} выбрано",
 			"moveToBacklogSuccess": "{{count}} задач перемещено в бэклог",
 			"moveToBoardSuccess": "{{count}} задач перемещено на доску",
-			"deleteConfirm": "Удалить {{count}} задач? Это действие нельзя отменить.",
+			"deleteConfirmTitle_one": "Удалить {{count}} задачу?",
+			"deleteConfirmTitle_few": "Удалить {{count}} задачи?",
+			"deleteConfirmTitle_many": "Удалить {{count}} задач?",
+			"deleteConfirmTitle_other": "Удалить {{count}} задачи?",
+			"deleteConfirmDescription": "Выбранные задачи и все их данные будут безвозвратно удалены. Это действие нельзя отменить.",
 			"deleteSuccess": "{{count}} задач удалено",
 			"archiveSuccess": "{{count}} задач архивировано",
 			"updateSuccess": "{{count}} задач обновлено",
@@ -3284,10 +3261,58 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "Выполнено пунктов списка: {{completed}} из {{total}}",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Поля",
+			"empty": "Пусто",
+			"required": "Обязательно",
+			"enterKey": "Enter",
+			"toSave": "чтобы сохранить",
+			"today": "Сегодня",
+			"clear": "Очистить",
+			"setValue": "Задать {{field}}…",
+			"noMatches": "Нет подходящих вариантов",
+			"missingRequired_one": "{{count}} обязательное поле не заполнено",
+			"missingRequired_few": "{{count}} обязательных поля не заполнены",
+			"missingRequired_many": "{{count}} обязательных полей не заполнено",
+			"missingRequired_other": "{{count}} обязательного поля не заполнено",
+			"saveError": "Не удалось сохранить поле «{{field}}»",
+			"moreFields_one": "Ещё {{count}} поле",
+			"moreFields_few": "Ещё {{count}} поля",
+			"moreFields_many": "Ещё {{count}} полей",
+			"moreFields_other": "Ещё {{count}} поля"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Поиск задач",
+			"clearSearch": "Очистить поиск",
+			"taskCount_one": "{{count}} задача",
+			"taskCount_few": "{{count}} задачи",
+			"taskCount_many": "{{count}} задач",
+			"taskCount_other": "{{count}} задачи",
+			"shownCount_one": "{{shown}} из {{count}} задачи",
+			"shownCount_few": "{{shown}} из {{count}} задач",
+			"shownCount_many": "{{shown}} из {{count}} задач",
+			"shownCount_other": "{{shown}} из {{count}} задачи"
+		},
+		"display": {
+			"title": "Отображение",
+			"sortBy": "Сортировать по",
+			"showOnCards": "Показывать на карточках",
+			"showOnRows": "Показывать в строках",
+			"checklistProgress": "Прогресс чек-листа",
+			"projectBackground": "Фон проекта",
+			"layout": "Макет"
+		},
+		"filterBar": {
+			"label": "Активные фильтры",
+			"removeFilter": "Убрать фильтр «{{name}}»",
+			"noMatches": "Нет задач, подходящих под поиск или фильтры."
+		},
+		"filterMenu": {
+			"addFilter": "Добавить фильтр…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Ничего не найдено"
 		}
 	},
 	"invitations": {

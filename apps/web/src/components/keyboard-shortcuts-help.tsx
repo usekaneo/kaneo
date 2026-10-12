@@ -92,6 +92,10 @@ function useShortcutCategories(): ShortcutCategory[] {
             keys: [shortcuts.view.prefix, shortcuts.view.calendar],
             description: t("navigation:keyboardShortcuts.items.calendarView"),
           },
+          {
+            keys: [shortcuts.view.prefix, shortcuts.view.gantt],
+            description: t("navigation:keyboardShortcuts.items.ganttView"),
+          },
         ],
       },
       {
@@ -168,7 +172,10 @@ export function KeyboardShortcutsHelp() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="px-4 max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent
+        instant
+        className="px-4 max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
+      >
         <DialogHeader>
           <DialogTitle>{t("navigation:keyboardShortcuts.title")}</DialogTitle>
           <DialogDescription>

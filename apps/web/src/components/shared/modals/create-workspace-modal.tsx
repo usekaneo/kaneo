@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { SquarePlusIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -56,7 +57,9 @@ function CreateWorkspaceModal({ open, onClose }: CreateWorkspaceModalProps) {
 
     try {
       const createdWorkspace = await mutateAsync({ name, description });
-      toast.success(t("common:modals.createWorkspace.successToast"));
+      toast.success(t("common:modals.createWorkspace.successToast"), {
+        icon: SquarePlusIcon,
+      });
       await queryClient.invalidateQueries({ queryKey: ["workspaces"] });
 
       await authClient.organization.setActive({

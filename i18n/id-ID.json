@@ -10,8 +10,7 @@
 			"markAllRead": "Tandai semua telah dibaca",
 			"remove": "Hapus",
 			"reset": "Atur ulang",
-			"filter": "Filter",
-			"clearAllFilters": "Hapus semua filter"
+			"filter": "Filter"
 		},
 		"a11y": {
 			"toggleSidebar": "Tampilkan/sembunyikan panel samping"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -1508,12 +1501,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Kotak centang",
@@ -1523,7 +1514,6 @@
 				"text": "Text",
 				"multiselect": "Dropdown, pilih beberapa"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Hapus default",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -1852,7 +1842,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Terima kasih telah berlangganan",
+				"description": "Pembayaran diterima. Paket di bawah akan diperbarui setelah dikonfirmasi."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -2426,7 +2420,8 @@
 				"prevTask": "Tugas sebelumnya",
 				"openTask": "Buka tugas terpilih",
 				"quickSelectNumber": "Pilih opsi berdasarkan nomor",
-				"calendarView": "Beralih ke tampilan kalender"
+				"calendarView": "Beralih ke tampilan kalender",
+				"ganttView": "Beralih ke tampilan Gantt"
 			}
 		}
 	},
@@ -2636,7 +2631,6 @@
 			"high": "Tinggi",
 			"urgent": "Mendesak"
 		},
-		"boardSearchPlaceholder": "Cari tiket...",
 		"view": {
 			"board": "Papan",
 			"list": "Daftar",
@@ -2769,9 +2763,7 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			},
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			}
 		},
 		"entity": {
 			"task": "Tugas"
@@ -2843,12 +2835,10 @@
 				"updateError": "Gagal memperbarui prioritas tugas"
 			},
 			"dueDate": {
-				"updateSuccess": "Tenggat tugas berhasil diperbarui",
 				"updateError": "Gagal memperbarui tenggat tugas",
 				"clear": "Hapus tanggal"
 			},
 			"startDate": {
-				"updateSuccess": "Tanggal mulai tugas berhasil diperbarui",
 				"updateError": "Gagal memperbarui tanggal mulai tugas",
 				"clear": "Hapus tanggal mulai"
 			},
@@ -2857,8 +2847,6 @@
 				"empty": "Label tidak ditemukan",
 				"create": "Buat \"{{name}}\"",
 				"chooseColor": "Pilih warna",
-				"addSuccess": "Label ditambahkan",
-				"removeSuccess": "Label dihapus",
 				"updateError": "Gagal memperbarui label",
 				"createSuccess": "Label dibuat dan ditambahkan",
 				"createError": "Gagal membuat label",
@@ -2885,26 +2873,18 @@
 			"moveAllTooltip": "Pindahkan Semua yang Direncanakan ke Perlu Dikerjakan",
 			"moveAll": "Pindahkan Semua",
 			"addTask": "Tambah tugas",
-			"filter": "Filter",
-			"addFilter": "Tambah filter...",
 			"sections": {
 				"planned": "Direncanakan",
 				"archived": "Diarsipkan"
 			},
 			"noTasksInSection": "Tidak ada tugas {{section}}",
 			"filters": {
-				"priority": "Prioritas: {{name}}",
-				"assignee": "Penanggung jawab: {{name}}",
-				"due": "Tenggat: {{date}}",
-				"label": "Label: {{name}}",
 				"dueThisWeek": "Tenggat minggu ini",
 				"dueNextWeek": "Tenggat minggu depan",
 				"noDueDate": "Tanpa tenggat"
 			}
 		},
 		"sort": {
-			"label": "Urutkan",
-			"by": "Urutkan Berdasarkan",
 			"direction": "Arah",
 			"ascending": "Naik",
 			"descending": "Turun",
@@ -2918,12 +2898,6 @@
 			}
 		},
 		"boardFilters": {
-			"filterBy": "Filter Berdasarkan",
-			"allStatuses": "Semua status",
-			"allPriorities": "Semua prioritas",
-			"allAssignees": "Semua penanggung jawab",
-			"allDueDates": "Semua tenggat",
-			"allLabels": "Semua label",
 			"selectedCount": "{{count}} dipilih",
 			"subjects": {
 				"status": "Status",
@@ -2934,9 +2908,13 @@
 			},
 			"operators": {
 				"isAnyOf": "adalah salah satu dari",
-				"includeAnyOf": "menyertakan salah satu dari"
+				"includeAnyOf": "menyertakan salah satu dari",
+				"is": "adalah",
+				"isNot": "bukan",
+				"isNoneOf": "bukan salah satu dari",
+				"include": "menyertakan",
+				"exclude": "mengecualikan"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
@@ -2944,13 +2922,11 @@
 		"gantt": {
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Linimasa Gantt",
-			"searchPlaceholder": "Cari tiket terjadwal...",
 			"hideTasks": "Sembunyikan tugas",
 			"showTasks": "Tampilkan tugas",
 			"noTasks": "Tidak ada tugas terjadwal",
 			"noTasksSubtitle": "Tambahkan tanggal mulai, tenggat, atau keduanya ke tugas untuk menempatkannya di linimasa proyek.",
 			"noTasksFound": "Tugas tidak ditemukan",
-			"noTasksMatch": "Tidak ada tugas terjadwal yang cocok dengan \"{{query}}\"",
 			"taskHeader": "Tugas",
 			"updateDatesError": "Gagal memperbarui tanggal tugas",
 			"resizeStart": "Ubah ukuran tanggal mulai",
@@ -2975,7 +2951,9 @@
 			"error": "Gagal menduplikasi tugas"
 		},
 		"archive": {
-			"success": "{{count}} tugas diarsipkan"
+			"success": "{{count}} tugas diarsipkan",
+			"confirmTitle_other": "Arsipkan {{count}} tugas yang selesai?",
+			"confirmDescription": "Tugas akan keluar dari papan dan pindah ke bagian \"Diarsipkan\" di backlog."
 		},
 		"listView": {
 			"addTask": "Tambah tugas",
@@ -3000,17 +2978,13 @@
 		"dueDate": {
 			"label": "Tenggat",
 			"clear": "Hapus tanggal",
-			"updateSuccess": "Tenggat tugas berhasil diperbarui",
 			"updateError": "Gagal memperbarui tenggat tugas",
-			"clearSuccess": "Tenggat tugas dihapus",
 			"clearError": "Gagal menghapus tenggat"
 		},
 		"labels": {
-			"label": "Label",
 			"empty": "Tidak ada label tersedia"
 		},
 		"update": {
-			"success": "Tugas berhasil diperbarui",
 			"error": "Gagal memperbarui tugas"
 		},
 		"contextMenu": {
@@ -3032,7 +3006,8 @@
 			"moveToBoardSuccess": "{{count}} tugas dipindahkan ke papan",
 			"moveToBoardError": "Gagal memindahkan tugas ke papan",
 			"delete": "Hapus tugas",
-			"deleteConfirm": "Hapus {{count}} tugas? Tindakan ini tidak dapat dibatalkan.",
+			"deleteConfirmTitle_other": "Hapus {{count}} tugas?",
+			"deleteConfirmDescription": "Ini akan menghapus tugas yang dipilih beserta semua datanya secara permanen. Anda tidak dapat membatalkan tindakan ini.",
 			"deleteSuccess": "{{count}} tugas dihapus",
 			"deleteError": "Gagal menghapus tugas",
 			"archive": "Arsipkan tugas",
@@ -3087,10 +3062,46 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"checklistProgress": "{{completed}} dari {{total}} item daftar periksa selesai",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Bidang",
+			"empty": "Kosong",
+			"required": "Wajib",
+			"enterKey": "Enter",
+			"toSave": "untuk menyimpan",
+			"today": "Hari ini",
+			"clear": "Hapus",
+			"setValue": "Atur {{field}}…",
+			"noMatches": "Tidak ada opsi yang cocok",
+			"missingRequired_other": "{{count}} kolom wajib masih kosong",
+			"saveError": "Gagal menyimpan {{field}}",
+			"moreFields_other": "{{count}} kolom lainnya"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Cari tugas",
+			"clearSearch": "Hapus pencarian",
+			"taskCount_other": "{{count}} tugas",
+			"shownCount_other": "{{shown}} dari {{count}} tugas"
+		},
+		"display": {
+			"title": "Tampilan",
+			"sortBy": "Urutkan berdasarkan",
+			"showOnCards": "Tampilkan di kartu",
+			"showOnRows": "Tampilkan di baris",
+			"checklistProgress": "Progres daftar periksa",
+			"projectBackground": "Latar belakang proyek",
+			"layout": "Tata letak"
+		},
+		"filterBar": {
+			"label": "Filter aktif",
+			"removeFilter": "Hapus filter {{name}}",
+			"noMatches": "Tidak ada tugas yang cocok dengan pencarian atau filter Anda."
+		},
+		"filterMenu": {
+			"addFilter": "Tambah filter…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Tidak ada hasil"
 		}
 	},
 	"invitations": {

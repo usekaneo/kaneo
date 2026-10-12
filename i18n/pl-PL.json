@@ -10,8 +10,7 @@
 			"markAllRead": "Oznacz wszystko jako przeczytane",
 			"remove": "Usuń",
 			"reset": "Resetuj",
-			"filter": "Filtruj",
-			"clearAllFilters": "Wyczyść wszystkie filtry"
+			"filter": "Filtruj"
 		},
 		"a11y": {
 			"toggleSidebar": "Przełącz pasek boczny"
@@ -153,12 +152,6 @@
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
-		},
-		"boolean": {
-			"false": "False",
-			"notSet": "Not Set",
-			"true": "True",
-			"undefined": "Undefined"
 		}
 	},
 	"auth": {
@@ -681,7 +674,8 @@
 				"nextTask": "Następne zadanie",
 				"prevTask": "Poprzednie zadanie",
 				"openTask": "Otwórz zaznaczone zadanie",
-				"quickSelectNumber": "Wybierz opcję numerem"
+				"quickSelectNumber": "Wybierz opcję numerem",
+				"ganttView": "Przełącz na widok Gantta"
 			}
 		}
 	},
@@ -2132,12 +2126,10 @@
 			"createSuccess": "Custom field created.",
 			"creating": "Creating...",
 			"defaultLabel": "Default",
-			"defaultValuePlaceholder": "Default value",
 			"deleteError": "Failed to delete custom field.",
 			"deleteSuccess": "Custom field deleted.",
 			"deleting": "Deleting...",
 			"namePlaceholder": "Field name",
-			"noOptionsPlaceholder": "No options",
 			"required": "Required",
 			"types": {
 				"boolean": "Pole wyboru",
@@ -2147,7 +2139,6 @@
 				"text": "Text",
 				"multiselect": "Lista rozwijana, wiele opcji"
 			},
-			"availableOptions": "Available options",
 			"clearDefault": "Wyczyść wartość domyślną",
 			"moreOptions": "+{{hiddenCount}} more",
 			"reorderError": "Failed to reorder fields",
@@ -2488,7 +2479,11 @@
 				"expiredDescription": "Subscribe to keep creating and editing.",
 				"viewPlans": "View plans"
 			},
-			"openFailed": "Couldn't open billing for this workspace"
+			"openFailed": "Couldn't open billing for this workspace",
+			"checkoutSuccess": {
+				"title": "Dziękujemy za subskrypcję",
+				"description": "Płatność otrzymana. Plan poniżej zaktualizuje się po jej potwierdzeniu."
+			}
 		},
 		"syncRules": {
 			"addLabel": "Add label",
@@ -3046,24 +3041,23 @@
 			"duplicate": "Duplicate"
 		},
 		"archive": {
-			"success": "Zarchiwizowano zadań: {{count}}"
+			"success": "Zarchiwizowano zadań: {{count}}",
+			"confirmTitle_one": "Zarchiwizować {{count}} ukończone zadanie?",
+			"confirmTitle_few": "Zarchiwizować {{count}} ukończone zadania?",
+			"confirmTitle_many": "Zarchiwizować {{count}} ukończonych zadań?",
+			"confirmTitle_other": "Zarchiwizować {{count}} ukończonego zadania?",
+			"confirmDescription": "Znikną z tablicy i trafią do sekcji „Zarchiwizowane” w backlogu."
 		},
 		"assignee": {
 			"label": "Osoba przypisana",
 			"unassigned": "Nieprzypisane"
 		},
 		"backlog": {
-			"addFilter": "Dodaj filtr...",
 			"addTask": "Dodaj zadanie",
-			"filter": "Filtruj",
 			"filters": {
-				"assignee": "Osoba przypisana: {{name}}",
-				"due": "Termin: {{date}}",
 				"dueNextWeek": "Termin w przyszłym tygodniu",
 				"dueThisWeek": "Termin w tym tygodniu",
-				"label": "Etykieta: {{name}}",
-				"noDueDate": "Brak terminu",
-				"priority": "Priorytet: {{name}}"
+				"noDueDate": "Brak terminu"
 			},
 			"moveAll": "Przenieś wszystko",
 			"moveAllConfirm": "Przenieść wszystkie zaplanowane zadania ({{count}}) do „Do zrobienia”?",
@@ -3079,15 +3073,14 @@
 			}
 		},
 		"boardFilters": {
-			"allAssignees": "Wszystkie przypisane osoby",
-			"allDueDates": "Wszystkie terminy",
-			"allLabels": "Wszystkie etykiety",
-			"allPriorities": "Wszystkie priorytety",
-			"allStatuses": "Wszystkie statusy",
-			"filterBy": "Filtruj według",
 			"operators": {
 				"includeAnyOf": "zawiera dowolny z",
-				"isAnyOf": "jest jednym z"
+				"isAnyOf": "jest jednym z",
+				"is": "jest",
+				"isNot": "nie jest",
+				"isNoneOf": "nie jest żadnym z",
+				"include": "zawiera",
+				"exclude": "nie zawiera"
 			},
 			"selectedCount": "Wybrano: {{count}}",
 			"subjects": {
@@ -3097,12 +3090,10 @@
 				"priority": "Priorytet",
 				"status": "Status"
 			},
-			"all": "All",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
 			"noValuesUsedYet": "No values used yet"
 		},
-		"boardSearchPlaceholder": "Szukaj zadań...",
 		"bulk": {
 			"actions": "Akcje",
 			"addLabel": "Dodaj etykietę",
@@ -3116,7 +3107,11 @@
 			"assignTo": "Przypisz do",
 			"changeStatus": "Zmień status",
 			"delete": "Usuń zadania",
-			"deleteConfirm": "Usunąć {{count}} zadań? Tej operacji nie można cofnąć.",
+			"deleteConfirmTitle_one": "Usunąć {{count}} zadanie?",
+			"deleteConfirmTitle_few": "Usunąć {{count}} zadania?",
+			"deleteConfirmTitle_many": "Usunąć {{count}} zadań?",
+			"deleteConfirmTitle_other": "Usunąć {{count}} zadania?",
+			"deleteConfirmDescription": "Wybrane zadania i wszystkie ich dane zostaną trwale usunięte. Tej operacji nie można cofnąć.",
 			"deleteError": "Nie udało się usunąć zadań",
 			"deleteSuccess": "Usunięto zadań: {{count}}",
 			"moveToBacklog": "Przenieś do backlogu",
@@ -3271,17 +3266,13 @@
 			"noActivity": "Nie znaleziono aktywności",
 			"openInFullPage": "Otwórz na pełnej stronie",
 			"subtaskOf": "Podzadanie zadania",
-			"titlePlaceholder": "Kliknij, aby dodać tytuł",
-			"customFieldUpdated": "Field updated",
-			"selectOption": "Select option"
+			"titlePlaceholder": "Kliknij, aby dodać tytuł"
 		},
 		"dueDate": {
 			"clear": "Wyczyść datę",
 			"clearError": "Nie udało się wyczyścić terminu",
-			"clearSuccess": "Wyczyszczono termin zadania",
 			"label": "Termin",
-			"updateError": "Nie udało się zaktualizować terminu zadania",
-			"updateSuccess": "Termin zadania zaktualizowano pomyślnie"
+			"updateError": "Nie udało się zaktualizować terminu zadania"
 		},
 		"editor": {
 			"table": {
@@ -3316,12 +3307,10 @@
 			"jumpToToday": "Przejdź do dzisiaj",
 			"noTasks": "Brak zaplanowanych zadań",
 			"noTasksFound": "Nie znaleziono zadań",
-			"noTasksMatch": "Brak zaplanowanych zadań pasujących do „{{query}}”",
 			"noTasksSubtitle": "Dodaj datę rozpoczęcia, termin lub obie daty, aby umieścić zadania na osi czasu projektu.",
 			"pageTitle": "{{name}} – wykres Gantta",
 			"resizeDue": "Zmień rozmiar terminu",
 			"resizeStart": "Zmień rozmiar daty rozpoczęcia",
-			"searchPlaceholder": "Szukaj zaplanowanych zadań...",
 			"showTasks": "Pokaż zadania",
 			"taskAriaLabel": "{{title}}: otwórz lub przeciągnij, aby przenieść",
 			"taskHeader": "Zadanie",
@@ -3337,8 +3326,7 @@
 			"automaticallySortedHint": "Automatyczne sortowanie: {{sort}}"
 		},
 		"labels": {
-			"empty": "Brak dostępnych etykiet",
-			"label": "Etykiety"
+			"empty": "Brak dostępnych etykiet"
 		},
 		"listView": {
 			"addTask": "Dodaj zadanie",
@@ -3363,11 +3351,9 @@
 			},
 			"dueDate": {
 				"clear": "Wyczyść datę",
-				"updateError": "Nie udało się zaktualizować terminu zadania",
-				"updateSuccess": "Termin zadania zaktualizowano pomyślnie"
+				"updateError": "Nie udało się zaktualizować terminu zadania"
 			},
 			"labels": {
-				"addSuccess": "Dodano etykietę",
 				"chooseColor": "Wybierz kolor",
 				"colors": {
 					"amber": "Bursztyn",
@@ -3384,7 +3370,6 @@
 				"createError": "Nie udało się utworzyć etykiety",
 				"createSuccess": "Utworzono i dodano etykietę",
 				"empty": "Nie znaleziono etykiet",
-				"removeSuccess": "Usunięto etykietę",
 				"searchPlaceholder": "Szukaj etykiet...",
 				"updateError": "Nie udało się zaktualizować etykiety",
 				"editLabels": "Edytuj etykiety"
@@ -3394,8 +3379,7 @@
 			},
 			"startDate": {
 				"clear": "Wyczyść datę rozpoczęcia",
-				"updateError": "Nie udało się zaktualizować daty rozpoczęcia zadania",
-				"updateSuccess": "Datę rozpoczęcia zadania zaktualizowano pomyślnie"
+				"updateError": "Nie udało się zaktualizować daty rozpoczęcia zadania"
 			},
 			"status": {
 				"updateError": "Nie udało się zaktualizować statusu zadania"
@@ -3450,7 +3434,6 @@
 		},
 		"sort": {
 			"ascending": "Rosnąco",
-			"by": "Sortuj według",
 			"descending": "Malejąco",
 			"direction": "Kierunek",
 			"fields": {
@@ -3460,8 +3443,7 @@
 				"position": "Ręcznie (pozycja)",
 				"priority": "Priorytet",
 				"title": "Tytuł"
-			},
-			"label": "Sortuj"
+			}
 		},
 		"status": {
 			"archived": "Zarchiwizowane",
@@ -3488,8 +3470,7 @@
 			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
 		},
 		"update": {
-			"error": "Nie udało się zaktualizować zadania",
-			"success": "Zadanie zaktualizowano pomyślnie"
+			"error": "Nie udało się zaktualizować zadania"
 		},
 		"view": {
 			"board": "Tablica",
@@ -3510,10 +3491,58 @@
 		},
 		"checklistProgress": "Ukończone elementy listy kontrolnej: {{completed}} z {{total}}",
 		"customFields": {
-			"ariaLabel": "Custom fields"
+			"fields": "Pola",
+			"empty": "Puste",
+			"required": "Wymagane",
+			"enterKey": "Enter",
+			"toSave": "aby zapisać",
+			"today": "Dzisiaj",
+			"clear": "Wyczyść",
+			"setValue": "Ustaw {{field}}…",
+			"noMatches": "Brak pasujących opcji",
+			"missingRequired_one": "{{count}} wymagane pole jest puste",
+			"missingRequired_few": "{{count}} wymagane pola są puste",
+			"missingRequired_many": "{{count}} wymaganych pól jest pustych",
+			"missingRequired_other": "{{count}} wymaganego pola jest puste",
+			"saveError": "Nie udało się zapisać pola {{field}}",
+			"moreFields_one": "Jeszcze {{count}} pole",
+			"moreFields_few": "Jeszcze {{count}} pola",
+			"moreFields_many": "Jeszcze {{count}} pól",
+			"moreFields_other": "Jeszcze {{count}} pola"
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again."
+		},
+		"toolbar": {
+			"search": "Szukaj zadań",
+			"clearSearch": "Wyczyść wyszukiwanie",
+			"taskCount_one": "{{count}} zadanie",
+			"taskCount_few": "{{count}} zadania",
+			"taskCount_many": "{{count}} zadań",
+			"taskCount_other": "{{count}} zadania",
+			"shownCount_one": "{{shown}} z {{count}} zadania",
+			"shownCount_few": "{{shown}} z {{count}} zadań",
+			"shownCount_many": "{{shown}} z {{count}} zadań",
+			"shownCount_other": "{{shown}} z {{count}} zadania"
+		},
+		"display": {
+			"title": "Wyświetlanie",
+			"sortBy": "Sortuj według",
+			"showOnCards": "Pokaż na kartach",
+			"showOnRows": "Pokaż w wierszach",
+			"checklistProgress": "Postęp listy kontrolnej",
+			"projectBackground": "Tło projektu",
+			"layout": "Układ"
+		},
+		"filterBar": {
+			"label": "Aktywne filtry",
+			"removeFilter": "Usuń filtr {{name}}",
+			"noMatches": "Żadne zadanie nie pasuje do wyszukiwania ani filtrów."
+		},
+		"filterMenu": {
+			"addFilter": "Dodaj filtr…",
+			"searchSubject": "{{name}}…",
+			"noResults": "Brak wyników"
 		}
 	},
 	"press": {

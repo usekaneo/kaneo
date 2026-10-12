@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { CheckoutSuccessCallout } from "@/components/billing/checkout-success-callout";
 import { CurrentPlanCard } from "@/components/billing/current-plan-card";
 import { PlanPicker } from "@/components/billing/plan-picker";
 import PageTitle from "@/components/page-title";
@@ -12,9 +13,13 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 
 type BillingSettingsPageProps = {
   checkout: string | undefined;
+  onDismissCheckout: () => void;
 };
 
-export function BillingSettingsPage({ checkout }: BillingSettingsPageProps) {
+export function BillingSettingsPage({
+  checkout,
+  onDismissCheckout,
+}: BillingSettingsPageProps) {
   const { t } = useTranslation();
   const { workspace, isAdmin } = useWorkspacePermission();
   const workspaceId = workspace?.id;
@@ -66,6 +71,10 @@ export function BillingSettingsPage({ checkout }: BillingSettingsPageProps) {
             : undefined
         }
       >
+        {checkout === "success" ? (
+          <CheckoutSuccessCallout onDismiss={onDismissCheckout} />
+        ) : null}
+
         <SettingsSection title={t("settings:billing.currentPlan.title")}>
           <CurrentPlanCard
             billing={billing}

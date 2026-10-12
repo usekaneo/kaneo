@@ -2,7 +2,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import { Calendar, CalendarClock, CalendarX, Trash2Icon } from "lucide-react";
 import { type CSSProperties, useMemo, useState, memo } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
@@ -35,8 +35,11 @@ import useProjectStore from "@/store/project";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
+import { CardFieldList } from "@/components/custom-fields/card-field-list";
+import { useTaskCardFields } from "@/components/custom-fields/use-task-card-fields";
 import { TaskLabels } from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
+import { EASE_OUT_CSS } from "@/lib/motion";
 
 type TaskRowProps = {
   task: Task;
@@ -53,7 +56,10 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({
+    id: task.id,
+    transition: { duration: 200, easing: EASE_OUT_CSS },
+  });
 
   const { project } = useProjectStore();
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
@@ -65,6 +71,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     showLabels,
     showTaskNumbers,
   } = useUserPreferencesStore();
+  const cardFields = useTaskCardFields(task.projectId, task.id);
   const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState<
     boolean | null
   >(null);
@@ -96,7 +103,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
 
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+    transition: transition || `transform 200ms ${EASE_OUT_CSS}`,
     touchAction: isDragging ? "none" : "auto",
   };
 
@@ -146,7 +153,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      toast.success(t("tasks:delete.success"));
+      toast.success(t("tasks:delete.success"), { icon: Trash2Icon });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
@@ -158,6 +165,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     <div
       ref={setNodeRef}
       style={style}
+      data-kaneo-sortable
       className={cn(
         "border-b border-border/50 transition-colors duration-150",
         isDragging && "opacity-50",
@@ -201,6 +209,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
                 </span>
                 <div className="flex items-center gap-1">
                   <TaskProgressBadges task={task} />
+                  <CardFieldList fields={cardFields} max={3} />
                   {showLabels && <TaskLabels labels={task.labels ?? []} />}
 
                   <TaskPullRequests

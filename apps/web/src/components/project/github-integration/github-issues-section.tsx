@@ -1,3 +1,4 @@
+import { ImportIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { ImportIssuesSection } from "@/components/project/code-hosting/import-issues-section";
 import type { GithubIntegration } from "@/fetchers/github-integration/get-github-integration";
@@ -32,6 +33,7 @@ export function GithubIssuesSection({
         ...(progress?.pending ? { runId: progress.runId } : {}),
       });
       toast.success(t("settings:githubIntegration.toast.issuesImported"), {
+        icon: ImportIcon,
         description: t("settings:githubIntegration.importSummary", result),
       });
     } catch (error) {

@@ -150,6 +150,7 @@ describe("API keys list", () => {
     await waitFor(() => expect(m.remove).toHaveBeenCalledWith("cli"));
     expect(m.success).toHaveBeenCalledWith(
       "settings:apiKey.table.toastDeleted",
+      { icon: expect.anything() },
     );
   });
 });

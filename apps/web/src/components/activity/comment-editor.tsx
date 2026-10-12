@@ -24,6 +24,7 @@ import {
   ListTodo,
   Paperclip,
   UnderlineIcon,
+  ImageUpIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -348,6 +349,7 @@ export default function CommentEditor({
           uploadedAsset.kind === "image"
             ? t("activity:comment.editor.imageUploaded")
             : t("activity:comment.editor.fileAttached"),
+          { icon: ImageUpIcon },
         );
       } catch (error) {
         toast.dismiss(loadingToast);
