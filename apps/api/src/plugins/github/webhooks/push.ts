@@ -150,6 +150,7 @@ export async function handlePush(payload: PushPayload) {
           "branch_push",
           config.statusTransitions?.onBranchPush || "in-progress",
           database,
+          integration,
         );
         console.log(
           `[Push] Target status: ${targetStatus}, current: ${task.status}`,
@@ -204,3 +205,4 @@ export async function handlePush(payload: PushPayload) {
     `[Push] No matching task found in any integrated project for branch: ${branchName}`,
   );
 }
+

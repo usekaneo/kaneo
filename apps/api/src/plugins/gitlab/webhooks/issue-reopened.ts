@@ -114,6 +114,7 @@ export async function handleGitlabIssueReopened(
           "issue_reopened",
           "to-do",
           db,
+          integration,
         );
 
         const statusResult = await updateTaskStatus(task.id, targetStatus, db);
@@ -150,3 +151,4 @@ export async function handleGitlabIssueReopened(
     );
   }
 }
+

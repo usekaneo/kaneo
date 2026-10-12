@@ -8,6 +8,7 @@ async function getWorkflowRules(projectId: string) {
       id: workflowRuleTable.id,
       projectId: workflowRuleTable.projectId,
       integrationType: workflowRuleTable.integrationType,
+      integrationId: workflowRuleTable.integrationId,
       eventType: workflowRuleTable.eventType,
       columnId: workflowRuleTable.columnId,
       columnName: columnTable.name,

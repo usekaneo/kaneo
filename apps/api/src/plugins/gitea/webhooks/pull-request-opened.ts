@@ -147,6 +147,7 @@ export async function handleGiteaPullRequestOpened(
         "pr_opened",
         config.statusTransitions?.onPROpen || "in-review",
         database,
+        integration,
       );
 
       if (currentTask.status !== targetStatus) {
@@ -176,3 +177,4 @@ export async function handleGiteaPullRequestOpened(
     },
   );
 }
+

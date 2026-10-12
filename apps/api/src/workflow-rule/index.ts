@@ -5,7 +5,10 @@ import {
   jsonResponse,
 } from "../openapi";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
-import { workspaceAccess } from "../utils/workspace-access-middleware";
+import {
+  workspaceAccess,
+  workspaceAccessMiddleware,
+} from "../utils/workspace-access-middleware";
 import deleteWorkflowRule from "./controllers/delete-workflow-rule";
 import getWorkflowRules from "./controllers/get-workflow-rules";
 import upsertWorkflowRule from "./controllers/upsert-workflow-rule";
@@ -23,7 +26,7 @@ const getWorkflowRulesRoute = createRoute({
   tags: ["Workflow Rules"],
   summary: "Get workflow rules",
   description:
-    "Get every workflow rule for a project. A rule moves a task to a column when an integration event fires.",
+    "Get every workflow rule for a project. A rule moves a task to a column when an integration event fires. Rules with a null integrationId are type-wide; rules with an integrationId are scoped to that repository binding (RFC 0001).",
   middleware: [workspaceAccess.fromProject("projectId")] as const,
   request: { params: projectIdParam },
   responses: {
@@ -42,9 +45,19 @@ const upsertWorkflowRuleRoute = createRoute({
   tags: ["Workflow Rules"],
   summary: "Upsert workflow rule",
   description:
-    "Create a workflow rule, or update the target column of the existing rule for the same integration and event.",
+    "Create a workflow rule, or update the target column of the existing rule for the same integration and event. Provide an optional integrationId to scope the rule to a single repository binding; omit it for a type-wide rule (RFC 0001).",
   middleware: [
-    workspaceAccess.fromProject("projectId"),
+    // RFC 0001 WP6: authorize the project, and the integration too when the
+    // rule targets one. The integration source is only consulted when the
+    // body carries an integrationId, so type-wide requests keep working; the
+    // controller additionally rejects an integration from a foreign project
+    // or of a mismatched type.
+    workspaceAccessMiddleware({
+      sources: [
+        { type: "lookup", resource: "project", idKey: "projectId" },
+        { type: "lookup", resource: "integration", idKey: "integrationId" },
+      ],
+    }),
     requireWorkspacePermission({ project: ["update"] }),
   ] as const,
   request: {
@@ -60,6 +73,7 @@ const upsertWorkflowRuleRoute = createRoute({
     403: errorResponse(
       "No workspace access, or missing project:update permission",
     ),
+    404: errorResponse("Unknown integration"),
   },
 });
 
@@ -92,13 +106,15 @@ const workflowRule = apiRouter()
   )
   .openapi(upsertWorkflowRuleRoute, async (c) => {
     const { projectId } = c.req.valid("param");
-    const { integrationType, eventType, columnId } = c.req.valid("json");
+    const { integrationType, eventType, columnId, integrationId } =
+      c.req.valid("json");
     return c.json(
       await upsertWorkflowRule({
         projectId,
         integrationType,
         eventType,
         columnId,
+        integrationId: integrationId ?? null,
       }),
       200,
     );
