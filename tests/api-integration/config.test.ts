@@ -27,6 +27,7 @@ describe("API integration: config", () => {
       disablePasswordRegistration: false,
       disableEmailOtpSignIn: false,
       disableLoginForm: false,
+      customOAuthName: null,
       customOAuthAutoLogin: false,
       isDemoMode: false,
       hasGuestAccess: true,
@@ -39,6 +40,15 @@ describe("API integration: config", () => {
         "hasDiscordSignIn",
         "hasCustomOAuth",
       ].every((key) => typeof value[key] === "boolean"),
+    );
+  });
+
+  it("returns the trimmed custom OAuth name when one is set", async () => {
+    vi.stubEnv("CUSTOM_OAUTH_NAME", "  Authentik ");
+    const response = await createApp().app.request("/api/config");
+    expect(await response.json()).toHaveProperty(
+      "customOAuthName",
+      "Authentik",
     );
   });
 });

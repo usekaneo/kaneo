@@ -2,6 +2,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { integrationTable, projectTable } from "../../database/schema";
+import { ApiError } from "../../errors/api-error";
 import type { GitlabTokenType } from "../../plugins/gitlab/config";
 import {
   createGitlabClient,
@@ -49,8 +50,9 @@ async function listGitlabProjects({
   try {
     await verifyGitlabToken(normalized, accessToken, tokenType);
   } catch {
-    throw new HTTPException(401, {
+    throw new ApiError(401, {
       message: "Invalid GitLab token or could not reach instance.",
+      code: "INTEGRATION_AUTH_FAILED",
     });
   }
 

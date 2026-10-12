@@ -14,10 +14,8 @@ export async function resolveInvitationProjectAccess(
   });
 
   if (!resolution.ok) {
-    throw new APIError(
-      resolution.status === 400 ? "BAD_REQUEST" : "FORBIDDEN",
-      { message: resolution.message },
-    );
+    const status = resolution.status === 400 ? "BAD_REQUEST" : "FORBIDDEN";
+    throw new APIError(status, { code: status, message: resolution.message });
   }
 
   return resolution.access;

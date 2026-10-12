@@ -1,0 +1,67 @@
+---
+title: Import from Plane
+description: Move Plane projects into Kaneo from Plane Cloud or a self-hosted Plane, including states, work items, priorities, dates, labels, comments, and sub-issues.
+---
+
+Each Plane project becomes a Kaneo project. This works with Plane Cloud and self-hosted Plane. Read [Import from other tools](/core/migrations) first for the rules that apply to every import.
+
+## Before you start
+
+You need:
+
+- To be an admin of the Kaneo workspace you are importing into.
+- Your Plane workspace URL. Open the workspace in Plane and copy the address from the browser, for example `https://app.plane.so/your-workspace`. Any page inside the workspace works. For self-hosted Plane, the address is on your own domain, for example `https://plane.example.com/your-workspace`.
+- A Plane personal access token. In Plane, open **Profile settings → Developer → Personal Access Tokens** and create one. Plane asks you to choose an expiry, or **Never expires**. The token starts with `plane_api_`.
+
+Invite your team to the Kaneo workspace first. Assignees are matched by email, so anyone who isn't a member yet will have their work items imported unassigned.
+
+## Connect
+
+1. In Kaneo, open **Settings → Workspace → Import** and choose **Plane**.
+2. Paste your workspace URL and personal access token.
+3. Select the projects to import. Leave comments on, or turn them off.
+4. Start the import. You can leave the page while it runs and check **Recent imports** later.
+
+## What carries over
+
+| Plane | Kaneo |
+| --- | --- |
+| Project | Project |
+| Project identifier, for example `WEB` | Project key. If another project in the workspace uses it, Kaneo adds a suffix, for example `WEB-2` |
+| States | Columns, grouped the way Plane groups them. **Completed** and **Cancelled** states become final columns. Work items in **Backlog** (and **Triage**) states go to the project's **Backlog** instead of the board |
+| Work item | Task |
+| Work item number, for example `WEB-12` | Task number, so `WEB-12` stays `WEB-12` |
+| Description | Task description, converted from HTML to Markdown |
+| Priority (Urgent, High, Medium, Low) | The same priority |
+| Start date and target date | Start date and due date |
+| Assignees | Assignee: the first one, matched by email |
+| Labels | Labels |
+| Comments | Comments, with the original author's name and date |
+| Sub-issues | Subtask relations |
+
+## What doesn't
+
+- **Cycles and modules.**
+- **Estimates.**
+- **Attachments.** Download anything you need from Plane before you stop using it.
+- **Custom properties.**
+- **Relations other than sub-issues**, such as blocking and related work items.
+- **Extra assignees.** Kaneo has one assignee per task. Only the first assignee is kept, and the report says how many work items had more than one.
+
+## Large projects take a while
+
+Plane allows 60 API requests per minute. With comments on, Kaneo reads them with one request per work item, so a project with 600 work items takes about 10 minutes.
+
+You don't need to keep the page open. Check **Recent imports** later. If you don't need the comments, turn them off to finish faster.
+
+## Troubleshooting
+
+**The workspace is not found, or no projects are listed**: copy the URL from the browser address bar while you are inside the workspace in Plane. The first part of the path must be the workspace name, for example `https://app.plane.so/your-workspace/projects`.
+
+**The token is rejected**: check that you copied the whole token, starting with `plane_api_`, and that it has not expired. If it has, create a new personal access token and paste it again.
+
+**A project is missing from the list**: archived Plane projects are not listed. Restore the project in Plane to import it.
+
+**Self-hosted Plane on a private network**: the Kaneo server must be able to reach Plane. If Plane runs on your LAN or in the same Docker network, the operator must set `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` on the Kaneo API. See [Self-hosted instances](/core/migrations#self-hosted-instances).
+
+**Tasks are unassigned**: the assignee's Plane email must match a member of the Kaneo workspace. Invite them, delete the imported project, and import it again, or assign the tasks by hand.

@@ -43,7 +43,6 @@ import {
   gitlabIntegrationSchema,
   gitlabProjectListSchema,
   gitlabVerificationResultSchema,
-  integrationNotFoundSchema,
 } from "./response";
 import {
   createGitlabBody,
@@ -80,13 +79,14 @@ const listProjectsRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Accessible projects", gitlabProjectListSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     401: errorResponse(
       "GitLab rejected the token, or the instance is unreachable",
     ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -107,11 +107,12 @@ const verifyRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Verification result", gitlabVerificationResultSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     401: errorResponse("GitLab rejected the token"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -176,10 +177,8 @@ const getIntegrationRoute = createRoute({
       "GitLab integration details, or null",
       gitlabIntegrationSchema.nullable(),
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -209,8 +208,12 @@ const createIntegrationRoute = createRoute({
     ),
     400: errorResponse("Invalid body, or unknown project"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    409: errorResponse(
+      "That GitLab project is already linked to another Kaneo project",
+    ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -238,9 +241,10 @@ const updateIntegrationRoute = createRoute({
     ),
     400: errorResponse("The resulting config failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: jsonResponse("Integration not found", integrationNotFoundSchema),
+    404: errorResponse("Project or integration not found"),
+    409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
 
@@ -257,9 +261,9 @@ const deleteIntegrationRoute = createRoute({
   responses: {
     200: jsonResponse("The integration was removed", gitlabDeleteResultSchema),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("GitLab integration not found"),
+    404: errorResponse("Project or GitLab integration not found"),
   },
 });
 
@@ -285,7 +289,7 @@ const importIssuesRoute = createRoute({
     200: jsonResponse("Import summary", gitlabImportResultSchema),
     400: errorResponse("integrationId is required, or binding mismatch"),
     403: errorResponse(
-      "No workspace access, or missing task:create or task:update permission",
+      "No access to the project, or missing task:create or task:update permission",
     ),
     404: errorResponse("Integration or project not found"),
   },
@@ -361,7 +365,7 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     if (!row) {
-      return c.json({ error: "Integration not found" }, 404);
+      throw new HTTPException(404, { message: "Integration not found" });
     }
 
     // WP10: reactivation re-enters the binding count, so the quota guard

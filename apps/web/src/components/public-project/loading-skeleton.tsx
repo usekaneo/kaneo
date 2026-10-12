@@ -1,6 +1,6 @@
 export function LoadingSkeleton() {
   return (
-    <div className="min-h-screen bg-background flex flex-col w-full">
+    <div className="min-h-svh bg-background flex flex-col w-full">
       <div className="flex-1 flex items-center justify-center">
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse space-y-8 max-w-6xl mx-auto">

@@ -99,7 +99,3 @@ export const giteaImportResultSchema = z
 export const giteaDeleteResultSchema = z
   .object({ success: z.boolean(), message: z.string() })
   .openapi("GiteaDeleteResult");
-
-export const integrationNotFoundSchema = z
-  .object({ error: z.string() })
-  .openapi("GiteaIntegrationNotFound");

@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Accedi",
-			"title": "Bentornato",
-			"subtitle": "Inserisci le tue credenziali per accedere al tuo workspace",
-			"invitationSubtitle": "Accedi per accettare il tuo invito",
-			"invitationAlert": "Dopo aver effettuato l'accesso, potrai accettare il tuo invito al workspace.",
-			"signingIn": "Accesso in corso...",
-			"continueWithGoogle": "Continua con Google",
-			"continueWithGithub": "Continua con GitHub",
-			"continueWithDiscord": "Continua con Discord",
-			"continueWithOidc": "Continua con OIDC",
+			"subtitle": {
+				"emailOrProvider": "Usa la tua email o un account collegato.",
+				"email": "Inserisci la tua email e ti invieremo un codice di accesso.",
+				"password": "Usa la tua email e la tua password.",
+				"passwordOrProvider": "Usa la tua password o un account collegato.",
+				"providers": "Scegli come vuoi accedere.",
+				"sso": "Qui l'accesso è gestito dalla tua organizzazione."
+			},
 			"lastUsed": "Usato di recente",
-			"registrationDisabled": "La registrazione pubblica è disabilitata. Usa un invito per creare un account.",
-			"passwordRegistrationDisabled": "La registrazione con password è disabilitata. Usa un metodo di accesso social o OIDC configurato per creare un account.",
-			"toggleMessage": "Non hai un account?",
-			"toggleLink": "Crea account",
-			"guestSuccess": "Accesso come ospite effettuato",
 			"guestError": "Accesso come ospite fallito",
-			"oidcError": "Accesso con OIDC fallito",
-			"googleError": "Accesso con Google fallito",
-			"githubError": "Accesso con GitHub fallito",
-			"discordError": "Accesso con Discord fallito",
 			"errors": {
 				"account_not_linked": "Questa identità non può essere collegata all'account esistente. Accedi via email per verificare l'account, poi riprova con SSO. Se l'accesso via email non è disponibile, contatta l'amministratore.",
 				"oauth_code_verification_failed": "Verifica OAuth fallita. Riprova.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "La registrazione è attualmente disabilitata. Hai bisogno di un invito valido per creare un account."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "La registrazione è attualmente disabilitata. Hai bisogno di un invito valido per creare un account.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Usa un indirizzo email permanente. Con gli indirizzi usa e getta non è possibile creare account."
 			},
-			"instanceStatusError": "Impossibile raggiungere il server. Riprova tra un momento."
+			"instanceStatusError": "Impossibile raggiungere il server. Riprova tra un momento.",
+			"heading": "Accedi a Kaneo",
+			"submitPassword": "Accedi",
+			"invitation": {
+				"title": "{{inviterName}} ti ha invitato in {{workspaceName}}",
+				"fallbackTitle": "Hai ricevuto un invito",
+				"description": "Accedi con l'email che ha ricevuto l'invito. Subito dopo entrerai nel workspace."
+			},
+			"footer": {
+				"newHere": "Prima volta su Kaneo?",
+				"createAccount": "Crea un account",
+				"inviteOnly": "Qui gli account sono solo su invito. Chiedi un invito a un amministratore.",
+				"providerSignUp": "Prima volta qui? Accedi con uno dei provider qui sopra per creare un account.",
+				"anyProvider": "Prima volta qui? Qualsiasi opzione qui sopra crea il tuo account.",
+				"contactAdmin": "Problemi di accesso? Contatta l'amministratore.",
+				"justLooking": "Vuoi solo dare un'occhiata?"
+			},
+			"autoLogin": {
+				"title": "Accesso in corso",
+				"subtitle": "Ti stiamo portando alla pagina di accesso della tua organizzazione.",
+				"opening": "Apertura di {{provider}}…",
+				"stuck": "Non succede nulla?",
+				"continue": "Continua su {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Continua con {{provider}}",
+			"error": "Impossibile accedere con {{provider}}. Riprova."
 		},
 		"forms": {
 			"or": "oppure",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@esempio.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Mostra password",
-			"hidePassword": "Nascondi password"
+			"hidePassword": "Nascondi password",
+			"name": "Nome",
+			"namePlaceholder": "Maria Rossi",
+			"invalidEmail": "Inserisci un indirizzo email completo, ad esempio nome@azienda.it.",
+			"nameRequired": "Inserisci il tuo nome.",
+			"passwordRequired": "Inserisci la tua password.",
+			"passwordTooShort": "Usa almeno 8 caratteri.",
+			"disposableEmail": "Usa un indirizzo email permanente. Con gli indirizzi usa e getta non è possibile creare account.",
+			"continueWithEmail": "Continua con l'email"
 		},
 		"checkEmail": {
 			"pageTitle": "Controlla la tua Email",
@@ -214,139 +240,106 @@
 			"emailFallback": "il tuo indirizzo email",
 			"backToLogin": "Torna al login"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Cosa succede dopo",
-				"description": "Dopo aver creato il tuo account, darai un nome a un workspace. Da lì puoi aggiungere un progetto e iniziare a scrivere attività."
-			},
-			"onboarding": {
-				"title": "Cos'è un workspace",
-				"description": "Un workspace contiene i tuoi progetti, le loro attività e le persone con cui lavori. Invita i colleghi una volta configurato."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Crea Account",
-			"title": "Crea account",
-			"subtitleInvitation": "Crea un account per accettare il tuo invito",
-			"subtitleRegistrationDisabled": "La registrazione richiede un invito",
-			"subtitlePasswordDisabled": "Usa l'accesso social o OIDC per creare un account",
-			"subtitleDefault": "Inizia con il tuo workspace",
-			"invitationAlert": "Dopo aver creato il tuo account, potrai accettare l'invito al workspace.",
 			"registrationDisabledAlert": "La registrazione è attualmente disabilitata. Se sei stato invitato, inserisci l'indirizzo email che ha ricevuto l'invito per creare il tuo account.",
-			"passwordDisabledAlert": "La creazione dell'account tramite password è disabilitata. Usa un metodo di accesso social o OIDC configurato dalla pagina di accesso.",
-			"signingIn": "Accesso in corso...",
 			"continueAsGuest": "Continua come ospite",
 			"toggleMessage": "Hai già un account?",
 			"toggleLink": "Accedi",
 			"instanceStatusError": "Impossibile raggiungere il server. Riprova tra un momento.",
 			"instanceAdminTitle": "Configura la tua istanza Kaneo",
-			"instanceAdminSubtitle": "Questo account diventa l'amministratore dell'istanza con accesso completo."
+			"instanceAdminSubtitle": "Questo account diventa l'amministratore dell'istanza con accesso completo.",
+			"heading": "Crea il tuo account",
+			"submitPassword": "Crea account",
+			"failed": "Impossibile creare il tuo account. Riprova.",
+			"subtitle": {
+				"email": "Inizia con la tua email. Ti invieremo un codice, senza bisogno di password.",
+				"password": "Inserisci nome, email e una password per iniziare.",
+				"providers": "Usa un account collegato per creare il tuo."
+			},
+			"invitation": {
+				"description": "Usa l'email che ha ricevuto l'invito. Subito dopo entrerai nel workspace."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Verifica Codice",
-			"title": "Inserisci codice di verifica",
-			"subtitle": "Usa il codice a 6 cifre inviato alla tua email per continuare",
-			"codeSentTo": "Codice inviato a {{email}}",
-			"verificationCodeLabel": "Codice di Verifica",
-			"verifying": "Verifica in corso...",
-			"verifyAndSignIn": "Verifica e Accedi",
-			"changeEmail": "Cambia email",
-			"resend": "Invia di nuovo",
 			"validation": {
 				"codeLength": "Il codice deve essere di 6 cifre"
 			},
 			"toast": {
 				"invalidCode": "Codice di verifica non valido",
-				"signedInSuccess": "Accesso effettuato con successo!",
 				"verifyFailed": "Verifica del codice fallita",
 				"resendFailed": "Invio del codice fallito",
 				"resendSuccess": "Nuovo codice di verifica inviato!"
-			}
+			},
+			"heading": "Controlla la tua email",
+			"description": "Abbiamo inviato un codice di 6 cifre a {{email}}. Scade tra {{minutes}} minuti.",
+			"label": "Codice di verifica",
+			"submit": "Verifica e continua",
+			"didntGetIt": "Non l'hai ricevuto?",
+			"resendCode": "Invia di nuovo il codice",
+			"useDifferentEmail": "Usa un'altra email",
+			"expired": "Questo codice è scaduto. Richiedine uno nuovo.",
+			"tooManyAttempts": "Troppi tentativi. Richiedi un nuovo codice."
 		},
 		"otpSignIn": {
-			"sendFailed": "Invio del codice di verifica fallito",
-			"codeSent": "Codice di verifica inviato! Controlla la tua email.",
-			"sending": "Invio in corso...",
-			"sendVerificationCode": "Invia Codice di Verifica"
+			"sendFailed": "Invio del codice di verifica fallito"
 		},
 		"signInForm": {
-			"failedSignIn": "Accesso fallito",
-			"signedInSuccess": "Accesso effettuato con successo",
-			"signingIn": "Accesso in corso...",
-			"signIn": "Accedi"
-		},
-		"signUpForm": {
-			"fullName": "Nome Completo",
-			"namePlaceholder": "Mario Rossi",
-			"failedSignUp": "Registrazione fallita",
-			"accountCreated": "Account creato con successo",
-			"passwordTooShort": "Password troppo corta",
-			"creatingAccount": "Creazione account in corso...",
-			"createAccount": "Crea Account"
+			"failedSignIn": "Accesso fallito"
 		},
 		"invitation": {
 			"pageTitleAccept": "Accetta Invito",
 			"pageTitleError": "Errore Invito",
 			"pageTitleInvalid": "Invito Non Valido",
-			"loadingTitle": "Caricamento invito...",
-			"errorTitle": "Errore Invito",
-			"invalidTitle": "Invito Non Valido",
-			"invitationExpired": "Invito Scaduto",
-			"errorLoadDescription": "Caricamento dei dettagli dell'invito fallito. L'invito potrebbe non essere valido o essere scaduto.",
-			"goToSignIn": "Vai al Login",
-			"workspaceLabel": "Workspace: {{workspaceName}}",
 			"joinWorkspace": "Unisciti a {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> ti ha invitato a unirti al suo workspace.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> ti ha invitato a unirti al suo workspace su Kaneo.",
-			"createAccountOrSignIn": "Crea un account per accettare questo invito, oppure accedi se ne hai già uno.",
-			"createAccount": "Crea Account",
-			"accepting": "Accettazione in corso...",
-			"acceptInvitation": "Accetta Invito",
-			"goToDashboard": "Vai alla Dashboard",
-			"signedInAs": "Accesso effettuato come <email>{{email}}</email>",
-			"youveBeenInvited": "Sei stato invitato!",
-			"invitationFor": "Invito per: <email>{{email}}</email>",
+			"createAccount": "Crea account",
 			"signIn": "Accedi",
 			"toast": {
 				"acceptFailed": "Accettazione invito fallita",
 				"acceptSuccess": "Invito accettato! Benvenuto nel team."
+			},
+			"description": "{{inviterName}} ti ha invitato in questo workspace su Kaneo.",
+			"invitedBy": "Invito da",
+			"sentTo": "Inviato a",
+			"signedInAs": "Accesso effettuato come",
+			"expires": "Scade il",
+			"notNow": "Non ora",
+			"join": "Unisciti al workspace",
+			"switchAccount": "Cambia account",
+			"goToKaneo": "Vai a Kaneo",
+			"mismatch": {
+				"title": "Hai effettuato l'accesso con un'altra email",
+				"description": "Questo invito è stato inviato a {{invitedEmail}}. Hai effettuato l'accesso come {{email}}."
+			},
+			"expired": {
+				"title": "Questo invito è scaduto",
+				"description": "Chiedi a {{inviterName}} di inviartene uno nuovo per {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Questo invito non è più valido",
+				"description": "Potrebbe essere già stato accettato o annullato. Chiedine uno nuovo a un amministratore del workspace."
+			},
+			"loadFailed": {
+				"title": "Impossibile caricare questo invito",
+				"description": "Controlla la connessione e ricarica la pagina."
 			}
 		},
 		"onboarding": {
 			"pageTitle": "Benvenuto su Kaneo",
-			"workspacePageTitle": "Crea Workspace",
-			"createWorkspaceTitle": "Crea workspace",
-			"createWorkspaceSubtitle": "Configura il tuo workspace per iniziare a gestire i progetti",
 			"workspaceName": "Nome workspace",
 			"workspaceNamePlaceholder": "es. Acme Inc, Il Mio Team",
-			"descriptionOptional": "Descrizione (opzionale)",
-			"descriptionPlaceholder": "Su cosa lavora il tuo team?",
-			"creating": "Creazione in corso...",
-			"createWorkspace": "Crea workspace",
-			"workspaceCreatedTitle": "Workspace creato",
-			"redirectingToWorkspace": "Ti stiamo portando a <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Workspace creato con successo",
 				"createFailed": "Creazione workspace fallita"
 			},
 			"validation": {
-				"workspaceNameRequired": "Il nome del workspace è obbligatorio"
+				"workspaceNameRequired": "Il nome del workspace è obbligatorio",
+				"projectNameRequired": "Dai un nome al tuo primo progetto"
 			},
 			"restrictedSubtitle": "Qui solo un amministratore dell'istanza può creare spazi di lavoro. Chiedi un invito e ricarica questa pagina.",
 			"restrictedCheckInvitations": "Controlla gli inviti",
 			"restrictedTitle": "Ti serve un invito",
 			"cloud": {
-				"title": "Dai un nome al tuo workspace",
-				"subtitle": "Usa il nome del tuo team o della tua azienda. Puoi cambiarlo più tardi nelle impostazioni.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -354,22 +347,14 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_many": "{{count}} invitations sent",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -377,6 +362,96 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectNameDefault": "Il mio primo progetto",
+			"starterTasks": {
+				"drag": {
+					"title": "Trascina questa scheda nella colonna successiva",
+					"description": "Le schede passano da una colonna all'altra man mano che il lavoro procede. Trascina questa nella colonna successiva, oppure aprila e cambia il suo stato."
+				},
+				"details": {
+					"title": "Apri questa attività e aggiungi una sottoattività",
+					"description": "Un'attività può avere una descrizione, sottoattività, etichette, un assegnatario e una scadenza. Aggiungi una sottoattività a questa per provare."
+				},
+				"invite": {
+					"title": "Invita il tuo team",
+					"description": "Kaneo funziona meglio quando ci sono tutti. Apri **Membri** nella barra laterale per invitare persone via email."
+				},
+				"integrations": {
+					"title": "Collega GitHub, GitLab o Gitea",
+					"description": "Sincronizza le issue e sposta le attività automaticamente quando le pull request vengono aperte e unite. Configuralo in **Impostazioni progetto**."
+				},
+				"create": {
+					"title": "Crea la tua attività",
+					"description": "Usa il **+** accanto al nome di una colonna, oppure premi **T** e poi **C**. Elimina queste attività iniziali quando vuoi."
+				}
+			},
+			"progress": "Passaggio {{current}} di {{total}}",
+			"welcome": "Ti diamo il benvenuto, {{name}}",
+			"settingUp": "Configurazione di {{name}}",
+			"continue": "Continua",
+			"signedInAs": "Accesso effettuato come {{email}}",
+			"signOut": "Esci",
+			"workspace": {
+				"title": "Dai un nome al tuo workspace",
+				"description": "Qui vivranno i tuoi progetti. Usa il nome del tuo team o della tua azienda, potrai cambiarlo in seguito."
+			},
+			"usage": {
+				"title": "Per chi è?",
+				"description": "Configureremo {{name}} di conseguenza. Potrai sempre invitare altre persone in seguito."
+			},
+			"project": {
+				"title": "Avvia il tuo primo progetto",
+				"description": "Aggiungeremo alcune attività iniziali per aiutarti a orientarti. Rinominale o eliminale quando vuoi.",
+				"label": "Nome del progetto",
+				"numbered": "Le attività saranno numerate"
+			},
+			"invite": {
+				"title": "Porta il tuo team",
+				"description": "Riceveranno un'email per unirsi a {{name}}. Salta questo passaggio se preferisci dare prima un'occhiata.",
+				"label": "Email dei membri del team",
+				"send_many": "Invia {{count}} inviti",
+				"send_one": "Invia {{count}} invito",
+				"send_other": "Invia {{count}} inviti",
+				"sendNone": "Invia inviti"
+			},
+			"plan": {
+				"title": "Come vuoi iniziare?",
+				"descriptionTrial_many": "Ogni piano include progetti e attività illimitati. Prova {{name}} gratis per {{count}} giorni o abbonati subito.",
+				"descriptionTrial_one": "Ogni piano include progetti e attività illimitati. Prova {{name}} gratis per {{count}} giorno o abbonati subito.",
+				"descriptionTrial_other": "Ogni piano include progetti e attività illimitati. Prova {{name}} gratis per {{count}} giorni o abbonati subito.",
+				"choose": "Scegli un piano",
+				"description": {
+					"team": "Membri, ruoli e permessi illimitati",
+					"personal": "Per una persona"
+				},
+				"perUserMonth": "per utente / mese",
+				"perMonth": "al mese",
+				"subscribe": "Abbonati a {{plan}}",
+				"checkout": "Procedi al pagamento",
+				"trialNote": "Nessuna carta richiesta per la prova. I pagamenti sono gestiti da Creem.",
+				"paymentNote": "I pagamenti sono gestiti da Creem."
+			},
+			"ready": {
+				"eyebrow": "Tutto pronto",
+				"title": "{{name}} è pronto",
+				"description": "Ecco cosa abbiamo configurato. Puoi modificare tutto in seguito.",
+				"workspace": "Workspace",
+				"project": "Primo progetto",
+				"projectValue_many": "{{name}}, con {{count}} attività iniziali",
+				"projectValue_one": "{{name}}, con {{count}} attività iniziale",
+				"projectValue_other": "{{name}}, con {{count}} attività iniziali",
+				"invitations": "Inviti",
+				"invitationsValue_many": "Inviati a {{count}} persone",
+				"invitationsValue_one": "Inviato a {{count}} persona",
+				"invitationsValue_other": "Inviati a {{count}} persone",
+				"open": "Apri {{name}}"
+			},
+			"preview": {
+				"live": "Anteprima dal vivo di {{name}}",
+				"liveNoName": "Anteprima dal vivo",
+				"ready": "{{name}} è pronto",
+				"untitled": "Il tuo workspace"
 			}
 		},
 		"profileSetup": {
@@ -403,24 +478,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Controlla la tua casella di posta",
+			"sentDescription": "Se esiste un account per {{email}}, ti stiamo inviando un link per reimpostare la password. Scade tra 1 ora.",
+			"sentHelpTitle": "Non l'hai ricevuto?",
+			"sentHelpDescription": "Controlla la cartella spam, oppure richiedi un altro link tra un minuto.",
+			"rememberedIt": "Ti è tornata in mente?",
+			"resetDescription": "Usa da 8 a 128 caratteri. Gli altri dispositivi verranno disconnessi.",
+			"updatePassword": "Aggiorna password",
+			"changedMind": "Hai cambiato idea?",
+			"invalidLinkTitle": "Questo link è scaduto",
+			"successTitle": "Password aggiornata"
+		},
+		"page": {
+			"terms": "Termini",
+			"privacy": "Privacy"
+		},
+		"device": {
+			"connect": {
+				"title": "Collega un dispositivo",
+				"description": "Inserisci il codice mostrato nel terminale o nell'app per collegarlo al tuo account Kaneo.",
+				"label": "Codice dispositivo",
+				"submit": "Continua",
+				"noCode": "Non hai ancora un codice? Avvia prima l'accesso dalla tua app.",
+				"codeRequired": "Inserisci il codice mostrato sul tuo dispositivo.",
+				"invalidCode": "Questo codice non è valido o è scaduto."
+			},
+			"approve": {
+				"pageTitle": "Approva dispositivo",
+				"title": "Collegare questo dispositivo?",
+				"description": "Un dispositivo vuole accedere come {{email}}. Approvalo solo se hai avviato tu questa richiesta.",
+				"matchCode": "Verifica che corrisponda al codice sul tuo dispositivo",
+				"deny": "Rifiuta",
+				"approve": "Approva",
+				"failed": "Impossibile aggiornare la richiesta. Riprova."
+			},
+			"approved": {
+				"title": "Dispositivo collegato",
+				"description": "Torna al terminale o all'app. Puoi chiudere questa scheda."
+			},
+			"denied": {
+				"title": "Richiesta rifiutata",
+				"description": "Non è stato collegato nulla. Puoi chiudere questa scheda."
+			},
+			"missing": {
+				"title": "Nessun codice dispositivo",
+				"description": "Apri questa pagina dal tuo dispositivo oppure inserisci il codice manualmente.",
+				"enterCode": "Inserisci un codice"
+			},
+			"signIn": {
+				"title": "Accedi per collegare il tuo dispositivo",
+				"description": "Tornerai subito qui per approvarlo.",
+				"submit": "Accedi"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Autorizza un client MCP",
+				"description": "Potrà agire a tuo nome in ogni workspace a cui hai accesso. Continua solo se hai avviato tu questa connessione.",
+				"client": "Client",
+				"unknownClient": "Client MCP",
+				"selfReported": "Dichiarato dal client",
+				"redirect": "Ti riporta a",
+				"signedInAs": "Accesso effettuato come",
+				"deny": "Rifiuta",
+				"allow": "Consenti accesso"
+			},
+			"expired": {
+				"title": "Questa richiesta è scaduta",
+				"description": "Torna al tuo client MCP e connettiti di nuovo."
+			},
+			"signIn": {
+				"title": "Accedi per autorizzare questo client",
+				"description": "Tornerai subito qui per esaminarlo.",
+				"submit": "Accedi"
+			}
 		}
 	},
 	"settings": {
@@ -1101,7 +1245,9 @@
 			"on": "Attivo",
 			"off": "Disattivo",
 			"newColumnPlaceholder": "Nuovo nome colonna...",
-			"add": "Aggiungi"
+			"add": "Aggiungi",
+			"deleteAria": "Elimina la colonna {{name}}",
+			"renameAria": "Rinomina la colonna {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1754,7 +1900,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1765,6 +1911,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -2032,6 +2179,296 @@
 			"workspaceCount_many": "{{count}} workspaces",
 			"workspaceCount_one": "{{count}} workspace",
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"workspaceImport": {
+			"back": {
+				"allSources": "All sources",
+				"changeKey": "Change key",
+				"overview": "Import overview"
+			},
+			"connect": {
+				"cancel": "Cancel",
+				"continue": "Continue",
+				"hideSecret": "Hide {{field}}",
+				"sectionDescription": "Kaneo only reads from {{source}}. The key is used for this import and never stored.",
+				"sectionTitle": "Connect",
+				"showSecret": "Show {{field}}",
+				"title": "Import from {{source}}",
+				"whereToFind": "Where to find it"
+			},
+			"counts": {
+				"columns_many": "{{count, number}} columns",
+				"columns_one": "{{count, number}} column",
+				"columns_other": "{{count, number}} columns",
+				"comments_many": "{{count, number}} comments",
+				"comments_one": "{{count, number}} comment",
+				"comments_other": "{{count, number}} comments",
+				"labels_many": "{{count, number}} labels",
+				"labels_one": "{{count, number}} label",
+				"labels_other": "{{count, number}} labels",
+				"tasks_many": "{{count, number}} tasks",
+				"tasks_one": "{{count, number}} task",
+				"tasks_other": "{{count, number}} tasks"
+			},
+			"entry": {
+				"createProjectLink": "Import your projects",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
+				"projectsEmpty": "Import from another tool"
+			},
+			"history": {
+				"description": "Imports keep running on the server if you leave this page.",
+				"empty": "No imports yet. Imports you start show up here.",
+				"loadError": "Recent imports could not be loaded.",
+				"started": "Started {{time}}",
+				"title": "Recent imports"
+			},
+			"kaneo": {
+				"apiKeyDescription": "In that Kaneo, open Settings, then API Keys.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"urlDescription": "The instance you are moving from.",
+				"urlLabel": "Kaneo URL"
+			},
+			"linear": {
+				"apiKeyDescription": "Read access is enough. You can revoke it after the import.",
+				"apiKeyLabel": "Personal API key",
+				"openSettings": "Open Linear settings",
+				"stepCreate": "Under Personal API keys, create a key with Read access.",
+				"stepOpen": "In Linear, open Settings, then Security and access.",
+				"stepPaste": "Copy it and paste it above."
+			},
+			"notAllowed": {
+				"description": "Importing creates projects, so it needs permission to manage workspace settings and create projects. Ask a workspace admin to run it.",
+				"title": "Only workspace admins can import"
+			},
+			"opensInNewTab": "(opens in a new tab)",
+			"pageTitle": "Import",
+			"plane": {
+				"tokenDescription": "Profile settings, Developer, then Personal Access Tokens.",
+				"tokenLabel": "Personal access token",
+				"urlDescription": "Copy it from your browser while in Plane. Self-hosted works too.",
+				"urlLabel": "Workspace URL",
+				"urlPlaceholder": "https://app.plane.so/your-workspace"
+			},
+			"planka": {
+				"adminTip": "Use a PLANKA admin account. PLANKA only shows email addresses to admins, and card members are matched to people here by email.",
+				"apiKeyDescription": "Created in PLANKA under your account settings.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"passwordDescription": "Used only to sign in for this import.",
+				"passwordLabel": "Password",
+				"signInApiKey": "API key",
+				"signInDescription": "Use an API key if your account signs in through SSO.",
+				"signInLabel": "Sign in with",
+				"signInPassword": "Email and password",
+				"urlDescription": "The address you open PLANKA at.",
+				"urlLabel": "PLANKA URL",
+				"usernameDescription": "The account you sign in to PLANKA with.",
+				"usernameLabel": "Email or username"
+			},
+			"retry": "Try again",
+			"run": {
+				"failedBadge": "Failed",
+				"failedNames_many": "{{names, list}} failed, so nothing was created for them.",
+				"failedNames_one": "{{names, list}} failed, so nothing was created for it.",
+				"failedNames_other": "{{names, list}} failed, so nothing was created for them.",
+				"failedTitle": "Import failed",
+				"finishedNote": "Imported tasks did not send notifications. Comments keep their original author and date.",
+				"finishedNoteNoComments": "Imported tasks did not send notifications.",
+				"finishedTitle": "Import finished",
+				"goToProjects": "Go to projects",
+				"importingBadge": "Importing",
+				"importingTitle": "Importing from {{source}}",
+				"importMore": "Import more",
+				"keyInMemory": "Your {{source}} key is only kept in memory until this import finishes.",
+				"leavePage": "You can leave this page. The import keeps running on the server.",
+				"loadError": "This import could not be loaded",
+				"noTasks": "No tasks",
+				"nothingImported": "Nothing was imported",
+				"notImported": "Not imported",
+				"open": "Open",
+				"openProject": "Open {{name}}",
+				"queued": "Queued",
+				"started": "Started {{time}}",
+				"starting": "Starting",
+				"took_many": "Took {{count}} minutes",
+				"took_one": "Took {{count}} minute",
+				"took_other": "Took {{count}} minutes",
+				"tookUnderMinute": "Took less than a minute",
+				"totals": "{{parts, list}} imported",
+				"waiting": "Waiting",
+				"warnings_many": "{{count}} warnings",
+				"warnings_one": "{{count}} warning",
+				"warnings_other": "{{count}} warnings"
+			},
+			"select": {
+				"back": "Back",
+				"clear": "Clear",
+				"commentsDescription": "Keeps each comment's original author and date.",
+				"commentsLabel": "Import comments",
+				"inviteMembers": "Invite members",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"selectAll": "Select all",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+			},
+			"sources": {
+				"connect": "Connect",
+				"connectTo": "Connect {{source}}",
+				"description": "Pick the tool you are moving from. Each project you choose becomes a new project here.",
+				"kaneo": {
+					"description": "Move projects between Kaneo Cloud and a self-hosted instance.",
+					"intro": "Projects from every workspace the key can see. Each one you pick is copied here.",
+					"pickerName": "Another Kaneo"
+				},
+				"linear": {
+					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
+					"intro": "Each Linear team becomes a project, with its workflow as columns."
+				},
+				"plane": {
+					"description": "Projects, work items, sub-issues and comments. Cloud or self-hosted.",
+					"intro": "Each Plane project becomes a project here, with its states as columns."
+				},
+				"planka": {
+					"description": "Boards, lists, cards, checklists and comments from your PLANKA instance.",
+					"intro": "Each PLANKA board becomes a project, with its lists as columns."
+				},
+				"title": "Choose a source",
+				"trello": {
+					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
+					"intro": "Each Trello board becomes a project, with its lists as columns."
+				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+				}
+			},
+			"status": {
+				"failed": "Failed",
+				"imported": "Imported",
+				"importing": "Importing {{current}} of {{total}}",
+				"partial": "{{done}} of {{total}} imported",
+				"warnings_many": "Done with {{count}} warnings",
+				"warnings_one": "Done with {{count}} warning",
+				"warnings_other": "Done with {{count}} warnings"
+			},
+			"steps": {
+				"connect": "Connect",
+				"done": "(completed)",
+				"import": "Import",
+				"label": "Import steps"
+			},
+			"subtitle": "Bring your projects from another tool into {{workspace}}. Kaneo only reads from the source.",
+			"title": "Import",
+			"toast": {
+				"failed": "Import from {{source}} failed",
+				"finished": "Import from {{source}} finished",
+				"partial": "Import from {{source}} finished with errors"
+			},
+			"trello": {
+				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"authorizeButton": "Authorize on Trello",
+				"authorizeDescription": "Opens Trello in a new tab. Read only, expires after a day.",
+				"authorizeLabel": "Authorize Kaneo",
+				"authorizeNeedsKey": "Enter the API key first. Read only, expires after a day.",
+				"tokenDescription": "Click Allow on Trello, then paste the token it shows you.",
+				"tokenLabel": "Token",
+				"tokenPlaceholder": "Paste token"
+			},
+			"units": {
+				"board": {
+					"allImported_many": "All {{count}} boards imported.",
+					"allImported_one": "{{count}} board imported.",
+					"allImported_other": "All {{count}} boards imported.",
+					"empty": "No boards found. Check that this key can see the boards you want to import.",
+					"found_many": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
+					"found_one": "{{count}} board found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_many": "Import {{count}} boards",
+					"importButton_one": "Import {{count}} board",
+					"importButton_other": "Import {{count}} boards",
+					"limit": "Pick up to {{max}} boards per import.",
+					"pick": "Pick the boards to bring over.",
+					"progress_many": "{{done}} of {{count}} boards imported",
+					"progress_one": "{{done}} of {{count}} board imported",
+					"progress_other": "{{done}} of {{count}} boards imported",
+					"runTitle_many": "{{source}}, {{count}} boards",
+					"runTitle_one": "{{source}}, {{count}} board",
+					"runTitle_other": "{{source}}, {{count}} boards",
+					"section": "Boards",
+					"someImported_many": "{{done}} of {{count}} boards imported.",
+					"someImported_one": "{{done}} of {{count}} board imported.",
+					"someImported_other": "{{done}} of {{count}} boards imported.",
+					"step": "Choose boards"
+				},
+				"project": {
+					"allImported_many": "All {{count}} projects imported.",
+					"allImported_one": "{{count}} project imported.",
+					"allImported_other": "All {{count}} projects imported.",
+					"empty": "No projects found. Check that this key can see the projects you want to import.",
+					"found_many": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
+					"found_one": "{{count}} project found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_many": "Import {{count}} projects",
+					"importButton_one": "Import {{count}} project",
+					"importButton_other": "Import {{count}} projects",
+					"limit": "Pick up to {{max}} projects per import.",
+					"pick": "Pick the projects to bring over.",
+					"progress_many": "{{done}} of {{count}} projects imported",
+					"progress_one": "{{done}} of {{count}} project imported",
+					"progress_other": "{{done}} of {{count}} projects imported",
+					"runTitle_many": "{{source}}, {{count}} projects",
+					"runTitle_one": "{{source}}, {{count}} project",
+					"runTitle_other": "{{source}}, {{count}} projects",
+					"section": "Projects",
+					"someImported_many": "{{done}} of {{count}} projects imported.",
+					"someImported_one": "{{done}} of {{count}} project imported.",
+					"someImported_other": "{{done}} of {{count}} projects imported.",
+					"step": "Choose projects"
+				},
+				"team": {
+					"allImported_many": "All {{count}} teams imported.",
+					"allImported_one": "{{count}} team imported.",
+					"allImported_other": "All {{count}} teams imported.",
+					"empty": "No teams found. Check that this key can see the teams you want to import.",
+					"found_many": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
+					"found_one": "{{count}} team found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_many": "Import {{count}} teams",
+					"importButton_one": "Import {{count}} team",
+					"importButton_other": "Import {{count}} teams",
+					"limit": "Pick up to {{max}} teams per import.",
+					"pick": "Pick the teams to bring over.",
+					"progress_many": "{{done}} of {{count}} teams imported",
+					"progress_one": "{{done}} of {{count}} team imported",
+					"progress_other": "{{done}} of {{count}} teams imported",
+					"runTitle_many": "{{source}}, {{count}} teams",
+					"runTitle_one": "{{source}}, {{count}} team",
+					"runTitle_other": "{{source}}, {{count}} teams",
+					"section": "Teams",
+					"someImported_many": "{{done}} of {{count}} teams imported.",
+					"someImported_one": "{{done}} of {{count}} team imported.",
+					"someImported_other": "{{done}} of {{count}} teams imported.",
+					"step": "Choose teams"
+				}
+			},
+			"jira": {
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"emailLabel": "Email",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name.",
+				"openSettings": "Open Atlassian API tokens",
+				"stepCreate": "Create an API token and copy it.",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenLabel": "API token",
+				"tokenPlaceholder": "Paste token",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlLabel": "Jira site URL",
+				"urlPlaceholder": "https://your-site.atlassian.net"
+			}
 		}
 	},
 	"navigation": {
@@ -2076,7 +2513,8 @@
 			"deleteConfirmTitle": "Eliminare il Progetto?",
 			"deleteConfirmDescription": "Questo rimuoverà permanentemente il progetto e tutti i suoi dati. Non puoi annullare questa azione.",
 			"deletedToast": "Progetto eliminato",
-			"deleteProject": "Elimina Progetto"
+			"deleteProject": "Elimina Progetto",
+			"switcherLabel": "Cambia progetto o vista"
 		},
 		"search": {
 			"inputPlaceholder": "Cerca attività, progetti, commenti...",
@@ -2366,7 +2804,10 @@
 		"boardSearchPlaceholder": "Cerca ticket...",
 		"view": {
 			"board": "Board",
-			"list": "Elenco"
+			"list": "Elenco",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Vista"
 		},
 		"common": {
 			"selectTask": "Seleziona attività",
@@ -2596,7 +3037,8 @@
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
 					"crimson": "Cremisi"
-				}
+				},
+				"editLabels": "Modifica etichette"
 			}
 		},
 		"backlog": {
@@ -2802,7 +3244,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: apri attività",
 			"title": "Calendario",
 			"today": "Oggi",
-			"loadError": "Impossibile caricare le attività."
+			"loadError": "Impossibile caricare le attività.",
+			"noTasksThisMonth": "Niente in programma questo mese"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
@@ -2826,7 +3269,14 @@
 			"cta": "Accetta invito",
 			"sameEmail": "Puoi accettare con la stessa email che ha ricevuto questo messaggio.",
 			"ignore": "Se non era previsto, puoi ignorare questa email.",
-			"footer": "Invito workspace Kaneo"
+			"footer": "Invito workspace Kaneo",
+			"details": {
+				"title": "Dettagli dell’invito",
+				"sentTo": "Inviato a",
+				"instance": "Istanza",
+				"role": "Ruolo",
+				"expires": "Scade"
+			}
 		},
 		"pageTitle": "Inviti",
 		"pendingInvitations": "Inviti in Sospeso",

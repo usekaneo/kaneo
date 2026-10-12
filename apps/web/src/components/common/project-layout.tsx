@@ -131,7 +131,7 @@ export default function ProjectLayout({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="flex items-center gap-2 text-[10px]">
-                    Toggle sidebar
+                    {t("navigation:settingsLayout.toggleSidebar")}
                     <KbdSequence
                       keys={[
                         shortcuts.sidebar.prefix,
@@ -157,10 +157,11 @@ export default function ProjectLayout({
               />
             </div>
 
-            <div className="md:hidden">
+            <div className="min-w-0 md:hidden">
               <MobileProjectNav
                 workspaceId={workspaceId}
                 projectId={projectId}
+                projectName={project?.name}
                 activeView={resolvedView}
                 onSelectBacklog={handleNavigateToBacklog}
                 onSelectBoard={handleNavigateToBoard}
@@ -183,7 +184,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <SquircleDashed className="size-3.5" />
-                  Backlog
+                  {t("tasks:view.backlog")}
                 </Button>
                 <Button
                   variant={resolvedView === "board" ? "secondary" : "ghost"}
@@ -219,7 +220,7 @@ export default function ProjectLayout({
                   )}
                 >
                   <CalendarDays className="size-3.5" />
-                  Gantt
+                  {t("tasks:view.gantt")}
                 </Button>
               </div>
             )}

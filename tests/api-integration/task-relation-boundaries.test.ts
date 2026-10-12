@@ -8,6 +8,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 const m = vi.hoisted(() => ({ publish: vi.fn(async () => undefined) }));
 vi.mock("../../apps/api/src/events", async (original) => ({
@@ -60,7 +61,10 @@ describe("task relation tenant boundaries", () => {
         relationType: "blocks",
       });
       expect(response.status).toBe(404);
-      expect(await response.text()).toBe("Target task not found");
+      expect(await readErrorBody(response)).toMatchObject({
+        message: "Target task not found",
+        code: "NOT_FOUND",
+      });
     }
     expect(await db.query.taskRelationTable.findMany()).toHaveLength(0);
     expect(m.publish).not.toHaveBeenCalled();
@@ -91,7 +95,10 @@ describe("task relation tenant boundaries", () => {
     mockAuthenticatedSession(own.user);
     const response = await request(`/${relation.id}`, "DELETE");
     expect(response.status).toBe(404);
-    expect(await response.text()).toBe("Task relation not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Task relation not found",
+      code: "NOT_FOUND",
+    });
     expect(
       await db.query.taskRelationTable.findFirst({
         where: eq(schema.taskRelationTable.id, relation.id),
@@ -105,7 +112,9 @@ describe("task relation tenant boundaries", () => {
     const foreign = await context();
     const relation = await seedRelation(foreign.task.id, own.task.id);
     mockAuthenticatedSession(own.user);
-    expect((await request(`/${relation.id}`, "DELETE")).status).toBe(403);
+    const response = await request(`/${relation.id}`, "DELETE");
+    expect(response.status).toBe(404);
+    expect(await response.text()).toContain("Task relation not found");
     expect(await db.query.taskRelationTable.findMany()).toHaveLength(1);
     expect(m.publish).not.toHaveBeenCalled();
   });

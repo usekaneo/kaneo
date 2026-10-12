@@ -15,6 +15,10 @@ export const configSchema = z
     hasCustomOAuth: z.boolean(),
     hasGuestAccess: z.boolean(),
     disableLoginForm: z.boolean(),
+    customOAuthName: z.string().nullable().openapi({
+      description:
+        "Label for the custom OAuth provider on the sign-in page. Null means the generic SSO label.",
+    }),
     customOAuthAutoLogin: z.boolean(),
     customOAuthLogoutUrl: z.string().nullable(),
     billingEnabled: z.boolean(),

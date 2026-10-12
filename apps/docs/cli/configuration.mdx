@@ -1,0 +1,62 @@
+---
+title: Configuration
+description: Settings, environment variables, repository defaults and inline images.
+---
+
+Every setting has a flag, an environment variable, or both. A flag wins over its environment variable.
+
+| Setting | Flag | Environment variable |
+| --- | --- | --- |
+| Server | `--api-url` | `KANEO_API_URL` (default `https://cloud.kaneo.app`) |
+| Token or API key | `--token` | `KANEO_API_KEY` |
+| Workspace | `-w`, `--workspace` | `KANEO_WORKSPACE` |
+| Project | `-p`, `--project` | `KANEO_PROJECT` |
+| Stored login | `--profile` | `KANEO_PROFILE` |
+| JSON output | `--json` | `KANEO_JSON=true` |
+| Inline images | | `KANEO_IMAGES` (`kitty`, `iterm`, `blocks` or `off`) |
+| Web app address for links | | `KANEO_WEB_URL` (detected during login) |
+| Config file | | `KANEO_CONFIG` |
+
+Logins are stored in `~/.config/kaneo/config.json`, or `$XDG_CONFIG_HOME/kaneo/config.json`, with permissions that only your user can read. If another kaneo CLI already uses that file, the official CLI leaves it untouched and asks you to move it or set `KANEO_CONFIG`. The CLI keeps track of your running timer in `timer.json` next to the config file.
+
+## Repository defaults
+
+Link a repository to a workspace and project, so commands run anywhere inside it use them:
+
+```bash
+kaneo link                     # pick from a list in a terminal
+kaneo link -w your-workspace-id -p KAN
+```
+
+`kaneo link` writes a `.kaneo.json` at the root of the Git repository, or in the current directory outside a repository. It keeps any other keys already in the file:
+
+```json
+{ "workspace": "your-workspace-id", "project": "KAN" }
+```
+
+Commands look for `.kaneo.json` in the current directory and its parents. `kaneo unlink` removes the two keys, and deletes the file when nothing else is left.
+
+The CLI picks the workspace from `-w`, then `KANEO_WORKSPACE`, then `.kaneo.json`, then the default you chose with `kaneo workspace use`. It picks the project from `-p`, then `KANEO_PROJECT`, then `.kaneo.json`.
+
+## Check your setup
+
+`kaneo context` shows the server, profile, account, workspace and project in use, and where each one came from. Use it when a command picks the wrong workspace or server.
+
+`kaneo doctor` checks the config file, the server, your login, the workspace, and whether the server has every API operation this CLI uses. It exits with code 1 when a check fails, so it also works in CI:
+
+```bash
+kaneo doctor
+```
+
+## Images in the terminal
+
+`kaneo task images` shows the images in a task description, `kaneo task attach` previews the images you upload, and `kaneo whoami` shows your avatar.
+
+- Kitty and Ghostty show full images with the Kitty graphics protocol.
+- iTerm2 and WezTerm show full images with the iTerm2 protocol.
+- Other terminals with 256 colors and Unicode get a preview drawn with colored blocks. Inside tmux, screen or Zellij the CLI also uses blocks.
+- When none of these work, the CLI lists the image links instead.
+
+Set `KANEO_IMAGES` to `kitty`, `iterm` or `blocks` to choose the method, or to `off` to turn images off. JSON mode never shows images.
+
+The CLI sends your token only with image requests to your Kaneo server's own file URLs. Images hosted anywhere else are fetched without it.

@@ -92,7 +92,8 @@ async function deleteLabel(
     const [root] = await db
       .update(labelTable)
       .set({
-        deletionStartedAt: sql`coalesce(${labelTable.deletionStartedAt}, clock_timestamp())`,
+        // UTC like every timezone-less column, whatever the session time zone.
+        deletionStartedAt: sql`coalesce(${labelTable.deletionStartedAt}, timezone('UTC', clock_timestamp()))`,
       })
       .where(eq(labelTable.id, id))
       .returning();

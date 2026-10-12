@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "登录",
-			"title": "欢迎回来",
-			"subtitle": "输入凭据以访问你的工作区",
-			"invitationSubtitle": "登录以接受邀请",
-			"invitationAlert": "登录后即可接受工作区邀请。",
-			"signingIn": "正在登录…",
-			"continueWithGoogle": "使用 Google 继续",
-			"continueWithGithub": "使用 GitHub 继续",
-			"continueWithDiscord": "使用 Discord 继续",
-			"continueWithOidc": "使用 OIDC 继续",
+			"subtitle": {
+				"emailOrProvider": "使用邮箱或已关联的账户。",
+				"email": "输入你的邮箱，我们会发送登录验证码。",
+				"password": "使用邮箱和密码登录。",
+				"passwordOrProvider": "使用密码或已关联的账户。",
+				"providers": "选择你的登录方式。",
+				"sso": "此处的登录由你的组织管理。"
+			},
 			"lastUsed": "最近使用",
-			"registrationDisabled": "已关闭公开注册，请使用邀请创建账户。",
-			"passwordRegistrationDisabled": "已关闭密码注册，请使用已配置的社会化登录或 OIDC 方式创建账户。",
-			"toggleMessage": "还没有账户？",
-			"toggleLink": "创建账户",
-			"guestSuccess": "已以访客身份登录",
 			"guestError": "访客登录失败",
-			"oidcError": "OIDC 登录失败",
-			"googleError": "Google 登录失败",
-			"githubError": "GitHub 登录失败",
-			"discordError": "Discord 登录失败",
 			"errors": {
 				"account_not_linked": "该身份无法关联到现有账户。请先用邮箱登录以验证账户，然后再尝试 SSO。如果无法使用邮箱登录，请联系管理员。",
 				"oauth_code_verification_failed": "OAuth 校验失败，请重试。",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "已关闭注册。创建账户需要有效的邀请。"
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "已关闭注册。创建账户需要有效的邀请。",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "请使用长期有效的邮箱地址。一次性邮箱无法创建账户。"
 			},
-			"instanceStatusError": "无法连接服务器，请稍后重试。"
+			"instanceStatusError": "无法连接服务器，请稍后重试。",
+			"heading": "登录 Kaneo",
+			"submitPassword": "登录",
+			"invitation": {
+				"title": "{{inviterName}} 邀请你加入 {{workspaceName}}",
+				"fallbackTitle": "你收到了邀请",
+				"description": "请使用收到邀请的邮箱登录。登录后你将立即加入该工作区。"
+			},
+			"footer": {
+				"newHere": "初次使用 Kaneo？",
+				"createAccount": "创建账户",
+				"inviteOnly": "此处仅限受邀注册。请向管理员申请邀请。",
+				"providerSignUp": "新用户？使用上方任一服务登录即可创建账户。",
+				"anyProvider": "新用户？使用上方任一方式即可创建账户。",
+				"contactAdmin": "登录遇到问题？请联系管理员。",
+				"justLooking": "只是看看？"
+			},
+			"autoLogin": {
+				"title": "正在登录",
+				"subtitle": "正在跳转到你所在组织的登录页面。",
+				"opening": "正在打开 {{provider}}…",
+				"stuck": "页面没有跳转？",
+				"continue": "前往 {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "使用 {{provider}} 继续",
+			"error": "无法使用 {{provider}} 登录，请重试。"
 		},
 		"forms": {
 			"or": "或",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "显示密码",
-			"hidePassword": "隐藏密码"
+			"hidePassword": "隐藏密码",
+			"name": "姓名",
+			"namePlaceholder": "张三",
+			"invalidEmail": "请输入完整的邮箱地址，例如 name@company.com。",
+			"nameRequired": "请输入你的姓名。",
+			"passwordRequired": "请输入密码。",
+			"passwordTooShort": "请至少使用 8 个字符。",
+			"disposableEmail": "请使用长期有效的邮箱地址。一次性邮箱无法创建账户。",
+			"continueWithEmail": "使用邮箱继续"
 		},
 		"checkEmail": {
 			"pageTitle": "请检查你的邮箱",
@@ -214,139 +240,106 @@
 			"emailFallback": "你的邮箱",
 			"backToLogin": "返回登录"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "接下来",
-				"description": "创建账户后，你需要为工作区命名。之后就可以添加项目并开始编写任务。"
-			},
-			"onboarding": {
-				"title": "什么是工作区",
-				"description": "工作区包含你的项目、项目中的任务以及与你协作的成员。设置完成后即可邀请团队成员。"
-			},
-			"invite": {
-				"description": "同一工作区的成员共享同一套看板，任务一有变动就实时同步。谁能改什么，由角色决定。",
-				"title": "一起协作更高效"
-			},
-			"plan": {
-				"description": "所有套餐都包含不限量的项目和任务、自动备份和更新。随时可以在账单设置里取消。",
-				"title": "先试遍全部功能"
-			}
-		},
 		"signUp": {
 			"pageTitle": "创建账户",
-			"title": "创建账户",
-			"subtitleInvitation": "创建账户以接受邀请",
-			"subtitleRegistrationDisabled": "注册需要邀请",
-			"subtitlePasswordDisabled": "使用社会化登录或 OIDC 创建账户",
-			"subtitleDefault": "开始使用你的工作区",
-			"invitationAlert": "创建账户后即可接受工作区邀请。",
 			"registrationDisabledAlert": "已关闭注册。如果你收到了邀请，请使用收到邀请的邮箱地址来创建账户。",
-			"passwordDisabledAlert": "已关闭密码注册，请在登录页使用已配置的社会化登录或 OIDC 方式。",
-			"signingIn": "正在登录…",
 			"continueAsGuest": "以访客身份继续",
 			"toggleMessage": "已经有账户？",
 			"toggleLink": "登录",
 			"instanceStatusError": "无法连接服务器，请稍后重试。",
 			"instanceAdminTitle": "设置你的 Kaneo 实例",
-			"instanceAdminSubtitle": "此账户将成为拥有完整权限的实例管理员。"
+			"instanceAdminSubtitle": "此账户将成为拥有完整权限的实例管理员。",
+			"heading": "创建你的账户",
+			"submitPassword": "创建账户",
+			"failed": "无法创建账户，请重试。",
+			"subtitle": {
+				"email": "从邮箱开始。我们会发送验证码，无需密码。",
+				"password": "填写姓名、邮箱和密码即可开始。",
+				"providers": "使用已关联的账户创建你的账户。"
+			},
+			"invitation": {
+				"description": "请使用收到邀请的邮箱。注册后你将立即加入该工作区。"
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "验证码",
-			"title": "输入验证码",
-			"subtitle": "请使用邮件中收到的 6 位数字验证码继续",
-			"codeSentTo": "验证码已发送至 {{email}}",
-			"verificationCodeLabel": "验证码",
-			"verifying": "验证中…",
-			"verifyAndSignIn": "验证并登录",
-			"changeEmail": "更换邮箱",
-			"resend": "重新发送",
 			"validation": {
 				"codeLength": "验证码必须为 6 位数字"
 			},
 			"toast": {
 				"invalidCode": "验证码无效",
-				"signedInSuccess": "登录成功！",
 				"verifyFailed": "验证码验证失败",
 				"resendFailed": "重新发送失败",
 				"resendSuccess": "新验证码已发送！"
-			}
+			},
+			"heading": "请查收邮件",
+			"description": "我们已向 {{email}} 发送 6 位验证码，{{minutes}} 分钟内有效。",
+			"label": "验证码",
+			"submit": "验证并继续",
+			"didntGetIt": "没有收到验证码？",
+			"resendCode": "重新发送验证码",
+			"useDifferentEmail": "使用其他邮箱",
+			"expired": "验证码已过期，请重新获取。",
+			"tooManyAttempts": "尝试次数过多，请重新获取验证码。"
 		},
 		"otpSignIn": {
-			"sendFailed": "发送验证码失败",
-			"codeSent": "验证码已发送，请查收邮件。",
-			"sending": "发送中…",
-			"sendVerificationCode": "发送验证码"
+			"sendFailed": "发送验证码失败"
 		},
 		"signInForm": {
-			"failedSignIn": "登录失败",
-			"signedInSuccess": "登录成功",
-			"signingIn": "正在登录…",
-			"signIn": "登录"
-		},
-		"signUpForm": {
-			"fullName": "姓名",
-			"namePlaceholder": "张三",
-			"failedSignUp": "注册失败",
-			"accountCreated": "账户创建成功",
-			"passwordTooShort": "密码太短",
-			"creatingAccount": "正在创建账户…",
-			"createAccount": "创建账户"
+			"failedSignIn": "登录失败"
 		},
 		"invitation": {
 			"pageTitleAccept": "接受邀请",
 			"pageTitleError": "邀请出错",
 			"pageTitleInvalid": "邀请无效",
-			"loadingTitle": "正在加载邀请…",
-			"errorTitle": "邀请出错",
-			"invalidTitle": "邀请无效",
-			"invitationExpired": "邀请已过期",
-			"errorLoadDescription": "加载邀请详情失败，邀请可能无效或已过期。",
-			"goToSignIn": "前往登录",
-			"workspaceLabel": "工作区：{{workspaceName}}",
 			"joinWorkspace": "加入 {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> 邀请你加入他们的工作区。",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> 邀请你加入他们 Kaneo 上的工作区。",
-			"createAccountOrSignIn": "创建账户以接受此邀请；如已有账户，请直接登录。",
 			"createAccount": "创建账户",
-			"accepting": "接受中…",
-			"acceptInvitation": "接受邀请",
-			"goToDashboard": "前往控制台",
-			"signedInAs": "已以 <email>{{email}}</email> 登录",
-			"youveBeenInvited": "你被邀请了！",
-			"invitationFor": "邀请对象：<email>{{email}}</email>",
 			"signIn": "登录",
 			"toast": {
 				"acceptFailed": "接受邀请失败",
 				"acceptSuccess": "邀请已接受，欢迎加入团队！"
+			},
+			"description": "{{inviterName}} 邀请你加入 Kaneo 上的这个工作区。",
+			"invitedBy": "邀请人",
+			"sentTo": "发送至",
+			"signedInAs": "当前登录账户",
+			"expires": "有效期至",
+			"notNow": "暂不加入",
+			"join": "加入工作区",
+			"switchAccount": "切换账户",
+			"goToKaneo": "前往 Kaneo",
+			"mismatch": {
+				"title": "当前登录的邮箱不同",
+				"description": "此邀请发送至 {{invitedEmail}}，但你当前以 {{email}} 登录。"
+			},
+			"expired": {
+				"title": "此邀请已过期",
+				"description": "请让 {{inviterName}} 重新发送 {{workspaceName}} 的邀请。"
+			},
+			"invalid": {
+				"title": "此邀请已失效",
+				"description": "该邀请可能已被接受或取消。请向工作区管理员申请新的邀请。"
+			},
+			"loadFailed": {
+				"title": "无法加载此邀请",
+				"description": "请检查网络连接并刷新页面。"
 			}
 		},
 		"onboarding": {
 			"pageTitle": "欢迎使用 Kaneo",
-			"workspacePageTitle": "创建工作区",
-			"createWorkspaceTitle": "创建工作区",
-			"createWorkspaceSubtitle": "设置你的工作区以开始管理项目",
 			"workspaceName": "工作区名称",
 			"workspaceNamePlaceholder": "例如：某某公司、我的团队",
-			"descriptionOptional": "描述（可选）",
-			"descriptionPlaceholder": "你的团队做什么？",
-			"creating": "创建中…",
-			"createWorkspace": "创建工作区",
-			"workspaceCreatedTitle": "工作区已创建",
-			"redirectingToWorkspace": "正在前往 <name>{{name}}</name>…",
 			"toast": {
-				"workspaceCreated": "工作区创建成功",
 				"createFailed": "工作区创建失败"
 			},
 			"validation": {
-				"workspaceNameRequired": "工作区名称不能为空"
+				"workspaceNameRequired": "工作区名称不能为空",
+				"projectNameRequired": "请为你的第一个项目命名"
 			},
 			"restrictedSubtitle": "在此实例中只有管理员可以创建工作区。请联系管理员邀请你，然后刷新此页面。",
 			"restrictedCheckInvitations": "查看邀请",
 			"restrictedTitle": "你需要一份邀请",
 			"cloud": {
-				"title": "为工作区命名",
-				"subtitle": "使用你的团队或公司名称。之后可以在设置中修改。",
-				"continue": "继续",
 				"invite": {
 					"addAnother": "再添加一个",
 					"emailLabel": "成员邮箱 {{index}}",
@@ -354,20 +347,12 @@
 					"failed": "无法邀请 {{email}}：{{message}}",
 					"invalidEmail": "请输入有效的邮箱地址",
 					"remove": "移除邮箱 {{index}}",
-					"send": "发送邀请",
-					"sending": "正在发送…",
 					"sent_other": "已发送 {{count}} 个邀请",
-					"skip": "暂时跳过",
-					"subtitle": "他们会收到一封邮件，里面有加入 {{name}} 的链接。之后还可以随时在成员页面继续邀请。",
-					"title": "邀请你的团队成员"
+					"skip": "暂时跳过"
 				},
 				"plan": {
 					"continueTrial": "开始免费试用",
-					"continueWithoutPlan": "进入工作区",
-					"note": "随时可以在“设置 → 账单”里选择或更换套餐。",
 					"recommended": "推荐",
-					"title": "选择套餐",
-					"trialActive": "免费试用可用到 {{date}}。无需绑定银行卡，在此之前随时都可以选择套餐。",
 					"trialUsed": "你的免费试用已经用过了。选择一个套餐，即可开始创建项目和任务。"
 				},
 				"usageLabel": "这个工作区主要由谁使用？",
@@ -375,6 +360,88 @@
 				"usageSoloDescription": "打理好自己的任务和进度",
 				"usageTeam": "我的团队",
 				"usageTeamDescription": "一起规划，一起交付"
+			},
+			"projectNameDefault": "我的第一个项目",
+			"starterTasks": {
+				"drag": {
+					"title": "把这张卡片拖到下一列",
+					"description": "随着工作推进，卡片会从一列移到下一列。把这张卡片拖到下一列，或打开它修改状态。"
+				},
+				"details": {
+					"title": "打开这个任务并添加子任务",
+					"description": "任务可以包含描述、子任务、标签、负责人和截止日期。试着给这个任务添加一个子任务。"
+				},
+				"invite": {
+					"title": "邀请你的团队",
+					"description": "大家都在的时候，Kaneo 最好用。打开侧边栏中的 **成员**，通过邮件邀请成员。"
+				},
+				"integrations": {
+					"title": "连接 GitHub、GitLab 或 Gitea",
+					"description": "同步 issue，并在拉取请求打开和合并时自动移动任务。在 **项目设置** 中进行配置。"
+				},
+				"create": {
+					"title": "创建你自己的任务",
+					"description": "使用列名旁边的 **+**，或先按 **T** 再按 **C**。准备好后，就可以删除这些入门任务。"
+				}
+			},
+			"progress": "第 {{current}} 步，共 {{total}} 步",
+			"welcome": "欢迎，{{name}}",
+			"settingUp": "正在设置 {{name}}",
+			"continue": "继续",
+			"signedInAs": "已登录为 {{email}}",
+			"signOut": "退出登录",
+			"workspace": {
+				"title": "为工作区命名",
+				"description": "你的项目都会放在这里。可以使用团队或公司名称，之后也能修改。"
+			},
+			"usage": {
+				"title": "给谁用？",
+				"description": "我们会据此设置 {{name}}。之后随时可以邀请成员。"
+			},
+			"project": {
+				"title": "创建第一个项目",
+				"description": "我们会添加几个入门任务帮你熟悉。你可以随时重命名或删除它们。",
+				"label": "项目名称",
+				"numbered": "任务编号示例"
+			},
+			"invite": {
+				"title": "邀请你的团队",
+				"description": "他们会收到加入 {{name}} 的邮件。如果想先四处看看，可以跳过这一步。",
+				"label": "队友邮箱",
+				"send_other": "发送 {{count}} 份邀请",
+				"sendNone": "发送邀请"
+			},
+			"plan": {
+				"title": "你想如何开始？",
+				"descriptionTrial_other": "所有套餐都包含无限项目和任务。免费试用 {{name}} {{count}} 天，或立即订阅。",
+				"choose": "选择套餐",
+				"description": {
+					"team": "不限成员数量，支持角色和权限",
+					"personal": "适合个人使用"
+				},
+				"perUserMonth": "每人 / 月",
+				"perMonth": "每月",
+				"subscribe": "订阅 {{plan}}",
+				"checkout": "前往结账",
+				"trialNote": "试用无需绑定银行卡。付款由 Creem 处理。",
+				"paymentNote": "付款由 Creem 处理。"
+			},
+			"ready": {
+				"eyebrow": "一切就绪",
+				"title": "{{name}} 已准备就绪",
+				"description": "以下是我们为你设置的内容，之后都可以修改。",
+				"workspace": "工作区",
+				"project": "第一个项目",
+				"projectValue_other": "{{name}}，含 {{count}} 个入门任务",
+				"invitations": "邀请",
+				"invitationsValue_other": "已发送给 {{count}} 人",
+				"open": "打开 {{name}}"
+			},
+			"preview": {
+				"live": "{{name}} 实时预览",
+				"liveNoName": "实时预览",
+				"ready": "{{name}} 已准备就绪",
+				"untitled": "你的工作区"
 			}
 		},
 		"profileSetup": {
@@ -401,24 +468,93 @@
 			"requestTitle": "重置密码",
 			"requestSubtitle": "输入你的邮箱，我们会发送密码重置链接。",
 			"sendLink": "发送重置链接",
-			"sending": "正在发送…",
-			"sent": "如果该邮箱对应的账号存在，你会收到一封密码重置邮件。请留意收件箱和垃圾邮件文件夹。",
 			"requestError": "无法申请重置链接，请重试。",
 			"unavailable": "当前实例未开放密码重置。请联系实例管理员。",
 			"configError": "无法连接服务器。请刷新页面后重试。",
 			"resetTitle": "设置新密码",
-			"resetSubtitle": "新密码请使用 8–128 个字符。",
 			"newPassword": "新密码",
 			"confirmPassword": "确认新密码",
 			"passwordMismatch": "两次输入的密码不一致。",
 			"passwordLength": "请使用 8 到 128 个字符。",
-			"resetPassword": "重置密码",
-			"resetting": "正在重置…",
 			"invalidLink": "该重置链接无效或已过期。请重新申请一个链接。",
 			"requestNewLink": "重新申请链接",
 			"resetError": "密码重置失败，请重试。",
 			"success": "密码已重置。请用新密码登录。",
-			"backToSignIn": "返回登录"
+			"backToSignIn": "返回登录",
+			"sentTitle": "请检查收件箱",
+			"sentDescription": "如果 {{email}} 对应的账户存在，重置密码的链接已发出。链接 1 小时内有效。",
+			"sentHelpTitle": "没有收到邮件？",
+			"sentHelpDescription": "请检查垃圾邮件文件夹，或稍等一分钟后重新申请链接。",
+			"rememberedIt": "想起来了？",
+			"resetDescription": "请使用 8 到 128 个字符。其他设备将退出登录。",
+			"updatePassword": "更新密码",
+			"changedMind": "改变主意了？",
+			"invalidLinkTitle": "此链接已过期",
+			"successTitle": "密码已更新"
+		},
+		"page": {
+			"terms": "条款",
+			"privacy": "隐私"
+		},
+		"device": {
+			"connect": {
+				"title": "连接设备",
+				"description": "输入终端或应用中显示的代码，将其关联到你的 Kaneo 账户。",
+				"label": "设备代码",
+				"submit": "继续",
+				"noCode": "还没有代码？请先在应用中发起登录。",
+				"codeRequired": "请输入设备上显示的代码。",
+				"invalidCode": "该代码无效或已过期。"
+			},
+			"approve": {
+				"pageTitle": "批准设备",
+				"title": "要连接此设备吗？",
+				"description": "有设备请求以 {{email}} 的身份登录。仅当这是你本人发起的操作时才批准。",
+				"matchCode": "请确认此代码与设备上显示的一致",
+				"deny": "拒绝",
+				"approve": "批准",
+				"failed": "无法更新该请求，请重试。"
+			},
+			"approved": {
+				"title": "设备已连接",
+				"description": "请返回终端或应用。你可以关闭此标签页。"
+			},
+			"denied": {
+				"title": "请求已拒绝",
+				"description": "未连接任何设备。你可以关闭此标签页。"
+			},
+			"missing": {
+				"title": "没有设备代码",
+				"description": "请从设备上打开此页面，或手动输入代码。",
+				"enterCode": "输入代码"
+			},
+			"signIn": {
+				"title": "登录以连接你的设备",
+				"description": "登录后会立即返回此处进行批准。",
+				"submit": "登录"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "授权 MCP 客户端",
+				"description": "它可以在你有权访问的所有工作区中以你的身份操作。仅当这是你本人发起的连接时才继续。",
+				"client": "客户端",
+				"unknownClient": "MCP 客户端",
+				"selfReported": "客户端自述",
+				"redirect": "授权后返回至",
+				"signedInAs": "当前登录账户",
+				"deny": "拒绝",
+				"allow": "允许访问"
+			},
+			"expired": {
+				"title": "此请求已过期",
+				"description": "请返回 MCP 客户端并重新连接。"
+			},
+			"signIn": {
+				"title": "登录以授权此客户端",
+				"description": "登录后会立即返回此处进行审核。",
+				"submit": "登录"
+			}
 		}
 	},
 	"settings": {
@@ -1097,7 +1233,9 @@
 			"on": "开",
 			"off": "关",
 			"newColumnPlaceholder": "新列名称…",
-			"add": "添加"
+			"add": "添加",
+			"deleteAria": "删除 {{name}} 列",
+			"renameAria": "重命名 {{name}} 列"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1746,7 +1884,7 @@
 			"title": "日历订阅",
 			"subtitle": "在你的日历应用里订阅项目已排期的任务。",
 			"createTitle": "创建日历订阅",
-			"filterHint": "只包含有开始日期或截止日期、并且带有任一所选标签的任务。",
+			"filterHint": "包含有开始日期或截止日期的任务。选择标签可仅包含带有任一所选标签的任务；留空则包含所有已安排日期的项目任务。",
 			"labels": "标签",
 			"selectLabels": "搜索并选择标签…",
 			"noLabels": "没有找到标签。",
@@ -1757,6 +1895,7 @@
 			"created": "日历订阅已创建。",
 			"createError": "创建日历订阅失败。",
 			"activeFeeds": "已启用的订阅",
+			"allScheduledTasks": "所有已安排日期的项目任务",
 			"subscribeHint": "复制链接，在日历应用里添加为订阅。日历应用刷新后，更新就会显示出来。",
 			"empty": "还没有日历订阅。",
 			"feedUrl": "日历订阅链接",
@@ -2010,6 +2149,244 @@
 				"transferError": "Failed to transfer ownership"
 			},
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"workspaceImport": {
+			"back": {
+				"allSources": "All sources",
+				"changeKey": "Change key",
+				"overview": "Import overview"
+			},
+			"connect": {
+				"cancel": "Cancel",
+				"continue": "Continue",
+				"hideSecret": "Hide {{field}}",
+				"sectionDescription": "Kaneo only reads from {{source}}. The key is used for this import and never stored.",
+				"sectionTitle": "Connect",
+				"showSecret": "Show {{field}}",
+				"title": "Import from {{source}}",
+				"whereToFind": "Where to find it"
+			},
+			"counts": {
+				"columns_other": "{{count, number}} columns",
+				"comments_other": "{{count, number}} comments",
+				"labels_other": "{{count, number}} labels",
+				"tasks_other": "{{count, number}} tasks"
+			},
+			"entry": {
+				"createProjectLink": "Import your projects",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
+				"projectsEmpty": "Import from another tool"
+			},
+			"history": {
+				"description": "Imports keep running on the server if you leave this page.",
+				"empty": "No imports yet. Imports you start show up here.",
+				"loadError": "Recent imports could not be loaded.",
+				"started": "Started {{time}}",
+				"title": "Recent imports"
+			},
+			"kaneo": {
+				"apiKeyDescription": "In that Kaneo, open Settings, then API Keys.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"urlDescription": "The instance you are moving from.",
+				"urlLabel": "Kaneo URL"
+			},
+			"linear": {
+				"apiKeyDescription": "Read access is enough. You can revoke it after the import.",
+				"apiKeyLabel": "Personal API key",
+				"openSettings": "Open Linear settings",
+				"stepCreate": "Under Personal API keys, create a key with Read access.",
+				"stepOpen": "In Linear, open Settings, then Security and access.",
+				"stepPaste": "Copy it and paste it above."
+			},
+			"notAllowed": {
+				"description": "Importing creates projects, so it needs permission to manage workspace settings and create projects. Ask a workspace admin to run it.",
+				"title": "Only workspace admins can import"
+			},
+			"opensInNewTab": "(opens in a new tab)",
+			"pageTitle": "Import",
+			"plane": {
+				"tokenDescription": "Profile settings, Developer, then Personal Access Tokens.",
+				"tokenLabel": "Personal access token",
+				"urlDescription": "Copy it from your browser while in Plane. Self-hosted works too.",
+				"urlLabel": "Workspace URL",
+				"urlPlaceholder": "https://app.plane.so/your-workspace"
+			},
+			"planka": {
+				"adminTip": "Use a PLANKA admin account. PLANKA only shows email addresses to admins, and card members are matched to people here by email.",
+				"apiKeyDescription": "Created in PLANKA under your account settings.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"passwordDescription": "Used only to sign in for this import.",
+				"passwordLabel": "Password",
+				"signInApiKey": "API key",
+				"signInDescription": "Use an API key if your account signs in through SSO.",
+				"signInLabel": "Sign in with",
+				"signInPassword": "Email and password",
+				"urlDescription": "The address you open PLANKA at.",
+				"urlLabel": "PLANKA URL",
+				"usernameDescription": "The account you sign in to PLANKA with.",
+				"usernameLabel": "Email or username"
+			},
+			"retry": "Try again",
+			"run": {
+				"failedBadge": "Failed",
+				"failedNames_other": "{{names, list}} failed, so nothing was created for them.",
+				"failedTitle": "Import failed",
+				"finishedNote": "Imported tasks did not send notifications. Comments keep their original author and date.",
+				"finishedNoteNoComments": "Imported tasks did not send notifications.",
+				"finishedTitle": "Import finished",
+				"goToProjects": "Go to projects",
+				"importingBadge": "Importing",
+				"importingTitle": "Importing from {{source}}",
+				"importMore": "Import more",
+				"keyInMemory": "Your {{source}} key is only kept in memory until this import finishes.",
+				"leavePage": "You can leave this page. The import keeps running on the server.",
+				"loadError": "This import could not be loaded",
+				"noTasks": "No tasks",
+				"nothingImported": "Nothing was imported",
+				"notImported": "Not imported",
+				"open": "Open",
+				"openProject": "Open {{name}}",
+				"queued": "Queued",
+				"started": "Started {{time}}",
+				"starting": "Starting",
+				"took_other": "Took {{count}} minutes",
+				"tookUnderMinute": "Took less than a minute",
+				"totals": "{{parts, list}} imported",
+				"waiting": "Waiting",
+				"warnings_other": "{{count}} warnings"
+			},
+			"select": {
+				"back": "Back",
+				"clear": "Clear",
+				"commentsDescription": "Keeps each comment's original author and date.",
+				"commentsLabel": "Import comments",
+				"inviteMembers": "Invite members",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"selectAll": "Select all",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+			},
+			"sources": {
+				"connect": "Connect",
+				"connectTo": "Connect {{source}}",
+				"description": "Pick the tool you are moving from. Each project you choose becomes a new project here.",
+				"kaneo": {
+					"description": "Move projects between Kaneo Cloud and a self-hosted instance.",
+					"intro": "Projects from every workspace the key can see. Each one you pick is copied here.",
+					"pickerName": "Another Kaneo"
+				},
+				"linear": {
+					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
+					"intro": "Each Linear team becomes a project, with its workflow as columns."
+				},
+				"plane": {
+					"description": "Projects, work items, sub-issues and comments. Cloud or self-hosted.",
+					"intro": "Each Plane project becomes a project here, with its states as columns."
+				},
+				"planka": {
+					"description": "Boards, lists, cards, checklists and comments from your PLANKA instance.",
+					"intro": "Each PLANKA board becomes a project, with its lists as columns."
+				},
+				"title": "Choose a source",
+				"trello": {
+					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
+					"intro": "Each Trello board becomes a project, with its lists as columns."
+				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+				}
+			},
+			"status": {
+				"failed": "Failed",
+				"imported": "Imported",
+				"importing": "Importing {{current}} of {{total}}",
+				"partial": "{{done}} of {{total}} imported",
+				"warnings_other": "Done with {{count}} warnings"
+			},
+			"steps": {
+				"connect": "Connect",
+				"done": "(completed)",
+				"import": "Import",
+				"label": "Import steps"
+			},
+			"subtitle": "Bring your projects from another tool into {{workspace}}. Kaneo only reads from the source.",
+			"title": "Import",
+			"toast": {
+				"failed": "Import from {{source}} failed",
+				"finished": "Import from {{source}} finished",
+				"partial": "Import from {{source}} finished with errors"
+			},
+			"trello": {
+				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"authorizeButton": "Authorize on Trello",
+				"authorizeDescription": "Opens Trello in a new tab. Read only, expires after a day.",
+				"authorizeLabel": "Authorize Kaneo",
+				"authorizeNeedsKey": "Enter the API key first. Read only, expires after a day.",
+				"tokenDescription": "Click Allow on Trello, then paste the token it shows you.",
+				"tokenLabel": "Token",
+				"tokenPlaceholder": "Paste token"
+			},
+			"units": {
+				"board": {
+					"allImported_other": "All {{count}} boards imported.",
+					"empty": "No boards found. Check that this key can see the boards you want to import.",
+					"found_other": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_other": "Import {{count}} boards",
+					"limit": "Pick up to {{max}} boards per import.",
+					"pick": "Pick the boards to bring over.",
+					"progress_other": "{{done}} of {{count}} boards imported",
+					"runTitle_other": "{{source}}, {{count}} boards",
+					"section": "Boards",
+					"someImported_other": "{{done}} of {{count}} boards imported.",
+					"step": "Choose boards"
+				},
+				"project": {
+					"allImported_other": "All {{count}} projects imported.",
+					"empty": "No projects found. Check that this key can see the projects you want to import.",
+					"found_other": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_other": "Import {{count}} projects",
+					"limit": "Pick up to {{max}} projects per import.",
+					"pick": "Pick the projects to bring over.",
+					"progress_other": "{{done}} of {{count}} projects imported",
+					"runTitle_other": "{{source}}, {{count}} projects",
+					"section": "Projects",
+					"someImported_other": "{{done}} of {{count}} projects imported.",
+					"step": "Choose projects"
+				},
+				"team": {
+					"allImported_other": "All {{count}} teams imported.",
+					"empty": "No teams found. Check that this key can see the teams you want to import.",
+					"found_other": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_other": "Import {{count}} teams",
+					"limit": "Pick up to {{max}} teams per import.",
+					"pick": "Pick the teams to bring over.",
+					"progress_other": "{{done}} of {{count}} teams imported",
+					"runTitle_other": "{{source}}, {{count}} teams",
+					"section": "Teams",
+					"someImported_other": "{{done}} of {{count}} teams imported.",
+					"step": "Choose teams"
+				}
+			},
+			"jira": {
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"emailLabel": "Email",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name.",
+				"openSettings": "Open Atlassian API tokens",
+				"stepCreate": "Create an API token and copy it.",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenLabel": "API token",
+				"tokenPlaceholder": "Paste token",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlLabel": "Jira site URL",
+				"urlPlaceholder": "https://your-site.atlassian.net"
+			}
 		}
 	},
 	"navigation": {
@@ -2054,7 +2431,8 @@
 			"deleteConfirmTitle": "删除项目？",
 			"deleteConfirmDescription": "这将永久删除项目及其所有数据，此操作不可撤销。",
 			"deletedToast": "项目已删除",
-			"deleteProject": "删除项目"
+			"deleteProject": "删除项目",
+			"switcherLabel": "切换项目或视图"
 		},
 		"search": {
 			"inputPlaceholder": "搜索任务、项目、评论…",
@@ -2336,7 +2714,10 @@
 		"boardSearchPlaceholder": "搜索工单…",
 		"view": {
 			"board": "看板",
-			"list": "列表"
+			"list": "列表",
+			"backlog": "待办",
+			"gantt": "甘特图",
+			"heading": "视图"
 		},
 		"common": {
 			"selectTask": "选择任务",
@@ -2566,7 +2947,8 @@
 					"terracotta": "赤陶",
 					"rose": "玫红",
 					"crimson": "深红"
-				}
+				},
+				"editLabels": "编辑标签"
 			}
 		},
 		"backlog": {
@@ -2645,7 +3027,8 @@
 			"moreTasks": "+{{count}} 项",
 			"loadError": "任务加载失败。",
 			"dayTasksAriaLabel": "查看 {{date}} 的全部任务",
-			"taskAriaLabel": "{{title}}，{{range}}：打开任务"
+			"taskAriaLabel": "{{title}}，{{range}}：打开任务",
+			"noTasksThisMonth": "本月没有安排"
 		},
 		"gantt": {
 			"pageTitle": "{{name}} – 甘特图",
@@ -2794,7 +3177,14 @@
 			"cta": "接受邀请",
 			"sameEmail": "你可以使用收到此邮件的同一邮箱接受。",
 			"ignore": "如果这不是你预期的，可以安全忽略此邮件。",
-			"footer": "Kaneo 工作区邀请"
+			"footer": "Kaneo 工作区邀请",
+			"details": {
+				"title": "邀请详情",
+				"sentTo": "发送至",
+				"instance": "实例",
+				"role": "角色",
+				"expires": "过期时间"
+			}
 		},
 		"pageTitle": "邀请",
 		"pendingInvitations": "待处理的邀请",

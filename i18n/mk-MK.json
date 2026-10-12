@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Најава",
-			"title": "Добредојде назад",
-			"subtitle": "Внеси ги твоите податоци за да пристапиш до работниот простор",
-			"invitationSubtitle": "Најави се за да ја прифатиш поканата",
-			"invitationAlert": "По најавувањето, ќе можеш да ја прифатиш поканата за работниот простор.",
-			"signingIn": "Се најавува...",
-			"continueWithGoogle": "Продолжи со Google",
-			"continueWithGithub": "Продолжи со GitHub",
-			"continueWithDiscord": "Продолжи со Discord",
-			"continueWithOidc": "Продолжи со OIDC",
+			"subtitle": {
+				"emailOrProvider": "Користи ја твојата е-пошта или поврзана сметка.",
+				"email": "Внеси ја твојата е-пошта и ќе ти испратиме код за најава.",
+				"password": "Користи ја твојата е-пошта и лозинка.",
+				"passwordOrProvider": "Користи ја твојата лозинка или поврзана сметка.",
+				"providers": "Избери како сакаш да се најавиш.",
+				"sso": "Со најавата овде управува твојата организација."
+			},
 			"lastUsed": "Последно користено",
-			"registrationDisabled": "Јавната регистрација е оневозможена. Користи покана за да креираш сметка.",
-			"passwordRegistrationDisabled": "Регистрацијата со лозинка е оневозможена. Користи социјална или OIDC метода за најава за да креираш сметка.",
-			"toggleMessage": "Немаш сметка?",
-			"toggleLink": "Креирај сметка",
-			"guestSuccess": "Најавен како гостин",
 			"guestError": "Неуспешна најава како гостин",
-			"oidcError": "Неуспешна најава со OIDC",
-			"googleError": "Неуспешна најава со Google",
-			"githubError": "Неуспешна најава со GitHub",
-			"discordError": "Неуспешна најава со Discord",
 			"errors": {
 				"account_not_linked": "Овој идентитет не можеше да се поврзе со постоечката сметка. Најави се преку е-пошта за да ја потврдиш сметката, па обиди се повторно со SSO. Ако најавата преку е-пошта не е достапна, контактирај го твојот администратор.",
 				"oauth_code_verification_failed": "OAuth верификацијата не успеа. Обиди се повторно.",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Регистрацијата е моментално оневозможена. Потребна ти е валидна покана за да креираш сметка."
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Регистрацијата е моментално оневозможена. Потребна ти е валидна покана за да креираш сметка.",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Користи трајна адреса за е-пошта. Со привремени адреси не може да се креираат сметки."
 			},
-			"instanceStatusError": "Не можеше да се воспостави врска со серверот. Обиди се повторно за момент."
+			"instanceStatusError": "Не можеше да се воспостави врска со серверот. Обиди се повторно за момент.",
+			"heading": "Најави се на Kaneo",
+			"submitPassword": "Најави се",
+			"invitation": {
+				"title": "{{inviterName}} те покани во {{workspaceName}}",
+				"fallbackTitle": "Имаш покана",
+				"description": "Најави се со е-поштата на која ја доби поканата. Веднаш потоа ќе се приклучиш на работниот простор."
+			},
+			"footer": {
+				"newHere": "Прв пат на Kaneo?",
+				"createAccount": "Креирај сметка",
+				"inviteOnly": "Сметките овде се само со покана. Побарај покана од администратор.",
+				"providerSignUp": "Прв пат тука? Најави се со некој од провајдерите погоре за да креираш сметка.",
+				"anyProvider": "Прв пат тука? Која било опција погоре ќе ти креира сметка.",
+				"contactAdmin": "Проблем со најавата? Контактирај го администраторот.",
+				"justLooking": "Само разгледуваш?"
+			},
+			"autoLogin": {
+				"title": "Те најавуваме",
+				"subtitle": "Те носиме до страницата за најава на твојата организација.",
+				"opening": "Се отвора {{provider}}…",
+				"stuck": "Не се случува ништо?",
+				"continue": "Продолжи кон {{provider}}"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "Продолжи со {{provider}}",
+			"error": "Најавата со {{provider}} не успеа. Обиди се повторно."
 		},
 		"forms": {
 			"or": "или",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Прикажи лозинка",
-			"hidePassword": "Сокриј лозинка"
+			"hidePassword": "Сокриј лозинка",
+			"name": "Име",
+			"namePlaceholder": "Марија Петровска",
+			"invalidEmail": "Внеси целосна адреса за е-пошта, на пр. name@company.com.",
+			"nameRequired": "Внеси го твоето име.",
+			"passwordRequired": "Внеси ја твојата лозинка.",
+			"passwordTooShort": "Користи најмалку 8 знаци.",
+			"disposableEmail": "Користи трајна адреса за е-пошта. Со привремени адреси не може да се креираат сметки.",
+			"continueWithEmail": "Продолжи со е-пошта"
 		},
 		"checkEmail": {
 			"pageTitle": "Провери ја е-поштата",
@@ -214,139 +240,106 @@
 			"emailFallback": "твојата е-пошта",
 			"backToLogin": "Назад кон најава"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Што следува",
-				"description": "Откако ќе ја креираш сметката, ќе му дадеш име на работниот простор. Потоа можеш да додадеш проект и да почнеш да пишуваш задачи."
-			},
-			"onboarding": {
-				"title": "Што е работен простор",
-				"description": "Работниот простор ги содржи твоите проекти, нивните задачи и луѓето со кои работиш. Покани ги соработниците откако ќе биде поставен."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Креирај сметка",
-			"title": "Креирај сметка",
-			"subtitleInvitation": "Креирај сметка за да ја прифатиш поканата",
-			"subtitleRegistrationDisabled": "Регистрацијата бара покана",
-			"subtitlePasswordDisabled": "Користи социјална или OIDC најава за да креираш сметка",
-			"subtitleDefault": "Започни со твојот работен простор",
-			"invitationAlert": "По креирањето на сметката, ќе можеш да ја прифатиш поканата за работниот простор.",
 			"registrationDisabledAlert": "Регистрацијата е моментално оневозможена. Ако си поканет, внеси ја е-поштата на која ја доби поканата за да ја креираш сметката.",
-			"passwordDisabledAlert": "Креирањето сметка со лозинка е оневозможено. Користи социјална или OIDC метода за најава од страницата за најава.",
-			"signingIn": "Се најавува...",
 			"continueAsGuest": "Продолжи како гостин",
 			"toggleMessage": "Веќе имаш сметка?",
 			"toggleLink": "Најави се",
 			"instanceStatusError": "Не можеше да се воспостави врска со серверот. Обиди се повторно за момент.",
 			"instanceAdminTitle": "Постави ја твојата Kaneo инстанца",
-			"instanceAdminSubtitle": "Оваа сметка станува администратор на инстанцата со целосен пристап."
+			"instanceAdminSubtitle": "Оваа сметка станува администратор на инстанцата со целосен пристап.",
+			"heading": "Креирај ја твојата сметка",
+			"submitPassword": "Креирај сметка",
+			"failed": "Не можевме да ја креираме твојата сметка. Обиди се повторно.",
+			"subtitle": {
+				"email": "Започни со твојата е-пошта. Ќе ти испратиме код, не ти треба лозинка.",
+				"password": "Внеси име, е-пошта и лозинка за да започнеш.",
+				"providers": "Користи поврзана сметка за да ја креираш твојата."
+			},
+			"invitation": {
+				"description": "Користи ја е-поштата на која ја доби поканата. Веднаш потоа ќе се приклучиш на работниот простор."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Потврди код",
-			"title": "Внеси го кодот за потврда",
-			"subtitle": "Користи го 6-цифрениот код испратен на твојата е-пошта за да продолжиш",
-			"codeSentTo": "Кодот е испратен на {{email}}",
-			"verificationCodeLabel": "Код за потврда",
-			"verifying": "Се потврдува...",
-			"verifyAndSignIn": "Потврди и најави се",
-			"changeEmail": "Промени е-пошта",
-			"resend": "Испрати повторно",
 			"validation": {
 				"codeLength": "Кодот мора да има 6 цифри"
 			},
 			"toast": {
 				"invalidCode": "Невалиден код за потврда",
-				"signedInSuccess": "Успешно најавен!",
 				"verifyFailed": "Неуспешна потврда на кодот",
 				"resendFailed": "Неуспешно повторно испраќање на кодот",
 				"resendSuccess": "Нов код за потврда е испратен!"
-			}
+			},
+			"heading": "Провери ја е-поштата",
+			"description": "Испративме 6-цифрен код на {{email}}. Истекува за {{minutes}} минути.",
+			"label": "Код за потврда",
+			"submit": "Потврди и продолжи",
+			"didntGetIt": "Не стигна?",
+			"resendCode": "Испрати го кодот повторно",
+			"useDifferentEmail": "Користи друга е-пошта",
+			"expired": "Овој код истече. Побарај нов.",
+			"tooManyAttempts": "Премногу обиди. Побарај нов код."
 		},
 		"otpSignIn": {
-			"sendFailed": "Неуспешно испраќање на кодот за потврда",
-			"codeSent": "Кодот за потврда е испратен! Провери ја е-поштата.",
-			"sending": "Се испраќа...",
-			"sendVerificationCode": "Испрати код за потврда"
+			"sendFailed": "Неуспешно испраќање на кодот за потврда"
 		},
 		"signInForm": {
-			"failedSignIn": "Неуспешна најава",
-			"signedInSuccess": "Успешно најавен",
-			"signingIn": "Се најавува...",
-			"signIn": "Најави се"
-		},
-		"signUpForm": {
-			"fullName": "Целосно име",
-			"namePlaceholder": "Петар Петровски",
-			"failedSignUp": "Неуспешна регистрација",
-			"accountCreated": "Сметката е успешно креирана",
-			"passwordTooShort": "Лозинката е прекратка",
-			"creatingAccount": "Се креира сметка...",
-			"createAccount": "Креирај сметка"
+			"failedSignIn": "Неуспешна најава"
 		},
 		"invitation": {
 			"pageTitleAccept": "Прифати покана",
 			"pageTitleError": "Грешка со поканата",
 			"pageTitleInvalid": "Невалидна покана",
-			"loadingTitle": "Се вчитува поканата...",
-			"errorTitle": "Грешка со поканата",
-			"invalidTitle": "Невалидна покана",
-			"invitationExpired": "Поканата истече",
-			"errorLoadDescription": "Неуспешно вчитување на деталите за поканата. Поканата може да е невалидна или истечена.",
-			"goToSignIn": "Оди на најава",
-			"workspaceLabel": "Работен простор: {{workspaceName}}",
 			"joinWorkspace": "Приклучи се на {{workspaceName}}",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> те покани да се приклучиш на нивниот работен простор на Kaneo.",
-			"createAccountOrSignIn": "Креирај сметка за да ја прифатиш оваа покана, или најави се ако веќе имаш.",
 			"createAccount": "Креирај сметка",
-			"accepting": "Се прифаќа...",
-			"acceptInvitation": "Прифати покана",
-			"goToDashboard": "Оди на контролна табла",
-			"signedInAs": "Најавен како <email>{{email}}</email>",
-			"youveBeenInvited": "Поканет си!",
-			"invitationFor": "Покана за: <email>{{email}}</email>",
 			"signIn": "Најави се",
 			"toast": {
 				"acceptFailed": "Неуспешно прифаќање на поканата",
 				"acceptSuccess": "Поканата е прифатена! Добредојде во тимот."
+			},
+			"description": "{{inviterName}} те покани во овој работен простор на Kaneo.",
+			"invitedBy": "Покана од",
+			"sentTo": "Испратена до",
+			"signedInAs": "Најавена сметка",
+			"expires": "Истекува на",
+			"notNow": "Не сега",
+			"join": "Приклучи се на работниот простор",
+			"switchAccount": "Смени сметка",
+			"goToKaneo": "Оди на Kaneo",
+			"mismatch": {
+				"title": "Најавата е со друга е-пошта",
+				"description": "Оваа покана е испратена до {{invitedEmail}}. Моментално е најавена сметката {{email}}."
+			},
+			"expired": {
+				"title": "Оваа покана истече",
+				"description": "Побарај од {{inviterName}} да ти испрати нова покана за {{workspaceName}}."
+			},
+			"invalid": {
+				"title": "Оваа покана повеќе не важи",
+				"description": "Можеби е веќе прифатена или откажана. Побарај нова од администратор на работниот простор."
+			},
+			"loadFailed": {
+				"title": "Поканата не можеше да се вчита",
+				"description": "Провери ја врската и освежи ја страницата."
 			}
 		},
 		"onboarding": {
 			"pageTitle": "Добредојде на Kaneo",
-			"workspacePageTitle": "Креирај работен простор",
-			"createWorkspaceTitle": "Креирај работен простор",
-			"createWorkspaceSubtitle": "Постави го твојот работен простор за да почнеш со управување на проекти",
 			"workspaceName": "Име на работен простор",
 			"workspaceNamePlaceholder": "пр. Acme Inc, Мојот тим",
-			"descriptionOptional": "Опис (опционално)",
-			"descriptionPlaceholder": "На што работи твојот тим?",
-			"creating": "Се креира...",
-			"createWorkspace": "Креирај работен простор",
-			"workspaceCreatedTitle": "Работниот простор е креиран",
-			"redirectingToWorkspace": "Те носиме на <name>{{name}}</name>...",
 			"toast": {
-				"workspaceCreated": "Работниот простор е успешно креиран",
 				"createFailed": "Неуспешно креирање на работен простор"
 			},
 			"validation": {
-				"workspaceNameRequired": "Името на работниот простор е задолжително"
+				"workspaceNameRequired": "Името на работниот простор е задолжително",
+				"projectNameRequired": "Дај име на твојот прв проект"
 			},
 			"restrictedSubtitle": "Овде само администратор на инстанцата може да создава работни простори. Побарајте покана и освежете ја страницата.",
 			"restrictedCheckInvitations": "Провери покани",
 			"restrictedTitle": "Ви треба покана",
 			"cloud": {
-				"title": "Именувај го работниот простор",
-				"subtitle": "Користи го името на твојот тим или компанија. Можеш да го смениш подоцна во поставките.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -354,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -376,6 +361,92 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectNameDefault": "Мој прв проект",
+			"starterTasks": {
+				"drag": {
+					"title": "Повлечи ја оваа картичка во следната колона",
+					"description": "Картичките се движат од колона во колона како што напредува работата. Повлечи ја оваа во следната колона, или отвори ја и смени ѝ го статусот."
+				},
+				"details": {
+					"title": "Отвори ја оваа задача и додај подзадача",
+					"description": "Задачата може да има опис, подзадачи, ознаки, задолжено лице и рок. Додај подзадача на оваа за да пробаш."
+				},
+				"invite": {
+					"title": "Покани го твојот тим",
+					"description": "Kaneo најдобро функционира кога сите се внатре. Отвори **Членови** во страничната лента за да поканиш луѓе преку е-пошта."
+				},
+				"integrations": {
+					"title": "Поврзи GitHub, GitLab или Gitea",
+					"description": "Синхронизирај issues и автоматски преместувај задачи кога pull requests се отвораат и спојуваат. Постави го тоа во **Поставки на проектот**."
+				},
+				"create": {
+					"title": "Создај своја задача",
+					"description": "Користи го **+** до името на колоната или притисни **T**, па **C**. Избриши ги овие почетни задачи кога ќе бидеш подготвен."
+				}
+			},
+			"progress": "Чекор {{current}} од {{total}}",
+			"welcome": "Добредојде, {{name}}",
+			"settingUp": "Го поставуваме {{name}}",
+			"continue": "Продолжи",
+			"signedInAs": "Најавена сметка: {{email}}",
+			"signOut": "Одјави се",
+			"workspace": {
+				"title": "Именувај го работниот простор",
+				"description": "Тука ќе бидат твоите проекти. Користи го името на твојот тим или компанија, можеш да го смениш подоцна."
+			},
+			"usage": {
+				"title": "За кого е?",
+				"description": "Ќе го прилагодиме {{name}} според тоа. Секогаш можеш да поканиш луѓе подоцна."
+			},
+			"project": {
+				"title": "Започни го првиот проект",
+				"description": "Ќе додадеме неколку почетни задачи за да се снајдеш. Преименувај ги или избриши ги кога сакаш.",
+				"label": "Име на проектот",
+				"numbered": "Задачите ќе бидат нумерирани"
+			},
+			"invite": {
+				"title": "Доведи го твојот тим",
+				"description": "Ќе добијат е-пошта за да се приклучат на {{name}}. Прескокни го ова ако сакаш прво да разгледаш.",
+				"label": "Е-пошти на членовите на тимот",
+				"send_one": "Испрати {{count}} покана",
+				"send_other": "Испрати {{count}} покани",
+				"sendNone": "Испрати покани"
+			},
+			"plan": {
+				"title": "Како сакаш да започнеш?",
+				"descriptionTrial_one": "Секој план вклучува неограничени проекти и задачи. Пробај го {{name}} бесплатно {{count}} ден или претплати се сега.",
+				"descriptionTrial_other": "Секој план вклучува неограничени проекти и задачи. Пробај го {{name}} бесплатно {{count}} дена или претплати се сега.",
+				"choose": "Избери план",
+				"description": {
+					"team": "Неограничени членови, улоги и дозволи",
+					"personal": "За една личност"
+				},
+				"perUserMonth": "по корисник / месец",
+				"perMonth": "месечно",
+				"subscribe": "Претплати се на {{plan}}",
+				"checkout": "Продолжи кон плаќање",
+				"trialNote": "За пробниот период не ти треба картичка. Плаќањата ги обработува Creem.",
+				"paymentNote": "Плаќањата ги обработува Creem."
+			},
+			"ready": {
+				"eyebrow": "Сè е подготвено",
+				"title": "{{name}} е подготвен",
+				"description": "Ова е она што го поставивме. Сè можеш да смениш подоцна.",
+				"workspace": "Работен простор",
+				"project": "Прв проект",
+				"projectValue_one": "{{name}}, со {{count}} почетна задача",
+				"projectValue_other": "{{name}}, со {{count}} почетни задачи",
+				"invitations": "Покани",
+				"invitationsValue_one": "Испратено до {{count}} личност",
+				"invitationsValue_other": "Испратено до {{count}} луѓе",
+				"open": "Отвори го {{name}}"
+			},
+			"preview": {
+				"live": "Преглед во живо на {{name}}",
+				"liveNoName": "Преглед во живо",
+				"ready": "{{name}} е подготвен",
+				"untitled": "Твојот работен простор"
 			}
 		},
 		"profileSetup": {
@@ -402,24 +473,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Провери го сандачето",
+			"sentDescription": "Ако постои сметка за {{email}}, линкот за ресетирање на лозинката е на пат. Истекува за 1 час.",
+			"sentHelpTitle": "Не стигна?",
+			"sentHelpDescription": "Провери ја папката за спам или побарај нов линк за една минута.",
+			"rememberedIt": "Се сети?",
+			"resetDescription": "Користи од 8 до 128 знаци. Другите уреди ќе бидат одјавени.",
+			"updatePassword": "Ажурирај лозинка",
+			"changedMind": "Се предомисли?",
+			"invalidLinkTitle": "Овој линк истече",
+			"successTitle": "Лозинката е ажурирана"
+		},
+		"page": {
+			"terms": "Услови",
+			"privacy": "Приватност"
+		},
+		"device": {
+			"connect": {
+				"title": "Поврзи уред",
+				"description": "Внеси го кодот прикажан во терминалот или апликацијата за да го поврзеш со твојата Kaneo сметка.",
+				"label": "Код на уредот",
+				"submit": "Продолжи",
+				"noCode": "Сè уште немаш код? Прво започни ја најавата од апликацијата.",
+				"codeRequired": "Внеси го кодот прикажан на уредот.",
+				"invalidCode": "Тој код е невалиден или истечен."
+			},
+			"approve": {
+				"pageTitle": "Одобри уред",
+				"title": "Да се поврзе овој уред?",
+				"description": "Уред сака да се најави како {{email}}. Одобри го само ако ти го започна ова.",
+				"matchCode": "Провери дали се совпаѓа со кодот на уредот",
+				"deny": "Одбиј",
+				"approve": "Одобри",
+				"failed": "Барањето не можеше да се ажурира. Обиди се повторно."
+			},
+			"approved": {
+				"title": "Уредот е поврзан",
+				"description": "Врати се во терминалот или апликацијата. Можеш да го затвориш овој таб."
+			},
+			"denied": {
+				"title": "Барањето е одбиено",
+				"description": "Ништо не е поврзано. Можеш да го затвориш овој таб."
+			},
+			"missing": {
+				"title": "Нема код на уред",
+				"description": "Отвори ја оваа страница од уредот или рачно внеси го кодот.",
+				"enterCode": "Внеси код"
+			},
+			"signIn": {
+				"title": "Најави се за да го поврзеш уредот",
+				"description": "Веднаш потоа ќе се вратиш тука за да го одобриш.",
+				"submit": "Најави се"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Овласти MCP клиент",
+				"description": "Ќе може да дејствува во твое име во секој работен простор до кој имаш пристап. Продолжи само ако ти ја започна оваа врска.",
+				"client": "Клиент",
+				"unknownClient": "MCP клиент",
+				"selfReported": "Според клиентот",
+				"redirect": "Те враќа на",
+				"signedInAs": "Најавена сметка",
+				"deny": "Одбиј",
+				"allow": "Дозволи пристап"
+			},
+			"expired": {
+				"title": "Ова барање истече",
+				"description": "Врати се во твојот MCP клиент и поврзи се повторно."
+			},
+			"signIn": {
+				"title": "Најави се за да го овластиш овој клиент",
+				"description": "Веднаш потоа ќе се вратиш тука за да го прегледаш.",
+				"submit": "Најави се"
+			}
 		}
 	},
 	"settings": {
@@ -864,7 +1004,9 @@
 			"on": "Вклучено",
 			"off": "Исклучено",
 			"newColumnPlaceholder": "Име на нова колона...",
-			"add": "Додади"
+			"add": "Додади",
+			"deleteAria": "Избриши ја колоната {{name}}",
+			"renameAria": "Преименувај ја колоната {{name}}"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1750,7 +1892,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1761,6 +1903,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -2021,6 +2164,270 @@
 			},
 			"workspaceCount_one": "{{count}} workspace",
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"workspaceImport": {
+			"back": {
+				"allSources": "All sources",
+				"changeKey": "Change key",
+				"overview": "Import overview"
+			},
+			"connect": {
+				"cancel": "Cancel",
+				"continue": "Continue",
+				"hideSecret": "Hide {{field}}",
+				"sectionDescription": "Kaneo only reads from {{source}}. The key is used for this import and never stored.",
+				"sectionTitle": "Connect",
+				"showSecret": "Show {{field}}",
+				"title": "Import from {{source}}",
+				"whereToFind": "Where to find it"
+			},
+			"counts": {
+				"columns_one": "{{count, number}} column",
+				"columns_other": "{{count, number}} columns",
+				"comments_one": "{{count, number}} comment",
+				"comments_other": "{{count, number}} comments",
+				"labels_one": "{{count, number}} label",
+				"labels_other": "{{count, number}} labels",
+				"tasks_one": "{{count, number}} task",
+				"tasks_other": "{{count, number}} tasks"
+			},
+			"entry": {
+				"createProjectLink": "Import your projects",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
+				"projectsEmpty": "Import from another tool"
+			},
+			"history": {
+				"description": "Imports keep running on the server if you leave this page.",
+				"empty": "No imports yet. Imports you start show up here.",
+				"loadError": "Recent imports could not be loaded.",
+				"started": "Started {{time}}",
+				"title": "Recent imports"
+			},
+			"kaneo": {
+				"apiKeyDescription": "In that Kaneo, open Settings, then API Keys.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"urlDescription": "The instance you are moving from.",
+				"urlLabel": "Kaneo URL"
+			},
+			"linear": {
+				"apiKeyDescription": "Read access is enough. You can revoke it after the import.",
+				"apiKeyLabel": "Personal API key",
+				"openSettings": "Open Linear settings",
+				"stepCreate": "Under Personal API keys, create a key with Read access.",
+				"stepOpen": "In Linear, open Settings, then Security and access.",
+				"stepPaste": "Copy it and paste it above."
+			},
+			"notAllowed": {
+				"description": "Importing creates projects, so it needs permission to manage workspace settings and create projects. Ask a workspace admin to run it.",
+				"title": "Only workspace admins can import"
+			},
+			"opensInNewTab": "(opens in a new tab)",
+			"pageTitle": "Import",
+			"plane": {
+				"tokenDescription": "Profile settings, Developer, then Personal Access Tokens.",
+				"tokenLabel": "Personal access token",
+				"urlDescription": "Copy it from your browser while in Plane. Self-hosted works too.",
+				"urlLabel": "Workspace URL",
+				"urlPlaceholder": "https://app.plane.so/your-workspace"
+			},
+			"planka": {
+				"adminTip": "Use a PLANKA admin account. PLANKA only shows email addresses to admins, and card members are matched to people here by email.",
+				"apiKeyDescription": "Created in PLANKA under your account settings.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"passwordDescription": "Used only to sign in for this import.",
+				"passwordLabel": "Password",
+				"signInApiKey": "API key",
+				"signInDescription": "Use an API key if your account signs in through SSO.",
+				"signInLabel": "Sign in with",
+				"signInPassword": "Email and password",
+				"urlDescription": "The address you open PLANKA at.",
+				"urlLabel": "PLANKA URL",
+				"usernameDescription": "The account you sign in to PLANKA with.",
+				"usernameLabel": "Email or username"
+			},
+			"retry": "Try again",
+			"run": {
+				"failedBadge": "Failed",
+				"failedNames_one": "{{names, list}} failed, so nothing was created for it.",
+				"failedNames_other": "{{names, list}} failed, so nothing was created for them.",
+				"failedTitle": "Import failed",
+				"finishedNote": "Imported tasks did not send notifications. Comments keep their original author and date.",
+				"finishedNoteNoComments": "Imported tasks did not send notifications.",
+				"finishedTitle": "Import finished",
+				"goToProjects": "Go to projects",
+				"importingBadge": "Importing",
+				"importingTitle": "Importing from {{source}}",
+				"importMore": "Import more",
+				"keyInMemory": "Your {{source}} key is only kept in memory until this import finishes.",
+				"leavePage": "You can leave this page. The import keeps running on the server.",
+				"loadError": "This import could not be loaded",
+				"noTasks": "No tasks",
+				"nothingImported": "Nothing was imported",
+				"notImported": "Not imported",
+				"open": "Open",
+				"openProject": "Open {{name}}",
+				"queued": "Queued",
+				"started": "Started {{time}}",
+				"starting": "Starting",
+				"took_one": "Took {{count}} minute",
+				"took_other": "Took {{count}} minutes",
+				"tookUnderMinute": "Took less than a minute",
+				"totals": "{{parts, list}} imported",
+				"waiting": "Waiting",
+				"warnings_one": "{{count}} warning",
+				"warnings_other": "{{count}} warnings"
+			},
+			"select": {
+				"back": "Back",
+				"clear": "Clear",
+				"commentsDescription": "Keeps each comment's original author and date.",
+				"commentsLabel": "Import comments",
+				"inviteMembers": "Invite members",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"selectAll": "Select all",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+			},
+			"sources": {
+				"connect": "Connect",
+				"connectTo": "Connect {{source}}",
+				"description": "Pick the tool you are moving from. Each project you choose becomes a new project here.",
+				"kaneo": {
+					"description": "Move projects between Kaneo Cloud and a self-hosted instance.",
+					"intro": "Projects from every workspace the key can see. Each one you pick is copied here.",
+					"pickerName": "Another Kaneo"
+				},
+				"linear": {
+					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
+					"intro": "Each Linear team becomes a project, with its workflow as columns."
+				},
+				"plane": {
+					"description": "Projects, work items, sub-issues and comments. Cloud or self-hosted.",
+					"intro": "Each Plane project becomes a project here, with its states as columns."
+				},
+				"planka": {
+					"description": "Boards, lists, cards, checklists and comments from your PLANKA instance.",
+					"intro": "Each PLANKA board becomes a project, with its lists as columns."
+				},
+				"title": "Choose a source",
+				"trello": {
+					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
+					"intro": "Each Trello board becomes a project, with its lists as columns."
+				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+				}
+			},
+			"status": {
+				"failed": "Failed",
+				"imported": "Imported",
+				"importing": "Importing {{current}} of {{total}}",
+				"partial": "{{done}} of {{total}} imported",
+				"warnings_one": "Done with {{count}} warning",
+				"warnings_other": "Done with {{count}} warnings"
+			},
+			"steps": {
+				"connect": "Connect",
+				"done": "(completed)",
+				"import": "Import",
+				"label": "Import steps"
+			},
+			"subtitle": "Bring your projects from another tool into {{workspace}}. Kaneo only reads from the source.",
+			"title": "Import",
+			"toast": {
+				"failed": "Import from {{source}} failed",
+				"finished": "Import from {{source}} finished",
+				"partial": "Import from {{source}} finished with errors"
+			},
+			"trello": {
+				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"authorizeButton": "Authorize on Trello",
+				"authorizeDescription": "Opens Trello in a new tab. Read only, expires after a day.",
+				"authorizeLabel": "Authorize Kaneo",
+				"authorizeNeedsKey": "Enter the API key first. Read only, expires after a day.",
+				"tokenDescription": "Click Allow on Trello, then paste the token it shows you.",
+				"tokenLabel": "Token",
+				"tokenPlaceholder": "Paste token"
+			},
+			"units": {
+				"board": {
+					"allImported_one": "{{count}} board imported.",
+					"allImported_other": "All {{count}} boards imported.",
+					"empty": "No boards found. Check that this key can see the boards you want to import.",
+					"found_one": "{{count}} board found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} board",
+					"importButton_other": "Import {{count}} boards",
+					"limit": "Pick up to {{max}} boards per import.",
+					"pick": "Pick the boards to bring over.",
+					"progress_one": "{{done}} of {{count}} board imported",
+					"progress_other": "{{done}} of {{count}} boards imported",
+					"runTitle_one": "{{source}}, {{count}} board",
+					"runTitle_other": "{{source}}, {{count}} boards",
+					"section": "Boards",
+					"someImported_one": "{{done}} of {{count}} board imported.",
+					"someImported_other": "{{done}} of {{count}} boards imported.",
+					"step": "Choose boards"
+				},
+				"project": {
+					"allImported_one": "{{count}} project imported.",
+					"allImported_other": "All {{count}} projects imported.",
+					"empty": "No projects found. Check that this key can see the projects you want to import.",
+					"found_one": "{{count}} project found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} project",
+					"importButton_other": "Import {{count}} projects",
+					"limit": "Pick up to {{max}} projects per import.",
+					"pick": "Pick the projects to bring over.",
+					"progress_one": "{{done}} of {{count}} project imported",
+					"progress_other": "{{done}} of {{count}} projects imported",
+					"runTitle_one": "{{source}}, {{count}} project",
+					"runTitle_other": "{{source}}, {{count}} projects",
+					"section": "Projects",
+					"someImported_one": "{{done}} of {{count}} project imported.",
+					"someImported_other": "{{done}} of {{count}} projects imported.",
+					"step": "Choose projects"
+				},
+				"team": {
+					"allImported_one": "{{count}} team imported.",
+					"allImported_other": "All {{count}} teams imported.",
+					"empty": "No teams found. Check that this key can see the teams you want to import.",
+					"found_one": "{{count}} team found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} team",
+					"importButton_other": "Import {{count}} teams",
+					"limit": "Pick up to {{max}} teams per import.",
+					"pick": "Pick the teams to bring over.",
+					"progress_one": "{{done}} of {{count}} team imported",
+					"progress_other": "{{done}} of {{count}} teams imported",
+					"runTitle_one": "{{source}}, {{count}} team",
+					"runTitle_other": "{{source}}, {{count}} teams",
+					"section": "Teams",
+					"someImported_one": "{{done}} of {{count}} team imported.",
+					"someImported_other": "{{done}} of {{count}} teams imported.",
+					"step": "Choose teams"
+				}
+			},
+			"jira": {
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"emailLabel": "Email",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name.",
+				"openSettings": "Open Atlassian API tokens",
+				"stepCreate": "Create an API token and copy it.",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenLabel": "API token",
+				"tokenPlaceholder": "Paste token",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlLabel": "Jira site URL",
+				"urlPlaceholder": "https://your-site.atlassian.net"
+			}
 		}
 	},
 	"navigation": {
@@ -2065,7 +2472,8 @@
 			"deleteConfirmTitle": "Избриши проект?",
 			"deleteConfirmDescription": "Ова трајно ќе го отстрани проектот и сите негови податоци. Не можеш да ја вратиш оваа акција.",
 			"deletedToast": "Проектот е избришан",
-			"deleteProject": "Избриши проект"
+			"deleteProject": "Избриши проект",
+			"switcherLabel": "Промени проект или приказ"
 		},
 		"search": {
 			"inputPlaceholder": "Пребарај задачи, проекти, коментари...",
@@ -2351,7 +2759,10 @@
 		"boardSearchPlaceholder": "Пребарај тикети...",
 		"view": {
 			"board": "Табла",
-			"list": "Листа"
+			"list": "Листа",
+			"backlog": "Заостанати",
+			"gantt": "Gantt",
+			"heading": "Приказ"
 		},
 		"common": {
 			"selectTask": "Избери задача",
@@ -2581,7 +2992,8 @@
 					"terracotta": "Теракота",
 					"rose": "Роза",
 					"crimson": "Гримизна"
-				}
+				},
+				"editLabels": "Уреди етикети"
 			}
 		},
 		"backlog": {
@@ -2786,7 +3198,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: отвори задача",
 			"title": "Календар",
 			"today": "Денес",
-			"loadError": "Неуспешно вчитување на задачите."
+			"loadError": "Неуспешно вчитување на задачите.",
+			"noTasksThisMonth": "Ништо не е закажано овој месец"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
@@ -2810,7 +3223,14 @@
 			"cta": "Прифати ја поканата",
 			"sameEmail": "Можеш да прифатиш со истата е-пошта на која е примена оваа порака.",
 			"ignore": "Ако не го очекуваше ова, слободно игнорирај ја оваа е-порака.",
-			"footer": "Покана за Kaneo работен простор"
+			"footer": "Покана за Kaneo работен простор",
+			"details": {
+				"title": "Детали за поканата",
+				"sentTo": "Испратено до",
+				"instance": "Инстанца",
+				"role": "Улога",
+				"expires": "Истекува"
+			}
 		},
 		"pageTitle": "Покани",
 		"pendingInvitations": "Покани на чекање",

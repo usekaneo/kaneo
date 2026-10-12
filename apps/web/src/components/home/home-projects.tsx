@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
@@ -7,11 +9,15 @@ import { SectionHeader } from "./section-header";
 
 type HomeProjectsProps = {
   workspaceId: string;
+  onCreateProject?: () => void;
 };
 
 const VISIBLE_PROJECTS = 3;
 
-export function HomeProjects({ workspaceId }: HomeProjectsProps) {
+export function HomeProjects({
+  workspaceId,
+  onCreateProject,
+}: HomeProjectsProps) {
   const { t } = useTranslation();
   const {
     data: projects,
@@ -43,9 +49,24 @@ export function HomeProjects({ workspaceId }: HomeProjectsProps) {
           {t("workspace:home.projects.loadError")}
         </p>
       ) : !projects?.length ? (
-        <p className="text-muted-foreground text-sm">
-          {t("workspace:projects.emptyTitle")}
-        </p>
+        <div className="flex flex-col items-start gap-3 rounded-lg border border-border border-dashed p-5">
+          <div className="flex flex-col gap-1">
+            <p className="font-medium text-foreground text-sm">
+              {t("workspace:projects.emptyTitle")}
+            </p>
+            <p className="text-muted-foreground text-sm">
+              {onCreateProject
+                ? t("workspace:projects.emptyDescription")
+                : t("workspace:projects.emptyDescriptionReadOnly")}
+            </p>
+          </div>
+          {onCreateProject ? (
+            <Button size="sm" variant="outline" onClick={onCreateProject}>
+              <Plus />
+              {t("workspace:projects.createProject")}
+            </Button>
+          ) : null}
+        </div>
       ) : (
         <div className="grid gap-3 sm:grid-cols-3">
           {projects.slice(0, VISIBLE_PROJECTS).map((project) => {

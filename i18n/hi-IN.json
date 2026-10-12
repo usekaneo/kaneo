@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "साइन इन",
-			"title": "वापस स्वागत है",
-			"subtitle": "अपने वर्कस्पेस तक पहुँचने के लिए अपनी जानकारी दर्ज करें",
-			"invitationSubtitle": "अपना निमंत्रण स्वीकार करने के लिए साइन इन करें",
-			"invitationAlert": "साइन इन करने के बाद, आप अपना वर्कस्पेस निमंत्रण स्वीकार कर सकेंगे।",
-			"signingIn": "साइन इन हो रहा है...",
-			"continueWithGoogle": "Google से जारी रखें",
-			"continueWithGithub": "GitHub से जारी रखें",
-			"continueWithDiscord": "Discord से जारी रखें",
-			"continueWithOidc": "OIDC से जारी रखें",
+			"subtitle": {
+				"emailOrProvider": "अपने ईमेल या किसी कनेक्टेड खाते का उपयोग करें।",
+				"email": "अपना ईमेल दर्ज करें, हम आपको साइन-इन कोड भेजेंगे।",
+				"password": "अपने ईमेल और पासवर्ड का उपयोग करें।",
+				"passwordOrProvider": "अपने पासवर्ड या किसी कनेक्टेड खाते का उपयोग करें।",
+				"providers": "चुनें कि आप कैसे साइन इन करना चाहते हैं।",
+				"sso": "यहाँ साइन-इन आपका संगठन प्रबंधित करता है।"
+			},
 			"lastUsed": "पिछली बार उपयोग किया",
-			"registrationDisabled": "सार्वजनिक पंजीकरण अक्षम है। खाता बनाने के लिए निमंत्रण का उपयोग करें।",
-			"passwordRegistrationDisabled": "पासवर्ड पंजीकरण अक्षम है। खाता बनाने के लिए कॉन्फ़िगर की गई सामाजिक या OIDC साइन-इन विधि का उपयोग करें।",
-			"toggleMessage": "खाता नहीं है?",
-			"toggleLink": "खाता बनाएँ",
-			"guestSuccess": "अतिथि के रूप में साइन इन किया",
 			"guestError": "अतिथि के रूप में साइन इन विफल",
-			"oidcError": "OIDC से साइन इन विफल",
-			"googleError": "Google से साइन इन विफल",
-			"githubError": "GitHub से साइन इन विफल",
-			"discordError": "Discord से साइन इन विफल",
 			"errors": {
 				"account_not_linked": "यह पहचान मौजूदा खाते से लिंक नहीं हो सकी। खाते की पुष्टि के लिए ईमेल से साइन इन करें, फिर SSO पुनः प्रयास करें। यदि ईमेल साइन-इन उपलब्ध नहीं है, तो अपने व्यवस्थापक से संपर्क करें।",
 				"oauth_code_verification_failed": "OAuth सत्यापन विफल। कृपया पुनः प्रयास करें।",
-				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "पंजीकरण वर्तमान में अक्षम है। खाता बनाने के लिए आपको वैध निमंत्रण चाहिए।"
+				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "पंजीकरण वर्तमान में अक्षम है। खाता बनाने के लिए आपको वैध निमंत्रण चाहिए।",
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "स्थायी ईमेल पते का उपयोग करें। अस्थायी पतों से खाते नहीं बनाए जा सकते।"
 			},
-			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।"
+			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।",
+			"heading": "Kaneo में साइन इन करें",
+			"submitPassword": "साइन इन करें",
+			"invitation": {
+				"title": "{{inviterName}} ने आपको {{workspaceName}} में निमंत्रित किया है",
+				"fallbackTitle": "आपको निमंत्रित किया गया है",
+				"description": "उसी ईमेल से साइन इन करें जिस पर निमंत्रण मिला था। इसके तुरंत बाद आप वर्कस्पेस में शामिल हो जाएँगे।"
+			},
+			"footer": {
+				"newHere": "Kaneo पर नए हैं?",
+				"createAccount": "खाता बनाएँ",
+				"inviteOnly": "यहाँ खाते केवल निमंत्रण से बनते हैं। किसी व्यवस्थापक से निमंत्रण माँगें।",
+				"providerSignUp": "नए हैं? खाता बनाने के लिए ऊपर दिए किसी प्रदाता से साइन इन करें।",
+				"anyProvider": "नए हैं? ऊपर दिया कोई भी विकल्प आपका खाता बना देगा।",
+				"contactAdmin": "साइन इन करने में समस्या है? अपने व्यवस्थापक से संपर्क करें।",
+				"justLooking": "बस देख रहे हैं?"
+			},
+			"autoLogin": {
+				"title": "आपको साइन इन किया जा रहा है",
+				"subtitle": "आपको आपके संगठन के साइन-इन पेज पर ले जाया जा रहा है।",
+				"opening": "{{provider}} खोला जा रहा है…",
+				"stuck": "आगे नहीं बढ़ रहा?",
+				"continue": "{{provider}} पर जाएँ"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "{{provider}} के साथ जारी रखें",
+			"error": "{{provider}} से साइन इन नहीं हो सका। फिर से कोशिश करें।"
 		},
 		"forms": {
 			"or": "या",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "me@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "पासवर्ड दिखाएँ",
-			"hidePassword": "पासवर्ड छिपाएँ"
+			"hidePassword": "पासवर्ड छिपाएँ",
+			"name": "नाम",
+			"namePlaceholder": "प्रिया शर्मा",
+			"invalidEmail": "पूरा ईमेल पता दर्ज करें, जैसे name@company.com",
+			"nameRequired": "अपना नाम दर्ज करें।",
+			"passwordRequired": "अपना पासवर्ड दर्ज करें।",
+			"passwordTooShort": "कम से कम 8 वर्णों का उपयोग करें।",
+			"disposableEmail": "स्थायी ईमेल पते का उपयोग करें। अस्थायी पतों से खाते नहीं बनाए जा सकते।",
+			"continueWithEmail": "ईमेल के साथ जारी रखें"
 		},
 		"checkEmail": {
 			"pageTitle": "अपना ईमेल जाँचें",
@@ -214,139 +240,106 @@
 			"emailFallback": "आपका ईमेल पता",
 			"backToLogin": "लॉगिन पर वापस जाएँ"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "आगे क्या होगा",
-				"description": "अपना खाता बनाने के बाद, आप एक वर्कस्पेस का नाम रखेंगे। वहाँ से आप एक प्रोजेक्ट जोड़कर टास्क लिखना शुरू कर सकते हैं।"
-			},
-			"onboarding": {
-				"title": "वर्कस्पेस क्या है",
-				"description": "वर्कस्पेस में आपके प्रोजेक्ट, उनके टास्क और वे लोग होते हैं जिनके साथ आप काम करते हैं। सेटअप होने के बाद टीम के सदस्यों को आमंत्रित करें।"
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "खाता बनाएँ",
-			"title": "खाता बनाएँ",
-			"subtitleInvitation": "अपना निमंत्रण स्वीकार करने के लिए खाता बनाएँ",
-			"subtitleRegistrationDisabled": "पंजीकरण के लिए निमंत्रण आवश्यक है",
-			"subtitlePasswordDisabled": "खाता बनाने के लिए सामाजिक या OIDC साइन-इन का उपयोग करें",
-			"subtitleDefault": "अपने वर्कस्पेस के साथ शुरू करें",
-			"invitationAlert": "खाता बनाने के बाद, आप अपना वर्कस्पेस निमंत्रण स्वीकार कर सकेंगे।",
 			"registrationDisabledAlert": "पंजीकरण वर्तमान में अक्षम है। यदि आपको निमंत्रित किया गया था, तो वह ईमेल पता दर्ज करें जिसे निमंत्रण मिला था।",
-			"passwordDisabledAlert": "पासवर्ड-आधारित खाता निर्माण अक्षम है। साइन-इन पेज से कॉन्फ़िगर की गई सामाजिक या OIDC साइन-इन विधि का उपयोग करें।",
-			"signingIn": "साइन इन हो रहा है...",
 			"continueAsGuest": "अतिथि के रूप में जारी रखें",
 			"toggleMessage": "पहले से खाता है?",
 			"toggleLink": "साइन इन करें",
 			"instanceStatusError": "सर्वर से संपर्क नहीं हो सका। कृपया कुछ देर बाद पुनः प्रयास करें।",
 			"instanceAdminTitle": "अपना Kaneo इंस्टेंस सेट अप करें",
-			"instanceAdminSubtitle": "यह खाता पूर्ण पहुँच के साथ इंस्टेंस व्यवस्थापक बन जाता है।"
+			"instanceAdminSubtitle": "यह खाता पूर्ण पहुँच के साथ इंस्टेंस व्यवस्थापक बन जाता है।",
+			"heading": "अपना खाता बनाएँ",
+			"submitPassword": "खाता बनाएँ",
+			"failed": "आपका खाता नहीं बन सका। फिर से कोशिश करें।",
+			"subtitle": {
+				"email": "अपने ईमेल से शुरू करें। हम एक कोड भेजेंगे, पासवर्ड की ज़रूरत नहीं।",
+				"password": "शुरू करने के लिए अपना नाम, ईमेल और एक पासवर्ड जोड़ें।",
+				"providers": "अपना खाता बनाने के लिए किसी कनेक्टेड खाते का उपयोग करें।"
+			},
+			"invitation": {
+				"description": "उसी ईमेल का उपयोग करें जिस पर निमंत्रण मिला था। इसके तुरंत बाद आप वर्कस्पेस में शामिल हो जाएँगे।"
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "कोड सत्यापित करें",
-			"title": "सत्यापन कोड दर्ज करें",
-			"subtitle": "जारी रखने के लिए अपने ईमेल पर भेजे गए 6 अंकों के कोड का उपयोग करें",
-			"codeSentTo": "कोड {{email}} पर भेजा गया",
-			"verificationCodeLabel": "सत्यापन कोड",
-			"verifying": "सत्यापित हो रहा है...",
-			"verifyAndSignIn": "सत्यापित करें और साइन इन करें",
-			"changeEmail": "ईमेल बदलें",
-			"resend": "पुनः भेजें",
 			"validation": {
 				"codeLength": "कोड 6 अंकों का होना चाहिए"
 			},
 			"toast": {
 				"invalidCode": "अमान्य सत्यापन कोड",
-				"signedInSuccess": "सफलतापूर्वक साइन इन किया!",
 				"verifyFailed": "कोड सत्यापित करने में विफल",
 				"resendFailed": "कोड पुनः भेजने में विफल",
 				"resendSuccess": "नया सत्यापन कोड भेजा गया!"
-			}
+			},
+			"heading": "अपना ईमेल जाँचें",
+			"description": "हमने {{email}} पर 6 अंकों का कोड भेजा है। यह {{minutes}} मिनट में समाप्त हो जाएगा।",
+			"label": "सत्यापन कोड",
+			"submit": "सत्यापित करें और जारी रखें",
+			"didntGetIt": "कोड नहीं मिला?",
+			"resendCode": "कोड फिर से भेजें",
+			"useDifferentEmail": "दूसरा ईमेल इस्तेमाल करें",
+			"expired": "यह कोड समाप्त हो गया है। नया कोड मँगवाएँ।",
+			"tooManyAttempts": "बहुत अधिक प्रयास हो गए। नया कोड मँगवाएँ।"
 		},
 		"otpSignIn": {
-			"sendFailed": "सत्यापन कोड भेजने में विफल",
-			"codeSent": "सत्यापन कोड भेजा गया! अपना ईमेल जाँचें।",
-			"sending": "भेज रहे हैं...",
-			"sendVerificationCode": "सत्यापन कोड भेजें"
+			"sendFailed": "सत्यापन कोड भेजने में विफल"
 		},
 		"signInForm": {
-			"failedSignIn": "साइन इन विफल",
-			"signedInSuccess": "सफलतापूर्वक साइन इन किया",
-			"signingIn": "साइन इन हो रहा है...",
-			"signIn": "साइन इन"
-		},
-		"signUpForm": {
-			"fullName": "पूरा नाम",
-			"namePlaceholder": "राहुल शर्मा",
-			"failedSignUp": "साइन अप विफल",
-			"accountCreated": "खाता सफलतापूर्वक बनाया गया",
-			"passwordTooShort": "पासवर्ड बहुत छोटा है",
-			"creatingAccount": "खाता बना रहे हैं...",
-			"createAccount": "खाता बनाएँ"
+			"failedSignIn": "साइन इन विफल"
 		},
 		"invitation": {
 			"pageTitleAccept": "निमंत्रण स्वीकार करें",
 			"pageTitleError": "निमंत्रण त्रुटि",
 			"pageTitleInvalid": "अमान्य निमंत्रण",
-			"loadingTitle": "निमंत्रण लोड हो रहा है...",
-			"errorTitle": "निमंत्रण त्रुटि",
-			"invalidTitle": "अमान्य निमंत्रण",
-			"invitationExpired": "निमंत्रण समाप्त हो गया",
-			"errorLoadDescription": "निमंत्रण विवरण लोड करने में विफल। निमंत्रण अमान्य या समाप्त हो सकता है।",
-			"goToSignIn": "साइन इन पर जाएँ",
-			"workspaceLabel": "वर्कस्पेस: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} में शामिल हों",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> ने आपको अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> ने आपको Kaneo पर अपने वर्कस्पेस में शामिल होने का निमंत्रण दिया है।",
-			"createAccountOrSignIn": "इस निमंत्रण को स्वीकार करने के लिए खाता बनाएँ, या यदि आपके पास पहले से खाता है तो साइन इन करें।",
 			"createAccount": "खाता बनाएँ",
-			"accepting": "स्वीकार हो रहा है...",
-			"acceptInvitation": "निमंत्रण स्वीकार करें",
-			"goToDashboard": "डैशबोर्ड पर जाएँ",
-			"signedInAs": "<email>{{email}}</email> के रूप में साइन इन",
-			"youveBeenInvited": "आपको निमंत्रित किया गया है!",
-			"invitationFor": "निमंत्रण: <email>{{email}}</email> के लिए",
 			"signIn": "साइन इन",
 			"toast": {
 				"acceptFailed": "निमंत्रण स्वीकार करने में विफल",
 				"acceptSuccess": "निमंत्रण स्वीकार किया! टीम में स्वागत है।"
+			},
+			"description": "{{inviterName}} ने आपको Kaneo पर इस वर्कस्पेस में निमंत्रित किया है।",
+			"invitedBy": "निमंत्रण भेजने वाले",
+			"sentTo": "इस पते पर भेजा गया",
+			"signedInAs": "साइन इन किया गया खाता",
+			"expires": "समाप्ति",
+			"notNow": "अभी नहीं",
+			"join": "वर्कस्पेस में शामिल हों",
+			"switchAccount": "खाता बदलें",
+			"goToKaneo": "Kaneo पर जाएँ",
+			"mismatch": {
+				"title": "आपने किसी दूसरे ईमेल से साइन इन किया है",
+				"description": "यह निमंत्रण {{invitedEmail}} पर भेजा गया था। आपने {{email}} से साइन इन किया है।"
+			},
+			"expired": {
+				"title": "इस निमंत्रण की समय-सीमा समाप्त हो गई है",
+				"description": "{{inviterName}} से {{workspaceName}} के लिए नया निमंत्रण भेजने को कहें।"
+			},
+			"invalid": {
+				"title": "यह निमंत्रण अब मान्य नहीं है",
+				"description": "हो सकता है इसे स्वीकार या रद्द कर दिया गया हो। वर्कस्पेस के किसी व्यवस्थापक से नया निमंत्रण माँगें।"
+			},
+			"loadFailed": {
+				"title": "यह निमंत्रण लोड नहीं हो सका",
+				"description": "अपना कनेक्शन जाँचें और पेज फिर से लोड करें।"
 			}
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo में आपका स्वागत है",
-			"workspacePageTitle": "वर्कस्पेस बनाएँ",
-			"createWorkspaceTitle": "वर्कस्पेस बनाएँ",
-			"createWorkspaceSubtitle": "प्रोजेक्ट प्रबंधित करना शुरू करने के लिए अपना वर्कस्पेस सेटअप करें",
 			"workspaceName": "वर्कस्पेस का नाम",
 			"workspaceNamePlaceholder": "जैसे Acme Inc, मेरी टीम",
-			"descriptionOptional": "विवरण (वैकल्पिक)",
-			"descriptionPlaceholder": "आपकी टीम किस पर काम करती है?",
-			"creating": "बना रहे हैं...",
-			"createWorkspace": "वर्कस्पेस बनाएँ",
-			"workspaceCreatedTitle": "वर्कस्पेस बनाया गया",
-			"redirectingToWorkspace": "आपको <name>{{name}}</name> पर ले जा रहे हैं...",
 			"toast": {
-				"workspaceCreated": "वर्कस्पेस सफलतापूर्वक बनाया गया",
 				"createFailed": "वर्कस्पेस बनाने में विफल"
 			},
 			"validation": {
-				"workspaceNameRequired": "वर्कस्पेस का नाम आवश्यक है"
+				"workspaceNameRequired": "वर्कस्पेस का नाम आवश्यक है",
+				"projectNameRequired": "अपने पहले प्रोजेक्ट को एक नाम दें"
 			},
 			"restrictedSubtitle": "यहाँ केवल इंस्टेंस व्यवस्थापक ही कार्यक्षेत्र बना सकता है। आमंत्रण के लिए कहें, फिर यह पृष्ठ पुनः लोड करें।",
 			"restrictedCheckInvitations": "आमंत्रण देखें",
 			"restrictedTitle": "आपको आमंत्रण चाहिए",
 			"cloud": {
-				"title": "अपने वर्कस्पेस का नाम रखें",
-				"subtitle": "अपनी टीम या कंपनी का नाम इस्तेमाल करें। आप इसे बाद में सेटिंग्स में बदल सकते हैं।",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -354,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -376,6 +361,92 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectNameDefault": "मेरा पहला प्रोजेक्ट",
+			"starterTasks": {
+				"drag": {
+					"title": "इस कार्ड को अगले कॉलम में खींचें",
+					"description": "काम आगे बढ़ने के साथ कार्ड एक कॉलम से दूसरे कॉलम में जाते हैं। इसे अगले कॉलम में खींचें, या इसे खोलकर इसका स्टेटस बदलें।"
+				},
+				"details": {
+					"title": "इस टास्क को खोलें और एक सबटास्क जोड़ें",
+					"description": "एक टास्क में विवरण, सबटास्क, लेबल, असाइनी और ड्यू डेट हो सकती है। आज़माने के लिए इसमें एक सबटास्क जोड़ें।"
+				},
+				"invite": {
+					"title": "अपनी टीम को आमंत्रित करें",
+					"description": "Kaneo तब सबसे अच्छा काम करता है जब सभी इसमें हों। लोगों को ईमेल से आमंत्रित करने के लिए साइडबार में **सदस्य** खोलें।"
+				},
+				"integrations": {
+					"title": "GitHub, GitLab या Gitea कनेक्ट करें",
+					"description": "इश्यू सिंक करें और पुल रिक्वेस्ट खुलने और मर्ज होने पर टास्क अपने आप आगे बढ़ाएँ। इसे **प्रोजेक्ट सेटिंग** में सेट करें।"
+				},
+				"create": {
+					"title": "अपना खुद का टास्क बनाएँ",
+					"description": "किसी कॉलम के नाम के पास **+** का इस्तेमाल करें, या **T** और फिर **C** दबाएँ। तैयार होने पर इन स्टार्टर टास्क को हटा दें।"
+				}
+			},
+			"progress": "चरण {{current}} / {{total}}",
+			"welcome": "स्वागत है, {{name}}",
+			"settingUp": "{{name}} सेट अप हो रहा है",
+			"continue": "जारी रखें",
+			"signedInAs": "{{email}} के रूप में साइन इन",
+			"signOut": "साइन आउट करें",
+			"workspace": {
+				"title": "अपने वर्कस्पेस को नाम दें",
+				"description": "यहीं आपके प्रोजेक्ट रहेंगे। अपनी टीम या कंपनी का नाम इस्तेमाल करें, आप इसे बाद में बदल सकते हैं।"
+			},
+			"usage": {
+				"title": "यह किसके लिए है?",
+				"description": "हम {{name}} को उसी हिसाब से सेट करेंगे। आप लोगों को बाद में भी कभी भी निमंत्रित कर सकते हैं।"
+			},
+			"project": {
+				"title": "अपना पहला प्रोजेक्ट शुरू करें",
+				"description": "शुरुआत में मदद के लिए हम कुछ स्टार्टर टास्क जोड़ेंगे। आप कभी भी इनका नाम बदल सकते हैं या इन्हें हटा सकते हैं।",
+				"label": "प्रोजेक्ट का नाम",
+				"numbered": "टास्क इस तरह क्रमांकित होंगे"
+			},
+			"invite": {
+				"title": "अपनी टीम को जोड़ें",
+				"description": "उन्हें {{name}} में शामिल होने के लिए एक ईमेल मिलेगा। अगर आप पहले देखना चाहते हैं तो इसे छोड़ दें।",
+				"label": "टीम के साथियों के ईमेल",
+				"send_one": "{{count}} निमंत्रण भेजें",
+				"send_other": "{{count}} निमंत्रण भेजें",
+				"sendNone": "निमंत्रण भेजें"
+			},
+			"plan": {
+				"title": "आप कैसे शुरू करना चाहते हैं?",
+				"descriptionTrial_one": "हर प्लान में अनलिमिटेड प्रोजेक्ट और टास्क शामिल हैं। {{name}} को {{count}} दिन मुफ़्त आज़माएँ, या अभी सब्सक्राइब करें।",
+				"descriptionTrial_other": "हर प्लान में अनलिमिटेड प्रोजेक्ट और टास्क शामिल हैं। {{name}} को {{count}} दिन मुफ़्त आज़माएँ, या अभी सब्सक्राइब करें।",
+				"choose": "प्लान चुनें",
+				"description": {
+					"team": "अनलिमिटेड सदस्य, भूमिकाएँ और अनुमतियाँ",
+					"personal": "एक व्यक्ति के लिए"
+				},
+				"perUserMonth": "प्रति उपयोगकर्ता / माह",
+				"perMonth": "प्रति माह",
+				"subscribe": "{{plan}} सब्सक्राइब करें",
+				"checkout": "चेकआउट पर जाएँ",
+				"trialNote": "ट्रायल के लिए कार्ड की ज़रूरत नहीं है। भुगतान Creem द्वारा प्रोसेस किए जाते हैं।",
+				"paymentNote": "भुगतान Creem द्वारा प्रोसेस किए जाते हैं।"
+			},
+			"ready": {
+				"eyebrow": "सब तैयार है",
+				"title": "{{name}} तैयार है",
+				"description": "हमने यह सब सेट किया है। आप इनमें से कुछ भी बाद में बदल सकते हैं।",
+				"workspace": "वर्कस्पेस",
+				"project": "पहला प्रोजेक्ट",
+				"projectValue_one": "{{name}}, {{count}} स्टार्टर टास्क के साथ",
+				"projectValue_other": "{{name}}, {{count}} स्टार्टर टास्क के साथ",
+				"invitations": "निमंत्रण",
+				"invitationsValue_one": "{{count}} व्यक्ति को भेजा गया",
+				"invitationsValue_other": "{{count}} लोगों को भेजा गया",
+				"open": "{{name}} खोलें"
+			},
+			"preview": {
+				"live": "{{name}} का लाइव प्रीव्यू",
+				"liveNoName": "लाइव प्रीव्यू",
+				"ready": "{{name}} तैयार है",
+				"untitled": "आपका वर्कस्पेस"
 			}
 		},
 		"profileSetup": {
@@ -402,24 +473,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "अपना इनबॉक्स जाँचें",
+			"sentDescription": "अगर {{email}} के लिए कोई खाता है, तो पासवर्ड रीसेट करने का लिंक भेजा जा रहा है। यह 1 घंटे में समाप्त हो जाएगा।",
+			"sentHelpTitle": "ईमेल नहीं मिला?",
+			"sentHelpDescription": "अपना स्पैम फ़ोल्डर देखें, या एक मिनट बाद दूसरा लिंक माँगें।",
+			"rememberedIt": "याद आ गया?",
+			"resetDescription": "8 से 128 वर्णों का उपयोग करें। अन्य डिवाइस से साइन आउट हो जाएगा।",
+			"updatePassword": "पासवर्ड अपडेट करें",
+			"changedMind": "इरादा बदल गया?",
+			"invalidLinkTitle": "इस लिंक की समय-सीमा समाप्त हो गई है",
+			"successTitle": "पासवर्ड अपडेट हो गया"
+		},
+		"page": {
+			"terms": "शर्तें",
+			"privacy": "गोपनीयता"
+		},
+		"device": {
+			"connect": {
+				"title": "डिवाइस कनेक्ट करें",
+				"description": "अपने Kaneo खाते से लिंक करने के लिए अपने टर्मिनल या ऐप में दिखाया गया कोड दर्ज करें।",
+				"label": "डिवाइस कोड",
+				"submit": "जारी रखें",
+				"noCode": "अभी तक कोड नहीं है? पहले अपने ऐप से साइन इन शुरू करें।",
+				"codeRequired": "अपने डिवाइस पर दिखाया गया कोड दर्ज करें।",
+				"invalidCode": "यह कोड अमान्य है या समाप्त हो गया है।"
+			},
+			"approve": {
+				"pageTitle": "डिवाइस स्वीकृत करें",
+				"title": "इस डिवाइस को कनेक्ट करें?",
+				"description": "एक डिवाइस {{email}} के रूप में साइन इन करना चाहता है। इसे तभी स्वीकृत करें जब आपने ही यह शुरू किया हो।",
+				"matchCode": "जाँचें कि यह आपके डिवाइस पर दिखे कोड से मेल खाता है",
+				"deny": "अस्वीकार करें",
+				"approve": "स्वीकृत करें",
+				"failed": "अनुरोध अपडेट नहीं हो सका। फिर से कोशिश करें।"
+			},
+			"approved": {
+				"title": "डिवाइस कनेक्ट हो गया",
+				"description": "अपने टर्मिनल या ऐप पर वापस जाएँ। आप यह टैब बंद कर सकते हैं।"
+			},
+			"denied": {
+				"title": "अनुरोध अस्वीकार किया गया",
+				"description": "कुछ भी कनेक्ट नहीं हुआ। आप यह टैब बंद कर सकते हैं।"
+			},
+			"missing": {
+				"title": "कोई डिवाइस कोड नहीं",
+				"description": "यह पेज अपने डिवाइस से खोलें, या कोड खुद दर्ज करें।",
+				"enterCode": "कोड दर्ज करें"
+			},
+			"signIn": {
+				"title": "अपना डिवाइस कनेक्ट करने के लिए साइन इन करें",
+				"description": "इसे स्वीकृत करने के लिए आप तुरंत यहीं वापस आएँगे।",
+				"submit": "साइन इन करें"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "MCP क्लाइंट को अधिकृत करें",
+				"description": "यह आपकी पहुँच वाले हर वर्कस्पेस में आपकी ओर से काम कर सकता है। तभी जारी रखें जब यह कनेक्शन आपने शुरू किया हो।",
+				"client": "क्लाइंट",
+				"unknownClient": "MCP क्लाइंट",
+				"selfReported": "क्लाइंट द्वारा बताया गया",
+				"redirect": "वापस भेजने का पता",
+				"signedInAs": "साइन इन किया गया खाता",
+				"deny": "अस्वीकार करें",
+				"allow": "एक्सेस दें"
+			},
+			"expired": {
+				"title": "इस अनुरोध की समय-सीमा समाप्त हो गई है",
+				"description": "अपने MCP क्लाइंट पर वापस जाएँ और फिर से कनेक्ट करें।"
+			},
+			"signIn": {
+				"title": "इस क्लाइंट को अधिकृत करने के लिए साइन इन करें",
+				"description": "इसकी समीक्षा करने के लिए आप तुरंत यहीं वापस आएँगे।",
+				"submit": "साइन इन करें"
+			}
 		}
 	},
 	"settings": {
@@ -1099,7 +1239,9 @@
 			"on": "चालू",
 			"off": "बंद",
 			"newColumnPlaceholder": "नया कॉलम नाम...",
-			"add": "जोड़ें"
+			"add": "जोड़ें",
+			"deleteAria": "{{name}} कॉलम हटाएँ",
+			"renameAria": "{{name}} कॉलम का नाम बदलें"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1750,7 +1892,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1761,6 +1903,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -2021,6 +2164,270 @@
 			},
 			"workspaceCount_one": "{{count}} workspace",
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"workspaceImport": {
+			"back": {
+				"allSources": "All sources",
+				"changeKey": "Change key",
+				"overview": "Import overview"
+			},
+			"connect": {
+				"cancel": "Cancel",
+				"continue": "Continue",
+				"hideSecret": "Hide {{field}}",
+				"sectionDescription": "Kaneo only reads from {{source}}. The key is used for this import and never stored.",
+				"sectionTitle": "Connect",
+				"showSecret": "Show {{field}}",
+				"title": "Import from {{source}}",
+				"whereToFind": "Where to find it"
+			},
+			"counts": {
+				"columns_one": "{{count, number}} column",
+				"columns_other": "{{count, number}} columns",
+				"comments_one": "{{count, number}} comment",
+				"comments_other": "{{count, number}} comments",
+				"labels_one": "{{count, number}} label",
+				"labels_other": "{{count, number}} labels",
+				"tasks_one": "{{count, number}} task",
+				"tasks_other": "{{count, number}} tasks"
+			},
+			"entry": {
+				"createProjectLink": "Import your projects",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
+				"projectsEmpty": "Import from another tool"
+			},
+			"history": {
+				"description": "Imports keep running on the server if you leave this page.",
+				"empty": "No imports yet. Imports you start show up here.",
+				"loadError": "Recent imports could not be loaded.",
+				"started": "Started {{time}}",
+				"title": "Recent imports"
+			},
+			"kaneo": {
+				"apiKeyDescription": "In that Kaneo, open Settings, then API Keys.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"urlDescription": "The instance you are moving from.",
+				"urlLabel": "Kaneo URL"
+			},
+			"linear": {
+				"apiKeyDescription": "Read access is enough. You can revoke it after the import.",
+				"apiKeyLabel": "Personal API key",
+				"openSettings": "Open Linear settings",
+				"stepCreate": "Under Personal API keys, create a key with Read access.",
+				"stepOpen": "In Linear, open Settings, then Security and access.",
+				"stepPaste": "Copy it and paste it above."
+			},
+			"notAllowed": {
+				"description": "Importing creates projects, so it needs permission to manage workspace settings and create projects. Ask a workspace admin to run it.",
+				"title": "Only workspace admins can import"
+			},
+			"opensInNewTab": "(opens in a new tab)",
+			"pageTitle": "Import",
+			"plane": {
+				"tokenDescription": "Profile settings, Developer, then Personal Access Tokens.",
+				"tokenLabel": "Personal access token",
+				"urlDescription": "Copy it from your browser while in Plane. Self-hosted works too.",
+				"urlLabel": "Workspace URL",
+				"urlPlaceholder": "https://app.plane.so/your-workspace"
+			},
+			"planka": {
+				"adminTip": "Use a PLANKA admin account. PLANKA only shows email addresses to admins, and card members are matched to people here by email.",
+				"apiKeyDescription": "Created in PLANKA under your account settings.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"passwordDescription": "Used only to sign in for this import.",
+				"passwordLabel": "Password",
+				"signInApiKey": "API key",
+				"signInDescription": "Use an API key if your account signs in through SSO.",
+				"signInLabel": "Sign in with",
+				"signInPassword": "Email and password",
+				"urlDescription": "The address you open PLANKA at.",
+				"urlLabel": "PLANKA URL",
+				"usernameDescription": "The account you sign in to PLANKA with.",
+				"usernameLabel": "Email or username"
+			},
+			"retry": "Try again",
+			"run": {
+				"failedBadge": "Failed",
+				"failedNames_one": "{{names, list}} failed, so nothing was created for it.",
+				"failedNames_other": "{{names, list}} failed, so nothing was created for them.",
+				"failedTitle": "Import failed",
+				"finishedNote": "Imported tasks did not send notifications. Comments keep their original author and date.",
+				"finishedNoteNoComments": "Imported tasks did not send notifications.",
+				"finishedTitle": "Import finished",
+				"goToProjects": "Go to projects",
+				"importingBadge": "Importing",
+				"importingTitle": "Importing from {{source}}",
+				"importMore": "Import more",
+				"keyInMemory": "Your {{source}} key is only kept in memory until this import finishes.",
+				"leavePage": "You can leave this page. The import keeps running on the server.",
+				"loadError": "This import could not be loaded",
+				"noTasks": "No tasks",
+				"nothingImported": "Nothing was imported",
+				"notImported": "Not imported",
+				"open": "Open",
+				"openProject": "Open {{name}}",
+				"queued": "Queued",
+				"started": "Started {{time}}",
+				"starting": "Starting",
+				"took_one": "Took {{count}} minute",
+				"took_other": "Took {{count}} minutes",
+				"tookUnderMinute": "Took less than a minute",
+				"totals": "{{parts, list}} imported",
+				"waiting": "Waiting",
+				"warnings_one": "{{count}} warning",
+				"warnings_other": "{{count}} warnings"
+			},
+			"select": {
+				"back": "Back",
+				"clear": "Clear",
+				"commentsDescription": "Keeps each comment's original author and date.",
+				"commentsLabel": "Import comments",
+				"inviteMembers": "Invite members",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"selectAll": "Select all",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+			},
+			"sources": {
+				"connect": "Connect",
+				"connectTo": "Connect {{source}}",
+				"description": "Pick the tool you are moving from. Each project you choose becomes a new project here.",
+				"kaneo": {
+					"description": "Move projects between Kaneo Cloud and a self-hosted instance.",
+					"intro": "Projects from every workspace the key can see. Each one you pick is copied here.",
+					"pickerName": "Another Kaneo"
+				},
+				"linear": {
+					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
+					"intro": "Each Linear team becomes a project, with its workflow as columns."
+				},
+				"plane": {
+					"description": "Projects, work items, sub-issues and comments. Cloud or self-hosted.",
+					"intro": "Each Plane project becomes a project here, with its states as columns."
+				},
+				"planka": {
+					"description": "Boards, lists, cards, checklists and comments from your PLANKA instance.",
+					"intro": "Each PLANKA board becomes a project, with its lists as columns."
+				},
+				"title": "Choose a source",
+				"trello": {
+					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
+					"intro": "Each Trello board becomes a project, with its lists as columns."
+				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+				}
+			},
+			"status": {
+				"failed": "Failed",
+				"imported": "Imported",
+				"importing": "Importing {{current}} of {{total}}",
+				"partial": "{{done}} of {{total}} imported",
+				"warnings_one": "Done with {{count}} warning",
+				"warnings_other": "Done with {{count}} warnings"
+			},
+			"steps": {
+				"connect": "Connect",
+				"done": "(completed)",
+				"import": "Import",
+				"label": "Import steps"
+			},
+			"subtitle": "Bring your projects from another tool into {{workspace}}. Kaneo only reads from the source.",
+			"title": "Import",
+			"toast": {
+				"failed": "Import from {{source}} failed",
+				"finished": "Import from {{source}} finished",
+				"partial": "Import from {{source}} finished with errors"
+			},
+			"trello": {
+				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"authorizeButton": "Authorize on Trello",
+				"authorizeDescription": "Opens Trello in a new tab. Read only, expires after a day.",
+				"authorizeLabel": "Authorize Kaneo",
+				"authorizeNeedsKey": "Enter the API key first. Read only, expires after a day.",
+				"tokenDescription": "Click Allow on Trello, then paste the token it shows you.",
+				"tokenLabel": "Token",
+				"tokenPlaceholder": "Paste token"
+			},
+			"units": {
+				"board": {
+					"allImported_one": "{{count}} board imported.",
+					"allImported_other": "All {{count}} boards imported.",
+					"empty": "No boards found. Check that this key can see the boards you want to import.",
+					"found_one": "{{count}} board found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} board",
+					"importButton_other": "Import {{count}} boards",
+					"limit": "Pick up to {{max}} boards per import.",
+					"pick": "Pick the boards to bring over.",
+					"progress_one": "{{done}} of {{count}} board imported",
+					"progress_other": "{{done}} of {{count}} boards imported",
+					"runTitle_one": "{{source}}, {{count}} board",
+					"runTitle_other": "{{source}}, {{count}} boards",
+					"section": "Boards",
+					"someImported_one": "{{done}} of {{count}} board imported.",
+					"someImported_other": "{{done}} of {{count}} boards imported.",
+					"step": "Choose boards"
+				},
+				"project": {
+					"allImported_one": "{{count}} project imported.",
+					"allImported_other": "All {{count}} projects imported.",
+					"empty": "No projects found. Check that this key can see the projects you want to import.",
+					"found_one": "{{count}} project found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} project",
+					"importButton_other": "Import {{count}} projects",
+					"limit": "Pick up to {{max}} projects per import.",
+					"pick": "Pick the projects to bring over.",
+					"progress_one": "{{done}} of {{count}} project imported",
+					"progress_other": "{{done}} of {{count}} projects imported",
+					"runTitle_one": "{{source}}, {{count}} project",
+					"runTitle_other": "{{source}}, {{count}} projects",
+					"section": "Projects",
+					"someImported_one": "{{done}} of {{count}} project imported.",
+					"someImported_other": "{{done}} of {{count}} projects imported.",
+					"step": "Choose projects"
+				},
+				"team": {
+					"allImported_one": "{{count}} team imported.",
+					"allImported_other": "All {{count}} teams imported.",
+					"empty": "No teams found. Check that this key can see the teams you want to import.",
+					"found_one": "{{count}} team found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} team",
+					"importButton_other": "Import {{count}} teams",
+					"limit": "Pick up to {{max}} teams per import.",
+					"pick": "Pick the teams to bring over.",
+					"progress_one": "{{done}} of {{count}} team imported",
+					"progress_other": "{{done}} of {{count}} teams imported",
+					"runTitle_one": "{{source}}, {{count}} team",
+					"runTitle_other": "{{source}}, {{count}} teams",
+					"section": "Teams",
+					"someImported_one": "{{done}} of {{count}} team imported.",
+					"someImported_other": "{{done}} of {{count}} teams imported.",
+					"step": "Choose teams"
+				}
+			},
+			"jira": {
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"emailLabel": "Email",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name.",
+				"openSettings": "Open Atlassian API tokens",
+				"stepCreate": "Create an API token and copy it.",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenLabel": "API token",
+				"tokenPlaceholder": "Paste token",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlLabel": "Jira site URL",
+				"urlPlaceholder": "https://your-site.atlassian.net"
+			}
 		}
 	},
 	"navigation": {
@@ -2065,7 +2472,8 @@
 			"deleteConfirmTitle": "प्रोजेक्ट हटाएँ?",
 			"deleteConfirmDescription": "यह प्रोजेक्ट और इसका सभी डेटा स्थायी रूप से हटा दिया जाएगा। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
 			"deletedToast": "प्रोजेक्ट हटाया गया",
-			"deleteProject": "प्रोजेक्ट हटाएँ"
+			"deleteProject": "प्रोजेक्ट हटाएँ",
+			"switcherLabel": "प्रोजेक्ट या व्यू बदलें"
 		},
 		"search": {
 			"inputPlaceholder": "कार्य, प्रोजेक्ट, टिप्पणियाँ खोजें...",
@@ -2351,7 +2759,10 @@
 		"boardSearchPlaceholder": "टिकट खोजें...",
 		"view": {
 			"board": "बोर्ड",
-			"list": "सूची"
+			"list": "सूची",
+			"backlog": "बैकलॉग",
+			"gantt": "गैंट",
+			"heading": "व्यू"
 		},
 		"common": {
 			"selectTask": "कार्य चुनें",
@@ -2581,7 +2992,8 @@
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
 					"crimson": "किरमिज़ी"
-				}
+				},
+				"editLabels": "लेबल संपादित करें"
 			}
 		},
 		"backlog": {
@@ -2786,7 +3198,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: कार्य खोलें",
 			"title": "कैलेंडर",
 			"today": "आज",
-			"loadError": "कार्य लोड नहीं हो सके।"
+			"loadError": "कार्य लोड नहीं हो सके।",
+			"noTasksThisMonth": "इस महीने कुछ भी शेड्यूल नहीं है"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
@@ -2810,7 +3223,14 @@
 			"cta": "निमंत्रण स्वीकार करें",
 			"sameEmail": "आप उसी ईमेल से स्वीकार कर सकते हैं जिस पर यह संदेश मिला।",
 			"ignore": "यदि यह अपेक्षित नहीं था, तो आप इस ईमेल को सुरक्षित रूप से अनदेखा कर सकते हैं।",
-			"footer": "Kaneo वर्कस्पेस निमंत्रण"
+			"footer": "Kaneo वर्कस्पेस निमंत्रण",
+			"details": {
+				"title": "निमंत्रण विवरण",
+				"sentTo": "भेजा गया",
+				"instance": "इंस्टेंस",
+				"role": "भूमिका",
+				"expires": "समाप्ति"
+			}
 		},
 		"pageTitle": "निमंत्रण",
 		"pendingInvitations": "लंबित निमंत्रण",

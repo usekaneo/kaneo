@@ -3,6 +3,7 @@ import { addMonths, startOfMonth, subMonths } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CalendarToolbar from "@/components/calendar/calendar-toolbar";
+import MonthAgenda from "@/components/calendar/month-agenda";
 import MonthGrid from "@/components/calendar/month-grid";
 import { buildMonthWeeks } from "@/components/calendar/month-grid-model";
 import ProjectLayout from "@/components/common/project-layout";
@@ -29,9 +30,9 @@ export const Route = createFileRoute(
 });
 
 // Lanes are capped so a busy week cannot push a row taller than the viewport;
-// anything past the cap surfaces as a per-day overflow hint.
+// anything past the cap surfaces as a per-day overflow hint. Phones use the
+// agenda list instead of the grid.
 const MAX_LANES_DESKTOP = 3;
-const MAX_LANES_MOBILE = 2;
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -151,14 +152,25 @@ function RouteComponent() {
           </div>
         ) : null}
 
-        <MonthGrid
-          weeks={weeks}
-          tasks={scheduledTasks}
-          visibleMonth={visibleMonth}
-          maxLanes={isMobile ? MAX_LANES_MOBILE : MAX_LANES_DESKTOP}
-          projectSlug={project?.slug}
-          onOpenTask={handleOpenTask}
-        />
+        {isMobile ? (
+          scheduledTasks.length > 0 && (
+            <MonthAgenda
+              tasks={scheduledTasks}
+              visibleMonth={visibleMonth}
+              projectSlug={project?.slug}
+              onOpenTask={handleOpenTask}
+            />
+          )
+        ) : (
+          <MonthGrid
+            weeks={weeks}
+            tasks={scheduledTasks}
+            visibleMonth={visibleMonth}
+            maxLanes={MAX_LANES_DESKTOP}
+            projectSlug={project?.slug}
+            onOpenTask={handleOpenTask}
+          />
+        )}
 
         <TaskDetailsSheet
           taskId={taskId}

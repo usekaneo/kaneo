@@ -167,36 +167,54 @@
 	"auth": {
 		"signIn": {
 			"pageTitle": "Giriş Yap",
-			"title": "Tekrar hoş geldiniz",
-			"subtitle": "Çalışma alanınıza erişmek için kimlik bilgilerinizi girin",
-			"invitationSubtitle": "Davetinizi kabul etmek için giriş yapın",
-			"invitationAlert": "Giriş yaptıktan sonra çalışma alanı davetinizi kabul edebileceksiniz.",
-			"signingIn": "Giriş yapılıyor...",
-			"continueWithGoogle": "Google ile devam et",
-			"continueWithGithub": "GitHub ile devam et",
-			"continueWithDiscord": "Discord ile devam et",
-			"continueWithOidc": "OIDC ile devam et",
+			"subtitle": {
+				"emailOrProvider": "E-postanızı veya bağlı bir hesabı kullanın.",
+				"email": "E-postanızı girin, size bir giriş kodu gönderelim.",
+				"password": "E-postanızı ve parolanızı kullanın.",
+				"passwordOrProvider": "Parolanızı veya bağlı bir hesabı kullanın.",
+				"providers": "Nasıl giriş yapmak istediğinizi seçin.",
+				"sso": "Buradaki girişi kuruluşunuz yönetir."
+			},
 			"lastUsed": "Son kullanılan",
-			"registrationDisabled": "Genel kayıt devre dışı. Hesap oluşturmak için bir davet kullanın.",
-			"passwordRegistrationDisabled": "Parola kaydı devre dışı. Hesap oluşturmak için yapılandırılmış bir sosyal veya OIDC giriş yöntemi kullanın.",
-			"toggleMessage": "Hesabınız yok mu?",
-			"toggleLink": "Hesap oluştur",
-			"guestSuccess": "Misafir olarak giriş yapıldı",
 			"guestError": "Misafir olarak giriş yapılamadı",
-			"oidcError": "OIDC ile giriş yapılamadı",
-			"googleError": "Google ile giriş yapılamadı",
-			"githubError": "GitHub ile giriş yapılamadı",
-			"discordError": "Discord ile giriş yapılamadı",
 			"errors": {
+				"account_not_linked": "Bu kimlik mevcut hesapla ilişkilendirilemedi. Hesabı doğrulamak için e-posta ile giriş yapın, ardından SSO'yu tekrar deneyin. E-posta ile giriş kullanılamıyorsa yöneticinizle iletişime geçin.",
 				"oauth_code_verification_failed": "OAuth doğrulaması başarısız. Lütfen tekrar deneyin.",
 				"registration_is_currently_disabled_you_need_a_valid_invitation_to_create_an_account_": "Kayıt şu anda devre dışı. Hesap oluşturmak için geçerli bir davet gereklidir.",
-				"account_not_linked": "Bu kimlik mevcut hesapla ilişkilendirilemedi. Hesabı doğrulamak için e-posta ile giriş yapın, ardından SSO'yu tekrar deneyin. E-posta ile giriş kullanılamıyorsa yöneticinizle iletişime geçin."
+				"use_a_permanent_email_address_disposable_addresses_cannot_create_accounts_": "Kalıcı bir e-posta adresi kullanın. Geçici adreslerle hesap oluşturulamaz."
 			},
-			"instanceStatusError": "Sunucuya ulaşılamadı. Lütfen birazdan tekrar deneyin."
+			"instanceStatusError": "Sunucuya ulaşılamadı. Lütfen birazdan tekrar deneyin.",
+			"heading": "Kaneo'ya giriş yapın",
+			"submitPassword": "Giriş yap",
+			"invitation": {
+				"title": "{{inviterName}} sizi {{workspaceName}} çalışma alanına davet etti",
+				"fallbackTitle": "Davet edildiniz",
+				"description": "Davetin gönderildiği e-posta adresiyle giriş yapın. Hemen ardından çalışma alanına katılacaksınız."
+			},
+			"footer": {
+				"newHere": "Kaneo'da yeni misiniz?",
+				"createAccount": "Hesap oluştur",
+				"inviteOnly": "Burada hesaplar yalnızca davetle oluşturulur. Bir yöneticiden davet isteyin.",
+				"providerSignUp": "Yeni misiniz? Hesap oluşturmak için yukarıdaki sağlayıcılardan biriyle giriş yapın.",
+				"anyProvider": "Yeni misiniz? Yukarıdaki seçeneklerden herhangi biri hesabınızı oluşturur.",
+				"contactAdmin": "Giriş yapamıyor musunuz? Yöneticinizle iletişime geçin.",
+				"justLooking": "Sadece göz mü atıyorsunuz?"
+			},
+			"autoLogin": {
+				"title": "Giriş yapılıyor",
+				"subtitle": "Kuruluşunuzun giriş sayfasına yönlendiriliyorsunuz.",
+				"opening": "{{provider}} açılıyor…",
+				"stuck": "İlerlemiyor mu?",
+				"continue": "{{provider}} sayfasına git"
+			}
 		},
 		"providers": {
 			"google": "Google",
-			"discord": "Discord"
+			"discord": "Discord",
+			"github": "GitHub",
+			"sso": "SSO",
+			"continueWith": "{{provider}} ile devam et",
+			"error": "{{provider}} ile giriş yapılamadı. Tekrar deneyin."
 		},
 		"forms": {
 			"or": "veya",
@@ -205,7 +223,15 @@
 			"emailPlaceholder": "ben@example.com",
 			"passwordPlaceholder": "••••••••",
 			"showPassword": "Parolayı göster",
-			"hidePassword": "Parolayı gizle"
+			"hidePassword": "Parolayı gizle",
+			"name": "Ad Soyad",
+			"namePlaceholder": "Ayşe Yılmaz",
+			"invalidEmail": "Tam bir e-posta adresi girin, örneğin ad@sirket.com.",
+			"nameRequired": "Adınızı girin.",
+			"passwordRequired": "Parolanızı girin.",
+			"passwordTooShort": "En az 8 karakter kullanın.",
+			"disposableEmail": "Kalıcı bir e-posta adresi kullanın. Geçici adreslerle hesap oluşturulamaz.",
+			"continueWithEmail": "E-posta ile devam et"
 		},
 		"checkEmail": {
 			"pageTitle": "E-postanızı Kontrol Edin",
@@ -214,139 +240,106 @@
 			"emailFallback": "e-posta adresiniz",
 			"backToLogin": "Girişe dön"
 		},
-		"cloud": {
-			"signUp": {
-				"title": "Sırada ne var",
-				"description": "Hesabınızı oluşturduktan sonra çalışma alanınıza bir ad vereceksiniz. Ardından bir proje ekleyip görev yazmaya başlayabilirsiniz."
-			},
-			"onboarding": {
-				"title": "Çalışma alanı nedir",
-				"description": "Çalışma alanı projelerinizi, bunların görevlerini ve birlikte çalıştığınız kişileri bir arada tutar. Kurulduktan sonra ekip arkadaşlarınızı davet edin."
-			},
-			"invite": {
-				"description": "Everyone in a workspace sees the same boards and gets live updates as tasks move. Roles control who can change what.",
-				"title": "Work better together"
-			},
-			"plan": {
-				"description": "Every plan includes unlimited projects and tasks, automatic backups, and updates. Cancel anytime from billing settings.",
-				"title": "Try everything first"
-			}
-		},
 		"signUp": {
 			"pageTitle": "Hesap Oluştur",
-			"title": "Hesap oluştur",
-			"subtitleInvitation": "Davetinizi kabul etmek için bir hesap oluşturun",
-			"subtitleRegistrationDisabled": "Kayıt bir davet gerektirir",
-			"subtitlePasswordDisabled": "Hesap oluşturmak için sosyal veya OIDC giriş yöntemini kullanın",
-			"subtitleDefault": "Çalışma alanınızla başlayın",
-			"invitationAlert": "Hesabınızı oluşturduktan sonra çalışma alanı davetinizi kabul edebileceksiniz.",
 			"registrationDisabledAlert": "Kayıt şu anda devre dışı. Davet edildiyseniz, hesap oluşturmak için davetin gönderildiği e-posta adresini girin.",
-			"passwordDisabledAlert": "Parola tabanlı hesap oluşturma devre dışı. Giriş sayfasından yapılandırılmış bir sosyal veya OIDC giriş yöntemi kullanın.",
-			"signingIn": "Giriş yapılıyor...",
 			"continueAsGuest": "Misafir olarak devam et",
 			"toggleMessage": "Zaten hesabınız var mı?",
 			"toggleLink": "Giriş yap",
 			"instanceStatusError": "Sunucuya ulaşılamadı. Lütfen birazdan tekrar deneyin.",
 			"instanceAdminTitle": "Kaneo örneğinizi kurun",
-			"instanceAdminSubtitle": "Bu hesap, tam erişime sahip örnek yöneticisi olur."
+			"instanceAdminSubtitle": "Bu hesap, tam erişime sahip örnek yöneticisi olur.",
+			"heading": "Hesabınızı oluşturun",
+			"submitPassword": "Hesap oluştur",
+			"failed": "Hesabınız oluşturulamadı. Tekrar deneyin.",
+			"subtitle": {
+				"email": "E-postanızla başlayın. Size bir kod göndereceğiz, parola gerekmez.",
+				"password": "Başlamak için adınızı, e-postanızı ve bir parola girin.",
+				"providers": "Hesabınızı oluşturmak için bağlı bir hesap kullanın."
+			},
+			"invitation": {
+				"description": "Davetin gönderildiği e-posta adresini kullanın. Hemen ardından çalışma alanına katılacaksınız."
+			}
 		},
 		"verifyOtp": {
 			"pageTitle": "Kodu Doğrula",
-			"title": "Doğrulama kodunu girin",
-			"subtitle": "Devam etmek için e-postanıza gönderilen 6 haneli kodu kullanın",
-			"codeSentTo": "Kod {{email}} adresine gönderildi",
-			"verificationCodeLabel": "Doğrulama Kodu",
-			"verifying": "Doğrulanıyor...",
-			"verifyAndSignIn": "Doğrula ve Giriş Yap",
-			"changeEmail": "E-postayı değiştir",
-			"resend": "Yeniden gönder",
 			"validation": {
 				"codeLength": "Kod 6 haneli olmalıdır"
 			},
 			"toast": {
 				"invalidCode": "Geçersiz doğrulama kodu",
-				"signedInSuccess": "Başarıyla giriş yapıldı!",
 				"verifyFailed": "Kod doğrulanamadı",
 				"resendFailed": "Kod yeniden gönderilemedi",
 				"resendSuccess": "Yeni doğrulama kodu gönderildi!"
-			}
+			},
+			"heading": "E-postanızı kontrol edin",
+			"description": "{{email}} adresine 6 haneli bir kod gönderdik. Kodun süresi {{minutes}} dakika içinde dolacak.",
+			"label": "Doğrulama kodu",
+			"submit": "Doğrula ve devam et",
+			"didntGetIt": "Kod gelmedi mi?",
+			"resendCode": "Kodu yeniden gönder",
+			"useDifferentEmail": "Farklı bir e-posta kullan",
+			"expired": "Bu kodun süresi doldu. Yeni bir kod isteyin.",
+			"tooManyAttempts": "Çok fazla deneme yapıldı. Yeni bir kod isteyin."
 		},
 		"otpSignIn": {
-			"sendFailed": "Doğrulama kodu gönderilemedi",
-			"codeSent": "Doğrulama kodu gönderildi! E-postanızı kontrol edin.",
-			"sending": "Gönderiliyor...",
-			"sendVerificationCode": "Doğrulama Kodu Gönder"
+			"sendFailed": "Doğrulama kodu gönderilemedi"
 		},
 		"signInForm": {
-			"failedSignIn": "Giriş başarısız",
-			"signedInSuccess": "Başarıyla giriş yapıldı",
-			"signingIn": "Giriş Yapılıyor...",
-			"signIn": "Giriş Yap"
-		},
-		"signUpForm": {
-			"fullName": "Ad Soyad",
-			"namePlaceholder": "John Doe",
-			"failedSignUp": "Kayıt başarısız",
-			"accountCreated": "Hesap başarıyla oluşturuldu",
-			"passwordTooShort": "Parola çok kısa",
-			"creatingAccount": "Hesap Oluşturuluyor...",
-			"createAccount": "Hesap Oluştur"
+			"failedSignIn": "Giriş başarısız"
 		},
 		"invitation": {
 			"pageTitleAccept": "Daveti Kabul Et",
 			"pageTitleError": "Davet Hatası",
 			"pageTitleInvalid": "Geçersiz Davet",
-			"loadingTitle": "Davet yükleniyor...",
-			"errorTitle": "Davet Hatası",
-			"invalidTitle": "Geçersiz Davet",
-			"invitationExpired": "Davetin Süresi Doldu",
-			"errorLoadDescription": "Davet ayrıntıları yüklenemedi. Davet geçersiz veya süresi dolmuş olabilir.",
-			"goToSignIn": "Girişe Git",
-			"workspaceLabel": "Çalışma alanı: {{workspaceName}}",
 			"joinWorkspace": "{{workspaceName}} çalışma alanına katıl",
-			"inviteBodySignedIn": "<inviter>{{inviterName}}</inviter> sizi çalışma alanına katılmaya davet etti.",
-			"inviteBodySignedOut": "<inviter>{{inviterName}}</inviter> sizi Kaneo üzerindeki çalışma alanına katılmaya davet etti.",
-			"createAccountOrSignIn": "Bu daveti kabul etmek için bir hesap oluşturun veya zaten hesabınız varsa giriş yapın.",
-			"createAccount": "Hesap Oluştur",
-			"accepting": "Kabul ediliyor...",
-			"acceptInvitation": "Daveti Kabul Et",
-			"goToDashboard": "Panele Git",
-			"signedInAs": "<email>{{email}}</email> olarak giriş yapıldı",
-			"youveBeenInvited": "Davet edildiniz!",
-			"invitationFor": "Davet: <email>{{email}}</email>",
-			"signIn": "Giriş Yap",
+			"createAccount": "Hesap oluştur",
+			"signIn": "Giriş yap",
 			"toast": {
 				"acceptFailed": "Davet kabul edilemedi",
 				"acceptSuccess": "Davet kabul edildi! Aramıza hoş geldiniz."
+			},
+			"description": "{{inviterName}} sizi Kaneo'daki bu çalışma alanına davet etti.",
+			"invitedBy": "Davet eden",
+			"sentTo": "Gönderildiği adres",
+			"signedInAs": "Giriş yapılan hesap",
+			"expires": "Son geçerlilik",
+			"notNow": "Şimdi değil",
+			"join": "Çalışma alanına katıl",
+			"switchAccount": "Hesap değiştir",
+			"goToKaneo": "Kaneo'ya git",
+			"mismatch": {
+				"title": "Farklı bir e-postayla giriş yaptınız",
+				"description": "Bu davet {{invitedEmail}} adresine gönderildi. {{email}} hesabıyla giriş yaptınız."
+			},
+			"expired": {
+				"title": "Bu davetin süresi doldu",
+				"description": "{{inviterName}} ile iletişime geçin ve {{workspaceName}} çalışma alanı için yeni bir davet isteyin."
+			},
+			"invalid": {
+				"title": "Bu davet artık geçerli değil",
+				"description": "Kabul edilmiş veya iptal edilmiş olabilir. Bir çalışma alanı yöneticisinden yeni bir davet isteyin."
+			},
+			"loadFailed": {
+				"title": "Bu davet yüklenemedi",
+				"description": "Bağlantınızı kontrol edip sayfayı yeniden yükleyin."
 			}
 		},
 		"onboarding": {
 			"pageTitle": "Kaneo'ya Hoş Geldiniz",
-			"workspacePageTitle": "Çalışma Alanı Oluştur",
-			"createWorkspaceTitle": "Çalışma alanı oluştur",
-			"createWorkspaceSubtitle": "Projeleri yönetmeye başlamak için çalışma alanınızı kurun",
 			"workspaceName": "Çalışma alanı adı",
 			"workspaceNamePlaceholder": "örn. Acme Inc, Ekibim",
-			"descriptionOptional": "Açıklama (isteğe bağlı)",
-			"descriptionPlaceholder": "Ekibiniz ne üzerinde çalışıyor?",
-			"creating": "Oluşturuluyor...",
-			"createWorkspace": "Çalışma alanı oluştur",
-			"workspaceCreatedTitle": "Çalışma alanı oluşturuldu",
-			"redirectingToWorkspace": "Sizi <name>{{name}}</name> çalışma alanına götürüyorum...",
 			"toast": {
-				"workspaceCreated": "Çalışma alanı başarıyla oluşturuldu",
 				"createFailed": "Çalışma alanı oluşturulamadı"
 			},
 			"validation": {
-				"workspaceNameRequired": "Çalışma alanı adı gereklidir"
+				"workspaceNameRequired": "Çalışma alanı adı gereklidir",
+				"projectNameRequired": "İlk projenize bir ad verin"
 			},
 			"restrictedSubtitle": "Burada yalnızca örnek yöneticisi çalışma alanı oluşturabilir. Davet isteyin, ardından bu sayfayı yenileyin.",
 			"restrictedCheckInvitations": "Davetleri görüntüle",
 			"restrictedTitle": "Davet gerekiyor",
 			"cloud": {
-				"title": "Çalışma alanınıza ad verin",
-				"subtitle": "Ekibinizin veya şirketinizin adını kullanın. Daha sonra ayarlardan değiştirebilirsiniz.",
-				"continue": "Continue",
 				"invite": {
 					"addAnother": "Add another",
 					"emailLabel": "Teammate email {{index}}",
@@ -354,21 +347,13 @@
 					"failed": "Couldn't invite {{email}}: {{message}}",
 					"invalidEmail": "Enter a valid email address",
 					"remove": "Remove email {{index}}",
-					"send": "Send invites",
-					"sending": "Sending...",
 					"sent_one": "Invitation sent",
 					"sent_other": "{{count}} invitations sent",
-					"skip": "Skip for now",
-					"subtitle": "They'll get an email with a link to join {{name}}. You can invite more people later from Members.",
-					"title": "Invite your teammates"
+					"skip": "Skip for now"
 				},
 				"plan": {
 					"continueTrial": "Start free trial",
-					"continueWithoutPlan": "Continue to workspace",
-					"note": "You can pick or change a plan anytime in Settings, under Billing.",
 					"recommended": "Recommended",
-					"title": "Pick a plan",
-					"trialActive": "Your free trial runs until {{date}}. No card needed, and you can pick a plan anytime before then.",
 					"trialUsed": "You've already used your free trial. Pick a plan to start creating projects and tasks."
 				},
 				"usageLabel": "Who will use this workspace?",
@@ -376,6 +361,92 @@
 				"usageSoloDescription": "Keep track of your own work",
 				"usageTeam": "My team",
 				"usageTeamDescription": "Plan and ship work together"
+			},
+			"projectNameDefault": "İlk projem",
+			"starterTasks": {
+				"drag": {
+					"title": "Bu kartı bir sonraki sütuna sürükleyin",
+					"description": "İş ilerledikçe kartlar sütundan sütuna geçer. Bu kartı bir sonraki sütuna sürükleyin ya da açıp durumunu değiştirin."
+				},
+				"details": {
+					"title": "Bu görevi açın ve bir alt görev ekleyin",
+					"description": "Bir görevde açıklama, alt görevler, etiketler, atanan kişi ve bitiş tarihi olabilir. Denemek için bu göreve bir alt görev ekleyin."
+				},
+				"invite": {
+					"title": "Ekibinizi davet edin",
+					"description": "Kaneo herkes dahil olduğunda en iyi şekilde çalışır. İnsanları e-postayla davet etmek için kenar çubuğunda **Üyeler** bölümünü açın."
+				},
+				"integrations": {
+					"title": "GitHub, GitLab veya Gitea bağlayın",
+					"description": "Issue'ları senkronize edin ve pull request'ler açılıp birleştirildiğinde görevleri otomatik taşıyın. **Proje ayarları** bölümünden kurun."
+				},
+				"create": {
+					"title": "Kendi görevinizi oluşturun",
+					"description": "Bir sütun adının yanındaki **+** düğmesini kullanın ya da önce **T**, sonra **C** tuşuna basın. Hazır olduğunuzda bu başlangıç görevlerini silin."
+				}
+			},
+			"progress": "Adım {{current}} / {{total}}",
+			"welcome": "Hoş geldiniz, {{name}}",
+			"settingUp": "{{name}} hazırlanıyor",
+			"continue": "Devam et",
+			"signedInAs": "{{email}} olarak giriş yapıldı",
+			"signOut": "Çıkış yap",
+			"workspace": {
+				"title": "Çalışma alanınıza bir ad verin",
+				"description": "Projeleriniz burada yer alır. Ekibinizin veya şirketinizin adını kullanın, daha sonra değiştirebilirsiniz."
+			},
+			"usage": {
+				"title": "Kimler kullanacak?",
+				"description": "{{name}} çalışma alanını buna göre ayarlayacağız. İnsanları daha sonra da davet edebilirsiniz."
+			},
+			"project": {
+				"title": "İlk projenizi başlatın",
+				"description": "Size yol göstermesi için birkaç başlangıç görevi ekleyeceğiz. Bunları istediğiniz zaman yeniden adlandırabilir veya silebilirsiniz.",
+				"label": "Proje adı",
+				"numbered": "Görevler şöyle numaralandırılacak:"
+			},
+			"invite": {
+				"title": "Ekibinizi getirin",
+				"description": "{{name}} çalışma alanına katılmaları için bir e-posta alacaklar. Önce etrafa göz atmak isterseniz bu adımı atlayın.",
+				"label": "Ekip arkadaşlarının e-postaları",
+				"send_one": "{{count}} davet gönder",
+				"send_other": "{{count}} davet gönder",
+				"sendNone": "Davet gönder"
+			},
+			"plan": {
+				"title": "Nasıl başlamak istersiniz?",
+				"descriptionTrial_one": "Her plan sınırsız proje ve görev içerir. {{name}} çalışma alanını {{count}} gün ücretsiz deneyin veya hemen abone olun.",
+				"descriptionTrial_other": "Her plan sınırsız proje ve görev içerir. {{name}} çalışma alanını {{count}} gün ücretsiz deneyin veya hemen abone olun.",
+				"choose": "Bir plan seçin",
+				"description": {
+					"team": "Sınırsız üye, rol ve izin",
+					"personal": "Tek kişi için"
+				},
+				"perUserMonth": "kullanıcı başına / ay",
+				"perMonth": "aylık",
+				"subscribe": "{{plan}} planına abone ol",
+				"checkout": "Ödemeye geç",
+				"trialNote": "Deneme için kart gerekmez. Ödemeler Creem tarafından işlenir.",
+				"paymentNote": "Ödemeler Creem tarafından işlenir."
+			},
+			"ready": {
+				"eyebrow": "Her şey hazır",
+				"title": "{{name}} hazır",
+				"description": "Kurduklarımız burada. Hepsini daha sonra değiştirebilirsiniz.",
+				"workspace": "Çalışma alanı",
+				"project": "İlk proje",
+				"projectValue_one": "{{name}}, {{count}} başlangıç göreviyle",
+				"projectValue_other": "{{name}}, {{count}} başlangıç göreviyle",
+				"invitations": "Davetler",
+				"invitationsValue_one": "{{count}} kişiye gönderildi",
+				"invitationsValue_other": "{{count}} kişiye gönderildi",
+				"open": "{{name}} çalışma alanını aç"
+			},
+			"preview": {
+				"live": "Canlı önizleme: {{name}}",
+				"liveNoName": "Canlı önizleme",
+				"ready": "{{name}} hazır",
+				"untitled": "Çalışma alanınız"
 			}
 		},
 		"profileSetup": {
@@ -402,24 +473,93 @@
 			"requestTitle": "Reset your password",
 			"requestSubtitle": "Enter your email and we’ll send you a password reset link.",
 			"sendLink": "Send reset link",
-			"sending": "Sending…",
-			"sent": "If an account exists for this email, you’ll receive a password reset link. Check your inbox and spam folder.",
 			"requestError": "Could not request a reset link. Please try again.",
 			"unavailable": "Password reset is unavailable. Contact your instance administrator.",
 			"configError": "Could not reach the server. Please reload the page to try again.",
 			"resetTitle": "Choose a new password",
-			"resetSubtitle": "Use 8–128 characters for your new password.",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
 			"passwordMismatch": "The passwords do not match.",
 			"passwordLength": "Use between 8 and 128 characters.",
-			"resetPassword": "Reset password",
-			"resetting": "Resetting…",
 			"invalidLink": "This reset link is invalid or has expired. Request a new link to continue.",
 			"requestNewLink": "Request a new link",
 			"resetError": "Could not reset your password. Please try again.",
 			"success": "Your password has been reset. Sign in with your new password.",
-			"backToSignIn": "Back to sign in"
+			"backToSignIn": "Back to sign in",
+			"sentTitle": "Gelen kutunuzu kontrol edin",
+			"sentDescription": "{{email}} için bir hesap varsa, parola sıfırlama bağlantısı yolda. Bağlantının süresi 1 saat içinde dolacak.",
+			"sentHelpTitle": "E-posta gelmedi mi?",
+			"sentHelpDescription": "Spam klasörünüzü kontrol edin veya bir dakika sonra yeni bir bağlantı isteyin.",
+			"rememberedIt": "Hatırladınız mı?",
+			"resetDescription": "8 ile 128 arasında karakter kullanın. Diğer cihazlarda oturum kapatılacak.",
+			"updatePassword": "Parolayı güncelle",
+			"changedMind": "Vazgeçtiniz mi?",
+			"invalidLinkTitle": "Bu bağlantının süresi doldu",
+			"successTitle": "Parola güncellendi"
+		},
+		"page": {
+			"terms": "Koşullar",
+			"privacy": "Gizlilik"
+		},
+		"device": {
+			"connect": {
+				"title": "Cihaz bağlayın",
+				"description": "Kaneo hesabınıza bağlamak için terminalinizde veya uygulamanızda gösterilen kodu girin.",
+				"label": "Cihaz kodu",
+				"submit": "Devam et",
+				"noCode": "Henüz kodunuz yok mu? Önce uygulamanızdan giriş yapmaya başlayın.",
+				"codeRequired": "Cihazınızda gösterilen kodu girin.",
+				"invalidCode": "Bu kod geçersiz veya süresi dolmuş."
+			},
+			"approve": {
+				"pageTitle": "Cihazı onayla",
+				"title": "Bu cihaz bağlansın mı?",
+				"description": "Bir cihaz {{email}} olarak giriş yapmak istiyor. Yalnızca bu işlemi siz başlattıysanız onaylayın.",
+				"matchCode": "Bunun cihazınızdaki kodla eşleştiğini kontrol edin",
+				"deny": "Reddet",
+				"approve": "Onayla",
+				"failed": "İstek güncellenemedi. Tekrar deneyin."
+			},
+			"approved": {
+				"title": "Cihaz bağlandı",
+				"description": "Terminalinize veya uygulamanıza geri dönün. Bu sekmeyi kapatabilirsiniz."
+			},
+			"denied": {
+				"title": "İstek reddedildi",
+				"description": "Hiçbir şey bağlanmadı. Bu sekmeyi kapatabilirsiniz."
+			},
+			"missing": {
+				"title": "Cihaz kodu yok",
+				"description": "Bu sayfayı cihazınızdan açın veya kodu kendiniz girin.",
+				"enterCode": "Kod gir"
+			},
+			"signIn": {
+				"title": "Cihazınızı bağlamak için giriş yapın",
+				"description": "Onaylamak için hemen buraya geri döneceksiniz.",
+				"submit": "Giriş yap"
+			}
+		},
+		"mcp": {
+			"authorize": {
+				"title": "Bir MCP istemcisini yetkilendirin",
+				"description": "Erişiminiz olan her çalışma alanında sizin adınıza işlem yapabilir. Yalnızca bu bağlantıyı siz başlattıysanız devam edin.",
+				"client": "İstemci",
+				"unknownClient": "MCP istemcisi",
+				"selfReported": "İstemci beyanı",
+				"redirect": "Geri yönlendirileceğiniz adres",
+				"signedInAs": "Giriş yapılan hesap",
+				"deny": "Reddet",
+				"allow": "Erişime izin ver"
+			},
+			"expired": {
+				"title": "Bu isteğin süresi doldu",
+				"description": "MCP istemcinize geri dönün ve yeniden bağlanın."
+			},
+			"signIn": {
+				"title": "Bu istemciyi yetkilendirmek için giriş yapın",
+				"description": "İncelemek için hemen buraya geri döneceksiniz.",
+				"submit": "Giriş yap"
+			}
 		}
 	},
 	"settings": {
@@ -864,7 +1004,9 @@
 			"on": "Açık",
 			"off": "Kapalı",
 			"newColumnPlaceholder": "Yeni sütun adı...",
-			"add": "Ekle"
+			"add": "Ekle",
+			"deleteAria": "{{name}} sütununu sil",
+			"renameAria": "{{name}} sütununu yeniden adlandır"
 		},
 		"githubIntegration": {
 			"validation": {
@@ -1750,7 +1892,7 @@
 			"title": "Calendar feeds",
 			"subtitle": "Subscribe to scheduled project tasks in your calendar app.",
 			"createTitle": "Create a calendar feed",
-			"filterHint": "Include tasks with a start or due date and at least one of the selected labels.",
+			"filterHint": "Include tasks with a start or due date. Select labels to include only tasks matching at least one, or leave empty to include all scheduled project tasks.",
 			"labels": "Labels",
 			"selectLabels": "Search and select labels…",
 			"noLabels": "No labels found.",
@@ -1761,6 +1903,7 @@
 			"created": "Calendar feed created.",
 			"createError": "Could not create the calendar feed.",
 			"activeFeeds": "Active feeds",
+			"allScheduledTasks": "All scheduled project tasks",
 			"subscribeHint": "Copy a link and add it as a calendar subscription. Updates appear when your calendar app refreshes the feed.",
 			"empty": "No calendar feeds yet.",
 			"feedUrl": "Calendar feed URL",
@@ -2021,6 +2164,270 @@
 			},
 			"workspaceCount_one": "{{count}} workspace",
 			"workspaceCount_other": "{{count}} workspaces"
+		},
+		"workspaceImport": {
+			"back": {
+				"allSources": "All sources",
+				"changeKey": "Change key",
+				"overview": "Import overview"
+			},
+			"connect": {
+				"cancel": "Cancel",
+				"continue": "Continue",
+				"hideSecret": "Hide {{field}}",
+				"sectionDescription": "Kaneo only reads from {{source}}. The key is used for this import and never stored.",
+				"sectionTitle": "Connect",
+				"showSecret": "Show {{field}}",
+				"title": "Import from {{source}}",
+				"whereToFind": "Where to find it"
+			},
+			"counts": {
+				"columns_one": "{{count, number}} column",
+				"columns_other": "{{count, number}} columns",
+				"comments_one": "{{count, number}} comment",
+				"comments_other": "{{count, number}} comments",
+				"labels_one": "{{count, number}} label",
+				"labels_other": "{{count, number}} labels",
+				"tasks_one": "{{count, number}} task",
+				"tasks_other": "{{count, number}} tasks"
+			},
+			"entry": {
+				"createProjectLink": "Import your projects",
+				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
+				"projectsEmpty": "Import from another tool"
+			},
+			"history": {
+				"description": "Imports keep running on the server if you leave this page.",
+				"empty": "No imports yet. Imports you start show up here.",
+				"loadError": "Recent imports could not be loaded.",
+				"started": "Started {{time}}",
+				"title": "Recent imports"
+			},
+			"kaneo": {
+				"apiKeyDescription": "In that Kaneo, open Settings, then API Keys.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"urlDescription": "The instance you are moving from.",
+				"urlLabel": "Kaneo URL"
+			},
+			"linear": {
+				"apiKeyDescription": "Read access is enough. You can revoke it after the import.",
+				"apiKeyLabel": "Personal API key",
+				"openSettings": "Open Linear settings",
+				"stepCreate": "Under Personal API keys, create a key with Read access.",
+				"stepOpen": "In Linear, open Settings, then Security and access.",
+				"stepPaste": "Copy it and paste it above."
+			},
+			"notAllowed": {
+				"description": "Importing creates projects, so it needs permission to manage workspace settings and create projects. Ask a workspace admin to run it.",
+				"title": "Only workspace admins can import"
+			},
+			"opensInNewTab": "(opens in a new tab)",
+			"pageTitle": "Import",
+			"plane": {
+				"tokenDescription": "Profile settings, Developer, then Personal Access Tokens.",
+				"tokenLabel": "Personal access token",
+				"urlDescription": "Copy it from your browser while in Plane. Self-hosted works too.",
+				"urlLabel": "Workspace URL",
+				"urlPlaceholder": "https://app.plane.so/your-workspace"
+			},
+			"planka": {
+				"adminTip": "Use a PLANKA admin account. PLANKA only shows email addresses to admins, and card members are matched to people here by email.",
+				"apiKeyDescription": "Created in PLANKA under your account settings.",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"passwordDescription": "Used only to sign in for this import.",
+				"passwordLabel": "Password",
+				"signInApiKey": "API key",
+				"signInDescription": "Use an API key if your account signs in through SSO.",
+				"signInLabel": "Sign in with",
+				"signInPassword": "Email and password",
+				"urlDescription": "The address you open PLANKA at.",
+				"urlLabel": "PLANKA URL",
+				"usernameDescription": "The account you sign in to PLANKA with.",
+				"usernameLabel": "Email or username"
+			},
+			"retry": "Try again",
+			"run": {
+				"failedBadge": "Failed",
+				"failedNames_one": "{{names, list}} failed, so nothing was created for it.",
+				"failedNames_other": "{{names, list}} failed, so nothing was created for them.",
+				"failedTitle": "Import failed",
+				"finishedNote": "Imported tasks did not send notifications. Comments keep their original author and date.",
+				"finishedNoteNoComments": "Imported tasks did not send notifications.",
+				"finishedTitle": "Import finished",
+				"goToProjects": "Go to projects",
+				"importingBadge": "Importing",
+				"importingTitle": "Importing from {{source}}",
+				"importMore": "Import more",
+				"keyInMemory": "Your {{source}} key is only kept in memory until this import finishes.",
+				"leavePage": "You can leave this page. The import keeps running on the server.",
+				"loadError": "This import could not be loaded",
+				"noTasks": "No tasks",
+				"nothingImported": "Nothing was imported",
+				"notImported": "Not imported",
+				"open": "Open",
+				"openProject": "Open {{name}}",
+				"queued": "Queued",
+				"started": "Started {{time}}",
+				"starting": "Starting",
+				"took_one": "Took {{count}} minute",
+				"took_other": "Took {{count}} minutes",
+				"tookUnderMinute": "Took less than a minute",
+				"totals": "{{parts, list}} imported",
+				"waiting": "Waiting",
+				"warnings_one": "{{count}} warning",
+				"warnings_other": "{{count}} warnings"
+			},
+			"select": {
+				"back": "Back",
+				"clear": "Clear",
+				"commentsDescription": "Keeps each comment's original author and date.",
+				"commentsLabel": "Import comments",
+				"inviteMembers": "Invite members",
+				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
+				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
+				"selectAll": "Select all",
+				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+			},
+			"sources": {
+				"connect": "Connect",
+				"connectTo": "Connect {{source}}",
+				"description": "Pick the tool you are moving from. Each project you choose becomes a new project here.",
+				"kaneo": {
+					"description": "Move projects between Kaneo Cloud and a self-hosted instance.",
+					"intro": "Projects from every workspace the key can see. Each one you pick is copied here.",
+					"pickerName": "Another Kaneo"
+				},
+				"linear": {
+					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
+					"intro": "Each Linear team becomes a project, with its workflow as columns."
+				},
+				"plane": {
+					"description": "Projects, work items, sub-issues and comments. Cloud or self-hosted.",
+					"intro": "Each Plane project becomes a project here, with its states as columns."
+				},
+				"planka": {
+					"description": "Boards, lists, cards, checklists and comments from your PLANKA instance.",
+					"intro": "Each PLANKA board becomes a project, with its lists as columns."
+				},
+				"title": "Choose a source",
+				"trello": {
+					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
+					"intro": "Each Trello board becomes a project, with its lists as columns."
+				},
+				"jira": {
+					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
+					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+				}
+			},
+			"status": {
+				"failed": "Failed",
+				"imported": "Imported",
+				"importing": "Importing {{current}} of {{total}}",
+				"partial": "{{done}} of {{total}} imported",
+				"warnings_one": "Done with {{count}} warning",
+				"warnings_other": "Done with {{count}} warnings"
+			},
+			"steps": {
+				"connect": "Connect",
+				"done": "(completed)",
+				"import": "Import",
+				"label": "Import steps"
+			},
+			"subtitle": "Bring your projects from another tool into {{workspace}}. Kaneo only reads from the source.",
+			"title": "Import",
+			"toast": {
+				"failed": "Import from {{source}} failed",
+				"finished": "Import from {{source}} finished",
+				"partial": "Import from {{source}} finished with errors"
+			},
+			"trello": {
+				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
+				"apiKeyLabel": "API key",
+				"apiKeyPlaceholder": "Paste API key",
+				"authorizeButton": "Authorize on Trello",
+				"authorizeDescription": "Opens Trello in a new tab. Read only, expires after a day.",
+				"authorizeLabel": "Authorize Kaneo",
+				"authorizeNeedsKey": "Enter the API key first. Read only, expires after a day.",
+				"tokenDescription": "Click Allow on Trello, then paste the token it shows you.",
+				"tokenLabel": "Token",
+				"tokenPlaceholder": "Paste token"
+			},
+			"units": {
+				"board": {
+					"allImported_one": "{{count}} board imported.",
+					"allImported_other": "All {{count}} boards imported.",
+					"empty": "No boards found. Check that this key can see the boards you want to import.",
+					"found_one": "{{count}} board found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} board",
+					"importButton_other": "Import {{count}} boards",
+					"limit": "Pick up to {{max}} boards per import.",
+					"pick": "Pick the boards to bring over.",
+					"progress_one": "{{done}} of {{count}} board imported",
+					"progress_other": "{{done}} of {{count}} boards imported",
+					"runTitle_one": "{{source}}, {{count}} board",
+					"runTitle_other": "{{source}}, {{count}} boards",
+					"section": "Boards",
+					"someImported_one": "{{done}} of {{count}} board imported.",
+					"someImported_other": "{{done}} of {{count}} boards imported.",
+					"step": "Choose boards"
+				},
+				"project": {
+					"allImported_one": "{{count}} project imported.",
+					"allImported_other": "All {{count}} projects imported.",
+					"empty": "No projects found. Check that this key can see the projects you want to import.",
+					"found_one": "{{count}} project found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} project",
+					"importButton_other": "Import {{count}} projects",
+					"limit": "Pick up to {{max}} projects per import.",
+					"pick": "Pick the projects to bring over.",
+					"progress_one": "{{done}} of {{count}} project imported",
+					"progress_other": "{{done}} of {{count}} projects imported",
+					"runTitle_one": "{{source}}, {{count}} project",
+					"runTitle_other": "{{source}}, {{count}} projects",
+					"section": "Projects",
+					"someImported_one": "{{done}} of {{count}} project imported.",
+					"someImported_other": "{{done}} of {{count}} projects imported.",
+					"step": "Choose projects"
+				},
+				"team": {
+					"allImported_one": "{{count}} team imported.",
+					"allImported_other": "All {{count}} teams imported.",
+					"empty": "No teams found. Check that this key can see the teams you want to import.",
+					"found_one": "{{count}} team found. If you pick it, it becomes a new project in {{workspace}}.",
+					"found_other": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} team",
+					"importButton_other": "Import {{count}} teams",
+					"limit": "Pick up to {{max}} teams per import.",
+					"pick": "Pick the teams to bring over.",
+					"progress_one": "{{done}} of {{count}} team imported",
+					"progress_other": "{{done}} of {{count}} teams imported",
+					"runTitle_one": "{{source}}, {{count}} team",
+					"runTitle_other": "{{source}}, {{count}} teams",
+					"section": "Teams",
+					"someImported_one": "{{done}} of {{count}} team imported.",
+					"someImported_other": "{{done}} of {{count}} teams imported.",
+					"step": "Choose teams"
+				}
+			},
+			"jira": {
+				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
+				"emailLabel": "Email",
+				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name.",
+				"openSettings": "Open Atlassian API tokens",
+				"stepCreate": "Create an API token and copy it.",
+				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
+				"stepPaste": "Paste it with the email you sign in to Jira with.",
+				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
+				"tokenLabel": "API token",
+				"tokenPlaceholder": "Paste token",
+				"urlDescription": "Copy it from your browser. Data Center works too.",
+				"urlLabel": "Jira site URL",
+				"urlPlaceholder": "https://your-site.atlassian.net"
+			}
 		}
 	},
 	"navigation": {
@@ -2065,7 +2472,8 @@
 			"deleteConfirmTitle": "Proje Silinsin mi?",
 			"deleteConfirmDescription": "Bu, projeyi ve tüm verilerini kalıcı olarak kaldıracak. Bu işlemi geri alamazsınız.",
 			"deletedToast": "Proje silindi",
-			"deleteProject": "Projeyi Sil"
+			"deleteProject": "Projeyi Sil",
+			"switcherLabel": "Proje veya görünüm değiştir"
 		},
 		"search": {
 			"inputPlaceholder": "Talep, proje, yorum ara...",
@@ -2351,7 +2759,10 @@
 		"boardSearchPlaceholder": "Talep ara...",
 		"view": {
 			"board": "Pano",
-			"list": "Liste"
+			"list": "Liste",
+			"backlog": "Backlog",
+			"gantt": "Gantt",
+			"heading": "Görünüm"
 		},
 		"common": {
 			"selectTask": "Talep seç",
@@ -2581,7 +2992,8 @@
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
 					"crimson": "Koyu Kırmızı"
-				}
+				},
+				"editLabels": "Etiketleri düzenle"
 			}
 		},
 		"backlog": {
@@ -2786,7 +3198,8 @@
 			"taskAriaLabel": "{{title}}, {{range}}: talebi aç",
 			"title": "Takvim",
 			"today": "Bugün",
-			"loadError": "Talepler yüklenemedi."
+			"loadError": "Talepler yüklenemedi.",
+			"noTasksThisMonth": "Bu ay planlanmış bir şey yok"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
@@ -2828,7 +3241,14 @@
 			"cta": "Daveti kabul et",
 			"sameEmail": "Daveti, bu mesajı alan e-posta adresiyle kabul edebilirsiniz.",
 			"ignore": "Bu davet beklenmedikse bu e-postayı güvenle yok sayabilirsiniz.",
-			"footer": "Kaneo çalışma alanı daveti"
+			"footer": "Kaneo çalışma alanı daveti",
+			"details": {
+				"title": "Davet ayrıntıları",
+				"sentTo": "Gönderilen adres",
+				"instance": "Sunucu",
+				"role": "Rol",
+				"expires": "Süre Sonu"
+			}
 		}
 	},
 	"workspace": {
