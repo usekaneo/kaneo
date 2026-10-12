@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { Button } from "@/components/ui/button";
+import { ShortcutTooltipLabel } from "@/components/shortcuts/shortcut-tooltip-label";
 import {
   Tooltip,
   TooltipContent,
@@ -42,9 +42,8 @@ export function HeaderIconButton({
       >
         {children}
       </TooltipTrigger>
-      <TooltipContent className="flex items-center gap-2">
-        {label}
-        {shortcutId && <ShortcutKeys id={shortcutId} tone="tooltip" />}
+      <TooltipContent>
+        <ShortcutTooltipLabel label={label} shortcutId={shortcutId} />
       </TooltipContent>
     </Tooltip>
   );

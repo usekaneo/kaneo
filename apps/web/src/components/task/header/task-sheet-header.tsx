@@ -2,8 +2,8 @@ import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-d
 import { ChevronDown, ChevronRight, Maximize2, X } from "lucide-react";
 import type { Ref } from "react";
 import { useTranslation } from "react-i18next";
-import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { Button } from "@/components/ui/button";
+import { ShortcutTooltipLabel } from "@/components/shortcuts/shortcut-tooltip-label";
 import {
   Tooltip,
   TooltipContent,
@@ -76,9 +76,11 @@ export function TaskSheetHeader({
               >
                 {project.slug}-{task.number}
               </TooltipTrigger>
-              <TooltipContent className="flex items-center gap-2">
-                {t("navigation:shortcuts.items.copyTaskId")}
-                <ShortcutKeys id="copyTaskId" tone="tooltip" />
+              <TooltipContent>
+                <ShortcutTooltipLabel
+                  label={t("navigation:shortcuts.items.copyTaskId")}
+                  shortcutId="copyTaskId"
+                />
               </TooltipContent>
             </Tooltip>
           </>

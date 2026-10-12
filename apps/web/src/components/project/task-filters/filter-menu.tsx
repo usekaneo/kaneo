@@ -1,13 +1,13 @@
 import { ListFilter } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ShortcutTooltipLabel } from "@/components/shortcuts/shortcut-tooltip-label";
 import {
   Tooltip,
   TooltipContent,
@@ -56,9 +56,8 @@ export function FilterMenu({ subjects, activeCount }: FilterMenuProps) {
             </span>
           )}
         </TooltipTrigger>
-        <TooltipContent className="flex items-center gap-2">
-          {label}
-          <ShortcutKeys id="addFilter" tone="tooltip" />
+        <TooltipContent>
+          <ShortcutTooltipLabel label={label} shortcutId="addFilter" />
         </TooltipContent>
       </Tooltip>
       <PopoverContent align="end" className="w-60">
