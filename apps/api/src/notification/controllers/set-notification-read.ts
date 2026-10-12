@@ -5,10 +5,14 @@ import { notificationTable } from "../../database/schema";
 
 import { notificationResourceAccess } from "../resource-access";
 
-async function markNotificationAsRead(id: string, userId: string) {
+async function setNotificationRead(
+  id: string,
+  userId: string,
+  isRead: boolean,
+) {
   const [notification] = await db
     .update(notificationTable)
-    .set({ isRead: true })
+    .set({ isRead })
     .where(
       and(
         eq(notificationTable.id, id),
@@ -31,4 +35,4 @@ async function markNotificationAsRead(id: string, userId: string) {
   return notification;
 }
 
-export default markNotificationAsRead;
+export default setNotificationRead;
