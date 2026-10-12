@@ -30,6 +30,10 @@ const labelColors = [
   { value: "orange", key: "terracotta", color: "var(--color-orange-600)" },
   { value: "pink", key: "rose", color: "var(--color-rose-600)" },
   { value: "red", key: "crimson", color: "var(--color-red-600)" },
+  { value: "blue", key: "ocean", color: "var(--color-blue-600)" },
+  { value: "sky", key: "sky", color: "var(--color-sky-500)" },
+  { value: "cyan", key: "lagoon", color: "var(--color-cyan-600)" },
+  { value: "fuchsia", key: "orchid", color: "var(--color-fuchsia-600)" },
 ];
 
 type LabelColor =
@@ -41,7 +45,11 @@ type LabelColor =
   | "yellow"
   | "orange"
   | "pink"
-  | "red";
+  | "red"
+  | "blue"
+  | "sky"
+  | "cyan"
+  | "fuchsia";
 
 type TaskLabelsPopoverProps = {
   task: Task;

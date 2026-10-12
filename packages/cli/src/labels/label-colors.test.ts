@@ -20,6 +20,8 @@ describe("labelColorHex", () => {
     expect(labelColorHex("red")).toBe("#e7000b");
     expect(labelColorHex("Crimson")).toBe("#e7000b");
     expect(labelColorHex("dark-gray")).toBe("#62748e");
+    expect(labelColorHex("blue")).toBe("#155dfc");
+    expect(labelColorHex("Orchid")).toBe("#c800de");
   });
 
   it("normalizes hex colors and drops alpha", () => {
@@ -31,7 +33,7 @@ describe("labelColorHex", () => {
   });
 
   it("falls back for colors it cannot read", () => {
-    expect(labelColorHex("blue")).toBe(FALLBACK_LABEL_HEX);
+    expect(labelColorHex("not-a-color")).toBe(FALLBACK_LABEL_HEX);
     expect(labelColorHex("#12345")).toBe(FALLBACK_LABEL_HEX);
     expect(labelColorHex("")).toBe(FALLBACK_LABEL_HEX);
   });
@@ -50,6 +52,8 @@ describe("parseLabelColor", () => {
     expect(parsed(" Lavender ")).toBe("purple");
     expect(parsed("red")).toBe("red");
     expect(parsed("dark-gray")).toBe("dark-gray");
+    expect(parsed("ocean")).toBe("blue");
+    expect(parsed("Lagoon")).toBe("cyan");
   });
 
   it("accepts hex with or without the hash", () => {

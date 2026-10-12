@@ -6,6 +6,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe("resolveLabelColor", () => {
   it("maps Kaneo's named label colors to their CSS variables", () => {
     expect(resolveLabelColor("red")).toBe("var(--color-red-600)");
+    expect(resolveLabelColor("sky")).toBe("var(--color-sky-500)");
   });
 
   it("preserves custom hex colors imported from external systems", () => {

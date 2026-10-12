@@ -152,7 +152,11 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"lagoon": "Λιμνοθάλασσα",
+					"ocean": "Ωκεανός",
+					"orchid": "Ορχιδέα",
+					"sky": "Ουρανός"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2991,7 +2995,11 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"lagoon": "Λιμνοθάλασσα",
+					"ocean": "Ωκεανός",
+					"orchid": "Ορχιδέα",
+					"sky": "Ουρανός"
 				},
 				"editLabels": "Επεξεργασία ετικετών"
 			}

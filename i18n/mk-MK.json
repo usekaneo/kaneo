@@ -152,7 +152,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2991,7 +2995,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"editLabels": "Уреди етикети"
 			}
