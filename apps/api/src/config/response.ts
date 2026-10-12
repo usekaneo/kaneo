@@ -9,6 +9,10 @@ export const configSchema = z
     disableWorkspaceCreation: z.boolean(),
     isDemoMode: z.boolean(),
     hasSmtp: z.boolean(),
+    hasImageUploads: z.boolean().openapi({
+      description:
+        "Whether S3-compatible storage is configured, so task images and board backgrounds can be uploaded.",
+    }),
     hasGithubSignIn: z.boolean(),
     hasGoogleSignIn: z.boolean(),
     hasDiscordSignIn: z.boolean(),

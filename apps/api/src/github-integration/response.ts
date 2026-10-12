@@ -97,13 +97,17 @@ export const githubRepositoryListSchema = z
   .object({
     repositories: z.array(githubRepositorySchema).openapi({
       description:
-        "Deduplicated across installations, most recently updated first.",
+        "Repositories the caller administers, deduplicated within the response.",
     }),
     installations: z.array(githubInstallationSchema),
     total: z.number(),
     nextPage: z
       .object({ installationPage: z.number(), repositoryPage: z.number() })
-      .nullable(),
+      .nullable()
+      .openapi({
+        description:
+          "Where to continue listing, or null when every installation has been read.",
+      }),
   })
   .openapi("GitHubRepositoryList");
 

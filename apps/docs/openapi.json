@@ -568,6 +568,10 @@
           "hasSmtp": {
             "type": "boolean"
           },
+          "hasImageUploads": {
+            "type": "boolean",
+            "description": "Whether S3-compatible storage is configured, so task images and board backgrounds can be uploaded."
+          },
           "hasGithubSignIn": {
             "type": "boolean"
           },
@@ -614,6 +618,7 @@
           "disableWorkspaceCreation",
           "isDemoMode",
           "hasSmtp",
+          "hasImageUploads",
           "hasGithubSignIn",
           "hasGoogleSignIn",
           "hasDiscordSignIn",
@@ -2718,7 +2723,7 @@
             "items": {
               "$ref": "#/components/schemas/GitHubRepository"
             },
-            "description": "Deduplicated across installations, most recently updated first."
+            "description": "Repositories the caller administers, deduplicated within the response."
           },
           "installations": {
             "type": "array",
@@ -2745,7 +2750,8 @@
             "required": [
               "installationPage",
               "repositoryPage"
-            ]
+            ],
+            "description": "Where to continue listing, or null when every installation has been read."
           }
         },
         "required": [
@@ -16912,7 +16918,7 @@
           "GitHub"
         ],
         "summary": "List GitHub repositories",
-        "description": "List the repositories reachable through the installed GitHub App, for picking one to link.",
+        "description": "List the repositories reachable through the installed GitHub App that the caller administers, for picking one to link. Without `search`, each request reads one page of one installation. With `search`, the server filters by name and description before checking access and keeps scanning later pages and installations within a fixed budget. Follow `nextPage` until it is null to see every repository.",
         "parameters": [
           {
             "schema": {
@@ -16940,6 +16946,17 @@
             },
             "required": false,
             "name": "repositoryPage",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Case-insensitive match on the repository full name or description. When set, one request scans up to 10 pages of 100 repositories across installations and returns every match it finds, with `nextPage` set to resume the scan."
+            },
+            "required": false,
+            "description": "Case-insensitive match on the repository full name or description. When set, one request scans up to 10 pages of 100 repositories across installations and returns every match it finds, with `nextPage` set to resume the scan.",
+            "name": "search",
             "in": "query"
           }
         ],
@@ -22650,6 +22667,125 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Custom field not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Update custom field",
+        "description": "Update a custom field's name, required flag, default, or options. The type can't change, except between dropdown and multiselect. Options that tasks still use can't be removed or renamed; the request is rejected instead of changing task values.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "New name for the field. Cannot be blank."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "number",
+                      "date",
+                      "dropdown",
+                      "boolean",
+                      "multiselect"
+                    ],
+                    "description": "Only `dropdown` and `multiselect` can switch between each other. Task values are converted, and switching to `dropdown` is rejected while a task has more than one option picked. Any other type change is rejected."
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "Whether every task must have a value. Turning it on needs a default, which fills tasks that have no value yet."
+                  },
+                  "defaultValue": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Value new tasks start with. Send `null` or an empty string to clear it. Multiselect defaults are a JSON array of options."
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The full option list for dropdown and multiselect fields, in display order. Adding and reordering options is always allowed. Removing or renaming an option that a task still uses is rejected with 400, so task values are never changed silently."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated custom field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, a type change, or removing an option that tasks still use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
                 }
               }
             }

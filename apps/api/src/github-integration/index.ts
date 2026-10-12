@@ -71,7 +71,7 @@ const listRepositoriesRoute = createRoute({
   tags: ["GitHub"],
   summary: "List GitHub repositories",
   description:
-    "List the repositories reachable through the installed GitHub App, for picking one to link.",
+    "List the repositories reachable through the installed GitHub App that the caller administers, for picking one to link. Without `search`, each request reads one page of one installation. With `search`, the server filters by name and description before checking access and keeps scanning later pages and installations within a fixed budget. Follow `nextPage` until it is null to see every repository.",
   middleware: [requireUserSession, ...manageAccess],
   request: { params: projectIdParam, query: repositoryPageQuery },
   responses: {
@@ -272,9 +272,11 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     );
   })
   .openapi(listRepositoriesRoute, async (c) => {
+    const { search, ...page } = c.req.valid("query");
     const repositories = await listUserRepositories(
       c.get("userId"),
-      c.req.valid("query"),
+      page,
+      search || undefined,
     );
     return c.json(repositories, 200);
   })

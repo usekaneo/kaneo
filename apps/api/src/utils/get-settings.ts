@@ -1,6 +1,7 @@
 import { isSmtpConfigured } from "@kaneo/email";
 import { config } from "dotenv-mono";
 import { isBillingEnabled } from "../billing/config";
+import { isStorageConfigured } from "../storage/s3";
 import { resolveFileSecret } from "./file-secret";
 import { isGithubSsoConfigured } from "./github-sso-env";
 import { isCloud } from "./is-cloud";
@@ -17,6 +18,7 @@ function getSettings() {
     disableWorkspaceCreation: process.env.DISABLE_WORKSPACE_CREATION === "true",
     isDemoMode: process.env.DEMO_MODE === "true",
     hasSmtp: isSmtpConfigured(),
+    hasImageUploads: isStorageConfigured(),
     hasGithubSignIn: isGithubSsoConfigured(),
     hasGoogleSignIn:
       Boolean(process.env.GOOGLE_CLIENT_ID) &&

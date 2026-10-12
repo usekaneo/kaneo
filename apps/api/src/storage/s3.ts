@@ -484,6 +484,15 @@ export function assertStorageConfigured() {
   return getStorageConfig();
 }
 
+export function isStorageConfigured() {
+  try {
+    getStorageConfig();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function assertTaskImageKeyMatchesContext(
   key: string,
   context: Omit<TaskImageUploadContext, "filename" | "contentType">,

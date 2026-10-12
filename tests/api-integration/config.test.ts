@@ -35,6 +35,7 @@ describe("API integration: config", () => {
     expect(payload).toSatisfy((value: Record<string, unknown>) =>
       [
         "hasSmtp",
+        "hasImageUploads",
         "hasGithubSignIn",
         "hasGoogleSignIn",
         "hasDiscordSignIn",
@@ -42,6 +43,20 @@ describe("API integration: config", () => {
       ].every((key) => typeof value[key] === "boolean"),
     );
   });
+
+  it.each([
+    [{ S3_ENDPOINT: "https://s3.example.com", S3_BUCKET: "kaneo" }, true],
+    [{ S3_ENDPOINT: "", S3_BUCKET: "" }, false],
+  ])(
+    "reports image uploads from the storage settings %o",
+    async (storage, expected) => {
+      for (const [key, value] of Object.entries(storage)) {
+        vi.stubEnv(key, value);
+      }
+      const response = await createApp().app.request("/api/config");
+      expect(await response.json()).toHaveProperty("hasImageUploads", expected);
+    },
+  );
 
   it("returns the trimmed custom OAuth name when one is set", async () => {
     vi.stubEnv("CUSTOM_OAUTH_NAME", "  Authentik ");
