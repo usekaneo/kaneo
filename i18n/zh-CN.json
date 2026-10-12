@@ -3044,12 +3044,19 @@
 			"addLabel": "添加标签",
 			"addLabelSuccess": "已为 {{count}} 个任务添加标签",
 			"addLabelError": "添加标签失败",
-			"setDueDate": "设置截止日期",
 			"updateDueDateError": "更新截止日期失败",
 			"actions": "操作",
 			"searchActions": "搜索操作…",
 			"noActionsFound": "未找到操作。",
-			"changeStatus": "更改状态"
+			"changeStatus": "更改状态",
+			"clearSelection": "清除选择",
+			"selectAll": "全选",
+			"moreActions": "更多操作",
+			"statusPlaceholder": "更改状态…",
+			"priorityPlaceholder": "设置优先级…",
+			"assigneePlaceholder": "分配给…",
+			"labelPlaceholder": "添加标签…",
+			"columnPlaceholder": "移至列…"
 		},
 		"editor": {
 			"table": {

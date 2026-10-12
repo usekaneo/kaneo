@@ -3177,12 +3177,19 @@
 			"addLabel": "Додати мітку",
 			"addLabelSuccess": "Мітку додано до {{count}} завдань",
 			"addLabelError": "Не вдалося додати мітку",
-			"setDueDate": "Встановити дату завершення",
 			"updateDueDateError": "Не вдалося оновити дату завершення",
 			"actions": "Дії",
 			"searchActions": "Пошук дій...",
 			"noActionsFound": "Дій не знайдено.",
-			"changeStatus": "Змінити статус"
+			"changeStatus": "Змінити статус",
+			"clearSelection": "Зняти виділення",
+			"selectAll": "Вибрати все",
+			"moreActions": "Інші дії",
+			"statusPlaceholder": "Змінити статус…",
+			"priorityPlaceholder": "Встановити пріоритет…",
+			"assigneePlaceholder": "Призначити…",
+			"labelPlaceholder": "Додати мітку…",
+			"columnPlaceholder": "Перемістити в колонку…"
 		},
 		"editor": {
 			"table": {

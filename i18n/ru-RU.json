@@ -3216,7 +3216,6 @@
 			"addLabelSuccess_many": "Метка добавлена к {{count}} задачам",
 			"addLabelSuccess_other": "Метка добавлена к {{count}} задачам",
 			"addLabelError": "Не удалось добавить метку",
-			"setDueDate": "Установить срок",
 			"updateDueDateError": "Не удалось обновить срок выполнения",
 			"actions": "Действия",
 			"searchActions": "Поиск действий...",
@@ -3234,7 +3233,15 @@
 			"archiveSuccess": "{{count}} задач архивировано",
 			"updateSuccess": "{{count}} задач обновлено",
 			"assignSuccess": "{{count}} задач назначено",
-			"addLabelSuccess": "Метка добавлена к {{count}} задачам"
+			"addLabelSuccess": "Метка добавлена к {{count}} задачам",
+			"clearSelection": "Снять выделение",
+			"selectAll": "Выбрать все",
+			"moreActions": "Другие действия",
+			"statusPlaceholder": "Изменить статус…",
+			"priorityPlaceholder": "Задать приоритет…",
+			"assigneePlaceholder": "Назначить…",
+			"labelPlaceholder": "Добавить метку…",
+			"columnPlaceholder": "Переместить в колонку…"
 		},
 		"editor": {
 			"table": {

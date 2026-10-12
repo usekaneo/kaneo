@@ -3079,12 +3079,19 @@
 			"addLabel": "लेबल जोड़ें",
 			"addLabelSuccess": "{{count}} कार्यों में लेबल जोड़ा गया",
 			"addLabelError": "लेबल जोड़ने में विफल",
-			"setDueDate": "नियत तारीख सेट करें",
 			"updateDueDateError": "नियत तारीख अपडेट करने में विफल",
 			"actions": "कार्रवाइयाँ",
 			"searchActions": "कार्रवाइयाँ खोजें...",
 			"noActionsFound": "कोई कार्रवाई नहीं मिली।",
-			"changeStatus": "स्थिति बदलें"
+			"changeStatus": "स्थिति बदलें",
+			"clearSelection": "चयन साफ़ करें",
+			"selectAll": "सभी चुनें",
+			"moreActions": "और कार्रवाइयाँ",
+			"statusPlaceholder": "स्थिति बदलें…",
+			"priorityPlaceholder": "प्राथमिकता सेट करें…",
+			"assigneePlaceholder": "असाइन करें…",
+			"labelPlaceholder": "लेबल जोड़ें…",
+			"columnPlaceholder": "कॉलम में ले जाएँ…"
 		},
 		"editor": {
 			"table": {

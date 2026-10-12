@@ -3079,12 +3079,19 @@
 			"addLabel": "Etiket Ekle",
 			"addLabelSuccess": "{{count}} talebe etiket eklendi",
 			"addLabelError": "Etiket eklenemedi",
-			"setDueDate": "Bitiş Tarihi Belirle",
 			"updateDueDateError": "Bitiş tarihi güncellenemedi",
 			"actions": "İşlemler",
 			"searchActions": "İşlem ara...",
 			"noActionsFound": "İşlem bulunamadı.",
-			"changeStatus": "Durumu Değiştir"
+			"changeStatus": "Durumu Değiştir",
+			"clearSelection": "Seçimi temizle",
+			"selectAll": "Tümünü seç",
+			"moreActions": "Diğer işlemler",
+			"statusPlaceholder": "Durumu değiştir…",
+			"priorityPlaceholder": "Öncelik belirle…",
+			"assigneePlaceholder": "Ata…",
+			"labelPlaceholder": "Etiket ekle…",
+			"columnPlaceholder": "Sütuna taşı…"
 		},
 		"editor": {
 			"table": {

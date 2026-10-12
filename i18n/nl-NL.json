@@ -3068,12 +3068,19 @@
 			"addLabel": "Label toevoegen",
 			"addLabelSuccess": "Label toegevoegd aan {{count}} taken",
 			"addLabelError": "Toevoegen label mislukt",
-			"setDueDate": "Einddatum instellen",
 			"updateDueDateError": "Bijwerken einddatum mislukt",
 			"actions": "Acties",
 			"searchActions": "Acties zoeken...",
 			"noActionsFound": "Geen acties gevonden.",
-			"changeStatus": "Status wijzigen"
+			"changeStatus": "Status wijzigen",
+			"clearSelection": "Selectie wissen",
+			"selectAll": "Alles selecteren",
+			"moreActions": "Meer acties",
+			"statusPlaceholder": "Status wijzigen…",
+			"priorityPlaceholder": "Prioriteit instellen…",
+			"assigneePlaceholder": "Toewijzen aan…",
+			"labelPlaceholder": "Label toevoegen…",
+			"columnPlaceholder": "Naar kolom verplaatsen…"
 		},
 		"move": {
 			"title": "Taak verplaatsen",

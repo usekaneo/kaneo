@@ -3039,12 +3039,19 @@
 			"addLabel": "ラベルを追加",
 			"addLabelSuccess": "{{count}} 件のタスクにラベルを追加しました",
 			"addLabelError": "ラベルの追加に失敗しました",
-			"setDueDate": "期限を設定",
 			"updateDueDateError": "期限の更新に失敗しました",
 			"actions": "操作",
 			"searchActions": "操作を検索...",
 			"noActionsFound": "操作が見つかりません。",
-			"changeStatus": "ステータスを変更"
+			"changeStatus": "ステータスを変更",
+			"clearSelection": "選択を解除",
+			"selectAll": "すべて選択",
+			"moreActions": "その他の操作",
+			"statusPlaceholder": "ステータスを変更…",
+			"priorityPlaceholder": "優先度を設定…",
+			"assigneePlaceholder": "担当者を割り当て…",
+			"labelPlaceholder": "ラベルを追加…",
+			"columnPlaceholder": "列に移動…"
 		},
 		"editor": {
 			"table": {

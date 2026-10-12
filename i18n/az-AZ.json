@@ -3088,12 +3088,19 @@
 			"addLabel": "Etiket əlavə et",
 			"addLabelSuccess": "{{count}} tapşırığa etiket əlavə edildi",
 			"addLabelError": "Etiket əlavə etmək alınmadı",
-			"setDueDate": "Son tarix təyin et",
 			"updateDueDateError": "Son tarixi yeniləmək alınmadı",
 			"actions": "Əməliyyatlar",
 			"searchActions": "Əməliyyatları axtar...",
 			"noActionsFound": "Əməliyyat tapılmadı.",
-			"changeStatus": "Vəziyyəti dəyiş"
+			"changeStatus": "Vəziyyəti dəyiş",
+			"clearSelection": "Seçimi təmizlə",
+			"selectAll": "Hamısını seç",
+			"moreActions": "Digər əməliyyatlar",
+			"statusPlaceholder": "Statusu dəyiş…",
+			"priorityPlaceholder": "Prioriteti təyin et…",
+			"assigneePlaceholder": "Təyin et…",
+			"labelPlaceholder": "Etiket əlavə et…",
+			"columnPlaceholder": "Sütuna köçür…"
 		},
 		"editor": {
 			"table": {

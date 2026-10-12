@@ -3044,12 +3044,19 @@
 			"addLabel": "新增標籤",
 			"addLabelSuccess": "已為 {{count}} 個任務新增標籤",
 			"addLabelError": "新增標籤失敗",
-			"setDueDate": "設定截止日期",
 			"updateDueDateError": "更新截止日期失敗",
 			"actions": "操作",
 			"searchActions": "搜尋操作…",
 			"noActionsFound": "找不到操作。",
-			"changeStatus": "變更狀態"
+			"changeStatus": "變更狀態",
+			"clearSelection": "清除選取",
+			"selectAll": "全選",
+			"moreActions": "更多動作",
+			"statusPlaceholder": "變更狀態…",
+			"priorityPlaceholder": "設定優先順序…",
+			"assigneePlaceholder": "指派給…",
+			"labelPlaceholder": "新增標籤…",
+			"columnPlaceholder": "移至欄位…"
 		},
 		"editor": {
 			"table": {

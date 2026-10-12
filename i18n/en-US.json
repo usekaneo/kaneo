@@ -3069,10 +3069,10 @@
 		},
 		"bulk": {
 			"selectedCount": "{{count}} selected",
-			"moveToBacklog": "Move to Backlog",
+			"moveToBacklog": "Move to backlog",
 			"moveToBacklogSuccess": "{{count}} tasks moved to backlog",
 			"moveToBacklogError": "Failed to move tasks to backlog",
-			"moveToBoard": "Move to Board",
+			"moveToBoard": "Move to board",
 			"moveToBoardSuccess": "{{count}} tasks moved to board",
 			"moveToBoardError": "Failed to move tasks to board",
 			"delete": "Delete tasks",
@@ -3094,12 +3094,19 @@
 			"addLabel": "Add Label",
 			"addLabelSuccess": "Label added to {{count}} tasks",
 			"addLabelError": "Failed to add label",
-			"setDueDate": "Set Due Date",
 			"updateDueDateError": "Failed to update due date",
 			"actions": "Actions",
 			"searchActions": "Search actions...",
 			"noActionsFound": "No actions found.",
-			"changeStatus": "Change Status"
+			"changeStatus": "Change Status",
+			"clearSelection": "Clear selection",
+			"selectAll": "Select all",
+			"moreActions": "More actions",
+			"statusPlaceholder": "Change status…",
+			"priorityPlaceholder": "Set priority…",
+			"assigneePlaceholder": "Assign to…",
+			"labelPlaceholder": "Add label…",
+			"columnPlaceholder": "Move to column…"
 		},
 		"editor": {
 			"table": {

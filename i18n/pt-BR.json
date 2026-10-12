@@ -3128,12 +3128,19 @@
 			"addLabel": "Adicionar etiqueta",
 			"addLabelSuccess": "Etiqueta adicionada a {{count}} tarefas",
 			"addLabelError": "Falha ao adicionar etiqueta",
-			"setDueDate": "Definir data de vencimento",
 			"updateDueDateError": "Falha ao atualizar data de vencimento",
 			"actions": "Ações",
 			"searchActions": "Buscar ações...",
 			"noActionsFound": "Nenhuma ação encontrada.",
-			"changeStatus": "Mudar status"
+			"changeStatus": "Mudar status",
+			"clearSelection": "Limpar seleção",
+			"selectAll": "Selecionar tudo",
+			"moreActions": "Mais ações",
+			"statusPlaceholder": "Alterar status…",
+			"priorityPlaceholder": "Definir prioridade…",
+			"assigneePlaceholder": "Atribuir a…",
+			"labelPlaceholder": "Adicionar etiqueta…",
+			"columnPlaceholder": "Mover para a coluna…"
 		},
 		"editor": {
 			"table": {

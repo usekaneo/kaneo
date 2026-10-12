@@ -3079,12 +3079,19 @@
 			"addLabel": "Προσθήκη ετικέτας",
 			"addLabelSuccess": "Η ετικέτα προστέθηκε σε {{count}} εργασίες",
 			"addLabelError": "Αποτυχία προσθήκης ετικέτας",
-			"setDueDate": "Ορισμός ημερομηνίας λήξης",
 			"updateDueDateError": "Αποτυχία ενημέρωσης ημερομηνίας λήξης",
 			"actions": "Ενέργειες",
 			"searchActions": "Αναζήτηση ενεργειών...",
 			"noActionsFound": "Δεν βρέθηκαν ενέργειες.",
-			"changeStatus": "Αλλαγή κατάστασης"
+			"changeStatus": "Αλλαγή κατάστασης",
+			"clearSelection": "Εκκαθάριση επιλογής",
+			"selectAll": "Επιλογή όλων",
+			"moreActions": "Περισσότερες ενέργειες",
+			"statusPlaceholder": "Αλλαγή κατάστασης…",
+			"priorityPlaceholder": "Ορισμός προτεραιότητας…",
+			"assigneePlaceholder": "Ανάθεση σε…",
+			"labelPlaceholder": "Προσθήκη ετικέτας…",
+			"columnPlaceholder": "Μετακίνηση σε στήλη…"
 		},
 		"editor": {
 			"table": {

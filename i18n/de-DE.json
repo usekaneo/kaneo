@@ -3079,12 +3079,19 @@
 			"addLabel": "Label hinzufügen",
 			"addLabelSuccess": "Label zu {{count}} Aufgaben hinzugefügt",
 			"addLabelError": "Label konnte nicht hinzugefügt werden",
-			"setDueDate": "Fälligkeitsdatum festlegen",
 			"updateDueDateError": "Fälligkeitsdatum konnte nicht aktualisiert werden",
 			"actions": "Aktionen",
 			"searchActions": "Aktionen suchen...",
 			"noActionsFound": "Keine Aktionen gefunden.",
-			"changeStatus": "Status ändern"
+			"changeStatus": "Status ändern",
+			"clearSelection": "Auswahl aufheben",
+			"selectAll": "Alle auswählen",
+			"moreActions": "Weitere Aktionen",
+			"statusPlaceholder": "Status ändern…",
+			"priorityPlaceholder": "Priorität festlegen…",
+			"assigneePlaceholder": "Zuweisen an…",
+			"labelPlaceholder": "Label hinzufügen…",
+			"columnPlaceholder": "In Spalte verschieben…"
 		},
 		"editor": {
 			"table": {

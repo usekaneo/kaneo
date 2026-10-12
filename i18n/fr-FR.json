@@ -3128,12 +3128,19 @@
 			"addLabel": "Ajouter un label",
 			"addLabelSuccess": "Label ajouté à {{count}} tâches",
 			"addLabelError": "Échec de l'ajout du label",
-			"setDueDate": "Définir la date d'échéance",
 			"updateDueDateError": "Échec de la mise à jour de la date d'échéance",
 			"actions": "Actions",
 			"searchActions": "Rechercher des actions...",
 			"noActionsFound": "Aucune action trouvée.",
-			"changeStatus": "Changer le statut"
+			"changeStatus": "Changer le statut",
+			"clearSelection": "Effacer la sélection",
+			"selectAll": "Tout sélectionner",
+			"moreActions": "Plus d'actions",
+			"statusPlaceholder": "Changer le statut…",
+			"priorityPlaceholder": "Définir la priorité…",
+			"assigneePlaceholder": "Assigner à…",
+			"labelPlaceholder": "Ajouter une étiquette…",
+			"columnPlaceholder": "Déplacer vers la colonne…"
 		},
 		"editor": {
 			"table": {

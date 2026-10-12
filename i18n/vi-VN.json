@@ -3030,12 +3030,19 @@
 			"addLabel": "Thêm nhãn",
 			"addLabelSuccess": "Đã thêm nhãn vào {{count}} công việc",
 			"addLabelError": "Không thể thêm nhãn",
-			"setDueDate": "Đặt ngày đến hạn",
 			"updateDueDateError": "Không thể cập nhật ngày đến hạn",
 			"actions": "Hành động",
 			"searchActions": "Tìm hành động...",
 			"noActionsFound": "Không tìm thấy hành động nào.",
-			"changeStatus": "Đổi trạng thái"
+			"changeStatus": "Đổi trạng thái",
+			"clearSelection": "Bỏ chọn",
+			"selectAll": "Chọn tất cả",
+			"moreActions": "Thao tác khác",
+			"statusPlaceholder": "Đổi trạng thái…",
+			"priorityPlaceholder": "Đặt mức ưu tiên…",
+			"assigneePlaceholder": "Giao cho…",
+			"labelPlaceholder": "Thêm nhãn…",
+			"columnPlaceholder": "Chuyển sang cột…"
 		},
 		"editor": {
 			"table": {

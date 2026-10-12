@@ -3130,12 +3130,19 @@
 			"noActionsFound": "Nie znaleziono akcji.",
 			"searchActions": "Szukaj akcji...",
 			"selectedCount": "Wybrano: {{count}}",
-			"setDueDate": "Ustaw termin",
 			"setPriority": "Ustaw priorytet",
 			"updateDueDateError": "Nie udało się zaktualizować terminu",
 			"updateError": "Nie udało się zaktualizować zadań",
 			"updatePriorityError": "Nie udało się zaktualizować priorytetu",
-			"updateSuccess": "Zaktualizowano zadań: {{count}}"
+			"updateSuccess": "Zaktualizowano zadań: {{count}}",
+			"clearSelection": "Wyczyść zaznaczenie",
+			"selectAll": "Zaznacz wszystko",
+			"moreActions": "Więcej działań",
+			"statusPlaceholder": "Zmień status…",
+			"priorityPlaceholder": "Ustaw priorytet…",
+			"assigneePlaceholder": "Przypisz do…",
+			"labelPlaceholder": "Dodaj etykietę…",
+			"columnPlaceholder": "Przenieś do kolumny…"
 		},
 		"common": {
 			"loadingTask": "Ładowanie zadania...",

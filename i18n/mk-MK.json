@@ -3079,12 +3079,19 @@
 			"addLabel": "Додади етикета",
 			"addLabelSuccess": "Етикетата е додадена на {{count}} задачи",
 			"addLabelError": "Неуспешно додавање на етикета",
-			"setDueDate": "Постави краен рок",
 			"updateDueDateError": "Неуспешно ажурирање на краен рок",
 			"actions": "Акции",
 			"searchActions": "Пребарај акции...",
 			"noActionsFound": "Не се пронајдени акции.",
-			"changeStatus": "Промени статус"
+			"changeStatus": "Промени статус",
+			"clearSelection": "Исчисти избор",
+			"selectAll": "Избери сè",
+			"moreActions": "Повеќе дејства",
+			"statusPlaceholder": "Промени статус…",
+			"priorityPlaceholder": "Постави приоритет…",
+			"assigneePlaceholder": "Додели на…",
+			"labelPlaceholder": "Додај ознака…",
+			"columnPlaceholder": "Премести во колона…"
 		},
 		"editor": {
 			"table": {

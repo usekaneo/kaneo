@@ -3044,12 +3044,19 @@
 			"addLabel": "라벨 추가",
 			"addLabelSuccess": "작업 {{count}}개에 라벨이 추가되었습니다",
 			"addLabelError": "라벨 추가에 실패했습니다",
-			"setDueDate": "마감일 설정",
 			"updateDueDateError": "마감일 업데이트에 실패했습니다",
 			"actions": "작업",
 			"searchActions": "작업 검색...",
 			"noActionsFound": "작업을 찾을 수 없습니다.",
-			"changeStatus": "상태 변경"
+			"changeStatus": "상태 변경",
+			"clearSelection": "선택 해제",
+			"selectAll": "모두 선택",
+			"moreActions": "추가 작업",
+			"statusPlaceholder": "상태 변경…",
+			"priorityPlaceholder": "우선순위 설정…",
+			"assigneePlaceholder": "담당자 지정…",
+			"labelPlaceholder": "라벨 추가…",
+			"columnPlaceholder": "열로 이동…"
 		},
 		"editor": {
 			"table": {

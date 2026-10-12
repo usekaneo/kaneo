@@ -3030,12 +3030,19 @@
 			"addLabel": "Tambah Label",
 			"addLabelSuccess": "Label ditambahkan ke {{count}} tugas",
 			"addLabelError": "Gagal menambahkan label",
-			"setDueDate": "Atur Tenggat",
 			"updateDueDateError": "Gagal memperbarui tenggat",
 			"actions": "Aksi",
 			"searchActions": "Cari aksi...",
 			"noActionsFound": "Tidak ada aksi ditemukan.",
-			"changeStatus": "Ubah Status"
+			"changeStatus": "Ubah Status",
+			"clearSelection": "Hapus pilihan",
+			"selectAll": "Pilih semua",
+			"moreActions": "Tindakan lainnya",
+			"statusPlaceholder": "Ubah status…",
+			"priorityPlaceholder": "Atur prioritas…",
+			"assigneePlaceholder": "Tugaskan ke…",
+			"labelPlaceholder": "Tambah label…",
+			"columnPlaceholder": "Pindahkan ke kolom…"
 		},
 		"editor": {
 			"table": {

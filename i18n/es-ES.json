@@ -3117,12 +3117,19 @@
 			"addLabel": "Añadir etiqueta",
 			"addLabelSuccess": "Etiqueta añadida a {{count}} tareas",
 			"addLabelError": "Error al añadir etiqueta",
-			"setDueDate": "Modificar fecha de vencimiento",
 			"updateDueDateError": "Error al actualizar fecha de vencimiento",
 			"actions": "Actiones",
 			"searchActions": "Buscar acciones...",
 			"noActionsFound": "No se han encontrado acciones.",
-			"changeStatus": "Cambiar estado"
+			"changeStatus": "Cambiar estado",
+			"clearSelection": "Borrar selección",
+			"selectAll": "Seleccionar todo",
+			"moreActions": "Más acciones",
+			"statusPlaceholder": "Cambiar estado…",
+			"priorityPlaceholder": "Establecer prioridad…",
+			"assigneePlaceholder": "Asignar a…",
+			"labelPlaceholder": "Añadir etiqueta…",
+			"columnPlaceholder": "Mover a la columna…"
 		},
 		"move": {
 			"title": "Mover tarea",
