@@ -21,10 +21,6 @@ export function isMissingObjectError(error: unknown) {
   );
 }
 
-function isNotVisibleYet(error: unknown) {
-  return isMissingObjectError(error) || storageStatus(error) === 403;
-}
-
 export async function headUploadedObject(
   client: Pick<S3Client, "send">,
   bucket: string,
@@ -39,7 +35,7 @@ export async function headUploadedObject(
     try {
       return await head();
     } catch (error) {
-      if (!isNotVisibleYet(error) || abortSignal.aborted) throw error;
+      if (storageStatus(error) !== 403 || abortSignal.aborted) throw error;
     }
     await new Promise((resolve) => setTimeout(resolve, delay));
   }

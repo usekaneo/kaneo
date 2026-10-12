@@ -53,7 +53,7 @@ describe("headUploadedObject", () => {
     const send = vi
       .fn()
       .mockRejectedValueOnce(storageError(403))
-      .mockRejectedValueOnce(storageError(404, "NotFound"))
+      .mockRejectedValueOnce(storageError(403))
       .mockResolvedValue({ ContentLength: 12 });
 
     await expect(
@@ -85,6 +85,22 @@ describe("headUploadedObject", () => {
     expect(send).toHaveBeenCalledTimes(
       UPLOAD_VISIBILITY_RETRY_DELAYS_MS.length + 1,
     );
+  });
+
+  it("does not retry missing objects", async () => {
+    const send = vi.fn().mockRejectedValue(storageError(404, "NotFound"));
+
+    await expect(
+      settle(
+        headUploadedObject(
+          { send },
+          "kaneo",
+          "a.png",
+          new AbortController().signal,
+        ),
+      ),
+    ).rejects.toMatchObject({ name: "NotFound" });
+    expect(send).toHaveBeenCalledTimes(1);
   });
 
   it("does not retry other storage failures", async () => {
