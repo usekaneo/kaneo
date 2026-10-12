@@ -3303,6 +3303,7 @@
 			"noTasksThisMonth": "Nic nie zaplanowano w tym miesiącu"
 		},
 		"gantt": {
+			"searchPlaceholder": "Szukaj zaplanowanych zadań...",
 			"hideTasks": "Ukryj zadania",
 			"jumpToToday": "Przejdź do dzisiaj",
 			"noTasks": "Brak zaplanowanych zadań",

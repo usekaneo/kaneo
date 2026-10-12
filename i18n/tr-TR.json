@@ -2966,6 +2966,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Zamanlanmış talep ara...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt Zaman Çizelgesi",
 			"hideTasks": "Talepleri gizle",

@@ -2981,6 +2981,7 @@
 			"noTasksThisMonth": "Nothing scheduled this month"
 		},
 		"gantt": {
+			"searchPlaceholder": "Search scheduled tickets...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt Timeline",
 			"jumpToToday": "Jump to today",

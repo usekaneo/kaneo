@@ -2934,6 +2934,7 @@
 			"noTasksThisMonth": "今月の予定はありません"
 		},
 		"gantt": {
+			"searchPlaceholder": "スケジュール済みのチケットを検索...",
 			"pageTitle": "{{name}} – ガントチャート",
 			"title": "ガントタイムライン",
 			"hideTasks": "タスクを非表示",

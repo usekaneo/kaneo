@@ -3001,6 +3001,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Buscar tickets planificados...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Diagrama de Gantt",
 			"hideTasks": "Esconder tareas",

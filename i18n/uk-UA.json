@@ -3058,6 +3058,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Пошук запланованих тікетів...",
 			"pageTitle": "{{name}} – Ґант",
 			"title": "Часова шкала Ґанта",
 			"hideTasks": "Сховати завдання",

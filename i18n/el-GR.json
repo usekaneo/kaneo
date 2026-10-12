@@ -2966,6 +2966,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Αναζήτηση προγραμματισμένων αιτημάτων...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Χρονοδιάγραμμα Gantt",
 			"hideTasks": "Απόκρυψη εργασιών",

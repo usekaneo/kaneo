@@ -2966,6 +2966,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "शेड्यूल किए गए टिकट खोजें...",
 			"pageTitle": "{{name}} – गैंट",
 			"title": "गैंट टाइमलाइन",
 			"hideTasks": "कार्य छिपाएँ",

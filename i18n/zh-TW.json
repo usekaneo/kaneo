@@ -2934,6 +2934,7 @@
 			"noTasksThisMonth": "本月沒有排程"
 		},
 		"gantt": {
+			"searchPlaceholder": "搜尋已排程的任務…",
 			"pageTitle": "{{name}} - 甘特圖",
 			"title": "甘特圖時間軸",
 			"jumpToToday": "回到今天",

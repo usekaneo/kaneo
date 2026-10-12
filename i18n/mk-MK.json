@@ -2966,6 +2966,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Пребарај закажани тикети...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt временска линија",
 			"hideTasks": "Сокриј задачи",

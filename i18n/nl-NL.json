@@ -2955,6 +2955,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Zoek geplande tickets...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Gantt-tijdlijn",
 			"hideTasks": "Taken verbergen",

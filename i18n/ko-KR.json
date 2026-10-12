@@ -2934,6 +2934,7 @@
 			"noTasksThisMonth": "이번 달 예정된 항목이 없습니다"
 		},
 		"gantt": {
+			"searchPlaceholder": "예약된 티켓 검색...",
 			"pageTitle": "{{name}} – 간트",
 			"title": "간트 타임라인",
 			"hideTasks": "작업 숨기기",

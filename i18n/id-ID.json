@@ -2920,6 +2920,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Cari tiket terjadwal...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Linimasa Gantt",
 			"hideTasks": "Sembunyikan tugas",

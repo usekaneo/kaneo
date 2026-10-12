@@ -2980,6 +2980,7 @@
 			"noTasksThisMonth": "Bu ay heç nə planlaşdırılmayıb"
 		},
 		"gantt": {
+			"searchPlaceholder": "Tarixi təyin edilmiş tapşırıqları axtar...",
 			"pageTitle": "{{name}} – Qant diaqramı",
 			"title": "Qant zaman xətti",
 			"jumpToToday": "Bu günə keç",

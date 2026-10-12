@@ -3012,6 +3012,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Rechercher des tâches planifiées...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Chronologie de Gantt",
 			"hideTasks": "Masquer les tâches",

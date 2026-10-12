@@ -3012,6 +3012,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Cerca ticket programmati...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Cronologia Gantt",
 			"hideTasks": "Nascondi attività",

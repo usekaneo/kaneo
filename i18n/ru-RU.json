@@ -3074,6 +3074,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Поиск запланированных задач...",
 			"pageTitle": "{{name}} – Гант",
 			"title": "Временная шкала Ганта",
 			"hideTasks": "Скрыть задачи",

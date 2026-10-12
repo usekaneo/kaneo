@@ -3012,6 +3012,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"gantt": {
+			"searchPlaceholder": "Buscar tickets agendados...",
 			"pageTitle": "{{name}} – Gantt",
 			"title": "Linha do tempo Gantt",
 			"hideTasks": "Ocultar tarefas",
