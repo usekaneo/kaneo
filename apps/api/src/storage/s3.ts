@@ -3,7 +3,6 @@ import {
   CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
-  HeadObjectCommand,
   type HeadObjectCommandOutput,
   PutObjectCommand,
   S3Client,
@@ -13,6 +12,10 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createId } from "@paralleldrive/cuid2";
 import { config } from "dotenv-mono";
 import { describeStorageError } from "./describe-storage-error";
+import {
+  headUploadedObject,
+  isMissingObjectError,
+} from "./head-uploaded-object";
 
 config();
 
@@ -432,19 +435,9 @@ export async function verifyTaskAssetUpload(
   const abortSignal = AbortSignal.timeout(10_000);
   let object: HeadObjectCommandOutput;
   try {
-    object = await client.send(
-      new HeadObjectCommand({ Bucket: config.bucket, Key: key }),
-      { abortSignal },
-    );
+    object = await headUploadedObject(client, config.bucket, key, abortSignal);
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.name === "NotFound" ||
-        error.name === "NoSuchKey" ||
-        ("$metadata" in error &&
-          (error.$metadata as { httpStatusCode?: number }).httpStatusCode ===
-            404))
-    ) {
+    if (isMissingObjectError(error)) {
       throw new InvalidUploadedAssetError("Uploaded object was not found.");
     }
     // Provider errors may include endpoints, signed URLs or other secrets.
