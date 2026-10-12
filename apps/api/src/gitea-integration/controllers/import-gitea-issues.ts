@@ -194,7 +194,7 @@ export async function importGiteaIssues({
           head: { ref: pr.head.ref },
         },
         integration.id,
-        projectId,
+        projectIdResolved,
         project.slug,
         config,
       );
