@@ -3456,7 +3456,9 @@
 			"thisWeekend": "В эти выходные",
 			"nextWeek": "На следующей неделе",
 			"pickDate": "Выбрать дату",
-			"startsOn": "Начало: {{date}}"
+			"startsOn": "Начало: {{date}}",
+			"beforeStart": "{{date}} раньше даты начала",
+			"afterDue": "{{date}} позже срока"
 		}
 	},
 	"invitations": {

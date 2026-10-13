@@ -3404,7 +3404,9 @@
 			"thisWeekend": "Цими вихідними",
 			"nextWeek": "Наступного тижня",
 			"pickDate": "Вибрати дату",
-			"startsOn": "Початок: {{date}}"
+			"startsOn": "Початок: {{date}}",
+			"beforeStart": "{{date}} раніше за дату початку",
+			"afterDue": "{{date}} пізніше за термін"
 		}
 	},
 	"invitations": {

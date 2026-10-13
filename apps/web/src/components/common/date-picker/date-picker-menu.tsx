@@ -55,8 +55,17 @@ export function DatePickerMenu({
   const quickDates = getQuickDates(now, weekStartsOn).filter((item) =>
     isAllowed(item.date, bounds),
   );
-  const typed = parseDateQuery(query, now, weekStartsOn);
+  const typed = parseDateQuery(query, now, weekStartsOn, bounds?.before);
   const typedDate = typed && isAllowed(typed, bounds) ? typed : null;
+  const typedOutOfRange =
+    typed && !typedDate
+      ? t(
+          bounds?.before && typed < bounds.before
+            ? "tasks:datePicker.beforeStart"
+            : "tasks:datePicker.afterDue",
+          { date: formatPickerDay(typed) },
+        )
+      : undefined;
 
   const options: OptionMenuItem[] = [
     ...(typedDate
@@ -133,6 +142,7 @@ export function DatePickerMenu({
         onSelect={select}
         onQueryChange={setQuery}
         inputHint={value ? formatPickerDay(value) : undefined}
+        status={typedOutOfRange}
       />
       {limitHint && <DateLimitHint>{limitHint}</DateLimitHint>}
     </>

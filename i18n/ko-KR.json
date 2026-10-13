@@ -3233,7 +3233,9 @@
 			"thisWeekend": "이번 주말",
 			"nextWeek": "다음 주",
 			"pickDate": "날짜 선택",
-			"startsOn": "시작: {{date}}"
+			"startsOn": "시작: {{date}}",
+			"beforeStart": "{{date}}은(는) 시작일 이전입니다",
+			"afterDue": "{{date}}은(는) 마감일 이후입니다"
 		}
 	},
 	"invitations": {

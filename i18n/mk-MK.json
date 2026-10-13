@@ -3290,7 +3290,9 @@
 			"thisWeekend": "Овој викенд",
 			"nextWeek": "Следната недела",
 			"pickDate": "Избери датум",
-			"startsOn": "Почнува: {{date}}"
+			"startsOn": "Почнува: {{date}}",
+			"beforeStart": "{{date}} е пред датумот на почеток",
+			"afterDue": "{{date}} е по рокот"
 		}
 	},
 	"invitations": {

@@ -3347,7 +3347,9 @@
 			"thisWeekend": "Questo fine settimana",
 			"nextWeek": "La prossima settimana",
 			"pickDate": "Scegli una data",
-			"startsOn": "Inizia {{date}}"
+			"startsOn": "Inizia {{date}}",
+			"beforeStart": "{{date}} è prima della data di inizio",
+			"afterDue": "{{date}} è dopo la scadenza"
 		}
 	},
 	"invitations": {

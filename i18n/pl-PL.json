@@ -3686,7 +3686,9 @@
 			"thisWeekend": "Ten weekend",
 			"nextWeek": "Przyszły tydzień",
 			"pickDate": "Wybierz datę",
-			"startsOn": "Początek: {{date}}"
+			"startsOn": "Początek: {{date}}",
+			"beforeStart": "{{date}} jest przed datą rozpoczęcia",
+			"afterDue": "{{date}} jest po terminie"
 		}
 	},
 	"press": {

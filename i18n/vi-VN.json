@@ -3233,7 +3233,9 @@
 			"thisWeekend": "Cuối tuần này",
 			"nextWeek": "Tuần sau",
 			"pickDate": "Chọn ngày",
-			"startsOn": "Bắt đầu {{date}}"
+			"startsOn": "Bắt đầu {{date}}",
+			"beforeStart": "{{date}} trước ngày bắt đầu",
+			"afterDue": "{{date}} sau hạn chót"
 		}
 	},
 	"invitations": {

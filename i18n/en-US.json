@@ -3290,7 +3290,9 @@
 			"thisWeekend": "This weekend",
 			"nextWeek": "Next week",
 			"pickDate": "Pick a date",
-			"startsOn": "Starts {{date}}"
+			"startsOn": "Starts {{date}}",
+			"beforeStart": "{{date}} is before the start date",
+			"afterDue": "{{date}} is after the due date"
 		}
 	},
 	"invitations": {

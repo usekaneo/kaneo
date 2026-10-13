@@ -3290,7 +3290,9 @@
 			"thisWeekend": "Dit weekend",
 			"nextWeek": "Volgende week",
 			"pickDate": "Kies een datum",
-			"startsOn": "Begint {{date}}"
+			"startsOn": "Begint {{date}}",
+			"beforeStart": "{{date}} ligt vóór de startdatum",
+			"afterDue": "{{date}} ligt na de vervaldatum"
 		}
 	},
 	"invitations": {

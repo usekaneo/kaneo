@@ -3290,7 +3290,9 @@
 			"thisWeekend": "Bu həftə sonu",
 			"nextWeek": "Gələn həftə",
 			"pickDate": "Tarix seç",
-			"startsOn": "Başlayır: {{date}}"
+			"startsOn": "Başlayır: {{date}}",
+			"beforeStart": "{{date}} başlama tarixindən əvvəldir",
+			"afterDue": "{{date}} son tarixdən sonradır"
 		}
 	},
 	"invitations": {

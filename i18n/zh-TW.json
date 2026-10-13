@@ -3233,7 +3233,9 @@
 			"thisWeekend": "本週末",
 			"nextWeek": "下週",
 			"pickDate": "選擇日期",
-			"startsOn": "開始於 {{date}}"
+			"startsOn": "開始於 {{date}}",
+			"beforeStart": "{{date}} 早於開始日期",
+			"afterDue": "{{date}} 晚於截止日期"
 		}
 	},
 	"invitations": {

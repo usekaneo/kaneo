@@ -70,6 +70,7 @@ export function parseDateQuery(
   query: string,
   now: Date,
   weekStartsOn: Day,
+  earliest?: Date,
 ): Date | null {
   const text = query.trim().toLowerCase().replace(/\s+/g, " ");
   if (!text) return null;
@@ -96,7 +97,10 @@ export function parseDateQuery(
   const weekday = text.match(/^(?:next |this |on )?([a-z]+)$/);
   if (weekday) {
     const index = matchPrefix(weekday[1], WEEKDAYS, 2);
-    return index >= 0 ? nextDay(today, index as Day) : null;
+    if (index < 0) return null;
+    let date = nextDay(today, index as Day);
+    while (earliest && date < startOfDay(earliest)) date = addWeeks(date, 1);
+    return date;
   }
 
   const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);

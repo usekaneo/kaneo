@@ -3233,7 +3233,9 @@
 			"thisWeekend": "Akhir pekan ini",
 			"nextWeek": "Minggu depan",
 			"pickDate": "Pilih tanggal",
-			"startsOn": "Mulai {{date}}"
+			"startsOn": "Mulai {{date}}",
+			"beforeStart": "{{date}} sebelum tanggal mulai",
+			"afterDue": "{{date}} setelah tenggat"
 		}
 	},
 	"invitations": {

@@ -3290,7 +3290,9 @@
 			"thisWeekend": "इस सप्ताहांत",
 			"nextWeek": "अगले सप्ताह",
 			"pickDate": "तारीख चुनें",
-			"startsOn": "शुरुआत: {{date}}"
+			"startsOn": "शुरुआत: {{date}}",
+			"beforeStart": "{{date}} प्रारंभ तारीख से पहले है",
+			"afterDue": "{{date}} नियत तारीख के बाद है"
 		}
 	},
 	"invitations": {

@@ -30,6 +30,11 @@ describe("parseDateQuery", () => {
     expect(parse(query)).toEqual(expected);
   });
 
+  it("moves a weekday past the earliest allowed day", () => {
+    expect(parseDateQuery("fri", now, 1, day(9, 17))).toEqual(day(9, 23));
+    expect(parseDateQuery("sat", now, 1, day(9, 17))).toEqual(day(9, 17));
+  });
+
   it.each(["", "t", "soon", "feb 30", "2026-02-31", "ju 4"])(
     "ignores %s",
     (query) => {
