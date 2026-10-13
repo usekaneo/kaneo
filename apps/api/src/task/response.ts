@@ -315,3 +315,41 @@ export const assignedTasksSchema = z
     }),
   })
   .openapi("AssignedTasks");
+
+export const scheduledTasksSchema = z
+  .object({
+    tasks: z.array(
+      z
+        .object({
+          id: z.string(),
+          projectId: z.string(),
+          number: z.number().nullable(),
+          title: z.string(),
+          status: z.string().openapi({
+            description: "The slug of the column the task sits in.",
+          }),
+          statusName: z.string().nullable().openapi({
+            description:
+              "The column's display name. Null for tasks outside a column, such as planned ones.",
+          }),
+          statusIcon: z.string().nullable(),
+          priority: z.string().openapi({ description: priorityDescription }),
+          position: z.number().nullable(),
+          startDate: nullableResponseTimestamp,
+          dueDate: nullableResponseTimestamp,
+          createdAt: responseTimestamp,
+          userId: z.string().nullable(),
+          assigneeId: z.string().nullable(),
+          assigneeName: z.string().nullable(),
+          projectName: z.string(),
+          projectSlug: z.string(),
+          projectIcon: z.string().nullable(),
+        })
+        .openapi("ScheduledTask"),
+    ),
+    total: z.number().openapi({
+      description:
+        "Scheduled tasks matching the queried period (and optional assignee filter), including any beyond the first 500 returned.",
+    }),
+  })
+  .openapi("ScheduledTasks");

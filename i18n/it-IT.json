@@ -2431,7 +2431,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Calendario"
 		},
 		"projectList": {
 			"viewProject": "Vedi Progetto",
@@ -3484,6 +3485,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Visualizzazione delle prime {{shown}} di {{total}} attività programmate in questo periodo.",
+			"assignedToMe": "Assegnate a me",
+			"allTasks": "Tutte le attività",
+			"noTasksThisMonth": "Niente in programma questo mese",
+			"noTasksThisMonthSubtitle": "Prova un altro mese, oppure aggiungi una data di inizio o di scadenza alle attività dei tuoi progetti.",
+			"noAssignedTasksThisMonth": "Niente assegnato a te questo mese",
+			"noAssignedTasksThisMonthSubtitle": "Nessuna attività programmata in questo periodo ti è assegnata. Disattiva il filtro per vedere le date di tutti i progetti."
 		}
 	},
 	"team": {

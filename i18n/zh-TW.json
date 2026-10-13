@@ -2347,7 +2347,8 @@
 			"home": "首頁",
 			"inbox": "收件匣",
 			"myTasks": "我的任務",
-			"invitePeople": "邀請成員"
+			"invitePeople": "邀請成員",
+			"calendar": "日曆"
 		},
 		"projectList": {
 			"viewProject": "檢視專案",
@@ -3368,6 +3369,17 @@
 				"project": "專案"
 			},
 			"truncated": "顯示 {{total}} 個任務中的前 {{shown}} 個。"
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "正在顯示此期間內 {{total}} 個已排程任務中的前 {{shown}} 個。",
+			"assignedToMe": "指派給我的",
+			"allTasks": "全部任務",
+			"noTasksThisMonth": "本月沒有已排程的任務",
+			"noTasksThisMonthSubtitle": "試試其他月份，或為專案中的任務新增開始日期或截止日期。",
+			"noAssignedTasksThisMonth": "本月沒有指派給你的任務",
+			"noAssignedTasksThisMonthSubtitle": "此期間內沒有指派給你的已排程任務。關閉篩選器可查看所有專案的日期。"
 		}
 	},
 	"team": {

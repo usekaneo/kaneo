@@ -2347,7 +2347,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "カレンダー"
 		},
 		"projectList": {
 			"viewProject": "プロジェクトを表示",
@@ -3368,6 +3369,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "この期間の予定タスク {{total}} 件のうち、最初の {{shown}} 件を表示しています。",
+			"assignedToMe": "自分の担当",
+			"allTasks": "すべてのタスク",
+			"noTasksThisMonth": "今月の予定はありません",
+			"noTasksThisMonthSubtitle": "別の月を試すか、プロジェクトのタスクに開始日または期限を追加してください。",
+			"noAssignedTasksThisMonth": "今月あなたに割り当てられたものはありません",
+			"noAssignedTasksThisMonthSubtitle": "この期間に割り当てられた予定タスクはありません。フィルターをオフにすると、すべてのプロジェクトの日付が表示されます。"
 		}
 	},
 	"team": {

@@ -2389,7 +2389,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Календар"
 		},
 		"projectList": {
 			"viewProject": "Погледни проект",
@@ -3426,6 +3427,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Се прикажуваат првите {{shown}} од {{total}} закажани задачи во овој период.",
+			"assignedToMe": "Доделени на мене",
+			"allTasks": "Сите задачи",
+			"noTasksThisMonth": "Нема закажано ништо овој месец",
+			"noTasksThisMonthSubtitle": "Пробајте друг месец или додајте датум на почеток или рок на задачите во вашите проекти.",
+			"noAssignedTasksThisMonth": "Нема ништо доделено на вас овој месец",
+			"noAssignedTasksThisMonthSubtitle": "Нема закажани задачи во овој период доделени на вас. Исклучете го филтерот за да ги видите датумите на сите проекти."
 		}
 	},
 	"team": {

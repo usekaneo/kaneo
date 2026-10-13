@@ -2,12 +2,15 @@ import type { JSX } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 import { formatDateShort } from "@/lib/format";
+import { calendarTaskTicket } from "./calendar-task-ticket";
 import type { PackableTask, WeekSegment } from "./month-grid-model";
 
 export type CalendarTask = PackableTask & {
   title: string;
   number: number | null;
   status: string;
+  /** Present on workspace-wide calendars where each task keeps its own project. */
+  projectSlug?: string;
 };
 
 const STATUS_CLASSES: Record<string, string> = {
@@ -48,10 +51,7 @@ export default function CalendarTaskBar({
     continuesAfter,
   } = segment;
 
-  const taskKey =
-    projectSlug && task.number != null
-      ? `${projectSlug}-${task.number}`
-      : undefined;
+  const taskKey = calendarTaskTicket(task, projectSlug);
 
   const range = `${formatDateShort(task.scheduleStart)} – ${formatDateShort(
     task.scheduleEnd,

@@ -2347,7 +2347,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Lịch"
 		},
 		"projectList": {
 			"viewProject": "Xem dự án",
@@ -3368,6 +3369,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Đang hiển thị {{shown}} việc đã lên lịch đầu tiên trong tổng số {{total}} của khoảng thời gian này.",
+			"assignedToMe": "Giao cho tôi",
+			"allTasks": "Tất cả nhiệm vụ",
+			"noTasksThisMonth": "Tháng này không có việc đã lên lịch",
+			"noTasksThisMonthSubtitle": "Thử tháng khác, hoặc thêm ngày bắt đầu hay hạn cho các việc trong dự án của bạn.",
+			"noAssignedTasksThisMonth": "Tháng này không có việc được giao cho bạn",
+			"noAssignedTasksThisMonthSubtitle": "Không có việc đã lên lịch nào trong khoảng thời gian này được giao cho bạn. Tắt bộ lọc để xem ngày của mọi dự án."
 		}
 	},
 	"team": {

@@ -2389,7 +2389,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "कैलेंडर"
 		},
 		"projectList": {
 			"viewProject": "प्रोजेक्ट देखें",
@@ -3426,6 +3427,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "इस अवधि की {{total}} निर्धारित कार्यों में से पहले {{shown}} दिखाए जा रहे हैं।",
+			"assignedToMe": "मुझे असाइन किए गए",
+			"allTasks": "सभी कार्य",
+			"noTasksThisMonth": "इस महीने कुछ भी निर्धारित नहीं है",
+			"noTasksThisMonthSubtitle": "कोई और महीना आज़माएँ, या अपने प्रोजेक्ट के कार्यों में प्रारंभ या नियत तिथि जोड़ें।",
+			"noAssignedTasksThisMonth": "इस महीने आपको कुछ भी असाइन नहीं है",
+			"noAssignedTasksThisMonthSubtitle": "इस अवधि में आपको कोई निर्धारित कार्य असाइन नहीं है। सभी प्रोजेक्ट की तिथियाँ देखने के लिए फ़िल्टर बंद करें।"
 		}
 	},
 	"team": {

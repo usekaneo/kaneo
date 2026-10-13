@@ -1093,6 +1093,140 @@
           "labels"
         ]
       },
+      "ScheduledTasks": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduledTask"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Scheduled tasks matching the queried period (and optional assignee filter), including any beyond the first 500 returned."
+          }
+        },
+        "required": [
+          "tasks",
+          "total"
+        ]
+      },
+      "ScheduledTask": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "number": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "The slug of the column the task sits in."
+          },
+          "statusName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The column's display name. Null for tasks outside a column, such as planned ones."
+          },
+          "statusIcon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "priority": {
+            "type": "string",
+            "description": "One of: no-priority, low, medium, high, urgent."
+          },
+          "position": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "startDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "assigneeId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "assigneeName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "projectName": {
+            "type": "string"
+          },
+          "projectSlug": {
+            "type": "string"
+          },
+          "projectIcon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "number",
+          "title",
+          "status",
+          "statusName",
+          "statusIcon",
+          "priority",
+          "position",
+          "startDate",
+          "dueDate",
+          "createdAt",
+          "userId",
+          "assigneeId",
+          "assigneeName",
+          "projectName",
+          "projectSlug",
+          "projectIcon"
+        ]
+      },
       "BoardResponse": {
         "type": "object",
         "properties": {
@@ -10472,6 +10606,118 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AssignedTasks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid workspace ID or query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing project:read or task:read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/scheduled": {
+      "get": {
+        "operationId": "listScheduledTasks",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "List scheduled tasks across a workspace",
+        "description": "Get tasks that have a start date, due date, or both across a workspace's active projects and whose schedule overlaps the inclusive [from, to] range. Archived projects and archived tasks are excluded. Optionally restrict to tasks assigned to the caller. Ordered by schedule start (coalesce of start and due date). At most 500 tasks are returned; total counts all matches. Used by the workspace calendar.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Inclusive start of the visible range (ISO 8601). Tasks whose schedule overlaps [from, to] are returned."
+            },
+            "required": true,
+            "description": "Inclusive start of the visible range (ISO 8601). Tasks whose schedule overlaps [from, to] are returned.",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Inclusive end of the visible range (ISO 8601). Tasks whose schedule overlaps [from, to] are returned."
+            },
+            "required": true,
+            "description": "Inclusive end of the visible range (ISO 8601). Tasks whose schedule overlaps [from, to] are returned.",
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "When true, only return tasks assigned to the caller. Defaults to all accessible scheduled tasks."
+            },
+            "required": false,
+            "description": "When true, only return tasks assigned to the caller. Defaults to all accessible scheduled tasks.",
+            "name": "assignedToMe",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scheduled tasks across the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledTasks"
                 }
               }
             }
