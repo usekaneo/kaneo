@@ -11,11 +11,11 @@ test("sign up, create a workspace with a starter project, and sign in again", as
   const workspaceName = `Browser test ${suffix.slice(0, 8)}`;
 
   await page.goto("/auth/sign-up");
-  await page.getByLabel("Full Name", { exact: true }).fill("Browser Tester");
+  await page.getByLabel("Name", { exact: true }).fill("Browser Tester");
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.locator('input[name="password"]').fill(password);
   await page
-    .getByRole("button", { name: "Create Account", exact: true })
+    .getByRole("button", { name: "Create account", exact: true })
     .click();
 
   await expect(page).toHaveURL(/\/onboarding$/);
@@ -46,7 +46,7 @@ test("sign up, create a workspace with a starter project, and sign in again", as
   await expect(page).toHaveURL(/\/auth\/sign-in/);
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.locator('input[name="password"]').fill(password);
-  await page.getByRole("button", { name: "Sign In", exact: true }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(boardUrl);
   await expect(
     page.getByText(workspaceName, { exact: true }).first(),
