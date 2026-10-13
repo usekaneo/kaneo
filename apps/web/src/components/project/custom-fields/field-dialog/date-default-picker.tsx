@@ -2,9 +2,9 @@ import { format, isValid, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { DatePickerMenu } from "@/components/common/date-picker/date-picker-menu";
 import { formatDateDefault } from "@/components/project/custom-fields/describe-custom-field";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -49,33 +49,18 @@ export function DateDefaultPicker({
             : t("settings:customFields.noDefault")}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-auto">
-        <Calendar
-          mode="single"
-          selected={selected}
-          defaultMonth={selected}
-          captionLayout="dropdown"
-          onSelect={(date) => {
+      <PopoverContent align="end" className="w-65 p-0">
+        <DatePickerMenu
+          label={t("settings:customFields.defaultLabel")}
+          placeholder={t("tasks:datePicker.datePlaceholder")}
+          clearLabel={t("settings:customFields.clearDefault")}
+          value={selected ?? null}
+          canClear={clearable && selected !== undefined}
+          onChange={(date) => {
             onChange(date ? format(date, "yyyy-MM-dd") : "");
             setOpen(false);
           }}
         />
-        {clearable && selected ? (
-          <div className="border-t p-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="w-full"
-              onClick={() => {
-                onChange("");
-                setOpen(false);
-              }}
-            >
-              {t("settings:customFields.clearDefault")}
-            </Button>
-          </div>
-        ) : null}
       </PopoverContent>
     </Popover>
   );

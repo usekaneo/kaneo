@@ -3116,7 +3116,8 @@
 			"open": "खुला",
 			"label": "पुल अनुरोध",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "बंद"
 		},
 		"assignee": {
 			"label": "सौंपा गया",
@@ -3222,7 +3223,6 @@
 			"required": "आवश्यक",
 			"enterKey": "Enter",
 			"toSave": "सहेजने के लिए",
-			"today": "आज",
 			"clear": "साफ़ करें",
 			"setValue": "{{field}} सेट करें…",
 			"noMatches": "कोई मिलता-जुलता विकल्प नहीं",
@@ -3271,6 +3271,26 @@
 			"markdownCopied": "Markdown के रूप में कॉपी हुआ",
 			"copyFailed": "क्लिपबोर्ड पर कॉपी नहीं हो सका।",
 			"pageUrlCopied": "पेज URL कॉपी हुआ"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} दिन देर",
+			"overdueDays_other": "{{count}} दिन देर",
+			"overdueWeeks_one": "{{count}} सप्ताह देर",
+			"overdueWeeks_other": "{{count}} सप्ताह देर",
+			"today": "आज",
+			"tomorrow": "कल",
+			"inDays_one": "{{count}} दिन में",
+			"inDays_other": "{{count}} दिन में",
+			"fullDate": "नियत तिथि {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "नियत तारीख सेट करें…",
+			"startDatePlaceholder": "प्रारंभ तारीख सेट करें…",
+			"datePlaceholder": "तारीख सेट करें…",
+			"thisWeekend": "इस सप्ताहांत",
+			"nextWeek": "अगले सप्ताह",
+			"pickDate": "तारीख चुनें",
+			"startsOn": "शुरुआत: {{date}}"
 		}
 	},
 	"invitations": {

@@ -39,7 +39,7 @@ export function FilterListboxItem({
         </span>
       )}
       {entry.icon && (
-        <span className="inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground [&>svg]:size-4">
+        <span className="inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground [&>svg]:size-3.5">
           {entry.icon}
         </span>
       )}

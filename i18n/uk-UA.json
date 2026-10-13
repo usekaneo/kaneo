@@ -3214,7 +3214,8 @@
 			"count_one": "{{count}} PR",
 			"count_few": "{{count}} PR",
 			"count_many": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Закрито"
 		},
 		"assignee": {
 			"label": "Виконавець",
@@ -3322,7 +3323,6 @@
 			"required": "Обов'язково",
 			"enterKey": "Enter",
 			"toSave": "щоб зберегти",
-			"today": "Сьогодні",
 			"clear": "Очистити",
 			"setValue": "Задати {{field}}…",
 			"noMatches": "Немає відповідних варіантів",
@@ -3379,6 +3379,32 @@
 			"markdownCopied": "Скопійовано як Markdown",
 			"copyFailed": "Не вдалося скопіювати в буфер обміну.",
 			"pageUrlCopied": "URL сторінки скопійовано"
+		},
+		"due": {
+			"overdueDays_one": "Прострочено на {{count}} дн.",
+			"overdueDays_few": "Прострочено на {{count}} дн.",
+			"overdueDays_many": "Прострочено на {{count}} дн.",
+			"overdueDays_other": "Прострочено на {{count}} дн.",
+			"overdueWeeks_one": "Прострочено на {{count}} тиж.",
+			"overdueWeeks_few": "Прострочено на {{count}} тиж.",
+			"overdueWeeks_many": "Прострочено на {{count}} тиж.",
+			"overdueWeeks_other": "Прострочено на {{count}} тиж.",
+			"today": "Сьогодні",
+			"tomorrow": "Завтра",
+			"inDays_one": "Через {{count}} день",
+			"inDays_few": "Через {{count}} дні",
+			"inDays_many": "Через {{count}} днів",
+			"inDays_other": "Через {{count}} дня",
+			"fullDate": "Термін {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Установити термін…",
+			"startDatePlaceholder": "Установити дату початку…",
+			"datePlaceholder": "Установити дату…",
+			"thisWeekend": "Цими вихідними",
+			"nextWeek": "Наступного тижня",
+			"pickDate": "Вибрати дату",
+			"startsOn": "Початок: {{date}}"
 		}
 	},
 	"invitations": {

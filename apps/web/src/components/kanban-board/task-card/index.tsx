@@ -7,6 +7,7 @@ import type Task from "@/types/task";
 import TaskCardContent from "./task-card-content";
 import { useTaskCardClick } from "./use-task-card-click";
 import { EASE_OUT_CSS } from "@/lib/motion";
+import { isKeyboardFocus } from "@/lib/is-keyboard-focus";
 
 type TaskCardProps = {
   task: Task;
@@ -56,7 +57,10 @@ function TaskCard({
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onFocus={() => setFocusedTask(task.id)}
+      onFocus={(event) => {
+        if (event.target !== event.currentTarget) return;
+        setFocusedTask(isKeyboardFocus(event) ? task.id : null);
+      }}
       className="outline-none"
     >
       <TaskCardContent

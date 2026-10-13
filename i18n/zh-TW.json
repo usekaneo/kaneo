@@ -3081,7 +3081,8 @@
 			"draft": "草稿",
 			"open": "開啟中",
 			"label": "Pull Request",
-			"count_other": "{{count}} 個 PR"
+			"count_other": "{{count}} 個 PR",
+			"closed": "已關閉"
 		},
 		"assignee": {
 			"label": "負責人",
@@ -3172,7 +3173,6 @@
 			"required": "必填",
 			"enterKey": "Enter",
 			"toSave": "儲存",
-			"today": "今天",
 			"clear": "清除",
 			"setValue": "設定{{field}}…",
 			"noMatches": "沒有符合的選項",
@@ -3217,6 +3217,23 @@
 			"markdownCopied": "已複製為 Markdown",
 			"copyFailed": "無法複製到剪貼簿。",
 			"pageUrlCopied": "已複製頁面 URL"
+		},
+		"due": {
+			"overdueDays_other": "逾期 {{count}} 天",
+			"overdueWeeks_other": "逾期 {{count}} 週",
+			"today": "今天",
+			"tomorrow": "明天",
+			"inDays_other": "{{count}} 天後",
+			"fullDate": "截止 {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "設定截止日期…",
+			"startDatePlaceholder": "設定開始日期…",
+			"datePlaceholder": "設定日期…",
+			"thisWeekend": "本週末",
+			"nextWeek": "下週",
+			"pickDate": "選擇日期",
+			"startsOn": "開始於 {{date}}"
 		}
 	},
 	"invitations": {

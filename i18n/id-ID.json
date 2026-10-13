@@ -3067,7 +3067,8 @@
 			"draft": "Draf",
 			"open": "Terbuka",
 			"label": "Pull Request",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Ditutup"
 		},
 		"assignee": {
 			"label": "Penanggung jawab",
@@ -3172,7 +3173,6 @@
 			"required": "Wajib",
 			"enterKey": "Enter",
 			"toSave": "untuk menyimpan",
-			"today": "Hari ini",
 			"clear": "Hapus",
 			"setValue": "Atur {{field}}…",
 			"noMatches": "Tidak ada opsi yang cocok",
@@ -3217,6 +3217,23 @@
 			"markdownCopied": "Disalin sebagai Markdown",
 			"copyFailed": "Tidak dapat menyalin ke papan klip.",
 			"pageUrlCopied": "URL halaman disalin"
+		},
+		"due": {
+			"overdueDays_other": "Terlambat {{count}} hr",
+			"overdueWeeks_other": "Terlambat {{count}} mgg",
+			"today": "Hari ini",
+			"tomorrow": "Besok",
+			"inDays_other": "{{count}} hari lagi",
+			"fullDate": "Jatuh tempo {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Atur tenggat…",
+			"startDatePlaceholder": "Atur tanggal mulai…",
+			"datePlaceholder": "Atur tanggal…",
+			"thisWeekend": "Akhir pekan ini",
+			"nextWeek": "Minggu depan",
+			"pickDate": "Pilih tanggal",
+			"startsOn": "Mulai {{date}}"
 		}
 	},
 	"invitations": {

@@ -1,6 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
 import { LinkIcon } from "lucide-react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { isInsidePopup } from "@/components/bulk-selection/use-bulk-selection-keys";
 import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { toast } from "@/lib/toast";
 import { focusTaskElement } from "./focus-task-element";
@@ -56,7 +58,9 @@ export function useTaskViewShortcuts({
   };
 
   const step = (direction: FocusDirection) =>
-    focus(stepFocus(getGroups(), layout, focused(), direction));
+    focus(
+      stepFocus(getGroups(), layout, focused() ?? peekedTaskId(), direction),
+    );
 
   const move = (direction: MoveDirection) => {
     const taskId = focused();
@@ -71,6 +75,27 @@ export function useTaskViewShortcuts({
     const found = findTaskGroup(getGroups(), focused());
     if (found) run(found.group);
   };
+
+  useEffect(() => {
+    if (!enabled) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      if (isInsidePopup(event.target) || peekedTaskId()) return;
+      const state = selection.getState();
+      if (!state.focusedTaskId || state.selectedTaskIds.size > 0) return;
+      event.preventDefault();
+      state.setFocusedTask(null);
+      const activeElement = document.activeElement;
+      if (
+        activeElement instanceof HTMLElement &&
+        activeElement.closest("[data-task-id]")
+      ) {
+        activeElement.blur();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [enabled, selection]);
 
   const active = { enabled };
   const board = { enabled: enabled && layout === "board" };

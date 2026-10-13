@@ -3015,8 +3015,8 @@
 			"moveAllConfirm": "Move all {{count}} planned tasks to To Do?",
 			"moveAllSuccess": "Moved {{count}} tasks to To Do",
 			"plan": "Plan",
-			"moveAllTooltip": "Move All Planned to To Do",
-			"moveAll": "Move All",
+			"moveAllTooltip": "Move all planned tasks to To Do",
+			"moveAll": "Move all",
 			"addTask": "Add task",
 			"sections": {
 				"planned": "Planned",
@@ -3131,7 +3131,8 @@
 			"open": "Open",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PRs"
+			"count_other": "{{count}} PRs",
+			"closed": "Closed"
 		},
 		"assignee": {
 			"label": "Assignee",
@@ -3217,7 +3218,6 @@
 			"required": "Required",
 			"enterKey": "Enter",
 			"toSave": "to save",
-			"today": "Today",
 			"clear": "Clear",
 			"setValue": "Set {{field}}…",
 			"noMatches": "No matching options",
@@ -3271,6 +3271,26 @@
 			"markdownCopied": "Copied as Markdown",
 			"copyFailed": "Couldn't copy to the clipboard.",
 			"pageUrlCopied": "Copied page URL"
+		},
+		"due": {
+			"overdueDays_one": "{{count}}d overdue",
+			"overdueDays_other": "{{count}}d overdue",
+			"overdueWeeks_one": "{{count}}w overdue",
+			"overdueWeeks_other": "{{count}}w overdue",
+			"today": "Today",
+			"tomorrow": "Tomorrow",
+			"inDays_one": "In {{count}} day",
+			"inDays_other": "In {{count}} days",
+			"fullDate": "Due {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Set due date…",
+			"startDatePlaceholder": "Set start date…",
+			"datePlaceholder": "Set date…",
+			"thisWeekend": "This weekend",
+			"nextWeek": "Next week",
+			"pickDate": "Pick a date",
+			"startsOn": "Starts {{date}}"
 		}
 	},
 	"invitations": {

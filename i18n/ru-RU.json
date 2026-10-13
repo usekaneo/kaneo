@@ -3234,7 +3234,8 @@
 			"count_one": "{{count}} PR",
 			"count_few": "{{count}} PR",
 			"count_many": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Закрыт"
 		},
 		"assignee": {
 			"label": "Исполнитель",
@@ -3374,7 +3375,6 @@
 			"required": "Обязательно",
 			"enterKey": "Enter",
 			"toSave": "чтобы сохранить",
-			"today": "Сегодня",
 			"clear": "Очистить",
 			"setValue": "Задать {{field}}…",
 			"noMatches": "Нет подходящих вариантов",
@@ -3431,6 +3431,32 @@
 			"markdownCopied": "Скопировано как Markdown",
 			"copyFailed": "Не удалось скопировать в буфер обмена.",
 			"pageUrlCopied": "URL страницы скопирован"
+		},
+		"due": {
+			"overdueDays_one": "Просрочено на {{count}} д.",
+			"overdueDays_few": "Просрочено на {{count}} д.",
+			"overdueDays_many": "Просрочено на {{count}} д.",
+			"overdueDays_other": "Просрочено на {{count}} д.",
+			"overdueWeeks_one": "Просрочено на {{count}} нед.",
+			"overdueWeeks_few": "Просрочено на {{count}} нед.",
+			"overdueWeeks_many": "Просрочено на {{count}} нед.",
+			"overdueWeeks_other": "Просрочено на {{count}} нед.",
+			"today": "Сегодня",
+			"tomorrow": "Завтра",
+			"inDays_one": "Через {{count}} день",
+			"inDays_few": "Через {{count}} дня",
+			"inDays_many": "Через {{count}} дней",
+			"inDays_other": "Через {{count}} дня",
+			"fullDate": "Срок {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Установить срок…",
+			"startDatePlaceholder": "Установить дату начала…",
+			"datePlaceholder": "Установить дату…",
+			"thisWeekend": "В эти выходные",
+			"nextWeek": "На следующей неделе",
+			"pickDate": "Выбрать дату",
+			"startsOn": "Начало: {{date}}"
 		}
 	},
 	"invitations": {

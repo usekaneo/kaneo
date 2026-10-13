@@ -3116,7 +3116,8 @@
 			"open": "Ανοιχτό",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PRs"
+			"count_other": "{{count}} PRs",
+			"closed": "Κλειστό"
 		},
 		"assignee": {
 			"label": "Ανατεθειμένος",
@@ -3222,7 +3223,6 @@
 			"required": "Υποχρεωτικό",
 			"enterKey": "Enter",
 			"toSave": "για αποθήκευση",
-			"today": "Σήμερα",
 			"clear": "Εκκαθάριση",
 			"setValue": "Ορισμός {{field}}…",
 			"noMatches": "Δεν βρέθηκαν επιλογές",
@@ -3271,6 +3271,26 @@
 			"markdownCopied": "Αντιγράφηκε ως Markdown",
 			"copyFailed": "Δεν ήταν δυνατή η αντιγραφή στο πρόχειρο.",
 			"pageUrlCopied": "Το URL της σελίδας αντιγράφηκε"
+		},
+		"due": {
+			"overdueDays_one": "Καθυστέρηση {{count}} ημ.",
+			"overdueDays_other": "Καθυστέρηση {{count}} ημ.",
+			"overdueWeeks_one": "Καθυστέρηση {{count}} εβδ.",
+			"overdueWeeks_other": "Καθυστέρηση {{count}} εβδ.",
+			"today": "Σήμερα",
+			"tomorrow": "Αύριο",
+			"inDays_one": "Σε {{count}} ημέρα",
+			"inDays_other": "Σε {{count}} ημέρες",
+			"fullDate": "Λήξη {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Ορισμός προθεσμίας…",
+			"startDatePlaceholder": "Ορισμός ημερομηνίας έναρξης…",
+			"datePlaceholder": "Ορισμός ημερομηνίας…",
+			"thisWeekend": "Αυτό το Σαββατοκύριακο",
+			"nextWeek": "Την επόμενη εβδομάδα",
+			"pickDate": "Επιλογή ημερομηνίας",
+			"startsOn": "Ξεκινά {{date}}"
 		}
 	},
 	"invitations": {

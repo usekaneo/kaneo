@@ -1,7 +1,7 @@
 import {
   ArchiveIcon,
   CalendarDaysIcon,
-  CircleDashedIcon,
+  CircleDotIcon,
   type LucideIcon,
   SignalHighIcon,
   SquareKanbanIcon,
@@ -84,7 +84,7 @@ export function useBulkActions(
       run(
         () => operations.bulkChangeStatus({ taskIds: taskIds(), status }),
         t("tasks:bulk.updateSuccess", { count }),
-        CircleDashedIcon,
+        CircleDotIcon,
         t("tasks:bulk.updateError"),
       ),
     setPriority: (priority: string) =>

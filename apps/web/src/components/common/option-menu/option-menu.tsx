@@ -12,6 +12,7 @@ type OptionMenuProps = {
   onSelect: (value: string) => void;
   onQueryChange?: (query: string) => void;
   status?: ReactNode;
+  inputHint?: ReactNode;
 };
 
 export function OptionMenu({
@@ -21,12 +22,13 @@ export function OptionMenu({
   onSelect,
   onQueryChange,
   status,
+  inputHint,
 }: OptionMenuProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const needle = query.trim().toLowerCase();
-  const filtered = options.filter((option) =>
-    option.label.toLowerCase().includes(needle),
+  const filtered = options.filter(
+    (option) => option.pinned || option.label.toLowerCase().includes(needle),
   );
 
   const selectByNumber = (key: string) => {
@@ -69,15 +71,22 @@ export function OptionMenu({
       autoHighlight="always"
       keepHighlight
     >
-      <Autocomplete.Input
-        autoFocus
-        aria-label={label}
-        placeholder={placeholder}
-        onKeyDown={(event) => {
-          if (selectByNumber(event.key)) event.preventDefault();
-        }}
-        className="h-10 w-full border-border/80 border-b bg-transparent px-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
-      />
+      <div className="flex h-10 items-center border-border/80 border-b">
+        <Autocomplete.Input
+          autoFocus
+          aria-label={label}
+          placeholder={placeholder}
+          onKeyDown={(event) => {
+            if (selectByNumber(event.key)) event.preventDefault();
+          }}
+          className="h-full min-w-0 flex-1 bg-transparent px-3 text-[13px] text-foreground outline-none placeholder:text-muted-foreground"
+        />
+        {inputHint && (
+          <span className="shrink-0 pe-3 text-muted-foreground text-xs">
+            {inputHint}
+          </span>
+        )}
+      </div>
       {status ? (
         <div className="px-3 py-5 text-muted-foreground text-xs">{status}</div>
       ) : (
@@ -104,6 +113,11 @@ export function OptionMenu({
                   <span className="min-w-0 flex-1 truncate">
                     {option.label}
                   </span>
+                  {option.hint && (
+                    <span className="shrink-0 text-muted-foreground text-xs">
+                      {option.hint}
+                    </span>
+                  )}
                   {option.selected ? (
                     <Check
                       aria-hidden="true"
