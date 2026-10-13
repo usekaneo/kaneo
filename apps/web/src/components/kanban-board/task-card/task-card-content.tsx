@@ -27,6 +27,7 @@ import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { cn } from "@/lib/cn";
+import { isOwnDomEvent } from "@/lib/is-own-dom-event";
 import { isTaskCompleted } from "@/lib/due-date-status";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -70,6 +71,7 @@ function TaskCardContent({
     boolean | null
   >(null);
   const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
   const isTaskSelected = useBulkSelectionStore((state) =>
     state.selectedTaskIds.has(task.id),
   );
@@ -112,8 +114,15 @@ function TaskCardContent({
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- the focusable sortable wrapper owns keyboard access */}
           <div
             onClick={handleClick}
+            onPointerDown={(event) => {
+              if (isOwnDomEvent(event)) setIsPressed(true);
+            }}
+            onPointerUp={() => setIsPressed(false)}
+            onPointerLeave={() => setIsPressed(false)}
+            onPointerCancel={() => setIsPressed(false)}
             className={cn(
-              "group relative flex flex-col rounded-[10px] border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out [&:active:not(:has(:is(button,a):active))]:scale-[0.98]",
+              "group relative flex flex-col rounded-[10px] border p-3 transition-[background-color,border-color,box-shadow,scale] duration-150 ease-out",
+              isPressed && "scale-[0.98]",
               disableDragDrop ? "cursor-default" : "cursor-move",
               taskIsCompleted
                 ? "border-board-card-done-border bg-board-card-done"
