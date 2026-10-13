@@ -20,11 +20,23 @@ test("sign up, create a workspace with a starter project, and sign in again", as
 
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByLabel("Workspace name", { exact: true }).fill(workspaceName);
-  await page
-    .getByRole("button", { name: "Create workspace", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+
+  // Solo skips the invite step even if SMTP is enabled later.
+  await page.getByRole("radio", { name: /Just me/ }).check();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  const openWorkspace = page.getByRole("button", {
+    name: `Open ${workspaceName}`,
+    exact: true,
+  });
+  await expect(openWorkspace).toBeVisible({ timeout: 30_000 });
+  await openWorkspace.click();
+
   await expect(page).toHaveURL(
     /\/dashboard\/workspace\/[^/]+\/project\/[^/]+\/board$/,
+    { timeout: 30_000 },
   );
   await expect(
     page.getByText("Drag this card to the next column", { exact: true }),
