@@ -2,22 +2,21 @@ import {
   ArchiveIcon,
   CalendarDaysIcon,
   CircleDotIcon,
-  type LucideIcon,
-  SignalHighIcon,
   SquareKanbanIcon,
   SquircleDashedIcon,
   TagIcon,
   Trash2Icon,
   UserRoundIcon,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { createElement, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useBulkOperations } from "@/hooks/mutations/task/use-bulk-operations";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
-import { toast } from "@/lib/toast";
+import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
+import { type ToastIcon, toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 
 export function useBulkActions(
@@ -57,7 +56,7 @@ export function useBulkActions(
   const run = async (
     action: () => Promise<unknown>,
     success: string,
-    icon: LucideIcon,
+    icon: ToastIcon,
     error: string,
   ) => {
     try {
@@ -91,7 +90,8 @@ export function useBulkActions(
       run(
         () => operations.bulkPriority({ taskIds: taskIds(), priority }),
         t("tasks:bulk.updateSuccess", { count }),
-        SignalHighIcon,
+        ({ className }) =>
+          createElement(PriorityGlyph, { priority, className }),
         t("tasks:bulk.updatePriorityError"),
       ),
     assign: (userId: string) =>
