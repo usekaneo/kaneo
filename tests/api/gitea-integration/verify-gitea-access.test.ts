@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const { mockGiteaFetch } = vi.hoisted(() => ({
   mockGiteaFetch: vi.fn(),
@@ -33,9 +33,8 @@ vi.mock("../../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   verifyGiteaToken: (...args: unknown[]) => mockGiteaFetch(...args),
 }));
 
-const { default: verifyGiteaAccess } = await import(
-  "../../../apps/api/src/gitea-integration/controllers/verify-gitea-access"
-);
+const { default: verifyGiteaAccess } =
+  await import("../../../apps/api/src/gitea-integration/controllers/verify-gitea-access");
 
 beforeEach(() => {
   vi.clearAllMocks();

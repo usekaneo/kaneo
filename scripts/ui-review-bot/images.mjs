@@ -26,7 +26,7 @@ export function decodeScreenshot(bytes, { preview = false } = {}) {
   let ended = false;
   let channels;
   let count = 0;
-  for (let offset = 8; offset < bytes.length; ) {
+  for (let offset = 8; offset < bytes.length;) {
     if (++count > 1024 || offset + 12 > bytes.length || ended) throw invalid();
     const length = bytes.readUInt32BE(offset);
     const end = offset + length + 12;

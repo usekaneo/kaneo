@@ -1,7 +1,7 @@
 import { once } from "node:events";
 import { createServer, type Socket } from "node:net";
 import * as nodemailer from "nodemailer";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getSmtpTransportOptions } from "./smtp-config";
 
 // A loopback-only SMTP sink: never forwards mail or connects to a real provider.

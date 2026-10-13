@@ -1,9 +1,22 @@
+import { hasWorkspaceAccess, syncWorkspaceAccess } from "./workspace-access";
+import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
-import { projectTable } from "../database/schema";
+import {
+  projectTable,
+  userTable,
+  workspaceUserTable,
+} from "../database/schema";
 import { subscribeToEvent } from "../events";
+import { findInaccessibleProjectIds } from "../project-access/find-inaccessible-project-ids";
+import { filterUsersWithProjectAccess } from "../project-access/filter-users-with-project-access";
+import { listWorkspaceProjectIds } from "../project-access/list-workspace-project-ids";
+import {
+  hasInstanceAdminRole,
+  instanceAdminRoleSql,
+} from "../utils/instance-admin-role";
 import { isRedisConfigured } from "../redis";
 import {
   getRelationSourceProject,
@@ -20,6 +33,10 @@ import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
 
 const INSTANCE_ID = randomUUID();
+let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
+let receivedRevocations:
+  | ReturnType<typeof createRevocationDelivery>
+  | undefined;
 
 type ProjectConnection = {
   ws: WSContext;
@@ -75,6 +92,31 @@ function deliverToLocalUserConnections(
   userId: string,
   message: UserBroadcastMessage,
 ) {
+  if (
+    message.type === "WORKSPACE_ACCESS_REVOKED" &&
+    typeof message.workspaceId === "string"
+  ) {
+    revokeLocalWorkspaceConnections(userId, message.workspaceId);
+  }
+  if (
+    message.type === "PROJECT_ACCESS_CHANGED" &&
+    typeof message.workspaceId === "string"
+  ) {
+    void revokeLocalProjectConnections(userId, message.workspaceId);
+  }
+  const allAccessRevoked = message.type === "USER_ACCESS_REVOKED";
+  if (allAccessRevoked) {
+    for (const [projectId, connections] of projectConnections)
+      for (const conn of [...connections]) {
+        if (conn.userId !== userId) continue;
+        removeConnection(projectId, conn);
+        try {
+          conn.ws.close(1008, "User access revoked");
+        } catch {
+          /* Already closed. */
+        }
+      }
+  }
   const connections = userConnections.get(userId);
   if (!connections) return;
 
@@ -84,6 +126,14 @@ function deliverToLocalUserConnections(
       conn.ws.send(payload);
     } catch {
       connections.delete(conn);
+    }
+    if (allAccessRevoked) {
+      connections.delete(conn);
+      try {
+        conn.ws.close(1008, "User access revoked");
+      } catch {
+        /* Already closed. */
+      }
     }
   }
   if (connections.size === 0) {
@@ -119,30 +169,78 @@ export async function initializeWebSocketAdapter() {
     ? new RedisBroadcastAdapter()
     : new InMemoryBroadcastAdapter();
 
+  const retryReceived = createRevocationDelivery({
+    async publishToUser(msg) {
+      if (
+        await hasWorkspaceAccess(msg.userId, msg.message.workspaceId as string)
+      )
+        return;
+      if (receivedRevocations !== retryReceived) return;
+      deliverToLocalUserConnections(msg.userId, msg.message);
+    },
+  });
+  receivedRevocations = retryReceived;
   try {
     await nextAdapter.subscribe((msg: BroadcastMessage) => {
       return deliverToLocalConnections(
         msg.projectId,
         msg.message,
         msg.excludeInitiatorId,
+        msg.authorizationBatch,
       );
     });
-    await nextAdapter.subscribeToUser((msg: UserBroadcast) => {
-      if (msg.origin === INSTANCE_ID) {
-        return;
-      }
-      deliverToLocalUserConnections(msg.userId, msg.message);
-    });
+    await nextAdapter.subscribeToUser(
+      async (msg: UserBroadcast) => {
+        if (msg.origin === INSTANCE_ID) {
+          return;
+        }
+        if (
+          msg.message.type === "WORKSPACE_ACCESS_REVOKED" &&
+          typeof msg.message.workspaceId === "string" &&
+          !msg.message.force
+        ) {
+          try {
+            // Redis can deliver an offline-queued initial publish after this
+            // member has been re-added. Check the recipient's current access.
+            if (await hasWorkspaceAccess(msg.userId, msg.message.workspaceId))
+              return;
+          } catch (error) {
+            console.error(
+              "Failed to verify received workspace revocation:",
+              error,
+            );
+            await retryReceived.send(msg);
+            return;
+          }
+        }
+        deliverToLocalUserConnections(msg.userId, msg.message);
+      },
+      async () => {
+        await Promise.all([
+          ...[...userConnections].flatMap(([userId, connections]) =>
+            [...connections].map(({ ws }) => syncWorkspaceAccess(userId, ws)),
+          ),
+          recheckLocalProjectAccess(),
+        ]);
+      },
+    );
   } catch (err) {
+    retryReceived.stop();
+    receivedRevocations = undefined;
     await nextAdapter.shutdown().catch(() => {});
     throw err;
   }
 
   adapter = nextAdapter;
+  revocationDelivery = createRevocationDelivery(nextAdapter);
   console.log(`📡 WebSockets Initialized using: "${adapter.constructor.name}"`);
 }
 
 export async function shutdownWebSocketAdapter() {
+  revocationDelivery?.stop();
+  revocationDelivery = undefined;
+  receivedRevocations?.stop();
+  receivedRevocations = undefined;
   const pendingQueues = [...projectBroadcastQueues.entries()];
 
   for (const timeout of projectBroadcastTimeouts.values()) {
@@ -201,6 +299,144 @@ export async function closeProjectConnections(projectId: string) {
   }
 }
 
+function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
+  for (const [projectId, connections] of projectConnections) {
+    for (const conn of [...connections]) {
+      if (conn.userId !== userId || conn.workspaceId !== workspaceId) continue;
+      removeConnection(projectId, conn);
+      try {
+        conn.ws.close(1008, "Workspace access revoked");
+      } catch {
+        /* Already closed. */
+      }
+    }
+  }
+}
+
+async function revokeLocalProjectConnections(
+  userId: string,
+  workspaceId?: string,
+) {
+  const revokedWorkspaceIds = new Set<string>();
+  const owned = [...projectConnections].flatMap(([projectId, connections]) =>
+    [...connections]
+      .filter(
+        (conn) =>
+          conn.userId === userId &&
+          (workspaceId === undefined || conn.workspaceId === workspaceId),
+      )
+      .map((conn) => ({ projectId, conn })),
+  );
+  if (owned.length === 0) return revokedWorkspaceIds;
+  let denied: Set<string>;
+  try {
+    denied = new Set(
+      await findInaccessibleProjectIds(
+        userId,
+        owned.map(({ projectId }) => projectId),
+      ),
+    );
+  } catch (error) {
+    console.error("Failed to verify project access:", error);
+    return revokedWorkspaceIds;
+  }
+  for (const { projectId, conn } of owned) {
+    if (!denied.has(projectId)) continue;
+    if (!projectConnections.get(projectId)?.has(conn)) continue;
+    removeConnection(projectId, conn);
+    revokedWorkspaceIds.add(conn.workspaceId);
+    try {
+      conn.ws.close(1008, "Project access revoked");
+    } catch {}
+  }
+  return revokedWorkspaceIds;
+}
+
+async function recheckLocalProjectAccess() {
+  const userIds = new Set(
+    [...projectConnections.values()].flatMap((connections) =>
+      [...connections].map((conn) => conn.userId),
+    ),
+  );
+  await Promise.all(
+    [...userIds].map(async (userId) => {
+      for (const workspaceId of await revokeLocalProjectConnections(userId)) {
+        const payload = JSON.stringify({
+          type: "PROJECT_ACCESS_CHANGED",
+          workspaceId,
+        });
+        for (const { ws } of userConnections.get(userId) ?? []) {
+          try {
+            ws.send(payload);
+          } catch {}
+        }
+      }
+    }),
+  );
+}
+
+export async function revokeUserConnections(userId: string) {
+  const message = { type: "USER_ACCESS_REVOKED" };
+  deliverToLocalUserConnections(userId, message);
+  await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
+}
+
+export async function revokeWorkspaceConnections(
+  userId: string,
+  workspaceId: string,
+  options: { force?: boolean; role?: string | null } = {},
+) {
+  if (!options.force) {
+    try {
+      const [user] =
+        "role" in options
+          ? [{ role: options.role }]
+          : await db
+              .select({ userId: userTable.id, role: userTable.role })
+              .from(userTable)
+              .where(eq(userTable.id, userId));
+      if (hasInstanceAdminRole(user?.role)) return;
+    } catch (error) {
+      console.error("Failed to read role after membership removal:", error);
+    }
+  }
+  deliverToLocalUserConnections(userId, {
+    type: "WORKSPACE_ACCESS_REVOKED",
+    workspaceId,
+  });
+  await revocationDelivery?.send(
+    {
+      userId,
+      message: {
+        type: "WORKSPACE_ACCESS_REVOKED",
+        workspaceId,
+        ...(options.force ? { force: true } : {}),
+      },
+      origin: INSTANCE_ID,
+    },
+    options.force
+      ? undefined
+      : async () => {
+          const [[user], members] = await Promise.all([
+            db
+              .select({ role: userTable.role })
+              .from(userTable)
+              .where(eq(userTable.id, userId)),
+            db
+              .select({ userId: workspaceUserTable.userId })
+              .from(workspaceUserTable)
+              .where(
+                and(
+                  eq(workspaceUserTable.userId, userId),
+                  eq(workspaceUserTable.workspaceId, workspaceId),
+                ),
+              ),
+          ]);
+          return !hasInstanceAdminRole(user?.role) && members.length === 0;
+        },
+  );
+}
+
 const workspaceLookups = new Map<string, Promise<string | null>>();
 function currentProjectWorkspace(projectId: string) {
   let pending = workspaceLookups.get(projectId);
@@ -217,10 +453,81 @@ function currentProjectWorkspace(projectId: string) {
   return pending;
 }
 
+const authorizationLookups = new Map<
+  string,
+  Promise<{
+    workspaceId: string | null;
+    members: Set<string>;
+    restricted: Set<string>;
+  } | null>
+>();
+function currentBroadcastAccess(
+  projectId: string,
+  recipients: Array<{ userId: string }>,
+  authorizationBatch: string,
+) {
+  const userIds = [...new Set(recipients.map((conn) => conn.userId))].sort();
+  const key = JSON.stringify([projectId, authorizationBatch, userIds]);
+  let pending = authorizationLookups.get(key);
+  if (!pending) {
+    pending = (async () => {
+      let workspaceId: string | null;
+      try {
+        workspaceId = await currentProjectWorkspace(projectId);
+      } catch (error) {
+        console.error("Failed to validate project broadcast access:", error);
+        return null;
+      }
+      let members = new Set<string>();
+      let restricted = new Set<string>();
+      if (workspaceId) {
+        try {
+          const [rows, permitted] = await Promise.all([
+            db
+              .select({ userId: workspaceUserTable.userId })
+              .from(workspaceUserTable)
+              .where(
+                and(
+                  eq(workspaceUserTable.workspaceId, workspaceId),
+                  inArray(workspaceUserTable.userId, userIds),
+                ),
+              ),
+            filterUsersWithProjectAccess(userIds, projectId),
+          ]);
+          members = new Set(rows.map((row) => row.userId));
+          restricted = new Set(
+            userIds.filter((userId) => !permitted.has(userId)),
+          );
+          const nonmembers = userIds.filter((userId) => !members.has(userId));
+          if (nonmembers.length > 0) {
+            const admins = await db
+              .select({ userId: userTable.id, role: userTable.role })
+              .from(userTable)
+              .where(
+                and(
+                  inArray(userTable.id, nonmembers),
+                  instanceAdminRoleSql(userTable.role),
+                ),
+              );
+            for (const admin of admins) members.add(admin.userId);
+          }
+        } catch (error) {
+          console.error("Failed to validate broadcast membership:", error);
+          return null;
+        }
+      }
+      return { workspaceId, members, restricted };
+    })().finally(() => authorizationLookups.delete(key));
+    authorizationLookups.set(key, pending);
+  }
+  return pending;
+}
+
 async function deliverToLocalConnections(
   projectId: string,
   message: ProjectBroadcastMessage,
   excludeInitiatorId?: string,
+  authorizationBatch: string = randomUUID(),
 ) {
   if (message.type === "PROJECT_MOVED") {
     closeLocalProjectConnections(projectId);
@@ -229,21 +536,29 @@ async function deliverToLocalConnections(
   const connections = projectConnections.get(projectId);
   if (!connections) return;
   const recipients = [...connections];
-  let workspaceId: string | null;
-  try {
-    workspaceId = await currentProjectWorkspace(projectId);
-  } catch (error) {
-    console.error("Failed to validate project broadcast access:", error);
-    workspaceId = null;
-  }
+  const access = await currentBroadcastAccess(
+    projectId,
+    recipients,
+    authorizationBatch,
+  );
+  if (!access) return;
+  const { workspaceId, members, restricted } = access;
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.
     if (!projectConnections.get(projectId)?.has(conn)) continue;
-    if (conn.workspaceId !== workspaceId) {
+    const revoked =
+      conn.workspaceId !== workspaceId
+        ? "Project workspace changed"
+        : !members.has(conn.userId)
+          ? "Workspace access revoked"
+          : restricted.has(conn.userId)
+            ? "Project access revoked"
+            : null;
+    if (revoked) {
       removeConnection(projectId, conn);
       try {
-        conn.ws.close(1008, "Project workspace changed");
+        conn.ws.close(1008, revoked);
       } catch {
         /* Already closed. */
       }
@@ -297,10 +612,16 @@ export function broadcastToProject(
     projectBroadcastQueues.set(projectId, new Map());
   }
 
-  const messageKey = `${message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
-  projectBroadcastQueues
-    .get(projectId)
-    ?.set(messageKey, { message, excludeInitiatorId });
+  const messageKey = `${message.type === "TASKS_REORDERED" ? `${message.type}:${crypto.randomUUID()}` : message.type}:${message.taskId ?? ""}:${message.sourceTaskId ?? ""}:${message.targetTaskId ?? ""}`;
+  const previous = projectBroadcastQueues.get(projectId)?.get(messageKey);
+  projectBroadcastQueues.get(projectId)?.set(messageKey, {
+    message: {
+      ...message,
+      ...(previous?.message.linksChanged ? { linksChanged: true } : {}),
+      ...(previous?.message.taskTitleChanged ? { taskTitleChanged: true } : {}),
+    },
+    excludeInitiatorId,
+  });
 
   if (projectBroadcastTimeouts.has(projectId)) {
     return;
@@ -313,6 +634,8 @@ export function broadcastToProject(
 
     if (!queue || !adapter) return;
 
+    // Only this captured flush may share its authorization snapshot.
+    const authorizationBatch = randomUUID();
     // Publish each queued message through the adapter
     for (const { message: msg, excludeInitiatorId: exId } of queue.values()) {
       void adapter
@@ -320,6 +643,7 @@ export function broadcastToProject(
           projectId,
           message: msg,
           excludeInitiatorId: exId,
+          authorizationBatch,
         })
         .catch((err) => {
           console.error(
@@ -334,6 +658,7 @@ export function broadcastToProject(
 }
 
 type TaskEvent = {
+  titleChanged?: boolean;
   skipSubtaskParentRefresh?: boolean;
   id: string | undefined;
   projectId: string;
@@ -381,6 +706,7 @@ const taskUpdateEvents = [
   "task.label_assigned",
   "task.label_unassigned",
   "task.label_created",
+  "task.labels_updated",
   "task.label_deleted",
   "task-relation.created",
   "task-relation.deleted",
@@ -414,7 +740,7 @@ subscribeToEvent<{
     { type: "TASK_MOVED", projectId: fromProjectId, taskId },
     initiatorId,
   );
-  refreshParentBoards(await getSubtaskParentProjects([taskId]), fromProjectId);
+  refreshParentBoards(await getSubtaskParentProjects([taskId]), toProjectId);
 });
 
 subscribeToEvent<{
@@ -465,16 +791,53 @@ subscribeToEvent<{ notificationId: string; userId: string }>(
   },
 );
 
+async function broadcastProjectMembersUpdated(
+  workspaceId: string,
+  projectIds?: string[],
+) {
+  for (const projectId of projectIds ??
+    (await listWorkspaceProjectIds(workspaceId)))
+    broadcastToProject(projectId, {
+      type: "PROJECT_MEMBERS_UPDATED",
+      projectId,
+    });
+}
+
+subscribeToEvent<{
+  workspaceId: string;
+  userId: string;
+  projectIds?: string[];
+}>("project_access.updated", async ({ workspaceId, userId, projectIds }) => {
+  if (!workspaceId || !userId) return;
+  const message = { type: "PROJECT_ACCESS_CHANGED", workspaceId };
+  deliverToLocalUserConnections(userId, message);
+  await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
+  await broadcastProjectMembersUpdated(workspaceId, projectIds);
+});
+
+subscribeToEvent<{ workspaceId: string; projectIds?: string[] }>(
+  "project_members.updated",
+  async ({ workspaceId, projectIds }) => {
+    if (!workspaceId) return;
+    await broadcastProjectMembersUpdated(workspaceId, projectIds);
+  },
+);
+
 subscribeToEvent<{
   projectId: string;
   initiatorId?: string;
+  linksChanged?: boolean;
 }>("project.updated", async (data) => {
   const { projectId, initiatorId } = data;
   if (!projectId) return;
 
   broadcastToProject(
     projectId,
-    { type: "PROJECT_UPDATED", projectId },
+    {
+      type: "PROJECT_UPDATED",
+      projectId,
+      ...(data.linksChanged ? { linksChanged: true } : {}),
+    },
     initiatorId,
   );
 });
@@ -500,6 +863,7 @@ for (const eventName of taskUpdateEvents) {
       case "task.label_assigned":
       case "task.label_unassigned":
       case "task.label_created":
+      case "task.labels_updated":
       case "task.label_deleted":
         type = "TASK_LABEL_UPDATED";
         break;
@@ -531,6 +895,9 @@ for (const eventName of taskUpdateEvents) {
         taskId: taskId,
         sourceTaskId: data.sourceTaskId,
         targetTaskId: data.targetTaskId,
+        ...(eventName === "task.title_changed" || data.titleChanged
+          ? { taskTitleChanged: true }
+          : {}),
       },
       initiatorId,
     );
@@ -544,3 +911,15 @@ for (const eventName of taskUpdateEvents) {
     }
   });
 }
+
+subscribeToEvent<{
+  projectId: string;
+  userId: string;
+  tasks: Array<{ id: string; position: number; status?: string }>;
+}>("tasks.reordered", async (data) => {
+  broadcastToProject(data.projectId, {
+    type: "TASKS_REORDERED",
+    projectId: data.projectId,
+    tasks: data.tasks,
+  });
+});

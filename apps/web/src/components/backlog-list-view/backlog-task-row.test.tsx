@@ -5,17 +5,25 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import BacklogTaskRow from "./backlog-task-row";
 
+const { sortableKeyDown } = vi.hoisted(() => ({ sortableKeyDown: vi.fn() }));
 const { useSortable } = vi.hoisted(() => ({
   useSortable: vi.fn((_options: { id: string }) => ({
     attributes: { role: "button" },
-    listeners: {},
+    listeners: { onKeyDown: sortableKeyDown },
     setNodeRef: vi.fn(),
     transform: null,
     transition: null,
@@ -52,7 +60,10 @@ vi.mock("@/store/user-preferences", () => ({
   useUserPreferencesStore: () => ({ showLabels: true, showTaskNumbers: true }),
 }));
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: "en-US", resolvedLanguage: "en-US" },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
@@ -98,6 +109,71 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("backlog row subscriptions", () => {
+  it.each([
+    ["plain click", {}],
+    ["Ctrl+click", { ctrlKey: true }],
+  ])(
+    "selects the visible range after %s and Shift+click",
+    (_label, firstClick) => {
+      useBacklogBulkSelectionStore
+        .getState()
+        .setAvailableTasks([task.id, otherTask.id]);
+      render(
+        <>
+          <BacklogTaskRow task={task} />
+          <BacklogTaskRow task={otherTask} />
+        </>,
+      );
+
+      fireEvent.click(
+        screen.getByRole("button", { name: /First task/ }),
+        firstClick,
+      );
+      fireEvent.click(screen.getByRole("button", { name: /Second task/ }), {
+        shiftKey: true,
+      });
+
+      expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set([task.id, otherTask.id]),
+      );
+    },
+  );
+
+  it("selects the visible range with Shift+Enter", () => {
+    useBacklogBulkSelectionStore
+      .getState()
+      .setAvailableTasks([task.id, otherTask.id]);
+    render(
+      <>
+        <BacklogTaskRow task={task} />
+        <BacklogTaskRow task={otherTask} />
+      </>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /First task/ }));
+    fireEvent.keyDown(screen.getByRole("button", { name: /Second task/ }), {
+      key: "Enter",
+      shiftKey: true,
+    });
+
+    expect(useBacklogBulkSelectionStore.getState().selectedTaskIds).toEqual(
+      new Set([task.id, otherTask.id]),
+    );
+    fireEvent.keyDown(screen.getByRole("button", { name: /Second task/ }), {
+      key: " ",
+      code: "Space",
+    });
+    expect(sortableKeyDown).not.toHaveBeenCalled();
+  });
+
+  it("takes keyboard focus when the row is focused", () => {
+    render(<BacklogTaskRow task={task} />);
+
+    fireEvent.focus(screen.getByRole("button", { name: /First task/ }));
+
+    expect(useBacklogBulkSelectionStore.getState().focusedTaskId).toBe(task.id);
+  });
+
   it("only renders the row whose selection changes, including deselection", () => {
     render(
       <>
@@ -142,7 +218,7 @@ describe("backlog row subscriptions", () => {
     );
     expect(useSortable).not.toHaveBeenCalled();
 
-    act(() => useBacklogBulkSelectionStore.getState().focusNext());
+    act(() => useBacklogBulkSelectionStore.getState().setFocusedTask(task.id));
     expect(useSortable.mock.calls.map(([options]) => options.id)).toEqual([
       "task-1",
     ]);
@@ -151,7 +227,9 @@ describe("backlog row subscriptions", () => {
     ).not.toBeNull();
 
     useSortable.mockClear();
-    act(() => useBacklogBulkSelectionStore.getState().focusNext());
+    act(() =>
+      useBacklogBulkSelectionStore.getState().setFocusedTask(otherTask.id),
+    );
     expect(
       useSortable.mock.calls.map(([options]) => options.id).sort(),
     ).toEqual(["task-1", "task-2"]);

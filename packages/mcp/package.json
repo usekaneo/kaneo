@@ -1,6 +1,6 @@
 {
 	"name": "@kaneo/mcp",
-	"version": "0.1.11",
+	"version": "0.1.13",
 	"mcpName": "io.github.usekaneo/kaneo",
 	"description": "Official MCP (Model Context Protocol) server for Kaneo, the open source project management platform: manage tasks, projects, and labels from Claude, Cursor, and other MCP clients",
 	"license": "MIT",
@@ -19,6 +19,18 @@
 		".": {
 			"import": "./dist/server.js",
 			"types": "./dist/server.d.ts"
+		},
+		"./tools": {
+			"types": "./dist/tools/register.d.ts",
+			"import": "./dist/tools/register.js"
+		},
+		"./device-flow": {
+			"types": "./dist/auth/device-flow.d.ts",
+			"import": "./dist/auth/device-flow.js"
+		},
+		"./normalize-base-url": {
+			"types": "./dist/utils/normalize-base-url.d.ts",
+			"import": "./dist/utils/normalize-base-url.js"
 		}
 	},
 	"publishConfig": {
@@ -30,39 +42,39 @@
 		"LICENSE"
 	],
 	"keywords": [
+		"ai-agents",
+		"claude",
+		"kanban",
+		"kaneo",
+		"kaneo-mcp",
 		"mcp",
 		"mcp-server",
 		"model-context-protocol",
-		"kaneo",
-		"kaneo-mcp",
 		"project-management",
-		"tasks",
-		"kanban",
-		"ai-agents",
-		"claude",
-		"stdio"
+		"stdio",
+		"tasks"
 	],
 	"scripts": {
-		"build": "tsc -p tsconfig.json",
+		"build": "vp run compile",
 		"prepublishOnly": "pnpm run build",
 		"dev": "tsx watch src/index.ts",
-		"lint": "biome check --write .",
+		"lint": "vp check .",
 		"start": "node dist/index.js",
-		"test": "vitest run --config vitest.config.ts",
-		"test:watch": "vitest --config vitest.config.ts"
+		"test": "vp run test:run",
+		"test:watch": "vp test --config vitest.config.ts"
 	},
 	"dependencies": {
-		"@modelcontextprotocol/sdk": "^1.30.0",
-		"open": "^11.0.0",
+		"@modelcontextprotocol/sdk": "^1.31.0",
+		"open": "^11.0.4",
 		"prompts": "^2.4.2",
-		"zod": "^4.4.3"
+		"zod": "^4.6.5"
 	},
 	"devDependencies": {
 		"@kaneo/typescript-config": "workspace:*",
-		"@types/node": "^26.1.2",
+		"@types/node": "^26.6.2",
 		"@types/prompts": "^2.4.9",
-		"tsx": "^4.23.9",
+		"tsx": "^4.23.15",
 		"typescript": "^7.0.2",
-		"vitest": "^5.0.1"
+		"vite-plus": "catalog:"
 	}
 }

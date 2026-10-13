@@ -1,3 +1,7 @@
+import { createIssueWrite } from "../../sync/dispatch-issue-write";
+import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
+import { canSyncTask } from "../../sync/eligibility";
+import { isTaskInFinalState } from "../../github/services/task-service";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -12,6 +16,16 @@ export async function handleTaskStatusChanged(
   event: TaskStatusChangedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   // Keep activity and other integrations informed without echoing an issue
   // webhook back to the GitLab project that produced it.
   if (event.sourceIntegrationId === context.integrationId) return;
@@ -32,7 +46,6 @@ export async function handleTaskStatusChanged(
     if (!issueLink) {
       return;
     }
-
     const issueIid = Number.parseInt(issueLink.externalId, 10);
     if (Number.isNaN(issueIid)) {
       console.warn("Skipping GitLab status sync for invalid issue iid", {
@@ -42,21 +55,43 @@ export async function handleTaskStatusChanged(
       return;
     }
 
-    await updateIssueLabelsGitlab(config, issueIid, {
-      remove: [`status:${event.oldStatus}`],
-      add: [`status:${event.newStatus}`],
-    });
+    const currentValue = await syncTaskFieldLabels(
+      event.taskId,
+      context,
+      issueLink,
+      "gitlab",
+      "status",
+      (changes, write) =>
+        updateIssueLabelsGitlab(config, issueIid, changes, true, write),
+    );
+    if (currentValue === undefined) return;
+    const write = createIssueWrite(
+      { ...issueLink, taskId: event.taskId },
+      JSON.stringify(context.config),
+    );
 
-    const closing = event.newStatus === "done";
-    const reopening = event.oldStatus === "done" && event.newStatus !== "done";
+    const closing = await isTaskInFinalState({
+      projectId: event.projectId,
+      status: currentValue,
+      columnId: null,
+    });
+    const reopening =
+      !closing &&
+      (await isTaskInFinalState({
+        projectId: event.projectId,
+        status: event.oldStatus,
+        columnId: null,
+      }));
 
     if (!closing && !reopening) {
       return;
     }
 
-    await createGitlabClient(config).updateIssue(config.projectPath, issueIid, {
-      state_event: closing ? "close" : "reopen",
-    });
+    await write(() =>
+      createGitlabClient(config).updateIssue(config.projectPath, issueIid, {
+        state_event: closing ? "close" : "reopen",
+      }),
+    );
 
     await updateExternalLink(issueLink.id, {
       metadata: {

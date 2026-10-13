@@ -31,6 +31,15 @@ upgrade-rendering regression checks. Configure the new job checks as required in
 GitHub if they should block merging; editing workflows alone does not change
 branch protection.
 
+**Contribution eligibility** is a separate workflow. It posts a status on the
+head commit of every open PR. Maintainers, vouched accounts, and approved bots
+pass without an issue; everyone else has to link an open
+`ready-for-contribution` issue from this repo. The workflow always takes its
+code and policy from `main`, never from the PR. Voucher management and the
+branch-rule setup are covered in
+[the contribution guide](../../CONTRIBUTING.md#contribution-eligibility). Run
+its tests with `node --test scripts/contribution-eligibility/*.test.mjs`.
+
 ## Local runtime checks
 
 Use disposable services only. The HTTP helpers refuse non-loopback origins.

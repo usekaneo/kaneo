@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { waitForDatabase } from "../../../apps/api/src/database/wait-for-database";
 
 describe("wait-for-database", () => {

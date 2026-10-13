@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const { sendDueDateReminder } = vi.hoisted(() => ({
   sendDueDateReminder: vi.fn<
@@ -25,19 +25,15 @@ vi.mock(
 );
 
 const { default: db, schema } = await import("../../apps/api/src/database");
-const { checkDueDateReminders } = await import(
-  "../../apps/api/src/scheduler/due-date-reminders"
-);
-const { checkProjectWebhookReminders } = await import(
-  "../../apps/api/src/scheduler/project-webhook-reminders"
-);
-const { DUE_DATE_DURATION_MS } = await import(
-  "../../apps/api/src/scheduler/reminder-timing"
-);
+const { checkDueDateReminders } =
+  await import("../../apps/api/src/scheduler/due-date-reminders");
+const { checkProjectWebhookReminders } =
+  await import("../../apps/api/src/scheduler/project-webhook-reminders");
+const { DUE_DATE_DURATION_MS } =
+  await import("../../apps/api/src/scheduler/reminder-timing");
 const { resetTestDatabase } = await import("./helpers/database");
-const { createProjectFixture, createWorkspaceMember } = await import(
-  "./helpers/fixtures"
-);
+const { createProjectFixture, createWorkspaceMember } =
+  await import("./helpers/fixtures");
 
 const MINUTE_MS = 60 * 1000;
 const DEFAULT_LEAD_TIME_MINUTES = 1440;

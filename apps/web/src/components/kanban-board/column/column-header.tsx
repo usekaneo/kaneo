@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { Archive, Plus } from "lucide-react";
+import { Archive, Plus, ArchiveIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -13,9 +13,13 @@ import { ArchiveTasksModal } from "../../shared/modals/archive-tasks-modal";
 
 type ColumnHeaderProps = {
   column: ProjectWithTasks["columns"][number];
+  disableCollectionActions?: boolean;
 };
 
-export function ColumnHeader({ column }: ColumnHeaderProps) {
+export function ColumnHeader({
+  column,
+  disableCollectionActions = false,
+}: ColumnHeaderProps) {
   const { t } = useTranslation();
   const { project, setProject } = useProjectStore();
   const { mutate: updateTask } = useUpdateTask();
@@ -27,7 +31,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const handleConfirmArchive = () => {
-    if (!column.isFinal || !project) return;
+    if (disableCollectionActions || !column.isFinal || !project) return;
 
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
@@ -46,7 +50,9 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
     });
 
     setProject(updatedProject);
-    toast.success(t("tasks:archive.success", { count: column.tasks.length }));
+    toast.success(t("tasks:archive.success", { count: column.tasks.length }), {
+      icon: ArchiveIcon,
+    });
     setIsArchiveModalOpen(false);
   };
 
@@ -68,9 +74,11 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
         {canTask && column.isFinal && column.tasks.length > 0 && (
           <button
             type="button"
+            disabled={disableCollectionActions}
             onClick={() => setIsArchiveModalOpen(true)}
             className="flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-colors hover:bg-accent/50"
             title={t("tasks:listView.archiveAllTooltip")}
+            aria-label={t("tasks:listView.archiveAllTooltip")}
           >
             <Archive className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -97,6 +105,7 @@ export function ColumnHeader({ column }: ColumnHeaderProps) {
       <ArchiveTasksModal
         open={isArchiveModalOpen}
         onClose={() => setIsArchiveModalOpen(false)}
+        disabled={disableCollectionActions}
         onConfirm={handleConfirmArchive}
         taskCount={column.tasks.length}
       />

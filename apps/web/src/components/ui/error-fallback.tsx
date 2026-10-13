@@ -7,6 +7,6 @@ type ErrorFallbackProps = {
 
 export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
   return (
-    <ErrorDisplay error={error} onRetry={resetError} className="min-h-screen" />
+    <ErrorDisplay error={error} onRetry={resetError} className="min-h-svh" />
   );
 }

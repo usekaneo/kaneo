@@ -1,11 +1,22 @@
 import * as email from "@kaneo/email";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
 
 const endpoints = [
+  [
+    "/sign-in/email",
+    { email: "captcha@example.com", password: "long-test-password" },
+  ],
   [
     "/sign-up/email",
     {

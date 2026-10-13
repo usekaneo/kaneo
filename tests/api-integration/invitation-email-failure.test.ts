@@ -1,5 +1,5 @@
 import * as email from "@kaneo/email";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -57,6 +57,9 @@ describe("invitation email failure reporting", () => {
       code: "INVITATION_EMAIL_FAILED",
     });
     expect(await db.select().from(schema.invitationTable)).toHaveLength(1);
+    expect(send.mock.lastCall?.[2]).toEqual(
+      expect.objectContaining({ role: "Member", expiresAt: expect.any(Date) }),
+    );
     expect(
       (
         await post(

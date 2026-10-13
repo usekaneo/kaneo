@@ -10,15 +10,20 @@ import {
 } from "../openapi";
 import clearNotifications from "./controllers/clear-notifications";
 import createNotification from "./controllers/create-notification";
+import deleteNotification from "./controllers/delete-notification";
 import getNotifications from "./controllers/get-notifications";
 import markAllNotificationsAsRead from "./controllers/mark-all-notifications-as-read";
-import markAsRead from "./controllers/mark-notification-as-read";
+import setNotificationRead from "./controllers/set-notification-read";
 import {
   bulkResultSchema,
   notificationListSchema,
   notificationSchema,
 } from "./response";
-import { createNotificationBody, notificationParam } from "./schema";
+import {
+  createNotificationBody,
+  notificationParam,
+  notificationWorkspaceQuery,
+} from "./schema";
 
 const listNotificationsRoute = createRoute({
   method: "get",
@@ -26,7 +31,9 @@ const listNotificationsRoute = createRoute({
   path: "/",
   tags: ["Notifications"],
   summary: "List notifications",
-  description: "Get every notification for the current user, read and unread.",
+  request: { query: notificationWorkspaceQuery },
+  description:
+    "Get up to 50 notifications for the current user, read and unread. Optionally limit them to one workspace before applying the limit.",
   responses: {
     200: jsonResponse("List of notifications", notificationListSchema),
   },
@@ -70,13 +77,30 @@ const markAsReadRoute = createRoute({
   },
 });
 
+const markAsUnreadRoute = createRoute({
+  method: "patch",
+  operationId: "markNotificationAsUnread",
+  path: "/{id}/unread",
+  tags: ["Notifications"],
+  summary: "Mark notification unread",
+  description:
+    "Mark one notification as unread again. Scoped to the current user, so another user's notification is not found.",
+  request: { params: notificationParam },
+  responses: {
+    200: jsonResponse("The updated notification", notificationSchema),
+    404: errorResponse("Notification not found"),
+  },
+});
+
 const markAllAsReadRoute = createRoute({
   method: "patch",
   operationId: "markAllNotificationsAsRead",
   path: "/read-all",
   tags: ["Notifications"],
   summary: "Mark all read",
-  description: "Mark every notification for the current user as read.",
+  request: { query: notificationWorkspaceQuery },
+  description:
+    "Mark notifications for the current user as read, optionally limited to one workspace.",
   responses: {
     200: jsonResponse("All notifications marked as read", bulkResultSchema),
   },
@@ -88,16 +112,49 @@ const clearAllRoute = createRoute({
   path: "/clear-all",
   tags: ["Notifications"],
   summary: "Clear all",
+  request: { query: notificationWorkspaceQuery },
   description:
-    "Permanently delete every notification for the current user. This cannot be undone.",
+    "Permanently delete notifications for the current user, optionally limited to one workspace. This cannot be undone.",
   responses: {
     200: jsonResponse("All notifications cleared", bulkResultSchema),
   },
 });
 
+const clearReadRoute = createRoute({
+  method: "delete",
+  operationId: "clearReadNotifications",
+  path: "/clear-read",
+  tags: ["Notifications"],
+  summary: "Clear read notifications",
+  request: { query: notificationWorkspaceQuery },
+  description:
+    "Permanently delete the current user's read notifications, optionally limited to one workspace. Unread notifications are kept. This cannot be undone.",
+  responses: {
+    200: jsonResponse("Read notifications cleared", bulkResultSchema),
+  },
+});
+
+const deleteNotificationRoute = createRoute({
+  method: "delete",
+  operationId: "deleteNotification",
+  path: "/{id}",
+  tags: ["Notifications"],
+  summary: "Delete notification",
+  description:
+    "Permanently delete one notification. Scoped to the current user, so another user's notification is not found.",
+  request: { params: notificationParam },
+  responses: {
+    200: jsonResponse("Notification deleted", bulkResultSchema),
+    404: errorResponse("Notification not found"),
+  },
+});
+
 const notification = apiRouter()
   .openapi(listNotificationsRoute, async (c) =>
-    c.json(await getNotifications(c.get("userId")), 200),
+    c.json(
+      await getNotifications(c.get("userId"), c.req.valid("query").workspaceId),
+      200,
+    ),
   )
   .openapi(createNotificationRoute, async (c) => {
     const {
@@ -122,13 +179,54 @@ const notification = apiRouter()
     );
   })
   .openapi(markAsReadRoute, async (c) =>
-    c.json(await markAsRead(c.req.valid("param").id, c.get("userId")), 200),
+    c.json(
+      await setNotificationRead(c.req.valid("param").id, c.get("userId"), true),
+      200,
+    ),
+  )
+  .openapi(markAsUnreadRoute, async (c) =>
+    c.json(
+      await setNotificationRead(
+        c.req.valid("param").id,
+        c.get("userId"),
+        false,
+      ),
+      200,
+    ),
   )
   .openapi(markAllAsReadRoute, async (c) =>
-    c.json(await markAllNotificationsAsRead(c.get("userId")), 200),
+    c.json(
+      await markAllNotificationsAsRead(
+        c.get("userId"),
+        c.req.valid("query").workspaceId,
+      ),
+      200,
+    ),
   )
   .openapi(clearAllRoute, async (c) =>
-    c.json(await clearNotifications(c.get("userId")), 200),
+    c.json(
+      await clearNotifications(
+        c.get("userId"),
+        c.req.valid("query").workspaceId,
+      ),
+      200,
+    ),
+  )
+  .openapi(clearReadRoute, async (c) =>
+    c.json(
+      await clearNotifications(
+        c.get("userId"),
+        c.req.valid("query").workspaceId,
+        true,
+      ),
+      200,
+    ),
+  )
+  .openapi(deleteNotificationRoute, async (c) =>
+    c.json(
+      await deleteNotification(c.req.valid("param").id, c.get("userId")),
+      200,
+    ),
   );
 
 subscribeToEvent<{

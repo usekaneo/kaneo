@@ -18,7 +18,7 @@ export async function drainSignInEmails(timeoutMs = 10_000): Promise<boolean> {
   try {
     return await Promise.race([
       (async () => {
-        while (pending.size > 0) await Promise.all([...pending]);
+        while (pending.size > 0) await Promise.all(pending);
         return true;
       })(),
       new Promise<boolean>((resolve) => {

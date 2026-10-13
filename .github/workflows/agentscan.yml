@@ -1,0 +1,28 @@
+name: AgentScan
+
+on:
+  # zizmor: ignore[dangerous-triggers] Analyzes PR authors through the GitHub
+  # API; never checks out or runs code from the PR.
+  pull_request_target:
+    types: [opened, reopened]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: agentscan-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - name: Label and comment on flagged PRs
+        uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e
+        with:
+          github-token: ${{ github.token }}
+          mode: full
+          auto-close: false

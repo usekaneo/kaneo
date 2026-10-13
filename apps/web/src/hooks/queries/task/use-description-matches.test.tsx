@@ -1,7 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { getDescriptionMatches } from "@/fetchers/task/get-description-matches";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
@@ -99,7 +106,9 @@ describe("deferred description search", () => {
       .mockResolvedValueOnce([]);
     const { result } = renderHook(
       () => useDescriptionMatches("project", project, "needle"),
-      { wrapper: Wrapper },
+      {
+        wrapper: Wrapper,
+      },
     );
     await waitFor(() => expect(result.current.ids.has("deferred")).toBe(true));
     await act(async () => {
@@ -157,12 +166,16 @@ describe("deferred description search", () => {
     });
     renderHook(
       () => useDescriptionMatches("other-project", project, "needle"),
-      { wrapper: Wrapper },
+      {
+        wrapper: Wrapper,
+      },
     );
     renderHook(
       () =>
         useDescriptionMatches("project", { ...project, columns: [] }, "needle"),
-      { wrapper: Wrapper },
+      {
+        wrapper: Wrapper,
+      },
     );
     expect(getDescriptionMatches).not.toHaveBeenCalled();
   });

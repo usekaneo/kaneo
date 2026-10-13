@@ -1,8 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
-const { default: verifyGiteaAccess } = await import(
-  "../../../apps/api/src/gitea-integration/controllers/verify-gitea-access"
-);
+const { default: verifyGiteaAccess } =
+  await import("../../../apps/api/src/gitea-integration/controllers/verify-gitea-access");
 
 // ponytail: capture the env var so we don't leak the SSRF bypass across tests.
 const originalAllowPrivate =

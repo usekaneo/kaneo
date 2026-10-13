@@ -1,5 +1,5 @@
 import type { Session, User } from "better-auth/types";
-import { vi } from "vitest";
+import { vi } from "vite-plus/test";
 import { auth } from "../../../apps/api/src/auth";
 
 function createSession(userId: string): Session {

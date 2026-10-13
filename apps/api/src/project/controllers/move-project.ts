@@ -1,27 +1,24 @@
-import {
-  and,
-  eq,
-  inArray,
-  isNotNull,
-  max,
-  ne,
-  notInArray,
-  sql,
-} from "drizzle-orm";
+import { and, eq, inArray, isNotNull, max, notInArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import createActivities from "../../activity/controllers/create-activities";
 import db from "../../database";
 import {
   assetTable,
+  externalLinkTable,
+  integrationTable,
   labelTable,
   projectTable,
   taskRelationTable,
   taskTable,
   userNotificationWorkspaceProjectTable,
+  workspaceMemberProjectTable,
   workspaceUserTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { grantProjectToRestrictedMember } from "../../project-access/grant-project-to-restricted-member";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import { closeProjectConnections } from "../../ws";
+import { findProjectKeyConflict } from "../project-key";
 
 async function moveProject(
   id: string,
@@ -70,17 +67,12 @@ async function moveProject(
     // rather than silently renaming a project out from under its ticket ids.
     // Compared case-insensitively, since the lookup is. Archived projects
     // count: their tasks still resolve by short id.
-    const [keyConflict] = await tx
-      .select({ name: projectTable.name })
-      .from(projectTable)
-      .where(
-        and(
-          eq(projectTable.workspaceId, targetWorkspaceId),
-          ne(projectTable.id, id),
-          sql`lower(${projectTable.slug}) = lower(${existingProject.slug})`,
-        ),
-      )
-      .limit(1);
+    const keyConflict = await findProjectKeyConflict(
+      tx,
+      targetWorkspaceId,
+      existingProject.slug,
+      { excludeProjectId: id },
+    );
 
     if (keyConflict) {
       throw new HTTPException(409, {
@@ -118,6 +110,39 @@ async function moveProject(
         ),
       );
 
+    await tx
+      .delete(workspaceMemberProjectTable)
+      .where(eq(workspaceMemberProjectTable.projectId, id));
+
+    const [{ maxPosition } = { maxPosition: null }] = await tx
+      .select({ maxPosition: max(projectTable.position) })
+      .from(projectTable)
+      .where(eq(projectTable.workspaceId, targetWorkspaceId));
+    const appendedPosition = maxPosition === null ? 0 : maxPosition + 1;
+
+    const [movedProject] = await tx
+      .update(projectTable)
+      .set({ workspaceId: targetWorkspaceId, position: appendedPosition })
+      .where(
+        and(
+          eq(projectTable.id, id),
+          eq(projectTable.workspaceId, sourceWorkspaceId),
+        ),
+      )
+      .returning();
+
+    if (!movedProject) {
+      throw new HTTPException(409, {
+        message: "Project was moved to another workspace, please try again",
+      });
+    }
+
+    await grantProjectToRestrictedMember(tx, {
+      workspaceId: targetWorkspaceId,
+      userId: currentUserId,
+      projectId: id,
+    });
+
     const tasks = await tx
       .select({
         id: taskTable.id,
@@ -146,7 +171,11 @@ async function moveProject(
           ),
         );
 
-      const memberIds = new Set(targetMembers.map((member) => member.userId));
+      const memberIds = await filterUsersWithProjectAccess(
+        targetMembers.map((member) => member.userId),
+        id,
+        tx,
+      );
       // Kept as rows rather than a count: each one needs an activity row
       // afterwards, keyed by task id.
       unassigned = tasks.filter(
@@ -172,33 +201,28 @@ async function moveProject(
       }
     }
 
-    // The source position means nothing in the target's ordering, and keeping
-    // it would collide with whichever project already holds that slot. Append
-    // instead, matching where `createProject` puts a new project.
-    const [{ maxPosition } = { maxPosition: null }] = await tx
-      .select({ maxPosition: max(projectTable.position) })
-      .from(projectTable)
-      .where(eq(projectTable.workspaceId, targetWorkspaceId));
-
-    const [movedProject] = await tx
-      .update(projectTable)
-      .set({
-        workspaceId: targetWorkspaceId,
-        position: maxPosition === null ? 0 : maxPosition + 1,
-      })
+    // Older task moves could leave links owned by a different project.
+    await tx
+      .delete(externalLinkTable)
       .where(
         and(
-          eq(projectTable.id, id),
-          eq(projectTable.workspaceId, sourceWorkspaceId),
+          inArray(
+            externalLinkTable.taskId,
+            tx
+              .select({ id: taskTable.id })
+              .from(taskTable)
+              .where(eq(taskTable.projectId, id)),
+          ),
+          isNotNull(externalLinkTable.integrationId),
+          notInArray(
+            externalLinkTable.integrationId,
+            tx
+              .select({ id: integrationTable.id })
+              .from(integrationTable)
+              .where(eq(integrationTable.projectId, id)),
+          ),
         ),
-      )
-      .returning();
-
-    if (!movedProject) {
-      throw new HTTPException(409, {
-        message: "Project was moved to another workspace, please try again",
-      });
-    }
+      );
 
     // Assets and task labels denormalize the project's workspace.
     await tx
@@ -237,6 +261,9 @@ async function moveProject(
   });
 
   await closeProjectConnections(id);
+
+  await publishEvent("integration.sync_labels_changed", { projectId: id });
+  await publishEvent("project.updated", { projectId: id });
 
   if (unassignedTasks.length > 0) {
     await publishEvent("task.bulk_unassigned", {

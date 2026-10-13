@@ -1,48 +1,55 @@
 "use client";
 
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SearchCommandMenu from "@/components/search-command-menu";
-import { SidebarGroup } from "@/components/ui/sidebar";
-import { shortcuts } from "@/constants/shortcuts";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 
 export default function Search() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
-  useRegisterShortcuts({
-    shortcuts: {
-      [shortcuts.search.prefix]: () => {
-        setOpen(true);
-      },
-    },
-  });
+  const openSearch = () => setOpen(true);
+  useShortcut("openSearch", openSearch);
+  useShortcut("openTask", openSearch);
+  useShortcut("openProject", openSearch);
 
   return (
-    <SidebarGroup className="pb-1">
-      <button
-        className="inline-flex h-8 w-full cursor-pointer rounded-md border border-input bg-background px-2 py-1.5 text-foreground text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground/70 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-        onClick={() => setOpen(true)}
-        type="button"
-      >
-        <span className="flex grow items-center">
-          <SearchIcon
-            aria-hidden="true"
-            className="-ms-1 me-3 text-muted-foreground/80"
-            size={16}
-          />
-          <span className="font-normal text-muted-foreground/70">
-            {t("navigation:commandPalette.search")}
-          </span>
-        </span>
-        <kbd className="-me-0.5 ms-6 inline-flex h-4 max-h-full items-center rounded border border-border/70 bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/60">
-          {shortcuts.search.prefix}
-        </kbd>
-      </button>
+    <>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8 shrink-0 text-muted-foreground hover:bg-sidebar-accent/70"
+              onClick={() => setOpen(true)}
+            >
+              <SearchIcon aria-hidden="true" className="size-4" />
+              <span className="sr-only">
+                {t("navigation:commandPalette.search")}
+              </span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="flex items-center gap-2 text-[10px]">
+              {t("navigation:commandPalette.search")}
+              <ShortcutKeys id="openSearch" />
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
       <SearchCommandMenu open={open} setOpen={setOpen} />
-    </SidebarGroup>
+    </>
   );
 }

@@ -1,6 +1,13 @@
 import * as email from "@kaneo/email";
 import { eq } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import getInstanceStatus from "../../apps/api/src/instance/controllers/get-instance-status";
@@ -14,6 +21,9 @@ const headers = {
   "content-type": "application/json",
   Origin: "http://localhost:5173",
 };
+
+const iphoneSafari =
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
 async function post(
   path: string,
   body: unknown,
@@ -148,7 +158,12 @@ describe("auth registration and bootstrap boundaries", () => {
   });
 
   it("does not give a new signup admin rights on an older instance lacking an admin", async () => {
-    await createWorkspaceMember();
+    const { user } = await createWorkspaceMember();
+    // Make the historical account unambiguously older across DB/app clocks.
+    await db
+      .update(schema.userTable)
+      .set({ createdAt: new Date("2020-01-01") })
+      .where(eq(schema.userTable.id, user.id));
     expect((await signup("new@example.com")).status).toBe(200);
     expect(
       await db
@@ -214,14 +229,21 @@ describe("auth registration and bootstrap boundaries", () => {
     for (const address of ["new-otp@example.com", member.user.email]) {
       expect(
         (
-          await post("/email-otp/send-verification-otp", {
-            email: address,
-            type: "sign-in",
-          })
+          await post(
+            "/email-otp/send-verification-otp",
+            { email: address, type: "sign-in" },
+            { "user-agent": iphoneSafari },
+          )
         ).status,
       ).toBe(200);
       expect(
-        (await post("/sign-in/magic-link", { email: address })).status,
+        (
+          await post(
+            "/sign-in/magic-link",
+            { email: address },
+            { "user-agent": iphoneSafari },
+          )
+        ).status,
       ).toBe(200);
     }
     expect(send).toHaveBeenCalledTimes(1);
@@ -230,6 +252,15 @@ describe("auth registration and bootstrap boundaries", () => {
     expect(sendMagicLink.mock.lastCall?.[0]).toBe(member.user.email);
     const data = send.mock.lastCall?.[2] as { otp: string } | undefined;
     expect(data?.otp).toBeTruthy();
+    expect(send.mock.lastCall?.[1]).toBe(
+      `${data?.otp} is your Kaneo sign-in code`,
+    );
+    const requestContext = expect.objectContaining({
+      device: { browser: "Safari", os: "iPhone" },
+      requestedAt: expect.any(Date),
+    });
+    expect(send.mock.lastCall?.[2]).toEqual(requestContext);
+    expect(sendMagicLink.mock.lastCall?.[2]).toEqual(requestContext);
     const response = await post("/sign-in/email-otp", {
       email: member.user.email,
       otp: data?.otp,
@@ -399,5 +430,112 @@ describe("auth registration and bootstrap boundaries", () => {
       ).status,
     ).toBe(400);
     expect(await db.select().from(schema.sessionTable)).toHaveLength(0);
+  });
+
+  describe("cloud email-code registration", () => {
+    beforeEach(() => {
+      vi.stubEnv("KANEO_CLOUD", "true");
+      vi.spyOn(email, "isSmtpConfigured").mockReturnValue(true);
+    });
+
+    it("creates a verified account with the submitted name from an email code", async () => {
+      await createWorkspaceMember();
+      const send = vi.spyOn(email, "sendOtpEmail").mockResolvedValue(undefined);
+      expect(
+        (
+          await post("/email-otp/send-verification-otp", {
+            email: "new-person@example.com",
+            type: "sign-in",
+          })
+        ).status,
+      ).toBe(200);
+      const data = send.mock.lastCall?.[2] as { otp: string };
+      const response = await post("/sign-in/email-otp", {
+        email: "new-person@example.com",
+        otp: data.otp,
+        name: "New Person",
+      });
+      expect(response.status).toBe(200);
+      const [user] = await db
+        .select()
+        .from(schema.userTable)
+        .where(eq(schema.userTable.email, "new-person@example.com"));
+      expect(user).toMatchObject({ name: "New Person", emailVerified: true });
+    });
+
+    it("refuses to send a code that would create an account for a disposable address", async () => {
+      await createWorkspaceMember();
+      const send = vi.spyOn(email, "sendOtpEmail").mockResolvedValue(undefined);
+      const sendMagicLink = vi
+        .spyOn(email, "sendMagicLinkEmail")
+        .mockResolvedValue(undefined);
+      const otp = await post("/email-otp/send-verification-otp", {
+        email: "throwaway@mailinator.com",
+        type: "sign-in",
+      });
+      expect(otp.status).toBe(400);
+      expect(await otp.json()).toMatchObject({
+        code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
+      });
+      expect(
+        (
+          await post("/sign-in/magic-link", {
+            email: "throwaway@mailinator.com",
+          })
+        ).status,
+      ).toBe(400);
+      expect(send).not.toHaveBeenCalled();
+      expect(sendMagicLink).not.toHaveBeenCalled();
+      expect(await db.select().from(schema.verificationTable)).toHaveLength(0);
+    });
+
+    it("still sends codes to an existing account on a disposable address", async () => {
+      await createWorkspaceMember();
+      await db.insert(schema.userTable).values({
+        id: "existing-disposable",
+        email: "kept@mailinator.com",
+        name: "Kept",
+      });
+      const send = vi.spyOn(email, "sendOtpEmail").mockResolvedValue(undefined);
+      expect(
+        (
+          await post("/email-otp/send-verification-otp", {
+            email: "kept@mailinator.com",
+            type: "sign-in",
+          })
+        ).status,
+      ).toBe(200);
+      expect(send).toHaveBeenCalledTimes(1);
+    });
+
+    it("rejects disposable addresses at account creation on every path", async () => {
+      await createWorkspaceMember();
+      for (const path of ["/sign-in/email-otp", "/callback/github"]) {
+        await expect(
+          assertUserRegistrationAllowed(
+            { email: "throwaway@mailinator.com", emailVerified: true },
+            { path },
+          ),
+        ).rejects.toMatchObject({
+          body: expect.objectContaining({
+            code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
+          }),
+        });
+      }
+    });
+
+    it("requires an email code instead of a password for new cloud accounts", async () => {
+      await createWorkspaceMember();
+      const response = await signup("password-person@example.com");
+      expect(response.status).toBe(403);
+      expect(await response.json()).toMatchObject({
+        code: "EMAIL_CODE_REGISTRATION_REQUIRED",
+      });
+      expect(await db.select().from(schema.userTable)).toHaveLength(1);
+    });
+
+    it("keeps password sign-up for the first account on a fresh instance", async () => {
+      expect((await signup("first@example.com")).status).toBe(200);
+    });
   });
 });

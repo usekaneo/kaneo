@@ -1,5 +1,12 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { TaskProgressBadges } from "./task-progress-badges";
 
@@ -78,7 +85,7 @@ describe("TaskProgressBadges", () => {
     const open = vi.fn();
     render(
       <TooltipProvider delay={0}>
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: reproduces the task card click boundary */}
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- reproduces the task card click boundary */}
         <div onClick={open} role="presentation">
           <TaskProgressBadges
             task={{

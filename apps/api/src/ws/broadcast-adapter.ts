@@ -2,14 +2,18 @@ export type ProjectBroadcastMessage = {
   type: string;
   projectId: string;
   taskId?: string;
+  tasks?: Array<{ id: string; position: number; status?: string }>;
   sourceTaskId?: string;
   targetTaskId?: string;
+  linksChanged?: boolean;
+  taskTitleChanged?: boolean;
 };
 
 export type BroadcastMessage = {
   projectId: string;
   message: ProjectBroadcastMessage;
   excludeInitiatorId?: string;
+  authorizationBatch?: string;
 };
 
 export type UserBroadcastMessage = {
@@ -34,7 +38,10 @@ export type BroadcastAdapter = {
     handler: (msg: BroadcastMessage) => void | Promise<void>,
   ): Promise<void>;
 
-  subscribeToUser(handler: (msg: UserBroadcast) => void): Promise<void>;
+  subscribeToUser(
+    handler: (msg: UserBroadcast) => void | Promise<void>,
+    onRecovery?: () => Promise<void>,
+  ): Promise<void>;
 
   /** Cleanup on shutdown */
   shutdown(): Promise<void>;

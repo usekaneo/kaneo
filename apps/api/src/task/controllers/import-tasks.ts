@@ -3,13 +3,19 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { filterAssignableUsers } from "../../utils/assert-assignable-user";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
+import {
+  filterAssignableUsers,
+  NO_PROJECT_ACCESS,
+  NOT_ASSIGNABLE,
+} from "../../utils/assert-assignable-user";
 import {
   coercePriority,
   coerceStatus,
   getValidTaskStatuses,
 } from "../validate-task-fields";
 import { claimTaskNumber } from "./claim-task-numbers";
+import { nextTaskPosition } from "./next-task-position";
 
 export type ImportTask = {
   title: string;
@@ -44,9 +50,13 @@ async function importTasks(
     ),
   ];
 
-  const assignableIds = await filterAssignableUsers(
+  const memberIds = await filterAssignableUsers(
     assigneeIds,
     project.workspaceId,
+  );
+  const assignableIds = await filterUsersWithProjectAccess(
+    memberIds,
+    projectId,
   );
 
   const validStatuses = await getValidTaskStatuses(projectId);
@@ -59,7 +69,7 @@ async function importTasks(
     if (assigneeId && !assignableIds.has(assigneeId)) {
       results.push({
         success: false,
-        error: "Assignee is not a member of this workspace",
+        error: memberIds.has(assigneeId) ? NO_PROJECT_ACCESS : NOT_ASSIGNABLE,
         task: taskData,
       });
       continue;
@@ -84,6 +94,12 @@ async function importTasks(
 
       const createdTask = await db.transaction(async (tx) => {
         const taskNumber = await claimTaskNumber(projectId, tx);
+        const position = await nextTaskPosition(
+          tx,
+          projectId,
+          status,
+          column?.id ?? null,
+        );
 
         const [task] = await tx
           .insert(taskTable)
@@ -98,6 +114,7 @@ async function importTasks(
             description: taskData.description || "",
             priority,
             number: taskNumber,
+            position,
           })
           .returning();
 

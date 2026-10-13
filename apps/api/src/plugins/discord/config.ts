@@ -59,7 +59,7 @@ export function normalizeDiscordConfig(config: DiscordConfig): DiscordConfig {
     channelName: config.channelName?.trim() || undefined,
     events: {
       ...defaultDiscordEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
   };
 }

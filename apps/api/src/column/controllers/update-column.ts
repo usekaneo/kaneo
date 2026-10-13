@@ -50,6 +50,8 @@ async function updateColumn(
     });
   }
 
+  await publishEvent("project.updated", { projectId: updated.projectId });
+
   return updated;
 }
 

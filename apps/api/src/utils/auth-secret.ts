@@ -1,6 +1,10 @@
+import { resolveFileSecret } from "./file-secret";
+
 export const MIN_AUTH_SECRET_LENGTH = 32;
 
-export function resolveAuthSecret(raw = process.env.AUTH_SECRET): string {
+export function resolveAuthSecret(
+  raw = resolveFileSecret("AUTH_SECRET"),
+): string {
   const secret = raw ?? "";
   if (!secret) {
     throw new Error(

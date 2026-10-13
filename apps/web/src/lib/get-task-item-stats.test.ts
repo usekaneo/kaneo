@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getTaskItemStats, MAX_TASK_STATS_CHARS } from "./get-task-item-stats";
 
 describe("getTaskItemStats", () => {
@@ -10,7 +10,10 @@ describe("getTaskItemStats", () => {
   it("counts checked and unchecked Markdown task-list items", () => {
     expect(
       getTaskItemStats("- [ ] Plan\n- [x] Build\n  - [X] Review\n- [ ] Ship"),
-    ).toEqual({ total: 4, completed: 2 });
+    ).toEqual({
+      total: 4,
+      completed: 2,
+    });
   });
 
   it("does not count ordinary lists or checkbox syntax outside a list item", () => {
@@ -18,7 +21,10 @@ describe("getTaskItemStats", () => {
       getTaskItemStats(
         "- Plain bullet\n[ ] Not a task item\n1. [x] Ordered item",
       ),
-    ).toEqual({ total: 1, completed: 1 });
+    ).toEqual({
+      total: 1,
+      completed: 1,
+    });
   });
 
   it("does not count Markdown examples in fenced code blocks", () => {
@@ -32,7 +38,10 @@ describe("getTaskItemStats", () => {
   it("does not count task items in blockquoted fenced code blocks", () => {
     expect(
       getTaskItemStats("> ```md\n> - [ ] Example\n> ```\n> - [x] Real item"),
-    ).toEqual({ total: 1, completed: 1 });
+    ).toEqual({
+      total: 1,
+      completed: 1,
+    });
   });
 
   it("supports blockquoted task-list items", () => {
@@ -55,7 +64,10 @@ describe("getTaskItemStats", () => {
       getTaskItemStats(
         prefix + "\n".repeat(MAX_TASK_STATS_CHARS - prefix.length),
       ),
-    ).toEqual({ total: 2, completed: 1 });
+    ).toEqual({
+      total: 2,
+      completed: 1,
+    });
   });
 
   it.each(["```", "~~~"])(

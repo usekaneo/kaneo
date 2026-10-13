@@ -3,7 +3,7 @@ title: "11 Best Jira Alternatives in 2026 (Free and Self-Hosted Options)"
 description: "The best Jira alternatives in 2026, compared on licensing, self-hosting, single sign-on, and price. Includes free open-source options you can run yourself and hosted tools that replace Jira without the admin console."
 excerpt: "Jira can run a 500-person organisation. Most teams do not need that, and pay for it anyway. Here are 11 alternatives that actually replace it, what each one costs, and which of them you can host yourself for free."
 date: 2026-08-18
-updatedOn: 2026-09-23
+updatedOn: 2026-10-12
 author: andrej
 category: alternatives
 featured: true
@@ -15,7 +15,7 @@ Permission schemes, issue-type schemes, screen schemes, field configurations, an
 
 The other two reasons are hosting and price. Atlassian ended new Jira Server licence sales, so running Jira on hardware you control now means Jira Data Center, sold as an annual subscription sized by user tier. And Jira Cloud is free up to 10 users, then per user, with SAML single sign-on requiring an Atlassian Guard subscription or the Enterprise tier that includes it.
 
-This is a comparison of the 11 tools that genuinely replace Jira for a small or mid-sized team, including the ones you can self-host for free. Prices were checked in August 2026. Vendors change tiers often, so confirm on their pricing page before you commit.
+This is a comparison of the 11 tools that genuinely replace Jira for a small or mid-sized team, including [the ones you can self-host for free](/guides/open-source-jira-alternatives). Prices were checked in August 2026. Vendors change tiers often, so confirm on their pricing page before you commit.
 
 ## TL;DR: the 11 best Jira alternatives
 
@@ -90,7 +90,7 @@ Most teams run it on Kaneo Cloud, which is hosted in the EU and starts at $4 a m
 - Single sign-on with Google, GitHub, Discord, or any OIDC provider, on every plan
 - Automatic backups, updates, and email support on Kaneo Cloud
 - Documented public REST API, API keys, webhooks, and an MCP server for AI agents
-- GitHub and Gitea integrations, plus notifications in Slack, Discord, Telegram, and Mattermost
+- GitHub, GitLab, and Gitea integrations, plus notifications in Slack, Discord, Telegram, and Mattermost
 - Per-project JSON export and import
 
 **Pros:** Boards, Gantt, calendar, custom fields, and time tracking in the same product, with single sign-on on every plan. Choose EU-hosted cloud with backups and updates handled, or run the MIT-licensed build yourself. Cloud pricing follows exact headcount with no seat blocks.
@@ -291,7 +291,7 @@ Being honest about this saves you a painful quarter.
 
 Jira exports issues to CSV and has a well-documented REST API, so a scripted migration is realistic for anything up to a few thousand issues. The parts that hurt are attachments, comment history with author attribution, and issue links.
 
-Do a dry run into a scratch project first, check that assignees resolve by email address, and keep the Jira instance readable for a quarter rather than cancelling it the same week. Kaneo has a public API and per-project JSON import, and we are happy to help with a migration script if you open an issue on [GitHub](https://github.com/usekaneo/kaneo).
+Do a dry run into a scratch project first, check that assignees resolve by email address, and keep the Jira instance readable for a quarter rather than cancelling it the same week. Kaneo imports Jira Cloud and Jira Data Center projects from the app, keeping issue keys, columns, priorities, labels, assignees, sub-tasks, issue links, and comments ([import guide](https://kaneo.app/docs/core/migrations/from-jira)). Attachments, sprints, and custom fields do not come across.
 
 ## Frequently asked questions
 

@@ -1,0 +1,33 @@
+---
+title: Gotify
+description: Send personal Kaneo notifications through Gotify.
+---
+
+Use your Gotify server to deliver Kaneo account notifications to your devices.
+
+## Connect Gotify
+
+1. Create an application for Kaneo on your Gotify server and copy its application token. Use an application token for publishing, as described in [Gotify’s push-message guide](https://gotify.net/docs/pushmsg).
+2. Open **Settings → Account → Notifications** in Kaneo and find **Gotify**.
+3. Enter the base URL, such as `https://gotify.example.com`. Leave off `/message` and token query parameters; Kaneo adds them when sending.
+4. Paste the application token, enable the channel, and choose **Connect Gotify**.
+
+Messages include the notification title and text, with a task link when one is available.
+
+## Choose what reaches Gotify
+
+Enable your event categories at the top of the page. Add an active workspace rule, enable Gotify on it, and choose all projects or specific ones. Save the rule.
+
+Ask a teammate to assign a test task to you in one of those projects. Confirm it appears in your Kaneo inbox and Gotify. Your own task changes may not create a notification for you.
+
+## Change or disconnect
+
+Enter a new application token and choose **Save changes** to rotate credentials. An empty token field preserves the saved token. **Disconnect** removes the server URL and token from Kaneo. Revoke the application token in Gotify if nothing else uses it.
+
+If you disable the channel and later enable it again, review its workspace rules before resuming use.
+
+## Self-hosting requirements and troubleshooting
+
+The Kaneo API must be able to reach your notification server. Private network destinations require the operator to enable `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS`. To save a token, the API also needs a stable `NOTIFICATION_SECRET_ENCRYPTION_KEY`; see [notification server settings](/core/installation/environment-variables#notifications).
+
+If a notification stays in the inbox but is not delivered, check the channel, workspace rule, project selection, and destination credentials. If it never reaches the inbox, check your event preferences and whether that action should notify your account. See [Notifications](/core/functional/account-notifications) for the full flow.

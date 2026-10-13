@@ -7,7 +7,7 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const { updateSubscriptionSeats } = vi.hoisted(() => ({
   updateSubscriptionSeats: vi.fn(async () => ({ ok: true as const })),
@@ -86,6 +86,23 @@ describe("API integration: seat sync", () => {
       .from(schema.workspaceBillingTable)
       .where(eq(schema.workspaceBillingTable.workspaceId, owner.workspace.id));
     expect(row.seats).toBe(2);
+  });
+
+  it("leaves the stored seat count alone when the provider rejects the update", async () => {
+    const owner = await createWorkspaceMember({ role: "owner" });
+    await teamBilling(owner.workspace.id, 1);
+    await addMember(owner.workspace.id);
+    updateSubscriptionSeats.mockRejectedValueOnce(new Error("Status 403"));
+
+    await expect(syncWorkspaceSeats(owner.workspace.id)).rejects.toThrow(
+      "Status 403",
+    );
+
+    const [row] = await db
+      .select()
+      .from(schema.workspaceBillingTable)
+      .where(eq(schema.workspaceBillingTable.workspaceId, owner.workspace.id));
+    expect(row.seats).toBe(1);
   });
 
   it("does nothing when the seat count already matches", async () => {

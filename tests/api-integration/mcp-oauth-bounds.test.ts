@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { and, count, eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db from "../../apps/api/src/database";
 import { mcpOauthStateTable } from "../../apps/api/src/database/schema";
 import mcp from "../../apps/api/src/mcp";

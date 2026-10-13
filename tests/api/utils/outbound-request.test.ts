@@ -1,6 +1,13 @@
 import { createHmac } from "node:crypto";
 import { createServer, type Server } from "node:http";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { postToGenericWebhook } from "../../../apps/api/src/plugins/generic-webhook/client";
 import { postToTelegram } from "../../../apps/api/src/plugins/telegram/client";
 import {
@@ -75,7 +82,9 @@ describe("outbound notification transport", () => {
     );
     await expect(
       sendOutboundRequest(`${base}/ok`, {}, { readJson: true }),
-    ).resolves.toEqual({ ok: true });
+    ).resolves.toEqual({
+      ok: true,
+    });
   });
   it("refuses a redirect without sending any payload to its target", async () => {
     await expect(
@@ -154,6 +163,8 @@ describe("outbound notification transport", () => {
     );
     await expect(
       postToTelegram("token", { chat_id: "chat", text: "text" }),
-    ).rejects.toMatchObject({ message: "Outbound request failed: response" });
+    ).rejects.toMatchObject({
+      message: "Outbound request failed: response",
+    });
   });
 });

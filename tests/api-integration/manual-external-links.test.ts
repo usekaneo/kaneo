@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { sql } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import getTasks from "../../apps/api/src/task/controllers/get-tasks";
@@ -180,10 +180,10 @@ describe("manual external resource links", () => {
           url: "https://example.com",
         })
       ).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(
       (await request(`/${other.task.id}/${entry.id}`, "DELETE")).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(
       (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
     ).toBe(404);

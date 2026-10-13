@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { HTTPException } from "hono/http-exception";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => {
   const insertedSessions: Array<Record<string, unknown>> = [];

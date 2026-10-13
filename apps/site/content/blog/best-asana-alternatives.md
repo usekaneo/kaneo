@@ -87,7 +87,7 @@ Kaneo Cloud is hosted in the EU and priced at $5 per user a month, less than hal
 - Single sign-on with Google, GitHub, Discord, or any OIDC provider, on every plan
 - Automatic backups, updates, and email support on Kaneo Cloud
 - Public REST API, API keys, webhooks, and an MCP server for AI agents
-- GitHub and Gitea integrations, plus notifications in Slack, Discord, Telegram, and Mattermost
+- GitHub, GitLab, and Gitea integrations, plus notifications in Slack, Discord, Telegram, and Mattermost
 - Per-project JSON export and import
 
 **Pros:** Gantt and calendar planning, custom fields, time tracking, and single sign-on are included on every plan. EU hosting includes backups and updates, and the same features are available in the free MIT-licensed self-hosted build.

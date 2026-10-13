@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getTaskLabelOptions } from "./get-task-label-options";
 
 describe("getTaskLabelOptions", () => {

@@ -1,10 +1,11 @@
-import db from "../../../database";
+import { withIntegrationLink } from "../../github/services/with-integration-link";
 import { activityTable } from "../../../database/schema";
 import { findExternalLink } from "../../github/services/link-manager";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
 } from "../services/integration-lookup";
+import { isKaneoComment } from "../utils/comment-origin";
 import { baseUrlFromRepositoryHtmlUrl } from "../utils/webhook-repo";
 
 type IssueCommentCreatedPayload = {
@@ -36,7 +37,7 @@ export async function handleGiteaIssueCommentCreated(
 ) {
   const { issue, comment, repository } = payload;
 
-  if (payload.action !== "created") {
+  if (payload.action !== "created" || isKaneoComment(comment.body)) {
     return;
   }
 
@@ -67,26 +68,32 @@ export async function handleGiteaIssueCommentCreated(
       continue;
     }
 
-    await db
-      .insert(activityTable)
-      .values({
-        taskId: existingLink.taskId,
-        type: "comment",
-        content: comment.body,
-        externalUserName: username || "Unknown",
-        externalUserAvatar: comment.user?.avatar_url ?? null,
-        externalSource: "gitea",
-        externalUrl: comment.html_url,
-        eventData: {
-          externalCommentId: comment.id,
-        },
-      })
-      .onConflictDoNothing({
-        target: [
-          activityTable.taskId,
-          activityTable.externalSource,
-          activityTable.externalUrl,
-        ],
-      });
+    await withIntegrationLink(
+      existingLink,
+      integration,
+      async (db, _afterCommit, existingLink) => {
+        await db
+          .insert(activityTable)
+          .values({
+            taskId: existingLink.taskId,
+            type: "comment",
+            content: comment.body,
+            externalUserName: username || "Unknown",
+            externalUserAvatar: comment.user?.avatar_url ?? null,
+            externalSource: "gitea",
+            externalUrl: comment.html_url,
+            eventData: {
+              externalCommentId: comment.id,
+            },
+          })
+          .onConflictDoNothing({
+            target: [
+              activityTable.taskId,
+              activityTable.externalSource,
+              activityTable.externalUrl,
+            ],
+          });
+      },
+    );
   }
 }

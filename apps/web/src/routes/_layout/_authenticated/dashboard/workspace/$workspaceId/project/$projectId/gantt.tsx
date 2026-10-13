@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { addDays, format, isSameMonth, isToday, isWeekend } from "date-fns";
-import { Calendar, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -18,9 +18,15 @@ import {
   parseTaskDate,
 } from "@/components/gantt/timeline";
 import PageTitle from "@/components/page-title";
+import { DisplaySection } from "@/components/project/display/display-section";
+import { WeekStartControl } from "@/components/project/display/week-start-control";
+import { ActiveFiltersBar } from "@/components/project/task-filters/active-filters-bar";
+import { ProjectToolbar } from "@/components/project/toolbar/project-toolbar";
+import { TaskCount } from "@/components/project/toolbar/task-count";
+import { useProjectTaskView } from "@/components/project/toolbar/use-project-task-view";
+import { LayoutSwitch } from "@/components/project/views/layout-switch";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/cn";
@@ -47,7 +53,13 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { data: project } = useGetTasks(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
-  const [searchQuery, setSearchQuery] = useState("");
+  const view = useProjectTaskView({
+    project,
+    projectId,
+    workspaceId,
+    scope: "schedule",
+  });
+  const filteredProject = view.filters.filteredProject;
   const [windowStart, setWindowStart] = useState<{
     projectId: string;
     date: Date;
@@ -128,19 +140,14 @@ function RouteComponent() {
   }, [allTasks]);
 
   const scheduledTasks = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
-    if (!normalizedQuery) return parsedTasks;
-
-    return parsedTasks.filter((task) => {
-      return (
-        task.title.toLowerCase().includes(normalizedQuery) ||
-        `${project?.slug ?? ""}-${task.number ?? ""}`
-          .toLowerCase()
-          .includes(normalizedQuery) ||
-        task.status.toLowerCase().includes(normalizedQuery)
-      );
-    });
-  }, [parsedTasks, project?.slug, searchQuery]);
+    const visibleIds = new Set(
+      [
+        ...(filteredProject?.columns.flatMap((column) => column.tasks) ?? []),
+        ...(filteredProject?.plannedTasks ?? []),
+      ].map((task) => task.id),
+    );
+    return parsedTasks.filter((task) => visibleIds.has(task.id));
+  }, [parsedTasks, filteredProject]);
 
   const timeline = useMemo(
     () =>
@@ -178,8 +185,11 @@ function RouteComponent() {
     : 0;
 
   const scrollToToday = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const reduceMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     todayCellRef.current?.scrollIntoView({
-      behavior,
+      behavior: reduceMotion ? "auto" : behavior,
       inline: "center",
       block: "nearest",
     });
@@ -211,7 +221,7 @@ function RouteComponent() {
   // re-running this effect since neither `todayInRange` nor `scrollToToday`
   // actually changed value, and the newly selected project would never get
   // its auto-center.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: projectId is intentionally listed to force a re-run on project switch; see comment above.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- projectId is intentionally listed to force a re-run on project switch; see comment above.
   useLayoutEffect(() => {
     if (
       hasCenteredOnTodayRef.current ||
@@ -229,32 +239,46 @@ function RouteComponent() {
       projectId={projectId}
       workspaceId={workspaceId}
       activeView="gantt"
+      toolbar={
+        <ProjectToolbar
+          view={view}
+          display={
+            <>
+              <DisplaySection>
+                <LayoutSwitch
+                  workspaceId={workspaceId}
+                  projectId={projectId}
+                  currentRoute="gantt"
+                  currentView="gantt"
+                />
+              </DisplaySection>
+              <DisplaySection>
+                <WeekStartControl />
+              </DisplaySection>
+            </>
+          }
+        />
+      }
+      summary={
+        <TaskCount shown={scheduledTasks.length} total={parsedTasks.length} />
+      }
+      filterBar={
+        <ActiveFiltersBar
+          subjects={view.subjects}
+          onClear={view.filters.clearFilters}
+        />
+      }
     >
       <PageTitle
         title={t("tasks:gantt.pageTitle", { name: project?.name })}
         hideAppName
       />
       <div className="flex h-full min-h-0 flex-col bg-background">
-        <div className="border-b border-border/80 px-3 py-3 sm:px-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-1">
-              <h1 className="text-sm font-semibold text-foreground">
-                {t("tasks:gantt.title")}
-              </h1>
-            </div>
-
-            <div className="relative w-full max-w-sm">
-              <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={t("tasks:gantt.searchPlaceholder")}
-                className="h-9 min-h-11 touch-manipulation sm:h-8 sm:min-h-0 [&_[data-slot=input]]:pl-8 [&_[data-slot=input]]:text-xs"
-              />
-            </div>
-
+        <div className="border-b border-border/80 px-3 py-2 sm:px-4">
+          <h1 className="sr-only">{t("tasks:gantt.title")}</h1>
+          <div className="flex flex-wrap items-center gap-2">
             {timeline && (
-              <div className="flex flex-wrap items-center gap-2">
+              <>
                 <Button
                   variant="outline"
                   size="icon-sm"
@@ -269,7 +293,7 @@ function RouteComponent() {
                 <input
                   type="date"
                   aria-label={t("tasks:gantt.periodStart")}
-                  className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+                  className="h-9 min-w-0 rounded-md border border-border bg-background px-2 text-base sm:h-8 sm:text-sm"
                   min={format(timeline.minimumStart, "yyyy-MM-dd")}
                   max={format(timeline.maximumStart, "yyyy-MM-dd")}
                   value={format(timeline.rangeStart, "yyyy-MM-dd")}
@@ -278,7 +302,7 @@ function RouteComponent() {
                     if (date) showDate(date);
                   }}
                 />
-                <span className="text-xs text-muted-foreground">
+                <span className="hidden text-xs text-muted-foreground sm:inline">
                   – {format(timeline.rangeEnd, "MMM d, yyyy")}
                 </span>
                 <Button
@@ -292,24 +316,28 @@ function RouteComponent() {
                 >
                   <ChevronRight className="size-4" />
                 </Button>
-              </div>
+              </>
             )}
 
             <Button
               variant="outline"
               size="xs"
-              className="min-h-11 touch-manipulation sm:min-h-0"
+              className="h-9 touch-manipulation sm:h-auto"
+              aria-label={t("tasks:gantt.jumpToToday")}
               onClick={() => scrollToToday()}
               disabled={!todayInRange || scheduledTasks.length === 0}
             >
               <Calendar className="size-3.5" />
-              {t("tasks:gantt.jumpToToday")}
+              <span className="hidden sm:inline">
+                {t("tasks:gantt.jumpToToday")}
+              </span>
             </Button>
 
             <Button
               variant="outline"
               size="xs"
-              className="min-h-11 touch-manipulation sm:hidden"
+              className="h-9 touch-manipulation sm:hidden"
+              aria-pressed={showTaskRail}
               onClick={() => setIsTaskRailOpen((current) => !current)}
             >
               {showTaskRail ? (
@@ -342,7 +370,7 @@ function RouteComponent() {
                 {t("tasks:gantt.noTasksFound")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {t("tasks:gantt.noTasksMatch", { query: searchQuery })}
+                {t("tasks:filterBar.noMatches")}
               </p>
             </div>
           </div>

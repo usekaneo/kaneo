@@ -54,7 +54,7 @@ function toResponse(integration: {
     maskedWebhookUrl: maskWebhookUrl(config.webhookUrl),
     events: {
       ...defaultSlackEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     isActive: integration.isActive,
     createdAt: integration.createdAt,
@@ -97,10 +97,8 @@ const getSlackIntegrationRoute = createRoute({
       "Slack integration details, or null",
       slackIntegrationSchema.nullable(),
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -127,8 +125,9 @@ const createSlackIntegrationRoute = createRoute({
     ),
     400: errorResponse("The webhook URL failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -155,9 +154,9 @@ const updateSlackIntegrationRoute = createRoute({
     ),
     400: errorResponse("The resulting config failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Slack integration not found"),
+    404: errorResponse("Project or Slack integration not found"),
   },
 });
 
@@ -172,13 +171,10 @@ const deleteSlackIntegrationRoute = createRoute({
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The integration was removed", deletedSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Slack integration not found"),
+    404: errorResponse("Project or Slack integration not found"),
   },
 });
 
@@ -260,8 +256,8 @@ const slackIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
           ? currentConfig.channelName
           : (body.channelName ?? undefined),
       events: {
-        ...(currentConfig.events ?? {}),
-        ...(body.events ?? {}),
+        ...currentConfig.events,
+        ...body.events,
       },
     });
 

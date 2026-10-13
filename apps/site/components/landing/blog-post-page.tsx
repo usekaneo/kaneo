@@ -130,7 +130,7 @@ export function BlogPostPage({
               <article className="mx-auto w-full max-w-3xl lg:mx-0">
                 <div
                   className="blog-prose"
-                  // biome-ignore lint/security/noDangerouslySetInnerHtml: post bodies are trusted markdown files in this repository, rendered to HTML at build time.
+                  // eslint-disable-next-line react/no-danger -- post bodies are trusted markdown files in this repository, rendered to HTML at build time.
                   dangerouslySetInnerHTML={{ __html: opening }}
                 />
 
@@ -141,7 +141,7 @@ export function BlogPostPage({
                     </div>
                     <div
                       className="blog-prose mt-12"
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: post bodies are trusted markdown files in this repository, rendered to HTML at build time.
+                      // eslint-disable-next-line react/no-danger -- post bodies are trusted markdown files in this repository, rendered to HTML at build time.
                       dangerouslySetInnerHTML={{ __html: remainder }}
                     />
                   </>

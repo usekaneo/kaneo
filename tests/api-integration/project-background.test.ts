@@ -1,6 +1,13 @@
 import { eq } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import {
@@ -104,7 +111,9 @@ describe("API integration: project backgrounds", () => {
       expect(await updated.json()).not.toHaveProperty("backgroundObjectKey");
       const removed = await app.request(
         `/api/project/${project.id}/background`,
-        { method: "DELETE" },
+        {
+          method: "DELETE",
+        },
       );
       expect(removed.status).toBe(204);
       await vi.waitFor(() =>

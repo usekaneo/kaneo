@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { UserXIcon, UserCheckIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toggleAdminUserStatus } from "@/fetchers/admin/toggle-admin-user-status";
 import { ADMIN_USERS_QUERY_KEY } from "@/hooks/queries/admin/use-admin-users";
@@ -17,6 +18,7 @@ function useToggleAdminUserStatus() {
             ? "settings:adminUsers.toast.deactivated"
             : "settings:adminUsers.toast.reactivated",
         ),
+        { icon: variables.deactivate ? UserXIcon : UserCheckIcon },
       );
       queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY });
     },

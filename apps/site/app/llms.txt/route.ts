@@ -39,7 +39,7 @@ Key facts:
 - Self-hosting: one application container plus PostgreSQL, via Docker Compose or the official Helm chart. Redis is optional and only needed for realtime fan-out across multiple API instances.
 - Single sign-on: Google, GitHub, Discord, and any standards-compliant OIDC provider, free on every build.
 - Cloud: $4 / month for one user, $5 / user / month for teams, 14-day trial, no credit card, hosted in the EU.
-- Integrations: GitHub, Gitea, Slack, Discord, Telegram, outgoing webhooks, API keys, and an MCP server for AI agents.
+- Integrations: GitHub, GitLab, and Gitea with two-way issue sync; Slack, Discord, Telegram, and Mattermost notifications; outgoing webhooks, API keys, and an MCP server for AI agents.
 - Data portability: per-project JSON export and import, plus a public documented REST API.
 
 ## Product

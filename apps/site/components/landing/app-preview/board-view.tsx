@@ -5,6 +5,7 @@ import { DEFAULT_COLUMNS } from "@/constants/columns";
 import { getColumnIcon } from "@/lib/column";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
+import messages from "../../../../../i18n/en-US.json";
 import type { PreviewTaskDetails } from "./mock-data";
 import { PreviewTaskCard } from "./task-card";
 
@@ -58,28 +59,29 @@ export function PreviewBoard({
               </div>
 
               {/* Task list */}
-              <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 py-2 flex flex-col gap-1.5">
-                {column.tasks.map((task: Task) => (
-                  <PreviewTaskCard
-                    key={task.id}
-                    task={task}
-                    details={details[task.id]}
-                    projectSlug={project.slug}
-                    isCompleted={column.isFinal}
-                    onTaskClick={onTaskClick}
-                  />
-                ))}
-              </div>
-
-              {/* Add task footer, revealed on column hover */}
-              <div className="shrink-0 border-t border-border/60 p-1.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-1.5 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Add task
-                </button>
+              <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2">
+                <div className="flex flex-col gap-2">
+                  {column.tasks.map((task: Task) => (
+                    <PreviewTaskCard
+                      key={task.id}
+                      task={task}
+                      details={details[task.id]}
+                      projectSlug={project.slug}
+                      isCompleted={column.isFinal}
+                      onTaskClick={onTaskClick}
+                    />
+                  ))}
+                </div>
+                {/* New work starts in an open column; finished ones only collect. */}
+                {!column.isFinal && (
+                  <button
+                    type="button"
+                    className="mt-1 flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg px-3 text-[13px] text-muted-foreground outline-none transition-colors hover:bg-accent/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Plus aria-hidden="true" className="size-3.5" />
+                    {messages.tasks.kanban.addTask}
+                  </button>
+                )}
               </div>
             </div>
           </div>

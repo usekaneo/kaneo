@@ -1,8 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, Plus, Search, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Plus, TagIcon } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Input } from "@/components/ui/input";
+import { OptionMenu } from "@/components/common/option-menu/option-menu";
 import {
   Popover,
   PopoverContent,
@@ -14,7 +14,6 @@ import useDetachLabelFromTask from "@/hooks/mutations/label/use-detach-label-fro
 import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
-import { cn } from "@/lib/cn";
 import { getTaskLabelOptions } from "@/lib/get-task-label-options";
 import { resolveLabelColor } from "@/lib/label-color";
 import { toast } from "@/lib/toast";
@@ -32,124 +31,74 @@ const labelColors = [
   { value: "red", key: "crimson", color: "var(--color-red-600)" },
 ];
 
-type LabelColor =
-  | "gray"
-  | "dark-gray"
-  | "purple"
-  | "teal"
-  | "green"
-  | "yellow"
-  | "orange"
-  | "pink"
-  | "red";
+const CREATE_LABEL = ":create";
 
 type TaskLabelsPopoverProps = {
   task: Task;
   workspaceId: string;
   children: React.ReactNode;
-  triggerNativeButton?: boolean;
 };
 
-type PopoverStep = "select" | "color";
+function ColorDot({ color }: { color: string }) {
+  return (
+    <span
+      className="size-2 shrink-0 rounded-full"
+      style={{ backgroundColor: color }}
+    />
+  );
+}
 
 export default function TaskLabelsPopover({
   task,
   workspaceId,
   children,
-  triggerNativeButton = true,
 }: TaskLabelsPopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<PopoverStep>("select");
-  const [searchValue, setSearchValue] = useState("");
-  const [selectedColor, setSelectedColor] = useState<LabelColor>("gray");
-  const [newLabelName, setNewLabelName] = useState("");
-
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState("");
+  const [newLabelName, setNewLabelName] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { mutateAsync: attachLabel } = useAttachLabelToTask();
   const { mutateAsync: createLabel } = useCreateLabel();
   const { mutateAsync: detachLabel } = useDetachLabelFromTask();
   const { canCreateLabels, canUpdateLabels } = useWorkspacePermission();
-  const canCreate = canCreateLabels();
-  const canEdit = canUpdateLabels();
 
   const { data: taskLabels = [] } = useGetLabelsByTask(task.id);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
 
-  const taskLabelNames = useMemo(
-    () => taskLabels.map((label) => label.name),
-    [taskLabels],
-  );
+  if (!canUpdateLabels()) return <>{children}</>;
 
-  const workspaceLevelLabels = useMemo(
-    () => workspaceLabels.filter((label) => label.taskId === null),
-    [workspaceLabels],
-  );
-
-  const filteredLabels = useMemo(() => {
-    const selectableLabels = getTaskLabelOptions(workspaceLabels, task.id);
-    return selectableLabels.filter((label) =>
-      label.name.toLowerCase().includes(searchValue.toLowerCase()),
+  const name = query.trim();
+  const assignedNames = new Set(taskLabels.map((label) => label.name));
+  const canCreateLabel =
+    canCreateLabels() &&
+    Boolean(name) &&
+    !workspaceLabels.some(
+      (label) =>
+        label.taskId === null &&
+        label.name.toLowerCase() === name.toLowerCase(),
     );
-  }, [workspaceLabels, searchValue, task.id]);
 
-  const isCreatingNewLabel = useMemo(
-    () =>
-      searchValue &&
-      !workspaceLevelLabels.some(
-        (label) => label.name.toLowerCase() === searchValue.toLowerCase(),
-      ),
-    [workspaceLevelLabels, searchValue],
-  );
+  const refreshTasks = () =>
+    queryClient.invalidateQueries({ queryKey: ["tasks", task.projectId] });
 
-  useEffect(() => {
-    if (open && step === "select" && searchInputRef.current) {
-      setTimeout(() => searchInputRef.current?.focus(), 100);
-    }
-  }, [open, step]);
-
-  const resetPopover = () => {
-    setStep("select");
-    setSearchValue("");
-    setNewLabelName("");
-    setSelectedColor("gray");
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-    setTimeout(resetPopover, 200);
-  };
-
-  const handleToggleLabel = async (labelId: string) => {
+  const toggleLabel = async (labelId: string) => {
+    const workspaceLabel = workspaceLabels.find(
+      (label) => label.id === labelId,
+    );
+    if (!workspaceLabel) return;
     try {
-      const workspaceLabel = workspaceLabels.find((l) => l.id === labelId);
-      if (!workspaceLabel) return;
-
-      const isCurrentlyAssigned = taskLabelNames.includes(workspaceLabel.name);
-
-      if (isCurrentlyAssigned) {
-        // Remove label from task - find by name since IDs are different
+      if (assignedNames.has(workspaceLabel.name)) {
         const taskLabel = taskLabels.find(
-          (l) => l.name === workspaceLabel.name,
+          (label) => label.name === workspaceLabel.name,
         );
-        if (taskLabel?.id) {
-          await detachLabel({ labelId: taskLabel.id });
-          toast.success(t("tasks:popover.labels.removeSuccess"));
-        }
+        if (taskLabel?.id) await detachLabel({ labelId: taskLabel.id });
       } else {
         if (workspaceLabel.taskId !== null) return;
-        await attachLabel({
-          labelId: workspaceLabel.id,
-          taskId: task.id,
-        });
-        toast.success(t("tasks:popover.labels.addSuccess"));
+        await attachLabel({ labelId: workspaceLabel.id, taskId: task.id });
       }
-
-      await queryClient.invalidateQueries({
-        queryKey: ["tasks", task.projectId],
-      });
+      await refreshTasks();
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -159,36 +108,18 @@ export default function TaskLabelsPopover({
     }
   };
 
-  const handleCreateNewClick = () => {
-    setNewLabelName(searchValue);
-    setStep("color");
-  };
-
-  const handleColorSelect = async (color: LabelColor) => {
-    setSelectedColor(color);
-
-    // Create the label immediately
-    if (!newLabelName.trim()) return;
-
+  const createWithColor = async (color: string) => {
+    if (!newLabelName) return;
+    setOpen(false);
     try {
-      // First create the label in the workspace
-      const createdLabel = await createLabel({
-        name: newLabelName.trim(),
-        color: color,
+      const created = await createLabel({
+        name: newLabelName,
+        color,
         workspaceId,
       });
-
-      await attachLabel({
-        labelId: createdLabel.id,
-        taskId: task.id,
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: ["tasks", task.projectId],
-      });
-
-      toast.success(t("tasks:popover.labels.createSuccess"));
-      handleClose();
+      await attachLabel({ labelId: created.id, taskId: task.id });
+      await refreshTasks();
+      toast.success(t("tasks:popover.labels.createSuccess"), { icon: TagIcon });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -198,130 +129,61 @@ export default function TaskLabelsPopover({
     }
   };
 
-  const renderSelectStep = () => (
-    <div className="w-auto">
-      <div className="flex items-center gap-2 p-2 border-b border-border">
-        <Search className="w-3 h-3 text-muted-foreground" />
-        <Input
-          ref={searchInputRef}
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          placeholder={t("tasks:popover.labels.searchPlaceholder")}
-          className="border-none p-0 h-auto focus-visible:ring-0 shadow-none !bg-transparent"
-        />
-      </div>
-
-      <div className="py-1">
-        {filteredLabels.length === 0 && searchValue.length === 0 && (
-          <span className="text-xs text-muted-foreground px-2">
-            {t("tasks:popover.labels.empty")}
-          </span>
-        )}
-        {filteredLabels.map((label) => (
-          <button
-            key={label.id}
-            type="button"
-            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
-            onClick={() => handleToggleLabel(label.id)}
-          >
-            <div className="flex-shrink-0 w-3 flex justify-center">
-              {taskLabelNames.includes(label.name) && (
-                <Check className="w-3 h-3" />
-              )}
-            </div>
-            <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor: resolveLabelColor(label.color),
-              }}
-            />
-            <span className="max-w-20 truncate">{label.name}</span>
-          </button>
-        ))}
-
-        {canCreate && isCreatingNewLabel && filteredLabels.length > 0 && (
-          <div className="border-t border-border my-1" />
-        )}
-        {canCreate && isCreatingNewLabel && (
-          <button
-            type="button"
-            className="w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left"
-            onClick={handleCreateNewClick}
-          >
-            <div className="flex-shrink-0 w-3 flex justify-center">
-              <Plus className="w-3 h-3" />
-            </div>
-            <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{
-                backgroundColor:
-                  labelColors.find((c) => c.value === selectedColor)?.color ||
-                  "var(--color-neutral-400)",
-              }}
-            />
-            <span className="truncate">
-              {t("tasks:popover.labels.create", { name: searchValue })}
-            </span>
-          </button>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderColorStep = () => (
-    <div className="w-auto">
-      <div className="flex items-center justify-between p-2 border-b border-border">
-        <span className="text-xs font-medium">
-          {t("tasks:popover.labels.chooseColor")}
-        </span>
-        <button
-          type="button"
-          onClick={() => setStep("select")}
-          className="w-4 h-4 flex items-center justify-center hover:bg-accent/50 rounded"
-        >
-          <X className="h-3 w-3" />
-        </button>
-      </div>
-
-      <div className="py-1">
-        {labelColors.map((color) => (
-          <button
-            key={color.value}
-            type="button"
-            className={cn(
-              "w-full flex items-center gap-2 px-2 py-1.5 text-xs hover:bg-accent/50 text-left",
-              selectedColor === color.value && "bg-accent/30",
-            )}
-            onClick={() => handleColorSelect(color.value as LabelColor)}
-          >
-            <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
-              style={{ backgroundColor: color.color }}
-            />
-            <span className="truncate">
-              {t(`tasks:popover.labels.colors.${color.key}`)}
-            </span>
-            {selectedColor === color.value && (
-              <Check className="w-3 h-3 ml-auto" />
-            )}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  // Without label-update permission the trigger renders as a plain element,
-  // so users can still see the existing labels without opening edit controls.
-  if (!canEdit) return <>{children}</>;
+  const labelOptions = [
+    ...getTaskLabelOptions(workspaceLabels, task.id).map((label) => ({
+      value: label.id,
+      label: label.name,
+      icon: <ColorDot color={resolveLabelColor(label.color)} />,
+      selected: assignedNames.has(label.name),
+    })),
+    ...(canCreateLabel
+      ? [
+          {
+            value: CREATE_LABEL,
+            label: t("tasks:popover.labels.create", { name }),
+            icon: <Plus />,
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild nativeButton={triggerNativeButton}>
-        {children}
-      </PopoverTrigger>
-      <PopoverContent className="p-0" align="start">
-        {step === "select" && renderSelectStep()}
-        {step === "color" && renderColorStep()}
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) return;
+        setQuery("");
+        setNewLabelName(null);
+      }}
+    >
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent className="w-60 p-0" align="start">
+        {newLabelName === null ? (
+          <OptionMenu
+            key="labels"
+            label={t("tasks:properties.labels")}
+            placeholder={t("tasks:popover.labels.searchPlaceholder")}
+            options={labelOptions}
+            onQueryChange={setQuery}
+            onSelect={(value) => {
+              if (value === CREATE_LABEL) setNewLabelName(name);
+              else void toggleLabel(value);
+            }}
+          />
+        ) : (
+          <OptionMenu
+            key="colors"
+            label={t("tasks:popover.labels.chooseColor")}
+            placeholder={t("tasks:popover.labels.chooseColor")}
+            options={labelColors.map((color) => ({
+              value: color.value,
+              label: t(`tasks:popover.labels.colors.${color.key}`),
+              icon: <ColorDot color={color.color} />,
+            }))}
+            onSelect={createWithColor}
+          />
+        )}
       </PopoverContent>
     </Popover>
   );

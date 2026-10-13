@@ -1,4 +1,3 @@
-// biome-ignore-all lint/suspicious/noUndeclaredEnvVars: Standalone GitHub Actions release guard.
 import { execFileSync } from "node:child_process";
 import { setTimeout } from "node:timers/promises";
 import { pathToFileURL } from "node:url";

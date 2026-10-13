@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import bulkUpdateTasks from "../../apps/api/src/task/controllers/bulk-update-tasks";
 import { resetTestDatabase } from "./helpers/database";

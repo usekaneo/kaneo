@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clearNotifications from "@/fetchers/notification/clear-notifications";
 
-function useClearNotifications() {
+function useClearNotifications(workspaceId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: clearNotifications,
+    mutationFn: () => clearNotifications(workspaceId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },

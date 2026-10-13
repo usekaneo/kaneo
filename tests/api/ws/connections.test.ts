@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 
 // We need to mock the events module to prevent side effects from the
 // top-level subscribeToEvent calls in ws/index.ts

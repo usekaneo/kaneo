@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { FALLBACK_LABEL_COLOR, resolveLabelColor } from "./label-color";
 
 afterEach(() => vi.unstubAllGlobals());

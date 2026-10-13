@@ -1,21 +1,16 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  ChevronDown,
-  ChevronRight,
-  Link2,
-  Plus,
-  Search,
-  X,
-} from "lucide-react";
+import { Ban, Link2, Search, X } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+  buildRelationLink,
+  findParentRelation,
+  unpickableTaskIds,
+} from "./task-relation-link";
+import {
+  type RelationPickerMode,
+  useRelationPickerStore,
+} from "./task-relation-picker-store";
 import {
   Command,
   CommandCollection,
@@ -47,11 +42,22 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
-import { getInitials } from "@/lib/get-initials";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
-import SubtaskAssigneePopover from "./subtask-assignee-popover";
+import { ReferenceAssigneeButton } from "./sections/reference-assignee-button";
+import { ReferenceStatusButton } from "./sections/reference-status-button";
+import { type RelationKind, RelationTag } from "./sections/relation-tag";
+import { SectionAddButton } from "./sections/section-add-button";
+import { SectionHeader } from "./sections/section-header";
+import { TaskReferenceRow } from "./sections/task-reference-row";
+import { useProjectSlugs } from "./sections/use-project-slugs";
 import SubtaskStatusPopover from "./subtask-status-popover";
+
+const relationOrder: Record<RelationKind, number> = {
+  blocked_by: 0,
+  blocks: 1,
+  related: 2,
+};
 
 type TaskRelationsProps = {
   taskId: string;
@@ -79,12 +85,12 @@ export default function TaskRelations({
 }: TaskRelationsProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
   const [commandOpen, setCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRelationType, setSelectedRelationType] = useState<
-    "blocks" | "related"
-  >("related");
+  const [selectedRelationType, setSelectedRelationType] =
+    useState<RelationPickerMode>("related");
+  const relationRequest = useRelationPickerStore((state) => state.request);
+  const clearRelationRequest = useRelationPickerStore((state) => state.clear);
 
   const { data: relations = [] } = useGetTaskRelations(taskId);
   const { data: projectData } = useGetTasks(projectId);
@@ -97,6 +103,15 @@ export default function TaskRelations({
   const deleteRelation = useDeleteTaskRelation(taskId);
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
+  const displayIdOf = useProjectSlugs(workspaceId);
+
+  useEffect(() => {
+    if (!relationRequest || relationRequest.taskId !== taskId) return;
+    clearRelationRequest();
+    if (!canEdit) return;
+    setSelectedRelationType(relationRequest.mode);
+    setCommandOpen(true);
+  }, [relationRequest, taskId, canEdit, clearRelationRequest]);
 
   useEffect(() => {
     if (!commandOpen) {
@@ -108,44 +123,26 @@ export default function TaskRelations({
     (rel) => rel.relationType !== "subtask",
   );
 
-  const groupedRelations = useMemo(() => {
-    const groups: Record<
-      string,
-      Array<{
-        id: string;
-        relationType: string;
-        task: NonNullable<(typeof nonSubtaskRelations)[number]["sourceTask"]>;
-      }>
-    > = {};
-
-    for (const rel of nonSubtaskRelations) {
+  const linkedRelations = nonSubtaskRelations
+    .flatMap((rel) => {
       const isSource = rel.sourceTaskId === taskId;
       const linkedTask = isSource ? rel.targetTask : rel.sourceTask;
-      if (!linkedTask) continue;
+      if (!linkedTask) return [];
+      const kind: RelationKind =
+        rel.relationType === "blocks"
+          ? isSource
+            ? "blocks"
+            : "blocked_by"
+          : "related";
+      return [{ id: rel.id, kind, task: linkedTask }];
+    })
+    .sort((a, b) => relationOrder[a.kind] - relationOrder[b.kind]);
 
-      // "blocks" is directional: when the current task is the target it is the
-      // one being blocked, so group it under a distinct "blocked_by" key.
-      const type =
-        rel.relationType === "blocks" && !isSource
-          ? "blocked_by"
-          : rel.relationType;
-      if (!groups[type]) {
-        groups[type] = [];
-      }
-      groups[type].push({
-        id: rel.id,
-        relationType: rel.relationType,
-        task: linkedTask,
-      });
-    }
-
-    return groups;
-  }, [nonSubtaskRelations, taskId]);
-
-  const existingRelatedTaskIds = new Set(
-    nonSubtaskRelations.flatMap((rel) => [rel.sourceTaskId, rel.targetTaskId]),
+  const existingRelatedTaskIds = unpickableTaskIds(
+    selectedRelationType,
+    taskId,
+    relations,
   );
-  existingRelatedTaskIds.add(taskId);
 
   const allTasks = useMemo(() => {
     if (!projectData) return [];
@@ -206,13 +203,18 @@ export default function TaskRelations({
     ];
   }, [filteredTasks, t]);
 
-  const handleLinkTask = async (targetTaskId: string) => {
+  const handleLinkTask = async (pickedTaskId: string) => {
+    const previousParent =
+      selectedRelationType === "parent"
+        ? findParentRelation(taskId, relations)
+        : undefined;
     try {
-      await createRelation.mutateAsync({
-        sourceTaskId: taskId,
-        targetTaskId,
-        relationType: selectedRelationType,
-      });
+      await createRelation.mutateAsync(
+        buildRelationLink(selectedRelationType, taskId, pickedTaskId),
+      );
+      if (previousParent) {
+        await deleteRelation.mutateAsync(previousParent.id);
+      }
       setCommandOpen(false);
       setSearchQuery("");
     } catch {
@@ -261,156 +263,110 @@ export default function TaskRelations({
 
   return (
     <>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <CollapsibleTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {isOpen ? (
-                  <ChevronDown className="size-4" />
-                ) : (
-                  <ChevronRight className="size-4" />
-                )}
-                <span>{t("tasks:relations.title")}</span>
-              </button>
-            </CollapsibleTrigger>
-            {totalCount > 0 && (
-              <span className="text-xs text-muted-foreground">
+      <section className="flex flex-col gap-1">
+        <SectionHeader
+          title={t("tasks:relations.title")}
+          meta={
+            totalCount > 0 && (
+              <span className="text-muted-foreground text-xs tabular-nums">
                 {totalCount}
               </span>
-            )}
-          </div>
-          {canEdit && (
-            <Button
-              variant="ghost"
-              size="xs"
-              className="text-muted-foreground"
-              onClick={() => setCommandOpen(true)}
-            >
-              <Plus className="size-3.5" />
-            </Button>
-          )}
-        </div>
+            )
+          }
+          action={
+            canEdit && (
+              <SectionAddButton
+                aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:relations.title")}`}
+                onClick={() => setCommandOpen(true)}
+              />
+            )
+          }
+        />
 
-        <CollapsibleContent>
-          {Object.entries(groupedRelations).map(([type, items]) => (
-            <div key={type} className="mt-1.5">
-              <span className="text-[11px] text-muted-foreground/70 px-2">
-                {t(`tasks:relations.types.${type}`, {
-                  defaultValue: type.replace(/_/g, " "),
-                })}
-              </span>
-              <div className="flex flex-col mt-0.5">
-                {items.map((item) => {
-                  const assignee = getAssignee(item.task.userId);
-                  const taskObj = buildTaskObject(item);
+        <div className="flex flex-col">
+          {linkedRelations.map((item) => {
+            const assignee = getAssignee(item.task.userId);
+            const taskObj = buildTaskObject(item);
+            const isFinal = finalStatusSlugs.has(item.task.status);
 
-                  return (
-                    <ContextMenu key={item.id}>
-                      <ContextMenuTrigger asChild>
-                        <div className="group flex items-center gap-2 py-1 px-2 rounded-md hover:bg-accent/50 transition-colors cursor-default">
-                          <SubtaskStatusPopover
-                            tasks={[taskObj]}
-                            projectId={projectId}
-                          >
-                            <button
-                              type="button"
-                              className="shrink-0 flex items-center justify-center rounded p-0.5 transition-colors outline-none [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
-                            >
-                              {getColumnIcon(
-                                item.task.status,
-                                finalStatusSlugs.has(item.task.status),
-                                columnIconBySlug.get(item.task.status),
-                              )}
-                            </button>
-                          </SubtaskStatusPopover>
-
-                          <button
-                            type="button"
-                            className="flex-1 min-w-0 text-left outline-none"
-                            onClick={() => handleNavigateToTask(item.task.id)}
-                          >
-                            <span
-                              className={`text-sm truncate block ${finalStatusSlugs.has(item.task.status) ? "line-through text-muted-foreground" : "text-foreground/90"}`}
-                            >
-                              {item.task.title}
-                            </span>
-                          </button>
-
-                          <SubtaskAssigneePopover
-                            tasks={[taskObj]}
-                            workspaceId={workspaceId}
-                          >
-                            <button
-                              type="button"
-                              className="shrink-0 flex items-center justify-center rounded p-0.5 transition-colors outline-none"
-                            >
-                              {item.task.userId && assignee ? (
-                                <Avatar className="h-5 w-5">
-                                  <AvatarImage
-                                    src={assignee?.user?.image ?? ""}
-                                    alt={assignee?.user?.name || ""}
-                                  />
-                                  <AvatarFallback className="text-[9px] font-medium border border-border/30">
-                                    {getInitials(assignee?.user?.name)}
-                                  </AvatarFallback>
-                                </Avatar>
-                              ) : (
-                                <div
-                                  className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-border/70"
-                                  title={t("tasks:popover.assignee.unassigned")}
-                                >
-                                  <span className="text-[9px] font-medium text-muted-foreground">
-                                    ?
-                                  </span>
-                                </div>
-                              )}
-                            </button>
-                          </SubtaskAssigneePopover>
-                        </div>
-                      </ContextMenuTrigger>
-
-                      <ContextMenuContent className="w-40">
-                        <ContextMenuItem
-                          onClick={() => handleNavigateToTask(item.task.id)}
+            return (
+              <ContextMenu key={item.id}>
+                <ContextMenuTrigger asChild>
+                  <TaskReferenceRow
+                    status={
+                      <SubtaskStatusPopover
+                        tasks={[taskObj]}
+                        projectId={item.task.projectId}
+                      >
+                        <ReferenceStatusButton
+                          aria-label={t("tasks:status.label")}
                         >
-                          <span>{t("tasks:relations.openTask")}</span>
-                        </ContextMenuItem>
-                        {canEdit && (
-                          <>
-                            <ContextMenuSeparator />
-                            <ContextMenuItem
-                              className="text-destructive"
-                              onClick={() => handleRemoveRelation(item.id)}
-                            >
-                              <span>{t("tasks:relations.removeRelation")}</span>
-                            </ContextMenuItem>
-                          </>
-                        )}
-                      </ContextMenuContent>
-                    </ContextMenu>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+                          {getColumnIcon(
+                            item.task.status,
+                            isFinal,
+                            columnIconBySlug.get(item.task.status),
+                          )}
+                        </ReferenceStatusButton>
+                      </SubtaskStatusPopover>
+                    }
+                    displayId={displayIdOf(
+                      item.task.projectId,
+                      item.task.number,
+                    )}
+                    title={item.task.title}
+                    done={isFinal}
+                    onOpen={() => handleNavigateToTask(item.task.id)}
+                    tag={<RelationTag kind={item.kind} />}
+                    assignee={
+                      <ReferenceAssigneeButton
+                        tasks={[taskObj]}
+                        workspaceId={workspaceId}
+                        name={assignee?.user?.name ?? item.task.assigneeName}
+                        image={assignee?.user?.image}
+                      />
+                    }
+                  />
+                </ContextMenuTrigger>
+
+                <ContextMenuContent className="w-40">
+                  <ContextMenuItem
+                    onClick={() => handleNavigateToTask(item.task.id)}
+                  >
+                    <span>{t("tasks:relations.openTask")}</span>
+                  </ContextMenuItem>
+                  {canEdit && (
+                    <>
+                      <ContextMenuSeparator />
+                      <ContextMenuItem
+                        className="text-destructive"
+                        onClick={() => handleRemoveRelation(item.id)}
+                      >
+                        <span>{t("tasks:relations.removeRelation")}</span>
+                      </ContextMenuItem>
+                    </>
+                  )}
+                </ContextMenuContent>
+              </ContextMenu>
+            );
+          })}
 
           {totalCount === 0 && (
-            <p className="text-xs text-muted-foreground px-2 py-1">
+            <p className="px-2 py-1 text-muted-foreground text-xs">
               {t("tasks:relations.empty")}
             </p>
           )}
-        </CollapsibleContent>
-      </Collapsible>
+        </div>
+      </section>
 
       <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
         <CommandDialogPopup>
           <Command items={commandGroups}>
             <CommandInput
-              placeholder={t("tasks:relations.searchPlaceholder")}
+              placeholder={
+                selectedRelationType === "parent"
+                  ? t("tasks:relations.parentPlaceholder")
+                  : t("tasks:relations.searchPlaceholder")
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -459,7 +415,9 @@ export default function TaskRelations({
               </CommandList>
             </CommandPanel>
             <CommandFooter>
-              <div className="flex items-center gap-3">
+              <div
+                className={`flex items-center gap-3 ${selectedRelationType === "parent" ? "hidden" : ""}`}
+              >
                 <button
                   type="button"
                   className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "related" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
@@ -475,6 +433,14 @@ export default function TaskRelations({
                 >
                   <X className="size-3" />
                   {t("tasks:relations.blocks")}
+                </button>
+                <button
+                  type="button"
+                  className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-md transition-colors ${selectedRelationType === "blockedBy" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setSelectedRelationType("blockedBy")}
+                >
+                  <Ban className="size-3" />
+                  {t("tasks:relations.blockedBy")}
                 </button>
               </div>
               <span className="text-muted-foreground/60">

@@ -1,4 +1,4 @@
-import { beforeEach, expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vite-plus/test";
 import { Route } from "./auth";
 
 const mocks = vi.hoisted(() => ({ getSession: vi.fn() }));
@@ -41,5 +41,7 @@ it("allows signed-out visitors to recover their password", async () => {
   mocks.getSession.mockResolvedValue({ data: null });
   await expect(
     beforeLoad({ location: { pathname: "/auth/reset-password" } }),
-  ).resolves.toEqual({ session: null });
+  ).resolves.toEqual({
+    session: null,
+  });
 });

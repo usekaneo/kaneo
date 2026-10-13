@@ -1,3 +1,4 @@
+import { publishEvent } from "../../events";
 import { eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -25,6 +26,8 @@ async function deleteColumn(id: string) {
   }
 
   await db.delete(columnTable).where(eq(columnTable.id, id));
+
+  await publishEvent("project.updated", { projectId: existing.projectId });
 
   return existing;
 }

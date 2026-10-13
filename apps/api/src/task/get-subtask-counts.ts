@@ -1,5 +1,6 @@
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { projectTable, taskRelationTable, taskTable } from "../database/schema";
+import { projectAccessCondition } from "../project-access/project-access-condition";
 import type { TaskReadDatabase } from "./bounded-read";
 import { taskIsCompleted } from "./task-is-completed";
 
@@ -9,6 +10,7 @@ export async function getSubtaskCounts(
   taskIds: string[],
   workspaceId: string,
   publicOnly: boolean,
+  userId?: string,
 ) {
   if (taskIds.length === 0) {
     return new Map<string, { completed: number; total: number }>();
@@ -32,6 +34,7 @@ export async function getSubtaskCounts(
         eq(taskRelationTable.relationType, "subtask"),
         eq(projectTable.workspaceId, workspaceId),
         publicOnly ? eq(projectTable.isPublic, true) : undefined,
+        userId ? projectAccessCondition(userId, projectTable.id) : undefined,
       ),
     )
     .groupBy(taskRelationTable.sourceTaskId);

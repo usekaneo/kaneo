@@ -1,3 +1,4 @@
+import { publishEvent } from "../../events";
 import { eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -80,6 +81,8 @@ async function createColumn({
   if (!created) {
     throw new HTTPException(500, { message: "Failed to create column" });
   }
+
+  await publishEvent("project.updated", { projectId: created.projectId });
 
   return created;
 }

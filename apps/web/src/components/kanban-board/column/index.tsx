@@ -1,13 +1,19 @@
+import { useDroppable } from "@dnd-kit/core";
 import { cva } from "class-variance-authority";
-import { useState } from "react";
+import { memo } from "react";
 import { useBackgroundStore } from "@/store/background";
 import type { ProjectWithTasks } from "@/types/project";
 import { ColumnDropzone } from "./column-dropzone";
 import { ColumnHeader } from "./column-header";
+import { ColumnSortHint } from "./column-sort-hint";
 
 type ColumnProps = {
   column: ProjectWithTasks["columns"][number];
+  activeTaskId: string | null;
+  sortHint?: string;
   disableDragDrop?: boolean;
+  disableSorting?: boolean;
+  disableCollectionActions?: boolean;
 };
 
 export const columnVariants = cva(
@@ -52,29 +58,45 @@ export const columnVariants = cva(
   },
 );
 
-function Column({ column, disableDragDrop = false }: ColumnProps) {
-  const [isDropzoneOver, setIsDropzoneOver] = useState(false);
+function Column({
+  column,
+  activeTaskId,
+  sortHint,
+  disableDragDrop = false,
+  disableSorting = false,
+  disableCollectionActions = false,
+}: ColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: column.id,
+    data: { type: "column", column },
+  });
   const { background } = useBackgroundStore();
 
   return (
     <div
+      ref={setNodeRef}
       className={columnVariants({
-        isDropzoneOver,
+        isDropzoneOver: isOver,
         backgroundImage: !!background,
       })}
     >
       <div className="shrink-0 border-b border-border/60 px-3 py-2">
-        <ColumnHeader column={column} />
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pt-1 pb-2 [-webkit-overflow-scrolling:touch]">
-        <ColumnDropzone
+        <ColumnHeader
           column={column}
-          disableDragDrop={disableDragDrop}
-          onIsOverChange={setIsDropzoneOver}
+          disableCollectionActions={disableCollectionActions}
         />
       </div>
+      <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-2 [-webkit-overflow-scrolling:touch]">
+        <ColumnDropzone
+          column={column}
+          activeTaskId={activeTaskId}
+          disableDragDrop={disableDragDrop}
+          disableSorting={disableSorting}
+        />
+      </div>
+      {sortHint && <ColumnSortHint label={sortHint} />}
     </div>
   );
 }
 
-export default Column;
+export default memo(Column);

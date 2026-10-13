@@ -10,11 +10,15 @@ async function getGithubIntegration(projectId: string) {
   });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();
   return data;
 }
+
+export type GithubIntegration = NonNullable<
+  Awaited<ReturnType<typeof getGithubIntegration>>
+>;
 
 export default getGithubIntegration;

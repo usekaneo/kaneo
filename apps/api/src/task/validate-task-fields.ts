@@ -241,8 +241,9 @@ export function assertValidPriority(priority: string): void {
 
 export async function getValidTaskStatuses(
   projectId: string,
+  database: Pick<typeof db, "select"> = db,
 ): Promise<string[]> {
-  const columns = await db
+  const columns = await database
     .select({ slug: columnTable.slug })
     .from(columnTable)
     .where(eq(columnTable.projectId, projectId))
@@ -254,8 +255,9 @@ export async function getValidTaskStatuses(
 export async function assertValidTaskStatus(
   status: string,
   projectId: string,
+  database: Pick<typeof db, "select"> = db,
 ): Promise<void> {
-  const validStatuses = await getValidTaskStatuses(projectId);
+  const validStatuses = await getValidTaskStatuses(projectId, database);
 
   if (!validStatuses.includes(status)) {
     throw new HTTPException(400, {

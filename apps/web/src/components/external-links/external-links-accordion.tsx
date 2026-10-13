@@ -1,17 +1,18 @@
 import {
-  ChevronDown,
   ChevronRight,
   FolderGit,
   GitMerge,
   GitPullRequest,
   Link,
-  Plus,
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { GithubIcon } from "@/components/icons/github-icon";
 import { GitlabIcon } from "@/components/icons/gitlab-icon";
+import { SectionAddButton } from "@/components/task/sections/section-add-button";
+import { SectionHeader } from "@/components/task/sections/section-header";
+import { sectionRowClass } from "@/components/task/sections/section-row-class";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -30,7 +31,9 @@ import { Label } from "@/components/ui/label";
 import useCreateExternalLink from "@/hooks/mutations/external-link/use-create-external-link";
 import useDeleteExternalLink from "@/hooks/mutations/external-link/use-delete-external-link";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { cn } from "@/lib/cn";
 import type { ExternalLink } from "@/types/external-link";
+import { linkHost } from "./link-host";
 
 interface ExternalLinksAccordionProps {
   taskId: string;
@@ -122,6 +125,14 @@ export function ExternalLinksAccordion({
     const isIssue = link.resourceType === "issue";
     const isBranch = link.resourceType === "branch";
 
+    if (isIssue && link.metadata?.syncFilterPaused === true) {
+      return (
+        <span className="text-xs font-medium text-warning-foreground">
+          {t("settings:syncRules.paused")}
+        </span>
+      );
+    }
+
     if (isIssue) {
       return (
         <span className="text-xs font-medium text-muted-foreground">
@@ -168,99 +179,112 @@ export function ExternalLinksAccordion({
 
   return (
     <>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-        <div className="flex items-center justify-between">
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="justify-start gap-1 px-0 h-8 hover:bg-transparent"
-            >
-              {isOpen ? (
-                <ChevronDown className="size-4 text-muted-foreground" />
-              ) : (
-                <ChevronRight className="size-4 text-muted-foreground" />
-              )}
-              <span className="text-sm text-muted-foreground">
-                {t("settings:externalLinks.resources")}
-              </span>
-            </Button>
-          </CollapsibleTrigger>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <section className="flex flex-col gap-1">
+          <SectionHeader
+            title={
+              <CollapsibleTrigger asChild>
+                <button
+                  type="button"
+                  data-task-action="resources"
+                  className="flex items-center gap-1 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {t("settings:externalLinks.resources")}
+                  {!isOpen && (
+                    <ChevronRight
+                      aria-hidden="true"
+                      className="size-3 text-muted-foreground"
+                    />
+                  )}
+                </button>
+              </CollapsibleTrigger>
+            }
+            meta={
+              linksWithoutRedundantBranches.length > 0 && (
+                <span className="text-muted-foreground text-xs tabular-nums">
+                  {linksWithoutRedundantBranches.length}
+                </span>
+              )
+            }
+            action={
+              canAddResource && (
+                <SectionAddButton
+                  data-task-action="addLink"
+                  aria-label={t("settings:externalLinks.addResource")}
+                  title={t("settings:externalLinks.addResource")}
+                  onClick={() => setIsDialogOpen(true)}
+                />
+              )
+            }
+          />
 
-          {canAddResource && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="gap-1 h-8"
-              onClick={() => setIsDialogOpen(true)}
-            >
-              <Plus className="size-4" />
-              {t("settings:externalLinks.addResource")}
-            </Button>
-          )}
-        </div>
+          <CollapsibleContent>
+            {isLoading ? null : linksWithoutRedundantBranches.length > 0 ? (
+              <div className="flex flex-col">
+                {linksWithoutRedundantBranches.map((link) => {
+                  const isUrl = link.resourceType === "url";
+                  const removable =
+                    canAddResource && link.integrationId === null && isUrl;
 
-        <CollapsibleContent>
-          {isLoading ? null : linksWithoutRedundantBranches.length > 0 ? (
-            <div className="flex flex-col gap-2 mt-2">
-              {linksWithoutRedundantBranches.map((link) => (
-                <div key={link.id} className="flex items-center gap-1">
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex min-w-0 flex-1 items-center gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors"
-                  >
-                    {isGiteaResourceLink(link) ? (
-                      <FolderGit className="size-4 flex-shrink-0 text-muted-foreground" />
-                    ) : isGitlabResourceLink(link) ? (
-                      <GitlabIcon className="size-4 flex-shrink-0 text-muted-foreground" />
-                    ) : link.resourceType === "url" ? (
-                      <Link className="size-4 flex-shrink-0 text-muted-foreground" />
-                    ) : (
-                      <GithubIcon className="size-4 flex-shrink-0 text-muted-foreground" />
-                    )}
-
-                    <span className="text-sm truncate flex-1 text-foreground/90 group-hover:text-foreground">
-                      {link.title || link.externalId}
-                      {link.resourceType !== "branch" &&
-                        link.resourceType !== "url" && (
-                          <span className="text-muted-foreground ml-2">
-                            #{link.externalId}
-                          </span>
-                        )}
-                    </span>
-
-                    {getStatusBadge(link)}
-                  </a>
-                  {canAddResource &&
-                    link.integrationId === null &&
-                    link.resourceType === "url" && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t("settings:externalLinks.remove", {
-                          title: link.title || link.url,
-                        })}
-                        disabled={deleteExternalLink.isPending}
-                        onClick={() =>
-                          deleteExternalLink.mutate({ taskId, id: link.id })
-                        }
+                  return (
+                    <div key={link.id} className={sectionRowClass}>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex min-w-0 flex-1 items-center gap-2.5 self-stretch outline-none focus-visible:underline"
                       >
-                        <X aria-hidden="true" />
-                      </Button>
-                    )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-2 px-3 text-sm text-muted-foreground">
-              {t("settings:externalLinks.empty")}
-            </p>
-          )}
-        </CollapsibleContent>
+                        {isGiteaResourceLink(link) ? (
+                          <FolderGit className="size-3.5 shrink-0 text-muted-foreground" />
+                        ) : isGitlabResourceLink(link) ? (
+                          <GitlabIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                        ) : isUrl ? (
+                          <Link className="size-3.5 shrink-0 text-muted-foreground" />
+                        ) : (
+                          <GithubIcon className="size-3.5 shrink-0 text-muted-foreground" />
+                        )}
+                        <span className="min-w-0 shrink truncate text-[13px] text-foreground/85 group-hover:text-foreground">
+                          {link.title || link.externalId}
+                        </span>
+                        <span
+                          className={cn(
+                            "min-w-0 flex-1 truncate text-muted-foreground/70 text-xs",
+                            !isUrl && "font-mono",
+                          )}
+                        >
+                          {isUrl
+                            ? linkHost(link.url)
+                            : link.resourceType !== "branch" &&
+                              `#${link.externalId}`}
+                        </span>
+                        {getStatusBadge(link)}
+                      </a>
+                      {removable && (
+                        <button
+                          type="button"
+                          aria-label={t("settings:externalLinks.remove", {
+                            title: link.title || link.url,
+                          })}
+                          disabled={deleteExternalLink.isPending}
+                          onClick={() =>
+                            deleteExternalLink.mutate({ taskId, id: link.id })
+                          }
+                          className="flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-0 outline-none transition-opacity hover:bg-accent hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 disabled:pointer-events-none"
+                        >
+                          <X aria-hidden="true" className="size-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="px-2 py-1 text-muted-foreground text-xs">
+                {t("settings:externalLinks.empty")}
+              </p>
+            )}
+          </CollapsibleContent>
+        </section>
       </Collapsible>
 
       <Dialog
@@ -275,7 +299,7 @@ export function ExternalLinksAccordion({
               </DialogTitle>
             </DialogHeader>
 
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 px-6 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="external-resource-url">
                   {t("settings:externalLinks.url")}

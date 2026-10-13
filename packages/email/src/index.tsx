@@ -8,3 +8,9 @@ export {
   sendWorkspaceInvitationEmail,
 } from "./send-email";
 export { isSmtpConfigured } from "./smtp-config";
+export type { BoardColumnIcon } from "./components/board-column";
+export type {
+  TaskCardDueStatus,
+  TaskCardPriority,
+} from "./components/task-card";
+export type { NotificationEmailTask } from "./templates/notification";

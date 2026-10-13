@@ -1,3 +1,5 @@
+import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
+import { canSyncTask } from "../../sync/eligibility";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -66,6 +68,8 @@ async function getGiteaIssueContext(taskId: string) {
     return null;
   }
 
+  if (!(await canSyncTask(taskId, integration.id))) return null;
+
   let config: GiteaConfig;
   try {
     config = JSON.parse(integration.config) as GiteaConfig;
@@ -89,6 +93,8 @@ async function getGiteaIssueContext(taskId: string) {
   }
 
   return {
+    externalLink,
+    expectedConfig: integration.config,
     client,
     config,
     issueNumber,
@@ -114,12 +120,19 @@ export async function syncLabelToGitea(
 
   if (!label) {
     try {
-      label = await client.createLabel(
-        config.repositoryOwner,
-        config.repositoryName,
-        labelName,
-        color,
+      const created = await dispatchIssueWrite(
+        ctx.externalLink,
+        ctx.expectedConfig,
+        () =>
+          client.createLabel(
+            config.repositoryOwner,
+            config.repositoryName,
+            labelName,
+            color,
+          ),
       );
+      if (!created) return;
+      label = created.value;
     } catch (error) {
       console.error(`Failed to create label "${labelName}" in Gitea:`, error);
       return;
@@ -136,11 +149,14 @@ export async function syncLabelToGitea(
     if (existingIds.includes(label.id)) {
       return;
     }
-    await client.addLabelsToIssue(
-      config.repositoryOwner,
-      config.repositoryName,
-      issueNumber,
-      [label.id],
+    const labelId = label.id;
+    await dispatchIssueWrite(ctx.externalLink, ctx.expectedConfig, () =>
+      client.addLabelsToIssue(
+        config.repositoryOwner,
+        config.repositoryName,
+        issueNumber,
+        [labelId],
+      ),
     );
   } catch (error) {
     console.error(`Failed to add label "${labelName}" to Gitea issue:`, error);
@@ -161,11 +177,13 @@ export async function removeLabelFromGitea(taskId: string, labelName: string) {
   if (!label) return;
 
   try {
-    await client.removeLabelFromIssue(
-      config.repositoryOwner,
-      config.repositoryName,
-      issueNumber,
-      label.id,
+    await dispatchIssueWrite(ctx.externalLink, ctx.expectedConfig, () =>
+      client.removeLabelFromIssue(
+        config.repositoryOwner,
+        config.repositoryName,
+        issueNumber,
+        label.id,
+      ),
     );
   } catch (error) {
     console.error(

@@ -9,7 +9,7 @@ export async function updateAdminUser({
 }: UpdateAdminUserRequest) {
   const { data, error } = await authClient.admin.updateUser({
     userId,
-    data: { name, email, role },
+    data: { name, email, ...(role === undefined ? {} : { role }) },
   });
 
   if (error) {

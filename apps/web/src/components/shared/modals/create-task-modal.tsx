@@ -2,6 +2,7 @@ import { useLocation, useParams } from "@tanstack/react-router";
 import { produce } from "immer";
 import {
   CalendarIcon,
+  CircleAlert,
   Check,
   FolderKanban,
   Plus,
@@ -9,16 +10,18 @@ import {
   Tag,
   UserIcon,
   X,
+  TagIcon,
+  SquarePlusIcon,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import { CustomFieldChip } from "@/components/custom-fields/custom-field-chip";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  findMissingRequiredFields,
+  isCustomFieldValueEmpty,
+} from "@/components/custom-fields/missing-required-fields";
+import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
+import TaskDescriptionEditor from "@/components/task/task-description-editor";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -39,16 +42,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  Combobox,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxEmpty,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxPopup,
-  ComboboxValue,
-} from "@/components/ui/combobox";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -56,50 +49,42 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/preview-card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import useSetCustomFieldValue from "@/hooks/mutations/custom-field/use-set-custom-field-value";
+import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
+import { getColumnIcon } from "@/lib/column";
+import { getStatusDisplayLabel } from "@/lib/i18n/domain";
 import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
-import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { cn } from "@/lib/cn";
+import { uploadDraftAsset } from "@/lib/upload-draft-asset";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
+import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
+import { stripLineBreaks } from "@/lib/strip-line-breaks";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
   open: boolean;
   onClose: () => void;
   status?: string;
   projectId?: string;
+  instant?: boolean;
 };
 
 type Priority = "no-priority" | "low" | "medium" | "high" | "urgent";
@@ -125,27 +110,6 @@ type Label = {
 };
 
 type PopoverStep = "select" | "color";
-
-type CustomFieldType =
-  | "text"
-  | "number"
-  | "date"
-  | "dropdown"
-  | "boolean"
-  | "multiselect";
-
-type CustomFieldDefinition = {
-  id: string;
-  projectId: string;
-  name: string;
-  type: CustomFieldType;
-  required: boolean;
-  defaultValue: string | null;
-  options: string[] | null;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-};
 
 function normalizeTask(
   task: Partial<Task> &
@@ -173,6 +137,7 @@ function CreateTaskModalContent({
   onClose,
   status,
   projectId,
+  instant = false,
 }: CreateTaskModalProps) {
   const { t } = useTranslation();
   const { project, setProject } = useProjectStore();
@@ -245,6 +210,7 @@ function CreateTaskModalContent({
   const canCreateLabelCapability = canCreateLabels();
 
   const [title, setTitle] = useState("");
+  const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
   const [assigneeId, setAssigneeId] = useState("");
@@ -252,7 +218,6 @@ function CreateTaskModalContent({
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
-  const [draftTask, setDraftTask] = useState<Task | null>(null);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
@@ -274,10 +239,54 @@ function CreateTaskModalContent({
     (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
   );
   const resolvedProjectId = resolvedProject?.id ?? "";
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: workspace?.id || "",
+    projectId: resolvedProjectId,
+  });
+  const workspaceAssigneeOptions = useMemo(
+    () =>
+      (workspaceUsers?.members ?? []).map((member) => ({
+        id: member.userId,
+        name: member.user?.name ?? "",
+        image: member.user?.image ?? null,
+      })),
+    [workspaceUsers?.members],
+  );
+  const projectMembersPending =
+    Boolean(resolvedProjectId) && projectMembers === undefined;
+  const assigneeUnconfirmed = Boolean(assigneeId) && projectMembersPending;
+  const assigneeOptions = useMemo(
+    () =>
+      resolvedProjectId
+        ? (projectMembers ?? []).map((member) => ({
+            id: member.id,
+            name: member.name,
+            image: member.image,
+          }))
+        : workspaceAssigneeOptions,
+    [resolvedProjectId, projectMembers, workspaceAssigneeOptions],
+  );
+  const selectedUser =
+    assigneeOptions.find((option) => option.id === assigneeId) ??
+    (projectMembersPending
+      ? workspaceAssigneeOptions.find((option) => option.id === assigneeId)
+      : undefined);
+  const {
+    data: projectColumns,
+    isError: columnsError,
+    refetch: refetchColumns,
+    isFetching: columnsFetching,
+  } = useGetColumns(open ? resolvedProjectId : "", { refreshOnMount: true });
+  const initialColumn = getInitialTaskColumn(projectColumns, status);
+  const taskStatus = status ?? initialColumn?.slug ?? "planned";
+  const awaitingColumns =
+    !status &&
+    Boolean(resolvedProjectId) &&
+    (!projectColumns || columnsFetching || columnsError);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const draftCreationPromiseRef = useRef<Promise<Task | null> | null>(null);
-  const draftTaskRef = useRef<Task | null>(null);
+  const stagedAssetsRef = useRef<string[]>([]);
+  const pendingUploadsRef = useRef(0);
   const activeRef = useRef(true);
   const submittingRef = useRef(false);
   const [isPreparingDraft, setIsPreparingDraft] = useState(false);
@@ -286,8 +295,6 @@ function CreateTaskModalContent({
   const didSubmitRef = useRef(false);
 
   const { mutateAsync: createTask } = useCreateTask();
-  const { mutateAsync: updateTask } = useUpdateTask();
-  const { mutateAsync: deleteTask } = useDeleteTask();
 
   const { data: rawCustomFields } = useGetCustomFieldsByProject(
     resolvedProjectId,
@@ -295,11 +302,15 @@ function CreateTaskModalContent({
 
   const customFields = useMemo(() => rawCustomFields ?? [], [rawCustomFields]);
 
-  const { mutateAsync: setCustomFieldValue } = useSetCustomFieldValue();
-
   const [customFieldValues, setCustomFieldValues] = useState<
     Record<string, string>
   >({});
+
+  const [showMissingRequired, setShowMissingRequired] = useState(false);
+  const missingRequired = findMissingRequiredFields(
+    customFields,
+    customFieldValues,
+  );
 
   const handleCustomFieldChange = (fieldId: string, value: string) => {
     setCustomFieldValues((prev) => ({
@@ -358,38 +369,27 @@ function CreateTaskModalContent({
 
   const hasUnsavedChanges = Boolean(
     title.trim() ||
-      description.trim() ||
-      priority !== "no-priority" ||
-      assigneeId ||
-      startDate ||
-      dueDate ||
-      selectedProjectId ||
-      labels.length > 0 ||
-      draftTask ||
-      hasCustomFieldChanges,
+    description.trim() ||
+    priority !== "no-priority" ||
+    assigneeId ||
+    startDate ||
+    dueDate ||
+    selectedProjectId ||
+    labels.length > 0 ||
+    stagedAssetsRef.current.length > 0 ||
+    hasCustomFieldChanges,
   );
-
-  const discardDraft = useCallback(() => {
-    const abandoned = draftTaskRef.current;
-    if (abandoned && !didSubmitRef.current) {
-      draftTaskRef.current = null;
-      void deleteTask(abandoned.id).catch(() => {
-        // An expired session can prevent cleanup; never reuse the draft.
-      });
-    }
-  }, [deleteTask]);
 
   useEffect(() => {
     activeRef.current = true;
     return () => {
       activeRef.current = false;
-      discardDraft();
     };
-  }, [discardDraft]);
+  }, []);
 
   const handleClose = () => {
     activeRef.current = false;
-    discardDraft();
+
     onClose();
   };
 
@@ -464,141 +464,92 @@ function CreateTaskModalContent({
     [project, setProject, workspaceUsers?.members],
   );
 
-  const ensureDraftTask = useCallback(async () => {
-    if (!activeRef.current || submittingRef.current) return null;
-    if (draftTaskRef.current) {
-      return draftTaskRef.current.projectId === resolvedProjectId
-        ? draftTaskRef.current.id
-        : null;
-    }
-
-    if (draftCreationPromiseRef.current) {
-      const pendingTask = await draftCreationPromiseRef.current;
-      return activeRef.current ? (pendingTask?.id ?? null) : null;
-    }
-
-    if (!resolvedProjectId) {
-      toast.error(t("common:modals.createTask.chooseProjectForImages"));
-      return null;
-    }
-
-    setIsPreparingDraft(true);
-    const draftStatus = "planned";
-    const draftPromise = createTask({
-      title: title.trim() || t("common:modals.createTask.untitledTask"),
-      description: description.trim() || "",
-      userId: assigneeId,
-      priority,
-      projectId: resolvedProjectId,
-      startDate: startDate ? startDate.toISOString() : undefined,
-      dueDate: dueDate ? dueDate.toISOString() : undefined,
-      status: draftStatus,
-      customFields: Object.entries(customFieldValues)
-        .filter(([_, value]) => value.trim() !== "")
-        .map(([fieldId, value]) => ({
-          fieldId,
-          value,
-        })),
-    }).then((task) => {
-      const createdTask = normalizeTask(task);
-      if (!activeRef.current) {
-        void deleteTask(createdTask.id).catch(() => {});
-        return null;
+  const stageAsset = useCallback(
+    async (file: File) => {
+      if (!activeRef.current || submittingRef.current || !resolvedProjectId) {
+        throw new Error(t("common:modals.createTask.chooseProjectForImages"));
       }
-      draftTaskRef.current = createdTask;
-      setDraftTask(createdTask);
-      return createdTask;
-    });
-
-    draftCreationPromiseRef.current = draftPromise;
-
-    try {
-      const createdTask = await draftPromise;
-      return activeRef.current ? (createdTask?.id ?? null) : null;
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("common:modals.createTask.prepareTaskError"),
-      );
-      return null;
-    } finally {
-      draftCreationPromiseRef.current = null;
-      if (activeRef.current) setIsPreparingDraft(false);
-    }
-  }, [
-    assigneeId,
-    createTask,
-    description,
-    deleteTask,
-    startDate,
-    dueDate,
-    priority,
-    resolvedProjectId,
-    title,
-    t,
-    customFieldValues,
-  ]);
+      pendingUploadsRef.current += 1;
+      setIsPreparingDraft(true);
+      try {
+        const asset = await uploadDraftAsset(resolvedProjectId, file);
+        if (!activeRef.current)
+          throw new Error(t("common:modals.createTask.prepareTaskError"));
+        stagedAssetsRef.current.push(asset.id);
+        return asset;
+      } finally {
+        pendingUploadsRef.current -= 1;
+        if (activeRef.current)
+          setIsPreparingDraft(pendingUploadsRef.current > 0);
+      }
+    },
+    [resolvedProjectId, t],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       !activeRef.current ||
       submittingRef.current ||
+      pendingUploadsRef.current > 0 ||
       !canCreateTaskCapability ||
+      awaitingColumns ||
       !title.trim() ||
       !resolvedProjectId ||
+      assigneeUnconfirmed ||
       !workspace?.id
     )
       return;
 
+    if (missingRequired.length > 0) {
+      setShowMissingRequired(true);
+      e.currentTarget
+        .querySelector<HTMLElement>(
+          `[data-custom-field="${missingRequired[0].id}"]`,
+        )
+        ?.focus();
+      return;
+    }
+
     submittingRef.current = true;
     setIsSubmitting(true);
     try {
-      // Submitting while a file prepares its draft must update that same task.
-      const pendingDraft = draftCreationPromiseRef.current;
-      if (pendingDraft) await pendingDraft;
-      if (!activeRef.current) return;
-      const currentDraft = draftTaskRef.current;
-      if (currentDraft && currentDraft.projectId !== resolvedProjectId) return;
-      const taskStatus = status ?? "to-do";
+      let submitStatus = taskStatus;
+      if (!status) {
+        const workflow = await refetchColumns();
+        if (!activeRef.current) return;
+        if (workflow.isError || !workflow.data)
+          throw new Error(t("common:modals.createTask.statusLoadError"));
+        submitStatus = getInitialTaskColumn(workflow.data)?.slug ?? "planned";
+      }
       didSubmitRef.current = true;
-
-      const savedTask = currentDraft
-        ? normalizeTask(
-            await updateTask({
-              ...currentDraft,
-              title: title.trim(),
-              description: description.trim() || "",
-              userId: assigneeId || null,
-              status: taskStatus,
-              priority,
-              startDate: startDate ? startDate.toISOString() : null,
-              dueDate: dueDate ? dueDate.toISOString() : null,
-              projectId: resolvedProjectId,
-              customFieldValues: Object.entries(customFieldValues)
-                .filter(([_, value]) => value.trim() !== "")
-                .map(([fieldId, value]) => ({ fieldId, value })),
-            }),
-          )
-        : normalizeTask(
-            await createTask({
-              title: title.trim(),
-              description: description.trim() || "",
-              userId: assigneeId,
-              priority,
-              projectId: resolvedProjectId,
-              startDate: startDate ? startDate.toISOString() : undefined,
-              dueDate: dueDate ? dueDate.toISOString() : undefined,
-              status: taskStatus,
-              customFields: Object.entries(customFieldValues)
-                .filter(([_, value]) => value.trim() !== "")
-                .map(([fieldId, value]) => ({
-                  fieldId,
-                  value,
-                })),
-            }),
-          );
+      const savedTask = normalizeTask(
+        await createTask({
+          title: title.trim(),
+          description: description.trim() || "",
+          userId: selectedUser?.id ?? "",
+          priority,
+          projectId: resolvedProjectId,
+          startDate: startDate ? startDate.toISOString() : undefined,
+          dueDate: dueDate ? dueDate.toISOString() : undefined,
+          status: submitStatus,
+          draftAssetIds: stagedAssetsRef.current.filter((id) =>
+            description.includes(`/asset/${id}`),
+          ),
+          customFields: customFields
+            .filter(
+              (field) =>
+                !isCustomFieldValueEmpty(
+                  field.type,
+                  customFieldValues[field.id] ?? "",
+                ),
+            )
+            .map((field) => ({
+              fieldId: field.id,
+              value: customFieldValues[field.id] ?? "",
+            })),
+        }),
+      );
 
       for (const label of labels) {
         try {
@@ -613,27 +564,12 @@ function CreateTaskModalContent({
         }
       }
 
-      if (currentDraft) {
-        for (const [fieldId, value] of Object.entries(customFieldValues)) {
-          if (value) {
-            await setCustomFieldValue({
-              taskId: savedTask.id,
-              fieldId,
-              value: String(value),
-            });
-          }
-        }
-      }
-
-      draftTaskRef.current = null;
+      stagedAssetsRef.current = [];
       if (!activeRef.current) return;
-      setDraftTask(savedTask);
       syncTaskIntoProject(savedTask);
-      toast.success(
-        draftTask
-          ? t("common:modals.createTask.successUpdated")
-          : t("common:modals.createTask.successCreated"),
-      );
+      toast.success(t("common:modals.createTask.successCreated"), {
+        icon: SquarePlusIcon,
+      });
 
       if (createMore) {
         setTitle("");
@@ -647,18 +583,18 @@ function CreateTaskModalContent({
         setSearchValue("");
         setSelectedColor("gray");
         setNewLabelName("");
-        draftCreationPromiseRef.current = null;
+        stagedAssetsRef.current = [];
         setEditorVersion((version) => version + 1);
         didSubmitRef.current = false;
-        setDraftTask(null);
+
         setCustomFieldValues(buildDefaultCustomFieldValues());
+        setShowMissingRequired(false);
       } else {
         closeAndReset();
       }
     } catch (error) {
       didSubmitRef.current = false;
       if (!activeRef.current) {
-        discardDraft();
         return;
       }
       toast.error(
@@ -685,16 +621,7 @@ function CreateTaskModalContent({
 
   const selectedPriority = priorityOptions.find((p) => p.value === priority);
 
-  const statusLabel = useMemo(() => {
-    if (status) {
-      return t(`tasks:status.${status}`);
-    }
-    return t("tasks:status.in-progress");
-  }, [status, t]);
-  const selectedUser = workspaceUsers?.members?.find(
-    (u) => u.userId === assigneeId,
-  );
-
+  const statusLabel = getStatusDisplayLabel(taskStatus, initialColumn?.name);
   useEffect(() => {
     if (labelsOpen && labelsStep === "select" && searchInputRef.current) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -786,7 +713,9 @@ function CreateTaskModalContent({
       };
 
       setLabels([...labels, newLabel]);
-      toast.success(t("common:modals.createTask.labelCreated"));
+      toast.success(t("common:modals.createTask.labelCreated"), {
+        icon: TagIcon,
+      });
       handleLabelsClose();
     } catch (error) {
       toast.error(
@@ -801,242 +730,6 @@ function CreateTaskModalContent({
     setLabels(labels.filter((l) => l.name !== labelName));
   };
 
-  const renderCustomFieldInput = (field: CustomFieldDefinition) => {
-    const value = customFieldValues[field.id] ?? "";
-
-    switch (field.type) {
-      case "dropdown": {
-        const options = field.options || [];
-
-        return (
-          <Select
-            value={value}
-            onValueChange={(val) =>
-              handleCustomFieldChange(field.id, val as string)
-            }
-          >
-            <SelectTrigger className="h-9 w-full text-sm bg-background">
-              <SelectValue
-                placeholder={t(
-                  "common:modals.createTask.selectOptionPlaceholder",
-                  "Select an option",
-                )}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  <span className="block max-w-50 truncate">{opt}</span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-      }
-
-      case "date":
-        return (
-          <Input
-            type="date"
-            value={value}
-            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
-            required={field.required}
-            className="h-9 w-full text-sm bg-background"
-          />
-        );
-
-      case "number":
-        return (
-          <Input
-            type="number"
-            value={value}
-            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
-            placeholder={field.defaultValue || ""}
-            required={field.required}
-            className="h-9 w-full text-sm bg-background"
-          />
-        );
-
-      case "boolean":
-        return (
-          <div className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm">
-            <span className="text-sm text-foreground capitalize">{value}</span>
-
-            <Switch
-              checked={value === "true"}
-              onCheckedChange={(checked) =>
-                handleCustomFieldChange(field.id, checked ? "true" : "false")
-              }
-            />
-          </div>
-        );
-
-      case "multiselect": {
-        const selectedValues: string[] = (() => {
-          if (!value) return [];
-          try {
-            const parsed = JSON.parse(value);
-            return Array.isArray(parsed) ? parsed : [];
-          } catch {
-            return value.split(",").filter((v) => v.length > 0);
-          }
-        })();
-        const MAX_VISIBLE_CHIPS = 3;
-
-        return (
-          <Combobox
-            multiple={true}
-            autoHighlight
-            items={Array.from(new Set(field.options ?? []))}
-            value={selectedValues}
-            onValueChange={(val) =>
-              handleCustomFieldChange(field.id, JSON.stringify(val))
-            }
-          >
-            <ComboboxChips className="h-9 w-full flex-[2_0_0] select-none cursor-default text-sm disabled:opacity-50">
-              <ComboboxValue>
-                {(values: string[]) => {
-                  const visibleChips = values.slice(0, MAX_VISIBLE_CHIPS);
-                  const hiddenCount = values.length - MAX_VISIBLE_CHIPS;
-
-                  return (
-                    <>
-                      {visibleChips.map((value) => (
-                        <div
-                          key={value}
-                          className={cn(
-                            "min-w-0 max-w-full flex-1 shrink basis-0",
-                            "inline-flex items-center overflow-hidden",
-                            "rounded-md bg-secondary px-1.5 py-0.5",
-                            "select-none cursor-default",
-                          )}
-                        >
-                          <span className="block min-w-0 max-w-full truncate text-xs text-secondary-foreground">
-                            {value}
-                          </span>
-                        </div>
-                      ))}
-                      {values.length > MAX_VISIBLE_CHIPS && (
-                        <HoverCard>
-                          <HoverCardTrigger asChild>
-                            <button
-                              type="button"
-                              className="shrink-0 inline-flex items-center gap-1 text-xs font-medium cursor-pointer text-foreground/50 pe-1"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                              }}
-                              onPointerDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                              }}
-                            >
-                              {t("settings:customFields.moreOptions", {
-                                hiddenCount,
-                              })}
-                            </button>
-                          </HoverCardTrigger>
-
-                          <HoverCardContent
-                            side="top"
-                            align="start"
-                            className="flex max-w-xs flex-wrap gap-1"
-                          >
-                            <div className="space-y-1.5">
-                              <div className="text-xs font-medium text-muted-foreground">
-                                {t(
-                                  "settings:customFields.availableOptions",
-                                  "Available options",
-                                )}
-                              </div>
-
-                              <div className="flex min-w-0 max-h-48 flex-wrap gap-x-1.5 gap-y-1.5 overflow-y-auto overflow-x-hidden">
-                                {values
-                                  .slice(MAX_VISIBLE_CHIPS)
-                                  .map((value) => (
-                                    <div
-                                      key={value}
-                                      className={cn(
-                                        "min-w-0 max-w-full",
-                                        "inline-flex items-center overflow-hidden",
-                                        "rounded bg-secondary px-1.5 py-0.5",
-                                        "select-none cursor-default",
-                                      )}
-                                    >
-                                      <span className="block min-w-0 max-w-[13rem] truncate text-xs">
-                                        {value}
-                                      </span>
-                                    </div>
-                                  ))}
-                              </div>
-                            </div>
-                          </HoverCardContent>
-                        </HoverCard>
-                      )}
-
-                      <ComboboxChipsInput
-                        className={cn(
-                          "min-w-0 flex-1 caret-transparent",
-                          values.length > 0 && "hidden",
-                          "pointer-events-none",
-                          "placeholder:text-foreground/50",
-                          "text-transparent",
-                        )}
-                        placeholder={
-                          Array.from(new Set(field.options ?? [])).length === 0
-                            ? t(
-                                "settings:customFields.noOptionsPlaceholder",
-                                "No options",
-                              )
-                            : values.length === 0
-                              ? t(
-                                  "settings:customFields.defaultValuePlaceholder",
-                                  "Default value",
-                                )
-                              : undefined
-                        }
-                      />
-                    </>
-                  );
-                }}
-              </ComboboxValue>
-            </ComboboxChips>
-
-            <ComboboxPopup>
-              <ComboboxEmpty>
-                {t("settings:customFields.noOptionsPlaceholder", "No options")}
-              </ComboboxEmpty>
-
-              <ComboboxList>
-                {(option: string) => (
-                  <ComboboxItem
-                    className="min-w-0 max-w-full"
-                    key={`field_option_${option}`}
-                    value={option}
-                  >
-                    <span className="block max-w-50 truncate">{option}</span>
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxPopup>
-          </Combobox>
-        );
-      }
-
-      default:
-        return (
-          <Input
-            type="text"
-            value={value}
-            onChange={(e) => handleCustomFieldChange(field.id, e.target.value)}
-            placeholder={field.defaultValue || ""}
-            required={field.required}
-            className="h-9 w-full text-sm bg-background"
-          />
-        );
-    }
-  };
-
   // Defense-in-depth: if the user lacks task-create permission, don't render
   // the modal even if a stale trigger somehow opens it (e.g., keyboard
   // shortcut after the capability has changed).
@@ -1047,6 +740,7 @@ function CreateTaskModalContent({
       <DialogContent
         className="kaneo-create-task-modal max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
         showCloseButton={false}
+        instant={instant}
       >
         <DialogHeader className="flex-shrink-0">
           <DialogTitle asChild>
@@ -1073,13 +767,22 @@ function CreateTaskModalContent({
           className="flex flex-col flex-1 min-h-0 space-y-6"
         >
           <div className="flex-1 min-h-0 overflow-y-auto space-y-6 px-6">
-            <Input
-              unstyled
+            <textarea
+              ref={titleRef}
+              rows={1}
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => setTitle(stripLineBreaks(e.target.value))}
+              onKeyDown={(e) => {
+                // Single-line title: Enter submits like the input it replaced.
+                if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                  e.preventDefault();
+                  e.currentTarget.form?.requestSubmit();
+                }
+              }}
               autoFocus
               placeholder={t("common:modals.createTask.taskTitlePlaceholder")}
-              className="w-full [&_[data-slot=input]]:h-auto [&_[data-slot=input]]:px-0 [&_[data-slot=input]]:py-3 [&_[data-slot=input]]:text-2xl [&_[data-slot=input]]:leading-tight [&_[data-slot=input]]:font-semibold [&_[data-slot=input]]:tracking-tight [&_[data-slot=input]]:text-foreground [&_[data-slot=input]]:placeholder:text-muted-foreground [&_[data-slot=input]]:outline-none"
+              aria-label={t("common:modals.createTask.taskTitlePlaceholder")}
+              className="block w-full resize-none overflow-hidden border-0 bg-transparent px-0 py-3 font-semibold text-2xl text-foreground leading-tight tracking-tight outline-none placeholder:text-muted-foreground"
               required
             />
 
@@ -1091,68 +794,10 @@ function CreateTaskModalContent({
                 placeholder={t(
                   "common:modals.createTask.descriptionPlaceholder",
                 )}
-                taskId={draftTask?.id}
-                ensureTaskId={ensureDraftTask}
+                projectId={resolvedProjectId || undefined}
+                uploadAsset={stageAsset}
               />
             </div>
-
-            {customFields.length > 0 && (
-              <div className="mt-2">
-                <Accordion
-                  key={resolvedProjectId}
-                  className="w-full"
-                  defaultValue={
-                    customFields.some((field) => field.required)
-                      ? ["custom-fields"]
-                      : []
-                  }
-                >
-                  <AccordionItem
-                    value="custom-fields"
-                    className="rounded-lg border border-border bg-sidebar/30 px-4"
-                  >
-                    <AccordionTrigger className="py-4 hover:no-underline">
-                      <div className="flex items-center gap-2 text-left">
-                        <span className="text-sm font-semibold text-foreground">
-                          {t("tasks:common.customFields")}
-                        </span>
-                        <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
-                          {customFields.length}
-                        </span>
-                      </div>
-                    </AccordionTrigger>
-
-                    <AccordionContent className="pb-4">
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-4 pt-4 border-t border-border sm:col-span-2">
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            {customFields.map((field) => (
-                              <div
-                                key={`custom-field_${field.id}`}
-                                className="space-y-1.5"
-                              >
-                                <label
-                                  htmlFor={`custom-field_${field.id}`}
-                                  className="text-xs font-medium text-muted-foreground flex items-center gap-1"
-                                >
-                                  {field.name}
-                                  {field.required && (
-                                    <span className="text-destructive">*</span>
-                                  )}
-                                </label>
-                                <div className="w-full">
-                                  {renderCustomFieldInput(field)}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
-            )}
 
             {labels.length > 0 && (
               <div className="flex flex-wrap mb-2">
@@ -1204,12 +849,14 @@ function CreateTaskModalContent({
                           type="button"
                           className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
                           disabled={
-                            isPreparingDraft || !!draftTask || isSubmitting
+                            isPreparingDraft ||
+                            stagedAssetsRef.current.length > 0 ||
+                            isSubmitting
                           }
                           onClick={() => {
                             if (
-                              !draftCreationPromiseRef.current &&
-                              !draftTaskRef.current &&
+                              pendingUploadsRef.current === 0 &&
+                              stagedAssetsRef.current.length === 0 &&
                               !submittingRef.current
                             ) {
                               setSelectedProjectId(workspaceProject.id);
@@ -1229,7 +876,11 @@ function CreateTaskModalContent({
                 </Popover>
               )}
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-accent/50 text-foreground rounded-md text-xs font-medium border border-border">
-                <div className="w-1.5 h-1.5 bg-foreground rounded-full" />
+                {getColumnIcon(
+                  taskStatus,
+                  initialColumn?.isFinal,
+                  initialColumn?.icon,
+                )}
                 {statusLabel}
               </div>
 
@@ -1329,14 +980,14 @@ function CreateTaskModalContent({
                       <>
                         <Avatar className="h-4 w-4">
                           <AvatarImage
-                            src={selectedUser?.user?.image ?? ""}
-                            alt={selectedUser?.user?.name || ""}
+                            src={selectedUser.image ?? ""}
+                            alt={selectedUser.name}
                           />
                           <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                            {getInitials(selectedUser?.user?.name)}
+                            {getInitials(selectedUser.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span>{selectedUser.user?.name}</span>
+                        <span>{selectedUser.name}</span>
                       </>
                     ) : (
                       <>
@@ -1366,26 +1017,26 @@ function CreateTaskModalContent({
                       <span className="text-sm">
                         {t("common:modals.createTask.assignUnassigned")}
                       </span>
-                      {!assigneeId && <Check className="ml-auto h-4 w-4" />}
+                      {!selectedUser && <Check className="ml-auto h-4 w-4" />}
                     </button>
-                    {workspaceUsers?.members?.map((member) => (
+                    {assigneeOptions.map((member) => (
                       <button
-                        key={member.userId}
+                        key={member.id}
                         type="button"
                         className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => setAssigneeId(member.userId || "")}
+                        onClick={() => setAssigneeId(member.id)}
                       >
                         <Avatar className="h-6 w-6">
                           <AvatarImage
-                            src={member?.user?.image ?? ""}
-                            alt={member?.user?.name || ""}
+                            src={member.image ?? ""}
+                            alt={member.name}
                           />
                           <AvatarFallback className="text-xs font-medium border border-border/30">
-                            {getInitials(member?.user?.name)}
+                            {getInitials(member.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm">{member?.user?.name}</span>
-                        {assigneeId === member.userId && (
+                        <span className="text-sm">{member.name}</span>
+                        {selectedUser?.id === member.id && (
                           <Check className="ml-auto h-4 w-4" />
                         )}
                       </button>
@@ -1463,7 +1114,7 @@ function CreateTaskModalContent({
                           placeholder={t(
                             "common:modals.createTask.searchLabels",
                           )}
-                          className="w-full bg-transparent border-none text-foreground text-xs focus:outline-none placeholder:text-muted-foreground"
+                          className="w-full bg-transparent border-none text-foreground text-base focus:outline-none placeholder:text-muted-foreground sm:text-xs"
                         />
                       </div>
 
@@ -1574,9 +1225,43 @@ function CreateTaskModalContent({
                   )}
                 </PopoverContent>
               </Popover>
+              {customFields.length > 0 && (
+                <div className="flex w-full flex-wrap items-center gap-2">
+                  {customFields.map((field) => (
+                    <CustomFieldChip
+                      key={field.id}
+                      field={field}
+                      value={customFieldValues[field.id] ?? ""}
+                      onChange={(value) =>
+                        handleCustomFieldChange(field.id, value)
+                      }
+                      invalid={
+                        showMissingRequired &&
+                        missingRequired.some(({ id }) => id === field.id)
+                      }
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
+          {awaitingColumns && columnsError && (
+            <div
+              role="alert"
+              className="flex items-center gap-2 px-6 py-2 text-sm text-muted-foreground"
+            >
+              {t("common:modals.createTask.statusLoadError")}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => void refetchColumns()}
+              >
+                {t("common:error.tryAgain")}
+              </Button>
+            </div>
+          )}
           <DialogFooter className="flex-shrink-0 border-t border-border bg-background px-6 py-4">
             <div className="flex items-center gap-3 mr-auto">
               <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
@@ -1590,6 +1275,17 @@ function CreateTaskModalContent({
               </label>
             </div>
 
+            {showMissingRequired && missingRequired.length > 0 && (
+              <p
+                role="alert"
+                className="flex items-center gap-1.5 text-destructive-foreground text-xs"
+              >
+                <CircleAlert aria-hidden="true" className="size-3.5" />
+                {t("tasks:customFields.missingRequired", {
+                  count: missingRequired.length,
+                })}
+              </p>
+            )}
             <Button
               type="button"
               onClick={() => handleOpenChange(false)}
@@ -1601,11 +1297,21 @@ function CreateTaskModalContent({
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim() || !resolvedProjectId || isSubmitting}
+              disabled={
+                !title.trim() ||
+                !resolvedProjectId ||
+                assigneeUnconfirmed ||
+                isSubmitting ||
+                awaitingColumns ||
+                isPreparingDraft
+              }
+              aria-busy={isPreparingDraft || isSubmitting}
               size="sm"
               className="disabled:opacity-50"
             >
-              {t("common:modals.createTask.createButton")}
+              {isPreparingDraft
+                ? t("activity:comment.editor.uploadingFile")
+                : t("common:modals.createTask.createButton")}
             </Button>
           </DialogFooter>
         </form>
