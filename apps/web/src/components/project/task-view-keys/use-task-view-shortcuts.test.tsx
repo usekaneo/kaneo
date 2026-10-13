@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import {
   afterEach,
@@ -17,6 +18,7 @@ const mocks = vi.hoisted(() => ({ navigate: vi.fn() }));
 
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mocks.navigate,
+  useRouter: () => ({ preloadRoute: () => Promise.resolve() }),
 }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -62,9 +64,11 @@ function Harness({
 
 function renderView(layout: TaskLayout = "board", canMove = true) {
   render(
-    <ShortcutTestWrapper>
-      <Harness layout={layout} canMove={canMove} />
-    </ShortcutTestWrapper>,
+    <QueryClientProvider client={new QueryClient()}>
+      <ShortcutTestWrapper>
+        <Harness layout={layout} canMove={canMove} />
+      </ShortcutTestWrapper>
+    </QueryClientProvider>,
   );
 }
 

@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useTaskHoverPrefetch } from "@/hooks/use-task-hover-prefetch";
 import { cn } from "@/lib/cn";
 import { isKeyboardFocus } from "@/lib/is-keyboard-focus";
 import { isOwnDomEvent } from "@/lib/is-own-dom-event";
@@ -75,6 +76,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     (state) => state.focusedTaskId === task.id,
   );
 
+  const hoverPrefetch = useTaskHoverPrefetch(task.id);
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
   );
@@ -173,6 +175,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
             data-shortcut-surface
             {...attributes}
             {...listeners}
+            {...hoverPrefetch}
             onKeyDown={handleKeyDown}
             onFocus={(event) => {
               if (event.target !== event.currentTarget) return;

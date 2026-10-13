@@ -1,8 +1,10 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import { LinkIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { isInsidePopup } from "@/components/bulk-selection/use-bulk-selection-keys";
+import { prefetchTask } from "@/hooks/queries/task/prefetch-task";
 import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { toast } from "@/lib/toast";
 import { focusTaskElement } from "./focus-task-element";
@@ -45,11 +47,28 @@ export function useTaskViewShortcuts({
 }: TaskViewShortcutsOptions) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const focused = () => selection.getState().focusedTaskId;
+
+  const taskRoute = (taskId: string) =>
+    project
+      ? ({
+          to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+          params: {
+            workspaceId: project.workspaceId,
+            projectId: project.id,
+            taskId,
+          },
+        } as const)
+      : null;
 
   const focus = (taskId: string | null) => {
     if (!taskId) return;
     selection.getState().setFocusedTask(taskId);
+    void prefetchTask(queryClient, taskId);
+    const route = taskRoute(taskId);
+    if (route) void router.preloadRoute(route).catch(() => undefined);
     const peeked = peekedTaskId();
     if (peeked && peeked !== taskId) {
       navigate({ to: ".", search: { taskId }, replace: true });
@@ -127,15 +146,8 @@ export function useTaskViewShortcuts({
     "openFocusedTask",
     () => {
       const taskId = focused();
-      if (!taskId || !project) return;
-      navigate({
-        to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-        params: {
-          workspaceId: project.workspaceId,
-          projectId: project.id,
-          taskId,
-        },
-      });
+      const route = taskId ? taskRoute(taskId) : null;
+      if (route) navigate(route);
     },
     { enabled: enabled && Boolean(project) },
   );
