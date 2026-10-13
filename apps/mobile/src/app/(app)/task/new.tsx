@@ -105,7 +105,7 @@ export default function NewTaskScreen() {
   const effectiveStatus = status ?? sortedColumns[0]?.slug ?? STATUS_PLANNED;
   const statusLabel =
     effectiveStatus === STATUS_PLANNED
-      ? "Backlog"
+      ? "Planned"
       : (sortedColumns.find((col) => col.slug === effectiveStatus)?.name ??
         effectiveStatus);
   const statusIdx = sortedColumns.findIndex(
@@ -510,7 +510,7 @@ export default function NewTaskScreen() {
         options={[
           {
             value: STATUS_PLANNED,
-            label: "Backlog",
+            label: "Planned",
             leading: <StatusIcon status={STATUS_PLANNED} />,
           },
           ...sortedColumns.map((col) => ({
@@ -668,6 +668,7 @@ export default function NewTaskScreen() {
         onClose={() => setFieldEditing(null)}
         title={fieldEditing?.name ?? ""}
         initial={fieldEditing ? (fieldValues[fieldEditing.id] ?? "") : ""}
+        multiline={fieldEditing?.type === "text"}
         keyboardType={
           fieldEditing?.type === "number" ? "decimal-pad" : "default"
         }

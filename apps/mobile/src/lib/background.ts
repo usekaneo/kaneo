@@ -87,6 +87,9 @@ export async function requestNotificationPermission(): Promise<boolean> {
 export async function setBackgroundChecks(enabled: boolean) {
   const registered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_TASK);
   if (enabled && !registered) {
+    // Start from now, so the first background run already reports what arrived since.
+    if (!(await AsyncStorage.getItem(SINCE_KEY)))
+      await AsyncStorage.setItem(SINCE_KEY, String(Date.now()));
     await BackgroundTask.registerTaskAsync(BACKGROUND_TASK, {
       minimumInterval: 15,
     });

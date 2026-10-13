@@ -209,7 +209,7 @@ export function Properties({
         options={[
           {
             value: STATUS_PLANNED,
-            label: "Backlog",
+            label: "Planned",
             leading: <StatusIcon status={STATUS_PLANNED} />,
           },
           ...columns.map((col) => ({

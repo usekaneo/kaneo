@@ -118,6 +118,29 @@ function stringList(value: Json | undefined | null): string[] {
 
 // --- Custom fields ---
 
+const MAX_FIELD_CHIPS = 4;
+
+function FieldChip({ label }: { label: string }) {
+  const c = useColors();
+  return (
+    <View
+      style={{
+        maxWidth: "100%",
+        paddingHorizontal: 8,
+        height: 24,
+        justifyContent: "center",
+        borderRadius: 6,
+        backgroundColor: c.fill,
+        alignSelf: "flex-start",
+      }}
+    >
+      <Txt variant="meta" weight="medium" numberOfLines={1}>
+        {label}
+      </Txt>
+    </View>
+  );
+}
+
 export function CustomFields({
   taskId,
   extras,
@@ -125,7 +148,6 @@ export function CustomFields({
   taskId: string;
   extras: TaskExtras;
 }) {
-  const c = useColors();
   const { run } = useAction();
   const [editing, setEditing] = useState<CustomFieldDefinition | null>(null);
   if (!extras.fields.length) return null;
@@ -149,45 +171,24 @@ export function CustomFields({
           );
         } else if (f.type === "multiselect") {
           const items = stringList(value);
+          const extra = items.length - MAX_FIELD_CHIPS;
           display = items.length ? (
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4 }}>
-              {items.map((i) => (
-                <View
-                  key={i}
-                  style={{
-                    paddingHorizontal: 8,
-                    height: 24,
-                    justifyContent: "center",
-                    borderRadius: 6,
-                    backgroundColor: c.fill,
-                  }}
-                >
-                  <Txt variant="meta" weight="medium">
-                    {i}
-                  </Txt>
-                </View>
+              {items.slice(0, MAX_FIELD_CHIPS).map((i) => (
+                <FieldChip key={i} label={i} />
               ))}
+              {extra > 0 ? <FieldChip label={`+${extra}`} /> : null}
             </View>
           ) : null;
         } else if (value) {
           display =
             f.type === "dropdown" ? (
-              <View
-                style={{
-                  paddingHorizontal: 8,
-                  height: 24,
-                  justifyContent: "center",
-                  borderRadius: 6,
-                  backgroundColor: c.fill,
-                  alignSelf: "flex-start",
-                }}
-              >
-                <Txt variant="meta" weight="medium">
-                  {value}
-                </Txt>
-              </View>
+              <FieldChip label={value} />
             ) : (
-              <Txt variant={f.type === "number" ? "monoMd" : "bodySm"}>
+              <Txt
+                variant={f.type === "number" ? "monoMd" : "bodySm"}
+                numberOfLines={3}
+              >
                 {f.type === "date" ? formatDate(value) : value}
               </Txt>
             );
@@ -199,21 +200,22 @@ export function CustomFields({
             onPress={() => setEditing(f)}
             style={{
               flexDirection: "row",
-              alignItems: "center",
+              alignItems: "flex-start",
+              gap: 12,
               minHeight: 40,
-              paddingVertical: 6,
+              paddingVertical: 8,
             }}
           >
             <Txt
               variant="bodySm"
               tone="muted"
-              style={{ width: 132 }}
+              style={{ width: 112, paddingTop: 2 }}
               numberOfLines={2}
             >
               {f.name}
               {f.required ? " *" : ""}
             </Txt>
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, minHeight: 24, justifyContent: "center" }}>
               {display ?? (
                 <Txt variant="bodySm" tone="placeholder">
                   Empty
@@ -257,6 +259,7 @@ export function CustomFields({
         onClose={() => setEditing(null)}
         title={editing?.name ?? ""}
         initial={editing ? (valueOf(editing.id) ?? "") : ""}
+        multiline={editing?.type === "text"}
         keyboardType={editing?.type === "number" ? "decimal-pad" : "default"}
         validate={(v) => !editing?.required || v.trim().length > 0}
         onSubmit={(v) => editing && set(editing.id, v)}

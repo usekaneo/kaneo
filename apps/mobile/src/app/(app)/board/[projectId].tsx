@@ -71,7 +71,7 @@ export default function BoardScreen() {
 
   const [view, setView] = useState<"board" | "list">("board");
   const [filters, setFilters] = useState<BoardFilters>(emptyFilters);
-  const [showBacklog, setShowBacklog] = useState(true);
+  const [showPlanned, setShowPlanned] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
   const [filterSheet, setFilterSheet] = useState(false);
   const [menu, setMenu] = useState(false);
@@ -79,7 +79,7 @@ export default function BoardScreen() {
   const [quick, setQuick] = useState<{ task: BoardTask; lane: Lane } | null>(
     null,
   );
-  const [page, setPage] = useState(showBacklog ? 1 : 0);
+  const [page, setPage] = useState(showPlanned ? 1 : 0);
   const pager = useRef<FlatList<Lane>>(null);
   const tabs = useRef<ScrollView>(null);
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -110,9 +110,9 @@ export default function BoardScreen() {
   const lanes = useMemo(
     () =>
       board.data
-        ? buildLanes(board.data, filters, showBacklog, showArchived)
+        ? buildLanes(board.data, filters, showPlanned, showArchived)
         : [],
-    [board.data, filters, showBacklog, showArchived],
+    [board.data, filters, showPlanned, showArchived],
   );
   const laneWidth = width - inset * 2 - 36;
   const current = lanes[Math.min(page, Math.max(0, lanes.length - 1))];
@@ -636,9 +636,9 @@ export default function BoardScreen() {
         members={members.data ?? []}
         labels={labels.data ?? []}
         currentUserId={session.userId}
-        showBacklog={showBacklog}
-        setShowBacklog={(v) => {
-          setShowBacklog(v);
+        showPlanned={showPlanned}
+        setShowPlanned={(v) => {
+          setShowPlanned(v);
           setPage(0);
           pager.current?.scrollToOffset({ offset: 0, animated: false });
         }}
@@ -683,8 +683,8 @@ export default function BoardScreen() {
         options={[
           { value: "settings", label: "Project settings" },
           {
-            value: "backlog",
-            label: showBacklog ? "Hide backlog" : "Show backlog",
+            value: "planned",
+            label: showPlanned ? "Hide planned" : "Show planned",
           },
           {
             value: "archived",
@@ -698,8 +698,8 @@ export default function BoardScreen() {
               pathname: "/project/[projectId]/settings",
               params: { projectId, workspaceId },
             });
-          if (v === "backlog") {
-            setShowBacklog(!showBacklog);
+          if (v === "planned") {
+            setShowPlanned(!showPlanned);
             setPage(0);
             pager.current?.scrollToOffset({ offset: 0, animated: false });
           }

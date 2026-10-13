@@ -67,7 +67,7 @@ describe("lanes", () => {
     archivedTasks: [],
   };
 
-  it("adds backlog and archive lanes only when asked", () => {
+  it("adds planned and archived lanes only when asked", () => {
     expect(
       lanes(data, emptyFilters, false, false).map((l) => l.status),
     ).toEqual(["to-do", "done"]);

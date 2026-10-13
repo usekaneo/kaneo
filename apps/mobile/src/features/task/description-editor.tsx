@@ -7,9 +7,10 @@ import {
   Link2,
   List,
 } from "lucide-react-native";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -17,6 +18,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MarkdownText } from "@/components/markdown";
 import { BackButton, Screen } from "@/components/screen";
@@ -85,6 +87,26 @@ function EditorBody({
   });
   const [uploading, setUploading] = useState(false);
   const input = useRef<TextInput>(null);
+  const insets = useSafeAreaInsets();
+  const [keyboardShown, setKeyboardShown] = useState(false);
+  // The keyboard covers the system navigation area, so only clear it while the keyboard is down.
+  const bottomInset = keyboardShown ? 0 : insets.bottom;
+
+  useEffect(() => {
+    const ios = Platform.OS === "ios";
+    const show = Keyboard.addListener(
+      ios ? "keyboardWillShow" : "keyboardDidShow",
+      () => setKeyboardShown(true),
+    );
+    const hide = Keyboard.addListener(
+      ios ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardShown(false),
+    );
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   const focus = () => input.current?.focus();
 
@@ -135,48 +157,55 @@ function EditorBody({
           style={{
             flexDirection: "row",
             alignItems: "center",
-            justifyContent: "space-between",
+            gap: 4,
             height: 52,
             paddingLeft: 6,
             paddingRight: 16,
+          }}
+        >
+          <BackButton close onPress={onClose} />
+          <Txt
+            variant="body"
+            weight="semibold"
+            numberOfLines={1}
+            style={{ flex: 1, fontSize: 16 }}
+          >
+            Description
+          </Txt>
+          <Touch
+            onPress={() => {
+              onSave(text);
+              onClose();
+            }}
+            style={{
+              height: 32,
+              paddingHorizontal: 14,
+              borderRadius: 9,
+              backgroundColor: c.primary,
+              justifyContent: "center",
+            }}
+          >
+            <Txt variant="bodySm" weight="medium" color={c.onPrimary}>
+              Save
+            </Txt>
+          </Touch>
+        </View>
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingBottom: 10,
             borderBottomWidth: 1,
             borderBottomColor: c.divider,
           }}
         >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-            <BackButton close onPress={onClose} />
-            <Txt variant="body" weight="semibold" style={{ fontSize: 16 }}>
-              Description
-            </Txt>
-          </View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <Segmented
-              style={{ padding: 2 }}
-              value={mode}
-              onChange={setMode}
-              options={[
-                { value: "write", label: "Write" },
-                { value: "preview", label: "Preview" },
-              ]}
-            />
-            <Touch
-              onPress={() => {
-                onSave(text);
-                onClose();
-              }}
-              style={{
-                height: 32,
-                paddingHorizontal: 14,
-                borderRadius: 9,
-                backgroundColor: c.primary,
-                justifyContent: "center",
-              }}
-            >
-              <Txt variant="bodySm" weight="medium" color={c.onPrimary}>
-                Save
-              </Txt>
-            </Touch>
-          </View>
+          <Segmented
+            value={mode}
+            onChange={setMode}
+            options={[
+              { value: "write", label: "Write" },
+              { value: "preview", label: "Preview" },
+            ]}
+          />
         </View>
         {mode === "write" ? (
           <TextInput
@@ -203,7 +232,10 @@ function EditorBody({
         ) : (
           <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={{ padding: 20 }}
+            contentContainerStyle={{
+              padding: 20,
+              paddingBottom: 20 + insets.bottom,
+            }}
           >
             {text.trim() ? (
               <MarkdownText>{text}</MarkdownText>
@@ -218,8 +250,9 @@ function EditorBody({
               flexDirection: "row",
               alignItems: "center",
               justifyContent: "space-between",
-              height: 48,
+              height: 48 + bottomInset,
               paddingHorizontal: 12,
+              paddingBottom: bottomInset,
               borderTopWidth: 1,
               borderTopColor: c.hairline,
               backgroundColor: c.ground,

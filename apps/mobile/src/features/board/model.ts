@@ -56,7 +56,7 @@ export function matches(f: BoardFilters, task: BoardTask): boolean {
   return true;
 }
 
-/** One swipeable page of the board: a workflow column, or the virtual backlog/archive lists. */
+/** One swipeable page of the board: a workflow column, or the virtual planned/archived lists. */
 export type Lane = {
   status: string;
   name: string;
@@ -69,15 +69,15 @@ export type Lane = {
 export function lanes(
   data: BoardData,
   f: BoardFilters,
-  backlog: boolean,
+  planned: boolean,
   archived: boolean,
 ): Lane[] {
   const cols = data.columns ?? [];
   const out: Lane[] = [];
-  if (backlog)
+  if (planned)
     out.push({
       status: STATUS_PLANNED,
-      name: "Backlog",
+      name: "Planned",
       isFinal: false,
       tasks: data.plannedTasks.filter((t) => matches(f, t)),
       total: data.plannedTasks.length,

@@ -5,7 +5,6 @@ import {
   Dimensions,
   KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   TextInput,
@@ -84,8 +83,10 @@ export function Sheet({
           accessibilityLabel="Close"
         />
       </Animated.View>
+      {/* "height" can't lift an absolutely positioned sheet, and Android doesn't resize the
+          modal window under edge-to-edge, so pad on both platforms. */}
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior="padding"
         style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
         pointerEvents="box-none"
       >

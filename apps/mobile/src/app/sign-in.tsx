@@ -1,4 +1,5 @@
 import * as Clipboard from "expo-clipboard";
+import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import {
   ArrowUpRight,
@@ -36,6 +37,8 @@ import { font, useColors } from "@/theme";
 type Step = "start" | "otp" | "device" | "apiKey" | "signUp";
 
 const CODE_SLOTS = [0, 1, 2, 3, 4, 5];
+// The scheme from app.json; the web approval page links back here after approving.
+const APP_RETURN_URL = "kaneo://";
 
 function friendly(e: unknown): string {
   const text = userMessage(e);
@@ -676,6 +679,7 @@ function DeviceStep({
             result = { kind: "pending" };
           }
           if (result.kind === "approved") {
+            if (Platform.OS === "ios") WebBrowser.dismissAuthSession();
             await auth.completeWithToken(serverUrl, result.token);
             return;
           }
@@ -698,6 +702,20 @@ function DeviceStep({
   }, [serverUrl]);
 
   const link = device?.verification_uri_complete ?? device?.verification_uri;
+
+  const openBrowser = async (link: string) => {
+    // Tells the approval page to send the user back here when they're done.
+    const url = `${link}${link.includes("?") ? "&" : "?"}from=app`;
+    try {
+      // Unlike a plain browser tab, an auth session closes when the page returns to the app.
+      await WebBrowser.openAuthSessionAsync(url, APP_RETURN_URL);
+    } catch {
+      // No browser that supports in-app tabs: hand the link to the default browser instead.
+      await Linking.openURL(url).catch(() =>
+        toast.show("Couldn’t open a browser. Copy the link instead.", "error"),
+      );
+    }
+  };
 
   return (
     <View style={{ gap: 28, paddingTop: 20 }}>
@@ -769,7 +787,7 @@ function DeviceStep({
             strokeWidth={2}
           />
         }
-        onPress={() => link && WebBrowser.openBrowserAsync(link)}
+        onPress={() => link && void openBrowser(link)}
         style={{ flexDirection: "row-reverse" }}
       />
       {error ? (

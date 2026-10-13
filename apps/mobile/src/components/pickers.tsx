@@ -302,6 +302,7 @@ function TextInputForm({
         multiline={multiline}
         keyboardType={keyboardType}
         autoFocus
+        style={multiline ? { maxHeight: 160 } : undefined}
       />
       <Button
         label={confirmLabel}

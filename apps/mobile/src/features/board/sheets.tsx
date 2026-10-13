@@ -49,8 +49,8 @@ export function FilterSheet({
   members,
   labels,
   currentUserId,
-  showBacklog,
-  setShowBacklog,
+  showPlanned,
+  setShowPlanned,
   showArchived,
   setShowArchived,
   matching,
@@ -62,8 +62,8 @@ export function FilterSheet({
   members: WorkspaceMember[];
   labels: Label[];
   currentUserId: string;
-  showBacklog: boolean;
-  setShowBacklog: (v: boolean) => void;
+  showPlanned: boolean;
+  setShowPlanned: (v: boolean) => void;
   showArchived: boolean;
   setShowArchived: (v: boolean) => void;
   matching: number;
@@ -185,10 +185,10 @@ export function FilterSheet({
           />
           <Divider />
           <ToggleRow
-            label="Show backlog"
-            hint="Planned, not on the board yet"
-            value={showBacklog}
-            onChange={setShowBacklog}
+            label="Show planned"
+            hint="Tasks not on the board yet"
+            value={showPlanned}
+            onChange={setShowPlanned}
           />
           <Divider />
           <ToggleRow

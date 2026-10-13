@@ -99,7 +99,7 @@ export function entrySeconds(entry: TimeEntry, now: number): number {
 }
 
 export function statusName(status: string, columns: Column[]): string {
-  if (status === "planned") return "Backlog";
+  if (status === "planned") return "Planned";
   if (status === "archived") return "Archived";
   return columns.find((c) => c.slug === status)?.name ?? status;
 }

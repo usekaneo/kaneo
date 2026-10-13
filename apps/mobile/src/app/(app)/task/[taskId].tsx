@@ -101,7 +101,7 @@ export default function TaskScreen() {
     : null;
   const ex = extras.data;
   const statusNames: Record<string, string> = {
-    planned: "Backlog",
+    planned: "Planned",
     archived: "Archived",
   };
   d.columns.forEach((col) => (statusNames[col.slug] = col.name));

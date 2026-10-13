@@ -1,4 +1,5 @@
 import { Image } from "expo-image";
+import { useState } from "react";
 import { View } from "react-native";
 
 import { resolveUrl } from "@/lib/api/client";
@@ -21,10 +22,12 @@ export function Avatar({
   const session = useSession();
   const tint = avatarTint(name ?? "?", isDark);
   const uri = session ? resolveUrl(session.serverUrl, image) : null;
-  if (uri) {
+  const [failedUri, setFailedUri] = useState<string | null>(null);
+  if (uri && uri !== failedUri) {
     return (
       <Image
         source={{ uri }}
+        onError={() => setFailedUri(uri)}
         style={{ width: size, height: size, borderRadius: size / 2 }}
         contentFit="cover"
       />
