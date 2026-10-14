@@ -1,7 +1,7 @@
-import { CalendarDays, X } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Calendar } from "@/components/ui/calendar";
+import { DatePickerMenu } from "@/components/common/date-picker/date-picker-menu";
 import {
   Popover,
   PopoverContent,
@@ -9,23 +9,39 @@ import {
 } from "@/components/ui/popover";
 import { barButtonClass } from "./bar-button-class";
 import { BarTooltip } from "./bar-tooltip";
+import { useBulkPickerRequest } from "./use-bulk-picker-request";
 
 export function BulkDueDatePopover({
   onSelect,
+  onDismiss,
+  returnFocus,
 }: {
-  onSelect: (date: Date | undefined) => void;
+  onSelect: (date: Date | null) => void;
+  onDismiss?: () => void;
+  returnFocus?: () => HTMLElement | null;
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const { openedByRequest, openedManually } = useBulkPickerRequest(
+    "dueDate",
+    setOpen,
+  );
   const label = t("tasks:dueDate.label");
 
-  const select = (date: Date | undefined) => {
+  const select = (date: Date | null) => {
     setOpen(false);
     onSelect(date);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) openedManually();
+        else onDismiss?.();
+      }}
+    >
       <BarTooltip label={label}>
         <PopoverTrigger
           render={<button type="button" className={barButtonClass} />}
@@ -34,18 +50,21 @@ export function BulkDueDatePopover({
           <span className="max-lg:sr-only">{label}</span>
         </PopoverTrigger>
       </BarTooltip>
-      <PopoverContent side="top" align="start" sideOffset={8} className="p-0">
-        <Calendar mode="single" onSelect={select} className="bg-popover" />
-        <div className="border-border/80 border-t p-1">
-          <button
-            type="button"
-            onClick={() => select(undefined)}
-            className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-[13px] text-muted-foreground outline-none hover:bg-accent focus-visible:bg-accent"
-          >
-            <X aria-hidden="true" className="size-3.5" />
-            {t("tasks:dueDate.clear")}
-          </button>
-        </div>
+      <PopoverContent
+        side="top"
+        align="start"
+        sideOffset={8}
+        className="w-65 p-0"
+        finalFocus={() => (openedByRequest() && returnFocus?.()) || true}
+      >
+        <DatePickerMenu
+          label={label}
+          placeholder={t("tasks:datePicker.dueDatePlaceholder")}
+          clearLabel={t("tasks:dueDate.clear")}
+          value={null}
+          onChange={select}
+          canClear
+        />
       </PopoverContent>
     </Popover>
   );

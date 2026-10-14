@@ -1,5 +1,7 @@
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
 import { toastManager } from "@/components/ui/toast";
+
+export type ToastIcon = ComponentType<{ className?: string }>;
 
 type ToastVariant = "success" | "error" | "info" | "warning";
 
@@ -10,7 +12,7 @@ type ToastAction = {
 
 type ToastOptions = {
   description?: string;
-  icon?: LucideIcon;
+  icon?: ToastIcon;
   action?: ToastAction;
   cancel?: ToastAction;
 };

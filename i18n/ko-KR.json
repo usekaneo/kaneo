@@ -2399,37 +2399,121 @@
 		"projectSettings": {
 			"projectLabel": "프로젝트"
 		},
-		"keyboardShortcuts": {
-			"title": "키보드 단축키",
-			"subtitle": "키보드 단축키로 워크플로 속도를 높이세요",
-			"searchPlaceholder": "단축키 검색...",
-			"footer": "닫으려면 <kbd>Escape</kbd>를 누르세요",
+		"shortcuts": {
 			"categories": {
 				"general": "일반",
+				"navigation": "탐색",
 				"create": "만들기",
 				"views": "보기",
-				"navigation": "탐색",
-				"quickSelect": "빠른 선택 (팝오버 내)"
+				"tasks": "작업",
+				"list": "보드와 목록",
+				"inbox": "받은 편지함",
+				"filters": "필터",
+				"editor": "에디터"
 			},
 			"items": {
-				"openCommandPalette": "명령 팔레트 열기",
-				"globalSearch": "전체 검색",
+				"openCommandMenu": "명령 팔레트 열기",
+				"openSearch": "전체 검색",
+				"openShortcuts": "키보드 단축키 표시",
+				"submit": "저장 또는 제출",
+				"back": "모달/팝오버 닫기",
+				"switchWorkspace": "워크스페이스 전환",
+				"logOut": "로그아웃",
+				"showDisplayOptions": "표시 옵션",
+				"dismissToasts": "모든 알림 닫기",
 				"toggleSidebar": "사이드바 토글",
-				"showShortcuts": "키보드 단축키 표시",
-				"closeModal": "모달/팝오버 닫기",
+				"goToHome": "홈으로 이동",
+				"goToInbox": "받은 편지함으로 이동",
+				"goToMyTasks": "내 작업으로 이동",
+				"goToProjects": "프로젝트로 이동",
+				"goToSettings": "설정으로 이동",
+				"goToTasks": "작업으로 이동",
+				"goToBacklog": "백로그로 이동",
+				"goToProject": "프로젝트 1–9로 이동",
+				"openTask": "작업 열기",
+				"openProject": "프로젝트 열기",
 				"createTask": "작업 만들기",
 				"createProject": "프로젝트 만들기",
-				"createWorkspace": "워크스페이스 만들기",
-				"boardView": "보드 보기로 전환",
-				"listView": "목록 보기로 전환",
-				"backlogView": "백로그 보기로 전환",
-				"calendarView": "캘린더 보기로 전환",
-				"nextTask": "다음 작업",
-				"prevTask": "이전 작업",
-				"openTask": "선택한 작업 열기",
-				"quickSelectNumber": "번호로 옵션 선택",
-				"ganttView": "간트 보기로 전환"
-			}
+				"toggleLayout": "보드와 목록 전환",
+				"deleteTask": "작업 삭제",
+				"copyTaskUrl": "작업 링크 복사",
+				"copyBranchName": "작업 브랜치 복사",
+				"nextTask": "다음 항목",
+				"previousTask": "이전 항목",
+				"openFocusedTask": "포커스된 항목 열기",
+				"selectAll": "모두 선택",
+				"clearSelection": "선택 해제",
+				"changeStatus": "상태 변경",
+				"changePriority": "우선순위 변경",
+				"assignTask": "담당자 지정",
+				"assignToMe": "나에게 할당",
+				"changeLabels": "라벨 변경",
+				"setDueDate": "마감일 설정",
+				"removeDueDate": "마감일 제거",
+				"renameTask": "이름 변경",
+				"editDescription": "설명 편집",
+				"commentOnTask": "댓글 달기",
+				"moveToProject": "다른 프로젝트로 이동",
+				"createSubtask": "하위 작업 만들기",
+				"setParent": "상위 작업 설정",
+				"openParent": "상위 작업 열기",
+				"openSubtask": "하위 작업 열기",
+				"markBlockedBy": "차단됨으로 표시",
+				"markBlocking": "차단 중으로 표시",
+				"markRelated": "관련됨으로 표시",
+				"addLink": "링크 추가",
+				"toggleResources": "리소스 표시 또는 숨기기",
+				"copyTaskId": "작업 ID 복사",
+				"copyTaskTitle": "작업 제목 복사",
+				"copyAsMarkdown": "Markdown으로 복사",
+				"peekTask": "포커스된 작업 미리 보기",
+				"selectTask": "작업 선택",
+				"selectGroup": "그룹 전체 선택",
+				"copyPageUrl": "페이지 URL 복사",
+				"focusRight": "다음 열",
+				"focusLeft": "이전 열",
+				"moveTaskTop": "그룹 맨 위로 이동",
+				"moveTaskUp": "한 칸 위로 이동",
+				"moveTaskDown": "한 칸 아래로 이동",
+				"moveTaskBottom": "그룹 맨 아래로 이동",
+				"moveTaskLeft": "이전 열로 이동",
+				"moveTaskRight": "다음 열로 이동",
+				"toggleGroup": "그룹 접기 또는 펼치기",
+				"toggleAllGroups": "모든 그룹 접기 또는 펼치기",
+				"deleteNotification": "알림 삭제",
+				"deleteReadNotifications": "읽은 알림 모두 삭제",
+				"toggleNotificationRead": "읽음 또는 안 읽음으로 표시",
+				"markAllNotificationsRead": "모두 읽음으로 표시",
+				"addFilter": "필터 추가",
+				"clearAllFilters": "모든 필터 지우기",
+				"clearLastFilter": "마지막 필터 지우기",
+				"editorBold": "굵게",
+				"editorItalic": "기울임꼴",
+				"editorUnderline": "밑줄",
+				"editorStrike": "취소선",
+				"editorAttach": "이미지 또는 파일 첨부",
+				"editorInlineCode": "인라인 코드",
+				"editorLink": "텍스트를 링크로 바꾸기",
+				"editorQuote": "인용",
+				"editorParagraph": "일반 텍스트",
+				"editorHeading1": "제목 1",
+				"editorHeading2": "제목 2",
+				"editorHeading3": "제목 3",
+				"editorChecklist": "체크리스트",
+				"editorToggleChecklist": "체크리스트 항목 토글",
+				"editorBulletList": "글머리 기호 목록",
+				"editorNumberedList": "번호 목록",
+				"editorCodeBlock": "코드 블록",
+				"editorUndo": "실행 취소",
+				"editorRedo": "다시 실행"
+			},
+			"title": "키보드 단축키",
+			"searchPlaceholder": "작업 또는 키로 검색",
+			"results_other": "{{count}}개 결과",
+			"noResults": "일치하는 단축키가 없습니다",
+			"then": "다음",
+			"or": "또는",
+			"thenEllipsis": "다음…"
 		}
 	},
 	"notifications": {
@@ -2501,7 +2585,9 @@
 			"today": "Today",
 			"unread": "Unread",
 			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "받은 편지함을 업데이트하지 못했습니다. 다시 시도해 주세요.",
+			"readCleared": "읽은 알림을 삭제했습니다"
 		}
 	},
 	"activity": {
@@ -2789,7 +2875,9 @@
 				"blocks": "차단함",
 				"related": "관련됨",
 				"blocked_by": "차단됨"
-			}
+			},
+			"blockedBy": "차단한 작업",
+			"parentPlaceholder": "상위 작업 설정…"
 		},
 		"subtasks": {
 			"title": "하위 작업",
@@ -2809,13 +2897,16 @@
 		"properties": {
 			"title": "속성",
 			"labels": "라벨",
+			"addLabels": "라벨 추가",
 			"copyTaskLink": "작업 링크 복사",
 			"copyTaskBranch": "작업 브랜치 복사",
 			"taskLinkCopied": "작업 링크를 복사했습니다",
 			"taskBranchCopied": "브랜치 이름을 복사했습니다",
 			"start": "시작",
 			"startDate": "시작일",
-			"noDate": "날짜 없음"
+			"noDate": "날짜 없음",
+			"dates": "날짜",
+			"project": "프로젝트"
 		},
 		"move": {
 			"title": "작업 이동",
@@ -3012,7 +3103,8 @@
 			"draft": "초안",
 			"open": "열림",
 			"label": "풀 리퀘스트",
-			"count_other": "PR {{count}}개"
+			"count_other": "PR {{count}}개",
+			"closed": "닫힘"
 		},
 		"assignee": {
 			"label": "담당자",
@@ -3103,16 +3195,17 @@
 			"required": "필수",
 			"enterKey": "Enter",
 			"toSave": "키로 저장",
-			"today": "오늘",
 			"clear": "지우기",
 			"setValue": "{{field}} 설정…",
 			"noMatches": "일치하는 옵션이 없습니다",
 			"missingRequired_other": "필수 필드 {{count}}개가 비어 있습니다",
 			"saveError": "{{field}}을(를) 저장하지 못했습니다",
-			"moreFields_other": "필드 {{count}}개 더 보기"
+			"moreFields_other": "필드 {{count}}개 더 보기",
+			"manage": "필드 관리"
 		},
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Space를 눌러 미리 보고 Enter를 눌러 이 작업을 엽니다. Alt 또는 Option과 화살표 키로 이동할 수 있습니다."
 		},
 		"recurrence": {
 			"daily_other": "{{count}}일마다",
@@ -3145,6 +3238,33 @@
 			"addFilter": "필터 추가…",
 			"searchSubject": "{{name}}…",
 			"noResults": "결과 없음"
+		},
+		"shortcuts": {
+			"assignedToMe": "나에게 할당됨",
+			"idCopied": "작업 ID를 복사했습니다",
+			"titleCopied": "작업 제목을 복사했습니다",
+			"markdownCopied": "Markdown으로 복사했습니다",
+			"copyFailed": "클립보드에 복사하지 못했습니다.",
+			"pageUrlCopied": "페이지 URL을 복사했습니다"
+		},
+		"due": {
+			"overdueDays_other": "{{count}}일 지남",
+			"overdueWeeks_other": "{{count}}주 지남",
+			"today": "오늘",
+			"tomorrow": "내일",
+			"inDays_other": "{{count}}일 후",
+			"fullDate": "마감 {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "마감일 설정…",
+			"startDatePlaceholder": "시작일 설정…",
+			"datePlaceholder": "날짜 설정…",
+			"thisWeekend": "이번 주말",
+			"nextWeek": "다음 주",
+			"pickDate": "날짜 선택",
+			"startsOn": "시작: {{date}}",
+			"beforeStart": "{{date}}은(는) 시작일 이전입니다",
+			"afterDue": "{{date}}은(는) 마감일 이후입니다"
 		}
 	},
 	"invitations": {

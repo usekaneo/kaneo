@@ -1,12 +1,11 @@
 import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Kbd } from "@/components/ui/kbd";
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 
 type BulkCountChipProps = {
   count: number;
@@ -37,14 +36,11 @@ export function BulkCountChip({ count, onClear }: BulkCountChipProps) {
       <TooltipContent side="top" className="flex flex-col gap-1.5">
         <span className="flex items-center justify-between gap-4">
           {t("tasks:bulk.clearSelection")}
-          <Kbd>Esc</Kbd>
+          <ShortcutKeys id="clearSelection" tone="tooltip" />
         </span>
         <span className="flex items-center justify-between gap-4">
           {t("tasks:bulk.selectAll")}
-          <span className="flex gap-0.5">
-            <Kbd>{getModifierKeyText()}</Kbd>
-            <Kbd>A</Kbd>
-          </span>
+          <ShortcutKeys id="selectAll" tone="tooltip" />
         </span>
       </TooltipContent>
     </Tooltip>

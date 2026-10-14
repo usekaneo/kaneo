@@ -1,4 +1,5 @@
 import { ListFilter } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,12 +7,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ShortcutTooltipLabel } from "@/components/shortcuts/shortcut-tooltip-label";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { FilterRootPanel } from "./filter-root-panel";
 import type { FilterSubject } from "./filter-subject";
 
@@ -23,9 +26,11 @@ type FilterMenuProps = {
 export function FilterMenu({ subjects, activeCount }: FilterMenuProps) {
   const { t } = useTranslation();
   const label = t("common:actions.filter");
+  const [open, setOpen] = useState(false);
+  useShortcut("addFilter", () => setOpen((value) => !value));
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <Tooltip>
         <TooltipTrigger
           render={
@@ -51,7 +56,9 @@ export function FilterMenu({ subjects, activeCount }: FilterMenuProps) {
             </span>
           )}
         </TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
+        <TooltipContent>
+          <ShortcutTooltipLabel label={label} shortcutId="addFilter" />
+        </TooltipContent>
       </Tooltip>
       <PopoverContent align="end" className="w-60">
         <FilterRootPanel subjects={subjects} />

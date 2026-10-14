@@ -30,7 +30,7 @@ export default function TaskDueDatePopover({
   const canEdit = canUpdateTasks();
   const recurrence = task.recurrence ?? null;
   const dueDate = useMemo(
-    () => (task.dueDate ? new Date(task.dueDate) : undefined),
+    () => (task.dueDate ? new Date(task.dueDate) : null),
     [task.dueDate],
   );
   const startDate = useMemo(
@@ -38,14 +38,14 @@ export default function TaskDueDatePopover({
     [task.startDate],
   );
 
-  const handleDateChange = async (date: Date | undefined) => {
+  const handleDateChange = async (date: Date | null) => {
     try {
       await updateTaskDueDate({
         ...task,
-        dueDate: date?.toISOString() || null,
+        dueDate: date?.toISOString() ?? null,
       });
       // Keep a repeating task's picker open to show its upcoming dates.
-      if (!recurrence) setOpen(false);
+      if (!recurrence || !date) setOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -72,17 +72,15 @@ export default function TaskDueDatePopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-72 p-0" align="start">
+      <PopoverContent className="w-65 p-0" align="start">
         <TaskDueDatePicker
+          label={t("tasks:dueDate.label")}
+          clearLabel={t("tasks:popover.dueDate.clear")}
           dueDate={dueDate}
           startDate={startDate}
           recurrence={recurrence}
           onDateChange={handleDateChange}
           onRecurrenceChange={handleRecurrenceChange}
-          onClear={() => {
-            setOpen(false);
-            void handleDateChange(undefined);
-          }}
         />
       </PopoverContent>
     </Popover>

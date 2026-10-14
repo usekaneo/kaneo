@@ -10,9 +10,11 @@ import {
 import createComment from "../../apps/api/src/activity/controllers/create-comment";
 import db, { schema } from "../../apps/api/src/database";
 import { taskReminderSentTable } from "../../apps/api/src/database/schema";
+import clearNotifications from "../../apps/api/src/notification/controllers/clear-notifications";
 import createNotification from "../../apps/api/src/notification/controllers/create-notification";
+import deleteNotification from "../../apps/api/src/notification/controllers/delete-notification";
 import getNotifications from "../../apps/api/src/notification/controllers/get-notifications";
-import markAsRead from "../../apps/api/src/notification/controllers/mark-notification-as-read";
+import setNotificationRead from "../../apps/api/src/notification/controllers/set-notification-read";
 
 const { deliverNotification } = await vi.importActual<
   typeof import("../../apps/api/src/notification-preferences/delivery")
@@ -213,12 +215,55 @@ describe("notification recipient boundaries", () => {
       );
     expect(await getNotifications(member.user.id)).toEqual([]);
     await expect(
-      markAsRead(notification.id, member.user.id),
+      setNotificationRead(notification.id, member.user.id, true),
     ).rejects.toMatchObject({
       status: 404,
     });
     await deliverNotification(notification.id);
     expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("changes, deletes and clears only the caller's own notifications", async () => {
+    const { actor, member, task } = await fixture();
+    const insert = (userId: string, isRead: boolean) =>
+      db
+        .insert(schema.notificationTable)
+        .values({
+          userId,
+          isRead,
+          resourceType: "task",
+          resourceId: task.id,
+          type: "task_comment",
+        })
+        .returning()
+        .then(([row]) => row);
+    const read = await insert(member.user.id, true);
+    const unread = await insert(member.user.id, false);
+    const foreign = await insert(actor.user.id, true);
+
+    await expect(
+      setNotificationRead(read.id, member.user.id, false),
+    ).resolves.toHaveProperty("isRead", false);
+    await expect(
+      setNotificationRead(foreign.id, member.user.id, false),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      deleteNotification(foreign.id, member.user.id),
+    ).rejects.toMatchObject({ status: 404 });
+
+    await setNotificationRead(read.id, member.user.id, true);
+    await clearNotifications(member.user.id, actor.workspace.id, true);
+    const remaining = await db.select().from(schema.notificationTable);
+    expect(remaining.map((row) => row.id).sort()).toEqual(
+      [unread.id, foreign.id].sort(),
+    );
+
+    await expect(
+      deleteNotification(unread.id, member.user.id),
+    ).resolves.toEqual({ success: true });
+    expect(
+      (await db.select().from(schema.notificationTable)).map((row) => row.id),
+    ).toEqual([foreign.id]);
   });
 
   it("rejects foreign assignees while preserving valid partial imports", async () => {

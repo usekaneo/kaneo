@@ -9,21 +9,31 @@ export function isInsidePopup(target: EventTarget | null) {
 }
 
 type Selection = {
+  hasSelection: boolean;
   selectAll: () => void;
   clearSelection: () => void;
 };
 
-export function useBulkSelectionKeys({ selectAll, clearSelection }: Selection) {
+export function useBulkSelectionKeys({
+  hasSelection,
+  selectAll,
+  clearSelection,
+}: Selection) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const target = event.target;
-      if ((event.metaKey || event.ctrlKey) && event.key === "a") {
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        !event.altKey &&
+        event.key === "a"
+      ) {
         if (target instanceof Element && target.closest(TYPING)) return;
         event.preventDefault();
         selectAll();
       }
 
       if (event.key === "Escape") {
+        if (!hasSelection) return;
         if (event.defaultPrevented || isInsidePopup(target)) return;
         event.preventDefault();
         clearSelection();
@@ -32,5 +42,5 @@ export function useBulkSelectionKeys({ selectAll, clearSelection }: Selection) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectAll, clearSelection]);
+  }, [hasSelection, selectAll, clearSelection]);
 }

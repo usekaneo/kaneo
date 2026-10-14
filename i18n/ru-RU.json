@@ -2533,37 +2533,124 @@
 		"projectSettings": {
 			"projectLabel": "Проект"
 		},
-		"keyboardShortcuts": {
-			"title": "Сочетания клавиш",
-			"subtitle": "Ускорьте работу с помощью сочетаний клавиш",
-			"searchPlaceholder": "Поиск сочетаний...",
-			"footer": "Нажмите <kbd>Escape</kbd>, чтобы закрыть",
+		"shortcuts": {
 			"categories": {
 				"general": "Основные",
+				"navigation": "Навигация",
 				"create": "Создание",
 				"views": "Представления",
-				"navigation": "Навигация",
-				"quickSelect": "Быстрый выбор (в выпадающих списках)"
+				"tasks": "Задачи",
+				"list": "Доска и список",
+				"inbox": "Входящие",
+				"filters": "Фильтры",
+				"editor": "Редактор"
 			},
 			"items": {
-				"openCommandPalette": "Открыть палитру команд",
-				"globalSearch": "Глобальный поиск",
+				"openCommandMenu": "Открыть палитру команд",
+				"openSearch": "Глобальный поиск",
+				"openShortcuts": "Показать сочетания клавиш",
+				"submit": "Сохранить или отправить",
+				"back": "Закрыть модальное окно/всплывающее меню",
+				"switchWorkspace": "Сменить рабочее пространство",
+				"logOut": "Выйти",
+				"showDisplayOptions": "Параметры отображения",
+				"dismissToasts": "Закрыть все уведомления",
 				"toggleSidebar": "Переключить боковую панель",
-				"showShortcuts": "Показать сочетания клавиш",
-				"closeModal": "Закрыть модальное окно/всплывающее меню",
+				"goToHome": "Перейти на главную",
+				"goToInbox": "Перейти во входящие",
+				"goToMyTasks": "Перейти к моим задачам",
+				"goToProjects": "Перейти к проектам",
+				"goToSettings": "Перейти в настройки",
+				"goToTasks": "Перейти к задачам",
+				"goToBacklog": "Перейти в бэклог",
+				"goToProject": "Перейти к проекту 1–9",
+				"openTask": "Открыть задачу",
+				"openProject": "Открыть проект",
 				"createTask": "Создать задачу",
 				"createProject": "Создать проект",
-				"createWorkspace": "Создать рабочую область",
-				"boardView": "Переключиться на доску",
-				"listView": "Переключиться на список",
-				"backlogView": "Переключиться на бэклог",
-				"nextTask": "Следующая задача",
-				"prevTask": "Предыдущая задача",
-				"openTask": "Открыть выбранную задачу",
-				"quickSelectNumber": "Выбрать вариант по номеру",
-				"calendarView": "Переключиться на календарь",
-				"ganttView": "Переключиться на диаграмму Ганта"
-			}
+				"toggleLayout": "Переключить доску и список",
+				"deleteTask": "Удалить задачу",
+				"copyTaskUrl": "Скопировать ссылку на задачу",
+				"copyBranchName": "Скопировать ветку задачи",
+				"nextTask": "Следующий элемент",
+				"previousTask": "Предыдущий элемент",
+				"openFocusedTask": "Открыть выбранный элемент",
+				"selectAll": "Выбрать все",
+				"clearSelection": "Снять выделение",
+				"changeStatus": "Изменить статус",
+				"changePriority": "Изменить приоритет",
+				"assignTask": "Назначить",
+				"assignToMe": "Назначить на меня",
+				"changeLabels": "Изменить метки",
+				"setDueDate": "Установить срок",
+				"removeDueDate": "Убрать срок",
+				"renameTask": "Переименовать",
+				"editDescription": "Редактировать описание",
+				"commentOnTask": "Комментировать",
+				"moveToProject": "Переместить в другой проект",
+				"createSubtask": "Создать подзадачу",
+				"setParent": "Задать родительскую задачу",
+				"openParent": "Открыть родительскую задачу",
+				"openSubtask": "Открыть подзадачу",
+				"markBlockedBy": "Отметить как заблокированную",
+				"markBlocking": "Отметить как блокирующую",
+				"markRelated": "Отметить как связанную",
+				"addLink": "Добавить ссылку",
+				"toggleResources": "Показать или скрыть ресурсы",
+				"copyTaskId": "Копировать ID задачи",
+				"copyTaskTitle": "Копировать название задачи",
+				"copyAsMarkdown": "Копировать как Markdown",
+				"peekTask": "Предпросмотр выбранной задачи",
+				"selectTask": "Выбрать задачу",
+				"selectGroup": "Выбрать все в группе",
+				"copyPageUrl": "Копировать URL страницы",
+				"focusRight": "Следующая колонка",
+				"focusLeft": "Предыдущая колонка",
+				"moveTaskTop": "Переместить в начало группы",
+				"moveTaskUp": "Поднять на одну позицию",
+				"moveTaskDown": "Опустить на одну позицию",
+				"moveTaskBottom": "Переместить в конец группы",
+				"moveTaskLeft": "Переместить в предыдущую колонку",
+				"moveTaskRight": "Переместить в следующую колонку",
+				"toggleGroup": "Свернуть или развернуть группу",
+				"toggleAllGroups": "Свернуть или развернуть все группы",
+				"deleteNotification": "Удалить уведомление",
+				"deleteReadNotifications": "Удалить все прочитанные уведомления",
+				"toggleNotificationRead": "Отметить как прочитанное или непрочитанное",
+				"markAllNotificationsRead": "Отметить все как прочитанные",
+				"addFilter": "Добавить фильтр",
+				"clearAllFilters": "Сбросить все фильтры",
+				"clearLastFilter": "Сбросить последний фильтр",
+				"editorBold": "Жирный",
+				"editorItalic": "Курсив",
+				"editorUnderline": "Подчёркнутый",
+				"editorStrike": "Зачёркнутый",
+				"editorAttach": "Прикрепить изображение или файл",
+				"editorInlineCode": "Встроенный код",
+				"editorLink": "Превратить текст в ссылку",
+				"editorQuote": "Цитата",
+				"editorParagraph": "Обычный текст",
+				"editorHeading1": "Заголовок 1",
+				"editorHeading2": "Заголовок 2",
+				"editorHeading3": "Заголовок 3",
+				"editorChecklist": "Чек-лист",
+				"editorToggleChecklist": "Отметить пункт чек-листа",
+				"editorBulletList": "Маркированный список",
+				"editorNumberedList": "Нумерованный список",
+				"editorCodeBlock": "Блок кода",
+				"editorUndo": "Отменить",
+				"editorRedo": "Повторить"
+			},
+			"title": "Сочетания клавиш",
+			"searchPlaceholder": "Поиск по действию или клавише",
+			"results_one": "{{count}} результат",
+			"results_few": "{{count}} результата",
+			"results_many": "{{count}} результатов",
+			"results_other": "{{count}} результата",
+			"noResults": "Нет подходящих сочетаний",
+			"then": "затем",
+			"or": "или",
+			"thenEllipsis": "затем…"
 		}
 	},
 	"notifications": {
@@ -2647,7 +2734,9 @@
 			"today": "Today",
 			"unread": "Unread",
 			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "Не удалось обновить входящие. Попробуйте ещё раз.",
+			"readCleared": "Прочитанные уведомления удалены"
 		}
 	},
 	"activity": {
@@ -2935,7 +3024,9 @@
 				"blocks": "блокирует",
 				"related": "связана с",
 				"blocked_by": "заблокирована"
-			}
+			},
+			"blockedBy": "Блокируется",
+			"parentPlaceholder": "Задать родительскую задачу…"
 		},
 		"subtasks": {
 			"title": "Подзадачи",
@@ -2955,13 +3046,16 @@
 		"properties": {
 			"title": "Свойства",
 			"labels": "Метки",
+			"addLabels": "Добавить метки",
 			"copyTaskLink": "Скопировать ссылку на задачу",
 			"copyTaskBranch": "Скопировать ветку задачи",
 			"taskLinkCopied": "Ссылка на задачу скопирована",
 			"taskBranchCopied": "Название ветки скопировано",
 			"start": "Начало",
 			"startDate": "Дата начала",
-			"noDate": "Без даты"
+			"noDate": "Без даты",
+			"dates": "Даты",
+			"project": "Проект"
 		},
 		"move": {
 			"title": "Переместить задачу",
@@ -3174,7 +3268,8 @@
 			"count_one": "{{count}} PR",
 			"count_few": "{{count}} PR",
 			"count_many": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Закрыт"
 		},
 		"assignee": {
 			"label": "Исполнитель",
@@ -3314,7 +3409,6 @@
 			"required": "Обязательно",
 			"enterKey": "Enter",
 			"toSave": "чтобы сохранить",
-			"today": "Сегодня",
 			"clear": "Очистить",
 			"setValue": "Задать {{field}}…",
 			"noMatches": "Нет подходящих вариантов",
@@ -3326,10 +3420,12 @@
 			"moreFields_one": "Ещё {{count}} поле",
 			"moreFields_few": "Ещё {{count}} поля",
 			"moreFields_many": "Ещё {{count}} полей",
-			"moreFields_other": "Ещё {{count}} поля"
+			"moreFields_other": "Ещё {{count}} поля",
+			"manage": "Управлять полями"
 		},
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Нажмите Пробел для предпросмотра и Enter, чтобы открыть эту задачу. Используйте Alt или Option со стрелками, чтобы переместить её."
 		},
 		"recurrence": {
 			"daily_few": "Каждые {{count}} дня",
@@ -3380,6 +3476,42 @@
 			"addFilter": "Добавить фильтр…",
 			"searchSubject": "{{name}}…",
 			"noResults": "Ничего не найдено"
+		},
+		"shortcuts": {
+			"assignedToMe": "Назначено на вас",
+			"idCopied": "ID задачи скопирован",
+			"titleCopied": "Название задачи скопировано",
+			"markdownCopied": "Скопировано как Markdown",
+			"copyFailed": "Не удалось скопировать в буфер обмена.",
+			"pageUrlCopied": "URL страницы скопирован"
+		},
+		"due": {
+			"overdueDays_one": "Просрочено на {{count}} д.",
+			"overdueDays_few": "Просрочено на {{count}} д.",
+			"overdueDays_many": "Просрочено на {{count}} д.",
+			"overdueDays_other": "Просрочено на {{count}} д.",
+			"overdueWeeks_one": "Просрочено на {{count}} нед.",
+			"overdueWeeks_few": "Просрочено на {{count}} нед.",
+			"overdueWeeks_many": "Просрочено на {{count}} нед.",
+			"overdueWeeks_other": "Просрочено на {{count}} нед.",
+			"today": "Сегодня",
+			"tomorrow": "Завтра",
+			"inDays_one": "Через {{count}} день",
+			"inDays_few": "Через {{count}} дня",
+			"inDays_many": "Через {{count}} дней",
+			"inDays_other": "Через {{count}} дня",
+			"fullDate": "Срок {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Установить срок…",
+			"startDatePlaceholder": "Установить дату начала…",
+			"datePlaceholder": "Установить дату…",
+			"thisWeekend": "В эти выходные",
+			"nextWeek": "На следующей неделе",
+			"pickDate": "Выбрать дату",
+			"startsOn": "Начало: {{date}}",
+			"beforeStart": "{{date}} раньше даты начала",
+			"afterDue": "{{date}} позже срока"
 		}
 	},
 	"invitations": {

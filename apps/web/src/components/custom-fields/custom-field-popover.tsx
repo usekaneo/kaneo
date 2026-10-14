@@ -5,6 +5,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/cn";
 import { DateFieldEditor } from "./date-field-editor";
 import { OptionFieldEditor } from "./option-field-editor";
 import { parseMultiselect } from "./parse-multiselect";
@@ -63,7 +64,11 @@ export function CustomFieldPopover({
       }}
     >
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent side={side} align="start" className="p-0">
+      <PopoverContent
+        side={side}
+        align="start"
+        className={cn("p-0", field.type === "date" && "w-65")}
+      >
         {isText && (
           <TextFieldEditor
             field={field}
@@ -77,6 +82,7 @@ export function CustomFieldPopover({
         )}
         {field.type === "date" && (
           <DateFieldEditor
+            name={field.name}
             value={value}
             required={field.required}
             onSelect={(next) => {

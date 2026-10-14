@@ -2441,37 +2441,122 @@
 		"projectSettings": {
 			"projectLabel": "Project"
 		},
-		"keyboardShortcuts": {
-			"title": "Keyboard Shortcuts",
-			"subtitle": "Speed up your workflow with keyboard shortcuts",
-			"searchPlaceholder": "Search shortcuts...",
-			"footer": "Press <kbd>Escape</kbd> to close",
+		"shortcuts": {
 			"categories": {
 				"general": "General",
+				"navigation": "Navigation",
 				"create": "Create",
 				"views": "Views",
-				"navigation": "Navigation",
-				"quickSelect": "Quick Select (in popovers)"
+				"tasks": "Tasks",
+				"list": "Board and list",
+				"inbox": "Inbox",
+				"filters": "Filters",
+				"editor": "Editor"
 			},
 			"items": {
-				"openCommandPalette": "Open command palette",
-				"globalSearch": "Global search",
+				"openCommandMenu": "Open command menu",
+				"openSearch": "Search",
+				"openShortcuts": "Keyboard shortcuts",
+				"submit": "Save or submit",
+				"back": "Close or go back",
+				"switchWorkspace": "Switch workspace",
+				"logOut": "Log out",
+				"showDisplayOptions": "Display options",
+				"dismissToasts": "Dismiss all toasts",
 				"toggleSidebar": "Toggle sidebar",
-				"showShortcuts": "Show keyboard shortcuts",
-				"closeModal": "Close modal/popover",
+				"goToHome": "Go to home",
+				"goToInbox": "Go to inbox",
+				"goToMyTasks": "Go to my tasks",
+				"goToProjects": "Go to projects",
+				"goToSettings": "Go to settings",
+				"goToTasks": "Go to tasks",
+				"goToBacklog": "Go to backlog",
+				"goToProject": "Go to project 1–9",
+				"openTask": "Open task",
+				"openProject": "Open project",
 				"createTask": "Create task",
 				"createProject": "Create project",
-				"createWorkspace": "Create workspace",
-				"boardView": "Switch to board view",
-				"listView": "Switch to list view",
-				"backlogView": "Switch to backlog view",
-				"calendarView": "Switch to calendar view",
-				"nextTask": "Next task",
-				"prevTask": "Previous task",
-				"openTask": "Open selected task",
-				"quickSelectNumber": "Select option by number",
-				"ganttView": "Switch to Gantt view"
-			}
+				"toggleLayout": "Switch between board and list",
+				"deleteTask": "Delete task",
+				"copyTaskUrl": "Copy task URL",
+				"copyBranchName": "Copy branch name",
+				"nextTask": "Next item",
+				"previousTask": "Previous item",
+				"openFocusedTask": "Open focused item",
+				"selectAll": "Select all",
+				"clearSelection": "Clear selection",
+				"changeStatus": "Change status",
+				"changePriority": "Change priority",
+				"assignTask": "Assign",
+				"assignToMe": "Assign to me",
+				"changeLabels": "Change labels",
+				"setDueDate": "Set due date",
+				"removeDueDate": "Remove due date",
+				"renameTask": "Rename",
+				"editDescription": "Edit description",
+				"commentOnTask": "Comment",
+				"moveToProject": "Move to another project",
+				"createSubtask": "Create subtask",
+				"setParent": "Set parent task",
+				"openParent": "Open parent task",
+				"openSubtask": "Open subtask",
+				"markBlockedBy": "Mark as blocked by",
+				"markBlocking": "Mark as blocking",
+				"markRelated": "Mark as related",
+				"addLink": "Add a link",
+				"toggleResources": "Show or hide resources",
+				"copyTaskId": "Copy task ID",
+				"copyTaskTitle": "Copy task title",
+				"copyAsMarkdown": "Copy as Markdown",
+				"peekTask": "Preview focused task",
+				"selectTask": "Select task",
+				"selectGroup": "Select all in group",
+				"copyPageUrl": "Copy page URL",
+				"focusRight": "Next column",
+				"focusLeft": "Previous column",
+				"moveTaskTop": "Move to top of group",
+				"moveTaskUp": "Move up one position",
+				"moveTaskDown": "Move down one position",
+				"moveTaskBottom": "Move to bottom of group",
+				"moveTaskLeft": "Move to previous column",
+				"moveTaskRight": "Move to next column",
+				"toggleGroup": "Collapse or expand group",
+				"toggleAllGroups": "Collapse or expand all groups",
+				"deleteNotification": "Delete notification",
+				"deleteReadNotifications": "Delete all read notifications",
+				"toggleNotificationRead": "Mark as read or unread",
+				"markAllNotificationsRead": "Mark all as read",
+				"addFilter": "Add filter",
+				"clearAllFilters": "Clear all filters",
+				"clearLastFilter": "Clear last filter",
+				"editorBold": "Bold",
+				"editorItalic": "Italic",
+				"editorUnderline": "Underline",
+				"editorStrike": "Strikethrough",
+				"editorAttach": "Attach image or file",
+				"editorInlineCode": "Inline code",
+				"editorLink": "Turn text into link",
+				"editorQuote": "Blockquote",
+				"editorParagraph": "Regular text",
+				"editorHeading1": "Heading 1",
+				"editorHeading2": "Heading 2",
+				"editorHeading3": "Heading 3",
+				"editorChecklist": "Checklist",
+				"editorToggleChecklist": "Toggle checklist item",
+				"editorBulletList": "Bulleted list",
+				"editorNumberedList": "Numbered list",
+				"editorCodeBlock": "Code block",
+				"editorUndo": "Undo",
+				"editorRedo": "Redo"
+			},
+			"title": "Keyboard shortcuts",
+			"searchPlaceholder": "Search by action or key",
+			"results_one": "{{count}} result",
+			"results_other": "{{count}} results",
+			"noResults": "No shortcuts match",
+			"then": "then",
+			"or": "or",
+			"thenEllipsis": "then…"
 		}
 	},
 	"notifications": {
@@ -2547,7 +2632,9 @@
 			"openTask": "Open task",
 			"recentActivity": "Recent activity",
 			"taskUnavailable": "This task is no longer available.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "Couldn't update your inbox. Try again.",
+			"readCleared": "Deleted read notifications"
 		}
 	},
 	"activity": {
@@ -2836,7 +2923,9 @@
 				"blocks": "blocks",
 				"blocked_by": "blocked by",
 				"related": "relates to"
-			}
+			},
+			"blockedBy": "Blocked by",
+			"parentPlaceholder": "Set parent task…"
 		},
 		"subtasks": {
 			"progress": "{{completed}} of {{total}} subtasks completed",
@@ -2856,13 +2945,16 @@
 		"properties": {
 			"title": "Properties",
 			"labels": "Labels",
+			"addLabels": "Add labels",
 			"copyTaskLink": "Copy task link",
 			"copyTaskBranch": "Copy task branch",
 			"taskLinkCopied": "Copied task link",
 			"taskBranchCopied": "Copied branch name",
 			"start": "Start",
 			"startDate": "Start date",
-			"noDate": "No date"
+			"noDate": "No date",
+			"dates": "Dates",
+			"project": "Project"
 		},
 		"move": {
 			"title": "Move task",
@@ -2949,8 +3041,8 @@
 			"moveAllConfirm": "Move all {{count}} planned tasks to To Do?",
 			"moveAllSuccess": "Moved {{count}} tasks to To Do",
 			"plan": "Plan",
-			"moveAllTooltip": "Move All Planned to To Do",
-			"moveAll": "Move All",
+			"moveAllTooltip": "Move all planned tasks to To Do",
+			"moveAll": "Move all",
 			"addTask": "Add task",
 			"sections": {
 				"planned": "Planned",
@@ -3065,7 +3157,8 @@
 			"open": "Open",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PRs"
+			"count_other": "{{count}} PRs",
+			"closed": "Closed"
 		},
 		"assignee": {
 			"label": "Assignee",
@@ -3162,7 +3255,6 @@
 			"required": "Required",
 			"enterKey": "Enter",
 			"toSave": "to save",
-			"today": "Today",
 			"clear": "Clear",
 			"setValue": "Set {{field}}…",
 			"noMatches": "No matching options",
@@ -3170,7 +3262,8 @@
 			"missingRequired_other": "{{count}} required fields are empty",
 			"saveError": "Couldn't save {{field}}",
 			"moreFields_one": "{{count}} more field",
-			"moreFields_other": "{{count}} more fields"
+			"moreFields_other": "{{count}} more fields",
+			"manage": "Manage fields"
 		},
 		"descriptionSearchLoading": "Searching full descriptions…",
 		"descriptionSearchError": "Description search failed. Results may be incomplete.",
@@ -3178,7 +3271,8 @@
 		"descriptionLoading": "Loading description…",
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Press Space to preview and Enter to open this task. Use Alt or Option with the arrow keys to move it."
 		},
 		"toolbar": {
 			"search": "Search tasks",
@@ -3206,6 +3300,36 @@
 			"addFilter": "Add filter…",
 			"searchSubject": "{{name}}…",
 			"noResults": "No results"
+		},
+		"shortcuts": {
+			"assignedToMe": "Assigned to you",
+			"idCopied": "Copied task ID",
+			"titleCopied": "Copied task title",
+			"markdownCopied": "Copied as Markdown",
+			"copyFailed": "Couldn't copy to the clipboard.",
+			"pageUrlCopied": "Copied page URL"
+		},
+		"due": {
+			"overdueDays_one": "{{count}}d overdue",
+			"overdueDays_other": "{{count}}d overdue",
+			"overdueWeeks_one": "{{count}}w overdue",
+			"overdueWeeks_other": "{{count}}w overdue",
+			"today": "Today",
+			"tomorrow": "Tomorrow",
+			"inDays_one": "In {{count}} day",
+			"inDays_other": "In {{count}} days",
+			"fullDate": "Due {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Set due date…",
+			"startDatePlaceholder": "Set start date…",
+			"datePlaceholder": "Set date…",
+			"thisWeekend": "This weekend",
+			"nextWeek": "Next week",
+			"pickDate": "Pick a date",
+			"startsOn": "Starts {{date}}",
+			"beforeStart": "{{date}} is before the start date",
+			"afterDue": "{{date}} is after the due date"
 		}
 	},
 	"invitations": {

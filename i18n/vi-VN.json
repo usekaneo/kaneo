@@ -2399,37 +2399,121 @@
 		"projectSettings": {
 			"projectLabel": "Dự án"
 		},
-		"keyboardShortcuts": {
-			"title": "Phím tắt",
-			"subtitle": "Tăng tốc quy trình làm việc của bạn với phím tắt",
-			"searchPlaceholder": "Tìm phím tắt...",
-			"footer": "Nhấn <kbd>Escape</kbd> để đóng",
+		"shortcuts": {
 			"categories": {
 				"general": "Chung",
+				"navigation": "Điều hướng",
 				"create": "Tạo",
 				"views": "Chế độ xem",
-				"navigation": "Điều hướng",
-				"quickSelect": "Chọn nhanh (trong popover)"
+				"tasks": "Công việc",
+				"list": "Bảng và danh sách",
+				"inbox": "Hộp thư đến",
+				"filters": "Bộ lọc",
+				"editor": "Trình soạn thảo"
 			},
 			"items": {
-				"openCommandPalette": "Mở bảng lệnh",
-				"globalSearch": "Tìm kiếm toàn cục",
+				"openCommandMenu": "Mở bảng lệnh",
+				"openSearch": "Tìm kiếm toàn cục",
+				"openShortcuts": "Hiện phím tắt",
+				"submit": "Lưu hoặc gửi",
+				"back": "Đóng modal/popover",
+				"switchWorkspace": "Đổi không gian làm việc",
+				"logOut": "Đăng xuất",
+				"showDisplayOptions": "Tùy chọn hiển thị",
+				"dismissToasts": "Đóng tất cả thông báo",
 				"toggleSidebar": "Bật/tắt thanh bên",
-				"showShortcuts": "Hiện phím tắt",
-				"closeModal": "Đóng modal/popover",
+				"goToHome": "Đến trang chủ",
+				"goToInbox": "Đến hộp thư đến",
+				"goToMyTasks": "Đến công việc của tôi",
+				"goToProjects": "Đến dự án",
+				"goToSettings": "Đến cài đặt",
+				"goToTasks": "Đến công việc",
+				"goToBacklog": "Đến Backlog",
+				"goToProject": "Đến dự án 1–9",
+				"openTask": "Mở công việc",
+				"openProject": "Mở dự án",
 				"createTask": "Tạo công việc",
 				"createProject": "Tạo dự án",
-				"createWorkspace": "Tạo không gian làm việc",
-				"boardView": "Chuyển sang chế độ xem bảng",
-				"listView": "Chuyển sang chế độ xem danh sách",
-				"backlogView": "Chuyển sang chế độ xem backlog",
-				"nextTask": "Công việc tiếp theo",
-				"prevTask": "Công việc trước đó",
-				"openTask": "Mở công việc đã chọn",
-				"quickSelectNumber": "Chọn tùy chọn theo số",
-				"calendarView": "Chuyển sang chế độ xem lịch",
-				"ganttView": "Chuyển sang chế độ xem Gantt"
-			}
+				"toggleLayout": "Chuyển giữa bảng và danh sách",
+				"deleteTask": "Xóa công việc",
+				"copyTaskUrl": "Sao chép liên kết công việc",
+				"copyBranchName": "Sao chép nhánh công việc",
+				"nextTask": "Mục tiếp theo",
+				"previousTask": "Mục trước",
+				"openFocusedTask": "Mở mục đang chọn",
+				"selectAll": "Chọn tất cả",
+				"clearSelection": "Bỏ chọn",
+				"changeStatus": "Đổi trạng thái",
+				"changePriority": "Đổi mức ưu tiên",
+				"assignTask": "Giao việc",
+				"assignToMe": "Giao cho tôi",
+				"changeLabels": "Đổi nhãn",
+				"setDueDate": "Đặt hạn chót",
+				"removeDueDate": "Xóa hạn chót",
+				"renameTask": "Đổi tên",
+				"editDescription": "Sửa mô tả",
+				"commentOnTask": "Bình luận",
+				"moveToProject": "Chuyển sang dự án khác",
+				"createSubtask": "Tạo công việc con",
+				"setParent": "Đặt công việc cha",
+				"openParent": "Mở công việc cha",
+				"openSubtask": "Mở công việc con",
+				"markBlockedBy": "Đánh dấu bị chặn bởi",
+				"markBlocking": "Đánh dấu đang chặn",
+				"markRelated": "Đánh dấu liên quan",
+				"addLink": "Thêm liên kết",
+				"toggleResources": "Hiện hoặc ẩn tài nguyên",
+				"copyTaskId": "Sao chép ID công việc",
+				"copyTaskTitle": "Sao chép tiêu đề công việc",
+				"copyAsMarkdown": "Sao chép dưới dạng Markdown",
+				"peekTask": "Xem trước công việc đang chọn",
+				"selectTask": "Chọn công việc",
+				"selectGroup": "Chọn tất cả trong nhóm",
+				"copyPageUrl": "Sao chép URL trang",
+				"focusRight": "Cột tiếp theo",
+				"focusLeft": "Cột trước",
+				"moveTaskTop": "Chuyển lên đầu nhóm",
+				"moveTaskUp": "Lên một vị trí",
+				"moveTaskDown": "Xuống một vị trí",
+				"moveTaskBottom": "Chuyển xuống cuối nhóm",
+				"moveTaskLeft": "Chuyển sang cột trước",
+				"moveTaskRight": "Chuyển sang cột tiếp theo",
+				"toggleGroup": "Thu gọn hoặc mở rộng nhóm",
+				"toggleAllGroups": "Thu gọn hoặc mở rộng tất cả nhóm",
+				"deleteNotification": "Xóa thông báo",
+				"deleteReadNotifications": "Xóa tất cả thông báo đã đọc",
+				"toggleNotificationRead": "Đánh dấu đã đọc hoặc chưa đọc",
+				"markAllNotificationsRead": "Đánh dấu tất cả là đã đọc",
+				"addFilter": "Thêm bộ lọc",
+				"clearAllFilters": "Xóa tất cả bộ lọc",
+				"clearLastFilter": "Xóa bộ lọc cuối",
+				"editorBold": "In đậm",
+				"editorItalic": "In nghiêng",
+				"editorUnderline": "Gạch chân",
+				"editorStrike": "Gạch ngang",
+				"editorAttach": "Đính kèm ảnh hoặc tệp",
+				"editorInlineCode": "Mã nội dòng",
+				"editorLink": "Chuyển văn bản thành liên kết",
+				"editorQuote": "Trích dẫn",
+				"editorParagraph": "Văn bản thường",
+				"editorHeading1": "Tiêu đề 1",
+				"editorHeading2": "Tiêu đề 2",
+				"editorHeading3": "Tiêu đề 3",
+				"editorChecklist": "Danh sách kiểm tra",
+				"editorToggleChecklist": "Đánh dấu mục danh sách",
+				"editorBulletList": "Danh sách dấu đầu dòng",
+				"editorNumberedList": "Danh sách đánh số",
+				"editorCodeBlock": "Khối mã",
+				"editorUndo": "Hoàn tác",
+				"editorRedo": "Làm lại"
+			},
+			"title": "Phím tắt",
+			"searchPlaceholder": "Tìm theo thao tác hoặc phím",
+			"results_other": "{{count}} kết quả",
+			"noResults": "Không có phím tắt phù hợp",
+			"then": "rồi",
+			"or": "hoặc",
+			"thenEllipsis": "rồi…"
 		}
 	},
 	"notifications": {
@@ -2501,7 +2585,9 @@
 			"today": "Today",
 			"unread": "Unread",
 			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "Không thể cập nhật hộp thư đến. Hãy thử lại.",
+			"readCleared": "Đã xóa các thông báo đã đọc"
 		}
 	},
 	"activity": {
@@ -2789,7 +2875,9 @@
 				"blocks": "chặn",
 				"blocked_by": "bị chặn bởi",
 				"related": "liên quan đến"
-			}
+			},
+			"blockedBy": "Bị chặn bởi",
+			"parentPlaceholder": "Đặt công việc cha…"
 		},
 		"subtasks": {
 			"title": "Công việc con",
@@ -2809,13 +2897,16 @@
 		"properties": {
 			"title": "Thuộc tính",
 			"labels": "Nhãn",
+			"addLabels": "Thêm nhãn",
 			"copyTaskLink": "Sao chép liên kết công việc",
 			"copyTaskBranch": "Sao chép nhánh công việc",
 			"taskLinkCopied": "Đã sao chép liên kết công việc",
 			"taskBranchCopied": "Đã sao chép tên nhánh",
 			"start": "Bắt đầu",
 			"startDate": "Ngày bắt đầu",
-			"noDate": "Không có ngày"
+			"noDate": "Không có ngày",
+			"dates": "Ngày",
+			"project": "Dự án"
 		},
 		"move": {
 			"title": "Di chuyển công việc",
@@ -2998,7 +3089,8 @@
 			"draft": "Bản nháp",
 			"open": "Đang mở",
 			"label": "Pull Request",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Đã đóng"
 		},
 		"assignee": {
 			"label": "Người được giao",
@@ -3103,16 +3195,17 @@
 			"required": "Bắt buộc",
 			"enterKey": "Enter",
 			"toSave": "để lưu",
-			"today": "Hôm nay",
 			"clear": "Xóa",
 			"setValue": "Đặt {{field}}…",
 			"noMatches": "Không có tùy chọn phù hợp",
 			"missingRequired_other": "{{count}} trường bắt buộc còn trống",
 			"saveError": "Không thể lưu {{field}}",
-			"moreFields_other": "Thêm {{count}} trường"
+			"moreFields_other": "Thêm {{count}} trường",
+			"manage": "Quản lý trường"
 		},
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Nhấn Space để xem trước và Enter để mở công việc này. Dùng Alt hoặc Option với phím mũi tên để di chuyển."
 		},
 		"recurrence": {
 			"daily_other": "Mỗi {{count}} ngày",
@@ -3145,6 +3238,33 @@
 			"addFilter": "Thêm bộ lọc…",
 			"searchSubject": "{{name}}…",
 			"noResults": "Không có kết quả"
+		},
+		"shortcuts": {
+			"assignedToMe": "Đã giao cho bạn",
+			"idCopied": "Đã sao chép ID công việc",
+			"titleCopied": "Đã sao chép tiêu đề công việc",
+			"markdownCopied": "Đã sao chép dưới dạng Markdown",
+			"copyFailed": "Không thể sao chép vào bộ nhớ tạm.",
+			"pageUrlCopied": "Đã sao chép URL trang"
+		},
+		"due": {
+			"overdueDays_other": "Quá hạn {{count}} ngày",
+			"overdueWeeks_other": "Quá hạn {{count}} tuần",
+			"today": "Hôm nay",
+			"tomorrow": "Ngày mai",
+			"inDays_other": "Còn {{count}} ngày",
+			"fullDate": "Hạn {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Đặt hạn chót…",
+			"startDatePlaceholder": "Đặt ngày bắt đầu…",
+			"datePlaceholder": "Đặt ngày…",
+			"thisWeekend": "Cuối tuần này",
+			"nextWeek": "Tuần sau",
+			"pickDate": "Chọn ngày",
+			"startsOn": "Bắt đầu {{date}}",
+			"beforeStart": "{{date}} trước ngày bắt đầu",
+			"afterDue": "{{date}} sau hạn chót"
 		}
 	},
 	"invitations": {

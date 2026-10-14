@@ -2441,37 +2441,122 @@
 		"projectSettings": {
 			"projectLabel": "Proje"
 		},
-		"keyboardShortcuts": {
-			"title": "Klavye Kısayolları",
-			"subtitle": "Klavye kısayollarıyla iş akışınızı hızlandırın",
-			"searchPlaceholder": "Kısayol ara...",
-			"footer": "Kapatmak için <kbd>Escape</kbd> tuşuna basın",
+		"shortcuts": {
 			"categories": {
 				"general": "Genel",
+				"navigation": "Gezinme",
 				"create": "Oluştur",
 				"views": "Görünümler",
-				"navigation": "Gezinme",
-				"quickSelect": "Hızlı Seçim (açılır pencerelerde)"
+				"tasks": "Talepler",
+				"list": "Pano ve liste",
+				"inbox": "Gelen kutusu",
+				"filters": "Filtreler",
+				"editor": "Düzenleyici"
 			},
 			"items": {
-				"openCommandPalette": "Komut paletini aç",
-				"globalSearch": "Genel arama",
+				"openCommandMenu": "Komut paletini aç",
+				"openSearch": "Genel arama",
+				"openShortcuts": "Klavye kısayollarını göster",
+				"submit": "Kaydet veya gönder",
+				"back": "Modal/açılır pencereyi kapat",
+				"switchWorkspace": "Çalışma alanını değiştir",
+				"logOut": "Çıkış yap",
+				"showDisplayOptions": "Görünüm seçenekleri",
+				"dismissToasts": "Tüm bildirimleri kapat",
 				"toggleSidebar": "Kenar çubuğunu aç/kapat",
-				"showShortcuts": "Klavye kısayollarını göster",
-				"closeModal": "Modal/açılır pencereyi kapat",
+				"goToHome": "Ana sayfaya git",
+				"goToInbox": "Gelen kutusuna git",
+				"goToMyTasks": "Taleplerime git",
+				"goToProjects": "Projelere git",
+				"goToSettings": "Ayarlara git",
+				"goToTasks": "Taleplere git",
+				"goToBacklog": "Backlog'a git",
+				"goToProject": "1–9 numaralı projeye git",
+				"openTask": "Talebi aç",
+				"openProject": "Projeyi aç",
 				"createTask": "Talep oluştur",
 				"createProject": "Proje oluştur",
-				"createWorkspace": "Çalışma alanı oluştur",
-				"boardView": "Pano görünümüne geç",
-				"listView": "Liste görünümüne geç",
-				"backlogView": "Backlog görünümüne geç",
-				"nextTask": "Sonraki talep",
-				"prevTask": "Önceki talep",
-				"openTask": "Seçili talebi aç",
-				"quickSelectNumber": "Numarayla seçenek seç",
-				"calendarView": "Takvim görünümüne geç",
-				"ganttView": "Gantt görünümüne geç"
-			}
+				"toggleLayout": "Pano ve liste arasında geçiş yap",
+				"deleteTask": "Talebi Sil",
+				"copyTaskUrl": "Talep bağlantısını kopyala",
+				"copyBranchName": "Talep dalını kopyala",
+				"nextTask": "Sonraki öğe",
+				"previousTask": "Önceki öğe",
+				"openFocusedTask": "Odaktaki öğeyi aç",
+				"selectAll": "Tümünü seç",
+				"clearSelection": "Seçimi temizle",
+				"changeStatus": "Durumu değiştir",
+				"changePriority": "Önceliği değiştir",
+				"assignTask": "Ata",
+				"assignToMe": "Bana ata",
+				"changeLabels": "Etiketleri değiştir",
+				"setDueDate": "Bitiş tarihi belirle",
+				"removeDueDate": "Bitiş tarihini kaldır",
+				"renameTask": "Yeniden adlandır",
+				"editDescription": "Açıklamayı düzenle",
+				"commentOnTask": "Yorum yap",
+				"moveToProject": "Başka projeye taşı",
+				"createSubtask": "Alt talep oluştur",
+				"setParent": "Üst talebi belirle",
+				"openParent": "Üst talebi aç",
+				"openSubtask": "Alt talebi aç",
+				"markBlockedBy": "Engellenen olarak işaretle",
+				"markBlocking": "Engelleyen olarak işaretle",
+				"markRelated": "İlişkili olarak işaretle",
+				"addLink": "Bağlantı ekle",
+				"toggleResources": "Kaynakları göster veya gizle",
+				"copyTaskId": "Talep kimliğini kopyala",
+				"copyTaskTitle": "Talep başlığını kopyala",
+				"copyAsMarkdown": "Markdown olarak kopyala",
+				"peekTask": "Odaktaki talebi önizle",
+				"selectTask": "Talebi seç",
+				"selectGroup": "Gruptakilerin tümünü seç",
+				"copyPageUrl": "Sayfa URL'sini kopyala",
+				"focusRight": "Sonraki sütun",
+				"focusLeft": "Önceki sütun",
+				"moveTaskTop": "Grubun en üstüne taşı",
+				"moveTaskUp": "Bir konum yukarı taşı",
+				"moveTaskDown": "Bir konum aşağı taşı",
+				"moveTaskBottom": "Grubun en altına taşı",
+				"moveTaskLeft": "Önceki sütuna taşı",
+				"moveTaskRight": "Sonraki sütuna taşı",
+				"toggleGroup": "Grubu daralt veya genişlet",
+				"toggleAllGroups": "Tüm grupları daralt veya genişlet",
+				"deleteNotification": "Bildirimi sil",
+				"deleteReadNotifications": "Okunmuş tüm bildirimleri sil",
+				"toggleNotificationRead": "Okundu veya okunmadı olarak işaretle",
+				"markAllNotificationsRead": "Tümünü okundu olarak işaretle",
+				"addFilter": "Filtre ekle",
+				"clearAllFilters": "Tüm filtreleri temizle",
+				"clearLastFilter": "Son filtreyi temizle",
+				"editorBold": "Kalın",
+				"editorItalic": "İtalik",
+				"editorUnderline": "Altı çizili",
+				"editorStrike": "Üstü çizili",
+				"editorAttach": "Görsel veya dosya ekle",
+				"editorInlineCode": "Satır içi kod",
+				"editorLink": "Metni bağlantıya dönüştür",
+				"editorQuote": "Alıntı",
+				"editorParagraph": "Normal metin",
+				"editorHeading1": "Başlık 1",
+				"editorHeading2": "Başlık 2",
+				"editorHeading3": "Başlık 3",
+				"editorChecklist": "Kontrol listesi",
+				"editorToggleChecklist": "Kontrol öğesini değiştir",
+				"editorBulletList": "Madde işaretli liste",
+				"editorNumberedList": "Numaralı liste",
+				"editorCodeBlock": "Kod bloğu",
+				"editorUndo": "Geri al",
+				"editorRedo": "Yinele"
+			},
+			"title": "Klavye Kısayolları",
+			"searchPlaceholder": "Eylem veya tuşa göre ara",
+			"results_one": "{{count}} sonuç",
+			"results_other": "{{count}} sonuç",
+			"noResults": "Eşleşen kısayol yok",
+			"then": "sonra",
+			"or": "veya",
+			"thenEllipsis": "sonra…"
 		}
 	},
 	"notifications": {
@@ -2547,7 +2632,9 @@
 			"today": "Today",
 			"unread": "Unread",
 			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "Gelen kutun güncellenemedi. Tekrar dene.",
+			"readCleared": "Okunmuş bildirimler silindi"
 		}
 	},
 	"activity": {
@@ -2835,7 +2922,9 @@
 				"blocks": "engeller",
 				"blocked_by": "engellenen",
 				"related": "ilişkilidir"
-			}
+			},
+			"blockedBy": "Engelleyen",
+			"parentPlaceholder": "Üst talebi belirle…"
 		},
 		"subtasks": {
 			"title": "Alt talepler",
@@ -2855,13 +2944,16 @@
 		"properties": {
 			"title": "Özellikler",
 			"labels": "Etiketler",
+			"addLabels": "Etiket ekle",
 			"copyTaskLink": "Talep bağlantısını kopyala",
 			"copyTaskBranch": "Talep dalını kopyala",
 			"taskLinkCopied": "Görev bağlantısı kopyalandı",
 			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlangıç tarihi",
-			"noDate": "Tarih yok"
+			"noDate": "Tarih yok",
+			"dates": "Tarihler",
+			"project": "Proje"
 		},
 		"move": {
 			"title": "Talebi taşı",
@@ -3050,7 +3142,8 @@
 			"open": "Açık",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Kapalı"
 		},
 		"assignee": {
 			"label": "Atanan",
@@ -3156,7 +3249,6 @@
 			"required": "Zorunlu",
 			"enterKey": "Enter",
 			"toSave": "kaydetmek için",
-			"today": "Bugün",
 			"clear": "Temizle",
 			"setValue": "{{field}} ayarla…",
 			"noMatches": "Eşleşen seçenek yok",
@@ -3164,10 +3256,12 @@
 			"missingRequired_other": "{{count}} zorunlu alan boş",
 			"saveError": "{{field}} kaydedilemedi",
 			"moreFields_one": "{{count}} alan daha",
-			"moreFields_other": "{{count}} alan daha"
+			"moreFields_other": "{{count}} alan daha",
+			"manage": "Alanları yönet"
 		},
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Önizleme için Boşluk, bu talebi açmak için Enter tuşuna basın. Taşımak için Alt veya Option ile ok tuşlarını kullanın."
 		},
 		"recurrence": {
 			"daily_one": "Her gün",
@@ -3206,6 +3300,36 @@
 			"addFilter": "Filtre ekle…",
 			"searchSubject": "{{name}}…",
 			"noResults": "Sonuç yok"
+		},
+		"shortcuts": {
+			"assignedToMe": "Size atandı",
+			"idCopied": "Talep kimliği kopyalandı",
+			"titleCopied": "Talep başlığı kopyalandı",
+			"markdownCopied": "Markdown olarak kopyalandı",
+			"copyFailed": "Panoya kopyalanamadı.",
+			"pageUrlCopied": "Sayfa URL'si kopyalandı"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} g gecikti",
+			"overdueDays_other": "{{count}} g gecikti",
+			"overdueWeeks_one": "{{count}} hf gecikti",
+			"overdueWeeks_other": "{{count}} hf gecikti",
+			"today": "Bugün",
+			"tomorrow": "Yarın",
+			"inDays_one": "{{count}} gün içinde",
+			"inDays_other": "{{count}} gün içinde",
+			"fullDate": "Son tarih {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Bitiş tarihi belirle…",
+			"startDatePlaceholder": "Başlangıç tarihi belirle…",
+			"datePlaceholder": "Tarih belirle…",
+			"thisWeekend": "Bu hafta sonu",
+			"nextWeek": "Gelecek hafta",
+			"pickDate": "Tarih seç",
+			"startsOn": "Başlangıç: {{date}}",
+			"beforeStart": "{{date}} başlangıç tarihinden önce",
+			"afterDue": "{{date}} bitiş tarihinden sonra"
 		}
 	},
 	"invitations": {

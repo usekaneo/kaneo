@@ -1,8 +1,8 @@
-import { Repeat, X } from "lucide-react";
+import { Repeat } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { DatePickerMenu } from "@/components/common/date-picker/date-picker-menu";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/cn";
 import { defaultRecurrence } from "@/lib/default-recurrence";
 import { upcomingOccurrences } from "@/lib/next-occurrence-date";
@@ -10,22 +10,24 @@ import type { TaskRecurrence } from "@/types/task/recurrence";
 import TaskRecurrenceSettings from "./task-recurrence-settings";
 
 type TaskDueDatePickerProps = {
-  dueDate: Date | undefined;
+  label: string;
+  clearLabel: string;
+  dueDate: Date | null;
   startDate?: Date;
   recurrence: TaskRecurrence | null;
-  onDateChange: (date: Date | undefined) => void;
+  onDateChange: (date: Date | null) => void;
   onRecurrenceChange: (recurrence: TaskRecurrence | null) => void;
-  onClear: () => void;
 };
 
 // Shared by an existing task's due date popover and the create task modal.
 export default function TaskDueDatePicker({
+  label,
+  clearLabel,
   dueDate,
   startDate,
   recurrence,
   onDateChange,
   onRecurrenceChange,
-  onClear,
 }: TaskDueDatePickerProps) {
   const { t } = useTranslation();
   const upcoming = useMemo(
@@ -36,18 +38,15 @@ export default function TaskDueDatePicker({
 
   return (
     <>
-      <Calendar
-        mode="single"
-        selected={dueDate}
-        defaultMonth={dueDate}
-        onSelect={onDateChange}
-        disabled={startDate ? { before: startDate } : undefined}
-        modifiers={{ repeats: upcoming }}
-        modifiersClassNames={{
-          repeats:
-            "[&>button]:bg-primary/12 [&>button]:font-medium [&>button]:text-primary",
-        }}
-        className="w-full bg-popover"
+      <DatePickerMenu
+        label={label}
+        placeholder={t("tasks:datePicker.dueDatePlaceholder")}
+        clearLabel={clearLabel}
+        value={dueDate}
+        onChange={onDateChange}
+        bounds={startDate ? { before: startDate } : undefined}
+        formatLimit={(date) => t("tasks:datePicker.startsOn", { date })}
+        highlighted={upcoming}
       />
       {recurrence && (
         <TaskRecurrenceSettings
@@ -56,7 +55,7 @@ export default function TaskDueDatePicker({
           onChange={onRecurrenceChange}
         />
       )}
-      <div className="flex items-center justify-between border-t border-border p-1.5">
+      <div className="border-t border-border p-1.5">
         <Button
           type="button"
           variant="ghost"
@@ -73,18 +72,6 @@ export default function TaskDueDatePicker({
           <Repeat className="h-4 w-4" />
           {t("tasks:popover.recurrence.toggle")}
         </Button>
-        {dueDate && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground"
-            onClick={onClear}
-          >
-            <X className="h-4 w-4" />
-            {t("tasks:popover.dueDate.clear")}
-          </Button>
-        )}
       </div>
     </>
   );

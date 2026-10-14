@@ -43,6 +43,12 @@ describe("CardFieldList", () => {
     expect(screen.queryByRole("button")).toBeNull();
   });
 
+  it("names each value", () => {
+    render(<CardFieldList fields={fields.slice(0, 1)} max={3} />);
+    expect(screen.getByText("Story points")).toBeInTheDocument();
+    expect(screen.getByText("5")).toBeInTheDocument();
+  });
+
   it("renders nothing without fields", () => {
     const { container } = render(<CardFieldList fields={[]} max={2} />);
     expect(container).toBeEmptyDOMElement();

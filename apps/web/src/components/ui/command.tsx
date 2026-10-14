@@ -230,7 +230,7 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<"kbd">) {
   return (
     <kbd
       className={cn(
-        "ms-auto font-medium font-sans text-muted-foreground/72 text-xs tracking-widest",
+        "ms-auto inline-flex shrink-0 items-center gap-1 font-medium font-sans text-muted-foreground/72 text-xs",
         className,
       )}
       data-slot="command-shortcut"

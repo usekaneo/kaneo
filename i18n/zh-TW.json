@@ -2399,37 +2399,121 @@
 		"projectSettings": {
 			"projectLabel": "專案"
 		},
-		"keyboardShortcuts": {
-			"title": "鍵盤快速鍵",
-			"subtitle": "用鍵盤快速鍵加快你的工作流程",
-			"searchPlaceholder": "搜尋快速鍵...",
-			"footer": "按 <kbd>Escape</kbd> 關閉",
+		"shortcuts": {
 			"categories": {
 				"general": "一般",
+				"navigation": "導覽",
 				"create": "建立",
 				"views": "檢視",
-				"navigation": "導覽",
-				"quickSelect": "快速選取（在彈出選單中）"
+				"tasks": "任務",
+				"list": "看板與清單",
+				"inbox": "收件匣",
+				"filters": "篩選",
+				"editor": "編輯器"
 			},
 			"items": {
-				"openCommandPalette": "開啟指令面板",
-				"globalSearch": "全域搜尋",
+				"openCommandMenu": "開啟指令面板",
+				"openSearch": "全域搜尋",
+				"openShortcuts": "顯示鍵盤快速鍵",
+				"submit": "儲存或送出",
+				"back": "關閉對話框／彈出選單",
+				"switchWorkspace": "切換工作區",
+				"logOut": "登出",
+				"showDisplayOptions": "顯示選項",
+				"dismissToasts": "關閉所有通知",
 				"toggleSidebar": "切換側邊欄",
-				"showShortcuts": "顯示鍵盤快速鍵",
-				"closeModal": "關閉對話框／彈出選單",
+				"goToHome": "前往首頁",
+				"goToInbox": "前往收件匣",
+				"goToMyTasks": "前往我的任務",
+				"goToProjects": "前往專案",
+				"goToSettings": "前往設定",
+				"goToTasks": "前往任務",
+				"goToBacklog": "前往待辦",
+				"goToProject": "前往專案 1–9",
+				"openTask": "開啟任務",
+				"openProject": "開啟專案",
 				"createTask": "建立任務",
 				"createProject": "建立專案",
-				"createWorkspace": "建立工作區",
-				"boardView": "切換到看板檢視",
-				"listView": "切換到清單檢視",
-				"backlogView": "切換到待辦事項檢視",
-				"calendarView": "切換到行事曆檢視",
-				"nextTask": "下一個任務",
-				"prevTask": "上一個任務",
-				"openTask": "開啟選取的任務",
-				"quickSelectNumber": "依數字選取選項",
-				"ganttView": "切換到甘特圖檢視"
-			}
+				"toggleLayout": "在看板與清單之間切換",
+				"deleteTask": "刪除任務",
+				"copyTaskUrl": "複製任務連結",
+				"copyBranchName": "複製任務分支",
+				"nextTask": "下一個項目",
+				"previousTask": "上一個項目",
+				"openFocusedTask": "開啟目前項目",
+				"selectAll": "全選",
+				"clearSelection": "清除選取",
+				"changeStatus": "變更狀態",
+				"changePriority": "變更優先順序",
+				"assignTask": "指派",
+				"assignToMe": "指派給我",
+				"changeLabels": "變更標籤",
+				"setDueDate": "設定截止日期",
+				"removeDueDate": "移除截止日期",
+				"renameTask": "重新命名",
+				"editDescription": "編輯描述",
+				"commentOnTask": "留言",
+				"moveToProject": "移至其他專案",
+				"createSubtask": "建立子任務",
+				"setParent": "設定父任務",
+				"openParent": "開啟父任務",
+				"openSubtask": "開啟子任務",
+				"markBlockedBy": "標記為被封鎖",
+				"markBlocking": "標記為封鎖中",
+				"markRelated": "標記為相關",
+				"addLink": "新增連結",
+				"toggleResources": "顯示或隱藏資源",
+				"copyTaskId": "複製任務 ID",
+				"copyTaskTitle": "複製任務標題",
+				"copyAsMarkdown": "複製為 Markdown",
+				"peekTask": "預覽目前任務",
+				"selectTask": "選取任務",
+				"selectGroup": "選取群組內全部",
+				"copyPageUrl": "複製頁面 URL",
+				"focusRight": "下一欄",
+				"focusLeft": "上一欄",
+				"moveTaskTop": "移到群組頂端",
+				"moveTaskUp": "上移一位",
+				"moveTaskDown": "下移一位",
+				"moveTaskBottom": "移到群組底端",
+				"moveTaskLeft": "移到上一欄",
+				"moveTaskRight": "移到下一欄",
+				"toggleGroup": "摺疊或展開群組",
+				"toggleAllGroups": "摺疊或展開所有群組",
+				"deleteNotification": "刪除通知",
+				"deleteReadNotifications": "刪除所有已讀通知",
+				"toggleNotificationRead": "標記為已讀或未讀",
+				"markAllNotificationsRead": "全部標記為已讀",
+				"addFilter": "新增篩選",
+				"clearAllFilters": "清除所有篩選",
+				"clearLastFilter": "清除最後一個篩選",
+				"editorBold": "粗體",
+				"editorItalic": "斜體",
+				"editorUnderline": "底線",
+				"editorStrike": "刪除線",
+				"editorAttach": "附加圖片或檔案",
+				"editorInlineCode": "行內程式碼",
+				"editorLink": "將文字轉為連結",
+				"editorQuote": "引言",
+				"editorParagraph": "內文",
+				"editorHeading1": "標題 1",
+				"editorHeading2": "標題 2",
+				"editorHeading3": "標題 3",
+				"editorChecklist": "待辦清單",
+				"editorToggleChecklist": "切換清單項目",
+				"editorBulletList": "項目符號清單",
+				"editorNumberedList": "編號清單",
+				"editorCodeBlock": "程式碼區塊",
+				"editorUndo": "復原",
+				"editorRedo": "重做"
+			},
+			"title": "鍵盤快速鍵",
+			"searchPlaceholder": "依動作或按鍵搜尋",
+			"results_other": "{{count}} 個結果",
+			"noResults": "沒有符合的快捷鍵",
+			"then": "然後",
+			"or": "或",
+			"thenEllipsis": "然後…"
 		}
 	},
 	"notifications": {
@@ -2501,7 +2585,9 @@
 			"openTask": "開啟任務",
 			"recentActivity": "最近動態",
 			"taskUnavailable": "這個任務已無法存取。",
-			"taskLoadError": "無法載入這個任務。"
+			"taskLoadError": "無法載入這個任務。",
+			"actionError": "無法更新收件匣，請再試一次。",
+			"readCleared": "已刪除已讀通知"
 		}
 	},
 	"activity": {
@@ -2789,7 +2875,9 @@
 				"blocks": "阻擋",
 				"blocked_by": "被阻擋",
 				"related": "相關於"
-			}
+			},
+			"blockedBy": "被封鎖於",
+			"parentPlaceholder": "設定父任務…"
 		},
 		"subtasks": {
 			"title": "子任務",
@@ -2809,13 +2897,16 @@
 		"properties": {
 			"title": "屬性",
 			"labels": "標籤",
+			"addLabels": "新增標籤",
 			"copyTaskLink": "複製任務連結",
 			"copyTaskBranch": "複製任務分支",
 			"taskLinkCopied": "已複製任務連結",
 			"taskBranchCopied": "已複製分支名稱",
 			"start": "開始",
 			"startDate": "開始日期",
-			"noDate": "無日期"
+			"noDate": "無日期",
+			"dates": "日期",
+			"project": "專案"
 		},
 		"move": {
 			"title": "移動任務",
@@ -3012,7 +3103,8 @@
 			"draft": "草稿",
 			"open": "開啟中",
 			"label": "Pull Request",
-			"count_other": "{{count}} 個 PR"
+			"count_other": "{{count}} 個 PR",
+			"closed": "已關閉"
 		},
 		"assignee": {
 			"label": "負責人",
@@ -3103,16 +3195,17 @@
 			"required": "必填",
 			"enterKey": "Enter",
 			"toSave": "儲存",
-			"today": "今天",
 			"clear": "清除",
 			"setValue": "設定{{field}}…",
 			"noMatches": "沒有符合的選項",
 			"missingRequired_other": "有 {{count}} 個必填欄位是空的",
 			"saveError": "無法儲存{{field}}",
-			"moreFields_other": "另外 {{count}} 個欄位"
+			"moreFields_other": "另外 {{count}} 個欄位",
+			"manage": "管理欄位"
 		},
 		"board": {
-			"reorderFailed": "無法移動任務，請再試一次。"
+			"reorderFailed": "無法移動任務，請再試一次。",
+			"keyboardInstructions": "按空白鍵預覽，按 Enter 開啟此任務。按住 Alt 或 Option 並使用方向鍵移動任務。"
 		},
 		"recurrence": {
 			"daily_other": "每 {{count}} 天",
@@ -3145,6 +3238,33 @@
 			"addFilter": "新增篩選…",
 			"searchSubject": "{{name}}…",
 			"noResults": "沒有結果"
+		},
+		"shortcuts": {
+			"assignedToMe": "已指派給你",
+			"idCopied": "已複製任務 ID",
+			"titleCopied": "已複製任務標題",
+			"markdownCopied": "已複製為 Markdown",
+			"copyFailed": "無法複製到剪貼簿。",
+			"pageUrlCopied": "已複製頁面 URL"
+		},
+		"due": {
+			"overdueDays_other": "逾期 {{count}} 天",
+			"overdueWeeks_other": "逾期 {{count}} 週",
+			"today": "今天",
+			"tomorrow": "明天",
+			"inDays_other": "{{count}} 天後",
+			"fullDate": "截止 {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "設定截止日期…",
+			"startDatePlaceholder": "設定開始日期…",
+			"datePlaceholder": "設定日期…",
+			"thisWeekend": "本週末",
+			"nextWeek": "下週",
+			"pickDate": "選擇日期",
+			"startsOn": "開始於 {{date}}",
+			"beforeStart": "{{date}} 早於開始日期",
+			"afterDue": "{{date}} 晚於截止日期"
 		}
 	},
 	"invitations": {

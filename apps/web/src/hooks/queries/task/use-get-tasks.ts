@@ -3,7 +3,10 @@ import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import getTasks from "@/fetchers/task/get-tasks";
 
-export function useGetTasks(projectId: string) {
+export function useGetTasks(
+  projectId: string,
+  { refetchOnMount = true }: { refetchOnMount?: boolean } = {},
+) {
   const queryClient = useQueryClient();
   const [progress, setProgress] =
     useState<Awaited<ReturnType<typeof getTasks>>>();
@@ -60,7 +63,7 @@ export function useGetTasks(projectId: string) {
         setProgress(undefined);
       }
     },
-    refetchOnMount: true,
+    refetchOnMount,
     refetchOnWindowFocus: true,
     enabled: !!projectId,
   });

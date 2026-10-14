@@ -1,3 +1,4 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,7 +15,6 @@ import {
 import { useGoToProjectView } from "@/components/project/views/use-go-to-project-view";
 import { useProjectViewShortcuts } from "@/components/project/views/use-project-view-shortcuts";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
-import { KbdSequence } from "@/components/ui/kbd";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -22,7 +22,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 import { cn } from "@/lib/cn";
@@ -84,7 +83,7 @@ export default function ProjectLayout({
     projectId,
     currentRoute: resolvedRoute,
   });
-  useProjectViewShortcuts(goToView, showViews);
+  useProjectViewShortcuts(goToView, currentView, showViews);
 
   const handleProjectSwitch = (nextProjectId: string) => {
     navigate({
@@ -112,9 +111,7 @@ export default function ProjectLayout({
               <TooltipContent>
                 <p className="flex items-center gap-2 text-[10px]">
                   {t("navigation:settingsLayout.toggleSidebar")}
-                  <KbdSequence
-                    keys={[shortcuts.sidebar.prefix, shortcuts.sidebar.toggle]}
-                  />
+                  <ShortcutKeys id="toggleSidebar" />
                 </p>
               </TooltipContent>
             </Tooltip>

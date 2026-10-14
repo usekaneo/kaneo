@@ -1,3 +1,4 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import {
   richTextCommands,
   type SlashCommand,
@@ -462,6 +463,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     );
   }, []);
 
+  const linkShortcutRef = useRef(() => {});
+  const attachShortcutRef = useRef(() => {});
   const editor = useEditor(
     {
       immediatelyRender: false,
@@ -587,12 +590,20 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           return true;
         },
         handleKeyDown: (view, event) => {
-          if (
-            !(
-              (event.metaKey || event.ctrlKey) &&
-              event.key.toLowerCase() === "a"
-            )
-          ) {
+          const mod = event.metaKey || event.ctrlKey;
+          const key = event.key.toLowerCase();
+          if (mod && !event.altKey && key === "k") {
+            if (event.shiftKey || view.state.selection.empty) return false;
+            event.preventDefault();
+            linkShortcutRef.current();
+            return true;
+          }
+          if (mod && event.shiftKey && !event.altKey && key === "u") {
+            event.preventDefault();
+            attachShortcutRef.current();
+            return true;
+          }
+          if (!(mod && key === "a")) {
             return false;
           }
 
@@ -704,6 +715,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     if (!canEditRef.current || !editor) return;
     setIsEditingLink(true);
   }, [editor]);
+  linkShortcutRef.current = setLink;
+  attachShortcutRef.current = () => openImagePicker(editor);
 
   const bubbleAnchor = useCallback(
     () => (editor ? selectionStartAnchor(editor) : null),
@@ -979,6 +992,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       const commands = filteredSlashCommandsRef.current;
       if (event.key === "Escape") {
         event.preventDefault();
+        event.stopPropagation();
         setSlashMenu(null);
         return;
       }
@@ -1166,6 +1180,24 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, [hoveredCodeBlock, updateHoveredCodeBlockFromElement]);
 
+  useEffect(() => {
+    if (!editor || !hoveredCodeBlock) return;
+    const syncAfterEdit = () => {
+      const element = hoveredCodeBlockElementRef.current;
+      if (element?.isConnected) {
+        updateHoveredCodeBlockFromElement(element);
+        return;
+      }
+      hoveredCodeBlockElementRef.current = null;
+      setHoveredCodeBlock(null);
+      setIsCodeLanguageMenuOpen(false);
+    };
+    editor.on("update", syncAfterEdit);
+    return () => {
+      editor.off("update", syncAfterEdit);
+    };
+  }, [editor, hoveredCodeBlock, updateHoveredCodeBlockFromElement]);
+
   const handleEditorMouseMove = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
       const target = event.target as HTMLElement;
@@ -1201,9 +1233,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   return (
     <section
       ref={editorShellRef}
+      data-task-action="description"
       aria-label={t("tasks:detail.editor.ariaLabel")}
       className={cn(
-        "kaneo-tiptap-shell group",
+        "kaneo-tiptap-shell group relative",
         isDragActive && "is-drag-active",
       )}
       onDragEnter={handleShellDragEnter}
@@ -1215,7 +1248,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center gap-2 text-xs text-muted-foreground"
+          className={cn(
+            "absolute right-0 -top-6 flex h-6 items-center gap-2 text-muted-foreground text-xs",
+            saveState === "saved" && "sr-only",
+          )}
         >
           {saveState === "failed"
             ? t("tasks:detail.editor.saveFailed")
@@ -1606,9 +1642,12 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                         <span className="kaneo-tiptap-slash-label">
                           {command.label}
                         </span>
-                        {command.shortcut && (
+                        {command.shortcutId && (
                           <span className="kaneo-tiptap-slash-shortcut">
-                            {command.shortcut}
+                            <ShortcutKeys
+                              id={command.shortcutId}
+                              tone="muted"
+                            />
                           </span>
                         )}
                       </button>

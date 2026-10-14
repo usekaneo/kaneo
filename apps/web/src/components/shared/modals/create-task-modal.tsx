@@ -41,8 +41,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { DatePickerMenu } from "@/components/common/date-picker/date-picker-menu";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -220,6 +220,8 @@ function CreateTaskModalContent({
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [dueDateOpen, setDueDateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
@@ -891,7 +893,7 @@ function CreateTaskModalContent({
                 {statusLabel}
               </div>
 
-              <Popover>
+              <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -910,26 +912,19 @@ function CreateTaskModalContent({
                     </span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    className="w-full bg-popover"
+                <PopoverContent className="w-65 p-0" align="start">
+                  <DatePickerMenu
+                    label={t("common:modals.createTask.startDate")}
+                    placeholder={t("tasks:datePicker.startDatePlaceholder")}
+                    clearLabel={t("common:modals.createTask.clearStartDate")}
+                    value={startDate ?? null}
+                    onChange={(date) => {
+                      setStartDate(date ?? undefined);
+                      setStartDateOpen(false);
+                    }}
+                    bounds={dueDate ? { after: dueDate } : undefined}
+                    formatLimit={(date) => t("tasks:due.fullDate", { date })}
                   />
-                  {startDate && (
-                    <div className="p-2 border-t border-border">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs"
-                        onClick={() => setStartDate(undefined)}
-                      >
-                        {t("common:modals.createTask.clearStartDate")}
-                      </Button>
-                    </div>
-                  )}
                 </PopoverContent>
               </Popover>
 
@@ -1052,7 +1047,7 @@ function CreateTaskModalContent({
                 </PopoverContent>
               </Popover>
 
-              <Popover>
+              <Popover open={dueDateOpen} onOpenChange={setDueDateOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -1072,14 +1067,19 @@ function CreateTaskModalContent({
                     <TaskRecurrenceBadge task={{ recurrence }} asText />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-72 p-0" align="start">
+                <PopoverContent className="w-65 p-0" align="start">
                   <TaskDueDatePicker
-                    dueDate={dueDate}
+                    label={t("common:modals.createTask.dueDate")}
+                    clearLabel={t("common:modals.createTask.clearDueDate")}
+                    dueDate={dueDate ?? null}
                     startDate={startDate}
                     recurrence={recurrence}
-                    onDateChange={setDueDate}
+                    onDateChange={(date) => {
+                      setDueDate(date ?? undefined);
+                      // Keep a repeating task's picker open to show its upcoming dates.
+                      if (!recurrence || !date) setDueDateOpen(false);
+                    }}
                     onRecurrenceChange={setRecurrence}
-                    onClear={() => setDueDate(undefined)}
                   />
                 </PopoverContent>
               </Popover>

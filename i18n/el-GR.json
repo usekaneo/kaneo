@@ -2441,37 +2441,122 @@
 		"projectSettings": {
 			"projectLabel": "Έργο"
 		},
-		"keyboardShortcuts": {
-			"title": "Συντομεύσεις πληκτρολογίου",
-			"subtitle": "Επιταχύνετε τη ροή εργασίας σας με συντομεύσεις πληκτρολογίου",
-			"searchPlaceholder": "Αναζήτηση συντομεύσεων...",
-			"footer": "Πατήστε <kbd>Escape</kbd> για κλείσιμο",
+		"shortcuts": {
 			"categories": {
 				"general": "Γενικά",
+				"navigation": "Πλοήγηση",
 				"create": "Δημιουργία",
 				"views": "Προβολές",
-				"navigation": "Πλοήγηση",
-				"quickSelect": "Γρήγορη επιλογή (σε αναδυόμενα)"
+				"tasks": "Εργασίες",
+				"list": "Πίνακας και λίστα",
+				"inbox": "Εισερχόμενα",
+				"filters": "Φίλτρα",
+				"editor": "Επεξεργαστής"
 			},
 			"items": {
-				"openCommandPalette": "Άνοιγμα παλέτας εντολών",
-				"globalSearch": "Καθολική αναζήτηση",
+				"openCommandMenu": "Άνοιγμα παλέτας εντολών",
+				"openSearch": "Καθολική αναζήτηση",
+				"openShortcuts": "Εμφάνιση συντομεύσεων πληκτρολογίου",
+				"submit": "Αποθήκευση ή υποβολή",
+				"back": "Κλείσιμο modal/popover",
+				"switchWorkspace": "Αλλαγή χώρου εργασίας",
+				"logOut": "Αποσύνδεση",
+				"showDisplayOptions": "Επιλογές προβολής",
+				"dismissToasts": "Κλείσιμο όλων των ειδοποιήσεων",
 				"toggleSidebar": "Εναλλαγή πλαϊνής μπάρας",
-				"showShortcuts": "Εμφάνιση συντομεύσεων πληκτρολογίου",
-				"closeModal": "Κλείσιμο modal/popover",
+				"goToHome": "Μετάβαση στην αρχική",
+				"goToInbox": "Μετάβαση στα εισερχόμενα",
+				"goToMyTasks": "Μετάβαση στις εργασίες μου",
+				"goToProjects": "Μετάβαση στα έργα",
+				"goToSettings": "Μετάβαση στις ρυθμίσεις",
+				"goToTasks": "Μετάβαση στις εργασίες",
+				"goToBacklog": "Μετάβαση στο Backlog",
+				"goToProject": "Μετάβαση στο έργο 1–9",
+				"openTask": "Άνοιγμα εργασίας",
+				"openProject": "Άνοιγμα έργου",
 				"createTask": "Δημιουργία εργασίας",
 				"createProject": "Δημιουργία έργου",
-				"createWorkspace": "Δημιουργία χώρου εργασίας",
-				"boardView": "Μετάβαση σε προβολή πίνακα",
-				"listView": "Μετάβαση σε προβολή λίστας",
-				"backlogView": "Μετάβαση σε προβολή backlog",
-				"nextTask": "Επόμενη εργασία",
-				"prevTask": "Προηγούμενη εργασία",
-				"openTask": "Άνοιγμα επιλεγμένης εργασίας",
-				"quickSelectNumber": "Επιλογή επιλογής με αριθμό",
-				"calendarView": "Μετάβαση σε προβολή ημερολογίου",
-				"ganttView": "Μετάβαση σε προβολή Gantt"
-			}
+				"toggleLayout": "Εναλλαγή πίνακα και λίστας",
+				"deleteTask": "Διαγραφή εργασίας",
+				"copyTaskUrl": "Αντιγραφή συνδέσμου εργασίας",
+				"copyBranchName": "Αντιγραφή κλάδου εργασίας",
+				"nextTask": "Επόμενο στοιχείο",
+				"previousTask": "Προηγούμενο στοιχείο",
+				"openFocusedTask": "Άνοιγμα επιλεγμένου στοιχείου",
+				"selectAll": "Επιλογή όλων",
+				"clearSelection": "Εκκαθάριση επιλογής",
+				"changeStatus": "Αλλαγή κατάστασης",
+				"changePriority": "Αλλαγή προτεραιότητας",
+				"assignTask": "Ανάθεση",
+				"assignToMe": "Ανάθεση σε εμένα",
+				"changeLabels": "Αλλαγή ετικετών",
+				"setDueDate": "Ορισμός προθεσμίας",
+				"removeDueDate": "Κατάργηση προθεσμίας",
+				"renameTask": "Μετονομασία",
+				"editDescription": "Επεξεργασία περιγραφής",
+				"commentOnTask": "Σχόλιο",
+				"moveToProject": "Μετακίνηση σε άλλο έργο",
+				"createSubtask": "Δημιουργία υποεργασίας",
+				"setParent": "Ορισμός γονικής εργασίας",
+				"openParent": "Άνοιγμα γονικής εργασίας",
+				"openSubtask": "Άνοιγμα υποεργασίας",
+				"markBlockedBy": "Σήμανση ως μπλοκαρισμένη από",
+				"markBlocking": "Σήμανση ως μπλοκάρουσα",
+				"markRelated": "Σήμανση ως σχετική",
+				"addLink": "Προσθήκη συνδέσμου",
+				"toggleResources": "Εμφάνιση ή απόκρυψη πόρων",
+				"copyTaskId": "Αντιγραφή ID εργασίας",
+				"copyTaskTitle": "Αντιγραφή τίτλου εργασίας",
+				"copyAsMarkdown": "Αντιγραφή ως Markdown",
+				"peekTask": "Προεπισκόπηση εργασίας σε εστίαση",
+				"selectTask": "Επιλογή εργασίας",
+				"selectGroup": "Επιλογή όλων στην ομάδα",
+				"copyPageUrl": "Αντιγραφή URL σελίδας",
+				"focusRight": "Επόμενη στήλη",
+				"focusLeft": "Προηγούμενη στήλη",
+				"moveTaskTop": "Μετακίνηση στην κορυφή της ομάδας",
+				"moveTaskUp": "Μετακίνηση μία θέση πάνω",
+				"moveTaskDown": "Μετακίνηση μία θέση κάτω",
+				"moveTaskBottom": "Μετακίνηση στο τέλος της ομάδας",
+				"moveTaskLeft": "Μετακίνηση στην προηγούμενη στήλη",
+				"moveTaskRight": "Μετακίνηση στην επόμενη στήλη",
+				"toggleGroup": "Σύμπτυξη ή ανάπτυξη ομάδας",
+				"toggleAllGroups": "Σύμπτυξη ή ανάπτυξη όλων των ομάδων",
+				"deleteNotification": "Διαγραφή ειδοποίησης",
+				"deleteReadNotifications": "Διαγραφή όλων των αναγνωσμένων ειδοποιήσεων",
+				"toggleNotificationRead": "Σήμανση ως αναγνωσμένη ή μη αναγνωσμένη",
+				"markAllNotificationsRead": "Σήμανση όλων ως αναγνωσμένων",
+				"addFilter": "Προσθήκη φίλτρου",
+				"clearAllFilters": "Απαλοιφή όλων των φίλτρων",
+				"clearLastFilter": "Απαλοιφή τελευταίου φίλτρου",
+				"editorBold": "Έντονα",
+				"editorItalic": "Πλάγια",
+				"editorUnderline": "Υπογράμμιση",
+				"editorStrike": "Διακριτή διαγραφή",
+				"editorAttach": "Επισύναψη εικόνας ή αρχείου",
+				"editorInlineCode": "Ενσωματωμένος κώδικας",
+				"editorLink": "Μετατροπή κειμένου σε σύνδεσμο",
+				"editorQuote": "Παράθεμα",
+				"editorParagraph": "Κανονικό κείμενο",
+				"editorHeading1": "Επικεφαλίδα 1",
+				"editorHeading2": "Επικεφαλίδα 2",
+				"editorHeading3": "Επικεφαλίδα 3",
+				"editorChecklist": "Λίστα ελέγχου",
+				"editorToggleChecklist": "Εναλλαγή στοιχείου λίστας ελέγχου",
+				"editorBulletList": "Λίστα με κουκκίδες",
+				"editorNumberedList": "Αριθμημένη λίστα",
+				"editorCodeBlock": "Μπλοκ κώδικα",
+				"editorUndo": "Αναίρεση",
+				"editorRedo": "Επανάληψη"
+			},
+			"title": "Συντομεύσεις πληκτρολογίου",
+			"searchPlaceholder": "Αναζήτηση με ενέργεια ή πλήκτρο",
+			"results_one": "{{count}} αποτέλεσμα",
+			"results_other": "{{count}} αποτελέσματα",
+			"noResults": "Δεν βρέθηκαν συντομεύσεις",
+			"then": "μετά",
+			"or": "ή",
+			"thenEllipsis": "μετά…"
 		}
 	},
 	"notifications": {
@@ -2547,7 +2632,9 @@
 			"today": "Today",
 			"unread": "Unread",
 			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "Δεν ήταν δυνατή η ενημέρωση των εισερχομένων. Δοκιμάστε ξανά.",
+			"readCleared": "Οι αναγνωσμένες ειδοποιήσεις διαγράφηκαν"
 		}
 	},
 	"activity": {
@@ -2835,7 +2922,9 @@
 				"blocks": "μπλοκάρει",
 				"related": "σχετίζεται με",
 				"blocked_by": "μπλοκάρεται από"
-			}
+			},
+			"blockedBy": "Μπλοκάρεται από",
+			"parentPlaceholder": "Ορισμός γονικής εργασίας…"
 		},
 		"subtasks": {
 			"title": "Υποεργασίες",
@@ -2855,13 +2944,16 @@
 		"properties": {
 			"title": "Ιδιότητες",
 			"labels": "Ετικέτες",
+			"addLabels": "Προσθήκη ετικετών",
 			"copyTaskLink": "Αντιγραφή συνδέσμου εργασίας",
 			"copyTaskBranch": "Αντιγραφή κλάδου εργασίας",
 			"taskLinkCopied": "Ο σύνδεσμος της εργασίας αντιγράφηκε",
 			"taskBranchCopied": "Το όνομα του branch αντιγράφηκε",
 			"start": "Έναρξη",
 			"startDate": "Ημερομηνία έναρξης",
-			"noDate": "Χωρίς ημερομηνία"
+			"noDate": "Χωρίς ημερομηνία",
+			"dates": "Ημερομηνίες",
+			"project": "Έργο"
 		},
 		"move": {
 			"title": "Μετακίνηση εργασίας",
@@ -3050,7 +3142,8 @@
 			"open": "Ανοιχτό",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PRs"
+			"count_other": "{{count}} PRs",
+			"closed": "Κλειστό"
 		},
 		"assignee": {
 			"label": "Ανατεθειμένος",
@@ -3156,7 +3249,6 @@
 			"required": "Υποχρεωτικό",
 			"enterKey": "Enter",
 			"toSave": "για αποθήκευση",
-			"today": "Σήμερα",
 			"clear": "Εκκαθάριση",
 			"setValue": "Ορισμός {{field}}…",
 			"noMatches": "Δεν βρέθηκαν επιλογές",
@@ -3164,10 +3256,12 @@
 			"missingRequired_other": "{{count}} υποχρεωτικά πεδία είναι κενά",
 			"saveError": "Δεν ήταν δυνατή η αποθήκευση του πεδίου {{field}}",
 			"moreFields_one": "{{count}} ακόμη πεδίο",
-			"moreFields_other": "{{count}} ακόμη πεδία"
+			"moreFields_other": "{{count}} ακόμη πεδία",
+			"manage": "Διαχείριση πεδίων"
 		},
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Πατήστε Space για προεπισκόπηση και Enter για να ανοίξετε αυτή την εργασία. Χρησιμοποιήστε Alt ή Option με τα βέλη για να τη μετακινήσετε."
 		},
 		"recurrence": {
 			"daily_one": "Κάθε ημέρα",
@@ -3206,6 +3300,36 @@
 			"addFilter": "Προσθήκη φίλτρου…",
 			"searchSubject": "{{name}}…",
 			"noResults": "Κανένα αποτέλεσμα"
+		},
+		"shortcuts": {
+			"assignedToMe": "Ανατέθηκε σε εσάς",
+			"idCopied": "Το ID της εργασίας αντιγράφηκε",
+			"titleCopied": "Ο τίτλος της εργασίας αντιγράφηκε",
+			"markdownCopied": "Αντιγράφηκε ως Markdown",
+			"copyFailed": "Δεν ήταν δυνατή η αντιγραφή στο πρόχειρο.",
+			"pageUrlCopied": "Το URL της σελίδας αντιγράφηκε"
+		},
+		"due": {
+			"overdueDays_one": "Καθυστέρηση {{count}} ημ.",
+			"overdueDays_other": "Καθυστέρηση {{count}} ημ.",
+			"overdueWeeks_one": "Καθυστέρηση {{count}} εβδ.",
+			"overdueWeeks_other": "Καθυστέρηση {{count}} εβδ.",
+			"today": "Σήμερα",
+			"tomorrow": "Αύριο",
+			"inDays_one": "Σε {{count}} ημέρα",
+			"inDays_other": "Σε {{count}} ημέρες",
+			"fullDate": "Λήξη {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Ορισμός προθεσμίας…",
+			"startDatePlaceholder": "Ορισμός ημερομηνίας έναρξης…",
+			"datePlaceholder": "Ορισμός ημερομηνίας…",
+			"thisWeekend": "Αυτό το Σαββατοκύριακο",
+			"nextWeek": "Την επόμενη εβδομάδα",
+			"pickDate": "Επιλογή ημερομηνίας",
+			"startsOn": "Ξεκινά {{date}}",
+			"beforeStart": "Η {{date}} είναι πριν από την ημερομηνία έναρξης",
+			"afterDue": "Η {{date}} είναι μετά την προθεσμία"
 		}
 	},
 	"invitations": {

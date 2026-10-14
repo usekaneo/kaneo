@@ -2483,37 +2483,123 @@
 		"projectSettings": {
 			"projectLabel": "Projet"
 		},
-		"keyboardShortcuts": {
-			"title": "Raccourcis clavier",
-			"subtitle": "Accélérez votre flux de travail avec les raccourcis clavier",
-			"searchPlaceholder": "Rechercher des raccourcis...",
-			"footer": "Appuyez sur <kbd>Echap</kbd> pour fermer",
+		"shortcuts": {
 			"categories": {
 				"general": "Général",
+				"navigation": "Navigation",
 				"create": "Créer",
 				"views": "Vues",
-				"navigation": "Navigation",
-				"quickSelect": "Sélection rapide (dans les popovers)"
+				"tasks": "Tâches",
+				"list": "Tableau et liste",
+				"inbox": "Boîte de réception",
+				"filters": "Filtres",
+				"editor": "Éditeur"
 			},
 			"items": {
-				"openCommandPalette": "Ouvrir la palette de commandes",
-				"globalSearch": "Recherche globale",
+				"openCommandMenu": "Ouvrir la palette de commandes",
+				"openSearch": "Recherche globale",
+				"openShortcuts": "Afficher les raccourcis clavier",
+				"submit": "Enregistrer ou envoyer",
+				"back": "Fermer la modale/popover",
+				"switchWorkspace": "Changer d'espace de travail",
+				"logOut": "Déconnexion",
+				"showDisplayOptions": "Options d'affichage",
+				"dismissToasts": "Fermer toutes les notifications",
 				"toggleSidebar": "Basculer la barre latérale",
-				"showShortcuts": "Afficher les raccourcis clavier",
-				"closeModal": "Fermer la modale/popover",
+				"goToHome": "Aller à l'accueil",
+				"goToInbox": "Aller à la boîte de réception",
+				"goToMyTasks": "Aller à mes tâches",
+				"goToProjects": "Aller aux projets",
+				"goToSettings": "Aller aux paramètres",
+				"goToTasks": "Aller aux tâches",
+				"goToBacklog": "Aller au backlog",
+				"goToProject": "Aller au projet 1–9",
+				"openTask": "Ouvrir une tâche",
+				"openProject": "Ouvrir un projet",
 				"createTask": "Créer une tâche",
 				"createProject": "Créer un projet",
-				"createWorkspace": "Créer un espace de travail",
-				"boardView": "Passer à la vue tableau",
-				"listView": "Passer à la vue de liste",
-				"backlogView": "Passer à la vue backlog",
-				"nextTask": "Tâche suivante",
-				"prevTask": "Tâche précédente",
-				"openTask": "Ouvrir la tâche sélectionnée",
-				"quickSelectNumber": "Sélectionner une option par numéro",
-				"calendarView": "Passer à la vue calendrier",
-				"ganttView": "Passer à la vue Gantt"
-			}
+				"toggleLayout": "Basculer entre tableau et liste",
+				"deleteTask": "Supprimer la tâche",
+				"copyTaskUrl": "Copier le lien de la tâche",
+				"copyBranchName": "Copier la branche de la tâche",
+				"nextTask": "Élément suivant",
+				"previousTask": "Élément précédent",
+				"openFocusedTask": "Ouvrir l'élément sélectionné",
+				"selectAll": "Tout sélectionner",
+				"clearSelection": "Effacer la sélection",
+				"changeStatus": "Changer le statut",
+				"changePriority": "Changer la priorité",
+				"assignTask": "Assigner",
+				"assignToMe": "M'assigner",
+				"changeLabels": "Changer les étiquettes",
+				"setDueDate": "Définir l'échéance",
+				"removeDueDate": "Supprimer l'échéance",
+				"renameTask": "Renommer",
+				"editDescription": "Modifier la description",
+				"commentOnTask": "Commenter",
+				"moveToProject": "Déplacer vers un autre projet",
+				"createSubtask": "Créer une sous-tâche",
+				"setParent": "Définir la tâche parente",
+				"openParent": "Ouvrir la tâche parente",
+				"openSubtask": "Ouvrir une sous-tâche",
+				"markBlockedBy": "Marquer comme bloquée par",
+				"markBlocking": "Marquer comme bloquante",
+				"markRelated": "Marquer comme liée",
+				"addLink": "Ajouter un lien",
+				"toggleResources": "Afficher ou masquer les ressources",
+				"copyTaskId": "Copier l'ID de la tâche",
+				"copyTaskTitle": "Copier le titre de la tâche",
+				"copyAsMarkdown": "Copier en Markdown",
+				"peekTask": "Aperçu de la tâche sélectionnée",
+				"selectTask": "Sélectionner la tâche",
+				"selectGroup": "Tout sélectionner dans le groupe",
+				"copyPageUrl": "Copier l'URL de la page",
+				"focusRight": "Colonne suivante",
+				"focusLeft": "Colonne précédente",
+				"moveTaskTop": "Déplacer en haut du groupe",
+				"moveTaskUp": "Monter d'une position",
+				"moveTaskDown": "Descendre d'une position",
+				"moveTaskBottom": "Déplacer en bas du groupe",
+				"moveTaskLeft": "Déplacer vers la colonne précédente",
+				"moveTaskRight": "Déplacer vers la colonne suivante",
+				"toggleGroup": "Replier ou déplier le groupe",
+				"toggleAllGroups": "Replier ou déplier tous les groupes",
+				"deleteNotification": "Supprimer la notification",
+				"deleteReadNotifications": "Supprimer toutes les notifications lues",
+				"toggleNotificationRead": "Marquer comme lue ou non lue",
+				"markAllNotificationsRead": "Tout marquer comme lu",
+				"addFilter": "Ajouter un filtre",
+				"clearAllFilters": "Effacer tous les filtres",
+				"clearLastFilter": "Effacer le dernier filtre",
+				"editorBold": "Gras",
+				"editorItalic": "Italique",
+				"editorUnderline": "Souligné",
+				"editorStrike": "Barré",
+				"editorAttach": "Joindre une image ou un fichier",
+				"editorInlineCode": "Code en ligne",
+				"editorLink": "Transformer le texte en lien",
+				"editorQuote": "Citation",
+				"editorParagraph": "Texte normal",
+				"editorHeading1": "Titre 1",
+				"editorHeading2": "Titre 2",
+				"editorHeading3": "Titre 3",
+				"editorChecklist": "Liste de contrôle",
+				"editorToggleChecklist": "Cocher ou décocher l'élément",
+				"editorBulletList": "Liste à puces",
+				"editorNumberedList": "Liste numérotée",
+				"editorCodeBlock": "Bloc de code",
+				"editorUndo": "Annuler",
+				"editorRedo": "Rétablir"
+			},
+			"title": "Raccourcis clavier",
+			"searchPlaceholder": "Rechercher par action ou touche",
+			"results_one": "{{count}} résultat",
+			"results_many": "{{count}} résultats",
+			"results_other": "{{count}} résultats",
+			"noResults": "Aucun raccourci ne correspond",
+			"then": "puis",
+			"or": "ou",
+			"thenEllipsis": "puis…"
 		}
 	},
 	"notifications": {
@@ -2593,7 +2679,9 @@
 			"today": "Today",
 			"unread": "Unread",
 			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "Impossible de mettre à jour votre boîte de réception. Réessayez.",
+			"readCleared": "Notifications lues supprimées"
 		}
 	},
 	"activity": {
@@ -2881,7 +2969,9 @@
 				"blocks": "bloqué",
 				"blocked_by": "bloqué par",
 				"related": "relatif à"
-			}
+			},
+			"blockedBy": "Bloquée par",
+			"parentPlaceholder": "Définir la tâche parente…"
 		},
 		"subtasks": {
 			"title": "Sous-tâches",
@@ -2901,13 +2991,16 @@
 		"properties": {
 			"title": "Propriétés",
 			"labels": "Labels",
+			"addLabels": "Ajouter des étiquettes",
 			"copyTaskLink": "Copier le lien de la tâche",
 			"copyTaskBranch": "Copier la branche de la tâche",
 			"taskLinkCopied": "Lien de la tâche copié",
 			"taskBranchCopied": "Nom de la branche copié",
 			"start": "Début",
 			"startDate": "Date de début",
-			"noDate": "Pas de date"
+			"noDate": "Pas de date",
+			"dates": "Dates",
+			"project": "Projet"
 		},
 		"move": {
 			"title": "Déplacer la tâche",
@@ -3102,7 +3195,8 @@
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
 			"count_other": "{{count}} PR",
-			"count_many": "{{count}} PR"
+			"count_many": "{{count}} PR",
+			"closed": "Fermée"
 		},
 		"assignee": {
 			"label": "Assigné",
@@ -3209,7 +3303,6 @@
 			"required": "Requis",
 			"enterKey": "Entrée",
 			"toSave": "pour enregistrer",
-			"today": "Aujourd’hui",
 			"clear": "Effacer",
 			"setValue": "Définir {{field}}…",
 			"noMatches": "Aucune option correspondante",
@@ -3219,10 +3312,12 @@
 			"saveError": "Impossible d'enregistrer {{field}}",
 			"moreFields_one": "{{count}} champ de plus",
 			"moreFields_many": "{{count}} champs de plus",
-			"moreFields_other": "{{count}} champs de plus"
+			"moreFields_other": "{{count}} champs de plus",
+			"manage": "Gérer les champs"
 		},
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Appuyez sur Espace pour l'aperçu et sur Entrée pour ouvrir cette tâche. Utilisez Alt ou Option avec les flèches pour la déplacer."
 		},
 		"recurrence": {
 			"daily_many": "Tous les {{count}} jours",
@@ -3267,6 +3362,39 @@
 			"addFilter": "Ajouter un filtre…",
 			"searchSubject": "{{name}}…",
 			"noResults": "Aucun résultat"
+		},
+		"shortcuts": {
+			"assignedToMe": "Assignée à vous",
+			"idCopied": "ID de la tâche copié",
+			"titleCopied": "Titre de la tâche copié",
+			"markdownCopied": "Copié en Markdown",
+			"copyFailed": "Impossible de copier dans le presse-papiers.",
+			"pageUrlCopied": "URL de la page copiée"
+		},
+		"due": {
+			"overdueDays_one": "En retard de {{count}} j",
+			"overdueDays_many": "En retard de {{count}} j",
+			"overdueDays_other": "En retard de {{count}} j",
+			"overdueWeeks_one": "En retard de {{count}} sem.",
+			"overdueWeeks_many": "En retard de {{count}} sem.",
+			"overdueWeeks_other": "En retard de {{count}} sem.",
+			"today": "Aujourd’hui",
+			"tomorrow": "Demain",
+			"inDays_one": "Dans {{count}} jour",
+			"inDays_many": "Dans {{count}} jours",
+			"inDays_other": "Dans {{count}} jours",
+			"fullDate": "Échéance le {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Définir l’échéance…",
+			"startDatePlaceholder": "Définir la date de début…",
+			"datePlaceholder": "Définir une date…",
+			"thisWeekend": "Ce week-end",
+			"nextWeek": "La semaine prochaine",
+			"pickDate": "Choisir une date",
+			"startsOn": "Commence le {{date}}",
+			"beforeStart": "{{date}} est avant la date de début",
+			"afterDue": "{{date}} est après l’échéance"
 		}
 	},
 	"invitations": {

@@ -14,6 +14,7 @@ type CustomFieldChipProps = {
   onChange: (value: string) => void;
   invalid?: boolean;
   disabled?: boolean;
+  className?: string;
 };
 
 export function CustomFieldChip({
@@ -22,6 +23,7 @@ export function CustomFieldChip({
   onChange,
   invalid = false,
   disabled = false,
+  className,
 }: CustomFieldChipProps) {
   const { t } = useTranslation();
 
@@ -37,6 +39,7 @@ export function CustomFieldChip({
         className={cn(
           propertyChipClass,
           checked && "bg-accent/30 text-foreground",
+          className,
         )}
       >
         <CheckboxMark checked={checked} />
@@ -58,6 +61,7 @@ export function CustomFieldChip({
         display && "bg-accent/30",
         invalid &&
           "border-destructive/50 bg-destructive/8 text-destructive-foreground focus-visible:ring-destructive/40",
+        className,
       )}
     >
       <CustomFieldTypeIcon type={field.type} className="size-3.5 shrink-0" />

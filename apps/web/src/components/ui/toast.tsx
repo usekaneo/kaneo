@@ -6,12 +6,12 @@ import {
   CircleCheckIcon,
   InfoIcon,
   LoaderCircleIcon,
-  type LucideIcon,
   TriangleAlertIcon,
 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ToastShakeRoot } from "@/components/ui/toast-shake-root";
 import { cn } from "@/lib/cn";
+import type { ToastIcon } from "@/lib/toast";
 
 const toastManager = Toast.createToastManager();
 const anchoredToastManager = Toast.createToastManager();
@@ -71,7 +71,7 @@ function Toasts({ position = "bottom-right" }: { position: ToastPosition }) {
       >
         {toasts.map((toast) => {
           const data = toast.data as
-            | { icon?: LucideIcon; repeat?: number }
+            | { icon?: ToastIcon; repeat?: number }
             | undefined;
           const Icon =
             data?.icon ??

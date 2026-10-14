@@ -15657,6 +15657,61 @@
         }
       }
     },
+    "/notification/{id}/unread": {
+      "patch": {
+        "operationId": "markNotificationAsUnread",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark notification unread",
+        "description": "Mark one notification as unread again. Scoped to the current user, so another user's notification is not found.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated notification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notification"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
     "/notification/read-all": {
       "patch": {
         "operationId": "markAllNotificationsAsRead",
@@ -15739,6 +15794,109 @@
           },
           "401": {
             "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/notification/clear-read": {
+      "delete": {
+        "operationId": "clearReadNotifications",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Clear read notifications",
+        "description": "Permanently delete the current user's read notifications, optionally limited to one workspace. Unread notifications are kept. This cannot be undone.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces."
+            },
+            "required": false,
+            "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces.",
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Read notifications cleared",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationBulkResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/notification/{id}": {
+      "delete": {
+        "operationId": "deleteNotification",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Delete notification",
+        "description": "Permanently delete one notification. Scoped to the current user, so another user's notification is not found.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationBulkResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found",
             "content": {
               "application/json": {
                 "schema": {

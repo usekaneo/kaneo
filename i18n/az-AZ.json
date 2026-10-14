@@ -2441,37 +2441,122 @@
 		"projectSettings": {
 			"projectLabel": "Layihə"
 		},
-		"keyboardShortcuts": {
-			"title": "Klaviatura qısayolları",
-			"subtitle": "Klaviatura qısayolları ilə işinizi sürətləndirin",
-			"searchPlaceholder": "Qısayolları axtar...",
-			"footer": "Bağlamaq üçün <kbd>Escape</kbd> düyməsini basın",
+		"shortcuts": {
 			"categories": {
 				"general": "Ümumi",
+				"navigation": "Naviqasiya",
 				"create": "Yarat",
 				"views": "Görünüşlər",
-				"navigation": "Naviqasiya",
-				"quickSelect": "Sürətli seçim (açılan pəncərələrdə)"
+				"tasks": "Tapşırıqlar",
+				"list": "Lövhə və siyahı",
+				"inbox": "Gələnlər",
+				"filters": "Filtrlər",
+				"editor": "Redaktor"
 			},
 			"items": {
-				"openCommandPalette": "Əmr palitrasını aç",
-				"globalSearch": "Ümumi axtarış",
+				"openCommandMenu": "Əmr palitrasını aç",
+				"openSearch": "Ümumi axtarış",
+				"openShortcuts": "Klaviatura qısayollarını göstər",
+				"submit": "Yadda saxla və ya göndər",
+				"back": "Modal/açılan pəncərəni bağla",
+				"switchWorkspace": "İş sahəsini dəyiş",
+				"logOut": "Çıxış et",
+				"showDisplayOptions": "Görünüş seçimləri",
+				"dismissToasts": "Bütün bildirişləri bağla",
 				"toggleSidebar": "Yan paneli aç/bağla",
-				"showShortcuts": "Klaviatura qısayollarını göstər",
-				"closeModal": "Modal/açılan pəncərəni bağla",
+				"goToHome": "Ana səhifəyə keç",
+				"goToInbox": "Gələnlərə keç",
+				"goToMyTasks": "Tapşırıqlarıma keç",
+				"goToProjects": "Layihələrə keç",
+				"goToSettings": "Parametrlərə keç",
+				"goToTasks": "Tapşırıqlara keç",
+				"goToBacklog": "Gözləyən tapşırıqlara keç",
+				"goToProject": "1–9 nömrəli layihəyə keç",
+				"openTask": "Tapşırığı aç",
+				"openProject": "Layihəni aç",
 				"createTask": "Tapşırıq yarat",
 				"createProject": "Layihə yarat",
-				"createWorkspace": "İş sahəsi yarat",
-				"boardView": "Lövhə görünüşünə keç",
-				"listView": "Siyahı görünüşünə keç",
-				"backlogView": "Gözləyən tapşırıqlar görünüşünə keç",
-				"calendarView": "Təqvim görünüşünə keç",
-				"nextTask": "Növbəti tapşırıq",
-				"prevTask": "Əvvəlki tapşırıq",
-				"openTask": "Seçilmiş tapşırığı aç",
-				"quickSelectNumber": "Nömrəyə görə seçim et",
-				"ganttView": "Gantt görünüşünə keç"
-			}
+				"toggleLayout": "Lövhə və siyahı arasında keç",
+				"deleteTask": "Tapşırığı sil",
+				"copyTaskUrl": "Tapşırığın keçidini kopyala",
+				"copyBranchName": "Tapşırığın budağını kopyala",
+				"nextTask": "Növbəti element",
+				"previousTask": "Əvvəlki element",
+				"openFocusedTask": "Seçilmiş elementi aç",
+				"selectAll": "Hamısını seç",
+				"clearSelection": "Seçimi təmizlə",
+				"changeStatus": "Statusu dəyiş",
+				"changePriority": "Prioriteti dəyiş",
+				"assignTask": "Təyin et",
+				"assignToMe": "Mənə təyin et",
+				"changeLabels": "Etiketləri dəyiş",
+				"setDueDate": "Son tarix təyin et",
+				"removeDueDate": "Son tarixi sil",
+				"renameTask": "Adını dəyiş",
+				"editDescription": "Təsviri redaktə et",
+				"commentOnTask": "Şərh yaz",
+				"moveToProject": "Başqa layihəyə köçür",
+				"createSubtask": "Alt tapşırıq yarat",
+				"setParent": "Əsas tapşırığı təyin et",
+				"openParent": "Əsas tapşırığı aç",
+				"openSubtask": "Alt tapşırığı aç",
+				"markBlockedBy": "Bloklanmış kimi qeyd et",
+				"markBlocking": "Bloklayan kimi qeyd et",
+				"markRelated": "Əlaqəli kimi qeyd et",
+				"addLink": "Keçid əlavə et",
+				"toggleResources": "Resursları göstər və ya gizlət",
+				"copyTaskId": "Tapşırıq ID-sini kopyala",
+				"copyTaskTitle": "Tapşırıq adını kopyala",
+				"copyAsMarkdown": "Markdown kimi kopyala",
+				"peekTask": "Seçilmiş tapşırığa önbaxış",
+				"selectTask": "Tapşırığı seç",
+				"selectGroup": "Qrupdakı hamısını seç",
+				"copyPageUrl": "Səhifə URL-ni kopyala",
+				"focusRight": "Növbəti sütun",
+				"focusLeft": "Əvvəlki sütun",
+				"moveTaskTop": "Qrupun əvvəlinə köçür",
+				"moveTaskUp": "Bir mövqe yuxarı",
+				"moveTaskDown": "Bir mövqe aşağı",
+				"moveTaskBottom": "Qrupun sonuna köçür",
+				"moveTaskLeft": "Əvvəlki sütuna köçür",
+				"moveTaskRight": "Növbəti sütuna köçür",
+				"toggleGroup": "Qrupu yığ və ya aç",
+				"toggleAllGroups": "Bütün qrupları yığ və ya aç",
+				"deleteNotification": "Bildirişi sil",
+				"deleteReadNotifications": "Bütün oxunmuş bildirişləri sil",
+				"toggleNotificationRead": "Oxunmuş və ya oxunmamış kimi qeyd et",
+				"markAllNotificationsRead": "Hamısını oxunmuş kimi qeyd et",
+				"addFilter": "Filtr əlavə et",
+				"clearAllFilters": "Bütün filtrləri təmizlə",
+				"clearLastFilter": "Sonuncu filtri təmizlə",
+				"editorBold": "Qalın",
+				"editorItalic": "Kursiv",
+				"editorUnderline": "Altından xətt",
+				"editorStrike": "Üstündən xətt",
+				"editorAttach": "Şəkil və ya fayl əlavə et",
+				"editorInlineCode": "Sətirdaxili kod",
+				"editorLink": "Mətni keçidə çevir",
+				"editorQuote": "Sitat",
+				"editorParagraph": "Adi mətn",
+				"editorHeading1": "Başlıq 1",
+				"editorHeading2": "Başlıq 2",
+				"editorHeading3": "Başlıq 3",
+				"editorChecklist": "Yoxlama siyahısı",
+				"editorToggleChecklist": "Yoxlama bəndini dəyiş",
+				"editorBulletList": "Nişanlı siyahı",
+				"editorNumberedList": "Nömrəli siyahı",
+				"editorCodeBlock": "Kod bloku",
+				"editorUndo": "Geri al",
+				"editorRedo": "Təkrarla"
+			},
+			"title": "Klaviatura qısayolları",
+			"searchPlaceholder": "Əməliyyat və ya düymə ilə axtar",
+			"results_one": "{{count}} nəticə",
+			"results_other": "{{count}} nəticə",
+			"noResults": "Uyğun qısayol yoxdur",
+			"then": "sonra",
+			"or": "və ya",
+			"thenEllipsis": "sonra…"
 		}
 	},
 	"notifications": {
@@ -2547,7 +2632,9 @@
 			"today": "Today",
 			"unread": "Unread",
 			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded."
+			"taskLoadError": "This task couldn’t be loaded.",
+			"actionError": "Gələnlər qutusu yenilənmədi. Yenidən cəhd edin.",
+			"readCleared": "Oxunmuş bildirişlər silindi"
 		}
 	},
 	"activity": {
@@ -2835,7 +2922,9 @@
 				"blocks": "Mane olur",
 				"blocked_by": "Mane olan",
 				"related": "Əlaqəlidir"
-			}
+			},
+			"blockedBy": "Bloklayan",
+			"parentPlaceholder": "Əsas tapşırığı təyin et…"
 		},
 		"subtasks": {
 			"title": "Alt tapşırıqlar",
@@ -2855,13 +2944,16 @@
 		"properties": {
 			"title": "Xüsusiyyətlər",
 			"labels": "Etiketlər",
+			"addLabels": "Etiket əlavə et",
 			"copyTaskLink": "Tapşırığın keçidini kopyala",
 			"copyTaskBranch": "Tapşırığın budağını kopyala",
 			"taskLinkCopied": "Tapşırıq keçidi kopyalandı",
 			"taskBranchCopied": "Branch adı kopyalandı",
 			"start": "Başlat",
 			"startDate": "Başlama tarixi",
-			"noDate": "Tarix yoxdur"
+			"noDate": "Tarix yoxdur",
+			"dates": "Tarixlər",
+			"project": "Layihə"
 		},
 		"move": {
 			"title": "Tapşırığı köçür",
@@ -3059,7 +3151,8 @@
 			"open": "Açıq",
 			"label": "Birləşdirmə sorğusu",
 			"count_one": "{{count}} birləşdirmə sorğusu",
-			"count_other": "{{count}} birləşdirmə sorğusu"
+			"count_other": "{{count}} birləşdirmə sorğusu",
+			"closed": "Bağlı"
 		},
 		"assignee": {
 			"label": "İcraçı",
@@ -3156,7 +3249,6 @@
 			"required": "Məcburi",
 			"enterKey": "Enter",
 			"toSave": "saxlamaq üçün",
-			"today": "Bu gün",
 			"clear": "Təmizlə",
 			"setValue": "{{field}} seçin…",
 			"noMatches": "Uyğun seçim yoxdur",
@@ -3164,10 +3256,12 @@
 			"missingRequired_other": "{{count}} məcburi sahə boşdur",
 			"saveError": "{{field}} saxlanılmadı",
 			"moreFields_one": "Daha {{count}} sahə",
-			"moreFields_other": "Daha {{count}} sahə"
+			"moreFields_other": "Daha {{count}} sahə",
+			"manage": "Sahələri idarə et"
 		},
 		"board": {
-			"reorderFailed": "Could not move task. Please try again."
+			"reorderFailed": "Could not move task. Please try again.",
+			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin."
 		},
 		"recurrence": {
 			"daily_one": "Hər gün",
@@ -3206,6 +3300,36 @@
 			"addFilter": "Süzgəc əlavə et…",
 			"searchSubject": "{{name}}…",
 			"noResults": "Nəticə yoxdur"
+		},
+		"shortcuts": {
+			"assignedToMe": "Sizə təyin edildi",
+			"idCopied": "Tapşırıq ID-si kopyalandı",
+			"titleCopied": "Tapşırıq adı kopyalandı",
+			"markdownCopied": "Markdown kimi kopyalandı",
+			"copyFailed": "Mübadilə buferinə kopyalamaq alınmadı.",
+			"pageUrlCopied": "Səhifə URL-i kopyalandı"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} g gecikib",
+			"overdueDays_other": "{{count}} g gecikib",
+			"overdueWeeks_one": "{{count}} h gecikib",
+			"overdueWeeks_other": "{{count}} h gecikib",
+			"today": "Bu gün",
+			"tomorrow": "Sabah",
+			"inDays_one": "{{count}} gün sonra",
+			"inDays_other": "{{count}} gün sonra",
+			"fullDate": "Son tarix {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Son tarixi təyin et…",
+			"startDatePlaceholder": "Başlama tarixini təyin et…",
+			"datePlaceholder": "Tarix təyin et…",
+			"thisWeekend": "Bu həftə sonu",
+			"nextWeek": "Gələn həftə",
+			"pickDate": "Tarix seç",
+			"startsOn": "Başlayır: {{date}}",
+			"beforeStart": "{{date}} başlama tarixindən əvvəldir",
+			"afterDue": "{{date}} son tarixdən sonradır"
 		}
 	},
 	"invitations": {
