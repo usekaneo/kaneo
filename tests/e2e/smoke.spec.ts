@@ -23,7 +23,12 @@ test("sign up, create a workspace with a starter project, and sign in again", as
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 
   // Solo skips the invite step even if SMTP is enabled later.
-  await page.getByRole("radio", { name: /Just me/ }).check();
+  // Click the option card: the radio is sr-only and decorative avatars
+  // intercept pointer events on the hidden input's hit target.
+  await page
+    .locator("label")
+    .filter({ has: page.getByRole("radio", { name: /Just me/ }) })
+    .click();
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 
   await page.getByRole("button", { name: "Continue", exact: true }).click();
