@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/popover";
 import { formatDate, formatDateShort } from "@/lib/format";
 import type { CalendarTask } from "./calendar-task-bar";
+import { calendarTaskTicket } from "./calendar-task-ticket";
 
 type DayOverflowPopoverProps = {
   day: Date;
@@ -52,27 +53,30 @@ export default function DayOverflowPopover({
             {dayLabel}
           </p>
           <div className="max-h-64 space-y-0.5 overflow-y-auto">
-            {tasks.map((task) => (
-              <button
-                key={task.id}
-                type="button"
-                onClick={() => handleSelectTask(task.id)}
-                className="flex w-full min-w-0 flex-col items-start gap-0.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {projectSlug && task.number != null ? (
-                  <span className="truncate text-[10px] text-muted-foreground">
-                    {projectSlug}-{task.number}
+            {tasks.map((task) => {
+              const taskKey = calendarTaskTicket(task, projectSlug);
+              return (
+                <button
+                  key={task.id}
+                  type="button"
+                  onClick={() => handleSelectTask(task.id)}
+                  className="flex w-full min-w-0 flex-col items-start gap-0.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {taskKey ? (
+                    <span className="truncate text-[10px] text-muted-foreground">
+                      {taskKey}
+                    </span>
+                  ) : null}
+                  <span className="w-full truncate text-xs font-medium text-foreground">
+                    {task.title}
                   </span>
-                ) : null}
-                <span className="w-full truncate text-xs font-medium text-foreground">
-                  {task.title}
-                </span>
-                <span className="w-full truncate text-[11px] text-muted-foreground">
-                  {formatDateShort(task.scheduleStart)} –{" "}
-                  {formatDateShort(task.scheduleEnd)}
-                </span>
-              </button>
-            ))}
+                  <span className="w-full truncate text-[11px] text-muted-foreground">
+                    {formatDateShort(task.scheduleStart)} –{" "}
+                    {formatDateShort(task.scheduleEnd)}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </PopoverContent>

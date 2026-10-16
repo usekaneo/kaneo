@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { JSX } from "react";
+import type { JSX, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
@@ -9,6 +9,7 @@ type CalendarToolbarProps = {
   onPreviousMonth: () => void;
   onNextMonth: () => void;
   onToday: () => void;
+  filters?: ReactNode;
 };
 
 export default function CalendarToolbar({
@@ -16,12 +17,13 @@ export default function CalendarToolbar({
   onPreviousMonth,
   onNextMonth,
   onToday,
+  filters,
 }: CalendarToolbarProps): JSX.Element {
   const { t } = useTranslation();
 
   return (
     <div className="border-b border-border/80 px-3 py-2 sm:px-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <h1 className="sr-only">{t("tasks:calendar.title")}</h1>
           <span
@@ -32,33 +34,36 @@ export default function CalendarToolbar({
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon-xs"
-            className="min-h-11 touch-manipulation sm:min-h-0"
-            aria-label={t("tasks:calendar.previousMonth")}
-            onClick={onPreviousMonth}
-          >
-            <ChevronLeft />
-          </Button>
-          <Button
-            variant="outline"
-            size="xs"
-            className="min-h-11 touch-manipulation sm:min-h-0"
-            onClick={onToday}
-          >
-            {t("tasks:calendar.today")}
-          </Button>
-          <Button
-            variant="outline"
-            size="icon-xs"
-            className="min-h-11 touch-manipulation sm:min-h-0"
-            aria-label={t("tasks:calendar.nextMonth")}
-            onClick={onNextMonth}
-          >
-            <ChevronRight />
-          </Button>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {filters}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon-xs"
+              className="min-h-11 touch-manipulation sm:min-h-0"
+              aria-label={t("tasks:calendar.previousMonth")}
+              onClick={onPreviousMonth}
+            >
+              <ChevronLeft />
+            </Button>
+            <Button
+              variant="outline"
+              size="xs"
+              className="min-h-11 touch-manipulation sm:min-h-0"
+              onClick={onToday}
+            >
+              {t("tasks:calendar.today")}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon-xs"
+              className="min-h-11 touch-manipulation sm:min-h-0"
+              aria-label={t("tasks:calendar.nextMonth")}
+              onClick={onNextMonth}
+            >
+              <ChevronRight />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

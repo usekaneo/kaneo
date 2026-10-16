@@ -2389,7 +2389,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Təqvim"
 		},
 		"projectList": {
 			"viewProject": "Layihəyə bax",
@@ -3448,6 +3449,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Bu dövr üzrə {{total}} planlaşdırılmış tapşırıqdan ilk {{shown}}-i göstərilir.",
+			"assignedToMe": "Mənə təyin edilənlər",
+			"allTasks": "Bütün tapşırıqlar",
+			"noTasksThisMonth": "Bu ay heç nə planlaşdırılmayıb",
+			"noTasksThisMonthSubtitle": "Başqa ay sınayın və ya layihələrinizdəki tapşırıqlara başlanğıc və ya son tarix əlavə edin.",
+			"noAssignedTasksThisMonth": "Bu ay sizə heç nə təyin edilməyib",
+			"noAssignedTasksThisMonthSubtitle": "Bu dövrdə sizə təyin edilmiş planlaşdırılmış tapşırıq yoxdur. Bütün layihələrin tarixlərini görmək üçün filtri söndürün."
 		}
 	},
 	"team": {

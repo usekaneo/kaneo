@@ -38,6 +38,7 @@ describe("GitHub import cache refresh", () => {
         ["labels", "workspace"],
         ["projects", "workspace"],
         ["assigned-tasks", "workspace"],
+        ["scheduled-tasks", "workspace"],
         ["workspace-activity", "workspace"],
         ["github-integration", "project"],
       ];

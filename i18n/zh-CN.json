@@ -2347,7 +2347,8 @@
 			"home": "首页",
 			"inbox": "收件箱",
 			"invitePeople": "邀请成员",
-			"myTasks": "我的任务"
+			"myTasks": "我的任务",
+			"calendar": "日历"
 		},
 		"projectList": {
 			"viewProject": "查看项目",
@@ -3387,6 +3388,17 @@
 			},
 			"empty": "暂时没有指派给你的任务",
 			"loadError": "你的任务加载失败。"
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "正在显示此时间段内 {{total}} 个已排期任务中的前 {{shown}} 个。",
+			"assignedToMe": "分配给我的",
+			"allTasks": "全部任务",
+			"noTasksThisMonth": "本月没有已排期的任务",
+			"noTasksThisMonthSubtitle": "试试其他月份，或为项目中的任务添加开始日期或截止日期。",
+			"noAssignedTasksThisMonth": "本月没有分配给你的任务",
+			"noAssignedTasksThisMonthSubtitle": "此时间段内没有分配给你的已排期任务。关闭筛选器可查看所有项目的日期。"
 		}
 	},
 	"team": {

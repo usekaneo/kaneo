@@ -2389,7 +2389,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Kalender"
 		},
 		"projectList": {
 			"viewProject": "Project bekijken",
@@ -3448,6 +3449,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "De eerste {{shown}} van {{total}} geplande taken in deze periode worden getoond.",
+			"assignedToMe": "Aan mij toegewezen",
+			"allTasks": "Alle taken",
+			"noTasksThisMonth": "Niets gepland deze maand",
+			"noTasksThisMonthSubtitle": "Probeer een andere maand, of voeg een start- of vervaldatum toe aan taken in je projecten.",
+			"noAssignedTasksThisMonth": "Niets aan jou toegewezen deze maand",
+			"noAssignedTasksThisMonthSubtitle": "Er zijn in deze periode geen geplande taken aan jou toegewezen. Zet het filter uit om de data van alle projecten te zien."
 		}
 	},
 	"team": {

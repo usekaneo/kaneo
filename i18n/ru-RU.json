@@ -2481,7 +2481,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Календарь"
 		},
 		"projectList": {
 			"viewProject": "Открыть проект",
@@ -3622,6 +3623,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Показаны первые {{shown}} из {{total}} запланированных задач за этот период.",
+			"assignedToMe": "Назначенные мне",
+			"allTasks": "Все задачи",
+			"noTasksThisMonth": "В этом месяце ничего не запланировано",
+			"noTasksThisMonthSubtitle": "Попробуйте другой месяц или добавьте дату начала или срок задачам в ваших проектах.",
+			"noAssignedTasksThisMonth": "Вам ничего не назначено в этом месяце",
+			"noAssignedTasksThisMonthSubtitle": "В этом периоде вам не назначены запланированные задачи. Отключите фильтр, чтобы увидеть даты всех проектов."
 		}
 	},
 	"team": {

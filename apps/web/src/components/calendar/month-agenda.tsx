@@ -7,6 +7,7 @@ import {
   type CalendarTask,
   getCalendarTaskStatusClass,
 } from "./calendar-task-bar";
+import { calendarTaskTicket } from "./calendar-task-ticket";
 import { buildMonthAgenda } from "./month-agenda-model";
 
 type MonthAgendaProps = {
@@ -79,10 +80,7 @@ export default function MonthAgenda({
             </h3>
             <ul className="flex flex-col gap-1.5 px-3 pb-3">
               {dayTasks.map((task) => {
-                const taskKey =
-                  projectSlug && task.number != null
-                    ? `${projectSlug}-${task.number}`
-                    : undefined;
+                const taskKey = calendarTaskTicket(task, projectSlug);
                 const range = `${formatDateShort(task.scheduleStart)} – ${formatDateShort(task.scheduleEnd)}`;
                 return (
                   <li key={task.id}>

@@ -2347,7 +2347,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Kalender"
 		},
 		"projectList": {
 			"viewProject": "Lihat Proyek",
@@ -3387,6 +3388,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Menampilkan {{shown}} dari {{total}} tugas terjadwal pertama pada periode ini.",
+			"assignedToMe": "Ditugaskan ke saya",
+			"allTasks": "Semua tugas",
+			"noTasksThisMonth": "Tidak ada yang dijadwalkan bulan ini",
+			"noTasksThisMonthSubtitle": "Coba bulan lain, atau tambahkan tanggal mulai atau jatuh tempo ke tugas di proyek Anda.",
+			"noAssignedTasksThisMonth": "Tidak ada yang ditugaskan kepada Anda bulan ini",
+			"noAssignedTasksThisMonthSubtitle": "Tidak ada tugas terjadwal pada periode ini yang ditugaskan kepada Anda. Matikan filter untuk melihat tanggal semua proyek."
 		}
 	},
 	"team": {

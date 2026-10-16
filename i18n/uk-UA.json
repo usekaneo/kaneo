@@ -2473,7 +2473,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Календар"
 		},
 		"projectList": {
 			"viewProject": "Переглянути проєкт",
@@ -3570,6 +3571,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Показано перші {{shown}} з {{total}} запланованих завдань за цей період.",
+			"assignedToMe": "Призначені мені",
+			"allTasks": "Усі завдання",
+			"noTasksThisMonth": "Цього місяця нічого не заплановано",
+			"noTasksThisMonthSubtitle": "Спробуйте інший місяць або додайте дату початку чи термін завданням у ваших проєктах.",
+			"noAssignedTasksThisMonth": "Вам нічого не призначено цього місяця",
+			"noAssignedTasksThisMonthSubtitle": "У цьому періоді вам не призначено запланованих завдань. Вимкніть фільтр, щоб побачити дати всіх проєктів."
 		}
 	},
 	"team": {

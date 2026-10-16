@@ -2389,6 +2389,7 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"myTasks": "My tasks",
+			"calendar": "Calendar",
 			"invitePeople": "Invite people"
 		},
 		"projectList": {
@@ -3448,6 +3449,17 @@
 				"project": "Project"
 			},
 			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"calendar": {
+			"pageTitle": "Calendar",
+			"noTasksThisMonth": "Nothing scheduled this month",
+			"noTasksThisMonthSubtitle": "Try another month, or add a start date or due date to tasks across your projects.",
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"truncated": "Showing the first {{shown}} of {{total}} scheduled tasks in this period.",
+			"allTasks": "All tasks",
+			"assignedToMe": "Assigned to me",
+			"noAssignedTasksThisMonth": "Nothing assigned to you this month",
+			"noAssignedTasksThisMonthSubtitle": "No scheduled tasks in this period are assigned to you. Turn off the filter to see every project's dates."
 		}
 	},
 	"team": {
