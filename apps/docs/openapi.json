@@ -8599,9 +8599,10 @@
           {
             "schema": {
               "type": "string",
-              "maxLength": 1024
+              "description": "Opaque client state, returned unchanged. The complete authorization URL is limited to 8 KiB."
             },
             "required": false,
+            "description": "Opaque client state, returned unchanged. The complete authorization URL is limited to 8 KiB.",
             "name": "state",
             "in": "query"
           }
