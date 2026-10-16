@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
@@ -87,10 +87,20 @@ async function importTasks(
       );
       const warnings = [statusWarning, priorityWarning].filter(Boolean);
 
-      const column = columns.find((candidate) => candidate.slug === status);
-
       const createdTask = await db.transaction(async (tx) => {
         const taskNumber = await claimTaskNumber(projectId, tx);
+        // Recheck the snapshot's column and retain it until the insert commits.
+        const [column] = await tx
+          .select({ id: columnTable.id })
+          .from(columnTable)
+          .where(
+            and(
+              eq(columnTable.projectId, projectId),
+              eq(columnTable.slug, status),
+            ),
+          )
+          .limit(1)
+          .for("key share");
         const position = await nextTaskPosition(
           tx,
           projectId,

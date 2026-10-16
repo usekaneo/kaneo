@@ -12,10 +12,13 @@ export function resolveImportTaskStatus(
   // Persisted slugs and virtual statuses take precedence over display names.
   if (validStatuses.includes(status)) return { status };
 
-  const alias = toSlug(status);
-  const matches = alias
-    ? columns.filter((column) => toSlug(column.name) === alias)
-    : [];
+  let matches = columns.filter((column) => column.name === status);
+  if (matches.length === 0) {
+    const alias = toSlug(status);
+    matches = alias
+      ? columns.filter((column) => toSlug(column.name) === alias)
+      : [];
+  }
   const [match] = matches;
   if (matches.length === 1 && match) return { status: match.slug };
   if (matches.length > 1) {

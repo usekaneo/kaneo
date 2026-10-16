@@ -32,6 +32,45 @@ describe("resolveImportTaskStatus", () => {
       ]),
     ).toEqual({ status: "to-do" });
   });
+  it.each(["to-do", "planned", "archived"])(
+    "prefers the canonical status %s over an exact display name",
+    (status) =>
+      expect(
+        resolveImportTaskStatus(status, [
+          ...columns,
+          { slug: "other", name: status },
+        ]),
+      ).toEqual({ status }),
+  );
+  it.each([
+    ["QA+", "qa-plus"],
+    ["QA-", "qa-minus"],
+  ])("resolves the exact name %s despite colliding aliases", (name, slug) => {
+    expect(
+      resolveImportTaskStatus(name, [
+        { slug: "qa-plus", name: "QA+" },
+        { slug: "qa-minus", name: "QA-" },
+      ]),
+    ).toEqual({ status: slug });
+  });
+  it("rejects duplicate exact display names", () => {
+    expect(
+      resolveImportTaskStatus("QA+", [
+        { slug: "qa-plus", name: "QA+" },
+        { slug: "other", name: "QA+" },
+      ]),
+    ).toHaveProperty("error");
+  });
+  it.each(["qa", " QA+ "])(
+    "rejects the ambiguous normalized alias %s",
+    (status) =>
+      expect(
+        resolveImportTaskStatus(status, [
+          { slug: "qa-plus", name: "QA+" },
+          { slug: "qa-minus", name: "QA-" },
+        ]),
+      ).toHaveProperty("error"),
+  );
   it("rejects ambiguous display names", () => {
     expect(
       resolveImportTaskStatus("ready-to-start", [
