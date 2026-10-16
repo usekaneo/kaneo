@@ -104,6 +104,42 @@ describe("JSON import assignees", () => {
     ).toEqual([idHolder.id, user.id]);
   });
 
+  it("rejects an ineligible user ID instead of resolving another user's matching email", async () => {
+    const { user, project, importUsers } = await fixture();
+    await db.insert(schema.userTable).values({
+      id: user.email,
+      email: `${user.id}@nonmember.example.com`,
+      emailVerified: true,
+      name: "Nonmember ID Holder",
+    });
+    const result = await importUsers([
+      user.email,
+      user.email.toUpperCase(),
+      user.id,
+    ]);
+    expect(result.results.successful).toBe(2);
+    expect(result.results.failed).toBe(1);
+    expect(result.results.tasks[0]).toMatchObject({
+      success: false,
+      error: "Assignee is not a member of this workspace",
+    });
+    for (const index of [1, 2]) {
+      expect(result.results.tasks[index]).toMatchObject({
+        success: true,
+        task: { userId: user.id },
+      });
+    }
+    const tasks = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.projectId, project.id));
+    expect(tasks.map((task) => task.title).sort()).toEqual([
+      "Task 1",
+      "Task 2",
+    ]);
+    expect(tasks.every((task) => task.userId === user.id)).toBe(true);
+  });
+
   it("keeps indexed ID-only imports free of email scans", async () => {
     const { user, workspace } = await fixture();
     const queries = vi.spyOn(getDatabasePool(), "query");

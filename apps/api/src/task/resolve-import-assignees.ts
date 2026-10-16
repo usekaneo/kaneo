@@ -25,17 +25,20 @@ export async function resolveImportAssignees(
     instanceAdminRoleSql(schema.userTable.role),
   );
   const idUsers = await db
-    .select({ id: schema.userTable.id })
+    .select({ id: schema.userTable.id, eligible: sql<boolean>`${eligible}` })
     .from(schema.userTable)
-    .where(and(inArray(schema.userTable.id, references), eligible));
-  for (const user of idUsers) resolved.set(user.id, user.id);
+    .where(inArray(schema.userTable.id, references));
+  const existingIds = new Set(idUsers.map((user) => user.id));
+  for (const user of idUsers) {
+    if (user.eligible) resolved.set(user.id, user.id);
+  }
 
   // Keep existing ID imports on the indexed path, including missing IDs.
   const emails = [
     ...new Set(
       references
         .filter(
-          (reference) => !resolved.has(reference) && reference.includes("@"),
+          (reference) => !existingIds.has(reference) && reference.includes("@"),
         )
         .map((reference) => reference.toLowerCase()),
     ),
@@ -56,8 +59,8 @@ export async function resolveImportAssignees(
     byEmail.set(email, matches);
   }
   for (const reference of references) {
-    // IDs keep precedence even when they resemble another user's email.
-    if (resolved.has(reference)) continue;
+    // Existing IDs keep precedence even when their users are ineligible.
+    if (existingIds.has(reference)) continue;
     const matches = byEmail.get(reference.toLowerCase());
     if (matches?.size !== 1) continue;
     const [id] = matches;
