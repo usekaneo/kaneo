@@ -13,9 +13,9 @@ import {
   coerceStatus,
   getValidTaskStatuses,
 } from "../validate-task-fields";
-import { resolveImportAssignees } from "../resolve-import-assignees";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
+import { resolveImportAssignees } from "../resolve-import-assignees";
 
 export type ImportTask = {
   title: string;
