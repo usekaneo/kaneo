@@ -9,7 +9,7 @@ import {
   NO_PROJECT_ACCESS,
   NOT_ASSIGNABLE,
 } from "../../utils/assert-assignable-user";
-import { coercePriority } from "../validate-task-fields";
+import { coercePriority, VIRTUAL_STATUSES } from "../validate-task-fields";
 import { resolveImportTaskStatus } from "../resolve-import-task-status";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
@@ -81,7 +81,7 @@ async function importTasks(
         results.push({ success: false, error: resolved.error, task: taskData });
         continue;
       }
-      const { status, warning: statusWarning } = resolved;
+      const { status: resolvedStatus, warning: statusWarning } = resolved;
       const { priority, warning: priorityWarning } = coercePriority(
         taskData.priority || "low",
       );
@@ -96,11 +96,21 @@ async function importTasks(
           .where(
             and(
               eq(columnTable.projectId, projectId),
-              eq(columnTable.slug, status),
+              eq(columnTable.slug, resolvedStatus),
             ),
           )
           .limit(1)
           .for("key share");
+        const status =
+          column ||
+          VIRTUAL_STATUSES.some((virtual) => virtual === resolvedStatus)
+            ? resolvedStatus
+            : "planned";
+        if (status !== resolvedStatus) {
+          warnings.push(
+            `Status "${resolvedStatus}" no longer has a column. Mapped to "planned".`,
+          );
+        }
         const position = await nextTaskPosition(
           tx,
           projectId,

@@ -2,7 +2,9 @@ import { eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import deleteColumn from "../../apps/api/src/column/controllers/delete-column";
+import { createApp } from "../../apps/api/src/index";
 import importTasks from "../../apps/api/src/task/controllers/import-tasks";
+import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -48,26 +50,45 @@ async function fixture() {
 }
 
 describe("task import column deletion", () => {
-  it("does not reuse a column ID deleted after the import snapshot", async () => {
-    const { user, project, columns } = await fixture();
-    hooks.publish.mockImplementationOnce(async () => {
-      await deleteColumn(columns.done.id);
-    });
-    const result = await importTasks(
-      project.id,
-      [
-        { title: "First", status: "to-do" },
-        { title: "Second", status: "done" },
-      ],
-      user.id,
-    );
-    expect(result.results.successful).toBe(2);
-    expect(result.results.failed).toBe(0);
-    expect(result.results.tasks[1]?.task).toMatchObject({
-      status: "done",
-      columnId: null,
-    });
-  });
+  it.each(["done", "Ready to Start"])(
+    "keeps %s visible in the backlog when its column disappears after the snapshot",
+    async (status) => {
+      const { user, project, columns } = await fixture();
+      await db
+        .update(schema.columnTable)
+        .set({ name: "Ready to Start" })
+        .where(eq(schema.columnTable.id, columns.done.id));
+      hooks.publish.mockImplementationOnce(async () => {
+        await deleteColumn(columns.done.id);
+      });
+      const result = await importTasks(
+        project.id,
+        [
+          { title: "First", status: "to-do" },
+          { title: "Second", status },
+        ],
+        user.id,
+      );
+      expect(result.results.successful).toBe(2);
+      expect(result.results.failed).toBe(0);
+      expect(result.results.tasks[1]).toMatchObject({
+        task: { status: "planned", columnId: null },
+        warnings: [expect.stringContaining('"planned"')],
+      });
+
+      mockAuthenticatedSession(user);
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/task/tasks/${project.id}?status=planned`,
+      );
+      expect(response.status).toBe(200);
+      const backlog = await response.json();
+      expect(backlog.pagination.total).toBe(1);
+      expect(backlog.data.plannedTasks).toMatchObject([
+        { title: "Second", status: "planned" },
+      ]);
+    },
+  );
 
   it("keeps a resolved column valid until its task transaction commits", async () => {
     const { user, project, columns } = await fixture();
