@@ -2893,7 +2893,10 @@
 			"deleteAction": "タスクを削除",
 			"completeAria": "サブタスクを完了にする",
 			"progress": "サブタスク {{total}} 件中 {{completed}} 件完了",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "既存をリンク",
+			"linkPlaceholder": "サブタスクとしてリンクするタスクを検索...",
+			"unlinkAction": "サブタスクから解除"
 		},
 		"properties": {
 			"title": "プロパティ",

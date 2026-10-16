@@ -2940,7 +2940,10 @@
 			"deleteAction": "Aufgabe löschen",
 			"completeAria": "Teilaufgabe als erledigt markieren",
 			"progress": "{{completed}} von {{total}} Unteraufgaben abgeschlossen",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Vorhandene verknüpfen",
+			"linkPlaceholder": "Aufgaben suchen und als Teilaufgaben verknüpfen...",
+			"unlinkAction": "Aus Teilaufgaben entfernen"
 		},
 		"properties": {
 			"title": "Eigenschaften",

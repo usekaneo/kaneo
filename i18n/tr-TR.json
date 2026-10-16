@@ -2940,7 +2940,10 @@
 			"deleteAction": "Talebi Sil",
 			"completeAria": "Alt talebi tamamlandı olarak işaretle",
 			"progress": "{{total}} alt görevin {{completed}} tanesi tamamlandı",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Mevcut olanı bağla",
+			"linkPlaceholder": "Alt talep olarak bağlanacak görevleri ara...",
+			"unlinkAction": "Alt taleplerden kaldır"
 		},
 		"properties": {
 			"title": "Özellikler",

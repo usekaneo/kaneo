@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "framer-motion";
-import { Trash2Icon } from "lucide-react";
+import { Link2, Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
+import useDeleteTaskRelation from "@/hooks/mutations/task-relation/use-delete-task-relation";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
@@ -29,6 +30,7 @@ import type Task from "@/types/task";
 import { SectionAddButton } from "./sections/section-add-button";
 import { SectionHeader } from "./sections/section-header";
 import { useProjectSlugs } from "./sections/use-project-slugs";
+import { useRelationPickerStore } from "./task-relation-picker-store";
 import SubtaskRow from "./subtask-row";
 import { useToggleTaskCompletion } from "./use-toggle-task-completion";
 
@@ -62,6 +64,8 @@ export default function TaskSubtasks({
   );
   const createTask = useCreateTask();
   const createRelation = useCreateTaskRelation();
+  const deleteRelation = useDeleteTaskRelation(taskId);
+  const openRelationPicker = useRelationPickerStore((state) => state.open);
   const { mutateAsync: deleteTask } = useDeleteTask();
   const { data: columns = [], isLoading: isLoadingColumns } =
     useGetColumns(projectId);
@@ -306,14 +310,23 @@ export default function TaskSubtasks({
             )
           }
           action={
-            canEdit &&
-            canCreate && (
-              <SectionAddButton
-                data-task-action="addSubtask"
-                aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
-                onClick={() => setIsAdding(true)}
-                disabled={!canCreateSubtask}
-              />
+            canEdit && (
+              <>
+                {canCreate && (
+                  <SectionAddButton
+                    data-task-action="addSubtask"
+                    aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:subtasks.title")}`}
+                    onClick={() => setIsAdding(true)}
+                    disabled={!canCreateSubtask}
+                  />
+                )}
+                <SectionAddButton
+                  aria-label={`${t("tasks:subtasks.linkAction")} ${t("tasks:subtasks.title")}`}
+                  onClick={() => openRelationPicker(taskId, "subtask")}
+                >
+                  <Link2 className="size-3.5" />
+                </SectionAddButton>
+              </>
             )
           }
         />
@@ -366,6 +379,11 @@ export default function TaskSubtasks({
                     })
                   }
                   onDeleteClick={() => setDeleteTaskId(subtask.task.id)}
+                  onUnlink={
+                    canEdit
+                      ? () => deleteRelation.mutate(subtask.relation.id)
+                      : undefined
+                  }
                 />
               );
             })}

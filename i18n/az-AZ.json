@@ -2940,7 +2940,10 @@
 			"deleteAction": "Tapşırığı sil",
 			"completeAria": "Alt tapşırığı tamamlanmış kimi işarələ",
 			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
-			"progress": "{{completed}} of {{total}} subtasks completed"
+			"progress": "{{completed}} of {{total}} subtasks completed",
+			"linkAction": "Mövcud olanı əlaqələndir",
+			"linkPlaceholder": "Alt tapşırıq kimi əlaqələndiriləcək tapşırıqları axtar...",
+			"unlinkAction": "Alt tapşırıqlardan çıxar"
 		},
 		"properties": {
 			"title": "Xüsusiyyətlər",

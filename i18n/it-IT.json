@@ -2987,7 +2987,10 @@
 			"deleteAction": "Elimina Attività",
 			"completeAria": "Segna sotto-attività come completata",
 			"progress": "{{completed}} di {{total}} sottoattività completate",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Collega esistente",
+			"linkPlaceholder": "Cerca attività da collegare come sotto-attività...",
+			"unlinkAction": "Rimuovi dalle sotto-attività"
 		},
 		"properties": {
 			"title": "Proprietà",

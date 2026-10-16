@@ -12016,6 +12016,15 @@
 						"addAction": {
 							"type": "string"
 						},
+						"linkAction": {
+							"type": "string"
+						},
+						"linkPlaceholder": {
+							"type": "string"
+						},
+						"unlinkAction": {
+							"type": "string"
+						},
 						"empty": {
 							"type": "string"
 						},
@@ -12047,6 +12056,9 @@
 						"title",
 						"inputPlaceholder",
 						"addAction",
+						"linkAction",
+						"linkPlaceholder",
+						"unlinkAction",
 						"empty",
 						"createError",
 						"deleteSuccess",

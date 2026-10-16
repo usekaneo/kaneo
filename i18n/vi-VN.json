@@ -2893,7 +2893,10 @@
 			"deleteAction": "Xóa công việc",
 			"completeAria": "Đánh dấu hoàn thành công việc con",
 			"progress": "Đã hoàn thành {{completed}} trên {{total}} công việc con",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Liên kết có sẵn",
+			"linkPlaceholder": "Tìm công việc để liên kết làm công việc con...",
+			"unlinkAction": "Xóa khỏi công việc con"
 		},
 		"properties": {
 			"title": "Thuộc tính",

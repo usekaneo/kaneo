@@ -2940,7 +2940,10 @@
 			"deleteAction": "Избриши задача",
 			"completeAria": "Означи ја подзадачата како завршена",
 			"progress": "Завршени се {{completed}} од {{total}} подзадачи",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Поврзи постоечка",
+			"linkPlaceholder": "Пребарај задачи за поврзување како подзадачи...",
+			"unlinkAction": "Отстрани од подзадачи"
 		},
 		"properties": {
 			"title": "Својства",

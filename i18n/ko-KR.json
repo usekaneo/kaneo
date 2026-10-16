@@ -2893,7 +2893,10 @@
 			"deleteAction": "작업 삭제",
 			"completeAria": "하위 작업을 완료로 표시",
 			"progress": "하위 작업 {{total}}개 중 {{completed}}개 완료",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "기존 작업 링크",
+			"linkPlaceholder": "하위 작업으로 링크할 작업 검색...",
+			"unlinkAction": "하위 작업에서 제거"
 		},
 		"properties": {
 			"title": "속성",

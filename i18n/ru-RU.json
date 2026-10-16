@@ -3042,7 +3042,10 @@
 			"deleteAction": "Удалить задачу",
 			"completeAria": "Отметить подзадачу выполненной",
 			"progress": "Выполнено подзадач: {{completed}} из {{total}}",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Привязать существующую",
+			"linkPlaceholder": "Найти задачи для привязки в качестве подзадач...",
+			"unlinkAction": "Убрать из подзадач"
 		},
 		"properties": {
 			"title": "Свойства",
