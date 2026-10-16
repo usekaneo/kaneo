@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import db, { schema } from "../../apps/api/src/database";
 import deleteColumn from "../../apps/api/src/column/controllers/delete-column";
 import { createApp } from "../../apps/api/src/index";
 import importTasks from "../../apps/api/src/task/controllers/import-tasks";
@@ -90,26 +90,48 @@ describe("task import column deletion", () => {
     },
   );
 
-  it("keeps a resolved column valid until its task transaction commits", async () => {
+  it("rejects deletion of a column that already contains a task", async () => {
     const { user, project, columns } = await fixture();
-    const client = await getDatabasePool().connect();
-    const {
-      rows: [{ pid }],
-    } = await client.query<{ pid: number }>("SELECT pg_backend_pid() AS pid");
-    let deletion: Promise<unknown> | undefined;
+    const result = await importTasks(
+      project.id,
+      [{ title: "Existing", status: "done" }],
+      user.id,
+    );
+    expect(result.results.successful).toBe(1);
+    hooks.publish.mockClear();
+    await expect(deleteColumn(columns.done.id)).rejects.toMatchObject({
+      status: 409,
+    });
+    expect(
+      await db.query.columnTable.findFirst({
+        where: eq(schema.columnTable.id, columns.done.id),
+      }),
+    ).toBeDefined();
+    expect(hooks.publish).not.toHaveBeenCalled();
+  });
+
+  it("rejects a queued deletion when import commits a task into the column", async () => {
+    const { user, project, columns } = await fixture();
+    let deletion: Promise<{ value: unknown } | { error: unknown }> | undefined;
     try {
       hooks.beforePosition.mockImplementationOnce(async () => {
-        deletion = client.query('DELETE FROM "column" WHERE id = $1', [
-          columns.done.id,
-        ]);
-        // This independent connection must wait for the import's column lock.
+        deletion = deleteColumn(columns.done.id).then(
+          (value) => ({ value }),
+          (error: unknown) => ({ error }),
+        );
+        // The controller must wait for the import's column lock before deciding.
         await vi.waitFor(
           async () => {
             const activity = await db.execute<{
               wait_event_type: string | null;
             }>(sql`
-            SELECT wait_event_type FROM pg_stat_activity WHERE pid = ${pid}
-          `);
+              SELECT wait_event_type FROM pg_stat_activity
+              WHERE datname = current_database()
+                AND pid <> pg_backend_pid()
+                AND wait_event_type = 'Lock'
+                AND query LIKE '%"column"%'
+                AND (query ILIKE '%delete from%' OR query ILIKE '%for update%')
+            `);
             expect(activity.rows[0]?.wait_event_type).toBe("Lock");
           },
           { timeout: 2000, interval: 10 },
@@ -122,7 +144,12 @@ describe("task import column deletion", () => {
       );
       expect(result.results.successful).toBe(1);
       expect(result.results.failed).toBe(0);
-      await deletion;
+      expect(await deletion).toMatchObject({ error: { status: 409 } });
+      expect(
+        await db.query.columnTable.findFirst({
+          where: eq(schema.columnTable.id, columns.done.id),
+        }),
+      ).toBeDefined();
       const stored = await db
         .select()
         .from(schema.taskTable)
@@ -131,11 +158,24 @@ describe("task import column deletion", () => {
       expect(stored[0]).toMatchObject({
         title: "Concurrent",
         status: "done",
-        columnId: null,
+        columnId: columns.done.id,
       });
+
+      mockAuthenticatedSession(user);
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/task/tasks/${project.id}?status=done`,
+      );
+      expect(response.status).toBe(200);
+      const board = await response.json();
+      expect(board.pagination.total).toBe(1);
+      expect(
+        board.data.columns.find(
+          (column: { slug: string }) => column.slug === "done",
+        ),
+      ).toMatchObject({ tasks: [{ title: "Concurrent", status: "done" }] });
     } finally {
-      await deletion?.catch(() => {});
-      client.release();
+      await deletion;
     }
   });
 });
