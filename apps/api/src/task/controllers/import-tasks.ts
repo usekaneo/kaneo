@@ -5,7 +5,6 @@ import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import {
-  filterAssignableUsers,
   NO_PROJECT_ACCESS,
   NOT_ASSIGNABLE,
 } from "../../utils/assert-assignable-user";
@@ -14,6 +13,7 @@ import {
   coerceStatus,
   getValidTaskStatuses,
 } from "../validate-task-fields";
+import { resolveImportAssignees } from "../resolve-import-assignees";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
 
@@ -50,12 +50,12 @@ async function importTasks(
     ),
   ];
 
-  const memberIds = await filterAssignableUsers(
+  const assignees = await resolveImportAssignees(
     assigneeIds,
     project.workspaceId,
   );
   const assignableIds = await filterUsersWithProjectAccess(
-    memberIds,
+    assignees.values(),
     projectId,
   );
 
@@ -64,12 +64,13 @@ async function importTasks(
   const results = [];
 
   for (const taskData of tasksToImport) {
-    const assigneeId = taskData.userId?.trim() || null;
+    const reference = taskData.userId?.trim() || null;
+    const assigneeId = reference ? assignees.get(reference) : null;
 
-    if (assigneeId && !assignableIds.has(assigneeId)) {
+    if (reference && (!assigneeId || !assignableIds.has(assigneeId))) {
       results.push({
         success: false,
-        error: memberIds.has(assigneeId) ? NO_PROJECT_ACCESS : NOT_ASSIGNABLE,
+        error: assigneeId ? NO_PROJECT_ACCESS : NOT_ASSIGNABLE,
         task: taskData,
       });
       continue;
@@ -105,7 +106,7 @@ async function importTasks(
           .insert(taskTable)
           .values({
             projectId,
-            userId: assigneeId,
+            userId: assigneeId ?? null,
             title: taskData.title,
             status,
             columnId: column?.id ?? null,
