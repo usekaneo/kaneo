@@ -118,7 +118,10 @@ export const importTasksBody = z.object({
       priority: z.string().optional(),
       startDate: z.string().nullable().optional(),
       dueDate: z.string().nullable().optional(),
-      userId: z.string().nullable().optional(),
+      userId: z.string().nullable().optional().openapi({
+        description:
+          "Assignable user's ID or email address. Emails match case-insensitively. Null, empty, or omitted leaves the task unassigned.",
+      }),
     }),
   ),
 });
