@@ -1,6 +1,11 @@
 import { create } from "zustand";
 
-export type RelationPickerMode = "related" | "blocks" | "blockedBy" | "parent";
+export type RelationPickerMode =
+  | "related"
+  | "blocks"
+  | "blockedBy"
+  | "parent"
+  | "subtask";
 
 type RelationPickerRequest = { taskId: string; mode: RelationPickerMode };
 

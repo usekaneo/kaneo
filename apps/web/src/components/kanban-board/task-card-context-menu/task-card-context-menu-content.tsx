@@ -4,6 +4,7 @@ import {
   CircleDot,
   Clock,
   Copy,
+  Link2Off,
   LinkIcon,
   Trash2,
   UserRound,
@@ -53,12 +54,15 @@ type TaskCardContextMenuContentProps = {
   task: Task;
   taskCardContext: TaskCardContext;
   onDeleteClick: () => void;
+  /** Detach the task from its parent instead of deleting it. */
+  onUnlinkClick?: () => void;
 };
 
 export default function TaskCardContextMenuContent({
   task,
   taskCardContext,
   onDeleteClick,
+  onUnlinkClick,
 }: TaskCardContextMenuContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
@@ -313,6 +317,25 @@ export default function TaskCardContextMenuContent({
                   )}
                 </>
               )}
+            </>
+          )}
+
+          {onUnlinkClick && canEdit && (
+            <>
+              <ContextMenuSeparator />
+
+              <ContextMenuItem
+                className="[&>svg]:mx-0"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setTimeout(() => {
+                    onUnlinkClick();
+                  }, 0);
+                }}
+              >
+                <Link2Off className="size-3.5 text-muted-foreground" />
+                <span>{t("tasks:subtasks.unlinkAction")}</span>
+              </ContextMenuItem>
             </>
           )}
 

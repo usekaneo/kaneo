@@ -4,6 +4,7 @@ import { cn } from "@/lib/cn";
 
 export function SectionAddButton({
   className,
+  children,
   ...props
 }: ComponentProps<"button">) {
   return (
@@ -15,7 +16,7 @@ export function SectionAddButton({
       )}
       {...props}
     >
-      <Plus className="size-3.5" />
+      {children ?? <Plus className="size-3.5" />}
     </button>
   );
 }

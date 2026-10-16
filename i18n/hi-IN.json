@@ -2940,7 +2940,10 @@
 			"deleteAction": "कार्य हटाएँ",
 			"completeAria": "उप-कार्य को पूर्ण चिह्नित करें",
 			"progress": "{{total}} में से {{completed}} उपकार्य पूरे हुए",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "मौजूदा जोड़ें",
+			"linkPlaceholder": "उप-कार्य के रूप में जोड़ने के लिए कार्य खोजें...",
+			"unlinkAction": "उप-कार्यों से हटाएँ"
 		},
 		"properties": {
 			"title": "गुण",

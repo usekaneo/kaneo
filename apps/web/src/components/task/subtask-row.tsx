@@ -28,6 +28,7 @@ type SubtaskRowProps = {
   onToggleComplete: () => void;
   onNavigate: () => void;
   onDeleteClick: () => void;
+  onUnlink?: () => void;
 };
 
 export default function SubtaskRow({
@@ -46,6 +47,7 @@ export default function SubtaskRow({
   onToggleComplete,
   onNavigate,
   onDeleteClick,
+  onUnlink,
 }: SubtaskRowProps) {
   const reduceMotion = useReducedMotion();
   const { t } = useTranslation();
@@ -99,6 +101,7 @@ export default function SubtaskRow({
             workspaceSlug,
           }}
           onDeleteClick={onDeleteClick}
+          onUnlinkClick={onUnlink}
         />
       </ContextMenu>
     </motion.div>

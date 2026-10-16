@@ -145,6 +145,8 @@ export default function TaskRelations({
     taskId,
     relations,
   );
+  const isSubtaskAxis =
+    selectedRelationType === "parent" || selectedRelationType === "subtask";
 
   const allTasks = useMemo(() => {
     if (!projectData) return [];
@@ -280,7 +282,9 @@ export default function TaskRelations({
               <SectionAddButton
                 aria-label={`${t("tasks:subtasks.addAction")} ${t("tasks:relations.title")}`}
                 onClick={() => setCommandOpen(true)}
-              />
+              >
+                <Link2 className="size-3.5" />
+              </SectionAddButton>
             )
           }
         />
@@ -367,7 +371,9 @@ export default function TaskRelations({
               placeholder={
                 selectedRelationType === "parent"
                   ? t("tasks:relations.parentPlaceholder")
-                  : t("tasks:relations.searchPlaceholder")
+                  : selectedRelationType === "subtask"
+                    ? t("tasks:subtasks.linkPlaceholder")
+                    : t("tasks:relations.searchPlaceholder")
               }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -418,7 +424,7 @@ export default function TaskRelations({
             </CommandPanel>
             <CommandFooter>
               <div
-                className={`flex items-center gap-3 ${selectedRelationType === "parent" ? "hidden" : ""}`}
+                className={`flex items-center gap-3 ${isSubtaskAxis ? "hidden" : ""}`}
               >
                 <button
                   type="button"

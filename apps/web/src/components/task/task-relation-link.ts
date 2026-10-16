@@ -46,9 +46,10 @@ export function unpickableTaskIds(
   relations: RelationEdge[],
 ) {
   const ids = new Set([taskId]);
+  const pickOnSubtaskAxis = mode === "parent" || mode === "subtask";
   for (const relation of relations) {
     const isSubtask = relation.relationType === "subtask";
-    if (mode === "parent" ? isSubtask : !isSubtask) {
+    if (pickOnSubtaskAxis ? isSubtask : !isSubtask) {
       ids.add(relation.sourceTaskId);
       ids.add(relation.targetTaskId);
     }

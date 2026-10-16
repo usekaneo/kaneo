@@ -2940,7 +2940,10 @@
 			"deleteAction": "Διαγραφή εργασίας",
 			"completeAria": "Επισήμανση υποεργασίας ως ολοκληρωμένης",
 			"progress": "Ολοκληρώθηκαν {{completed}} από {{total}} υποεργασίες",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Σύνδεση υπάρχουσας",
+			"linkPlaceholder": "Αναζήτηση εργασιών για σύνδεση ως υποεργασίες...",
+			"unlinkAction": "Κατάργηση από τις υποεργασίες"
 		},
 		"properties": {
 			"title": "Ιδιότητες",

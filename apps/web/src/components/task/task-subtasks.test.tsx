@@ -17,12 +17,14 @@ import {
 import type SubtaskRow from "./subtask-row";
 import { TaskProgressBadges } from "./task-progress-badges";
 import TaskSubtasks from "./task-subtasks";
+import { useRelationPickerStore } from "./task-relation-picker-store";
 
 const mocks = vi.hoisted(() => ({
   canCreateTasks: vi.fn(),
   canUpdateTasks: vi.fn(),
   createTask: vi.fn(),
   createRelation: vi.fn(),
+  deleteRelation: vi.fn(),
   getColumns: vi.fn(),
   getRelations: vi.fn(),
   fetchColumns: vi.fn(),
@@ -45,6 +47,9 @@ vi.mock("@/hooks/mutations/task/use-create-task", () => ({
 }));
 vi.mock("@/hooks/mutations/task-relation/use-create-task-relation", () => ({
   default: () => ({ mutateAsync: mocks.createRelation }),
+}));
+vi.mock("@/hooks/mutations/task-relation/use-delete-task-relation", () => ({
+  default: () => ({ mutate: mocks.deleteRelation }),
 }));
 vi.mock("@/hooks/mutations/task/use-delete-task", () => ({
   useDeleteTask: () => ({ mutateAsync: vi.fn() }),
@@ -203,6 +208,28 @@ describe("TaskSubtasks", () => {
         name: "tasks:subtasks.addAction tasks:subtasks.title",
       }),
     ).not.toBeInTheDocument();
+  });
+
+  it("asks the shared relation picker for an existing task to link", () => {
+    render(
+      <TaskSubtasks
+        taskId="parent-5"
+        projectId="project-1"
+        workspaceId="workspace-1"
+        parentStatus="planned"
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "tasks:subtasks.linkAction tasks:subtasks.title",
+      }),
+    );
+
+    expect(useRelationPickerStore.getState().request).toEqual({
+      taskId: "parent-5",
+      mode: "subtask",
+    });
   });
 });
 

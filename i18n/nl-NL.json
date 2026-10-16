@@ -2940,7 +2940,10 @@
 			"deleteAction": "Taak verwijderen",
 			"completeAria": "Markeer subtaak als voltooid",
 			"progress": "{{completed}} van {{total}} subtaken voltooid",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Bestaande koppelen",
+			"linkPlaceholder": "Zoek taken om te koppelen als subtaken...",
+			"unlinkAction": "Uit subtaken verwijderen"
 		},
 		"properties": {
 			"title": "Eigenschappen",

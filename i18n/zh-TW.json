@@ -2893,7 +2893,10 @@
 			"deleteAction": "刪除任務",
 			"completeAria": "將子任務標記為完成",
 			"progress": "已完成 {{completed}}/{{total}} 個子任務",
-			"noCompletionColumn": "此專案沒有對應的欄可用來完成或重新開啟這個子任務。"
+			"noCompletionColumn": "此專案沒有對應的欄可用來完成或重新開啟這個子任務。",
+			"linkAction": "關聯現有任務",
+			"linkPlaceholder": "搜尋要關聯為子任務的任務…",
+			"unlinkAction": "從子任務中移除"
 		},
 		"properties": {
 			"title": "屬性",

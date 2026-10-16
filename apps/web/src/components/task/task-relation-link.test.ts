@@ -52,6 +52,14 @@ describe("buildRelationLink", () => {
       relationType: "subtask",
     });
   });
+
+  it("points subtask links from the open task to the picked task", () => {
+    expect(buildRelationLink("subtask", "task", "picked")).toEqual({
+      sourceTaskId: "task",
+      targetTaskId: "picked",
+      relationType: "subtask",
+    });
+  });
 });
 
 describe("findParentRelation", () => {
@@ -75,5 +83,11 @@ describe("unpickableTaskIds", () => {
       "parent",
       "task",
     ]);
+  });
+
+  it("hides the current parent and subtasks when picking a subtask", () => {
+    expect([...unpickableTaskIds("subtask", "task", relations)].sort()).toEqual(
+      ["child", "parent", "task"],
+    );
   });
 });

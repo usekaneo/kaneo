@@ -2893,7 +2893,10 @@
 			"deleteAction": "删除任务",
 			"completeAria": "将子任务标记为完成",
 			"progress": "已完成 {{completed}}/{{total}} 个子任务",
-			"noCompletionColumn": "此项目没有可用于完成或重新打开该子任务的列。"
+			"noCompletionColumn": "此项目没有可用于完成或重新打开该子任务的列。",
+			"linkAction": "关联现有任务",
+			"linkPlaceholder": "搜索要关联为子任务的任务…",
+			"unlinkAction": "从子任务中移除"
 		},
 		"properties": {
 			"title": "属性",

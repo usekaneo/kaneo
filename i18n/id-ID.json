@@ -2893,7 +2893,10 @@
 			"deleteAction": "Hapus Tugas",
 			"completeAria": "Tandai subtugas selesai",
 			"progress": "{{completed}} dari {{total}} subtugas selesai",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Tautkan yang ada",
+			"linkPlaceholder": "Cari tugas untuk ditautkan sebagai subtugas...",
+			"unlinkAction": "Hapus dari subtugas"
 		},
 		"properties": {
 			"title": "Properti",

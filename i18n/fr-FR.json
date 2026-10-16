@@ -2987,7 +2987,10 @@
 			"deleteAction": "Supprimer la tâche",
 			"completeAria": "Marquer la sous-tâche comme terminée",
 			"progress": "{{completed}} sous-tâches terminées sur {{total}}",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Lier une existante",
+			"linkPlaceholder": "Rechercher des tâches à lier comme sous-tâches...",
+			"unlinkAction": "Retirer des sous-tâches"
 		},
 		"properties": {
 			"title": "Propriétés",

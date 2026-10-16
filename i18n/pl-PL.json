@@ -3576,7 +3576,10 @@
 			"inputPlaceholder": "Tytuł podzadania...",
 			"title": "Podzadania",
 			"progress": "Ukończone podzadania: {{completed}} z {{total}}",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Połącz istniejące",
+			"linkPlaceholder": "Szukaj zadań do powiązania jako podzadania...",
+			"unlinkAction": "Usuń z podzadań"
 		},
 		"update": {
 			"error": "Nie udało się zaktualizować zadania"

@@ -3034,7 +3034,10 @@
 			"deleteAction": "Видалити завдання",
 			"completeAria": "Позначити підзавдання виконаним",
 			"progress": "Виконано підзавдань: {{completed}} із {{total}}",
-			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask."
+			"noCompletionColumn": "This project has no matching column for completing or reopening this subtask.",
+			"linkAction": "Прив'язати наявну",
+			"linkPlaceholder": "Знайти задачі для прив'язки як підзавдання...",
+			"unlinkAction": "Прибрати з підзавдань"
 		},
 		"properties": {
 			"title": "Властивості",
