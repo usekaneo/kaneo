@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
@@ -9,11 +9,8 @@ import {
   NO_PROJECT_ACCESS,
   NOT_ASSIGNABLE,
 } from "../../utils/assert-assignable-user";
-import {
-  coercePriority,
-  coerceStatus,
-  getValidTaskStatuses,
-} from "../validate-task-fields";
+import { coercePriority } from "../validate-task-fields";
+import { resolveImportTaskStatus } from "../resolve-import-task-status";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
 
@@ -59,7 +56,10 @@ async function importTasks(
     projectId,
   );
 
-  const validStatuses = await getValidTaskStatuses(projectId);
+  const columns = await db.query.columnTable.findMany({
+    where: eq(columnTable.projectId, projectId),
+    orderBy: asc(columnTable.position),
+  });
 
   const results = [];
 
@@ -76,21 +76,18 @@ async function importTasks(
     }
 
     try {
-      const { status, warning: statusWarning } = coerceStatus(
-        taskData.status,
-        validStatuses,
-      );
+      const resolved = resolveImportTaskStatus(taskData.status, columns);
+      if ("error" in resolved) {
+        results.push({ success: false, error: resolved.error, task: taskData });
+        continue;
+      }
+      const { status, warning: statusWarning } = resolved;
       const { priority, warning: priorityWarning } = coercePriority(
         taskData.priority || "low",
       );
       const warnings = [statusWarning, priorityWarning].filter(Boolean);
 
-      const column = await db.query.columnTable.findFirst({
-        where: and(
-          eq(columnTable.projectId, projectId),
-          eq(columnTable.slug, status),
-        ),
-      });
+      const column = columns.find((candidate) => candidate.slug === status);
 
       const createdTask = await db.transaction(async (tx) => {
         const taskNumber = await claimTaskNumber(projectId, tx);
