@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNotNull, or, sql } from "drizzle-orm";
+import { and, eq, exists, inArray, or, sql } from "drizzle-orm";
 import db, { schema } from "../database";
 import { instanceAdminRoleSql } from "../utils/instance-admin-role";
 
@@ -9,47 +9,59 @@ export async function resolveImportAssignees(
   const resolved = new Map<string, string>();
   if (references.length === 0) return resolved;
 
-  const users = await db
-    .select({ id: schema.userTable.id, email: schema.userTable.email })
-    .from(schema.userTable)
-    .leftJoin(
-      schema.workspaceUserTable,
-      and(
-        eq(schema.workspaceUserTable.userId, schema.userTable.id),
-        eq(schema.workspaceUserTable.workspaceId, workspaceId),
-      ),
-    )
-    .where(
-      and(
-        or(
-          inArray(schema.userTable.id, references),
-          inArray(
-            sql`lower(${schema.userTable.email})`,
-            references.map((reference) => reference.toLowerCase()),
+  // Membership is a predicate: duplicate membership rows still mean one user.
+  const eligible = or(
+    exists(
+      db
+        .select({ id: schema.workspaceUserTable.id })
+        .from(schema.workspaceUserTable)
+        .where(
+          and(
+            eq(schema.workspaceUserTable.userId, schema.userTable.id),
+            eq(schema.workspaceUserTable.workspaceId, workspaceId),
           ),
         ),
-        or(
-          isNotNull(schema.workspaceUserTable.userId),
-          instanceAdminRoleSql(schema.userTable.role),
-        ),
-      ),
-    );
+    ),
+    instanceAdminRoleSql(schema.userTable.role),
+  );
+  const idUsers = await db
+    .select({ id: schema.userTable.id })
+    .from(schema.userTable)
+    .where(and(inArray(schema.userTable.id, references), eligible));
+  for (const user of idUsers) resolved.set(user.id, user.id);
 
-  const ids = new Set(users.map((user) => user.id));
-  const byEmail = new Map<string, string[]>();
-  for (const user of users) {
+  // Keep existing ID imports on the indexed path, including missing IDs.
+  const emails = [
+    ...new Set(
+      references
+        .filter(
+          (reference) => !resolved.has(reference) && reference.includes("@"),
+        )
+        .map((reference) => reference.toLowerCase()),
+    ),
+  ];
+  if (emails.length === 0) return resolved;
+
+  const emailUsers = await db
+    .select({ id: schema.userTable.id, email: schema.userTable.email })
+    .from(schema.userTable)
+    .where(
+      and(inArray(sql`lower(${schema.userTable.email})`, emails), eligible),
+    );
+  const byEmail = new Map<string, Set<string>>();
+  for (const user of emailUsers) {
     const email = user.email.toLowerCase();
-    byEmail.set(email, [...(byEmail.get(email) ?? []), user.id]);
+    const matches = byEmail.get(email) ?? new Set<string>();
+    matches.add(user.id);
+    byEmail.set(email, matches);
   }
   for (const reference of references) {
-    // Existing exports use IDs; retain their meaning even if an ID resembles an email.
-    if (ids.has(reference)) {
-      resolved.set(reference, reference);
-      continue;
-    }
+    // IDs keep precedence even when they resemble another user's email.
+    if (resolved.has(reference)) continue;
     const matches = byEmail.get(reference.toLowerCase());
-    const match = matches?.[0];
-    if (matches?.length === 1 && match) resolved.set(reference, match);
+    if (matches?.size !== 1) continue;
+    const [id] = matches;
+    if (id) resolved.set(reference, id);
   }
   return resolved;
 }

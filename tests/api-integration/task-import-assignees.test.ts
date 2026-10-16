@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
-import db, { schema } from "../../apps/api/src/database";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import db, { getDatabasePool, schema } from "../../apps/api/src/database";
+import { resolveImportAssignees } from "../../apps/api/src/task/resolve-import-assignees";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
@@ -53,6 +54,78 @@ describe("JSON import assignees", () => {
     expect(tasks.filter((task) => task.userId === user.id)).toHaveLength(2);
     expect(tasks.filter((task) => task.userId === null)).toHaveLength(3);
     expect(tasks.some((task) => task.userId === user.email)).toBe(false);
+  });
+
+  it("resolves an email when the same user has duplicate workspace memberships", async () => {
+    const { user, workspace, importUsers } = await fixture();
+    await db.insert(schema.workspaceUserTable).values({
+      userId: user.id,
+      workspaceId: workspace.id,
+      role: "owner",
+      joinedAt: new Date(),
+    });
+    const result = await importUsers([
+      user.email,
+      `  ${user.email.toUpperCase()}  `,
+    ]);
+    expect(result.results.successful).toBe(2);
+    expect(result.results.failed).toBe(0);
+    expect(
+      result.results.tasks.map(
+        (entry: { task: { userId: string } }) => entry.task.userId,
+      ),
+    ).toEqual([user.id, user.id]);
+  });
+
+  it("prefers an actual user ID over another eligible user's matching email", async () => {
+    const { user, workspace, importUsers } = await fixture();
+    const [idHolder] = await db
+      .insert(schema.userTable)
+      .values({
+        id: user.email,
+        email: `${user.id}@id-holder.example.com`,
+        emailVerified: true,
+        name: "ID Holder",
+      })
+      .returning();
+    await db.insert(schema.workspaceUserTable).values({
+      userId: idHolder.id,
+      workspaceId: workspace.id,
+      role: "member",
+      joinedAt: new Date(),
+    });
+    const result = await importUsers([idHolder.id, user.id]);
+    expect(result.results.successful).toBe(2);
+    expect(result.results.failed).toBe(0);
+    expect(
+      result.results.tasks.map(
+        (entry: { task: { userId: string } }) => entry.task.userId,
+      ),
+    ).toEqual([idHolder.id, user.id]);
+  });
+
+  it("keeps indexed ID-only imports free of email scans", async () => {
+    const { user, workspace } = await fixture();
+    const queries = vi.spyOn(getDatabasePool(), "query");
+    try {
+      const resolved = await resolveImportAssignees(
+        [user.id, "missing-user-id"],
+        workspace.id,
+      );
+      expect(resolved.get(user.id)).toBe(user.id);
+      expect(resolved.has("missing-user-id")).toBe(false);
+      expect(queries).toHaveBeenCalledTimes(1);
+      const statement = queries.mock.calls[0]?.[0];
+      const text =
+        typeof statement === "string"
+          ? statement
+          : statement && typeof statement === "object" && "text" in statement
+            ? statement.text
+            : "";
+      expect(text).not.toMatch(/lower\s*\(/i);
+    } finally {
+      queries.mockRestore();
+    }
   });
 
   it("rejects another workspace's users without revealing whether the email exists", async () => {
