@@ -5,6 +5,7 @@ import db from "../../database";
 import { externalLinkTable, taskTable } from "../../database/schema";
 import { isTaskInFinalState } from "../../plugins/github/services/task-service";
 import { taskMatchesRule } from "../../plugins/sync/eligibility";
+import { isStateSyncPaused } from "../../plugins/sync/state-sync-paused";
 import { providerIssue } from "../../plugins/sync/provider-issue";
 import { isSyncPaused, readSyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
@@ -83,13 +84,11 @@ export async function reviewSyncResume(
   const local = {
     title: task.title,
     description: task.description ?? "",
-    // Archived tasks have no issue state of their own; keep the provider's.
-    state:
-      task.status === "archived"
-        ? remote.state
-        : (await isTaskInFinalState(task, database))
-          ? ("closed" as const)
-          : ("open" as const),
+    state: isStateSyncPaused(task.status)
+      ? remote.state
+      : (await isTaskInFinalState(task, database))
+        ? ("closed" as const)
+        : ("open" as const),
   };
   const token = createHash("sha256")
     .update(

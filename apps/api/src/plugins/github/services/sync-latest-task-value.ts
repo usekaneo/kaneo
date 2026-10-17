@@ -16,6 +16,7 @@ import {
 } from "./integration-task-scope";
 import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
 import { isTaskInFinalState } from "./task-service";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 
 // Provider requests may complete out of order across API instances. Every late
 // completion repairs the provider using the current, still-linked task value.
@@ -197,8 +198,7 @@ export async function syncLatestTaskValue(
       },
     });
     if (!task) return;
-    // Archiving keeps the issue state just written; see resolveIssueStateChange.
-    if (field === "state" && task.status === "archived") return true;
+    if (field === "state" && isStateSyncPaused(task.status)) return true;
     const current =
       field === "state"
         ? (await isTaskInFinalState(task))

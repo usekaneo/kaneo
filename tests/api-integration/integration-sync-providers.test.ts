@@ -23,6 +23,8 @@ import { githubPlugin } from "../../apps/api/src/plugins/github";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
 import { gitlabPlugin } from "../../apps/api/src/plugins/gitlab";
 import { handleGitlabIssueOpened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-opened";
+import { handleGitlabIssueClosed } from "../../apps/api/src/plugins/gitlab/webhooks/issue-closed";
+import { handleGitlabIssueReopened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-reopened";
 import { registerPlugin } from "../../apps/api/src/plugins/registry";
 import {
   reconcileProjectSync,
@@ -653,6 +655,40 @@ describe.each(["github", "gitea", "gitlab"] as const)(
               expect.objectContaining({ title: f.task.title, state: "closed" }),
             );
           else expect(mocks.write).not.toHaveBeenCalled();
+          expect(
+            await db.query.taskTable.findFirst({
+              where: eq(schema.taskTable.id, f.task.id),
+            }),
+          ).toMatchObject({ status: "archived", columnId: null });
+        },
+      );
+
+      it.runIf(type === "gitlab")(
+        "ignores live close and reopen webhooks for an archived task",
+        async () => {
+          const f = await exported();
+          await f.changeStatus(f.columns.todo.slug, "archived", null);
+          for (const [handle, state, action] of [
+            [handleGitlabIssueClosed, "closed", "close"],
+            [handleGitlabIssueReopened, "opened", "reopen"],
+          ] as const)
+            await handle(
+              {
+                object_attributes: {
+                  iid: 12,
+                  title: f.task.title,
+                  url: "https://gitlab.example/team/repo/-/issues/12",
+                  state,
+                  action,
+                  updated_at: new Date().toISOString(),
+                },
+                project: {
+                  path_with_namespace: "team/repo",
+                  web_url: "https://gitlab.example/team/repo",
+                },
+              },
+              f.integration.id,
+            );
           expect(
             await db.query.taskTable.findFirst({
               where: eq(schema.taskTable.id, f.task.id),

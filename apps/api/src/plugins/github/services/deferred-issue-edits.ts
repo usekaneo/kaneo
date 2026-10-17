@@ -29,6 +29,7 @@ import { writeInboundTaskField } from "./apply-observed-task-value";
 import { updateExternalLink } from "./link-manager";
 import { syncLatestTaskValue } from "./sync-latest-task-value";
 import { isTaskInFinalState } from "./task-service";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 import {
   linkedTaskScope,
   integrationTaskRevision,
@@ -259,20 +260,12 @@ async function replayClaimedIssueEdits() {
             const taskIsClosed = fields.includes("state")
               ? await isTaskInFinalState(task, tx)
               : false;
-            // Archived tasks have no outbound state target; keep the provider's.
-            const keepsState =
-              fields.includes("state") && task.status === "archived";
-            if (keepsState) current.state = values.state;
-            // Its own uncertain write echoing back settles the intent instead,
-            // unless a provider edit was observed after that write.
-            const stateStamp = current.lastSync?.state;
-            const stateEcho =
-              keepsState &&
-              uncertainOutboundIntents(stateStamp, values.state).some(
-                (entry) => !inboundOccurredAfterIntent(stateStamp, entry),
-              );
+            // Skip state for archived tasks and settle what still waits on it.
+            const statePaused =
+              fields.includes("state") && isStateSyncPaused(task.status);
+            if (statePaused) current.state = values.state;
             for (const field of fields) {
-              if (field === "state" && keepsState) continue;
+              if (field === "state" && statePaused) continue;
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntents(stamp, values[field]);
               const intentIds = uncertain.flatMap((entry) =>
@@ -321,7 +314,7 @@ async function replayClaimedIssueEdits() {
             const accepted = job.fields.filter(
               (field) =>
                 !repairs.some((repair) => repair.field === field) &&
-                !(field === "state" && stateEcho) &&
+                !(field === "state" && statePaused) &&
                 !(
                   field === "state" &&
                   integration.type === "github" &&
@@ -371,18 +364,8 @@ async function replayClaimedIssueEdits() {
               {
                 metadata: current,
                 ...(accepted.includes("title") ? { title: values.title } : {}),
-                ...(keepsState
+                ...(statePaused
                   ? { retireUncertainOutbound: "state" as const }
-                  : {}),
-                // A retained job must not replay the settled echo as an edit.
-                ...(stateEcho && repairs.length
-                  ? {
-                      deferredEdit: {
-                        fields: [],
-                        repairFields: ["state" as const],
-                        scope: job.scope,
-                      },
-                    }
                   : {}),
                 ...(repairs.length ? {} : { completeDeferredEdit: job.id }),
               },

@@ -1,4 +1,5 @@
 import { issueEditScope } from "../../github/utils/deferred-issue-edit";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 import { deferIssueEdit } from "../../github/services/deferred-issue-edits";
 import { inboundStamp } from "../../github/utils/sync-echo";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -108,6 +109,8 @@ export async function handleGiteaIssueReopened(
               if (!task) {
                 return;
               }
+
+              if (isStateSyncPaused(task.status)) return;
               const existingMetadata = parseLinkMetadata<
                 Record<string, unknown> & { lastSync?: { state?: SyncStamp } }
               >(externalLink.metadata, {
