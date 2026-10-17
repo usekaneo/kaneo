@@ -62,10 +62,15 @@ async function applyLabelFields(
       });
       if (!task) return;
       const metadata = metadataOf(link);
-      // Links from before this record only trust the label the event added.
+      // Links from before this record only trust labels events added. Read the
+      // queue under this row lock: deferrals may have joined it during the read,
+      // and every entry is handled here, so clearing it below loses none.
+      const trusted = [...added, ...names(metadata.syncLabelFieldsAdded)];
       const known = Array.isArray(metadata.syncFieldLabels)
         ? names(metadata.syncFieldLabels)
-        : labels.filter((name) => isFieldLabel(name) && !added.includes(name));
+        : labels.filter(
+            (name) => isFieldLabel(name) && !trusted.includes(name),
+          );
       const { status, priority } = changedLabelFields(labels, known, task);
       await updateExternalLink(
         link.id,

@@ -567,3 +567,35 @@ it("github shares one delivery budget across integrations", async () => {
   release();
   await vi.waitFor(async () => expect(await first.status()).toBe("in-review"));
 }, 25_000);
+
+it("github keeps an addition deferred while another read is running", async () => {
+  const f = await setup("github", {});
+  change("labeled", "status:in-review");
+  change("labeled", "priority:high");
+  const [status, priority] = mocks.deliveries.splice(0);
+  let release!: () => void;
+  mocks.readGate = new Promise((resolve) => {
+    release = resolve;
+  });
+  // The status read stalls while holding the field-label lease.
+  const stalled = f.receive(status!);
+  await vi.waitFor(async () =>
+    expect(
+      await db.query.jobLeaseTable.findFirst({
+        where: eq(schema.jobLeaseTable.name, `sync-field-labels:${f.link.id}`),
+      }),
+    ).toBeDefined(),
+  );
+  // The priority event defers behind it and queues its label.
+  await f.receive(priority!);
+  expect((await f.metadataOf()).syncLabelFieldsAdded).toEqual([
+    "priority:high",
+  ]);
+  release();
+  await stalled;
+  await replayDeferredLabelFields();
+  expect(await f.current()).toMatchObject({
+    status: "in-review",
+    priority: "high",
+  });
+}, 20_000);
