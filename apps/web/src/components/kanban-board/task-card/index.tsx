@@ -35,7 +35,7 @@ function TaskCard({
     transition: { duration: 200, easing: EASE_OUT_CSS },
   });
   // The context menu trigger inside the card stops touchstart from bubbling,
-  // so the TouchSensor has to receive it in the capture phase.
+  // so the TouchSensor listens on that trigger instead of this wrapper.
   const { onTouchStart, ...dragListeners } = listeners ?? {};
   const { handleKeyDown } = useTaskCardClick(task);
   const hoverPrefetch = useTaskHoverPrefetch(task.id);
@@ -59,7 +59,6 @@ function TaskCard({
       data-shortcut-surface
       {...attributes}
       {...dragListeners}
-      onTouchStartCapture={(event) => onTouchStart?.(event)}
       {...hoverPrefetch}
       role="button"
       tabIndex={0}
@@ -75,6 +74,7 @@ function TaskCard({
         disableDragDrop={disableDragDrop}
         isFinalColumn={isFinalColumn}
         isDragging={isDragging}
+        onDragTouchStart={(event) => onTouchStart?.(event)}
       />
     </div>
   );
