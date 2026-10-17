@@ -263,6 +263,11 @@ async function replayClaimedIssueEdits() {
             const keepsState =
               fields.includes("state") && task.status === "archived";
             if (keepsState) current.state = values.state;
+            // Its own uncertain write echoing back settles the intent instead.
+            const stateEcho =
+              keepsState &&
+              uncertainOutboundIntents(current.lastSync?.state, values.state)
+                .length > 0;
             for (const field of fields) {
               if (field === "state" && keepsState) continue;
               const stamp = current.lastSync?.[field];
@@ -313,6 +318,7 @@ async function replayClaimedIssueEdits() {
             const accepted = job.fields.filter(
               (field) =>
                 !repairs.some((repair) => repair.field === field) &&
+                !(field === "state" && stateEcho) &&
                 !(
                   field === "state" &&
                   integration.type === "github" &&
