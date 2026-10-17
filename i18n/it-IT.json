@@ -4003,7 +4003,7 @@
 				"notePlaceholder": "Su cosa hai lavorato?"
 			},
 			"activity": {
-				"title": "Attività",
+				"title": "Cronologia",
 				"comment": "Commenta",
 				"edit": "Modifica",
 				"editComment": "Modifica commento",
@@ -4078,7 +4078,7 @@
 			"noLabels": "Ancora nessuna etichetta in questo workspace.",
 			"labelsAndParentFailed": "Attività creata, ma non è stato possibile salvare alcune etichette e il collegamento all'attività principale.",
 			"labelsFailed": "Attività creata, ma non è stato possibile aggiungere alcune etichette.",
-			"parentFailed": "Attività creata, ma non è stato possibile collegarla all'attività principale. Imposta l'attività principale dal web."
+			"parentFailed": "Attività creata, ma non è stato possibile collegarla all'attività principale."
 		},
 		"editor": {
 			"description": "Descrizione",
@@ -4284,9 +4284,9 @@
 			}
 		},
 		"activity": {
-			"title": "Attività",
+			"title": "Cronologia",
 			"subtitle": "Tutto ciò che succede in {{workspace}}",
-			"empty": "Nessuna attività recente",
+			"empty": "Nessun evento recente",
 			"someone": "Qualcuno",
 			"commentedOn": "ha commentato {{target}}"
 		},
@@ -4317,7 +4317,7 @@
 			"home": "Home",
 			"tasks": "Le mie attività",
 			"inbox": "Notifiche",
-			"activity": "Attività",
+			"activity": "Cronologia",
 			"inboxUnread": "Notifiche, {{count}} non lette"
 		},
 		"workspaceSwitcher": {
@@ -4674,6 +4674,9 @@
 			"toast": {
 				"deleted": "Etichetta eliminata"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo usa le tue foto per allegare immagini ad attività e commenti e per la tua foto profilo."
 		}
 	}
 }

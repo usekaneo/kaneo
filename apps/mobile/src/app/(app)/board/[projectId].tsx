@@ -37,6 +37,7 @@ import { Txt } from "@/components/text";
 import { IconButton, Touch } from "@/components/ui";
 import {
   emptyFilters,
+  endPosition,
   filterCount,
   lanes as buildLanes,
   type BoardFilters,
@@ -671,12 +672,20 @@ export default function BoardScreen() {
           if (!quick) return;
           const task = quick.task;
           const target = lanes.find((l) => l.status === status);
-          void run(() => api.updateStatus(task.id, status), {
-            success: t("mobile:board.movedTask", {
-              ticket: ticketId(slug, task.number),
-              status: target?.name ?? status,
-            }),
-          });
+          const data = board.data;
+          if (!data) return;
+          void run(
+            () =>
+              api.reorderTasks(projectId, [
+                { id: task.id, position: endPosition(data, status), status },
+              ]),
+            {
+              success: t("mobile:board.movedTask", {
+                ticket: ticketId(slug, task.number),
+                status: target?.name ?? status,
+              }),
+            },
+          );
         }}
         onAssign={(userId) => {
           if (quick) void run(() => api.updateAssignee(quick.task.id, userId));

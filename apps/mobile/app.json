@@ -18,7 +18,8 @@
 			"infoPlist": {
 				"NSAppTransportSecurity": {
 					"NSAllowsArbitraryLoads": true
-				}
+				},
+				"CFBundleAllowMixedLocalizations": true
 			}
 		},
 		"android": {
@@ -67,6 +68,7 @@
 			"expo-font",
 			"./plugins/with-gradle-memory",
 			"./plugins/with-release-signing",
+			"./plugins/with-permission-locales",
 			[
 				"expo-build-properties",
 				{

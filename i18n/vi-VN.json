@@ -3952,7 +3952,7 @@
 			"noLabels": "Không gian làm việc này chưa có nhãn nào.",
 			"labelsAndParentFailed": "Đã tạo công việc, nhưng không thể lưu một số nhãn và liên kết với công việc cha.",
 			"labelsFailed": "Đã tạo công việc, nhưng không thể thêm một số nhãn.",
-			"parentFailed": "Đã tạo công việc, nhưng không thể liên kết với công việc cha. Hãy đặt công việc cha từ ứng dụng web."
+			"parentFailed": "Đã tạo công việc, nhưng không thể liên kết với công việc cha."
 		},
 		"editor": {
 			"description": "Mô tả",
@@ -4520,6 +4520,9 @@
 			"toast": {
 				"deleted": "Đã xóa nhãn"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo dùng ảnh của bạn để đính kèm hình ảnh vào công việc và bình luận, cũng như làm ảnh hồ sơ."
 		}
 	}
 }

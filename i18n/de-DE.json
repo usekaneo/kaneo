@@ -4015,7 +4015,7 @@
 			"noLabels": "In diesem Workspace gibt es noch keine Labels.",
 			"labelsAndParentFailed": "Aufgabe erstellt, aber einige Labels und die Verknüpfung zur übergeordneten Aufgabe konnten nicht gespeichert werden.",
 			"labelsFailed": "Aufgabe erstellt, aber einige Labels konnten nicht hinzugefügt werden.",
-			"parentFailed": "Aufgabe erstellt, aber sie konnte nicht mit der übergeordneten Aufgabe verknüpft werden. Lege die übergeordnete Aufgabe im Web fest."
+			"parentFailed": "Aufgabe erstellt, aber sie konnte nicht mit der übergeordneten Aufgabe verknüpft werden."
 		},
 		"editor": {
 			"description": "Beschreibung",
@@ -4597,6 +4597,9 @@
 			"toast": {
 				"deleted": "Label gelöscht"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo verwendet deine Fotos, um Bilder an Aufgaben und Kommentare anzuhängen, und für dein Profilbild."
 		}
 	}
 }

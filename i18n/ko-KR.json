@@ -4441,7 +4441,7 @@
 			"taskTitle": "작업 제목",
 			"labelsAndParentFailed": "작업이 생성되었지만 일부 라벨과 상위 작업 연결을 저장하지 못했습니다.",
 			"labelsFailed": "작업이 생성되었지만 일부 라벨을 추가하지 못했습니다.",
-			"parentFailed": "작업이 생성되었지만 상위 작업에 연결하지 못했습니다. 웹 앱에서 상위 작업을 설정하세요."
+			"parentFailed": "작업이 생성되었지만 상위 작업에 연결하지 못했습니다."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}시간 {{minutes}}분",
@@ -4520,6 +4520,9 @@
 			"members": "멤버",
 			"settings": "워크스페이스 설정",
 			"title": "워크스페이스"
+		},
+		"permissions": {
+			"photos": "Kaneo는 작업과 댓글에 이미지를 첨부하고 프로필 사진을 설정하기 위해 사진을 사용합니다."
 		}
 	}
 }

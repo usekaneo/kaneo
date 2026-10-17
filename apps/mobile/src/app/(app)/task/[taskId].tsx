@@ -274,6 +274,7 @@ export default function TaskScreen() {
                 />
                 <Relations
                   taskId={task.id}
+                  projectId={task.projectId}
                   relations={ex.relations}
                   workspaceId={workspaceId}
                   onOpen={(id) =>

@@ -4441,7 +4441,7 @@
 			"taskTitle": "任務標題",
 			"labelsAndParentFailed": "已建立任務，但無法儲存部分標籤和上層任務的連結。",
 			"labelsFailed": "已建立任務，但無法新增部分標籤。",
-			"parentFailed": "已建立任務，但無法連結至上層任務。請從網頁應用程式設定上層任務。"
+			"parentFailed": "已建立任務，但無法連結至上層任務。"
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}小時 {{minutes}}分",
@@ -4520,6 +4520,9 @@
 			"members": "成員",
 			"settings": "工作區設定",
 			"title": "工作區"
+		},
+		"permissions": {
+			"photos": "Kaneo 會使用你的照片，為任務和留言附加圖片，以及設定你的個人頭像。"
 		}
 	}
 }

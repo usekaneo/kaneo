@@ -4141,7 +4141,7 @@
 			"noLabels": "W tym obszarze roboczym nie ma jeszcze etykiet.",
 			"labelsAndParentFailed": "Zadanie zostało utworzone, ale nie udało się zapisać niektórych etykiet ani powiązania z zadaniem nadrzędnym.",
 			"labelsFailed": "Zadanie zostało utworzone, ale nie udało się dodać niektórych etykiet.",
-			"parentFailed": "Zadanie zostało utworzone, ale nie udało się powiązać go z zadaniem nadrzędnym. Ustaw zadanie nadrzędne w wersji webowej."
+			"parentFailed": "Zadanie zostało utworzone, ale nie udało się powiązać go z zadaniem nadrzędnym."
 		},
 		"editor": {
 			"description": "Opis",
@@ -4751,6 +4751,9 @@
 			"toast": {
 				"deleted": "Usunięto etykietę"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo używa Twoich zdjęć, aby dołączać obrazy do zadań i komentarzy oraz jako zdjęcie profilowe."
 		}
 	}
 }

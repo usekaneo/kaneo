@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { BoardData, BoardTask } from "@/lib/api/types";
-import { emptyFilters, filterCount, lanes, matches, UNASSIGNED } from "./model";
+import {
+  emptyFilters,
+  endPosition,
+  filterCount,
+  lanes,
+  matches,
+  UNASSIGNED,
+} from "./model";
 
 function task(overrides: Partial<BoardTask> = {}): BoardTask {
   return {
@@ -90,5 +97,32 @@ describe("lanes", () => {
     expect(todo.total).toBe(1);
     expect(done.tasks).toHaveLength(1);
     expect(done.isFinal).toBe(true);
+  });
+});
+
+describe("endPosition", () => {
+  const data: BoardData = {
+    id: "p1",
+    name: "Kaneo",
+    slug: "kan",
+    workspaceId: "w1",
+    columns: [
+      {
+        id: "c1",
+        slug: "to-do",
+        name: "To do",
+        tasks: [task({ position: 7 }), task({ id: "t2", position: 3 })],
+      },
+      { id: "c2", slug: "done", name: "Done", tasks: [] },
+    ],
+    plannedTasks: [task({ id: "t3", status: "planned", position: null })],
+    archivedTasks: [],
+  };
+
+  it("places a moved task after every task in the destination", () => {
+    expect(endPosition(data, "to-do")).toBe(8);
+    expect(endPosition(data, "done")).toBe(0);
+    expect(endPosition(data, "planned")).toBe(1);
+    expect(endPosition(data, "archived")).toBe(0);
   });
 });

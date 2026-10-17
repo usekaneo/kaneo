@@ -4014,7 +4014,7 @@
 			"taskTitle": "Task title",
 			"noLabels": "No labels in this workspace yet.",
 			"labelsFailed": "Task created, but some labels couldn't be added.",
-			"parentFailed": "Task created, but it couldn't be linked to the parent. Set the parent from the web app.",
+			"parentFailed": "Task created, but it couldn't be linked to the parent.",
 			"labelsAndParentFailed": "Task created, but some labels and the parent link couldn't be saved."
 		},
 		"editor": {
@@ -4597,6 +4597,9 @@
 			"toast": {
 				"deleted": "Label deleted"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo uses your photos to attach images to tasks and comments, and for your profile photo."
 		}
 	}
 }

@@ -4441,7 +4441,7 @@
 			"taskTitle": "任务标题",
 			"labelsAndParentFailed": "任务已创建，但部分标签和父任务关联未能保存。",
 			"labelsFailed": "任务已创建，但部分标签未能添加。",
-			"parentFailed": "任务已创建，但未能关联到父任务。请在网页应用中设置父任务。"
+			"parentFailed": "任务已创建，但未能关联到父任务。"
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}小时 {{minutes}}分",
@@ -4520,6 +4520,9 @@
 			"members": "成员",
 			"settings": "工作区设置",
 			"title": "工作区"
+		},
+		"permissions": {
+			"photos": "Kaneo 使用你的照片为任务和评论添加图片，以及设置你的头像。"
 		}
 	}
 }

@@ -4078,7 +4078,7 @@
 			"noLabels": "Aucun label dans cet espace de travail pour l'instant.",
 			"labelsAndParentFailed": "Tâche créée, mais certains labels et le lien vers la tâche parente n'ont pas pu être enregistrés.",
 			"labelsFailed": "Tâche créée, mais certains labels n'ont pas pu être ajoutés.",
-			"parentFailed": "Tâche créée, mais elle n'a pas pu être liée à la tâche parente. Définissez la tâche parente sur le web."
+			"parentFailed": "Tâche créée, mais elle n'a pas pu être liée à la tâche parente."
 		},
 		"editor": {
 			"description": "Description",
@@ -4674,6 +4674,9 @@
 			"toast": {
 				"deleted": "Label supprimé"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo utilise vos photos pour joindre des images aux tâches et aux commentaires, et pour votre photo de profil."
 		}
 	}
 }

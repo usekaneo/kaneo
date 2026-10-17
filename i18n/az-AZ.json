@@ -4511,7 +4511,7 @@
 			"taskTitle": "Tapşırıq başlığı",
 			"labelsAndParentFailed": "Tapşırıq yaradıldı, lakin bəzi etiketlər və əsas tapşırıqla əlaqə yadda saxlanıla bilmədi.",
 			"labelsFailed": "Tapşırıq yaradıldı, lakin bəzi etiketlər əlavə edilə bilmədi.",
-			"parentFailed": "Tapşırıq yaradıldı, lakin əsas tapşırıqla əlaqələndirilə bilmədi. Əsas tapşırığı veb tətbiqindən təyin edin."
+			"parentFailed": "Tapşırıq yaradıldı, lakin əsas tapşırıqla əlaqələndirilə bilmədi."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}} saat {{minutes}} dəq",
@@ -4597,6 +4597,9 @@
 			"members": "Üzvlər",
 			"settings": "İş sahəsi ayarları",
 			"title": "İş sahələri"
+		},
+		"permissions": {
+			"photos": "Kaneo şəkillərinizdən tapşırıqlara və şərhlərə şəkil əlavə etmək, həmçinin profil şəkliniz üçün istifadə edir."
 		}
 	}
 }

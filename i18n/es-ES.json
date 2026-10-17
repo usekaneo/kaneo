@@ -4078,7 +4078,7 @@
 			"noLabels": "Aún no hay etiquetas en este espacio de trabajo.",
 			"labelsAndParentFailed": "Tarea creada, pero no se han podido guardar algunas etiquetas ni el vínculo con la tarea principal.",
 			"labelsFailed": "Tarea creada, pero no se han podido añadir algunas etiquetas.",
-			"parentFailed": "Tarea creada, pero no se ha podido vincular a la tarea principal. Establece la tarea principal desde la web."
+			"parentFailed": "Tarea creada, pero no se ha podido vincular a la tarea principal."
 		},
 		"editor": {
 			"description": "Descripción",
@@ -4674,6 +4674,9 @@
 			"toast": {
 				"deleted": "Etiqueta eliminada"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo usa tus fotos para adjuntar imágenes a tareas y comentarios, y para tu foto de perfil."
 		}
 	}
 }

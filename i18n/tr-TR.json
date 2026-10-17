@@ -4511,7 +4511,7 @@
 			"taskTitle": "Talep başlığı",
 			"labelsAndParentFailed": "Talep oluşturuldu, ancak bazı etiketler ve üst talep bağlantısı kaydedilemedi.",
 			"labelsFailed": "Talep oluşturuldu, ancak bazı etiketler eklenemedi.",
-			"parentFailed": "Talep oluşturuldu, ancak üst talebe bağlanamadı. Üst talebi web uygulamasından belirleyin."
+			"parentFailed": "Talep oluşturuldu, ancak üst talebe bağlanamadı."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}} sa {{minutes}} dk",
@@ -4597,6 +4597,9 @@
 			"members": "Üyeler",
 			"settings": "Çalışma alanı ayarları",
 			"title": "Çalışma alanları"
+		},
+		"permissions": {
+			"photos": "Kaneo, taleplere ve yorumlara görsel eklemek ve profil fotoğrafınız için fotoğraflarınızı kullanır."
 		}
 	}
 }

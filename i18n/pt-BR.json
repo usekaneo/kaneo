@@ -4581,7 +4581,7 @@
 			"taskTitle": "Título da tarefa",
 			"labelsAndParentFailed": "Tarefa criada, mas não foi possível salvar algumas etiquetas e o vínculo com a tarefa principal.",
 			"labelsFailed": "Tarefa criada, mas não foi possível adicionar algumas etiquetas.",
-			"parentFailed": "Tarefa criada, mas não foi possível vinculá-la à tarefa principal. Defina a tarefa principal na versão web."
+			"parentFailed": "Tarefa criada, mas não foi possível vinculá-la à tarefa principal."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}h {{minutes}}min",
@@ -4674,6 +4674,9 @@
 			"members": "Membros",
 			"settings": "Configurações do espaço de trabalho",
 			"title": "Espaços de trabalho"
+		},
+		"permissions": {
+			"photos": "O Kaneo usa suas fotos para anexar imagens a tarefas e comentários e para sua foto de perfil."
 		}
 	}
 }

@@ -3952,7 +3952,7 @@
 			"noLabels": "Belum ada label di ruang kerja ini.",
 			"labelsAndParentFailed": "Tugas dibuat, tetapi beberapa label dan tautan ke tugas induk tidak dapat disimpan.",
 			"labelsFailed": "Tugas dibuat, tetapi beberapa label tidak dapat ditambahkan.",
-			"parentFailed": "Tugas dibuat, tetapi tidak dapat ditautkan ke tugas induk. Atur tugas induk dari aplikasi web."
+			"parentFailed": "Tugas dibuat, tetapi tidak dapat ditautkan ke tugas induk."
 		},
 		"editor": {
 			"description": "Deskripsi",
@@ -4520,6 +4520,9 @@
 			"toast": {
 				"deleted": "Label dihapus"
 			}
+		},
+		"permissions": {
+			"photos": "Kaneo menggunakan foto Anda untuk melampirkan gambar ke tugas dan komentar, serta untuk foto profil Anda."
 		}
 	}
 }

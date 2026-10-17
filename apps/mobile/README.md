@@ -11,7 +11,7 @@ The Kaneo app for Android and iOS, built with Expo and React Native. Works with 
 - **Boards**: swipe between columns, or use the list view. Show the backlog and archived tasks. Filter by text, assignee, priority, label or overdue. Long-press a card to move it, change its priority or assignee, or send it to the top or bottom of its column.
 - **Columns**: add, rename, reorder, mark as done, delete.
 - **Tasks**: create with every field (including custom fields), edit the title, Markdown description (with preview and image upload), status, priority, assignee, start and due dates, and labels (you can create labels inline). Duplicate, move to another project, share, copy the link, delete.
-- **Subtasks and relations**: add subtasks, check them off, link related or blocking tasks.
+- **Subtasks and relations**: add subtasks, check them off, set or change the parent task, link related or blocking tasks.
 - **Links**: attach URLs; synced integration links are shown read-only.
 - **Custom fields**: text, number, date, checkbox, dropdown, multi-select. Define them in project settings.
 - **Time tracking**: start/stop a timer, log time manually, edit your entries.

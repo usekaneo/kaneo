@@ -18712,6 +18712,16 @@
 						"form",
 						"toast"
 					]
+				},
+				"permissions": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"photos": {
+							"type": "string"
+						}
+					},
+					"required": ["photos"]
 				}
 			},
 			"required": [
@@ -18745,7 +18755,8 @@
 				"notificationSettings",
 				"workspaceSettings",
 				"members",
-				"labels"
+				"labels",
+				"permissions"
 			]
 		}
 	},

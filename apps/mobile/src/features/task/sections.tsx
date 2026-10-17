@@ -54,6 +54,12 @@ import {
 import { qk, useAction } from "@/lib/query";
 import { font, useColors } from "@/theme";
 
+import {
+  linkCandidates,
+  parentRelation,
+  relationLink,
+  type LinkKind,
+} from "./relation-link";
 import { entrySeconds, type TaskExtras } from "./use-task";
 
 export function SectionTitle({
@@ -120,29 +126,8 @@ function stringList(value: Json | undefined | null): string[] {
 
 // --- Custom fields ---
 
-// Like the web card row: the first values as text, then a muted "+N".
+// Like the web card row: values as plain text; multi-select shows the first few, then a muted "+N".
 const VISIBLE_OPTIONS = 2;
-
-function FieldChip({ label }: { label: string }) {
-  const c = useColors();
-  return (
-    <View
-      style={{
-        maxWidth: "100%",
-        paddingHorizontal: 8,
-        height: 24,
-        justifyContent: "center",
-        borderRadius: 6,
-        backgroundColor: c.fill,
-        alignSelf: "flex-start",
-      }}
-    >
-      <Txt variant="meta" weight="medium" numberOfLines={1}>
-        {label}
-      </Txt>
-    </View>
-  );
-}
 
 export function CustomFields({
   taskId,
@@ -185,17 +170,14 @@ export function CustomFields({
             </Txt>
           ) : null;
         } else if (value) {
-          display =
-            f.type === "dropdown" ? (
-              <FieldChip label={value} />
-            ) : (
-              <Txt
-                variant={f.type === "number" ? "monoMd" : "bodySm"}
-                numberOfLines={3}
-              >
-                {f.type === "date" ? formatDate(value) : value}
-              </Txt>
-            );
+          display = (
+            <Txt
+              variant={f.type === "number" ? "monoMd" : "bodySm"}
+              numberOfLines={3}
+            >
+              {f.type === "date" ? formatDate(value) : value}
+            </Txt>
+          );
         }
         return (
           <Touch
@@ -296,9 +278,9 @@ export function Subtasks({
         r.targetTask,
     )
     .map((r) => r.targetTask!);
-  const parent = relations.find(
-    (r) => r.relationType === "subtask" && r.targetTaskId === taskId,
-  )?.sourceTask;
+  const parentLink = parentRelation(taskId, relations);
+  const parent = parentLink?.sourceTask;
+  const [removingParent, setRemovingParent] = useState(false);
   const done = subtasks.filter((s) => s.isCompleted).length;
 
   const setDone = (sub: RelatedTask, isDone: boolean) =>
@@ -340,6 +322,13 @@ export function Subtasks({
               {parent.title}
             </Txt>
           </View>
+          <IconButton
+            label={t("mobile:taskDetail.relations.remove")}
+            size={28}
+            onPress={() => setRemovingParent(true)}
+          >
+            <X size={14} color={c.faint} />
+          </IconButton>
         </Touch>
       ) : null}
       {subtasks.map((s) => (
@@ -375,6 +364,16 @@ export function Subtasks({
           {t("mobile:taskDetail.subtasks.empty")}
         </Txt>
       ) : null}
+      <ConfirmDialog
+        visible={removingParent}
+        title={t("mobile:taskDetail.relations.removeTitle")}
+        message={t("mobile:taskDetail.relations.removeMessage")}
+        confirmLabel={t("mobile:taskDetail.relations.removeConfirm")}
+        onClose={() => setRemovingParent(false)}
+        onConfirm={() =>
+          parentLink && run(() => api.deleteRelation(parentLink.id))
+        }
+      />
     </View>
   );
 }
@@ -383,11 +382,13 @@ export function Subtasks({
 
 export function Relations({
   taskId,
+  projectId,
   relations,
   workspaceId,
   onOpen,
 }: {
   taskId: string;
+  projectId: string;
   relations: TaskRelation[];
   workspaceId?: string | null;
   onOpen: (id: string) => void;
@@ -468,6 +469,8 @@ export function Relations({
         visible={adding}
         onClose={() => setAdding(false)}
         taskId={taskId}
+        projectId={projectId}
+        relations={relations}
         workspaceId={workspaceId}
       />
       <ConfirmDialog
@@ -482,29 +485,26 @@ export function Relations({
   );
 }
 
-function AddRelationSheet({
-  visible,
-  onClose,
-  taskId,
-  workspaceId,
-}: {
-  visible: boolean;
+type AddRelationProps = {
   onClose: () => void;
   taskId: string;
+  projectId: string;
+  relations: TaskRelation[];
   workspaceId?: string | null;
-}) {
+};
+
+function AddRelationSheet({
+  visible,
+  ...props
+}: AddRelationProps & { visible: boolean }) {
   const { t } = useTranslation(["mobile"]);
   return (
     <Sheet
       visible={visible}
-      onClose={onClose}
+      onClose={props.onClose}
       title={t("mobile:taskDetail.relations.link")}
     >
-      <AddRelationBody
-        onClose={onClose}
-        taskId={taskId}
-        workspaceId={workspaceId}
-      />
+      <AddRelationBody {...props} />
     </Sheet>
   );
 }
@@ -512,17 +512,15 @@ function AddRelationSheet({
 function AddRelationBody({
   onClose,
   taskId,
+  projectId,
+  relations,
   workspaceId,
-}: {
-  onClose: () => void;
-  taskId: string;
-  workspaceId?: string | null;
-}) {
+}: AddRelationProps) {
   const { t } = useTranslation(["mobile"]);
   const { run } = useAction();
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
-  const [type, setType] = useState<"related" | "blocks">("related");
+  const [type, setType] = useState<LinkKind>("related");
   useEffect(() => {
     const timer = setTimeout(() => setDebounced(query.trim()), 300);
     return () => clearTimeout(timer);
@@ -533,21 +531,28 @@ function AddRelationBody({
     enabled: !!debounced && !!workspaceId,
   });
   const results: SearchResult[] = debounced
-    ? (search.data?.results ?? []).filter((x) => x.id !== taskId)
+    ? linkCandidates(
+        search.data?.results ?? [],
+        type,
+        taskId,
+        projectId,
+        relations,
+      )
     : [];
+  const labels: Record<LinkKind, string> = {
+    related: t("mobile:taskDetail.relations.relatedTo"),
+    blocks: t("mobile:taskDetail.relations.blocks"),
+    parent: t("mobile:taskDetail.subtasks.parent"),
+  };
 
   return (
     <>
       <View style={{ paddingHorizontal: 20, gap: 10, paddingBottom: 8 }}>
         <View style={{ flexDirection: "row", gap: 6 }}>
-          {(["related", "blocks"] as const).map((kind) => (
+          {(["related", "blocks", "parent"] as const).map((kind) => (
             <Button
               key={kind}
-              label={
-                kind === "related"
-                  ? t("mobile:taskDetail.relations.relatedTo")
-                  : t("mobile:taskDetail.relations.blocks")
-              }
+              label={labels[kind]}
               kind={type === kind ? "primary" : "secondary"}
               size="sm"
               grow
@@ -567,7 +572,15 @@ function AddRelationBody({
           <Touch
             key={r.id}
             onPress={() => {
-              void run(() => api.createRelation(taskId, r.id, type));
+              const link = relationLink(type, taskId, r.id, relations);
+              void run(async () => {
+                await api.createRelation(
+                  link.sourceTaskId,
+                  link.targetTaskId,
+                  link.relationType,
+                );
+                if (link.replaces) await api.deleteRelation(link.replaces);
+              });
               onClose();
             }}
             style={{

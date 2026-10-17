@@ -37,6 +37,7 @@ import {
 } from "@/lib/api/client";
 import type { DeviceCodeResponse, InstanceConfig } from "@/lib/api/types";
 import * as auth from "@/lib/auth";
+import { reachableDeviceLink } from "@/lib/device-link";
 import { i18n } from "@/lib/i18n";
 import { usePrefs } from "@/lib/session";
 import { font, useColors } from "@/theme";
@@ -723,7 +724,11 @@ function DeviceStep({
     };
   }, [serverUrl]);
 
-  const link = device?.verification_uri_complete ?? device?.verification_uri;
+  const verification =
+    device?.verification_uri_complete ?? device?.verification_uri;
+  const link = verification
+    ? reachableDeviceLink(verification, serverUrl)
+    : undefined;
 
   const openBrowser = async (link: string) => {
     // Tells the approval page to send the user back here when they're done.

@@ -104,3 +104,17 @@ export function lanes(
     });
   return out;
 }
+
+/**
+ * A position after every task in `status`. The status endpoint keeps a moved task's old position,
+ * which can drop it anywhere in the new column, so moves go through reorder with this instead.
+ */
+export function endPosition(data: BoardData, status: string): number {
+  const tasks =
+    status === STATUS_PLANNED
+      ? data.plannedTasks
+      : status === STATUS_ARCHIVED
+        ? data.archivedTasks
+        : (data.columns.find((col) => col.slug === status)?.tasks ?? []);
+  return tasks.reduce((max, t) => Math.max(max, (t.position ?? 0) + 1), 0);
+}
