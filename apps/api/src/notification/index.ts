@@ -317,13 +317,13 @@ subscribeToEvent<{
 
 subscribeToEvent<{
   taskId: string;
-  userId: string;
+  userId?: string;
   oldAssignee: string | null;
   newAssignee: string;
   newAssigneeId: string;
   title: string;
 }>("task.assignee_changed", async (data) => {
-  if (data.newAssigneeId) {
+  if (data.newAssigneeId && data.newAssigneeId !== data.userId) {
     const [task] = await db
       .select({ projectId: taskTable.projectId })
       .from(taskTable)
