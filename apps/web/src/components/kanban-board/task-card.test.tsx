@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
+import type { CardField } from "@/components/custom-fields/card-fields";
 import type Task from "@/types/task";
 import TaskCard from "./task-card";
 
@@ -56,6 +57,10 @@ vi.mock("@/components/task/task-progress-badges", () => ({
 vi.mock("@/components/task/task-pull-requests", () => ({
   TaskPullRequests: () => null,
 }));
+const cardFields = vi.hoisted((): CardField[] => []);
+vi.mock("@/components/custom-fields/use-task-card-fields", () => ({
+  useTaskCardFields: () => cardFields,
+}));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   // Only the priority picker is editable, so it's the one chip under test.
   useWorkspacePermission: () =>
@@ -71,6 +76,7 @@ vi.mock("./task-card-context-menu/task-card-context-menu-content", () => ({
 afterEach(() => {
   cleanup();
   onDragStart.mockClear();
+  cardFields.length = 0;
 });
 
 const queryClient = new QueryClient();
@@ -148,6 +154,23 @@ it("doesn't start a drag when a chip is held", async () => {
   fireEvent.touchStart(chip, touchAt);
   await holdPastDelay();
   fireEvent.touchEnd(chip);
+  expect(onDragStart).not.toHaveBeenCalled();
+});
+
+it("doesn't start a drag when the hidden custom fields button is held", async () => {
+  cardFields.push(
+    ...["One", "Two", "Three"].map((name) => ({
+      fieldId: name,
+      name,
+      type: "text" as const,
+      value: name,
+    })),
+  );
+  render(<TaskCard task={task} isFinalColumn={false} />, { wrapper });
+  const more = screen.getByText("+1");
+  fireEvent.touchStart(more, touchAt);
+  await holdPastDelay();
+  fireEvent.touchEnd(more);
   expect(onDragStart).not.toHaveBeenCalled();
 });
 
