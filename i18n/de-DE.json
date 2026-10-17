@@ -1640,6 +1640,8 @@
 			"noDefault": "Kein Standardwert",
 			"optionsLabel": "Optionen",
 			"removeOptionAria": "{{option}} entfernen",
+			"hideOptionAria": "{{option}} für neue Auswahlen ausblenden",
+			"showOptionAria": "{{option}} wieder für neue Auswahlen anbieten",
 			"renameOptionAria": "{{option}} umbenennen",
 			"requiredDescription": "Jede Aufgabe hat immer einen Wert.",
 			"save": "Speichern",

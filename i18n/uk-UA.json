@@ -1581,6 +1581,8 @@
 			"noDefault": "Без значення за замовчуванням",
 			"optionsLabel": "Варіанти",
 			"removeOptionAria": "Видалити {{option}}",
+			"hideOptionAria": "Приховати {{option}} з нових виборів",
+			"showOptionAria": "Знову пропонувати {{option}} для нових виборів",
 			"renameOptionAria": "Перейменувати {{option}}",
 			"requiredDescription": "Кожне завдання завжди має значення.",
 			"save": "Зберегти",

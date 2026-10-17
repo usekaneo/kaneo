@@ -30,7 +30,7 @@ export function planChoiceValueChanges({
   const used = findUsedOptions(values, from, removedOptions);
   if (used.length > 0) {
     throw new HTTPException(400, {
-      message: `Can't remove ${quote(used)} because tasks still use ${used.length === 1 ? "it" : "them"}. Pick a different option on those tasks first.`,
+      message: `Can't remove ${quote(used)} because tasks still use ${used.length === 1 ? "it" : "them"}. Pick a different option on those tasks first, or hide it instead.`,
     });
   }
 

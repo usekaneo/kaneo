@@ -1563,6 +1563,8 @@
 			"noDefault": "Varsayılan yok",
 			"optionsLabel": "Seçenekler",
 			"removeOptionAria": "{{option}} seçeneğini kaldır",
+			"hideOptionAria": "{{option}} seçeneğini yeni seçimlerde gizle",
+			"showOptionAria": "{{option}} seçeneğini yeni seçimlerde yeniden sun",
 			"renameOptionAria": "{{option}} seçeneğini yeniden adlandır",
 			"requiredDescription": "Her talebin her zaman bir değeri olur.",
 			"save": "Kaydet",
