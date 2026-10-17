@@ -535,7 +535,8 @@
 				"title": "Cihazınızı qoşmaq üçün daxil olun",
 				"description": "Təsdiqləmək üçün dərhal bura qayıdacaqsınız.",
 				"submit": "Daxil ol"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

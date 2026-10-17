@@ -530,7 +530,8 @@
 				"title": "로그인하여 기기 연결",
 				"description": "로그인 후 바로 이곳으로 돌아와 승인할 수 있습니다.",
 				"submit": "로그인"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

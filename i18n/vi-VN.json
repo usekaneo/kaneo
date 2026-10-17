@@ -530,7 +530,8 @@
 				"title": "Đăng nhập để kết nối thiết bị",
 				"description": "Bạn sẽ quay lại đây ngay để phê duyệt.",
 				"submit": "Đăng nhập"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

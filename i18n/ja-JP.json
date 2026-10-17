@@ -530,7 +530,8 @@
 				"title": "サインインしてデバイスを接続",
 				"description": "サインイン後すぐにこのページに戻り、承認できます。",
 				"submit": "サインイン"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

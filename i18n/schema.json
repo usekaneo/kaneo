@@ -2093,6 +2093,9 @@
 							},
 							"required": ["title", "description"]
 						},
+						"openApp": {
+							"type": "string"
+						},
 						"missing": {
 							"type": "object",
 							"additionalProperties": false,
@@ -2131,6 +2134,7 @@
 						"approve",
 						"approved",
 						"denied",
+						"openApp",
 						"missing",
 						"signIn"
 					]

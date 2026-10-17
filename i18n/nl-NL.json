@@ -535,7 +535,8 @@
 				"title": "Log in om je apparaat te koppelen",
 				"description": "Daarna kom je meteen hier terug om het goed te keuren.",
 				"submit": "Inloggen"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

@@ -530,7 +530,8 @@
 				"title": "Masuk untuk menghubungkan perangkat Anda",
 				"description": "Anda akan langsung kembali ke sini untuk menyetujuinya.",
 				"submit": "Masuk"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

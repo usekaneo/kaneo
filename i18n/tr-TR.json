@@ -535,7 +535,8 @@
 				"title": "Cihazınızı bağlamak için giriş yapın",
 				"description": "Onaylamak için hemen buraya geri döneceksiniz.",
 				"submit": "Giriş yap"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

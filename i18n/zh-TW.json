@@ -530,7 +530,8 @@
 				"title": "登入以連結你的裝置",
 				"description": "登入後會立即回到這裡進行核准。",
 				"submit": "登入"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

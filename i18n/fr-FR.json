@@ -540,7 +540,8 @@
 				"title": "Connectez-vous pour associer votre appareil",
 				"description": "Vous reviendrez ici juste après pour l'approuver.",
 				"submit": "Se connecter"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

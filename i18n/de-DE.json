@@ -535,7 +535,8 @@
 				"title": "Melde dich an, um dein Gerät zu verbinden",
 				"description": "Danach kommst du direkt hierher zurück, um es zu genehmigen.",
 				"submit": "Anmelden"
-			}
+			},
+			"openApp": "Kaneo öffnen"
 		},
 		"mcp": {
 			"authorize": {

@@ -526,6 +526,7 @@
 				"title": "Request denied",
 				"description": "Nothing was connected. You can close this tab."
 			},
+			"openApp": "Open Kaneo",
 			"missing": {
 				"title": "No device code",
 				"description": "Open this page from your device, or enter the code yourself.",

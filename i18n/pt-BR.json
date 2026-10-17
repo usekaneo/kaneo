@@ -540,7 +540,8 @@
 				"title": "Entre para conectar seu dispositivo",
 				"description": "Você voltará para cá logo em seguida para aprová-lo.",
 				"submit": "Entrar"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

@@ -545,7 +545,8 @@
 				"title": "Zaloguj się, aby połączyć urządzenie",
 				"description": "Zaraz potem wrócisz tutaj, aby je zatwierdzić.",
 				"submit": "Zaloguj się"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {

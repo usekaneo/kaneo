@@ -21,7 +21,10 @@ import { toast } from "@/lib/toast";
 
 const approveSearchSchema = z.object({
   user_code: z.string().optional(),
+  from: z.literal("app").optional().catch(undefined),
 });
+
+const APP_RETURN_URL = "kaneo://";
 
 export const Route = createFileRoute("/device/approve")({
   component: DeviceApprovePage,
@@ -38,6 +41,7 @@ function DeviceApprovePage() {
   const [pending, setPending] = useState<Decision | null>(null);
   const [result, setResult] = useState<Decision | null>(null);
   const userCode = normalizeDeviceCode(search.user_code);
+  const fromApp = search.from === "app";
   const pageTitle = <PageTitle title={t("auth:device.approve.pageTitle")} />;
 
   if (result) {
@@ -57,7 +61,17 @@ function DeviceApprovePage() {
                 : t("auth:device.denied.description")}
             </span>
           }
-        />
+        >
+          {fromApp && (
+            <Button
+              size="lg"
+              className="w-full"
+              render={<a href={APP_RETURN_URL} />}
+            >
+              {t("auth:device.openApp")}
+            </Button>
+          )}
+        </AuthPage>
       </>
     );
   }
@@ -104,7 +118,7 @@ function DeviceApprovePage() {
               void navigate({
                 to: "/auth/sign-in",
                 search: {
-                  redirect: `/device/approve?user_code=${encodeURIComponent(userCode)}`,
+                  redirect: `/device/approve?user_code=${encodeURIComponent(userCode)}${fromApp ? "&from=app" : ""}`,
                 },
               })
             }
@@ -135,6 +149,8 @@ function DeviceApprovePage() {
         return;
       }
       setResult(decision);
+      // Reopening the app closes the in-app browser tab it signed in from.
+      if (fromApp) window.location.assign(APP_RETURN_URL);
     } catch {
       toast.error(t("auth:device.approve.failed"));
       setPending(null);
