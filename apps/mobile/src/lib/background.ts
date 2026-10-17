@@ -28,7 +28,15 @@ export async function checkNotifications(): Promise<void> {
   const since = Number((await AsyncStorage.getItem(SINCE_KEY)) ?? 0);
   const notifications = await api.notifications();
   // Signing out or switching accounts mid-check must not surface the old account's alerts.
-  if (sessionStore.get().session?.token !== session.token) return;
+  const sameAccount = () => sessionStore.get().session?.token === session.token;
+  if (!sameAccount()) return;
+  const post = async (content: Notifications.NotificationContentInput) => {
+    if (!sameAccount()) return;
+    await Notifications.scheduleNotificationAsync({
+      content,
+      trigger: Platform.OS === "android" ? { channelId: CHANNEL_ID } : null,
+    });
+  };
   const unread = notifications
     .filter(
       (n) =>
@@ -42,26 +50,20 @@ export async function checkNotifications(): Promise<void> {
     const hidden = Math.max(0, unread.length - (MAX_POSTED - 1));
     const shown = hidden > 1 ? unread.slice(-(MAX_POSTED - 1)) : unread;
     if (hidden > 1)
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Kaneo",
-          body: i18n.t("mobile:background.summary", { count: hidden }),
-          data: {},
-        },
-        trigger: Platform.OS === "android" ? { channelId: CHANNEL_ID } : null,
+      await post({
+        title: "Kaneo",
+        body: i18n.t("mobile:background.summary", { count: hidden }),
+        data: {},
       });
     for (const n of shown) {
       const text = describeNotification(n);
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: text.title,
-          body: text.body ?? undefined,
-          data:
-            n.resourceType === "task" && n.resourceId
-              ? { taskId: n.resourceId }
-              : {},
-        },
-        trigger: Platform.OS === "android" ? { channelId: CHANNEL_ID } : null,
+      await post({
+        title: text.title,
+        body: text.body ?? undefined,
+        data:
+          n.resourceType === "task" && n.resourceId
+            ? { taskId: n.resourceId }
+            : {},
       });
     }
   }

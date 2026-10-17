@@ -88,9 +88,14 @@ export default function SignInScreen() {
   const connect = (raw: string) =>
     run(async () => {
       const probe = ++probeRef.current;
+      const stale = () =>
+        probeRef.current !== probe || modeRef.current !== "self";
       const url = normalizeServerUrl(raw);
-      const cfg = await auth.probe(url);
-      if (probeRef.current !== probe || modeRef.current !== "self") return;
+      const cfg = await auth.probe(url).catch((e: unknown) => {
+        if (stale()) return null;
+        throw e;
+      });
+      if (!cfg || stale()) return;
       setServerUrl(url);
       setConfig(cfg);
     });
@@ -695,7 +700,12 @@ function DeviceStep({
           if (cancelled) return;
           if (result.kind === "approved") {
             if (Platform.OS === "ios") WebBrowser.dismissAuthSession();
-            await auth.completeWithToken(serverUrl, result.token);
+            await auth.completeWithToken(
+              serverUrl,
+              result.token,
+              "bearer",
+              () => !cancelled,
+            );
             return;
           }
           if (result.kind === "slowDown") interval += 5;

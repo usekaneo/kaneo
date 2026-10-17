@@ -164,6 +164,8 @@ export async function completeWithToken(
   serverUrl: string,
   token: string,
   type: CredentialType = "bearer",
+  /** Checked before saving, so a sign-in the person backed out of doesn't complete. */
+  stillWanted: () => boolean = () => true,
 ) {
   let user: CurrentUser;
   try {
@@ -182,6 +184,7 @@ export async function completeWithToken(
     }
     throw e;
   }
+  if (!stillWanted()) return;
   await sessionStore.save({
     serverUrl,
     credentialType: type,
