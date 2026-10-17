@@ -66,7 +66,13 @@ test("production runtime serves configuration with default and restricted users"
       template,
       'server { listen 5174; return 200 "$KANEO_CLIENT_URL"; }\n',
     );
-    for (const file of ["nginx.conf", "nginx.main.conf", "env.sh", "env.awk"]) {
+    for (const file of [
+      "nginx.conf",
+      "nginx.main.conf",
+      "runtime-storage.sh",
+      "env.sh",
+      "env.awk",
+    ]) {
       copyFileSync(
         resolve(root, "apps/web", file),
         resolve(fixture, "apps/web", file),
@@ -88,12 +94,9 @@ test("production runtime serves configuration with default and restricted users"
     docker(["build", "--network=none", "-t", runtimeImage, fixture], 120_000);
     for (const scenario of [
       {
-        name: "default non-root user with nginx template",
+        name: "default non-root user",
         uid: "1001",
-        args: [
-          "--mount",
-          `type=bind,source=${template},target=/etc/nginx/templates/runtime.conf.template,readonly`,
-        ],
+        args: [],
       },
       {
         name: "arbitrary OpenShift UID",
@@ -123,6 +126,8 @@ test("production runtime serves configuration with default and restricted users"
           ...scenario.args,
           "--mount",
           `type=bind,source=${hook},target=/docker-entrypoint.d/00-test.envsh,readonly`,
+          "--mount",
+          `type=bind,source=${template},target=/etc/nginx/templates/runtime.conf.template,readonly`,
           "--env",
           "KANEO_API_URL=https://api.example.test/api",
           runtimeImage,
@@ -134,6 +139,8 @@ test("production runtime serves configuration with default and restricted users"
             "test ! -d /var/lib/kaneo/html",
             'test "$(cat /usr/share/nginx/html/root.js)" = \'"KANEO_API_URL"\'',
             "/docker-entrypoint.sh nginx -t",
+            "test -f /var/lib/kaneo/nginx/conf.d/default.conf",
+            "test -f /var/lib/kaneo/nginx/conf.d/runtime.conf",
             'test "$(cat /var/lib/kaneo/html/hook.js)" = \'"https://hook.example.test"\'',
             'test "$(cat /var/lib/kaneo/html/mcp-oauth-resource.json)" != "{}"',
             "KANEO_API_URL=https://changed.example.test/api /docker-entrypoint.d/env.sh",
@@ -142,7 +149,7 @@ test("production runtime serves configuration with default and restricted users"
             "nginx -t",
             "nginx > /var/lib/kaneo/tmp/nginx-output.log 2>&1",
             'test "$(wget -qO- http://127.0.0.1:5173/)" = "runtime fixture"',
-            'if [ "$(id -u)" = 1001 ]; then test "$(wget -qO- http://127.0.0.1:5174/)" = "https://hook.example.test"; fi',
+            'test "$(wget -qO- http://127.0.0.1:5174/)" = "https://hook.example.test"',
             "wget -qO- http://127.0.0.1:5173/root.js",
             "wget -qO- http://127.0.0.1:5173/assets/app.js",
             "wget -qO- http://127.0.0.1:5173/.well-known/oauth-protected-resource/api/mcp",
@@ -218,7 +225,7 @@ for (const scenario of scenarios) {
           image,
           "-eu",
           "-c",
-          "sh /renderer/env.sh; nginx -t; nginx; wget -qO /var/lib/kaneo/resource-response.json http://127.0.0.1:5173/.well-known/oauth-protected-resource/api/mcp; wget -qO /var/lib/kaneo/authorization-response.json http://127.0.0.1:5173/.well-known/oauth-authorization-server/api; nginx -s quit",
+          "sh /renderer/runtime-storage.sh; sh /renderer/env.sh; nginx -t; nginx; wget -qO /var/lib/kaneo/resource-response.json http://127.0.0.1:5173/.well-known/oauth-protected-resource/api/mcp; wget -qO /var/lib/kaneo/authorization-response.json http://127.0.0.1:5173/.well-known/oauth-authorization-server/api; nginx -s quit",
         ],
         {
           encoding: "utf8",

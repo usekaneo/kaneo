@@ -75,6 +75,7 @@ elif [ -z "${AUTH_SECRET:-}" ]; then
   echo "WARNING: Set AUTH_SECRET in your .env to persist sessions across restarts."
 fi
 
+/docker-entrypoint.d/05-kaneo-runtime-storage.sh
 /docker-entrypoint.d/env.sh
 
 node --enable-source-maps /app/apps/api/dist/index.js &

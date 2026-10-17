@@ -65,13 +65,16 @@ COPY apps/web/nginx.main.conf /etc/nginx/nginx.conf
 COPY --chown=appuser:appuser apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 RUN chown -R appuser:appuser /etc/nginx/conf.d
 
-# Copy and set permissions for environment script
+# Copy and set permissions for runtime storage and environment scripts.
+# env.sh keeps sorting after numbered hooks so their exports reach it.
+COPY --chown=appuser:appuser apps/web/runtime-storage.sh /docker-entrypoint.d/05-kaneo-runtime-storage.sh
 COPY --chown=appuser:appuser apps/web/env.sh /docker-entrypoint.d/env.sh
 COPY --chown=appuser:appuser apps/web/env.awk /docker-entrypoint.d/env.awk
-RUN chmod +x /docker-entrypoint.d/env.sh
+RUN chmod +x /docker-entrypoint.d/05-kaneo-runtime-storage.sh /docker-entrypoint.d/env.sh
 
 # Switch to non-root user
 ENV TMPDIR=/var/lib/kaneo/tmp
+ENV NGINX_ENVSUBST_OUTPUT_DIR=/var/lib/kaneo/nginx/conf.d
 USER 1001:0
 EXPOSE 5173
 
