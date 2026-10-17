@@ -1,14 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import TaskCard from "./task-card";
 
+const onTouchStart = vi.hoisted(() => vi.fn());
+
 vi.mock("@dnd-kit/sortable", () => ({
   useSortable: () => ({
     attributes: {},
-    listeners: {},
+    listeners: { onTouchStart },
     setNodeRef: vi.fn(),
     transform: null,
   }),
@@ -73,24 +75,33 @@ const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 );
 
+const task: Task = {
+  id: "task",
+  title: "Open work",
+  status: "shared",
+  projectId: "project",
+  number: 1,
+  description: null,
+  priority: "high",
+  startDate: null,
+  dueDate: "2030-01-01T00:00:00Z",
+  position: 1,
+  createdAt: "2026-10-01T00:00:00Z",
+  userId: null,
+  assigneeId: null,
+  assigneeName: null,
+  labels: [{ id: "label", name: "Regression label", color: "red" }],
+};
+
+it("passes touches inside the context menu trigger to the touch sensor", () => {
+  render(<TaskCard task={task} />, { wrapper });
+  fireEvent.touchStart(screen.getByText("Open work"), {
+    touches: [{ clientX: 0, clientY: 0 }],
+  });
+  expect(onTouchStart).toHaveBeenCalledOnce();
+});
+
 it("keeps details in the rendered open column despite a final column sharing its slug", () => {
-  const task: Task = {
-    id: "task",
-    title: "Open work",
-    status: "shared",
-    projectId: "project",
-    number: 1,
-    description: null,
-    priority: "high",
-    startDate: null,
-    dueDate: "2030-01-01T00:00:00Z",
-    position: 1,
-    createdAt: "2026-10-01T00:00:00Z",
-    userId: null,
-    assigneeId: null,
-    assigneeName: null,
-    labels: [{ id: "label", name: "Regression label", color: "red" }],
-  };
   const view = render(<TaskCard task={task} isFinalColumn={false} />, {
     wrapper,
   });
