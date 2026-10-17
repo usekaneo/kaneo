@@ -40,7 +40,7 @@ export function ContentCard({
       {meta?.length ? (
         <div className="flex flex-wrap items-center gap-2 text-muted-foreground text-xs">
           {meta.map((item, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: meta entries are a fixed, ordered list per card.
+            // eslint-disable-next-line react/no-array-index-key -- meta entries are a fixed, ordered list per card.
             <Fragment key={index}>
               {index > 0 ? <span aria-hidden="true">·</span> : null}
               <span>{item}</span>

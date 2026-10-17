@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import { prepareDatabaseStartup } from "../../../apps/api/src/database/prepare-database-startup";
 
 describe("prepare-database-startup", () => {

@@ -1,5 +1,12 @@
 import { renderHook } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { useProjectBackground } from "./use-project-background";
 
 const preferences = vi.hoisted(() => ({ showProjectBackgrounds: true }));

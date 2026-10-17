@@ -1,0 +1,68 @@
+name: Browser tests
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Chromium smoke tests
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
+    env:
+      KANEO_E2E_HOST: localhost
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
+
+      - run: pnpm --dir tests/e2e exec playwright install --with-deps chromium
+
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@19215110ab936351210feebdfa5b440b4493e184 # v2.2.0
+        with:
+          cache-key: ${{ github.repository }}/kaneo
+      - name: Build this revision of Kaneo
+        uses: useblacksmith/build-push-action@9b0579bbec7a6cad2f171596c57e7ac1e7658850 # v2
+        with:
+          context: .
+          file: Dockerfile.kaneo
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: kaneo-browserstack:test
+
+      - name: Start disposable test instance
+        run: docker compose -f tests/e2e/compose.yml up --no-build --wait --wait-timeout 180
+      - name: Run browser smoke tests
+        run: pnpm test:e2e
+
+      - name: Collect instance logs
+        if: failure()
+        run: |
+          mkdir -p .cache/e2e
+          docker compose -f tests/e2e/compose.yml logs --no-color > .cache/e2e/instance.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: browser-test-results
+          path: .cache/e2e/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop disposable test instance
+        if: always()
+        run: docker compose -f tests/e2e/compose.yml down --volumes

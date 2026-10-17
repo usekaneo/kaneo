@@ -1,4 +1,3 @@
-// biome-ignore-all lint/suspicious/noUndeclaredEnvVars: GitHub Actions invokes this guard directly, outside Turbo's cache.
 import { execFileSync } from "node:child_process";
 import { appendFileSync } from "node:fs";
 

@@ -1,0 +1,28 @@
+---
+title: "Administer users and workspaces"
+description: "Manage every account and workspace on your instance as an instance administrator."
+---
+
+Instance administrators manage the whole Kaneo instance, not just the workspaces they belong to. The first account created on a new instance becomes an instance administrator, and an administrator can give the role to others from **User management**.
+
+Both pages live under **Settings → Administration** and are only visible to instance administrators.
+
+## Manage users
+
+Open **Settings → Administration → User management** to search every account on the instance. From a user's menu you can edit their name, email, and instance role, deactivate or reactivate the account, or delete it.
+
+Deleting someone who is the only owner of a workspace that still has other members is blocked. Transfer that workspace's ownership first, as described below.
+
+## Manage workspaces
+
+Open **Settings → Administration → Workspace management** to see every workspace on the instance with its owners, member count, and project count. Open a workspace to manage its members. You don't need to be a member yourself.
+
+From the members list you can:
+
+- **Transfer ownership.** Choose **Make owner** on a member. They become the only owner, and previous owners become admins. Use this when an owner leaves the organization.
+- **Change a role.** Pick a built-in role (viewer, member, admin) or one of the workspace's custom roles.
+- **Remove from workspace.** Their account stays; they only lose access to this workspace.
+- **Add member.** Add any existing account to the workspace with a role. They start with access to every project.
+- **Change project access.** Use the member's **Projects** entry to limit them to selected projects, the same way workspace admins can from **Members**. See [Members and roles](/core/functional/collaborate-with-team#limit-a-member-to-selected-projects).
+
+The only owner can't be removed or given another role. Transfer ownership to someone else first.

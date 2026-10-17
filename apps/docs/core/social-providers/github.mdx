@@ -1,22 +1,45 @@
 ---
-title: GitHub
-description: GitHub is a social provider for Kaneo.
+title: "Sign in with GitHub"
+description: "Let people use their GitHub account to sign in to Kaneo."
 ---
 
-## Overview
+This sets up sign-in for your instance. It does not connect a repository or send project notifications.
 
-GitHub is a social provider for Kaneo. It allows users to sign in to Kaneo using their GitHub account.
+## Register the application
 
-## Configuration
+Open the [GitHub developer console](https://github.com/settings/developers/). Create an OAuth App. Set its homepage to your Kaneo URL and its authorization callback URL to the address below.
 
-1. Go to the [GitHub Developer Settings](https://github.com/settings/developers/).
-2. Create a new OAuth app.
-3. Set the redirect URI to `KANEO_API_URL/api/auth/callback/github`.
-4. Copy the client ID and client secret.
-5. Set `GITHUB_OAUTH_CLIENT_ID` and `GITHUB_OAUTH_CLIENT_SECRET` (or the legacy `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` if you prefer).
+For a bundled Kaneo deployment at `https://kaneo.example.com`, the callback is:
 
-For more information on what your `KANEO_API_URL` is, see the [Environment variables](/core/installation/environment-variables#github-sso) page.
+```text
+https://kaneo.example.com/api/auth/callback/github
+```
 
-## Usage
+Use your own hostname. If the API is hosted separately, use its public origin instead. The callback path is `/api/auth/callback/github`; do not append a second `/api` when your API URL already includes it.
 
-Once you have configured the social provider, you can sign in to Kaneo using your GitHub account.
+For provider-specific options, see the [official OAuth guide](https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app).
+
+## Configure Kaneo
+
+Add the values from the provider to your server's `.env`:
+
+```env
+GITHUB_OAUTH_CLIENT_ID=your-client-id
+GITHUB_OAUTH_CLIENT_SECRET=your-client-secret
+```
+
+Apply the change to the bundled deployment:
+
+```bash
+docker compose up -d --force-recreate kaneo
+```
+
+## Test sign-in
+
+Open Kaneo in a private browser window and choose the GitHub sign-in option. Complete authorization and confirm you return to Kaneo.
+
+If the provider reports a redirect mismatch, compare the full URL, including the scheme, hostname, port, and path. If sign-in succeeds but joining a workspace fails, check the invitation email and instance registration settings.
+
+## Turn it off
+
+Remove the two environment variables and recreate Kaneo. Make sure people have another way to sign in before disabling the provider. Review [access settings](/core/installation/environment-variables#access-control) before enforcing SSO-only access.

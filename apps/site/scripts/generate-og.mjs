@@ -52,8 +52,8 @@ function logoMarkup(x, y, height) {
   return `  <g transform="translate(${x} ${y}) scale(${scale.toFixed(5)})">\n${inner}\n  </g>`;
 }
 
-const NARROW = new Set([..."ijltfrI.,:;'`|!()[]{}-"]);
-const WIDE = new Set([..."mwMW@%"]);
+const NARROW = new Set("ijltfrI.,:;'`|!()[]{}-");
+const WIDE = new Set("mwMW@%");
 const UPPER = /[A-Z0-9]/;
 
 /** Approximate advance width, good enough for greedy line breaking. */

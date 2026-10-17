@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { SafeHardBreak } from "./safe-hard-break";
 
 function buildEditor(options: {

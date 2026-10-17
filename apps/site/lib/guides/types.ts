@@ -5,9 +5,15 @@ export type GuideItem = {
   meta?: string;
 };
 
+export type GuideTable = {
+  columns: string[];
+  rows: string[][];
+};
+
 export type GuideSection = {
   heading: string;
   body?: string[];
+  table?: GuideTable;
   items?: GuideItem[];
 };
 

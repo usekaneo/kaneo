@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { isDisallowedAddress } from "../../../apps/api/src/utils/assert-public-destination";
 
 describe("isDisallowedAddress", () => {

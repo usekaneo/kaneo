@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 
 const SCRIPT_SRC =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
@@ -17,6 +18,7 @@ declare global {
           "expired-callback"?: () => void;
           theme?: "light" | "dark" | "auto";
           size?: "normal" | "compact" | "flexible" | "invisible";
+          appearance?: "always" | "execute" | "interaction-only";
           "refresh-expired"?: "auto" | "manual" | "never";
           "refresh-timeout"?: "auto" | "manual" | "never";
         },
@@ -60,7 +62,6 @@ export type TurnstileProps = {
   onVerify: (token: string) => void;
   onExpire?: () => void;
   onError?: () => void;
-  theme?: "light" | "dark" | "auto";
 };
 
 export function Turnstile({
@@ -68,8 +69,9 @@ export function Turnstile({
   onVerify,
   onExpire,
   onError,
-  theme = "auto",
 }: TurnstileProps) {
+  const preference = useUserPreferencesStore((state) => state.theme);
+  const theme = preference === "system" ? "auto" : preference;
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
 
@@ -96,6 +98,7 @@ export function Turnstile({
           "error-callback": () => onErrorRef.current?.(),
           theme,
           size: "flexible",
+          appearance: "interaction-only",
           // Don't silently re-challenge on focus regain / timeout. The widget
           // keeps the verified token until it actually expires (Cloudflare's
           // 300s window); on expiry the `expired-callback` clears parent
@@ -114,5 +117,5 @@ export function Turnstile({
     };
   }, [siteKey, theme]);
 
-  return <div ref={containerRef} className="w-full" />;
+  return <div ref={containerRef} className="w-full empty:hidden" />;
 }

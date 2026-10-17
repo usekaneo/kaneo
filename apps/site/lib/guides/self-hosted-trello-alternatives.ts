@@ -2,15 +2,44 @@ import type { Guide } from "./types";
 
 export const selfHostedTrelloAlternatives: Guide = {
   slug: "self-hosted-trello-alternatives",
-  question: "What is the best self-hosted Trello alternative?",
-  title: "Self-hosted Trello alternatives in 2026",
+  question: "What is the best self-hosted or on-premise Trello alternative?",
+  title: "Self-hosted, on-premise Trello alternatives (2026)",
   description:
-    "Trello cannot be self-hosted. These open-source kanban boards can: Kaneo, PLANKA, WeKan, Kanboard, Vikunja, and Focalboard, compared by licence and upkeep.",
+    "Trello is cloud only, with no on-premise edition. Six open-source kanban boards you can self-host instead, compared on licence, single sign-on, and upkeep.",
   summary:
     "Trello has no on-premise edition. Here are the boards that do, and their catches.",
   answer:
     "Trello has no self-hosted edition, so a self-hosted Trello alternative means switching tools. Kaneo, PLANKA, WeKan, Kanboard, and Vikunja are the main options. Kaneo is MIT licensed with single sign-on and a backlog in the free build, PLANKA is closest to Trello's card design but keeps SSO for its paid tier, and WeKan and Kanboard are the most minimal.",
   sections: [
+    {
+      heading: "At a glance",
+      table: {
+        columns: ["Board", "Licence", "SSO in the free build", "Best for"],
+        rows: [
+          [
+            "Kaneo",
+            "MIT",
+            "Yes, any OIDC provider",
+            "Teams that need a backlog and roles",
+          ],
+          [
+            "PLANKA",
+            "Fair Use, source-available",
+            "No, Pro tier since 2.2",
+            "The closest match to Trello's cards",
+          ],
+          ["WeKan", "MIT", "Yes, OIDC", "Swimlanes and long-running installs"],
+          ["Kanboard", "MIT", "By plugin", "Tiny installs for a few people"],
+          ["Vikunja", "AGPLv3", "Yes, OIDC", "Personal and small-group tasks"],
+          [
+            "Trello (for reference)",
+            "Proprietary",
+            "Enterprise tier",
+            "Hosted boards, no self-hosting",
+          ],
+        ],
+      },
+    },
     {
       heading: "The options",
       items: [
@@ -63,14 +92,14 @@ export const selfHostedTrelloAlternatives: Guide = {
     {
       heading: "Getting your Trello boards out",
       body: [
-        "Trello exports each board to JSON from the board menu, including cards, lists, labels, members, and comments. Attachments are links rather than files, so download them separately if they matter.",
+        "Trello exports each board to JSON from the board menu on every plan, including cards, lists, labels, and members. Comments come from the 1,000 most recent actions only, so older history on a busy board may be missing. Attachments are links rather than files, so download them separately if they matter.",
         "From there it is a scripting job against the target tool's API. Kaneo has a documented public API and per-project JSON import, so a board of a few hundred cards is an afternoon. Import into a scratch project first and check assignee matching, which usually happens by email address.",
       ],
     },
   ],
   faq: [
     {
-      question: "Can Trello be self-hosted?",
+      question: "Can Trello be self-hosted or run on-premise?",
       answer:
         "No. Trello is an Atlassian cloud product with no on-premise or self-hosted edition. Running a Trello-style board on your own server means using a different tool.",
     },
@@ -97,6 +126,10 @@ export const selfHostedTrelloAlternatives: Guide = {
       label: "Best free kanban board software",
       href: "/guides/best-free-kanban-board-software",
     },
+    {
+      label: "Best Trello alternatives",
+      href: "/blog/best-trello-alternatives",
+    },
   ],
-  updatedOn: "2026-08-19",
+  updatedOn: "2026-10-02",
 };

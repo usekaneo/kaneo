@@ -4,11 +4,11 @@ export const linear: Comparison = {
   slug: "linear",
   competitor: "Linear",
   category: "saas",
-  title: "Open-source Linear alternative",
+  title: "Self-hosted, open-source Linear alternative",
   description:
-    "Kaneo is an open-source, self-hostable Linear alternative. A fast, focused issue tracker you can run on your own infrastructure under the MIT license.",
+    "Linear cannot be self-hosted. Kaneo is a fast, focused, open-source Linear alternative you can run on your own server for free under the MIT license.",
   summary: "A fast, focused tracker you can actually host yourself.",
-  heading: "The open-source Linear alternative",
+  heading: "The self-hosted, open-source Linear alternative",
   subheading:
     "Linear is fast and beautifully focused, but it's closed-source, cloud-only, and you can't run it yourself. Kaneo gives you a clean, focused workflow that's open source and self-hostable.",
   verdict:
@@ -42,6 +42,11 @@ export const linear: Comparison = {
       body: "Free forever to self-host with every feature, including SSO. Managed cloud from $4/month, with no seats-gated features.",
     },
   ],
+  migration: {
+    body: "Kaneo imports Linear teams from the app with a personal API key: workflow states, issues with their numbers, priorities, labels, assignees, comments, and relations. Linear is only read, never changed.",
+    href: "https://kaneo.app/docs/core/migrations/from-linear",
+    linkText: "Read the import guide",
+  },
   honestNote:
     "Linear sets the bar for polish, speed, and deep product-team features like cycles and triage. If you're committed to cloud SaaS and want that specific, highly-refined workflow, it's excellent. Kaneo is for teams who want a clean experience they can actually own.",
   faq: [

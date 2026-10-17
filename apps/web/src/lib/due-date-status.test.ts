@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getDueDateStatus, isTaskCompleted } from "./due-date-status";
 
 const YESTERDAY = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();

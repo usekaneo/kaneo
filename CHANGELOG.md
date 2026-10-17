@@ -1,3 +1,347 @@
+### Bug Fixes
+
+- **web:** space tooltip labels from key hints: [85d2a84](https://github.com/usekaneo/kaneo/commit/85d2a8494b136da66b490288fb678fc67ac25ad8)
+
+### Bug Fixes
+
+- **api:** retry upload checks only on 403: [8f5f735](https://github.com/usekaneo/kaneo/commit/8f5f73513dc5f5b255e9f387e5a95cbf904761c1)
+- **api:** retry upload checks on 403 and 404: [b799520](https://github.com/usekaneo/kaneo/commit/b799520a19d2907783c5965e45a12e2ec7ea845c)
+
+### Features
+
+- **web:** redesign task details: [d9cb555](https://github.com/usekaneo/kaneo/commit/d9cb5558893c32c2202505afc5ca37f1c35ccd08)
+
+### Bug Fixes
+
+- **web:** keep key hints out of accessible names: [23b07b4](https://github.com/usekaneo/kaneo/commit/23b07b4931548a3bcfe29f81b7f5e333733d000a)
+
+### Features
+
+- **web:** add keyboard shortcuts across the app: [16648d4](https://github.com/usekaneo/kaneo/commit/16648d43c18ccdca5730f9323de421c0a6fac4f9)
+- **api:** add notification unread and delete: [425a8af](https://github.com/usekaneo/kaneo/commit/425a8af085fe193204a0539878d6ff892b8c3d87)
+
+### Bug Fixes
+
+- **api:** log why upload verification fails: [6160046](https://github.com/usekaneo/kaneo/commit/6160046c234f3f31a4df473ca96f16ca14a31fba)
+
+### Features
+
+- **web:** redesign the bulk selection bar: [51af01d](https://github.com/usekaneo/kaneo/commit/51af01d77f07186b63bae8a290c4681e3e88c63d)
+- **web:** edit links inline and make them legible: [9431c14](https://github.com/usekaneo/kaneo/commit/9431c14469bbc071642f83904e8f9a89d3bbaf5e)
+
+### Features
+
+- **web:** rework project views and custom fields: [93f328d](https://github.com/usekaneo/kaneo/commit/93f328d7382e6a54cfe615d7b94cf76a033b414f)
+
+### Bug Fixes
+
+- **site:** restore the gantt search placeholder: [3d79a67](https://github.com/usekaneo/kaneo/commit/3d79a670264da92ed8ad7f556d7deed5ac6c295d)
+
+### Documentation
+
+- describe project views and custom fields: [593cad3](https://github.com/usekaneo/kaneo/commit/593cad31af833b335d8689166fbe84b692b2e9af)
+- **site:** surface in-app importers and retarget asana page: [0dd17d9](https://github.com/usekaneo/kaneo/commit/0dd17d92d17db0845747167c186a4d46ec02eb08)
+
+### Features
+
+- **web:** rebuild settings pages: [3f15710](https://github.com/usekaneo/kaneo/commit/3f15710726b51f976aa2040ff3d5683dbb97f003)
+- **api:** edit custom fields and search repos: [793a50c](https://github.com/usekaneo/kaneo/commit/793a50ca66e8c0d0016c074b17b2d56fb0a7bc4b)
+
+### Documentation
+
+- describe the new settings pages: [b7e8190](https://github.com/usekaneo/kaneo/commit/b7e8190dd8f89718fc5800803cdca1397c829b8a)
+
+### Features
+
+- **web:** redesign onboarding with a live preview: [4bc1a9b](https://github.com/usekaneo/kaneo/commit/4bc1a9b4cb801fc6dd0faefbc7503231173186ad)
+
+### Features
+
+- **web:** redesign auth and access pages: [5565833](https://github.com/usekaneo/kaneo/commit/5565833474175ad42ac365ec2c1b992920277d78)
+- **auth:** require email codes for cloud sign-up: [f974b05](https://github.com/usekaneo/kaneo/commit/f974b0529d36bc60caac510d169417633459f381)
+
+### Bug Fixes
+
+- **web:** read the turnstile key at runtime: [a0d8cbb](https://github.com/usekaneo/kaneo/commit/a0d8cbb080c7289109332fd7aee1785132ad5c6a)
+
+### Features
+
+- **import:** add Jira as an import source: #2010
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
+- import projects from other tools in the UI: #2007
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Bug Fixes
+
+- **email:** fix gmail mobile layout and icons: [2a41318](https://github.com/usekaneo/kaneo/commit/2a41318ab9e093441471396890e40384120668af)
+
+### Features
+
+- **email:** redesign emails with Kaneo components: [ed0ea78](https://github.com/usekaneo/kaneo/commit/ed0ea78838ba703e924c9446c4db344ad6e4d831)
+
+### Documentation
+
+- **site:** list Amazon SES as email subprocessor: [e71a17b](https://github.com/usekaneo/kaneo/commit/e71a17b34bdf8bf3c812773bd4f0a65b554303e9)
+
+### Features
+
+- start new workspaces with a starter project: #1993
+
+### Bug Fixes
+
+- **cli:** reject checksums that are not SHA-256 digests: #1996
+
+### Documentation
+
+- **cli:** add npm as an install option: #1995
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
+- **cli:** add an agent skill for the kaneo CLI: #1974
+- **cli:** install the CLI with a one-line script: #1971
+
+### Bug Fixes
+
+- **build:** stop vp from replaying stale typechecks and builds: #1989
+- make the app usable on phones: #1983
+- **mcp:** omit session credentials from whoami: [cf44625](https://github.com/usekaneo/kaneo/commit/cf446256f39935e6067e70dbb57f429d4b7b7a5b)
+- **cli:** point the update hint at the install page: #1976
+- **cli:** say how to confirm in confirmation errors: #1975
+
+### Credits
+
+Huge thanks to @tinsever and @andrejsshell for helping!
+
+### Features
+
+- **cli:** add the official Kaneo command-line client: #1968
+- **api:** add workspace list and detail endpoints: #1960
+- allow manual AI comment scans for existing PRs: [70de375](https://github.com/usekaneo/kaneo/commit/70de375184e7908e8b54fda9abee37756ed20eb6)
+- add advisory AI comment labeler: [d1a6a39](https://github.com/usekaneo/kaneo/commit/d1a6a392ed4c8dbc6873a8ad46de804cfadfbc3f)
+
+### Bug Fixes
+
+- **auth:** allow linking social accounts with different emails: [c613565](https://github.com/usekaneo/kaneo/commit/c61356534839adfd0c40b65325114d2fd69e4b25)
+- **api:** answer rate-limited API keys with 429: #1961
+- **api:** never treat API keys as user sessions: #1969
+- **api:** return every error as JSON with a stable code: #1962
+- **ci:** explain automatic pull request draft conversions: [5c42599](https://github.com/usekaneo/kaneo/commit/5c425995019c9f624110c0b84f117854a0c707d7)
+- **api:** return 404 for missing and hidden resources: #1963
+- **calendar:** allow feeds without label filters: #1958
+- **site:** prevent theme flash during hydration: [6bd0c1a](https://github.com/usekaneo/kaneo/commit/6bd0c1ac42164ec2604a2e74538f6e084c684641)
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
+### Features
+
+- manage workspaces as an instance admin: #1953
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Features
+
+- restrict members to selected projects: #1933
+- **site:** offer a managed instance on pricing: [c4d009f](https://github.com/usekaneo/kaneo/commit/c4d009f2e0e1a1c623233ae2d5220e01813c0188)
+- **site:** refresh open-source project management guide for search: [a181173](https://github.com/usekaneo/kaneo/commit/a18117307149a7db2f2b055c8d1a20d344f6e71d)
+
+### Bug Fixes
+
+- **ci:** browser test fixes/optimization: #1941
+- **ci:** ci errors for contribution workflow: #1939
+- **site:** balance the managed instance card on desktop: [5f07734](https://github.com/usekaneo/kaneo/commit/5f077346675e6bc63740c341b8edcce739f709b8)
+- **web:** remove the add task row under board columns: #1931
+
+### Credits
+
+Huge thanks to @andrejsshell, @tinsever, and @randoneering for helping!
+
+### Features
+
+- make cross-column dragged card sortable: #1894
+- **i18n:** add zh-TW locale: #1893
+- **integrations:** add label-based sync in advanced settings: #1908
+
+### Bug Fixes
+
+- **web:** show the task label editor on narrow screens: #1924
+- convert ineligible contributions to draft pull requests: [291da4a](https://github.com/usekaneo/kaneo/commit/291da4a413a5b3a107dae9710860e37cf1822a2e)
+- **i18n:** translate the zh-CN strings added since the last sync: #1916
+- **ci:** exclude skipped events from eligibility concurrency: #1917
+
+### Credits
+
+Huge thanks to @VictorOnwukwe, @kenny-ish, @ApplesBear-X, @tinsever, and @FunnyQ for helping!
+
+### Features
+
+- **web:** redesign settings: #1905
+- **site:** link community projects from resources: [69ba99d](https://github.com/usekaneo/kaneo/commit/69ba99da501627977d57597457d04d23966796da)
+- **site:** add a community projects page: [961c309](https://github.com/usekaneo/kaneo/commit/961c309cbf383e07c5f9026ad654b2dc77ade6f2)
+- **site:** sync product preview with home, inbox and my tasks: [30ba825](https://github.com/usekaneo/kaneo/commit/30ba82531a0d60a0679fbf8bbbe5703cf915059f)
+- missing french translation: #1903
+
+### Credits
+
+Huge thanks to @tinsever and @MonsPropre for helping!
+
+### Features
+
+- add short task links like /acme/task/KAN-12: #1891
+- **web:** add home, inbox and my tasks pages: #1898
+- **web:** wire the task copy shortcuts: #1897
+- **web:** move task delete into the action group: #1896
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
+### Bug Fixes
+
+- **web:** send subscription revenue as a property: [445b735](https://github.com/usekaneo/kaneo/commit/445b735188ea01c832ec1406a03c5ec50edd9b60)
+
+### Features
+
+- **site:** add guides and retarget alternatives: [58f6d47](https://github.com/usekaneo/kaneo/commit/58f6d47939bc95e2ae9e8b42442647ea03f30844)
+- **web:** track the cloud signup funnel: [abacad7](https://github.com/usekaneo/kaneo/commit/abacad71bee5e0ab5f4ba1420bde536683533075)
+- **docker:** support file-backed secrets for container deployments: #1853
+- sort labels alphabetically: #1856
+- **web:** select task ranges with shift-click: #1838
+
+### Bug Fixes
+
+- **site:** list GitLab with the git integrations: [3c01517](https://github.com/usekaneo/kaneo/commit/3c01517c0c2396394ac35c7b29802f7f31719840)
+- **site:** serve favicon.ico: [e7ef050](https://github.com/usekaneo/kaneo/commit/e7ef0505e36eeaff3a8854f35e489847fa3fabe5)
+- **docs:** load the docs font from its real path: [22c7a02](https://github.com/usekaneo/kaneo/commit/22c7a02186ced4899b4b7cb267030b5fc25a0b53)
+- **tasks:** make bulk status changes atomic: #1873
+- **integrations:** preserve rapid legitimate edits: #1874
+- **integrations:** enforce current task ownership: #1867
+- **ws:** revoke removed workspace members: #1865
+- **migrations:** record workflow migration completion: #1872
+- **auth:** enforce api key quotas and rate limits: #1869
+- **mcp:** share tools and support workspace label deletion: #1871
+- **reminders:** persist notification and claim atomically: #1870
+- **integrations:** require task update permission for imports: #1868
+- **gitea:** reject saved tokens for changed servers: #1866
+
+### Documentation
+
+- update sponsors: [1c51887](https://github.com/usekaneo/kaneo/commit/1c51887af53369df508c7dc4dbb7713788a9bd89)
+
+### Credits
+
+Huge thanks to @tuttucodes, @druwan, and @tinsever for helping!
+
+### Features
+
+- clickable task PR list, task link matching, and reopen completed tasks for new work: #1864
+- **mcp:** get tasks by ticket ID: #1839
+
+### Bug Fixes
+
+- **ci:** publish npm provenance on GitHub-hosted runners: [50779a4](https://github.com/usekaneo/kaneo/commit/50779a4e21159ad322dc4dd18fa7f1689bee64fa)
+- **ci:** pass the GitHub token to AgentScan: #1862
+- **ci:** resolve nightly warnings and errors: #1858
+- **api:** make legacy MCP HTTP requests replica independent: #1850
+- **docker:** disable wget proxy for loopback health checks: #1841
+
+### Documentation
+
+- add AI Policy badge to README: [011c8ee](https://github.com/usekaneo/kaneo/commit/011c8ee731cc684644d8bf568f4a5f74e194878c)
+- update sponsors: [e45c8ac](https://github.com/usekaneo/kaneo/commit/e45c8aceed5da9bcc040a592be9677c79133aecd)
+
+### Credits
+
+Huge thanks to @andrejsshell, @tinsever, @randoneering, and @mazzz1y for helping!
+
+### Features
+
+- **web:** guide cloud users through invites and plan choice during onboarding: #1840
+- rank new issue priority with Jev: [594e016](https://github.com/usekaneo/kaneo/commit/594e0168dbf586b09d1b0a946e5da9148485b76c)
+
+### Documentation
+
+- assign issue types from templates: [4725cfa](https://github.com/usekaneo/kaneo/commit/4725cfaaabc07a3bf9557de9c0a219cffa980ff5)
+- simplify issue and pull request templates: [cb6ce20](https://github.com/usekaneo/kaneo/commit/cb6ce20252ac018c2b6d4e3df9e66b478da3a58d)
+- adopt Human Voice AI contribution policy: [b090123](https://github.com/usekaneo/kaneo/commit/b0901239925c0b633d29adf73de45d95c3fa3b6f)
+- overhaul agents.md: [4d619aa](https://github.com/usekaneo/kaneo/commit/4d619aa7658ed3388b459534c8a5db7bd9e7b365)
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
+### Bug Fixes
+
+- **billing:** resize Creem seats by subscription item id: #1836
+- **gitea:** prevent outbound comment echoes: #1834
+
+### Documentation
+
+- **readme:** highlight cloud and current features: #1831
+
+### Credits
+
+Huge thanks to @andrejsshell and @tinsever for helping!
+
+### Features
+
+- **web:** cloud sign-up and onboarding layout: #1832
+
+### Bug Fixes
+
+- **deps:** migrate Sentry SDKs together to v11 (#1826): #1826
+- **ci:** grant nightly reusable CI scan permission: [0216067](https://github.com/usekaneo/kaneo/commit/0216067e37f5de9f8a10c85e05861056009628f3)
+- **board:** allow column moves while sorting by task number: #1816
+
+### Documentation
+
+- update contributors and sponsors: [c200d70](https://github.com/usekaneo/kaneo/commit/c200d70672b3a87b6b2e4bdcd43060198324fb7f)
+- rebuild guides around current Kaneo workflows: #1814
+
+### Credits
+
+Huge thanks to @tinsever and @andrejsshell for helping!
+
+### Bug Fixes
+
+- **auth:** backfill instance admin on legacy installations: [b7c6aee](https://github.com/usekaneo/kaneo/commit/b7c6aee31ba1174583da5f7fa0aad48257cfc356)
+
+### Credits
+
+Huge thanks to @tinsever for helping!
+
+### Bug Fixes
+
+- **admin:** harden the user administration panel: #1805
+
+### Documentation
+
+- acknowledge BrowserStack testing: [e389a68](https://github.com/usekaneo/kaneo/commit/e389a688c8323cdf6a4eadda127f94f6339e985d)
+
+### Credits
+
+Huge thanks to @andrejsshell for helping!
+
+### Bug Fixes
+
+- **admin:** allow updating your own email without changing role: [3d57439](https://github.com/usekaneo/kaneo/commit/3d57439d59c7e66aa9b63ec673a5b5f7b23008f6)
+
 ### Features
 
 - gitlab integration: #1727

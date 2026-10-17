@@ -1,19 +1,10 @@
+import { toSlug } from "../to-slug";
+import { publishEvent } from "../../events";
 import { eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable } from "../../database/schema";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
-
-export function toSlug(name: string): string {
-  const slug = name
-    .normalize("NFKC")
-    .toLowerCase()
-    .trim()
-    .replace(/[^\p{L}\p{M}\p{N}]+/gu, "-")
-    .replace(/^-+|-+$/g, "");
-
-  return /[\p{L}\p{N}]/u.test(slug) ? slug : "";
-}
 
 async function createColumn({
   projectId,
@@ -80,6 +71,8 @@ async function createColumn({
   if (!created) {
     throw new HTTPException(500, { message: "Failed to create column" });
   }
+
+  await publishEvent("project.updated", { projectId: created.projectId });
 
   return created;
 }

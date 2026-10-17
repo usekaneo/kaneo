@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import createIntegration from "../../apps/api/src/github-integration/controllers/create-github-integration";
 import deleteIntegration from "../../apps/api/src/github-integration/controllers/delete-github-integration";
@@ -15,7 +15,9 @@ import {
 const { verify } = vi.hoisted(() => ({ verify: vi.fn() }));
 vi.mock(
   "../../apps/api/src/github-integration/controllers/verify-repository-owner",
-  () => ({ verifyRepositoryOwner: verify }),
+  () => ({
+    verifyRepositoryOwner: verify,
+  }),
 );
 beforeEach(async () => {
   await resetTestDatabase();

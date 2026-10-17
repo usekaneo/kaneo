@@ -13,6 +13,23 @@ input:-webkit-autofill:active {
 
 @custom-variant dark (&:is(.dark *));
 
+/* Gives small icon-only controls a 44px touch target on touch screens without
+   changing their visual size (same idea as Button's pointer-coarse ::after).
+   The element must be positioned (`relative` or `absolute`). */
+@utility touch-hitbox {
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 2.75rem);
+      height: max(100%, 2.75rem);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
 /* Reduced motion: keep opacity feedback, drop movement (scale/translate) and
    container morphs. Tailwind v4 scale/translate utilities use the standalone
    CSS properties, so forcing them here neutralizes entrance/exit movement
@@ -23,18 +40,20 @@ input:-webkit-autofill:active {
   [data-slot="menu-popup"],
   [data-slot="menu-sub-content"],
   [data-slot="tooltip-popup"],
+  [data-slot="context-menu-content"],
   [data-slot="dialog-popup"],
   [data-slot="alert-dialog-popup"],
   [data-slot="command-dialog-popup"],
   [data-slot="sheet-popup"],
+  [data-slot="sidebar"][data-mobile="true"],
+  [data-slot="toast"],
   [data-slot="toast-popup"] {
     transition-property: opacity !important;
   }
 
-  [data-slot="sidebar-gap"],
-  [data-slot="sidebar-container"],
-  [data-slot="sidebar-group-content"],
-  [data-slot="sidebar-menu-badge"] {
+  [data-slot="sidebar-menu-badge"],
+  [data-slot="collapsible-panel"],
+  [data-slot="accordion-panel"] {
     transition: none !important;
   }
 
@@ -50,6 +69,7 @@ input:-webkit-autofill:active {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --animate-skeleton: skeleton 2s -1s infinite linear;
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
   --font-mono: var(--font-mono);
@@ -90,6 +110,41 @@ input:-webkit-autofill:active {
   --color-code-foreground: var(--code-foreground);
   --color-code-highlight: var(--code-highlight);
   --color-code: var(--code);
+  --color-board-lane: var(--board-lane);
+  --color-board-card: var(--board-card);
+  --color-board-card-border: var(--board-card-border);
+  --color-board-card-border-hover: var(--board-card-border-hover);
+  --color-board-card-selected: var(--board-card-selected);
+  --color-board-card-selected-border: var(--board-card-selected-border);
+  --color-board-card-focus: var(--board-card-focus);
+  --color-board-card-ring: var(--board-card-ring);
+  --color-board-card-done: var(--board-card-done);
+  --color-board-card-done-border: var(--board-card-done-border);
+  --color-board-id: var(--board-id);
+  --color-board-id-done: var(--board-id-done);
+  --color-board-title: var(--board-title);
+  --color-board-title-done: var(--board-title-done);
+  --color-chip-border: var(--chip-border);
+  --color-chip-border-hover: var(--chip-border-hover);
+  --color-chip-hover: var(--chip-hover);
+  --color-chip-border-open: var(--chip-border-open);
+  --color-chip-open: var(--chip-open);
+  --color-chip-foreground: var(--chip-foreground);
+  --color-chip-muted: var(--chip-muted);
+  --color-chip-icon: var(--chip-icon);
+  --color-priority-bar: var(--priority-bar);
+  --color-priority-bar-empty: var(--priority-bar-empty);
+  --color-priority-urgent: var(--priority-urgent);
+  --color-due-overdue: var(--due-overdue);
+  --color-avatar: var(--avatar);
+  --color-avatar-selected: var(--avatar-selected);
+  --color-avatar-done: var(--avatar-done);
+  --color-avatar-border: var(--avatar-border);
+  --color-avatar-foreground: var(--avatar-foreground);
+  --color-avatar-foreground-done: var(--avatar-foreground-done);
+  --color-avatar-unassigned: var(--avatar-unassigned);
+  --color-avatar-unassigned-foreground: var(--avatar-unassigned-foreground);
+  --shadow-board-card: var(--board-card-shadow);
   --color-border: var(--border);
   --color-background: var(--background);
   --color-accent-foreground: var(--accent-foreground);
@@ -101,6 +156,17 @@ input:-webkit-autofill:active {
   @keyframes skeleton {
     to {
       background-position: -200% 0;
+    }
+  }
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
     }
   }
 }
@@ -168,6 +234,41 @@ input:-webkit-autofill:active {
   --code: var(--color-white);
   --code-foreground: var(--foreground);
   --code-highlight: --alpha(var(--color-black) / 4%);
+  --board-lane: #00000005;
+  --board-card: #ffffff;
+  --board-card-border: #00000014;
+  --board-card-border-hover: #0000002e;
+  --board-card-selected: #f2f2f2;
+  --board-card-selected-border: #00000038;
+  --board-card-focus: #8a8a8a;
+  --board-card-ring: #8a8a8a40;
+  --board-card-shadow: 0 1px 2px #0000000a;
+  --board-card-done: #ffffff99;
+  --board-card-done-border: #0000000f;
+  --board-id: #8a8a8a;
+  --board-id-done: #a3a3a3;
+  --board-title: #171717;
+  --board-title-done: #737373;
+  --chip-border: #00000017;
+  --chip-border-hover: #00000029;
+  --chip-hover: #0000000a;
+  --chip-border-open: #00000033;
+  --chip-open: #0000000f;
+  --chip-foreground: #404040;
+  --chip-muted: #737373;
+  --chip-icon: #8a8a8a;
+  --priority-bar: #525252;
+  --priority-bar-empty: #00000021;
+  --priority-urgent: #dc2626;
+  --due-overdue: #dc2626;
+  --avatar: #e5e5e5;
+  --avatar-selected: #e0e0e0;
+  --avatar-done: #ededed;
+  --avatar-border: #00000017;
+  --avatar-foreground: #404040;
+  --avatar-foreground-done: #737373;
+  --avatar-unassigned: #f5f5f5;
+  --avatar-unassigned-foreground: #8a8a8a;
 }
 
 .dark {
@@ -224,6 +325,41 @@ input:-webkit-autofill:active {
   --code: color-mix(in srgb, var(--background) 98%, var(--color-white));
   --code-foreground: var(--foreground);
   --code-highlight: --alpha(var(--color-white) / 4%);
+  --board-lane: #0000001f;
+  --board-card: #1c1c1c;
+  --board-card-border: transparent;
+  --board-card-border-hover: #ffffff2e;
+  --board-card-selected: #262626;
+  --board-card-selected-border: #ffffff3d;
+  --board-card-focus: #a3a3a3;
+  --board-card-ring: #a3a3a333;
+  --board-card-shadow: 0 1px 2px #00000033, 0 4px 12px -4px #00000059;
+  --board-card-done: #ffffff03;
+  --board-card-done-border: #ffffff0a;
+  --board-id: #707070;
+  --board-id-done: #5c5c5c;
+  --board-title: #ededed;
+  --board-title-done: #707070;
+  --chip-border: #ffffff17;
+  --chip-border-hover: #ffffff29;
+  --chip-hover: #ffffff0a;
+  --chip-border-open: #ffffff33;
+  --chip-open: #ffffff0f;
+  --chip-foreground: #cfcfcf;
+  --chip-muted: #8f8f8f;
+  --chip-icon: #8a8a8a;
+  --priority-bar: #a3a3a3;
+  --priority-bar-empty: #ffffff24;
+  --priority-urgent: #e5484d;
+  --due-overdue: #ff6467;
+  --avatar: #2e2e2e;
+  --avatar-selected: #383838;
+  --avatar-done: #222222;
+  --avatar-border: #ffffff17;
+  --avatar-foreground: #d4d4d4;
+  --avatar-foreground-done: #707070;
+  --avatar-unassigned: #262626;
+  --avatar-unassigned-foreground: #8a8a8a;
 }
 
 @layer base {
@@ -289,14 +425,17 @@ input:-webkit-autofill:active {
       background-color 0.15s ease,
       border-color 0.15s ease,
       color 0.15s ease,
-      transform 0.15s ease;
+      transform 0.15s var(--ease-out);
   }
 
   .kaneo-editor-quick-attach:hover {
     border-color: color-mix(in srgb, var(--foreground) 18%, var(--border));
     background: color-mix(in srgb, var(--accent) 72%, transparent);
     color: var(--foreground);
-    transform: translateY(-1px);
+  }
+
+  .kaneo-editor-quick-attach:active {
+    transform: scale(0.97);
   }
 
   .kaneo-editor-quick-attach:focus-visible {
@@ -386,6 +525,15 @@ input:-webkit-autofill:active {
     color: var(--foreground);
     caret-color: var(--foreground);
     outline: none;
+  }
+
+  /* iOS Safari zooms the page into any focused field under 16px; keep the
+     editors at 16px on phone widths so focusing them doesn't zoom. */
+  @media (max-width: 639.98px) {
+    .kaneo-tiptap-content .ProseMirror[contenteditable="true"],
+    .kaneo-comment-editor-content .ProseMirror[contenteditable="true"] {
+      font-size: 1rem;
+    }
   }
 
   .kaneo-tiptap-slash-menu {
@@ -620,22 +768,15 @@ input:-webkit-autofill:active {
   }
 
   .kaneo-tiptap-content .ProseMirror a {
-    color: var(--primary);
+    color: var(--info-foreground);
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
-    text-underline-offset: 2px;
-    text-decoration-color: color-mix(
-      in srgb,
-      var(--primary) 68%,
-      transparent
-    );
-    transition:
-      color 0.12s ease,
-      text-decoration-color 0.12s ease;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    transition: text-decoration-color 0.12s ease;
   }
 
   .kaneo-tiptap-content .ProseMirror a:hover {
-    color: color-mix(in srgb, var(--primary) 84%, var(--foreground));
     text-decoration-color: currentColor;
   }
 
@@ -739,7 +880,7 @@ input:-webkit-autofill:active {
     box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 12%, transparent);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 120ms ease-in-out;
+    transition: opacity 120ms ease;
   }
 
   /* Clicking the image opens the preview dialog, so the controls reveal on
@@ -779,7 +920,7 @@ input:-webkit-autofill:active {
     background: var(--primary);
     opacity: 0;
     cursor: ew-resize;
-    transition: opacity 120ms ease-in-out;
+    transition: opacity 120ms ease;
   }
 
   .kaneo-resizable-image:hover .kaneo-resizable-image-handle,
@@ -994,9 +1135,8 @@ input:-webkit-autofill:active {
     );
     text-decoration: none;
     transition:
-      border-color 0.18s ease,
-      background-color 0.18s ease,
-      transform 0.18s ease;
+      border-color 0.15s ease,
+      background-color 0.15s ease;
   }
 
   .kaneo-attachment-card:hover {
@@ -1006,7 +1146,6 @@ input:-webkit-autofill:active {
       color-mix(in srgb, var(--accent) 62%, transparent),
       color-mix(in srgb, var(--accent) 30%, transparent)
     );
-    transform: translateY(-1px);
   }
 
   .kaneo-attachment-card-icon {
@@ -1300,11 +1439,18 @@ input:-webkit-autofill:active {
 
   .kaneo-comment-editor-prose a,
   .kaneo-tiptap-prose a {
-    color: color-mix(in srgb, var(--foreground) 88%, #4c9aff 12%);
+    color: var(--info-foreground);
     cursor: pointer;
-    text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--ring) 44%, transparent);
-    text-underline-offset: 2px;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+    transition: text-decoration-color 0.12s ease;
+  }
+
+  .kaneo-comment-editor-prose a:hover,
+  .kaneo-tiptap-prose a:hover {
+    text-decoration-color: currentColor;
   }
 
   .kaneo-comment-editor-prose :not(pre) > code {

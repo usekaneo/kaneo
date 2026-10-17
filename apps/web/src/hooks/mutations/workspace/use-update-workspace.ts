@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
-import { createSlug } from "@/lib/utils/create-slug";
 
 type UpdateWorkspaceRequest = {
   workspaceId: string;
@@ -31,9 +30,6 @@ function useUpdateWorkspace() {
 
       if (name !== undefined) {
         updateData.name = name;
-        if (slug === undefined) {
-          updateData.slug = createSlug(name);
-        }
       }
 
       if (slug !== undefined) {

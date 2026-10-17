@@ -7,7 +7,14 @@ import {
   screen,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 import CreateTaskModal from "./create-task-modal";
 
@@ -32,41 +39,42 @@ function createWrapper() {
 }
 
 const useLocation = vi.fn();
-const setCustomFieldValue = vi.fn(async () => ({}));
-vi.mock("@/hooks/mutations/custom-field/use-set-custom-field-value", () => ({
-  default: () => ({ mutateAsync: setCustomFieldValue }),
-}));
 const deleteTask = vi.fn(async () => {});
 const updateTask = vi.fn(async (input: Record<string, unknown>) => input);
 const setProject = vi.fn();
-let customFields: {
-  id: string;
-  name: string;
-  type: string;
-  options: string[];
-  hiddenOptions: string[];
-  defaultValue: string;
-  required: boolean;
-}[] = [];
-vi.mock(
-  "@/hooks/queries/custom-field/use-get-custom-fields-by-project",
-  () => ({
-    default: () => ({ data: customFields }),
-  }),
-);
 let workspaceId = "workspace-1";
 let projects: { id: string; name: string; slug: string }[] | undefined;
+let columnsError = false;
+let columnsFetching = false;
+const refetchColumns = vi.fn();
+let projectColumns:
+  | { id: string; slug: string; name: string; isFinal: boolean }[]
+  | undefined;
 let storedProject: { id: string; columns: unknown[] } | null = null;
-let ensureTaskId: (() => Promise<string | null>) | undefined;
+let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
+const stageUpload = vi.fn();
+let customFieldDefs: unknown[] | undefined;
+vi.mock("@/lib/upload-draft-asset", () => ({
+  uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
+}));
 
 beforeEach(() => {
-  customFields = [];
   workspaceId = "workspace-1";
   projects = [
     { id: "project-1", name: "Alpha", slug: "alp" },
     { id: "project-2", name: "Beta", slug: "bet" },
   ];
   storedProject = null;
+  customFieldDefs = undefined;
+  columnsError = false;
+  columnsFetching = false;
+  refetchColumns.mockImplementation(async () => ({
+    data: projectColumns,
+    isError: columnsError,
+  }));
+  projectColumns = [
+    { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
+  ];
   useLocation.mockReturnValue({ pathname: "/dashboard/workspace/workspace-1" });
 });
 const createTask = vi.fn(async (input: Record<string, unknown>) => ({
@@ -98,10 +106,17 @@ vi.mock("@tanstack/react-router", () => ({
 vi.mock("@/components/task/task-description-editor", () => ({
   default: (props: {
     taskId?: string;
-    ensureTaskId: () => Promise<string | null>;
+    uploadAsset: (file: File) => Promise<unknown>;
+    onChange: (value: string) => void;
   }) => {
-    ensureTaskId = props.ensureTaskId;
-    return <div data-testid="description-editor" data-task-id={props.taskId} />;
+    uploadAsset = props.uploadAsset;
+    return (
+      <textarea
+        data-testid="description-editor"
+        data-task-id={props.taskId}
+        onChange={(event) => props.onChange(event.target.value)}
+      />
+    );
   },
 }));
 
@@ -136,12 +151,32 @@ vi.mock(
   }),
 );
 
+vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
+  default: () => ({ data: undefined }),
+}));
+
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
     canCreateLabels: () => true,
   }),
 }));
+
+vi.mock("@/hooks/queries/column/use-get-columns", () => ({
+  useGetColumns: () => ({
+    data: projectColumns,
+    isError: columnsError,
+    isFetching: columnsFetching,
+    refetch: refetchColumns,
+  }),
+}));
+
+vi.mock(
+  "@/hooks/queries/custom-field/use-get-custom-fields-by-project",
+  () => ({
+    default: () => ({ data: customFieldDefs }),
+  }),
+);
 
 vi.mock("@/hooks/queries/project/use-get-projects", () => ({
   default: () => ({ data: projects }),
@@ -161,153 +196,6 @@ vi.mock("react-i18next", () => ({
 }));
 
 describe("CreateTaskModal", () => {
-  it.each(["hidden", "renamed"])(
-    "removes %s selections from an open creation form",
-    async (change) => {
-      useLocation.mockReturnValue({
-        pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
-      });
-      customFields = [
-        {
-          id: "people",
-          name: "People",
-          type: "multiselect",
-          options: ["Former", "Current"],
-          hiddenOptions: [],
-          defaultValue: '["Former","Current"]',
-          required: false,
-        },
-      ];
-      const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
-        wrapper: createWrapper(),
-      });
-      enterTitle();
-      customFields = customFields.map((field) => ({
-        ...field,
-        hiddenOptions: change === "hidden" ? ["Former"] : [],
-        options: change === "renamed" ? ["Renamed", "Current"] : field.options,
-      }));
-      view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
-      await act(async () => {
-        submit();
-      });
-      expect(createTask).toHaveBeenCalledWith(
-        expect.objectContaining({
-          customFields: [{ fieldId: "people", value: '["Current"]' }],
-        }),
-      );
-    },
-  );
-
-  it("clears hidden dropdown selections in an already persisted upload draft", async () => {
-    useLocation.mockReturnValue({
-      pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
-    });
-    customFields = [
-      {
-        id: "people",
-        name: "People",
-        type: "dropdown",
-        options: ["Former", "Current"],
-        hiddenOptions: [],
-        defaultValue: "Former",
-        required: false,
-      },
-    ];
-    const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
-      wrapper: createWrapper(),
-    });
-    enterTitle();
-    await act(async () => {
-      await ensureTaskId?.();
-    });
-    customFields = customFields.map((field) => ({
-      ...field,
-      hiddenOptions: ["Former"],
-      defaultValue: "",
-    }));
-    view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
-    await act(async () => {
-      submit();
-    });
-    expect(updateTask).toHaveBeenCalled();
-    expect(setCustomFieldValue).toHaveBeenCalledWith({
-      taskId: "task-1",
-      fieldId: "people",
-      value: "",
-    });
-  });
-
-  it.each(["dropdown", "multiselect"])(
-    "blocks incomplete required %s values before updating an upload draft",
-    async (type) => {
-      useLocation.mockReturnValue({
-        pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
-      });
-      customFields = [
-        {
-          id: "people",
-          name: "People",
-          type,
-          options: ["Former", "Current"],
-          hiddenOptions: [],
-          defaultValue: type === "dropdown" ? "Former" : '["Former"]',
-          required: true,
-        },
-      ];
-      const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
-        wrapper: createWrapper(),
-      });
-      enterTitle();
-      await act(async () => {
-        await ensureTaskId?.();
-      });
-      customFields = customFields.map((field) => ({
-        ...field,
-        hiddenOptions: ["Former"],
-        defaultValue: "",
-      }));
-      view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
-      await act(async () => {
-        submit();
-      });
-      expect(updateTask).not.toHaveBeenCalled();
-      expect(setCustomFieldValue).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each([false, true])(
-    "applies legacy padded dropdown defaults (required: %s)",
-    async (required) => {
-      useLocation.mockReturnValue({
-        pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
-      });
-      customFields = [
-        {
-          id: "people",
-          name: "People",
-          type: "dropdown",
-          options: ["Alice", "Bob"],
-          hiddenOptions: [],
-          defaultValue: " Alice ",
-          required,
-        },
-      ];
-      render(<CreateTaskModal open onClose={vi.fn()} />, {
-        wrapper: createWrapper(),
-      });
-      enterTitle();
-      await act(async () => {
-        submit();
-      });
-      expect(createTask).toHaveBeenCalledWith(
-        expect.objectContaining({
-          customFields: [{ fieldId: "people", value: "Alice" }],
-        }),
-      );
-    },
-  );
-
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
@@ -355,7 +243,9 @@ describe("CreateTaskModal", () => {
       screen.getByPlaceholderText(
         "common:modals.createTask.taskTitlePlaceholder",
       ),
-      { target: { value: "Unsaved task" } },
+      {
+        target: { value: "Unsaved task" },
+      },
     );
     const backdrop = document.querySelector('[data-slot="dialog-backdrop"]');
     fireEvent.pointerDown(backdrop as Element);
@@ -409,7 +299,9 @@ describe("CreateTaskModal", () => {
       screen.getByPlaceholderText(
         "common:modals.createTask.taskTitlePlaceholder",
       ),
-      { target: { value: "Picked project task" } },
+      {
+        target: { value: "Picked project task" },
+      },
     );
     fireEvent.submit(document.querySelector("form") as HTMLFormElement);
 
@@ -421,6 +313,180 @@ describe("CreateTaskModal", () => {
         }),
       );
     });
+  });
+
+  it("creates Home tasks in the first open custom column and shows its name", async () => {
+    projectColumns = [
+      { id: "done", slug: "done", name: "Finished", isFinal: true },
+      {
+        id: "ready",
+        slug: "ready-for-work",
+        name: "Ready for work",
+        isFinal: false,
+      },
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    expect(screen.getByText("Ready for work")).toBeInTheDocument();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "ready-for-work" }),
+      ),
+    );
+  });
+
+  it("waits for the chosen project's columns before submitting", async () => {
+    projectColumns = undefined;
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    expect(
+      screen.getByText("common:modals.createTask.createButton"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("uses fresh workflow columns when a cached open column became final", async () => {
+    refetchColumns.mockResolvedValue({
+      data: [
+        { id: "todo", slug: "to-do", name: "Completed", isFinal: true },
+        { id: "ready", slug: "ready", name: "Ready", isFinal: false },
+      ],
+      isError: false,
+    });
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "ready" }),
+      ),
+    );
+  });
+
+  it("does not create from cached columns when the submission refresh fails", async () => {
+    refetchColumns.mockResolvedValue({ data: projectColumns, isError: true });
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() => expect(refetchColumns).toHaveBeenCalledOnce());
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("waits for refreshing cached workflow columns", async () => {
+    columnsFetching = true;
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    expect(
+      screen.getByText("common:modals.createTask.createButton"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("does not publish after closing during workflow verification", async () => {
+    let finish!: (value: unknown) => void;
+    refetchColumns.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    view.rerender(<CreateTaskModal open={false} onClose={vi.fn()} />);
+    await act(async () => {
+      finish({ data: projectColumns, isError: false });
+    });
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("offers a retry when project statuses could not be loaded", async () => {
+    projectColumns = undefined;
+    columnsError = true;
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "common:modals.createTask.statusLoadError",
+    );
+    fireEvent.click(screen.getByText("common:error.tryAgain"));
+    expect(refetchColumns).toHaveBeenCalledOnce();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+  });
+
+  it("uses planned instead of an ambiguous open/final status slug", async () => {
+    projectColumns = [
+      { id: "done", slug: "shared", name: "Finished", isFinal: true },
+      { id: "open", slug: "shared", name: "Open", isFinal: false },
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "planned" }),
+      ),
+    );
+  });
+
+  it("uses planned when every column is final", async () => {
+    projectColumns = [
+      { id: "done", slug: "done", name: "Finished", isFinal: true },
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "planned" }),
+      ),
+    );
+  });
+
+  it("keeps an explicit planned status even when the project has custom columns", async () => {
+    projectColumns = [
+      { id: "ready", slug: "ready", name: "Ready", isFinal: false },
+    ];
+    render(<CreateTaskModal open status="planned" onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "planned" }),
+      ),
+    );
   });
 
   it("hides the picker when a project is in scope from the route", () => {
@@ -456,24 +522,6 @@ async function chooseBeta() {
 
 function submit() {
   fireEvent.submit(document.querySelector("form") as HTMLFormElement);
-}
-
-function pendingCreate() {
-  let resolve!: (task: never) => void;
-  createTask.mockImplementationOnce(
-    () =>
-      new Promise((done) => {
-        resolve = done;
-      }),
-  );
-  return () =>
-    resolve({
-      id: "old-draft",
-      title: "Draft",
-      status: "planned",
-      projectId: "project-2",
-      createdAt: "2026-08-05T00:00:00.000Z",
-    } as never);
 }
 
 describe("CreateTaskModal context isolation", () => {
@@ -552,81 +600,146 @@ describe("CreateTaskModal context isolation", () => {
       });
       enterTitle();
       submit();
-      await expect(ensureTaskId?.()).resolves.toBeNull();
+      await expect(uploadAsset?.(new File(["x"], "x.png"))).rejects.toThrow();
       expect(createTask).not.toHaveBeenCalled();
     },
   );
 
-  it("deletes a late draft after navigation without handing its ID to an upload", async () => {
-    const finish = pendingCreate();
-    const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
-      wrapper: createWrapper(),
+  it("stages attachments without creating a task and claims them only on submit", async () => {
+    stageUpload.mockResolvedValue({
+      id: "staged-1",
+      url: "/asset/staged-1",
+      kind: "image",
     });
-    await chooseBeta();
-    let pending!: Promise<string | null>;
-    act(() => {
-      pending = ensureTaskId?.() as Promise<string | null>;
-    });
-    workspaceId = "workspace-2";
-    useLocation.mockReturnValue({
-      pathname: "/dashboard/workspace/workspace-2",
-    });
-    view.rerender(<CreateTaskModal open onClose={vi.fn()} />);
-    await act(async () => {
-      finish();
-      await pending;
-    });
-    await expect(pending).resolves.toBeNull();
-    expect(deleteTask).toHaveBeenCalledExactlyOnceWith("old-draft");
-    expect(screen.getByTestId("description-editor")).not.toHaveAttribute(
-      "data-task-id",
-    );
-    expect(updateTask).not.toHaveBeenCalled();
-    expect(setProject).not.toHaveBeenCalled();
-  });
-
-  it("waits for the upload draft on submit and saves that task only once", async () => {
-    const finish = pendingCreate();
     render(<CreateTaskModal open onClose={vi.fn()} />, {
       wrapper: createWrapper(),
     });
     await chooseBeta();
     enterTitle();
-    let pending!: Promise<string | null>;
-    act(() => {
-      pending = ensureTaskId?.() as Promise<string | null>;
-    });
-    submit();
-    submit();
-    expect(updateTask).not.toHaveBeenCalled();
     await act(async () => {
-      finish();
-      await pending;
+      await uploadAsset?.(new File(["x"], "x.png"));
     });
-    await vi.waitFor(() =>
-      expect(updateTask).toHaveBeenCalledExactlyOnceWith(
-        expect.objectContaining({
-          id: "old-draft",
-          projectId: "project-2",
-          title: "Private task",
-        }),
-      ),
+    expect(createTask).not.toHaveBeenCalled();
+    expect(updateTask).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByTestId("description-editor"), {
+      target: { value: "![image](/asset/staged-1)" },
+    });
+    submit();
+    await vi.waitFor(() => expect(createTask).toHaveBeenCalledOnce());
+    expect(createTask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        draftAssetIds: ["staged-1"],
+        projectId: "project-2",
+      }),
     );
-    expect(createTask).toHaveBeenCalledTimes(1);
-    expect(deleteTask).not.toHaveBeenCalled();
   });
 
-  it("discards an existing draft on close and never puts it into another project's store", async () => {
-    storedProject = { id: "project-1", columns: [] };
+  it("does not submit while attachments are uploading", async () => {
+    let finish!: (value: unknown) => void;
+    stageUpload.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          finish = resolve;
+        }),
+    );
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    let pending!: Promise<unknown>;
+    act(() => {
+      pending = uploadAsset!(new File(["x"], "x.png"));
+    });
+    expect(
+      screen.getByText("activity:comment.editor.uploadingFile"),
+    ).toBeDisabled();
+    submit();
+    expect(createTask).not.toHaveBeenCalled();
+    await act(async () => {
+      finish({ id: "staged-2" });
+      await pending;
+    });
+    submit();
+    await vi.waitFor(() => expect(createTask).toHaveBeenCalledOnce());
+  });
+
+  it("closing after an upload creates no published task or deletion side effect", async () => {
+    stageUpload.mockResolvedValue({ id: "staged-1" });
     const view = render(<CreateTaskModal open onClose={vi.fn()} />, {
       wrapper: createWrapper(),
     });
     await chooseBeta();
     await act(async () => {
-      await ensureTaskId?.();
+      await uploadAsset?.(new File(["x"], "x.png"));
     });
     view.rerender(<CreateTaskModal open={false} onClose={vi.fn()} />);
-    expect(deleteTask).toHaveBeenCalledExactlyOnceWith("task-1");
+    expect(createTask).not.toHaveBeenCalled();
+    expect(deleteTask).not.toHaveBeenCalled();
     expect(setProject).not.toHaveBeenCalled();
+  });
+});
+
+const customField = (
+  id: string,
+  type: string,
+  required: boolean,
+  defaultValue: string | null = null,
+) => ({
+  id,
+  projectId: "project-2",
+  name: id,
+  type,
+  required,
+  defaultValue,
+  options: null,
+  position: 0,
+  createdAt: "",
+  updatedAt: "",
+});
+
+describe("CreateTaskModal custom fields", () => {
+  it("flags empty required fields instead of creating, then sends the filled values", async () => {
+    customFieldDefs = [
+      customField("customer", "text", true),
+      customField("billable", "boolean", true, "false"),
+      customField("points", "number", false),
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} projectId="project-2" />, {
+      wrapper: createWrapper(),
+    });
+    enterTitle();
+    submit();
+
+    expect(
+      await screen.findByText("tasks:customFields.missingRequired"),
+    ).toBeInTheDocument();
+    expect(createTask).not.toHaveBeenCalled();
+    const customerChip = document.querySelector(
+      '[data-custom-field="customer"]',
+    ) as HTMLElement;
+    expect(document.activeElement).toBe(customerChip);
+
+    fireEvent.click(customerChip);
+    const input = await screen.findByLabelText("customer");
+    fireEvent.change(input, { target: { value: "Acme Corp" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await vi.waitFor(() =>
+      expect(
+        screen.queryByText("tasks:customFields.missingRequired"),
+      ).not.toBeInTheDocument(),
+    );
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customFields: [
+            { fieldId: "customer", value: "Acme Corp" },
+            { fieldId: "billable", value: "false" },
+          ],
+        }),
+      ),
+    );
   });
 });

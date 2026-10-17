@@ -1,66 +1,66 @@
-import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
+  type SortingStrategy,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect } from "react";
 import type { ProjectWithTasks } from "@/types/project";
 import TaskCard from "../task-card";
 
+const keepOrder: SortingStrategy = () => null;
+
+const CARD_ENTER = { type: "spring", duration: 0.3, bounce: 0 } as const;
+const CARD_EXIT = { duration: 0.15, ease: [0.23, 1, 0.32, 1] } as const;
+
 type ColumnDropzoneProps = {
   column: ProjectWithTasks["columns"][number];
+  activeTaskId: string | null;
   disableDragDrop?: boolean;
-  onIsOverChange?: (isOver: boolean) => void;
+  disableSorting?: boolean;
 };
 
 export function ColumnDropzone({
   column,
+  activeTaskId,
   disableDragDrop = false,
-  onIsOverChange,
+  disableSorting = false,
 }: ColumnDropzoneProps) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: column.id,
-    data: {
-      type: "column",
-      column,
-    },
-  });
-
-  useEffect(() => {
-    onIsOverChange?.(isOver);
-  }, [isOver, onIsOverChange]);
-
   const reduceMotion = useReducedMotion();
+  const hidden = reduceMotion
+    ? { opacity: 0 }
+    : { opacity: 0, transform: "scale(0.98)" };
+  const shown = reduceMotion
+    ? { opacity: 1 }
+    : { opacity: 1, transform: "scale(1)" };
 
   return (
-    <div ref={setNodeRef} className="flex-1 min-h-0">
-      <SortableContext
-        items={column.tasks}
-        strategy={verticalListSortingStrategy}
-      >
-        <div className="flex flex-col gap-2">
-          <AnimatePresence initial={false} mode="popLayout">
-            {column.tasks.map((task) => (
-              <motion.div
-                key={task.id}
-                initial={
-                  reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }
-                }
-                animate={
-                  reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }
-                }
-                exit={
-                  reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }
-                }
-                transition={{ type: "spring", duration: 0.35, bounce: 0.15 }}
-              >
-                <TaskCard task={task} disableDragDrop={disableDragDrop} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      </SortableContext>
-    </div>
+    <SortableContext
+      items={column.tasks}
+      strategy={disableSorting ? keepOrder : verticalListSortingStrategy}
+    >
+      <div className="flex flex-col gap-1.5">
+        <AnimatePresence initial={false} mode="popLayout">
+          {column.tasks.map((task) => (
+            <motion.div
+              key={task.id}
+              initial={task.id === activeTaskId ? false : hidden}
+              animate={shown}
+              exit={
+                task.id === activeTaskId
+                  ? undefined
+                  : { ...hidden, transition: CARD_EXIT }
+              }
+              transition={CARD_ENTER}
+            >
+              <TaskCard
+                task={task}
+                disableDragDrop={disableDragDrop}
+                isFinalColumn={column.isFinal}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+    </SortableContext>
   );
 }

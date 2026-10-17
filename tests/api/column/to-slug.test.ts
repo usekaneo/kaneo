@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { toSlug } from "../../../apps/api/src/column/controllers/create-column";
+import { describe, expect, it } from "vite-plus/test";
+import { toSlug } from "../../../apps/api/src/column/to-slug";
 
 describe("toSlug", () => {
   it("slugifies Latin names", () => {

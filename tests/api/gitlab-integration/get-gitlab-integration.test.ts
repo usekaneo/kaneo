@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
@@ -22,9 +22,8 @@ vi.mock("../../../apps/api/src/database", () => ({
   },
 }));
 
-const { default: getGitlabIntegration } = await import(
-  "../../../apps/api/src/gitlab-integration/controllers/get-gitlab-integration"
-);
+const { default: getGitlabIntegration } =
+  await import("../../../apps/api/src/gitlab-integration/controllers/get-gitlab-integration");
 
 describe("getGitlabIntegration secrets", () => {
   it("returns no token hint or webhook secret to other members", async () => {

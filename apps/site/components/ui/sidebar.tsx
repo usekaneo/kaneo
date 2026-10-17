@@ -78,7 +78,7 @@ function SidebarProvider({
         _setOpen(openState);
       }
 
-      // biome-ignore lint/suspicious/noDocumentCookie: This is necessary to persist the sidebar state across page reloads. --- IGNORE ---
+      // eslint-disable-next-line unicorn/no-document-cookie -- This is necessary to persist the sidebar state across page reloads. --- IGNORE ---
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${String(openState)}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open],
@@ -531,11 +531,8 @@ function SidebarMenuButton({
     return buttonElement;
   }
 
-  if (typeof tooltip === "string") {
-    tooltip = {
-      children: tooltip,
-    };
-  }
+  const tooltipProps =
+    typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
   return (
     <Tooltip>
@@ -546,7 +543,7 @@ function SidebarMenuButton({
         align="center"
         hidden={state !== "collapsed" || isMobile}
         side="right"
-        {...tooltip}
+        {...tooltipProps}
       />
     </Tooltip>
   );

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import updateTaskStatus from "@/fetchers/task/update-task-status";
 import type Task from "@/types/task";
 
@@ -8,6 +9,7 @@ export function useUpdateTaskStatus() {
   return useMutation({
     mutationFn: (task: Task) => updateTaskStatus(task.id, task),
     onSuccess: (_, variables) => {
+      invalidateMyWork(queryClient);
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
       });

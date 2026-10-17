@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import { handleGiteaIssueCommentCreated } from "../../../../../apps/api/src/plugins/gitea/webhooks/issue-comment-created";
 import { handleGiteaIssueOpened } from "../../../../../apps/api/src/plugins/gitea/webhooks/issue-opened";
 
 const mocks = vi.hoisted(() => {
@@ -12,11 +13,17 @@ const mocks = vi.hoisted(() => {
     claimTaskNumber: vi.fn(),
     resolveTargetStatus: vi.fn(),
     publishEvent: vi.fn(),
+    lockedIntegration: vi.fn(),
     columnFindFirst: vi.fn(),
     projectFindFirst: vi.fn(),
     createGiteaClient: vi.fn(),
     addLabelsToIssueGitea: vi.fn(),
     db: {
+      transaction: async (run: (tx: unknown) => Promise<unknown>) =>
+        run(mocks.db),
+      select: () => ({
+        from: () => ({ where: () => ({ for: mocks.lockedIntegration }) }),
+      }),
       insert: () => ({
         values: (values: Record<string, unknown>) => {
           insertedValues.push(values);
@@ -34,6 +41,17 @@ const mocks = vi.hoisted(() => {
     },
   };
 });
+
+vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  () => ({
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+  }),
+);
 
 vi.mock("../../../../../apps/api/src/database", () => ({ default: mocks.db }));
 
@@ -87,6 +105,7 @@ vi.mock("../../../../../apps/api/src/plugins/gitea/utils/labels", () => ({
 const integration = {
   id: "integration-1",
   projectId: "project-1",
+  project: { workspaceId: "workspace-1" },
   isActive: true,
   type: "gitea",
   config: JSON.stringify({
@@ -118,6 +137,7 @@ function issueOpenedPayload(labels: Array<string | { name?: string }>) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.lockedIntegration.mockResolvedValue([integration]);
   mocks.insertedValues.length = 0;
   mocks.findAllIntegrationsByGiteaRepo.mockResolvedValue([integration]);
   mocks.findExternalLink.mockResolvedValue(null);
@@ -130,6 +150,38 @@ beforeEach(() => {
 });
 
 describe("handleGiteaIssueOpened", () => {
+  it("marks automatic task links and skips their comment webhook", async () => {
+    const createIssueComment = vi.fn();
+    mocks.projectFindFirst.mockResolvedValue({
+      workspaceId: "workspace-1",
+      slug: "test",
+    });
+    mocks.createGiteaClient.mockReturnValue({ createIssueComment });
+    const payload = issueOpenedPayload([]);
+    await handleGiteaIssueOpened(payload);
+    expect(createIssueComment).toHaveBeenCalledWith(
+      "usekaneo",
+      "kaneo",
+      42,
+      expect.stringMatching(/^<!-- kaneo:comment -->\n\n\[TEST-7\]\(/),
+    );
+    const body = createIssueComment.mock.calls[0][3] as string;
+    mocks.insertedValues.length = 0;
+    mocks.findExternalLink.mockResolvedValue({ taskId: "task-1" });
+    await handleGiteaIssueCommentCreated({
+      ...payload,
+      action: "created",
+      comment: {
+        id: 1,
+        body,
+        html_url: `${payload.issue.html_url}#issuecomment-1`,
+        user: { login: "regular-user", avatar_url: "" },
+        created_at: "2026-09-27T00:00:00Z",
+      },
+    });
+    expect(mocks.insertedValues).toHaveLength(0);
+  });
+
   it("persists a valid default priority when the issue has no priority: label", async () => {
     await handleGiteaIssueOpened(issueOpenedPayload(["type:bug"]));
 
@@ -147,3 +199,7 @@ describe("handleGiteaIssueOpened", () => {
     expect(mocks.insertedValues[0].priority).toBe("high");
   });
 });
+
+vi.mock("../../../../../apps/api/src/plugins/sync/issue-labels", () => ({
+  importIssueLabels: async () => undefined,
+}));

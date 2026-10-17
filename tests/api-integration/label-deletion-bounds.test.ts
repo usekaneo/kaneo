@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { subscribeToEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
@@ -308,7 +308,7 @@ describe("bounded, resumable label deletion", () => {
     mockAuthenticatedSession(other.user);
     expect(
       (await app.request(`/api/label/${root.id}`, { method: "DELETE" })).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(await labelsFor(member.workspace.id)).toHaveLength(2);
     expect(github).toHaveBeenCalledTimes(LABEL_DELETE_BATCH_SIZE);
     mockAuthenticatedSession(member.user);

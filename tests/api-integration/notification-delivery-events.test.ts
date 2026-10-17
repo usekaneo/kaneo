@@ -1,5 +1,12 @@
 import * as email from "@kaneo/email";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import "../../apps/api/src/notification";
 import createComment from "../../apps/api/src/activity/controllers/create-comment";
 import db, { schema } from "../../apps/api/src/database";
@@ -21,6 +28,17 @@ vi.mock("../../apps/api/src/utils/outbound-request", async (original) => ({
   ...(await original<object>()),
   sendOutboundRequest: vi.fn(async () => new Response(null, { status: 200 })),
 }));
+
+vi.mock("../../apps/api/src/events", async (original) => {
+  const events = await original<typeof import("../../apps/api/src/events")>();
+  return {
+    ...events,
+    // Delivery assertions and the next test's TRUNCATE must wait for every
+    // subscriber, including work that continues after the mocked HTTP send.
+    publishEvent: (...args: Parameters<typeof events.publishEvent>) =>
+      events.publishEvent(args[0], args[1], { waitForHandlers: true }),
+  };
+});
 
 afterEach(() => vi.unstubAllEnvs());
 beforeEach(async () => {
@@ -102,6 +120,18 @@ describe("status, comment and mention delivery", () => {
       }
       await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
       expect(send.mock.calls[0][0]).toBe(recipient.user.email);
+      expect(send.mock.calls[0][2]).toEqual(
+        expect.objectContaining({
+          breadcrumb: expect.stringContaining(" / "),
+          settingsUrl: expect.stringContaining(
+            "/dashboard/settings/account/notifications",
+          ),
+          task: expect.objectContaining({
+            title: task.title,
+            ticket: expect.stringMatching(/-\d+$/),
+          }),
+        }),
+      );
       await vi.waitFor(() =>
         expect(sendOutboundRequest).toHaveBeenCalledTimes(1),
       );

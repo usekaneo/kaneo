@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { and, count, eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db from "../../apps/api/src/database";
 import { mcpOauthStateTable } from "../../apps/api/src/database/schema";
 import mcp from "../../apps/api/src/mcp";
@@ -66,7 +66,6 @@ describe("MCP OAuth HTTP resource bounds", () => {
   it("bounds authorization fields and the raw URL before any request row is created", async () => {
     const client = await registerClient({ redirectUris: [redirectUri] });
     for (const [field, value, status] of [
-      ["state", "s".repeat(1025), 400],
       ["state", "s".repeat(9000), 414],
       ["code_challenge", "x".repeat(44), 400],
       ["client_id", "x".repeat(129), 400],
@@ -90,11 +89,49 @@ describe("MCP OAuth HTTP resource bounds", () => {
       redirect_uri: redirectUri,
       code_challenge: challenge,
       code_challenge_method: "S256",
-      state: "s".repeat(1024),
+      state: "s".repeat(6000),
     });
     expect((await mcp.request(`/mcp/authorize?${query}`)).status).toBe(302);
     expect(await total("request")).toBe(1);
   });
+
+  it.each([true, false])(
+    "returns long opaque state unchanged after consent (approved=%s)",
+    async (approved) => {
+      const { user } = await createWorkspaceMember();
+      mockAuthenticatedSession(user);
+      const client = await registerClient({ redirectUris: [redirectUri] });
+      const state = `${"s".repeat(2048)}+/%=& ü`;
+      const query = new URLSearchParams({
+        response_type: "code",
+        client_id: client.clientId,
+        redirect_uri: redirectUri,
+        code_challenge: challenge,
+        code_challenge_method: "S256",
+        state,
+      });
+      const response = await mcp.request(`/mcp/authorize?${query}`);
+      expect(response.status).toBe(302);
+      const consentUrl = new URL(response.headers.get("location")!);
+      const id = consentUrl.searchParams.get("request_id");
+      expect(await getAuthorizationRequest(id!)).toHaveProperty("state", state);
+
+      const decision = await post(
+        `/mcp/authorize/request/${id}`,
+        { approved },
+        { origin: "http://localhost:5173" },
+      );
+      expect(decision.status).toBe(200);
+      const result = await decision.json();
+      const redirect = new URL(result.redirect);
+      expect(redirect.searchParams.get("state")).toBe(state);
+      expect(redirect.searchParams.has("code")).toBe(approved);
+      expect(redirect.searchParams.get("error")).toBe(
+        approved ? null : "access_denied",
+      );
+      expect(await getAuthorizationRequest(id!)).toBeNull();
+    },
+  );
 
   it("returns a retryable JSON error at the durable registration limit", async () => {
     await db.insert(mcpOauthStateTable).values({

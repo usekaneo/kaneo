@@ -27,12 +27,16 @@ import {
   Folder,
   Forward,
   MoreHorizontal,
+  Plus,
   Settings,
   Trash2,
+  Trash2Icon,
+  LinkIcon,
 } from "lucide-react";
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { ProjectProgress } from "@/components/project-progress";
 import {
   Collapsible,
   CollapsiblePanel,
@@ -47,6 +51,7 @@ import {
 } from "@/components/ui/menu";
 import {
   SidebarGroup,
+  SidebarGroupAction,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
@@ -54,11 +59,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { EASE_OUT_CSS } from "@/lib/motion";
 import { toast } from "@/lib/toast";
 import type { ProjectWithTasks } from "@/types/project";
 import CreateProjectModal from "./shared/modals/create-project-modal";
@@ -90,7 +97,7 @@ function SortableProjectItem({
       // replays the same move from a stale offset.
       animateLayoutChanges: () => false,
       // dnd-kit defaults to `ease`; this is the app's curve.
-      transition: { duration: 200, easing: "var(--ease-out)" },
+      transition: { duration: 200, easing: EASE_OUT_CSS },
     });
 
   const style: CSSProperties = {
@@ -117,9 +124,12 @@ export function NavProjects() {
   const { t } = useTranslation();
   const { isMobile } = useSidebar();
   const { data: workspace } = useActiveWorkspace();
-  const { data: projects } = useGetProjects({
-    workspaceId: workspace?.id || "",
-  });
+  const { data: projects } = useGetProjects(
+    {
+      workspaceId: workspace?.id || "",
+    },
+    true,
+  );
   const queryClient = useQueryClient();
   const { mutateAsync: deleteProject } = useDeleteProject();
   const reorderProjects = useReorderProjects();
@@ -218,12 +228,24 @@ export function NavProjects() {
           <CollapsibleTrigger
             className="data-panel-open:[&_svg]:rotate-90"
             render={
-              <SidebarGroupLabel className="h-7 cursor-pointer justify-between px-0 text-sidebar-accent-foreground" />
+              <SidebarGroupLabel className="h-7 cursor-pointer justify-start gap-1 px-0 text-sidebar-accent-foreground" />
             }
           >
             <span>{t("navigation:sidebar.projects")}</span>
             <ChevronRight className="h-3.5 w-3.5 text-sidebar-foreground/60 transition-transform duration-200" />
           </CollapsibleTrigger>
+          {canCreate && (
+            <SidebarGroupAction
+              className="top-2 right-2 text-sidebar-foreground/70"
+              title={t("navigation:projectList.addProject")}
+              onClick={() => setIsCreateProjectModalOpen(true)}
+            >
+              <Plus />
+              <span className="sr-only">
+                {t("navigation:projectList.addProject")}
+              </span>
+            </SidebarGroupAction>
+          )}
           <CollapsiblePanel>
             <SidebarGroupContent>
               <DndContext
@@ -243,6 +265,10 @@ export function NavProjects() {
                     strategy={verticalListSortingStrategy}
                   >
                     {projects?.map((project) => {
+                      const ProjectIcon =
+                        icons[project.icon as keyof typeof icons] ||
+                        icons.Layout;
+
                       return (
                         <SortableProjectItem
                           key={project.id}
@@ -252,10 +278,20 @@ export function NavProjects() {
                           <SidebarMenuButton
                             isActive={isCurrentProject(project.id)}
                             size="default"
-                            className="h-8 gap-0 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
+                            className="h-8 text-sm"
                             onClick={() => handleProjectClick(project)}
                           >
-                            <span>{project.name}</span>
+                            <ProjectIcon aria-hidden="true" />
+                            <span className="min-w-0 flex-1 truncate">
+                              {project.name}
+                            </span>
+                            {/* Gives way to the row menu, which sits here on hover. */}
+                            <ProjectProgress
+                              percentage={
+                                project.statistics.completionPercentage
+                              }
+                              className="text-muted-foreground max-md:hidden group-focus-within/menu-item:opacity-0 group-hover/menu-item:opacity-0 group-has-data-popup-open/menu-item:opacity-0"
+                            />
                           </SidebarMenuButton>
 
                           <DropdownMenu>
@@ -268,7 +304,7 @@ export function NavProjects() {
                                   onPointerDown={(event) =>
                                     event.stopPropagation()
                                   }
-                                  className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
+                                  className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-popup-open:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
                                 />
                               }
                             >
@@ -299,6 +335,7 @@ export function NavProjects() {
                                   );
                                   toast.success(
                                     t("navigation:projectList.linkCopied"),
+                                    { icon: LinkIcon },
                                   );
                                 }}
                               >
@@ -346,25 +383,13 @@ export function NavProjects() {
                       );
                     })}
                   </SortableContext>
-
-                  {canCreate && (
-                    <SidebarMenuItem className="mt-1">
-                      <SidebarMenuButton
-                        size="default"
-                        className="h-8 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent"
-                        onClick={() => setIsCreateProjectModalOpen(true)}
-                      >
-                        <span>{t("navigation:projectList.addProject")}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  )}
                 </SidebarMenu>
 
                 {/* Portalled: `SidebarContent` is `overflow-auto` and clips it. */}
                 {createPortal(
                   <DragOverlay dropAnimation={null}>
                     {draggingProject ? (
-                      <div className="flex h-8 w-(--sidebar-width) max-w-64 items-center rounded-lg border bg-sidebar not-dark:bg-clip-padding ps-3.5 pe-2 text-sm text-sidebar-accent-foreground shadow-lg/5">
+                      <div className="flex h-8 w-(--sidebar-width) max-w-64 items-center rounded-lg border bg-sidebar not-dark:bg-clip-padding px-2 text-sm text-sidebar-accent-foreground shadow-lg/5">
                         <span className="truncate">{draggingProject.name}</span>
                       </div>
                     ) : null}
@@ -408,7 +433,9 @@ export function NavProjects() {
                     await deleteProject({
                       id: projectToDeleteId || "",
                     });
-                    toast.success(t("navigation:projectList.deletedToast"));
+                    toast.success(t("navigation:projectList.deletedToast"), {
+                      icon: Trash2Icon,
+                    });
                     queryClient.invalidateQueries({
                       queryKey: ["projects"],
                     });

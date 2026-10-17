@@ -1,24 +1,39 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import updateCustomField from "@/fetchers/custom-field/update-custom-field";
-import { HttpError } from "@/lib/http-error";
+import updateCustomField, {
+  type UpdateCustomFieldRequest,
+} from "@/fetchers/custom-field/update-custom-field";
 
-export default function useUpdateCustomField() {
+function useUpdateCustomField(projectId: string) {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: updateCustomField,
-    onError: async (error) => {
-      if (error instanceof HttpError && error.status === 409) {
-        await queryClient.invalidateQueries({ queryKey: ["custom-fields"] });
-      }
-    },
-    onSuccess: async (field) => {
-      await Promise.all(
-        [
-          ["custom-fields", field.projectId],
-          ["custom-field-values"],
-          ["custom-field-filter-values", field.projectId],
-        ].map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: UpdateCustomFieldRequest;
+    }) => updateCustomField(id, data),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(
+        ["custom-fields", projectId],
+        (existing: Array<typeof updated> | undefined) =>
+          existing?.map((field) => (field.id === updated.id ? updated : field)),
       );
+
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["custom-fields", projectId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["custom-field-values"] }),
+        queryClient.invalidateQueries({
+          queryKey: ["custom-field-filter-values", projectId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ["tasks", projectId] }),
+        queryClient.invalidateQueries({ queryKey: ["task"] }),
+      ]);
     },
   });
 }
+
+export default useUpdateCustomField;

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import { parseGitlabBaseUrl } from "../../../apps/api/src/gitlab-integration/utils/normalize-input";
 import {
   assertGitlabTransport,

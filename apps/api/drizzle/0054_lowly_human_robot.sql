@@ -1,1 +1,0 @@
-ALTER TABLE "custom_field_definition" ADD COLUMN "hidden_options" jsonb DEFAULT '[]'::jsonb NOT NULL;

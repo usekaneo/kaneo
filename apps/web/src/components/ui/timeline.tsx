@@ -187,6 +187,7 @@ function TimelineSeparator({
 // TimelineTitle
 function TimelineTitle({
   className,
+  children,
   ...props
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
@@ -194,7 +195,9 @@ function TimelineTitle({
       className={cn("font-medium text-sm", className)}
       data-slot="timeline-title"
       {...props}
-    />
+    >
+      {children}
+    </h3>
   );
 }
 

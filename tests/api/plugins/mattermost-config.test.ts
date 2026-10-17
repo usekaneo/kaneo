@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import { validateMattermostConfig } from "../../../apps/api/src/plugins/mattermost/config";
 
 const originalAllowPrivateDestinations =

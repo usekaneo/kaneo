@@ -1,3 +1,4 @@
+import { revokeUserConnections, revokeWorkspaceConnections } from "./ws";
 import { apiKey } from "@better-auth/api-key";
 import {
   isSmtpConfigured,
@@ -40,11 +41,21 @@ import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
 } from "./billing/controllers/find-billable-workspaces";
-import { syncWorkspaceSeats } from "./billing/controllers/sync-seats";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
 import { publishEvent } from "./events";
+import { applyInvitationProjectAccess } from "./project-access/apply-invitation-project-access";
+import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
+import { clearMemberProjectAccess } from "./project-access/clear-member-project-access";
+import { isOwnerRole } from "./project-access/is-owner-role";
+import { publishMemberProjects } from "./project-access/publish-member-projects";
+import { handleMemberAdded } from "./workspace-members/handle-member-added";
+import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
+import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
+import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
+import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
+import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
 import { resolveAuthSecret } from "./utils/auth-secret";
 import {
   canSendSignInEmail,
@@ -53,11 +64,20 @@ import {
 } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
+import { resolveFileSecret } from "./utils/file-secret";
 import { generateDemoName } from "./utils/generate-demo-name";
+import { getEmailRequestContext } from "./utils/email-request-context";
 import { getDefaultCookieAttributes } from "./utils/get-default-cookie-attributes";
 import { getInvitationEmailSubject } from "./utils/get-invitation-email-subject";
-import { getWorkspaceInvitationEmailCopy } from "./utils/get-workspace-invitation-email-copy";
+import {
+  getInvitationRoleLabel,
+  getWorkspaceInvitationEmailCopy,
+} from "./utils/get-workspace-invitation-email-copy";
 import { getGithubSsoOAuthCredentials } from "./utils/github-sso-env";
+import {
+  hasInstanceAdminRole,
+  instanceAdminRoleSql,
+} from "./utils/instance-admin-role";
 import {
   hasRegisteredUsers,
   promoteInitialAdministrator,
@@ -67,6 +87,7 @@ import { isDisposableEmail } from "./utils/is-disposable-email";
 import { isLocalSignInPath } from "./utils/is-local-sign-in-path";
 import { trackPasswordResetDelivery } from "./utils/password-reset-delivery";
 import {
+  assertEmailCodeRecipientAllowed,
   assertGuestRegistrationAllowed,
   assertUserRegistrationAllowed,
   normalizeInvitationId,
@@ -132,7 +153,14 @@ function getLocaleKey(locale?: string | null) {
   if (normalized?.startsWith("de")) return "de";
   if (normalized?.startsWith("vi")) return "vi";
   if (normalized?.startsWith("ja")) return "ja";
+  if (normalized === "zh-tw") return "zh-tw";
   return "en";
+}
+
+function isEmailCodeSignInAvailable() {
+  return (
+    isSmtpConfigured() && !isEmailOtpSignInDisabled && !isLoginFormDisabled
+  );
 }
 
 // Reads env at call time (not module scope) so tests can stub it.
@@ -157,7 +185,7 @@ function getAuthEmailCopy(locale?: string | null) {
   if (localeKey === "de") {
     return {
       magicLinkSubject: "Anmeldelink für Kaneo",
-      otpSubject: "Bestätigungscode für Kaneo",
+      otpSubject: (otp: string) => `${otp} ist dein Kaneo-Anmeldecode`,
       passwordResetSubject: "Kaneo-Passwort zurücksetzen",
     };
   }
@@ -165,7 +193,7 @@ function getAuthEmailCopy(locale?: string | null) {
   if (localeKey === "vi") {
     return {
       magicLinkSubject: "Liên kết đăng nhập Kaneo",
-      otpSubject: "Mã xác minh Kaneo",
+      otpSubject: (otp: string) => `${otp} là mã đăng nhập Kaneo của bạn`,
       passwordResetSubject: "Đặt lại mật khẩu Kaneo",
     };
   }
@@ -173,14 +201,22 @@ function getAuthEmailCopy(locale?: string | null) {
   if (localeKey === "ja") {
     return {
       magicLinkSubject: "Kaneo ログインリンク",
-      otpSubject: "Kaneo 認証コード",
+      otpSubject: (otp: string) => `Kaneo のサインインコード: ${otp}`,
       passwordResetSubject: "Kaneo のパスワードをリセット",
+    };
+  }
+
+  if (localeKey === "zh-tw") {
+    return {
+      magicLinkSubject: "Kaneo 登入連結",
+      otpSubject: (otp: string) => `你的 Kaneo 登入驗證碼：${otp}`,
+      passwordResetSubject: "重設 Kaneo 密碼",
     };
   }
 
   return {
     magicLinkSubject: "Login for Kaneo",
-    otpSubject: "Authentication code for Kaneo",
+    otpSubject: (otp: string) => `${otp} is your Kaneo sign-in code`,
     passwordResetSubject: "Reset your Kaneo password",
   };
 }
@@ -202,6 +238,8 @@ function getDeviceAuthVerificationUri(): string {
   const base = clientUrl.replace(/\/$/, "");
   return `${base}/device`;
 }
+
+const deletedWorkspaceMembers = new WeakMap<object, string[]>();
 
 export const auth = betterAuth({
   baseURL: baseURLWithoutPath,
@@ -246,6 +284,7 @@ export const auth = betterAuth({
       // Require the provider's verified-email claim for implicit linking;
       // configuration alone must not make an unverified identity trusted.
       enabled: true,
+      allowDifferentEmails: true,
       // Only link to an existing local account after its email has been
       // verified. Without this check, an attacker could pre-register a victim's
       // email with a password account and retain access after the victim signs
@@ -258,14 +297,20 @@ export const auth = betterAuth({
     autoSignIn: true,
     revokeSessionsOnPasswordReset: true,
     resetPasswordTokenExpiresIn: 60 * 60,
-    sendResetPassword: async ({ user, url }) => {
+    sendResetPassword: async ({ user, url }, request) => {
+      const requestContext = getEmailRequestContext(request?.headers);
       // Keep SMTP latency out of the response so it cannot reveal accounts.
       trackPasswordResetDelivery(
         getUserLocale(user.email).then((locale) =>
           sendPasswordResetEmail(
             user.email,
             getAuthEmailCopy(locale).passwordResetSubject,
-            { resetLink: url, userName: user.name, locale },
+            {
+              resetLink: url,
+              userName: user.name,
+              locale,
+              ...requestContext,
+            },
           ),
         ),
       );
@@ -306,7 +351,10 @@ export const auth = betterAuth({
     lastLoginMethod(),
     magicLink({
       disableSignUp: isPasswordRegistrationDisabled,
-      sendMagicLink: async ({ email, url }) => {
+      sendMagicLink: async ({ email, url }, ctx) => {
+        const requestContext = getEmailRequestContext(
+          ctx?.request?.headers ?? ctx?.headers,
+        );
         queueSignInEmail(async () => {
           if (!(await shouldDeliverSignInEmail(email))) {
             return;
@@ -316,6 +364,7 @@ export const auth = betterAuth({
           await sendMagicLinkEmail(email, copy.magicLinkSubject, {
             magicLink: url,
             locale,
+            ...requestContext,
           });
         });
       },
@@ -326,17 +375,21 @@ export const auth = betterAuth({
           emailOTP({
             expiresIn: OTP_EXPIRY_SECONDS,
             disableSignUp: isPasswordRegistrationDisabled,
-            async sendVerificationOTP({ email, otp, type }) {
+            async sendVerificationOTP({ email, otp, type }, ctx) {
               if (type === "sign-in") {
+                const requestContext = getEmailRequestContext(
+                  ctx?.request?.headers ?? ctx?.headers,
+                );
                 queueSignInEmail(async () => {
                   if (!(await shouldDeliverSignInEmail(email))) {
                     return;
                   }
                   const locale = await getUserLocale(email);
                   const copy = getAuthEmailCopy(locale);
-                  await sendOtpEmail(email, copy.otpSubject, {
+                  await sendOtpEmail(email, copy.otpSubject(otp), {
                     otp,
                     locale,
+                    ...requestContext,
                   });
                 });
               }
@@ -390,6 +443,20 @@ export const auth = betterAuth({
           fields: {
             organizationId: "workspaceId",
           },
+          additionalFields: {
+            projectAccess: {
+              type: "string",
+              input: true,
+              required: false,
+              defaultValue: "all",
+            },
+            projectIds: {
+              type: "string[]",
+              input: true,
+              required: false,
+              defaultValue: [],
+            },
+          },
         },
         organizationRole: {
           modelName: "workspace_role",
@@ -405,7 +472,7 @@ export const auth = betterAuth({
         },
       },
       // When `DISABLE_WORKSPACE_CREATION` is set, only instance admins
-      // (`user.role === "admin"`) may create workspaces — mirrors the
+      // (role list includes "admin") may create workspaces — mirrors the
       // implicit-exemption shape of `DISABLE_REGISTRATION` above. This
       // check runs before any workspace membership exists, so only the
       // instance-wide role is meaningful here; per-workspace roles
@@ -420,7 +487,7 @@ export const auth = betterAuth({
               .select({ role: schema.userTable.role })
               .from(schema.userTable)
               .where(eq(schema.userTable.id, user.id));
-            return freshUser?.role === "admin";
+            return hasInstanceAdminRole(freshUser?.role);
           }
         : true,
       // Better Auth defaults this to `true`, which blocks any user whose email
@@ -434,7 +501,10 @@ export const auth = betterAuth({
         beforeCreateOrganization: async ({ organization }) => {
           const check = checkWorkspaceName(organization.name ?? "");
           if (!check.ok) {
-            throw new APIError("BAD_REQUEST", { message: check.reason });
+            throw new APIError("BAD_REQUEST", {
+              code: "INVALID_WORKSPACE_NAME",
+              message: check.reason,
+            });
           }
         },
         afterCreateOrganization: async ({ organization, user }) => {
@@ -480,27 +550,78 @@ export const auth = betterAuth({
             ownerId: user.id,
           });
         },
-        beforeDeleteOrganization: async ({ organization }) => {
+        beforeDeleteOrganization: async ({ organization }, ctx) => {
           const billable = await findBillableWorkspaces([organization.id]);
           if (billable.length > 0) {
             throw new APIError("CONFLICT", {
+              code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
               message: formatBillableWorkspacesMessage(
                 billable.map((workspace) => workspace.name),
               ),
             });
           }
+          if (ctx) {
+            const members = await db
+              .select({ userId: schema.workspaceUserTable.userId })
+              .from(schema.workspaceUserTable)
+              .where(
+                eq(schema.workspaceUserTable.workspaceId, organization.id),
+              );
+            const admins = await db
+              .select({ userId: schema.userTable.id })
+              .from(schema.userTable)
+              .where(instanceAdminRoleSql(schema.userTable.role));
+            deletedWorkspaceMembers.set(ctx.context, [
+              ...new Set(
+                [...members, ...admins].map((member) => member.userId),
+              ),
+            ]);
+          }
+        },
+        afterDeleteOrganization: async ({ organization }, ctx) => {
+          const userIds = ctx
+            ? (deletedWorkspaceMembers.get(ctx.context) ?? [])
+            : [];
+          if (ctx) deletedWorkspaceMembers.delete(ctx.context);
+          await Promise.all(
+            userIds.map((userId) =>
+              revokeWorkspaceConnections(userId, organization.id, {
+                force: true,
+              }),
+            ),
+          );
+        },
+        beforeCreateInvitation: async ({ invitation }) => {
+          const access = await resolveInvitationProjectAccess(invitation);
+          return { data: access };
+        },
+        beforeAcceptInvitation: async ({ invitation, user }) => {
+          await applyInvitationProjectAccess(invitation, user.id);
+        },
+        afterAcceptInvitation: async ({ member }) => {
+          await publishMemberProjects(
+            member.organizationId,
+            member.userId,
+          ).catch((error) => {
+            console.error("Project member refresh failed:", error);
+          });
+        },
+        afterUpdateMemberRole: async ({ member }) => {
+          if (isOwnerRole(member.role)) {
+            await handleOwnerPromoted(member.organizationId, member.userId);
+          }
         },
         afterAddMember: async ({ member }) => {
           if (member?.organizationId) {
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member add failed:", error);
-            });
+            await handleMemberAdded(member.organizationId, member.userId);
           }
         },
-        afterRemoveMember: async ({ member }) => {
+        afterRemoveMember: async ({ member, user }) => {
           if (member?.organizationId) {
-            void syncWorkspaceSeats(member.organizationId).catch((error) => {
-              console.error("Seat sync after member remove failed:", error);
+            await handleMemberRemoved({
+              workspaceId: member.organizationId,
+              userId: member.userId,
+              userRole: user.role,
             });
           }
         },
@@ -523,6 +644,9 @@ export const auth = betterAuth({
             workspaceName: data.organization.name,
             invitationLink: inviteLink,
             to: data.email,
+            locale,
+            role: getInvitationRoleLabel(locale, data.role),
+            expiresAt: data.invitation.expiresAt,
             copy,
           },
         );
@@ -543,7 +667,7 @@ export const auth = betterAuth({
         {
           providerId: "custom",
           clientId: process.env.CUSTOM_OAUTH_CLIENT_ID || "",
-          clientSecret: process.env.CUSTOM_OAUTH_CLIENT_SECRET,
+          clientSecret: resolveFileSecret("CUSTOM_OAUTH_CLIENT_SECRET"),
           authorizationUrl: process.env.CUSTOM_OAUTH_AUTHORIZATION_URL || "",
           tokenUrl: process.env.CUSTOM_OAUTH_TOKEN_URL || "",
           userInfoUrl: process.env.CUSTOM_OAUTH_USER_INFO_URL || "",
@@ -600,6 +724,19 @@ export const auth = betterAuth({
   },
   databaseHooks: {
     user: {
+      delete: {
+        after: async (user, ctx) => {
+          // Anonymous linking deletes the old identity after issuing a new
+          // session. The replacement account must retain its authentication.
+          if (
+            (user as Partial<UserWithAnonymous>).isAnonymous &&
+            ctx?.context.newSession &&
+            ctx.context.newSession.user.id !== user.id
+          )
+            return;
+          await revokeUserConnections(user.id);
+        },
+      },
       update: {
         before: async (user, ctx) => {
           if (
@@ -613,6 +750,7 @@ export const auth = betterAuth({
               message: "You cannot change your own role.",
             });
           }
+          return clearEmailVerificationOnAdminChange(user, ctx);
         },
       },
       create: {
@@ -646,6 +784,10 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/admin/remove-user") {
+        await prepareAdminUserRemoval(ctx);
+      }
+
       if (ctx.path === "/organization/invite-member") {
         // Better Auth swallows email failures in runInBackgroundOrAwait.
         // Invitation callers need the delivery result, including on resend.
@@ -664,6 +806,7 @@ export const auth = betterAuth({
 
       if (isLoginFormDisabled && isLocalSignInPath(ctx.path)) {
         throw new APIError("FORBIDDEN", {
+          code: "LOCAL_SIGN_IN_DISABLED",
           message:
             "Local sign-in is disabled. Please use a configured social or OIDC sign-in method.",
         });
@@ -671,6 +814,7 @@ export const auth = betterAuth({
 
       if (ctx.path === "/request-password-reset" && !isSmtpConfigured()) {
         throw new APIError("FORBIDDEN", {
+          code: "EMAIL_DELIVERY_NOT_CONFIGURED",
           message: "Password reset requires email delivery to be configured.",
         });
       }
@@ -684,7 +828,18 @@ export const auth = betterAuth({
           ctx.headers?.get("x-turnstile-token") ?? ctx.body?.turnstileToken,
         );
         if (!verdict.ok)
-          throw new APIError("FORBIDDEN", { message: verdict.reason });
+          throw new APIError("FORBIDDEN", {
+            code: "CAPTCHA_FAILED",
+            message: verdict.reason,
+          });
+      }
+
+      if (
+        (ctx.path === "/email-otp/send-verification-otp" &&
+          ctx.body?.type === "sign-in") ||
+        ctx.path === "/sign-in/magic-link"
+      ) {
+        await assertEmailCodeRecipientAllowed(ctx.body?.email);
       }
 
       // Block invite-member calls on cloud from anonymous users or to
@@ -703,12 +858,14 @@ export const auth = betterAuth({
           | undefined;
         if (sessionUser?.isAnonymous) {
           throw new APIError("FORBIDDEN", {
+            code: "GUEST_INVITATIONS_NOT_ALLOWED",
             message: "Guest accounts may not send workspace invitations.",
           });
         }
         const inviteeEmail = (ctx.body?.email as string | undefined) ?? "";
         if (inviteeEmail && isDisposableEmail(inviteeEmail)) {
           throw new APIError("BAD_REQUEST", {
+            code: "DISPOSABLE_EMAIL_NOT_ALLOWED",
             message:
               "Invitations to disposable-email addresses are not allowed.",
           });
@@ -729,21 +886,21 @@ export const auth = betterAuth({
       if (ctx.path === "/sign-up/email") {
         if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
           throw new APIError("FORBIDDEN", {
+            code: "PASSWORD_REGISTRATION_DISABLED",
             message:
               "Password registration is currently disabled. Please use a configured social or OIDC sign-in method.",
           });
         }
 
-        // Cloud-only disposable-email check; CAPTCHA is enforced above
-        // on every account-creation initiation when configured.
-        if (isCloud() && !isInstanceAdminSetup) {
-          const signupEmail = (ctx.body?.email as string | undefined) ?? "";
-          if (signupEmail && isDisposableEmail(signupEmail)) {
-            throw new APIError("BAD_REQUEST", {
-              message:
-                "Sign-up with disposable email addresses is not allowed.",
-            });
-          }
+        if (
+          isCloud() &&
+          !isInstanceAdminSetup &&
+          isEmailCodeSignInAvailable()
+        ) {
+          throw new APIError("FORBIDDEN", {
+            code: "EMAIL_CODE_REGISTRATION_REQUIRED",
+            message: "Create your account with an email code.",
+          });
         }
       }
 
@@ -765,12 +922,56 @@ export const auth = betterAuth({
         const result = await checkRegistrationAllowed(email, invitationId);
         if (!result.allowed) {
           throw new APIError("FORBIDDEN", {
+            code: "REGISTRATION_NOT_ALLOWED",
             message: result.reason,
           });
         }
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      if (
+        ctx.path === "/organization/list-invitations" ||
+        ctx.path === "/organization/get-full-organization"
+      ) {
+        const viewer = await getSessionFromCtx(ctx);
+        const returned = ctx.context.returned as
+          | { invitations?: unknown }
+          | unknown[]
+          | null;
+        if (viewer)
+          await hideInaccessibleInvitationProjects(
+            viewer.user.id,
+            Array.isArray(returned) ? returned : returned?.invitations,
+          );
+      }
+
+      if (ctx.path === "/organization/leave") {
+        // The successful endpoint returns the removed member. No post-delete
+        // query may prevent revocation after membership has already committed.
+        const removed = ctx.context.returned as
+          | { userId?: string; organizationId?: string }
+          | undefined;
+        if (
+          typeof removed?.userId === "string" &&
+          typeof removed.organizationId === "string" &&
+          removed.organizationId === ctx.body?.organizationId
+        ) {
+          await clearMemberProjectAccess(
+            removed.organizationId,
+            removed.userId,
+          ).catch((error) => {
+            console.error("Project access cleanup failed:", error);
+          });
+          await revokeWorkspaceConnections(
+            removed.userId,
+            removed.organizationId,
+            {
+              role: ctx.context.session?.user.role ?? null,
+            },
+          );
+        }
+      }
+
       if (ctx.path.startsWith("/sign-up") || ctx.path.startsWith("/sign-in")) {
         const newSession = ctx.context.newSession;
         if (newSession) {

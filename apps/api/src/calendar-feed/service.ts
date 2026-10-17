@@ -68,7 +68,7 @@ export async function createCalendarFeed(
     const definitions = [
       ...new Map(labels.map((label) => [label.name, label])).values(),
     ].sort((a, b) => a.name.localeCompare(b.name));
-    if (canCreateLabels) {
+    if (canCreateLabels && definitions.length) {
       await tx
         .insert(labelTable)
         .values(
@@ -176,7 +176,7 @@ export async function getCalendarFeed(token: string) {
         )
     : [];
   async function* tasks(): AsyncGenerator<CalendarTask> {
-    if (!labels.length) return;
+    if (feed.labelIds.length && !labels.length) return;
     let after: string | undefined;
     while (true) {
       const page: CalendarTask[] = await boundedTaskRead((tx) =>
@@ -199,21 +199,23 @@ export async function getCalendarFeed(token: string) {
               eq(taskTable.projectId, project.id),
               after ? gt(taskTable.id, after) : undefined,
               or(isNotNull(taskTable.startDate), isNotNull(taskTable.dueDate)),
-              exists(
-                tx
-                  .select({ id: labelTable.id })
-                  .from(labelTable)
-                  .where(
-                    and(
-                      eq(labelTable.taskId, taskTable.id),
-                      eq(labelTable.workspaceId, project.workspaceId),
-                      inArray(
-                        labelTable.name,
-                        labels.map((label) => label.name),
+              feed.labelIds.length
+                ? exists(
+                    tx
+                      .select({ id: labelTable.id })
+                      .from(labelTable)
+                      .where(
+                        and(
+                          eq(labelTable.taskId, taskTable.id),
+                          eq(labelTable.workspaceId, project.workspaceId),
+                          inArray(
+                            labelTable.name,
+                            labels.map((label) => label.name),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ),
+                  )
+                : undefined,
             ),
           )
           .orderBy(asc(taskTable.id))

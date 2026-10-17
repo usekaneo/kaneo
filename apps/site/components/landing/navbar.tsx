@@ -49,6 +49,7 @@ const navigationLinks: NavigationLink[] = [
       { href: "/docs/core", label: landing.navigation.docs },
       { href: "/guides", label: landing.navigation.guides },
       { href: "/alternatives", label: landing.navigation.comparisons },
+      { href: "/community", label: landing.navigation.community },
       {
         href: "https://cloud.kaneo.app/public-project/vlu4ak2w8rs9rn1r4lirj2u1",
         label: landing.navigation.roadmap,

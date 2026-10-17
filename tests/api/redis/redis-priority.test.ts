@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { resolveRedisMode } from "../../../apps/api/src/redis/index";
 
 describe("resolveRedisMode priority resolution", () => {

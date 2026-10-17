@@ -2,7 +2,7 @@ export function JsonLd({ data }: { data: unknown }) {
   return (
     <script
       type="application/ld+json"
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: JSON-LD structured data must be inlined as a script tag for search engines to parse.
+      // eslint-disable-next-line react/no-danger -- JSON-LD structured data must be inlined as a script tag for search engines to parse.
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
   );

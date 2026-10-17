@@ -49,7 +49,7 @@ type WorkspaceUser = {
 };
 
 function getActivityTypeIcon(type: string) {
-  const iconClass = "h-4 w-4";
+  const iconClass = "size-3.5";
   switch (type) {
     case "status_changed":
       return <History className={iconClass} />;
@@ -107,13 +107,15 @@ function UserHoverName({
   fallbackName: string;
 }) {
   if (!user?.user) {
-    return <span className="font-medium text-foreground">{fallbackName}</span>;
+    return (
+      <span className="font-medium text-foreground/85">{fallbackName}</span>
+    );
   }
 
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <span className="cursor-pointer font-medium text-foreground transition-colors hover:text-primary">
+        <span className="cursor-pointer font-medium text-foreground/85 transition-colors hover:text-foreground">
           {user.user.name}
         </span>
       </HoverCardTrigger>
@@ -150,9 +152,9 @@ function ActorAvatar({
   fallbackName: string;
 }) {
   return (
-    <Avatar className="size-6">
+    <Avatar className="size-4.5">
       <AvatarImage src={user?.user?.image ?? ""} alt={fallbackName} />
-      <AvatarFallback className="bg-muted text-[11px] font-medium">
+      <AvatarFallback className="bg-muted font-semibold text-[8px]">
         {getInitials(fallbackName)}
       </AvatarFallback>
     </Avatar>
@@ -174,7 +176,7 @@ function renderActivityContent({
   if (activity.type === "priority_changed") {
     if (eventData) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:changedPriority", {
             from: getPriorityLabel(String(eventData.oldPriority ?? "")),
             to: getPriorityLabel(String(eventData.newPriority ?? "")),
@@ -187,11 +189,11 @@ function renderActivityContent({
       /changed priority from "?(.+?)"? to "?(.+?)"?$/i,
     );
     if (!match) {
-      return <span className="text-sm text-muted-foreground">{content}</span>;
+      return <span className="text-muted-foreground">{content}</span>;
     }
 
     return (
-      <span className="text-sm text-muted-foreground">
+      <span className="text-muted-foreground">
         {t("activity:changedPriority", {
           from: getPriorityLabel(match[1]),
           to: getPriorityLabel(match[2]),
@@ -203,7 +205,7 @@ function renderActivityContent({
   if (activity.type === "status_changed") {
     if (eventData) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:changedStatus", {
             from: getStatusLabel(String(eventData.oldStatus ?? "")),
             to: getStatusLabel(String(eventData.newStatus ?? "")),
@@ -214,11 +216,11 @@ function renderActivityContent({
 
     const match = content.match(/changed status from "?(.+?)"? to "?(.+?)"?$/i);
     if (!match) {
-      return <span className="text-sm text-muted-foreground">{content}</span>;
+      return <span className="text-muted-foreground">{content}</span>;
     }
 
     return (
-      <span className="text-sm text-muted-foreground">
+      <span className="text-muted-foreground">
         {t("activity:changedStatus", {
           from: getStatusLabel(match[1]),
           to: getStatusLabel(match[2]),
@@ -237,7 +239,7 @@ function renderActivityContent({
         : null;
 
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {newDueDate
             ? oldDueDate
               ? t("activity:changedDueDate", {
@@ -253,7 +255,7 @@ function renderActivityContent({
     const changeMatch = content.match(/changed due date from (.+) to (.+)$/i);
     if (changeMatch) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:changedDueDate", {
             from: formatActivityDateText(changeMatch[1]),
             to: formatActivityDateText(changeMatch[2]),
@@ -265,7 +267,7 @@ function renderActivityContent({
     const setMatch = content.match(/set due date to (.+)$/i);
     if (setMatch) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:setDueDate", {
             date: formatActivityDateText(setMatch[1]),
           })}
@@ -275,20 +277,18 @@ function renderActivityContent({
 
     if (content.includes("cleared the due date")) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:clearedDueDate")}
         </span>
       );
     }
 
-    return <span className="text-sm text-muted-foreground">{content}</span>;
+    return <span className="text-muted-foreground">{content}</span>;
   }
 
   if (activity.type === "unassigned") {
     return (
-      <span className="text-sm text-muted-foreground">
-        {t("activity:unassigned")}
-      </span>
+      <span className="text-muted-foreground">{t("activity:unassigned")}</span>
     );
   }
 
@@ -296,7 +296,7 @@ function renderActivityContent({
     if (eventData) {
       if (eventData.isSelfAssigned) {
         return (
-          <span className="text-sm text-muted-foreground">
+          <span className="text-muted-foreground">
             {t("activity:assignedToSelf")}
           </span>
         );
@@ -308,7 +308,7 @@ function renderActivityContent({
         workspaceUsers?.find((member) => member.user?.id === targetId) || null;
 
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:assignedTo", {
             name: targetUser?.user?.name ?? targetName,
           })}
@@ -318,7 +318,7 @@ function renderActivityContent({
 
     if (content.includes("themselves")) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:assignedToSelf")}
         </span>
       );
@@ -333,7 +333,7 @@ function renderActivityContent({
         workspaceUsers?.find((member) => member.user?.id === targetId) || null;
 
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:assignedTo", {
             name: targetUser?.user?.name ?? targetName,
           })}
@@ -346,7 +346,7 @@ function renderActivityContent({
       const targetName = legacyMatch[1];
       const targetUser = findUserByName(workspaceUsers, targetName);
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:assignedTo", {
             name: targetUser?.user?.name ?? targetName,
           })}
@@ -358,7 +358,7 @@ function renderActivityContent({
   if (activity.type === "title_changed") {
     if (eventData) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:changedTitle", {
             from: String(eventData.oldTitle ?? ""),
             to: String(eventData.newTitle ?? ""),
@@ -370,7 +370,7 @@ function renderActivityContent({
     const legacyMatch = content.match(/changed title from "(.+)" to "(.+)"$/i);
     if (legacyMatch) {
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-muted-foreground">
           {t("activity:changedTitle", {
             from: legacyMatch[1],
             to: legacyMatch[2],
@@ -383,28 +383,28 @@ function renderActivityContent({
   if (activity.type === "moved") {
     if (eventData) {
       return (
-        <span className="text-sm text-muted-foreground">
-          {t("activity:moved", {
-            from: String(eventData.fromProjectName ?? ""),
-            to: String(eventData.toProjectName ?? ""),
-          })}
+        <span className="text-muted-foreground">
+          {eventData.fromProjectName
+            ? t("activity:moved", {
+                from: String(eventData.fromProjectName),
+                to: String(eventData.toProjectName ?? ""),
+              })
+            : t("activity:movedFromOtherProject", {
+                to: String(eventData.toProjectName ?? ""),
+              })}
         </span>
       );
     }
   }
 
-  if (activity.type === "created") {
-    if (eventData) {
-      return (
-        <span className="text-sm text-muted-foreground">
-          {t("activity:created")}
-        </span>
-      );
-    }
+  if (["create", "created", "task"].includes(activity.type)) {
+    return (
+      <span className="text-muted-foreground">{t("activity:created")}</span>
+    );
   }
 
   return (
-    <span className="text-sm text-muted-foreground">
+    <span className="text-muted-foreground">
       {content || toDisplayCase(activity.type)}
     </span>
   );
@@ -413,11 +413,9 @@ function renderActivityContent({
 function Activity({
   activity,
   step,
-  showConnector = false,
 }: {
   activity: ActivityItem;
   step: number;
-  showConnector?: boolean;
 }) {
   const { t } = useTranslation();
   const { data: workspace } = useActiveWorkspace();
@@ -450,7 +448,7 @@ function Activity({
         };
 
     return (
-      <TimelineItem className="m-0! flex-row items-start py-2!" step={step}>
+      <TimelineItem className="m-0! flex-row items-start py-1!" step={step}>
         <TimelineContent className="min-w-0 flex-1">
           <CommentCard
             commentId={activity.id}
@@ -471,29 +469,29 @@ function Activity({
     );
   }
 
-  const activityIcon = getActivityTypeIcon(activity.type);
+  const isCreated = ["create", "created", "task"].includes(activity.type);
 
   return (
     <TimelineItem
-      className="relative m-0! flex-row items-center gap-3 py-2.5!"
+      className="m-0! min-h-7 flex-row items-start gap-2.5 py-1! pl-2"
       step={step}
     >
-      {showConnector && (
-        <span className="-translate-x-1/2 absolute top-9 bottom-0 left-3 w-px bg-[color-mix(in_srgb,var(--foreground)_18%,transparent)] dark:bg-[color-mix(in_srgb,var(--foreground)_26%,transparent)]" />
-      )}
-      <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground/80">
-        {activityIcon}
+      <span className="flex h-5 w-4.5 shrink-0 items-center justify-center text-muted-foreground">
+        {isCreated ? (
+          <ActorAvatar user={user || null} fallbackName={actorName} />
+        ) : (
+          getActivityTypeIcon(activity.type)
+        )}
       </span>
-      <ActorAvatar user={user || null} fallbackName={actorName} />
-      <TimelineContent className="text-sm leading-6 text-foreground">
+      <TimelineContent className="min-w-0 flex-1 text-[13px] text-foreground leading-5">
         <UserHoverName user={user || null} fallbackName={actorName} />{" "}
         {renderActivityContent({
           activity,
           workspaceUsers: workspaceUsers as WorkspaceUser[] | undefined,
           t,
         })}{" "}
-        <span className="whitespace-nowrap text-muted-foreground/70 text-xs">
-          {formatRelativeTime(activity.createdAt)}
+        <span className="whitespace-nowrap text-muted-foreground/60 text-xs">
+          · {formatRelativeTime(activity.createdAt)}
         </span>
       </TimelineContent>
     </TimelineItem>

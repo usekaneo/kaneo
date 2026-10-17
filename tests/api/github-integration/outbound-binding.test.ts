@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 
 const m = vi.hoisted(() => ({ repo: vi.fn(), client: vi.fn() }));
 vi.mock("../../../apps/api/node_modules/octokit", () => ({
@@ -6,9 +13,8 @@ vi.mock("../../../apps/api/node_modules/octokit", () => ({
     getInstallationOctokit = m.client;
   },
 }));
-const { getVerifiedInstallationOctokit } = await import(
-  "../../../apps/api/src/plugins/github/utils/github-app"
-);
+const { getVerifiedInstallationOctokit } =
+  await import("../../../apps/api/src/plugins/github/utils/github-app");
 const binding = {
   repositoryOwner: "owner",
   repositoryName: "repo",

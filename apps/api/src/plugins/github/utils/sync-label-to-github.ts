@@ -1,3 +1,5 @@
+import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
+import { canSyncTask } from "../../sync/eligibility";
 import { eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -61,6 +63,8 @@ async function getGitHubContext(taskId: string) {
     return null;
   }
 
+  if (!(await canSyncTask(taskId, integration.id))) return null;
+
   let config: GitHubConfig;
   try {
     config = JSON.parse(integration.config);
@@ -80,6 +84,8 @@ async function getGitHubContext(taskId: string) {
   }
 
   return {
+    externalLink,
+    expectedConfig: integration.config,
     octokit,
     owner: config.repositoryOwner,
     repo: config.repositoryName,
@@ -106,12 +112,18 @@ export async function syncLabelToGitHub(
     });
   } catch {
     try {
-      await octokit.rest.issues.createLabel({
-        owner,
-        repo,
-        name: labelName,
-        color,
-      });
+      const created = await dispatchIssueWrite(
+        ctx.externalLink,
+        ctx.expectedConfig,
+        () =>
+          octokit.rest.issues.createLabel({
+            owner,
+            repo,
+            name: labelName,
+            color,
+          }),
+      );
+      if (!created) return;
     } catch (createError) {
       console.error(
         `Failed to create label "${labelName}" in GitHub:`,
@@ -122,12 +134,14 @@ export async function syncLabelToGitHub(
   }
 
   try {
-    await octokit.rest.issues.addLabels({
-      owner,
-      repo,
-      issue_number: issueNumber,
-      labels: [labelName],
-    });
+    await dispatchIssueWrite(ctx.externalLink, ctx.expectedConfig, () =>
+      octokit.rest.issues.addLabels({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        labels: [labelName],
+      }),
+    );
   } catch (error) {
     console.error(`Failed to add label "${labelName}" to GitHub issue:`, error);
   }
@@ -140,12 +154,14 @@ export async function removeLabelFromGitHub(taskId: string, labelName: string) {
   const { octokit, owner, repo, issueNumber } = ctx;
 
   try {
-    await octokit.rest.issues.removeLabel({
-      owner,
-      repo,
-      issue_number: issueNumber,
-      name: labelName,
-    });
+    await dispatchIssueWrite(ctx.externalLink, ctx.expectedConfig, () =>
+      octokit.rest.issues.removeLabel({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        name: labelName,
+      }),
+    );
   } catch (error) {
     console.error(
       `Failed to remove label "${labelName}" from GitHub issue:`,

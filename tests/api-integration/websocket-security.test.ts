@@ -1,17 +1,22 @@
+import { createHash } from "node:crypto";
+import { eq } from "drizzle-orm";
+import db, { schema } from "../../apps/api/src/database";
 import { once } from "node:events";
 import type { IncomingMessage } from "node:http";
 import { createRequire } from "node:module";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { serve } from "../../apps/api/node_modules/@hono/node-server";
 import type { NodeWebSocket } from "../../apps/api/node_modules/@hono/node-ws";
 import { auth } from "../../apps/api/src/auth";
-import { publishEvent } from "../../apps/api/src/events";
 import { createApp } from "../../apps/api/src/index";
-import {
-  broadcastToUser,
-  initializeWebSocketAdapter,
-  shutdownWebSocketAdapter,
-} from "../../apps/api/src/ws";
+import { broadcastToUser } from "../../apps/api/src/ws";
 import { handleWebSocketMessage } from "../../apps/api/src/ws/security";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
@@ -103,6 +108,31 @@ afterEach(async () => {
 
 describe.each(["project", "user"])("%s WebSocket", (endpoint) => {
   const path = () => (endpoint === "user" ? "user" : projectId);
+  it("consumes a single quota and rate-limit unit per API-key handshake", async () => {
+    const key = `ws-key-${userId}`;
+    const [row] = await db
+      .insert(schema.apikeyTable)
+      .values({
+        referenceId: userId,
+        userId,
+        key: createHash("sha256").update(key).digest("base64url"),
+        remaining: 1,
+        rateLimitEnabled: true,
+        rateLimitMax: 1,
+        rateLimitTimeWindow: 60_000,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    expect((await connect(path(), { "x-api-key": key })).status).toBe(101);
+    const [saved] = await db
+      .select()
+      .from(schema.apikeyTable)
+      .where(eq(schema.apikeyTable.id, row.id));
+    expect(saved.remaining).toBe(0);
+    expect(saved.requestCount).toBe(1);
+    expect((await connect(path(), { "x-api-key": key })).status).toBe(429);
+  });
   it("rejects missing, null, hostile and lookalike browser origins", async () => {
     for (const origin of [
       undefined,
@@ -212,28 +242,10 @@ it("still rejects access to a foreign project with a valid Origin", async () => 
   const { project } = await createProjectFixture({
     workspaceId: foreign.workspace.id,
   });
-  expect(
-    (
-      await connect(project.id, {
-        cookie: "test-session=valid",
-        origin: "http://localhost:5173",
-      })
-    ).status,
-  ).toBe(403);
-});
-
-it("delivers custom field changes through the project broadcast adapter", async () => {
-  await initializeWebSocketAdapter();
-  const { socket, status } = await connect(projectId, {
+  const headers = {
     cookie: "test-session=valid",
     origin: "http://localhost:5173",
-  });
-  expect(status).toBe(101);
-  const message = once(socket, "message");
-  await publishEvent("custom-field.updated", { projectId });
-  expect(JSON.parse((await message)[0].toString())).toEqual({
-    type: "CUSTOM_FIELD_UPDATED",
-    projectId,
-  });
-  await shutdownWebSocketAdapter();
+  };
+  expect((await connect(project.id, headers)).status).toBe(404);
+  expect((await connect("missing-project", headers)).status).toBe(404);
 });

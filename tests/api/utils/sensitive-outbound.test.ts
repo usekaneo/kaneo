@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { gunzipSync } from "node:zlib";
-import { expect, it } from "vitest";
+import { expect, it } from "vite-plus/test";
 import {
   isSensitiveOutboundRequest,
   withoutOutboundTelemetry,

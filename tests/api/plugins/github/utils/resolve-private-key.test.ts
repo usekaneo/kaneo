@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { resolveGithubPrivateKey } from "../../../../../apps/api/src/plugins/github/utils/github-app";
 
 const PEM = [

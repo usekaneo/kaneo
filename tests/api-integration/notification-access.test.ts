@@ -1,11 +1,20 @@
 import { and, eq } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import createComment from "../../apps/api/src/activity/controllers/create-comment";
 import db, { schema } from "../../apps/api/src/database";
 import { taskReminderSentTable } from "../../apps/api/src/database/schema";
+import clearNotifications from "../../apps/api/src/notification/controllers/clear-notifications";
 import createNotification from "../../apps/api/src/notification/controllers/create-notification";
+import deleteNotification from "../../apps/api/src/notification/controllers/delete-notification";
 import getNotifications from "../../apps/api/src/notification/controllers/get-notifications";
-import markAsRead from "../../apps/api/src/notification/controllers/mark-notification-as-read";
+import setNotificationRead from "../../apps/api/src/notification/controllers/set-notification-read";
 
 const { deliverNotification } = await vi.importActual<
   typeof import("../../apps/api/src/notification-preferences/delivery")
@@ -206,10 +215,55 @@ describe("notification recipient boundaries", () => {
       );
     expect(await getNotifications(member.user.id)).toEqual([]);
     await expect(
-      markAsRead(notification.id, member.user.id),
-    ).rejects.toMatchObject({ status: 404 });
+      setNotificationRead(notification.id, member.user.id, true),
+    ).rejects.toMatchObject({
+      status: 404,
+    });
     await deliverNotification(notification.id);
     expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+
+  it("changes, deletes and clears only the caller's own notifications", async () => {
+    const { actor, member, task } = await fixture();
+    const insert = (userId: string, isRead: boolean) =>
+      db
+        .insert(schema.notificationTable)
+        .values({
+          userId,
+          isRead,
+          resourceType: "task",
+          resourceId: task.id,
+          type: "task_comment",
+        })
+        .returning()
+        .then(([row]) => row);
+    const read = await insert(member.user.id, true);
+    const unread = await insert(member.user.id, false);
+    const foreign = await insert(actor.user.id, true);
+
+    await expect(
+      setNotificationRead(read.id, member.user.id, false),
+    ).resolves.toHaveProperty("isRead", false);
+    await expect(
+      setNotificationRead(foreign.id, member.user.id, false),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      deleteNotification(foreign.id, member.user.id),
+    ).rejects.toMatchObject({ status: 404 });
+
+    await setNotificationRead(read.id, member.user.id, true);
+    await clearNotifications(member.user.id, actor.workspace.id, true);
+    const remaining = await db.select().from(schema.notificationTable);
+    expect(remaining.map((row) => row.id).sort()).toEqual(
+      [unread.id, foreign.id].sort(),
+    );
+
+    await expect(
+      deleteNotification(unread.id, member.user.id),
+    ).resolves.toEqual({ success: true });
+    expect(
+      (await db.select().from(schema.notificationTable)).map((row) => row.id),
+    ).toEqual([foreign.id]);
   });
 
   it("rejects foreign assignees while preserving valid partial imports", async () => {
@@ -344,5 +398,43 @@ describe("notification recipient boundaries", () => {
     ])
       expect(logged).not.toContain(secret);
     expect(logged).toContain("network");
+  });
+
+  it("sends ntfy titles with non-Latin-1 characters as a valid header", async () => {
+    const { actor, member, task } = await fixture();
+    const [notification] = await db
+      .insert(schema.notificationTable)
+      .values({
+        userId: member.user.id,
+        resourceType: "task",
+        resourceId: task.id,
+        type: "task_comment",
+        title: "日本語のタスク",
+        content: "body",
+      })
+      .returning();
+    await db.insert(schema.userNotificationPreferenceTable).values({
+      userId: member.user.id,
+      ntfyEnabled: true,
+      ntfyServerUrl: "http://127.0.0.1",
+      ntfyTopic: "topic",
+    });
+    await db.insert(schema.userNotificationWorkspaceRuleTable).values({
+      userId: member.user.id,
+      workspaceId: actor.workspace.id,
+      ntfyEnabled: true,
+    });
+    vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "true");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null));
+    vi.stubGlobal("fetch", fetchMock);
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    await deliverNotification(notification.id);
+    expect(log).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const title = new Headers(fetchMock.mock.calls[0][1].headers).get("Title");
+    const [, encoded] = title?.match(/^=\?UTF-8\?B\?(.+)\?=$/) ?? [];
+    expect(Buffer.from(encoded ?? "", "base64").toString()).toBe(
+      "日本語のタスク",
+    );
   });
 });

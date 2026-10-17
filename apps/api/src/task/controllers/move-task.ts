@@ -1,13 +1,18 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNotNull, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
+import createActivities from "../../activity/controllers/create-activities";
 import db from "../../database";
 import {
   assetTable,
   columnTable,
+  externalLinkTable,
+  integrationTable,
   projectTable,
   taskTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { assertProjectAccess } from "../../project-access/assert-project-access";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import { claimTaskNumber } from "./claim-task-numbers";
 import { nextTaskPosition } from "./next-task-position";
 
@@ -106,6 +111,8 @@ async function moveTask({
     });
   }
 
+  await assertProjectAccess(currentUserId, destinationProjectId);
+
   const resolvedColumn = await resolveDestinationStatus(
     destinationProjectId,
     existingTask.status,
@@ -113,6 +120,22 @@ async function moveTask({
   );
 
   const movedTask = await db.transaction(async (tx) => {
+    for (const projectId of [sourceProject.id, destinationProjectId].sort()) {
+      const [project] = await tx
+        .select({ id: projectTable.id })
+        .from(projectTable)
+        .where(
+          and(
+            eq(projectTable.id, projectId),
+            eq(projectTable.workspaceId, sourceProject.workspaceId),
+          ),
+        )
+        .for("key share");
+      if (!project)
+        throw new HTTPException(409, {
+          message: "Project was moved to another workspace, please try again",
+        });
+    }
     const nextTaskNumber = await claimTaskNumber(destinationProjectId, tx);
     const nextPosition = await nextTaskPosition(
       tx,
@@ -130,21 +153,74 @@ async function moveTask({
         number: nextTaskNumber,
         position: nextPosition,
       })
-      .where(eq(taskTable.id, taskId))
+      .where(
+        and(
+          eq(taskTable.id, taskId),
+          eq(taskTable.projectId, sourceProject.id),
+        ),
+      )
       .returning();
 
     if (!updatedTask) {
-      throw new HTTPException(500, {
-        message: "Failed to move task",
+      throw new HTTPException(409, {
+        message: "Task was moved concurrently, please try again",
       });
     }
+
+    let movedTask = updatedTask;
+    const assigneeId = updatedTask.userId;
+    if (
+      assigneeId &&
+      !(
+        await filterUsersWithProjectAccess(
+          [assigneeId],
+          destinationProjectId,
+          tx,
+        )
+      ).has(assigneeId)
+    ) {
+      const [unassignedTask] = await tx
+        .update(taskTable)
+        .set({ userId: null })
+        .where(eq(taskTable.id, taskId))
+        .returning();
+      movedTask = unassignedTask ?? { ...updatedTask, userId: null };
+      await createActivities(
+        [
+          {
+            taskId,
+            type: "unassigned",
+            userId: currentUserId,
+            content: null,
+            eventData: {},
+          },
+        ],
+        tx,
+      );
+    }
+
+    await tx
+      .delete(externalLinkTable)
+      .where(
+        and(
+          eq(externalLinkTable.taskId, taskId),
+          isNotNull(externalLinkTable.integrationId),
+          notInArray(
+            externalLinkTable.integrationId,
+            tx
+              .select({ id: integrationTable.id })
+              .from(integrationTable)
+              .where(eq(integrationTable.projectId, destinationProjectId)),
+          ),
+        ),
+      );
 
     await tx
       .update(assetTable)
       .set({ projectId: destinationProjectId })
       .where(eq(assetTable.taskId, taskId));
 
-    return updatedTask;
+    return movedTask;
   });
 
   await publishEvent("task.moved", {

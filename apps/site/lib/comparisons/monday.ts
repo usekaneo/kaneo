@@ -72,7 +72,7 @@ export const monday: Comparison = {
     {
       question: "Does Kaneo have automations?",
       answer:
-        "Kaneo has workflow rules per project that map integration events to target columns, plus outgoing webhooks, GitHub and Gitea integrations, and notifications in Slack, Discord, Telegram, and Mattermost. It does not have a general automation recipe builder.",
+        "Kaneo has workflow rules per project that map integration events to target columns, plus outgoing webhooks, GitHub, GitLab, and Gitea integrations, and notifications in Slack, Discord, Telegram, and Mattermost. It does not have a general automation recipe builder.",
     },
   ],
   related: ["clickup", "asana", "wrike", "leantime"],

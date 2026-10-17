@@ -1,5 +1,5 @@
 import { and, count, eq, sql } from "drizzle-orm";
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db from "../../apps/api/src/database";
 import { mcpOauthStateTable } from "../../apps/api/src/database/schema";
 import {

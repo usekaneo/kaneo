@@ -1,251 +1,79 @@
 ---
-title: Migration guide
-description: How to upgrade from the two-container setup (api + web) to the combined kaneo container introduced in v2.6.0.
+title: Move to the bundled container
+description: Replace separate API and web containers while keeping your existing database and configuration.
 ---
 
-## What changed in v2.6.0
+Use this guide only if your deployment still has separate `ghcr.io/usekaneo/api` and `ghcr.io/usekaneo/web` services. The bundled `ghcr.io/usekaneo/kaneo` image serves both on port 5173. Separate images remain available for deployments that need them.
 
-This release replaces the separate `api` and `web` containers with a single `kaneo` container. nginx runs on port 5173 and proxies `/api/` requests to the internal Node API. Everything else (the database, volumes, environment variables) works the same.
+If you already use the bundled image, follow [Upgrade Kaneo](/core/operations/upgrades). For drim-managed deployments, see [Migrate to drim](/core/installation/drim-migration).
 
-Three areas require changes when upgrading:
+## Before changing the layout
 
-1. Docker Compose: replace the `api` and `web` services with `kaneo`
-2. Environment variables: `KANEO_API_URL` and `DATABASE_URL` are now optional
-3. Helm chart: all `api.*` and `web.*` values moved under `kaneo.*` (chart version 0.3.0)
+1. [Back up the database, uploaded files, and configuration](/core/operations/backups). Test that you can restore the database.
+2. Record the existing image version and choose a target release after reading its release notes.
+3. Keep the same Compose project name, database volume, PostgreSQL major version, database credentials, and `AUTH_SECRET`.
+4. Save copies of your Compose file, `.env`, and reverse-proxy configuration.
 
----
+Changing the application layout does not require replacing PostgreSQL or moving its data. A newer Kaneo image can run database migrations, so an older image alone is not a complete rollback.
 
-## Docker Compose
+## Replace the application services
 
-### Before
+In your existing Compose file, replace `api` and `web` with this service. Set `KANEO_IMAGE_TAG` in `.env` to your chosen release tag. Keep the existing database service and volumes.
 
-```yml
-services:
-  postgres:
-    image: postgres:16-alpine
-    env_file:
-      - .env
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
-  api:
-    image: ghcr.io/usekaneo/api:latest
-    ports:
-      - "1337:1337"
-    env_file:
-      - .env
-    depends_on:
-      - postgres
-    restart: unless-stopped
-
-  web:
-    image: ghcr.io/usekaneo/web:latest
-    ports:
-      - "5173:5173"
-    env_file:
-      - .env
-    depends_on:
-      - api
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
-```
-
-### After (current recommended configuration)
-
-```yml
-services:
-  postgres:
-    image: postgres:16-alpine
-    env_file:
-      - .env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-kaneo}
-      POSTGRES_DB: ${POSTGRES_DB:-kaneo}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER:-kaneo}\" -d \"$${POSTGRES_DB:-kaneo}\""]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
+```yaml
   kaneo:
-    image: ghcr.io/usekaneo/kaneo:latest
+    image: ghcr.io/usekaneo/kaneo:${KANEO_IMAGE_TAG:?Set KANEO_IMAGE_TAG in .env}
+    env_file: .env
     ports:
-      - "5173:5173"
-    env_file:
-      - .env
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - "127.0.0.1:5173:5173"
     restart: unless-stopped
-
-volumes:
-  postgres_data:
 ```
 
-Remove the `api` and `web` service blocks and add the `kaneo` service. The current recommended `postgres` configuration adds a healthcheck and keeps the database on the internal Compose network without publishing port 5432. Preserve the actual database name, user and password from your existing installation in `.env`; defaults do not rename an existing database.
+This port binding assumes your reverse proxy runs on the host. If the proxy is another container, attach Kaneo to its network and point it at `http://kaneo:5173` instead. Preserve any existing networks needed to reach the database or storage.
 
----
+Set `KANEO_CLIENT_URL` to your public web origin. In a same-origin deployment, remove an old `KANEO_API_URL` override that points to the separate API service: the bundled entrypoint derives `KANEO_CLIENT_URL` plus `/api`.
 
-## Environment variables
+Keep `DATABASE_URL` if it already identifies the correct database. Alternatively, the bundled image can derive it from `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_HOST` (default `postgres`), and `POSTGRES_PORT` (default `5432`). Preserve the existing values; changing an environment variable does not rename a database or reset its password.
 
-### KANEO_API_URL is now optional
+Keep your existing `AUTH_SECRET`. Generating a new one invalidates existing sessions.
 
-Previously both `KANEO_CLIENT_URL` and `KANEO_API_URL` were required. Now `KANEO_API_URL` is derived automatically from `KANEO_CLIENT_URL`:
+## Switch traffic
 
-```
-KANEO_API_URL = KANEO_CLIENT_URL + "/api"
-```
-
-Remove `KANEO_API_URL` from your `.env` unless you need to override it (for example, when a reverse proxy changes the API path).
-
-**Before:**
-```env
-KANEO_CLIENT_URL=https://kaneo.example.com
-KANEO_API_URL=https://kaneo.example.com/api
-```
-
-**After:**
-```env
-KANEO_CLIENT_URL=https://kaneo.example.com
-# KANEO_API_URL is set automatically to https://kaneo.example.com/api
-```
-
-### DATABASE_URL is now optional
-
-For the bundled image, `DATABASE_URL` is derived from `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, and the default Compose hostname if you leave it unset:
-
-```
-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-```
-
-If you were setting `DATABASE_URL` explicitly with the same values, you can remove it.
-Keep it if you use an external database, a non-default hostname, or a host-native API process that should connect through `localhost` instead of the Compose hostname.
-
-**Before:**
-```env
-POSTGRES_DB=kaneo
-POSTGRES_USER=kaneo
-POSTGRES_PASSWORD=changeme
-DATABASE_URL=postgresql://kaneo:changeme@postgres:5432/kaneo
-```
-
-**After:**
-```env
-POSTGRES_DB=kaneo
-POSTGRES_USER=kaneo
-POSTGRES_PASSWORD=changeme
-# DATABASE_URL is derived automatically
-```
-
-### AUTH_SECRET fallback behavior
-
-If `AUTH_SECRET` is not set, the container generates a random 64-character hex secret at startup and prints a warning to stderr. This means sessions will not survive container restarts.
-
-Set a stable secret to avoid losing active sessions on restart:
+Validate the edited file and pull the selected image before stopping the old application:
 
 ```bash
-openssl rand -hex 32
+docker compose config --quiet
+docker compose pull kaneo
 ```
 
-```env
-AUTH_SECRET=your_generated_secret_here
+Stop the old `api` and `web` services using your saved Compose file. Start the new service:
+
+```bash
+docker compose up -d kaneo
+docker compose logs --tail=100 kaneo
 ```
 
----
+Update your proxy to send web, API, and WebSocket requests to port 5173. See [Nginx and HTTPS](/core/reverse-proxy/nginx). Remove dependencies on the old service names from other services in your Compose file.
 
-## Helm chart (0.2.0 → 0.3.0)
+Check `/api/health` through the public URL, then sign in, open an existing project, edit a test task, and check an existing attachment. Remove the stopped API and web containers only after those checks pass. Keep your backups.
 
-Chart version 0.3.0 is a breaking change. All `api.*` and `web.*` value keys have moved under `kaneo.*`.
+## Migrating an old Helm values file
 
-### Changed value keys
+The bundled chart uses `kaneo.*` values. Old split-container charts used `api.*` and `web.*`. Compare your file with the [values for your selected chart release](https://github.com/usekaneo/kaneo/tree/main/charts/kaneo) before upgrading.
 
-| Old key | New key |
-|---|---|
-| `api.image.repository` | `kaneo.image.repository` |
-| `api.image.tag` | `kaneo.image.tag` |
-| `api.image.pullPolicy` | `kaneo.image.pullPolicy` |
-| `api.service.type` | `kaneo.service.type` |
-| `api.service.port` | `kaneo.service.port` |
+| Old setting | Bundled chart setting |
+| --- | --- |
+| `api.image.*` | `kaneo.image.*`, with repository `ghcr.io/usekaneo/kaneo` |
 | `api.resources` | `kaneo.resources` |
-| `api.env.clientUrl` | `kaneo.env.clientUrl` |
-| `api.env.authSecret` | `kaneo.env.authSecret` |
-| `api.env.existingSecret` | `kaneo.env.existingSecret` |
-| `api.env.disableRegistration` | `kaneo.env.disableRegistration` |
-| `api.env.disablePasswordRegistration` | `kaneo.env.disablePasswordRegistration` |
-| `api.env.database` | `kaneo.env.database` |
-| `api.livenessProbe` | `kaneo.livenessProbe` |
-| `api.readinessProbe` | `kaneo.readinessProbe` |
-| `web.*` | removed, web is bundled in the kaneo image |
+| `api.env.*` | Corresponding settings under `kaneo.env` |
+| `api.livenessProbe` / `api.readinessProbe` | `kaneo.livenessProbe` / `kaneo.readinessProbe` |
+| Separate API and web services | One `kaneo.service`, port 5173 |
+| Ingress targets for API and web | Bundled Kaneo service on port 5173 |
 
-### Example values migration
+Check the probes as well as their key names: current probes use `/api/health` and the named port `kaneo`. Keep your PostgreSQL PVC and existing credential secrets. The application image defaults to the chart’s `appVersion` when `kaneo.image.tag` is empty.
 
-**Before (`values.yaml`):**
-```yaml
-api:
-  image:
-    repository: ghcr.io/usekaneo/api
-    tag: "2.5.0"
-  service:
-    type: ClusterIP
-    port: 1337
-  env:
-    clientUrl: "https://kaneo.example.com"
-    authSecret: "your-secret-here"
+Render the chosen chart with your migrated values and inspect its services, ingress, secrets, and database configuration before applying it. Choose the target chart version deliberately; the chart and application versions are aligned for current releases.
 
-web:
-  image:
-    repository: ghcr.io/usekaneo/web
-    tag: "2.5.0"
-  service:
-    type: ClusterIP
-    port: 5173
-```
+## Recovery
 
-**After (`values.yaml`):**
-```yaml
-kaneo:
-  image:
-    repository: ghcr.io/usekaneo/kaneo
-    tag: "2.6.0"
-  service:
-    type: ClusterIP
-    port: 5173
-  env:
-    clientUrl: "https://kaneo.example.com"
-    authSecret: "your-secret-here"
-```
-
-### Upgrade command
-
-```bash
-helm upgrade kaneo kaneo/kaneo \
-  --version 0.3.0 \
-  --values your-values.yaml \
-  --namespace kaneo
-```
-
-If you store values in a file, update the keys before running the upgrade. Helm will reject unknown keys and the deployment will fail if `api.*` or `web.*` keys remain.
-
----
-
-## Minimum working configuration
-
-After upgrading, a minimal `.env` for Docker Compose requires three values:
-
-```env
-KANEO_CLIENT_URL=http://localhost:5173
-POSTGRES_PASSWORD=changeme
-AUTH_SECRET=replace_with_output_of_openssl_rand_hex_32
-```
-
-Generate a stable secret with `openssl rand -hex 32` and keep it persistent, or active sessions will be invalidated after a container restart.
-
-`POSTGRES_DB` and `POSTGRES_USER` default to `kaneo` if not set. `KANEO_API_URL` and `DATABASE_URL` are derived automatically.
+If the new application never changed the database, restore the old application and proxy configuration. If it applied migrations, restore the matching database backup before returning to the old version. Follow the [restore procedure](/core/operations/backups) and keep the failed database available for investigation.

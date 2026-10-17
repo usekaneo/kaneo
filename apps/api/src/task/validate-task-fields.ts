@@ -125,9 +125,8 @@ export function validateCustomFieldValue(
 export async function assertRequiredCustomFields(
   projectId: string,
   customFields: { fieldId: string; value: string }[] = [],
-  connection: Pick<typeof db, "select"> = db,
 ): Promise<void> {
-  const allFields = await connection
+  const allFields = await db
     .select({
       id: customFieldDefinitionTable.id,
       name: customFieldDefinitionTable.name,
@@ -135,7 +134,6 @@ export async function assertRequiredCustomFields(
       required: customFieldDefinitionTable.required,
       defaultValue: customFieldDefinitionTable.defaultValue,
       options: customFieldDefinitionTable.options,
-      hiddenOptions: customFieldDefinitionTable.hiddenOptions,
     })
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
@@ -174,9 +172,7 @@ export async function assertRequiredCustomFields(
       cf.value,
       type,
       def.name,
-      Array.isArray(def.options)
-        ? def.options.filter((option) => !def.hiddenOptions.includes(option))
-        : def.options,
+      def.options,
     );
 
     if (error) {
@@ -245,8 +241,9 @@ export function assertValidPriority(priority: string): void {
 
 export async function getValidTaskStatuses(
   projectId: string,
+  database: Pick<typeof db, "select"> = db,
 ): Promise<string[]> {
-  const columns = await db
+  const columns = await database
     .select({ slug: columnTable.slug })
     .from(columnTable)
     .where(eq(columnTable.projectId, projectId))
@@ -258,8 +255,9 @@ export async function getValidTaskStatuses(
 export async function assertValidTaskStatus(
   status: string,
   projectId: string,
+  database: Pick<typeof db, "select"> = db,
 ): Promise<void> {
-  const validStatuses = await getValidTaskStatuses(projectId);
+  const validStatuses = await getValidTaskStatuses(projectId, database);
 
   if (!validStatuses.includes(status)) {
     throw new HTTPException(400, {

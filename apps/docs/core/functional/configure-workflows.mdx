@@ -1,50 +1,39 @@
 ---
-title: Configure Project Workflows
-description: Customize columns and automation rules for how your project moves
+title: "Workflows"
+description: "Choose project columns, add custom fields, and map repository events to the right status."
 ---
 
-Use workflow settings to match Kaneo to your team's delivery process.
+Open **Settings → Projects**, select a project, and choose **Workflow**. You need permission to manage the project to change its columns.
 
-## Open workflow settings
+## Change the columns
 
-1. Go to **Settings**.
-2. Open **Projects**.
-3. Select a project.
-4. Open the **Workflow** tab.
+In **Columns**, add a stage with **Add column**, click a name to rename it, click its icon to choose another, or drag a row into a different order. Start with the few stages your team actually uses, such as **To Do → In Progress → Review → Done**.
 
-## Configure columns
+Turn on **Done** for a column when tasks in it should count as complete. A column's name alone does not define completion.
 
-In **Workflow -> Columns**:
+<Frame caption="Project workflow settings contain columns and automations.">
+  <img className="block dark:hidden" src="/images/product/workflow-light.png" alt="Project workflow settings contain columns and automations." />
+  <img className="hidden dark:block" src="/images/product/workflow-dark.png" alt="Project workflow settings contain columns and automations." />
+</Frame>
 
-1. Add or rename columns to reflect your real stages.
-2. Reorder columns to match execution order.
-3. Mark final columns as done states where appropriate.
+Kaneo asks before deleting a column and refuses to delete one that still contains tasks. Move those tasks into another column first and check any automations that target it. Changes apply to the whole project, so let your teammates know before reorganizing an active board.
 
-Common examples:
+## Set up custom fields
 
-- `To Do -> In Progress -> Review -> Done`
-- `Backlog -> Ready -> In Progress -> QA -> Done`
+Open **Custom fields** under the same project when tasks need another piece of structured information. Select **New field**, choose text, number, date, dropdown, or checkbox, and give it a clear name. For a dropdown, add the available options, and turn on **Allow several** if a task can pick more than one. Turn on **Required** to give every task a value; a required field needs a default, which Kaneo also fills in on existing tasks that have none.
 
-## Configure automation rules
+Drag fields to change their order. Task details list them in that order under **Fields**.
 
-In **Workflow -> Automation Rules**:
+To change a field, open its menu and select **Edit**. You can rename it, change its default, make it required, and add or reorder options. The type cannot change after a field is created, except switching a dropdown between one and several options. Kaneo refuses to remove or rename an option that tasks still use, and to turn off **Allow several** while a task has more than one option selected, so existing values never change silently.
 
-1. Map integration events to target columns.
-2. Verify each event moves work to the expected stage.
+Deleting a field removes it and its value from every task.
 
-This helps keep project state aligned with external systems.
+## Move tasks automatically
 
-## Rollout strategy
+Under **Automations**, each connected GitHub, Gitea, or GitLab repository has its own list of events. Choose a target column for each event you want to use. For example, a branch push can move work to **In Progress**, and a merged pull request can move it to **Done**. Choose **Don't move** to stop using an event.
 
-When changing workflows on active projects:
+Connect the repository first through [Integrations](/core/integrations/index). Test one event with a task whose branch name matches the integration's pattern, then confirm the task moves to the expected column.
 
-- Announce the new column model first
-- Migrate existing tasks in a single pass
-- Keep naming stable after rollout
+Disconnect the repository integration if you want to stop using that connection entirely.
 
-Frequent column churn reduces reporting clarity.
-
-## Next
-
-- [Plan and execute tasks in Board/List](/core/functional/plan-and-execute-tasks)
-- [Collaborate with your team](/core/functional/collaborate-with-team)
+Return to [Board and List](/core/functional/plan-and-execute-tasks) to work with the updated columns.

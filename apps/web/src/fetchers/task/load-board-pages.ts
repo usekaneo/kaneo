@@ -11,10 +11,11 @@ export type BoardPage<T extends ProjectWithTasks> = {
   };
 };
 
-/** Keep the existing board cache shape, but fetch one bounded page at a time. */
+/** Publish immutable snapshots as bounded pages arrive. */
 export async function loadBoardPages<T extends ProjectWithTasks>(
   load: (page: number, relatedPage?: number) => Promise<BoardPage<T>>,
   signal?: AbortSignal,
+  onProgress?: (board: T) => void,
 ): Promise<T> {
   signal?.throwIfAborted();
   const first = await load(1);
@@ -27,13 +28,45 @@ export async function loadBoardPages<T extends ProjectWithTasks>(
       ...result.plannedTasks,
     ].map((task) => [task.id, task]),
   );
+  let progressWeight =
+    result.columns.length +
+    seen.size +
+    [...seen.values()].reduce(
+      (count, task) =>
+        count + (task.labels?.length ?? 0) + (task.externalLinks?.length ?? 0),
+      0,
+    );
+  let nextProgressWeight = 0;
+  const reportProgress = (force = false) => {
+    signal?.throwIfAborted();
+    if (!onProgress || (!force && progressWeight < nextProgressWeight)) return;
+    result.columns.sort(
+      (left, right) => (left.position ?? 0) - (right.position ?? 0),
+    );
+    onProgress(structuredClone(result));
+    nextProgressWeight = Math.max(1, progressWeight * 2);
+  };
+  reportProgress(true);
+  const relationIndexes = new WeakMap<object[], Map<string, number>>();
   const mergeById = <U extends { id: string }>(
     left: U[] = [],
     right: U[] = [],
-  ) =>
-    Array.from(
-      new Map([...left, ...right].map((value) => [value.id, value])).values(),
-    );
+  ) => {
+    let indexes = relationIndexes.get(left);
+    if (!indexes) {
+      indexes = new Map(left.map((value, index) => [value.id, index]));
+      relationIndexes.set(left, indexes);
+    }
+    for (const value of right) {
+      const index = indexes.get(value.id);
+      if (index === undefined) {
+        indexes.set(value.id, left.length);
+        left.push(value);
+        progressWeight++;
+      } else left[index] = value;
+    }
+    return left;
+  };
   const append = (
     target: ProjectWithTasks["plannedTasks"],
     tasks: ProjectWithTasks["plannedTasks"],
@@ -42,6 +75,8 @@ export async function loadBoardPages<T extends ProjectWithTasks>(
       if (!seen.has(task.id)) {
         seen.set(task.id, task);
         target.push(task);
+        progressWeight +=
+          1 + (task.labels?.length ?? 0) + (task.externalLinks?.length ?? 0);
       } else {
         const existing = seen.get(task.id);
         if (existing) {
@@ -61,6 +96,7 @@ export async function loadBoardPages<T extends ProjectWithTasks>(
         target = { ...column, tasks: [] };
         columns.set(column.id, target);
         result.columns.push(target);
+        progressWeight++;
       }
       append(target.tasks, column.tasks);
     }
@@ -74,6 +110,7 @@ export async function loadBoardPages<T extends ProjectWithTasks>(
     for (let relatedPage = 2; relatedPage <= total; relatedPage++) {
       signal?.throwIfAborted();
       merge(await load(page, relatedPage));
+      reportProgress();
     }
   };
   await loadRelated(1, first);
@@ -81,11 +118,13 @@ export async function loadBoardPages<T extends ProjectWithTasks>(
     signal?.throwIfAborted();
     const next = await load(page);
     merge(next);
+    reportProgress();
     await loadRelated(page, next);
   }
   result.columns.sort(
     (left, right) => (left.position ?? 0) - (right.position ?? 0),
   );
   signal?.throwIfAborted();
+  reportProgress(true);
   return result;
 }

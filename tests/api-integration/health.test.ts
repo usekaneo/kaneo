@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { createApp } from "../../apps/api/src/index";
 
 describe("API integration: health", () => {

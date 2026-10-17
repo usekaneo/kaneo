@@ -1,7 +1,6 @@
 import { createId } from "@paralleldrive/cuid2";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import { withoutHiddenOptions } from "../../custom-field/hidden-options";
 import db from "../../database";
 import {
   assetTable,
@@ -15,9 +14,14 @@ import {
   userTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { contentReferencesAsset } from "../../storage/cleanup-assets";
 import { copyTaskAssetObject, deleteS3Object } from "../../storage/s3";
-import { assertAssignableUser } from "../../utils/assert-assignable-user";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
+import {
+  filterAssignableUsers,
+  NOT_ASSIGNABLE,
+} from "../../utils/assert-assignable-user";
 import {
   assertRequiredCustomFields,
   assertValidTaskStatus,
@@ -151,8 +155,21 @@ async function duplicateTask({
   }
 
   await assertValidTaskStatus(sourceTask.status, sourceTask.projectId);
-  if (sourceTask.userId)
-    await assertAssignableUser(sourceTask.userId, project.workspaceId);
+  let assigneeId = sourceTask.userId;
+  if (assigneeId) {
+    const members = await filterAssignableUsers(
+      [assigneeId],
+      project.workspaceId,
+    );
+    if (!members.has(assigneeId)) {
+      throw new HTTPException(403, { message: NOT_ASSIGNABLE });
+    }
+    const permitted = await filterUsersWithProjectAccess(
+      [assigneeId],
+      sourceTask.projectId,
+    );
+    if (!permitted.has(assigneeId)) assigneeId = null;
+  }
   const column = await db.query.columnTable.findFirst({
     where: and(
       eq(columnTable.projectId, sourceTask.projectId),
@@ -160,68 +177,46 @@ async function duplicateTask({
     ),
   });
 
-  const readCustomFields = async (
-    connection: Parameters<Parameters<typeof db.transaction>[0]>[0],
-  ) => {
-    // Keep normalization, defaults, and validation on the same definition version.
-    const fieldDefinitions = await connection
-      .select()
-      .from(customFieldDefinitionTable)
-      .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId))
-      .orderBy(customFieldDefinitionTable.id)
-      .for("share");
-    const sourceCustomFields = await connection
-      .select({
-        fieldId: customFieldValueTable.fieldId,
-        value: customFieldValueTable.value,
-      })
-      .from(customFieldValueTable)
-      .innerJoin(
-        customFieldDefinitionTable,
-        eq(customFieldValueTable.fieldId, customFieldDefinitionTable.id),
-      )
-      .where(
-        and(
-          eq(customFieldValueTable.taskId, sourceTask.id),
-          eq(customFieldDefinitionTable.projectId, sourceTask.projectId),
-        ),
-      );
-    const customFields = sourceCustomFields.map(({ fieldId, value }) => {
-      const definition = fieldDefinitions.find((field) => field.id === fieldId);
-      return {
-        fieldId,
-        value: definition
-          ? withoutHiddenOptions(
-              value ?? "",
-              definition.type,
-              definition.hiddenOptions,
-            )
-          : (value ?? ""),
-      };
-    });
-    // Older tasks may predate a required field. Apply its current default or fail
-    // validation, just as creation does, before copying anything in storage.
-    for (const definition of fieldDefinitions) {
-      if (!definition.required || !definition.defaultValue?.trim()) continue;
-      const existing = customFields.find(
-        (field) => field.fieldId === definition.id,
-      );
-      if (!existing)
-        customFields.push({
-          fieldId: definition.id,
-          value: definition.defaultValue.trim(),
-        });
-      else if (!existing.value.trim())
-        existing.value = definition.defaultValue.trim();
-    }
-    await assertRequiredCustomFields(
-      sourceTask.projectId,
-      customFields,
-      connection,
+  const fieldDefinitions = await db
+    .select()
+    .from(customFieldDefinitionTable)
+    .where(eq(customFieldDefinitionTable.projectId, sourceTask.projectId));
+  const sourceCustomFields = await db
+    .select({
+      fieldId: customFieldValueTable.fieldId,
+      value: customFieldValueTable.value,
+    })
+    .from(customFieldValueTable)
+    .innerJoin(
+      customFieldDefinitionTable,
+      eq(customFieldValueTable.fieldId, customFieldDefinitionTable.id),
+    )
+    .where(
+      and(
+        eq(customFieldValueTable.taskId, sourceTask.id),
+        eq(customFieldDefinitionTable.projectId, sourceTask.projectId),
+      ),
     );
-    return customFields;
-  };
-  await db.transaction(readCustomFields);
+  const customFields = sourceCustomFields.map(({ fieldId, value }) => ({
+    fieldId,
+    value: value ?? "",
+  }));
+  // Older tasks may predate a required field. Apply its current default or fail
+  // validation, just as creation does, before copying anything in storage.
+  for (const definition of fieldDefinitions) {
+    if (!definition.required || !definition.defaultValue?.trim()) continue;
+    const existing = customFields.find(
+      (field) => field.fieldId === definition.id,
+    );
+    if (!existing)
+      customFields.push({
+        fieldId: definition.id,
+        value: definition.defaultValue.trim(),
+      });
+    else if (!existing.value.trim())
+      existing.value = definition.defaultValue.trim();
+  }
+  await assertRequiredCustomFields(sourceTask.projectId, customFields);
 
   const sourceLabels = await db
     .select({
@@ -253,6 +248,7 @@ async function duplicateTask({
         eq(taskRelationTable.targetTaskId, sourceTask.id),
         eq(projectTable.workspaceId, project.workspaceId),
         eq(taskRelationTable.relationType, "subtask"),
+        projectAccessCondition(currentUserId, taskTable.projectId),
       ),
     );
 
@@ -279,9 +275,6 @@ async function duplicateTask({
 
   try {
     duplicated = await db.transaction(async (tx) => {
-      // Storage calls may outlast an option rename; reread selections while holding definition locks.
-      const customFields = await readCustomFields(tx);
-
       const taskNumber = await claimTaskNumber(sourceTask.projectId, tx);
       const nextPosition = await nextTaskPosition(
         tx,
@@ -295,7 +288,7 @@ async function duplicateTask({
         .values({
           id: duplicatedTaskId,
           projectId: sourceTask.projectId,
-          userId: sourceTask.userId,
+          userId: assigneeId,
           title: title?.trim() || sourceTask.title,
           status: sourceTask.status,
           columnId: column?.id ?? null,

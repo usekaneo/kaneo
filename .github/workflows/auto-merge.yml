@@ -16,10 +16,10 @@ jobs:
   dependabot:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
-    # Only bot-created updates opt into automation. A maintainer reopening or
-    # marking a rejected PR ready must not override the earlier decision.
+    # Only Dependabot-created updates opt into automation. A maintainer reopening
+    # or marking a rejected PR ready must not override the earlier decision.
     if: >-
-      github.actor == 'dependabot[bot]' &&
+      github.event.sender.login == 'dependabot[bot]' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.base.ref == 'main' &&
       github.event.pull_request.head.repo.full_name == github.repository

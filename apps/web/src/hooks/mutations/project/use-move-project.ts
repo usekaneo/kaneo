@@ -12,6 +12,7 @@ function useMoveProject() {
     onSuccess: async (_data, { id }) => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["projects"] }),
+        queryClient.invalidateQueries({ queryKey: ["external-links"] }),
         queryClient.invalidateQueries({ queryKey: ["tasks", id] }),
       ]);
     },

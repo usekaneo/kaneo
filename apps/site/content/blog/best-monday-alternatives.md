@@ -89,7 +89,7 @@ The pricing model is the part that matters most here. Kaneo Cloud bills on exact
 - Single sign-on with Google, GitHub, Discord, or any OIDC provider, on every plan
 - Automatic backups, updates, and email support on Kaneo Cloud
 - Public REST API, API keys, webhooks, and an MCP server for AI agents
-- GitHub and Gitea integrations, plus notifications in Slack, Discord, Telegram, and Mattermost
+- GitHub, GitLab, and Gitea integrations, plus notifications in Slack, Discord, Telegram, and Mattermost
 - Per-project JSON export and import
 
 **Pros:** Multiple planning views, custom fields, workflow rules, and time tracking without feature paywalls. Cloud pricing follows exact headcount with no seat blocks or minimums, includes SSO and EU hosting, and the MIT-licensed build gives you a self-hosted option.

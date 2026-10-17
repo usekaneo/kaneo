@@ -1,6 +1,7 @@
 import { and, count, eq, isNull, min, sql } from "drizzle-orm";
 import db from "../../database";
 import { projectTable, taskTable } from "../../database/schema";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 
 type ProjectStatistics = {
   completionPercentage: number;
@@ -16,6 +17,7 @@ const EMPTY_STATISTICS: ProjectStatistics = {
 
 async function getProjectStatistics(
   workspaceId: string,
+  userId: string,
   includeArchived: boolean,
 ) {
   const statisticsByProject = new Map<string, ProjectStatistics>();
@@ -45,7 +47,8 @@ async function getProjectStatistics(
             isNull(projectTable.archivedAt),
           ),
     )
-    .groupBy(taskTable.projectId);
+    .groupBy(taskTable.projectId)
+    .having(projectAccessCondition(userId, taskTable.projectId));
 
   for (const row of rows) {
     const totalTasks = Number(row.totalTasks);
@@ -62,14 +65,17 @@ async function getProjectStatistics(
   return statisticsByProject;
 }
 
-async function getProjects(workspaceId: string, includeArchived = false) {
+async function getProjects(
+  workspaceId: string,
+  userId: string,
+  includeArchived = false,
+) {
   const projects = await db.query.projectTable.findMany({
-    where: includeArchived
-      ? eq(projectTable.workspaceId, workspaceId)
-      : and(
-          eq(projectTable.workspaceId, workspaceId),
-          isNull(projectTable.archivedAt),
-        ),
+    where: and(
+      eq(projectTable.workspaceId, workspaceId),
+      includeArchived ? undefined : isNull(projectTable.archivedAt),
+      projectAccessCondition(userId, projectTable.id),
+    ),
     // `id` is the deterministic tie-breaker: without it, rows sharing both a
     // position and a createdAt come back in an unspecified order.
     orderBy: (project, { asc }) => [
@@ -81,6 +87,7 @@ async function getProjects(workspaceId: string, includeArchived = false) {
 
   const statisticsByProject = await getProjectStatistics(
     workspaceId,
+    userId,
     includeArchived,
   );
 

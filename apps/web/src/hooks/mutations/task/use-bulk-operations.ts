@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import bulkOperation from "@/fetchers/task/bulk-operation";
 import deleteTask from "@/fetchers/task/delete-task";
+import { removeTasksFromRelations } from "./remove-task-from-relations";
 
 export function useBulkOperations() {
   const queryClientRef = useQueryClient();
@@ -8,13 +10,17 @@ export function useBulkOperations() {
   const invalidateCommon = () => {
     queryClientRef.invalidateQueries({ queryKey: ["tasks"] });
     queryClientRef.invalidateQueries({ queryKey: ["projects"] });
+    invalidateMyWork(queryClientRef);
   };
 
   const bulkDelete = useMutation({
     mutationFn: async (taskIds: string[]) => {
       await Promise.all(taskIds.map((id) => deleteTask(id)));
     },
-    onSuccess: invalidateCommon,
+    onSuccess: (_, taskIds) => {
+      removeTasksFromRelations(queryClientRef, taskIds);
+      invalidateCommon();
+    },
   });
 
   const bulkArchive = useMutation({
@@ -146,6 +152,7 @@ export function useBulkOperations() {
 
   return {
     bulkDelete: bulkDelete.mutateAsync,
+    isDeleting: bulkDelete.isPending,
     bulkArchive: bulkArchive.mutateAsync,
     bulkChangeStatus: bulkChangeStatus.mutateAsync,
     bulkAssign: bulkAssign.mutateAsync,

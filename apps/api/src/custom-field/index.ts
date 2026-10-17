@@ -1,4 +1,3 @@
-import { publishEvent } from "../events";
 import {
   apiRouter,
   createRoute,
@@ -51,10 +50,8 @@ const getCustomFieldsRoute = createRoute({
       "List of custom field definitions",
       customFieldDefinitionListSchema,
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No workspace access or missing read permission"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -75,10 +72,8 @@ const getCustomFieldValuesByProjectRoute = createRoute({
       "List of custom field values for the project",
       customFieldValueListSchema,
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No workspace access or missing read permission"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -99,10 +94,10 @@ const getCustomFieldValuesByTaskRoute = createRoute({
       "List of custom field values for the task",
       customFieldValueListSchema,
     ),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
+    403: errorResponse(
+      "No access to the project, or missing task:read permission",
     ),
-    403: errorResponse("No workspace access or missing task:read permission"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -124,10 +119,8 @@ const getCustomFieldFilterValuesRoute = createRoute({
       "Distinct values used for each custom field",
       customFieldFilterValuesListSchema,
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No workspace access or missing read permission"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -150,10 +143,11 @@ const createCustomFieldRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created custom field", customFieldDefinitionSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -182,8 +176,9 @@ const reorderCustomFieldsRoute = createRoute({
     ),
     400: errorResponse("A custom field does not belong to this project"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -209,40 +204,11 @@ const setCustomFieldValueRoute = createRoute({
       "The saved custom field value",
       setCustomFieldValueResponseSchema,
     ),
-    400: errorResponse("Invalid body, unknown task, or unknown custom field"),
+    400: errorResponse("Invalid body, or unknown custom field"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
-  },
-});
-
-const updateCustomFieldRoute = createRoute({
-  method: "patch",
-  operationId: "updateCustomField",
-  path: "/{id}",
-  tags: ["Custom Fields"],
-  summary: "Edit custom field",
-  description:
-    "Rename a field or edit its selection options. Supply originalValue for existing options to preserve task selections and defaults when renaming. Omitted existing options are removed only when unused. Hidden options remain on existing tasks but cannot be newly selected, and are removed from defaults. Required fields must retain a visible option. The type and required setting are preserved. updatedAt must match the current definition.",
-  middleware: [
-    workspaceAccess.fromCustomField("id"),
-    requireWorkspacePermission({ project: ["update"] }),
-  ] as const,
-  request: {
-    params: customFieldIdParam,
-    body: {
-      required: true,
-      content: { "application/json": { schema: updateCustomFieldBody } },
-    },
-  },
-  responses: {
-    200: jsonResponse("The updated custom field", customFieldDefinitionSchema),
-    400: errorResponse("Invalid options or an option is in use"),
-    403: errorResponse(
-      "No workspace access or missing project:update permission",
-    ),
-    404: errorResponse("Custom field not found"),
-    409: errorResponse("The custom field has changed since it was loaded"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -260,12 +226,41 @@ const deleteCustomFieldRoute = createRoute({
   request: { params: customFieldIdParam },
   responses: {
     200: jsonResponse("The deleted custom field", customFieldDefinitionSchema),
+    403: errorResponse(
+      "No access to the project, or missing project:update permission",
+    ),
+    404: errorResponse("Custom field not found"),
+  },
+});
+
+const updateCustomFieldRoute = createRoute({
+  method: "put",
+  operationId: "updateCustomField",
+  path: "/{id}",
+  tags: ["Custom Fields"],
+  summary: "Update custom field",
+  description:
+    "Update a custom field's name, required flag, default, or options. The type can't change, except between dropdown and multiselect. Options that tasks still use can't be removed or renamed; the request is rejected instead of changing task values.",
+  middleware: [
+    workspaceAccess.fromCustomField("id"),
+    requireWorkspacePermission({ project: ["update"] }),
+  ] as const,
+  request: {
+    params: customFieldIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateCustomFieldBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated custom field", customFieldDefinitionSchema),
     400: errorResponse(
-      "Unknown custom field, or its workspace could not be determined",
+      "Invalid body, a type change, or removing an option that tasks still use",
     ),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Custom field not found"),
   },
 });
 
@@ -315,16 +310,14 @@ const customField = apiRouter()
 
     return c.json(await setCustomFieldValue(taskId, fieldId, value), 200);
   })
-  .openapi(updateCustomFieldRoute, async (c) => {
-    const field = await updateCustomField(
-      c.req.valid("param").id,
-      c.req.valid("json"),
-    );
-    await publishEvent("custom-field.updated", { projectId: field.projectId });
-    return c.json(field, 200);
-  })
   .openapi(deleteCustomFieldRoute, async (c) =>
     c.json(await deleteCustomField(c.req.valid("param").id), 200),
+  )
+  .openapi(updateCustomFieldRoute, async (c) =>
+    c.json(
+      await updateCustomField(c.req.valid("param").id, c.req.valid("json")),
+      200,
+    ),
   );
 
 export default customField;

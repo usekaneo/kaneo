@@ -6,6 +6,7 @@ import { publishEvent } from "../../events";
 import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
+import { notifySyncWorkspaceLabelChanged } from "../../plugins/sync/workspace-label-changed";
 import { withLabelDeletionLock } from "../deletion-lock";
 
 export const LABEL_DELETE_BATCH_SIZE = 25;
@@ -91,12 +92,14 @@ async function deleteLabel(
     const [root] = await db
       .update(labelTable)
       .set({
-        deletionStartedAt: sql`coalesce(${labelTable.deletionStartedAt}, clock_timestamp())`,
+        // UTC like every timezone-less column, whatever the session time zone.
+        deletionStartedAt: sql`coalesce(${labelTable.deletionStartedAt}, timezone('UTC', clock_timestamp()))`,
       })
       .where(eq(labelTable.id, id))
       .returning();
     if (!root) throw new HTTPException(404, { message: "Label not found" });
     if (root.workspaceId) {
+      await notifySyncWorkspaceLabelChanged(root.workspaceId, root.id);
       const predicate = and(
         eq(labelTable.workspaceId, root.workspaceId),
         eq(labelTable.name, root.name),
