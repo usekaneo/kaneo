@@ -23,7 +23,7 @@
     "date-fns": "^4.4.0",
     "lucide-react": "^1.49.0",
     "marked": "^18.0.14",
-    "next": "16.3.8",
+    "next": "16.4.0",
     "radix-ui": "^1.6.7",
     "react": "19.3.0",
     "react-day-picker": "10.0.2",
