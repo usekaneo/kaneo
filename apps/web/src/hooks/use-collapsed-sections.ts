@@ -1,13 +1,10 @@
 import { useCallback } from "react";
+import {
+  collapsedSectionsKey,
+  NONE_COLLAPSED,
+  normalizeCollapsed,
+} from "@/lib/collapsed-sections";
 import { useStoredState } from "./use-stored-state";
-
-const NONE_COLLAPSED: string[] = [];
-
-function normalizeCollapsed(value: unknown): string[] {
-  return Array.isArray(value)
-    ? value.filter((id): id is string => typeof id === "string")
-    : NONE_COLLAPSED;
-}
 
 // Stores collapsed ids rather than expanded ones so sections the user has
 // never touched, such as a newly added column, start expanded.
@@ -16,7 +13,7 @@ export function useCollapsedSections(
   scope: "list" | "backlog",
 ) {
   const [collapsed, setCollapsed] = useStoredState(
-    projectId ? `kaneo:${scope}-collapsed:${projectId}` : null,
+    projectId ? collapsedSectionsKey(projectId, scope) : null,
     normalizeCollapsed,
     NONE_COLLAPSED,
   );
