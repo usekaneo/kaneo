@@ -71,17 +71,20 @@ export async function syncLatestTaskValue(
       return;
     return binding;
   };
+  // Archived tasks send no state, even for retried initialization or repairs.
+  // Skipping counts as synchronized so callers such as initialization finish.
+  const statePaused = async () => {
+    if (field !== "state") return false;
+    const task = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(taskId, projectId),
+      columns: { status: true },
+    });
+    return !!task && isStateSyncPaused(task.status);
+  };
   for (;;) {
     const binding = await currentBinding();
     if (!binding) return;
-    // Archived tasks send no state, even for retried initialization or repairs.
-    if (field === "state") {
-      const task = await db.query.taskTable.findFirst({
-        where: linkedTaskScope(taskId, projectId),
-        columns: { status: true },
-      });
-      if (task && isStateSyncPaused(task.status)) return true;
-    }
+    if (await statePaused()) return true;
     identity ??= binding.integration
       ? { type: binding.integration.type, config: binding.integration.config }
       : undefined;
@@ -124,7 +127,8 @@ export async function syncLatestTaskValue(
             uncertain: false,
           },
         });
-        return;
+        // Dispatch also skips a task archived after the check above.
+        return (await statePaused()) || undefined;
       }
       updatedAt = dispatched.value;
       attempts++;

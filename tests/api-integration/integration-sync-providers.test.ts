@@ -701,6 +701,75 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         });
       });
 
+      it("completes initialization when the task is archived before the state write", async () => {
+        const f = await setup(type);
+        await f.assign();
+        await db
+          .update(schema.integrationTable)
+          .set({
+            config: JSON.stringify({
+              ...f.config,
+              commentTaskLinkOnGitHubIssue: true,
+              commentTaskLinkOnGiteaIssue: true,
+              commentTaskLinkOnGitlabIssue: true,
+            }),
+          })
+          .where(eq(schema.integrationTable.id, f.integration.id));
+        await db
+          .update(schema.taskTable)
+          .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+          .where(eq(schema.taskTable.id, f.task.id));
+        const canSyncTask = eligibility.canSyncTask;
+        let archived = false;
+        // Archive once the state intent is pending, before its dispatch.
+        const guard = vi
+          .spyOn(eligibility, "canSyncTask")
+          .mockImplementation(async (...args) => {
+            const link = await db.query.externalLinkTable.findFirst();
+            if (
+              !archived &&
+              args[2] === undefined &&
+              JSON.parse(
+                link?.metadata ?? "{}",
+              ).lastSync?.state?.outbound?.some(
+                (entry: { pending?: boolean }) => entry.pending,
+              )
+            ) {
+              archived = true;
+              await db
+                .update(schema.taskTable)
+                .set({ status: "archived", columnId: null })
+                .where(eq(schema.taskTable.id, f.task.id));
+            }
+            return canSyncTask(...args);
+          });
+
+        await reconcileTaskSync(f.project.id, f.task.id);
+        guard.mockRestore();
+
+        expect(archived).toBe(true);
+        for (const call of mocks.update.mock.calls)
+          expect(call.at(-1)).not.toMatchObject(closed);
+        expect(mocks.labels).toHaveBeenCalled();
+        // Only GitHub initialization posts a task-link comment.
+        if (type === "github") expect(mocks.comment).toHaveBeenCalled();
+        expect(
+          JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+        ).toMatchObject({
+          syncInitializedState: true,
+          syncInitializedLabels: true,
+          ...(type === "github" ? { syncInitializedComment: true } : {}),
+          syncInitializationPending: false,
+        });
+        expect(
+          (
+            await db.query.taskTable.findFirst({
+              where: eq(schema.taskTable.id, f.task.id),
+            })
+          )?.status,
+        ).toBe("archived");
+      });
+
       it.runIf(type === "gitlab")(
         "ignores live close and reopen webhooks for an archived task",
         async () => {
