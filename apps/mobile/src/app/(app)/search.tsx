@@ -40,12 +40,16 @@ export default function SearchScreen() {
     queryFn: () => api.search(query, workspaceId, kind),
     enabled: query.length > 0,
   });
-  const results = search.data?.results ?? [];
   const groups: { title: string; type: string }[] = [
     { title: t("mobile:search.kinds.tasks"), type: "task" },
     { title: t("mobile:search.kinds.comments"), type: "comment" },
+    { title: t("mobile:search.kinds.activity"), type: "activity" },
     { title: t("mobile:search.kinds.projects"), type: "project" },
   ];
+  // Only count result types the screen has a group for, so the empty state still shows.
+  const results = (search.data?.results ?? []).filter((r) =>
+    groups.some((g) => g.type === r.type),
+  );
 
   const commentMeta = (r: SearchResult) => {
     const when = relativeLong(r.createdAt);
@@ -63,7 +67,7 @@ export default function SearchScreen() {
         pathname: "/board/[projectId]",
         params: { projectId: r.id, workspaceId: r.workspaceId ?? workspaceId },
       });
-    // Comment hits only carry the task's ticket key, so resolve it to a task id.
+    // Comment and activity hits only carry the task's ticket key, so resolve it to a task id.
     if (r.projectSlug && r.taskNumber) {
       try {
         const task = await api.taskByTicketId(
@@ -180,6 +184,7 @@ export default function SearchScreen() {
           groups.map((g) => {
             const items = results.filter((r) => r.type === g.type);
             if (!items.length) return null;
+            const isNote = g.type === "comment" || g.type === "activity";
             return (
               <View key={g.type} style={{ paddingTop: 16 }}>
                 <View
@@ -203,8 +208,7 @@ export default function SearchScreen() {
                     onPress={() => open(r)}
                     style={{
                       flexDirection: "row",
-                      alignItems:
-                        g.type === "comment" ? "flex-start" : "center",
+                      alignItems: isNote ? "flex-start" : "center",
                       gap: 12,
                       minHeight: 56,
                       paddingHorizontal: inset,
@@ -213,13 +217,13 @@ export default function SearchScreen() {
                   >
                     <View
                       style={{
-                        width: g.type === "comment" ? 24 : 16,
-                        paddingTop: g.type === "comment" ? 2 : 0,
+                        width: isNote ? 24 : 16,
+                        paddingTop: isNote ? 2 : 0,
                       }}
                     >
                       {g.type === "task" ? (
                         <StatusIcon status={r.status ?? "to-do"} />
-                      ) : g.type === "comment" ? (
+                      ) : isNote ? (
                         <Avatar name={r.userName ?? "?"} size={24} />
                       ) : (
                         <ProjectIcon color={c.ink2} />
@@ -227,14 +231,12 @@ export default function SearchScreen() {
                     </View>
                     <View style={{ flex: 1, gap: 3 }}>
                       <Txt
-                        variant={g.type === "comment" ? "bodySm" : "body"}
-                        tone={g.type === "comment" ? "body" : "ink"}
-                        numberOfLines={g.type === "comment" ? 3 : 1}
+                        variant={isNote ? "bodySm" : "body"}
+                        tone={isNote ? "body" : "ink"}
+                        numberOfLines={isNote ? 3 : 1}
                         style={{ lineHeight: 20 }}
                       >
-                        {g.type === "comment"
-                          ? toPlainText(r.content ?? r.title)
-                          : r.title}
+                        {isNote ? toPlainText(r.content ?? r.title) : r.title}
                       </Txt>
                       <View style={{ flexDirection: "row", gap: 8 }}>
                         {r.taskNumber ? (
@@ -248,7 +250,7 @@ export default function SearchScreen() {
                           numberOfLines={1}
                           style={{ flex: 1 }}
                         >
-                          {g.type === "comment"
+                          {isNote
                             ? commentMeta(r)
                             : (r.projectName ??
                               (g.type === "project"

@@ -2,13 +2,14 @@ import { useEffect, useRef } from "react";
 import { AppState } from "react-native";
 
 import { credentialHeaders } from "./api/client";
+import {
+  createRealtimeConnection,
+  type RealtimeEvent,
+  type RealtimeSocket,
+} from "./realtime-connection";
 import { useSession } from "./session";
 
-export type RealtimeEvent = {
-  type: string;
-  projectId?: string;
-  taskId?: string;
-};
+export type { RealtimeEvent };
 
 /**
  * Kaneo pushes change hints over WebSockets: `/api/ws/user` for notifications and access changes,
@@ -27,70 +28,36 @@ export function useRealtime(
 
   useEffect(() => {
     if (!session || !path) return;
-    let socket: WebSocket | null = null;
-    let keepAlive: ReturnType<typeof setInterval> | null = null;
-    let retry: ReturnType<typeof setTimeout> | null = null;
-    let attempt = 0;
-    let stopped = false;
-
-    const connect = () => {
-      if (stopped) return;
-      // A per-connection windowId stops the server from treating this socket as the origin of
-      // changes made by the same account elsewhere, which it would otherwise not echo.
-      const windowId = `mobile-${Math.random().toString(36).slice(2)}`;
-      const url = `${session.serverUrl.replace(/^http/, "ws")}/${path}?windowId=${windowId}`;
-      // React Native's WebSocket accepts headers as a third argument; browsers ignore it.
-      const Ctor = WebSocket as unknown as new (
-        url: string,
-        protocols?: string[] | null,
-        options?: object,
-      ) => WebSocket;
-      socket = new Ctor(url, null, { headers: credentialHeaders(session) });
-      socket.onopen = () => {
-        attempt = 0;
-        // The server only accepts this exact text keepalive.
-        keepAlive = setInterval(() => socket?.send('{"type":"ping"}'), 30_000);
-      };
-      socket.onmessage = (message) => {
-        try {
-          const data = JSON.parse(String(message.data)) as RealtimeEvent;
-          if (data?.type && data.type !== "PING" && data.type !== "pong")
-            handler.current(data);
-        } catch {
-          // Ignore non-JSON frames.
-        }
-      };
-      socket.onclose = () => {
-        if (keepAlive) clearInterval(keepAlive);
-        keepAlive = null;
-        if (stopped) return;
-        attempt += 1;
-        retry = setTimeout(connect, Math.min(30_000, 2_000 * attempt));
-      };
-      socket.onerror = () => socket?.close();
-    };
-
-    const stop = () => {
-      stopped = true;
-      if (retry) clearTimeout(retry);
-      if (keepAlive) clearInterval(keepAlive);
-      socket?.close();
-      socket = null;
-    };
-
-    connect();
+    const connection = createRealtimeConnection(
+      () => {
+        // A per-connection windowId stops the server from treating this socket as the origin of
+        // changes made by the same account elsewhere, which it would otherwise not echo.
+        const windowId = `mobile-${Math.random().toString(36).slice(2)}`;
+        const url = `${session.serverUrl.replace(/^http/, "ws")}/${path}?windowId=${windowId}`;
+        // React Native's WebSocket accepts headers as a third argument; browsers ignore it.
+        const Ctor = WebSocket as unknown as new (
+          url: string,
+          protocols?: string[] | null,
+          options?: object,
+        ) => RealtimeSocket;
+        return new Ctor(url, null, { headers: credentialHeaders(session) });
+      },
+      (event) => handler.current(event),
+    );
+    let running = true;
+    connection.start();
     const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active" && stopped) {
-        stopped = false;
-        attempt = 0;
-        connect();
+      if (state === "active" && !running) {
+        running = true;
+        connection.start();
       } else if (state === "background") {
-        stop();
+        running = false;
+        connection.stop();
       }
     });
     return () => {
       sub.remove();
-      stop();
+      connection.stop();
     };
   }, [session, path]);
 }

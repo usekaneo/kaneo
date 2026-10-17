@@ -18,7 +18,6 @@ import { ConfirmDialog, OptionSheet, Sheet } from "@/components/sheet";
 import { Txt } from "@/components/text";
 import {
   Button,
-  Chip,
   Group,
   GroupRow,
   IconButton,
@@ -27,24 +26,15 @@ import {
   TextField,
   Touch,
 } from "@/components/ui";
+import { CustomFieldForm } from "@/features/project/custom-field-form";
+import type { CreateFieldBody } from "@/features/project/field-form";
+import { useFieldTypes } from "@/features/project/use-field-types";
 import { userMessage } from "@/lib/api/client";
 import { api } from "@/lib/api/endpoints";
 import type { Column, CustomFieldDefinition } from "@/lib/api/types";
 import { useWorkspaces } from "@/lib/hooks";
 import { qk, useAction } from "@/lib/query";
 import { useColors } from "@/theme";
-
-function useFieldTypes() {
-  const { t } = useTranslation(["mobile"]);
-  return [
-    { value: "text", label: t("mobile:projectSettings.text") },
-    { value: "number", label: t("mobile:projectSettings.number") },
-    { value: "date", label: t("mobile:projectSettings.date") },
-    { value: "boolean", label: t("mobile:projectSettings.checkbox") },
-    { value: "dropdown", label: t("mobile:projectSettings.dropdown") },
-    { value: "multiselect", label: t("mobile:projectSettings.multiSelect") },
-  ];
-}
 
 export default function ProjectSettingsScreen() {
   const { t } = useTranslation(["mobile"]);
@@ -424,6 +414,7 @@ export default function ProjectSettingsScreen() {
         }
       />
       <AddFieldSheet
+        busy={busy}
         visible={addingField}
         onClose={() => setAddingField(false)}
         onAdd={(body) =>
@@ -621,15 +612,12 @@ function AddFieldSheet({
   visible,
   onClose,
   onAdd,
+  busy,
 }: {
   visible: boolean;
   onClose: () => void;
-  onAdd: (body: {
-    name: string;
-    type: string;
-    required: boolean;
-    options?: string[];
-  }) => void;
+  onAdd: (body: CreateFieldBody) => Promise<unknown | undefined>;
+  busy: boolean;
 }) {
   const { t } = useTranslation(["mobile"]);
   return (
@@ -638,91 +626,7 @@ function AddFieldSheet({
       onClose={onClose}
       title={t("mobile:projectSettings.newCustomField")}
     >
-      <AddFieldForm onClose={onClose} onAdd={onAdd} />
+      <CustomFieldForm onClose={onClose} onAdd={onAdd} busy={busy} />
     </Sheet>
-  );
-}
-
-function AddFieldForm({
-  onClose,
-  onAdd,
-}: {
-  onClose: () => void;
-  onAdd: (body: {
-    name: string;
-    type: string;
-    required: boolean;
-    options?: string[];
-  }) => void;
-}) {
-  const { t } = useTranslation(["mobile"]);
-  const fieldTypes = useFieldTypes();
-  const [name, setName] = useState("");
-  const [type, setType] = useState("text");
-  const [optionsText, setOptionsText] = useState("");
-  const [required, setRequired] = useState(false);
-  const needsOptions = type === "dropdown" || type === "multiselect";
-  const options = optionsText
-    .split(",")
-    .map((o) => o.trim())
-    .filter(Boolean);
-
-  return (
-    <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 16 }}>
-      <TextField
-        label={t("mobile:projectSettings.name")}
-        value={name}
-        onChangeText={setName}
-        placeholder={t("mobile:projectSettings.platform")}
-        autoFocus
-      />
-      <View style={{ gap: 8 }}>
-        <Txt variant="meta" weight="medium" tone="body">
-          {t("mobile:projectSettings.type")}
-        </Txt>
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-          {fieldTypes.map((fieldType) => (
-            <Chip
-              key={fieldType.value}
-              label={fieldType.label}
-              selected={type === fieldType.value}
-              onPress={() => setType(fieldType.value)}
-            />
-          ))}
-        </View>
-      </View>
-      {needsOptions ? (
-        <TextField
-          label={t("mobile:projectSettings.options")}
-          aside={t("mobile:projectSettings.separateWithCommas")}
-          value={optionsText}
-          onChangeText={setOptionsText}
-          placeholder={t("mobile:projectSettings.androidIOSWeb")}
-        />
-      ) : null}
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Txt variant="bodySm">{t("mobile:projectSettings.required")}</Txt>
-        <Switch value={required} onChange={setRequired} />
-      </View>
-      <Button
-        label={t("mobile:projectSettings.addField")}
-        disabled={!name.trim() || (needsOptions && options.length === 0)}
-        onPress={() => {
-          onAdd({
-            name: name.trim(),
-            type,
-            required,
-            options: needsOptions ? options : undefined,
-          });
-          onClose();
-        }}
-      />
-    </View>
   );
 }

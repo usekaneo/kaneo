@@ -158,9 +158,5 @@ export function hasRole(role: string | null | undefined, name: string) {
   return !!role && role.split(",").includes(name);
 }
 
-export function canManageWorkspace(role?: string | null) {
-  return hasRole(role, "owner") || hasRole(role, "admin");
-}
-
 export const STATUS_PLANNED = "planned";
 export const STATUS_ARCHIVED = "archived";

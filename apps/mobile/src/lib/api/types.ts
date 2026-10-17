@@ -57,8 +57,32 @@ export type Workspace = {
   logo?: string | null;
   createdAt?: string | null;
   role?: string | null;
+  description?: string | null;
   metadata?: Json;
 };
+
+export type WorkspaceCapabilities = Record<
+  | "manageProjects"
+  | "createProjects"
+  | "updateProjects"
+  | "shareProjects"
+  | "deleteProjects"
+  | "updateTasks"
+  | "createTasks"
+  | "deleteTasks"
+  | "assignTasks"
+  | "createLabels"
+  | "updateLabels"
+  | "deleteLabels"
+  | "manageWorkspace"
+  | "manageSettings"
+  | "deleteWorkspace"
+  | "inviteUsers"
+  | "manageTeam"
+  | "updateMembers"
+  | "removeMembers",
+  boolean
+>;
 
 export type WorkspaceMember = {
   id: string;
@@ -92,6 +116,7 @@ export type FullOrganization = {
   id: string;
   name: string;
   slug: string;
+  description?: string | null;
   metadata?: Json;
   members?: OrganizationMember[];
   invitations?: OrganizationInvitation[];

@@ -17,11 +17,15 @@ import { Txt } from "@/components/text";
 import { Button, Group, GroupRow, Section, TextField } from "@/components/ui";
 import { userMessage } from "@/lib/api/client";
 import { api } from "@/lib/api/endpoints";
-import { workspaceDescription } from "@/lib/describe";
 import { useWorkspaceLabels, useWorkspaces } from "@/lib/hooks";
 import { qk, useAction } from "@/lib/query";
 import { sessionStore, useRequiredSession } from "@/lib/session";
-import { canManageWorkspace, hasRole } from "@/lib/style";
+import { hasRole } from "@/lib/style";
+import { useWorkspaceCapabilities } from "@/lib/use-workspace-capabilities";
+import {
+  getWorkspaceDescription,
+  workspaceDescriptionUpdate,
+} from "@/lib/workspace-description";
 import { useColors } from "@/theme";
 
 export default function WorkspaceSettingsScreen() {
@@ -40,13 +44,16 @@ export default function WorkspaceSettingsScreen() {
   const role =
     workspace?.role ??
     org.data?.members?.find((m) => m.userId === session.userId)?.role;
-  const canEdit = canManageWorkspace(role);
+  const capabilities = useWorkspaceCapabilities(workspaceId);
+  const canEdit = capabilities.data?.manageWorkspace === true;
+  const canDelete = capabilities.data?.deleteWorkspace === true;
   const isOwner = hasRole(role, "owner");
   const [confirm, setConfirm] = useState<"leave" | "delete" | null>(null);
   const workspaceName =
     workspace?.name ?? t("mobile:workspaceSettings.thisWorkspace");
 
   const leaveOrDelete = async (kind: "leave" | "delete") => {
+    if (kind === "delete" && !canDelete) return;
     const ok = await run(
       () =>
         kind === "delete"
@@ -69,8 +76,11 @@ export default function WorkspaceSettingsScreen() {
     <Screen>
       <Scroll
         bottomPadding={40}
-        refreshing={org.isRefetching}
-        onRefresh={() => void org.refetch()}
+        refreshing={org.isRefetching || capabilities.isRefetching}
+        onRefresh={() => {
+          void org.refetch();
+          void capabilities.refetch();
+        }}
       >
         <PageHeader
           title={t("mobile:workspaceSettings.title")}
@@ -94,16 +104,20 @@ export default function WorkspaceSettingsScreen() {
               <GeneralForm
                 key={`${org.data.id}-${org.data.name}`}
                 name={org.data.name}
-                description={workspaceDescription(org.data.metadata)}
+                description={getWorkspaceDescription(org.data)}
                 slug={org.data.slug}
                 canEdit={canEdit}
                 busy={busy}
                 onSave={(name, description) =>
+                  canEdit &&
                   run(
                     () =>
                       api.updateWorkspace(workspaceId, {
                         name,
-                        metadata: { description },
+                        ...workspaceDescriptionUpdate(
+                          description,
+                          org.data.metadata,
+                        ),
                       }),
                     { success: t("mobile:workspaceSettings.toast.updated") },
                   )
@@ -153,7 +167,7 @@ export default function WorkspaceSettingsScreen() {
             <Section title={t("mobile:workspaceSettings.danger.title")}>
               <Group>
                 {!isOwner ? (
-                  <GroupRow last={!isOwner}>
+                  <GroupRow last={!canDelete}>
                     <View style={{ flex: 1, gap: 2 }}>
                       <Txt variant="body">
                         {t("mobile:workspaceSettings.danger.leave")}
@@ -170,7 +184,7 @@ export default function WorkspaceSettingsScreen() {
                     />
                   </GroupRow>
                 ) : null}
-                {isOwner ? (
+                {canDelete ? (
                   <GroupRow last>
                     <View style={{ flex: 1, gap: 2 }}>
                       <Txt variant="body">
@@ -194,7 +208,7 @@ export default function WorkspaceSettingsScreen() {
         )}
       </Scroll>
       <ConfirmDialog
-        visible={!!confirm}
+        visible={!!confirm && (confirm !== "delete" || canDelete)}
         title={
           confirm === "delete"
             ? t("mobile:workspaceSettings.confirm.deleteTitle")
@@ -266,7 +280,7 @@ function GeneralForm({
             label={t("mobile:workspaceSettings.general.save")}
             size="md"
             loading={busy}
-            disabled={!name.trim()}
+            disabled={busy || !name.trim()}
             onPress={() => onSave(name.trim(), description.trim())}
           />
         </View>

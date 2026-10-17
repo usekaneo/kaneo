@@ -36,6 +36,9 @@ export const qk = {
   customFields: (projectId: string) => ["customFields", projectId] as const,
   fullWorkspace: (id: string) => ["fullWorkspace", id] as const,
   roles: (id: string) => ["roles", id] as const,
+  capabilities: (workspaceId: string) => ["capabilities", workspaceId] as const,
+  canCancelInvitations: (workspaceId: string) =>
+    ["canCancelInvitations", workspaceId] as const,
   notificationPrefs: ["notificationPrefs"] as const,
   search: (workspaceId: string, q: string, type: string) =>
     ["search", workspaceId, q, type] as const,

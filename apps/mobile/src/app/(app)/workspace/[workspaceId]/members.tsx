@@ -34,13 +34,11 @@ import { formatDate } from "@/lib/format";
 import { useWorkspaces } from "@/lib/hooks";
 import { qk, useAction } from "@/lib/query";
 import { useRequiredSession } from "@/lib/session";
+import { hasRole, ROLE_HINTS, roleLabel, WORKSPACE_ROLES } from "@/lib/style";
 import {
-  canManageWorkspace,
-  hasRole,
-  ROLE_HINTS,
-  roleLabel,
-  WORKSPACE_ROLES,
-} from "@/lib/style";
+  useCanCancelInvitations,
+  useWorkspaceCapabilities,
+} from "@/lib/use-workspace-capabilities";
 import { useColors } from "@/theme";
 
 export default function MembersScreen() {
@@ -59,10 +57,13 @@ export default function MembersScreen() {
   });
   const workspaces = useWorkspaces();
   const workspace = workspaces.data?.find((w) => w.id === workspaceId);
-  const canManage = canManageWorkspace(
-    workspace?.role ??
-      org.data?.members?.find((m) => m.userId === session.userId)?.role,
-  );
+  const capabilities = useWorkspaceCapabilities(workspaceId);
+  const cancellation = useCanCancelInvitations(workspaceId);
+  const canInvite = capabilities.data?.inviteUsers === true;
+  const canUpdateMembers = capabilities.data?.updateMembers === true;
+  const canRemoveMembers = capabilities.data?.removeMembers === true;
+  const canCancelInvitations = cancellation.data === true;
+  const canManageInvitations = canInvite || canCancelInvitations;
   const roles = [
     ...WORKSPACE_ROLES,
     ...(rolesQuery.data ?? [])
@@ -92,8 +93,16 @@ export default function MembersScreen() {
     <Screen>
       <Scroll
         bottomPadding={40}
-        refreshing={org.isRefetching}
-        onRefresh={() => void org.refetch()}
+        refreshing={
+          org.isRefetching ||
+          capabilities.isRefetching ||
+          cancellation.isRefetching
+        }
+        onRefresh={() => {
+          void org.refetch();
+          void capabilities.refetch();
+          void cancellation.refetch();
+        }}
       >
         <PageHeader
           title={t("mobile:members.title")}
@@ -105,7 +114,7 @@ export default function MembersScreen() {
               t("mobile:members.thisWorkspace"),
           })}
           action={
-            canManage ? (
+            canInvite ? (
               <Button
                 label={t("mobile:members.invite")}
                 size="sm"
@@ -135,7 +144,11 @@ export default function MembersScreen() {
                     <GroupRow
                       key={inv.id}
                       last={i === pending.length - 1}
-                      onPress={canManage ? () => setInviteMenu(inv) : undefined}
+                      onPress={
+                        canManageInvitations
+                          ? () => setInviteMenu(inv)
+                          : undefined
+                      }
                     >
                       <View
                         style={{
@@ -164,7 +177,7 @@ export default function MembersScreen() {
                             : roleLabel(inv.role ?? "member")}
                         </Txt>
                       </View>
-                      {canManage ? (
+                      {canManageInvitations ? (
                         <Txt variant="meta" weight="medium" tone="muted">
                           {t("mobile:members.pending.manage")}
                         </Txt>
@@ -179,7 +192,9 @@ export default function MembersScreen() {
                 {members.map((m, i) => {
                   const isSelf = m.userId === session.userId;
                   const editable =
-                    canManage && !hasRole(m.role, "owner") && !isSelf;
+                    (canUpdateMembers || canRemoveMembers) &&
+                    !hasRole(m.role, "owner") &&
+                    !isSelf;
                   return (
                     <GroupRow
                       key={m.id}
@@ -234,32 +249,43 @@ export default function MembersScreen() {
       </Scroll>
 
       <InviteSheet
-        visible={inviting}
+        visible={inviting && canInvite}
         onClose={() => setInviting(false)}
         workspaceId={workspaceId}
         workspaceName={workspace?.name ?? ""}
         roles={roles}
       />
       <OptionSheet
-        visible={!!memberMenu}
+        visible={!!memberMenu && (canUpdateMembers || canRemoveMembers)}
         onClose={() => setMemberMenu(null)}
         title={
           memberMenu?.user?.name ?? t("mobile:members.memberMenu.fallbackTitle")
         }
         options={[
-          { value: "role", label: t("mobile:members.memberMenu.changeRole") },
-          {
-            value: "remove",
-            label: t("mobile:members.memberMenu.remove"),
-            tone: "danger" as const,
-          },
+          ...(canUpdateMembers
+            ? [
+                {
+                  value: "role",
+                  label: t("mobile:members.memberMenu.changeRole"),
+                },
+              ]
+            : []),
+          ...(canRemoveMembers
+            ? [
+                {
+                  value: "remove",
+                  label: t("mobile:members.memberMenu.remove"),
+                  tone: "danger" as const,
+                },
+              ]
+            : []),
         ]}
         onSelect={(v) =>
           v === "role" ? setRolePicker(memberMenu) : setRemoving(memberMenu)
         }
       />
       <OptionSheet
-        visible={!!rolePicker}
+        visible={!!rolePicker && canUpdateMembers}
         onClose={() => setRolePicker(null)}
         title={t("mobile:members.rolePicker.title")}
         selected={rolePicker?.role}
@@ -269,6 +295,7 @@ export default function MembersScreen() {
           hint: ROLE_HINTS[r] ?? null,
         }))}
         onSelect={(role) =>
+          canUpdateMembers &&
           rolePicker &&
           run(() => api.updateMemberRole(workspaceId, rolePicker.id, role), {
             success: t("mobile:members.toast.roleUpdated"),
@@ -276,7 +303,7 @@ export default function MembersScreen() {
         }
       />
       <ConfirmDialog
-        visible={!!removing}
+        visible={!!removing && canRemoveMembers}
         title={t("mobile:members.remove.title")}
         message={t("mobile:members.remove.message", {
           name: removing?.user?.name ?? t("mobile:members.remove.they"),
@@ -285,6 +312,7 @@ export default function MembersScreen() {
         confirmLabel={t("mobile:members.remove.confirm")}
         onClose={() => setRemoving(null)}
         onConfirm={() =>
+          canRemoveMembers &&
           removing &&
           run(
             () =>
@@ -297,23 +325,34 @@ export default function MembersScreen() {
         }
       />
       <OptionSheet
-        visible={!!inviteMenu}
+        visible={!!inviteMenu && canManageInvitations}
         onClose={() => setInviteMenu(null)}
         title={
           inviteMenu?.email ?? t("mobile:members.inviteMenu.fallbackTitle")
         }
         options={[
-          { value: "resend", label: t("mobile:members.inviteMenu.resend") },
-          {
-            value: "cancel",
-            label: t("mobile:members.inviteMenu.cancel"),
-            tone: "danger" as const,
-          },
+          ...(canInvite
+            ? [
+                {
+                  value: "resend",
+                  label: t("mobile:members.inviteMenu.resend"),
+                },
+              ]
+            : []),
+          ...(canCancelInvitations
+            ? [
+                {
+                  value: "cancel",
+                  label: t("mobile:members.inviteMenu.cancel"),
+                  tone: "danger" as const,
+                },
+              ]
+            : []),
         ]}
         onSelect={(v) => {
           const inv = inviteMenu;
           if (!inv) return;
-          if (v === "resend")
+          if (v === "resend" && canInvite)
             void run(
               () =>
                 api.inviteMember({
@@ -326,7 +365,7 @@ export default function MembersScreen() {
                 success: t("mobile:members.toast.resent"),
               },
             );
-          else
+          else if (v === "cancel" && canCancelInvitations)
             void run(() => api.cancelInvitation(inv.id), {
               success: t("mobile:members.toast.canceled"),
             });

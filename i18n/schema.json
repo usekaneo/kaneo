@@ -16293,6 +16293,15 @@
 						},
 						"noLabels": {
 							"type": "string"
+						},
+						"labelsFailed": {
+							"type": "string"
+						},
+						"parentFailed": {
+							"type": "string"
+						},
+						"labelsAndParentFailed": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -16300,7 +16309,10 @@
 						"project",
 						"create",
 						"taskTitle",
-						"noLabels"
+						"noLabels",
+						"labelsFailed",
+						"parentFailed",
+						"labelsAndParentFailed"
 					]
 				},
 				"editor": {
@@ -16829,6 +16841,24 @@
 						},
 						"required": {
 							"type": "string"
+						},
+						"defaultValue": {
+							"type": "string"
+						},
+						"chooseDefault": {
+							"type": "string"
+						},
+						"checked": {
+							"type": "string"
+						},
+						"unchecked": {
+							"type": "string"
+						},
+						"validDefaultRequired": {
+							"type": "string"
+						},
+						"multiselectOptionsRequired": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -16893,7 +16923,13 @@
 						"options",
 						"separateWithCommas",
 						"androidIOSWeb",
-						"required"
+						"required",
+						"defaultValue",
+						"chooseDefault",
+						"checked",
+						"unchecked",
+						"validDefaultRequired",
+						"multiselectOptionsRequired"
 					]
 				},
 				"projectNew": {
@@ -17321,9 +17357,12 @@
 								},
 								"comments": {
 									"type": "string"
+								},
+								"activity": {
+									"type": "string"
 								}
 							},
-							"required": ["all", "tasks", "projects", "comments"]
+							"required": ["all", "tasks", "projects", "comments", "activity"]
 						},
 						"empty": {
 							"type": "object",

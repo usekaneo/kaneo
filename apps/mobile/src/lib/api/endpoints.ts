@@ -27,6 +27,7 @@ import type {
   UpdateTaskBody,
   Workspace,
   WorkspaceActivity,
+  WorkspaceCapabilities,
   WorkspaceMember,
 } from "./types";
 
@@ -77,6 +78,16 @@ export const api = {
         return get<Workspace[]>("api/auth/organization/list");
       throw e;
     }),
+  workspaceCapabilities: (workspaceId: string) =>
+    get<WorkspaceCapabilities>(`api/workspace/${workspaceId}/capabilities`),
+  workspacePermission: (
+    organizationId: string,
+    permissions: Record<string, string[]>,
+  ) =>
+    post<{ success: boolean }>("api/auth/organization/has-permission", {
+      organizationId,
+      permissions,
+    }),
   workspaceMembers: (workspaceId: string, projectId?: string) =>
     get<WorkspaceMember[]>(`api/workspace/${workspaceId}/members`, {
       projectId,
@@ -88,8 +99,17 @@ export const api = {
   }) => post<Workspace>("api/auth/organization/create", body),
   updateWorkspace: (
     organizationId: string,
-    data: { name?: string; metadata?: Record<string, string> },
-  ) => post<unknown>("api/auth/organization/update", { organizationId, data }),
+    data: {
+      name?: string;
+      description?: string;
+      metadata?: Record<string, Json>;
+    },
+  ) =>
+    request<unknown>("api/auth/organization/update", {
+      method: "POST",
+      body: { organizationId, data },
+      keepNulls: true,
+    }),
   deleteWorkspace: (organizationId: string) =>
     post<unknown>("api/auth/organization/delete", { organizationId }),
   leaveWorkspace: (organizationId: string) =>
@@ -322,6 +342,7 @@ export const api = {
     name: string;
     type: string;
     required: boolean;
+    defaultValue?: string;
     options?: string[];
   }) => post<unknown>("api/custom-field", body),
   deleteCustomField: (id: string) => del<unknown>(`api/custom-field/${id}`),

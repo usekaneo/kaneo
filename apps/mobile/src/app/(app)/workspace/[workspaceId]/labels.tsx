@@ -28,13 +28,18 @@ import type { Label } from "@/lib/api/types";
 import { useWorkspaceLabels } from "@/lib/hooks";
 import { useAction } from "@/lib/query";
 import { LABEL_COLORS, labelColor } from "@/lib/style";
+import { useWorkspaceCapabilities } from "@/lib/use-workspace-capabilities";
 import { inset, useColors } from "@/theme";
 
 export default function LabelsScreen() {
   const { workspaceId } = useLocalSearchParams<{ workspaceId: string }>();
   const { t } = useTranslation(["mobile"]);
   const c = useColors();
-  const { run } = useAction();
+  const { run, busy } = useAction();
+  const capabilities = useWorkspaceCapabilities(workspaceId);
+  const canCreate = capabilities.data?.createLabels === true;
+  const canUpdate = capabilities.data?.updateLabels === true;
+  const canDelete = capabilities.data?.deleteLabels === true;
   const labels = useWorkspaceLabels(workspaceId);
   const [editing, setEditing] = useState<Label | "new" | null>(null);
   const [menu, setMenu] = useState<Label | null>(null);
@@ -45,20 +50,25 @@ export default function LabelsScreen() {
     <Screen>
       <Scroll
         bottomPadding={40}
-        refreshing={labels.isRefetching}
-        onRefresh={() => void labels.refetch()}
+        refreshing={labels.isRefetching || capabilities.isRefetching}
+        onRefresh={() => {
+          void labels.refetch();
+          void capabilities.refetch();
+        }}
       >
         <PageHeader
           title={t("mobile:labels.title")}
           description={t("mobile:labels.description")}
           action={
-            <Button
-              label={t("mobile:labels.new")}
-              size="sm"
-              icon={<Plus size={14} color={c.onPrimary} />}
-              onPress={() => setEditing("new")}
-              style={{ height: 36 }}
-            />
+            canCreate ? (
+              <Button
+                label={t("mobile:labels.new")}
+                size="sm"
+                icon={<Plus size={14} color={c.onPrimary} />}
+                onPress={() => setEditing("new")}
+                style={{ height: 36 }}
+              />
+            ) : undefined
           }
         />
         <View style={{ paddingHorizontal: inset }}>
@@ -82,21 +92,23 @@ export default function LabelsScreen() {
                 <GroupRow
                   key={l.id}
                   last={i === list.length - 1}
-                  onPress={() => setEditing(l)}
+                  onPress={canUpdate ? () => setEditing(l) : undefined}
                 >
                   <LabelDot color={l.color} size={10} />
                   <Txt variant="body" style={{ flex: 1 }}>
                     {l.name}
                   </Txt>
-                  <Touch
-                    onPress={() => setMenu(l)}
-                    hitSlop={10}
-                    accessibilityLabel={t("mobile:labels.actions", {
-                      name: l.name,
-                    })}
-                  >
-                    <Ellipsis size={16} color={c.placeholder} />
-                  </Touch>
+                  {canUpdate || canDelete ? (
+                    <Touch
+                      onPress={() => setMenu(l)}
+                      hitSlop={10}
+                      accessibilityLabel={t("mobile:labels.actions", {
+                        name: l.name,
+                      })}
+                    >
+                      <Ellipsis size={16} color={c.placeholder} />
+                    </Touch>
+                  ) : null}
                 </GroupRow>
               ))}
             </Group>
@@ -105,37 +117,46 @@ export default function LabelsScreen() {
       </Scroll>
 
       <LabelSheet
-        label={editing}
+        label={(editing === "new" ? canCreate : canUpdate) ? editing : null}
+        busy={busy}
         onClose={() => setEditing(null)}
-        onSave={(name, color) =>
-          run(() =>
-            editing && editing !== "new"
+        onSave={async (name, color) => {
+          if (!editing || !(editing === "new" ? canCreate : canUpdate)) return;
+          return run(() =>
+            editing !== "new"
               ? api.updateLabel(editing.id, { name, color })
               : api.createLabel({ name, color, workspaceId }),
-          )
-        }
+          );
+        }}
       />
       <OptionSheet
-        visible={!!menu}
+        visible={!!menu && (canUpdate || canDelete)}
         onClose={() => setMenu(null)}
         title={menu?.name ?? t("mobile:labels.fallbackTitle")}
         options={[
-          { value: "edit", label: t("mobile:labels.edit") },
-          {
-            value: "delete",
-            label: t("mobile:labels.delete"),
-            tone: "danger" as const,
-          },
+          ...(canUpdate
+            ? [{ value: "edit", label: t("mobile:labels.edit") }]
+            : []),
+          ...(canDelete
+            ? [
+                {
+                  value: "delete",
+                  label: t("mobile:labels.delete"),
+                  tone: "danger" as const,
+                },
+              ]
+            : []),
         ]}
         onSelect={(v) => (v === "edit" ? setEditing(menu) : setDeleting(menu))}
       />
       <ConfirmDialog
-        visible={!!deleting}
+        visible={!!deleting && canDelete}
         title={t("mobile:labels.deleteTitle", { name: deleting?.name })}
         message={t("mobile:labels.deleteMessage")}
         confirmLabel={t("mobile:common.delete")}
         onClose={() => setDeleting(null)}
         onConfirm={() =>
+          canDelete &&
           deleting &&
           run(() => api.deleteLabel(deleting.id), {
             success: t("mobile:labels.toast.deleted"),
@@ -148,12 +169,14 @@ export default function LabelsScreen() {
 
 function LabelSheet({
   label,
+  busy,
   onClose,
   onSave,
 }: {
   label: Label | "new" | null;
+  busy: boolean;
   onClose: () => void;
-  onSave: (name: string, color: string) => void;
+  onSave: (name: string, color: string) => Promise<Label | undefined>;
 }) {
   const { t } = useTranslation(["mobile"]);
   return (
@@ -165,9 +188,10 @@ function LabelSheet({
       {label ? (
         <LabelForm
           initial={label === "new" ? null : label}
-          onSave={(name, color) => {
-            onSave(name, color);
-            onClose();
+          busy={busy}
+          onSave={async (name, color) => {
+            const saved = await onSave(name, color);
+            if (saved !== undefined) onClose();
           }}
         />
       ) : null}
@@ -177,10 +201,12 @@ function LabelSheet({
 
 function LabelForm({
   initial,
+  busy,
   onSave,
 }: {
   initial: Label | null;
-  onSave: (name: string, color: string) => void;
+  busy: boolean;
+  onSave: (name: string, color: string) => Promise<void>;
 }) {
   const { t } = useTranslation(["mobile"]);
   const c = useColors();
@@ -235,7 +261,8 @@ function LabelForm({
       </View>
       <Button
         label={t("mobile:common.save")}
-        disabled={!name.trim()}
+        loading={busy}
+        disabled={busy || !name.trim()}
         onPress={() => onSave(name.trim(), color)}
       />
     </View>

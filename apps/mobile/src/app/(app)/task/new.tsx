@@ -22,7 +22,13 @@ import { DatePickerSheet, TextInputSheet } from "@/components/pickers";
 import { BackButton, Screen } from "@/components/screen";
 import { MultiSelectSheet, OptionSheet, Sheet } from "@/components/sheet";
 import { Txt } from "@/components/text";
+import { useToast } from "@/components/toast";
 import { Checkbox, LabelDot, Switch, Touch } from "@/components/ui";
+import {
+  customFieldsPayload,
+  draftFieldValues,
+  hasMissingRequired,
+} from "@/features/task/new-task-fields";
 import { api } from "@/lib/api/endpoints";
 import type { CustomFieldDefinition, Json } from "@/lib/api/types";
 import { formatDate, toApiDate, toIsoDay, type Day } from "@/lib/format";
@@ -70,6 +76,7 @@ export default function NewTaskScreen() {
   const c = useColors();
   const session = useRequiredSession();
   const { run, busy } = useAction();
+  const toast = useToast();
   const [projectId, setProjectId] = useState(params.projectId);
   const workspaceId = params.workspaceId;
 
@@ -96,7 +103,7 @@ export default function NewTaskScreen() {
   const [start, setStart] = useState<Day | null>(null);
   const [due, setDue] = useState<Day | null>(null);
   const [labelIds, setLabelIds] = useState<string[]>([]);
-  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  const [fieldEdits, setFieldEdits] = useState<Record<string, string>>({});
   const [picker, setPicker] = useState<Picker>(null);
   const [fieldEditing, setFieldEditing] =
     useState<CustomFieldDefinition | null>(null);
@@ -118,14 +125,16 @@ export default function NewTaskScreen() {
   const sortedFields = [...(fields.data ?? [])].sort(
     (a, b) => (a.position ?? 0) - (b.position ?? 0),
   );
-  const missingRequired = sortedFields.some(
-    (f) => f.required && !fieldValues[f.id]?.trim(),
-  );
-  const canCreate = !!title.trim() && !busy && !missingRequired;
+  const fieldValues = draftFieldValues(sortedFields, fieldEdits);
+  const canCreate =
+    !!title.trim() && !busy && !hasMissingRequired(sortedFields, fieldValues);
+  const setFieldValue = (id: string, value: string) =>
+    setFieldEdits({ ...fieldEdits, [id]: value });
 
   const create = async () => {
-    const task = await run(async () => {
-      const created = await api.createTask(projectId, {
+    // Once the task exists the form must not create it again, so failed follow-ups only warn.
+    const result = await run(async () => {
+      const task = await api.createTask(projectId, {
         title: title.trim(),
         description,
         startDate: start ? toApiDate(start) : null,
@@ -133,22 +142,32 @@ export default function NewTaskScreen() {
         priority,
         status: effectiveStatus,
         userId: assignee,
-        customFields: Object.entries(fieldValues)
-          .filter(([, v]) => v.trim())
-          .map(([fieldId, value]) => ({ fieldId, value })),
+        customFields: customFieldsPayload(sortedFields, fieldValues),
       });
-      await Promise.all(
-        labelIds.map((id) => api.attachLabel(id, created.id).catch(() => null)),
-      );
-      if (params.parentTaskId)
-        await api.createRelation(params.parentTaskId, created.id, "subtask");
-      return created;
+      const [labelResults, linked] = await Promise.all([
+        Promise.allSettled(labelIds.map((id) => api.attachLabel(id, task.id))),
+        params.parentTaskId
+          ? api.createRelation(params.parentTaskId, task.id, "subtask").then(
+              () => true,
+              () => false,
+            )
+          : true,
+      ]);
+      const labelsFailed = labelResults.some((r) => r.status === "rejected");
+      return { task, labelsFailed, linked };
     });
-    if (task)
-      router.replace({
-        pathname: "/task/[taskId]",
-        params: { taskId: task.id },
-      });
+    if (!result) return;
+    const { task, labelsFailed, linked } = result;
+    router.replace({ pathname: "/task/[taskId]", params: { taskId: task.id } });
+    if (!linked)
+      toast.show(
+        labelsFailed
+          ? t("mobile:taskNew.labelsAndParentFailed")
+          : t("mobile:taskNew.parentFailed"),
+        "error",
+      );
+    else if (labelsFailed)
+      toast.show(t("mobile:taskNew.labelsFailed"), "error");
   };
 
   const row = (
@@ -459,9 +478,7 @@ export default function NewTaskScreen() {
                     <View style={{ flex: 1 }} />
                     <Switch
                       value={value === "true"}
-                      onChange={(v) =>
-                        setFieldValues({ ...fieldValues, [f.id]: String(v) })
-                      }
+                      onChange={(v) => setFieldValue(f.id, String(v))}
                     />
                   </View>
                 );
@@ -505,7 +522,7 @@ export default function NewTaskScreen() {
         onSelect={(id) => {
           setProjectId(id);
           setStatus(null);
-          setFieldValues({});
+          setFieldEdits({});
         }}
       />
       <OptionSheet
@@ -631,10 +648,7 @@ export default function NewTaskScreen() {
         value={fieldEditing ? fieldValues[fieldEditing.id] : null}
         onPick={(day) =>
           fieldEditing &&
-          setFieldValues({
-            ...fieldValues,
-            [fieldEditing.id]: day ? toIsoDay(day) : "",
-          })
+          setFieldValue(fieldEditing.id, day ? toIsoDay(day) : "")
         }
       />
       <OptionSheet
@@ -649,10 +663,7 @@ export default function NewTaskScreen() {
             label: o,
           })),
         ]}
-        onSelect={(v) =>
-          fieldEditing &&
-          setFieldValues({ ...fieldValues, [fieldEditing.id]: v })
-        }
+        onSelect={(v) => fieldEditing && setFieldValue(fieldEditing.id, v)}
       />
       <MultiSelectSheet
         visible={fieldEditing?.type === "multiselect"}
@@ -663,11 +674,7 @@ export default function NewTaskScreen() {
           fieldEditing ? options(fieldValues[fieldEditing.id] ?? null) : []
         }
         onSave={(values) =>
-          fieldEditing &&
-          setFieldValues({
-            ...fieldValues,
-            [fieldEditing.id]: JSON.stringify(values),
-          })
+          fieldEditing && setFieldValue(fieldEditing.id, JSON.stringify(values))
         }
       />
       <TextInputSheet
@@ -682,10 +689,7 @@ export default function NewTaskScreen() {
           fieldEditing?.type === "number" ? "decimal-pad" : "default"
         }
         validate={() => true}
-        onSubmit={(v) =>
-          fieldEditing &&
-          setFieldValues({ ...fieldValues, [fieldEditing.id]: v })
-        }
+        onSubmit={(v) => fieldEditing && setFieldValue(fieldEditing.id, v)}
       />
     </Screen>
   );
