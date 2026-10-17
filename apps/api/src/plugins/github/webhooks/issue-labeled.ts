@@ -64,7 +64,12 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
       addedLabel.name.startsWith("status:");
     // Other label events skip the provider read; status and priority come
     // only from the issue's current labels, never from this snapshot.
-    if (fieldEvent) await syncLabelFieldsFromIssue(integration, existingLink);
+    if (fieldEvent)
+      await syncLabelFieldsFromIssue(
+        integration,
+        existingLink,
+        payload.action === "labeled" ? addedLabel?.name : null,
+      );
 
     await withIntegrationLink(
       existingLink,

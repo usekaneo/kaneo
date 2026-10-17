@@ -7,7 +7,7 @@ import { parseLinkMetadata } from "../github/utils/parse-link-metadata";
 import type { PluginContext } from "../types";
 import { createIssueWrite } from "./dispatch-issue-write";
 import { canSyncTask } from "./eligibility";
-import { isFieldLabel } from "./changed-label-fields";
+import { isFieldLabel } from "./field-labels";
 import type { IssueWrite } from "./issue-write";
 import { taskIssueLabels } from "./issue-labels";
 import { withSyncLease } from "./lease";

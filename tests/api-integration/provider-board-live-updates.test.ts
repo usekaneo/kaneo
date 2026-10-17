@@ -108,7 +108,8 @@ it.each([
       resourceType: "issue",
       externalId: "1",
       url: "https://provider.example/issues/1",
-      metadata: "{}",
+      // Links record the field labels they start with.
+      metadata: JSON.stringify({ syncFieldLabels: [] }),
     });
     if (kind === "label-delete")
       await db.insert(schema.labelTable).values({

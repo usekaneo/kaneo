@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { setTimeout as delay } from "node:timers/promises";
 import { eq } from "drizzle-orm";
 import db from "../../database";
 import { externalLinkTable, taskTable } from "../../database/schema";
@@ -9,11 +8,16 @@ import { updateExternalLink } from "../github/services/link-manager";
 import { updateTaskStatus } from "../github/services/task-service";
 import { withIntegrationLink } from "../github/services/with-integration-link";
 import { parseLinkMetadata } from "../github/utils/parse-link-metadata";
-import { changedLabelFields, isFieldLabel } from "./changed-label-fields";
+import { changedLabelFields } from "./changed-label-fields";
+import { isFieldLabel } from "./field-labels";
 import { withSyncLease } from "./lease";
 import { SyncLeaseBusyError } from "./lease-busy-error";
 import { providerIssue } from "./provider-issue";
 import { isTransientProviderError } from "./transient-provider-error";
+
+// GitHub counts deliveries slower than 10s as failed; replay takes the rest.
+const BUDGET_MS = 8_000;
+const LEASE_WAIT_MS = 3_000;
 
 type Integration = {
   id: string;
@@ -33,22 +37,12 @@ const metadataOf = (link: { id: string; metadata: string | null }) =>
     source: "label_fields",
   });
 
-async function readLabels(integration: Integration, link: Link) {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return (await (await providerIssue(integration, link)).read()).labels;
-    } catch (error) {
-      if (attempt === 3 || !isTransientProviderError(error)) throw error;
-      await delay(250 * attempt);
-    }
-  }
-}
-
 async function applyLabelFields(
   integration: Integration,
   link: Link,
   labels: string[],
   deferred: unknown,
+  added: string | undefined,
 ) {
   await withIntegrationLink(
     link,
@@ -60,15 +54,11 @@ async function applyLabelFields(
       });
       if (!task) return;
       const metadata = metadataOf(link);
+      // Links from before this record only trust the label the event added.
       const known = Array.isArray(metadata.syncFieldLabels)
         ? metadata.syncFieldLabels.filter((name) => typeof name === "string")
-        : undefined;
-      const { status, priority } = changedLabelFields(
-        link,
-        labels,
-        known,
-        task,
-      );
+        : labels.filter((name) => isFieldLabel(name) && name !== added);
+      const { status, priority } = changedLabelFields(labels, known, task);
       await updateExternalLink(
         link.id,
         {
@@ -116,53 +106,99 @@ async function applyLabelFields(
   );
 }
 
+/** Reads the issue under the field-label lease; "defer" leaves it to replay. */
+async function readAndApply(
+  integration: Integration,
+  link: Link,
+  added: string | null | undefined,
+): Promise<"done" | "defer"> {
+  try {
+    return await withSyncLease(
+      `sync-field-labels:${link.id}`,
+      async () => {
+        const stored = await db.query.externalLinkTable.findFirst({
+          where: eq(externalLinkTable.id, link.id),
+          columns: { id: true, metadata: true },
+        });
+        if (!stored) return "done";
+        const metadata = metadataOf(stored);
+        if (added === null && !Array.isArray(metadata.syncFieldLabels))
+          return "done";
+        const deferred = metadata.syncLabelFieldsDeferred;
+        let labels: string[];
+        try {
+          labels = (await (await providerIssue(integration, link)).read())
+            .labels;
+        } catch (error) {
+          if (isTransientProviderError(error)) return "defer";
+          console.error("Issue labels could not be read", {
+            integrationId: integration.id,
+            linkId: link.id,
+          });
+          // Replaying a permanent failure cannot succeed.
+          if (deferred)
+            await updateExternalLink(link.id, {
+              metadata: { syncLabelFieldsDeferred: null },
+            });
+          return "done";
+        }
+        await applyLabelFields(
+          integration,
+          link,
+          labels,
+          deferred,
+          added ?? undefined,
+        );
+        return "done";
+      },
+      { maxWaitMs: LEASE_WAIT_MS },
+    );
+  } catch (error) {
+    if (error instanceof SyncLeaseBusyError) return "defer";
+    throw error;
+  }
+}
+
 /**
  * Applies status and priority from the issue's current labels. Webhook label
  * snapshots can predate Kaneo's latest write, so applying them echoed old
- * values back (#1956). Reads under the lease outbound field-label sync holds
- * while it rewrites labels. When that lease stays busy or the provider fails
- * transiently, the scheduler replays the read instead of dropping it.
+ * values back (#1956). The lease is the one outbound field-label sync holds
+ * while it rewrites labels. One attempt runs within the delivery's budget; a
+ * busy lease, transient failure or slow provider defers the read to replay.
+ *
+ * Links from before `syncFieldLabels` existed have no record of the labels
+ * Kaneo accounted for. They apply only `added`, the field label a webhook
+ * reports as added; `null` marks a removal, which leaves them untouched.
+ * Without either, the first read only records the labels.
  */
 export async function syncLabelFieldsFromIssue(
   integration: Integration,
   link: Link,
+  added?: string | null,
 ) {
-  let defer = false;
-  try {
-    await withSyncLease(`sync-field-labels:${link.id}`, async () => {
-      const stored = await db.query.externalLinkTable.findFirst({
-        where: eq(externalLinkTable.id, link.id),
-        columns: { id: true, metadata: true },
+  let timedOut = false;
+  let timer: NodeJS.Timeout | undefined;
+  const work = readAndApply(integration, link, added);
+  // A read that outlives the budget finishes in the background.
+  work.catch(() => {
+    if (timedOut)
+      console.error("Issue label read failed after deferral", {
+        integrationId: integration.id,
+        linkId: link.id,
       });
-      if (!stored) return;
-      const deferred = metadataOf(stored).syncLabelFieldsDeferred;
-      let labels: string[];
-      try {
-        labels = await readLabels(integration, link);
-      } catch (error) {
-        if (isTransientProviderError(error)) {
-          defer = true;
-          return;
-        }
-        console.error("Issue labels could not be read", {
-          integrationId: integration.id,
-          linkId: link.id,
-        });
-        // Replaying a permanent failure cannot succeed.
-        if (deferred)
-          await updateExternalLink(link.id, {
-            metadata: { syncLabelFieldsDeferred: null },
-          });
-        return;
-      }
-      await applyLabelFields(integration, link, labels, deferred);
-    });
-  } catch (error) {
-    if (!(error instanceof SyncLeaseBusyError)) throw error;
-    defer = true;
+  });
+  const budget = new Promise<"defer">((resolve) => {
+    timer = setTimeout(() => {
+      timedOut = true;
+      resolve("defer");
+    }, BUDGET_MS);
+  });
+  try {
+    if ((await Promise.race([work, budget])) === "done") return;
+  } finally {
+    clearTimeout(timer);
   }
-  if (defer)
-    await updateExternalLink(link.id, {
-      metadata: { syncLabelFieldsDeferred: randomUUID() },
-    });
+  await updateExternalLink(link.id, {
+    metadata: { syncLabelFieldsDeferred: randomUUID() },
+  });
 }

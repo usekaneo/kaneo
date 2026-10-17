@@ -20,6 +20,8 @@ export function replayDeferredLabelFields() {
 
 async function replayClaimedLabelFields() {
   let degraded = false;
+  // Each read is bounded, so stopping here keeps the run inside its lease.
+  const deadline = Date.now() + 45_000;
   const links = await db.query.externalLinkTable.findMany({
     where: and(
       sql`${externalLinkTable.resourceType} = 'issue' AND ${externalLinkTable.metadata} LIKE '%"syncLabelFieldsDeferred":"%'`,
@@ -30,8 +32,10 @@ async function replayClaimedLabelFields() {
     limit: BATCH,
   });
   // A short batch reached the end; the next run starts from the first link.
-  cursor = links.length === BATCH ? links.at(-1)!.id : undefined;
+  if (links.length < BATCH) cursor = undefined;
   for (const link of links) {
+    if (Date.now() >= deadline) break;
+    if (links.length === BATCH) cursor = link.id;
     const integration = link.integration;
     try {
       if (

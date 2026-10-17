@@ -26,6 +26,8 @@ const mocks = vi.hoisted(() => ({
   deliveries: [] as Delivery[],
   events: [] as Array<{ name: string; data: unknown }>,
   readFailures: [] as unknown[],
+  readGate: undefined as Promise<void> | undefined,
+  onRead: undefined as (() => void) | undefined,
 }));
 vi.mock("../../apps/api/src/events", () => ({
   publishEvent: async (name: string, data: unknown) => {
@@ -47,6 +49,7 @@ function change(action: "labeled" | "unlabeled", name: string) {
   mocks.deliveries.push({ action, label: name, labels: [...mocks.labels] });
 }
 const issue = () => {
+  mocks.onRead?.();
   const failure = mocks.readFailures.shift();
   if (failure) throw failure;
   return {
@@ -62,7 +65,10 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
   getVerifiedInstallationOctokit: async () => ({
     rest: {
       issues: {
-        get: async () => ({ data: issue() }),
+        get: async () => {
+          await mocks.readGate;
+          return { data: issue() };
+        },
         getLabel: async () => ({}),
         removeLabel: async ({ name }: { name: string }) => {
           if (mocks.labels.has(name)) change("unlabeled", name);
@@ -77,7 +83,10 @@ vi.mock("../../apps/api/src/plugins/github/utils/github-app", () => ({
 }));
 vi.mock("../../apps/api/src/plugins/gitea/utils/gitea-api", () => ({
   createGiteaClient: () => ({
-    getIssue: async () => issue(),
+    getIssue: async () => {
+      await mocks.readGate;
+      return issue();
+    },
     listLabels: async () => names.map((name, id) => ({ name, id: id + 1 })),
     removeLabelFromIssue: async (
       _owner: string,
@@ -110,9 +119,15 @@ beforeEach(async () => {
   mocks.deliveries = [];
   mocks.events = [];
   mocks.readFailures = [];
+  mocks.readGate = undefined;
+  mocks.onRead = undefined;
 });
 
-async function setup(provider: "github" | "gitea", metadata = {}) {
+// Links record the field labels they start with; `{}` is a link from before.
+async function setup(
+  provider: "github" | "gitea",
+  metadata: Record<string, unknown> = { syncFieldLabels: [...mocks.labels] },
+) {
   const { workspace, user } = await createWorkspaceMember();
   const { project } = await createProjectFixture({ workspaceId: workspace.id });
   const [task] = await db
@@ -344,27 +359,114 @@ it.each(["github", "gitea"] as const)(
 );
 
 it.each(["github", "gitea"] as const)(
-  "%s retries transient read failures, then defers them",
+  "%s defers a transient read failure to replay",
   async (provider) => {
     const f = await setup(provider);
-    const unavailable = Object.assign(new Error("unavailable"), {
-      status: 503,
-    });
-    mocks.readFailures = [unavailable, unavailable];
+    mocks.readFailures = [
+      Object.assign(new Error("unavailable"), { status: 503 }),
+    ];
+    change("unlabeled", "status:to-do");
     change("labeled", "status:in-review");
-    await f.receive(mocks.deliveries.shift()!);
-    expect(await f.status()).toBe("in-review");
-    expect((await f.metadataOf()).syncLabelFieldsDeferred).toBeUndefined();
-
-    mocks.readFailures = [unavailable, unavailable, unavailable];
-    change("unlabeled", "status:in-review");
-    change("labeled", "status:in-progress");
     await f.receive(mocks.deliveries.pop()!);
-    expect(await f.status()).toBe("in-review");
+    expect(await f.status()).toBe("to-do");
     await replayDeferredLabelFields();
-    expect(await f.status()).toBe("in-progress");
+    expect(await f.status()).toBe("in-review");
   },
 );
+
+it.each(["github", "gitea"] as const)(
+  "%s replays a deferred change on a resumed link",
+  async (provider) => {
+    // Resume records the provider's labels as both baselines.
+    const f = await setup(provider, {
+      syncResumeLabelBaseline: ["status:to-do"],
+      syncFieldLabels: ["status:to-do"],
+    });
+    const lease = `sync-field-labels:${f.link.id}`;
+    await db.insert(schema.jobLeaseTable).values({
+      name: lease,
+      owner: "slow-reader",
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    change("unlabeled", "status:to-do");
+    change("labeled", "status:in-review");
+    // The webhook still advances the resume baseline from its snapshot.
+    await f.receive(mocks.deliveries.pop()!);
+    expect((await f.metadataOf()).syncResumeLabelBaseline).toEqual([
+      "status:in-review",
+    ]);
+    await db
+      .delete(schema.jobLeaseTable)
+      .where(eq(schema.jobLeaseTable.name, lease));
+    await replayDeferredLabelFields();
+    expect(await f.status()).toBe("in-review");
+  },
+  15_000,
+);
+
+it("github defers a provider read that outlives the delivery budget", async () => {
+  const f = await setup("github");
+  let release!: () => void;
+  mocks.readGate = new Promise((resolve) => {
+    release = resolve;
+  });
+  change("labeled", "status:in-review");
+  const started = Date.now();
+  await f.receive(mocks.deliveries.shift()!);
+  expect(Date.now() - started).toBeLessThan(9_500);
+  expect((await f.metadataOf()).syncLabelFieldsDeferred).toEqual(
+    expect.any(String),
+  );
+  // The slow read still finishes; replay then confirms the same labels.
+  release();
+  await vi.waitFor(async () => expect(await f.status()).toBe("in-review"));
+  await replayDeferredLabelFields();
+  expect(await f.status()).toBe("in-review");
+  expect((await f.metadataOf()).syncLabelFieldsDeferred).toBeNull();
+}, 20_000);
+
+it("github applies only the event's label on links without a record", async () => {
+  mocks.labels = new Set(["status:to-do", "priority:low"]);
+  const f = await setup("github", {});
+  // An imported closed issue: done in Kaneo, status:to-do on GitHub.
+  await db
+    .update(schema.taskTable)
+    .set({ status: "done", priority: "low" })
+    .where(eq(schema.taskTable.id, f.task.id));
+  change("labeled", "priority:high");
+  await f.receive(mocks.deliveries.shift()!);
+  expect(await f.current()).toMatchObject({
+    status: "done",
+    priority: "high",
+  });
+});
+
+it("github waits for the addition when a link without a record sees a removal first", async () => {
+  const f = await setup("github", {});
+  change("unlabeled", "status:to-do");
+  change("labeled", "status:in-review");
+  await f.receive(mocks.deliveries.shift()!);
+  expect((await f.metadataOf()).syncFieldLabels).toBeUndefined();
+  await f.receive(mocks.deliveries.shift()!);
+  expect(await f.status()).toBe("in-review");
+});
+
+it("gitea records labels without applying them on links without a record", async () => {
+  const f = await setup("gitea", {});
+  await db
+    .update(schema.taskTable)
+    .set({ status: "done" })
+    .where(eq(schema.taskTable.id, f.task.id));
+  change("labeled", "one");
+  await f.receive(mocks.deliveries.shift()!);
+  expect(await f.status()).toBe("done");
+  expect((await f.metadataOf()).syncFieldLabels).toEqual(["status:to-do"]);
+
+  change("unlabeled", "status:to-do");
+  change("labeled", "status:in-review");
+  await f.receive(mocks.deliveries.pop()!);
+  expect(await f.status()).toBe("in-review");
+});
 
 it("gitea still syncs ordinary labels when the issue cannot be read", async () => {
   const f = await setup("gitea");
@@ -382,4 +484,37 @@ it("gitea still syncs ordinary labels when the issue cannot be read", async () =
   expect(labels.map((label) => label.name)).toEqual(["one"]);
   // Replaying a permanent failure cannot succeed, so none is queued.
   expect((await f.metadataOf()).syncLabelFieldsDeferred).toBeUndefined();
+});
+
+it("replay stops at its deadline and resumes on the next run", async () => {
+  const first = await setup("gitea");
+  const second = await setup("gitea");
+  const [earlier, later] = [first, second].sort((a, b) =>
+    a.link.id.localeCompare(b.link.id),
+  );
+  for (const f of [earlier!, later!])
+    await db
+      .update(schema.externalLinkTable)
+      .set({
+        metadata: JSON.stringify({
+          syncFieldLabels: ["status:to-do"],
+          syncLabelFieldsDeferred: "queued",
+        }),
+      })
+      .where(eq(schema.externalLinkTable.id, f.link.id));
+  vi.useFakeTimers({ toFake: ["Date"] });
+  try {
+    // The first read runs past the run's deadline.
+    mocks.onRead = () => {
+      mocks.onRead = undefined;
+      vi.setSystemTime(Date.now() + 46_000);
+    };
+    await replayDeferredLabelFields();
+    expect((await earlier!.metadataOf()).syncLabelFieldsDeferred).toBeNull();
+    expect((await later!.metadataOf()).syncLabelFieldsDeferred).toBe("queued");
+    await replayDeferredLabelFields();
+    expect((await later!.metadataOf()).syncLabelFieldsDeferred).toBeNull();
+  } finally {
+    vi.useRealTimers();
+  }
 });
