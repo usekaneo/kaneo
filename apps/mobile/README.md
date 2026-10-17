@@ -58,7 +58,17 @@ pnpm --filter @kaneo/mobile test
 
 ## Release builds
 
-Use [EAS Build](https://docs.expo.dev/build/introduction/) (`pnpm dlx eas-cli build --platform all`) or build locally with `pnpm --filter @kaneo/mobile exec expo run:android --variant release` and `pnpm --filter @kaneo/mobile exec expo run:ios --configuration Release`. Local Android release builds are signed with the debug key; set up your own signing before publishing.
+The **Android APK** workflow (`.github/workflows/android.yml`) builds a release APK and uploads it as a workflow artifact. It runs on pull requests that touch `apps/mobile` and can be started by hand. Bump `version` and `android.versionCode` in `app.json` for each APK you hand out; Android only installs an update with a higher `versionCode`.
+
+Release builds are signed with the key named by `KANEO_ANDROID_KEYSTORE`, `KANEO_ANDROID_KEYSTORE_PASSWORD`, `KANEO_ANDROID_KEY_ALIAS` and `KANEO_ANDROID_KEY_PASSWORD` (see `plugins/with-release-signing.js`), and with the debug key when those are unset. An APK only installs over one signed with the same key, so create the release key once and keep it safe:
+
+```bash
+keytool -genkeypair -v -keystore kaneo-release.keystore -alias kaneo \
+  -keyalg RSA -keysize 4096 -validity 10000
+base64 -i kaneo-release.keystore | pbcopy   # paste into the ANDROID_KEYSTORE_BASE64 secret
+```
+
+CI reads the repository secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD`. Locally, export the `KANEO_ANDROID_*` variables and run `pnpm --filter @kaneo/mobile exec expo run:android --variant release`. For iOS, build with `pnpm --filter @kaneo/mobile exec expo run:ios --configuration Release`.
 
 ## Project layout
 

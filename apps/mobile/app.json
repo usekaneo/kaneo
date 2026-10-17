@@ -66,6 +66,7 @@
 			"expo-background-task",
 			"expo-font",
 			"./plugins/with-gradle-memory",
+			"./plugins/with-release-signing",
 			[
 				"expo-build-properties",
 				{
