@@ -56,13 +56,6 @@ export async function reviewSyncResume(
       message:
         "The task must match the current rule and be paused before resuming",
     });
-  const local = {
-    title: task.title,
-    description: task.description ?? "",
-    state: (await isTaskInFinalState(task, database))
-      ? ("closed" as const)
-      : ("open" as const),
-  };
   let snapshot = providerSnapshot;
   if (!snapshot) {
     try {
@@ -86,6 +79,17 @@ export async function reviewSyncResume(
     title: remoteIssue.title,
     description: remoteIssue.description,
     state: remoteIssue.state,
+  };
+  const local = {
+    title: task.title,
+    description: task.description ?? "",
+    // Archived tasks have no issue state of their own; keep the provider's.
+    state:
+      task.status === "archived"
+        ? remote.state
+        : (await isTaskInFinalState(task, database))
+          ? ("closed" as const)
+          : ("open" as const),
   };
   const token = createHash("sha256")
     .update(

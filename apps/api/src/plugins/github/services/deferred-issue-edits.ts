@@ -259,7 +259,12 @@ async function replayClaimedIssueEdits() {
             const taskIsClosed = fields.includes("state")
               ? await isTaskInFinalState(task, tx)
               : false;
+            // Archived tasks have no outbound state target; keep the provider's.
+            const keepsState =
+              fields.includes("state") && task.status === "archived";
+            if (keepsState) current.state = values.state;
             for (const field of fields) {
+              if (field === "state" && keepsState) continue;
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntents(stamp, values[field]);
               const intentIds = uncertain.flatMap((entry) =>
@@ -357,6 +362,9 @@ async function replayClaimedIssueEdits() {
               {
                 metadata: current,
                 ...(accepted.includes("title") ? { title: values.title } : {}),
+                ...(keepsState
+                  ? { retireUncertainOutbound: "state" as const }
+                  : {}),
                 ...(repairs.length ? {} : { completeDeferredEdit: job.id }),
               },
               tx,

@@ -1690,6 +1690,54 @@ it("durably queues an uncertain standalone writer and later settles it", async (
   expect((await current(task.id))?.title).toBe("A");
 });
 
+it.each(["github", "gitea"])(
+  "keeps a timed-out %s close when the task is archived before replay",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    await expect(
+      syncLatestTaskValue(
+        task.id,
+        integration.projectId,
+        link,
+        "state",
+        "closed",
+        async () => {
+          throw new Error("provider timeout");
+        },
+      ),
+    ).rejects.toThrow("provider timeout");
+    expect((await metadata(link.id)).deferredIssueEdit.repairFields).toEqual([
+      "state",
+    ]);
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+
+    await replayDeferredIssueEdits();
+
+    expect(m.write).not.toHaveBeenCalled();
+    const after = await metadata(link.id);
+    expect(after.deferredIssueEdit).toBeUndefined();
+    expect(after.state).toBe("closed");
+    expect(
+      after.lastSync.state.outbound.filter(
+        (entry: { uncertain?: boolean; cancelled?: boolean }) =>
+          entry.uncertain && !entry.cancelled,
+      ),
+    ).toEqual([]);
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
+
 it("skips provider reads and writes while another replica holds the worker lease", async () => {
   const { link, integration } = await seed();
   await deferTaskSync(link, integration, ["title"]);

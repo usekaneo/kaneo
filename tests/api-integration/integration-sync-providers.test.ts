@@ -601,6 +601,65 @@ describe.each(["github", "gitea", "gitlab"] as const)(
           expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(closed);
         },
       );
+
+      it("ignores planned and repeated archive transitions", async () => {
+        const f = await exported();
+        await f.changeStatus(f.columns.todo.slug, "planned", null);
+        await f.changeStatus("planned", "archived", null);
+        await f.changeStatus("archived", "archived", null);
+        expect(mocks.update).not.toHaveBeenCalled();
+
+        await f.changeStatus("archived", "planned", null);
+        expect(mocks.update).toHaveBeenCalledOnce();
+        expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(reopened);
+      });
+
+      it.each(["kaneo", "provider"] as const)(
+        "keeps a closed issue and the archive when resuming with %s",
+        async (source) => {
+          const f = await exported();
+          const link = (await db.query.externalLinkTable.findMany())[0]!;
+          await db
+            .update(schema.taskTable)
+            .set({ status: "archived", columnId: null })
+            .where(eq(schema.taskTable.id, f.task.id));
+          await updateExternalLink(link.id, {
+            metadata: { syncFilterPaused: true },
+          });
+          mocks.read.mockResolvedValue({
+            title: "Repository title",
+            description: "Repository body",
+            state: "closed",
+            updatedAt: "remote-time",
+            labels: [],
+          });
+          const review = await reviewSyncResume(
+            f.project.id,
+            type,
+            link.id,
+            f.workspace.id,
+          );
+          expect(review.local.state).toBe("closed");
+          await resumeSync(
+            f.project.id,
+            type,
+            link.id,
+            review.token,
+            source,
+            f.workspace.id,
+          );
+          if (source === "kaneo")
+            expect(mocks.write).toHaveBeenCalledWith(
+              expect.objectContaining({ title: f.task.title, state: "closed" }),
+            );
+          else expect(mocks.write).not.toHaveBeenCalled();
+          expect(
+            await db.query.taskTable.findFirst({
+              where: eq(schema.taskTable.id, f.task.id),
+            }),
+          ).toMatchObject({ status: "archived", columnId: null });
+        },
+      );
     });
 
     it("repairs a late initialization close after a concurrent reopen", async () => {
