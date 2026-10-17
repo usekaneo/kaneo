@@ -1416,7 +1416,9 @@
 			"validation": {
 				"botTokenInvalid": "Etibarlı Telegram bot giriş nişanı daxil edin",
 				"chatIdRequired": "Söhbət identifikatoru tələb olunur",
-				"threadIdInvalid": "Etibarlı mövzu identifikatoru daxil edin"
+				"threadIdInvalid": "Etibarlı mövzu identifikatoru daxil edin",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram inteqrasiyası uğurla yadda saxlanıldı",
@@ -1431,6 +1433,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "BotFather ilə bot yaradın və giriş nişanını buraya yapışdırın.",
 			"botTokenHintConfigured": "Cari giriş nişanı: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Söhbət identifikatoru",
 			"chatIdPlaceholder": "-1001234567890 və ya @komanda_yenilikleri",
 			"threadIdLabel": "Mövzu identifikatoru",

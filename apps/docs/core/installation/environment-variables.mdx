@@ -124,7 +124,7 @@ Name | Description | Default |
 Name | Description | Default |
 --- | --- | --- |
 | `NOTIFICATION_SECRET_ENCRYPTION_KEY` | Required to store personal notification tokens and webhook signing secrets. Generate a random value, keep it stable, and include it in protected configuration backups. Changing or losing it prevents decryption of existing secrets. | Unset |
-| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks), self-managed Gitea or GitLab instances, and [import sources](/core/migrations) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
+| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks), self-managed Gitea or GitLab instances, custom Telegram Bot API servers, and [import sources](/core/migrations) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Also lets GitLab and Telegram use plain `http`. Only enable on a trusted, isolated deployment. | `false` |
 
 ### Imports
 

@@ -1389,7 +1389,9 @@
 			"validation": {
 				"botTokenInvalid": "Nhập một token bot Telegram hợp lệ",
 				"chatIdRequired": "Cần có Chat ID",
-				"threadIdInvalid": "Nhập ID chủ đề hợp lệ"
+				"threadIdInvalid": "Nhập ID chủ đề hợp lệ",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Đã lưu tích hợp Telegram thành công",
@@ -1404,6 +1406,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Tạo một bot với BotFather và dán token của nó vào đây.",
 			"botTokenHintConfigured": "Token hiện tại: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Chat ID",
 			"chatIdPlaceholder": "-1001234567890 hoặc @team_updates",
 			"threadIdLabel": "ID chủ đề",

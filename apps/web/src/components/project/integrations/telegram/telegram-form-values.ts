@@ -7,6 +7,7 @@ import type { TelegramIntegration } from "@/fetchers/telegram-integration/get-te
 
 export type TelegramFormValues = {
   botToken: string;
+  serverUrl: string;
   chatId: string;
   threadId: string;
   chatLabel: string;
@@ -15,6 +16,7 @@ export type TelegramFormValues = {
 
 export const telegramFormSchema = z.object({
   botToken: z.string(),
+  serverUrl: z.string(),
   chatId: z.string(),
   threadId: z.string(),
   chatLabel: z.string(),
@@ -33,6 +35,7 @@ export function toTelegramFormValues(
 ): TelegramFormValues {
   return {
     botToken: "",
+    serverUrl: integration?.serverUrl ?? "",
     chatId: integration?.chatId ?? "",
     threadId: integration?.threadId ? String(integration.threadId) : "",
     chatLabel: integration?.chatLabel ?? "",

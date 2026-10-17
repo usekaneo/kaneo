@@ -1145,7 +1145,9 @@
 			"validation": {
 				"botTokenInvalid": "Masukkan token bot Telegram yang valid",
 				"chatIdRequired": "Chat ID wajib diisi",
-				"threadIdInvalid": "Masukkan ID topik yang valid"
+				"threadIdInvalid": "Masukkan ID topik yang valid",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Integrasi Telegram berhasil disimpan",
@@ -1160,6 +1162,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Buat bot dengan BotFather dan tempel tokennya di sini.",
 			"botTokenHintConfigured": "Token saat ini: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Chat ID",
 			"chatIdPlaceholder": "-1001234567890 atau @team_updates",
 			"threadIdLabel": "ID topik",
