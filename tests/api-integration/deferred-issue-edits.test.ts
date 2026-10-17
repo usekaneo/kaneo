@@ -7,6 +7,7 @@ import {
   replayDeferredIssueEdits,
 } from "../../apps/api/src/plugins/github/services/deferred-issue-edits";
 import { deferTaskSync } from "../../apps/api/src/plugins/github/services/defer-issue-edit";
+import * as eligibility from "../../apps/api/src/plugins/sync/eligibility";
 import { syncLatestTaskValue } from "../../apps/api/src/plugins/github/services/sync-latest-task-value";
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import { handleGiteaIssueEdited } from "../../apps/api/src/plugins/gitea/webhooks/issue-edited";
@@ -1981,6 +1982,45 @@ it.each(["github", "gitea"])(
     ).toBe(true);
 
     expect(write).toHaveBeenCalledOnce();
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
+
+it.each(["github", "gitea"])(
+  "does not send a %s reopen for a task archived just before dispatch",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    const canSyncTask = eligibility.canSyncTask;
+    let calls = 0;
+    // The second eligibility check runs after the archive check, before dispatch.
+    const guard = vi
+      .spyOn(eligibility, "canSyncTask")
+      .mockImplementation(async (...args) => {
+        if (++calls === 2)
+          await db
+            .update(schema.taskTable)
+            .set({ status: "archived", columnId: null })
+            .where(eq(schema.taskTable.id, task.id));
+        return canSyncTask(...args);
+      });
+    const write = vi.fn(async () => "2026-09-30T00:00:05Z");
+
+    await syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      "state",
+      "open",
+      write,
+    );
+    guard.mockRestore();
+
+    expect(calls).toBeGreaterThan(2);
+    expect(write).not.toHaveBeenCalled();
     expect((await current(task.id))?.status).toBe("archived");
   },
 );

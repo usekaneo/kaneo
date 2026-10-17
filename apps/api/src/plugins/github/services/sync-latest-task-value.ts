@@ -111,6 +111,7 @@ export async function syncLatestTaskValue(
         { ...link, taskId },
         identity?.config,
         () => write(value),
+        { issueState: field === "state" },
       );
       if (!dispatched) {
         await updateExternalLink(link.id, {
