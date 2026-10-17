@@ -120,7 +120,8 @@ function stringList(value: Json | undefined | null): string[] {
 
 // --- Custom fields ---
 
-const MAX_FIELD_CHIPS = 4;
+// Like the web card row: the first values as text, then a muted "+N".
+const VISIBLE_OPTIONS = 2;
 
 function FieldChip({ label }: { label: string }) {
   const c = useColors();
@@ -174,14 +175,14 @@ export function CustomFields({
           );
         } else if (f.type === "multiselect") {
           const items = stringList(value);
-          const extra = items.length - MAX_FIELD_CHIPS;
+          const more = items.length - VISIBLE_OPTIONS;
           display = items.length ? (
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 4 }}>
-              {items.slice(0, MAX_FIELD_CHIPS).map((i) => (
-                <FieldChip key={i} label={i} />
-              ))}
-              {extra > 0 ? <FieldChip label={`+${extra}`} /> : null}
-            </View>
+            <Txt variant="bodySm" numberOfLines={2}>
+              {items.slice(0, VISIBLE_OPTIONS).join(", ")}
+              {more > 0 ? (
+                <Txt variant="bodySm" tone="muted">{` +${more}`}</Txt>
+              ) : null}
+            </Txt>
           ) : null;
         } else if (value) {
           display =
