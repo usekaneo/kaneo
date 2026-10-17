@@ -13,6 +13,7 @@ import {
 } from "./helpers/fixtures";
 const m = vi.hoisted(() => ({
   integrations: [] as unknown[],
+  labels: [] as string[],
   publish: vi.fn(
     async (
       _name: string,
@@ -21,6 +22,9 @@ const m = vi.hoisted(() => ({
   ),
 }));
 vi.mock("../../apps/api/src/events", () => ({ publishEvent: m.publish }));
+vi.mock("../../apps/api/src/plugins/sync/provider-issue", () => ({
+  providerIssue: async () => ({ read: async () => ({ labels: m.labels }) }),
+}));
 vi.mock(
   "../../apps/api/src/plugins/github/services/task-service",
   async (original) => ({
@@ -163,6 +167,7 @@ it.each([
           label,
           repository,
         };
+        m.labels = payload.issue.labels.map(({ name }) => name);
         if (provider === "github") await handleIssueLabeled(payload);
         else await handleGiteaIssueLabeled(payload);
       }

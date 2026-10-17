@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   listIssues: vi.fn(),
   listIssueNotes: vi.fn(async () => []),
   listMergeRequests: vi.fn(async () => []),
+  getIssue: vi.fn(),
 }));
 vi.mock(
   "../../apps/api/src/plugins/gitlab/utils/gitlab-api",
@@ -215,6 +216,10 @@ describe("GitLab status label snapshots", () => {
         .update(schema.taskTable)
         .set({ status: "done" })
         .where(eq(schema.taskTable.id, task.id));
+      mocks.getIssue.mockResolvedValue({
+        ...remoteIssue,
+        labels: [statusLabel, "bug"],
+      });
       await handleGitlabIssueUpdated(
         {
           object_attributes: {

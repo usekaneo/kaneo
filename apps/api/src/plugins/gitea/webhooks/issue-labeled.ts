@@ -1,4 +1,6 @@
+import { changedLabelFields } from "../../sync/changed-label-fields";
 import { resumeLabelChanges } from "../../sync/resume-label-changes";
+import { withCurrentIssueLabels } from "../../sync/with-current-issue-labels";
 import { acceptsIssue, readSyncRules } from "../../sync/rules";
 import { handleGiteaIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -14,10 +16,6 @@ import {
   updateExternalLink,
 } from "../../github/services/link-manager";
 import { updateTaskStatus } from "../../github/services/task-service";
-import {
-  extractIssuePriority,
-  extractIssueStatus,
-} from "../../github/utils/extract-priority";
 import {
   findAllIntegrationsByGiteaRepo,
   repoOwnerLogin,
@@ -175,173 +173,189 @@ export async function handleGiteaIssueLabeled(
         continue;
       }
 
-      await withIntegrationLink(
-        existingLink,
-        integration,
-        async (db, afterCommit, existingLink) => {
-          const names = (issue.labels ?? []).flatMap((label) => {
-            const name = typeof label === "string" ? label : label.name;
-            return name ? [name] : [];
-          });
-          const changes = resumeLabelChanges(existingLink, names);
-          if (changes.baseline && issue.labels !== undefined)
-            await updateExternalLink(
-              existingLink.id,
-              { metadata: { syncResumeLabelBaseline: names } },
-              db,
-            );
-          const priority = extractIssuePriority(issue.labels);
-          const status = extractIssueStatus(issue.labels);
-
-          if (priority && changes.priorityChanged) {
-            await db
-              .update(taskTable)
-              .set({ priority })
-              .where(
-                linkedTaskScope(existingLink.taskId, integration.projectId),
+      const names = (issue.labels ?? []).flatMap((label) => {
+        const name = typeof label === "string" ? label : label.name;
+        return name ? [name] : [];
+      });
+      const apply = (current?: string[]) =>
+        withIntegrationLink(
+          existingLink,
+          integration,
+          async (db, afterCommit, existingLink) => {
+            const changes = resumeLabelChanges(existingLink, names);
+            if (changes.baseline && issue.labels !== undefined)
+              await updateExternalLink(
+                existingLink.id,
+                { metadata: { syncResumeLabelBaseline: names } },
+                db,
               );
-          }
+            const task =
+              current &&
+              (await db.query.taskTable.findFirst({
+                where: linkedTaskScope(
+                  existingLink.taskId,
+                  integration.projectId,
+                ),
+                columns: { status: true, priority: true },
+              }));
+            const { priority, status } = task
+              ? changedLabelFields(existingLink, current, task)
+              : {};
 
-          if (status && changes.statusChanged) {
-            const statusResult = await updateTaskStatus(
-              existingLink.taskId,
-              status,
-              db,
-            );
-            if (
-              statusResult.applied &&
-              statusResult.before.status !== statusResult.after.status
-            ) {
-              afterCommit(() =>
-                publishEvent("task.status_changed", {
-                  taskId: statusResult.after.id,
-                  projectId: statusResult.after.projectId,
-                  userId: null,
-                  oldStatus: statusResult.before.status,
-                  newStatus: statusResult.after.status,
-                  title: statusResult.after.title,
-                  assigneeId: statusResult.after.userId,
-                  type: "status_changed",
-                }),
-              );
+            if (priority) {
+              await db
+                .update(taskTable)
+                .set({ priority })
+                .where(
+                  linkedTaskScope(existingLink.taskId, integration.projectId),
+                );
             }
-          }
 
-          if (payload.action === "label_updated") {
-            if (issue.labels === undefined) {
+            if (status) {
+              const statusResult = await updateTaskStatus(
+                existingLink.taskId,
+                status,
+                db,
+              );
+              if (
+                statusResult.applied &&
+                statusResult.before.status !== statusResult.after.status
+              ) {
+                afterCommit(() =>
+                  publishEvent("task.status_changed", {
+                    taskId: statusResult.after.id,
+                    projectId: statusResult.after.projectId,
+                    userId: null,
+                    oldStatus: statusResult.before.status,
+                    newStatus: statusResult.after.status,
+                    title: statusResult.after.title,
+                    assigneeId: statusResult.after.userId,
+                    type: "status_changed",
+                  }),
+                );
+              }
+            }
+
+            if (payload.action === "label_updated") {
+              if (issue.labels === undefined) {
+                return;
+              }
+
+              const task = await db.query.taskTable.findFirst({
+                where: linkedTaskScope(
+                  existingLink.taskId,
+                  integration.projectId,
+                ),
+                with: {
+                  project: true,
+                },
+              });
+              if (task?.project?.workspaceId) {
+                await syncGiteaLabelsToTask(
+                  existingLink.taskId,
+                  task.project.workspaceId,
+                  giteaLabelsForSync(issue.labels),
+                  db,
+                  changes.baseline,
+                );
+                afterCommit(() =>
+                  publishEvent("task.labels_updated", {
+                    projectId: integration.projectId,
+                    taskId: existingLink.taskId,
+                  }),
+                );
+              }
               return;
             }
 
-            const task = await db.query.taskTable.findFirst({
-              where: linkedTaskScope(
-                existingLink.taskId,
-                integration.projectId,
-              ),
-              with: {
-                project: true,
-              },
-            });
-            if (task?.project?.workspaceId) {
-              await syncGiteaLabelsToTask(
-                existingLink.taskId,
-                task.project.workspaceId,
-                giteaLabelsForSync(issue.labels),
-                db,
-                changes.baseline,
-              );
-              afterCommit(() =>
-                publishEvent("task.labels_updated", {
-                  projectId: integration.projectId,
-                  taskId: existingLink.taskId,
-                }),
-              );
+            if (!addedLabel) {
+              if (priority)
+                afterCommit(() =>
+                  publishEvent("task.updated", {
+                    projectId: integration.projectId,
+                    taskId: existingLink.taskId,
+                  }),
+                );
+              return;
             }
-            return;
-          }
 
-          if (!addedLabel) {
-            if (priority)
-              afterCommit(() =>
-                publishEvent("task.updated", {
-                  projectId: integration.projectId,
-                  taskId: existingLink.taskId,
-                }),
-              );
-            return;
-          }
+            if (isSystemLabelName(addedLabel.name)) {
+              if (priority)
+                afterCommit(() =>
+                  publishEvent("task.updated", {
+                    projectId: integration.projectId,
+                    taskId: existingLink.taskId,
+                  }),
+                );
+              return;
+            }
 
-          if (isSystemLabelName(addedLabel.name)) {
-            if (priority)
-              afterCommit(() =>
-                publishEvent("task.updated", {
-                  projectId: integration.projectId,
-                  taskId: existingLink.taskId,
-                }),
-              );
-            return;
-          }
+            if (payload.action === "labeled") {
+              const task = await db.query.taskTable.findFirst({
+                where: linkedTaskScope(
+                  existingLink.taskId,
+                  integration.projectId,
+                ),
+                with: {
+                  project: true,
+                },
+              });
 
-          if (payload.action === "labeled") {
-            const task = await db.query.taskTable.findFirst({
-              where: linkedTaskScope(
-                existingLink.taskId,
-                integration.projectId,
-              ),
-              with: {
-                project: true,
-              },
-            });
+              if (task?.project?.workspaceId) {
+                const existingLabel = await db.query.labelTable.findFirst({
+                  where: (table, { and, eq: e }) =>
+                    and(
+                      e(table.workspaceId, task.project.workspaceId),
+                      e(table.name, addedLabel.name),
+                      e(table.taskId, task.id),
+                    ),
+                });
 
-            if (task?.project?.workspaceId) {
-              const existingLabel = await db.query.labelTable.findFirst({
+                if (!existingLabel) {
+                  const color = addedLabel.color
+                    ? `#${addedLabel.color.replace(/^#/, "")}`
+                    : "#6B7280";
+                  await db
+                    .insert(labelTable)
+                    .values({
+                      name: addedLabel.name,
+                      color,
+                      taskId: task.id,
+                      workspaceId: task.project.workspaceId,
+                    })
+                    .onConflictDoNothing({
+                      target: [labelTable.taskId, labelTable.name],
+                    });
+                }
+              }
+            }
+
+            if (payload.action === "unlabeled") {
+              const labelsToDelete = await db.query.labelTable.findMany({
                 where: (table, { and, eq: e }) =>
                   and(
-                    e(table.workspaceId, task.project.workspaceId),
+                    e(table.taskId, existingLink.taskId),
                     e(table.name, addedLabel.name),
-                    e(table.taskId, task.id),
                   ),
               });
 
-              if (!existingLabel) {
-                const color = addedLabel.color
-                  ? `#${addedLabel.color.replace(/^#/, "")}`
-                  : "#6B7280";
-                await db
-                  .insert(labelTable)
-                  .values({
-                    name: addedLabel.name,
-                    color,
-                    taskId: task.id,
-                    workspaceId: task.project.workspaceId,
-                  })
-                  .onConflictDoNothing({
-                    target: [labelTable.taskId, labelTable.name],
-                  });
+              for (const label of labelsToDelete) {
+                await db.delete(labelTable).where(eq(labelTable.id, label.id));
               }
             }
-          }
+            afterCommit(() =>
+              publishEvent("task.labels_updated", {
+                projectId: integration.projectId,
+                taskId: existingLink.taskId,
+              }),
+            );
+          },
+        );
 
-          if (payload.action === "unlabeled") {
-            const labelsToDelete = await db.query.labelTable.findMany({
-              where: (table, { and, eq: e }) =>
-                and(
-                  e(table.taskId, existingLink.taskId),
-                  e(table.name, addedLabel.name),
-                ),
-            });
-
-            for (const label of labelsToDelete) {
-              await db.delete(labelTable).where(eq(labelTable.id, label.id));
-            }
-          }
-          afterCommit(() =>
-            publishEvent("task.labels_updated", {
-              projectId: integration.projectId,
-              taskId: existingLink.taskId,
-            }),
-          );
-        },
-      );
+      // label_updated has no single label, so it always reads the issue.
+      await (!addedLabel || isSystemLabelName(addedLabel.name)
+        ? withCurrentIssueLabels(integration, existingLink, apply)
+        : apply());
     } catch (error) {
       console.error("Gitea issue_labeled handler failed for integration", {
         integrationId: integration.id,
