@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
+import { useCollapsedSections } from "@/hooks/use-collapsed-sections";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
@@ -51,17 +52,10 @@ function ListView({
   const { mutate: updateTask } = useUpdateTask();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >(() => {
-    const sections: Record<string, boolean> = {};
-    if (project?.columns) {
-      for (const col of project.columns) {
-        sections[col.id] = true;
-      }
-    }
-    return sections;
-  });
+  const { isExpanded, toggleSection, toggleAllSections } = useCollapsedSections(
+    project.id,
+    "list",
+  );
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -73,11 +67,11 @@ function ListView({
   useEffect(() => {
     if (project?.columns) {
       const visibleTaskIds = project.columns
-        .filter((column) => expandedSections[column.id])
+        .filter((column) => isExpanded(column.id))
         .flatMap((column) => column.tasks.map((task) => task.id));
       setAvailableTasks(visibleTaskIds);
     }
-  }, [project, expandedSections, setAvailableTasks]);
+  }, [project, isExpanded, setAvailableTasks]);
 
   useEffect(() => {
     clearFocus();
@@ -201,22 +195,6 @@ function ListView({
     if (over) moveTask(active.id.toString(), over.id.toString());
   };
 
-  const toggleSection = useCallback((sectionId: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionId]: !prev[sectionId],
-    }));
-  }, []);
-
-  const toggleAllSections = useCallback(() => {
-    setExpandedSections((prev) => {
-      const expand = !project.columns.some((column) => prev[column.id]);
-      return Object.fromEntries(
-        project.columns.map((column) => [column.id, expand]),
-      );
-    });
-  }, [project.columns]);
-
   useTaskViewShortcuts({
     layout: "list",
     selection: useBulkSelectionStore,
@@ -224,14 +202,15 @@ function ListView({
       project.columns.map((column) => ({
         id: column.id,
         taskIds: column.tasks.map((task) => task.id),
-        collapsed: !expandedSections[column.id],
+        collapsed: !isExpanded(column.id),
       })),
     project,
     enabled: activeId === null,
     canMove: !disableDragDrop,
     onMove: moveTask,
     onToggleGroup: toggleSection,
-    onToggleAllGroups: toggleAllSections,
+    onToggleAllGroups: () =>
+      toggleAllSections(project.columns.map((column) => column.id)),
   });
 
   const handleAddTask = useCallback((columnId: string) => {
@@ -313,7 +292,7 @@ function ListView({
               key={column.id}
               column={column}
               projectSlug={project.slug ?? ""}
-              isExpanded={Boolean(expandedSections[column.id])}
+              isExpanded={isExpanded(column.id)}
               showDropIndicator={
                 Boolean(activeId) && overColumnId === column.id
               }
