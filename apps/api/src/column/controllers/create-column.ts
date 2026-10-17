@@ -1,3 +1,4 @@
+import { availableSlug } from "../available-slug";
 import { toSlug } from "../to-slug";
 import { publishEvent } from "../../events";
 import { eq, sql } from "drizzle-orm";
@@ -33,40 +34,32 @@ async function createColumn({
     });
   }
 
-  const existing = await db
-    .select({ id: columnTable.id })
-    .from(columnTable)
-    .where(
-      sql`${columnTable.projectId} = ${projectId} AND ${columnTable.slug} = ${slug}`,
+  const created = await db.transaction(async (tx) => {
+    // Serialize creates per project so concurrent requests cannot pick the
+    // same slug or position.
+    await tx.execute(
+      sql`SELECT pg_advisory_xact_lock(1525, hashtext(${projectId}))`,
     );
 
-  if (existing.length > 0) {
-    throw new HTTPException(409, {
-      message: `Column with slug "${slug}" already exists in this project`,
-    });
-  }
+    const columns = await tx
+      .select({ slug: columnTable.slug, position: columnTable.position })
+      .from(columnTable)
+      .where(eq(columnTable.projectId, projectId));
 
-  const [maxPos] = await db
-    .select({
-      maxPosition: sql<number>`COALESCE(MAX(${columnTable.position}), -1)`,
-    })
-    .from(columnTable)
-    .where(eq(columnTable.projectId, projectId));
-
-  const position = (maxPos?.maxPosition ?? -1) + 1;
-
-  const [created] = await db
-    .insert(columnTable)
-    .values({
-      projectId,
-      name,
-      slug,
-      position,
-      icon: icon || null,
-      color: color || null,
-      isFinal: isFinal ?? false,
-    })
-    .returning();
+    const [row] = await tx
+      .insert(columnTable)
+      .values({
+        projectId,
+        name,
+        slug: availableSlug(slug, new Set(columns.map((c) => c.slug))),
+        position: Math.max(-1, ...columns.map((c) => c.position)) + 1,
+        icon: icon || null,
+        color: color || null,
+        isFinal: isFinal ?? false,
+      })
+      .returning();
+    return row;
+  });
 
   if (!created) {
     throw new HTTPException(500, { message: "Failed to create column" });
