@@ -1,4 +1,5 @@
 import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 
 export async function uploadProjectBackground(projectId: string, file: File) {
   const uploadResponse = await client.project[":id"]["background-upload"].$put({
@@ -6,7 +7,7 @@ export async function uploadProjectBackground(projectId: string, file: File) {
     json: { contentType: file.type, size: file.size },
   });
 
-  if (!uploadResponse.ok) throw new Error(await uploadResponse.text());
+  if (!uploadResponse.ok) throw await HttpError.fromResponse(uploadResponse);
   const upload = await uploadResponse.json();
 
   const storageResponse = await fetch(upload.uploadUrl, {
@@ -27,7 +28,8 @@ export async function uploadProjectBackground(projectId: string, file: File) {
       version: upload.version,
     },
   });
-  if (!finalizeResponse.ok) throw new Error(await finalizeResponse.text());
+  if (!finalizeResponse.ok)
+    throw await HttpError.fromResponse(finalizeResponse);
 
   return finalizeResponse.json();
 }
@@ -36,5 +38,5 @@ export async function removeProjectBackground(projectId: string) {
   const response = await client.project[":id"].background.$delete({
     param: { id: projectId },
   });
-  if (!response.ok) throw new Error(await response.text());
+  if (!response.ok) throw await HttpError.fromResponse(response);
 }

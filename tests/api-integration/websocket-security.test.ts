@@ -131,7 +131,7 @@ describe.each(["project", "user"])("%s WebSocket", (endpoint) => {
       .where(eq(schema.apikeyTable.id, row.id));
     expect(saved.remaining).toBe(0);
     expect(saved.requestCount).toBe(1);
-    expect((await connect(path(), { "x-api-key": key })).status).toBe(401);
+    expect((await connect(path(), { "x-api-key": key })).status).toBe(429);
   });
   it("rejects missing, null, hostile and lookalike browser origins", async () => {
     for (const origin of [
@@ -242,12 +242,10 @@ it("still rejects access to a foreign project with a valid Origin", async () => 
   const { project } = await createProjectFixture({
     workspaceId: foreign.workspace.id,
   });
-  expect(
-    (
-      await connect(project.id, {
-        cookie: "test-session=valid",
-        origin: "http://localhost:5173",
-      })
-    ).status,
-  ).toBe(403);
+  const headers = {
+    cookie: "test-session=valid",
+    origin: "http://localhost:5173",
+  };
+  expect((await connect(project.id, headers)).status).toBe(404);
+  expect((await connect("missing-project", headers)).status).toBe(404);
 });

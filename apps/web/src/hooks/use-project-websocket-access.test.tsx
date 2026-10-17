@@ -9,21 +9,28 @@ import {
 } from "vite-plus/test";
 import { useProjectWebSocket } from "./use-project-websocket";
 
-const { client, auth, navigate } = vi.hoisted(() => ({
-  client: {
-    getQueryCache: () => ({ subscribe: () => () => {}, findAll: () => [] }),
-    getQueryState: vi.fn(),
-    getQueryData: vi.fn(),
-    setQueryData: vi.fn(),
-    setQueriesData: vi.fn(),
-    getQueriesData: vi.fn().mockReturnValue([]),
-    invalidateQueries: vi.fn(),
-    cancelQueries: vi.fn(),
-    clear: vi.fn(),
-  },
-  navigate: vi.fn(),
-  auth: { userId: "user-a" as string | null },
-}));
+const { client, auth, navigate, cached, evictProjectCache } = vi.hoisted(
+  () => ({
+    cached: { queries: [] as { queryKey: unknown[] }[] },
+    evictProjectCache: vi.fn(),
+    client: {
+      getQueryCache: () => ({
+        subscribe: () => () => {},
+        findAll: () => cached.queries,
+      }),
+      getQueryState: vi.fn(),
+      getQueryData: vi.fn(),
+      setQueryData: vi.fn(),
+      setQueriesData: vi.fn(),
+      getQueriesData: vi.fn().mockReturnValue([]),
+      invalidateQueries: vi.fn(),
+      cancelQueries: vi.fn(),
+      clear: vi.fn(),
+    },
+    navigate: vi.fn(),
+    auth: { userId: "user-a" as string | null },
+  }),
+);
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }));
 vi.mock("@tanstack/react-query", () => ({ useQueryClient: () => client }));
 vi.mock("@/lib/auth-client", () => ({
@@ -34,6 +41,7 @@ vi.mock("@/lib/auth-client", () => ({
   },
 }));
 vi.mock("@kaneo/libs", () => ({ windowId: "local-test" }));
+vi.mock("@/lib/evict-project-cache", () => ({ evictProjectCache }));
 
 class TestSocket {
   static OPEN = 1;
@@ -63,6 +71,7 @@ describe("project WebSocket access", () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:1337");
     TestSocket.instances = [];
     auth.userId = "user-a";
+    cached.queries = [];
     vi.clearAllMocks();
   });
   afterEach(() => {
@@ -87,6 +96,47 @@ describe("project WebSocket access", () => {
     expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
     expect(TestSocket.instances).toHaveLength(1);
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("evicts only the revoked project and returns to its workspace dashboard", async () => {
+    cached.queries = [
+      { queryKey: ["projects", "workspace-a"] },
+      { queryKey: ["projects", "workspace-a", "project-a"] },
+    ];
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() => {
+      TestSocket.instances[0].open();
+      TestSocket.instances[0].onclose?.({
+        code: 1008,
+        reason: "Project access revoked",
+      });
+      vi.advanceTimersByTime(60_000);
+    });
+    expect(navigate).toHaveBeenCalledWith({
+      to: "/dashboard/workspace/$workspaceId",
+      params: { workspaceId: "workspace-a" },
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(evictProjectCache).toHaveBeenCalledWith(client, "project-a");
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["projects"],
+    });
+    expect(client.clear).not.toHaveBeenCalled();
+    expect(TestSocket.instances).toHaveLength(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("falls back to the dashboard when the project's workspace is unknown", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() => {
+      TestSocket.instances[0].onclose?.({
+        code: 1008,
+        reason: "Project access revoked",
+      });
+    });
+    expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
   });
 
   it("reconnects after a project move without clearing authorized data", () => {

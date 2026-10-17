@@ -29,6 +29,7 @@ import { writeInboundTaskField } from "./apply-observed-task-value";
 import { updateExternalLink } from "./link-manager";
 import { syncLatestTaskValue } from "./sync-latest-task-value";
 import { isTaskInFinalState } from "./task-service";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 import {
   linkedTaskScope,
   integrationTaskRevision,
@@ -259,7 +260,12 @@ async function replayClaimedIssueEdits() {
             const taskIsClosed = fields.includes("state")
               ? await isTaskInFinalState(task, tx)
               : false;
+            // Skip state for archived tasks and settle what still waits on it.
+            const statePaused =
+              fields.includes("state") && isStateSyncPaused(task.status);
+            if (statePaused) current.state = values.state;
             for (const field of fields) {
+              if (field === "state" && statePaused) continue;
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntents(stamp, values[field]);
               const intentIds = uncertain.flatMap((entry) =>
@@ -308,6 +314,7 @@ async function replayClaimedIssueEdits() {
             const accepted = job.fields.filter(
               (field) =>
                 !repairs.some((repair) => repair.field === field) &&
+                !(field === "state" && statePaused) &&
                 !(
                   field === "state" &&
                   integration.type === "github" &&
@@ -357,6 +364,9 @@ async function replayClaimedIssueEdits() {
               {
                 metadata: current,
                 ...(accepted.includes("title") ? { title: values.title } : {}),
+                ...(statePaused
+                  ? { retireUncertainOutbound: "state" as const }
+                  : {}),
                 ...(repairs.length ? {} : { completeDeferredEdit: job.id }),
               },
               tx,

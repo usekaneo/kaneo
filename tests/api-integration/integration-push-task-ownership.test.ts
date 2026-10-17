@@ -103,7 +103,7 @@ it.each(
               await moveTask({
                 taskId: task.id,
                 destinationProjectId: destination.id,
-                userId: user.id,
+                currentUserId: user.id,
               });
               return transaction(apply, config);
             })

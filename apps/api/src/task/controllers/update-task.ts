@@ -63,10 +63,11 @@ async function updateTask(
 
   const normalizedUserId = userId?.trim() || undefined;
 
-  if (normalizedUserId) {
+  if (normalizedUserId && normalizedUserId !== existingTask.userId) {
     await assertAssignableUser(
       normalizedUserId,
       await getProjectWorkspaceId(projectId),
+      projectId,
     );
   }
 

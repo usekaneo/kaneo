@@ -14,6 +14,10 @@ import { createWorkspaceMember } from "./helpers/fixtures";
 
 const endpoints = [
   [
+    "/sign-in/email",
+    { email: "captcha@example.com", password: "long-test-password" },
+  ],
+  [
     "/sign-up/email",
     {
       name: "User",

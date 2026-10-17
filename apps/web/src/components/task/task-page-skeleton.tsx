@@ -50,36 +50,15 @@ export function TaskDetailsSkeleton({ className }: TaskDetailsSkeletonProps) {
   );
 }
 
-type TaskPropertiesSidebarSkeletonProps = {
-  className?: string;
-};
-
-export function TaskPropertiesSidebarSkeleton({
-  className,
-}: TaskPropertiesSidebarSkeletonProps) {
+export function TaskPropertiesRailSkeleton() {
   return (
-    <div
-      className={cn(
-        "h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2 p-3",
-        className,
-      )}
-    >
-      <div className="rounded-xl border border-border/80 bg-card/70 p-3">
-        <div className="space-y-3">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-8 w-full rounded-md" />
-          <Skeleton className="h-8 w-full rounded-md" />
-          <Skeleton className="h-8 w-full rounded-md" />
-          <Skeleton className="h-24 w-full rounded-md" />
+    <div className="flex w-80 shrink-0 flex-col gap-0.5 px-3 pt-4">
+      {[0, 1, 2, 3, 4, 5].map((row) => (
+        <div key={row} className="flex h-8 items-center gap-3 pl-2">
+          <Skeleton className="h-3 w-14" />
+          <Skeleton className="h-4 w-28" />
         </div>
-      </div>
-      <div className="rounded-xl border border-border/80 bg-card/70 p-3">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-6 w-full rounded-md" />
-          <Skeleton className="h-6 w-3/4 rounded-md" />
-        </div>
-      </div>
+      ))}
     </div>
   );
 }

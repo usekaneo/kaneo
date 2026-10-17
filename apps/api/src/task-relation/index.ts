@@ -10,6 +10,7 @@ import {
   errorResponse,
   jsonResponse,
 } from "../openapi";
+import { assertProjectAccess } from "../project-access/assert-project-access";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
 import { validateWorkspaceAccess } from "../utils/validate-workspace-access";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
@@ -26,14 +27,17 @@ import {
   taskRelationParam,
 } from "./schema";
 
-async function workspaceIdOfTask(taskId: string) {
+async function scopeOfTask(taskId: string) {
   const [task] = await db
-    .select({ workspaceId: projectTable.workspaceId })
+    .select({
+      workspaceId: projectTable.workspaceId,
+      projectId: projectTable.id,
+    })
     .from(taskTable)
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(eq(taskTable.id, taskId))
     .limit(1);
-  return task?.workspaceId ?? null;
+  return task ?? null;
 }
 
 function requireUserId(c: Context) {
@@ -58,13 +62,16 @@ async function scopeToSourceTask(c: Context, next: Next) {
     throw new HTTPException(400, { message: "sourceTaskId is required" });
   }
 
-  const workspaceId = await workspaceIdOfTask(sourceTaskId);
-  if (!workspaceId) {
+  const scope = await scopeOfTask(sourceTaskId);
+  if (!scope) {
     throw new HTTPException(404, { message: "Source task not found" });
   }
 
-  await validateWorkspaceAccess(userId, workspaceId);
-  c.set("workspaceId", workspaceId);
+  await validateWorkspaceAccess(userId, scope.workspaceId, undefined, {
+    notFoundMessage: "Source task not found",
+  });
+  await assertProjectAccess(userId, scope.projectId);
+  c.set("workspaceId", scope.workspaceId);
   return next();
 }
 
@@ -81,13 +88,16 @@ async function scopeToRelation(c: Context, next: Next) {
     throw new HTTPException(404, { message: "Task relation not found" });
   }
 
-  const workspaceId = await workspaceIdOfTask(rel.sourceTaskId);
-  if (!workspaceId) {
+  const scope = await scopeOfTask(rel.sourceTaskId);
+  if (!scope) {
     throw new HTTPException(404, { message: "Task not found" });
   }
 
-  await validateWorkspaceAccess(userId, workspaceId);
-  c.set("workspaceId", workspaceId);
+  await validateWorkspaceAccess(userId, scope.workspaceId, undefined, {
+    notFoundMessage: "Task relation not found",
+  });
+  await assertProjectAccess(userId, scope.projectId);
+  c.set("workspaceId", scope.workspaceId);
   return next();
 }
 
@@ -106,10 +116,8 @@ const getTaskRelationsRoute = createRoute({
       "Task relations with the linked task summaries",
       taskRelationWithTasksListSchema,
     ),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the task's workspace"),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -135,7 +143,7 @@ const createTaskRelationRoute = createRoute({
     200: jsonResponse("The created relation", taskRelationSchema),
     400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
     404: errorResponse("Source or target task not found"),
     409: errorResponse("This relation already exists"),
@@ -157,7 +165,7 @@ const deleteTaskRelationRoute = createRoute({
   responses: {
     200: jsonResponse("The deleted relation", taskRelationSchema),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
     404: errorResponse("Task relation not found, or its source task is gone"),
   },
@@ -166,7 +174,11 @@ const deleteTaskRelationRoute = createRoute({
 const taskRelation = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskRelationsRoute, async (c) =>
     c.json(
-      await getTaskRelations(c.req.valid("param").taskId, c.get("workspaceId")),
+      await getTaskRelations(
+        c.req.valid("param").taskId,
+        c.get("workspaceId"),
+        c.get("userId"),
+      ),
       200,
     ),
   )

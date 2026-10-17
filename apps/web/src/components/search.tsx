@@ -1,31 +1,27 @@
 "use client";
 
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SearchCommandMenu from "@/components/search-command-menu";
 import { Button } from "@/components/ui/button";
-import { KbdSequence } from "@/components/ui/kbd";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 
 export default function Search() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
-  useRegisterShortcuts({
-    shortcuts: {
-      [shortcuts.search.prefix]: () => {
-        setOpen(true);
-      },
-    },
-  });
+  const openSearch = () => setOpen(true);
+  useShortcut("openSearch", openSearch);
+  useShortcut("openTask", openSearch);
+  useShortcut("openProject", openSearch);
 
   return (
     <>
@@ -47,7 +43,7 @@ export default function Search() {
           <TooltipContent>
             <p className="flex items-center gap-2 text-[10px]">
               {t("navigation:commandPalette.search")}
-              <KbdSequence keys={[shortcuts.search.prefix]} />
+              <ShortcutKeys id="openSearch" />
             </p>
           </TooltipContent>
         </Tooltip>

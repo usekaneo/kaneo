@@ -4,12 +4,18 @@ import {
   useSearch,
 } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
-import { AuthLayout } from "@/components/auth/layout";
+import { authMessageClassName } from "@/components/auth/auth-form-styles";
+import { AuthPage } from "@/components/auth/auth-page";
+import { normalizeDeviceCode } from "@/components/auth/device-code";
+import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
-import { toast } from "@/lib/toast";
+
+const MIN_CODE_LENGTH = 4;
 
 const deviceSearchSchema = z.object({
   user_code: z.string().optional(),
@@ -21,59 +27,90 @@ export const Route = createFileRoute("/device/")({
 });
 
 function DevicePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const search = useSearch({ from: "/device/" });
-  const [code, setCode] = useState(search.user_code ?? "");
-  const [loading, setLoading] = useState(false);
+  const [code, setCode] = useState(search.user_code?.toUpperCase() ?? "");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const formatted = code.trim().replace(/-/g, "").toUpperCase();
-    if (formatted.length < 4) {
-      toast.error("Enter the code shown on your device.");
+  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const userCode = normalizeDeviceCode(code);
+    if (userCode.length < MIN_CODE_LENGTH) {
+      setError(t("auth:device.connect.codeRequired"));
       return;
     }
-    setLoading(true);
+    setIsPending(true);
+    setError(null);
     try {
-      const res = await authClient.device({
-        query: { user_code: formatted },
+      const result = await authClient.device({
+        query: { user_code: userCode },
       });
-      if (res.error) {
-        toast.error(
-          "error_description" in res.error
-            ? String(res.error.error_description)
-            : "Invalid or expired code",
-        );
+      if (result.error) {
+        setError(t("auth:device.connect.invalidCode"));
+        setIsPending(false);
         return;
       }
-      void navigate({
-        to: "/device/approve",
-        search: { user_code: formatted },
-      });
+      void navigate({ to: "/device/approve", search: { user_code: userCode } });
     } catch {
-      toast.error("Invalid or expired code");
-    } finally {
-      setLoading(false);
+      setError(t("auth:device.connect.invalidCode"));
+      setIsPending(false);
     }
   };
 
   return (
-    <AuthLayout
-      title="Connect a device"
-      subtitle="Enter the code from your CLI or app to continue."
-    >
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          placeholder="e.g. ABCD-1234"
-          autoCapitalize="characters"
-          autoComplete="one-time-code"
-        />
-        <Button type="submit" className="w-full" disabled={loading}>
-          Continue
-        </Button>
-      </form>
-    </AuthLayout>
+    <>
+      <PageTitle title={t("auth:device.connect.title")} />
+      <AuthPage
+        title={t("auth:device.connect.title")}
+        description={t("auth:device.connect.description")}
+      >
+        <form onSubmit={onSubmit} className="flex flex-col gap-3" noValidate>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="device-code">
+              {t("auth:device.connect.label")}
+            </Label>
+            <Input
+              id="device-code"
+              size="lg"
+              value={code}
+              onChange={(event) => {
+                setCode(event.target.value.toUpperCase());
+                setError(null);
+              }}
+              placeholder="ABCD-1234"
+              autoCapitalize="characters"
+              autoComplete="off"
+              spellCheck={false}
+              autoFocus={!search.user_code}
+              className="font-mono tracking-[0.08em]"
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "device-code-error" : undefined}
+            />
+            {error ? (
+              <p
+                id="device-code-error"
+                role="alert"
+                className={authMessageClassName}
+              >
+                {error}
+              </p>
+            ) : null}
+          </div>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            loading={isPending}
+          >
+            {t("auth:device.connect.submit")}
+          </Button>
+        </form>
+        <p className="pt-8 text-muted-foreground text-sm">
+          {t("auth:device.connect.noCode")}
+        </p>
+      </AuthPage>
+    </>
   );
 }

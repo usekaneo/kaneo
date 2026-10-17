@@ -1,8 +1,11 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import {
   richTextCommands,
   type SlashCommand,
   type SlashRange,
 } from "@/components/editor/slash-commands";
+import { BubbleLinkEditor } from "@/components/editor/bubble-link-editor";
+import { selectionStartAnchor } from "@/components/editor/selection-start-anchor";
 import { TableToolbar } from "@/components/editor/table-toolbar";
 import { createEditorExtensions } from "@/components/editor/extensions";
 import { insertUploadedAsset as insertEditorAsset } from "@/components/editor/insert-uploaded-asset";
@@ -24,6 +27,7 @@ import {
   ListTodo,
   Paperclip,
   UnderlineIcon,
+  ImageUpIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -45,6 +49,7 @@ import {
 } from "@/components/ui/menu";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { cn } from "@/lib/cn";
 import {
   extractIssueKeyFromUrl,
@@ -73,6 +78,7 @@ type CommentEditorProps = {
   onSubmitShortcut?: () => void;
   onCancelShortcut?: () => void;
   taskId?: string;
+  projectId?: string;
   uploadSurface?: "description" | "comment";
   ensureTaskId?: () => Promise<string | null>;
   uploadAsset?: (
@@ -150,6 +156,7 @@ export default function CommentEditor({
   onSubmitShortcut,
   onCancelShortcut,
   taskId,
+  projectId,
   uploadSurface = "comment",
   ensureTaskId,
   uploadAsset,
@@ -160,18 +167,29 @@ export default function CommentEditor({
   const resolvedPlaceholder =
     placeholder ?? t("activity:comment.leavePlaceholder");
   const { data: activeWorkspace } = useActiveWorkspace();
+  const mentionWorkspaceId = activeWorkspace?.id ?? "";
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
-    activeWorkspace?.id ?? "",
+    projectId ? "" : mentionWorkspaceId,
   );
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: mentionWorkspaceId,
+    projectId: projectId ?? "",
+  });
   const mentionMembersRef = useRef<MentionMember[]>([]);
   mentionMembersRef.current = useMemo(
     () =>
-      (workspaceUsers?.members ?? []).map((member) => ({
-        id: member.userId,
-        label: member.user?.name ?? member.user?.email ?? "",
-        image: member.user?.image ?? null,
-      })),
-    [workspaceUsers],
+      projectId
+        ? (projectMembers ?? []).map((member) => ({
+            id: member.id,
+            label: member.name || member.email,
+            image: member.image,
+          }))
+        : (workspaceUsers?.members ?? []).map((member) => ({
+            id: member.userId,
+            label: member.user?.name ?? member.user?.email ?? "",
+            image: member.user?.image ?? null,
+          })),
+    [projectId, projectMembers, workspaceUsers],
   );
   const editorShellRef = useRef<HTMLDivElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -196,6 +214,8 @@ export default function CommentEditor({
   const onCancelShortcutRef = useRef(onCancelShortcut);
   onSubmitShortcutRef.current = onSubmitShortcut;
   onCancelShortcutRef.current = onCancelShortcut;
+  const linkShortcutRef = useRef(() => {});
+  const attachShortcutRef = useRef(() => {});
   const readOnlyRef = useRef(readOnly);
   readOnlyRef.current = readOnly;
   const pendingImageInsertRef = useRef<{
@@ -334,6 +354,7 @@ export default function CommentEditor({
           uploadedAsset.kind === "image"
             ? t("activity:comment.editor.imageUploaded")
             : t("activity:comment.editor.fileAttached"),
+          { icon: ImageUpIcon },
         );
       } catch (error) {
         toast.dismiss(loadingToast);
@@ -420,6 +441,7 @@ export default function CommentEditor({
     () => [
       {
         id: "paragraph",
+        shortcutId: "editorParagraph",
         label: t("activity:comment.editor.slashParagraph"),
         group: "text",
         search: t("activity:comment.editor.searchParagraph"),
@@ -428,24 +450,25 @@ export default function CommentEditor({
       },
       {
         id: "heading-2",
+        shortcutId: "editorHeading2",
         label: t("activity:comment.editor.slashHeading"),
         group: "text",
-        shortcut: "Ctrl Alt 2",
         search: t("activity:comment.editor.searchHeading"),
         run: richTextCommands.find((command) => command.id === "heading-2")!
           .run,
       },
       {
         id: "bullet-list",
+        shortcutId: "editorBulletList",
         label: t("activity:comment.editor.slashBulletList"),
         group: "lists",
-        shortcut: "Ctrl Alt 8",
         search: t("activity:comment.editor.searchBulletList"),
         run: richTextCommands.find((command) => command.id === "bullet-list")!
           .run,
       },
       {
         id: "task-list",
+        shortcutId: "editorChecklist",
         label: t("activity:comment.editor.slashTaskList"),
         group: "lists",
         search: t("activity:comment.editor.searchTaskList"),
@@ -454,15 +477,16 @@ export default function CommentEditor({
       },
       {
         id: "ordered-list",
+        shortcutId: "editorNumberedList",
         label: t("activity:comment.editor.slashOrderedList"),
         group: "lists",
-        shortcut: "Ctrl Alt 9",
         search: t("activity:comment.editor.searchOrderedList"),
         run: richTextCommands.find((command) => command.id === "ordered-list")!
           .run,
       },
       {
         id: "blockquote",
+        shortcutId: "editorQuote",
         label: t("activity:comment.editor.slashQuote"),
         group: "insert",
         search: t("activity:comment.editor.searchQuote"),
@@ -471,9 +495,9 @@ export default function CommentEditor({
       },
       {
         id: "code-block",
+        shortcutId: "editorCodeBlock",
         label: t("activity:comment.editor.slashCodeBlock"),
         group: "insert",
-        shortcut: "Ctrl Alt \\",
         search: t("activity:comment.editor.searchCodeBlock"),
         run: richTextCommands.find((command) => command.id === "code-block")!
           .run,
@@ -509,6 +533,13 @@ export default function CommentEditor({
     );
   }, [slashCommands, slashMenu?.query]);
 
+  const slashMenuRef = useRef(slashMenu);
+  slashMenuRef.current = slashMenu;
+  const filteredSlashCommandsRef = useRef(filteredSlashCommands);
+  filteredSlashCommandsRef.current = filteredSlashCommands;
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
+  const editorRef = useRef<Editor | null>(null);
   const editor = useEditor(
     {
       immediatelyRender: false,
@@ -659,7 +690,27 @@ export default function CommentEditor({
           view.dispatch(tr.scrollIntoView());
           return true;
         },
-        handleKeyDown: (_view, event) => {
+        handleKeyDown: (view, event) => {
+          const slashMenu = slashMenuRef.current;
+          const filteredSlashCommands = filteredSlashCommandsRef.current;
+          const readOnly = readOnlyRef.current;
+          const disabled = disabledRef.current;
+          const editor = editorRef.current;
+          const mod = event.metaKey || event.ctrlKey;
+          const key = event.key.toLowerCase();
+          if (!readOnly && !disabled && mod && !event.altKey) {
+            if (key === "k" && !event.shiftKey && !view.state.selection.empty) {
+              event.preventDefault();
+              linkShortcutRef.current();
+              return true;
+            }
+            if (key === "u" && event.shiftKey) {
+              event.preventDefault();
+              attachShortcutRef.current();
+              return true;
+            }
+          }
+
           if (!readOnly && !disabled && slashMenu) {
             if (event.key === "ArrowDown") {
               event.preventDefault();
@@ -713,6 +764,7 @@ export default function CommentEditor({
 
             if (event.key === "Escape") {
               event.preventDefault();
+              event.stopPropagation();
               setSlashMenu(null);
               return true;
             }
@@ -734,6 +786,7 @@ export default function CommentEditor({
             onCancelShortcutRef.current
           ) {
             event.preventDefault();
+            event.stopPropagation();
             onCancelShortcutRef.current();
             return true;
           }
@@ -768,6 +821,7 @@ export default function CommentEditor({
     },
     [handleAssetFileUpload, resolvedPlaceholder, toShikiLanguage],
   );
+  editorRef.current = editor;
 
   useEffect(() => {
     if (!onAttachActionChange) return;
@@ -941,20 +995,24 @@ export default function CommentEditor({
     });
   }, [editor, value]);
 
+  const [isEditingLink, setIsEditingLink] = useState(false);
+
   const setLink = useCallback(() => {
     if (readOnly || disabled || !editor) return;
-    const previousUrl = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt(
-      t("activity:comment.editor.enterUrl"),
-      previousUrl || "",
-    );
-    if (url === null) return;
-    if (!url.trim()) {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [disabled, editor, readOnly, t]);
+    setIsEditingLink(true);
+  }, [disabled, editor, readOnly]);
+  linkShortcutRef.current = setLink;
+  attachShortcutRef.current = () => openImagePicker(editor);
+
+  const bubbleAnchor = useCallback(
+    () => (editor ? selectionStartAnchor(editor) : null),
+    [editor],
+  );
+
+  const bubbleOptions = useMemo(
+    () => ({ onHide: () => setIsEditingLink(false) }),
+    [],
+  );
 
   const resolveCodeBlockNodeData = useCallback(
     (pos: number) => {
@@ -1415,6 +1473,8 @@ export default function CommentEditor({
         <BubbleMenu
           editor={editor}
           className="kaneo-comment-editor-bubble"
+          getReferencedVirtualElement={bubbleAnchor}
+          options={bubbleOptions}
           shouldShow={({ editor: activeEditor, from, to }) => {
             if (activeEditor.isActive("embedBlock")) return false;
             if (activeEditor.isActive("image")) return false;
@@ -1422,102 +1482,114 @@ export default function CommentEditor({
             return from !== to;
           }}
         >
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("bold") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBold().run()}
-          >
-            <Bold className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("italic") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-          >
-            <Italic className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("underline") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-          >
-            <UnderlineIcon className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("bulletList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-          >
-            <List className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("taskList") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleTaskList().run()}
-          >
-            <ListTodo className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("orderedList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          >
-            <ListOrdered className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-comment-editor-bubble-btn",
-              editor.isActive("link") && "bg-accent text-accent-foreground",
-            )}
-            onClick={setLink}
-          >
-            <Link2 className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className="kaneo-comment-editor-bubble-btn"
-            onClick={() => openImagePicker(editor)}
-          >
-            <Paperclip className="size-3.5" />
-          </Button>
+          {isEditingLink ? (
+            <BubbleLinkEditor
+              editor={editor}
+              buttonClassName="kaneo-comment-editor-bubble-btn"
+              onClose={() => setIsEditingLink(false)}
+            />
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("bold") && "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleBold().run()}
+              >
+                <Bold className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("italic") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+              >
+                <Italic className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("underline") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+              >
+                <UnderlineIcon className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("bulletList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              >
+                <List className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("taskList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleTaskList().run()}
+              >
+                <ListTodo className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("orderedList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                <ListOrdered className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-comment-editor-bubble-btn",
+                  editor.isActive("link") && "bg-accent text-accent-foreground",
+                )}
+                onClick={setLink}
+              >
+                <Link2 className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className="kaneo-comment-editor-bubble-btn"
+                onClick={() => openImagePicker(editor)}
+              >
+                <Paperclip className="size-3.5" />
+              </Button>
+            </>
+          )}
         </BubbleMenu>
       )}
       {editor && !readOnly && !disabled && showBubbleMenu && (
@@ -1609,9 +1681,12 @@ export default function CommentEditor({
                         <span className="kaneo-tiptap-slash-label">
                           {command.label}
                         </span>
-                        {command.shortcut && (
+                        {command.shortcutId && (
                           <span className="kaneo-tiptap-slash-shortcut">
-                            {command.shortcut}
+                            <ShortcutKeys
+                              id={command.shortcutId}
+                              tone="muted"
+                            />
                           </span>
                         )}
                       </button>

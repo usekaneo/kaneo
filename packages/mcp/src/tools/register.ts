@@ -1,7 +1,9 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { encodeCustomFieldValue } from "../kaneo/custom-field-value.js";
 import { buildFullTaskUpdateBody } from "../kaneo/task-helpers.js";
 import { errorResult, textResult } from "../utils/mcp-result.js";
+import { getCurrentUser } from "./get-current-user.js";
 
 export type ToolClient = {
   readonly usingApiKey?: boolean;
@@ -69,13 +71,7 @@ export function registerTools(
         "Return the current Kaneo user for the configured authentication method.",
       inputSchema: z.object({}),
     },
-    async () =>
-      run(() =>
-        client.json(
-          client.usingApiKey ? "/api/user/me" : "/api/auth/get-session",
-          { method: "GET" },
-        ),
-      ),
+    async () => run(() => getCurrentUser(client)),
   );
 
   registerTool(
@@ -230,7 +226,7 @@ export function registerTools(
     "list_tasks",
     {
       description:
-        "List a bounded page of tasks for a project (50 by default, maximum 100). Use pagination.totalPages and page to retrieve the rest; filters and sorting apply before pagination. For every task page, also follow relatedPage through pagination.relatedTotalPages for complete labels, links and column metadata.",
+        "List a bounded page of tasks for a project (50 by default, maximum 100). Use pagination.totalPages and page to retrieve the rest; filters and sorting apply before pagination. For every task page, also follow relatedPage through pagination.relatedTotalPages for complete labels, links and column metadata. Custom field values are not included; use get_task_custom_field_values.",
       inputSchema: listTasksSchema,
     },
     async (args) => {
@@ -251,7 +247,8 @@ export function registerTools(
   registerTool(
     "get_task",
     {
-      description: "Get a task by ID.",
+      description:
+        "Get a task by ID. Custom field values are not included; use get_task_custom_field_values.",
       inputSchema: z.object({ taskId: nonEmptyString }),
     },
     async (args) =>
@@ -719,6 +716,63 @@ export function registerTools(
     async (args) =>
       run(() =>
         client.json(`/api/column/${encodeURIComponent(args.projectId)}`),
+      ),
+  );
+
+  registerTool(
+    "list_project_custom_fields",
+    {
+      description:
+        "List a project's custom field definitions: id, name, type (text, number, date, dropdown, boolean, multiselect), required, options, and defaultValue.",
+      inputSchema: z.object({ projectId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/custom-field/project/${encodeURIComponent(args.projectId)}`,
+        ),
+      ),
+  );
+
+  registerTool(
+    "get_task_custom_field_values",
+    {
+      description:
+        "List a task's custom field values with each field's name, type, and options. Fields without a value are omitted. Multiselect values are JSON array strings.",
+      inputSchema: z.object({ taskId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/custom-field/task/${encodeURIComponent(args.taskId)}`,
+        ),
+      ),
+  );
+
+  registerTool(
+    "set_task_custom_field_value",
+    {
+      description:
+        "Set or clear one custom field value on a task. Get fieldId from list_project_custom_fields. Pass dates as YYYY-MM-DD, a dropdown value as one of its options, multiselect values as an array of options, and null to clear the value (required fields can't be cleared).",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        fieldId: nonEmptyString,
+        value: z
+          .union([z.string(), z.number(), z.boolean(), z.array(z.string())])
+          .nullable()
+          .describe("New value, or null to clear it"),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json("/api/custom-field/value", {
+          method: "PUT",
+          body: JSON.stringify({
+            taskId: args.taskId,
+            fieldId: args.fieldId,
+            value: encodeCustomFieldValue(args.value),
+          }),
+        }),
       ),
   );
 

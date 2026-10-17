@@ -96,6 +96,7 @@ async function getTasksPage(
   db: TaskReadDatabase,
   projectId: string,
   options: GetTasksOptions,
+  userId?: string,
 ) {
   const [project] = await db
     .select({
@@ -211,6 +212,7 @@ async function getTasksPage(
     taskIds,
     project.workspaceId,
     options.publicOnly ?? false,
+    userId,
   );
 
   const labelsData =
@@ -504,9 +506,10 @@ function parseMetadata(raw: string | null): Record<string, unknown> | null {
 export default function getTasks(
   projectId: string,
   options: GetTasksOptions = {},
+  userId?: string,
 ) {
   return boundedTaskRead(
-    (db) => getTasksPage(db, projectId, options),
+    (db) => getTasksPage(db, projectId, options, userId),
     "Task list request took too long; retry later",
   );
 }

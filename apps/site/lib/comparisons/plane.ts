@@ -47,6 +47,11 @@ export const plane: Comparison = {
       body: "MIT rather than AGPL matters if you intend to modify Kaneo and offer it as part of a service. It removes the question entirely.",
     },
   ],
+  migration: {
+    body: "Kaneo imports projects from Plane Cloud or a self-hosted Plane from the app: states, work items with their keys, priorities, dates, labels, comments, and sub-issues. Plane is only read, never changed.",
+    href: "https://kaneo.app/docs/core/migrations/from-plane",
+    linkText: "Read the import guide",
+  },
   honestNote:
     "Plane is the more feature-complete tracker: cycles, modules, intake, pages, and a polished interface, backed by a well-funded team shipping quickly. If you want a Linear-shaped open-source product and do not mind AGPL or a bigger install, Plane is an excellent choice.",
   faq: [
@@ -68,7 +73,7 @@ export const plane: Comparison = {
     {
       question: "Can I migrate from Plane to Kaneo?",
       answer:
-        "There is no dedicated importer yet. Both have APIs, and Kaneo supports per-project JSON import, so a scripted migration is feasible. Open a GitHub issue if you want it supported directly.",
+        "Yes. Kaneo imports projects from Plane Cloud or a self-hosted Plane from the app with a Plane personal access token. States, work items with their keys, priorities, dates, labels, comments, and sub-issues carry over. Cycles, modules, and attachments do not.",
     },
   ],
   related: ["linear", "huly", "jira", "openproject"],

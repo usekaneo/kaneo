@@ -48,6 +48,11 @@ export const jira: Comparison = {
       body: "Free forever to self-host, including SSO. Managed cloud starts at $4/month with no per-feature paywalls.",
     },
   ],
+  migration: {
+    body: "Kaneo imports Jira Cloud and Jira Data Center projects from the app with an API token: board columns, issues with their keys, priorities, labels, assignees, sub-tasks, issue links, and comments. Jira is only read, never changed.",
+    href: "https://kaneo.app/docs/core/migrations/from-jira",
+    linkText: "Read the import guide",
+  },
   honestNote:
     "If you're a large organization that needs deep enterprise workflows, advanced permission schemes, and a big marketplace of add-ons, and you have the time to configure it, Jira is built for exactly that. Kaneo is for teams who want to manage work, not administer a tool.",
   faq: [

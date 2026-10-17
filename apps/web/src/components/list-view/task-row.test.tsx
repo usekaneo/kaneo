@@ -1,5 +1,13 @@
 import { DndContext, KeyboardSensor } from "@dnd-kit/core";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render as renderWithoutClient,
+  screen,
+} from "@testing-library/react";
+import type { ReactElement, ReactNode } from "react";
 import {
   afterEach,
   beforeEach,
@@ -15,6 +23,16 @@ import TaskCard from "../kanban-board/task-card";
 import { PublicTaskCard } from "../public-project/task-card";
 import { PublicTaskRow } from "../public-project/task-row";
 import TaskRow from "./task-row";
+
+const testQueryClient = new QueryClient();
+const render = (ui: ReactElement) =>
+  renderWithoutClient(ui, {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={testQueryClient}>
+        {children}
+      </QueryClientProvider>
+    ),
+  });
 
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
 const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
@@ -166,13 +184,51 @@ describe("TaskRow", () => {
         screen.getByRole("button", { name: /Row from payload/ }),
         { key: "Enter" },
       );
-      expect(navigate).toHaveBeenCalled();
-      expect(onDragStart).not.toHaveBeenCalled();
       fireEvent.keyDown(
         screen.getByRole("button", { name: /Row from payload/ }),
         { key: " ", code: "Space" },
       );
-      expect(onDragStart).toHaveBeenCalledOnce();
+      expect(navigate).not.toHaveBeenCalled();
+      expect(onDragStart).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["board", "list"])(
+    "takes keyboard focus and marks itself as a shortcut surface in the %s view",
+    (view) => {
+      render(
+        view === "board" ? (
+          <TaskCard task={task} />
+        ) : (
+          <TaskRow task={task} projectSlug="kan" />
+        ),
+      );
+      const row = screen.getByRole("button", { name: /Row from payload/ });
+
+      fireEvent.keyDown(document, { key: "Tab" });
+      act(() => row.focus());
+
+      expect(useBulkSelectionStore.getState().focusedTaskId).toBe(task.id);
+      expect(row).toHaveAttribute("data-task-id", task.id);
+      expect(row).toHaveAttribute("data-shortcut-surface");
+    },
+  );
+
+  it.each(["board", "list"])(
+    "leaves keyboard focus off on pointer focus in the %s view",
+    (view) => {
+      useBulkSelectionStore.getState().setFocusedTask("other-task");
+      render(
+        view === "board" ? (
+          <TaskCard task={task} />
+        ) : (
+          <TaskRow task={task} projectSlug="kan" />
+        ),
+      );
+
+      fireEvent.focus(screen.getByRole("button", { name: /Row from payload/ }));
+
+      expect(useBulkSelectionStore.getState().focusedTaskId).toBeNull();
     },
   );
 

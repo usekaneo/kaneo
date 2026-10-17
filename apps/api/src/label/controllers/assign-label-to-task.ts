@@ -20,6 +20,7 @@ import {
   removeLabelFromGitlab,
   syncLabelToGitlab,
 } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
+import { assertProjectAccess } from "../../project-access/assert-project-access";
 
 type LabelRow = typeof labelTableType.$inferSelect;
 
@@ -59,6 +60,8 @@ async function assignLabelToTask(id: string, taskId: string, userId: string) {
       message: "Label and task must belong to the same workspace",
     });
   }
+
+  await assertProjectAccess(userId, task.projectId);
 
   if (label.taskId === taskId) {
     return label;

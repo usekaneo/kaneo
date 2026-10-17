@@ -12,7 +12,7 @@ async function deleteComment({ activityId }: DeleteCommentRequest) {
   });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();

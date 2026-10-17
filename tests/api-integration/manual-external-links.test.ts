@@ -180,10 +180,10 @@ describe("manual external resource links", () => {
           url: "https://example.com",
         })
       ).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(
       (await request(`/${other.task.id}/${entry.id}`, "DELETE")).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(
       (await request(`/${own.task.id}/${entry.id}`, "DELETE")).status,
     ).toBe(404);

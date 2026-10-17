@@ -3,10 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { IntegrationDefinition } from "@/components/project/integrations/integration-definitions";
 import { IntegrationRow } from "@/components/project/integrations/integration-row";
 
-vi.mock("@/components/project/sync-rules/sync-rules-section", () => ({
-  SyncRulesSection: () => <p>Sync rules</p>,
-}));
-
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
@@ -99,6 +95,14 @@ describe("IntegrationRow", () => {
       }),
     );
     expect(screen.getByText("Integration settings")).toBeVisible();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:actions.cancel" }),
+    );
+    expect(
+      screen.getByRole("button", {
+        name: "settings:projectIntegrations.connect",
+      }),
+    ).toBeVisible();
   });
   it.each(["connected", "paused"] as const)(
     "shows configuration for a %s integration",

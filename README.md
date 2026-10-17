@@ -40,7 +40,7 @@
 - **Work with your team:** shared workspaces, invitations, custom roles, live updates, and public project views.
 - **Shape your workflow:** custom columns and fields, with rules that move tasks when repository activity changes.
 - **Stay informed:** in-app notifications, email, ntfy, Gotify, and personal webhooks.
-- **Connect other tools:** GitHub and Gitea, chat integrations, project webhooks, a [REST API](https://kaneo.app/docs/api-reference/introduction), and [MCP](https://kaneo.app/docs/core/integrations/mcp) for AI assistants.
+- **Connect other tools:** GitHub and Gitea, chat integrations, project webhooks, a [REST API](https://kaneo.app/docs/api-reference/introduction), a [command-line client](https://kaneo.app/docs/cli), and [MCP](https://kaneo.app/docs/core/integrations/mcp) for AI assistants.
 
 ## Installation
 
@@ -51,7 +51,7 @@
 
 Code, translations, documentation, and bug reports are welcome. Start with the [contributing guide](CONTRIBUTING.md) and [local development setup](ENVIRONMENT_SETUP.md). Pay particular attention to [contribution eligibility](https://github.com/usekaneo/kaneo/blob/main/CONTRIBUTING.md#contribution-eligibility).
 
-Join us on [Discord](https://discord.gg/rU4tSyhXXU) or share bugs and feature requests in [GitHub Issues](https://github.com/usekaneo/kaneo/issues).
+Join us on [Discord](https://discord.gg/rU4tSyhXXU), report bugs in [GitHub Issues](https://github.com/usekaneo/kaneo/issues), or submit and vote on feature requests at [Kaneo Feedback](https://feedback.kaneo.app).
 
 ## Sponsors
 
@@ -67,7 +67,7 @@ This project is tested with BrowserStack.
 
 ### Community sponsors
 
-<!-- sponsors --><a href="https://github.com/danielsada"><img src="https:&#x2F;&#x2F;github.com&#x2F;danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><a href="https://github.com/randoneering"><img src="https:&#x2F;&#x2F;github.com&#x2F;randoneering.png" width="60px" alt="User avatar: (justin)randoneering" /></a><a href="https://github.com/barbanet"><img src="https:&#x2F;&#x2F;github.com&#x2F;barbanet.png" width="60px" alt="User avatar: Damián Culotta" /></a><a href="https://github.com/t0yohei"><img src="https:&#x2F;&#x2F;github.com&#x2F;t0yohei.png" width="60px" alt="User avatar: t0yohei" /></a><a href="https://github.com/ryanilano"><img src="https:&#x2F;&#x2F;github.com&#x2F;ryanilano.png" width="60px" alt="User avatar: Ryan Ilano" /></a><a href="https://github.com/bojanmilevski"><img src="https:&#x2F;&#x2F;github.com&#x2F;bojanmilevski.png" width="60px" alt="User avatar: Bojan Milevski" /></a><!-- sponsors -->
+<!-- sponsors --><a href="https://github.com/danielsada"><img src="https:&#x2F;&#x2F;github.com&#x2F;danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><a href="https://github.com/randoneering"><img src="https:&#x2F;&#x2F;github.com&#x2F;randoneering.png" width="60px" alt="User avatar: (justin)randoneering" /></a><a href="https://github.com/barbanet"><img src="https:&#x2F;&#x2F;github.com&#x2F;barbanet.png" width="60px" alt="User avatar: Damián Culotta" /></a><a href="https://github.com/ryanilano"><img src="https:&#x2F;&#x2F;github.com&#x2F;ryanilano.png" width="60px" alt="User avatar: Ryan Ilano" /></a><a href="https://github.com/bojanmilevski"><img src="https:&#x2F;&#x2F;github.com&#x2F;bojanmilevski.png" width="60px" alt="User avatar: Bojan Milevski" /></a><!-- sponsors -->
 
 ## License
 

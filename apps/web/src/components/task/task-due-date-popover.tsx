@@ -1,8 +1,6 @@
-import { X } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { DatePickerMenu } from "@/components/common/date-picker/date-picker-menu";
 import {
   Popover,
   PopoverContent,
@@ -28,13 +26,12 @@ export default function TaskDueDatePopover({
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
 
-  const handleDateChange = async (date: Date | undefined) => {
+  const handleDateChange = async (date: Date | null) => {
     try {
       await updateTaskDueDate({
         ...task,
-        dueDate: date?.toISOString() || null,
+        dueDate: date?.toISOString() ?? null,
       });
-      toast.success(t("tasks:popover.dueDate.updateSuccess"));
       setOpen(false);
     } catch (error) {
       toast.error(
@@ -50,29 +47,18 @@ export default function TaskDueDatePopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={task.dueDate ? new Date(task.dueDate) : undefined}
-          onSelect={handleDateChange}
-          disabled={
+      <PopoverContent className="w-65 p-0" align="start">
+        <DatePickerMenu
+          label={t("tasks:dueDate.label")}
+          placeholder={t("tasks:datePicker.dueDatePlaceholder")}
+          clearLabel={t("tasks:popover.dueDate.clear")}
+          value={task.dueDate ? new Date(task.dueDate) : null}
+          onChange={handleDateChange}
+          bounds={
             task.startDate ? { before: new Date(task.startDate) } : undefined
           }
-          className="w-full bg-popover"
+          formatLimit={(date) => t("tasks:datePicker.startsOn", { date })}
         />
-        {task.dueDate && (
-          <div className="pt-2 border-t border-border">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
-              onClick={() => handleDateChange(undefined)}
-            >
-              <X className="h-4 w-4" />
-              {t("tasks:popover.dueDate.clear")}
-            </Button>
-          </div>
-        )}
       </PopoverContent>
     </Popover>
   );

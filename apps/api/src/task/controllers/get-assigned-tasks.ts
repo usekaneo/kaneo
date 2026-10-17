@@ -16,6 +16,7 @@ import {
   projectTable,
   taskTable,
 } from "../../database/schema";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { taskIsCompleted } from "../task-is-completed";
 
 // Home and My tasks render this list whole, so it stays one bounded page.
@@ -44,6 +45,7 @@ async function getAssignedTasks(
       where ${columnTable.id} = ${taskTable.columnId}
         and ${columnTable.projectId} = ${taskTable.projectId}
     ), ${taskIsCompleted})`,
+    projectAccessCondition(userId, projectTable.id),
   );
 
   const totalsQuery = db

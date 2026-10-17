@@ -13,6 +13,22 @@ vi.mock("../../apps/api/src/auth", () => ({
 
 const protocolVersion = "2026-07-28";
 
+const currentUser = {
+  id: "test-user",
+  name: "Test User",
+  email: "test@example.com",
+  role: "user",
+};
+
+const sessionResponse = {
+  user: { ...currentUser, token: "unexpected-user-secret" },
+  session: {
+    id: "test-session",
+    token: "live-session-secret",
+    expiresAt: "2026-11-08T00:00:00.000Z",
+  },
+};
+
 function modernRequest(
   method: string,
   id: number,
@@ -95,7 +111,7 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
         expect(new Headers(init?.headers).get("authorization")).toBe(
           "Bearer test-token",
         );
-        return Response.json({ user: { id: "test-user" } });
+        return Response.json(sessionResponse);
       },
     );
     vi.stubGlobal("fetch", apiFetch);
@@ -115,9 +131,11 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
 
     expect(apiFetch).toHaveBeenCalledTimes(4);
     expect(responses.every((response) => response.status === 200)).toBe(true);
-    expect(
-      bodies.every((body) => body.result.content[0].text.includes("test-user")),
-    ).toBe(true);
+    for (const body of bodies) {
+      expect(JSON.parse(body.result.content[0].text)).toEqual(currentUser);
+      expect(JSON.stringify(body)).not.toContain("live-session-secret");
+      expect(JSON.stringify(body)).not.toContain("unexpected-user-secret");
+    }
   });
 
   it("gets one task by ticket ID through the HTTP MCP server", async () => {
@@ -287,6 +305,25 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     expect((await mcpRoutes.request(unauthenticated)).status).toBe(401);
   });
 
+  it("advertises the canonical protected-resource metadata URL on 401", async () => {
+    const response = await mcpRoutes.request("/mcp", {
+      method: "POST",
+      headers: {
+        accept: "application/json, text/event-stream",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }),
+    });
+
+    expect(response.status).toBe(401);
+    const header = response.headers.get("www-authenticate") ?? "";
+    expect(header.startsWith("Bearer ")).toBe(true);
+    expect(header).toContain("/.well-known/oauth-protected-resource/api/mcp");
+    // RFC 9728 inserts the well-known path before the resource path, so the
+    // advertised URL must not carry the API mount before it.
+    expect(header).not.toContain("/api/.well-known/oauth-protected-resource");
+  });
+
   it("serves legacy requests across replicas without a session ID", async () => {
     const replicaA = await import("../../apps/api/src/mcp");
     vi.resetModules();
@@ -339,9 +376,7 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
       }),
     });
     const toolsBody = await rpcBody(tools);
-    const apiFetch = vi.fn(async () =>
-      Response.json({ user: { id: "test-user" } }),
-    );
+    const apiFetch = vi.fn(async () => Response.json(sessionResponse));
     vi.stubGlobal("fetch", apiFetch);
     const call = await replicaB.default.request("/mcp", {
       method: "POST",
@@ -366,7 +401,9 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     expect(toolsBody.result.tools).toContainEqual(
       expect.objectContaining({ name: "whoami" }),
     );
-    expect(callBody.result.content[0].text).toContain("test-user");
+    expect(JSON.parse(callBody.result.content[0].text)).toEqual(currentUser);
+    expect(JSON.stringify(callBody)).not.toContain("live-session-secret");
+    expect(JSON.stringify(callBody)).not.toContain("unexpected-user-secret");
     expect(apiFetch).toHaveBeenCalledOnce();
     expect(authMocks.getSession).toHaveBeenCalledTimes(4);
   });
