@@ -2,6 +2,7 @@ import { Trash2Icon } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -186,6 +187,7 @@ function TaskCardContent({
               <div className="mt-2.5 flex flex-wrap items-center gap-1 empty:hidden">
                 {showPriority && hasPriority && <PriorityChip task={task} />}
                 {showDueDates && <DueDateChip task={task} />}
+                <TaskRecurrenceBadge task={task} />
                 <SubtasksChip task={task} workspaceId={workspaceId} />
                 {showTaskItemCounts && <ChecklistChip task={task} />}
                 <TaskPullRequests

@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DatePickerMenu } from "@/components/common/date-picker/date-picker-menu";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
+import { useUpdateTaskRecurrence } from "@/hooks/mutations/task/use-update-task-recurrence";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
+import type { TaskRecurrence } from "@/types/task/recurrence";
+import TaskDueDatePicker from "./task-due-date-picker";
 
 type TaskDueDatePopoverProps = {
   task: Task;
@@ -23,8 +25,18 @@ export default function TaskDueDatePopover({
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
+  const { mutateAsync: updateTaskRecurrence } = useUpdateTaskRecurrence();
   const { canUpdateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
+  const recurrence = task.recurrence ?? null;
+  const dueDate = useMemo(
+    () => (task.dueDate ? new Date(task.dueDate) : null),
+    [task.dueDate],
+  );
+  const startDate = useMemo(
+    () => (task.startDate ? new Date(task.startDate) : undefined),
+    [task.startDate],
+  );
 
   const handleDateChange = async (date: Date | null) => {
     try {
@@ -32,12 +44,25 @@ export default function TaskDueDatePopover({
         ...task,
         dueDate: date?.toISOString() ?? null,
       });
-      setOpen(false);
+      // Keep a repeating task's picker open to show its upcoming dates.
+      if (!recurrence || !date) setOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
           : t("tasks:popover.dueDate.updateError"),
+      );
+    }
+  };
+
+  const handleRecurrenceChange = async (next: TaskRecurrence | null) => {
+    try {
+      await updateTaskRecurrence({ task, recurrence: next });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:popover.recurrence.updateError"),
       );
     }
   };
@@ -48,16 +73,14 @@ export default function TaskDueDatePopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-65 p-0" align="start">
-        <DatePickerMenu
+        <TaskDueDatePicker
           label={t("tasks:dueDate.label")}
-          placeholder={t("tasks:datePicker.dueDatePlaceholder")}
           clearLabel={t("tasks:popover.dueDate.clear")}
-          value={task.dueDate ? new Date(task.dueDate) : null}
-          onChange={handleDateChange}
-          bounds={
-            task.startDate ? { before: new Date(task.startDate) } : undefined
-          }
-          formatLimit={(date) => t("tasks:datePicker.startsOn", { date })}
+          dueDate={dueDate}
+          startDate={startDate}
+          recurrence={recurrence}
+          onDateChange={handleDateChange}
+          onRecurrenceChange={handleRecurrenceChange}
         />
       </PopoverContent>
     </Popover>
