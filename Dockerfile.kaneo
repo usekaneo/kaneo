@@ -97,10 +97,10 @@ FROM node:24.19.0-alpine AS runtime
 RUN apk add --no-cache nginx=~1.30.4 && \
   addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
-  mkdir -p /app /app/apps/api/data /var/lib/kaneo/html /docker-entrypoint.d && \
+  mkdir -p /app /app/apps/api/data /var/lib/kaneo /docker-entrypoint.d && \
   chown -R appuser:appuser /app && \
-  chown appuser:root /var/lib/kaneo /var/lib/kaneo/html && \
-  chmod 2775 /var/lib/kaneo /var/lib/kaneo/html && \
+  chown appuser:root /var/lib/kaneo && \
+  chmod 2775 /var/lib/kaneo && \
   rm -rf /usr/share/nginx/html && \
   mkdir -p /usr/share/nginx && \
   ln -s /var/lib/kaneo/html /usr/share/nginx/html

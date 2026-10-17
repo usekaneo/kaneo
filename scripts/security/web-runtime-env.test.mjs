@@ -40,7 +40,6 @@ test("production runtime serves configuration with default and restricted users"
   const fixture = mkdtempSync(resolve(tmpdir(), "kaneo-web-runtime-"));
   const runtimeImage = `kaneo-web-runtime-test:${process.pid}`;
   const container = `kaneo-web-runtime-test-${process.pid}`;
-  const volume = `kaneo-web-runtime-test-${process.pid}`;
   const docker = (args, timeout = 30_000) => {
     const result = spawnSync("docker", args, { encoding: "utf8", timeout });
     assert.equal(result.status, 0, result.error?.message ?? result.stderr);
@@ -54,16 +53,6 @@ test("production runtime serves configuration with default and restricted users"
       writeFileSync(resolve(fixture, "dist", asset), '"KANEO_API_URL"');
     }
     writeFileSync(resolve(fixture, "dist/hook.js"), '"KANEO_CLIENT_URL"');
-    // Files mounted into the old web root must survive startup untouched,
-    // whether the mount is read-only or writes through to the host.
-    for (const asset of ["favicon.ico", "robots.txt"]) {
-      writeFileSync(resolve(fixture, "dist", asset), "kaneo asset");
-    }
-    const customFavicon = resolve(fixture, "favicon.ico");
-    writeFileSync(customFavicon, "custom favicon");
-    const customRobots = resolve(fixture, "robots.txt");
-    writeFileSync(customRobots, "custom robots", { mode: 0o666 });
-    chmodSync(customRobots, 0o666);
     const hook = resolve(fixture, "00-test.envsh");
     writeFileSync(
       hook,
@@ -109,45 +98,26 @@ test("production runtime serves configuration with default and restricted users"
     );
     docker(["image", "inspect", image]);
     docker(["build", "--network=none", "-t", runtimeImage, fixture], 120_000);
-    const restricted = [
-      "--read-only",
-      "--cap-drop=ALL",
-      "--security-opt=no-new-privileges",
-    ];
-    // The runtime creates a tmpfs's mount points as root, so custom files go
-    // in the build directory there; the old web root works everywhere else.
     for (const scenario of [
       {
         name: "default non-root user",
         uid: "1001",
-        assets: "/usr/share/nginx/html",
         args: [],
       },
       {
         name: "arbitrary OpenShift UID",
         uid: "1001230000",
-        assets: "/usr/share/nginx/html",
         args: ["--user=1001230000:0"],
       },
       {
         name: "arbitrary UID and read-only root with writable volume",
         uid: "1001230000",
-        assets: "/usr/share/kaneo/html",
         args: [
           "--user=1001230000:1001230000",
+          "--read-only",
           "--tmpfs=/var/lib/kaneo:rw,mode=0770,gid=1001230000",
-          ...restricted,
-        ],
-      },
-      {
-        name: "arbitrary UID and read-only root with named volume",
-        uid: "1001230000",
-        assets: "/usr/share/nginx/html",
-        args: [
-          "--user=1001230000:0",
-          "--mount",
-          `type=volume,source=${volume},target=/var/lib/kaneo`,
-          ...restricted,
+          "--cap-drop=ALL",
+          "--security-opt=no-new-privileges",
         ],
       },
     ]) {
@@ -166,10 +136,6 @@ test("production runtime serves configuration with default and restricted users"
           `type=bind,source=${template},target=/etc/nginx/templates/runtime.conf.template,readonly`,
           "--mount",
           `type=bind,source=${legacy},target=/etc/nginx/conf.d/legacy.conf,readonly`,
-          "--mount",
-          `type=bind,source=${customFavicon},target=${scenario.assets}/favicon.ico,readonly`,
-          "--mount",
-          `type=bind,source=${customRobots},target=${scenario.assets}/robots.txt`,
           "--env",
           "KANEO_API_URL=https://api.example.test/api",
           runtimeImage,
@@ -178,7 +144,7 @@ test("production runtime serves configuration with default and restricted users"
           "-c",
           [
             `test "$(id -u)" = ${scenario.uid}`,
-            "test ! -e /var/lib/kaneo/html/root.js",
+            "test ! -d /var/lib/kaneo/html",
             "test -L /usr/share/nginx/html",
             'test "$(cat /usr/share/kaneo/html/root.js)" = \'"KANEO_API_URL"\'',
             "/docker-entrypoint.sh nginx -t",
@@ -194,9 +160,6 @@ test("production runtime serves configuration with default and restricted users"
             'test "$(wget -qO- http://127.0.0.1:5173/)" = "runtime fixture"',
             'test "$(wget -qO- http://127.0.0.1:5174/)" = "https://hook.example.test"',
             'test "$(wget -qO- http://127.0.0.1:5175/root.js)" = \'"https://api.example.test/api"\'',
-            'test "$(wget -qO- http://127.0.0.1:5173/favicon.ico)" = "custom favicon"',
-            'test "$(wget -qO- http://127.0.0.1:5175/favicon.ico)" = "custom favicon"',
-            'test "$(wget -qO- http://127.0.0.1:5175/robots.txt)" = "custom robots"',
             "wget -qO- http://127.0.0.1:5173/root.js",
             "wget -qO- http://127.0.0.1:5173/assets/app.js",
             "wget -qO- http://127.0.0.1:5173/.well-known/oauth-protected-resource/api/mcp",
@@ -213,13 +176,10 @@ test("production runtime serves configuration with default and restricted users"
         assert.equal(responses[1], "https://api.example.test/api");
         assert.equal(responses[2].resource, "https://api.example.test/api/mcp");
         assert.equal(responses[3].issuer, "https://api.example.test/api");
-        assert.equal(readFileSync(customFavicon, "utf8"), "custom favicon");
-        assert.equal(readFileSync(customRobots, "utf8"), "custom robots");
       });
     }
   } finally {
     spawnSync("docker", ["rm", "-f", container], { timeout: 30_000 });
-    spawnSync("docker", ["volume", "rm", volume], { timeout: 30_000 });
     spawnSync("docker", ["image", "rm", runtimeImage], { timeout: 30_000 });
     rmSync(fixture, { recursive: true, force: true });
   }

@@ -52,13 +52,12 @@ FROM nginx:1.29.5-alpine AS runtime
 
 # Only runtime storage needs write access, including for an arbitrary UID.
 # The legacy web root links to the rendered assets so mounted server configs
-# with `root /usr/share/nginx/html` keep serving the configured app. Creating
-# the target keeps files mounted through that link in a directory we own.
+# with `root /usr/share/nginx/html` keep serving the configured app.
 RUN addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
-  mkdir -p /var/lib/kaneo/html && \
-  chown appuser:root /var/lib/kaneo /var/lib/kaneo/html && \
-  chmod 2775 /var/lib/kaneo /var/lib/kaneo/html && \
+  mkdir -p /var/lib/kaneo && \
+  chown appuser:root /var/lib/kaneo && \
+  chmod 2775 /var/lib/kaneo && \
   rm -rf /usr/share/nginx/html && \
   ln -s /var/lib/kaneo/html /usr/share/nginx/html
 
