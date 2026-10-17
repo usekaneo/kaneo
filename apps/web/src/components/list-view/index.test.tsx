@@ -61,6 +61,7 @@ vi.mock("../shared/modals/archive-tasks-modal", () => ({
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  window.localStorage.clear();
 });
 it("disables keyboard sensors and rejects drag completion on a partial board", () => {
   const project = {
@@ -137,4 +138,36 @@ it("blocks archive-all during pagination or errors, including an already-open co
   act(() => m.archive.onConfirm?.());
   expect(m.mutate).toHaveBeenCalledTimes(2);
   expect(m.setProject).toHaveBeenCalledOnce();
+});
+
+it("keeps collapsed lanes per project after the list view unmounts", () => {
+  const makeProject = (id: string) =>
+    ({
+      id,
+      workspaceId: "w",
+      columns: [
+        { id: "todo", slug: "todo", name: "To do", tasks: [] },
+        { id: "done", slug: "done", name: "Done", tasks: [] },
+      ],
+      plannedTasks: [],
+      archivedTasks: [],
+    }) as unknown as ProjectWithTasks;
+  const lane = (name: string) =>
+    screen.getByRole("button", { name: new RegExp(`^${name}`) });
+
+  const { unmount } = render(<ListView project={makeProject("p")} />, {
+    wrapper: Providers,
+  });
+  fireEvent.click(lane("To do"));
+  expect(lane("To do")).toHaveAttribute("aria-expanded", "false");
+  // Visiting the backlog unmounts the list view.
+  unmount();
+
+  render(<ListView project={makeProject("p")} />, { wrapper: Providers });
+  expect(lane("To do")).toHaveAttribute("aria-expanded", "false");
+  expect(lane("Done")).toHaveAttribute("aria-expanded", "true");
+  cleanup();
+
+  render(<ListView project={makeProject("other")} />, { wrapper: Providers });
+  expect(lane("To do")).toHaveAttribute("aria-expanded", "true");
 });

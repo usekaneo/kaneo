@@ -1,5 +1,5 @@
 import { Trash2Icon } from "lucide-react";
-import { memo, useMemo, useState } from "react";
+import { memo, type TouchEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
 import {
@@ -36,12 +36,14 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../task-card-context-menu/task-card-context-menu-content";
 import { useTaskCardClick } from "./use-task-card-click";
+import { useTouchDragMenu } from "./use-touch-drag-menu";
 
 type TaskCardContentProps = {
   task: Task;
   disableDragDrop: boolean;
   isFinalColumn?: boolean;
   isDragging: boolean;
+  onDragTouchStart?: (event: TouchEvent<HTMLDivElement>) => void;
 };
 
 function TaskCardContent({
@@ -49,6 +51,7 @@ function TaskCardContent({
   disableDragDrop,
   isFinalColumn,
   isDragging,
+  onDragTouchStart,
 }: TaskCardContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
@@ -91,6 +94,7 @@ function TaskCardContent({
   }, [workspaceUsers, task.userId]);
 
   const { handleClick } = useTaskCardClick(task);
+  const touchDragMenu = useTouchDragMenu(isDragging, onDragTouchStart);
 
   const handleDeleteTask = async () => {
     try {
@@ -106,7 +110,9 @@ function TaskCardContent({
   return (
     <>
       <ContextMenu
+        open={touchDragMenu.isMenuOpen}
         onOpenChange={(open) => {
+          touchDragMenu.setIsMenuOpen(open);
           if (open) setHasOpenedMenu(true);
         }}
       >
@@ -114,6 +120,8 @@ function TaskCardContent({
           {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- the focusable sortable wrapper owns keyboard access */}
           <div
             onClick={handleClick}
+            onTouchStart={touchDragMenu.onTouchStart}
+            onTouchMove={touchDragMenu.onTouchMove}
             onPointerDown={(event) => {
               if (isOwnDomEvent(event)) setIsPressed(true);
             }}

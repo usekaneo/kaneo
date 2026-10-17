@@ -16,6 +16,7 @@ import {
 } from "./integration-task-scope";
 import { findExternalLinksByTask, updateExternalLink } from "./link-manager";
 import { isTaskInFinalState } from "./task-service";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 
 // Provider requests may complete out of order across API instances. Every late
 // completion repairs the provider using the current, still-linked task value.
@@ -70,9 +71,20 @@ export async function syncLatestTaskValue(
       return;
     return binding;
   };
+  // Archived tasks send no state, even for retried initialization or repairs.
+  // Skipping counts as synchronized so callers such as initialization finish.
+  const statePaused = async () => {
+    if (field !== "state") return false;
+    const task = await db.query.taskTable.findFirst({
+      where: linkedTaskScope(taskId, projectId),
+      columns: { status: true },
+    });
+    return !!task && isStateSyncPaused(task.status);
+  };
   for (;;) {
     const binding = await currentBinding();
     if (!binding) return;
+    if (await statePaused()) return true;
     identity ??= binding.integration
       ? { type: binding.integration.type, config: binding.integration.config }
       : undefined;
@@ -102,6 +114,7 @@ export async function syncLatestTaskValue(
         { ...link, taskId },
         identity?.config,
         () => write(value),
+        { issueState: field === "state" },
       );
       if (!dispatched) {
         await updateExternalLink(link.id, {
@@ -114,7 +127,8 @@ export async function syncLatestTaskValue(
             uncertain: false,
           },
         });
-        return;
+        // Dispatch also skips a task archived after the check above.
+        return (await statePaused()) || undefined;
       }
       updatedAt = dispatched.value;
       attempts++;

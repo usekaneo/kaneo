@@ -1,7 +1,7 @@
 import { createIssueWrite } from "../../sync/dispatch-issue-write";
 import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
-import { isTaskInFinalState } from "../../github/services/task-service";
+import { resolveIssueStateChange } from "../../sync/issue-state-change";
 import {
   findExternalLinksByTask,
   updateExternalLink,
@@ -70,22 +70,15 @@ export async function handleTaskStatusChanged(
       JSON.stringify(context.config),
     );
 
-    const closing = await isTaskInFinalState({
-      projectId: event.projectId,
-      status: currentValue,
-      columnId: null,
-    });
-    const reopening =
-      !closing &&
-      (await isTaskInFinalState({
-        projectId: event.projectId,
-        status: event.oldStatus,
-        columnId: null,
-      }));
-
-    if (!closing && !reopening) {
+    const change = await resolveIssueStateChange(
+      event.projectId,
+      event.oldStatus,
+      currentValue,
+    );
+    if (!change) {
       return;
     }
+    const closing = change === "close";
 
     await write(() =>
       createGitlabClient(config).updateIssue(config.projectPath, issueIid, {

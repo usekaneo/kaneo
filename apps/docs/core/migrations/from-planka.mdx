@@ -133,6 +133,8 @@ The in-app [troubleshooting](#troubleshooting) for terms, two-factor authenticat
 
 **A board failed partway**: failures are isolated per board, so the rest still import and the summary names the one that failed. Delete the half-created Kaneo project and run the importer interactively again, selecting only the failed board. The `--project` flag filters PLANKA projects, which can contain several boards.
 
+**"Kaneo rate limit reached, waiting…"**: a large board can use up the Kaneo API key's [rate limit](/api-reference/authentication#rate-limits). The importer waits as long as Kaneo's `Retry-After` asks, then continues, so leave it running. If the key has a usage quota that won't refill for more than five minutes, the importer stops with the time left instead. Raise the key's limits or run again later.
+
 **Re-running**: the importer always creates new projects; it never updates ones it created earlier. Running it twice gives you two copies, so delete the previous project before retrying.
 
 ### Options
