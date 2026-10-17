@@ -4,7 +4,7 @@ set -eu
 # Values are read through awk's ENVIRON, never interpolated into shell, sed,
 # JavaScript, or nginx source. Do not print public or private environment values.
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-asset_source=/usr/share/nginx/html
+asset_source=/usr/share/kaneo/html
 asset_root=/var/lib/kaneo/html
 export KANEO_ENV_RENDERER="$script_dir/env.awk"
 

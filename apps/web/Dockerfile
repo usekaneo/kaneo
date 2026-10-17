@@ -51,14 +51,18 @@ RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,required=false \
 FROM nginx:1.29.5-alpine AS runtime
 
 # Only runtime storage needs write access, including for an arbitrary UID.
+# The legacy web root links to the rendered assets so mounted server configs
+# with `root /usr/share/nginx/html` keep serving the configured app.
 RUN addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
   mkdir -p /var/lib/kaneo && \
   chown appuser:root /var/lib/kaneo && \
-  chmod 2775 /var/lib/kaneo
+  chmod 2775 /var/lib/kaneo && \
+  rm -rf /usr/share/nginx/html && \
+  ln -s /var/lib/kaneo/html /usr/share/nginx/html
 
 # Copy built files from builder stage
-COPY --from=builder --chown=appuser:appuser /app/apps/web/dist /usr/share/nginx/html
+COPY --from=builder --chown=appuser:appuser /app/apps/web/dist /usr/share/kaneo/html
 
 # Copy nginx configuration and public runtime configuration renderer
 COPY apps/web/nginx.main.conf /etc/nginx/nginx.conf

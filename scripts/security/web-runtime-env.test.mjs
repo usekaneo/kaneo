@@ -66,6 +66,12 @@ test("production runtime serves configuration with default and restricted users"
       template,
       'server { listen 5174; return 200 "$KANEO_CLIENT_URL"; }\n',
     );
+    // Server configs written for earlier images still use the old web root.
+    const legacy = resolve(fixture, "legacy.conf");
+    writeFileSync(
+      legacy,
+      "server { listen 5175; root /usr/share/nginx/html; }\n",
+    );
     for (const file of [
       "nginx.conf",
       "nginx.main.conf",
@@ -128,6 +134,8 @@ test("production runtime serves configuration with default and restricted users"
           `type=bind,source=${hook},target=/docker-entrypoint.d/00-test.envsh,readonly`,
           "--mount",
           `type=bind,source=${template},target=/etc/nginx/templates/runtime.conf.template,readonly`,
+          "--mount",
+          `type=bind,source=${legacy},target=/etc/nginx/conf.d/legacy.conf,readonly`,
           "--env",
           "KANEO_API_URL=https://api.example.test/api",
           runtimeImage,
@@ -137,7 +145,8 @@ test("production runtime serves configuration with default and restricted users"
           [
             `test "$(id -u)" = ${scenario.uid}`,
             "test ! -d /var/lib/kaneo/html",
-            'test "$(cat /usr/share/nginx/html/root.js)" = \'"KANEO_API_URL"\'',
+            "test -L /usr/share/nginx/html",
+            'test "$(cat /usr/share/kaneo/html/root.js)" = \'"KANEO_API_URL"\'',
             "/docker-entrypoint.sh nginx -t",
             "test -f /var/lib/kaneo/nginx/conf.d/default.conf",
             "test -f /var/lib/kaneo/nginx/conf.d/runtime.conf",
@@ -150,6 +159,7 @@ test("production runtime serves configuration with default and restricted users"
             "nginx > /var/lib/kaneo/tmp/nginx-output.log 2>&1",
             'test "$(wget -qO- http://127.0.0.1:5173/)" = "runtime fixture"',
             'test "$(wget -qO- http://127.0.0.1:5174/)" = "https://hook.example.test"',
+            'test "$(wget -qO- http://127.0.0.1:5175/root.js)" = \'"https://api.example.test/api"\'',
             "wget -qO- http://127.0.0.1:5173/root.js",
             "wget -qO- http://127.0.0.1:5173/assets/app.js",
             "wget -qO- http://127.0.0.1:5173/.well-known/oauth-protected-resource/api/mcp",
@@ -203,7 +213,7 @@ for (const scenario of scenarios) {
           "--user=1001:1001",
           "--read-only",
           "--mount",
-          `type=bind,source=${resolve(fixture, "dist")},target=/usr/share/nginx/html,readonly`,
+          `type=bind,source=${resolve(fixture, "dist")},target=/usr/share/kaneo/html,readonly`,
           "--mount",
           `type=bind,source=${resolve(fixture, "runtime")},target=/var/lib/kaneo`,
           "--mount",
