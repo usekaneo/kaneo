@@ -351,6 +351,80 @@ describe("registerTools", () => {
     ).toThrow();
   });
 
+  it("lists a project's custom field definitions", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue([]) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("list_project_custom_fields")
+      ?.handler({ projectId: "project 1" });
+
+    expect(client.json).toHaveBeenCalledWith(
+      "/api/custom-field/project/project%201",
+    );
+  });
+
+  it("reads a task's custom field values", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue([]) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("get_task_custom_field_values")
+      ?.handler({ taskId: "task 1" });
+
+    expect(client.json).toHaveBeenCalledWith("/api/custom-field/task/task%201");
+  });
+
+  it.each([
+    [["Frontend", "API"], '["Frontend","API"]'],
+    [5, "5"],
+    [true, "true"],
+    ["2026-10-17", "2026-10-17"],
+    [null, ""],
+  ])("sets custom field value %j as %j", async (value, encoded) => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ id: "value-1" }) };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools
+      .get("set_task_custom_field_value")
+      ?.handler({ taskId: "task-1", fieldId: "field-1", value });
+
+    expect(client.json).toHaveBeenCalledWith("/api/custom-field/value", {
+      method: "PUT",
+      body: JSON.stringify({
+        taskId: "task-1",
+        fieldId: "field-1",
+        value: encoded,
+      }),
+    });
+    expect(result?.isError).toBe(false);
+  });
+
+  it("rejects a custom field value that is missing or an object", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    const tool = tools.get("set_task_custom_field_value");
+    const missing = await tool?.handler({ taskId: "task-1", fieldId: "f" });
+    const object = await tool?.handler({
+      taskId: "task-1",
+      fieldId: "f",
+      value: { option: "a" },
+    });
+
+    expect(missing?.isError).toBe(true);
+    expect(object?.isError).toBe(true);
+    expect(client.json).not.toHaveBeenCalled();
+  });
+
   it("creates a task relation with the expected body", async () => {
     const { server, tools } = createServerMock();
     const client = {
