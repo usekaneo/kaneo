@@ -55,6 +55,7 @@ vi.mock(
 beforeEach(async () => {
   await resetTestDatabase();
   m.publish.mockReset();
+  m.labels = [];
 });
 it.each([
   ["github", "text"],

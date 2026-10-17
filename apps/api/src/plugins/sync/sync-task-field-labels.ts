@@ -7,6 +7,7 @@ import { parseLinkMetadata } from "../github/utils/parse-link-metadata";
 import type { PluginContext } from "../types";
 import { createIssueWrite } from "./dispatch-issue-write";
 import { canSyncTask } from "./eligibility";
+import { isFieldLabel } from "./changed-label-fields";
 import type { IssueWrite } from "./issue-write";
 import { taskIssueLabels } from "./issue-labels";
 import { withSyncLease } from "./lease";
@@ -75,25 +76,40 @@ export async function syncTaskFieldLabels(
       if (!stored) return;
       const metadata = parseLinkMetadata<{
         syncResumeLabelBaseline?: string[];
+        syncFieldLabels?: string[];
       }>(stored.metadata, {
         externalLinkId: link.id,
         source: "outbound_field_labels",
       });
-      if (Array.isArray(metadata.syncResumeLabelBaseline))
-        await updateExternalLink(link.id, {
-          metadata: {
-            syncResumeLabelBaseline: [
-              ...new Set([
-                ...metadata.syncResumeLabelBaseline.filter(
-                  (name) =>
-                    typeof name === "string" &&
-                    !prefixes.some((prefix) => name.startsWith(prefix)),
+      const replace = (names: string[], added: string[]) => [
+        ...new Set([
+          ...names.filter(
+            (name) =>
+              typeof name === "string" &&
+              !prefixes.some((prefix) => name.startsWith(prefix)),
+          ),
+          ...added,
+        ]),
+      ];
+      await updateExternalLink(link.id, {
+        metadata: {
+          // Inbound label webhooks ignore field labels Kaneo confirmed here.
+          syncFieldLabels: replace(
+            Array.isArray(metadata.syncFieldLabels)
+              ? metadata.syncFieldLabels
+              : labels.filter(isFieldLabel),
+            add.filter(isFieldLabel),
+          ),
+          ...(Array.isArray(metadata.syncResumeLabelBaseline)
+            ? {
+                syncResumeLabelBaseline: replace(
+                  metadata.syncResumeLabelBaseline,
+                  add,
                 ),
-                ...add,
-              ]),
-            ],
-          },
-        });
+              }
+            : {}),
+        },
+      });
       const current = await db.query.taskTable.findFirst({
         where: linkedTaskScope(taskId, context.projectId),
         columns: { priority: true, status: true },
