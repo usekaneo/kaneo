@@ -1,14 +1,67 @@
 import { describe, expect, it, vi } from "vite-plus/test";
 import { registerTools } from "./register.js";
 
+type ToolContent =
+  | { type: "text"; text: string }
+  | { type: "image"; data: string; mimeType: string }
+  | {
+      type: "resource";
+      resource: { uri: string; mimeType?: string; blob: string };
+    };
+
 type RegisteredTool = {
   name: string;
   config: { inputSchema?: { parse: (args: unknown) => unknown } };
   handler: (args: Record<string, unknown>) => Promise<{
-    content: Array<{ type: string; text: string }>;
+    content: ToolContent[];
     isError?: boolean;
   }>;
 };
+
+function bodyFromChunks(chunks: Uint8Array[]): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(chunk);
+      }
+      controller.close();
+    },
+  });
+}
+
+function binaryResponse(options: {
+  bytes?: Uint8Array;
+  chunks?: Uint8Array[];
+  contentType?: string;
+  assetMimeType?: string;
+  filename?: string;
+  contentLength?: number;
+}): Response {
+  const headers = new Headers();
+  if (options.contentType) {
+    headers.set("content-type", options.contentType);
+  }
+  if (options.assetMimeType) {
+    headers.set("x-asset-mime-type", options.assetMimeType);
+  }
+  if (options.filename) {
+    headers.set(
+      "content-disposition",
+      `inline; filename="${options.filename}"`,
+    );
+  }
+  if (options.contentLength !== undefined) {
+    headers.set("content-length", String(options.contentLength));
+  }
+  const chunks = options.chunks ?? [options.bytes ?? new Uint8Array()];
+  return {
+    ok: true,
+    status: 200,
+    headers,
+    body: bodyFromChunks(chunks),
+    text: async () => "",
+  } as unknown as Response;
+}
 
 function createServerMock() {
   const tools = new Map<string, RegisteredTool>();
@@ -451,6 +504,289 @@ describe("registerTools", () => {
       method: "DELETE",
       signal: expect.any(AbortSignal),
     });
+  });
+
+  it("downloads an asset by bare id", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([104, 105]),
+          contentType: "image/png",
+          filename: "pic.png",
+          contentLength: 2,
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "abc123" });
+
+    expect(client.raw).toHaveBeenCalledWith("/api/asset/abc123", {
+      method: "GET",
+    });
+    expect(result?.isError).toBe(false);
+    expect(result?.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify(
+        {
+          id: "abc123",
+          filename: "pic.png",
+          mimeType: "image/png",
+          size: 2,
+          url: "http://api.test/api/asset/abc123",
+        },
+        null,
+        2,
+      ),
+    });
+    expect(result?.content[1]).toEqual({
+      type: "image",
+      data: "aGk=",
+      mimeType: "image/png",
+    });
+  });
+
+  it("extracts the asset id from a full /api/asset URL", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([1]),
+          contentType: "image/png",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("get_asset")
+      ?.handler({ assetId: "https://kaneo.test/api/asset/xyz789" });
+
+    expect(client.raw).toHaveBeenCalledWith("/api/asset/xyz789", {
+      method: "GET",
+    });
+  });
+
+  it("ignores punctuation wrapping a pasted asset URL", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([1]),
+          contentType: "image/png",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("get_asset")
+      ?.handler({ assetId: "![Image](https://kaneo.test/api/asset/xyz789)" });
+
+    expect(client.raw).toHaveBeenCalledWith("/api/asset/xyz789", {
+      method: "GET",
+    });
+  });
+
+  it("returns a non-image asset as an embedded resource", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([10, 20, 30]),
+          contentType: "application/octet-stream",
+          assetMimeType: "application/pdf",
+          filename: "report.pdf",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "doc1" });
+
+    expect(result?.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify(
+        {
+          id: "doc1",
+          filename: "report.pdf",
+          mimeType: "application/pdf",
+          size: 3,
+          url: "http://api.test/api/asset/doc1",
+        },
+        null,
+        2,
+      ),
+    });
+    expect(result?.content[1]).toEqual({
+      type: "resource",
+      resource: {
+        uri: "http://api.test/api/asset/doc1",
+        mimeType: "application/pdf",
+        blob: Buffer.from([10, 20, 30]).toString("base64"),
+      },
+    });
+  });
+
+  it("returns image types hosts may reject as embedded resources", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([10, 20, 30]),
+          contentType: "image/heic",
+          filename: "photo.heic",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "heic1" });
+
+    expect(result?.content[1]).toEqual({
+      type: "resource",
+      resource: {
+        uri: "http://api.test/api/asset/heic1",
+        mimeType: "image/heic",
+        blob: Buffer.from([10, 20, 30]).toString("base64"),
+      },
+    });
+  });
+
+  it("reports a missing asset without leaking the response body", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+        headers: new Headers(),
+        text: async () => JSON.stringify({ message: "Asset not found" }),
+      } as unknown as Response),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "gone" });
+
+    expect(result?.isError).toBe(true);
+    expect(result?.content[0]).toEqual({
+      type: "text",
+      text: JSON.stringify({ error: "Asset gone not found" }, null, 2),
+    });
+  });
+
+  it("rejects a malformed asset reference before making a request", async () => {
+    const { server, tools } = createServerMock();
+    const client = { baseUrl: "http://api.test", raw: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools
+      .get("get_asset")
+      ?.handler({ assetId: "https://kaneo.test/not-an-asset" });
+
+    expect(result?.isError).toBe(true);
+    expect(client.raw).not.toHaveBeenCalled();
+  });
+
+  it("refuses to inline an asset larger than the limit", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          bytes: new Uint8Array([1]),
+          contentType: "image/png",
+          contentLength: 10 * 1024 * 1024 + 1,
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "big" });
+
+    expect(result?.isError).toBe(true);
+    expect(result?.content).toHaveLength(1);
+    const [content] = result?.content ?? [];
+    expect(content).toMatchObject({ type: "text" });
+    const text = content?.type === "text" ? content.text : "";
+    expect(text).toContain("over the 10.0MB MCP limit");
+    expect(text).toContain("http://api.test/api/asset/big");
+    expect(text).toContain("API key or session token");
+    expect(text).not.toContain("KANEO_API_KEY");
+  });
+
+  it("cancels the download stream when content-length exceeds the limit", async () => {
+    const { server, tools } = createServerMock();
+    const cancel = vi.fn();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: new Headers({
+          "content-length": String(10 * 1024 * 1024 + 1),
+        }),
+        body: new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(new Uint8Array([1]));
+          },
+          cancel,
+        }),
+        text: async () => "",
+      } as unknown as Response),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("get_asset")?.handler({ assetId: "big" });
+
+    expect(result?.isError).toBe(true);
+    expect(cancel).toHaveBeenCalled();
+  });
+
+  it("refuses an oversized streamed asset without a declared length", async () => {
+    const { server, tools } = createServerMock();
+    const client = {
+      baseUrl: "http://api.test",
+      raw: vi.fn().mockResolvedValue(
+        binaryResponse({
+          chunks: [
+            new Uint8Array(6 * 1024 * 1024),
+            new Uint8Array(5 * 1024 * 1024),
+          ],
+          contentType: "image/png",
+        }),
+      ),
+    };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools
+      .get("get_asset")
+      ?.handler({ assetId: "big-stream" });
+
+    expect(result?.isError).toBe(true);
+    expect(result?.content).toHaveLength(1);
+    const [content] = result?.content ?? [];
+    expect(content).toMatchObject({ type: "text" });
+    const text = content?.type === "text" ? content.text : "";
+    expect(text).toContain("over the 10.0MB MCP limit");
+    expect(text).toContain("http://api.test/api/asset/big-stream");
+    expect(text).not.toContain("KANEO_API_KEY");
   });
 
   it("returns saved progress when the overall deletion deadline expires", async () => {

@@ -26,14 +26,22 @@ export function toMcpToolRegistrar(server: ShapeToolServer): McpToolRegistrar {
   };
 }
 
+const DEFAULT_TIMEOUT_MS = 10_000;
+/** Binary downloads can be up to the asset size cap, so allow more time. */
+const ASSET_TIMEOUT_MS = 30_000;
+
 class ApiClient {
   readonly usingApiKey = false;
   constructor(
-    private baseUrl: string,
+    readonly baseUrl: string,
     private token: string,
   ) {}
 
-  async json<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+  private async request(
+    path: string,
+    init?: RequestInit,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+  ): Promise<Response> {
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Bearer ${this.token}`);
     if (init?.body != null && !headers.has("Content-Type")) {
@@ -41,13 +49,22 @@ class ApiClient {
     }
 
     const url = `${this.baseUrl}${path.startsWith("/") ? path : `/${path}`}`;
-    const res = await fetch(url, {
+    return fetch(url, {
       ...init,
       headers,
       signal: init?.signal
-        ? AbortSignal.any([init.signal, AbortSignal.timeout(10_000)])
-        : AbortSignal.timeout(10_000),
+        ? AbortSignal.any([init.signal, AbortSignal.timeout(timeoutMs)])
+        : AbortSignal.timeout(timeoutMs),
     });
+  }
+
+  /** Returns the raw response for binary endpoints such as asset downloads. */
+  async raw(path: string, init?: RequestInit): Promise<Response> {
+    return this.request(path, init, ASSET_TIMEOUT_MS);
+  }
+
+  async json<T = unknown>(path: string, init?: RequestInit): Promise<T> {
+    const res = await this.request(path, init);
 
     const text = await res.text();
     let body: unknown = null;
@@ -75,6 +92,12 @@ export function registerMcpTools(
   server: McpToolRegistrar,
   baseUrl: string,
   token: string,
+  // The origin shown to users in asset results. Defaults to the fetch origin
+  // but callers pass the public API URL so internal addresses never leak.
+  assetUrlBase: string = baseUrl,
 ): void {
-  registerTools(server, { client: new ApiClient(baseUrl, token) });
+  registerTools(server, {
+    client: new ApiClient(baseUrl, token),
+    assetUrlBase,
+  });
 }

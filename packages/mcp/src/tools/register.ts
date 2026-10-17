@@ -1,12 +1,25 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { buildFullTaskUpdateBody } from "../kaneo/task-helpers.js";
+import {
+  buildAssetResult,
+  extractAssetId,
+  formatBytes,
+  MAX_ASSET_BYTES,
+  parseContentDispositionFilename,
+  readBodyWithLimit,
+  resolveAssetContentTypes,
+} from "../utils/asset-result.js";
 import { errorResult, textResult } from "../utils/mcp-result.js";
 import { getCurrentUser } from "./get-current-user.js";
 
 export type ToolClient = {
   readonly usingApiKey?: boolean;
+  /** Origin shown in asset results; defaults to the client's own base URL. */
+  readonly baseUrl?: string;
   json<T = unknown>(path: string, init?: RequestInit): Promise<T>;
+  /** Raw response for binary endpoints such as asset downloads. */
+  raw(path: string, init?: RequestInit): Promise<Response>;
 };
 export type ToolRegistrar = {
   registerTool(
@@ -47,11 +60,52 @@ function run(fn: () => Promise<unknown>): Promise<CallToolResult> {
     );
 }
 
+async function describeAssetFailure(
+  id: string,
+  res: Response,
+): Promise<string> {
+  let detail = `HTTP ${res.status}`;
+  const text = await res.text().catch(() => "");
+  if (text) {
+    try {
+      const body = JSON.parse(text) as { message?: unknown };
+      if (typeof body.message === "string" && body.message) {
+        detail = body.message;
+      }
+    } catch {
+      if (text.length <= 200) {
+        detail = text;
+      }
+    }
+  }
+  if (res.status === 404) {
+    return `Asset ${id} not found`;
+  }
+  if (res.status === 403) {
+    return `No access to asset ${id}: ${detail}`;
+  }
+  return `Failed to fetch asset ${id}: ${detail}`;
+}
+
+function oversizedAssetMessage(
+  id: string,
+  assetUrlBase: string,
+  size?: number,
+): string {
+  const lead =
+    size === undefined
+      ? "Asset is over"
+      : `Asset is ${formatBytes(size)}, over`;
+  const url = `${assetUrlBase}/api/asset/${encodeURIComponent(id)}`;
+  return `${lead} the ${formatBytes(MAX_ASSET_BYTES)} MCP limit. Fetch it directly from ${url} with a Kaneo bearer credential (API key or session token), for example: curl -H "Authorization: Bearer <token>" "${url}" -o out`;
+}
+
 export function registerTools(
   server: ToolRegistrar,
-  ctx: { client: ToolClient },
+  ctx: { client: ToolClient; assetUrlBase?: string },
 ): void {
   const { client } = ctx;
+  const assetUrlBase = ctx.assetUrlBase ?? client.baseUrl ?? "";
   const registerTool = <S extends z.ZodObject>(
     name: string,
     config: { description: string; inputSchema: S },
@@ -864,5 +918,70 @@ export function registerTools(
       inputSchema: z.object({}),
     },
     async () => run(() => client.json("/api/notification")),
+  );
+
+  registerTool(
+    "get_asset",
+    {
+      description:
+        "Download an uploaded asset by ID, or by the /api/asset/<id> URL found in task and comment content. Images are returned as viewable image content; other types are returned as a base64 resource. Private assets require access to their workspace.",
+      inputSchema: z.object({
+        assetId: nonEmptyString.describe(
+          "Asset ID, or the full /api/asset/<id> URL from task content",
+        ),
+      }),
+    },
+    async (args) => {
+      let id: string;
+      try {
+        id = extractAssetId(args.assetId);
+      } catch (error) {
+        return errorResult(
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+      try {
+        const res = await client.raw(`/api/asset/${encodeURIComponent(id)}`, {
+          method: "GET",
+        });
+        if (!res.ok) {
+          return errorResult(await describeAssetFailure(id, res));
+        }
+        const declaredLength = Number(res.headers.get("content-length") ?? "");
+        if (
+          Number.isFinite(declaredLength) &&
+          declaredLength > MAX_ASSET_BYTES
+        ) {
+          // Rejecting from the header alone still has to release the body,
+          // otherwise the download stream stays open until the abort timeout.
+          await res.body?.cancel().catch(() => {});
+          return errorResult(
+            oversizedAssetMessage(id, assetUrlBase, declaredLength),
+          );
+        }
+        const { mimeType, servedType } = resolveAssetContentTypes(res.headers);
+        const body = await readBodyWithLimit(res, MAX_ASSET_BYTES);
+        if ("exceeded" in body) {
+          return errorResult(oversizedAssetMessage(id, assetUrlBase));
+        }
+        return buildAssetResult(
+          {
+            id,
+            filename: parseContentDispositionFilename(
+              res.headers.get("content-disposition"),
+            ),
+            mimeType,
+            size: body.bytes.byteLength,
+            url: `${assetUrlBase}/api/asset/${id}`,
+          },
+          body.bytes,
+          servedType,
+        );
+      } catch (error) {
+        return errorResult(
+          error instanceof Error ? error.message : String(error),
+        );
+      }
+    },
   );
 }
