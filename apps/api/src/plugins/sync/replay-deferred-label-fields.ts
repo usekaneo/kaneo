@@ -31,11 +31,13 @@ async function replayClaimedLabelFields() {
     orderBy: asc(externalLinkTable.id),
     limit: BATCH,
   });
-  // A short batch reached the end; the next run starts from the first link.
-  if (links.length < BATCH) cursor = undefined;
+  let finished = true;
   for (const link of links) {
-    if (Date.now() >= deadline) break;
-    if (links.length === BATCH) cursor = link.id;
+    if (Date.now() >= deadline) {
+      finished = false;
+      break;
+    }
+    cursor = link.id;
     const integration = link.integration;
     try {
       if (
@@ -59,5 +61,7 @@ async function replayClaimedLabelFields() {
       console.error("Deferred issue label replay failed", { linkId: link.id });
     }
   }
+  // Only a completed final batch starts the next run from the first link.
+  if (finished && links.length < BATCH) cursor = undefined;
   return { degraded };
 }

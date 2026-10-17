@@ -29,7 +29,15 @@ type Link = { id: string; taskId: string; externalId: string };
 type Metadata = {
   syncFieldLabels?: unknown;
   syncLabelFieldsDeferred?: unknown;
+  syncLabelFieldsAdded?: unknown;
 };
+const names = (value: unknown) =>
+  Array.isArray(value)
+    ? value.filter((name): name is string => typeof name === "string")
+    : [];
+
+/** The delivery-wide deadline shared by every integration a webhook reaches. */
+export const labelReadDeadline = () => Date.now() + BUDGET_MS;
 
 const metadataOf = (link: { id: string; metadata: string | null }) =>
   parseLinkMetadata<Metadata>(link.metadata, {
@@ -42,7 +50,7 @@ async function applyLabelFields(
   link: Link,
   labels: string[],
   deferred: unknown,
-  added: string | undefined,
+  added: string[],
 ) {
   await withIntegrationLink(
     link,
@@ -56,14 +64,17 @@ async function applyLabelFields(
       const metadata = metadataOf(link);
       // Links from before this record only trust the label the event added.
       const known = Array.isArray(metadata.syncFieldLabels)
-        ? metadata.syncFieldLabels.filter((name) => typeof name === "string")
-        : labels.filter((name) => isFieldLabel(name) && name !== added);
+        ? names(metadata.syncFieldLabels)
+        : labels.filter((name) => isFieldLabel(name) && !added.includes(name));
       const { status, priority } = changedLabelFields(labels, known, task);
       await updateExternalLink(
         link.id,
         {
           metadata: {
             syncFieldLabels: labels.filter(isFieldLabel),
+            ...(metadata.syncLabelFieldsAdded
+              ? { syncLabelFieldsAdded: null }
+              : {}),
             // A delivery deferred after this read began still needs its own.
             ...(deferred && metadata.syncLabelFieldsDeferred === deferred
               ? { syncLabelFieldsDeferred: null }
@@ -122,7 +133,15 @@ async function readAndApply(
         });
         if (!stored) return "done";
         const metadata = metadataOf(stored);
-        if (added === null && !Array.isArray(metadata.syncFieldLabels))
+        const pending = [
+          ...(added ? [added] : []),
+          ...names(metadata.syncLabelFieldsAdded),
+        ];
+        if (
+          added === null &&
+          !pending.length &&
+          !Array.isArray(metadata.syncFieldLabels)
+        )
           return "done";
         const deferred = metadata.syncLabelFieldsDeferred;
         let labels: string[];
@@ -142,13 +161,7 @@ async function readAndApply(
             });
           return "done";
         }
-        await applyLabelFields(
-          integration,
-          link,
-          labels,
-          deferred,
-          added ?? undefined,
-        );
+        await applyLabelFields(integration, link, labels, deferred, pending);
         return "done";
       },
       { maxWaitMs: LEASE_WAIT_MS },
@@ -168,14 +181,19 @@ async function readAndApply(
  *
  * Links from before `syncFieldLabels` existed have no record of the labels
  * Kaneo accounted for. They apply only `added`, the field label a webhook
- * reports as added; `null` marks a removal, which leaves them untouched.
- * Without either, the first read only records the labels.
+ * reports as added, kept with a deferral until replay; `null` marks a
+ * removal, which leaves them untouched. Without either, the first read only
+ * records the labels. Pass one `deadline` for every integration a delivery
+ * reaches.
  */
 export async function syncLabelFieldsFromIssue(
   integration: Integration,
   link: Link,
   added?: string | null,
+  deadline = labelReadDeadline(),
 ) {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) return defer(integration, link, added);
   let timedOut = false;
   let timer: NodeJS.Timeout | undefined;
   const work = readAndApply(integration, link, added);
@@ -191,14 +209,40 @@ export async function syncLabelFieldsFromIssue(
     timer = setTimeout(() => {
       timedOut = true;
       resolve("defer");
-    }, BUDGET_MS);
+    }, remaining);
   });
   try {
     if ((await Promise.race([work, budget])) === "done") return;
   } finally {
     clearTimeout(timer);
   }
-  await updateExternalLink(link.id, {
-    metadata: { syncLabelFieldsDeferred: randomUUID() },
+  await defer(integration, link, added);
+}
+
+// The row lock keeps concurrent deferrals from dropping each other's label.
+async function defer(
+  integration: Integration,
+  link: Link,
+  added: string | null | undefined,
+) {
+  await withIntegrationLink(link, integration, async (tx, _effects, link) => {
+    const metadata = metadataOf(link);
+    await updateExternalLink(
+      link.id,
+      {
+        metadata: {
+          syncLabelFieldsDeferred: randomUUID(),
+          // Replay of a link without a record trusts only these labels.
+          ...(added && !Array.isArray(metadata.syncFieldLabels)
+            ? {
+                syncLabelFieldsAdded: [
+                  ...new Set([...names(metadata.syncLabelFieldsAdded), added]),
+                ],
+              }
+            : {}),
+        },
+      },
+      tx,
+    );
   });
 }

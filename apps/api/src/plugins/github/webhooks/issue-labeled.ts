@@ -1,5 +1,8 @@
 import { resumeLabelChanges } from "../../sync/resume-label-changes";
-import { syncLabelFieldsFromIssue } from "../../sync/sync-label-fields-from-issue";
+import {
+  labelReadDeadline,
+  syncLabelFieldsFromIssue,
+} from "../../sync/sync-label-fields-from-issue";
 import { acceptsIssue, readSyncRules } from "../../sync/rules";
 import { handleIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../services/with-integration-link";
@@ -32,6 +35,7 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
   const { issue, label: addedLabel } = payload;
 
   const integrations = await findAllIntegrationsByRepo(payload);
+  const deadline = labelReadDeadline();
 
   for (const integration of integrations) {
     const existingLink = await findExternalLink(
@@ -69,6 +73,7 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
         integration,
         existingLink,
         payload.action === "labeled" ? addedLabel?.name : null,
+        deadline,
       );
 
     await withIntegrationLink(

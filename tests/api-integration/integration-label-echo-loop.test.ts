@@ -486,7 +486,7 @@ it("gitea still syncs ordinary labels when the issue cannot be read", async () =
   expect((await f.metadataOf()).syncLabelFieldsDeferred).toBeUndefined();
 });
 
-it("replay stops at its deadline and resumes on the next run", async () => {
+it("replay moves past a link that keeps failing at its deadline", async () => {
   const first = await setup("gitea");
   const second = await setup("gitea");
   const [earlier, later] = [first, second].sort((a, b) =>
@@ -502,19 +502,68 @@ it("replay stops at its deadline and resumes on the next run", async () => {
         }),
       })
       .where(eq(schema.externalLinkTable.id, f.link.id));
+  const token = async (f: typeof earlier) =>
+    (await f!.metadataOf()).syncLabelFieldsDeferred;
   vi.useFakeTimers({ toFake: ["Date"] });
   try {
-    // The first read runs past the run's deadline.
+    // Every read fails transiently and runs past the run's deadline.
     mocks.onRead = () => {
-      mocks.onRead = undefined;
       vi.setSystemTime(Date.now() + 46_000);
+      throw Object.assign(new Error("unavailable"), { status: 503 });
     };
     await replayDeferredLabelFields();
-    expect((await earlier!.metadataOf()).syncLabelFieldsDeferred).toBeNull();
-    expect((await later!.metadataOf()).syncLabelFieldsDeferred).toBe("queued");
+    expect(await token(earlier)).not.toBe("queued");
+    expect(await token(later)).toBe("queued");
     await replayDeferredLabelFields();
-    expect((await later!.metadataOf()).syncLabelFieldsDeferred).toBeNull();
+    expect(await token(later)).not.toBe("queued");
   } finally {
     vi.useRealTimers();
   }
 });
+
+it("github replays the event's label for a deferred link without a record", async () => {
+  const f = await setup("github", {});
+  const lease = `sync-field-labels:${f.link.id}`;
+  await db.insert(schema.jobLeaseTable).values({
+    name: lease,
+    owner: "slow-reader",
+    expiresAt: new Date(Date.now() + 60_000),
+  });
+  change("labeled", "status:in-review");
+  await f.receive(mocks.deliveries.shift()!);
+  expect(await f.metadataOf()).toMatchObject({
+    syncLabelFieldsAdded: ["status:in-review"],
+  });
+
+  await db
+    .delete(schema.jobLeaseTable)
+    .where(eq(schema.jobLeaseTable.name, lease));
+  await replayDeferredLabelFields();
+  expect(await f.status()).toBe("in-review");
+  // Only the event's label applied; the leftover old label is recorded.
+  expect(await f.metadataOf()).toMatchObject({
+    syncFieldLabels: ["status:to-do", "status:in-review"],
+    syncLabelFieldsAdded: null,
+    syncLabelFieldsDeferred: null,
+  });
+}, 15_000);
+
+it("github shares one delivery budget across integrations", async () => {
+  const first = await setup("github");
+  const second = await setup("github");
+  let release!: () => void;
+  mocks.readGate = new Promise((resolve) => {
+    release = resolve;
+  });
+  change("labeled", "status:in-review");
+  const started = Date.now();
+  await first.receive(mocks.deliveries.shift()!);
+  expect(Date.now() - started).toBeLessThan(9_500);
+  for (const f of [first, second])
+    expect((await f.metadataOf()).syncLabelFieldsDeferred).toEqual(
+      expect.any(String),
+    );
+  // Let the stalled read finish before the next test resets the database.
+  release();
+  await vi.waitFor(async () => expect(await first.status()).toBe("in-review"));
+}, 25_000);

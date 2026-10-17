@@ -1,5 +1,8 @@
 import { resumeLabelChanges } from "../../sync/resume-label-changes";
-import { syncLabelFieldsFromIssue } from "../../sync/sync-label-fields-from-issue";
+import {
+  labelReadDeadline,
+  syncLabelFieldsFromIssue,
+} from "../../sync/sync-label-fields-from-issue";
 import { acceptsIssue, readSyncRules } from "../../sync/rules";
 import { handleGiteaIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../../github/services/with-integration-link";
@@ -144,6 +147,7 @@ export async function handleGiteaIssueLabeled(
     repository.name,
     integrationId,
   );
+  const deadline = labelReadDeadline();
 
   for (const integration of integrations) {
     try {
@@ -174,7 +178,13 @@ export async function handleGiteaIssueLabeled(
       const fieldEvent = !addedLabel || isSystemLabelName(addedLabel.name);
       // label_updated has no single label, so it always reads the issue.
       // Status and priority never come from this payload's label snapshot.
-      if (fieldEvent) await syncLabelFieldsFromIssue(integration, existingLink);
+      if (fieldEvent)
+        await syncLabelFieldsFromIssue(
+          integration,
+          existingLink,
+          undefined,
+          deadline,
+        );
 
       await withIntegrationLink(
         existingLink,
