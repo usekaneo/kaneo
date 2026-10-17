@@ -18,6 +18,12 @@ if [ -z "${KANEO_API_URL:-}" ]; then
   echo "WARNING: KANEO_API_URL is not set. API calls may fail." >&2
 fi
 
+# Runs after nginx's template hook, so rendered templates are checked too.
+# Server configs from older images serve the unconfigured build from there.
+if grep -qsF /usr/share/nginx/html /var/lib/kaneo/nginx/conf.d/*.conf; then
+  echo "WARNING: An nginx server config uses /usr/share/nginx/html, which serves the unconfigured build. Change it to root /var/lib/kaneo/html;" >&2
+fi
+
 # find -exec preserves spaces/newlines in filenames. Write each replacement
 # beside its source before atomically replacing the complete file.
 find "$asset_root" -type f -name '*.js' -exec sh -eu -c '

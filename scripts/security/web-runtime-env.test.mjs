@@ -66,6 +66,12 @@ test("production runtime serves configuration with default and restricted users"
       template,
       'server { listen 5174; return 200 "$KANEO_CLIENT_URL"; }\n',
     );
+    // Server configs written for earlier images must trigger a startup warning.
+    const legacy = resolve(fixture, "legacy.conf.template");
+    writeFileSync(
+      legacy,
+      "server { listen 5175; root /usr/share/nginx/html; }\n",
+    );
     for (const file of [
       "nginx.conf",
       "nginx.main.conf",
@@ -128,6 +134,8 @@ test("production runtime serves configuration with default and restricted users"
           `type=bind,source=${hook},target=/docker-entrypoint.d/00-test.envsh,readonly`,
           "--mount",
           `type=bind,source=${template},target=/etc/nginx/templates/runtime.conf.template,readonly`,
+          "--mount",
+          `type=bind,source=${legacy},target=/etc/nginx/templates/legacy.conf.template,readonly`,
           "--env",
           "KANEO_API_URL=https://api.example.test/api",
           runtimeImage,
@@ -138,7 +146,7 @@ test("production runtime serves configuration with default and restricted users"
             `test "$(id -u)" = ${scenario.uid}`,
             "test ! -d /var/lib/kaneo/html",
             'test "$(cat /usr/share/nginx/html/root.js)" = \'"KANEO_API_URL"\'',
-            "/docker-entrypoint.sh nginx -t",
+            "/docker-entrypoint.sh nginx -t 2>&1 | grep -F 'WARNING: An nginx server config uses /usr/share/nginx/html' >/dev/null",
             "test -f /var/lib/kaneo/nginx/conf.d/default.conf",
             "test -f /var/lib/kaneo/nginx/conf.d/runtime.conf",
             'test "$(cat /var/lib/kaneo/html/hook.js)" = \'"https://hook.example.test"\'',
@@ -240,6 +248,7 @@ for (const scenario of scenarios) {
         },
       );
       assert.equal(result.status, 0, result.stderr);
+      assert.ok(!result.stderr.includes("/usr/share/nginx/html"));
       assert.ok(readFileSync(asset, "utf8").includes('api:"KANEO_API_URL"'));
       const source = readFileSync(
         resolve(fixture, "runtime/html", assetName),

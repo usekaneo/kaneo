@@ -470,7 +470,7 @@ docker run --read-only \
 ```
 For a bind mount, grant write access to the container's UID or a group it belongs to. The image's default user is UID 1001 with GID 0; arbitrary UIDs can write its runtime directory through GID 0 when the root filesystem is writable.
 
-nginx serves the web app from `/var/lib/kaneo/html`, where startup writes the runtime configuration, and reads server configuration copied from `/etc/nginx/conf.d` into `/var/lib/kaneo/nginx/conf.d`. If you mount your own server configuration, set `root /var/lib/kaneo/html;`; the previous `/usr/share/nginx/html` holds the unconfigured build. Templates in `/etc/nginx/templates` still render at startup, and `default.conf.template` replaces the bundled server configuration.
+nginx serves the web app from `/var/lib/kaneo/html`, where startup writes the runtime configuration, and reads server configuration copied from `/etc/nginx/conf.d` into `/var/lib/kaneo/nginx/conf.d`. If you mount your own server configuration, set `root /var/lib/kaneo/html;`. The previous `/usr/share/nginx/html` still holds the unconfigured build, so a config that serves it breaks API calls and sign-in; startup logs a warning when a config still uses that path. Files you mount into `/usr/share/nginx/html`, such as a custom favicon, are still copied into `/var/lib/kaneo/html` and served, and startup never writes to them. Templates in `/etc/nginx/templates` still render at startup, and `default.conf.template` replaces the bundled server configuration.
 
 ### Registration Control
 By default, user registration is enabled. To disable new user registration:
