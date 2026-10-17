@@ -3165,7 +3165,8 @@
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
 			"count_other": "{{count}} PR",
-			"count_many": "{{count}} PR"
+			"count_many": "{{count}} PR",
+			"closed": "Fermée"
 		},
 		"assignee": {
 			"label": "Assigné",
@@ -3272,7 +3273,6 @@
 			"required": "Requis",
 			"enterKey": "Entrée",
 			"toSave": "pour enregistrer",
-			"today": "Aujourd’hui",
 			"clear": "Effacer",
 			"setValue": "Définir {{field}}…",
 			"noMatches": "Aucune option correspondante",
@@ -3325,6 +3325,31 @@
 			"markdownCopied": "Copié en Markdown",
 			"copyFailed": "Impossible de copier dans le presse-papiers.",
 			"pageUrlCopied": "URL de la page copiée"
+		},
+		"due": {
+			"overdueDays_one": "En retard de {{count}} j",
+			"overdueDays_many": "En retard de {{count}} j",
+			"overdueDays_other": "En retard de {{count}} j",
+			"overdueWeeks_one": "En retard de {{count}} sem.",
+			"overdueWeeks_many": "En retard de {{count}} sem.",
+			"overdueWeeks_other": "En retard de {{count}} sem.",
+			"today": "Aujourd’hui",
+			"tomorrow": "Demain",
+			"inDays_one": "Dans {{count}} jour",
+			"inDays_many": "Dans {{count}} jours",
+			"inDays_other": "Dans {{count}} jours",
+			"fullDate": "Échéance le {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Définir l’échéance…",
+			"startDatePlaceholder": "Définir la date de début…",
+			"datePlaceholder": "Définir une date…",
+			"thisWeekend": "Ce week-end",
+			"nextWeek": "La semaine prochaine",
+			"pickDate": "Choisir une date",
+			"startsOn": "Commence le {{date}}",
+			"beforeStart": "{{date}} est avant la date de début",
+			"afterDue": "{{date}} est après l’échéance"
 		}
 	},
 	"invitations": {

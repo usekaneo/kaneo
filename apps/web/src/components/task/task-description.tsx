@@ -98,10 +98,7 @@ type SlashMenuState = {
 };
 
 function formatMarkdown(markdown: string) {
-  return markdown
-    .replace(/\r\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\n{2,}$/g, "\n");
+  return markdown.replace(/\r\n/g, "\n");
 }
 
 function resetUndoHistory(editor: Editor) {

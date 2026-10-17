@@ -1292,7 +1292,7 @@
 			"commentTaskLinkTitle": "在新 Issue 上评论 Kaneo 链接",
 			"commentTaskLinkHint": "方便 Gitea 上的人跳转到对应任务。",
 			"webhookHint": "在仓库设置中添加此 Webhook，以便将变更同步回 Kaneo。",
-			"baseUrlLabel": "Gitea URL",
+			"baseUrlLabel": "Gitea 地址",
 			"tokenLabel": "个人访问令牌",
 			"tokenPlaceholder": "粘贴令牌",
 			"tokenPlaceholderUpdate": "粘贴新令牌以轮换",
@@ -1490,7 +1490,7 @@
 		},
 		"externalLinks": {
 			"resources": "资源",
-			"issue": "Issue",
+			"issue": "议题",
 			"branch": "分支",
 			"merged": "已合并",
 			"draft": "草稿",
@@ -1679,7 +1679,7 @@
 			"passwordTitle": "密码"
 		},
 		"gitlabIntegration": {
-			"baseUrlLabel": "GitLab URL",
+			"baseUrlLabel": "GitLab 地址",
 			"browseModalHint": "你的令牌所属的项目。",
 			"browseNeedsCredentials": "输入 GitLab URL 和令牌即可浏览。",
 			"commentTaskLinkHint": "方便 GitLab 上的人跳转到对应任务。",
@@ -1924,316 +1924,316 @@
 		"advancedSettingsDescription": "显示更多控件，例如集成同步规则。仅对当前浏览器生效。",
 		"adminWorkspaces": {
 			"addMember": {
-				"adding": "Adding…",
-				"alreadyMember": "Already a member",
-				"description": "Add an existing user to {{name}}. They can access every project until you limit them.",
-				"noUsers": "No users found",
-				"role": "Role",
-				"searching": "Searching users…",
-				"submit": "Add member",
-				"title": "Add member",
-				"user": "User",
-				"userPlaceholder": "Search name or email…",
-				"usersError": "Users could not be loaded."
+				"adding": "正在添加…",
+				"alreadyMember": "已是成员",
+				"description": "把已有用户添加到 {{name}}。未加限制前，该用户可以访问所有项目。",
+				"noUsers": "没有找到用户",
+				"role": "角色",
+				"searching": "正在搜索用户…",
+				"submit": "添加成员",
+				"title": "添加成员",
+				"user": "用户",
+				"userPlaceholder": "搜索姓名或邮箱…",
+				"usersError": "无法加载用户。"
 			},
-			"clearSearch": "Clear search",
+			"clearSearch": "清除搜索",
 			"columns": {
-				"actions": "Actions",
-				"created": "Created",
-				"members": "Members",
-				"owners": "Owners",
-				"projects": "Projects",
-				"workspace": "Workspace"
+				"actions": "操作",
+				"created": "创建时间",
+				"members": "成员",
+				"owners": "所有者",
+				"projects": "项目",
+				"workspace": "工作区"
 			},
 			"confirm": {
 				"remove": {
-					"action": "Remove member",
-					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
-					"title": "Remove {{name}}?"
+					"action": "移除成员",
+					"description": "{{name}} 将失去对 {{workspace}} 及其项目的访问权限，账号仍保留在本实例上。",
+					"title": "移除 {{name}}？"
 				},
 				"transfer": {
-					"action": "Make owner",
-					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
-					"title": "Make {{name}} the owner?"
+					"action": "设为所有者",
+					"description": "{{name}} 将成为 {{workspace}} 唯一的所有者，当前的所有者将变为管理员。",
+					"title": "让 {{name}} 成为所有者？"
 				},
-				"working": "Working…"
+				"working": "处理中…"
 			},
 			"directoryTitle": "所有工作区",
-			"emptyDescription": "Try another name or slug.",
-			"emptyTitle": "No workspaces found",
-			"loadError": "Workspaces could not be loaded.",
-			"manage": "Manage",
-			"manageLabel": "Manage {{name}}",
+			"emptyDescription": "换个名称或 slug 试试。",
+			"emptyTitle": "没有找到工作区",
+			"loadError": "无法加载工作区。",
+			"manage": "管理",
+			"manageLabel": "管理 {{name}}",
 			"members": {
-				"actions": "Actions for {{name}}",
-				"add": "Add member",
-				"count_other": "{{count}} members",
-				"description": "Change roles, project access, and ownership, even if you aren't a member of this workspace.",
-				"editAccess": "Change project access for {{name}} ({{access}})",
-				"empty": "This workspace has no members.",
-				"loadError": "Members could not be loaded.",
-				"makeOwner": "Make owner",
-				"remove": "Remove from workspace",
-				"roleLabel": "Role for {{name}}",
-				"title": "Members of {{name}}"
+				"actions": "{{name}} 的操作",
+				"add": "添加成员",
+				"count_other": "{{count}} 名成员",
+				"description": "即使你不是该工作区的成员，也可以调整角色、项目访问权限和所有者。",
+				"editAccess": "更改 {{name}} 的项目访问权限（{{access}}）",
+				"empty": "该工作区还没有成员。",
+				"loadError": "无法加载成员。",
+				"makeOwner": "设为所有者",
+				"remove": "移出工作区",
+				"roleLabel": "{{name}} 的角色",
+				"title": "{{name}} 的成员"
 			},
-			"next": "Next",
-			"noOwner": "No owner",
-			"pagination": "Page {{current}} of {{total}}",
-			"previous": "Previous",
-			"refreshing": "Refreshing workspaces",
-			"retry": "Retry",
-			"searchCount_other": "{{count}} matching workspaces",
-			"searchLabel": "Search workspaces",
+			"next": "下一页",
+			"noOwner": "无所有者",
+			"pagination": "第 {{current}} 页，共 {{total}} 页",
+			"previous": "上一页",
+			"refreshing": "正在刷新工作区",
+			"retry": "重试",
+			"searchCount_other": "{{count}} 个匹配的工作区",
+			"searchLabel": "搜索工作区",
 			"searchPlaceholder": "按名称或 slug 搜索",
 			"subtitle": "这个 Kaneo 实例上的所有工作区，包括你未加入的工作区。",
 			"title": "工作区",
 			"toast": {
-				"added": "Member added",
-				"addError": "Failed to add member",
-				"ownershipTransferred": "Ownership transferred",
-				"removed": "Member removed",
-				"removeError": "Failed to remove member",
-				"roleError": "Failed to update role",
-				"roleUpdated": "Role updated",
-				"transferError": "Failed to transfer ownership"
+				"added": "成员已添加",
+				"addError": "添加成员失败",
+				"ownershipTransferred": "已转移所有权",
+				"removed": "成员已移除",
+				"removeError": "移除成员失败",
+				"roleError": "更新角色失败",
+				"roleUpdated": "角色已更新",
+				"transferError": "转移所有权失败"
 			}
 		},
 		"workspaceImport": {
 			"back": {
-				"allSources": "All sources",
-				"changeKey": "Change key",
-				"overview": "Import overview"
+				"allSources": "全部来源",
+				"changeKey": "更换密钥",
+				"overview": "导入概览"
 			},
 			"connect": {
-				"cancel": "Cancel",
-				"continue": "Continue",
-				"hideSecret": "Hide {{field}}",
-				"sectionDescription": "Kaneo only reads from {{source}}. The key is used for this import and never stored.",
-				"sectionTitle": "Connect",
-				"showSecret": "Show {{field}}",
-				"title": "Import from {{source}}",
-				"whereToFind": "Where to find it"
+				"cancel": "取消",
+				"continue": "继续",
+				"hideSecret": "隐藏 {{field}}",
+				"sectionDescription": "Kaneo 只从 {{source}} 读取数据。密钥仅用于本次导入，不会保存。",
+				"sectionTitle": "连接",
+				"showSecret": "显示 {{field}}",
+				"title": "从 {{source}} 导入",
+				"whereToFind": "在哪里获取"
 			},
 			"counts": {
-				"columns_other": "{{count, number}} columns",
-				"comments_other": "{{count, number}} comments",
-				"labels_other": "{{count, number}} labels",
-				"tasks_other": "{{count, number}} tasks"
+				"columns_other": "{{count, number}} 列",
+				"comments_other": "{{count, number}} 条评论",
+				"labels_other": "{{count, number}} 个标签",
+				"tasks_other": "{{count, number}} 个任务"
 			},
 			"entry": {
-				"createProjectLink": "Import your projects",
-				"createProjectPrompt": "Moving from Jira, Linear, Trello or Plane?",
-				"projectsEmpty": "Import from another tool"
+				"createProjectLink": "导入你的项目",
+				"createProjectPrompt": "从 Jira、Linear、Trello 或 Plane 迁移过来？",
+				"projectsEmpty": "从其它工具导入"
 			},
 			"history": {
-				"description": "Imports keep running on the server if you leave this page.",
-				"empty": "No imports yet. Imports you start show up here.",
-				"loadError": "Recent imports could not be loaded.",
-				"started": "Started {{time}}",
-				"title": "Recent imports"
+				"description": "离开此页面后，导入仍会在服务器上继续运行。",
+				"empty": "还没有导入记录。你发起的导入会显示在这里。",
+				"loadError": "无法加载最近的导入记录。",
+				"started": "开始于 {{time}}",
+				"title": "最近的导入"
 			},
 			"kaneo": {
-				"apiKeyDescription": "In that Kaneo, open Settings, then API Keys.",
-				"apiKeyLabel": "API key",
-				"apiKeyPlaceholder": "Paste API key",
-				"urlDescription": "The instance you are moving from.",
-				"urlLabel": "Kaneo URL"
+				"apiKeyDescription": "在那个 Kaneo 里依次打开设置 → API 密钥。",
+				"apiKeyLabel": "API 密钥",
+				"apiKeyPlaceholder": "粘贴 API 密钥",
+				"urlDescription": "你要迁出的那个实例。",
+				"urlLabel": "Kaneo 地址"
 			},
 			"linear": {
-				"apiKeyDescription": "Read access is enough. You can revoke it after the import.",
-				"apiKeyLabel": "Personal API key",
-				"openSettings": "Open Linear settings",
-				"stepCreate": "Under Personal API keys, create a key with Read access.",
-				"stepOpen": "In Linear, open Settings, then Security and access.",
-				"stepPaste": "Copy it and paste it above."
+				"apiKeyDescription": "只读权限就够，导入完成后可以撤销。",
+				"apiKeyLabel": "个人 API 密钥",
+				"openSettings": "打开 Linear 设置",
+				"stepCreate": "在「个人 API 密钥」下创建一个只读密钥。",
+				"stepOpen": "在 Linear 里依次打开设置 → 安全与访问。",
+				"stepPaste": "复制后粘贴到上方。"
 			},
 			"notAllowed": {
-				"description": "Importing creates projects, so it needs permission to manage workspace settings and create projects. Ask a workspace admin to run it.",
-				"title": "Only workspace admins can import"
+				"description": "导入会创建项目，因此需要管理空间设置和创建项目的权限。请联系工作区管理员来执行。",
+				"title": "只有工作区管理员可以导入"
 			},
-			"opensInNewTab": "(opens in a new tab)",
-			"pageTitle": "Import",
+			"opensInNewTab": "（在新标签页打开）",
+			"pageTitle": "导入",
 			"plane": {
-				"tokenDescription": "Profile settings, Developer, then Personal Access Tokens.",
-				"tokenLabel": "Personal access token",
-				"urlDescription": "Copy it from your browser while in Plane. Self-hosted works too.",
-				"urlLabel": "Workspace URL",
+				"tokenDescription": "个人资料设置 → 开发者 → 个人访问令牌。",
+				"tokenLabel": "个人访问令牌",
+				"urlDescription": "在 Plane 里从浏览器地址栏复制即可，自托管实例也可以。",
+				"urlLabel": "工作区地址",
 				"urlPlaceholder": "https://app.plane.so/your-workspace"
 			},
 			"planka": {
-				"adminTip": "Use a PLANKA admin account. PLANKA only shows email addresses to admins, and card members are matched to people here by email.",
-				"apiKeyDescription": "Created in PLANKA under your account settings.",
-				"apiKeyLabel": "API key",
-				"apiKeyPlaceholder": "Paste API key",
-				"passwordDescription": "Used only to sign in for this import.",
-				"passwordLabel": "Password",
-				"signInApiKey": "API key",
-				"signInDescription": "Use an API key if your account signs in through SSO.",
-				"signInLabel": "Sign in with",
-				"signInPassword": "Email and password",
-				"urlDescription": "The address you open PLANKA at.",
-				"urlLabel": "PLANKA URL",
-				"usernameDescription": "The account you sign in to PLANKA with.",
-				"usernameLabel": "Email or username"
+				"adminTip": "建议用 PLANKA 管理员账号：PLANKA 只向管理员显示邮箱地址，而卡片成员是按邮箱与这里的用户对应的。",
+				"apiKeyDescription": "在 PLANKA 的账号设置里创建。",
+				"apiKeyLabel": "API 密钥",
+				"apiKeyPlaceholder": "粘贴 API 密钥",
+				"passwordDescription": "仅用于本次导入时登录。",
+				"passwordLabel": "密码",
+				"signInApiKey": "API 密钥",
+				"signInDescription": "如果你的账号是通过 SSO 登录的，请用 API 密钥。",
+				"signInLabel": "登录方式",
+				"signInPassword": "邮箱和密码",
+				"urlDescription": "你打开 PLANKA 的地址。",
+				"urlLabel": "PLANKA 地址",
+				"usernameDescription": "你登录 PLANKA 所用的账号。",
+				"usernameLabel": "邮箱或用户名"
 			},
-			"retry": "Try again",
+			"retry": "重试",
 			"run": {
-				"failedBadge": "Failed",
-				"failedNames_other": "{{names, list}} failed, so nothing was created for them.",
-				"failedTitle": "Import failed",
-				"finishedNote": "Imported tasks did not send notifications. Comments keep their original author and date.",
-				"finishedNoteNoComments": "Imported tasks did not send notifications.",
-				"finishedTitle": "Import finished",
-				"goToProjects": "Go to projects",
-				"importingBadge": "Importing",
-				"importingTitle": "Importing from {{source}}",
-				"importMore": "Import more",
-				"keyInMemory": "Your {{source}} key is only kept in memory until this import finishes.",
-				"leavePage": "You can leave this page. The import keeps running on the server.",
-				"loadError": "This import could not be loaded",
-				"noTasks": "No tasks",
-				"nothingImported": "Nothing was imported",
-				"notImported": "Not imported",
-				"open": "Open",
-				"openProject": "Open {{name}}",
-				"queued": "Queued",
-				"started": "Started {{time}}",
-				"starting": "Starting",
-				"took_other": "Took {{count}} minutes",
-				"tookUnderMinute": "Took less than a minute",
-				"totals": "{{parts, list}} imported",
-				"waiting": "Waiting",
-				"warnings_other": "{{count}} warnings"
+				"failedBadge": "失败",
+				"failedNames_other": "{{names, list}} 失败，因此没有为它们创建任何内容。",
+				"failedTitle": "导入失败",
+				"finishedNote": "导入的任务不会发送通知。评论会保留原作者和原时间。",
+				"finishedNoteNoComments": "导入的任务不会发送通知。",
+				"finishedTitle": "导入完成",
+				"goToProjects": "前往项目",
+				"importingBadge": "导入中",
+				"importingTitle": "正在从 {{source}} 导入",
+				"importMore": "继续导入",
+				"keyInMemory": "你的 {{source}} 密钥只在本次导入结束前保存在内存中。",
+				"leavePage": "可以离开此页面，导入会在服务器上继续运行。",
+				"loadError": "无法加载这次导入",
+				"noTasks": "没有任务",
+				"nothingImported": "没有导入任何内容",
+				"notImported": "未导入",
+				"open": "打开",
+				"openProject": "打开 {{name}}",
+				"queued": "排队中",
+				"started": "开始于 {{time}}",
+				"starting": "正在启动",
+				"took_other": "耗时 {{count}} 分钟",
+				"tookUnderMinute": "不到一分钟",
+				"totals": "已导入 {{parts, list}}",
+				"waiting": "等待中",
+				"warnings_other": "{{count}} 条警告"
 			},
 			"select": {
-				"back": "Back",
-				"clear": "Clear",
-				"commentsDescription": "Keeps each comment's original author and date.",
-				"commentsLabel": "Import comments",
-				"inviteMembers": "Invite members",
-				"membersNote": "Assignees are matched to members of {{workspace}} by email. Invite your team first so their tasks stay assigned.",
-				"membersNoteTrello": "Assignees are matched to members of {{workspace}} by email, or by full name for Trello. Invite your team first so their tasks stay assigned.",
-				"selectAll": "Select all",
-				"membersNoteJira": "Assignees are matched to members of {{workspace}} by email, or by full name when Jira hides the email. Invite your team first so their tasks stay assigned."
+				"back": "返回",
+				"clear": "清除",
+				"commentsDescription": "保留每条评论的原作者和时间。",
+				"commentsLabel": "导入评论",
+				"inviteMembers": "邀请成员",
+				"membersNote": "负责人按邮箱与 {{workspace}} 的成员对应。建议先邀请团队成员，这样任务能保留负责人。",
+				"membersNoteTrello": "负责人按邮箱与 {{workspace}} 的成员对应，Trello 也可以按姓名匹配。建议先邀请团队成员，这样任务能保留负责人。",
+				"selectAll": "全选",
+				"membersNoteJira": "负责人按邮箱与 {{workspace}} 的成员对应，Jira 隐藏邮箱时按姓名匹配。建议先邀请团队成员，这样任务能保留负责人。"
 			},
 			"sources": {
-				"connect": "Connect",
-				"connectTo": "Connect {{source}}",
-				"description": "Pick the tool you are moving from. Each project you choose becomes a new project here.",
+				"connect": "连接",
+				"connectTo": "连接 {{source}}",
+				"description": "选择你要迁出的工具。你挑中的每个项目都会在这里新建为一个项目。",
 				"kaneo": {
-					"description": "Move projects between Kaneo Cloud and a self-hosted instance.",
-					"intro": "Projects from every workspace the key can see. Each one you pick is copied here.",
-					"pickerName": "Another Kaneo"
+					"description": "在 Kaneo 云端和自托管实例之间迁移项目。",
+					"intro": "该密钥能看到的所有工作区里的项目。你挑中的会复制到这里。",
+					"pickerName": "另一个 Kaneo"
 				},
 				"linear": {
-					"description": "Teams, issues, labels, sub-issues and comments. Paste a personal API key.",
-					"intro": "Each Linear team becomes a project, with its workflow as columns."
+					"description": "团队、议题、标签、子议题和评论。粘贴个人 API 密钥即可。",
+					"intro": "每个 Linear 团队会变成一个项目，其工作流状态成为看板列。"
 				},
 				"plane": {
-					"description": "Projects, work items, sub-issues and comments. Cloud or self-hosted.",
-					"intro": "Each Plane project becomes a project here, with its states as columns."
+					"description": "项目、工作项、子议题和评论。支持云端和自托管。",
+					"intro": "每个 Plane 项目会变成这里的一个项目，其状态成为看板列。"
 				},
 				"planka": {
-					"description": "Boards, lists, cards, checklists and comments from your PLANKA instance.",
-					"intro": "Each PLANKA board becomes a project, with its lists as columns."
+					"description": "从你的 PLANKA 实例导入看板、列表、卡片、检查清单和评论。",
+					"intro": "每个 PLANKA 看板会变成一个项目，其列表成为看板列。"
 				},
-				"title": "Choose a source",
+				"title": "选择来源",
 				"trello": {
-					"description": "Boards, lists, cards, checklists and comments. Authorize with one click.",
-					"intro": "Each Trello board becomes a project, with its lists as columns."
+					"description": "看板、列表、卡片、检查清单和评论。一键授权即可。",
+					"intro": "每个 Trello 看板会变成一个项目，其列表成为看板列。"
 				},
 				"jira": {
-					"description": "Projects, issues, sub-tasks, links and comments. Cloud or Data Center.",
-					"intro": "Each Jira project becomes a project here, with its workflow as columns."
+					"description": "项目、议题、子任务、链接和评论。支持云端和 Data Center。",
+					"intro": "每个 Jira 项目会变成这里的一个项目，其工作流状态成为看板列。"
 				}
 			},
 			"status": {
-				"failed": "Failed",
-				"imported": "Imported",
-				"importing": "Importing {{current}} of {{total}}",
-				"partial": "{{done}} of {{total}} imported",
-				"warnings_other": "Done with {{count}} warnings"
+				"failed": "失败",
+				"imported": "已导入",
+				"importing": "正在导入第 {{current}} 个，共 {{total}} 个",
+				"partial": "已导入 {{done}}/{{total}}",
+				"warnings_other": "已完成，有 {{count}} 条警告"
 			},
 			"steps": {
-				"connect": "Connect",
-				"done": "(completed)",
-				"import": "Import",
-				"label": "Import steps"
+				"connect": "连接",
+				"done": "（已完成）",
+				"import": "导入",
+				"label": "导入步骤"
 			},
-			"subtitle": "Bring your projects from another tool into {{workspace}}. Kaneo only reads from the source.",
-			"title": "Import",
+			"subtitle": "把其它工具里的项目导入 {{workspace}}。Kaneo 只从来源读取数据。",
+			"title": "导入",
 			"toast": {
-				"failed": "Import from {{source}} failed",
-				"finished": "Import from {{source}} finished",
-				"partial": "Import from {{source}} finished with errors"
+				"failed": "从 {{source}} 导入失败",
+				"finished": "从 {{source}} 导入完成",
+				"partial": "从 {{source}} 导入完成，但有错误"
 			},
 			"trello": {
-				"apiKeyDescription": "In a Power-Up you own, open the Trello Auth tab and generate an API key (not the OAuth 2.0 tab) at",
-				"apiKeyLabel": "API key",
-				"apiKeyPlaceholder": "Paste API key",
-				"authorizeButton": "Authorize on Trello",
-				"authorizeDescription": "Opens Trello in a new tab. Read only, expires after a day.",
-				"authorizeLabel": "Authorize Kaneo",
-				"authorizeNeedsKey": "Enter the API key first. Read only, expires after a day.",
-				"tokenDescription": "Click Allow on Trello, then paste the token it shows you.",
-				"tokenLabel": "Token",
-				"tokenPlaceholder": "Paste token"
+				"apiKeyDescription": "在你拥有的 Power-Up 里打开 Trello 的 Auth 标签页生成 API 密钥（不是 OAuth 2.0 那个标签页），地址：",
+				"apiKeyLabel": "API 密钥",
+				"apiKeyPlaceholder": "粘贴 API 密钥",
+				"authorizeButton": "在 Trello 上授权",
+				"authorizeDescription": "会在新标签页打开 Trello。只读权限，一天后失效。",
+				"authorizeLabel": "授权 Kaneo",
+				"authorizeNeedsKey": "请先填写 API 密钥。只读权限，一天后失效。",
+				"tokenDescription": "在 Trello 上点「允许」，然后粘贴它给出的令牌。",
+				"tokenLabel": "令牌",
+				"tokenPlaceholder": "粘贴令牌"
 			},
 			"units": {
 				"board": {
-					"allImported_other": "All {{count}} boards imported.",
-					"empty": "No boards found. Check that this key can see the boards you want to import.",
-					"found_other": "{{count}} boards found. Each one you pick becomes a new project in {{workspace}}.",
-					"importButton_other": "Import {{count}} boards",
-					"limit": "Pick up to {{max}} boards per import.",
-					"pick": "Pick the boards to bring over.",
-					"progress_other": "{{done}} of {{count}} boards imported",
-					"runTitle_other": "{{source}}, {{count}} boards",
-					"section": "Boards",
-					"someImported_other": "{{done}} of {{count}} boards imported.",
-					"step": "Choose boards"
+					"allImported_other": "已导入全部 {{count}} 个看板。",
+					"empty": "没有找到看板。请确认该密钥能看到你要导入的看板。",
+					"found_other": "找到 {{count}} 个看板。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
+					"importButton_other": "导入 {{count}} 个看板",
+					"limit": "每次导入最多选择 {{max}} 个看板。",
+					"pick": "选择要导入的看板。",
+					"progress_other": "已导入 {{done}}/{{count}} 个看板",
+					"runTitle_other": "{{source}}，{{count}} 个看板",
+					"section": "看板",
+					"someImported_other": "已导入 {{done}}/{{count}} 个看板。",
+					"step": "选择看板"
 				},
 				"project": {
-					"allImported_other": "All {{count}} projects imported.",
-					"empty": "No projects found. Check that this key can see the projects you want to import.",
-					"found_other": "{{count}} projects found. Each one you pick becomes a new project in {{workspace}}.",
-					"importButton_other": "Import {{count}} projects",
-					"limit": "Pick up to {{max}} projects per import.",
-					"pick": "Pick the projects to bring over.",
-					"progress_other": "{{done}} of {{count}} projects imported",
-					"runTitle_other": "{{source}}, {{count}} projects",
-					"section": "Projects",
-					"someImported_other": "{{done}} of {{count}} projects imported.",
-					"step": "Choose projects"
+					"allImported_other": "已导入全部 {{count}} 个项目。",
+					"empty": "没有找到项目。请确认该密钥能看到你要导入的项目。",
+					"found_other": "找到 {{count}} 个项目。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
+					"importButton_other": "导入 {{count}} 个项目",
+					"limit": "每次导入最多选择 {{max}} 个项目。",
+					"pick": "选择要导入的项目。",
+					"progress_other": "已导入 {{done}}/{{count}} 个项目",
+					"runTitle_other": "{{source}}，{{count}} 个项目",
+					"section": "项目",
+					"someImported_other": "已导入 {{done}}/{{count}} 个项目。",
+					"step": "选择项目"
 				},
 				"team": {
-					"allImported_other": "All {{count}} teams imported.",
-					"empty": "No teams found. Check that this key can see the teams you want to import.",
-					"found_other": "{{count}} teams found. Each one you pick becomes a new project in {{workspace}}.",
-					"importButton_other": "Import {{count}} teams",
-					"limit": "Pick up to {{max}} teams per import.",
-					"pick": "Pick the teams to bring over.",
-					"progress_other": "{{done}} of {{count}} teams imported",
-					"runTitle_other": "{{source}}, {{count}} teams",
-					"section": "Teams",
-					"someImported_other": "{{done}} of {{count}} teams imported.",
-					"step": "Choose teams"
+					"allImported_other": "已导入全部 {{count}} 个团队。",
+					"empty": "没有找到团队。请确认该密钥能看到你要导入的团队。",
+					"found_other": "找到 {{count}} 个团队。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
+					"importButton_other": "导入 {{count}} 个团队",
+					"limit": "每次导入最多选择 {{max}} 个团队。",
+					"pick": "选择要导入的团队。",
+					"progress_other": "已导入 {{done}}/{{count}} 个团队",
+					"runTitle_other": "{{source}}，{{count}} 个团队",
+					"section": "团队",
+					"someImported_other": "已导入 {{done}}/{{count}} 个团队。",
+					"step": "选择团队"
 				}
 			},
 			"jira": {
-				"emailDescription": "The email of your Atlassian account. Leave it empty for Jira Data Center.",
-				"emailLabel": "Email",
-				"nameMatchTip": "Jira often hides email addresses, so assignees may be matched to people here by full name.",
-				"openSettings": "Open Atlassian API tokens",
-				"stepCreate": "Create an API token and copy it.",
-				"stepOpen": "Open id.atlassian.com, then Security, then API tokens.",
-				"stepPaste": "Paste it with the email you sign in to Jira with.",
-				"tokenDescription": "Cloud: create one at id.atlassian.com. Data Center: use a personal access token.",
-				"tokenLabel": "API token",
-				"tokenPlaceholder": "Paste token",
-				"urlDescription": "Copy it from your browser. Data Center works too.",
-				"urlLabel": "Jira site URL",
+				"emailDescription": "你的 Atlassian 账号邮箱。Jira Data Center 可以留空。",
+				"emailLabel": "邮箱",
+				"nameMatchTip": "Jira 常常隐藏邮箱地址，所以负责人可能按姓名与这里的用户对应。",
+				"openSettings": "打开 Atlassian API 令牌页",
+				"stepCreate": "创建一个 API 令牌并复制。",
+				"stepOpen": "打开 id.atlassian.com，依次进入安全 → API 令牌。",
+				"stepPaste": "和登录 Jira 用的邮箱一起粘贴到上面。",
+				"tokenDescription": "云端版：在 id.atlassian.com 创建。Data Center：使用个人访问令牌。",
+				"tokenLabel": "API 令牌",
+				"tokenPlaceholder": "粘贴令牌",
+				"urlDescription": "从浏览器地址栏复制即可，Data Center 也可以。",
+				"urlLabel": "Jira 站点地址",
 				"urlPlaceholder": "https://your-site.atlassian.net"
 			}
 		},
@@ -2260,7 +2260,7 @@
 			"retry": "重试",
 			"saveChanges": "保存更改",
 			"savedUrlPlaceholder": "已保存。粘贴新的 URL 即可替换。",
-			"webhookUrlLabel": "Webhook URL"
+			"webhookUrlLabel": "Webhook 地址"
 		},
 		"codeHosting": {
 			"browse": "浏览",
@@ -2703,7 +2703,7 @@
 			"importedBy": "由 {{name}} 导入",
 			"commentedOnForge": "在 {{forge}} 上评论"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "将任务从其它项目移动到「{{to}}」"
 	},
 	"tasks": {
 		"title": "任务",
@@ -3080,8 +3080,9 @@
 			"merged": "已合并",
 			"draft": "草稿",
 			"open": "打开",
-			"label": "Pull Request",
-			"count_other": "{{count}} 个 PR"
+			"label": "合并请求",
+			"count_other": "{{count}} 个 PR",
+			"closed": "已关闭"
 		},
 		"assignee": {
 			"label": "负责人",
@@ -3172,7 +3173,6 @@
 			"required": "必填",
 			"enterKey": "Enter",
 			"toSave": "保存",
-			"today": "今天",
 			"clear": "清除",
 			"setValue": "设置{{field}}…",
 			"noMatches": "没有匹配的选项",
@@ -3217,6 +3217,25 @@
 			"markdownCopied": "已复制为 Markdown",
 			"copyFailed": "无法复制到剪贴板。",
 			"pageUrlCopied": "已复制页面 URL"
+		},
+		"due": {
+			"overdueDays_other": "逾期 {{count}} 天",
+			"overdueWeeks_other": "逾期 {{count}} 周",
+			"today": "今天",
+			"tomorrow": "明天",
+			"inDays_other": "{{count}} 天后",
+			"fullDate": "截止 {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "设置截止日期…",
+			"startDatePlaceholder": "设置开始日期…",
+			"datePlaceholder": "设置日期…",
+			"thisWeekend": "本周末",
+			"nextWeek": "下周",
+			"pickDate": "选择日期",
+			"startsOn": "开始于 {{date}}",
+			"beforeStart": "{{date}} 早于开始日期",
+			"afterDue": "{{date}} 晚于截止日期"
 		}
 	},
 	"invitations": {
@@ -3277,11 +3296,11 @@
 			"reorderHandle": "重新排序项目",
 			"reorderError": "重新排序项目失败",
 			"unavailable": {
-				"backToWorkspace": "Back to workspace",
-				"noAccessDescription": "Ask a workspace admin to give you access.",
-				"noAccessTitle": "You don't have access to this project",
-				"notFoundDescription": "This project doesn't exist or has been deleted.",
-				"notFoundTitle": "Project not found"
+				"backToWorkspace": "返回工作区",
+				"noAccessDescription": "请联系工作区管理员为你开通访问权限。",
+				"noAccessTitle": "你没有访问此项目的权限",
+				"notFoundDescription": "此项目不存在或已被删除。",
+				"notFoundTitle": "没有找到项目"
 			}
 		},
 		"search": {
@@ -3409,7 +3428,7 @@
 				"role": "角色",
 				"joined": "加入于",
 				"actions": "操作",
-				"projects": "Projects"
+				"projects": "项目"
 			},
 			"memberRolePending": "{{role}}（待处理）",
 			"ariaCancelInvitation": "取消邀请",
@@ -3429,24 +3448,24 @@
 			"roleUpdateError": "更新角色失败"
 		},
 		"projectAccess": {
-			"allProjects": "All projects",
-			"allProjectsDescription": "Access every project in this workspace, including new ones.",
-			"description": "Choose which projects this person can see.",
-			"dialogDescription": "Choose which projects {{name}} can access.",
-			"dialogTitle": "Project access",
-			"editAria": "Change project access for {{name}} ({{access}})",
-			"label": "Project access",
-			"noProjects": "No projects in this workspace yet.",
-			"projectCount_other": "{{count}} projects",
-			"projectsLabel": "Projects",
-			"save": "Save",
-			"selectAtLeastOne": "Choose at least one project.",
-			"selectedProjects": "Selected projects",
-			"selectedProjectsDescription": "Only access the projects you choose.",
-			"updateError": "Failed to update project access",
-			"updateSuccess": "Project access updated",
-			"archived": "Archived",
-			"allProjectsUnavailable": "Your own access is limited, so you can only give access to selected projects."
+			"allProjects": "所有项目",
+			"allProjectsDescription": "可以访问此工作区中的所有项目，包括以后新建的。",
+			"description": "选择此人可以看到哪些项目。",
+			"dialogDescription": "选择 {{name}} 可以访问哪些项目。",
+			"dialogTitle": "项目访问权限",
+			"editAria": "更改 {{name}} 的项目访问权限（{{access}}）",
+			"label": "项目访问权限",
+			"noProjects": "此工作区还没有项目。",
+			"projectCount_other": "{{count}} 个项目",
+			"projectsLabel": "项目",
+			"save": "保存",
+			"selectAtLeastOne": "请至少选择一个项目。",
+			"selectedProjects": "指定项目",
+			"selectedProjectsDescription": "只能访问你指定的项目。",
+			"updateError": "更新项目访问权限失败",
+			"updateSuccess": "项目访问权限已更新",
+			"archived": "已归档",
+			"allProjectsUnavailable": "你自己的访问权限有限，所以只能授予指定项目。"
 		}
 	},
 	"publicProject": {
@@ -3463,8 +3482,8 @@
 		"taskDetail": {
 			"labels": "标签",
 			"externalLinks": "外部链接",
-			"pullRequestFallback": "Pull Request",
-			"issueFallback": "Issue",
+			"pullRequestFallback": "合并请求",
+			"issueFallback": "议题",
 			"prStatusMerged": "已合并",
 			"prStatusDraft": "草稿",
 			"prStatusOpen": "打开",
@@ -3503,7 +3522,7 @@
 		"lightLogoDetail": "SVG",
 		"icon": "应用图标",
 		"iconAlt": "Kaneo 应用图标",
-		"iconDetail": "PNG, 512 × 512",
+		"iconDetail": "PNG，512 × 512",
 		"download": "下载",
 		"screenshotsTitle": "截图",
 		"lightScreenshot": "看板（浅色）",

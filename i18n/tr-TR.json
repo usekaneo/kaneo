@@ -3116,7 +3116,8 @@
 			"open": "Açık",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Kapalı"
 		},
 		"assignee": {
 			"label": "Atanan",
@@ -3222,7 +3223,6 @@
 			"required": "Zorunlu",
 			"enterKey": "Enter",
 			"toSave": "kaydetmek için",
-			"today": "Bugün",
 			"clear": "Temizle",
 			"setValue": "{{field}} ayarla…",
 			"noMatches": "Eşleşen seçenek yok",
@@ -3271,6 +3271,28 @@
 			"markdownCopied": "Markdown olarak kopyalandı",
 			"copyFailed": "Panoya kopyalanamadı.",
 			"pageUrlCopied": "Sayfa URL'si kopyalandı"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} g gecikti",
+			"overdueDays_other": "{{count}} g gecikti",
+			"overdueWeeks_one": "{{count}} hf gecikti",
+			"overdueWeeks_other": "{{count}} hf gecikti",
+			"today": "Bugün",
+			"tomorrow": "Yarın",
+			"inDays_one": "{{count}} gün içinde",
+			"inDays_other": "{{count}} gün içinde",
+			"fullDate": "Son tarih {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Bitiş tarihi belirle…",
+			"startDatePlaceholder": "Başlangıç tarihi belirle…",
+			"datePlaceholder": "Tarih belirle…",
+			"thisWeekend": "Bu hafta sonu",
+			"nextWeek": "Gelecek hafta",
+			"pickDate": "Tarih seç",
+			"startsOn": "Başlangıç: {{date}}",
+			"beforeStart": "{{date}} başlangıç tarihinden önce",
+			"afterDue": "{{date}} bitiş tarihinden sonra"
 		}
 	},
 	"invitations": {

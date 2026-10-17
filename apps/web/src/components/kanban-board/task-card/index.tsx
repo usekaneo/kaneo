@@ -6,7 +6,9 @@ import useBulkSelectionStore from "@/store/bulk-selection";
 import type Task from "@/types/task";
 import TaskCardContent from "./task-card-content";
 import { useTaskCardClick } from "./use-task-card-click";
+import { useTaskHoverPrefetch } from "@/hooks/use-task-hover-prefetch";
 import { EASE_OUT_CSS } from "@/lib/motion";
+import { isKeyboardFocus } from "@/lib/is-keyboard-focus";
 
 type TaskCardProps = {
   task: Task;
@@ -33,6 +35,7 @@ function TaskCard({
     transition: { duration: 200, easing: EASE_OUT_CSS },
   });
   const { handleKeyDown } = useTaskCardClick(task);
+  const hoverPrefetch = useTaskHoverPrefetch(task.id);
   const setFocusedTask = useBulkSelectionStore((state) => state.setFocusedTask);
   useRestoreTaskFocus(task.id, useBulkSelectionStore);
 
@@ -53,10 +56,14 @@ function TaskCard({
       data-shortcut-surface
       {...attributes}
       {...listeners}
+      {...hoverPrefetch}
       role="button"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onFocus={() => setFocusedTask(task.id)}
+      onFocus={(event) => {
+        if (event.target !== event.currentTarget) return;
+        setFocusedTask(isKeyboardFocus(event) ? task.id : null);
+      }}
       className="outline-none"
     >
       <TaskCardContent

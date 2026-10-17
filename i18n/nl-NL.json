@@ -3105,7 +3105,8 @@
 			"open": "Open",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR's"
+			"count_other": "{{count}} PR's",
+			"closed": "Gesloten"
 		},
 		"assignee": {
 			"label": "Toegewezen persoon",
@@ -3222,7 +3223,6 @@
 			"required": "Verplicht",
 			"enterKey": "Enter",
 			"toSave": "om op te slaan",
-			"today": "Vandaag",
 			"clear": "Wissen",
 			"setValue": "{{field}} instellen…",
 			"noMatches": "Geen overeenkomende opties",
@@ -3271,6 +3271,28 @@
 			"markdownCopied": "Gekopieerd als Markdown",
 			"copyFailed": "Kopiëren naar het klembord is mislukt.",
 			"pageUrlCopied": "Pagina-URL gekopieerd"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} d te laat",
+			"overdueDays_other": "{{count}} d te laat",
+			"overdueWeeks_one": "{{count}} wk te laat",
+			"overdueWeeks_other": "{{count}} wk te laat",
+			"today": "Vandaag",
+			"tomorrow": "Morgen",
+			"inDays_one": "Over {{count}} dag",
+			"inDays_other": "Over {{count}} dagen",
+			"fullDate": "Deadline {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Vervaldatum instellen…",
+			"startDatePlaceholder": "Startdatum instellen…",
+			"datePlaceholder": "Datum instellen…",
+			"thisWeekend": "Dit weekend",
+			"nextWeek": "Volgende week",
+			"pickDate": "Kies een datum",
+			"startsOn": "Begint {{date}}",
+			"beforeStart": "{{date}} ligt vóór de startdatum",
+			"afterDue": "{{date}} ligt na de vervaldatum"
 		}
 	},
 	"invitations": {

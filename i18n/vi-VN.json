@@ -3067,7 +3067,8 @@
 			"draft": "Bản nháp",
 			"open": "Đang mở",
 			"label": "Pull Request",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "Đã đóng"
 		},
 		"assignee": {
 			"label": "Người được giao",
@@ -3172,7 +3173,6 @@
 			"required": "Bắt buộc",
 			"enterKey": "Enter",
 			"toSave": "để lưu",
-			"today": "Hôm nay",
 			"clear": "Xóa",
 			"setValue": "Đặt {{field}}…",
 			"noMatches": "Không có tùy chọn phù hợp",
@@ -3217,6 +3217,25 @@
 			"markdownCopied": "Đã sao chép dưới dạng Markdown",
 			"copyFailed": "Không thể sao chép vào bộ nhớ tạm.",
 			"pageUrlCopied": "Đã sao chép URL trang"
+		},
+		"due": {
+			"overdueDays_other": "Quá hạn {{count}} ngày",
+			"overdueWeeks_other": "Quá hạn {{count}} tuần",
+			"today": "Hôm nay",
+			"tomorrow": "Ngày mai",
+			"inDays_other": "Còn {{count}} ngày",
+			"fullDate": "Hạn {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Đặt hạn chót…",
+			"startDatePlaceholder": "Đặt ngày bắt đầu…",
+			"datePlaceholder": "Đặt ngày…",
+			"thisWeekend": "Cuối tuần này",
+			"nextWeek": "Tuần sau",
+			"pickDate": "Chọn ngày",
+			"startsOn": "Bắt đầu {{date}}",
+			"beforeStart": "{{date}} trước ngày bắt đầu",
+			"afterDue": "{{date}} sau hạn chót"
 		}
 	},
 	"invitations": {

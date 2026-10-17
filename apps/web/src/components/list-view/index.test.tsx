@@ -1,3 +1,5 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import {
   act,
   cleanup,
@@ -9,6 +11,14 @@ import { afterEach, expect, it, vi } from "vite-plus/test";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { ProjectWithTasks } from "@/types/project";
 import ListView from "./index";
+
+const queryClient = new QueryClient();
+
+function Providers({ children }: { children: ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+}
 const m = vi.hoisted(() => ({
   props: {} as {
     sensors?: unknown[];
@@ -29,7 +39,10 @@ vi.mock("@dnd-kit/core", async (original) => ({
     return props.children;
   },
 }));
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn(),
+  useRouter: () => ({ preloadRoute: () => Promise.resolve() }),
+}));
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutate: m.mutate }),
 }));
@@ -67,7 +80,9 @@ it("disables keyboard sensors and rejects drag completion on a partial board", (
     plannedTasks: [],
     archivedTasks: [],
   } as unknown as ProjectWithTasks;
-  const { rerender } = render(<ListView project={project} />);
+  const { rerender } = render(<ListView project={project} />, {
+    wrapper: Providers,
+  });
   expect(m.props.sensors?.length).toBeGreaterThan(0);
   rerender(<ListView project={project} disableDragDrop />);
   expect(m.props.sensors).toEqual([]);
@@ -96,7 +111,9 @@ it("blocks archive-all during pagination or errors, including an already-open co
     plannedTasks: [],
     archivedTasks: [],
   } as unknown as ProjectWithTasks;
-  const { rerender } = render(<ListView project={project} />);
+  const { rerender } = render(<ListView project={project} />, {
+    wrapper: Providers,
+  });
   fireEvent.click(screen.getByTitle(/archiveAllTooltip/));
   const complete = {
     ...project,

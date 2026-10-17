@@ -38,7 +38,7 @@ export function ColumnDropzone({
       items={column.tasks}
       strategy={disableSorting ? keepOrder : verticalListSortingStrategy}
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <AnimatePresence initial={false} mode="popLayout">
           {column.tasks.map((task) => (
             <motion.div

@@ -4,6 +4,7 @@ import deleteTask from "@/fetchers/task/delete-task";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import { removeTaskFromProject } from "./remove-task-from-project";
+import { removeTasksFromRelations } from "./remove-task-from-relations";
 
 export function useDeleteTask() {
   const queryClient = useQueryClient();
@@ -22,6 +23,7 @@ export function useDeleteTask() {
         queryKey: ["task", deletedTask.id],
         exact: true,
       });
+      removeTasksFromRelations(queryClient, [deletedTask.id]);
       void queryClient.invalidateQueries({
         queryKey: ["tasks", deletedTask.projectId],
       });

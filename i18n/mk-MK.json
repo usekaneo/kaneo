@@ -3116,7 +3116,8 @@
 			"open": "Отворен",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR-а"
+			"count_other": "{{count}} PR-а",
+			"closed": "Затворен"
 		},
 		"assignee": {
 			"label": "Доделен",
@@ -3222,7 +3223,6 @@
 			"required": "Задолжително",
 			"enterKey": "Enter",
 			"toSave": "за зачувување",
-			"today": "Денес",
 			"clear": "Исчисти",
 			"setValue": "Постави {{field}}…",
 			"noMatches": "Нема соодветни опции",
@@ -3271,6 +3271,28 @@
 			"markdownCopied": "Копирано како Markdown",
 			"copyFailed": "Не може да се копира во клипбордот.",
 			"pageUrlCopied": "URL на страницата е копиран"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} д. задоцнето",
+			"overdueDays_other": "{{count}} д. задоцнето",
+			"overdueWeeks_one": "{{count}} нед. задоцнето",
+			"overdueWeeks_other": "{{count}} нед. задоцнето",
+			"today": "Денес",
+			"tomorrow": "Утре",
+			"inDays_one": "За {{count}} ден",
+			"inDays_other": "За {{count}} дена",
+			"fullDate": "Рок {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Постави рок…",
+			"startDatePlaceholder": "Постави датум на почеток…",
+			"datePlaceholder": "Постави датум…",
+			"thisWeekend": "Овој викенд",
+			"nextWeek": "Следната недела",
+			"pickDate": "Избери датум",
+			"startsOn": "Почнува: {{date}}",
+			"beforeStart": "{{date}} е пред датумот на почеток",
+			"afterDue": "{{date}} е по рокот"
 		}
 	},
 	"invitations": {

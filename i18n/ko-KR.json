@@ -3081,7 +3081,8 @@
 			"draft": "초안",
 			"open": "열림",
 			"label": "풀 리퀘스트",
-			"count_other": "PR {{count}}개"
+			"count_other": "PR {{count}}개",
+			"closed": "닫힘"
 		},
 		"assignee": {
 			"label": "담당자",
@@ -3172,7 +3173,6 @@
 			"required": "필수",
 			"enterKey": "Enter",
 			"toSave": "키로 저장",
-			"today": "오늘",
 			"clear": "지우기",
 			"setValue": "{{field}} 설정…",
 			"noMatches": "일치하는 옵션이 없습니다",
@@ -3217,6 +3217,25 @@
 			"markdownCopied": "Markdown으로 복사했습니다",
 			"copyFailed": "클립보드에 복사하지 못했습니다.",
 			"pageUrlCopied": "페이지 URL을 복사했습니다"
+		},
+		"due": {
+			"overdueDays_other": "{{count}}일 지남",
+			"overdueWeeks_other": "{{count}}주 지남",
+			"today": "오늘",
+			"tomorrow": "내일",
+			"inDays_other": "{{count}}일 후",
+			"fullDate": "마감 {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "마감일 설정…",
+			"startDatePlaceholder": "시작일 설정…",
+			"datePlaceholder": "날짜 설정…",
+			"thisWeekend": "이번 주말",
+			"nextWeek": "다음 주",
+			"pickDate": "날짜 선택",
+			"startsOn": "시작: {{date}}",
+			"beforeStart": "{{date}}은(는) 시작일 이전입니다",
+			"afterDue": "{{date}}은(는) 마감일 이후입니다"
 		}
 	},
 	"invitations": {

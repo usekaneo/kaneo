@@ -3496,7 +3496,8 @@
 			"draft": "Wersja robocza",
 			"label": "Pull request",
 			"merged": "Scalone",
-			"open": "Otwarte"
+			"open": "Otwarte",
+			"closed": "Zamknięty"
 		},
 		"priority": {
 			"high": "Wysoki",
@@ -3604,7 +3605,6 @@
 			"required": "Wymagane",
 			"enterKey": "Enter",
 			"toSave": "aby zapisać",
-			"today": "Dzisiaj",
 			"clear": "Wyczyść",
 			"setValue": "Ustaw {{field}}…",
 			"noMatches": "Brak pasujących opcji",
@@ -3661,6 +3661,34 @@
 			"markdownCopied": "Skopiowano jako Markdown",
 			"copyFailed": "Nie udało się skopiować do schowka.",
 			"pageUrlCopied": "Skopiowano URL strony"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} d. po terminie",
+			"overdueDays_few": "{{count}} d. po terminie",
+			"overdueDays_many": "{{count}} d. po terminie",
+			"overdueDays_other": "{{count}} d. po terminie",
+			"overdueWeeks_one": "{{count}} tyg. po terminie",
+			"overdueWeeks_few": "{{count}} tyg. po terminie",
+			"overdueWeeks_many": "{{count}} tyg. po terminie",
+			"overdueWeeks_other": "{{count}} tyg. po terminie",
+			"today": "Dzisiaj",
+			"tomorrow": "Jutro",
+			"inDays_one": "Za {{count}} dzień",
+			"inDays_few": "Za {{count}} dni",
+			"inDays_many": "Za {{count}} dni",
+			"inDays_other": "Za {{count}} dnia",
+			"fullDate": "Termin {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Ustaw termin…",
+			"startDatePlaceholder": "Ustaw datę rozpoczęcia…",
+			"datePlaceholder": "Ustaw datę…",
+			"thisWeekend": "Ten weekend",
+			"nextWeek": "Przyszły tydzień",
+			"pickDate": "Wybierz datę",
+			"startsOn": "Początek: {{date}}",
+			"beforeStart": "{{date}} jest przed datą rozpoczęcia",
+			"afterDue": "{{date}} jest po terminie"
 		}
 	},
 	"press": {

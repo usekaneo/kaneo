@@ -3,7 +3,7 @@ import type { ExternalLink } from "@/types/external-link";
 
 export type PullRequest = ExternalLink & { href: string };
 
-export type PullRequestStatus = "merged" | "draft" | "open";
+export type PullRequestStatus = "merged" | "draft" | "open" | "closed";
 
 export function getPullRequests(
   externalLinks: ExternalLink[] | null | undefined,
@@ -17,6 +17,7 @@ export function getPullRequests(
 
 export function getPullRequestStatus(pr: ExternalLink): PullRequestStatus {
   if (pr.metadata?.merged === true) return "merged";
+  if (pr.metadata?.state === "closed") return "closed";
   if (pr.metadata?.draft === true) return "draft";
   return "open";
 }
@@ -27,7 +28,8 @@ export function getPullRequestsStatus(
   const statuses = pullRequests.map(getPullRequestStatus);
   if (statuses.every((status) => status === "merged")) return "merged";
   if (statuses.includes("open")) return "open";
-  return "draft";
+  if (statuses.includes("draft")) return "draft";
+  return "closed";
 }
 
 export function getPullRequestRepoName(url: string) {

@@ -3076,7 +3076,8 @@
 			"draft": "下書き",
 			"open": "オープン",
 			"label": "Pull Request",
-			"count_other": "{{count}} 件の PR"
+			"count_other": "{{count}} 件の PR",
+			"closed": "クローズ"
 		},
 		"assignee": {
 			"label": "担当者",
@@ -3172,7 +3173,6 @@
 			"required": "必須",
 			"enterKey": "Enter",
 			"toSave": "で保存",
-			"today": "今日",
 			"clear": "クリア",
 			"setValue": "{{field}}を設定…",
 			"noMatches": "一致するオプションがありません",
@@ -3217,6 +3217,25 @@
 			"markdownCopied": "Markdown としてコピーしました",
 			"copyFailed": "クリップボードにコピーできませんでした。",
 			"pageUrlCopied": "ページの URL をコピーしました"
+		},
+		"due": {
+			"overdueDays_other": "{{count}}日超過",
+			"overdueWeeks_other": "{{count}}週超過",
+			"today": "今日",
+			"tomorrow": "明日",
+			"inDays_other": "{{count}}日後",
+			"fullDate": "期限 {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "期日を設定…",
+			"startDatePlaceholder": "開始日を設定…",
+			"datePlaceholder": "日付を設定…",
+			"thisWeekend": "今週末",
+			"nextWeek": "来週",
+			"pickDate": "日付を選択",
+			"startsOn": "開始: {{date}}",
+			"beforeStart": "{{date}} は開始日より前です",
+			"afterDue": "{{date}} は期日より後です"
 		}
 	},
 	"invitations": {

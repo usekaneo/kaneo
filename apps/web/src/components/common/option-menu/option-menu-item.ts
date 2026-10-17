@@ -5,4 +5,6 @@ export type OptionMenuItem = {
   label: string;
   icon?: ReactNode;
   selected?: boolean;
+  hint?: string;
+  pinned?: boolean;
 };

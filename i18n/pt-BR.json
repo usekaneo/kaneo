@@ -3165,7 +3165,8 @@
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
 			"count_other": "{{count}} PRs",
-			"count_many": "{{count}} PRs"
+			"count_many": "{{count}} PRs",
+			"closed": "Fechado"
 		},
 		"assignee": {
 			"label": "Responsável",
@@ -3272,7 +3273,6 @@
 			"required": "Obrigatório",
 			"enterKey": "Enter",
 			"toSave": "para salvar",
-			"today": "Hoje",
 			"clear": "Limpar",
 			"setValue": "Definir {{field}}…",
 			"noMatches": "Nenhuma opção correspondente",
@@ -3325,6 +3325,31 @@
 			"markdownCopied": "Copiado como Markdown",
 			"copyFailed": "Não foi possível copiar para a área de transferência.",
 			"pageUrlCopied": "URL da página copiada"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} d de atraso",
+			"overdueDays_many": "{{count}} d de atraso",
+			"overdueDays_other": "{{count}} d de atraso",
+			"overdueWeeks_one": "{{count}} sem. de atraso",
+			"overdueWeeks_many": "{{count}} sem. de atraso",
+			"overdueWeeks_other": "{{count}} sem. de atraso",
+			"today": "Hoje",
+			"tomorrow": "Amanhã",
+			"inDays_one": "Em {{count}} dia",
+			"inDays_many": "Em {{count}} dias",
+			"inDays_other": "Em {{count}} dias",
+			"fullDate": "Vence em {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Definir prazo…",
+			"startDatePlaceholder": "Definir data de início…",
+			"datePlaceholder": "Definir data…",
+			"thisWeekend": "Este fim de semana",
+			"nextWeek": "Próxima semana",
+			"pickDate": "Escolher uma data",
+			"startsOn": "Começa em {{date}}",
+			"beforeStart": "{{date}} é antes da data de início",
+			"afterDue": "{{date}} é depois do prazo"
 		}
 	},
 	"invitations": {

@@ -3125,7 +3125,8 @@
 			"open": "Açıq",
 			"label": "Birləşdirmə sorğusu",
 			"count_one": "{{count}} birləşdirmə sorğusu",
-			"count_other": "{{count}} birləşdirmə sorğusu"
+			"count_other": "{{count}} birləşdirmə sorğusu",
+			"closed": "Bağlı"
 		},
 		"assignee": {
 			"label": "İcraçı",
@@ -3222,7 +3223,6 @@
 			"required": "Məcburi",
 			"enterKey": "Enter",
 			"toSave": "saxlamaq üçün",
-			"today": "Bu gün",
 			"clear": "Təmizlə",
 			"setValue": "{{field}} seçin…",
 			"noMatches": "Uyğun seçim yoxdur",
@@ -3271,6 +3271,28 @@
 			"markdownCopied": "Markdown kimi kopyalandı",
 			"copyFailed": "Mübadilə buferinə kopyalamaq alınmadı.",
 			"pageUrlCopied": "Səhifə URL-i kopyalandı"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} g gecikib",
+			"overdueDays_other": "{{count}} g gecikib",
+			"overdueWeeks_one": "{{count}} h gecikib",
+			"overdueWeeks_other": "{{count}} h gecikib",
+			"today": "Bu gün",
+			"tomorrow": "Sabah",
+			"inDays_one": "{{count}} gün sonra",
+			"inDays_other": "{{count}} gün sonra",
+			"fullDate": "Son tarix {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Son tarixi təyin et…",
+			"startDatePlaceholder": "Başlama tarixini təyin et…",
+			"datePlaceholder": "Tarix təyin et…",
+			"thisWeekend": "Bu həftə sonu",
+			"nextWeek": "Gələn həftə",
+			"pickDate": "Tarix seç",
+			"startsOn": "Başlayır: {{date}}",
+			"beforeStart": "{{date}} başlama tarixindən əvvəldir",
+			"afterDue": "{{date}} son tarixdən sonradır"
 		}
 	},
 	"invitations": {
