@@ -4012,7 +4012,10 @@
 			"project": "Projekt",
 			"create": "Erstellen",
 			"taskTitle": "Aufgabentitel",
-			"noLabels": "In diesem Workspace gibt es noch keine Labels."
+			"noLabels": "In diesem Workspace gibt es noch keine Labels.",
+			"labelsAndParentFailed": "Aufgabe erstellt, aber einige Labels und die Verknüpfung zur übergeordneten Aufgabe konnten nicht gespeichert werden.",
+			"labelsFailed": "Aufgabe erstellt, aber einige Labels konnten nicht hinzugefügt werden.",
+			"parentFailed": "Aufgabe erstellt, aber sie konnte nicht mit der übergeordneten Aufgabe verknüpft werden. Lege die übergeordnete Aufgabe im Web fest."
 		},
 		"editor": {
 			"description": "Beschreibung",
@@ -4151,7 +4154,13 @@
 			"options": "Optionen",
 			"separateWithCommas": "Durch Kommas trennen",
 			"androidIOSWeb": "Android, iOS, Web",
-			"required": "Pflichtfeld"
+			"required": "Pflichtfeld",
+			"checked": "Aktiviert",
+			"chooseDefault": "Standardwert auswählen",
+			"defaultValue": "Standardwert",
+			"multiselectOptionsRequired": "Füge mindestens zwei verschiedene Optionen hinzu.",
+			"unchecked": "Deaktiviert",
+			"validDefaultRequired": "Gib einen gültigen Standardwert für dieses Pflichtfeld ein."
 		},
 		"projectNew": {
 			"newProject": "Neues Projekt",
@@ -4259,7 +4268,8 @@
 				"all": "Alle",
 				"tasks": "Aufgaben",
 				"projects": "Projekte",
-				"comments": "Kommentare"
+				"comments": "Kommentare",
+				"activity": "Aktivität"
 			},
 			"empty": {
 				"title": "Diesen Workspace durchsuchen",

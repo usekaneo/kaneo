@@ -4230,7 +4230,13 @@
 			"text": "文本",
 			"type": "类型",
 			"unmarkAsDoneColumn": "取消设为完成列",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "所有任务中此字段存储的值都将被删除。"
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "所有任务中此字段存储的值都将被删除。",
+			"checked": "已勾选",
+			"chooseDefault": "选择默认值",
+			"defaultValue": "默认值",
+			"multiselectOptionsRequired": "请添加至少两个不同的选项。",
+			"unchecked": "未勾选",
+			"validDefaultRequired": "请为此必填字段输入有效的默认值。"
 		},
 		"search": {
 			"clear": "清除",
@@ -4244,7 +4250,8 @@
 				"all": "全部",
 				"comments": "评论",
 				"projects": "项目",
-				"tasks": "任务"
+				"tasks": "任务",
+				"activity": "活动"
 			},
 			"noResults": "没有“{{query}}”的搜索结果",
 			"placeholder": "搜索任务、项目和评论"
@@ -4431,7 +4438,10 @@
 			"newSubtask": "新建子任务",
 			"noLabels": "此工作区暂无标签。",
 			"project": "项目",
-			"taskTitle": "任务标题"
+			"taskTitle": "任务标题",
+			"labelsAndParentFailed": "任务已创建，但部分标签和父任务关联未能保存。",
+			"labelsFailed": "任务已创建，但部分标签未能添加。",
+			"parentFailed": "任务已创建，但未能关联到父任务。请在网页应用中设置父任务。"
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}小时 {{minutes}}分",

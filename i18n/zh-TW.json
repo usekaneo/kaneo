@@ -4230,7 +4230,13 @@
 			"text": "文字",
 			"type": "類型",
 			"unmarkAsDoneColumn": "取消設為完成欄位",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "所有任務中儲存在此欄位的值都將刪除。"
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "所有任務中儲存在此欄位的值都將刪除。",
+			"checked": "已勾選",
+			"chooseDefault": "選擇預設值",
+			"defaultValue": "預設值",
+			"multiselectOptionsRequired": "請新增至少兩個不同的選項。",
+			"unchecked": "未勾選",
+			"validDefaultRequired": "請為此必填欄位輸入有效的預設值。"
 		},
 		"search": {
 			"clear": "清除",
@@ -4244,7 +4250,8 @@
 				"all": "全部",
 				"comments": "留言",
 				"projects": "專案",
-				"tasks": "任務"
+				"tasks": "任務",
+				"activity": "活動"
 			},
 			"noResults": "沒有「{{query}}」的搜尋結果",
 			"placeholder": "搜尋任務、專案和留言"
@@ -4431,7 +4438,10 @@
 			"newSubtask": "新增子任務",
 			"noLabels": "這個工作區還沒有標籤。",
 			"project": "專案",
-			"taskTitle": "任務標題"
+			"taskTitle": "任務標題",
+			"labelsAndParentFailed": "已建立任務，但無法儲存部分標籤和上層任務的連結。",
+			"labelsFailed": "已建立任務，但無法新增部分標籤。",
+			"parentFailed": "已建立任務，但無法連結至上層任務。請從網頁應用程式設定上層任務。"
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}小時 {{minutes}}分",

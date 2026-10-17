@@ -3949,7 +3949,10 @@
 			"project": "Proyek",
 			"create": "Buat",
 			"taskTitle": "Judul tugas",
-			"noLabels": "Belum ada label di ruang kerja ini."
+			"noLabels": "Belum ada label di ruang kerja ini.",
+			"labelsAndParentFailed": "Tugas dibuat, tetapi beberapa label dan tautan ke tugas induk tidak dapat disimpan.",
+			"labelsFailed": "Tugas dibuat, tetapi beberapa label tidak dapat ditambahkan.",
+			"parentFailed": "Tugas dibuat, tetapi tidak dapat ditautkan ke tugas induk. Atur tugas induk dari aplikasi web."
 		},
 		"editor": {
 			"description": "Deskripsi",
@@ -4086,7 +4089,13 @@
 			"options": "Opsi",
 			"separateWithCommas": "Pisahkan dengan koma",
 			"androidIOSWeb": "Android, iOS, Web",
-			"required": "Wajib"
+			"required": "Wajib",
+			"checked": "Dicentang",
+			"chooseDefault": "Pilih nilai default",
+			"defaultValue": "Nilai default",
+			"multiselectOptionsRequired": "Tambahkan setidaknya dua opsi yang berbeda.",
+			"unchecked": "Tidak dicentang",
+			"validDefaultRequired": "Masukkan nilai default yang valid untuk bidang wajib ini."
 		},
 		"projectNew": {
 			"newProject": "Proyek baru",
@@ -4192,7 +4201,8 @@
 				"all": "Semua",
 				"tasks": "Tugas",
 				"projects": "Proyek",
-				"comments": "Komentar"
+				"comments": "Komentar",
+				"activity": "Aktivitas"
 			},
 			"empty": {
 				"title": "Cari di ruang kerja ini",

@@ -4230,7 +4230,13 @@
 			"text": "텍스트",
 			"type": "유형",
 			"unmarkAsDoneColumn": "완료 컬럼 지정 해제",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "모든 작업에서 이 필드에 저장된 값이 삭제됩니다."
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "모든 작업에서 이 필드에 저장된 값이 삭제됩니다.",
+			"checked": "체크됨",
+			"chooseDefault": "기본값 선택",
+			"defaultValue": "기본값",
+			"multiselectOptionsRequired": "서로 다른 옵션을 두 개 이상 추가하세요.",
+			"unchecked": "체크 안 됨",
+			"validDefaultRequired": "이 필수 필드에 유효한 기본값을 입력하세요."
 		},
 		"search": {
 			"clear": "지우기",
@@ -4244,7 +4250,8 @@
 				"all": "전체",
 				"comments": "댓글",
 				"projects": "프로젝트",
-				"tasks": "작업"
+				"tasks": "작업",
+				"activity": "활동"
 			},
 			"noResults": "“{{query}}” 검색 결과가 없습니다",
 			"placeholder": "작업, 프로젝트, 댓글 검색"
@@ -4431,7 +4438,10 @@
 			"newSubtask": "새 하위 작업",
 			"noLabels": "이 워크스페이스에는 아직 라벨이 없습니다.",
 			"project": "프로젝트",
-			"taskTitle": "작업 제목"
+			"taskTitle": "작업 제목",
+			"labelsAndParentFailed": "작업이 생성되었지만 일부 라벨과 상위 작업 연결을 저장하지 못했습니다.",
+			"labelsFailed": "작업이 생성되었지만 일부 라벨을 추가하지 못했습니다.",
+			"parentFailed": "작업이 생성되었지만 상위 작업에 연결하지 못했습니다. 웹 앱에서 상위 작업을 설정하세요."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}시간 {{minutes}}분",

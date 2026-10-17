@@ -4230,7 +4230,13 @@
 			"text": "テキスト",
 			"type": "種類",
 			"unmarkAsDoneColumn": "完了カラムの指定を解除",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "すべてのタスクからこのフィールドの値が削除されます。"
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "すべてのタスクからこのフィールドの値が削除されます。",
+			"checked": "チェックあり",
+			"chooseDefault": "デフォルト値を選択",
+			"defaultValue": "デフォルト値",
+			"multiselectOptionsRequired": "異なる選択肢を2つ以上追加してください。",
+			"unchecked": "チェックなし",
+			"validDefaultRequired": "この必須フィールドに有効なデフォルト値を入力してください。"
 		},
 		"search": {
 			"clear": "クリア",
@@ -4244,7 +4250,8 @@
 				"all": "すべて",
 				"comments": "コメント",
 				"projects": "プロジェクト",
-				"tasks": "タスク"
+				"tasks": "タスク",
+				"activity": "アクティビティ"
 			},
 			"noResults": "「{{query}}」の検索結果はありません",
 			"placeholder": "タスク、プロジェクト、コメントを検索"
@@ -4431,7 +4438,10 @@
 			"newSubtask": "新しいサブタスク",
 			"noLabels": "このワークスペースにはまだラベルがありません。",
 			"project": "プロジェクト",
-			"taskTitle": "タスク名"
+			"taskTitle": "タスク名",
+			"labelsAndParentFailed": "タスクを作成しましたが、一部のラベルと親タスクへのリンクを保存できませんでした。",
+			"labelsFailed": "タスクを作成しましたが、一部のラベルを追加できませんでした。",
+			"parentFailed": "タスクを作成しましたが、親タスクにリンクできませんでした。ウェブアプリから親タスクを設定してください。"
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}時間 {{minutes}}分",

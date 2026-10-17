@@ -4299,7 +4299,13 @@
 			"text": "Mətn",
 			"type": "Növ",
 			"unmarkAsDoneColumn": "Tamamlanma sütunu işarəsini sil",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Bu sahədə saxlanılan dəyərlər bütün tapşırıqlardan silinir."
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Bu sahədə saxlanılan dəyərlər bütün tapşırıqlardan silinir.",
+			"checked": "İşarələnib",
+			"chooseDefault": "Standart dəyər seçin",
+			"defaultValue": "Standart dəyər",
+			"multiselectOptionsRequired": "Ən azı iki fərqli seçim əlavə edin.",
+			"unchecked": "İşarələnməyib",
+			"validDefaultRequired": "Bu tələb olunan sahə üçün etibarlı standart dəyər daxil edin."
 		},
 		"search": {
 			"clear": "Təmizlə",
@@ -4313,7 +4319,8 @@
 				"all": "Hamısı",
 				"comments": "Şərhlər",
 				"projects": "Layihələr",
-				"tasks": "Tapşırıqlar"
+				"tasks": "Tapşırıqlar",
+				"activity": "Fəaliyyət"
 			},
 			"noResults": "“{{query}}” üçün nəticə yoxdur",
 			"placeholder": "Tapşırıq, layihə, şərh axtar"
@@ -4501,7 +4508,10 @@
 			"newSubtask": "Yeni alt tapşırıq",
 			"noLabels": "Bu iş sahəsində hələ etiket yoxdur.",
 			"project": "Layihə",
-			"taskTitle": "Tapşırıq başlığı"
+			"taskTitle": "Tapşırıq başlığı",
+			"labelsAndParentFailed": "Tapşırıq yaradıldı, lakin bəzi etiketlər və əsas tapşırıqla əlaqə yadda saxlanıla bilmədi.",
+			"labelsFailed": "Tapşırıq yaradıldı, lakin bəzi etiketlər əlavə edilə bilmədi.",
+			"parentFailed": "Tapşırıq yaradıldı, lakin əsas tapşırıqla əlaqələndirilə bilmədi. Əsas tapşırığı veb tətbiqindən təyin edin."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}} saat {{minutes}} dəq",

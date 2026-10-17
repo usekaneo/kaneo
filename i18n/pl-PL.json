@@ -4138,7 +4138,10 @@
 			"project": "Projekt",
 			"create": "Utwórz",
 			"taskTitle": "Tytuł zadania",
-			"noLabels": "W tym obszarze roboczym nie ma jeszcze etykiet."
+			"noLabels": "W tym obszarze roboczym nie ma jeszcze etykiet.",
+			"labelsAndParentFailed": "Zadanie zostało utworzone, ale nie udało się zapisać niektórych etykiet ani powiązania z zadaniem nadrzędnym.",
+			"labelsFailed": "Zadanie zostało utworzone, ale nie udało się dodać niektórych etykiet.",
+			"parentFailed": "Zadanie zostało utworzone, ale nie udało się powiązać go z zadaniem nadrzędnym. Ustaw zadanie nadrzędne w wersji webowej."
 		},
 		"editor": {
 			"description": "Opis",
@@ -4281,7 +4284,13 @@
 			"options": "Opcje",
 			"separateWithCommas": "Oddziel przecinkami",
 			"androidIOSWeb": "Android, iOS, Web",
-			"required": "Wymagane"
+			"required": "Wymagane",
+			"checked": "Zaznaczone",
+			"chooseDefault": "Wybierz wartość domyślną",
+			"defaultValue": "Wartość domyślna",
+			"multiselectOptionsRequired": "Dodaj co najmniej dwie różne opcje.",
+			"unchecked": "Odznaczone",
+			"validDefaultRequired": "Wprowadź prawidłową wartość domyślną dla tego wymaganego pola."
 		},
 		"projectNew": {
 			"newProject": "Nowy projekt",
@@ -4393,7 +4402,8 @@
 				"all": "Wszystko",
 				"tasks": "Zadania",
 				"projects": "Projekty",
-				"comments": "Komentarze"
+				"comments": "Komentarze",
+				"activity": "Aktywność"
 			},
 			"empty": {
 				"title": "Przeszukaj ten obszar roboczy",

@@ -4368,7 +4368,13 @@
 			"text": "Texto",
 			"type": "Tipo",
 			"unmarkAsDoneColumn": "Desmarcar como coluna de concluído",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Os valores deste campo serão excluídos de todas as tarefas."
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Os valores deste campo serão excluídos de todas as tarefas.",
+			"checked": "Marcado",
+			"chooseDefault": "Escolha um valor padrão",
+			"defaultValue": "Valor padrão",
+			"multiselectOptionsRequired": "Adicione pelo menos duas opções diferentes.",
+			"unchecked": "Desmarcado",
+			"validDefaultRequired": "Digite um valor padrão válido para este campo obrigatório."
 		},
 		"search": {
 			"clear": "Limpar",
@@ -4382,7 +4388,8 @@
 				"all": "Tudo",
 				"comments": "Comentários",
 				"projects": "Projetos",
-				"tasks": "Tarefas"
+				"tasks": "Tarefas",
+				"activity": "Atividade"
 			},
 			"noResults": "Nenhum resultado para “{{query}}”",
 			"placeholder": "Buscar tarefas, projetos e comentários"
@@ -4571,7 +4578,10 @@
 			"newSubtask": "Nova subtarefa",
 			"noLabels": "Nenhuma etiqueta neste espaço de trabalho ainda.",
 			"project": "Projeto",
-			"taskTitle": "Título da tarefa"
+			"taskTitle": "Título da tarefa",
+			"labelsAndParentFailed": "Tarefa criada, mas não foi possível salvar algumas etiquetas e o vínculo com a tarefa principal.",
+			"labelsFailed": "Tarefa criada, mas não foi possível adicionar algumas etiquetas.",
+			"parentFailed": "Tarefa criada, mas não foi possível vinculá-la à tarefa principal. Defina a tarefa principal na versão web."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}}h {{minutes}}min",

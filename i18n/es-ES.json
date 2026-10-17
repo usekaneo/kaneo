@@ -4075,7 +4075,10 @@
 			"project": "Proyecto",
 			"create": "Crear",
 			"taskTitle": "Título de la tarea",
-			"noLabels": "Aún no hay etiquetas en este espacio de trabajo."
+			"noLabels": "Aún no hay etiquetas en este espacio de trabajo.",
+			"labelsAndParentFailed": "Tarea creada, pero no se han podido guardar algunas etiquetas ni el vínculo con la tarea principal.",
+			"labelsFailed": "Tarea creada, pero no se han podido añadir algunas etiquetas.",
+			"parentFailed": "Tarea creada, pero no se ha podido vincular a la tarea principal. Establece la tarea principal desde la web."
 		},
 		"editor": {
 			"description": "Descripción",
@@ -4216,7 +4219,13 @@
 			"options": "Opciones",
 			"separateWithCommas": "Separa con comas",
 			"androidIOSWeb": "Android, iOS, Web",
-			"required": "Obligatorio"
+			"required": "Obligatorio",
+			"checked": "Marcada",
+			"chooseDefault": "Elige un valor por defecto",
+			"defaultValue": "Valor por defecto",
+			"multiselectOptionsRequired": "Añade al menos dos opciones distintas.",
+			"unchecked": "Sin marcar",
+			"validDefaultRequired": "Introduce un valor por defecto válido para este campo obligatorio."
 		},
 		"projectNew": {
 			"newProject": "Nuevo proyecto",
@@ -4326,7 +4335,8 @@
 				"all": "Todo",
 				"tasks": "Tareas",
 				"projects": "Proyectos",
-				"comments": "Comentarios"
+				"comments": "Comentarios",
+				"activity": "Actividad"
 			},
 			"empty": {
 				"title": "Buscar en este espacio de trabajo",

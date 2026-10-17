@@ -4299,7 +4299,13 @@
 			"text": "Metin",
 			"type": "Tür",
 			"unmarkAsDoneColumn": "Tamamlandı sütunu işaretini kaldır",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Bu alanda saklanan değerler tüm taleplerden silinir."
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Bu alanda saklanan değerler tüm taleplerden silinir.",
+			"checked": "İşaretli",
+			"chooseDefault": "Varsayılan bir değer seçin",
+			"defaultValue": "Varsayılan değer",
+			"multiselectOptionsRequired": "En az iki farklı seçenek ekleyin.",
+			"unchecked": "İşaretli değil",
+			"validDefaultRequired": "Bu gerekli alan için geçerli bir varsayılan değer girin."
 		},
 		"search": {
 			"clear": "Temizle",
@@ -4313,7 +4319,8 @@
 				"all": "Tümü",
 				"comments": "Yorumlar",
 				"projects": "Projeler",
-				"tasks": "Talepler"
+				"tasks": "Talepler",
+				"activity": "Etkinlik"
 			},
 			"noResults": "“{{query}}” için sonuç yok",
 			"placeholder": "Talep, proje, yorum ara"
@@ -4501,7 +4508,10 @@
 			"newSubtask": "Yeni alt talep",
 			"noLabels": "Bu çalışma alanında henüz etiket yok.",
 			"project": "Proje",
-			"taskTitle": "Talep başlığı"
+			"taskTitle": "Talep başlığı",
+			"labelsAndParentFailed": "Talep oluşturuldu, ancak bazı etiketler ve üst talep bağlantısı kaydedilemedi.",
+			"labelsFailed": "Talep oluşturuldu, ancak bazı etiketler eklenemedi.",
+			"parentFailed": "Talep oluşturuldu, ancak üst talebe bağlanamadı. Üst talebi web uygulamasından belirleyin."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}} sa {{minutes}} dk",

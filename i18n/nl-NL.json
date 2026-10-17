@@ -4299,7 +4299,13 @@
 			"text": "Tekst",
 			"type": "Type",
 			"unmarkAsDoneColumn": "Markering als gereed-kolom verwijderen",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Waarden in dit veld worden uit elke taak verwijderd."
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Waarden in dit veld worden uit elke taak verwijderd.",
+			"checked": "Aangevinkt",
+			"chooseDefault": "Kies een standaardwaarde",
+			"defaultValue": "Standaardwaarde",
+			"multiselectOptionsRequired": "Voeg minimaal twee verschillende opties toe.",
+			"unchecked": "Niet aangevinkt",
+			"validDefaultRequired": "Voer een geldige standaardwaarde in voor dit verplichte veld."
 		},
 		"search": {
 			"clear": "Wissen",
@@ -4313,7 +4319,8 @@
 				"all": "Alles",
 				"comments": "Reacties",
 				"projects": "Projecten",
-				"tasks": "Taken"
+				"tasks": "Taken",
+				"activity": "Activiteit"
 			},
 			"noResults": "Geen resultaten voor “{{query}}”",
 			"placeholder": "Taken, projecten en reacties zoeken"
@@ -4501,7 +4508,10 @@
 			"newSubtask": "Nieuwe subtaak",
 			"noLabels": "Nog geen labels in deze werkruimte.",
 			"project": "Project",
-			"taskTitle": "Taaknaam"
+			"taskTitle": "Taaknaam",
+			"labelsAndParentFailed": "Taak aangemaakt, maar sommige labels en de koppeling met de bovenliggende taak konden niet worden opgeslagen.",
+			"labelsFailed": "Taak aangemaakt, maar sommige labels konden niet worden toegevoegd.",
+			"parentFailed": "Taak aangemaakt, maar deze kon niet aan de bovenliggende taak worden gekoppeld. Stel de bovenliggende taak in via het web."
 		},
 		"time": {
 			"durationHoursMinutes": "{{hours}} u {{minutes}} min",

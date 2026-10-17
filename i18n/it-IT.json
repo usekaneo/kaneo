@@ -4075,7 +4075,10 @@
 			"project": "Progetto",
 			"create": "Crea",
 			"taskTitle": "Titolo dell'attività",
-			"noLabels": "Ancora nessuna etichetta in questo workspace."
+			"noLabels": "Ancora nessuna etichetta in questo workspace.",
+			"labelsAndParentFailed": "Attività creata, ma non è stato possibile salvare alcune etichette e il collegamento all'attività principale.",
+			"labelsFailed": "Attività creata, ma non è stato possibile aggiungere alcune etichette.",
+			"parentFailed": "Attività creata, ma non è stato possibile collegarla all'attività principale. Imposta l'attività principale dal web."
 		},
 		"editor": {
 			"description": "Descrizione",
@@ -4216,7 +4219,13 @@
 			"options": "Opzioni",
 			"separateWithCommas": "Separa con virgole",
 			"androidIOSWeb": "Android, iOS, Web",
-			"required": "Obbligatorio"
+			"required": "Obbligatorio",
+			"checked": "Selezionata",
+			"chooseDefault": "Scegli un valore predefinito",
+			"defaultValue": "Valore predefinito",
+			"multiselectOptionsRequired": "Aggiungi almeno due opzioni diverse.",
+			"unchecked": "Non selezionata",
+			"validDefaultRequired": "Inserisci un valore predefinito valido per questo campo obbligatorio."
 		},
 		"projectNew": {
 			"newProject": "Nuovo progetto",
@@ -4326,7 +4335,8 @@
 				"all": "Tutto",
 				"tasks": "Attività",
 				"projects": "Progetti",
-				"comments": "Commenti"
+				"comments": "Commenti",
+				"activity": "Cronologia"
 			},
 			"empty": {
 				"title": "Cerca in questo workspace",

@@ -4075,7 +4075,10 @@
 			"project": "Projet",
 			"create": "Créer",
 			"taskTitle": "Titre de la tâche",
-			"noLabels": "Aucun label dans cet espace de travail pour l'instant."
+			"noLabels": "Aucun label dans cet espace de travail pour l'instant.",
+			"labelsAndParentFailed": "Tâche créée, mais certains labels et le lien vers la tâche parente n'ont pas pu être enregistrés.",
+			"labelsFailed": "Tâche créée, mais certains labels n'ont pas pu être ajoutés.",
+			"parentFailed": "Tâche créée, mais elle n'a pas pu être liée à la tâche parente. Définissez la tâche parente sur le web."
 		},
 		"editor": {
 			"description": "Description",
@@ -4216,7 +4219,13 @@
 			"options": "Options",
 			"separateWithCommas": "Séparez par des virgules",
 			"androidIOSWeb": "Android, iOS, Web",
-			"required": "Obligatoire"
+			"required": "Obligatoire",
+			"checked": "Coché",
+			"chooseDefault": "Choisir une valeur par défaut",
+			"defaultValue": "Valeur par défaut",
+			"multiselectOptionsRequired": "Ajoutez au moins deux options différentes.",
+			"unchecked": "Non coché",
+			"validDefaultRequired": "Entrez une valeur par défaut valide pour ce champ obligatoire."
 		},
 		"projectNew": {
 			"newProject": "Nouveau projet",
@@ -4326,7 +4335,8 @@
 				"all": "Tout",
 				"tasks": "Tâches",
 				"projects": "Projets",
-				"comments": "Commentaires"
+				"comments": "Commentaires",
+				"activity": "Activité"
 			},
 			"empty": {
 				"title": "Rechercher dans cet espace de travail",
