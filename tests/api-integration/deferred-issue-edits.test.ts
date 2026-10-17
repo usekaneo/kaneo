@@ -1793,6 +1793,108 @@ it.each(["github", "gitea"])(
   },
 );
 
+it.each(["github", "gitea"])(
+  "keeps a %s task archived when a settled echo's job retries a failed repair",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    for (const [field, value] of [
+      ["state", "closed"],
+      ["title", "B"],
+    ] as const)
+      await expect(
+        syncLatestTaskValue(
+          task.id,
+          integration.projectId,
+          link,
+          field,
+          value,
+          async () => {
+            throw new Error("provider timeout");
+          },
+        ),
+      ).rejects.toThrow("provider timeout");
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+    await deferIssueEdit(link, integration, ["state"]);
+    m.write.mockRejectedValueOnce(new Error("provider timeout"));
+
+    await replayDeferredIssueEdits();
+    expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
+    await replayDeferredIssueEdits();
+
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(m.write).toHaveBeenCalledTimes(2);
+    for (const [params] of m.write.mock.calls) {
+      expect(params).toMatchObject({ title: "B" });
+      expect(params).not.toHaveProperty("state");
+    }
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
+
+it.each(["github", "gitea"])(
+  "applies a genuine %s close to an archived task after an accepted reopen",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    await expect(
+      syncLatestTaskValue(
+        task.id,
+        integration.projectId,
+        link,
+        "state",
+        "closed",
+        async () => {
+          throw new Error("provider timeout");
+        },
+      ),
+    ).rejects.toThrow("provider timeout");
+    await deferIssueEdit(link, integration, ["state"]);
+    m.read.mockResolvedValue({
+      title: "B",
+      body: "old body",
+      state: "open",
+      updated_at: "2026-09-30T00:00:05Z",
+    });
+    await replayDeferredIssueEdits();
+    expect((await current(task.id))?.status).toBe("to-do");
+
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+    await deferIssueEdit(link, integration, ["state"]);
+    m.read.mockResolvedValue({
+      title: "B",
+      body: "old body",
+      state: "closed",
+      updated_at: "2026-09-30T00:00:06Z",
+    });
+    await replayDeferredIssueEdits();
+
+    expect(m.write).not.toHaveBeenCalled();
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect((await current(task.id))?.status).toBe("done");
+  },
+);
+
 it("skips provider reads and writes while another replica holds the worker lease", async () => {
   const { link, integration } = await seed();
   await deferTaskSync(link, integration, ["title"]);
