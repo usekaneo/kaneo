@@ -7,6 +7,7 @@ import { AppState, Platform } from "react-native";
 import { api } from "./api/endpoints";
 import { describeNotification } from "./describe";
 import { parseInstant } from "./format";
+import { i18n, loadDeviceLocale } from "./i18n";
 import { sessionStore } from "./session";
 
 /**
@@ -22,6 +23,8 @@ export async function checkNotifications(): Promise<void> {
   if (!sessionStore.get().ready) await sessionStore.hydrate();
   const session = sessionStore.get().session;
   if (!session) return;
+  // Runs headless, without the root layout that normally loads the locale.
+  await loadDeviceLocale();
   const since = Number((await AsyncStorage.getItem(SINCE_KEY)) ?? 0);
   const notifications = await api.notifications();
   // Signing out or switching accounts mid-check must not surface the old account's alerts.
@@ -42,7 +45,7 @@ export async function checkNotifications(): Promise<void> {
       await Notifications.scheduleNotificationAsync({
         content: {
           title: "Kaneo",
-          body: `${hidden} more new notifications`,
+          body: i18n.t("mobile:background.summary", { count: hidden }),
           data: {},
         },
         trigger: Platform.OS === "android" ? { channelId: CHANNEL_ID } : null,
@@ -84,8 +87,8 @@ TaskManager.defineTask(BACKGROUND_TASK, async () => {
 export async function setupNotificationChannel() {
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
-      name: "Kaneo activity",
-      description: "Assignments, comments and mentions from your workspaces",
+      name: i18n.t("mobile:background.channelName"),
+      description: i18n.t("mobile:background.channelDescription"),
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }

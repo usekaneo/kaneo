@@ -1,6 +1,7 @@
 import { CalendarDays, CalendarPlus, Tag } from "lucide-react-native";
 import { useState, type ReactNode } from "react";
 import { View } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { Avatar, EmptyAvatar } from "@/components/avatar";
 import { PriorityIcon, StatusIcon } from "@/components/icons";
@@ -80,6 +81,7 @@ export function Properties({
   currentUserId: string;
   workspaceId?: string | null;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const [picker, setPicker] = useState<Picker>(null);
@@ -120,7 +122,7 @@ export function Properties({
         >
           {task.priority && task.priority !== "no-priority"
             ? priorityLabel(task.priority)
-            : "Priority"}
+            : t("mobile:taskFields.priority")}
         </Txt>
       </PropChip>
       <PropChip
@@ -139,8 +141,13 @@ export function Properties({
           color={overdue ? c.danger : task.dueDate ? c.ink : c.muted}
         >
           {task.dueDate
-            ? `${formatDate(task.dueDate)}${overdue ? `, ${late} day${late === 1 ? "" : "s"} overdue` : ""}`
-            : "Due date"}
+            ? overdue
+              ? t("mobile:taskFields.overdue", {
+                  date: formatDate(task.dueDate),
+                  count: late,
+                })
+              : formatDate(task.dueDate)
+            : t("mobile:taskFields.dueDate")}
         </Txt>
       </PropChip>
       <PropChip onPress={() => setPicker("assignee")} dashed={!assigneeName}>
@@ -154,7 +161,7 @@ export function Properties({
           weight="medium"
           tone={assigneeName ? "ink" : "muted"}
         >
-          {assigneeName ?? "Assignee"}
+          {assigneeName ?? t("mobile:taskFields.assignee")}
         </Txt>
       </PropChip>
       <PropChip onPress={() => setPicker("labels")} dashed={!labels.length}>
@@ -179,7 +186,7 @@ export function Properties({
           <>
             <Tag size={14} color={c.muted} strokeWidth={2} />
             <Txt variant="meta" weight="medium" tone="muted">
-              Labels
+              {t("mobile:taskFields.labels")}
             </Txt>
           </>
         )}
@@ -196,26 +203,28 @@ export function Properties({
           tone={task.startDate ? "ink" : "muted"}
         >
           {task.startDate
-            ? `Starts ${formatDate(task.startDate)}`
-            : "Start date"}
+            ? t("mobile:taskFields.starts", {
+                date: formatDate(task.startDate),
+              })
+            : t("mobile:taskFields.startDate")}
         </Txt>
       </PropChip>
 
       <OptionSheet
         visible={picker === "status"}
         onClose={close}
-        title="Status"
+        title={t("mobile:taskFields.status")}
         selected={task.status}
         options={[
           {
             value: STATUS_PLANNED,
-            label: "Planned",
+            label: t("mobile:taskFields.planned"),
             leading: <StatusIcon status={STATUS_PLANNED} />,
           },
           ...columns.map((col) => ({
             value: col.slug,
             label: col.name,
-            hint: col.isFinal ? "Done column" : null,
+            hint: col.isFinal ? t("mobile:taskFields.doneColumn") : null,
             leading: (
               <StatusIcon
                 status={col.slug}
@@ -226,7 +235,7 @@ export function Properties({
           })),
           {
             value: STATUS_ARCHIVED,
-            label: "Archived",
+            label: t("mobile:taskFields.archived"),
             leading: <StatusIcon status={STATUS_ARCHIVED} />,
           },
         ]}
@@ -235,7 +244,7 @@ export function Properties({
       <OptionSheet
         visible={picker === "priority"}
         onClose={close}
-        title="Priority"
+        title={t("mobile:taskFields.priority")}
         selected={task.priority ?? "no-priority"}
         options={[...PRIORITIES].reverse().map((p) => ({
           value: p.value as string,
@@ -249,19 +258,22 @@ export function Properties({
       <OptionSheet
         visible={picker === "assignee"}
         onClose={close}
-        title="Assignee"
+        title={t("mobile:taskFields.assignee")}
         searchable
-        searchPlaceholder="Search people"
+        searchPlaceholder={t("mobile:taskFields.searchPeople")}
         selected={task.assigneeId ?? task.userId ?? null}
         options={[
           {
             value: null as string | null,
-            label: "Unassigned",
+            label: t("mobile:taskFields.unassigned"),
             leading: <EmptyAvatar size={28} />,
           },
           ...members.map((m) => ({
             value: m.id as string | null,
-            label: m.id === currentUserId ? `${m.name} (you)` : m.name,
+            label:
+              m.id === currentUserId
+                ? t("mobile:taskFields.you", { name: m.name })
+                : m.name,
             hint: m.email,
             leading: <Avatar name={m.name} image={m.image} size={28} />,
           })),
@@ -271,7 +283,7 @@ export function Properties({
       <DatePickerSheet
         visible={picker === "due"}
         onClose={close}
-        title="Due date"
+        title={t("mobile:taskFields.dueDate")}
         value={task.dueDate}
         onPick={(day) =>
           run(() => api.updateDueDate(task.id, day ? toApiDate(day) : null))
@@ -280,7 +292,7 @@ export function Properties({
       <DatePickerSheet
         visible={picker === "start"}
         onClose={close}
-        title="Start date"
+        title={t("mobile:taskFields.startDate")}
         value={task.startDate}
         // Start date has no dedicated route; the full update replaces every field, so send them all.
         onPick={(day) =>

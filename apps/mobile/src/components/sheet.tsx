@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, Search } from "lucide-react-native";
 import { useEffect, useState, type ReactNode } from "react";
 import {
@@ -37,6 +38,7 @@ export function Sheet({
   children: ReactNode;
   scroll?: boolean;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const insets = useSafeAreaInsets();
   const [mounted, setMounted] = useState(visible);
@@ -80,7 +82,7 @@ export function Sheet({
         <Pressable
           style={{ flex: 1 }}
           onPress={onClose}
-          accessibilityLabel="Close"
+          accessibilityLabel={t("mobile:common.close")}
         />
       </Animated.View>
       {/* "height" can't lift an absolutely positioned sheet, and Android doesn't resize the
@@ -167,7 +169,7 @@ export function OptionSheet<T>({
   selected,
   onSelect,
   searchable,
-  searchPlaceholder = "Search",
+  searchPlaceholder,
 }: {
   visible: boolean;
   onClose: () => void;
@@ -178,6 +180,7 @@ export function OptionSheet<T>({
   searchable?: boolean;
   searchPlaceholder?: string;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
     <Sheet visible={visible} onClose={onClose} title={title}>
       <OptionList
@@ -186,7 +189,7 @@ export function OptionSheet<T>({
         onSelect={onSelect}
         onClose={onClose}
         searchable={searchable}
-        searchPlaceholder={searchPlaceholder}
+        searchPlaceholder={searchPlaceholder ?? t("mobile:ui.search")}
       />
     </Sheet>
   );
@@ -207,6 +210,7 @@ function OptionList<T>({
   searchable?: boolean;
   searchPlaceholder: string;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
@@ -271,7 +275,7 @@ function OptionList<T>({
         })}
         {shown.length === 0 ? (
           <Txt variant="meta" tone="faint" style={{ padding: 12 }}>
-            Nothing matches “{query}”
+            {t("mobile:ui.nothingMatches", { query })}
           </Txt>
         ) : null}
       </View>
@@ -317,6 +321,7 @@ function MultiSelectBody({
   onSave: (values: string[]) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const [chosen, setChosen] = useState<string[]>(selected);
   const toggle = (v: string) =>
     setChosen((cur) =>
@@ -344,7 +349,7 @@ function MultiSelectBody({
       </View>
       <View style={{ paddingHorizontal: 20, paddingBottom: 8 }}>
         <Button
-          label="Save"
+          label={t("mobile:common.save")}
           onPress={() => {
             onSave(chosen);
             onClose();
@@ -418,6 +423,7 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   if (!visible) return null;
   return (
@@ -461,7 +467,7 @@ export function ConfirmDialog({
           ) : null}
           <View style={{ flexDirection: "row", gap: 8, paddingTop: 14 }}>
             <Button
-              label="Cancel"
+              label={t("mobile:common.cancel")}
               kind="secondary"
               size="md"
               grow

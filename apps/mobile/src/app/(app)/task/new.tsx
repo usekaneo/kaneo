@@ -14,6 +14,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 
 import { Avatar, EmptyAvatar } from "@/components/avatar";
 import { PriorityIcon, ProjectIcon, StatusIcon } from "@/components/icons";
@@ -59,6 +60,7 @@ function dayIso(day: Day | null) {
 }
 
 export default function NewTaskScreen() {
+  const { t } = useTranslation(["mobile"]);
   const params = useLocalSearchParams<{
     projectId: string;
     workspaceId: string;
@@ -105,7 +107,7 @@ export default function NewTaskScreen() {
   const effectiveStatus = status ?? sortedColumns[0]?.slug ?? STATUS_PLANNED;
   const statusLabel =
     effectiveStatus === STATUS_PLANNED
-      ? "Planned"
+      ? t("mobile:taskFields.planned")
       : (sortedColumns.find((col) => col.slug === effectiveStatus)?.name ??
         effectiveStatus);
   const statusIdx = sortedColumns.findIndex(
@@ -182,7 +184,7 @@ export default function NewTaskScreen() {
       <ChevronRight size={16} color={c.placeholder} />
     </Touch>
   );
-  const none = (text = "None") => (
+  const none = (text = t("mobile:taskFields.none")) => (
     <Txt variant="bodySm" tone="placeholder">
       {text}
     </Txt>
@@ -241,8 +243,8 @@ export default function NewTaskScreen() {
                 style={{ flexShrink: 1 }}
               >
                 {params.parentTaskId
-                  ? "New subtask"
-                  : (project?.name ?? "Project")}
+                  ? t("mobile:taskNew.newSubtask")
+                  : (project?.name ?? t("mobile:taskNew.project"))}
               </Txt>
               {!params.parentTaskId ? (
                 <ChevronDown size={12} color={c.faint} />
@@ -265,7 +267,7 @@ export default function NewTaskScreen() {
               weight="medium"
               color={canCreate ? c.onPrimary : c.placeholder}
             >
-              Create
+              {t("mobile:taskNew.create")}
             </Txt>
           </Touch>
         </View>
@@ -285,7 +287,7 @@ export default function NewTaskScreen() {
             <TextInput
               value={title}
               onChangeText={setTitle}
-              placeholder="Task title"
+              placeholder={t("mobile:taskNew.taskTitle")}
               placeholderTextColor={c.placeholder}
               autoFocus
               multiline
@@ -302,7 +304,7 @@ export default function NewTaskScreen() {
             <TextInput
               value={description}
               onChangeText={setDescription}
-              placeholder="Add a description… Markdown works."
+              placeholder={t("mobile:editor.placeholder")}
               placeholderTextColor={c.placeholder}
               multiline
               selectionColor={c.ink}
@@ -324,7 +326,7 @@ export default function NewTaskScreen() {
             }}
           >
             {row(
-              "Status",
+              t("mobile:taskFields.status"),
               <>
                 <StatusIcon
                   status={effectiveStatus}
@@ -336,7 +338,7 @@ export default function NewTaskScreen() {
               () => setPicker("status"),
             )}
             {row(
-              "Priority",
+              t("mobile:taskFields.priority"),
               priority === "no-priority" ? (
                 none()
               ) : (
@@ -348,7 +350,7 @@ export default function NewTaskScreen() {
               () => setPicker("priority"),
             )}
             {row(
-              "Assignee",
+              t("mobile:taskFields.assignee"),
               assigneeMember ? (
                 <>
                   <Avatar
@@ -359,17 +361,17 @@ export default function NewTaskScreen() {
                   {val(assigneeMember.name)}
                 </>
               ) : (
-                none("Unassigned")
+                none(t("mobile:taskFields.unassigned"))
               ),
               () => setPicker("assignee"),
             )}
             {row(
-              "Start date",
+              t("mobile:taskFields.startDate"),
               start ? val(formatDate(dayIso(start))) : none(),
               () => setPicker("start"),
             )}
             {row(
-              "Due date",
+              t("mobile:taskFields.dueDate"),
               due ? (
                 <>
                   <CalendarDays size={16} color={c.ink2} strokeWidth={2} />
@@ -381,7 +383,7 @@ export default function NewTaskScreen() {
               () => setPicker("due"),
             )}
             {row(
-              "Labels",
+              t("mobile:taskFields.labels"),
               labelIds.length ? (
                 <View
                   style={{
@@ -474,7 +476,11 @@ export default function NewTaskScreen() {
                 `${f.name}${f.required ? " *" : ""}`,
                 shown
                   ? val(shown)
-                  : none(f.type === "number" ? "Add a number" : "Empty"),
+                  : none(
+                      f.type === "number"
+                        ? t("mobile:taskFields.addNumber")
+                        : t("mobile:taskFields.empty"),
+                    ),
                 () => setFieldEditing(f),
                 last,
               );
@@ -486,7 +492,7 @@ export default function NewTaskScreen() {
       <OptionSheet
         visible={picker === "project"}
         onClose={() => setPicker(null)}
-        title="Project"
+        title={t("mobile:taskNew.project")}
         selected={projectId}
         options={(projects.data ?? [])
           .filter((p) => !p.archivedAt)
@@ -505,12 +511,12 @@ export default function NewTaskScreen() {
       <OptionSheet
         visible={picker === "status"}
         onClose={() => setPicker(null)}
-        title="Status"
+        title={t("mobile:taskFields.status")}
         selected={effectiveStatus}
         options={[
           {
             value: STATUS_PLANNED,
-            label: "Planned",
+            label: t("mobile:taskFields.planned"),
             leading: <StatusIcon status={STATUS_PLANNED} />,
           },
           ...sortedColumns.map((col) => ({
@@ -530,7 +536,7 @@ export default function NewTaskScreen() {
       <OptionSheet
         visible={picker === "priority"}
         onClose={() => setPicker(null)}
-        title="Priority"
+        title={t("mobile:taskFields.priority")}
         selected={priority}
         options={[...PRIORITIES].reverse().map((p) => ({
           value: p.value as string,
@@ -542,19 +548,22 @@ export default function NewTaskScreen() {
       <OptionSheet
         visible={picker === "assignee"}
         onClose={() => setPicker(null)}
-        title="Assignee"
+        title={t("mobile:taskFields.assignee")}
         searchable
-        searchPlaceholder="Search people"
+        searchPlaceholder={t("mobile:taskFields.searchPeople")}
         selected={assignee}
         options={[
           {
             value: null as string | null,
-            label: "Unassigned",
+            label: t("mobile:taskFields.unassigned"),
             leading: <EmptyAvatar size={28} />,
           },
           ...(members.data ?? []).map((m) => ({
             value: m.id as string | null,
-            label: m.id === session.userId ? `${m.name} (you)` : m.name,
+            label:
+              m.id === session.userId
+                ? t("mobile:taskFields.you", { name: m.name })
+                : m.name,
             hint: m.email,
             leading: <Avatar name={m.name} image={m.image} size={28} />,
           })),
@@ -564,21 +573,21 @@ export default function NewTaskScreen() {
       <DatePickerSheet
         visible={picker === "start"}
         onClose={() => setPicker(null)}
-        title="Start date"
+        title={t("mobile:taskFields.startDate")}
         value={dayIso(start)}
         onPick={setStart}
       />
       <DatePickerSheet
         visible={picker === "due"}
         onClose={() => setPicker(null)}
-        title="Due date"
+        title={t("mobile:taskFields.dueDate")}
         value={dayIso(due)}
         onPick={setDue}
       />
       <Sheet
         visible={picker === "labels"}
         onClose={() => setPicker(null)}
-        title="Labels"
+        title={t("mobile:taskFields.labels")}
       >
         <View style={{ paddingHorizontal: 8, paddingBottom: 8 }}>
           {(labels.data ?? []).map((l) => {
@@ -609,7 +618,7 @@ export default function NewTaskScreen() {
           })}
           {!labels.data?.length ? (
             <Txt variant="meta" tone="faint" style={{ padding: 12 }}>
-              No labels in this workspace yet.
+              {t("mobile:taskNew.noLabels")}
             </Txt>
           ) : null}
         </View>
@@ -634,7 +643,7 @@ export default function NewTaskScreen() {
         title={fieldEditing?.name ?? ""}
         selected={fieldEditing ? (fieldValues[fieldEditing.id] ?? "") : ""}
         options={[
-          { value: "", label: "None" },
+          { value: "", label: t("mobile:taskFields.none") },
           ...options(fieldEditing?.options).map((o) => ({
             value: o,
             label: o,

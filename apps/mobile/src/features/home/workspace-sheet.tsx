@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Check, Mail, Plus, Settings, Tag, Users } from "lucide-react-native";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Sheet } from "@/components/sheet";
@@ -11,6 +12,7 @@ import { api } from "@/lib/api/endpoints";
 import type { Workspace } from "@/lib/api/types";
 import { selectWorkspace, useWorkspaces } from "@/lib/hooks";
 import { qk } from "@/lib/query";
+import { roleLabel } from "@/lib/style";
 import { useColors } from "@/theme";
 
 function ActionRow({
@@ -53,6 +55,7 @@ export function WorkspaceSheet({
   onClose: () => void;
   current: Workspace;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const workspaces = useWorkspaces();
   const invitations = useQuery({
@@ -71,7 +74,11 @@ export function WorkspaceSheet({
   );
 
   return (
-    <Sheet visible={visible} onClose={onClose} title="Workspaces">
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t("mobile:workspaceSwitcher.title")}
+    >
       <View style={{ paddingHorizontal: 8, paddingBottom: 8 }}>
         {(workspaces.data ?? []).map((w) => {
           const active = w.id === current.id;
@@ -98,7 +105,7 @@ export function WorkspaceSheet({
                 </Txt>
                 {w.role ? (
                   <Txt variant="caption" tone="muted">
-                    {w.role.charAt(0).toUpperCase() + w.role.slice(1)}
+                    {roleLabel(w.role)}
                   </Txt>
                 ) : null}
               </View>
@@ -113,7 +120,7 @@ export function WorkspaceSheet({
       <View style={{ padding: 8 }}>
         <ActionRow
           icon={icon(Settings)}
-          label="Workspace settings"
+          label={t("mobile:workspaceSwitcher.settings")}
           onPress={() =>
             go({
               pathname: "/workspace/[workspaceId]/settings",
@@ -123,7 +130,7 @@ export function WorkspaceSheet({
         />
         <ActionRow
           icon={icon(Users)}
-          label="Members"
+          label={t("mobile:workspaceSwitcher.members")}
           onPress={() =>
             go({
               pathname: "/workspace/[workspaceId]/members",
@@ -133,7 +140,7 @@ export function WorkspaceSheet({
         />
         <ActionRow
           icon={icon(Tag)}
-          label="Labels"
+          label={t("mobile:workspaceSwitcher.labels")}
           onPress={() =>
             go({
               pathname: "/workspace/[workspaceId]/labels",
@@ -143,13 +150,13 @@ export function WorkspaceSheet({
         />
         <ActionRow
           icon={icon(Mail)}
-          label="Invitations"
+          label={t("mobile:workspaceSwitcher.invitations")}
           onPress={() => go("/invitations")}
           trailing={pending ? <CountBadge count={pending} /> : null}
         />
         <ActionRow
           icon={icon(Plus)}
-          label="Create workspace"
+          label={t("mobile:workspaceSwitcher.create")}
           onPress={() => go("/workspace/new")}
         />
       </View>

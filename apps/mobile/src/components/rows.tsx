@@ -1,7 +1,13 @@
 import { View } from "react-native";
 
 import type { TaskLabel } from "@/lib/api/types";
-import { formatDueShort, isOverdue } from "@/lib/format";
+import {
+  formatDueShort,
+  isOverdue,
+  parseDay,
+  sameDay,
+  today,
+} from "@/lib/format";
 import { useColors } from "@/theme";
 
 import { StatusIcon } from "./icons";
@@ -41,6 +47,7 @@ export function TaskRow({
   const c = useColors();
   const overdue = isOverdue(dueDate);
   const due = formatDueShort(dueDate);
+  const dueToday = sameDay(parseDay(dueDate), today());
   return (
     <Touch
       onPress={onPress}
@@ -103,8 +110,8 @@ export function TaskRow({
         {due ? (
           <Txt
             variant="caption"
-            weight={overdue || due === "Today" ? "medium" : "regular"}
-            color={overdue ? c.danger : due === "Today" ? c.ink : c.muted}
+            weight={overdue || dueToday ? "medium" : "regular"}
+            color={overdue ? c.danger : dueToday ? c.ink : c.muted}
           >
             {due}
           </Txt>

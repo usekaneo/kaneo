@@ -4,6 +4,7 @@ import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import { router } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -32,6 +33,7 @@ import { pickImage } from "@/lib/upload";
 import { useColors } from "@/theme";
 
 export default function AccountScreen() {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const session = useRequiredSession();
   const prefs = usePrefs();
@@ -74,16 +76,13 @@ export default function AccountScreen() {
         });
         await api.updateUser({ image: avatar.url });
       },
-      { success: "Photo updated" },
+      { success: t("mobile:account.toast.photoUpdated") },
     );
   };
 
   const toggleBackground = async (enabled: boolean) => {
     if (enabled && !(await requestNotificationPermission())) {
-      toast.show(
-        "Allow notifications for Kaneo in system settings first.",
-        "error",
-      );
+      toast.show(t("mobile:account.notifications.permissionDenied"), "error");
       return;
     }
     await sessionStore.updatePrefs({ backgroundNotifications: enabled });
@@ -94,11 +93,14 @@ export default function AccountScreen() {
     <Screen>
       <Scroll bottomPadding={40}>
         <PageHeader
-          title="Account"
-          description="How you appear to teammates across every workspace."
+          title={t("mobile:account.title")}
+          description={t("mobile:account.description")}
         />
 
-        <Section title="Profile" style={{ paddingBottom: 24 }}>
+        <Section
+          title={t("mobile:account.profile.title")}
+          style={{ paddingBottom: 24 }}
+        >
           <Group>
             <GroupRow style={{ paddingVertical: 14 }}>
               <Avatar
@@ -108,14 +110,14 @@ export default function AccountScreen() {
               />
               <View style={{ flex: 1, gap: 2 }}>
                 <Txt variant="body" weight="medium">
-                  Profile photo
+                  {t("mobile:account.profile.photo")}
                 </Txt>
                 <Txt variant="caption" tone="faint">
-                  PNG, JPG or WebP
+                  {t("mobile:account.profile.photoFormats")}
                 </Txt>
               </View>
               <Button
-                label="Change"
+                label={t("mobile:account.profile.change")}
                 kind="secondary"
                 size="sm"
                 onPress={() =>
@@ -137,13 +139,13 @@ export default function AccountScreen() {
                   initial={me.data.name}
                   onSave={(next) =>
                     run(() => api.updateUser({ name: next }), {
-                      success: "Name updated",
+                      success: t("mobile:account.toast.nameUpdated"),
                     })
                   }
                 />
               ) : (
                 <TextField
-                  label="Name"
+                  label={t("mobile:account.profile.name")}
                   value={session.userName}
                   editable={false}
                 />
@@ -151,20 +153,25 @@ export default function AccountScreen() {
             </View>
             <GroupRow last onPress={() => setChangingPassword(true)}>
               <Txt variant="body" style={{ flex: 1 }}>
-                Change password
+                {t("mobile:account.profile.changePassword")}
               </Txt>
               <ChevronRight size={16} color={c.placeholder} />
             </GroupRow>
           </Group>
         </Section>
 
-        <Section title="Notifications" style={{ paddingBottom: 24 }}>
+        <Section
+          title={t("mobile:account.notifications.title")}
+          style={{ paddingBottom: 24 }}
+        >
           <Group>
             <GroupRow>
               <View style={{ flex: 1, gap: 2 }}>
-                <Txt variant="body">Phone notifications</Txt>
+                <Txt variant="body">
+                  {t("mobile:account.notifications.phone")}
+                </Txt>
                 <Txt variant="caption" tone="faint">
-                  Checked about every 15 minutes
+                  {t("mobile:account.notifications.phoneHint")}
                 </Txt>
               </View>
               <Switch
@@ -174,27 +181,32 @@ export default function AccountScreen() {
             </GroupRow>
             <GroupRow onPress={() => router.push("/notification-settings")}>
               <View style={{ flex: 1, gap: 2 }}>
-                <Txt variant="body">Delivery and events</Txt>
+                <Txt variant="body">
+                  {t("mobile:account.notifications.delivery")}
+                </Txt>
                 <Txt variant="caption" tone="faint">
-                  Email, ntfy, Gotify, webhooks
+                  {t("mobile:account.notifications.deliveryHint")}
                 </Txt>
               </View>
               <ChevronRight size={16} color={c.placeholder} />
             </GroupRow>
             <GroupRow last onPress={() => router.push("/invitations")}>
               <Txt variant="body" style={{ flex: 1 }}>
-                Invitations
+                {t("mobile:account.notifications.invitations")}
               </Txt>
               <ChevronRight size={16} color={c.placeholder} />
             </GroupRow>
           </Group>
         </Section>
 
-        <Section title="Connection" style={{ paddingBottom: 24 }}>
+        <Section
+          title={t("mobile:account.connection.title")}
+          style={{ paddingBottom: 24 }}
+        >
           <Group>
             <GroupRow>
               <Txt variant="body" tone="muted" style={{ flex: 1 }}>
-                Server
+                {t("mobile:account.connection.server")}
               </Txt>
               <Txt variant="monoMd" style={{ fontSize: 12 }} numberOfLines={1}>
                 {session.serverUrl.replace(/^https?:\/\//, "")}
@@ -202,17 +214,17 @@ export default function AccountScreen() {
             </GroupRow>
             <GroupRow>
               <Txt variant="body" tone="muted" style={{ flex: 1 }}>
-                Signed in with
+                {t("mobile:account.connection.signedInWith")}
               </Txt>
               <Txt variant="bodySm">
                 {session.credentialType === "apiKey"
-                  ? "API key"
-                  : "Session token"}
+                  ? t("mobile:account.connection.apiKey")
+                  : t("mobile:account.connection.sessionToken")}
               </Txt>
             </GroupRow>
             <GroupRow last>
               <Txt variant="body" tone="muted" style={{ flex: 1 }}>
-                App version
+                {t("mobile:account.connection.appVersion")}
               </Txt>
               <Txt variant="monoMd" style={{ fontSize: 12 }}>
                 {Constants.expoConfig?.version ?? "1.0.0"}
@@ -223,7 +235,7 @@ export default function AccountScreen() {
 
         <View style={{ paddingHorizontal: 16 }}>
           <Button
-            label="Sign out"
+            label={t("mobile:account.signOut.button")}
             kind="dangerOutline"
             onPress={() => setConfirmSignOut(true)}
           />
@@ -233,10 +245,14 @@ export default function AccountScreen() {
       <OptionSheet
         visible={photoMenu}
         onClose={() => setPhotoMenu(false)}
-        title="Profile photo"
+        title={t("mobile:account.profile.photo")}
         options={[
-          { value: "change", label: "Choose photo" },
-          { value: "remove", label: "Remove photo", tone: "danger" as const },
+          { value: "change", label: t("mobile:account.photoMenu.choose") },
+          {
+            value: "remove",
+            label: t("mobile:account.photoMenu.remove"),
+            tone: "danger" as const,
+          },
         ]}
         onSelect={(v) => {
           if (v === "change") void changePhoto();
@@ -246,7 +262,7 @@ export default function AccountScreen() {
                 await api.deleteAvatar();
                 await api.updateUser({ image: null });
               },
-              { success: "Photo removed" },
+              { success: t("mobile:account.toast.photoRemoved") },
             );
         }}
       />
@@ -256,9 +272,9 @@ export default function AccountScreen() {
       />
       <ConfirmDialog
         visible={confirmSignOut}
-        title="Sign out?"
-        message="You can sign in again at any time."
-        confirmLabel="Sign out"
+        title={t("mobile:account.signOut.title")}
+        message={t("mobile:account.signOut.message")}
+        confirmLabel={t("mobile:account.signOut.button")}
         onClose={() => setConfirmSignOut(false)}
         onConfirm={async () => {
           await signOut();
@@ -277,6 +293,7 @@ function NameField({
   initial: string;
   onSave: (name: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const [name, setName] = useState(initial);
   const save = () => {
     const next = name.trim();
@@ -284,7 +301,7 @@ function NameField({
   };
   return (
     <TextField
-      label="Name"
+      label={t("mobile:account.profile.name")}
       value={name}
       onChangeText={setName}
       onBlur={save}
@@ -310,14 +327,20 @@ function ChangePasswordSheet({
   visible: boolean;
   onClose: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
-    <Sheet visible={visible} onClose={onClose} title="Change password">
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t("mobile:account.password.title")}
+    >
       <ChangePasswordForm onDone={onClose} />
     </Sheet>
   );
 }
 
 function ChangePasswordForm({ onDone }: { onDone: () => void }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const session = useRequiredSession();
   const { run, busy } = useAction();
@@ -331,7 +354,7 @@ function ChangePasswordForm({ onDone }: { onDone: () => void }) {
   return (
     <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
       <TextField
-        label="Current password"
+        label={t("mobile:account.password.current")}
         value={current}
         onChangeText={setCurrent}
         secureTextEntry
@@ -339,7 +362,7 @@ function ChangePasswordForm({ onDone }: { onDone: () => void }) {
       />
       <View style={{ gap: 6 }}>
         <TextField
-          label="New password"
+          label={t("mobile:account.password.new")}
           value={next}
           onChangeText={setNext}
           secureTextEntry
@@ -360,12 +383,12 @@ function ChangePasswordForm({ onDone }: { onDone: () => void }) {
         </View>
       </View>
       <TextField
-        label="Confirm new password"
+        label={t("mobile:account.password.confirm")}
         value={confirm}
         onChangeText={setConfirm}
         secureTextEntry
-        placeholder="Type it again"
-        error={mismatch ? "Passwords don't match" : null}
+        placeholder={t("mobile:account.password.confirmPlaceholder")}
+        error={mismatch ? t("mobile:account.password.mismatch") : null}
       />
       <View
         style={{
@@ -374,11 +397,11 @@ function ChangePasswordForm({ onDone }: { onDone: () => void }) {
           justifyContent: "space-between",
         }}
       >
-        <Txt variant="bodySm">Sign out other devices</Txt>
+        <Txt variant="bodySm">{t("mobile:account.password.signOutOthers")}</Txt>
         <Switch value={revoke} onChange={setRevoke} />
       </View>
       <Button
-        label="Change password"
+        label={t("mobile:account.password.title")}
         loading={busy}
         disabled={!current || next.length < 8 || next !== confirm}
         onPress={async () => {
@@ -390,7 +413,7 @@ function ChangePasswordForm({ onDone }: { onDone: () => void }) {
                 revokeOtherSessions: revoke,
               }),
             {
-              success: "Password changed",
+              success: t("mobile:account.toast.passwordChanged"),
               refresh: false,
             },
           );

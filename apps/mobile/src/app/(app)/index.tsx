@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { ErrorState, Loading, Screen } from "@/components/screen";
@@ -89,6 +90,7 @@ export default function HomeScreen() {
 }
 
 function NoWorkspace() {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const session = useSession();
   const invitations = useQuery({
@@ -109,20 +111,21 @@ function NoWorkspace() {
         }}
       >
         <View style={{ gap: 10 }}>
-          <Txt variant="title">No workspace yet</Txt>
+          <Txt variant="title">{t("mobile:home.noWorkspace.title")}</Txt>
           <Txt variant="body" tone="muted" style={{ lineHeight: 22 }}>
-            Workspaces hold your projects and team. Create one, or accept an
-            invitation.
+            {t("mobile:home.noWorkspace.body")}
           </Txt>
         </View>
         <View style={{ gap: 10 }}>
           <Button
-            label="Create workspace"
+            label={t("mobile:home.noWorkspace.create")}
             onPress={() => router.push("/workspace/new")}
           />
           {pending ? (
             <Button
-              label={`View ${pending} invitation${pending === 1 ? "" : "s"}`}
+              label={t("mobile:home.noWorkspace.viewInvitations", {
+                count: pending,
+              })}
               kind="secondary"
               onPress={() => router.push("/invitations")}
               icon={
@@ -147,13 +150,15 @@ function NoWorkspace() {
             }}
           >
             <Txt variant="bodySm" weight="medium" tone="muted">
-              Join with an invitation link
+              {t("mobile:home.noWorkspace.joinWithLink")}
             </Txt>
           </Touch>
         </View>
       </View>
       <Txt variant="meta" tone="faint" center style={{ paddingBottom: 36 }}>
-        Signed in as {session?.userEmail}
+        {t("mobile:home.noWorkspace.signedInAs", {
+          email: session?.userEmail,
+        })}
       </Txt>
     </Screen>
   );

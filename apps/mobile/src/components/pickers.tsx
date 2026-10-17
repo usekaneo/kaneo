@@ -1,22 +1,15 @@
+import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useState } from "react";
 import { View, type KeyboardTypeOptions } from "react-native";
 
-import {
-  addDays,
-  monthName,
-  parseDay,
-  sameDay,
-  today,
-  type Day,
-} from "@/lib/format";
+import { addDays, parseDay, sameDay, today, type Day } from "@/lib/format";
+import { currentLocale } from "@/lib/i18n";
 import { font, useColors } from "@/theme";
 
 import { Sheet } from "./sheet";
 import { Txt } from "./text";
 import { Button, TextField, Touch } from "./ui";
-
-const WEEK = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
 type Cell = { key: string; day: Day | null; weekend: boolean };
 
@@ -52,6 +45,7 @@ export function DatePickerSheet({
   value?: string | null;
   onPick: (day: Day | null) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const pick = (day: Day | null) => {
     onPick(day);
     onClose();
@@ -65,7 +59,7 @@ export function DatePickerSheet({
         value ? (
           <Touch onPress={() => pick(null)} hitSlop={8}>
             <Txt variant="bodySm" weight="medium" tone="danger">
-              Clear
+              {t("mobile:picker.clear")}
             </Txt>
           </Touch>
         ) : null
@@ -83,7 +77,13 @@ export function Calendar({
   value?: string | null;
   onPick: (day: Day) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
+  const weekdays = Array.from({ length: 7 }, (_, index) =>
+    new Intl.DateTimeFormat(currentLocale(), { weekday: "short" }).format(
+      new Date(2026, 0, 5 + index),
+    ),
+  );
   const selected = parseDay(value);
   const now = today();
   const [month, setMonth] = useState({
@@ -108,9 +108,12 @@ export function Calendar({
         }}
       >
         {[
-          { label: "Today", day: now },
-          { label: "Tomorrow", day: addDays(now, 1) },
-          { label: "Next week", day: nextMonday },
+          { label: t("mobile:time.today"), day: now },
+          {
+            label: t("mobile:time.tomorrow"),
+            day: addDays(now, 1),
+          },
+          { label: t("mobile:picker.nextWeek"), day: nextMonday },
         ].map((q) => (
           <Button
             key={q.label}
@@ -133,14 +136,21 @@ export function Calendar({
           }}
         >
           <Txt variant="body" weight="semibold">
-            {monthName(month.m, true)} {month.y}
+            {new Intl.DateTimeFormat(currentLocale(), {
+              month: "long",
+              year: "numeric",
+            }).format(new Date(month.y, month.m, 1))}
           </Txt>
           <View style={{ flexDirection: "row", gap: 4 }}>
             {[-1, 1].map((n) => (
               <Touch
                 key={n}
                 onPress={() => shift(n)}
-                accessibilityLabel={n < 0 ? "Previous month" : "Next month"}
+                accessibilityLabel={
+                  n < 0
+                    ? t("mobile:picker.previousMonth")
+                    : t("mobile:picker.nextMonth")
+                }
                 style={{
                   width: 32,
                   height: 32,
@@ -161,7 +171,7 @@ export function Calendar({
           </View>
         </View>
         <View style={{ flexDirection: "row" }}>
-          {WEEK.map((w) => (
+          {weekdays.map((w) => (
             <Txt
               key={w}
               variant="micro"
@@ -234,7 +244,7 @@ export function TextInputSheet({
   label,
   initial = "",
   placeholder,
-  confirmLabel = "Save",
+  confirmLabel,
   multiline,
   keyboardType,
   validate,
@@ -252,13 +262,14 @@ export function TextInputSheet({
   validate?: (value: string) => boolean;
   onSubmit: (value: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
     <Sheet visible={visible} onClose={onClose} title={title}>
       <TextInputForm
         label={label}
         initial={initial}
         placeholder={placeholder}
-        confirmLabel={confirmLabel}
+        confirmLabel={confirmLabel ?? t("mobile:common.save")}
         multiline={multiline}
         keyboardType={keyboardType}
         validate={validate}

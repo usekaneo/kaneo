@@ -36,8 +36,11 @@
 		"expo-system-ui": "~57.0.4",
 		"expo-task-manager": "~57.0.21",
 		"expo-web-browser": "~57.0.3",
+		"i18next": "^26.4.2",
+		"intl-pluralrules": "^2.0.1",
 		"lucide-react-native": "^1.55.0",
 		"react": "19.2.3",
+		"react-i18next": "^17.0.15",
 		"react-native": "0.86.3",
 		"react-native-gesture-handler": "~2.32.0",
 		"react-native-markdown-display": "^7.0.2",
@@ -55,7 +58,9 @@
 	},
 	"expo": {
 		"install": {
-			"exclude": ["typescript"]
+			"exclude": [
+				"typescript"
+			]
 		}
 	}
 }

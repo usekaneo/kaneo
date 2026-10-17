@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
 import { useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import {
@@ -25,6 +26,7 @@ import { useColors } from "@/theme";
 
 export default function WorkspaceSettingsScreen() {
   const { workspaceId } = useLocalSearchParams<{ workspaceId: string }>();
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const session = useRequiredSession();
   const { run, busy } = useAction();
@@ -41,6 +43,8 @@ export default function WorkspaceSettingsScreen() {
   const canEdit = canManageWorkspace(role);
   const isOwner = hasRole(role, "owner");
   const [confirm, setConfirm] = useState<"leave" | "delete" | null>(null);
+  const workspaceName =
+    workspace?.name ?? t("mobile:workspaceSettings.thisWorkspace");
 
   const leaveOrDelete = async (kind: "leave" | "delete") => {
     const ok = await run(
@@ -50,7 +54,9 @@ export default function WorkspaceSettingsScreen() {
           : api.leaveWorkspace(workspaceId),
       {
         success:
-          kind === "delete" ? "Workspace deleted" : "You left the workspace",
+          kind === "delete"
+            ? t("mobile:workspaceSettings.toast.deleted")
+            : t("mobile:workspaceSettings.toast.left"),
       },
     );
     if (ok !== undefined) {
@@ -67,8 +73,10 @@ export default function WorkspaceSettingsScreen() {
         onRefresh={() => void org.refetch()}
       >
         <PageHeader
-          title="Workspace"
-          description={`Settings for everyone in ${workspace?.name ?? "this workspace"}.`}
+          title={t("mobile:workspaceSettings.title")}
+          description={t("mobile:workspaceSettings.description", {
+            name: workspaceName,
+          })}
         />
         {org.isLoading ? (
           <Loading />
@@ -79,7 +87,10 @@ export default function WorkspaceSettingsScreen() {
           />
         ) : (
           <>
-            <Section title="General" style={{ paddingBottom: 24 }}>
+            <Section
+              title={t("mobile:workspaceSettings.general.title")}
+              style={{ paddingBottom: 24 }}
+            >
               <GeneralForm
                 key={`${org.data.id}-${org.data.name}`}
                 name={org.data.name}
@@ -94,12 +105,15 @@ export default function WorkspaceSettingsScreen() {
                         name,
                         metadata: { description },
                       }),
-                    { success: "Workspace updated" },
+                    { success: t("mobile:workspaceSettings.toast.updated") },
                   )
                 }
               />
             </Section>
-            <Section title="Manage" style={{ paddingBottom: 24 }}>
+            <Section
+              title={t("mobile:workspaceSettings.manage.title")}
+              style={{ paddingBottom: 24 }}
+            >
               <Group>
                 <GroupRow
                   onPress={() =>
@@ -110,7 +124,7 @@ export default function WorkspaceSettingsScreen() {
                   }
                 >
                   <Txt variant="body" style={{ flex: 1 }}>
-                    Members
+                    {t("mobile:workspaceSettings.manage.members")}
                   </Txt>
                   <Txt variant="bodySm" tone="muted">
                     {org.data.members?.length ?? 0}
@@ -127,7 +141,7 @@ export default function WorkspaceSettingsScreen() {
                   }
                 >
                   <Txt variant="body" style={{ flex: 1 }}>
-                    Labels
+                    {t("mobile:workspaceSettings.manage.labels")}
                   </Txt>
                   <Txt variant="bodySm" tone="muted">
                     {labels.data?.length ?? ""}
@@ -136,18 +150,20 @@ export default function WorkspaceSettingsScreen() {
                 </GroupRow>
               </Group>
             </Section>
-            <Section title="Danger zone">
+            <Section title={t("mobile:workspaceSettings.danger.title")}>
               <Group>
                 {!isOwner ? (
                   <GroupRow last={!isOwner}>
                     <View style={{ flex: 1, gap: 2 }}>
-                      <Txt variant="body">Leave workspace</Txt>
+                      <Txt variant="body">
+                        {t("mobile:workspaceSettings.danger.leave")}
+                      </Txt>
                       <Txt variant="caption" tone="faint">
-                        You can rejoin with a new invitation
+                        {t("mobile:workspaceSettings.danger.leaveHint")}
                       </Txt>
                     </View>
                     <Button
-                      label="Leave"
+                      label={t("mobile:workspaceSettings.danger.leaveButton")}
                       kind="secondary"
                       size="sm"
                       onPress={() => setConfirm("leave")}
@@ -157,13 +173,15 @@ export default function WorkspaceSettingsScreen() {
                 {isOwner ? (
                   <GroupRow last>
                     <View style={{ flex: 1, gap: 2 }}>
-                      <Txt variant="body">Delete workspace</Txt>
+                      <Txt variant="body">
+                        {t("mobile:workspaceSettings.danger.delete")}
+                      </Txt>
                       <Txt variant="caption" tone="faint">
-                        Deletes all projects and tasks in it
+                        {t("mobile:workspaceSettings.danger.deleteHint")}
                       </Txt>
                     </View>
                     <Button
-                      label="Delete"
+                      label={t("mobile:common.delete")}
                       kind="dangerOutline"
                       size="sm"
                       onPress={() => setConfirm("delete")}
@@ -177,13 +195,23 @@ export default function WorkspaceSettingsScreen() {
       </Scroll>
       <ConfirmDialog
         visible={!!confirm}
-        title={confirm === "delete" ? "Delete workspace?" : "Leave workspace?"}
+        title={
+          confirm === "delete"
+            ? t("mobile:workspaceSettings.confirm.deleteTitle")
+            : t("mobile:workspaceSettings.confirm.leaveTitle")
+        }
         message={
           confirm === "delete"
-            ? `Every project, task and comment in ${workspace?.name ?? "this workspace"} will be permanently deleted.`
-            : "You will lose access until someone invites you again."
+            ? t("mobile:workspaceSettings.confirm.deleteMessage", {
+                name: workspaceName,
+              })
+            : t("mobile:workspaceSettings.confirm.leaveMessage")
         }
-        confirmLabel={confirm === "delete" ? "Delete" : "Leave"}
+        confirmLabel={
+          confirm === "delete"
+            ? t("mobile:common.delete")
+            : t("mobile:workspaceSettings.danger.leaveButton")
+        }
         onClose={() => setConfirm(null)}
         onConfirm={() => confirm && leaveOrDelete(confirm)}
       />
@@ -206,30 +234,36 @@ function GeneralForm({
   busy: boolean;
   onSave: (name: string, description: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
   return (
     <Group style={{ padding: 14, gap: 14 }}>
       <TextField
-        label="Name"
+        label={t("mobile:workspaceSettings.general.name")}
         value={name}
         onChangeText={setName}
         editable={canEdit}
       />
       <TextField
-        label="Description"
+        label={t("mobile:workspaceSettings.general.description")}
         value={description}
         onChangeText={setDescription}
         multiline
         editable={canEdit}
       />
       <Txt variant="caption" tone="faint">
-        Slug: <Txt variant="mono">{slug}</Txt>
+        <Trans
+          t={t}
+          i18nKey="mobile:workspaceSettings.general.slug"
+          values={{ slug }}
+          components={{ mono: <Txt variant="mono" /> }}
+        />
       </Txt>
       {canEdit ? (
         <View style={{ alignItems: "flex-end" }}>
           <Button
-            label="Save changes"
+            label={t("mobile:workspaceSettings.general.save")}
             size="md"
             loading={busy}
             disabled={!name.trim()}

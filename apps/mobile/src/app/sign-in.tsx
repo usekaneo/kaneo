@@ -15,6 +15,7 @@ import {
   Server,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -28,9 +29,15 @@ import { BackButton, Screen } from "@/components/screen";
 import { Txt } from "@/components/text";
 import { useToast } from "@/components/toast";
 import { Button, Segmented, TextField, Touch } from "@/components/ui";
-import { CLOUD_URL, normalizeServerUrl, userMessage } from "@/lib/api/client";
+import {
+  ApiError,
+  CLOUD_URL,
+  normalizeServerUrl,
+  userMessage,
+} from "@/lib/api/client";
 import type { DeviceCodeResponse, InstanceConfig } from "@/lib/api/types";
 import * as auth from "@/lib/auth";
+import { i18n } from "@/lib/i18n";
 import { usePrefs } from "@/lib/session";
 import { font, useColors } from "@/theme";
 
@@ -42,11 +49,9 @@ const APP_RETURN_URL = "kaneo://";
 
 function friendly(e: unknown): string {
   const text = userMessage(e);
-  if (/captcha/i.test(text))
-    return "This server requires a browser check for this step. Use “Continue in browser” instead.";
-  if (/invalid_client/i.test(text)) {
-    return "This server doesn’t allow device sign-in. Ask its admin to add “kaneo-cli” to DEVICE_AUTH_CLIENT_IDS, or sign in with a password or API key.";
-  }
+  if (/captcha/i.test(text)) return i18n.t("mobile:signIn.captcha");
+  if (/invalid_client/i.test(text))
+    return i18n.t("mobile:signIn.invalidClient");
   return text;
 }
 
@@ -258,6 +263,7 @@ function StartStep(props: {
   onSignUp: () => void;
 }) {
   const c = useColors();
+  const { t } = useTranslation(["mobile"]);
   const prefs = usePrefs();
   const { mode, serverUrl, config } = props;
   const [address, setAddress] = useState("");
@@ -277,8 +283,7 @@ function StartStep(props: {
       <View style={{ gap: 12 }}>
         <KaneoLogo height={34} />
         <Txt variant="body" tone="muted" style={{ lineHeight: 22 }}>
-          Simple project management. Connect to Kaneo Cloud or your own
-          instance.
+          {t("mobile:signIn.tagline")}
         </Txt>
       </View>
 
@@ -286,8 +291,8 @@ function StartStep(props: {
         value={mode}
         onChange={props.setMode}
         options={[
-          { value: "cloud", label: "Kaneo Cloud" },
-          { value: "self", label: "Self-hosted" },
+          { value: "cloud", label: t("mobile:signIn.cloud") },
+          { value: "self", label: t("mobile:signIn.selfHosted") },
         ]}
       />
 
@@ -295,7 +300,7 @@ function StartStep(props: {
         <View style={{ gap: 28 }}>
           <View style={{ gap: 12 }}>
             <TextField
-              label="Server address"
+              label={t("mobile:signIn.serverAddress")}
               value={address}
               onChangeText={setAddress}
               placeholder="kaneo.example.com"
@@ -304,13 +309,13 @@ function StartStep(props: {
               keyboardType="url"
               mono
               leading={<Server size={16} color={c.muted} strokeWidth={2} />}
-              hint="The address you open Kaneo at. Use http:// for servers without TLS. If the API runs on another host, enter the API address."
+              hint={t("mobile:signIn.serverAddressHint")}
               returnKeyType="go"
               onSubmitEditing={() => address.trim() && props.onConnect(address)}
             />
             <ErrorText error={props.error} />
             <Button
-              label="Connect"
+              label={t("mobile:signIn.connect")}
               disabled={!address.trim()}
               loading={props.loading}
               onPress={() => props.onConnect(address)}
@@ -319,7 +324,7 @@ function StartStep(props: {
           {recent.length ? (
             <View style={{ gap: 8 }}>
               <Txt variant="caption" weight="medium" tone="muted">
-                Recent
+                {t("mobile:signIn.recent")}
               </Txt>
               {recent.map((url) => (
                 <Touch
@@ -365,7 +370,7 @@ function StartStep(props: {
               </Txt>
               <Touch onPress={props.onChangeServer} hitSlop={8}>
                 <Txt variant="meta" weight="medium" tone="muted">
-                  Change
+                  {t("mobile:signIn.change")}
                 </Txt>
               </Touch>
             </View>
@@ -374,7 +379,7 @@ function StartStep(props: {
           {loginForm ? (
             <View style={{ gap: 12 }}>
               <TextField
-                label="Email"
+                label={t("mobile:signIn.email")}
                 value={email}
                 onChangeText={setEmail}
                 placeholder="you@example.com"
@@ -387,7 +392,7 @@ function StartStep(props: {
               />
               <TextField
                 ref={passwordRef}
-                label="Password"
+                label={t("mobile:signIn.password")}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -400,7 +405,7 @@ function StartStep(props: {
                   <Touch
                     onPress={() => setShowPassword((v) => !v)}
                     hitSlop={10}
-                    accessibilityLabel="Toggle password visibility"
+                    accessibilityLabel={t("mobile:signIn.togglePassword")}
                   >
                     {showPassword ? (
                       <EyeOff size={18} color={c.faint} />
@@ -412,7 +417,7 @@ function StartStep(props: {
               />
               <ErrorText error={props.error} />
               <Button
-                label="Sign in"
+                label={t("mobile:signIn.signIn")}
                 disabled={!email.trim() || !password}
                 loading={props.loading}
                 onPress={() => props.onSignIn(email, password)}
@@ -425,7 +430,7 @@ function StartStep(props: {
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
             <View style={{ flex: 1, height: 1, backgroundColor: c.divider }} />
             <Txt variant="caption" tone="faint">
-              or
+              {t("mobile:signIn.or")}
             </Txt>
             <View style={{ flex: 1, height: 1, backgroundColor: c.divider }} />
           </View>
@@ -433,25 +438,25 @@ function StartStep(props: {
           <View style={{ gap: 8 }}>
             <AltOption
               icon={<Globe size={18} color={c.ink} strokeWidth={2} />}
-              title="Continue in browser"
-              hint="GitHub, Google, Discord or SSO"
+              title={t("mobile:signIn.continueInBrowser")}
+              hint={t("mobile:signIn.browserHint")}
               onPress={props.onDevice}
             />
             {canCode ? (
               <AltOption
                 icon={<Mail size={18} color={c.ink} strokeWidth={2} />}
-                title="Email me a sign-in code"
+                title={t("mobile:signIn.emailCode")}
                 hint={
                   email.trim()
-                    ? `Send to ${email.trim()}`
-                    : "No password needed"
+                    ? t("mobile:signIn.sendTo", { email: email.trim() })
+                    : t("mobile:signIn.noPassword")
                 }
                 onPress={() => props.onCode(email)}
               />
             ) : null}
             <AltOption
               icon={<Key size={18} color={c.ink} strokeWidth={2} />}
-              title="Use an API key"
+              title={t("mobile:signIn.useApiKey")}
               onPress={props.onApiKey}
             />
           </View>
@@ -467,10 +472,10 @@ function StartStep(props: {
               }}
             >
               <Txt variant="bodySm" tone="muted">
-                New to Kaneo?
+                {t("mobile:signIn.newToKaneo")}
               </Txt>
               <Txt variant="bodySm" weight="semibold">
-                Create account
+                {t("mobile:signIn.createAccount")}
               </Txt>
             </Touch>
           ) : null}
@@ -553,6 +558,7 @@ function OtpStep({
   onResend: () => void;
 }) {
   const c = useColors();
+  const { t } = useTranslation(["mobile"]);
   const [code, setCode] = useState("");
   const [draftEmail, setDraftEmail] = useState(email);
   const input = useRef<TextInput>(null);
@@ -562,11 +568,11 @@ function OtpStep({
     return (
       <View style={{ gap: 28, paddingTop: 20 }}>
         <StepTitle
-          title="Sign in with a code"
-          message="We'll email you a 6-digit code. No password needed."
+          title={t("mobile:signIn.code.title")}
+          message={t("mobile:signIn.code.message")}
         />
         <TextField
-          label="Email"
+          label={t("mobile:signIn.email")}
           value={draftEmail}
           onChangeText={setDraftEmail}
           autoCapitalize="none"
@@ -576,7 +582,7 @@ function OtpStep({
         />
         <ErrorText error={error} />
         <Button
-          label="Send code"
+          label={t("mobile:signIn.code.send")}
           disabled={!draftEmail.trim()}
           loading={loading}
           onPress={() => onSend(draftEmail.trim())}
@@ -588,8 +594,8 @@ function OtpStep({
   return (
     <View style={{ gap: 28, paddingTop: 20 }}>
       <StepTitle
-        title="Check your email"
-        message={`We sent a 6-digit code to ${email}`}
+        title={t("mobile:signIn.code.checkEmail")}
+        message={t("mobile:signIn.code.sent", { email })}
       />
       <Touch
         onPress={() => input.current?.focus()}
@@ -633,7 +639,7 @@ function OtpStep({
       />
       <ErrorText error={error} />
       <Button
-        label="Verify"
+        label={t("mobile:signIn.code.verify")}
         disabled={code.length < 6}
         loading={loading}
         onPress={() => onVerify(code)}
@@ -643,10 +649,10 @@ function OtpStep({
         style={{ flexDirection: "row", justifyContent: "center", gap: 6 }}
       >
         <Txt variant="bodySm" tone="muted">
-          Didn’t get it?
+          {t("mobile:signIn.code.didntGet")}
         </Txt>
         <Txt variant="bodySm" weight="semibold">
-          Resend code
+          {t("mobile:signIn.code.resend")}
         </Txt>
       </Touch>
     </View>
@@ -662,6 +668,7 @@ function DeviceStep({
 }) {
   const c = useColors();
   const toast = useToast();
+  const { t } = useTranslation(["mobile"]);
   const [device, setDevice] = useState<DeviceCodeResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -681,7 +688,8 @@ function DeviceStep({
           try {
             result = await auth.pollDeviceLogin(serverUrl, code.device_code);
           } catch (e) {
-            if (/device sign-in failed|invalid/i.test(userMessage(e))) throw e;
+            // A 4xx means the code is unusable; keep waiting through network and server errors.
+            if (e instanceof ApiError && e.status && e.status < 500) throw e;
             result = { kind: "pending" };
           }
           if (cancelled) return;
@@ -692,13 +700,10 @@ function DeviceStep({
           }
           if (result.kind === "slowDown") interval += 5;
           if (result.kind === "denied")
-            throw new Error("Sign-in was denied in the browser.");
+            throw new Error(i18n.t("mobile:signIn.device.denied"));
           if (result.kind === "expired") break;
         }
-        if (!cancelled)
-          throw new Error(
-            "The sign-in code expired. Start again to get a new one.",
-          );
+        if (!cancelled) throw new Error(i18n.t("mobile:signIn.device.expired"));
       } catch (e) {
         if (!cancelled) setError(friendly(e));
       }
@@ -719,7 +724,7 @@ function DeviceStep({
     } catch {
       // No browser that supports in-app tabs: hand the link to the default browser instead.
       await Linking.openURL(url).catch(() =>
-        toast.show("Couldn’t open a browser. Copy the link instead.", "error"),
+        toast.show(t("mobile:signIn.device.openFailed"), "error"),
       );
     }
   };
@@ -727,8 +732,8 @@ function DeviceStep({
   return (
     <View style={{ gap: 28, paddingTop: 20 }}>
       <StepTitle
-        title="Continue in browser"
-        message="Approve this device from the Kaneo website. GitHub, Google, Discord and SSO all work there."
+        title={t("mobile:signIn.continueInBrowser")}
+        message={t("mobile:signIn.device.message")}
       />
       <View
         style={{
@@ -743,7 +748,7 @@ function DeviceStep({
         }}
       >
         <Txt variant="caption" weight="medium" tone="muted">
-          Your code
+          {t("mobile:signIn.device.yourCode")}
         </Txt>
         <Txt
           style={{
@@ -757,7 +762,7 @@ function DeviceStep({
         </Txt>
         <View style={{ flexDirection: "row", gap: 8 }}>
           <Button
-            label="Copy code"
+            label={t("mobile:signIn.device.copyCode")}
             kind="secondary"
             size="sm"
             disabled={!device}
@@ -765,12 +770,12 @@ function DeviceStep({
             onPress={() =>
               device &&
               Clipboard.setStringAsync(device.user_code).then(() =>
-                toast.show("Code copied", "success"),
+                toast.show(t("mobile:signIn.device.codeCopied"), "success"),
               )
             }
           />
           <Button
-            label="Copy link"
+            label={t("mobile:signIn.device.copyLink")}
             kind="secondary"
             size="sm"
             disabled={!link}
@@ -778,14 +783,14 @@ function DeviceStep({
             onPress={() =>
               link &&
               Clipboard.setStringAsync(link).then(() =>
-                toast.show("Link copied", "success"),
+                toast.show(t("mobile:signIn.device.linkCopied"), "success"),
               )
             }
           />
         </View>
       </View>
       <Button
-        label="Open browser"
+        label={t("mobile:signIn.device.openBrowser")}
         disabled={!link}
         icon={
           <ArrowUpRight
@@ -800,7 +805,11 @@ function DeviceStep({
       {error ? (
         <View style={{ gap: 12 }}>
           <ErrorText error={error} />
-          <Button label="Try again" kind="secondary" onPress={onRetry} />
+          <Button
+            label={t("mobile:signIn.device.tryAgain")}
+            kind="secondary"
+            onPress={onRetry}
+          />
         </View>
       ) : (
         <View
@@ -820,7 +829,9 @@ function DeviceStep({
             }}
           />
           <Txt variant="bodySm" tone="muted">
-            {device ? "Waiting for approval…" : "Getting a code…"}
+            {device
+              ? t("mobile:signIn.device.waiting")
+              : t("mobile:signIn.device.gettingCode")}
           </Txt>
         </View>
       )}
@@ -838,15 +849,16 @@ function ApiKeyStep({
   onSubmit: (key: string) => void;
 }) {
   const c = useColors();
+  const { t } = useTranslation(["mobile"]);
   const [key, setKey] = useState("");
   return (
     <View style={{ gap: 28, paddingTop: 20 }}>
       <StepTitle
-        title="Use an API key"
-        message="Create one on the web under Settings, then API keys. It works even when other sign-in methods are turned off."
+        title={t("mobile:signIn.useApiKey")}
+        message={t("mobile:signIn.apiKey.message")}
       />
       <TextField
-        label="API key"
+        label={t("mobile:signIn.apiKey.label")}
         value={key}
         onChangeText={setKey}
         autoCapitalize="none"
@@ -858,7 +870,7 @@ function ApiKeyStep({
       />
       <ErrorText error={error} />
       <Button
-        label="Sign in"
+        label={t("mobile:signIn.signIn")}
         disabled={!key.trim()}
         loading={loading}
         onPress={() => onSubmit(key)}
@@ -876,21 +888,22 @@ function SignUpStep({
   error: string | null;
   onSubmit: (name: string, email: string, password: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   return (
     <View style={{ gap: 20, paddingTop: 20 }}>
-      <StepTitle title="Create account" />
+      <StepTitle title={t("mobile:signIn.createAccount")} />
       <TextField
-        label="Name"
+        label={t("mobile:signIn.signUp.name")}
         value={name}
         onChangeText={setName}
         autoComplete="name"
         autoFocus
       />
       <TextField
-        label="Email"
+        label={t("mobile:signIn.email")}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -898,15 +911,15 @@ function SignUpStep({
         keyboardType="email-address"
       />
       <TextField
-        label="Password"
+        label={t("mobile:signIn.password")}
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        hint="At least 8 characters"
+        hint={t("mobile:signIn.signUp.passwordHint")}
       />
       <ErrorText error={error} />
       <Button
-        label="Create account"
+        label={t("mobile:signIn.createAccount")}
         disabled={!name.trim() || !email.trim() || password.length < 8}
         loading={loading}
         onPress={() => onSubmit(name, email, password)}

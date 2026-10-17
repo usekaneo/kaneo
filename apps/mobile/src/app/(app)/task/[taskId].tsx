@@ -3,6 +3,7 @@ import * as Clipboard from "expo-clipboard";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ellipsis, Link2 } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -47,6 +48,7 @@ import { font, useColors } from "@/theme";
 
 export default function TaskScreen() {
   const { taskId } = useLocalSearchParams<{ taskId: string }>();
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const session = useRequiredSession();
   const toast = useToast();
@@ -101,8 +103,8 @@ export default function TaskScreen() {
     : null;
   const ex = extras.data;
   const statusNames: Record<string, string> = {
-    planned: "Planned",
-    archived: "Archived",
+    planned: t("mobile:taskDetail.status.planned"),
+    archived: t("mobile:taskDetail.status.archived"),
   };
   d.columns.forEach((col) => (statusNames[col.slug] = col.name));
   const lastCommenter = [...(ex?.activities ?? [])]
@@ -130,10 +132,13 @@ export default function TaskScreen() {
           <>
             {webLink ? (
               <IconButton
-                label="Copy link"
+                label={t("mobile:taskDetail.screen.copyLink")}
                 onPress={() =>
                   Clipboard.setStringAsync(webLink).then(() =>
-                    toast.show("Link copied", "success"),
+                    toast.show(
+                      t("mobile:taskDetail.screen.linkCopied"),
+                      "success",
+                    ),
                   )
                 }
                 size={40}
@@ -141,7 +146,11 @@ export default function TaskScreen() {
                 <Link2 size={18} color={c.ink2} strokeWidth={2} />
               </IconButton>
             ) : null}
-            <IconButton label="More" onPress={() => setMenu(true)} size={40}>
+            <IconButton
+              label={t("mobile:taskDetail.screen.more")}
+              onPress={() => setMenu(true)}
+              size={40}
+            >
               <Ellipsis size={18} color={c.ink2} />
             </IconButton>
           </>
@@ -213,7 +222,7 @@ export default function TaskScreen() {
             ) : (
               <Touch
                 onPress={() => setTitleDraft(task.title)}
-                accessibilityHint="Edit title"
+                accessibilityHint={t("mobile:taskDetail.screen.editTitle")}
               >
                 <Txt variant="h2">{task.title}</Txt>
               </Touch>
@@ -228,13 +237,13 @@ export default function TaskScreen() {
 
             <Touch
               onPress={() => setEditingDescription(true)}
-              accessibilityHint="Edit description"
+              accessibilityHint={t("mobile:taskDetail.screen.editDescription")}
             >
               {d.description.trim() ? (
                 <MarkdownText>{d.description}</MarkdownText>
               ) : (
                 <Txt variant="body" tone="placeholder">
-                  Add a description…
+                  {t("mobile:taskDetail.screen.addDescription")}
                 </Txt>
               )}
             </Touch>
@@ -319,11 +328,17 @@ export default function TaskScreen() {
         onClose={() => setMenu(false)}
         title={ticket}
         options={[
-          ...(webLink ? [{ value: "share", label: "Share" }] : []),
-          { value: "duplicate", label: "Duplicate" },
-          { value: "move", label: "Move to project…" },
-          { value: "refresh", label: "Refresh" },
-          { value: "delete", label: "Delete task", tone: "danger" as const },
+          ...(webLink
+            ? [{ value: "share", label: t("mobile:taskDetail.menu.share") }]
+            : []),
+          { value: "duplicate", label: t("mobile:taskDetail.menu.duplicate") },
+          { value: "move", label: t("mobile:taskDetail.menu.move") },
+          { value: "refresh", label: t("mobile:taskDetail.menu.refresh") },
+          {
+            value: "delete",
+            label: t("mobile:taskDetail.menu.delete"),
+            tone: "danger" as const,
+          },
         ]}
         onSelect={async (v) => {
           if (v === "share" && webLink)
@@ -332,7 +347,7 @@ export default function TaskScreen() {
             });
           if (v === "duplicate") {
             const copy = await run(() => api.duplicateTask(task.id), {
-              success: "Task duplicated",
+              success: t("mobile:taskDetail.menu.duplicated"),
             });
             if (copy)
               router.push({
@@ -355,25 +370,29 @@ export default function TaskScreen() {
       <OptionSheet
         visible={movePicker}
         onClose={() => setMovePicker(false)}
-        title="Move to project"
+        title={t("mobile:taskDetail.menu.moveTitle")}
         options={projects.map((p) => ({
           value: p.id,
           label: p.name,
           hint: p.slug.toUpperCase(),
         }))}
         onSelect={(projectId) =>
-          run(() => api.moveTask(task.id, projectId), { success: "Task moved" })
+          run(() => api.moveTask(task.id, projectId), {
+            success: t("mobile:taskDetail.menu.moved"),
+          })
         }
       />
       <ConfirmDialog
         visible={confirmDelete}
-        title="Delete task?"
-        message={`“${task.title}” and its comments will be permanently deleted.`}
-        confirmLabel="Delete"
+        title={t("mobile:taskDetail.menu.deleteTitle")}
+        message={t("mobile:taskDetail.menu.deleteMessage", {
+          title: task.title,
+        })}
+        confirmLabel={t("mobile:common.delete")}
         onClose={() => setConfirmDelete(false)}
         onConfirm={async () => {
           const ok = await run(() => api.deleteTask(task.id), {
-            success: "Task deleted",
+            success: t("mobile:taskDetail.menu.deleted"),
             refresh: false,
           });
           if (ok !== undefined) {

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -58,6 +59,7 @@ import { font, inset, useColors } from "@/theme";
 const LANE_GAP = 12;
 
 export default function BoardScreen() {
+  const { t } = useTranslation(["mobile"]);
   const { projectId, workspaceId } = useLocalSearchParams<{
     projectId: string;
     workspaceId: string;
@@ -96,7 +98,8 @@ export default function BoardScreen() {
     queryFn: () => api.projects(workspaceId),
   });
   const workspaceName =
-    workspaces.data?.find((w) => w.id === workspaceId)?.name ?? "Projects";
+    workspaces.data?.find((w) => w.id === workspaceId)?.name ??
+    t("mobile:board.projects");
 
   // Collapse bursts of realtime hints (a reorder touches many tasks) into one reload.
   useRealtime(`api/ws/${projectId}`, () => {
@@ -112,7 +115,8 @@ export default function BoardScreen() {
       board.data
         ? buildLanes(board.data, filters, showPlanned, showArchived)
         : [],
-    [board.data, filters, showPlanned, showArchived],
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- buildLanes resolves virtual lane labels through i18n.
+    [board.data, filters, showPlanned, showArchived, t],
   );
   const laneWidth = width - inset * 2 - 36;
   const current = lanes[Math.min(page, Math.max(0, lanes.length - 1))];
@@ -183,7 +187,7 @@ export default function BoardScreen() {
             paddingVertical: 6,
             flexShrink: 1,
           }}
-          accessibilityLabel="Back"
+          accessibilityLabel={t("mobile:board.back")}
         >
           <ChevronLeft size={18} color={c.muted} strokeWidth={2} />
           <Txt variant="bodySm" tone="muted" numberOfLines={1}>
@@ -208,7 +212,9 @@ export default function BoardScreen() {
                   key={v}
                   onPress={() => setView(v)}
                   accessibilityLabel={
-                    v === "board" ? "Board view" : "List view"
+                    v === "board"
+                      ? t("mobile:board.boardView")
+                      : t("mobile:board.listView")
                   }
                   accessibilityState={{ selected: active }}
                   style={{
@@ -229,7 +235,10 @@ export default function BoardScreen() {
               );
             })}
           </View>
-          <IconButton label="More" onPress={() => setMenu(true)}>
+          <IconButton
+            label={t("mobile:board.more")}
+            onPress={() => setMenu(true)}
+          >
             <Ellipsis size={18} color={c.ink2} />
           </IconButton>
         </View>
@@ -250,7 +259,7 @@ export default function BoardScreen() {
             gap: 6,
             flexShrink: 1,
           }}
-          accessibilityLabel="Switch project"
+          accessibilityLabel={t("mobile:board.switchProject")}
         >
           <Txt variant="title" numberOfLines={1} style={{ flexShrink: 1 }}>
             {board.data?.name ?? " "}
@@ -386,10 +395,10 @@ export default function BoardScreen() {
                     style={{ paddingVertical: 24 }}
                   >
                     {lane.total > 0
-                      ? "No tasks match the filters"
+                      ? t("mobile:board.noTasksMatchTheFilters")
                       : lane.status === STATUS_PLANNED
-                        ? "Nothing planned yet"
-                        : "No tasks here"}
+                        ? t("mobile:board.nothingPlannedYet")
+                        : t("mobile:board.noTasksHere")}
                   </Txt>
                 ) : null}
                 {lane.status !== STATUS_ARCHIVED ? (
@@ -410,7 +419,7 @@ export default function BoardScreen() {
                   >
                     <Plus size={14} color={c.faint} strokeWidth={2} />
                     <Txt variant="bodySm" tone="faint">
-                      Add task
+                      {t("mobile:board.addTask")}
                     </Txt>
                   </Touch>
                 ) : null}
@@ -426,7 +435,9 @@ export default function BoardScreen() {
       visible.length === 0 ? (
         <EmptyState
           title={
-            activeFilters || filters.query ? "No tasks match" : "No tasks yet"
+            activeFilters || filters.query
+              ? t("mobile:board.noTasksMatch")
+              : t("mobile:board.noTasksYet")
           }
         />
       ) : (
@@ -554,7 +565,7 @@ export default function BoardScreen() {
             }}
           >
             <IconButton
-              label="Filters"
+              label={t("mobile:board.filters")}
               onPress={() => setFilterSheet(true)}
               size={40}
             >
@@ -569,8 +580,10 @@ export default function BoardScreen() {
               onChangeText={(query) => setFilters({ ...filters, query })}
               placeholder={
                 activeFilters
-                  ? `Filter tasks… (${activeFilters} active)`
-                  : "Filter tasks…"
+                  ? t("mobile:board.filterTasksActive", {
+                      count: activeFilters,
+                    })
+                  : t("mobile:board.filterTasks")
               }
               placeholderTextColor={c.faint}
               selectionColor={c.ink}
@@ -602,13 +615,13 @@ export default function BoardScreen() {
                 weight="medium"
                 color={meFilter ? c.onPrimary : c.muted}
               >
-                Me
+                {t("mobile:board.me")}
               </Txt>
             </Touch>
           </View>
           <Touch
             onPress={newTask}
-            accessibilityLabel="New task"
+            accessibilityLabel={t("mobile:board.newTask")}
             style={{
               width: 48,
               height: 48,
@@ -656,10 +669,13 @@ export default function BoardScreen() {
         onClose={() => setQuick(null)}
         onMove={(status) => {
           if (!quick) return;
-          const t = quick.task;
+          const task = quick.task;
           const target = lanes.find((l) => l.status === status);
-          void run(() => api.updateStatus(t.id, status), {
-            success: `Moved ${ticketId(slug, t.number)} to ${target?.name ?? status}`,
+          void run(() => api.updateStatus(task.id, status), {
+            success: t("mobile:board.movedTask", {
+              ticket: ticketId(slug, task.number),
+              status: target?.name ?? status,
+            }),
           });
         }}
         onAssign={(userId) => {
@@ -679,18 +695,22 @@ export default function BoardScreen() {
       <OptionSheet
         visible={menu}
         onClose={() => setMenu(false)}
-        title={board.data?.name ?? "Board"}
+        title={board.data?.name ?? t("mobile:board.board")}
         options={[
-          { value: "settings", label: "Project settings" },
+          { value: "settings", label: t("mobile:board.projectSettings") },
           {
             value: "planned",
-            label: showPlanned ? "Hide planned" : "Show planned",
+            label: showPlanned
+              ? t("mobile:board.hidePlanned")
+              : t("mobile:board.showPlanned"),
           },
           {
             value: "archived",
-            label: showArchived ? "Hide archived" : "Show archived",
+            label: showArchived
+              ? t("mobile:board.hideArchived")
+              : t("mobile:board.showArchived"),
           },
-          { value: "refresh", label: "Refresh" },
+          { value: "refresh", label: t("mobile:board.refresh") },
         ]}
         onSelect={(v) => {
           if (v === "settings")
@@ -710,7 +730,7 @@ export default function BoardScreen() {
       <OptionSheet
         visible={projectPicker}
         onClose={() => setProjectPicker(false)}
-        title="Projects"
+        title={t("mobile:board.projects")}
         selected={projectId}
         options={(projects.data ?? []).map((p) => ({
           value: p.id,

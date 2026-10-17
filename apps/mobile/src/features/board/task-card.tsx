@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CalendarDays, ListTree } from "lucide-react-native";
 import { View } from "react-native";
 
@@ -21,6 +22,7 @@ export function TaskCard({
   onPress: () => void;
   onLongPress: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const overdue = isOverdue(task.dueDate);
   const late = daysOverdue(task.dueDate);
@@ -130,8 +132,12 @@ export function TaskCard({
                 weight={overdue ? "medium" : "regular"}
                 color={overdue ? c.danger : c.muted}
               >
-                {formatDate(task.dueDate)}
-                {overdue ? `, ${late}d overdue` : ""}
+                {overdue
+                  ? t("mobile:board.dueDateOverdue", {
+                      date: formatDate(task.dueDate),
+                      count: late,
+                    })
+                  : formatDate(task.dueDate)}
               </Txt>
             </View>
           ) : null}

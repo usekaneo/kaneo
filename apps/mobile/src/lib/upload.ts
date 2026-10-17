@@ -1,5 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 
+import { i18n } from "./i18n";
 import { ApiError, resolveUrl } from "./api/client";
 import { api } from "./api/endpoints";
 import { sessionStore } from "./session";
@@ -47,7 +48,10 @@ export async function uploadTaskImage(
     headers: { "Content-Type": contentType, ...upload.headers },
     body: blob,
   });
-  if (!put.ok) throw new ApiError(`Upload failed (${put.status})`);
+  if (!put.ok)
+    throw new ApiError(
+      i18n.t("mobile:errors.uploadFailed", { status: put.status }),
+    );
   const assetInfo = await api.finalizeImageUpload(taskId, {
     key: upload.key,
     filename,

@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { Ellipsis, Plus } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import {
@@ -31,6 +32,7 @@ import { inset, useColors } from "@/theme";
 
 export default function LabelsScreen() {
   const { workspaceId } = useLocalSearchParams<{ workspaceId: string }>();
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const labels = useWorkspaceLabels(workspaceId);
@@ -47,11 +49,11 @@ export default function LabelsScreen() {
         onRefresh={() => void labels.refetch()}
       >
         <PageHeader
-          title="Labels"
-          description="Labels help you group and filter tasks."
+          title={t("mobile:labels.title")}
+          description={t("mobile:labels.description")}
           action={
             <Button
-              label="New label"
+              label={t("mobile:labels.new")}
               size="sm"
               icon={<Plus size={14} color={c.onPrimary} />}
               onPress={() => setEditing("new")}
@@ -70,8 +72,8 @@ export default function LabelsScreen() {
           ) : list.length === 0 ? (
             <Group>
               <EmptyState
-                title="No labels"
-                message="Create labels to group and filter tasks across projects."
+                title={t("mobile:labels.empty.title")}
+                message={t("mobile:labels.empty.message")}
               />
             </Group>
           ) : (
@@ -89,7 +91,9 @@ export default function LabelsScreen() {
                   <Touch
                     onPress={() => setMenu(l)}
                     hitSlop={10}
-                    accessibilityLabel={`Actions for ${l.name}`}
+                    accessibilityLabel={t("mobile:labels.actions", {
+                      name: l.name,
+                    })}
                   >
                     <Ellipsis size={16} color={c.placeholder} />
                   </Touch>
@@ -114,22 +118,28 @@ export default function LabelsScreen() {
       <OptionSheet
         visible={!!menu}
         onClose={() => setMenu(null)}
-        title={menu?.name ?? "Label"}
+        title={menu?.name ?? t("mobile:labels.fallbackTitle")}
         options={[
-          { value: "edit", label: "Edit label" },
-          { value: "delete", label: "Delete label", tone: "danger" as const },
+          { value: "edit", label: t("mobile:labels.edit") },
+          {
+            value: "delete",
+            label: t("mobile:labels.delete"),
+            tone: "danger" as const,
+          },
         ]}
         onSelect={(v) => (v === "edit" ? setEditing(menu) : setDeleting(menu))}
       />
       <ConfirmDialog
         visible={!!deleting}
-        title={`Delete “${deleting?.name}”?`}
-        message="The label is removed from every task in this workspace."
-        confirmLabel="Delete"
+        title={t("mobile:labels.deleteTitle", { name: deleting?.name })}
+        message={t("mobile:labels.deleteMessage")}
+        confirmLabel={t("mobile:common.delete")}
         onClose={() => setDeleting(null)}
         onConfirm={() =>
           deleting &&
-          run(() => api.deleteLabel(deleting.id), { success: "Label deleted" })
+          run(() => api.deleteLabel(deleting.id), {
+            success: t("mobile:labels.toast.deleted"),
+          })
         }
       />
     </Screen>
@@ -145,11 +155,12 @@ function LabelSheet({
   onClose: () => void;
   onSave: (name: string, color: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
     <Sheet
       visible={!!label}
       onClose={onClose}
-      title={label === "new" ? "New label" : "Edit label"}
+      title={label === "new" ? t("mobile:labels.new") : t("mobile:labels.edit")}
     >
       {label ? (
         <LabelForm
@@ -171,6 +182,7 @@ function LabelForm({
   initial: Label | null;
   onSave: (name: string, color: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [name, setName] = useState(initial?.name ?? "");
   const [color, setColor] = useState<string>(
@@ -180,7 +192,7 @@ function LabelForm({
   return (
     <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 16 }}>
       <TextField
-        label="Name"
+        label={t("mobile:labels.form.name")}
         value={name}
         onChangeText={setName}
         autoFocus
@@ -188,7 +200,7 @@ function LabelForm({
       />
       <View style={{ gap: 8 }}>
         <Txt variant="meta" weight="medium" tone="body">
-          Color
+          {t("mobile:labels.form.color")}
         </Txt>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
           {LABEL_COLORS.map((opt) => {
@@ -222,7 +234,7 @@ function LabelForm({
         </View>
       </View>
       <Button
-        label="Save"
+        label={t("mobile:common.save")}
         disabled={!name.trim()}
         onPress={() => onSave(name.trim(), color)}
       />

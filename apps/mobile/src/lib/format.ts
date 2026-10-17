@@ -1,3 +1,5 @@
+import { currentLocale, i18n } from "@/lib/i18n";
+
 /** A calendar day without a time, as year/month(0-based)/day. */
 export type Day = { y: number; m: number; d: number };
 
@@ -50,53 +52,18 @@ export function toIsoDay(day: Day): string {
   return `${day.y}-${String(day.m + 1).padStart(2, "0")}-${String(day.d).padStart(2, "0")}`;
 }
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-const MONTHS_LONG = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const WEEKDAYS_LONG = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
-
 export function monthName(m: number, long = false) {
-  return long ? MONTHS_LONG[m] : MONTHS[m];
+  return new Intl.DateTimeFormat(currentLocale(), {
+    month: long ? "long" : "short",
+  }).format(new Date(2026, m, 1));
 }
 
 export function formatDay(day: Day): string {
-  return day.y === new Date().getFullYear()
-    ? `${MONTHS[day.m]} ${day.d}`
-    : `${MONTHS[day.m]} ${day.d}, ${day.y}`;
+  return new Intl.DateTimeFormat(currentLocale(), {
+    month: "short",
+    day: "numeric",
+    ...(day.y === new Date().getFullYear() ? {} : { year: "numeric" as const }),
+  }).format(dayToDate(day));
 }
 
 export function formatDate(value?: string | null): string {
@@ -109,22 +76,38 @@ export function formatDueShort(value?: string | null): string {
   const day = parseDay(value);
   if (!day) return "";
   const diff = Math.round(compareDays(day, today()) / 86_400_000);
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Tomorrow";
+  if (diff === 0) return i18n.t("mobile:time.today");
+  if (diff === 1) return i18n.t("mobile:time.tomorrow");
   if (diff > 1 && diff < 7)
-    return `${WEEKDAYS[dayToDate(day).getDay()]}, ${MONTHS[day.m]} ${day.d}`;
+    return new Intl.DateTimeFormat(currentLocale(), {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    }).format(dayToDate(day));
   return formatDay(day);
 }
 
 export function formatLongDate(date = new Date()): string {
-  return `${WEEKDAYS_LONG[date.getDay()]}, ${MONTHS_LONG[date.getMonth()]} ${date.getDate()}`;
+  return new Intl.DateTimeFormat(currentLocale(), {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(date);
 }
 
 export function formatDateTime(value?: string | null): string {
   const date = parseInstant(value);
   if (!date) return "";
-  const time = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-  return `${formatDay(toDay(date))}, ${time}`;
+  return new Intl.DateTimeFormat(currentLocale(), {
+    month: "short",
+    day: "numeric",
+    ...(date.getFullYear() === new Date().getFullYear()
+      ? {}
+      : { year: "numeric" as const }),
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
 }
 
 export function isOverdue(value?: string | null): boolean {
@@ -145,26 +128,44 @@ export function relativeShort(value?: string | null): string {
   if (!date) return "";
   const now = Date.now();
   const seconds = Math.max(0, (now - date.getTime()) / 1000);
-  if (seconds < 60) return "now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+  if (seconds < 60) return i18n.t("mobile:time.now");
+  if (seconds < 3600)
+    return i18n.t("mobile:time.minutesShort", {
+      count: Math.floor(seconds / 60),
+    });
   const day = toDay(date);
   const diffDays = Math.round(compareDays(today(), day) / 86_400_000);
-  if (diffDays === 0) return `${Math.floor(seconds / 3600)}h`;
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return WEEKDAYS[date.getDay()];
+  if (diffDays === 0)
+    return i18n.t("mobile:time.hoursShort", {
+      count: Math.floor(seconds / 3600),
+    });
+  if (diffDays === 1) return i18n.t("mobile:time.yesterday");
+  if (diffDays < 7)
+    return new Intl.DateTimeFormat(currentLocale(), {
+      weekday: "short",
+    }).format(date);
   return formatDay(day);
 }
 
-/** "12 min ago", "3 hr ago", "Yesterday", "Oct 2". */
-export function relativeLong(value?: string | null): string {
+/** "12 min ago", "3 hr ago", "Yesterday", "Oct 2"; `ago: false` gives "12 min", "3 hr". */
+export function relativeLong(
+  value?: string | null,
+  { ago = true }: { ago?: boolean } = {},
+): string {
   const date = parseInstant(value);
   if (!date) return "";
   const seconds = Math.max(0, (Date.now() - date.getTime()) / 1000);
-  if (seconds < 60) return "just now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+  if (seconds < 60) return i18n.t("mobile:time.justNow");
+  if (seconds < 3600)
+    return ago
+      ? i18n.t("mobile:time.minutesAgo", { count: Math.floor(seconds / 60) })
+      : i18n.t("mobile:time.minutes", { count: Math.floor(seconds / 60) });
   const diffDays = Math.round(compareDays(today(), toDay(date)) / 86_400_000);
-  if (diffDays === 0) return `${Math.floor(seconds / 3600)} hr ago`;
-  if (diffDays === 1) return "Yesterday";
+  if (diffDays === 0)
+    return ago
+      ? i18n.t("mobile:time.hoursAgo", { count: Math.floor(seconds / 3600) })
+      : i18n.t("mobile:time.hours", { count: Math.floor(seconds / 3600) });
+  if (diffDays === 1) return i18n.t("mobile:time.yesterday");
   return formatDay(toDay(date));
 }
 
@@ -172,9 +173,12 @@ export function formatDuration(totalSeconds: number): string {
   const s = Math.max(0, Math.floor(totalSeconds));
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
-  if (h > 0) return m > 0 ? `${h}h ${m}m` : `${h}h`;
-  if (m > 0) return `${m}m`;
-  return `${s}s`;
+  if (h > 0)
+    return m > 0
+      ? i18n.t("mobile:time.durationHoursMinutes", { hours: h, minutes: m })
+      : i18n.t("mobile:time.hoursShort", { count: h });
+  if (m > 0) return i18n.t("mobile:time.minutesShort", { count: m });
+  return i18n.t("mobile:time.secondsShort", { count: s });
 }
 
 export function formatClock(totalSeconds: number): string {
@@ -220,12 +224,8 @@ export function initials(name?: string | null): string {
 
 export function greeting(date = new Date()): string {
   const h = date.getHours();
-  if (h < 5) return "Good evening";
-  if (h < 12) return "Good morning";
-  if (h < 18) return "Good afternoon";
-  return "Good evening";
-}
-
-export function plural(n: number, one: string, many = `${one}s`) {
-  return `${n} ${n === 1 ? one : many}`;
+  if (h < 5) return i18n.t("mobile:time.goodEvening");
+  if (h < 12) return i18n.t("mobile:time.goodMorning");
+  if (h < 18) return i18n.t("mobile:time.goodAfternoon");
+  return i18n.t("mobile:time.goodEvening");
 }

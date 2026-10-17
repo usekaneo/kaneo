@@ -14,6 +14,7 @@ import type {
   TaskRelation,
   TimeEntry,
 } from "@/lib/api/types";
+import { i18n } from "@/lib/i18n";
 import { qk } from "@/lib/query";
 
 export type TaskDetail = {
@@ -99,7 +100,7 @@ export function entrySeconds(entry: TimeEntry, now: number): number {
 }
 
 export function statusName(status: string, columns: Column[]): string {
-  if (status === "planned") return "Planned";
-  if (status === "archived") return "Archived";
+  if (status === "planned") return i18n.t("mobile:taskDetail.status.planned");
+  if (status === "archived") return i18n.t("mobile:taskDetail.status.archived");
   return columns.find((c) => c.slug === status)?.name ?? status;
 }

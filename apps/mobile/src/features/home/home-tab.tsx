@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { ChevronDown, Plus, Search } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -27,6 +28,7 @@ import {
   ticketId,
 } from "@/lib/format";
 import { useMe } from "@/lib/hooks";
+import { currentLocale } from "@/lib/i18n";
 import { qk } from "@/lib/query";
 import { inset, useColors } from "@/theme";
 
@@ -39,6 +41,7 @@ export function WorkspaceHeader({
   workspace: Workspace;
   onSwitch: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const me = useMe();
   return (
@@ -60,7 +63,7 @@ export function WorkspaceHeader({
           paddingVertical: 8,
           flexShrink: 1,
         }}
-        accessibilityLabel="Switch workspace"
+        accessibilityLabel={t("mobile:home.switchWorkspace")}
       >
         <Txt
           variant="body"
@@ -74,7 +77,7 @@ export function WorkspaceHeader({
       </Touch>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
         <IconButton
-          label="Search"
+          label={t("mobile:home.search")}
           onPress={() =>
             router.push({
               pathname: "/search",
@@ -86,7 +89,7 @@ export function WorkspaceHeader({
         </IconButton>
         <Touch
           onPress={() => router.push("/account")}
-          accessibilityLabel="Account"
+          accessibilityLabel={t("mobile:home.account")}
           hitSlop={6}
         >
           <Avatar name={me.data?.name} image={me.data?.image} size={30} />
@@ -105,6 +108,7 @@ function ProjectRow({
   last?: boolean;
   onPress: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const pct = Math.round(project.statistics?.completionPercentage ?? 0);
   const total = Math.round(project.statistics?.totalTasks ?? 0);
@@ -134,12 +138,12 @@ function ProjectRow({
         </Txt>
         <Txt variant="caption" tone="muted">
           {archived
-            ? "Archived"
+            ? t("mobile:home.archived")
             : due
-              ? `Due ${formatDate(due)}`
+              ? t("mobile:home.due", { date: formatDate(due) })
               : total
-                ? `${done} of ${total}`
-                : "No tasks"}
+                ? t("mobile:home.progress", { done, total })
+                : t("mobile:home.noTasks")}
         </Txt>
       </View>
       <View
@@ -156,7 +160,9 @@ function ProjectRow({
           tone="muted"
           style={{ width: 34, textAlign: "right" }}
         >
-          {pct}%
+          {new Intl.NumberFormat(currentLocale(), { style: "percent" }).format(
+            pct / 100,
+          )}
         </Txt>
       </View>
     </Touch>
@@ -172,6 +178,7 @@ export function HomeTabView({
   onSwitch: () => void;
   onViewAllTasks: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [showArchived, setShowArchived] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -225,32 +232,32 @@ export function HomeTabView({
 
       {upNext.length ? (
         <Section
-          title="Up next"
+          title={t("mobile:home.upNext")}
           style={{ paddingBottom: 24 }}
           aside={
             <Touch onPress={onViewAllTasks} hitSlop={8}>
               <Txt variant="meta" weight="medium" tone="muted">
-                View all
+                {t("mobile:home.viewAll")}
               </Txt>
             </Touch>
           }
         >
           <Group>
-            {upNext.map((t, i) => (
+            {upNext.map((task, i) => (
               <TaskRow
-                key={t.id}
+                key={task.id}
                 compact
-                title={t.title}
-                ticket={ticketId(t.projectSlug, t.number)}
-                project={t.projectName}
-                dueDate={t.dueDate}
-                status={t.status}
-                statusIcon={t.statusIcon}
+                title={task.title}
+                ticket={ticketId(task.projectSlug, task.number)}
+                project={task.projectName}
+                dueDate={task.dueDate}
+                status={task.status}
+                statusIcon={task.statusIcon}
                 last={i === upNext.length - 1}
                 onPress={() =>
                   router.push({
                     pathname: "/task/[taskId]",
-                    params: { taskId: t.id },
+                    params: { taskId: task.id },
                   })
                 }
               />
@@ -260,10 +267,10 @@ export function HomeTabView({
       ) : null}
 
       <Section
-        title="Projects"
+        title={t("mobile:home.projects")}
         aside={
           <IconButton
-            label="New project"
+            label={t("mobile:home.newProject")}
             size={28}
             onPress={() => setCreating(true)}
           >
@@ -281,10 +288,10 @@ export function HomeTabView({
         ) : sorted.length === 0 ? (
           <Group>
             <EmptyState
-              title="No projects yet"
-              message="Projects hold your boards and tasks."
+              title={t("mobile:home.empty.title")}
+              message={t("mobile:home.empty.message")}
               action={{
-                label: "New project",
+                label: t("mobile:home.newProject"),
                 onPress: () => setCreating(true),
               }}
             />
@@ -311,7 +318,9 @@ export function HomeTabView({
           style={{ alignSelf: "center", padding: 10 }}
         >
           <Txt variant="meta" weight="medium" tone="muted">
-            {showArchived ? "Hide archived projects" : "Show archived projects"}
+            {showArchived
+              ? t("mobile:home.hideArchived")
+              : t("mobile:home.showArchived")}
           </Txt>
         </Touch>
       </Section>

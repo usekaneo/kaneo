@@ -1,5 +1,6 @@
 import type { Json, Notification } from "./api/types";
 import { formatDate } from "./format";
+import { i18n } from "./i18n";
 import { toPlainText } from "./markdown";
 import { priorityLabel } from "./style";
 
@@ -36,40 +37,59 @@ export function describeActivity(
   switch (type) {
     case "create":
     case "created":
-      return "created the task";
+      return i18n.t("mobile:notificationText.activity.created");
     case "comment":
-      return `commented: ${toPlainText(content).slice(0, 240)}`;
+      return i18n.t("mobile:notificationText.activity.commented", {
+        text: toPlainText(content).slice(0, 240),
+      });
     case "status_changed":
-      return `moved this from ${statusName(str(data, "oldStatus"), str(data, "oldStatusName"), statusNames)} to ${statusName(
-        str(data, "newStatus"),
-        str(data, "newStatusName"),
-        statusNames,
-      )}`;
+      return i18n.t("mobile:notificationText.activity.statusChanged", {
+        from: statusName(
+          str(data, "oldStatus"),
+          str(data, "oldStatusName"),
+          statusNames,
+        ),
+        to: statusName(
+          str(data, "newStatus"),
+          str(data, "newStatusName"),
+          statusNames,
+        ),
+      });
     case "priority_changed":
-      return `changed priority from ${priorityLabel(str(data, "oldPriority"))} to ${priorityLabel(str(data, "newPriority"))}`;
+      return i18n.t("mobile:notificationText.activity.priorityChanged", {
+        from: priorityLabel(str(data, "oldPriority")),
+        to: priorityLabel(str(data, "newPriority")),
+      });
     case "assignee_changed": {
       const assignee = str(data, "newAssignee");
-      if (!assignee) return "changed the assignee";
+      if (!assignee)
+        return i18n.t("mobile:notificationText.activity.assigneeChanged");
       return str(data, "isSelfAssigned") === "true"
-        ? "self-assigned this"
-        : `assigned this to ${assignee}`;
+        ? i18n.t("mobile:notificationText.activity.selfAssigned")
+        : i18n.t("mobile:notificationText.activity.assignedTo", { assignee });
     }
     case "unassigned":
-      return "removed the assignee";
+      return i18n.t("mobile:notificationText.activity.unassigned");
     case "due_date_changed": {
       const due = str(data, "newDueDate");
       return due
-        ? `set the due date to ${formatDate(due)}`
-        : "removed the due date";
+        ? i18n.t("mobile:notificationText.activity.dueDateSet", {
+            date: formatDate(due),
+          })
+        : i18n.t("mobile:notificationText.activity.dueDateRemoved");
     }
     case "title_changed": {
       const title = str(data, "newTitle");
-      return title ? `renamed this to “${title}”` : "changed the title";
+      return title
+        ? i18n.t("mobile:notificationText.activity.renamed", { title })
+        : i18n.t("mobile:notificationText.activity.titleChanged");
     }
     case "description_changed":
-      return "updated the description";
+      return i18n.t("mobile:notificationText.activity.descriptionChanged");
     case "task":
-      return content ? toPlainText(content) : "updated the task";
+      return content
+        ? toPlainText(content)
+        : i18n.t("mobile:notificationText.activity.taskUpdated");
     default:
       return (
         (content ? toPlainText(content).slice(0, 240) : "") ||
@@ -83,30 +103,45 @@ export type NotificationText = { title: string; body: string | null };
 export function describeNotification(n: Notification): NotificationText {
   const data = n.eventData;
   const taskTitle = str(data, "taskTitle");
-  const task = taskTitle ? `“${taskTitle}”` : "a task";
   const actor =
     str(data, "userName") ?? str(data, "authorName") ?? str(data, "actorName");
   switch (n.type) {
     case "task_created":
-      return { title: "New task assigned to you", body: taskTitle };
+      return {
+        title: i18n.t("mobile:notificationText.taskCreated"),
+        body: taskTitle,
+      };
     case "task_assignee_changed":
       return {
         title: actor
-          ? `${actor} assigned you a task`
-          : `You were assigned to ${task}`,
+          ? i18n.t("mobile:notificationText.assignedByActor", { actor })
+          : taskTitle
+            ? i18n.t("mobile:notificationText.assignedToTask", {
+                title: taskTitle,
+              })
+            : i18n.t("mobile:notificationText.assignedToUntitled"),
         body: taskTitle,
       };
     case "task_status_changed": {
       const from = str(data, "oldStatusName") ?? str(data, "oldStatus");
       const to = str(data, "newStatusName") ?? str(data, "newStatus");
       return {
-        title: `Status changed on ${task}`,
-        body: from && to ? `${from} to ${to}` : null,
+        title: taskTitle
+          ? i18n.t("mobile:notificationText.statusChangedOnTask", {
+              title: taskTitle,
+            })
+          : i18n.t("mobile:notificationText.statusChangedOnUntitled"),
+        body:
+          from && to
+            ? i18n.t("mobile:notificationText.statusTransition", { from, to })
+            : null,
       };
     }
     case "task_comment":
       return {
-        title: actor ? `${actor} commented` : "New comment",
+        title: actor
+          ? i18n.t("mobile:notificationText.commentedByActor", { actor })
+          : i18n.t("mobile:notificationText.newComment"),
         body:
           toPlainText(
             str(data, "comment") ?? str(data, "excerpt") ?? n.content,
@@ -114,17 +149,28 @@ export function describeNotification(n: Notification): NotificationText {
       };
     case "task_mention":
       return {
-        title: actor ? `${actor} mentioned you` : "You were mentioned",
+        title: actor
+          ? i18n.t("mobile:notificationText.mentionedByActor", { actor })
+          : i18n.t("mobile:notificationText.mentioned"),
         body:
           toPlainText(
             str(data, "comment") ?? str(data, "excerpt") ?? n.content,
           ) || taskTitle,
       };
     case "time_entry_created":
-      return { title: `Time logged on ${task}`, body: null };
+      return {
+        title: taskTitle
+          ? i18n.t("mobile:notificationText.timeLoggedOnTask", {
+              title: taskTitle,
+            })
+          : i18n.t("mobile:notificationText.timeLoggedOnUntitled"),
+        body: null,
+      };
     case "workspace_created":
       return {
-        title: `Workspace “${str(data, "workspaceName") ?? ""}” created`,
+        title: i18n.t("mobile:notificationText.workspaceCreated", {
+          name: str(data, "workspaceName") ?? "",
+        }),
         body: null,
       };
     default:

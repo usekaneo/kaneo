@@ -1,3 +1,4 @@
+import { i18n } from "@/lib/i18n";
 import type { BoardData, BoardTask } from "@/lib/api/types";
 import { isOverdue } from "@/lib/format";
 import { STATUS_ARCHIVED, STATUS_PLANNED } from "@/lib/style";
@@ -77,7 +78,7 @@ export function lanes(
   if (planned)
     out.push({
       status: STATUS_PLANNED,
-      name: "Planned",
+      name: i18n.t("mobile:board.planned"),
       isFinal: false,
       tasks: data.plannedTasks.filter((t) => matches(f, t)),
       total: data.plannedTasks.length,
@@ -96,7 +97,7 @@ export function lanes(
   if (archived)
     out.push({
       status: STATUS_ARCHIVED,
-      name: "Archived",
+      name: i18n.t("mobile:board.archived"),
       isFinal: false,
       tasks: data.archivedTasks.filter((t) => matches(f, t)),
       total: data.archivedTasks.length,

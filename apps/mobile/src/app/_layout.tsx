@@ -13,7 +13,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import * as Notifications from "expo-notifications";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -25,6 +26,7 @@ import {
   requestNotificationPermission,
   setBackgroundChecks,
 } from "@/lib/background";
+import { loadDeviceLocale } from "@/lib/i18n";
 import { queryClient } from "@/lib/query";
 import { sessionStore, useSessionState } from "@/lib/session";
 import { useColors } from "@/theme";
@@ -50,16 +52,19 @@ export default function RootLayout() {
     GeistMono_500Medium,
   });
   const { ready } = useSessionState();
+  const [localeLoaded, setLocaleLoaded] = useState(false);
 
   useEffect(() => {
     void sessionStore.hydrate();
+    void loadDeviceLocale().finally(() => setLocaleLoaded(true));
   }, []);
 
+  const loaded = fontsLoaded && ready && localeLoaded;
   useEffect(() => {
-    if (fontsLoaded && ready) void SplashScreen.hideAsync();
-  }, [fontsLoaded, ready]);
+    if (loaded) void SplashScreen.hideAsync();
+  }, [loaded]);
 
-  if (!fontsLoaded || !ready) return null;
+  if (!loaded) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -78,17 +83,18 @@ function AppStack() {
   const c = useColors();
   const { session, prefs } = useSessionState();
   const toast = useToast();
+  const { t } = useTranslation(["mobile"]);
   const signedIn = !!session;
 
   // A 401 on a signed-in request means the session was revoked elsewhere.
   useEffect(
     () =>
       onSessionExpired(() => {
-        toast.show("Your session has expired. Please sign in again.", "error");
+        toast.show(t("mobile:errors.sessionExpired"), "error");
         queryClient.clear();
         void signOut();
       }),
-    [toast],
+    [toast, t],
   );
 
   useEffect(() => {

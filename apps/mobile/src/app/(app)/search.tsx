@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { CircleX, Search } from "lucide-react-native";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, ScrollView, TextInput, View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -22,6 +23,7 @@ type Kind = "all" | "tasks" | "projects" | "comments";
 
 export default function SearchScreen() {
   const { workspaceId } = useLocalSearchParams<{ workspaceId: string }>();
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const toast = useToast();
   const [input, setInput] = useState("");
@@ -29,8 +31,8 @@ export default function SearchScreen() {
   const [kind, setKind] = useState<Kind>("all");
 
   useEffect(() => {
-    const t = setTimeout(() => setQuery(input.trim()), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setQuery(input.trim()), 300);
+    return () => clearTimeout(timer);
   }, [input]);
 
   const search = useQuery({
@@ -40,10 +42,17 @@ export default function SearchScreen() {
   });
   const results = search.data?.results ?? [];
   const groups: { title: string; type: string }[] = [
-    { title: "Tasks", type: "task" },
-    { title: "Comments", type: "comment" },
-    { title: "Projects", type: "project" },
+    { title: t("mobile:search.kinds.tasks"), type: "task" },
+    { title: t("mobile:search.kinds.comments"), type: "comment" },
+    { title: t("mobile:search.kinds.projects"), type: "project" },
   ];
+
+  const commentMeta = (r: SearchResult) => {
+    const when = relativeLong(r.createdAt);
+    if (r.userName && when)
+      return t("mobile:search.commentMeta", { name: r.userName, when });
+    return r.userName ?? when;
+  };
 
   const openTask = (id: string) =>
     router.push({ pathname: "/task/[taskId]", params: { taskId: id } });
@@ -104,7 +113,7 @@ export default function SearchScreen() {
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder="Search tasks, projects, comments"
+            placeholder={t("mobile:search.placeholder")}
             placeholderTextColor={c.placeholder}
             autoFocus
             autoCorrect={false}
@@ -125,7 +134,7 @@ export default function SearchScreen() {
             <Touch
               onPress={() => setInput("")}
               hitSlop={8}
-              accessibilityLabel="Clear"
+              accessibilityLabel={t("mobile:search.clear")}
             >
               <CircleX size={16} color={c.placeholder} fill={c.fill} />
             </Touch>
@@ -144,10 +153,10 @@ export default function SearchScreen() {
           value={kind}
           onChange={setKind}
           options={[
-            { value: "all", label: "All" },
-            { value: "tasks", label: "Tasks" },
-            { value: "projects", label: "Projects" },
-            { value: "comments", label: "Comments" },
+            { value: "all", label: t("mobile:search.kinds.all") },
+            { value: "tasks", label: t("mobile:search.kinds.tasks") },
+            { value: "projects", label: t("mobile:search.kinds.projects") },
+            { value: "comments", label: t("mobile:search.kinds.comments") },
           ]}
         />
       </View>
@@ -157,16 +166,16 @@ export default function SearchScreen() {
       >
         {!query ? (
           <EmptyState
-            title="Search this workspace"
-            message="Find tasks by title or number, projects, and comments."
+            title={t("mobile:search.empty.title")}
+            message={t("mobile:search.empty.message")}
           />
         ) : search.error ? (
           <EmptyState
-            title="Search failed"
+            title={t("mobile:search.failed")}
             message={userMessage(search.error)}
           />
         ) : !search.isFetching && results.length === 0 ? (
-          <EmptyState title={`No results for “${query}”`} />
+          <EmptyState title={t("mobile:search.noResults", { query })} />
         ) : (
           groups.map((g) => {
             const items = results.filter((r) => r.type === g.type);
@@ -240,9 +249,7 @@ export default function SearchScreen() {
                           style={{ flex: 1 }}
                         >
                           {g.type === "comment"
-                            ? [r.userName, relativeLong(r.createdAt)]
-                                .filter(Boolean)
-                                .join(", ")
+                            ? commentMeta(r)
                             : (r.projectName ??
                               (g.type === "project"
                                 ? r.projectSlug?.toUpperCase()

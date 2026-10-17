@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowDown, ArrowUp, ChevronRight } from "lucide-react-native";
@@ -33,16 +34,21 @@ import { useWorkspaces } from "@/lib/hooks";
 import { qk, useAction } from "@/lib/query";
 import { useColors } from "@/theme";
 
-const FIELD_TYPES = [
-  { value: "text", label: "Text" },
-  { value: "number", label: "Number" },
-  { value: "date", label: "Date" },
-  { value: "boolean", label: "Checkbox" },
-  { value: "dropdown", label: "Dropdown" },
-  { value: "multiselect", label: "Multi-select" },
-];
+function useFieldTypes() {
+  const { t } = useTranslation(["mobile"]);
+  return [
+    { value: "text", label: t("mobile:projectSettings.text") },
+    { value: "number", label: t("mobile:projectSettings.number") },
+    { value: "date", label: t("mobile:projectSettings.date") },
+    { value: "boolean", label: t("mobile:projectSettings.checkbox") },
+    { value: "dropdown", label: t("mobile:projectSettings.dropdown") },
+    { value: "multiselect", label: t("mobile:projectSettings.multiSelect") },
+  ];
+}
 
 export default function ProjectSettingsScreen() {
+  const { t } = useTranslation(["mobile"]);
+  const fieldTypes = useFieldTypes();
   const { projectId, workspaceId } = useLocalSearchParams<{
     projectId: string;
     workspaceId: string;
@@ -97,7 +103,12 @@ export default function ProjectSettingsScreen() {
           description: p.description ?? "",
           isPublic: patch.isPublic ?? !!p.isPublic,
         }),
-      { success: patch.isPublic === undefined ? "Project updated" : undefined },
+      {
+        success:
+          patch.isPublic === undefined
+            ? t("mobile:projectSettings.projectUpdated")
+            : undefined,
+      },
     );
 
   const move = (column: Column, delta: number) => {
@@ -128,8 +139,8 @@ export default function ProjectSettingsScreen() {
         }
       >
         <PageHeader
-          title={p?.name ?? "Project"}
-          description="Project settings"
+          title={p?.name ?? t("mobile:projectSettings.project")}
+          description={t("mobile:projectSettings.projectSettings")}
         />
         {project.isLoading ? (
           <Loading />
@@ -140,7 +151,10 @@ export default function ProjectSettingsScreen() {
           />
         ) : (
           <>
-            <Section title="General" style={{ paddingBottom: 22 }}>
+            <Section
+              title={t("mobile:projectSettings.general")}
+              style={{ paddingBottom: 22 }}
+            >
               <Group>
                 <GeneralForm
                   key={`${p.id}-${p.name}-${p.slug}`}
@@ -151,9 +165,13 @@ export default function ProjectSettingsScreen() {
                 />
                 <GroupRow last>
                   <View style={{ flex: 1, gap: 2 }}>
-                    <Txt variant="body">Public board</Txt>
+                    <Txt variant="body">
+                      {t("mobile:projectSettings.publicBoard")}
+                    </Txt>
                     <Txt variant="caption" tone="faint">
-                      Anyone with the link can view the board
+                      {t(
+                        "mobile:projectSettings.anyoneWithTheLinkCanViewTheBoard",
+                      )}
                     </Txt>
                   </View>
                   <Switch
@@ -165,12 +183,12 @@ export default function ProjectSettingsScreen() {
             </Section>
 
             <Section
-              title="Columns"
+              title={t("mobile:projectSettings.columns")}
               style={{ paddingBottom: 22 }}
               aside={
                 <Touch onPress={() => setAddingColumn(true)} hitSlop={8}>
                   <Txt variant="meta" weight="medium" tone="muted">
-                    Add column
+                    {t("mobile:projectSettings.addColumn")}
                   </Txt>
                 </Touch>
               }
@@ -202,12 +220,12 @@ export default function ProjectSettingsScreen() {
                         }}
                       >
                         <Txt variant="micro" tone="muted">
-                          Done column
+                          {t("mobile:projectSettings.doneColumn")}
                         </Txt>
                       </View>
                     ) : null}
                     <IconButton
-                      label="Move up"
+                      label={t("mobile:projectSettings.moveUp")}
                       size={28}
                       disabled={i === 0}
                       onPress={() => move(col, -1)}
@@ -218,7 +236,7 @@ export default function ProjectSettingsScreen() {
                       />
                     </IconButton>
                     <IconButton
-                      label="Move down"
+                      label={t("mobile:projectSettings.moveDown")}
                       size={28}
                       disabled={i === sortedColumns.length - 1}
                       onPress={() => move(col, 1)}
@@ -238,12 +256,12 @@ export default function ProjectSettingsScreen() {
             </Section>
 
             <Section
-              title="Custom fields"
+              title={t("mobile:projectSettings.customFields")}
               style={{ paddingBottom: 22 }}
               aside={
                 <Touch onPress={() => setAddingField(true)} hitSlop={8}>
                   <Txt variant="meta" weight="medium" tone="muted">
-                    Add field
+                    {t("mobile:projectSettings.addField")}
                   </Txt>
                 </Touch>
               }
@@ -252,7 +270,7 @@ export default function ProjectSettingsScreen() {
                 {sortedFields.length === 0 ? (
                   <GroupRow last>
                     <Txt variant="bodySm" tone="faint">
-                      No custom fields
+                      {t("mobile:projectSettings.noCustomFields")}
                     </Txt>
                   </GroupRow>
                 ) : (
@@ -267,7 +285,7 @@ export default function ProjectSettingsScreen() {
                         {f.required ? " *" : ""}
                       </Txt>
                       <Txt variant="meta" tone="faint">
-                        {FIELD_TYPES.find((t) => t.value === f.type)?.label ??
+                        {fieldTypes.find((t) => t.value === f.type)?.label ??
                           f.type}
                       </Txt>
                     </GroupRow>
@@ -282,17 +300,24 @@ export default function ProjectSettingsScreen() {
                   onPress={() =>
                     p.archivedAt
                       ? run(() => api.unarchiveProject(projectId), {
-                          success: "Project restored",
+                          success: t("mobile:projectSettings.projectRestored"),
                         })
                       : setConfirm({
-                          title: "Archive project?",
-                          message:
-                            "It disappears from the project list. You can restore it later.",
-                          label: "Archive",
+                          title: t(
+                            "mobile:projectSettings.archiveProjectTitle",
+                          ),
+                          message: t(
+                            "mobile:projectSettings.itDisappearsFromTheProjectListYouCanRestoreItLater",
+                          ),
+                          label: t("mobile:projectSettings.archive"),
                           action: async () => {
                             const ok = await run(
                               () => api.archiveProject(projectId),
-                              { success: "Project archived" },
+                              {
+                                success: t(
+                                  "mobile:projectSettings.projectArchived",
+                                ),
+                              },
                             );
                             if (ok !== undefined) router.dismissTo("/");
                           },
@@ -300,12 +325,14 @@ export default function ProjectSettingsScreen() {
                   }
                 >
                   <Txt variant="body" style={{ flex: 1 }}>
-                    {p.archivedAt ? "Restore project" : "Archive project"}
+                    {p.archivedAt
+                      ? t("mobile:projectSettings.restoreProject")
+                      : t("mobile:projectSettings.archiveProject")}
                   </Txt>
                 </GroupRow>
                 <GroupRow onPress={() => setMovePicker(true)}>
                   <Txt variant="body" style={{ flex: 1 }}>
-                    Move to another workspace
+                    {t("mobile:projectSettings.moveToAnotherWorkspace")}
                   </Txt>
                   <ChevronRight size={16} color={c.placeholder} />
                 </GroupRow>
@@ -313,14 +340,17 @@ export default function ProjectSettingsScreen() {
                   last
                   onPress={() =>
                     setConfirm({
-                      title: "Delete project?",
-                      message:
-                        "All tasks, comments and time entries in this project will be permanently deleted.",
-                      label: "Delete",
+                      title: t("mobile:projectSettings.deleteProjectTitle"),
+                      message: t(
+                        "mobile:projectSettings.allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted",
+                      ),
+                      label: t("mobile:common.delete"),
                       action: async () => {
                         const ok = await run(
                           () => api.deleteProject(projectId),
-                          { success: "Project deleted" },
+                          {
+                            success: t("mobile:projectSettings.projectDeleted"),
+                          },
                         );
                         if (ok !== undefined) router.dismissTo("/");
                       },
@@ -328,7 +358,7 @@ export default function ProjectSettingsScreen() {
                   }
                 >
                   <Txt variant="body" tone="danger">
-                    Delete project
+                    {t("mobile:projectSettings.deleteProject")}
                   </Txt>
                 </GroupRow>
               </Group>
@@ -340,16 +370,20 @@ export default function ProjectSettingsScreen() {
       <OptionSheet
         visible={!!columnMenu}
         onClose={() => setColumnMenu(null)}
-        title={columnMenu?.name ?? "Column"}
+        title={columnMenu?.name ?? t("mobile:projectSettings.column")}
         options={[
-          { value: "rename", label: "Rename" },
+          { value: "rename", label: t("mobile:projectSettings.rename") },
           {
             value: "final",
             label: columnMenu?.isFinal
-              ? "Unmark as done column"
-              : "Mark as done column",
+              ? t("mobile:projectSettings.unmarkAsDoneColumn")
+              : t("mobile:projectSettings.markAsDoneColumn"),
           },
-          { value: "delete", label: "Delete column", tone: "danger" as const },
+          {
+            value: "delete",
+            label: t("mobile:projectSettings.deleteColumn"),
+            tone: "danger" as const,
+          },
         ]}
         onSelect={(v) => {
           const col = columnMenu;
@@ -359,12 +393,16 @@ export default function ProjectSettingsScreen() {
             void run(() => api.updateColumn(col.id, { isFinal: !col.isFinal }));
           if (v === "delete")
             setConfirm({
-              title: `Delete “${col.name}”?`,
-              message: "Tasks in this column may need to be moved first.",
-              label: "Delete",
+              title: t("mobile:projectSettings.deleteNamedTitle", {
+                name: col.name,
+              }),
+              message: t(
+                "mobile:projectSettings.tasksInThisColumnMayNeedToBeMovedFirst",
+              ),
+              label: t("mobile:common.delete"),
               action: () =>
                 void run(() => api.deleteColumn(col.id), {
-                  success: "Column deleted",
+                  success: t("mobile:projectSettings.columnDeleted"),
                 }),
             });
         }}
@@ -372,7 +410,7 @@ export default function ProjectSettingsScreen() {
       <TextInputSheet
         visible={!!renaming}
         onClose={() => setRenaming(null)}
-        title="Rename column"
+        title={t("mobile:projectSettings.renameColumn")}
         initial={renaming?.name ?? ""}
         onSubmit={(value) =>
           renaming && run(() => api.updateColumn(renaming.id, { name: value }))
@@ -395,19 +433,27 @@ export default function ProjectSettingsScreen() {
       <OptionSheet
         visible={!!fieldMenu}
         onClose={() => setFieldMenu(null)}
-        title={fieldMenu?.name ?? "Field"}
+        title={fieldMenu?.name ?? t("mobile:projectSettings.field")}
         options={[
-          { value: "delete", label: "Delete field", tone: "danger" as const },
+          {
+            value: "delete",
+            label: t("mobile:projectSettings.deleteField"),
+            tone: "danger" as const,
+          },
         ]}
         onSelect={() =>
           fieldMenu &&
           setConfirm({
-            title: `Delete “${fieldMenu.name}”?`,
-            message: "Values stored in this field are deleted from every task.",
-            label: "Delete",
+            title: t("mobile:projectSettings.deleteNamedTitle", {
+              name: fieldMenu.name,
+            }),
+            message: t(
+              "mobile:projectSettings.valuesStoredInThisFieldAreDeletedFromEveryTask",
+            ),
+            label: t("mobile:common.delete"),
             action: () =>
               void run(() => api.deleteCustomField(fieldMenu.id), {
-                success: "Field deleted",
+                success: t("mobile:projectSettings.fieldDeleted"),
               }),
           })
         }
@@ -415,13 +461,13 @@ export default function ProjectSettingsScreen() {
       <OptionSheet
         visible={movePicker}
         onClose={() => setMovePicker(false)}
-        title="Move to workspace"
+        title={t("mobile:projectSettings.moveToWorkspace")}
         options={(workspaces.data ?? [])
           .filter((w) => w.id !== workspaceId)
           .map((w) => ({ value: w.id, label: w.name }))}
         onSelect={async (id) => {
           const ok = await run(() => api.moveProject(projectId, id), {
-            success: "Project moved",
+            success: t("mobile:projectSettings.projectMoved"),
           });
           if (ok !== undefined) router.dismissTo("/");
         }}
@@ -430,7 +476,7 @@ export default function ProjectSettingsScreen() {
         visible={!!confirm}
         title={confirm?.title ?? ""}
         message={confirm?.message}
-        confirmLabel={confirm?.label ?? "OK"}
+        confirmLabel={confirm?.label ?? t("mobile:projectSettings.ok")}
         onClose={() => setConfirm(null)}
         onConfirm={() => confirm?.action()}
       />
@@ -449,6 +495,7 @@ function GeneralForm({
   busy: boolean;
   onSave: (name: string, slug: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [name, setName] = useState(initialName);
   const [key, setKey] = useState(slug.toUpperCase());
@@ -463,10 +510,14 @@ function GeneralForm({
         borderBottomColor: c.divider,
       }}
     >
-      <TextField label="Name" value={name} onChangeText={setName} />
       <TextField
-        label="Key"
-        aside="Changes future and existing task IDs"
+        label={t("mobile:projectSettings.name")}
+        value={name}
+        onChangeText={setName}
+      />
+      <TextField
+        label={t("mobile:projectSettings.key")}
+        aside={t("mobile:projectSettings.changesFutureAndExistingTaskIDs")}
         value={key}
         onChangeText={(v) =>
           setKey(
@@ -482,7 +533,7 @@ function GeneralForm({
       {dirty ? (
         <View style={{ alignItems: "flex-end" }}>
           <Button
-            label="Save changes"
+            label={t("mobile:projectSettings.saveChanges")}
             size="md"
             loading={busy}
             disabled={!name.trim() || !key.trim()}
@@ -503,8 +554,13 @@ function AddColumnSheet({
   onClose: () => void;
   onAdd: (name: string, isFinal: boolean) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
-    <Sheet visible={visible} onClose={onClose} title="New column">
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t("mobile:projectSettings.newColumn")}
+    >
       <AddColumnForm onClose={onClose} onAdd={onAdd} />
     </Sheet>
   );
@@ -517,32 +573,38 @@ function AddColumnForm({
   onClose: () => void;
   onAdd: (name: string, isFinal: boolean) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const [name, setName] = useState("");
   const [isFinal, setIsFinal] = useState(false);
   return (
     <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
       <TextField
-        label="Name"
+        label={t("mobile:projectSettings.name")}
         value={name}
         onChangeText={setName}
-        placeholder="Blocked"
+        placeholder={t("mobile:projectSettings.blocked")}
         autoFocus
       />
       <Group>
         <GroupRow last>
           <View style={{ flex: 1, gap: 2 }}>
-            <Txt variant="body">Done column</Txt>
+            <Txt variant="body">{t("mobile:projectSettings.doneColumn")}</Txt>
             <Txt variant="caption" tone="faint">
-              Tasks here count as finished
+              {t("mobile:projectSettings.tasksHereCountAsFinished")}
             </Txt>
           </View>
           <Switch value={isFinal} onChange={setIsFinal} />
         </GroupRow>
       </Group>
       <View style={{ flexDirection: "row", gap: 8 }}>
-        <Button label="Cancel" kind="secondary" grow onPress={onClose} />
         <Button
-          label="Add column"
+          label={t("mobile:common.cancel")}
+          kind="secondary"
+          grow
+          onPress={onClose}
+        />
+        <Button
+          label={t("mobile:projectSettings.addColumn")}
           grow
           disabled={!name.trim()}
           onPress={() => {
@@ -569,8 +631,13 @@ function AddFieldSheet({
     options?: string[];
   }) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
-    <Sheet visible={visible} onClose={onClose} title="New custom field">
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t("mobile:projectSettings.newCustomField")}
+    >
       <AddFieldForm onClose={onClose} onAdd={onAdd} />
     </Sheet>
   );
@@ -588,6 +655,8 @@ function AddFieldForm({
     options?: string[];
   }) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
+  const fieldTypes = useFieldTypes();
   const [name, setName] = useState("");
   const [type, setType] = useState("text");
   const [optionsText, setOptionsText] = useState("");
@@ -601,34 +670,34 @@ function AddFieldForm({
   return (
     <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 16 }}>
       <TextField
-        label="Name"
+        label={t("mobile:projectSettings.name")}
         value={name}
         onChangeText={setName}
-        placeholder="Platform"
+        placeholder={t("mobile:projectSettings.platform")}
         autoFocus
       />
       <View style={{ gap: 8 }}>
         <Txt variant="meta" weight="medium" tone="body">
-          Type
+          {t("mobile:projectSettings.type")}
         </Txt>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-          {FIELD_TYPES.map((t) => (
+          {fieldTypes.map((fieldType) => (
             <Chip
-              key={t.value}
-              label={t.label}
-              selected={type === t.value}
-              onPress={() => setType(t.value)}
+              key={fieldType.value}
+              label={fieldType.label}
+              selected={type === fieldType.value}
+              onPress={() => setType(fieldType.value)}
             />
           ))}
         </View>
       </View>
       {needsOptions ? (
         <TextField
-          label="Options"
-          aside="Separate with commas"
+          label={t("mobile:projectSettings.options")}
+          aside={t("mobile:projectSettings.separateWithCommas")}
           value={optionsText}
           onChangeText={setOptionsText}
-          placeholder="Android, iOS, Web"
+          placeholder={t("mobile:projectSettings.androidIOSWeb")}
         />
       ) : null}
       <View
@@ -638,11 +707,11 @@ function AddFieldForm({
           justifyContent: "space-between",
         }}
       >
-        <Txt variant="bodySm">Required</Txt>
+        <Txt variant="bodySm">{t("mobile:projectSettings.required")}</Txt>
         <Switch value={required} onChange={setRequired} />
       </View>
       <Button
-        label="Add field"
+        label={t("mobile:projectSettings.addField")}
         disabled={!name.trim() || (needsOptions && options.length === 0)}
         onPress={() => {
           onAdd({

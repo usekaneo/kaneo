@@ -1,4 +1,5 @@
 import { Activity, House, Inbox } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 
@@ -52,13 +53,14 @@ export function BottomNav({
   onChange: (t: HomeTab) => void;
   unread: number;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const bottom = useBottomInset(4);
   const items: { key: HomeTab; label: string }[] = [
-    { key: "home", label: "Home" },
-    { key: "tasks", label: "My tasks" },
-    { key: "inbox", label: "Inbox" },
-    { key: "activity", label: "Activity" },
+    { key: "home", label: t("mobile:nav.home") },
+    { key: "tasks", label: t("mobile:nav.tasks") },
+    { key: "inbox", label: t("mobile:nav.inbox") },
+    { key: "activity", label: t("mobile:nav.activity") },
   ];
   return (
     <View
@@ -81,7 +83,7 @@ export function BottomNav({
               accessibilityState={{ selected: active }}
               accessibilityLabel={
                 item.key === "inbox" && unread
-                  ? `Inbox, ${unread} unread`
+                  ? t("mobile:nav.inboxUnread", { count: unread })
                   : item.label
               }
               style={{

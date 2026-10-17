@@ -18,6 +18,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MarkdownText } from "@/components/markdown";
@@ -78,6 +79,7 @@ function EditorBody({
   initial: string;
   onSave: (text: string) => Promise<boolean>;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const toast = useToast();
   const [text, setText] = useState(initial);
@@ -172,7 +174,7 @@ function EditorBody({
             numberOfLines={1}
             style={{ flex: 1, fontSize: 16 }}
           >
-            Description
+            {t("mobile:editor.description")}
           </Txt>
           <Touch
             disabled={saving}
@@ -191,7 +193,7 @@ function EditorBody({
             }}
           >
             <Txt variant="bodySm" weight="medium" color={c.onPrimary}>
-              Save
+              {t("mobile:common.save")}
             </Txt>
           </Touch>
         </View>
@@ -207,8 +209,8 @@ function EditorBody({
             value={mode}
             onChange={setMode}
             options={[
-              { value: "write", label: "Write" },
-              { value: "preview", label: "Preview" },
+              { value: "write", label: t("mobile:editor.write") },
+              { value: "preview", label: t("mobile:editor.preview") },
             ]}
           />
         </View>
@@ -221,7 +223,7 @@ function EditorBody({
             onSelectionChange={(e) => setSelection(e.nativeEvent.selection)}
             multiline
             autoFocus
-            placeholder="Add a description… Markdown works."
+            placeholder={t("mobile:editor.placeholder")}
             placeholderTextColor={c.placeholder}
             selectionColor={c.ink}
             textAlignVertical="top"
@@ -245,7 +247,9 @@ function EditorBody({
             {text.trim() ? (
               <MarkdownText>{text}</MarkdownText>
             ) : (
-              <Txt tone="placeholder">Nothing to preview</Txt>
+              <Txt tone="placeholder">
+                {t("mobile:editor.nothingToPreview")}
+              </Txt>
             )}
           </ScrollView>
         )}
@@ -264,30 +268,53 @@ function EditorBody({
             }}
           >
             <View style={{ flexDirection: "row" }}>
-              <Tool label="Bold" onPress={() => wrap("**", "**", "bold")}>
+              <Tool
+                label={t("mobile:editor.bold")}
+                onPress={() =>
+                  wrap("**", "**", t("mobile:editor.boldPlaceholder"))
+                }
+              >
                 <Bold {...ic} />
               </Tool>
-              <Tool label="Italic" onPress={() => wrap("_", "_", "italic")}>
+              <Tool
+                label={t("mobile:editor.italic")}
+                onPress={() =>
+                  wrap("_", "_", t("mobile:editor.italicPlaceholder"))
+                }
+              >
                 <Italic {...ic} />
               </Tool>
-              <Tool label="Heading" onPress={() => linePrefix("## ")}>
+              <Tool
+                label={t("mobile:editor.heading")}
+                onPress={() => linePrefix("## ")}
+              >
                 <Heading1 {...ic} />
               </Tool>
-              <Tool label="List" onPress={() => linePrefix("- ")}>
+              <Tool
+                label={t("mobile:editor.list")}
+                onPress={() => linePrefix("- ")}
+              >
                 <List {...ic} />
               </Tool>
-              <Tool label="Code" onPress={() => wrap("`", "`", "code")}>
+              <Tool
+                label={t("mobile:editor.code")}
+                onPress={() =>
+                  wrap("`", "`", t("mobile:editor.codePlaceholder"))
+                }
+              >
                 <Code {...ic} />
               </Tool>
               <Tool
-                label="Link"
-                onPress={() => wrap("[", "](https://)", "link")}
+                label={t("mobile:editor.link")}
+                onPress={() =>
+                  wrap("[", "](https://)", t("mobile:editor.linkPlaceholder"))
+                }
               >
                 <Link2 {...ic} />
               </Tool>
             </View>
             <IconButton
-              label="Insert image"
+              label={t("mobile:editor.insertImage")}
               onPress={insertImage}
               size={40}
               disabled={uploading}

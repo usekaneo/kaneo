@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { Bell, CheckCheck, CircleAlert, Ellipsis } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -114,6 +115,7 @@ function NotificationRow({
 }
 
 export function InboxTab({ workspaceId }: { workspaceId: string }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const client = useQueryClient();
   const { run } = useAction();
@@ -171,12 +173,12 @@ export function InboxTab({ workspaceId }: { workspaceId: string }) {
           paddingRight: 8,
         }}
       >
-        <Txt variant="title">Inbox</Txt>
+        <Txt variant="title">{t("mobile:inbox.title")}</Txt>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Touch
             onPress={() =>
               run(() => api.markAllNotificationsRead(workspaceId), {
-                success: "All caught up",
+                success: t("mobile:inbox.allCaughtUpToast"),
               })
             }
             style={{
@@ -189,10 +191,13 @@ export function InboxTab({ workspaceId }: { workspaceId: string }) {
           >
             <CheckCheck size={16} color={c.ink2} strokeWidth={2} />
             <Txt variant="meta" weight="medium" tone="ink2">
-              Mark all read
+              {t("mobile:inbox.markAllRead")}
             </Txt>
           </Touch>
-          <IconButton label="More" onPress={() => setMenu(true)}>
+          <IconButton
+            label={t("mobile:inbox.more")}
+            onPress={() => setMenu(true)}
+          >
             <Ellipsis size={18} color={c.ink2} />
           </IconButton>
         </View>
@@ -206,15 +211,15 @@ export function InboxTab({ workspaceId }: { workspaceId: string }) {
         />
       ) : list.length === 0 ? (
         <EmptyState
-          title="You're all caught up"
-          message="Assignments, comments and mentions appear here."
+          title={t("mobile:inbox.empty.title")}
+          message={t("mobile:inbox.empty.message")}
         />
       ) : (
         <Scroll
           refreshing={query.isRefetching}
           onRefresh={() => void query.refetch()}
         >
-          {todays.length ? groupLabel("Today") : null}
+          {todays.length ? groupLabel(t("mobile:inbox.today")) : null}
           {todays.map((n, i) => (
             <NotificationRow
               key={n.id}
@@ -224,7 +229,11 @@ export function InboxTab({ workspaceId }: { workspaceId: string }) {
             />
           ))}
           {earlier.length
-            ? groupLabel(todays.length ? "Earlier" : "Recent")
+            ? groupLabel(
+                todays.length
+                  ? t("mobile:inbox.earlier")
+                  : t("mobile:inbox.recent"),
+              )
             : null}
           {earlier.map((n, i) => (
             <NotificationRow
@@ -239,11 +248,11 @@ export function InboxTab({ workspaceId }: { workspaceId: string }) {
       <OptionSheet
         visible={menu}
         onClose={() => setMenu(false)}
-        title="Inbox"
+        title={t("mobile:inbox.title")}
         options={[
           {
             value: "clear",
-            label: "Clear all notifications",
+            label: t("mobile:inbox.clearAll"),
             tone: "danger" as const,
           },
         ]}
@@ -251,9 +260,9 @@ export function InboxTab({ workspaceId }: { workspaceId: string }) {
       />
       <ConfirmDialog
         visible={confirmClear}
-        title="Clear all notifications?"
-        message="This removes every notification in this workspace."
-        confirmLabel="Clear all"
+        title={t("mobile:inbox.confirmClear.title")}
+        message={t("mobile:inbox.confirmClear.message")}
+        confirmLabel={t("mobile:inbox.confirmClear.confirm")}
         onClose={() => setConfirmClear(false)}
         onConfirm={() => run(() => api.clearAllNotifications(workspaceId))}
       />

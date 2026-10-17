@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 
 import { BackButton, Screen } from "@/components/screen";
@@ -13,6 +14,7 @@ import { useAction } from "@/lib/query";
 import { sessionStore } from "@/lib/session";
 
 export default function NewWorkspaceScreen() {
+  const { t } = useTranslation(["mobile"]);
   const { run, busy } = useAction();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -68,28 +70,28 @@ export default function NewWorkspaceScreen() {
         }}
       >
         <View style={{ gap: 6 }}>
-          <Txt variant="title">New workspace</Txt>
+          <Txt variant="title">{t("mobile:workspaceNew.title")}</Txt>
           <Txt variant="bodySm" tone="muted" style={{ lineHeight: 20 }}>
-            A home for your team’s projects. You can invite people next.
+            {t("mobile:workspaceNew.description")}
           </Txt>
         </View>
         <TextField
-          label="Name"
+          label={t("mobile:workspaceNew.name")}
           value={name}
           onChangeText={setName}
-          placeholder="Design studio"
+          placeholder={t("mobile:workspaceNew.namePlaceholder")}
           autoFocus
         />
         <TextField
-          label="Description"
-          aside="Optional"
+          label={t("mobile:workspaceNew.descriptionLabel")}
+          aside={t("mobile:workspaceNew.optional")}
           value={description}
           onChangeText={setDescription}
-          placeholder="What's this workspace for?"
+          placeholder={t("mobile:workspaceNew.descriptionPlaceholder")}
           multiline
         />
         <Button
-          label="Create workspace"
+          label={t("mobile:workspaceNew.create")}
           disabled={!name.trim()}
           loading={busy}
           onPress={create}

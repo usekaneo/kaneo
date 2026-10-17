@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -31,6 +32,7 @@ function invitationIdFrom(input: string): string {
 }
 
 export default function InvitationsScreen() {
+  const { t } = useTranslation(["mobile"]);
   const { run, busy } = useAction();
   const query = useQuery({
     queryKey: qk.invitations,
@@ -41,7 +43,7 @@ export default function InvitationsScreen() {
 
   const accept = async (id: string, workspaceId?: string) => {
     const ok = await run(() => api.acceptInvitation(id), {
-      success: "Invitation accepted",
+      success: t("mobile:invitations.accepted"),
     });
     if (ok !== undefined) {
       if (workspaceId)
@@ -58,8 +60,8 @@ export default function InvitationsScreen() {
         onRefresh={() => void query.refetch()}
       >
         <PageHeader
-          title="Invitations"
-          description="Workspaces you've been invited to join."
+          title={t("mobile:invitations.title")}
+          description={t("mobile:invitations.description")}
         />
         <View style={{ paddingHorizontal: inset, paddingBottom: 24, gap: 10 }}>
           {query.isLoading ? (
@@ -72,8 +74,8 @@ export default function InvitationsScreen() {
           ) : pending.length === 0 ? (
             <Group>
               <EmptyState
-                title="No pending invitations"
-                message="Invitations appear here once your email address is verified. You can always join with the link from the email."
+                title={t("mobile:invitations.emptyTitle")}
+                message={t("mobile:invitations.emptyMessage")}
               />
             </Group>
           ) : (
@@ -92,7 +94,9 @@ export default function InvitationsScreen() {
                       {inv.workspaceName}
                     </Txt>
                     <Txt variant="meta" tone="muted">
-                      {inv.inviterName} invited you
+                      {t("mobile:invitations.invitedYou", {
+                        name: inv.inviterName,
+                      })}
                     </Txt>
                   </View>
                   <Txt variant="caption" tone="faint">
@@ -101,18 +105,18 @@ export default function InvitationsScreen() {
                 </View>
                 <View style={{ flexDirection: "row", gap: 8 }}>
                   <Button
-                    label="Decline"
+                    label={t("mobile:invitations.decline")}
                     kind="secondary"
                     size="md"
                     grow
                     onPress={() =>
                       run(() => api.rejectInvitation(inv.id), {
-                        success: "Invitation declined",
+                        success: t("mobile:invitations.declined"),
                       })
                     }
                   />
                   <Button
-                    label="Accept"
+                    label={t("mobile:invitations.accept")}
                     size="md"
                     grow
                     onPress={() => accept(inv.id, inv.workspaceId)}
@@ -122,18 +126,18 @@ export default function InvitationsScreen() {
             ))
           )}
         </View>
-        <Section title="Join with an invitation link">
+        <Section title={t("mobile:invitations.joinWithLink")}>
           <Group style={{ padding: 14, gap: 10 }}>
             <TextField
               value={link}
               onChangeText={setLink}
-              placeholder="Paste the link from your email"
+              placeholder={t("mobile:invitations.linkPlaceholder")}
               autoCapitalize="none"
               autoCorrect={false}
             />
             <View style={{ alignItems: "flex-end" }}>
               <Button
-                label="Join"
+                label={t("mobile:invitations.join")}
                 size="md"
                 disabled={!link.trim()}
                 loading={busy}

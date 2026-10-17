@@ -1,3 +1,5 @@
+import { i18n } from "@/lib/i18n";
+
 import { resolveUrl } from "./api/client";
 
 /**
@@ -39,7 +41,7 @@ export function toDisplayMarkdown(markdown: string, serverUrl: string): string {
       case "img":
         return `![${a.alt ?? ""}](${resolveUrl(serverUrl, a.src) ?? ""})`;
       case "kaneo-attachment":
-        return `[${a.filename ?? "Attachment"}](${resolveUrl(serverUrl, a.url) ?? ""})`;
+        return `[${a.filename ?? i18n.t("mobile:editor.attachment")}](${resolveUrl(serverUrl, a.url) ?? ""})`;
       case "kaneo-issue-link":
         return `[${a["issue-key"] || a.url}](${a.url})`;
       case "kaneo-embed":

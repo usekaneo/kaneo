@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { View } from "react-native";
 
@@ -20,8 +21,13 @@ export function NewProjectSheet({
   workspaceId: string;
   onCreated: (project: Project) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
-    <Sheet visible={visible} onClose={onClose} title="New project">
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t("mobile:projectNew.newProject")}
+    >
       <NewProjectForm
         workspaceId={workspaceId}
         onCreated={(p) => {
@@ -40,6 +46,7 @@ function NewProjectForm({
   workspaceId: string;
   onCreated: (project: Project) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const [name, setName] = useState("");
   const [key, setKey] = useState<string | null>(null);
   const { run, busy } = useAction();
@@ -49,15 +56,15 @@ function NewProjectForm({
   return (
     <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
       <TextField
-        label="Name"
+        label={t("mobile:projectNew.name")}
         value={name}
         onChangeText={setName}
-        placeholder="Customer Portal"
+        placeholder={t("mobile:projectNew.customerPortal")}
         autoFocus
       />
       <TextField
-        label="Key"
-        aside="Used in task IDs"
+        label={t("mobile:projectNew.key")}
+        aside={t("mobile:projectNew.usedInTaskIDs")}
         value={effectiveKey}
         onChangeText={(v) =>
           setKey(
@@ -79,7 +86,7 @@ function NewProjectForm({
         }
       />
       <Button
-        label="Create project"
+        label={t("mobile:projectNew.createProject")}
         disabled={!name.trim() || !effectiveKey}
         loading={busy}
         onPress={async () => {

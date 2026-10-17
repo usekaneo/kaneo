@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { ListGroupHeader, TaskRow } from "@/components/rows";
@@ -16,8 +17,17 @@ import { inset, useColors } from "@/theme";
 
 type Grouping = "due" | "project" | "status";
 
-const DUE_ORDER = ["Overdue", "Today", "This week", "Later", "No due date"];
+type DueBucket = "overdue" | "today" | "thisWeek" | "later" | "none";
 
+const DUE_ORDER: DueBucket[] = [
+  "overdue",
+  "today",
+  "thisWeek",
+  "later",
+  "none",
+];
+
+/** Groups carry a stable key; due-date groups are labelled at render time. */
 function group(
   tasks: AssignedTask[],
   by: Grouping,
@@ -33,11 +43,11 @@ function group(
     const weekEnd = addDays(now, 7);
     tasks.forEach((t) => {
       const day = parseDay(t.dueDate);
-      if (!day) add("No due date", t);
-      else if (compareDays(day, now) < 0) add("Overdue", t);
-      else if (compareDays(day, now) === 0) add("Today", t);
-      else if (compareDays(day, weekEnd) < 0) add("This week", t);
-      else add("Later", t);
+      if (!day) add("none", t);
+      else if (compareDays(day, now) < 0) add("overdue", t);
+      else if (compareDays(day, now) === 0) add("today", t);
+      else if (compareDays(day, weekEnd) < 0) add("thisWeek", t);
+      else add("later", t);
     });
     return DUE_ORDER.filter((k) => map.has(k)).map((k) => [
       k,
@@ -50,6 +60,7 @@ function group(
 }
 
 export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [by, setBy] = useState<Grouping>("due");
   const query = useQuery({
@@ -57,6 +68,20 @@ export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
     queryFn: () => api.assignedTasks(workspaceId),
   });
   const tasks = query.data?.tasks ?? [];
+  const dueLabel = (bucket: DueBucket) => {
+    switch (bucket) {
+      case "overdue":
+        return t("mobile:myTasks.due.overdue");
+      case "today":
+        return t("mobile:myTasks.due.today");
+      case "thisWeek":
+        return t("mobile:myTasks.due.thisWeek");
+      case "later":
+        return t("mobile:myTasks.due.later");
+      case "none":
+        return t("mobile:myTasks.due.none");
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -76,10 +101,10 @@ export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
             height: 36,
           }}
         >
-          <Txt variant="title">My tasks</Txt>
+          <Txt variant="title">{t("mobile:myTasks.title")}</Txt>
           {query.data ? (
             <Txt variant="meta" tone="muted">
-              {tasks.length} assigned
+              {t("mobile:myTasks.assigned", { count: tasks.length })}
             </Txt>
           ) : null}
         </View>
@@ -87,9 +112,9 @@ export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
           value={by}
           onChange={setBy}
           options={[
-            { value: "due", label: "Due date" },
-            { value: "project", label: "Project" },
-            { value: "status", label: "Status" },
+            { value: "due", label: t("mobile:myTasks.by.due") },
+            { value: "project", label: t("mobile:myTasks.by.project") },
+            { value: "status", label: t("mobile:myTasks.by.status") },
           ]}
         />
       </View>
@@ -102,8 +127,8 @@ export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
         />
       ) : tasks.length === 0 ? (
         <EmptyState
-          title="Nothing assigned to you"
-          message="Tasks assigned to you in this workspace show up here."
+          title={t("mobile:myTasks.empty.title")}
+          message={t("mobile:myTasks.empty.message")}
         />
       ) : (
         <Scroll
@@ -115,27 +140,27 @@ export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
             borderTopColor: c.hairline,
           }}
         >
-          {group(tasks, by).map(([title, items]) => (
-            <View key={title}>
+          {group(tasks, by).map(([key, items]) => (
+            <View key={key}>
               <ListGroupHeader
-                title={title}
+                title={by === "due" ? dueLabel(key as DueBucket) : key}
                 count={items.length}
-                danger={by === "due" && title === "Overdue"}
+                danger={by === "due" && key === "overdue"}
               />
-              {items.map((t) => (
+              {items.map((task) => (
                 <TaskRow
-                  key={t.id}
-                  title={t.title}
-                  ticket={ticketId(t.projectSlug, t.number)}
-                  project={by === "project" ? null : t.projectName}
-                  labels={t.labels}
-                  dueDate={t.dueDate}
-                  status={t.status}
-                  statusIcon={t.statusIcon}
+                  key={task.id}
+                  title={task.title}
+                  ticket={ticketId(task.projectSlug, task.number)}
+                  project={by === "project" ? null : task.projectName}
+                  labels={task.labels}
+                  dueDate={task.dueDate}
+                  status={task.status}
+                  statusIcon={task.statusIcon}
                   onPress={() =>
                     router.push({
                       pathname: "/task/[taskId]",
-                      params: { taskId: t.id },
+                      params: { taskId: task.id },
                     })
                   }
                 />
@@ -144,7 +169,10 @@ export function MyTasksTab({ workspaceId }: { workspaceId: string }) {
           ))}
           {query.data?.total && query.data.total > tasks.length ? (
             <Txt variant="caption" tone="muted" style={{ padding: 16 }}>
-              Showing {tasks.length} of {query.data.total} tasks
+              {t("mobile:myTasks.showing", {
+                shown: tasks.length,
+                total: query.data.total,
+              })}
             </Txt>
           ) : null}
         </Scroll>

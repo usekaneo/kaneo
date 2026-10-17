@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import {
@@ -30,18 +31,10 @@ import type {
 import { qk, useAction } from "@/lib/query";
 import { useColors } from "@/theme";
 
-const LEAD_TIMES = [
-  { value: 15, label: "15 minutes" },
-  { value: 60, label: "1 hour" },
-  { value: 180, label: "3 hours" },
-  { value: 1440, label: "1 day" },
-  { value: 2880, label: "2 days" },
-  { value: 10080, label: "1 week" },
-];
-
 type Channel = "ntfy" | "gotify" | "webhook";
 
 function ConfiguredPill() {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   return (
     <View
@@ -64,13 +57,14 @@ function ConfiguredPill() {
         }}
       />
       <Txt variant="micro" color={c.successFg}>
-        On
+        {t("mobile:notificationSettings.on")}
       </Txt>
     </View>
   );
 }
 
 export default function NotificationSettingsScreen() {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const query = useQuery({
@@ -80,6 +74,14 @@ export default function NotificationSettingsScreen() {
   const [channel, setChannel] = useState<Channel | null>(null);
   const [leadPicker, setLeadPicker] = useState(false);
   const p = query.data;
+  const leadTimes = [
+    { value: 15, label: t("mobile:notificationSettings.leadTime.minutes15") },
+    { value: 60, label: t("mobile:notificationSettings.leadTime.hour1") },
+    { value: 180, label: t("mobile:notificationSettings.leadTime.hours3") },
+    { value: 1440, label: t("mobile:notificationSettings.leadTime.day1") },
+    { value: 2880, label: t("mobile:notificationSettings.leadTime.days2") },
+    { value: 10080, label: t("mobile:notificationSettings.leadTime.week1") },
+  ];
   const update = (body: UpdateNotificationPreferences) =>
     run(() => api.updateNotificationPreferences(body));
 
@@ -120,7 +122,9 @@ export default function NotificationSettingsScreen() {
         <ConfiguredPill />
       ) : (
         <Txt variant="caption" tone="faint">
-          {configured ? "Off" : "Not set"}
+          {configured
+            ? t("mobile:notificationSettings.off")
+            : t("mobile:notificationSettings.notSet")}
         </Txt>
       )}
       <ChevronRight size={16} color={c.placeholder} />
@@ -135,8 +139,8 @@ export default function NotificationSettingsScreen() {
         onRefresh={() => void query.refetch()}
       >
         <PageHeader
-          title="Notifications"
-          description="Where Kaneo reaches you, and about what."
+          title={t("mobile:notificationSettings.title")}
+          description={t("mobile:notificationSettings.description")}
         />
         {query.isLoading ? (
           <Loading />
@@ -147,61 +151,65 @@ export default function NotificationSettingsScreen() {
           />
         ) : (
           <>
-            <Section title="Delivery" style={{ paddingBottom: 24 }}>
+            <Section
+              title={t("mobile:notificationSettings.delivery.title")}
+              style={{ paddingBottom: 24 }}
+            >
               <Group>
                 {toggleRow(
-                  "Email",
-                  p.emailAddress ?? "Sent to your account email",
+                  t("mobile:notificationSettings.delivery.email"),
+                  p.emailAddress ??
+                    t("mobile:notificationSettings.delivery.emailHint"),
                   !!p.emailEnabled,
                   (v) => update({ emailEnabled: v }),
                 )}
                 {channelRow(
                   "ntfy",
                   "ntfy",
-                  "Send notifications to an ntfy topic",
+                  t("mobile:notificationSettings.delivery.ntfyHint"),
                   !!p.ntfyEnabled,
                   !!p.ntfyTopic,
                 )}
                 {channelRow(
                   "gotify",
                   "Gotify",
-                  "Send notifications to a Gotify server",
+                  t("mobile:notificationSettings.delivery.gotifyHint"),
                   !!p.gotifyEnabled,
                   !!p.gotifyServerUrl,
                 )}
                 {channelRow(
                   "webhook",
-                  "Webhook",
-                  "POST notifications to a URL",
+                  t("mobile:notificationSettings.delivery.webhook"),
+                  t("mobile:notificationSettings.delivery.webhookHint"),
                   !!p.webhookEnabled,
                   !!p.webhookUrl,
                   true,
                 )}
               </Group>
             </Section>
-            <Section title="Notify me about">
+            <Section title={t("mobile:notificationSettings.events.title")}>
               <Group>
                 {toggleRow(
-                  "Assignments",
-                  "When a task is assigned to you",
+                  t("mobile:notificationSettings.events.assignments"),
+                  t("mobile:notificationSettings.events.assignmentsHint"),
                   p.taskAssignmentEnabled !== false,
                   (v) => update({ taskAssignmentEnabled: v }),
                 )}
                 {toggleRow(
-                  "Comments",
-                  "New comments on your tasks",
+                  t("mobile:notificationSettings.events.comments"),
+                  t("mobile:notificationSettings.events.commentsHint"),
                   p.taskCommentEnabled !== false,
                   (v) => update({ taskCommentEnabled: v }),
                 )}
                 {toggleRow(
-                  "Status changes",
-                  "When your tasks move between columns",
+                  t("mobile:notificationSettings.events.statusChanges"),
+                  t("mobile:notificationSettings.events.statusChangesHint"),
                   p.taskStatusChangeEnabled !== false,
                   (v) => update({ taskStatusChangeEnabled: v }),
                 )}
                 {toggleRow(
-                  "Due date reminders",
-                  "Before a task you’re assigned to is due",
+                  t("mobile:notificationSettings.events.dueDate"),
+                  t("mobile:notificationSettings.events.dueDateHint"),
                   !!p.dueDateReminderEnabled,
                   (v) => update({ dueDateReminderEnabled: v }),
                   !p.dueDateReminderEnabled,
@@ -209,7 +217,7 @@ export default function NotificationSettingsScreen() {
                 {p.dueDateReminderEnabled ? (
                   <GroupRow last>
                     <Txt variant="body" tone="muted" style={{ flex: 1 }}>
-                      Remind me
+                      {t("mobile:notificationSettings.events.remindMe")}
                     </Txt>
                     <Touch
                       onPress={() => setLeadPicker(true)}
@@ -225,11 +233,16 @@ export default function NotificationSettingsScreen() {
                       }}
                     >
                       <Txt variant="meta" weight="medium">
-                        {LEAD_TIMES.find(
-                          (l) => l.value === p.dueDateReminderLeadTimeMinutes,
-                        )?.label ??
-                          `${p.dueDateReminderLeadTimeMinutes} minutes`}{" "}
-                        before
+                        {t("mobile:notificationSettings.events.remindBefore", {
+                          time:
+                            leadTimes.find(
+                              (l) =>
+                                l.value === p.dueDateReminderLeadTimeMinutes,
+                            )?.label ??
+                            t("mobile:notificationSettings.leadTime.minutes", {
+                              count: p.dueDateReminderLeadTimeMinutes,
+                            }),
+                        })}
                       </Txt>
                       <ChevronDown size={12} color={c.faint} />
                     </Touch>
@@ -251,9 +264,9 @@ export default function NotificationSettingsScreen() {
       <OptionSheet
         visible={leadPicker}
         onClose={() => setLeadPicker(false)}
-        title="Remind me before"
+        title={t("mobile:notificationSettings.events.remindPickerTitle")}
         selected={p?.dueDateReminderLeadTimeMinutes}
-        options={LEAD_TIMES}
+        options={leadTimes}
         onSelect={(v) => update({ dueDateReminderLeadTimeMinutes: v })}
       />
     </Screen>
@@ -271,8 +284,13 @@ function ChannelSheet({
   onClose: () => void;
   onSave: (body: UpdateNotificationPreferences) => Promise<unknown>;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const title =
-    channel === "ntfy" ? "ntfy" : channel === "gotify" ? "Gotify" : "Webhook";
+    channel === "ntfy"
+      ? "ntfy"
+      : channel === "gotify"
+        ? "Gotify"
+        : t("mobile:notificationSettings.delivery.webhook");
   return (
     <Sheet visible={!!channel} onClose={onClose} title={title}>
       {channel ? (
@@ -321,6 +339,7 @@ function ChannelForm({
   prefs: NotificationPreferences;
   onSave: (body: UpdateNotificationPreferences) => Promise<void>;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const [initial] = useState(() => initialChannel(channel, prefs));
   const [enabled, setEnabled] = useState(initial.enabled);
   const [url, setUrl] = useState(initial.url);
@@ -328,10 +347,10 @@ function ChannelForm({
   const [secret, setSecret] = useState("");
   const secretLabel =
     channel === "ntfy"
-      ? "Access token"
+      ? t("mobile:notificationSettings.channel.accessToken")
       : channel === "gotify"
-        ? "App token"
-        : "Signing secret";
+        ? t("mobile:notificationSettings.channel.appToken")
+        : t("mobile:notificationSettings.channel.signingSecret");
 
   // An empty address clears it: the API keeps the stored value for null or a missing field.
   const save = () => {
@@ -365,11 +384,17 @@ function ChannelForm({
           justifyContent: "space-between",
         }}
       >
-        <Txt variant="bodySm">Send notifications here</Txt>
+        <Txt variant="bodySm">
+          {t("mobile:notificationSettings.channel.enabled")}
+        </Txt>
         <Switch value={enabled} onChange={setEnabled} />
       </View>
       <TextField
-        label={channel === "webhook" ? "Webhook URL" : "Server URL"}
+        label={
+          channel === "webhook"
+            ? t("mobile:notificationSettings.channel.webhookUrl")
+            : t("mobile:notificationSettings.channel.serverUrl")
+        }
         value={url}
         onChangeText={setUrl}
         placeholder={channel === "ntfy" ? "https://ntfy.sh" : "https://"}
@@ -380,7 +405,7 @@ function ChannelForm({
       />
       {channel === "ntfy" ? (
         <TextField
-          label="Topic"
+          label={t("mobile:notificationSettings.channel.topic")}
           value={topic}
           onChangeText={setTopic}
           autoCapitalize="none"
@@ -392,8 +417,8 @@ function ChannelForm({
         label={secretLabel}
         aside={
           initial.configured
-            ? "Saved. Enter a new one to replace it"
-            : "Optional"
+            ? t("mobile:notificationSettings.channel.secretSaved")
+            : t("mobile:notificationSettings.channel.secretOptional")
         }
         value={secret}
         onChangeText={setSecret}
@@ -401,7 +426,7 @@ function ChannelForm({
         autoCapitalize="none"
         mono
       />
-      <Button label="Save" onPress={save} />
+      <Button label={t("mobile:common.save")} onPress={save} />
     </View>
   );
 }

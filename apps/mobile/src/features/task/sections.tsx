@@ -2,6 +2,7 @@ import * as WebBrowser from "expo-web-browser";
 import { CornerLeftUp, Link2, Play, Plus, X } from "lucide-react-native";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { TextInput, View } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 
@@ -68,6 +69,7 @@ export function SectionTitle({
   addLabel?: string;
   trailing?: ReactNode;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   return (
     <View
@@ -92,7 +94,7 @@ export function SectionTitle({
       {trailing}
       {onAdd ? (
         <IconButton
-          label={addLabel ?? `Add to ${title}`}
+          label={addLabel ?? t("mobile:taskDetail.section.addTo", { title })}
           onPress={onAdd}
           size={28}
         >
@@ -148,6 +150,7 @@ export function CustomFields({
   taskId: string;
   extras: TaskExtras;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const { run } = useAction();
   const [editing, setEditing] = useState<CustomFieldDefinition | null>(null);
   if (!extras.fields.length) return null;
@@ -158,7 +161,7 @@ export function CustomFields({
 
   return (
     <View>
-      <SectionTitle title="Fields" />
+      <SectionTitle title={t("mobile:taskDetail.fields.title")} />
       {extras.fields.map((f) => {
         const value = valueOf(f.id);
         let display: ReactNode = null;
@@ -218,7 +221,7 @@ export function CustomFields({
             <View style={{ flex: 1, minHeight: 24, justifyContent: "center" }}>
               {display ?? (
                 <Txt variant="bodySm" tone="placeholder">
-                  Empty
+                  {t("mobile:taskDetail.fields.empty")}
                 </Txt>
               )}
             </View>
@@ -241,7 +244,7 @@ export function CustomFields({
         title={editing?.name ?? ""}
         selected={editing ? (valueOf(editing.id) ?? "") : ""}
         options={[
-          { value: "", label: "None" },
+          { value: "", label: t("mobile:taskDetail.fields.none") },
           ...stringList(editing?.options).map((o) => ({ value: o, label: o })),
         ]}
         onSelect={(v) => editing && set(editing.id, v)}
@@ -281,6 +284,7 @@ export function Subtasks({
   onOpen: (id: string) => void;
   onAdd: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const subtasks = relations
@@ -311,10 +315,10 @@ export function Subtasks({
   return (
     <View>
       <SectionTitle
-        title="Subtasks"
+        title={t("mobile:taskDetail.subtasks.title")}
         count={subtasks.length ? `${done}/${subtasks.length}` : undefined}
         onAdd={onAdd}
-        addLabel="Add subtask"
+        addLabel={t("mobile:taskDetail.subtasks.add")}
       />
       {parent ? (
         <Touch
@@ -329,7 +333,7 @@ export function Subtasks({
           <CornerLeftUp size={16} color={c.muted} strokeWidth={2} />
           <View style={{ flex: 1 }}>
             <Txt variant="micro" tone="faint">
-              Parent task
+              {t("mobile:taskDetail.subtasks.parent")}
             </Txt>
             <Txt variant="bodySm" numberOfLines={1}>
               {parent.title}
@@ -367,7 +371,7 @@ export function Subtasks({
       ))}
       {!subtasks.length && !parent ? (
         <Txt variant="meta" tone="faint">
-          No subtasks
+          {t("mobile:taskDetail.subtasks.empty")}
         </Txt>
       ) : null}
     </View>
@@ -387,6 +391,7 @@ export function Relations({
   workspaceId?: string | null;
   onOpen: (id: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const [adding, setAdding] = useState(false);
@@ -396,20 +401,20 @@ export function Relations({
   return (
     <View>
       <SectionTitle
-        title="Relations"
+        title={t("mobile:taskDetail.relations.title")}
         onAdd={() => setAdding(true)}
-        addLabel="Link a task"
+        addLabel={t("mobile:taskDetail.relations.link")}
       />
       {others.map((r) => {
         const outgoing = r.sourceTaskId === taskId;
         const other = outgoing ? r.targetTask : r.sourceTask;
         if (!other) return null;
-        const kind =
-          r.relationType === "blocks"
-            ? outgoing
-              ? "Blocks"
-              : "Blocked by"
-            : "Related";
+        const isRelated = r.relationType !== "blocks";
+        const kind = isRelated
+          ? t("mobile:taskDetail.relations.related")
+          : outgoing
+            ? t("mobile:taskDetail.relations.blocks")
+            : t("mobile:taskDetail.relations.blockedBy");
         return (
           <Touch
             key={r.id}
@@ -425,7 +430,7 @@ export function Relations({
             <Txt
               variant="caption"
               weight="medium"
-              tone={kind === "Related" ? "muted" : "danger"}
+              tone={isRelated ? "muted" : "danger"}
               style={{ width: 72 }}
             >
               {kind}
@@ -444,7 +449,7 @@ export function Relations({
               {other.title}
             </Txt>
             <IconButton
-              label="Remove relation"
+              label={t("mobile:taskDetail.relations.remove")}
               size={28}
               onPress={() => setRemoving(r)}
             >
@@ -455,7 +460,7 @@ export function Relations({
       })}
       {!others.length ? (
         <Txt variant="meta" tone="faint">
-          No related tasks
+          {t("mobile:taskDetail.relations.empty")}
         </Txt>
       ) : null}
       <AddRelationSheet
@@ -466,9 +471,9 @@ export function Relations({
       />
       <ConfirmDialog
         visible={!!removing}
-        title="Remove relation?"
-        message="The tasks stay; only the link between them is removed."
-        confirmLabel="Remove"
+        title={t("mobile:taskDetail.relations.removeTitle")}
+        message={t("mobile:taskDetail.relations.removeMessage")}
+        confirmLabel={t("mobile:taskDetail.relations.removeConfirm")}
         onClose={() => setRemoving(null)}
         onConfirm={() => removing && run(() => api.deleteRelation(removing.id))}
       />
@@ -487,8 +492,13 @@ function AddRelationSheet({
   taskId: string;
   workspaceId?: string | null;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
-    <Sheet visible={visible} onClose={onClose} title="Link a task">
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t("mobile:taskDetail.relations.link")}
+    >
       <AddRelationBody
         onClose={onClose}
         taskId={taskId}
@@ -507,13 +517,14 @@ function AddRelationBody({
   taskId: string;
   workspaceId?: string | null;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const { run } = useAction();
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [type, setType] = useState<"related" | "blocks">("related");
   useEffect(() => {
-    const t = setTimeout(() => setDebounced(query.trim()), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setDebounced(query.trim()), 300);
+    return () => clearTimeout(timer);
   }, [query]);
   const search = useQuery({
     queryKey: qk.search(workspaceId ?? "", debounced, "tasks"),
@@ -528,21 +539,25 @@ function AddRelationBody({
     <>
       <View style={{ paddingHorizontal: 20, gap: 10, paddingBottom: 8 }}>
         <View style={{ flexDirection: "row", gap: 6 }}>
-          {(["related", "blocks"] as const).map((t) => (
+          {(["related", "blocks"] as const).map((kind) => (
             <Button
-              key={t}
-              label={t === "related" ? "Related to" : "Blocks"}
-              kind={type === t ? "primary" : "secondary"}
+              key={kind}
+              label={
+                kind === "related"
+                  ? t("mobile:taskDetail.relations.relatedTo")
+                  : t("mobile:taskDetail.relations.blocks")
+              }
+              kind={type === kind ? "primary" : "secondary"}
               size="sm"
               grow
-              onPress={() => setType(t)}
+              onPress={() => setType(kind)}
             />
           ))}
         </View>
         <SearchField
           value={query}
           onChangeText={setQuery}
-          placeholder="Search tasks by title or number"
+          placeholder={t("mobile:taskDetail.relations.searchPlaceholder")}
           autoFocus
         />
       </View>
@@ -589,6 +604,7 @@ export function Links({
   taskId: string;
   extras: TaskExtras;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const [adding, setAdding] = useState(false);
@@ -596,9 +612,9 @@ export function Links({
   return (
     <View>
       <SectionTitle
-        title="Links"
+        title={t("mobile:taskDetail.links.title")}
         onAdd={() => setAdding(true)}
-        addLabel="Add link"
+        addLabel={t("mobile:taskDetail.links.add")}
       />
       <View style={{ gap: 6 }}>
         {extras.links.map((l) => {
@@ -637,11 +653,11 @@ export function Links({
               </View>
               {synced ? (
                 <Txt variant="micro" tone="faint">
-                  Synced
+                  {t("mobile:taskDetail.links.synced")}
                 </Txt>
               ) : (
                 <IconButton
-                  label="Remove link"
+                  label={t("mobile:taskDetail.links.remove")}
                   size={32}
                   onPress={() =>
                     run(() => api.deleteExternalLink(taskId, l.id))
@@ -655,11 +671,15 @@ export function Links({
         })}
         {!extras.links.length ? (
           <Txt variant="meta" tone="faint">
-            No links
+            {t("mobile:taskDetail.links.empty")}
           </Txt>
         ) : null}
       </View>
-      <Sheet visible={adding} onClose={() => setAdding(false)} title="Add link">
+      <Sheet
+        visible={adding}
+        onClose={() => setAdding(false)}
+        title={t("mobile:taskDetail.links.add")}
+      >
         <AddLinkForm
           onCancel={() => setAdding(false)}
           onAdd={(url, title) => {
@@ -679,13 +699,14 @@ function AddLinkForm({
   onCancel: () => void;
   onAdd: (url: string, title: string | null) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   return (
     <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
       <TextField
-        label="URL"
+        label={t("mobile:taskDetail.links.url")}
         value={url}
         onChangeText={setUrl}
         autoCapitalize="none"
@@ -696,15 +717,20 @@ function AddLinkForm({
         leading={<Link2 size={16} color={c.muted} strokeWidth={2} />}
       />
       <TextField
-        label="Title"
-        aside="Optional"
+        label={t("mobile:taskDetail.links.titleLabel")}
+        aside={t("mobile:taskDetail.links.optional")}
         value={title}
         onChangeText={setTitle}
       />
       <View style={{ flexDirection: "row", gap: 8, paddingTop: 4 }}>
-        <Button label="Cancel" kind="secondary" grow onPress={onCancel} />
         <Button
-          label="Add link"
+          label={t("mobile:common.cancel")}
+          kind="secondary"
+          grow
+          onPress={onCancel}
+        />
+        <Button
+          label={t("mobile:taskDetail.links.add")}
           grow
           disabled={!url.trim()}
           onPress={() =>
@@ -759,6 +785,7 @@ export function TimeTracking({
   entries: TimeEntry[];
   currentUserId: string;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const [now, setNow] = useState(() => Date.now());
@@ -776,12 +803,18 @@ export function TimeTracking({
   return (
     <View style={{ gap: 10 }}>
       <SectionTitle
-        title="Time"
-        count={total ? `${formatDuration(total)} total` : undefined}
+        title={t("mobile:taskDetail.time.title")}
+        count={
+          total
+            ? t("mobile:taskDetail.time.total", {
+                duration: formatDuration(total),
+              })
+            : undefined
+        }
         trailing={
           <Touch onPress={() => setLogging("new")} hitSlop={8}>
             <Txt variant="meta" weight="medium" tone="muted">
-              Log time
+              {t("mobile:taskDetail.time.log")}
             </Txt>
           </Touch>
         }
@@ -846,13 +879,13 @@ export function TimeTracking({
               }}
             />
             <Txt variant="meta" weight="medium" color={c.onPrimary}>
-              Stop
+              {t("mobile:taskDetail.time.stop")}
             </Txt>
           </Touch>
         </View>
       ) : (
         <Button
-          label="Start timer"
+          label={t("mobile:taskDetail.time.start")}
           kind="secondary"
           size="md"
           icon={<Play size={14} color={c.ink} strokeWidth={2} />}
@@ -881,11 +914,17 @@ export function TimeTracking({
               minHeight: 36,
             }}
           >
-            <Avatar name={e.userName ?? "Someone"} size={20} />
+            <Avatar
+              name={e.userName ?? t("mobile:taskDetail.someone")}
+              size={20}
+            />
             <View style={{ flex: 1 }}>
               <Txt variant="bodySm" tone="body" numberOfLines={1}>
-                {formatDateTime(e.startTime)}
-                {!e.endTime ? " (running)" : ""}
+                {e.endTime
+                  ? formatDateTime(e.startTime)
+                  : t("mobile:taskDetail.time.running", {
+                      time: formatDateTime(e.startTime),
+                    })}
               </Txt>
               {e.description ? (
                 <Txt variant="caption" tone="muted" numberOfLines={2}>
@@ -924,7 +963,12 @@ export function TimeTracking({
                     description: note || undefined,
                   });
             },
-            { success: logging === "new" ? "Time logged" : undefined },
+            {
+              success:
+                logging === "new"
+                  ? t("mobile:taskDetail.time.logged")
+                  : undefined,
+            },
           )
         }
       />
@@ -947,11 +991,16 @@ function LogTimeSheet({
   entry: TimeEntry | null;
   onSave: (start: Date, minutes: number, note: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
     <Sheet
       visible={visible}
       onClose={onClose}
-      title={entry ? "Edit time entry" : "Log time"}
+      title={
+        entry
+          ? t("mobile:taskDetail.time.editEntry")
+          : t("mobile:taskDetail.time.log")
+      }
     >
       <LogTimeForm
         ticket={ticket}
@@ -991,6 +1040,7 @@ function LogTimeForm({
   entry: TimeEntry | null;
   onSave: (start: Date, minutes: number, note: string) => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [initial] = useState(() => initialEntry(entry));
   const [hours, setHours] = useState(initial.hours);
@@ -1000,7 +1050,14 @@ function LogTimeForm({
   const [note, setNote] = useState(entry?.description ?? "");
 
   const total = (Number(hours) || 0) * 60 + (Number(minutes) || 0);
-  const label = `${Number(hours) ? `${Number(hours)}h ` : ""}${Number(minutes) || 0}m`;
+  const label = Number(hours)
+    ? t("mobile:taskDetail.time.durationHoursMinutes", {
+        hours: Number(hours),
+        minutes: Number(minutes) || 0,
+      })
+    : t("mobile:taskDetail.time.durationMinutes", {
+        minutes: Number(minutes) || 0,
+      });
   const numberInput = (
     value: string,
     set: (v: string) => void,
@@ -1060,14 +1117,22 @@ function LogTimeForm({
             backgroundColor: c.input,
           }}
         >
-          {numberInput(hours, setHours, "h")}
-          {numberInput(minutes, setMinutes, "m")}
+          {numberInput(hours, setHours, t("mobile:taskDetail.time.hoursUnit"))}
+          {numberInput(
+            minutes,
+            setMinutes,
+            t("mobile:taskDetail.time.minutesUnit"),
+          )}
         </View>
         <View style={{ flexDirection: "row", gap: 6 }}>
           {[15, 30, 60, 120].map((m) => (
             <Button
               key={m}
-              label={m < 60 ? `${m}m` : `${m / 60}h`}
+              label={
+                m < 60
+                  ? t("mobile:taskDetail.time.chipMinutes", { count: m })
+                  : t("mobile:taskDetail.time.chipHours", { count: m / 60 })
+              }
               kind="secondary"
               size="sm"
               grow
@@ -1099,14 +1164,14 @@ function LogTimeForm({
             }}
           >
             <Txt variant="body" tone="muted">
-              Date
+              {t("mobile:taskDetail.time.date")}
             </Txt>
             <Txt variant="body">{formatDate(dayIso)}</Txt>
           </Touch>
           <TextInput
             value={note}
             onChangeText={setNote}
-            placeholder="What did you work on?"
+            placeholder={t("mobile:taskDetail.time.notePlaceholder")}
             placeholderTextColor={c.placeholder}
             selectionColor={c.ink}
             maxLength={500}
@@ -1121,7 +1186,11 @@ function LogTimeForm({
           />
         </View>
         <Button
-          label={entry ? "Save" : `Log ${label}`}
+          label={
+            entry
+              ? t("mobile:common.save")
+              : t("mobile:taskDetail.time.logDuration", { duration: label })
+          }
           disabled={total <= 0}
           onPress={() => {
             const base = entry ? new Date(entry.startTime) : new Date();
@@ -1188,6 +1257,7 @@ export function ActivityFeed({
   currentUserName: string;
   statusNames: Record<string, string>;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const [menuFor, setMenuFor] = useState<Activity | null>(null);
@@ -1204,14 +1274,14 @@ export function ActivityFeed({
       }}
     >
       <Txt variant="bodySm" weight="semibold">
-        Activity
+        {t("mobile:taskDetail.activity.title")}
       </Txt>
       {activities.map((a) => {
         const member = members.find((m) => m.id === a.userId);
         const name =
           member?.name ??
           a.externalUserName ??
-          (a.userId ? "Someone" : "Kaneo");
+          (a.userId ? t("mobile:taskDetail.someone") : "Kaneo");
         if (a.type !== "comment") {
           return (
             <View
@@ -1237,11 +1307,18 @@ export function ActivityFeed({
                 tone="muted"
                 style={{ flex: 1, lineHeight: 18 }}
               >
-                {name}{" "}
-                {describeActivity(a.type, a.eventData, a.content, statusNames)}
+                {t("mobile:taskDetail.activity.entry", {
+                  name,
+                  action: describeActivity(
+                    a.type,
+                    a.eventData,
+                    a.content,
+                    statusNames,
+                  ),
+                })}
               </Txt>
               <Txt variant="caption" tone="faint">
-                {relativeLong(a.createdAt).replace(" ago", "")}
+                {relativeLong(a.createdAt, { ago: false })}
               </Txt>
             </View>
           );
@@ -1279,8 +1356,11 @@ export function ActivityFeed({
                   {name}
                 </Txt>
                 <Txt variant="caption" tone="faint">
-                  {relativeLong(a.createdAt)}
-                  {edited ? ", edited" : ""}
+                  {edited
+                    ? t("mobile:taskDetail.activity.edited", {
+                        time: relativeLong(a.createdAt),
+                      })
+                    : relativeLong(a.createdAt)}
                 </Txt>
               </View>
               <MarkdownText size={14}>{a.content ?? ""}</MarkdownText>
@@ -1291,10 +1371,14 @@ export function ActivityFeed({
       <OptionSheet
         visible={!!menuFor}
         onClose={() => setMenuFor(null)}
-        title="Comment"
+        title={t("mobile:taskDetail.activity.comment")}
         options={[
-          { value: "edit", label: "Edit" },
-          { value: "delete", label: "Delete", tone: "danger" as const },
+          { value: "edit", label: t("mobile:taskDetail.activity.edit") },
+          {
+            value: "delete",
+            label: t("mobile:common.delete"),
+            tone: "danger" as const,
+          },
         ]}
         onSelect={(v) =>
           v === "edit" ? setEditing(menuFor) : setDeleting(menuFor)
@@ -1303,7 +1387,7 @@ export function ActivityFeed({
       <TextInputSheet
         visible={!!editing}
         onClose={() => setEditing(null)}
-        title="Edit comment"
+        title={t("mobile:taskDetail.activity.editComment")}
         initial={editing?.content ?? ""}
         multiline
         onSubmit={(text) =>
@@ -1312,9 +1396,9 @@ export function ActivityFeed({
       />
       <ConfirmDialog
         visible={!!deleting}
-        title="Delete comment?"
-        message="This can't be undone."
-        confirmLabel="Delete"
+        title={t("mobile:taskDetail.activity.deleteTitle")}
+        message={t("mobile:taskDetail.activity.deleteMessage")}
+        confirmLabel={t("mobile:common.delete")}
         onClose={() => setDeleting(null)}
         onConfirm={() => deleting && run(() => api.deleteComment(deleting.id))}
       />

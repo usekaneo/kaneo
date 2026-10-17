@@ -1,7 +1,14 @@
-import { describe, expect, it } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import {
   addDays,
   formatClock,
+  formatDay,
+  formatDueShort,
+  formatLongDate,
+  formatDateTime,
+  monthName,
+  relativeShort,
+  relativeLong,
   formatDuration,
   initials,
   parseDay,
@@ -9,6 +16,7 @@ import {
   ticketId,
   toIsoDay,
 } from "./format";
+import { i18n } from "./i18n";
 
 describe("parseDay", () => {
   it("reads a bare date as that calendar day", () => {
@@ -72,5 +80,65 @@ describe("initials", () => {
     expect(initials("Ada Byron Lovelace")).toBe("AL");
     expect(initials("ada")).toBe("AD");
     expect(initials(undefined)).toBe("?");
+  });
+});
+
+describe("localized dates and relative times", () => {
+  afterEach(async () => {
+    vi.useRealTimers();
+    await i18n.changeLanguage("en-US");
+  });
+
+  it("keeps English calendar and relative labels across local day boundaries", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 2, 9, 12));
+    expect(monthName(2)).toBe("Mar");
+    expect(monthName(2, true)).toBe("March");
+    expect(formatDay({ y: 2026, m: 2, d: 9 })).toBe("Mar 9");
+    expect(formatDay({ y: 2025, m: 2, d: 9 })).toBe("Mar 9, 2025");
+    expect(formatLongDate(new Date(2026, 2, 9))).toBe("Monday, March 9");
+    expect(formatDateTime(new Date(2026, 2, 9, 12, 30).toISOString())).toBe(
+      "Mar 9, 12:30",
+    );
+    expect(formatDueShort("2026-03-09")).toBe("Today");
+    expect(formatDueShort("2026-03-10")).toBe("Tomorrow");
+    expect(formatDueShort("2026-03-11")).toBe("Wed, Mar 11");
+    expect(relativeShort(new Date(2026, 2, 9, 11, 48).toISOString())).toBe(
+      "12m",
+    );
+    expect(relativeLong(new Date(2026, 2, 9, 9).toISOString())).toBe(
+      "3 hr ago",
+    );
+    expect(relativeShort(new Date(2026, 2, 8, 23).toISOString())).toBe(
+      "Yesterday",
+    );
+    expect(relativeLong(new Date(2026, 2, 8, 23).toISOString())).toBe(
+      "Yesterday",
+    );
+  });
+
+  it("reads the active locale and translations on each call", async () => {
+    const date = new Date(2026, 2, 9);
+    i18n.addResourceBundle(
+      "de-DE",
+      "mobile",
+      {
+        time: { today: "Heute" },
+      },
+      true,
+      true,
+    );
+    await i18n.changeLanguage("de-DE");
+    vi.useFakeTimers();
+    vi.setSystemTime(date);
+    expect(monthName(2, true)).toBe("März");
+    expect(formatDay({ y: 2026, m: 2, d: 9 })).toBe(
+      new Intl.DateTimeFormat("de-DE", {
+        month: "short",
+        day: "numeric",
+      }).format(date),
+    );
+    expect(formatDueShort("2026-03-09")).toBe("Heute");
+    i18n.removeResourceBundle("de-DE", "mobile");
   });
 });

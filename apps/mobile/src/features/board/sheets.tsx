@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   ArrowDown,
   ArrowUp,
@@ -68,6 +69,7 @@ export function FilterSheet({
   setShowArchived: (v: boolean) => void;
   matching: number;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const me = members.find((m) => m.id === currentUserId);
   const others = members.filter((m) => m.id !== currentUserId);
   const group = (title: string, children: ReactNode) => (
@@ -87,14 +89,14 @@ export function FilterSheet({
     <Sheet
       visible={visible}
       onClose={onClose}
-      title="Filters"
+      title={t("mobile:board.filters")}
       aside={
         <Touch
           onPress={() => setFilters({ ...emptyFilters, query: filters.query })}
           hitSlop={8}
         >
           <Txt variant="bodySm" weight="medium" tone="muted">
-            Reset
+            {t("mobile:board.reset")}
           </Txt>
         </Touch>
       }
@@ -108,11 +110,11 @@ export function FilterSheet({
         }}
       >
         {group(
-          "Assignee",
+          t("mobile:board.assignee"),
           <>
             {me ? (
               <Chip
-                label="Me"
+                label={t("mobile:board.me")}
                 selected={filters.assignees.includes(me.id)}
                 onPress={assignee(me.id)}
                 leading={<Avatar name={me.name} image={me.image} size={20} />}
@@ -128,7 +130,7 @@ export function FilterSheet({
               />
             ))}
             <Chip
-              label="Unassigned"
+              label={t("mobile:board.unassigned")}
               dashed={!filters.assignees.includes(UNASSIGNED)}
               selected={filters.assignees.includes(UNASSIGNED)}
               onPress={assignee(UNASSIGNED)}
@@ -136,7 +138,7 @@ export function FilterSheet({
           </>,
         )}
         {group(
-          "Priority",
+          t("mobile:board.priority"),
           PRIORITIES.filter((p) => p.value !== "no-priority")
             .reverse()
             .map((p) => {
@@ -159,7 +161,7 @@ export function FilterSheet({
         )}
         {labels.length
           ? group(
-              "Labels",
+              t("mobile:board.labels"),
               labels.map((l) => (
                 <Chip
                   key={l.id}
@@ -179,26 +181,26 @@ export function FilterSheet({
         <View>
           <Divider />
           <ToggleRow
-            label="Overdue only"
+            label={t("mobile:board.overdueOnly")}
             value={filters.overdueOnly}
             onChange={(v) => setFilters({ ...filters, overdueOnly: v })}
           />
           <Divider />
           <ToggleRow
-            label="Show planned"
-            hint="Tasks not on the board yet"
+            label={t("mobile:board.showPlanned")}
+            hint={t("mobile:board.tasksNotOnTheBoardYet")}
             value={showPlanned}
             onChange={setShowPlanned}
           />
           <Divider />
           <ToggleRow
-            label="Show archived"
+            label={t("mobile:board.showArchived")}
             value={showArchived}
             onChange={setShowArchived}
           />
         </View>
         <Button
-          label={`Show ${matching} task${matching === 1 ? "" : "s"}`}
+          label={t("mobile:board.showTasks", { count: matching })}
           onPress={onClose}
         />
       </View>
@@ -268,6 +270,7 @@ export function QuickActionsSheet({
   onReorder: (toTop: boolean) => void;
   onOpen: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const [picker, setPicker] = useState<"assignee" | "priority" | null>(null);
   const targets = lanes.filter((l) => l.status !== STATUS_ARCHIVED);
@@ -340,7 +343,7 @@ export function QuickActionsSheet({
               }}
             >
               <Txt variant="caption" weight="medium" tone="muted">
-                Move to
+                {t("mobile:board.moveTo")}
               </Txt>
               <View style={{ flexDirection: "row", gap: 6 }}>
                 {targets.slice(0, 5).map((l) => {
@@ -397,15 +400,17 @@ export function QuickActionsSheet({
               {task.assigneeId !== currentUserId
                 ? row(
                     <UserRound size={18} color={c.ink2} />,
-                    "Assign to me",
+                    t("mobile:board.assignToMe"),
                     act(() => onAssign(currentUserId)),
                   )
                 : null}
               {row(
                 <Users size={18} color={c.ink2} />,
-                "Assignee",
+                t("mobile:board.assignee"),
                 () => setPicker("assignee"),
-                assignee?.name ?? task.assigneeName ?? "Unassigned",
+                assignee?.name ??
+                  task.assigneeName ??
+                  t("mobile:board.unassigned"),
               )}
               {row(
                 <PriorityIcon
@@ -414,7 +419,7 @@ export function QuickActionsSheet({
                   }
                   size={18}
                 />,
-                "Priority",
+                t("mobile:board.priority"),
                 () => setPicker("priority"),
                 priorityLabel(task.priority),
               )}
@@ -424,19 +429,19 @@ export function QuickActionsSheet({
                 <>
                   {row(
                     <ArrowUp size={18} color={c.ink2} />,
-                    "Send to top of column",
+                    t("mobile:board.sendToTopOfColumn"),
                     act(() => onReorder(true)),
                   )}
                   {row(
                     <ArrowDown size={18} color={c.ink2} />,
-                    "Send to bottom of column",
+                    t("mobile:board.sendToBottomOfColumn"),
                     act(() => onReorder(false)),
                   )}
                 </>
               ) : null}
               {row(
                 <ExternalLink size={18} color={c.ink2} />,
-                "Open task",
+                t("mobile:board.openTask"),
                 act(onOpen),
               )}
             </View>
@@ -449,19 +454,22 @@ export function QuickActionsSheet({
           setPicker(null);
           onClose();
         }}
-        title="Assignee"
+        title={t("mobile:board.assignee")}
         searchable
-        searchPlaceholder="Search people"
+        searchPlaceholder={t("mobile:board.searchPeople")}
         selected={task?.assigneeId ?? task?.userId ?? null}
         options={[
           {
             value: null as string | null,
-            label: "Unassigned",
+            label: t("mobile:board.unassigned"),
             leading: <EmptyAvatar size={28} />,
           },
           ...members.map((m) => ({
             value: m.id as string | null,
-            label: m.id === currentUserId ? `${m.name} (you)` : m.name,
+            label:
+              m.id === currentUserId
+                ? t("mobile:board.memberYou", { name: m.name })
+                : m.name,
             hint: m.email,
             leading: <Avatar name={m.name} image={m.image} size={28} />,
           })),
@@ -474,7 +482,7 @@ export function QuickActionsSheet({
           setPicker(null);
           onClose();
         }}
-        title="Priority"
+        title={t("mobile:board.priority")}
         selected={task?.priority ?? "no-priority"}
         options={PRIORITIES.map((p) => ({
           value: p.value as string,

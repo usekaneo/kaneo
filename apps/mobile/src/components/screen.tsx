@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ChevronLeft, X } from "lucide-react-native";
@@ -61,10 +62,11 @@ export function BackButton({
   close?: boolean;
   onPress?: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   return (
     <IconButton
-      label={close ? "Close" : "Back"}
+      label={close ? t("mobile:common.close") : t("mobile:ui.back")}
       onPress={onPress ?? goBack}
       size={40}
     >
@@ -266,11 +268,16 @@ export function ErrorState({
   message: string;
   onRetry?: () => void;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
     <EmptyState
-      title="Couldn't load this"
+      title={t("mobile:ui.loadFailed")}
       message={message}
-      action={onRetry ? { label: "Try again", onPress: onRetry } : undefined}
+      action={
+        onRetry
+          ? { label: t("mobile:common.retry"), onPress: onRetry }
+          : undefined
+      }
     />
   );
 }

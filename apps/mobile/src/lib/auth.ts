@@ -1,3 +1,4 @@
+import { i18n } from "./i18n";
 import { ApiError, DEVICE_CLIENT_ID, httpMessage, request } from "./api/client";
 import { api } from "./api/endpoints";
 import type {
@@ -20,12 +21,15 @@ export async function probe(serverUrl: string): Promise<InstanceConfig> {
   try {
     const config = await request<InstanceConfig>("api/config", { serverUrl });
     if (!config || typeof config !== "object")
-      throw new ApiError(`${serverUrl} doesn't look like a Kaneo server.`);
+      throw new ApiError(i18n.t("mobile:errors.notKaneo", { url: serverUrl }));
     return config;
   } catch (e) {
     if (e instanceof ApiError && e.status)
       throw new ApiError(
-        `No Kaneo instance found at ${serverUrl} (HTTP ${e.status}).`,
+        i18n.t("mobile:errors.noInstance", {
+          url: serverUrl,
+          status: e.status,
+        }),
       );
     throw e;
   }
@@ -47,10 +51,7 @@ async function tokenFrom(response: Response): Promise<string> {
     );
   const header = response.headers.get("set-auth-token");
   const token = header ?? (body as { token?: string } | null)?.token;
-  if (!token)
-    throw new ApiError(
-      "The server didn't return a session. Try signing in through the browser.",
-    );
+  if (!token) throw new ApiError(i18n.t("mobile:errors.noSession"));
   return token;
 }
 
@@ -153,7 +154,8 @@ export async function pollDeviceLogin(
       throw new ApiError(
         body?.error_description ??
           body?.error ??
-          `Device sign-in failed (HTTP ${response.status}).`,
+          i18n.t("mobile:errors.deviceFailed", { status: response.status }),
+        response.status,
       );
   }
 }
@@ -173,8 +175,8 @@ export async function completeWithToken(
     if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
       throw new ApiError(
         type === "apiKey"
-          ? "That API key was rejected."
-          : "Sign-in was not accepted by the server.",
+          ? i18n.t("mobile:errors.apiKeyRejected")
+          : i18n.t("mobile:errors.signInRejected"),
         e.status,
       );
     }

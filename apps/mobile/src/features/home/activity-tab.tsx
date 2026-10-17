@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -16,6 +17,7 @@ import { qk } from "@/lib/query";
 import { inset, useColors } from "@/theme";
 
 export function ActivityTab({ workspace }: { workspace: Workspace }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const query = useQuery({
     queryKey: qk.activity(workspace.id),
@@ -33,9 +35,9 @@ export function ActivityTab({ workspace }: { workspace: Workspace }) {
           gap: 2,
         }}
       >
-        <Txt variant="title">Activity</Txt>
+        <Txt variant="title">{t("mobile:activity.title")}</Txt>
         <Txt variant="meta" tone="muted" style={{ lineHeight: 18 }}>
-          Everything happening in {workspace.name}
+          {t("mobile:activity.subtitle", { workspace: workspace.name })}
         </Txt>
       </View>
       {query.isLoading ? (
@@ -46,7 +48,7 @@ export function ActivityTab({ workspace }: { workspace: Workspace }) {
           onRetry={() => void query.refetch()}
         />
       ) : items.length === 0 ? (
-        <EmptyState title="No recent activity" />
+        <EmptyState title={t("mobile:activity.empty")} />
       ) : (
         <Scroll
           refreshing={query.isRefetching}
@@ -54,12 +56,17 @@ export function ActivityTab({ workspace }: { workspace: Workspace }) {
         >
           <View style={{ paddingHorizontal: inset }}>
             {items.map((a, i) => {
-              const name = a.userName ?? a.externalUserName ?? "Someone";
+              const name =
+                a.userName ??
+                a.externalUserName ??
+                t("mobile:activity.someone");
               const ticket = ticketId(a.projectSlug, a.taskNumber);
               const isComment = a.type === "comment";
               const sentence = isComment
-                ? `commented on ${ticket || a.taskTitle}`
-                : `${describeActivity(a.type, a.eventData, a.excerpt)}`;
+                ? t("mobile:activity.commentedOn", {
+                    target: ticket || a.taskTitle,
+                  })
+                : describeActivity(a.type, a.eventData, a.excerpt);
               const last = i === items.length - 1;
               return (
                 <Touch

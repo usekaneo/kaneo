@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
 import { ChevronDown, Mail, Plus } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -29,7 +30,7 @@ import type {
   OrganizationInvitation,
   OrganizationMember,
 } from "@/lib/api/types";
-import { relativeLong } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { useWorkspaces } from "@/lib/hooks";
 import { qk, useAction } from "@/lib/query";
 import { useRequiredSession } from "@/lib/session";
@@ -44,6 +45,7 @@ import { useColors } from "@/theme";
 
 export default function MembersScreen() {
   const { workspaceId } = useLocalSearchParams<{ workspaceId: string }>();
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const session = useRequiredSession();
   const { run } = useAction();
@@ -94,12 +96,18 @@ export default function MembersScreen() {
         onRefresh={() => void org.refetch()}
       >
         <PageHeader
-          title="Members"
-          description={`${members.length} ${members.length === 1 ? "person" : "people"} in ${workspace?.name ?? org.data?.name ?? "this workspace"}`}
+          title={t("mobile:members.title")}
+          description={t("mobile:members.description", {
+            count: members.length,
+            name:
+              workspace?.name ??
+              org.data?.name ??
+              t("mobile:members.thisWorkspace"),
+          })}
           action={
             canManage ? (
               <Button
-                label="Invite"
+                label={t("mobile:members.invite")}
                 size="sm"
                 icon={<Plus size={14} color={c.onPrimary} />}
                 onPress={() => setInviting(true)}
@@ -119,7 +127,7 @@ export default function MembersScreen() {
           <>
             {pending.length ? (
               <Section
-                title="Pending invitations"
+                title={t("mobile:members.pending.title")}
                 style={{ paddingBottom: 24 }}
               >
                 <Group>
@@ -148,15 +156,17 @@ export default function MembersScreen() {
                           {inv.email}
                         </Txt>
                         <Txt variant="caption" tone="faint">
-                          {roleLabel(inv.role ?? "member")}
                           {inv.expiresAt
-                            ? `, expires ${relativeLong(inv.expiresAt) || "soon"}`
-                            : ""}
+                            ? t("mobile:members.pending.expires", {
+                                role: roleLabel(inv.role ?? "member"),
+                                date: formatDate(inv.expiresAt),
+                              })
+                            : roleLabel(inv.role ?? "member")}
                         </Txt>
                       </View>
                       {canManage ? (
                         <Txt variant="meta" weight="medium" tone="muted">
-                          Manage
+                          {t("mobile:members.pending.manage")}
                         </Txt>
                       ) : null}
                     </GroupRow>
@@ -164,7 +174,7 @@ export default function MembersScreen() {
                 </Group>
               </Section>
             ) : null}
-            <Section title="People">
+            <Section title={t("mobile:members.people.title")}>
               <Group>
                 {members.map((m, i) => {
                   const isSelf = m.userId === session.userId;
@@ -183,11 +193,11 @@ export default function MembersScreen() {
                       />
                       <View style={{ flex: 1, gap: 2 }}>
                         <Txt variant="body" numberOfLines={1}>
-                          {m.user?.name ?? "Unknown"}
+                          {m.user?.name ?? t("mobile:members.people.unknown")}
                           {isSelf ? (
                             <Txt variant="body" tone="faint">
                               {" "}
-                              (you)
+                              {t("mobile:members.people.you")}
                             </Txt>
                           ) : null}
                         </Txt>
@@ -233,12 +243,14 @@ export default function MembersScreen() {
       <OptionSheet
         visible={!!memberMenu}
         onClose={() => setMemberMenu(null)}
-        title={memberMenu?.user?.name ?? "Member"}
+        title={
+          memberMenu?.user?.name ?? t("mobile:members.memberMenu.fallbackTitle")
+        }
         options={[
-          { value: "role", label: "Change role" },
+          { value: "role", label: t("mobile:members.memberMenu.changeRole") },
           {
             value: "remove",
-            label: "Remove from workspace",
+            label: t("mobile:members.memberMenu.remove"),
             tone: "danger" as const,
           },
         ]}
@@ -249,7 +261,7 @@ export default function MembersScreen() {
       <OptionSheet
         visible={!!rolePicker}
         onClose={() => setRolePicker(null)}
-        title="Role"
+        title={t("mobile:members.rolePicker.title")}
         selected={rolePicker?.role}
         options={roles.map((r) => ({
           value: r,
@@ -259,15 +271,18 @@ export default function MembersScreen() {
         onSelect={(role) =>
           rolePicker &&
           run(() => api.updateMemberRole(workspaceId, rolePicker.id, role), {
-            success: "Role updated",
+            success: t("mobile:members.toast.roleUpdated"),
           })
         }
       />
       <ConfirmDialog
         visible={!!removing}
-        title="Remove member?"
-        message={`${removing?.user?.name ?? "They"} will lose access to ${workspace?.name ?? "this workspace"}.`}
-        confirmLabel="Remove"
+        title={t("mobile:members.remove.title")}
+        message={t("mobile:members.remove.message", {
+          name: removing?.user?.name ?? t("mobile:members.remove.they"),
+          workspace: workspace?.name ?? t("mobile:members.thisWorkspace"),
+        })}
+        confirmLabel={t("mobile:members.remove.confirm")}
         onClose={() => setRemoving(null)}
         onConfirm={() =>
           removing &&
@@ -277,19 +292,21 @@ export default function MembersScreen() {
                 workspaceId,
                 removing.user?.email ?? removing.id,
               ),
-            { success: "Member removed" },
+            { success: t("mobile:members.toast.removed") },
           )
         }
       />
       <OptionSheet
         visible={!!inviteMenu}
         onClose={() => setInviteMenu(null)}
-        title={inviteMenu?.email ?? "Invitation"}
+        title={
+          inviteMenu?.email ?? t("mobile:members.inviteMenu.fallbackTitle")
+        }
         options={[
-          { value: "resend", label: "Resend invitation" },
+          { value: "resend", label: t("mobile:members.inviteMenu.resend") },
           {
             value: "cancel",
-            label: "Cancel invitation",
+            label: t("mobile:members.inviteMenu.cancel"),
             tone: "danger" as const,
           },
         ]}
@@ -306,12 +323,12 @@ export default function MembersScreen() {
                   resend: true,
                 }),
               {
-                success: "Invitation resent",
+                success: t("mobile:members.toast.resent"),
               },
             );
           else
             void run(() => api.cancelInvitation(inv.id), {
-              success: "Invitation canceled",
+              success: t("mobile:members.toast.canceled"),
             });
         }}
       />
@@ -332,8 +349,13 @@ function InviteSheet({
   workspaceName: string;
   roles: string[];
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
-    <Sheet visible={visible} onClose={onClose} title="Invite member">
+    <Sheet
+      visible={visible}
+      onClose={onClose}
+      title={t("mobile:members.inviteForm.title")}
+    >
       <InviteForm
         onDone={onClose}
         workspaceId={workspaceId}
@@ -355,6 +377,7 @@ function InviteForm({
   workspaceName: string;
   roles: string[];
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run, busy } = useAction();
   const [email, setEmail] = useState("");
@@ -365,12 +388,12 @@ function InviteForm({
     <>
       <View style={{ paddingHorizontal: 20, marginTop: -8, paddingBottom: 16 }}>
         <Txt variant="meta" tone="muted" style={{ lineHeight: 18 }}>
-          They’ll get an email with a link to join {workspaceName}.
+          {t("mobile:members.inviteForm.intro", { workspace: workspaceName })}
         </Txt>
       </View>
       <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 16 }}>
         <TextField
-          label="Email"
+          label={t("mobile:members.inviteForm.email")}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -380,7 +403,7 @@ function InviteForm({
         />
         <View style={{ gap: 6 }}>
           <Txt variant="meta" weight="medium" tone="body">
-            Role
+            {t("mobile:members.inviteForm.role")}
           </Txt>
           <View
             style={{
@@ -418,7 +441,7 @@ function InviteForm({
           </View>
         </View>
         <Button
-          label="Send invite"
+          label={t("mobile:members.inviteForm.send")}
           loading={busy}
           disabled={!valid}
           onPress={async () => {
@@ -430,7 +453,9 @@ function InviteForm({
                   role,
                 }),
               {
-                success: `Invitation sent to ${email.trim()}`,
+                success: t("mobile:members.toast.sent", {
+                  email: email.trim(),
+                }),
               },
             );
             if (ok !== undefined) onDone();

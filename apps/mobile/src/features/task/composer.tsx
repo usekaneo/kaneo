@@ -1,5 +1,6 @@
 import { ArrowUp, AtSign, Image as ImageIcon } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ActivityIndicator, TextInput, View } from "react-native";
 
 import { Avatar } from "@/components/avatar";
@@ -25,6 +26,7 @@ export function Composer({
   members: WorkspaceMember[];
   replyTo?: string | null;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const bottom = useBottomInset(6);
   const toast = useToast();
@@ -93,7 +95,11 @@ export function Composer({
           <TextInput
             value={text}
             onChangeText={setText}
-            placeholder={replyTo ? `Reply to ${replyTo}…` : "Add a comment…"}
+            placeholder={
+              replyTo
+                ? t("mobile:composer.reply", { name: replyTo })
+                : t("mobile:composer.placeholder")
+            }
             placeholderTextColor={c.faint}
             selectionColor={c.ink}
             multiline
@@ -108,7 +114,7 @@ export function Composer({
             }}
           />
           <IconButton
-            label="Mention someone"
+            label={t("mobile:composer.mentionSomeone")}
             onPress={() => setPicker(true)}
             size={36}
             style={{ marginBottom: 4 }}
@@ -116,7 +122,7 @@ export function Composer({
             <AtSign size={18} color={c.muted} strokeWidth={2} />
           </IconButton>
           <IconButton
-            label="Attach image"
+            label={t("mobile:composer.attachImage")}
             onPress={attach}
             size={36}
             disabled={uploading}
@@ -132,7 +138,7 @@ export function Composer({
         <Touch
           onPress={send}
           disabled={!text.trim() || busy}
-          accessibilityLabel="Send comment"
+          accessibilityLabel={t("mobile:composer.sendComment")}
           style={{
             width: 44,
             height: 44,
@@ -156,9 +162,9 @@ export function Composer({
       <OptionSheet
         visible={picker}
         onClose={() => setPicker(false)}
-        title="Mention"
+        title={t("mobile:composer.mention")}
         searchable
-        searchPlaceholder="Search people"
+        searchPlaceholder={t("mobile:composer.searchPeople")}
         options={members.map((m) => ({
           value: m.id,
           label: m.name,

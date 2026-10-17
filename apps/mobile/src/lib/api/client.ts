@@ -1,3 +1,4 @@
+import { i18n } from "../i18n";
 import { sessionStore, type Session } from "../session";
 
 export const CLOUD_URL = "https://cloud.kaneo.app";
@@ -111,12 +112,12 @@ function messageFrom(body: unknown): string | null {
 function httpMessage(status: number, body: unknown): string {
   const message = messageFrom(body);
   if (message) return message;
-  if (status === 401) return "Your session has expired. Please sign in again.";
-  if (status === 403) return "You don't have permission to do that.";
-  if (status === 404) return "Not found.";
-  if (status === 429) return "Too many requests. Please wait a moment.";
-  if (status >= 500) return `The server had a problem (${status}).`;
-  return `Request failed (${status}).`;
+  if (status === 401) return i18n.t("mobile:errors.sessionExpired");
+  if (status === 403) return i18n.t("mobile:errors.forbidden");
+  if (status === 404) return i18n.t("mobile:errors.notFound");
+  if (status === 429) return i18n.t("mobile:errors.tooManyRequests");
+  if (status >= 500) return i18n.t("mobile:errors.serverProblem", { status });
+  return i18n.t("mobile:errors.requestFailed", { status });
 }
 
 export async function request<T>(
@@ -125,7 +126,7 @@ export async function request<T>(
 ): Promise<T> {
   const session = sessionStore.get().session;
   const serverUrl = options.serverUrl ?? session?.serverUrl;
-  if (!serverUrl) throw new ApiError("Not signed in");
+  if (!serverUrl) throw new ApiError(i18n.t("mobile:errors.notSignedIn"));
   const creds =
     options.credentials ??
     (session && serverUrl === session.serverUrl ? session : null);
@@ -151,9 +152,7 @@ export async function request<T>(
       credentials: "omit",
     });
   } catch {
-    throw new ApiError(
-      "Can't reach the server. Check your connection and the server address.",
-    );
+    throw new ApiError(i18n.t("mobile:errors.unreachable"));
   }
 
   if (options.raw) return response as unknown as T;
@@ -182,8 +181,9 @@ export async function request<T>(
 /** Turns any failure into a message fit to show a person. */
 export function userMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
-  if (error instanceof Error) return error.message || "Something went wrong";
-  return "Something went wrong";
+  if (error instanceof Error)
+    return error.message || i18n.t("mobile:common.somethingWrong");
+  return i18n.t("mobile:common.somethingWrong");
 }
 
 export { httpMessage };

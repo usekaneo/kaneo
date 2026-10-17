@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react-native";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { SearchField, Sheet } from "@/components/sheet";
@@ -26,15 +27,16 @@ export function LabelPickerSheet({
   attached: Label[];
   workspaceId?: string | null;
 }) {
+  const { t } = useTranslation(["mobile"]);
   return (
     <Sheet
       visible={visible}
       onClose={onClose}
-      title="Labels"
+      title={t("mobile:taskFields.labels")}
       aside={
         <Touch onPress={onClose} hitSlop={8}>
           <Txt variant="bodySm" weight="semibold">
-            Done
+            {t("mobile:taskFields.done")}
           </Txt>
         </Touch>
       }
@@ -57,6 +59,7 @@ function LabelPickerBody({
   attached: Label[];
   workspaceId?: string | null;
 }) {
+  const { t } = useTranslation(["mobile"]);
   const c = useColors();
   const { run } = useAction();
   const labels = useWorkspaceLabels(workspaceId);
@@ -94,7 +97,7 @@ function LabelPickerBody({
         <SearchField
           value={query}
           onChangeText={setQuery}
-          placeholder="Search or create"
+          placeholder={t("mobile:taskFields.searchOrCreate")}
         />
       </View>
       <View style={{ paddingHorizontal: 8, paddingBottom: 8 }}>
@@ -133,7 +136,9 @@ function LabelPickerBody({
               }}
             >
               <Plus size={16} color={c.ink} strokeWidth={2} />
-              <Txt variant="body">Create label “{q}”</Txt>
+              <Txt variant="body">
+                {t("mobile:taskFields.createLabel", { name: q })}
+              </Txt>
             </Touch>
             <View
               style={{
@@ -145,7 +150,7 @@ function LabelPickerBody({
               }}
             >
               <Txt variant="caption" tone="faint" style={{ flex: 1 }}>
-                Color for the new label
+                {t("mobile:taskFields.labelColor")}
               </Txt>
               {LABEL_COLORS.slice(2).map((opt) => (
                 <Touch
@@ -174,7 +179,7 @@ function LabelPickerBody({
         ) : null}
         {!q && list.length === 0 ? (
           <Txt variant="meta" tone="faint" style={{ padding: 12 }}>
-            No labels yet. Type a name to create one.
+            {t("mobile:taskFields.noLabels")}
           </Txt>
         ) : null}
       </View>
