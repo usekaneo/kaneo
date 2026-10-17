@@ -663,6 +663,44 @@ describe.each(["github", "gitea", "gitlab"] as const)(
         },
       );
 
+      it("does not reopen the issue when initialization retries after archiving", async () => {
+        const f = await setup(type);
+        await f.assign();
+        await db
+          .update(schema.taskTable)
+          .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+          .where(eq(schema.taskTable.id, f.task.id));
+        let remoteState = "open";
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        mocks.update.mockImplementationOnce(async () => {
+          remoteState = "closed";
+          throw new Error("provider timeout");
+        });
+        await reconcileTaskSync(f.project.id, f.task.id);
+        await db
+          .update(schema.taskTable)
+          .set({ status: "archived", columnId: null })
+          .where(eq(schema.taskTable.id, f.task.id));
+        mocks.update.mockImplementation(async (...args: unknown[]) => {
+          const patch = args.at(-1) as { state?: string; state_event?: string };
+          remoteState =
+            patch.state ??
+            (patch.state_event === "close"
+              ? "closed"
+              : patch.state_event
+                ? "open"
+                : remoteState);
+        });
+        await reconcileProjectSync(f.project.id, f.integration.id);
+        expect(remoteState).toBe("closed");
+        expect(
+          JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+        ).toMatchObject({
+          syncInitializedState: true,
+          syncInitializationPending: false,
+        });
+      });
+
       it.runIf(type === "gitlab")(
         "ignores live close and reopen webhooks for an archived task",
         async () => {

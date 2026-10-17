@@ -1937,6 +1937,54 @@ it.each(["github", "gitea"])(
   },
 );
 
+it.each(["github", "gitea"])(
+  "does not adopt an observed %s close for a task archived mid-flight",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    const write = vi.fn(async () => {
+      // A newer close webhook is observed, then the task is archived.
+      const pending = (await metadata(link.id)).lastSync.state.outbound.find(
+        (entry: { pending?: boolean }) => entry.pending,
+      );
+      await updateExternalLink(link.id, {
+        observedOutbound: {
+          field: "state",
+          intentId: pending.intentId,
+          updatedAt: "2026-09-30T00:00:10Z",
+        },
+      });
+      await db
+        .update(schema.taskTable)
+        .set({ status: "archived", columnId: null })
+        .where(eq(schema.taskTable.id, task.id));
+      return "2026-09-30T00:00:05Z";
+    });
+
+    expect(
+      await syncLatestTaskValue(
+        task.id,
+        integration.projectId,
+        link,
+        "state",
+        "closed",
+        write,
+        async () => "closed",
+      ),
+    ).toBe(true);
+
+    expect(write).toHaveBeenCalledOnce();
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
+
 it("skips provider reads and writes while another replica holds the worker lease", async () => {
   const { link, integration } = await seed();
   await deferTaskSync(link, integration, ["title"]);

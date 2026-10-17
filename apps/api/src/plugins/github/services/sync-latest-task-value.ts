@@ -74,6 +74,14 @@ export async function syncLatestTaskValue(
   for (;;) {
     const binding = await currentBinding();
     if (!binding) return;
+    // Archived tasks send no state, even for retried initialization or repairs.
+    if (field === "state") {
+      const task = await db.query.taskTable.findFirst({
+        where: linkedTaskScope(taskId, projectId),
+        columns: { status: true },
+      });
+      if (task && isStateSyncPaused(task.status)) return true;
+    }
     identity ??= binding.integration
       ? { type: binding.integration.type, config: binding.integration.config }
       : undefined;
@@ -198,7 +206,6 @@ export async function syncLatestTaskValue(
       },
     });
     if (!task) return;
-    if (field === "state" && isStateSyncPaused(task.status)) return true;
     const current =
       field === "state"
         ? (await isTaskInFinalState(task))
