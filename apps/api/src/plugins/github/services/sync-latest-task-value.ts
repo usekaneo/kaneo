@@ -197,6 +197,8 @@ export async function syncLatestTaskValue(
       },
     });
     if (!task) return;
+    // Archiving keeps the issue state just written; see resolveIssueStateChange.
+    if (field === "state" && task.status === "archived") return true;
     const current =
       field === "state"
         ? (await isTaskInFinalState(task))

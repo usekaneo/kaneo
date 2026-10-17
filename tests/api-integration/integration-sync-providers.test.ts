@@ -514,6 +514,95 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       );
     });
 
+    describe("archiving", () => {
+      const closed =
+        type === "gitlab" ? { state_event: "close" } : { state: "closed" };
+      const reopened =
+        type === "gitlab" ? { state_event: "reopen" } : { state: "open" };
+      async function exported() {
+        const f = await setup(type);
+        await f.assign();
+        await reconcileProjectSync(f.project.id, f.integration.id);
+        const context = {
+          integrationId: f.integration.id,
+          projectId: f.project.id,
+          config: f.config,
+        };
+        const changeStatus = async (
+          oldStatus: string,
+          newStatus: string,
+          columnId: string | null,
+        ) => {
+          await db
+            .update(schema.taskTable)
+            .set({ status: newStatus, columnId })
+            .where(eq(schema.taskTable.id, f.task.id));
+          await plugin.onTaskStatusChanged!(
+            {
+              taskId: f.task.id,
+              projectId: f.project.id,
+              userId: null,
+              title: f.task.title,
+              oldStatus,
+              newStatus,
+            },
+            context,
+          );
+        };
+        mocks.update.mockClear();
+        return { ...f, changeStatus };
+      }
+
+      it("keeps a completed issue closed and reopens it when unarchived", async () => {
+        const f = await exported();
+        const { done, todo } = f.columns;
+        await f.changeStatus(todo.slug, done.slug, done.id);
+        expect(mocks.update).toHaveBeenCalledOnce();
+        expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(closed);
+
+        await f.changeStatus(done.slug, "archived", null);
+        expect(mocks.update).toHaveBeenCalledOnce();
+
+        await f.changeStatus("archived", todo.slug, todo.id);
+        expect(mocks.update).toHaveBeenCalledTimes(2);
+        expect(mocks.update.mock.calls[1]!.at(-1)).toMatchObject(reopened);
+      });
+
+      it("leaves an open issue alone when archiving unfinished work", async () => {
+        const f = await exported();
+        await f.changeStatus(f.columns.todo.slug, "archived", null);
+        expect(mocks.update).not.toHaveBeenCalled();
+
+        await f.changeStatus(
+          "archived",
+          f.columns.done.slug,
+          f.columns.done.id,
+        );
+        expect(mocks.update).toHaveBeenCalledOnce();
+        expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(closed);
+      });
+
+      it.skipIf(type === "gitlab")(
+        "does not reopen an issue archived while its close is in flight",
+        async () => {
+          const f = await exported();
+          mocks.update.mockImplementationOnce(async () => {
+            await db
+              .update(schema.taskTable)
+              .set({ status: "archived", columnId: null })
+              .where(eq(schema.taskTable.id, f.task.id));
+          });
+          await f.changeStatus(
+            f.columns.todo.slug,
+            f.columns.done.slug,
+            f.columns.done.id,
+          );
+          expect(mocks.update).toHaveBeenCalledOnce();
+          expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(closed);
+        },
+      );
+    });
+
     it("repairs a late initialization close after a concurrent reopen", async () => {
       const f = await setup(type);
       await f.assign();
