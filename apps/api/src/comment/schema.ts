@@ -12,10 +12,13 @@ export const createCommentBody = z.object({
     description:
       "Attribution for an imported comment. Requires workspace:manage_settings and externalSource; otherwise ignored.",
   }),
-  externalSource: z.enum(["planka", "trello", "jira"]).optional().openapi({
-    description:
-      "The tool the comment was imported from. Supplying external attribution requires workspace:manage_settings.",
-  }),
+  externalSource: z
+    .enum(["planka", "trello", "jira", "plane", "linear", "kaneo"])
+    .optional()
+    .openapi({
+      description:
+        "The tool the comment was imported from. Supplying external attribution requires workspace:manage_settings.",
+    }),
 });
 
 export const updateCommentBody = z.object({

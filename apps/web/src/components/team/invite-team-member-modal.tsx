@@ -1,5 +1,6 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
+import { SendIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -117,7 +118,7 @@ function InviteTeamMemberModal({ open, onClose }: Props) {
         queryKey: ["workspace-users", workspaceId],
       });
 
-      toast.success(t("team:inviteModal.success"));
+      toast.success(t("team:inviteModal.success"), { icon: SendIcon });
 
       // The link is the only delivery channel when SMTP is unconfigured, so the
       // modal stays open on it instead of closing. If the API ever stops

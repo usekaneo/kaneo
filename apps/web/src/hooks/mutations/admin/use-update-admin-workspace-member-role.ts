@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ShieldCheckIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { updateAdminWorkspaceMemberRole } from "@/fetchers/admin/update-admin-workspace-member-role";
 import { toast } from "@/lib/toast";
@@ -11,7 +12,9 @@ function useUpdateAdminWorkspaceMemberRole() {
   return useMutation({
     mutationFn: updateAdminWorkspaceMemberRole,
     onSuccess: (members, { workspaceId }) => {
-      toast.success(t("settings:adminWorkspaces.toast.roleUpdated"));
+      toast.success(t("settings:adminWorkspaces.toast.roleUpdated"), {
+        icon: ShieldCheckIcon,
+      });
       syncAdminWorkspaceMembers(queryClient, workspaceId, members);
     },
     onError: (error) => {

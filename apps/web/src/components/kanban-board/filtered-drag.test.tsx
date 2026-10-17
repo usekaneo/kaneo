@@ -38,7 +38,10 @@ vi.mock("@tanstack/react-query", () => ({
   },
 }));
 vi.mock("@kaneo/libs", () => ({ client: {} }));
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn(),
+  useRouter: () => ({ preloadRoute: () => Promise.resolve() }),
+}));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, options?: { sort?: string }) =>
@@ -50,9 +53,6 @@ vi.mock("@/store/project", () => ({
 }));
 vi.mock("@/store/background", () => ({
   useBackgroundStore: () => ({ setBackground: vi.fn() }),
-}));
-vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
-  useRegisterShortcuts: vi.fn(),
 }));
 vi.mock("@/hooks/use-project-background", () => ({
   useProjectBackground: () => null,

@@ -28,9 +28,12 @@ vi.stubGlobal(
   },
 );
 
+document.elementFromPoint = () => null;
+
 const emailOtp = vi.fn();
 const push = vi.fn();
 
+let locationState: unknown = null;
 let search: {
   email: string;
   invitationId?: string;
@@ -40,15 +43,20 @@ let search: {
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (options: unknown) => options,
   Link: ({ children }: { children: ReactNode }) => <a href="/">{children}</a>,
+  useLocation: () => ({ state: locationState }),
   useRouter: () => ({ history: { push } }),
   useSearch: () => search,
+}));
+
+vi.mock("@/hooks/queries/config/use-get-config", () => ({
+  default: () => ({ data: undefined }),
 }));
 
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
     signIn: {
       emailOtp: (
-        body: { email: string; otp: string },
+        body: { email: string; otp: string; name?: string },
         fetchOptions?: { headers: Record<string, string> },
       ) => emailOtp(body, fetchOptions),
     },
@@ -91,6 +99,7 @@ afterEach(async () => {
   emailOtp.mockReset();
   push.mockReset();
   search = { email: "invitee@kaneo.test" };
+  locationState = null;
 });
 
 // The ResizeObserver stub is installed at module scope, so restore it rather
@@ -110,6 +119,30 @@ describe("VerifyOtp", () => {
       { email: "invitee@kaneo.test", otp: "123456" },
       { headers: { "x-invitation-id": "invitation-1" } },
     );
+  });
+
+  it("passes the name from the sign-up page so the new account keeps it", async () => {
+    locationState = { signUpName: "New Person" };
+
+    submitCode();
+
+    await waitFor(() => expect(emailOtp).toHaveBeenCalledTimes(1));
+    expect(emailOtp).toHaveBeenCalledWith(
+      { email: "invitee@kaneo.test", otp: "123456", name: "New Person" },
+      undefined,
+    );
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  it("shows an expired code inline instead of signing in", async () => {
+    emailOtp.mockResolvedValue({ data: null, error: { code: "OTP_EXPIRED" } });
+
+    submitCode();
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "auth:verifyOtp.expired",
+    );
+    expect(push).not.toHaveBeenCalled();
   });
 
   it("sends no invitation header when the visitor arrived without one", async () => {

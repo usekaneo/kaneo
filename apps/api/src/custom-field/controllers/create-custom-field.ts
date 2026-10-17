@@ -3,15 +3,10 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   customFieldDefinitionTable,
-  customFieldValueTable,
   projectTable,
-  taskTable,
 } from "../../database/schema";
-
-import {
-  isCustomFieldValueEmpty,
-  validateCustomFieldValue,
-} from "../../task/validate-task-fields";
+import { assertValidDefinition } from "../assert-valid-definition";
+import { insertMissingValues } from "../fill-default-values";
 
 async function createCustomField(
   projectId: string,
@@ -34,102 +29,7 @@ async function createCustomField(
     throw new HTTPException(404, { message: "Project not found" });
   }
 
-  if (
-    required &&
-    (defaultValue === undefined ||
-      defaultValue === null ||
-      defaultValue.trim() === "")
-  ) {
-    throw new HTTPException(400, {
-      message: "Required fields must have a default value",
-    });
-  }
-
-  if (defaultValue !== undefined && defaultValue !== null) {
-    const trimmedValue = defaultValue.trim();
-
-    if (trimmedValue) {
-      if (type === "number") {
-        const numberRegex = /^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$/i;
-        if (!numberRegex.test(trimmedValue)) {
-          throw new HTTPException(400, {
-            message:
-              "Default value must be a valid number for number type fields",
-          });
-        }
-        const parsed = Number(trimmedValue);
-        if (Number.isNaN(parsed) || !Number.isFinite(parsed)) {
-          throw new HTTPException(400, {
-            message:
-              "Default value must be a valid number for number type fields",
-          });
-        }
-      } else if (type === "boolean") {
-        if (trimmedValue !== "true" && trimmedValue !== "false") {
-          throw new HTTPException(400, {
-            message:
-              "Default value must be 'true' or 'false' for boolean type fields",
-          });
-        }
-      } else if (type === "date") {
-        const error = validateCustomFieldValue(trimmedValue, "date", name);
-        if (error) {
-          throw new HTTPException(400, { message: error });
-        }
-      } else if (type === "dropdown") {
-        if (options && options.length > 0) {
-          const normalizedOptions = options.map((opt) => opt.trim());
-          if (!normalizedOptions.includes(trimmedValue)) {
-            throw new HTTPException(400, {
-              message: "Default value must be one of the dropdown options",
-            });
-          }
-        }
-      }
-    }
-  }
-
-  if (type === "dropdown" && (!options || options.length < 1)) {
-    throw new HTTPException(400, {
-      message: "Dropdown fields must have at least one option",
-    });
-  }
-
-  if (type === "multiselect") {
-    const normalizedOptions = Array.from(
-      new Set(
-        (options ?? [])
-          .map((opt) => opt.trim())
-          .filter((opt) => opt.length > 0),
-      ),
-    );
-
-    if (normalizedOptions.length < 2) {
-      throw new HTTPException(400, {
-        message: "Multiselect fields must have at least 2 options",
-      });
-    }
-  }
-
-  if (type === "multiselect" && defaultValue != null) {
-    const empty = isCustomFieldValueEmpty(defaultValue, "multiselect");
-    if (required && empty) {
-      throw new HTTPException(400, {
-        message: "Required fields must have a default value",
-      });
-    }
-    if (!empty) {
-      const error = validateCustomFieldValue(
-        defaultValue,
-        "multiselect",
-        name,
-        options,
-      );
-      if (error) {
-        throw new HTTPException(400, { message: error });
-      }
-    }
-  }
+  assertValidDefinition({ name, type, required, defaultValue, options });
 
   const storedDefaultValue =
     type === "date" ? defaultValue?.trim() : defaultValue;
@@ -160,24 +60,11 @@ async function createCustomField(
     }
 
     if (storedDefaultValue != null && storedDefaultValue.trim() !== "") {
-      const tasks = await tx
-        .select({ id: taskTable.id })
-        .from(taskTable)
-        .where(eq(taskTable.projectId, projectId));
-
-      const CHUNK_SIZE = 500;
-      for (let i = 0; i < tasks.length; i += CHUNK_SIZE) {
-        await tx
-          .insert(customFieldValueTable)
-          .values(
-            tasks.slice(i, i + CHUNK_SIZE).map((task) => ({
-              taskId: task.id,
-              fieldId: created.id,
-              value: storedDefaultValue,
-            })),
-          )
-          .onConflictDoNothing();
-      }
+      await insertMissingValues(tx, {
+        projectId,
+        fieldId: created.id,
+        value: storedDefaultValue,
+      });
     }
 
     return created;

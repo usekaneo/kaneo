@@ -29,8 +29,8 @@ export async function migrateNotificationPreferencesSchema() {
         "task_status_change_enabled" boolean DEFAULT true NOT NULL,
         "due_date_reminder_enabled" boolean DEFAULT true NOT NULL,
         "due_date_reminder_lead_time_minutes" integer DEFAULT 1440 NOT NULL,
-        "created_at" timestamp DEFAULT now() NOT NULL,
-        "updated_at" timestamp DEFAULT now() NOT NULL
+        "created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+        "updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL
       );
     `);
 
@@ -52,8 +52,8 @@ export async function migrateNotificationPreferencesSchema() {
       ADD COLUMN IF NOT EXISTS "task_status_change_enabled" boolean DEFAULT true NOT NULL,
       ADD COLUMN IF NOT EXISTS "due_date_reminder_enabled" boolean DEFAULT true NOT NULL,
       ADD COLUMN IF NOT EXISTS "due_date_reminder_lead_time_minutes" integer DEFAULT 1440 NOT NULL,
-      ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT now() NOT NULL,
-      ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT now() NOT NULL;
+      ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+      ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL;
     `);
 
     await db.execute(sql`
@@ -67,8 +67,8 @@ export async function migrateNotificationPreferencesSchema() {
         "gotify_enabled" boolean DEFAULT false NOT NULL,
         "webhook_enabled" boolean DEFAULT false NOT NULL,
         "project_mode" text DEFAULT 'all' NOT NULL,
-        "created_at" timestamp DEFAULT now() NOT NULL,
-        "updated_at" timestamp DEFAULT now() NOT NULL
+        "created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+        "updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL
       );
     `);
 
@@ -80,8 +80,8 @@ export async function migrateNotificationPreferencesSchema() {
       ADD COLUMN IF NOT EXISTS "gotify_enabled" boolean DEFAULT false NOT NULL,
       ADD COLUMN IF NOT EXISTS "webhook_enabled" boolean DEFAULT false NOT NULL,
       ADD COLUMN IF NOT EXISTS "project_mode" text DEFAULT 'all' NOT NULL,
-      ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT now() NOT NULL,
-      ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT now() NOT NULL;
+      ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+      ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL;
     `);
 
     await db.execute(sql`
@@ -90,15 +90,15 @@ export async function migrateNotificationPreferencesSchema() {
         "workspace_id" text NOT NULL,
         "workspace_rule_id" text NOT NULL,
         "project_id" text NOT NULL,
-        "created_at" timestamp DEFAULT now() NOT NULL,
-        "updated_at" timestamp DEFAULT now() NOT NULL
+        "created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+        "updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL
       );
     `);
 
     await db.execute(sql`
       ALTER TABLE "user_notification_workspace_project"
-      ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT now() NOT NULL,
-      ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT now() NOT NULL;
+      ADD COLUMN IF NOT EXISTS "created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
+      ADD COLUMN IF NOT EXISTS "updated_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL;
     `);
 
     await db.execute(sql`

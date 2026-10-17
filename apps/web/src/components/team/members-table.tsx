@@ -6,6 +6,9 @@ import {
   PencilIcon,
   ShieldIcon,
   TrashIcon,
+  MailXIcon,
+  UserMinusIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -167,7 +170,9 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
     if (role === member.role) return;
     try {
       await updateMemberRole({ workspaceId, memberId: member.id, role });
-      toast.success(t("team:membersTable.roleUpdateSuccess"));
+      toast.success(t("team:membersTable.roleUpdateSuccess"), {
+        icon: ShieldCheckIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -184,7 +189,9 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
         workspaceId,
         userId: memberToDelete.user.email,
       });
-      toast.success(t("team:membersTable.removeSuccess"));
+      toast.success(t("team:membersTable.removeSuccess"), {
+        icon: UserMinusIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -203,7 +210,9 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
         invitationId: invitationToCancel.id,
         workspaceId,
       });
-      toast.success(t("team:membersTable.cancelInviteSuccess"));
+      toast.success(t("team:membersTable.cancelInviteSuccess"), {
+        icon: MailXIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -271,9 +280,11 @@ function MembersTable({ workspaceId, invitations, users }: Props) {
                         {getInitials(member.user.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="min-w-0">
+                    {/* Capped on phones so the email truncates and the role column
+                        peeks in, hinting that the table scrolls sideways. */}
+                    <div className="min-w-0 max-w-[55vw] sm:max-w-none">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
+                        <span className="truncate text-sm font-medium">
                           {member.user.name}
                         </span>
                         {isSelf ? (

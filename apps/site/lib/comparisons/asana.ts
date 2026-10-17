@@ -4,15 +4,15 @@ export const asana: Comparison = {
   slug: "asana",
   competitor: "Asana",
   category: "saas",
-  title: "Open-source Asana alternative",
+  title: "Open-source, self-hosted Asana alternative",
   description:
-    "Kaneo is an open-source, self-hostable Asana alternative. Free to run on your own server under the MIT license, with SSO included and cloud plans from $4 a month.",
+    "Asana is not open source and cannot be self-hosted. Kaneo is an MIT-licensed Asana alternative you can self-host for free with unlimited users and SSO included.",
   summary: "No two-user free tier and no Enterprise gate on single sign-on.",
   heading: "The open-source Asana alternative",
   subheading:
     "Asana's free plan now stops at two people, and single sign-on only arrives at the Enterprise tier. Kaneo is open source, self-hostable, and gives every team the whole product.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to Asana that you can self-host for free with unlimited users. Asana is cloud-only, priced per user from $10.99 a month, and keeps SAML single sign-on for its Enterprise tier. Kaneo covers boards, backlog, Gantt and calendar views, custom fields, workflows, roles, and time tracking. Asana's portfolios, goals, and workload views remain outside Kaneo's scope.",
+    "Asana is not open source and cannot be self-hosted. Kaneo is an open-source, MIT-licensed alternative to Asana that you can self-host for free with unlimited users. Asana is cloud-only, priced per user from $10.99 a month, and keeps SAML single sign-on for its Enterprise tier. Kaneo covers boards, backlog, Gantt and calendar views, custom fields, workflows, roles, and time tracking. Asana's portfolios, goals, and workload views remain outside Kaneo's scope.",
   facts: {
     license: "MIT, versus a proprietary licence for Asana",
     hosting: "Self-host anywhere, or EU-hosted cloud. Asana is cloud only",
@@ -54,6 +54,11 @@ export const asana: Comparison = {
   honestNote:
     "Asana is genuinely strong at cross-team coordination: portfolios, goals, workload balancing, and approval flows for a marketing or operations org. If a program manager needs to see fifty projects roll up into one status view, Asana does that and Kaneo does not.",
   faq: [
+    {
+      question: "Is Asana open source?",
+      answer:
+        "No. Asana is proprietary software under a commercial licence, sold only as a hosted service. Kaneo is an open-source alternative under the MIT license that you can run on your own server.",
+    },
     {
       question: "Is there an open-source alternative to Asana?",
       answer:

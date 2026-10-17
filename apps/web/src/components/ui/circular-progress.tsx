@@ -46,7 +46,7 @@ export default function CircularProgress({
           className={
             completed === total ? "text-success-foreground" : "text-primary"
           }
-          style={{ transition: "stroke-dashoffset 0.4s ease" }}
+          style={{ transition: "stroke-dashoffset 0.2s var(--ease-out)" }}
         />
       )}
     </svg>

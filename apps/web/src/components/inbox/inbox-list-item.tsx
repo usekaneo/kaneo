@@ -26,6 +26,8 @@ export function InboxListItem({
     <li>
       <button
         type="button"
+        data-notification-id={notification.id}
+        data-shortcut-surface
         aria-current={isSelected ? "true" : undefined}
         onClick={() => onSelect(notification)}
         className={cn(

@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import TaskCard from "./task-card";
@@ -65,6 +67,12 @@ vi.mock("./task-card-context-menu/task-card-context-menu-content", () => ({
 }));
 
 afterEach(cleanup);
+
+const queryClient = new QueryClient();
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
+
 it("keeps details in the rendered open column despite a final column sharing its slug", () => {
   const task: Task = {
     id: "task",
@@ -83,7 +91,9 @@ it("keeps details in the rendered open column despite a final column sharing its
     assigneeName: null,
     labels: [{ id: "label", name: "Regression label", color: "red" }],
   };
-  const view = render(<TaskCard task={task} isFinalColumn={false} />);
+  const view = render(<TaskCard task={task} isFinalColumn={false} />, {
+    wrapper,
+  });
   expect(screen.getByText("Regression label")).toBeVisible();
   view.rerender(<TaskCard task={task} isFinalColumn />);
   expect(screen.queryByText("Regression label")).not.toBeInTheDocument();

@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { Archive, Plus } from "lucide-react";
+import { Archive, Plus, ArchiveIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -50,20 +50,22 @@ export function ColumnHeader({
     });
 
     setProject(updatedProject);
-    toast.success(t("tasks:archive.success", { count: column.tasks.length }));
+    toast.success(t("tasks:archive.success", { count: column.tasks.length }), {
+      icon: ArchiveIcon,
+    });
     setIsArchiveModalOpen(false);
   };
 
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex h-8 items-center justify-between gap-2">
       <div className="flex min-w-0 items-center gap-2">
-        <span className="text-muted-foreground">
+        <span className="text-chip-icon">
           {getColumnIcon(column.id, column.isFinal, column.icon)}
         </span>
-        <span className="truncate text-sm font-medium text-foreground/95">
+        <span className="truncate font-medium text-[13px] text-board-title leading-5">
           {column.name}
         </span>
-        <span className="rounded-md bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">
+        <span className="text-board-id text-xs tabular-nums">
           {column.tasks.length}
         </span>
       </div>
@@ -74,20 +76,21 @@ export function ColumnHeader({
             type="button"
             disabled={disableCollectionActions}
             onClick={() => setIsArchiveModalOpen(true)}
-            className="flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-colors hover:bg-accent/50"
+            className="flex size-6 cursor-pointer items-center justify-center rounded-md text-chip-icon transition-colors hover:bg-chip-hover hover:text-board-title"
             title={t("tasks:listView.archiveAllTooltip")}
+            aria-label={t("tasks:listView.archiveAllTooltip")}
           >
-            <Archive className="w-4 h-4 text-muted-foreground" />
+            <Archive className="size-3.5" />
           </button>
         )}
         {canCreate && (
           <button
             type="button"
             onClick={() => setIsTaskModalOpen(true)}
-            className="flex items-center rounded-md px-2 py-1 text-left text-muted-foreground transition-colors hover:bg-accent/50"
+            className="flex size-6 cursor-pointer items-center justify-center rounded-md text-chip-icon transition-colors hover:bg-chip-hover hover:text-board-title"
             title={t("tasks:kanban.addTask")}
           >
-            <Plus className="w-4 h-4 text-muted-foreground" />
+            <Plus className="size-3.5" />
           </button>
         )}
       </div>

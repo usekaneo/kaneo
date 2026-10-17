@@ -568,6 +568,10 @@
           "hasSmtp": {
             "type": "boolean"
           },
+          "hasImageUploads": {
+            "type": "boolean",
+            "description": "Whether S3-compatible storage is configured, so task images and board backgrounds can be uploaded."
+          },
           "hasGithubSignIn": {
             "type": "boolean"
           },
@@ -585,6 +589,13 @@
           },
           "disableLoginForm": {
             "type": "boolean"
+          },
+          "customOAuthName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Label for the custom OAuth provider on the sign-in page. Null means the generic SSO label."
           },
           "customOAuthAutoLogin": {
             "type": "boolean"
@@ -607,12 +618,14 @@
           "disableWorkspaceCreation",
           "isDemoMode",
           "hasSmtp",
+          "hasImageUploads",
           "hasGithubSignIn",
           "hasGoogleSignIn",
           "hasDiscordSignIn",
           "hasCustomOAuth",
           "hasGuestAccess",
           "disableLoginForm",
+          "customOAuthName",
           "customOAuthAutoLogin",
           "customOAuthLogoutUrl",
           "billingEnabled"
@@ -1721,7 +1734,7 @@
               "string",
               "null"
             ],
-            "description": "The tool it was imported from, e.g. planka, trello, jira."
+            "description": "The tool it was imported from: planka, trello, jira, plane, linear, kaneo, or a connected forge such as github."
           },
           "externalUrl": {
             "type": [
@@ -2710,7 +2723,7 @@
             "items": {
               "$ref": "#/components/schemas/GitHubRepository"
             },
-            "description": "Deduplicated across installations, most recently updated first."
+            "description": "Repositories the caller administers, deduplicated within the response."
           },
           "installations": {
             "type": "array",
@@ -2737,7 +2750,8 @@
             "required": [
               "installationPage",
               "repositoryPage"
-            ]
+            ],
+            "description": "Where to continue listing, or null when every installation has been read."
           }
         },
         "required": [
@@ -4179,7 +4193,7 @@
           },
           "eventType": {
             "type": "string",
-            "description": "The provider event that triggers the move, e.g. `pull_request.opened`."
+            "description": "The Kaneo event that triggers the move: `branch_push`, `pr_opened`, `pr_merged`, `issue_opened`, `issue_closed` or `issue_reopened`."
           },
           "columnId": {
             "type": "string",
@@ -4453,6 +4467,90 @@
           "projectIds"
         ]
       },
+      "WorkspaceCapabilities": {
+        "type": "object",
+        "properties": {
+          "manageProjects": {
+            "type": "boolean"
+          },
+          "createProjects": {
+            "type": "boolean"
+          },
+          "updateProjects": {
+            "type": "boolean"
+          },
+          "shareProjects": {
+            "type": "boolean"
+          },
+          "deleteProjects": {
+            "type": "boolean"
+          },
+          "updateTasks": {
+            "type": "boolean"
+          },
+          "createTasks": {
+            "type": "boolean"
+          },
+          "deleteTasks": {
+            "type": "boolean"
+          },
+          "assignTasks": {
+            "type": "boolean"
+          },
+          "createLabels": {
+            "type": "boolean"
+          },
+          "updateLabels": {
+            "type": "boolean"
+          },
+          "deleteLabels": {
+            "type": "boolean"
+          },
+          "manageWorkspace": {
+            "type": "boolean"
+          },
+          "manageSettings": {
+            "type": "boolean"
+          },
+          "deleteWorkspace": {
+            "type": "boolean"
+          },
+          "inviteUsers": {
+            "type": "boolean"
+          },
+          "manageTeam": {
+            "type": "boolean"
+          },
+          "updateMembers": {
+            "type": "boolean"
+          },
+          "removeMembers": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "manageProjects",
+          "createProjects",
+          "updateProjects",
+          "shareProjects",
+          "deleteProjects",
+          "updateTasks",
+          "createTasks",
+          "deleteTasks",
+          "assignTasks",
+          "createLabels",
+          "updateLabels",
+          "deleteLabels",
+          "manageWorkspace",
+          "manageSettings",
+          "deleteWorkspace",
+          "inviteUsers",
+          "manageTeam",
+          "updateMembers",
+          "removeMembers"
+        ],
+        "description": "Whether the caller's roles (and API key scope, if any) allow each named action in the workspace. Mirrors the checks the API enforces."
+      },
       "CustomFieldDefinition": {
         "type": "object",
         "properties": {
@@ -4592,6 +4690,466 @@
           "taskId",
           "fieldId",
           "value"
+        ]
+      },
+      "ImportSourceProjectList": {
+        "type": "object",
+        "properties": {
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportSourceProject"
+            }
+          }
+        },
+        "required": [
+          "projects"
+        ]
+      },
+      "ImportSourceProject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Extra context shown next to the name, such as the source workspace or team."
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "ImportConnection": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PlankaImportConnection"
+          },
+          {
+            "$ref": "#/components/schemas/PlaneImportConnection"
+          },
+          {
+            "$ref": "#/components/schemas/LinearImportConnection"
+          },
+          {
+            "$ref": "#/components/schemas/JiraImportConnection"
+          },
+          {
+            "$ref": "#/components/schemas/TrelloImportConnection"
+          },
+          {
+            "$ref": "#/components/schemas/KaneoImportConnection"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "source",
+          "mapping": {
+            "planka": "#/components/schemas/PlankaImportConnection",
+            "plane": "#/components/schemas/PlaneImportConnection",
+            "linear": "#/components/schemas/LinearImportConnection",
+            "jira": "#/components/schemas/JiraImportConnection",
+            "trello": "#/components/schemas/TrelloImportConnection",
+            "kaneo": "#/components/schemas/KaneoImportConnection"
+          }
+        },
+        "description": "Where to import from and how to sign in. Credentials are used only for this request and the import it starts; they are never stored, logged, or returned."
+      },
+      "PlankaImportConnection": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "planka"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "Address of the PLANKA instance.",
+            "example": "https://planka.example.com"
+          },
+          "apiKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "A PLANKA API key. Send it, or username and password. Used only for this import and never stored or logged."
+          },
+          "username": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Username or email of a PLANKA account, used with password when no API key is sent."
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "Password of that PLANKA account. Used only for this import and never stored or logged."
+          }
+        },
+        "required": [
+          "source",
+          "url"
+        ]
+      },
+      "PlaneImportConnection": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "plane"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "Address of the Plane instance, e.g. https://app.plane.so for Plane Cloud.",
+            "example": "https://planka.example.com"
+          },
+          "apiKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "A Plane personal access token. Used only for this import and never stored or logged."
+          },
+          "workspaceSlug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Slug of the Plane workspace to read. Optional when the URL already names it."
+          }
+        },
+        "required": [
+          "source",
+          "url",
+          "apiKey"
+        ]
+      },
+      "LinearImportConnection": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "linear"
+            ]
+          },
+          "apiKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "A Linear personal API key. Used only for this import and never stored or logged."
+          }
+        },
+        "required": [
+          "source",
+          "apiKey"
+        ]
+      },
+      "JiraImportConnection": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "jira"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "Address of the Jira site, e.g. https://your-site.atlassian.net for Jira Cloud, or your own domain for Jira Data Center.",
+            "example": "https://your-site.atlassian.net"
+          },
+          "email": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 320,
+            "description": "Email of the Atlassian account the API token belongs to. Required for Jira Cloud; leave it out for Jira Data Center."
+          },
+          "apiToken": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "A Jira Cloud API token, sent with email, or a Jira Data Center personal access token, sent without email. Used only for this import and never stored or logged."
+          }
+        },
+        "required": [
+          "source",
+          "url",
+          "apiToken"
+        ]
+      },
+      "TrelloImportConnection": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "trello"
+            ]
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "A Trello token authorized for this Kaneo instance. Used only for this import and never stored or logged."
+          },
+          "apiKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Trello API key, a public app identifier. Defaults to the server's TRELLO_API_KEY."
+          }
+        },
+        "required": [
+          "source",
+          "token"
+        ]
+      },
+      "KaneoImportConnection": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "kaneo"
+            ]
+          },
+          "url": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048,
+            "description": "Address of the Kaneo instance to import from.",
+            "example": "https://planka.example.com"
+          },
+          "apiKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "An API key from that Kaneo instance. Used only for this import and never stored or logged."
+          }
+        },
+        "required": [
+          "source",
+          "url",
+          "apiKey"
+        ]
+      },
+      "ImportRunEnvelope": {
+        "type": "object",
+        "properties": {
+          "run": {
+            "$ref": "#/components/schemas/ImportRun"
+          }
+        },
+        "required": [
+          "run"
+        ]
+      },
+      "ImportRun": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "planka",
+              "plane",
+              "linear",
+              "jira",
+              "trello",
+              "kaneo"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "completed",
+              "failed"
+            ],
+            "description": "completed once every selected project was attempted, even if some failed; check each project's status. failed means the run itself stopped."
+          },
+          "includeComments": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Latest progress line while the run is running."
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportRunProject"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finishedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "source",
+          "status",
+          "includeComments",
+          "message",
+          "error",
+          "projects",
+          "createdAt",
+          "finishedAt"
+        ]
+      },
+      "ImportRunProject": {
+        "type": "object",
+        "properties": {
+          "sourceId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed"
+            ]
+          },
+          "projectId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The Kaneo project created by the import, once completed."
+          },
+          "projectSlug": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "counts": {
+            "$ref": "#/components/schemas/ImportCounts"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "sourceId",
+          "name",
+          "status",
+          "projectId",
+          "projectSlug",
+          "counts",
+          "warnings",
+          "error"
+        ]
+      },
+      "ImportCounts": {
+        "type": "object",
+        "properties": {
+          "columns": {
+            "type": "integer"
+          },
+          "tasks": {
+            "type": "integer"
+          },
+          "labels": {
+            "type": "integer"
+          },
+          "comments": {
+            "type": "integer"
+          },
+          "assignees": {
+            "type": "integer",
+            "description": "Tasks that were assigned to a workspace member."
+          },
+          "relations": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "columns",
+          "tasks",
+          "labels",
+          "comments",
+          "assignees",
+          "relations"
+        ]
+      },
+      "ImportRunList": {
+        "type": "object",
+        "properties": {
+          "runs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportRun"
+            }
+          }
+        },
+        "required": [
+          "runs"
+        ]
+      },
+      "TrelloAuthorizeUrl": {
+        "type": "object",
+        "properties": {
+          "authorizeUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Trello page where the user approves read access for Kaneo and copies a token. null when the server has no TRELLO_API_KEY; the user then sends their own Trello API key with the token."
+          }
+        },
+        "required": [
+          "authorizeUrl"
         ]
       },
       "CurrentUser": {
@@ -8041,9 +8599,10 @@
           {
             "schema": {
               "type": "string",
-              "maxLength": 1024
+              "description": "Opaque client state, returned unchanged. The complete authorization URL is limited to 8 KiB."
             },
             "required": false,
+            "description": "Opaque client state, returned unchanged. The complete authorization URL is limited to 8 KiB.",
             "name": "state",
             "in": "query"
           }
@@ -11527,7 +12086,8 @@
                           "type": "string"
                         },
                         "status": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Column slug, current column name, or slugified current name. Unknown values map to planned with a warning; ambiguous names fail the task import."
                         },
                         "priority": {
                           "type": "string"
@@ -11548,7 +12108,8 @@
                           "type": [
                             "string",
                             "null"
-                          ]
+                          ],
+                          "description": "Assignable user's ID or email address. Emails match case-insensitively. Null, empty, or omitted leaves the task unassigned."
                         }
                       },
                       "required": [
@@ -13505,7 +14066,10 @@
                     "enum": [
                       "planka",
                       "trello",
-                      "jira"
+                      "jira",
+                      "plane",
+                      "linear",
+                      "kaneo"
                     ],
                     "description": "The tool the comment was imported from. Supplying external attribution requires workspace:manage_settings."
                   }
@@ -14925,6 +15489,61 @@
         }
       }
     },
+    "/notification/{id}/unread": {
+      "patch": {
+        "operationId": "markNotificationAsUnread",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Mark notification unread",
+        "description": "Mark one notification as unread again. Scoped to the current user, so another user's notification is not found.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated notification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Notification"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
     "/notification/read-all": {
       "patch": {
         "operationId": "markAllNotificationsAsRead",
@@ -15007,6 +15626,109 @@
           },
           "401": {
             "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/notification/clear-read": {
+      "delete": {
+        "operationId": "clearReadNotifications",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Clear read notifications",
+        "description": "Permanently delete the current user's read notifications, optionally limited to one workspace. Unread notifications are kept. This cannot be undone.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces."
+            },
+            "required": false,
+            "description": "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces.",
+            "name": "workspaceId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Read notifications cleared",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationBulkResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/notification/{id}": {
+      "delete": {
+        "operationId": "deleteNotification",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Delete notification",
+        "description": "Permanently delete one notification. Scoped to the current user, so another user's notification is not found.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationBulkResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -16357,7 +17079,7 @@
           "GitHub"
         ],
         "summary": "List GitHub repositories",
-        "description": "List the repositories reachable through the installed GitHub App, for picking one to link.",
+        "description": "List the repositories reachable through the installed GitHub App that the caller administers, for picking one to link. Without `search`, each request reads one page of one installation. With `search`, the server filters by name and description before checking access and keeps scanning later pages and installations within a fixed budget. Follow `nextPage` until it is null to see every repository.",
         "parameters": [
           {
             "schema": {
@@ -16385,6 +17107,17 @@
             },
             "required": false,
             "name": "repositoryPage",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Case-insensitive match on the repository full name or description. When set, one request scans up to 10 pages of 100 repositories across installations and returns every match it finds, with `nextPage` set to resume the scan."
+            },
+            "required": false,
+            "description": "Case-insensitive match on the repository full name or description. When set, one request scans up to 10 pages of 100 repositories across installations and returns every match it finds, with `nextPage` set to resume the scan.",
+            "name": "search",
             "in": "query"
           }
         ],
@@ -20783,7 +21516,15 @@
                     "type": "string"
                   },
                   "eventType": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                      "branch_push",
+                      "pr_opened",
+                      "pr_merged",
+                      "issue_opened",
+                      "issue_closed",
+                      "issue_reopened"
+                    ]
                   },
                   "columnId": {
                     "type": "string"
@@ -21219,6 +21960,61 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/MemberProjectAccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/capabilities": {
+      "get": {
+        "operationId": "getMyWorkspaceCapabilities",
+        "tags": [
+          "Workspaces"
+        ],
+        "summary": "Get my workspace capabilities",
+        "description": "Check every named workspace action for the caller in one request: which of them the caller's roles allow, narrowed by the API key's scope when one is used. Instance admins are allowed everything.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's capabilities in the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceCapabilities"
                 }
               }
             }
@@ -22066,6 +22862,588 @@
           },
           "404": {
             "description": "Custom field not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateCustomField",
+        "tags": [
+          "Custom Fields"
+        ],
+        "summary": "Update custom field",
+        "description": "Update a custom field's name, required flag, default, or options. The type can't change, except between dropdown and multiselect. Options that tasks still use can't be removed or renamed; the request is rejected instead of changing task values.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "New name for the field. Cannot be blank."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "text",
+                      "number",
+                      "date",
+                      "dropdown",
+                      "boolean",
+                      "multiselect"
+                    ],
+                    "description": "Only `dropdown` and `multiselect` can switch between each other. Task values are converted, and switching to `dropdown` is rejected while a task has more than one option picked. Any other type change is rejected."
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "Whether every task must have a value. Turning it on needs a default, which fills tasks that have no value yet."
+                  },
+                  "defaultValue": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Value new tasks start with. Send `null` or an empty string to clear it. Multiselect defaults are a JSON array of options."
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "The full option list for dropdown and multiselect fields, in display order. Adding and reordering options is always allowed. Removing or renaming an option that a task still uses is rejected with 400, so task values are never changed silently."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated custom field",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomFieldDefinition"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, a type change, or removing an option that tasks still use",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Custom field not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/import/projects": {
+      "post": {
+        "operationId": "listImportSourceProjects",
+        "tags": [
+          "Import"
+        ],
+        "summary": "List projects in an import source",
+        "description": "Sign in to PLANKA, Plane, Linear, Jira, Trello or another Kaneo instance and list the projects that can be imported. The credentials are used only for this request; they are never stored, logged, or returned.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "connection": {
+                    "$ref": "#/components/schemas/ImportConnection"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "connection"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Projects available in the source",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportSourceProjectList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, credentials the source rejected, or a destination this server may not reach",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace plan has expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings or project:create permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "The source could not be reached or answered with an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/import/runs": {
+      "post": {
+        "operationId": "startImportRun",
+        "tags": [
+          "Import"
+        ],
+        "summary": "Start an import",
+        "description": "Import the selected source projects into the workspace as new Kaneo projects. The import runs in the background; poll getImportRun for progress. The credentials are held in memory only while the import runs; they are never stored, logged, or returned. Imported tasks do not send notifications or trigger integrations.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "workspaceId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "connection": {
+                    "$ref": "#/components/schemas/ImportConnection"
+                  },
+                  "projectIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    },
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "description": "Source project IDs from listImportSourceProjects, imported in this order."
+                  },
+                  "includeComments": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Import task comments too. Defaults to true."
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "connection",
+                  "projectIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "The import started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportRunEnvelope"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body, credentials the source rejected, a destination this server may not reach, or a selected project the source no longer lists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace plan has expired",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings or project:create permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another import is already running in this workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "This server is already running its maximum number of imports, or the API key exceeded its rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The source could not be reached or answered with an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The server is restarting and not starting new imports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/import/runs/{workspaceId}": {
+      "get": {
+        "operationId": "listImportRuns",
+        "tags": [
+          "Import"
+        ],
+        "summary": "List imports",
+        "description": "The workspace's 20 most recent imports, newest first. A run whose server stopped reporting progress is returned as failed.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent imports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportRunList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings or project:create permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/import/trello/authorize-url/{workspaceId}": {
+      "get": {
+        "operationId": "getTrelloAuthorizeUrl",
+        "tags": [
+          "Import"
+        ],
+        "summary": "Get the Trello authorize link",
+        "description": "Link to Trello's authorize page for this server's Trello app, where the user approves read access and copies a token for startImportRun. null when the server has no TRELLO_API_KEY.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The Trello authorize link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrelloAuthorizeUrl"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings or project:create permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/import/runs/{workspaceId}/{runId}": {
+      "get": {
+        "operationId": "getImportRun",
+        "tags": [
+          "Import"
+        ],
+        "summary": "Get an import",
+        "description": "Progress and outcome of one import, including each project's status, counts and warnings.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "runId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The import",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportRunEnvelope"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:manage_settings or project:create permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or import not found",
             "content": {
               "application/json": {
                 "schema": {

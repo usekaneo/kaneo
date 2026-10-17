@@ -11,7 +11,7 @@ description: Work with Kaneo tasks, projects, comments and time tracking through
 
 Run `kaneo context`. It prints the server, user, workspace and project in use, and where each value came from.
 
-- `kaneo: command not found`: ask the user to install it in their own terminal, where they can read the script first: `curl -fsSL https://kaneo.app/cli/install.sh | sh` (Windows: `irm https://kaneo.app/cli/install.ps1 | iex`). The binary lands in `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`). Your shell may not have that folder on its `PATH` yet, so call it by that full path until it does.
+- `kaneo: command not found`: ask the user to install it in their own terminal, where they can read the script first: `curl -fsSL https://kaneo.app/cli/install.sh | sh` (Windows: `irm https://kaneo.app/cli/install.ps1 | iex`), `brew install usekaneo/tap/kaneo` with Homebrew, or `npm install -g @kaneo/cli` with Node.js 20 or newer. The script's binary lands in `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`). Your shell may not have that folder on its `PATH` yet, so call it by that full path until it does.
 - No user: `kaneo login` is a browser approval only a person can finish. Ask the user to run it in their own terminal. Headless and CI runs use an API key in `KANEO_API_KEY` instead (created in Kaneo under Settings, Account, API Keys).
 - No workspace: list them with `kaneo workspace list --jq '.[] | "\(.id) \(.name)"'` and pass `-w <id>`, or ask the user to pick a default with `kaneo workspace use`.
 - Server or compatibility errors: `kaneo doctor` explains what is wrong.

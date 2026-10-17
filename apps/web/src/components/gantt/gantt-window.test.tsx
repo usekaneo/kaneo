@@ -51,12 +51,35 @@ vi.mock("@/store/user-preferences", () => ({
 }));
 vi.mock("@/lib/i18n/domain", () => ({
   getStatusLabel: (status: string) => status,
+  getPriorityLabel: (priority: string) => priority,
 }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 vi.mock("@/lib/toast", () => ({ toast: { error: vi.fn() } }));
+vi.mock("@/hooks/queries/task/use-description-matches", () => ({
+  useDescriptionMatches: () => ({
+    ids: new Set<string>(),
+    isLoading: false,
+    isError: false,
+  }),
+}));
+vi.mock("@/components/project/task-filters/use-task-filter-options", () => ({
+  useTaskFilterOptions: () => ({
+    members: [],
+    labels: [],
+    customFields: [],
+    usedCustomFieldValues: {},
+  }),
+}));
+const noCustomFieldValues = () => [];
+vi.mock(
+  "@/hooks/queries/custom-field/use-get-all-custom-field-values-by-project",
+  () => ({
+    default: () => ({ getValuesForTask: noCustomFieldValues }),
+  }),
+);
 
 await import("@/routes/_layout/_authenticated/dashboard/workspace/$workspaceId/project/$projectId/gantt");
 afterEach(() => {

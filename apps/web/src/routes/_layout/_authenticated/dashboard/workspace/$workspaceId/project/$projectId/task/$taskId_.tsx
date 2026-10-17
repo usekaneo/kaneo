@@ -1,3 +1,4 @@
+import { TaskShortcuts } from "@/components/task/task-shortcuts";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -5,11 +6,13 @@ import TaskLayout from "@/components/common/task-layout";
 import PageTitle from "@/components/page-title";
 import TaskDeleteDialog from "@/components/task/task-delete-dialog";
 import TaskDetailsContent from "@/components/task/task-details-content";
+import { TaskHeaderActions } from "@/components/task/header/task-header-actions";
+import { PropertiesRail } from "@/components/task/properties/properties-rail";
+import { PropertyChips } from "@/components/task/properties/property-chips";
 import {
   TaskDetailsSkeleton,
-  TaskPropertiesSidebarSkeleton,
+  TaskPropertiesRailSkeleton,
 } from "@/components/task/task-page-skeleton";
-import TaskPropertiesSidebar from "@/components/task/task-properties-sidebar";
 import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import useGetActivitiesByTaskId from "@/hooks/queries/activity/use-get-activities-by-task-id";
@@ -76,16 +79,25 @@ function RouteComponent() {
       taskId={taskId}
       projectId={projectId}
       workspaceId={workspaceId}
-      rightSidebar={
-        isLoading ? (
-          <TaskPropertiesSidebarSkeleton className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2" />
-        ) : isTaskError || !task ? null : (
-          <TaskPropertiesSidebar
+      headerActions={
+        !isLoading && task ? (
+          <TaskHeaderActions
             taskId={taskId}
             projectId={projectId}
             workspaceId={workspaceId}
-            className="h-full w-full lg:w-72 xl:w-80 flex flex-col gap-2"
             deleteHandle={deleteHandle}
+          />
+        ) : null
+      }
+      rail={
+        isLoading ? (
+          <TaskPropertiesRailSkeleton />
+        ) : isTaskError || !task ? null : (
+          <PropertiesRail
+            taskId={taskId}
+            projectId={projectId}
+            workspaceId={workspaceId}
+            className="w-80 shrink-0"
           />
         )
       }
@@ -100,6 +112,13 @@ function RouteComponent() {
         }
         hideAppName
       />
+      {!isLoading && task && (
+        <TaskShortcuts
+          taskId={taskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+        />
+      )}
       {!isLoading && task && (
         <TaskDeleteDialog
           handle={deleteHandle}
@@ -139,7 +158,16 @@ function RouteComponent() {
           taskId={taskId}
           projectId={projectId}
           workspaceId={workspaceId}
-          className="mx-auto flex h-full min-h-0 w-full max-w-3xl flex-col gap-2 px-3 pb-16 pt-3 sm:px-4 xl:pb-20 xl:pt-8"
+          variant="page"
+          className="mx-auto w-full max-w-2xl px-4 pt-6 pb-16 sm:px-6 xl:pt-12 xl:pb-20"
+          properties={
+            <PropertyChips
+              taskId={taskId}
+              projectId={projectId}
+              workspaceId={workspaceId}
+              className="pb-5 lg:hidden"
+            />
+          }
         />
       )}
     </TaskLayout>

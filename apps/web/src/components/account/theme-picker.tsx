@@ -32,7 +32,7 @@ export function ThemePicker({ value, onChange }: ThemePickerProps) {
         return (
           <label
             key={theme.value}
-            className="flex cursor-pointer flex-col gap-2"
+            className="flex min-w-0 cursor-pointer flex-col gap-2"
           >
             <RadioPrimitive.Root
               value={theme.value}

@@ -77,6 +77,18 @@
 							"core/functional/personalize-your-workspace",
 							"core/functional/manage-your-account"
 						]
+					},
+					{
+						"group": "Import from other tools",
+						"pages": [
+							"core/migrations/index",
+							"core/migrations/from-linear",
+							"core/migrations/from-jira",
+							"core/migrations/from-trello",
+							"core/migrations/from-plane",
+							"core/migrations/from-planka",
+							"core/migrations/from-kaneo"
+						]
 					}
 				]
 			},
@@ -122,9 +134,8 @@
 						]
 					},
 					{
-						"group": "Move to Kaneo",
+						"group": "Migrate a deployment",
 						"pages": [
-							"core/migrations/from-planka",
 							"core/installation/migration",
 							"core/installation/drim-migration"
 						]

@@ -14,9 +14,15 @@ const project = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/board" }),
+  useRouter: () => ({
+    buildLocation: ({ to }: { to: string }) => ({ href: to }),
+  }),
   Link: ({ children, to }: { children: ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
+}));
+vi.mock("@/components/project/views/use-project-view-shortcuts", () => ({
+  useProjectViewShortcuts: () => undefined,
 }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -54,7 +60,13 @@ afterEach(cleanup);
 
 function renderLayout() {
   render(
-    <ProjectLayout projectId="project-1" workspaceId="workspace-1">
+    <ProjectLayout
+      projectId="project-1"
+      workspaceId="workspace-1"
+      activeView="board"
+      toolbar={<button type="button">Toolbar action</button>}
+      summary={<span>5 tasks</span>}
+    >
       <p>Board content</p>
     </ProjectLayout>,
   );
@@ -76,6 +88,7 @@ describe("ProjectLayout access states", () => {
       }),
     ).toBeVisible();
     expect(screen.queryByText("Board content")).toBeNull();
+    expect(screen.queryByText("Toolbar action")).toBeNull();
   });
 
   it("shows a not-found state on 404", () => {
@@ -94,5 +107,23 @@ describe("ProjectLayout access states", () => {
     renderLayout();
 
     expect(screen.getByText("Board content")).toBeVisible();
+    expect(screen.getByText("Toolbar action")).toBeVisible();
+    expect(screen.getByText("5 tasks")).toBeVisible();
+  });
+
+  it("marks tasks as current and links the backlog", () => {
+    project.current = { data: { name: "Alpha" }, error: null };
+    renderLayout();
+
+    expect(
+      screen
+        .getByRole("link", { name: "tasks:title" })
+        .getAttribute("aria-current"),
+    ).toBe("page");
+    const backlog = screen.getByRole("link", { name: "tasks:view.backlog" });
+    expect(backlog.getAttribute("aria-current")).toBeNull();
+    expect(backlog.getAttribute("href")).toBe(
+      "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
+    );
   });
 });

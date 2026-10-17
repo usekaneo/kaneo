@@ -306,7 +306,11 @@ mcp.get("/.well-known/oauth-authorization-server/api", (c) =>
 mcp.all("/mcp", async (c) => {
   const authResult = await validateBearerToken(c.req.raw);
   if (!authResult) {
-    const prmUrl = `${publicApiUrl}/api/.well-known/oauth-protected-resource/api/mcp`;
+    // Canonical RFC 9728 URL: the well-known path goes before the resource
+    // path. MCP clients discover from this header, so it must be the URL
+    // auditors accept; the /api/.well-known alias below stays for clients
+    // that cached the previously advertised URL.
+    const prmUrl = `${publicApiUrl}/.well-known/oauth-protected-resource/api/mcp`;
     c.header("WWW-Authenticate", `Bearer resource_metadata="${prmUrl}"`);
     return c.json(
       {

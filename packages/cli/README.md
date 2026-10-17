@@ -24,6 +24,13 @@ Windows (PowerShell):
 irm https://kaneo.app/cli/install.ps1 | iex
 ```
 
+With Homebrew, or with npm and Node.js 20 or newer:
+
+```bash
+brew install usekaneo/tap/kaneo
+npm install -g @kaneo/cli
+```
+
 The script picks the build for your system from the `cli-v<version>` GitHub release, verifies it against the release's `SHA256SUMS`, and installs it to `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`, added to your user `PATH`). Both scripts are plain text, so you can read [install.sh](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.sh) and [install.ps1](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.ps1) before running them.
 
 | Variable | What it does |
@@ -42,7 +49,7 @@ curl -fsSL https://kaneo.app/cli/install.sh | KANEO_DOWNLOAD_URL=https://mirror.
 $env:KANEO_VERSION = "0.1.0"; irm https://kaneo.app/cli/install.ps1 | iex
 ```
 
-To update, run the install command again. To uninstall, delete the binary, and `~/.config/kaneo` too if you want to remove your logins.
+To update, run the install command again, `brew upgrade kaneo` for Homebrew, or `npm install -g @kaneo/cli@latest` for npm. To uninstall, delete the binary, and `~/.config/kaneo` too if you want to remove your logins.
 
 Prefer the script to downloading a binary from the release page with a browser: the macOS builds are signed ad hoc but not notarized, so Gatekeeper can block browser downloads. On Alpine and other musl distributions, install the C++ runtime first with `apk add libstdc++`. See the [install guide](https://kaneo.app/docs/cli/install) for mirrors, offline installs and supported systems.
 
@@ -169,4 +176,6 @@ The CLI is written with [Effect](https://effect.website) 4 (`effect/cli`, `effec
 
 Bump `version` in `package.json` and merge to `main`. The `Release CLI` workflow (`.github/workflows/publish-cli.yml`) tests and bundles the CLI, compiles standalone binaries with Bun for macOS, Linux (glibc and musl) and Windows, and creates the `cli-v<version>` GitHub release with the binaries and a `SHA256SUMS` file. It skips versions that already have a release, and you can also run it by hand from the Actions tab.
 
-Publishing to npm stays off until the `CLI_NPM_PUBLISH` repository variable is set to `true`. With it on, the same workflow publishes `@kaneo/cli` to npm with provenance, skipping versions that are already published.
+After a stable release, the workflow also points the `kaneo` formula in [usekaneo/homebrew-tap](https://github.com/usekaneo/homebrew-tap) at the new binaries. It writes the formula with `scripts/homebrew-formula.sh` and pushes with the `HOMEBREW_TAP_TOKEN` secret, a fine-grained token that can write to that repository only.
+
+While the `CLI_NPM_PUBLISH` repository variable is `true`, the same workflow also publishes `@kaneo/cli` to npm with provenance through trusted publishing, skipping versions that are already published.

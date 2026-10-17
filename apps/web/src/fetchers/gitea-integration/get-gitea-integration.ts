@@ -17,4 +17,8 @@ async function getGiteaIntegration(projectId: string) {
   return data;
 }
 
+export type GiteaIntegration = NonNullable<
+  Awaited<ReturnType<typeof getGiteaIntegration>>
+>;
+
 export default getGiteaIntegration;

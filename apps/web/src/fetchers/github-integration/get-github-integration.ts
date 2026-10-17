@@ -17,4 +17,8 @@ async function getGithubIntegration(projectId: string) {
   return data;
 }
 
+export type GithubIntegration = NonNullable<
+  Awaited<ReturnType<typeof getGithubIntegration>>
+>;
+
 export default getGithubIntegration;
