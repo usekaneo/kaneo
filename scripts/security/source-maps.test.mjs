@@ -39,7 +39,7 @@ for (const config of ["nginx.conf", "nginx.kaneo.conf"]) {
       );
       writeFileSync(
         resolve(fixture, "nginx.conf"),
-        "pid /tmp/nginx.pid; error_log /tmp/nginx-error.log; events {} http { access_log off; client_body_temp_path /tmp/client; proxy_temp_path /tmp/proxy; fastcgi_temp_path /tmp/fastcgi; uwsgi_temp_path /tmp/uwsgi; scgi_temp_path /tmp/scgi; include /usr/share/kaneo/html/server.conf; }",
+        "pid /tmp/nginx.pid; error_log /tmp/nginx-error.log; events {} http { access_log off; client_body_temp_path /tmp/client; proxy_temp_path /tmp/proxy; fastcgi_temp_path /tmp/fastcgi; uwsgi_temp_path /tmp/uwsgi; scgi_temp_path /tmp/scgi; include /usr/share/nginx/html/server.conf; }",
       );
       const result = spawnSync(
         "docker",
@@ -50,7 +50,7 @@ for (const config of ["nginx.conf", "nginx.kaneo.conf"]) {
           "--network=none",
           "--user=1001:1001",
           "--mount",
-          `type=bind,source=${fixture},target=/usr/share/kaneo/html`,
+          `type=bind,source=${fixture},target=/usr/share/nginx/html`,
           "--mount",
           `type=bind,source=${fixture},target=/var/lib/kaneo/html`,
           "--entrypoint",
@@ -59,16 +59,16 @@ for (const config of ["nginx.conf", "nginx.kaneo.conf"]) {
           "-eu",
           "-c",
           `
-nginx -t -c /usr/share/kaneo/html/nginx.conf
-nginx -c /usr/share/kaneo/html/nginx.conf
-trap 'nginx -s quit -c /usr/share/kaneo/html/nginx.conf' EXIT
+nginx -t -c /usr/share/nginx/html/nginx.conf
+nginx -c /usr/share/nginx/html/nginx.conf
+trap 'nginx -s quit -c /usr/share/nginx/html/nginx.conf' EXIT
 for path in assets/app.js.map assets/app.JS.MAP assets/app.js%2emap; do
   if wget -S -O /tmp/map-body "http://127.0.0.1:5173/$path" 2>/tmp/map-headers; then exit 1; fi
   grep -q '404 Not Found' /tmp/map-headers
   if grep -q private-source-marker /tmp/map-body; then exit 1; fi
 done
-wget -qO /usr/share/kaneo/html/js-response http://127.0.0.1:5173/assets/app.js
-wget -qO /usr/share/kaneo/html/page-response http://127.0.0.1:5173/dashboard
+wget -qO /usr/share/nginx/html/js-response http://127.0.0.1:5173/assets/app.js
+wget -qO /usr/share/nginx/html/page-response http://127.0.0.1:5173/dashboard
 `,
         ],
         { encoding: "utf8", timeout: 30_000 },
