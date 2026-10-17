@@ -8,6 +8,14 @@ describe("resolveLocale", () => {
     expect(resolveLocale(["pt_PT"])).toBe("pt-BR");
   });
 
+  it("picks Chinese by script", () => {
+    expect(resolveLocale(["zh-Hant-TW"])).toBe("zh-TW");
+    expect(resolveLocale(["zh-Hant"])).toBe("zh-TW");
+    expect(resolveLocale(["zh-HK"])).toBe("zh-TW");
+    expect(resolveLocale(["zh_Hans_CN"])).toBe("zh-CN");
+    expect(resolveLocale(["zh"])).toBe("zh-CN");
+  });
+
   it("falls back to the next candidate, then en-US", () => {
     expect(resolveLocale([null, "fr-CA"])).toBe("fr-FR");
     expect(resolveLocale(["xx-YY"])).toBe("en-US");

@@ -386,11 +386,15 @@ function InviteForm({
 
   return (
     <>
-      <View style={{ paddingHorizontal: 20, marginTop: -8, paddingBottom: 16 }}>
-        <Txt variant="meta" tone="muted" style={{ lineHeight: 18 }}>
-          {t("mobile:members.inviteForm.intro", { workspace: workspaceName })}
-        </Txt>
-      </View>
+      {workspaceName ? (
+        <View
+          style={{ paddingHorizontal: 20, marginTop: -8, paddingBottom: 16 }}
+        >
+          <Txt variant="meta" tone="muted" style={{ lineHeight: 18 }}>
+            {t("mobile:members.inviteForm.intro", { workspace: workspaceName })}
+          </Txt>
+        </View>
+      ) : null}
       <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 16 }}>
         <TextField
           label={t("mobile:members.inviteForm.email")}
