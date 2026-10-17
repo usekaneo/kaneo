@@ -464,10 +464,7 @@ export const columnTable = pgTable(
       .$onUpdate(() => new Date())
       .notNull(),
   },
-  (table) => [
-    index("column_projectId_idx").on(table.projectId),
-    unique("column_project_slug_unique").on(table.projectId, table.slug),
-  ],
+  (table) => [index("column_projectId_idx").on(table.projectId)],
 );
 
 export const workflowRuleTable = pgTable(

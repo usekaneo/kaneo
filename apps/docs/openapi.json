@@ -13057,7 +13057,7 @@
           "Columns"
         ],
         "summary": "Create column",
-        "description": "Add a column to the end of a project's board. The slug is derived from the name.",
+        "description": "Add a column to the end of a project's board. The slug is derived from the name, with a numeric suffix such as `-2` when another column in the project already uses it.",
         "parameters": [
           {
             "schema": {
@@ -13147,7 +13147,7 @@
             }
           },
           "409": {
-            "description": "The slug is reserved, or already used in this project",
+            "description": "The slug is reserved for a virtual task status",
             "content": {
               "application/json": {
                 "schema": {
