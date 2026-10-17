@@ -1,3 +1,4 @@
+import { confirmedFieldLabels } from "../../plugins/sync/field-labels";
 import { randomUUID } from "node:crypto";
 import { asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -101,6 +102,7 @@ export async function applySyncResume(
           syncFilterPaused: false,
           syncResumeUncertain: false,
           syncResumeLabelBaseline: review.remoteIssueLabels,
+          ...confirmedFieldLabels(review.remoteIssueLabels),
           ...(provider === "gitlab"
             ? {
                 lastOutboundStateSyncAt: Date.now(),
