@@ -20,7 +20,7 @@ import { workspaceDescription } from "@/lib/describe";
 import { useWorkspaceLabels, useWorkspaces } from "@/lib/hooks";
 import { qk, useAction } from "@/lib/query";
 import { sessionStore, useRequiredSession } from "@/lib/session";
-import { canManageWorkspace } from "@/lib/style";
+import { canManageWorkspace, hasRole } from "@/lib/style";
 import { useColors } from "@/theme";
 
 export default function WorkspaceSettingsScreen() {
@@ -39,7 +39,7 @@ export default function WorkspaceSettingsScreen() {
     workspace?.role ??
     org.data?.members?.find((m) => m.userId === session.userId)?.role;
   const canEdit = canManageWorkspace(role);
-  const isOwner = role === "owner";
+  const isOwner = hasRole(role, "owner");
   const [confirm, setConfirm] = useState<"leave" | "delete" | null>(null);
 
   const leaveOrDelete = async (kind: "leave" | "delete") => {

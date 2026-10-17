@@ -35,7 +35,8 @@ export function DescriptionEditor(props: {
   onClose: () => void;
   taskId: string;
   initial: string;
-  onSave: (text: string) => void;
+  /** Resolves true once saved; otherwise the editor stays open with the draft. */
+  onSave: (text: string) => Promise<boolean>;
 }) {
   return (
     <Modal
@@ -75,11 +76,12 @@ function EditorBody({
   onClose: () => void;
   taskId: string;
   initial: string;
-  onSave: (text: string) => void;
+  onSave: (text: string) => Promise<boolean>;
 }) {
   const c = useColors();
   const toast = useToast();
   const [text, setText] = useState(initial);
+  const [saving, setSaving] = useState(false);
   const [mode, setMode] = useState<"write" | "preview">("write");
   const [selection, setSelection] = useState({
     start: initial.length,
@@ -173,9 +175,12 @@ function EditorBody({
             Description
           </Txt>
           <Touch
-            onPress={() => {
-              onSave(text);
-              onClose();
+            disabled={saving}
+            onPress={async () => {
+              setSaving(true);
+              const saved = await onSave(text);
+              setSaving(false);
+              if (saved) onClose();
             }}
             style={{
               height: 32,

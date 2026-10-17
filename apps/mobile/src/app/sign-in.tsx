@@ -77,16 +77,19 @@ export default function SignInScreen() {
     }
   };
 
+  // A slow probe must not land after switching mode or server.
+  const modeRef = useRef(mode);
+  const probeRef = useRef(0);
   const connect = (raw: string) =>
     run(async () => {
+      const probe = ++probeRef.current;
       const url = normalizeServerUrl(raw);
       const cfg = await auth.probe(url);
+      if (probeRef.current !== probe || modeRef.current !== "self") return;
       setServerUrl(url);
       setConfig(cfg);
     });
 
-  // A slow cloud probe must not land after switching to self-hosted.
-  const modeRef = useRef(mode);
   const probeCloud = () => {
     const apply = (cfg: InstanceConfig) =>
       modeRef.current === "cloud" && setConfig(cfg);
@@ -94,6 +97,7 @@ export default function SignInScreen() {
   };
   const changeMode = (next: "cloud" | "self") => {
     modeRef.current = next;
+    probeRef.current++;
     setMode(next);
     setError(null);
     setConfig(null);
@@ -182,11 +186,16 @@ export default function SignInScreen() {
             <OtpStep
               serverUrl={serverUrl}
               email={otpEmail}
-              setEmail={setOtpEmail}
               loading={loading}
               error={error}
               onVerify={(code) =>
                 run(() => auth.signInWithOtp(serverUrl, otpEmail, code))
+              }
+              onSend={(email) =>
+                run(async () => {
+                  await auth.sendOtp(serverUrl, email);
+                  setOtpEmail(email);
+                })
               }
               onResend={() => run(() => auth.sendOtp(serverUrl, otpEmail))}
             />
@@ -529,18 +538,18 @@ function StepTitle({ title, message }: { title: string; message?: string }) {
 
 function OtpStep({
   email,
-  setEmail,
   loading,
   error,
   onVerify,
+  onSend,
   onResend,
 }: {
   serverUrl: string;
   email: string;
-  setEmail: (v: string) => void;
   loading: boolean;
   error: string | null;
   onVerify: (code: string) => void;
+  onSend: (email: string) => void;
   onResend: () => void;
 }) {
   const c = useColors();
@@ -570,10 +579,7 @@ function OtpStep({
           label="Send code"
           disabled={!draftEmail.trim()}
           loading={loading}
-          onPress={() => {
-            setEmail(draftEmail.trim());
-            onResend();
-          }}
+          onPress={() => onSend(draftEmail.trim())}
         />
       </View>
     );
@@ -678,6 +684,7 @@ function DeviceStep({
             if (/device sign-in failed|invalid/i.test(userMessage(e))) throw e;
             result = { kind: "pending" };
           }
+          if (cancelled) return;
           if (result.kind === "approved") {
             if (Platform.OS === "ios") WebBrowser.dismissAuthSession();
             await auth.completeWithToken(serverUrl, result.token);

@@ -333,24 +333,25 @@ function ChannelForm({
         ? "App token"
         : "Signing secret";
 
+  // An empty address clears it: the API keeps the stored value for null or a missing field.
   const save = () => {
     const s = secret.trim() || undefined;
     if (channel === "ntfy")
       return onSave({
         ntfyEnabled: enabled,
-        ntfyServerUrl: url.trim() || undefined,
-        ntfyTopic: topic.trim() || undefined,
+        ntfyServerUrl: url.trim(),
+        ntfyTopic: topic.trim(),
         ntfyToken: s,
       });
     if (channel === "gotify")
       return onSave({
         gotifyEnabled: enabled,
-        gotifyServerUrl: url.trim() || undefined,
+        gotifyServerUrl: url.trim(),
         gotifyToken: s,
       });
     return onSave({
       webhookEnabled: enabled,
-      webhookUrl: url.trim() || undefined,
+      webhookUrl: url.trim(),
       webhookSecret: s,
     });
   };

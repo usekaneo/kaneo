@@ -35,6 +35,7 @@ import { qk, useAction } from "@/lib/query";
 import { useRequiredSession } from "@/lib/session";
 import {
   canManageWorkspace,
+  hasRole,
   ROLE_HINTS,
   roleLabel,
   WORKSPACE_ROLES,
@@ -75,9 +76,9 @@ export default function MembersScreen() {
   );
 
   const members = [...(org.data?.members ?? [])].sort((a, b) =>
-    a.role === "owner"
+    hasRole(a.role, "owner")
       ? -1
-      : b.role === "owner"
+      : hasRole(b.role, "owner")
         ? 1
         : (a.user?.name ?? "").localeCompare(b.user?.name ?? ""),
   );
@@ -167,7 +168,8 @@ export default function MembersScreen() {
               <Group>
                 {members.map((m, i) => {
                   const isSelf = m.userId === session.userId;
-                  const editable = canManage && m.role !== "owner" && !isSelf;
+                  const editable =
+                    canManage && !hasRole(m.role, "owner") && !isSelf;
                   return (
                     <GroupRow
                       key={m.id}
@@ -204,7 +206,7 @@ export default function MembersScreen() {
                         <Txt
                           variant="meta"
                           weight="medium"
-                          tone={m.role === "owner" ? "ink" : "muted"}
+                          tone={hasRole(m.role, "owner") ? "ink" : "muted"}
                         >
                           {roleLabel(m.role)}
                         </Txt>

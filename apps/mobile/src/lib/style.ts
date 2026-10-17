@@ -44,8 +44,13 @@ export function roleLabel(role: string) {
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
+/** A member can hold several roles, stored comma-separated like `admin,viewer`. */
+export function hasRole(role: string | null | undefined, name: string) {
+  return !!role && role.split(",").includes(name);
+}
+
 export function canManageWorkspace(role?: string | null) {
-  return role === "owner" || role === "admin";
+  return hasRole(role, "owner") || hasRole(role, "admin");
 }
 
 export const STATUS_PLANNED = "planned";

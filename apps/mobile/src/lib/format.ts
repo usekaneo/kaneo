@@ -3,10 +3,12 @@ export type Day = { y: number; m: number; d: number };
 
 export function parseInstant(value?: string | null): Date | null {
   if (!value) return null;
+  // `new Date("2026-03-09")` is UTC midnight, which is the previous day west of UTC.
+  const bare = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (bare)
+    return new Date(Number(bare[1]), Number(bare[2]) - 1, Number(bare[3]));
   const date = new Date(value);
-  if (!Number.isNaN(date.getTime())) return date;
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 export function toDay(date: Date): Day {

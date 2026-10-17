@@ -160,9 +160,11 @@ export async function request<T>(
 
   const parsed = await readBody(response);
   if (!response.ok) {
+    // Only expire the session the request was made with, not one signed in since.
     if (
       response.status === 401 &&
       session &&
+      sessionStore.get().session?.token === session.token &&
       !path.startsWith("api/auth/") &&
       !options.credentials
     ) {

@@ -307,7 +307,12 @@ export default function TaskScreen() {
         onClose={() => setEditingDescription(false)}
         taskId={task.id}
         initial={d.description}
-        onSave={(text) => run(() => api.updateDescription(task.id, text))}
+        onSave={async (text) =>
+          !!(await run(async () => {
+            await api.updateDescription(task.id, text);
+            return true;
+          }))
+        }
       />
       <OptionSheet
         visible={menu}

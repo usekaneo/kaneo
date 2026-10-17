@@ -20,9 +20,12 @@ const MAX_POSTED = 5;
 
 export async function checkNotifications(): Promise<void> {
   if (!sessionStore.get().ready) await sessionStore.hydrate();
-  if (!sessionStore.get().session) return;
+  const session = sessionStore.get().session;
+  if (!session) return;
   const since = Number((await AsyncStorage.getItem(SINCE_KEY)) ?? 0);
   const notifications = await api.notifications();
+  // Signing out or switching accounts mid-check must not surface the old account's alerts.
+  if (sessionStore.get().session?.token !== session.token) return;
   const unread = notifications
     .filter(
       (n) =>
@@ -32,7 +35,19 @@ export async function checkNotifications(): Promise<void> {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   // On the first run only remember where we are, so the existing backlog isn't replayed.
   if (since !== 0 && AppState.currentState !== "active") {
-    for (const n of unread.slice(-MAX_POSTED)) {
+    // Past the cap, the oldest are folded into one summary instead of being dropped silently.
+    const hidden = Math.max(0, unread.length - (MAX_POSTED - 1));
+    const shown = hidden > 1 ? unread.slice(-(MAX_POSTED - 1)) : unread;
+    if (hidden > 1)
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Kaneo",
+          body: `${hidden} more new notifications`,
+          data: {},
+        },
+        trigger: Platform.OS === "android" ? { channelId: CHANNEL_ID } : null,
+      });
+    for (const n of shown) {
       const text = describeNotification(n);
       await Notifications.scheduleNotificationAsync({
         content: {

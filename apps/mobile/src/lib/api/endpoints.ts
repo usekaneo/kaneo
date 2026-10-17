@@ -248,8 +248,7 @@ export const api = {
   ) => put<unknown>(`api/column/reorder/${projectId}`, { columns }),
 
   // --- Activity & comments ---
-  activities: (taskId: string) =>
-    get<Activity[]>(`api/activity/${taskId}`, { limit: 100 }),
+  activities: (taskId: string) => get<Activity[]>(`api/activity/${taskId}`),
   workspaceActivity: (workspaceId: string) =>
     get<WorkspaceActivity[]>(`api/activity/workspace/${workspaceId}`),
   createComment: (taskId: string, comment: string) =>
