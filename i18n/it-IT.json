@@ -3842,828 +3842,828 @@
 		}
 	},
 	"mobile": {
-		"account": {
-			"connection": {
-				"apiKey": "API key",
-				"appVersion": "App version",
-				"server": "Server",
-				"sessionToken": "Session token",
-				"signedInWith": "Signed in with",
-				"title": "Connection"
+		"common": {
+			"save": "Salva",
+			"cancel": "Annulla",
+			"delete": "Elimina",
+			"retry": "Riprova",
+			"somethingWrong": "Qualcosa è andato storto",
+			"close": "Chiudi"
+		},
+		"errors": {
+			"notSignedIn": "Accesso non effettuato",
+			"unreachable": "Impossibile raggiungere il server. Controlla la connessione e l'indirizzo del server.",
+			"sessionExpired": "La sessione è scaduta. Accedi di nuovo.",
+			"forbidden": "Non hai il permesso per farlo.",
+			"notFound": "Non trovato.",
+			"tooManyRequests": "Troppe richieste. Attendi un momento.",
+			"serverProblem": "Il server ha avuto un problema ({{status}}).",
+			"requestFailed": "Richiesta non riuscita ({{status}}).",
+			"notKaneo": "{{url}} non sembra un server Kaneo.",
+			"noInstance": "Nessuna istanza Kaneo trovata su {{url}} (HTTP {{status}}).",
+			"noSession": "Il server non ha restituito una sessione. Prova ad accedere dal browser.",
+			"deviceFailed": "Accesso del dispositivo non riuscito (HTTP {{status}}).",
+			"apiKeyRejected": "La chiave API è stata rifiutata.",
+			"signInRejected": "Il server non ha accettato l'accesso.",
+			"uploadFailed": "Caricamento non riuscito ({{status}})"
+		},
+		"signIn": {
+			"tagline": "Gestione dei progetti semplice. Collegati a Kaneo Cloud o alla tua istanza.",
+			"cloud": "Kaneo Cloud",
+			"selfHosted": "Self-hosted",
+			"captcha": "Questo server richiede una verifica nel browser per questo passaggio. Usa invece “Continua nel browser”.",
+			"invalidClient": "Questo server non consente l'accesso tramite dispositivo. Chiedi all'amministratore di aggiungere “kaneo-cli” a DEVICE_AUTH_CLIENT_IDS, oppure accedi con password o chiave API.",
+			"serverAddress": "Indirizzo del server",
+			"serverAddressHint": "L'indirizzo da cui apri Kaneo. Usa http:// per i server senza TLS. Se l'API è su un altro host, inserisci l'indirizzo dell'API.",
+			"connect": "Collega",
+			"recent": "Recenti",
+			"change": "Cambia",
+			"email": "Email",
+			"password": "Password",
+			"togglePassword": "Mostra o nascondi password",
+			"signIn": "Accedi",
+			"or": "oppure",
+			"continueInBrowser": "Continua nel browser",
+			"browserHint": "GitHub, Google, Discord o SSO",
+			"emailCode": "Inviami un codice di accesso via email",
+			"sendTo": "Invia a {{email}}",
+			"noPassword": "Nessuna password necessaria",
+			"useApiKey": "Usa una chiave API",
+			"newToKaneo": "Nuovo su Kaneo?",
+			"createAccount": "Crea account",
+			"code": {
+				"title": "Accedi con un codice",
+				"message": "Ti invieremo via email un codice di 6 cifre. Nessuna password necessaria.",
+				"send": "Invia codice",
+				"checkEmail": "Controlla la tua email",
+				"sent": "Abbiamo inviato un codice di 6 cifre a {{email}}",
+				"verify": "Verifica",
+				"didntGet": "Non l'hai ricevuto?",
+				"resend": "Invia di nuovo il codice"
 			},
-			"description": "How you appear to teammates across every workspace.",
-			"notifications": {
-				"delivery": "Delivery and events",
-				"deliveryHint": "Email, ntfy, Gotify, webhooks",
-				"invitations": "Invitations",
-				"permissionDenied": "Allow notifications for Kaneo in system settings first.",
-				"phone": "Phone notifications",
-				"phoneHint": "Checked about every 15 minutes",
-				"title": "Notifications"
+			"device": {
+				"denied": "L'accesso è stato negato nel browser.",
+				"expired": "Il codice di accesso è scaduto. Ricomincia per ottenerne uno nuovo.",
+				"openFailed": "Impossibile aprire il browser. Copia invece il link.",
+				"message": "Approva questo dispositivo dal sito di Kaneo. Lì funzionano GitHub, Google, Discord e SSO.",
+				"yourCode": "Il tuo codice",
+				"copyCode": "Copia codice",
+				"codeCopied": "Codice copiato",
+				"copyLink": "Copia link",
+				"linkCopied": "Link copiato",
+				"openBrowser": "Apri browser",
+				"tryAgain": "Riprova",
+				"waiting": "In attesa di approvazione…",
+				"gettingCode": "Recupero del codice…"
 			},
-			"password": {
-				"confirm": "Confirm new password",
-				"confirmPlaceholder": "Type it again",
-				"current": "Current password",
-				"mismatch": "Passwords don't match",
-				"new": "New password",
-				"signOutOthers": "Sign out other devices",
-				"title": "Change password"
+			"apiKey": {
+				"message": "Creane una sul web in Impostazioni > Chiavi API. Funziona anche quando gli altri metodi di accesso sono disattivati.",
+				"label": "Chiave API"
 			},
-			"photoMenu": {
-				"choose": "Choose photo",
-				"remove": "Remove photo"
+			"signUp": {
+				"name": "Nome",
+				"passwordHint": "Almeno 8 caratteri"
+			}
+		},
+		"invitations": {
+			"accepted": "Invito accettato",
+			"declined": "Invito rifiutato",
+			"title": "Inviti",
+			"description": "Workspace a cui sei stato invitato.",
+			"emptyTitle": "Nessun invito in sospeso",
+			"emptyMessage": "Gli inviti compaiono qui dopo la verifica del tuo indirizzo email. Puoi sempre unirti con il link ricevuto via email.",
+			"invitedYou": "{{name}} ti ha invitato",
+			"decline": "Rifiuta",
+			"accept": "Accetta",
+			"joinWithLink": "Unisciti con un link di invito",
+			"linkPlaceholder": "Incolla il link dalla tua email",
+			"join": "Unisciti"
+		},
+		"taskDetail": {
+			"someone": "Qualcuno",
+			"status": {
+				"planned": "Pianificata",
+				"archived": "Archiviata"
 			},
-			"profile": {
-				"change": "Change",
-				"changePassword": "Change password",
-				"name": "Name",
-				"photo": "Profile photo",
-				"photoFormats": "PNG, JPG or WebP",
-				"title": "Profile"
+			"section": {
+				"addTo": "Aggiungi a {{title}}"
 			},
-			"signOut": {
-				"button": "Sign out",
-				"message": "You can sign in again at any time.",
-				"title": "Sign out?"
+			"fields": {
+				"title": "Campi",
+				"empty": "Vuoto",
+				"none": "Nessuno"
 			},
-			"title": "Account",
-			"toast": {
-				"nameUpdated": "Name updated",
-				"passwordChanged": "Password changed",
-				"photoRemoved": "Photo removed",
-				"photoUpdated": "Photo updated"
+			"subtasks": {
+				"title": "Sottoattività",
+				"add": "Aggiungi sottoattività",
+				"parent": "Attività principale",
+				"empty": "Nessuna sottoattività"
+			},
+			"relations": {
+				"title": "Relazioni",
+				"link": "Collega un'attività",
+				"blocks": "Blocca",
+				"blockedBy": "Bloccata da",
+				"related": "Correlate",
+				"relatedTo": "Correlata a",
+				"remove": "Rimuovi relazione",
+				"empty": "Nessuna attività correlata",
+				"removeTitle": "Rimuovere la relazione?",
+				"removeMessage": "Le attività restano; viene rimosso solo il collegamento tra loro.",
+				"removeConfirm": "Rimuovi",
+				"searchPlaceholder": "Cerca attività per titolo o numero"
+			},
+			"links": {
+				"title": "Link",
+				"add": "Aggiungi link",
+				"remove": "Rimuovi link",
+				"synced": "Sincronizzato",
+				"empty": "Nessun link",
+				"url": "URL",
+				"titleLabel": "Titolo",
+				"optional": "Facoltativo"
+			},
+			"time": {
+				"title": "Tempo",
+				"total": "{{duration}} in totale",
+				"log": "Registra tempo",
+				"editEntry": "Modifica registrazione",
+				"logged": "Tempo registrato",
+				"stop": "Ferma",
+				"start": "Avvia timer",
+				"running": "{{time}} (in corso)",
+				"hoursUnit": "h",
+				"minutesUnit": "min",
+				"chipMinutes": "{{count}} min",
+				"chipHours": "{{count}} h",
+				"logDuration": "Registra {{duration}}",
+				"durationHoursMinutes": "{{hours}} h {{minutes}} min",
+				"durationMinutes": "{{minutes}} min",
+				"date": "Data",
+				"notePlaceholder": "Su cosa hai lavorato?"
+			},
+			"activity": {
+				"title": "Attività",
+				"comment": "Commenta",
+				"edit": "Modifica",
+				"editComment": "Modifica commento",
+				"edited": "{{time}}, modificato",
+				"deleteTitle": "Eliminare il commento?",
+				"deleteMessage": "L'operazione non può essere annullata.",
+				"entry": "{{name}} {{action}}"
+			},
+			"menu": {
+				"share": "Condividi",
+				"duplicate": "Duplica",
+				"move": "Sposta in un progetto…",
+				"refresh": "Aggiorna",
+				"delete": "Elimina attività",
+				"moveTitle": "Sposta in un progetto",
+				"duplicated": "Attività duplicata",
+				"moved": "Attività spostata",
+				"deleted": "Attività eliminata",
+				"deleteTitle": "Eliminare l'attività?",
+				"deleteMessage": "“{{title}}” e i suoi commenti verranno eliminati definitivamente."
+			},
+			"screen": {
+				"copyLink": "Copia link",
+				"linkCopied": "Link copiato",
+				"more": "Altro",
+				"editTitle": "Modifica titolo",
+				"editDescription": "Modifica descrizione",
+				"addDescription": "Aggiungi una descrizione…"
+			}
+		},
+		"workspaceNew": {
+			"title": "Nuovo workspace",
+			"description": "Uno spazio per i progetti del tuo team. Subito dopo potrai invitare altre persone.",
+			"name": "Nome",
+			"namePlaceholder": "Studio di design",
+			"descriptionLabel": "Descrizione",
+			"optional": "Facoltativo",
+			"descriptionPlaceholder": "A cosa serve questo workspace?",
+			"create": "Crea workspace"
+		},
+		"taskFields": {
+			"status": "Stato",
+			"planned": "Pianificata",
+			"priority": "Priorità",
+			"assignee": "Assegnatario",
+			"unassigned": "Non assegnata",
+			"startDate": "Data di inizio",
+			"dueDate": "Scadenza",
+			"labels": "Etichette",
+			"none": "Nessuna",
+			"searchPeople": "Cerca persone",
+			"you": "{{name}} (tu)",
+			"addNumber": "Aggiungi un numero",
+			"empty": "Vuoto",
+			"archived": "Archiviata",
+			"doneColumn": "Colonna completate",
+			"starts": "Inizio: {{date}}",
+			"overdue_one": "{{date}}, in ritardo di {{count}} giorno",
+			"overdue_other": "{{date}}, in ritardo di {{count}} giorni",
+			"done": "Completata",
+			"searchOrCreate": "Cerca o crea",
+			"createLabel": "Crea etichetta “{{name}}”",
+			"labelColor": "Colore della nuova etichetta",
+			"noLabels": "Ancora nessuna etichetta. Scrivi un nome per crearne una.",
+			"overdue_many": "{{date}}, in ritardo di {{count}} giorni"
+		},
+		"taskNew": {
+			"newSubtask": "Nuova sottoattività",
+			"project": "Progetto",
+			"create": "Crea",
+			"taskTitle": "Titolo dell'attività",
+			"noLabels": "Ancora nessuna etichetta in questo workspace."
+		},
+		"editor": {
+			"description": "Descrizione",
+			"placeholder": "Aggiungi una descrizione… Supporta Markdown.",
+			"write": "Scrivi",
+			"preview": "Anteprima",
+			"nothingToPreview": "Niente da mostrare",
+			"bold": "Grassetto",
+			"italic": "Corsivo",
+			"heading": "Titolo",
+			"list": "Elenco",
+			"code": "Codice",
+			"link": "Link",
+			"boldPlaceholder": "grassetto",
+			"italicPlaceholder": "corsivo",
+			"codePlaceholder": "codice",
+			"linkPlaceholder": "link",
+			"insertImage": "Inserisci immagine",
+			"attachment": "Allegato"
+		},
+		"composer": {
+			"reply": "Rispondi a {{name}}…",
+			"placeholder": "Aggiungi un commento…",
+			"mentionSomeone": "Menziona qualcuno",
+			"attachImage": "Allega immagine",
+			"sendComment": "Invia commento",
+			"mention": "Menziona",
+			"searchPeople": "Cerca persone"
+		},
+		"board": {
+			"filterTasksActive": "Filtra attività… (filtri attivi: {{count}})",
+			"movedTask": "{{ticket}} spostata in {{status}}",
+			"showTasks_one": "Mostra {{count}} attività",
+			"showTasks_other": "Mostra {{count}} attività",
+			"memberYou": "{{name}} (tu)",
+			"dueDateOverdue_one": "{{date}}, {{count}} g di ritardo",
+			"dueDateOverdue_other": "{{date}}, {{count}} g di ritardo",
+			"projects": "Progetti",
+			"back": "Indietro",
+			"boardView": "Vista board",
+			"listView": "Vista elenco",
+			"more": "Altro",
+			"switchProject": "Cambia progetto",
+			"noTasksMatchTheFilters": "Nessuna attività corrisponde ai filtri",
+			"nothingPlannedYet": "Ancora niente di pianificato",
+			"noTasksHere": "Nessuna attività qui",
+			"addTask": "Aggiungi attività",
+			"noTasksMatch": "Nessuna attività corrispondente",
+			"noTasksYet": "Ancora nessuna attività",
+			"filters": "Filtri",
+			"filterTasks": "Filtra attività…",
+			"me": "Io",
+			"newTask": "Nuova attività",
+			"board": "Board",
+			"projectSettings": "Impostazioni progetto",
+			"hidePlanned": "Nascondi pianificate",
+			"showPlanned": "Mostra pianificate",
+			"hideArchived": "Nascondi archiviate",
+			"showArchived": "Mostra archiviate",
+			"refresh": "Aggiorna",
+			"planned": "Pianificate",
+			"archived": "Archiviate",
+			"reset": "Reimposta",
+			"assignee": "Assegnatario",
+			"unassigned": "Non assegnata",
+			"priority": "Priorità",
+			"labels": "Etichette",
+			"overdueOnly": "Solo in ritardo",
+			"tasksNotOnTheBoardYet": "Attività non ancora sulla board",
+			"moveTo": "Sposta in",
+			"assignToMe": "Assegna a me",
+			"sendToTopOfColumn": "Sposta in cima alla colonna",
+			"sendToBottomOfColumn": "Sposta in fondo alla colonna",
+			"openTask": "Apri attività",
+			"searchPeople": "Cerca persone",
+			"dueDateOverdue_many": "{{date}}, {{count}} g di ritardo",
+			"showTasks_many": "Mostra {{count}} attività"
+		},
+		"projectSettings": {
+			"deleteNamedTitle": "Eliminare “{{name}}”?",
+			"text": "Testo",
+			"number": "Numero",
+			"date": "Data",
+			"checkbox": "Casella di controllo",
+			"dropdown": "Menu a tendina",
+			"multiSelect": "Selezione multipla",
+			"projectUpdated": "Progetto aggiornato",
+			"project": "Progetto",
+			"projectSettings": "Impostazioni progetto",
+			"general": "Generale",
+			"publicBoard": "Board pubblica",
+			"anyoneWithTheLinkCanViewTheBoard": "Chiunque abbia il link può vedere la board",
+			"columns": "Colonne",
+			"addColumn": "Aggiungi colonna",
+			"doneColumn": "Colonna completate",
+			"moveUp": "Sposta su",
+			"moveDown": "Sposta giù",
+			"customFields": "Campi personalizzati",
+			"addField": "Aggiungi campo",
+			"noCustomFields": "Nessun campo personalizzato",
+			"projectRestored": "Progetto ripristinato",
+			"archiveProjectTitle": "Archiviare il progetto?",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "Scompare dall'elenco dei progetti. Potrai ripristinarlo in seguito.",
+			"archive": "Archivia",
+			"projectArchived": "Progetto archiviato",
+			"restoreProject": "Ripristina progetto",
+			"archiveProject": "Archivia progetto",
+			"moveToAnotherWorkspace": "Sposta in un altro workspace",
+			"deleteProjectTitle": "Eliminare il progetto?",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "Tutte le attività, i commenti e le registrazioni di tempo di questo progetto verranno eliminati definitivamente.",
+			"projectDeleted": "Progetto eliminato",
+			"deleteProject": "Elimina progetto",
+			"column": "Colonna",
+			"rename": "Rinomina",
+			"unmarkAsDoneColumn": "Non usare più come colonna completate",
+			"markAsDoneColumn": "Usa come colonna completate",
+			"deleteColumn": "Elimina colonna",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "Potrebbe essere necessario spostare prima le attività di questa colonna.",
+			"columnDeleted": "Colonna eliminata",
+			"renameColumn": "Rinomina colonna",
+			"field": "Campo",
+			"deleteField": "Elimina campo",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "I valori di questo campo vengono eliminati da tutte le attività.",
+			"fieldDeleted": "Campo eliminato",
+			"moveToWorkspace": "Sposta nel workspace",
+			"projectMoved": "Progetto spostato",
+			"ok": "OK",
+			"name": "Nome",
+			"key": "Chiave",
+			"changesFutureAndExistingTaskIDs": "Cambia gli ID delle attività esistenti e future",
+			"saveChanges": "Salva modifiche",
+			"newColumn": "Nuova colonna",
+			"blocked": "Bloccata",
+			"tasksHereCountAsFinished": "Le attività qui sono considerate completate",
+			"newCustomField": "Nuovo campo personalizzato",
+			"platform": "Piattaforma",
+			"type": "Tipo",
+			"options": "Opzioni",
+			"separateWithCommas": "Separa con virgole",
+			"androidIOSWeb": "Android, iOS, Web",
+			"required": "Obbligatorio"
+		},
+		"projectNew": {
+			"newProject": "Nuovo progetto",
+			"name": "Nome",
+			"customerPortal": "Portale clienti",
+			"key": "Chiave",
+			"usedInTaskIDs": "Usata negli ID delle attività",
+			"createProject": "Crea progetto"
+		},
+		"home": {
+			"noWorkspace": {
+				"title": "Ancora nessun workspace",
+				"body": "I workspace contengono i tuoi progetti e il tuo team. Creane uno o accetta un invito.",
+				"create": "Crea workspace",
+				"viewInvitations_one": "Vedi {{count}} invito",
+				"viewInvitations_other": "Vedi {{count}} inviti",
+				"joinWithLink": "Unisciti con un link di invito",
+				"signedInAs": "Accesso effettuato come {{email}}",
+				"viewInvitations_many": "Vedi {{count}} inviti"
+			},
+			"switchWorkspace": "Cambia workspace",
+			"search": "Cerca",
+			"account": "Account",
+			"archived": "Archiviato",
+			"due": "Scadenza: {{date}}",
+			"progress": "{{done}} di {{total}}",
+			"noTasks": "Nessuna attività",
+			"upNext": "Prossime",
+			"viewAll": "Vedi tutte",
+			"projects": "Progetti",
+			"newProject": "Nuovo progetto",
+			"empty": {
+				"title": "Ancora nessun progetto",
+				"message": "I progetti contengono le tue board e attività."
+			},
+			"hideArchived": "Nascondi progetti archiviati",
+			"showArchived": "Mostra progetti archiviati"
+		},
+		"inbox": {
+			"title": "Notifiche",
+			"markAllRead": "Segna tutte come lette",
+			"allCaughtUpToast": "Tutto letto",
+			"more": "Altro",
+			"empty": {
+				"title": "Sei in pari",
+				"message": "Qui compaiono assegnazioni, commenti e menzioni."
+			},
+			"today": "Oggi",
+			"earlier": "Precedenti",
+			"recent": "Recenti",
+			"clearAll": "Cancella tutte le notifiche",
+			"confirmClear": {
+				"title": "Cancellare tutte le notifiche?",
+				"message": "Verranno rimosse tutte le notifiche di questo workspace.",
+				"confirm": "Cancella tutto"
 			}
 		},
 		"activity": {
-			"commentedOn": "commented on {{target}}",
-			"empty": "No recent activity",
-			"someone": "Someone",
-			"subtitle": "Everything happening in {{workspace}}",
-			"title": "Activity"
-		},
-		"background": {
-			"channelDescription": "Assignments, comments and mentions from your workspaces",
-			"channelName": "Kaneo activity",
-			"summary_many": "{{count}} more new notifications",
-			"summary_one": "{{count}} more new notification",
-			"summary_other": "{{count}} more new notifications"
-		},
-		"board": {
-			"addTask": "Add task",
-			"archived": "Archived",
-			"assignee": "Assignee",
-			"assignToMe": "Assign to me",
-			"back": "Back",
-			"board": "Board",
-			"boardView": "Board view",
-			"dueDateOverdue_many": "{{date}}, {{count}}d overdue",
-			"dueDateOverdue_one": "{{date}}, {{count}}d overdue",
-			"dueDateOverdue_other": "{{date}}, {{count}}d overdue",
-			"filters": "Filters",
-			"filterTasks": "Filter tasks…",
-			"filterTasksActive": "Filter tasks… ({{count}} active)",
-			"hideArchived": "Hide archived",
-			"hidePlanned": "Hide planned",
-			"labels": "Labels",
-			"listView": "List view",
-			"me": "Me",
-			"memberYou": "{{name}} (you)",
-			"more": "More",
-			"movedTask": "Moved {{ticket}} to {{status}}",
-			"moveTo": "Move to",
-			"newTask": "New task",
-			"noTasksHere": "No tasks here",
-			"noTasksMatch": "No tasks match",
-			"noTasksMatchTheFilters": "No tasks match the filters",
-			"noTasksYet": "No tasks yet",
-			"nothingPlannedYet": "Nothing planned yet",
-			"openTask": "Open task",
-			"overdueOnly": "Overdue only",
-			"planned": "Planned",
-			"priority": "Priority",
-			"projects": "Projects",
-			"projectSettings": "Project settings",
-			"refresh": "Refresh",
-			"reset": "Reset",
-			"searchPeople": "Search people",
-			"sendToBottomOfColumn": "Send to bottom of column",
-			"sendToTopOfColumn": "Send to top of column",
-			"showArchived": "Show archived",
-			"showPlanned": "Show planned",
-			"showTasks_many": "Show {{count}} tasks",
-			"showTasks_one": "Show {{count}} task",
-			"showTasks_other": "Show {{count}} tasks",
-			"switchProject": "Switch project",
-			"tasksNotOnTheBoardYet": "Tasks not on the board yet",
-			"unassigned": "Unassigned"
-		},
-		"common": {
-			"cancel": "Cancel",
-			"close": "Close",
-			"delete": "Delete",
-			"retry": "Try again",
-			"save": "Save",
-			"somethingWrong": "Something went wrong"
-		},
-		"composer": {
-			"attachImage": "Attach image",
-			"mention": "Mention",
-			"mentionSomeone": "Mention someone",
-			"placeholder": "Add a comment…",
-			"reply": "Reply to {{name}}…",
-			"searchPeople": "Search people",
-			"sendComment": "Send comment"
-		},
-		"editor": {
-			"attachment": "Attachment",
-			"bold": "Bold",
-			"boldPlaceholder": "bold",
-			"code": "Code",
-			"codePlaceholder": "code",
-			"description": "Description",
-			"heading": "Heading",
-			"insertImage": "Insert image",
-			"italic": "Italic",
-			"italicPlaceholder": "italic",
-			"link": "Link",
-			"linkPlaceholder": "link",
-			"list": "List",
-			"nothingToPreview": "Nothing to preview",
-			"placeholder": "Add a description… Markdown works.",
-			"preview": "Preview",
-			"write": "Write"
-		},
-		"errors": {
-			"apiKeyRejected": "That API key was rejected.",
-			"deviceFailed": "Device sign-in failed (HTTP {{status}}).",
-			"forbidden": "You don't have permission to do that.",
-			"noInstance": "No Kaneo instance found at {{url}} (HTTP {{status}}).",
-			"noSession": "The server didn't return a session. Try signing in through the browser.",
-			"notFound": "Not found.",
-			"notKaneo": "{{url}} doesn't look like a Kaneo server.",
-			"notSignedIn": "Not signed in",
-			"requestFailed": "Request failed ({{status}}).",
-			"serverProblem": "The server had a problem ({{status}}).",
-			"sessionExpired": "Your session has expired. Please sign in again.",
-			"signInRejected": "Sign-in was not accepted by the server.",
-			"tooManyRequests": "Too many requests. Please wait a moment.",
-			"unreachable": "Can't reach the server. Check your connection and the server address.",
-			"uploadFailed": "Upload failed ({{status}})"
-		},
-		"home": {
-			"account": "Account",
-			"archived": "Archived",
-			"due": "Due {{date}}",
-			"empty": {
-				"message": "Projects hold your boards and tasks.",
-				"title": "No projects yet"
-			},
-			"hideArchived": "Hide archived projects",
-			"newProject": "New project",
-			"noTasks": "No tasks",
-			"noWorkspace": {
-				"body": "Workspaces hold your projects and team. Create one, or accept an invitation.",
-				"create": "Create workspace",
-				"joinWithLink": "Join with an invitation link",
-				"signedInAs": "Signed in as {{email}}",
-				"title": "No workspace yet",
-				"viewInvitations_many": "View {{count}} invitations",
-				"viewInvitations_one": "View {{count}} invitation",
-				"viewInvitations_other": "View {{count}} invitations"
-			},
-			"progress": "{{done}} of {{total}}",
-			"projects": "Projects",
-			"search": "Search",
-			"showArchived": "Show archived projects",
-			"switchWorkspace": "Switch workspace",
-			"upNext": "Up next",
-			"viewAll": "View all"
-		},
-		"inbox": {
-			"allCaughtUpToast": "All caught up",
-			"clearAll": "Clear all notifications",
-			"confirmClear": {
-				"confirm": "Clear all",
-				"message": "This removes every notification in this workspace.",
-				"title": "Clear all notifications?"
-			},
-			"earlier": "Earlier",
-			"empty": {
-				"message": "Assignments, comments and mentions appear here.",
-				"title": "You're all caught up"
-			},
-			"markAllRead": "Mark all read",
-			"more": "More",
-			"recent": "Recent",
-			"title": "Inbox",
-			"today": "Today"
-		},
-		"invitations": {
-			"accept": "Accept",
-			"accepted": "Invitation accepted",
-			"decline": "Decline",
-			"declined": "Invitation declined",
-			"description": "Workspaces you've been invited to join.",
-			"emptyMessage": "Invitations appear here once your email address is verified. You can always join with the link from the email.",
-			"emptyTitle": "No pending invitations",
-			"invitedYou": "{{name}} invited you",
-			"join": "Join",
-			"joinWithLink": "Join with an invitation link",
-			"linkPlaceholder": "Paste the link from your email",
-			"title": "Invitations"
-		},
-		"labels": {
-			"actions": "Actions for {{name}}",
-			"delete": "Delete label",
-			"deleteMessage": "The label is removed from every task in this workspace.",
-			"deleteTitle": "Delete “{{name}}”?",
-			"description": "Labels help you group and filter tasks.",
-			"edit": "Edit label",
-			"empty": {
-				"message": "Create labels to group and filter tasks across projects.",
-				"title": "No labels"
-			},
-			"fallbackTitle": "Label",
-			"form": {
-				"color": "Color",
-				"name": "Name"
-			},
-			"new": "New label",
-			"title": "Labels",
-			"toast": {
-				"deleted": "Label deleted"
-			}
-		},
-		"members": {
-			"description_many": "{{count}} people in {{name}}",
-			"description_one": "{{count}} person in {{name}}",
-			"description_other": "{{count}} people in {{name}}",
-			"invite": "Invite",
-			"inviteForm": {
-				"email": "Email",
-				"intro": "They’ll get an email with a link to join {{workspace}}.",
-				"role": "Role",
-				"send": "Send invite",
-				"title": "Invite member"
-			},
-			"inviteMenu": {
-				"cancel": "Cancel invitation",
-				"fallbackTitle": "Invitation",
-				"resend": "Resend invitation"
-			},
-			"memberMenu": {
-				"changeRole": "Change role",
-				"fallbackTitle": "Member",
-				"remove": "Remove from workspace"
-			},
-			"pending": {
-				"expires": "{{role}}, expires {{date}}",
-				"manage": "Manage",
-				"title": "Pending invitations"
-			},
-			"people": {
-				"title": "People",
-				"unknown": "Unknown",
-				"you": "(you)"
-			},
-			"remove": {
-				"confirm": "Remove",
-				"message": "{{name}} will lose access to {{workspace}}.",
-				"they": "They",
-				"title": "Remove member?"
-			},
-			"rolePicker": {
-				"title": "Role"
-			},
-			"thisWorkspace": "this workspace",
-			"title": "Members",
-			"toast": {
-				"canceled": "Invitation canceled",
-				"removed": "Member removed",
-				"resent": "Invitation resent",
-				"roleUpdated": "Role updated",
-				"sent": "Invitation sent to {{email}}"
-			}
-		},
-		"meta": {
-			"labelColor": {
-				"amber": "Amber",
-				"crimson": "Crimson",
-				"forest": "Forest",
-				"lavender": "Lavender",
-				"rose": "Rose",
-				"sage": "Sage",
-				"slate": "Slate",
-				"stone": "Stone",
-				"terracotta": "Terracotta"
-			},
-			"priority": {
-				"high": "High",
-				"low": "Low",
-				"medium": "Medium",
-				"noPriority": "No priority",
-				"urgent": "Urgent"
-			},
-			"role": {
-				"admin": "Admin",
-				"member": "Member",
-				"owner": "Owner",
-				"viewer": "Viewer"
-			},
-			"roleHint": {
-				"admin": "Can also manage members and settings",
-				"member": "Can create and edit tasks",
-				"owner": "Full control, including deleting the workspace",
-				"viewer": "Can view projects and tasks"
-			}
+			"title": "Attività",
+			"subtitle": "Tutto ciò che succede in {{workspace}}",
+			"empty": "Nessuna attività recente",
+			"someone": "Qualcuno",
+			"commentedOn": "ha commentato {{target}}"
 		},
 		"myTasks": {
-			"assigned_many": "{{count}} assigned",
-			"assigned_one": "{{count}} assigned",
-			"assigned_other": "{{count}} assigned",
+			"title": "Le mie attività",
 			"by": {
-				"due": "Due date",
-				"project": "Project",
-				"status": "Status"
+				"due": "Scadenza",
+				"project": "Progetto",
+				"status": "Stato"
 			},
 			"due": {
-				"later": "Later",
-				"none": "No due date",
-				"overdue": "Overdue",
-				"thisWeek": "This week",
-				"today": "Today"
+				"overdue": "In ritardo",
+				"today": "Oggi",
+				"thisWeek": "Questa settimana",
+				"later": "Più avanti",
+				"none": "Senza scadenza"
 			},
 			"empty": {
-				"message": "Tasks assigned to you in this workspace show up here.",
-				"title": "Nothing assigned to you"
+				"title": "Nulla di assegnato a te",
+				"message": "Qui compaiono le attività assegnate a te in questo workspace."
 			},
-			"showing": "Showing {{shown}} of {{total}} tasks",
-			"title": "My tasks"
+			"showing": "{{shown}} di {{total}} attività",
+			"assigned_one": "{{count}} assegnata",
+			"assigned_other": "{{count}} assegnate",
+			"assigned_many": "{{count}} assegnate"
 		},
 		"nav": {
-			"activity": "Activity",
 			"home": "Home",
-			"inbox": "Inbox",
-			"inboxUnread": "Inbox, {{count}} unread",
-			"tasks": "My tasks"
+			"tasks": "Le mie attività",
+			"inbox": "Notifiche",
+			"activity": "Attività",
+			"inboxUnread": "Notifiche, {{count}} non lette"
 		},
-		"notificationSettings": {
-			"channel": {
-				"accessToken": "Access token",
-				"appToken": "App token",
-				"enabled": "Send notifications here",
-				"secretOptional": "Optional",
-				"secretSaved": "Saved. Enter a new one to replace it",
-				"serverUrl": "Server URL",
-				"signingSecret": "Signing secret",
-				"topic": "Topic",
-				"webhookUrl": "Webhook URL"
+		"workspaceSwitcher": {
+			"title": "Workspace",
+			"settings": "Impostazioni workspace",
+			"members": "Membri",
+			"labels": "Etichette",
+			"invitations": "Inviti",
+			"create": "Crea workspace"
+		},
+		"search": {
+			"placeholder": "Cerca attività, progetti, commenti",
+			"clear": "Cancella",
+			"kinds": {
+				"all": "Tutto",
+				"tasks": "Attività",
+				"projects": "Progetti",
+				"comments": "Commenti"
 			},
-			"delivery": {
-				"email": "Email",
-				"emailHint": "Sent to your account email",
-				"gotifyHint": "Send notifications to a Gotify server",
-				"ntfyHint": "Send notifications to an ntfy topic",
-				"title": "Delivery",
-				"webhook": "Webhook",
-				"webhookHint": "POST notifications to a URL"
+			"empty": {
+				"title": "Cerca in questo workspace",
+				"message": "Trova attività per titolo o numero, progetti e commenti."
 			},
-			"description": "Where Kaneo reaches you, and about what.",
-			"events": {
-				"assignments": "Assignments",
-				"assignmentsHint": "When a task is assigned to you",
-				"comments": "Comments",
-				"commentsHint": "New comments on your tasks",
-				"dueDate": "Due date reminders",
-				"dueDateHint": "Before a task you’re assigned to is due",
-				"remindBefore": "{{time}} before",
-				"remindMe": "Remind me",
-				"remindPickerTitle": "Remind me before",
-				"statusChanges": "Status changes",
-				"statusChangesHint": "When your tasks move between columns",
-				"title": "Notify me about"
-			},
-			"leadTime": {
-				"day1": "1 day",
-				"days2": "2 days",
-				"hour1": "1 hour",
-				"hours3": "3 hours",
-				"minutes_many": "{{count}} minutes",
-				"minutes_one": "{{count}} minute",
-				"minutes_other": "{{count}} minutes",
-				"minutes15": "15 minutes",
-				"week1": "1 week"
-			},
-			"notSet": "Not set",
-			"off": "Off",
-			"on": "On",
-			"title": "Notifications"
+			"failed": "Ricerca non riuscita",
+			"noResults": "Nessun risultato per “{{query}}”",
+			"commentMeta": "{{name}}, {{when}}"
 		},
 		"notificationText": {
 			"activity": {
-				"assignedTo": "assigned this to {{assignee}}",
-				"assigneeChanged": "changed the assignee",
-				"commented": "commented: {{text}}",
-				"created": "created the task",
-				"descriptionChanged": "updated the description",
-				"dueDateRemoved": "removed the due date",
-				"dueDateSet": "set the due date to {{date}}",
-				"priorityChanged": "changed priority from {{from}} to {{to}}",
-				"renamed": "renamed this to “{{title}}”",
-				"selfAssigned": "self-assigned this",
-				"statusChanged": "moved this from {{from}} to {{to}}",
-				"taskUpdated": "updated the task",
-				"titleChanged": "changed the title",
-				"unassigned": "removed the assignee"
+				"created": "ha creato l'attività",
+				"commented": "ha commentato: {{text}}",
+				"statusChanged": "l'ha spostata da {{from}} a {{to}}",
+				"priorityChanged": "ha cambiato la priorità da {{from}} a {{to}}",
+				"assigneeChanged": "ha cambiato l'assegnatario",
+				"selfAssigned": "se l'è assegnata",
+				"assignedTo": "l'ha assegnata a {{assignee}}",
+				"unassigned": "ha rimosso l'assegnatario",
+				"dueDateSet": "ha impostato la scadenza: {{date}}",
+				"dueDateRemoved": "ha rimosso la scadenza",
+				"renamed": "l'ha rinominata in “{{title}}”",
+				"titleChanged": "ha cambiato il titolo",
+				"descriptionChanged": "ha aggiornato la descrizione",
+				"taskUpdated": "ha aggiornato l'attività"
 			},
-			"assignedByActor": "{{actor}} assigned you a task",
-			"assignedToTask": "You were assigned to “{{title}}”",
-			"assignedToUntitled": "You were assigned to a task",
-			"commentedByActor": "{{actor}} commented",
-			"mentioned": "You were mentioned",
-			"mentionedByActor": "{{actor}} mentioned you",
-			"newComment": "New comment",
-			"statusChangedOnTask": "Status changed on “{{title}}”",
-			"statusChangedOnUntitled": "Status changed on a task",
-			"statusTransition": "{{from}} to {{to}}",
-			"taskCreated": "New task assigned to you",
-			"timeLoggedOnTask": "Time logged on “{{title}}”",
-			"timeLoggedOnUntitled": "Time logged on a task",
-			"workspaceCreated": "Workspace “{{name}}” created"
+			"taskCreated": "Nuova attività assegnata a te",
+			"assignedByActor": "{{actor}} ti ha assegnato un'attività",
+			"assignedToTask": "Ti è stata assegnata “{{title}}”",
+			"assignedToUntitled": "Ti è stata assegnata un'attività",
+			"statusChangedOnTask": "Stato cambiato per “{{title}}”",
+			"statusChangedOnUntitled": "Stato di un'attività cambiato",
+			"statusTransition": "{{from}} → {{to}}",
+			"commentedByActor": "{{actor}} ha commentato",
+			"newComment": "Nuovo commento",
+			"mentionedByActor": "{{actor}} ti ha menzionato",
+			"mentioned": "Sei stato menzionato",
+			"timeLoggedOnTask": "Tempo registrato su “{{title}}”",
+			"timeLoggedOnUntitled": "Tempo registrato su un'attività",
+			"workspaceCreated": "Workspace “{{name}}” creato"
 		},
-		"picker": {
-			"clear": "Clear",
-			"nextMonth": "Next month",
-			"nextWeek": "Next week",
-			"previousMonth": "Previous month"
-		},
-		"projectNew": {
-			"createProject": "Create project",
-			"customerPortal": "Customer Portal",
-			"key": "Key",
-			"name": "Name",
-			"newProject": "New project",
-			"usedInTaskIDs": "Used in task IDs"
-		},
-		"projectSettings": {
-			"addColumn": "Add column",
-			"addField": "Add field",
-			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "All tasks, comments and time entries in this project will be permanently deleted.",
-			"androidIOSWeb": "Android, iOS, Web",
-			"anyoneWithTheLinkCanViewTheBoard": "Anyone with the link can view the board",
-			"archive": "Archive",
-			"archiveProject": "Archive project",
-			"archiveProjectTitle": "Archive project?",
-			"blocked": "Blocked",
-			"changesFutureAndExistingTaskIDs": "Changes future and existing task IDs",
-			"checkbox": "Checkbox",
-			"column": "Column",
-			"columnDeleted": "Column deleted",
-			"columns": "Columns",
-			"customFields": "Custom fields",
-			"date": "Date",
-			"deleteColumn": "Delete column",
-			"deleteField": "Delete field",
-			"deleteNamedTitle": "Delete “{{name}}”?",
-			"deleteProject": "Delete project",
-			"deleteProjectTitle": "Delete project?",
-			"doneColumn": "Done column",
-			"dropdown": "Dropdown",
-			"field": "Field",
-			"fieldDeleted": "Field deleted",
-			"general": "General",
-			"itDisappearsFromTheProjectListYouCanRestoreItLater": "It disappears from the project list. You can restore it later.",
-			"key": "Key",
-			"markAsDoneColumn": "Mark as done column",
-			"moveDown": "Move down",
-			"moveToAnotherWorkspace": "Move to another workspace",
-			"moveToWorkspace": "Move to workspace",
-			"moveUp": "Move up",
-			"multiSelect": "Multi-select",
-			"name": "Name",
-			"newColumn": "New column",
-			"newCustomField": "New custom field",
-			"noCustomFields": "No custom fields",
-			"number": "Number",
-			"ok": "OK",
-			"options": "Options",
-			"platform": "Platform",
-			"project": "Project",
-			"projectArchived": "Project archived",
-			"projectDeleted": "Project deleted",
-			"projectMoved": "Project moved",
-			"projectRestored": "Project restored",
-			"projectSettings": "Project settings",
-			"projectUpdated": "Project updated",
-			"publicBoard": "Public board",
-			"rename": "Rename",
-			"renameColumn": "Rename column",
-			"required": "Required",
-			"restoreProject": "Restore project",
-			"saveChanges": "Save changes",
-			"separateWithCommas": "Separate with commas",
-			"tasksHereCountAsFinished": "Tasks here count as finished",
-			"tasksInThisColumnMayNeedToBeMovedFirst": "Tasks in this column may need to be moved first.",
-			"text": "Text",
-			"type": "Type",
-			"unmarkAsDoneColumn": "Unmark as done column",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Values stored in this field are deleted from every task."
-		},
-		"search": {
-			"clear": "Clear",
-			"commentMeta": "{{name}}, {{when}}",
-			"empty": {
-				"message": "Find tasks by title or number, projects, and comments.",
-				"title": "Search this workspace"
-			},
-			"failed": "Search failed",
-			"kinds": {
-				"all": "All",
-				"comments": "Comments",
-				"projects": "Projects",
-				"tasks": "Tasks"
-			},
-			"noResults": "No results for “{{query}}”",
-			"placeholder": "Search tasks, projects, comments"
-		},
-		"signIn": {
-			"apiKey": {
-				"label": "API key",
-				"message": "Create one on the web under Settings, then API keys. It works even when other sign-in methods are turned off."
-			},
-			"browserHint": "GitHub, Google, Discord or SSO",
-			"captcha": "This server requires a browser check for this step. Use “Continue in browser” instead.",
-			"change": "Change",
-			"cloud": "Kaneo Cloud",
-			"code": {
-				"checkEmail": "Check your email",
-				"didntGet": "Didn’t get it?",
-				"message": "We'll email you a 6-digit code. No password needed.",
-				"resend": "Resend code",
-				"send": "Send code",
-				"sent": "We sent a 6-digit code to {{email}}",
-				"title": "Sign in with a code",
-				"verify": "Verify"
-			},
-			"connect": "Connect",
-			"continueInBrowser": "Continue in browser",
-			"createAccount": "Create account",
-			"device": {
-				"codeCopied": "Code copied",
-				"copyCode": "Copy code",
-				"copyLink": "Copy link",
-				"denied": "Sign-in was denied in the browser.",
-				"expired": "The sign-in code expired. Start again to get a new one.",
-				"gettingCode": "Getting a code…",
-				"linkCopied": "Link copied",
-				"message": "Approve this device from the Kaneo website. GitHub, Google, Discord and SSO all work there.",
-				"openBrowser": "Open browser",
-				"openFailed": "Couldn’t open a browser. Copy the link instead.",
-				"tryAgain": "Try again",
-				"waiting": "Waiting for approval…",
-				"yourCode": "Your code"
-			},
-			"email": "Email",
-			"emailCode": "Email me a sign-in code",
-			"invalidClient": "This server doesn’t allow device sign-in. Ask its admin to add “kaneo-cli” to DEVICE_AUTH_CLIENT_IDS, or sign in with a password or API key.",
-			"newToKaneo": "New to Kaneo?",
-			"noPassword": "No password needed",
-			"or": "or",
-			"password": "Password",
-			"recent": "Recent",
-			"selfHosted": "Self-hosted",
-			"sendTo": "Send to {{email}}",
-			"serverAddress": "Server address",
-			"serverAddressHint": "The address you open Kaneo at. Use http:// for servers without TLS. If the API runs on another host, enter the API address.",
-			"signIn": "Sign in",
-			"signUp": {
-				"name": "Name",
-				"passwordHint": "At least 8 characters"
-			},
-			"tagline": "Simple project management. Connect to Kaneo Cloud or your own instance.",
-			"togglePassword": "Toggle password visibility",
-			"useApiKey": "Use an API key"
-		},
-		"taskDetail": {
-			"activity": {
-				"comment": "Comment",
-				"deleteMessage": "This can't be undone.",
-				"deleteTitle": "Delete comment?",
-				"edit": "Edit",
-				"editComment": "Edit comment",
-				"edited": "{{time}}, edited",
-				"entry": "{{name}} {{action}}",
-				"title": "Activity"
-			},
-			"fields": {
-				"empty": "Empty",
-				"none": "None",
-				"title": "Fields"
-			},
-			"links": {
-				"add": "Add link",
-				"empty": "No links",
-				"optional": "Optional",
-				"remove": "Remove link",
-				"synced": "Synced",
-				"title": "Links",
-				"titleLabel": "Title",
-				"url": "URL"
-			},
-			"menu": {
-				"delete": "Delete task",
-				"deleted": "Task deleted",
-				"deleteMessage": "“{{title}}” and its comments will be permanently deleted.",
-				"deleteTitle": "Delete task?",
-				"duplicate": "Duplicate",
-				"duplicated": "Task duplicated",
-				"move": "Move to project…",
-				"moved": "Task moved",
-				"moveTitle": "Move to project",
-				"refresh": "Refresh",
-				"share": "Share"
-			},
-			"relations": {
-				"blockedBy": "Blocked by",
-				"blocks": "Blocks",
-				"empty": "No related tasks",
-				"link": "Link a task",
-				"related": "Related",
-				"relatedTo": "Related to",
-				"remove": "Remove relation",
-				"removeConfirm": "Remove",
-				"removeMessage": "The tasks stay; only the link between them is removed.",
-				"removeTitle": "Remove relation?",
-				"searchPlaceholder": "Search tasks by title or number",
-				"title": "Relations"
-			},
-			"screen": {
-				"addDescription": "Add a description…",
-				"copyLink": "Copy link",
-				"editDescription": "Edit description",
-				"editTitle": "Edit title",
-				"linkCopied": "Link copied",
-				"more": "More"
-			},
-			"section": {
-				"addTo": "Add to {{title}}"
-			},
-			"someone": "Someone",
-			"status": {
-				"archived": "Archived",
-				"planned": "Planned"
-			},
-			"subtasks": {
-				"add": "Add subtask",
-				"empty": "No subtasks",
-				"parent": "Parent task",
-				"title": "Subtasks"
-			},
-			"time": {
-				"chipHours": "{{count}}h",
-				"chipMinutes": "{{count}}m",
-				"date": "Date",
-				"durationHoursMinutes": "{{hours}}h {{minutes}}m",
-				"durationMinutes": "{{minutes}}m",
-				"editEntry": "Edit time entry",
-				"hoursUnit": "h",
-				"log": "Log time",
-				"logDuration": "Log {{duration}}",
-				"logged": "Time logged",
-				"minutesUnit": "m",
-				"notePlaceholder": "What did you work on?",
-				"running": "{{time}} (running)",
-				"start": "Start timer",
-				"stop": "Stop",
-				"title": "Time",
-				"total": "{{duration}} total"
-			}
-		},
-		"taskFields": {
-			"addNumber": "Add a number",
-			"archived": "Archived",
-			"assignee": "Assignee",
-			"createLabel": "Create label “{{name}}”",
-			"done": "Done",
-			"doneColumn": "Done column",
-			"dueDate": "Due date",
-			"empty": "Empty",
-			"labelColor": "Color for the new label",
-			"labels": "Labels",
-			"noLabels": "No labels yet. Type a name to create one.",
-			"none": "None",
-			"overdue_many": "{{date}}, {{count}} days overdue",
-			"overdue_one": "{{date}}, {{count}} day overdue",
-			"overdue_other": "{{date}}, {{count}} days overdue",
-			"planned": "Planned",
-			"priority": "Priority",
-			"searchOrCreate": "Search or create",
-			"searchPeople": "Search people",
-			"startDate": "Start date",
-			"starts": "Starts {{date}}",
-			"status": "Status",
-			"unassigned": "Unassigned",
-			"you": "{{name}} (you)"
-		},
-		"taskNew": {
-			"create": "Create",
-			"newSubtask": "New subtask",
-			"noLabels": "No labels in this workspace yet.",
-			"project": "Project",
-			"taskTitle": "Task title"
-		},
-		"time": {
-			"durationHoursMinutes": "{{hours}}h {{minutes}}m",
-			"goodAfternoon": "Good afternoon",
-			"goodEvening": "Good evening",
-			"goodMorning": "Good morning",
-			"hours_many": "{{count}} hr",
-			"hours_one": "{{count}} hr",
-			"hours_other": "{{count}} hr",
-			"hoursAgo_many": "{{count}} hr ago",
-			"hoursAgo_one": "{{count}} hr ago",
-			"hoursAgo_other": "{{count}} hr ago",
-			"hoursShort_many": "{{count}}h",
-			"hoursShort_one": "{{count}}h",
-			"hoursShort_other": "{{count}}h",
-			"justNow": "just now",
-			"minutes_many": "{{count}} min",
-			"minutes_one": "{{count}} min",
-			"minutes_other": "{{count}} min",
-			"minutesAgo_many": "{{count}} min ago",
-			"minutesAgo_one": "{{count}} min ago",
-			"minutesAgo_other": "{{count}} min ago",
-			"minutesShort_many": "{{count}}m",
-			"minutesShort_one": "{{count}}m",
-			"minutesShort_other": "{{count}}m",
-			"now": "now",
-			"secondsShort_many": "{{count}}s",
-			"secondsShort_one": "{{count}}s",
-			"secondsShort_other": "{{count}}s",
-			"today": "Today",
-			"tomorrow": "Tomorrow",
-			"yesterday": "Yesterday"
+		"background": {
+			"summary_one": "Altra {{count}} nuova notifica",
+			"summary_other": "Altre {{count}} nuove notifiche",
+			"channelName": "Attività Kaneo",
+			"channelDescription": "Assegnazioni, commenti e menzioni dai tuoi workspace",
+			"summary_many": "Altre {{count}} nuove notifiche"
 		},
 		"ui": {
-			"back": "Back",
-			"loadFailed": "Couldn't load this",
-			"nothingMatches": "Nothing matches “{{query}}”",
-			"search": "Search"
+			"back": "Indietro",
+			"loadFailed": "Impossibile caricare",
+			"search": "Cerca",
+			"nothingMatches": "Nessun risultato per “{{query}}”"
 		},
-		"workspaceNew": {
-			"create": "Create workspace",
-			"description": "A home for your team’s projects. You can invite people next.",
-			"descriptionLabel": "Description",
-			"descriptionPlaceholder": "What's this workspace for?",
-			"name": "Name",
-			"namePlaceholder": "Design studio",
-			"optional": "Optional",
-			"title": "New workspace"
+		"picker": {
+			"clear": "Cancella",
+			"nextWeek": "Settimana prossima",
+			"previousMonth": "Mese precedente",
+			"nextMonth": "Mese successivo"
 		},
-		"workspaceSettings": {
-			"confirm": {
-				"deleteMessage": "Every project, task and comment in {{name}} will be permanently deleted.",
-				"deleteTitle": "Delete workspace?",
-				"leaveMessage": "You will lose access until someone invites you again.",
-				"leaveTitle": "Leave workspace?"
+		"time": {
+			"now": "ora",
+			"justNow": "proprio ora",
+			"minutesShort_one": "{{count}} min",
+			"minutesShort_other": "{{count}} min",
+			"hoursShort_one": "{{count}} h",
+			"hoursShort_other": "{{count}} h",
+			"secondsShort_one": "{{count}} s",
+			"secondsShort_other": "{{count}} s",
+			"minutesAgo_one": "{{count}} min fa",
+			"minutesAgo_other": "{{count}} min fa",
+			"hoursAgo_one": "{{count}} ora fa",
+			"hoursAgo_other": "{{count}} ore fa",
+			"durationHoursMinutes": "{{hours}} h {{minutes}} min",
+			"goodEvening": "Buonasera",
+			"goodMorning": "Buongiorno",
+			"goodAfternoon": "Buon pomeriggio",
+			"today": "Oggi",
+			"tomorrow": "Domani",
+			"yesterday": "Ieri",
+			"minutes_one": "{{count}} min",
+			"minutes_other": "{{count}} min",
+			"hours_one": "{{count}} h",
+			"hours_other": "{{count}} h",
+			"hours_many": "{{count}} h",
+			"hoursAgo_many": "{{count}} ore fa",
+			"hoursShort_many": "{{count}} h",
+			"minutes_many": "{{count}} min",
+			"minutesAgo_many": "{{count}} min fa",
+			"minutesShort_many": "{{count}} min",
+			"secondsShort_many": "{{count}} s"
+		},
+		"meta": {
+			"priority": {
+				"noPriority": "Nessuna priorità",
+				"low": "Bassa",
+				"medium": "Media",
+				"high": "Alta",
+				"urgent": "Urgente"
 			},
-			"danger": {
-				"delete": "Delete workspace",
-				"deleteHint": "Deletes all projects and tasks in it",
-				"leave": "Leave workspace",
-				"leaveButton": "Leave",
-				"leaveHint": "You can rejoin with a new invitation",
-				"title": "Danger zone"
+			"labelColor": {
+				"stone": "Pietra",
+				"slate": "Ardesia",
+				"lavender": "Lavanda",
+				"sage": "Salvia",
+				"forest": "Foresta",
+				"amber": "Ambra",
+				"terracotta": "Terracotta",
+				"rose": "Rosa",
+				"crimson": "Cremisi"
 			},
-			"description": "Settings for everyone in {{name}}.",
-			"general": {
-				"description": "Description",
-				"name": "Name",
-				"save": "Save changes",
-				"slug": "Slug: <mono>{{slug}}</mono>",
-				"title": "General"
+			"role": {
+				"owner": "Proprietario",
+				"admin": "Amministratore",
+				"member": "Membro",
+				"viewer": "Visualizzatore"
 			},
-			"manage": {
-				"labels": "Labels",
-				"members": "Members",
-				"title": "Manage"
-			},
-			"thisWorkspace": "this workspace",
-			"title": "Workspace",
-			"toast": {
-				"deleted": "Workspace deleted",
-				"left": "You left the workspace",
-				"updated": "Workspace updated"
+			"roleHint": {
+				"owner": "Controllo completo, inclusa l'eliminazione del workspace",
+				"admin": "Può anche gestire membri e impostazioni",
+				"member": "Può creare e modificare attività",
+				"viewer": "Può vedere progetti e attività"
 			}
 		},
-		"workspaceSwitcher": {
-			"create": "Create workspace",
-			"invitations": "Invitations",
-			"labels": "Labels",
-			"members": "Members",
-			"settings": "Workspace settings",
-			"title": "Workspaces"
+		"account": {
+			"title": "Account",
+			"description": "Come ti vedono i colleghi in tutti i workspace.",
+			"profile": {
+				"title": "Profilo",
+				"photo": "Foto profilo",
+				"photoFormats": "PNG, JPG o WebP",
+				"change": "Cambia",
+				"name": "Nome",
+				"changePassword": "Cambia password"
+			},
+			"notifications": {
+				"title": "Notifiche",
+				"phone": "Notifiche sul telefono",
+				"phoneHint": "Controllate circa ogni 15 minuti",
+				"delivery": "Recapito ed eventi",
+				"deliveryHint": "Email, ntfy, Gotify, webhook",
+				"invitations": "Inviti",
+				"permissionDenied": "Prima consenti le notifiche per Kaneo nelle impostazioni di sistema."
+			},
+			"connection": {
+				"title": "Connessione",
+				"server": "Server",
+				"signedInWith": "Accesso con",
+				"apiKey": "Chiave API",
+				"sessionToken": "Token di sessione",
+				"appVersion": "Versione app"
+			},
+			"signOut": {
+				"button": "Esci",
+				"title": "Uscire?",
+				"message": "Puoi accedere di nuovo in qualsiasi momento."
+			},
+			"photoMenu": {
+				"choose": "Scegli foto",
+				"remove": "Rimuovi foto"
+			},
+			"toast": {
+				"photoUpdated": "Foto aggiornata",
+				"photoRemoved": "Foto rimossa",
+				"nameUpdated": "Nome aggiornato",
+				"passwordChanged": "Password cambiata"
+			},
+			"password": {
+				"title": "Cambia password",
+				"current": "Password attuale",
+				"new": "Nuova password",
+				"confirm": "Conferma nuova password",
+				"confirmPlaceholder": "Scrivila di nuovo",
+				"mismatch": "Le password non corrispondono",
+				"signOutOthers": "Esci dagli altri dispositivi"
+			}
+		},
+		"notificationSettings": {
+			"title": "Notifiche",
+			"description": "Dove Kaneo ti raggiunge, e per cosa.",
+			"on": "Attive",
+			"off": "Disattivate",
+			"notSet": "Non configurato",
+			"delivery": {
+				"title": "Recapito",
+				"email": "Email",
+				"emailHint": "Inviate all'email del tuo account",
+				"ntfyHint": "Invia notifiche a un topic ntfy",
+				"gotifyHint": "Invia notifiche a un server Gotify",
+				"webhook": "Webhook",
+				"webhookHint": "Invia notifiche via POST a un URL"
+			},
+			"events": {
+				"title": "Avvisami per",
+				"assignments": "Assegnazioni",
+				"assignmentsHint": "Quando ti viene assegnata un'attività",
+				"comments": "Commenti",
+				"commentsHint": "Nuovi commenti sulle tue attività",
+				"statusChanges": "Cambi di stato",
+				"statusChangesHint": "Quando le tue attività cambiano colonna",
+				"dueDate": "Promemoria scadenze",
+				"dueDateHint": "Prima della scadenza di un'attività assegnata a te",
+				"remindMe": "Ricordamelo",
+				"remindBefore": "{{time}} prima",
+				"remindPickerTitle": "Ricordamelo prima"
+			},
+			"leadTime": {
+				"minutes15": "15 minuti",
+				"hour1": "1 ora",
+				"hours3": "3 ore",
+				"day1": "1 giorno",
+				"days2": "2 giorni",
+				"week1": "1 settimana",
+				"minutes_one": "{{count}} minuto",
+				"minutes_other": "{{count}} minuti",
+				"minutes_many": "{{count}} minuti"
+			},
+			"channel": {
+				"enabled": "Invia notifiche qui",
+				"webhookUrl": "URL del webhook",
+				"serverUrl": "URL del server",
+				"topic": "Topic",
+				"accessToken": "Token di accesso",
+				"appToken": "Token dell'app",
+				"signingSecret": "Segreto di firma",
+				"secretSaved": "Salvato. Inseriscine uno nuovo per sostituirlo",
+				"secretOptional": "Facoltativo"
+			}
+		},
+		"workspaceSettings": {
+			"title": "Workspace",
+			"description": "Impostazioni per tutti in {{name}}.",
+			"thisWorkspace": "questo workspace",
+			"general": {
+				"title": "Generale",
+				"name": "Nome",
+				"description": "Descrizione",
+				"slug": "Slug: <mono>{{slug}}</mono>",
+				"save": "Salva modifiche"
+			},
+			"manage": {
+				"title": "Gestisci",
+				"members": "Membri",
+				"labels": "Etichette"
+			},
+			"danger": {
+				"title": "Zona pericolosa",
+				"leave": "Lascia il workspace",
+				"leaveHint": "Puoi rientrare con un nuovo invito",
+				"leaveButton": "Lascia",
+				"delete": "Elimina workspace",
+				"deleteHint": "Elimina tutti i progetti e le attività al suo interno"
+			},
+			"confirm": {
+				"deleteTitle": "Eliminare il workspace?",
+				"leaveTitle": "Lasciare il workspace?",
+				"deleteMessage": "Tutti i progetti, le attività e i commenti in {{name}} verranno eliminati definitivamente.",
+				"leaveMessage": "Perderai l'accesso finché qualcuno non ti inviterà di nuovo."
+			},
+			"toast": {
+				"updated": "Workspace aggiornato",
+				"deleted": "Workspace eliminato",
+				"left": "Hai lasciato il workspace"
+			}
+		},
+		"members": {
+			"title": "Membri",
+			"description_one": "{{count}} persona in {{name}}",
+			"description_other": "{{count}} persone in {{name}}",
+			"thisWorkspace": "questo workspace",
+			"invite": "Invita",
+			"pending": {
+				"title": "Inviti in sospeso",
+				"expires": "{{role}}, scade: {{date}}",
+				"manage": "Gestisci"
+			},
+			"people": {
+				"title": "Persone",
+				"unknown": "Sconosciuto",
+				"you": "(tu)"
+			},
+			"memberMenu": {
+				"fallbackTitle": "Membro",
+				"changeRole": "Cambia ruolo",
+				"remove": "Rimuovi dal workspace"
+			},
+			"rolePicker": {
+				"title": "Ruolo"
+			},
+			"remove": {
+				"title": "Rimuovere il membro?",
+				"message": "{{name}} perderà l'accesso a {{workspace}}.",
+				"they": "Questa persona",
+				"confirm": "Rimuovi"
+			},
+			"inviteMenu": {
+				"fallbackTitle": "Invito",
+				"resend": "Invia di nuovo l'invito",
+				"cancel": "Annulla invito"
+			},
+			"inviteForm": {
+				"title": "Invita un membro",
+				"intro": "Riceverà un'email con un link per unirsi a {{workspace}}.",
+				"email": "Email",
+				"role": "Ruolo",
+				"send": "Invia invito"
+			},
+			"toast": {
+				"roleUpdated": "Ruolo aggiornato",
+				"removed": "Membro rimosso",
+				"resent": "Invito inviato di nuovo",
+				"canceled": "Invito annullato",
+				"sent": "Invito inviato a {{email}}"
+			},
+			"description_many": "{{count}} persone in {{name}}"
+		},
+		"labels": {
+			"title": "Etichette",
+			"description": "Le etichette ti aiutano a raggruppare e filtrare le attività.",
+			"new": "Nuova etichetta",
+			"edit": "Modifica etichetta",
+			"delete": "Elimina etichetta",
+			"fallbackTitle": "Etichetta",
+			"empty": {
+				"title": "Nessuna etichetta",
+				"message": "Crea etichette per raggruppare e filtrare le attività in tutti i progetti."
+			},
+			"actions": "Azioni per {{name}}",
+			"deleteTitle": "Eliminare “{{name}}”?",
+			"deleteMessage": "L'etichetta viene rimossa da tutte le attività di questo workspace.",
+			"form": {
+				"name": "Nome",
+				"color": "Colore"
+			},
+			"toast": {
+				"deleted": "Etichetta eliminata"
+			}
 		}
 	}
 }

@@ -3718,798 +3718,798 @@
 		}
 	},
 	"mobile": {
-		"account": {
-			"connection": {
-				"apiKey": "API key",
-				"appVersion": "App version",
-				"server": "Server",
-				"sessionToken": "Session token",
-				"signedInWith": "Signed in with",
-				"title": "Connection"
+		"common": {
+			"save": "Simpan",
+			"cancel": "Batal",
+			"delete": "Hapus",
+			"retry": "Coba lagi",
+			"somethingWrong": "Terjadi kesalahan",
+			"close": "Tutup"
+		},
+		"errors": {
+			"notSignedIn": "Belum masuk",
+			"unreachable": "Tidak dapat menjangkau server. Periksa koneksi dan alamat server Anda.",
+			"sessionExpired": "Sesi Anda telah berakhir. Silakan masuk lagi.",
+			"forbidden": "Anda tidak memiliki izin untuk melakukannya.",
+			"notFound": "Tidak ditemukan.",
+			"tooManyRequests": "Terlalu banyak permintaan. Harap tunggu sebentar.",
+			"serverProblem": "Server mengalami masalah ({{status}}).",
+			"requestFailed": "Permintaan gagal ({{status}}).",
+			"notKaneo": "{{url}} sepertinya bukan server Kaneo.",
+			"noInstance": "Tidak ada instans Kaneo di {{url}} (HTTP {{status}}).",
+			"noSession": "Server tidak mengembalikan sesi. Coba masuk melalui browser.",
+			"deviceFailed": "Gagal masuk dengan perangkat (HTTP {{status}}).",
+			"apiKeyRejected": "API key tersebut ditolak.",
+			"signInRejected": "Server tidak menerima permintaan masuk.",
+			"uploadFailed": "Unggahan gagal ({{status}})"
+		},
+		"signIn": {
+			"tagline": "Manajemen proyek yang sederhana. Hubungkan ke Kaneo Cloud atau instans Anda sendiri.",
+			"cloud": "Kaneo Cloud",
+			"selfHosted": "Self-hosted",
+			"captcha": "Server ini memerlukan pemeriksaan browser untuk langkah ini. Gunakan “Lanjutkan di browser”.",
+			"invalidClient": "Server ini tidak mengizinkan masuk dengan perangkat. Minta admin menambahkan “kaneo-cli” ke DEVICE_AUTH_CLIENT_IDS, atau masuk dengan kata sandi atau API key.",
+			"serverAddress": "Alamat server",
+			"serverAddressHint": "Alamat yang Anda gunakan untuk membuka Kaneo. Gunakan http:// untuk server tanpa TLS. Jika API berjalan di host lain, masukkan alamat API.",
+			"connect": "Hubungkan",
+			"recent": "Terbaru",
+			"change": "Ubah",
+			"email": "Email",
+			"password": "Kata sandi",
+			"togglePassword": "Tampilkan atau sembunyikan kata sandi",
+			"signIn": "Masuk",
+			"or": "atau",
+			"continueInBrowser": "Lanjutkan di browser",
+			"browserHint": "GitHub, Google, Discord, atau SSO",
+			"emailCode": "Kirim kode masuk ke email saya",
+			"sendTo": "Kirim ke {{email}}",
+			"noPassword": "Tanpa kata sandi",
+			"useApiKey": "Gunakan API key",
+			"newToKaneo": "Baru di Kaneo?",
+			"createAccount": "Buat akun",
+			"code": {
+				"title": "Masuk dengan kode",
+				"message": "Kami akan mengirim kode 6 digit ke email Anda. Tanpa kata sandi.",
+				"send": "Kirim kode",
+				"checkEmail": "Periksa email Anda",
+				"sent": "Kami mengirim kode 6 digit ke {{email}}",
+				"verify": "Verifikasi",
+				"didntGet": "Tidak menerimanya?",
+				"resend": "Kirim ulang kode"
 			},
-			"description": "How you appear to teammates across every workspace.",
-			"notifications": {
-				"delivery": "Delivery and events",
-				"deliveryHint": "Email, ntfy, Gotify, webhooks",
-				"invitations": "Invitations",
-				"permissionDenied": "Allow notifications for Kaneo in system settings first.",
-				"phone": "Phone notifications",
-				"phoneHint": "Checked about every 15 minutes",
-				"title": "Notifications"
+			"device": {
+				"denied": "Permintaan masuk ditolak di browser.",
+				"expired": "Kode masuk sudah kedaluwarsa. Mulai lagi untuk mendapatkan kode baru.",
+				"openFailed": "Tidak dapat membuka browser. Salin tautannya.",
+				"message": "Setujui perangkat ini dari situs web Kaneo. GitHub, Google, Discord, dan SSO semuanya bisa digunakan di sana.",
+				"yourCode": "Kode Anda",
+				"copyCode": "Salin kode",
+				"codeCopied": "Kode disalin",
+				"copyLink": "Salin tautan",
+				"linkCopied": "Tautan disalin",
+				"openBrowser": "Buka browser",
+				"tryAgain": "Coba lagi",
+				"waiting": "Menunggu persetujuan…",
+				"gettingCode": "Mengambil kode…"
 			},
-			"password": {
-				"confirm": "Confirm new password",
-				"confirmPlaceholder": "Type it again",
-				"current": "Current password",
-				"mismatch": "Passwords don't match",
-				"new": "New password",
-				"signOutOthers": "Sign out other devices",
-				"title": "Change password"
+			"apiKey": {
+				"message": "Buat di web melalui Pengaturan, lalu API key. Cara ini tetap berfungsi meskipun metode masuk lain dinonaktifkan.",
+				"label": "API key"
 			},
-			"photoMenu": {
-				"choose": "Choose photo",
-				"remove": "Remove photo"
+			"signUp": {
+				"name": "Nama",
+				"passwordHint": "Minimal 8 karakter"
+			}
+		},
+		"invitations": {
+			"accepted": "Undangan diterima",
+			"declined": "Undangan ditolak",
+			"title": "Undangan",
+			"description": "Ruang kerja yang mengundang Anda untuk bergabung.",
+			"emptyTitle": "Tidak ada undangan tertunda",
+			"emptyMessage": "Undangan muncul di sini setelah alamat email Anda diverifikasi. Anda selalu bisa bergabung melalui tautan di email.",
+			"invitedYou": "{{name}} mengundang Anda",
+			"decline": "Tolak",
+			"accept": "Terima",
+			"joinWithLink": "Gabung dengan tautan undangan",
+			"linkPlaceholder": "Tempel tautan dari email Anda",
+			"join": "Gabung"
+		},
+		"taskDetail": {
+			"someone": "Seseorang",
+			"status": {
+				"planned": "Direncanakan",
+				"archived": "Diarsipkan"
 			},
-			"profile": {
-				"change": "Change",
-				"changePassword": "Change password",
-				"name": "Name",
-				"photo": "Profile photo",
-				"photoFormats": "PNG, JPG or WebP",
-				"title": "Profile"
+			"section": {
+				"addTo": "Tambahkan ke {{title}}"
 			},
-			"signOut": {
-				"button": "Sign out",
-				"message": "You can sign in again at any time.",
-				"title": "Sign out?"
+			"fields": {
+				"title": "Bidang",
+				"empty": "Kosong",
+				"none": "Tidak ada"
 			},
-			"title": "Account",
-			"toast": {
-				"nameUpdated": "Name updated",
-				"passwordChanged": "Password changed",
-				"photoRemoved": "Photo removed",
-				"photoUpdated": "Photo updated"
+			"subtasks": {
+				"title": "Subtugas",
+				"add": "Tambah subtugas",
+				"parent": "Tugas induk",
+				"empty": "Tidak ada subtugas"
+			},
+			"relations": {
+				"title": "Relasi",
+				"link": "Tautkan tugas",
+				"blocks": "Memblokir",
+				"blockedBy": "Diblokir oleh",
+				"related": "Terkait",
+				"relatedTo": "Terkait dengan",
+				"remove": "Hapus relasi",
+				"empty": "Tidak ada tugas terkait",
+				"removeTitle": "Hapus relasi?",
+				"removeMessage": "Tugasnya tetap ada; hanya tautan di antara keduanya yang dihapus.",
+				"removeConfirm": "Hapus",
+				"searchPlaceholder": "Cari tugas berdasarkan judul atau nomor"
+			},
+			"links": {
+				"title": "Tautan",
+				"add": "Tambah tautan",
+				"remove": "Hapus tautan",
+				"synced": "Tersinkron",
+				"empty": "Tidak ada tautan",
+				"url": "URL",
+				"titleLabel": "Judul",
+				"optional": "Opsional"
+			},
+			"time": {
+				"title": "Waktu",
+				"total": "Total {{duration}}",
+				"log": "Catat waktu",
+				"editEntry": "Edit catatan waktu",
+				"logged": "Waktu dicatat",
+				"stop": "Hentikan",
+				"start": "Mulai timer",
+				"running": "{{time}} (berjalan)",
+				"hoursUnit": "j",
+				"minutesUnit": "mnt",
+				"chipMinutes": "{{count}} mnt",
+				"chipHours": "{{count}} j",
+				"logDuration": "Catat {{duration}}",
+				"durationHoursMinutes": "{{hours}} j {{minutes}} mnt",
+				"durationMinutes": "{{minutes}} mnt",
+				"date": "Tanggal",
+				"notePlaceholder": "Apa yang Anda kerjakan?"
+			},
+			"activity": {
+				"title": "Aktivitas",
+				"comment": "Komentar",
+				"edit": "Edit",
+				"editComment": "Edit komentar",
+				"edited": "{{time}}, diedit",
+				"deleteTitle": "Hapus komentar?",
+				"deleteMessage": "Tindakan ini tidak dapat dibatalkan.",
+				"entry": "{{name}} {{action}}"
+			},
+			"menu": {
+				"share": "Bagikan",
+				"duplicate": "Duplikat",
+				"move": "Pindahkan ke proyek…",
+				"refresh": "Muat ulang",
+				"delete": "Hapus tugas",
+				"moveTitle": "Pindahkan ke proyek",
+				"duplicated": "Tugas diduplikat",
+				"moved": "Tugas dipindahkan",
+				"deleted": "Tugas dihapus",
+				"deleteTitle": "Hapus tugas?",
+				"deleteMessage": "“{{title}}” dan komentarnya akan dihapus permanen."
+			},
+			"screen": {
+				"copyLink": "Salin tautan",
+				"linkCopied": "Tautan disalin",
+				"more": "Lainnya",
+				"editTitle": "Edit judul",
+				"editDescription": "Edit deskripsi",
+				"addDescription": "Tambahkan deskripsi…"
+			}
+		},
+		"workspaceNew": {
+			"title": "Ruang kerja baru",
+			"description": "Tempat untuk proyek-proyek tim Anda. Setelah ini Anda bisa mengundang orang.",
+			"name": "Nama",
+			"namePlaceholder": "Studio desain",
+			"descriptionLabel": "Deskripsi",
+			"optional": "Opsional",
+			"descriptionPlaceholder": "Untuk apa ruang kerja ini?",
+			"create": "Buat ruang kerja"
+		},
+		"taskFields": {
+			"status": "Status",
+			"planned": "Direncanakan",
+			"priority": "Prioritas",
+			"assignee": "Penanggung jawab",
+			"unassigned": "Belum ditugaskan",
+			"startDate": "Tanggal mulai",
+			"dueDate": "Tenggat",
+			"labels": "Label",
+			"none": "Tidak ada",
+			"searchPeople": "Cari orang",
+			"you": "{{name}} (Anda)",
+			"addNumber": "Tambahkan angka",
+			"empty": "Kosong",
+			"archived": "Diarsipkan",
+			"doneColumn": "Kolom selesai",
+			"starts": "Mulai {{date}}",
+			"overdue_other": "{{date}}, terlambat {{count}} hari",
+			"done": "Selesai",
+			"searchOrCreate": "Cari atau buat",
+			"createLabel": "Buat label “{{name}}”",
+			"labelColor": "Warna untuk label baru",
+			"noLabels": "Belum ada label. Ketik nama untuk membuatnya."
+		},
+		"taskNew": {
+			"newSubtask": "Subtugas baru",
+			"project": "Proyek",
+			"create": "Buat",
+			"taskTitle": "Judul tugas",
+			"noLabels": "Belum ada label di ruang kerja ini."
+		},
+		"editor": {
+			"description": "Deskripsi",
+			"placeholder": "Tambahkan deskripsi… Mendukung Markdown.",
+			"write": "Tulis",
+			"preview": "Pratinjau",
+			"nothingToPreview": "Tidak ada yang bisa dipratinjau",
+			"bold": "Tebal",
+			"italic": "Miring",
+			"heading": "Judul",
+			"list": "Daftar",
+			"code": "Kode",
+			"link": "Tautan",
+			"boldPlaceholder": "tebal",
+			"italicPlaceholder": "miring",
+			"codePlaceholder": "kode",
+			"linkPlaceholder": "tautan",
+			"insertImage": "Sisipkan gambar",
+			"attachment": "Lampiran"
+		},
+		"composer": {
+			"reply": "Balas {{name}}…",
+			"placeholder": "Tambahkan komentar…",
+			"mentionSomeone": "Sebut seseorang",
+			"attachImage": "Lampirkan gambar",
+			"sendComment": "Kirim komentar",
+			"mention": "Sebut",
+			"searchPeople": "Cari orang"
+		},
+		"board": {
+			"filterTasksActive": "Filter tugas… ({{count}} aktif)",
+			"movedTask": "{{ticket}} dipindahkan ke {{status}}",
+			"showTasks_other": "Tampilkan {{count}} tugas",
+			"memberYou": "{{name}} (Anda)",
+			"dueDateOverdue_other": "{{date}}, terlambat {{count}} hr",
+			"projects": "Proyek",
+			"back": "Kembali",
+			"boardView": "Tampilan papan",
+			"listView": "Tampilan daftar",
+			"more": "Lainnya",
+			"switchProject": "Ganti proyek",
+			"noTasksMatchTheFilters": "Tidak ada tugas yang cocok dengan filter",
+			"nothingPlannedYet": "Belum ada yang direncanakan",
+			"noTasksHere": "Tidak ada tugas di sini",
+			"addTask": "Tambah tugas",
+			"noTasksMatch": "Tidak ada tugas yang cocok",
+			"noTasksYet": "Belum ada tugas",
+			"filters": "Filter",
+			"filterTasks": "Filter tugas…",
+			"me": "Saya",
+			"newTask": "Tugas baru",
+			"board": "Papan",
+			"projectSettings": "Pengaturan proyek",
+			"hidePlanned": "Sembunyikan yang direncanakan",
+			"showPlanned": "Tampilkan yang direncanakan",
+			"hideArchived": "Sembunyikan yang diarsipkan",
+			"showArchived": "Tampilkan yang diarsipkan",
+			"refresh": "Muat ulang",
+			"planned": "Direncanakan",
+			"archived": "Diarsipkan",
+			"reset": "Atur ulang",
+			"assignee": "Penanggung jawab",
+			"unassigned": "Belum ditugaskan",
+			"priority": "Prioritas",
+			"labels": "Label",
+			"overdueOnly": "Hanya yang terlambat",
+			"tasksNotOnTheBoardYet": "Tugas yang belum ada di papan",
+			"moveTo": "Pindahkan ke",
+			"assignToMe": "Tugaskan ke saya",
+			"sendToTopOfColumn": "Pindahkan ke atas kolom",
+			"sendToBottomOfColumn": "Pindahkan ke bawah kolom",
+			"openTask": "Buka tugas",
+			"searchPeople": "Cari orang"
+		},
+		"projectSettings": {
+			"deleteNamedTitle": "Hapus “{{name}}”?",
+			"text": "Teks",
+			"number": "Angka",
+			"date": "Tanggal",
+			"checkbox": "Kotak centang",
+			"dropdown": "Dropdown",
+			"multiSelect": "Pilihan ganda",
+			"projectUpdated": "Proyek diperbarui",
+			"project": "Proyek",
+			"projectSettings": "Pengaturan proyek",
+			"general": "Umum",
+			"publicBoard": "Papan publik",
+			"anyoneWithTheLinkCanViewTheBoard": "Siapa pun yang memiliki tautan dapat melihat papan",
+			"columns": "Kolom",
+			"addColumn": "Tambah kolom",
+			"doneColumn": "Kolom selesai",
+			"moveUp": "Pindahkan ke atas",
+			"moveDown": "Pindahkan ke bawah",
+			"customFields": "Bidang kustom",
+			"addField": "Tambah bidang",
+			"noCustomFields": "Tidak ada bidang kustom",
+			"projectRestored": "Proyek dipulihkan",
+			"archiveProjectTitle": "Arsipkan proyek?",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "Proyek akan hilang dari daftar proyek. Anda bisa memulihkannya nanti.",
+			"archive": "Arsipkan",
+			"projectArchived": "Proyek diarsipkan",
+			"restoreProject": "Pulihkan proyek",
+			"archiveProject": "Arsipkan proyek",
+			"moveToAnotherWorkspace": "Pindahkan ke ruang kerja lain",
+			"deleteProjectTitle": "Hapus proyek?",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "Semua tugas, komentar, dan catatan waktu di proyek ini akan dihapus permanen.",
+			"projectDeleted": "Proyek dihapus",
+			"deleteProject": "Hapus proyek",
+			"column": "Kolom",
+			"rename": "Ganti nama",
+			"unmarkAsDoneColumn": "Batalkan sebagai kolom selesai",
+			"markAsDoneColumn": "Tandai sebagai kolom selesai",
+			"deleteColumn": "Hapus kolom",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "Tugas di kolom ini mungkin perlu dipindahkan terlebih dahulu.",
+			"columnDeleted": "Kolom dihapus",
+			"renameColumn": "Ganti nama kolom",
+			"field": "Bidang",
+			"deleteField": "Hapus bidang",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Nilai yang tersimpan di bidang ini akan dihapus dari setiap tugas.",
+			"fieldDeleted": "Bidang dihapus",
+			"moveToWorkspace": "Pindahkan ke ruang kerja",
+			"projectMoved": "Proyek dipindahkan",
+			"ok": "OK",
+			"name": "Nama",
+			"key": "Key",
+			"changesFutureAndExistingTaskIDs": "Mengubah ID tugas yang sudah ada dan yang akan datang",
+			"saveChanges": "Simpan perubahan",
+			"newColumn": "Kolom baru",
+			"blocked": "Terblokir",
+			"tasksHereCountAsFinished": "Tugas di sini dianggap selesai",
+			"newCustomField": "Bidang kustom baru",
+			"platform": "Platform",
+			"type": "Jenis",
+			"options": "Opsi",
+			"separateWithCommas": "Pisahkan dengan koma",
+			"androidIOSWeb": "Android, iOS, Web",
+			"required": "Wajib"
+		},
+		"projectNew": {
+			"newProject": "Proyek baru",
+			"name": "Nama",
+			"customerPortal": "Portal Pelanggan",
+			"key": "Key",
+			"usedInTaskIDs": "Digunakan di ID tugas",
+			"createProject": "Buat proyek"
+		},
+		"home": {
+			"noWorkspace": {
+				"title": "Belum ada ruang kerja",
+				"body": "Ruang kerja menampung proyek dan tim Anda. Buat satu, atau terima undangan.",
+				"create": "Buat ruang kerja",
+				"viewInvitations_other": "Lihat {{count}} undangan",
+				"joinWithLink": "Gabung dengan tautan undangan",
+				"signedInAs": "Masuk sebagai {{email}}"
+			},
+			"switchWorkspace": "Ganti ruang kerja",
+			"search": "Cari",
+			"account": "Akun",
+			"archived": "Diarsipkan",
+			"due": "Tenggat {{date}}",
+			"progress": "{{done}} dari {{total}}",
+			"noTasks": "Tidak ada tugas",
+			"upNext": "Berikutnya",
+			"viewAll": "Lihat semua",
+			"projects": "Proyek",
+			"newProject": "Proyek baru",
+			"empty": {
+				"title": "Belum ada proyek",
+				"message": "Proyek menampung papan dan tugas Anda."
+			},
+			"hideArchived": "Sembunyikan proyek yang diarsipkan",
+			"showArchived": "Tampilkan proyek yang diarsipkan"
+		},
+		"inbox": {
+			"title": "Kotak masuk",
+			"markAllRead": "Tandai semua sudah dibaca",
+			"allCaughtUpToast": "Semua sudah dibaca",
+			"more": "Lainnya",
+			"empty": {
+				"title": "Semua sudah Anda baca",
+				"message": "Penugasan, komentar, dan sebutan muncul di sini."
+			},
+			"today": "Hari ini",
+			"earlier": "Sebelumnya",
+			"recent": "Terbaru",
+			"clearAll": "Hapus semua notifikasi",
+			"confirmClear": {
+				"title": "Hapus semua notifikasi?",
+				"message": "Ini akan menghapus semua notifikasi di ruang kerja ini.",
+				"confirm": "Hapus semua"
 			}
 		},
 		"activity": {
-			"commentedOn": "commented on {{target}}",
-			"empty": "No recent activity",
-			"someone": "Someone",
-			"subtitle": "Everything happening in {{workspace}}",
-			"title": "Activity"
-		},
-		"background": {
-			"channelDescription": "Assignments, comments and mentions from your workspaces",
-			"channelName": "Kaneo activity",
-			"summary_other": "{{count}} more new notifications"
-		},
-		"board": {
-			"addTask": "Add task",
-			"archived": "Archived",
-			"assignee": "Assignee",
-			"assignToMe": "Assign to me",
-			"back": "Back",
-			"board": "Board",
-			"boardView": "Board view",
-			"dueDateOverdue_other": "{{date}}, {{count}}d overdue",
-			"filters": "Filters",
-			"filterTasks": "Filter tasks…",
-			"filterTasksActive": "Filter tasks… ({{count}} active)",
-			"hideArchived": "Hide archived",
-			"hidePlanned": "Hide planned",
-			"labels": "Labels",
-			"listView": "List view",
-			"me": "Me",
-			"memberYou": "{{name}} (you)",
-			"more": "More",
-			"movedTask": "Moved {{ticket}} to {{status}}",
-			"moveTo": "Move to",
-			"newTask": "New task",
-			"noTasksHere": "No tasks here",
-			"noTasksMatch": "No tasks match",
-			"noTasksMatchTheFilters": "No tasks match the filters",
-			"noTasksYet": "No tasks yet",
-			"nothingPlannedYet": "Nothing planned yet",
-			"openTask": "Open task",
-			"overdueOnly": "Overdue only",
-			"planned": "Planned",
-			"priority": "Priority",
-			"projects": "Projects",
-			"projectSettings": "Project settings",
-			"refresh": "Refresh",
-			"reset": "Reset",
-			"searchPeople": "Search people",
-			"sendToBottomOfColumn": "Send to bottom of column",
-			"sendToTopOfColumn": "Send to top of column",
-			"showArchived": "Show archived",
-			"showPlanned": "Show planned",
-			"showTasks_other": "Show {{count}} tasks",
-			"switchProject": "Switch project",
-			"tasksNotOnTheBoardYet": "Tasks not on the board yet",
-			"unassigned": "Unassigned"
-		},
-		"common": {
-			"cancel": "Cancel",
-			"close": "Close",
-			"delete": "Delete",
-			"retry": "Try again",
-			"save": "Save",
-			"somethingWrong": "Something went wrong"
-		},
-		"composer": {
-			"attachImage": "Attach image",
-			"mention": "Mention",
-			"mentionSomeone": "Mention someone",
-			"placeholder": "Add a comment…",
-			"reply": "Reply to {{name}}…",
-			"searchPeople": "Search people",
-			"sendComment": "Send comment"
-		},
-		"editor": {
-			"attachment": "Attachment",
-			"bold": "Bold",
-			"boldPlaceholder": "bold",
-			"code": "Code",
-			"codePlaceholder": "code",
-			"description": "Description",
-			"heading": "Heading",
-			"insertImage": "Insert image",
-			"italic": "Italic",
-			"italicPlaceholder": "italic",
-			"link": "Link",
-			"linkPlaceholder": "link",
-			"list": "List",
-			"nothingToPreview": "Nothing to preview",
-			"placeholder": "Add a description… Markdown works.",
-			"preview": "Preview",
-			"write": "Write"
-		},
-		"errors": {
-			"apiKeyRejected": "That API key was rejected.",
-			"deviceFailed": "Device sign-in failed (HTTP {{status}}).",
-			"forbidden": "You don't have permission to do that.",
-			"noInstance": "No Kaneo instance found at {{url}} (HTTP {{status}}).",
-			"noSession": "The server didn't return a session. Try signing in through the browser.",
-			"notFound": "Not found.",
-			"notKaneo": "{{url}} doesn't look like a Kaneo server.",
-			"notSignedIn": "Not signed in",
-			"requestFailed": "Request failed ({{status}}).",
-			"serverProblem": "The server had a problem ({{status}}).",
-			"sessionExpired": "Your session has expired. Please sign in again.",
-			"signInRejected": "Sign-in was not accepted by the server.",
-			"tooManyRequests": "Too many requests. Please wait a moment.",
-			"unreachable": "Can't reach the server. Check your connection and the server address.",
-			"uploadFailed": "Upload failed ({{status}})"
-		},
-		"home": {
-			"account": "Account",
-			"archived": "Archived",
-			"due": "Due {{date}}",
-			"empty": {
-				"message": "Projects hold your boards and tasks.",
-				"title": "No projects yet"
-			},
-			"hideArchived": "Hide archived projects",
-			"newProject": "New project",
-			"noTasks": "No tasks",
-			"noWorkspace": {
-				"body": "Workspaces hold your projects and team. Create one, or accept an invitation.",
-				"create": "Create workspace",
-				"joinWithLink": "Join with an invitation link",
-				"signedInAs": "Signed in as {{email}}",
-				"title": "No workspace yet",
-				"viewInvitations_other": "View {{count}} invitations"
-			},
-			"progress": "{{done}} of {{total}}",
-			"projects": "Projects",
-			"search": "Search",
-			"showArchived": "Show archived projects",
-			"switchWorkspace": "Switch workspace",
-			"upNext": "Up next",
-			"viewAll": "View all"
-		},
-		"inbox": {
-			"allCaughtUpToast": "All caught up",
-			"clearAll": "Clear all notifications",
-			"confirmClear": {
-				"confirm": "Clear all",
-				"message": "This removes every notification in this workspace.",
-				"title": "Clear all notifications?"
-			},
-			"earlier": "Earlier",
-			"empty": {
-				"message": "Assignments, comments and mentions appear here.",
-				"title": "You're all caught up"
-			},
-			"markAllRead": "Mark all read",
-			"more": "More",
-			"recent": "Recent",
-			"title": "Inbox",
-			"today": "Today"
-		},
-		"invitations": {
-			"accept": "Accept",
-			"accepted": "Invitation accepted",
-			"decline": "Decline",
-			"declined": "Invitation declined",
-			"description": "Workspaces you've been invited to join.",
-			"emptyMessage": "Invitations appear here once your email address is verified. You can always join with the link from the email.",
-			"emptyTitle": "No pending invitations",
-			"invitedYou": "{{name}} invited you",
-			"join": "Join",
-			"joinWithLink": "Join with an invitation link",
-			"linkPlaceholder": "Paste the link from your email",
-			"title": "Invitations"
-		},
-		"labels": {
-			"actions": "Actions for {{name}}",
-			"delete": "Delete label",
-			"deleteMessage": "The label is removed from every task in this workspace.",
-			"deleteTitle": "Delete “{{name}}”?",
-			"description": "Labels help you group and filter tasks.",
-			"edit": "Edit label",
-			"empty": {
-				"message": "Create labels to group and filter tasks across projects.",
-				"title": "No labels"
-			},
-			"fallbackTitle": "Label",
-			"form": {
-				"color": "Color",
-				"name": "Name"
-			},
-			"new": "New label",
-			"title": "Labels",
-			"toast": {
-				"deleted": "Label deleted"
-			}
-		},
-		"members": {
-			"description_other": "{{count}} people in {{name}}",
-			"invite": "Invite",
-			"inviteForm": {
-				"email": "Email",
-				"intro": "They’ll get an email with a link to join {{workspace}}.",
-				"role": "Role",
-				"send": "Send invite",
-				"title": "Invite member"
-			},
-			"inviteMenu": {
-				"cancel": "Cancel invitation",
-				"fallbackTitle": "Invitation",
-				"resend": "Resend invitation"
-			},
-			"memberMenu": {
-				"changeRole": "Change role",
-				"fallbackTitle": "Member",
-				"remove": "Remove from workspace"
-			},
-			"pending": {
-				"expires": "{{role}}, expires {{date}}",
-				"manage": "Manage",
-				"title": "Pending invitations"
-			},
-			"people": {
-				"title": "People",
-				"unknown": "Unknown",
-				"you": "(you)"
-			},
-			"remove": {
-				"confirm": "Remove",
-				"message": "{{name}} will lose access to {{workspace}}.",
-				"they": "They",
-				"title": "Remove member?"
-			},
-			"rolePicker": {
-				"title": "Role"
-			},
-			"thisWorkspace": "this workspace",
-			"title": "Members",
-			"toast": {
-				"canceled": "Invitation canceled",
-				"removed": "Member removed",
-				"resent": "Invitation resent",
-				"roleUpdated": "Role updated",
-				"sent": "Invitation sent to {{email}}"
-			}
-		},
-		"meta": {
-			"labelColor": {
-				"amber": "Amber",
-				"crimson": "Crimson",
-				"forest": "Forest",
-				"lavender": "Lavender",
-				"rose": "Rose",
-				"sage": "Sage",
-				"slate": "Slate",
-				"stone": "Stone",
-				"terracotta": "Terracotta"
-			},
-			"priority": {
-				"high": "High",
-				"low": "Low",
-				"medium": "Medium",
-				"noPriority": "No priority",
-				"urgent": "Urgent"
-			},
-			"role": {
-				"admin": "Admin",
-				"member": "Member",
-				"owner": "Owner",
-				"viewer": "Viewer"
-			},
-			"roleHint": {
-				"admin": "Can also manage members and settings",
-				"member": "Can create and edit tasks",
-				"owner": "Full control, including deleting the workspace",
-				"viewer": "Can view projects and tasks"
-			}
+			"title": "Aktivitas",
+			"subtitle": "Semua yang terjadi di {{workspace}}",
+			"empty": "Tidak ada aktivitas terbaru",
+			"someone": "Seseorang",
+			"commentedOn": "berkomentar di {{target}}"
 		},
 		"myTasks": {
-			"assigned_other": "{{count}} assigned",
+			"title": "Tugas saya",
 			"by": {
-				"due": "Due date",
-				"project": "Project",
+				"due": "Tenggat",
+				"project": "Proyek",
 				"status": "Status"
 			},
 			"due": {
-				"later": "Later",
-				"none": "No due date",
-				"overdue": "Overdue",
-				"thisWeek": "This week",
-				"today": "Today"
+				"overdue": "Terlambat",
+				"today": "Hari ini",
+				"thisWeek": "Minggu ini",
+				"later": "Nanti",
+				"none": "Tanpa tenggat"
 			},
 			"empty": {
-				"message": "Tasks assigned to you in this workspace show up here.",
-				"title": "Nothing assigned to you"
+				"title": "Tidak ada tugas untuk Anda",
+				"message": "Tugas yang ditugaskan kepada Anda di ruang kerja ini akan muncul di sini."
 			},
-			"showing": "Showing {{shown}} of {{total}} tasks",
-			"title": "My tasks"
+			"showing": "Menampilkan {{shown}} dari {{total}} tugas",
+			"assigned_other": "{{count}} ditugaskan"
 		},
 		"nav": {
-			"activity": "Activity",
-			"home": "Home",
-			"inbox": "Inbox",
-			"inboxUnread": "Inbox, {{count}} unread",
-			"tasks": "My tasks"
+			"home": "Beranda",
+			"tasks": "Tugas saya",
+			"inbox": "Kotak masuk",
+			"activity": "Aktivitas",
+			"inboxUnread": "Kotak masuk, {{count}} belum dibaca"
 		},
-		"notificationSettings": {
-			"channel": {
-				"accessToken": "Access token",
-				"appToken": "App token",
-				"enabled": "Send notifications here",
-				"secretOptional": "Optional",
-				"secretSaved": "Saved. Enter a new one to replace it",
-				"serverUrl": "Server URL",
-				"signingSecret": "Signing secret",
-				"topic": "Topic",
-				"webhookUrl": "Webhook URL"
+		"workspaceSwitcher": {
+			"title": "Ruang kerja",
+			"settings": "Pengaturan ruang kerja",
+			"members": "Anggota",
+			"labels": "Label",
+			"invitations": "Undangan",
+			"create": "Buat ruang kerja"
+		},
+		"search": {
+			"placeholder": "Cari tugas, proyek, komentar",
+			"clear": "Hapus",
+			"kinds": {
+				"all": "Semua",
+				"tasks": "Tugas",
+				"projects": "Proyek",
+				"comments": "Komentar"
 			},
-			"delivery": {
-				"email": "Email",
-				"emailHint": "Sent to your account email",
-				"gotifyHint": "Send notifications to a Gotify server",
-				"ntfyHint": "Send notifications to an ntfy topic",
-				"title": "Delivery",
-				"webhook": "Webhook",
-				"webhookHint": "POST notifications to a URL"
+			"empty": {
+				"title": "Cari di ruang kerja ini",
+				"message": "Temukan tugas berdasarkan judul atau nomor, proyek, dan komentar."
 			},
-			"description": "Where Kaneo reaches you, and about what.",
-			"events": {
-				"assignments": "Assignments",
-				"assignmentsHint": "When a task is assigned to you",
-				"comments": "Comments",
-				"commentsHint": "New comments on your tasks",
-				"dueDate": "Due date reminders",
-				"dueDateHint": "Before a task you’re assigned to is due",
-				"remindBefore": "{{time}} before",
-				"remindMe": "Remind me",
-				"remindPickerTitle": "Remind me before",
-				"statusChanges": "Status changes",
-				"statusChangesHint": "When your tasks move between columns",
-				"title": "Notify me about"
-			},
-			"leadTime": {
-				"day1": "1 day",
-				"days2": "2 days",
-				"hour1": "1 hour",
-				"hours3": "3 hours",
-				"minutes_other": "{{count}} minutes",
-				"minutes15": "15 minutes",
-				"week1": "1 week"
-			},
-			"notSet": "Not set",
-			"off": "Off",
-			"on": "On",
-			"title": "Notifications"
+			"failed": "Pencarian gagal",
+			"noResults": "Tidak ada hasil untuk “{{query}}”",
+			"commentMeta": "{{name}}, {{when}}"
 		},
 		"notificationText": {
 			"activity": {
-				"assignedTo": "assigned this to {{assignee}}",
-				"assigneeChanged": "changed the assignee",
-				"commented": "commented: {{text}}",
-				"created": "created the task",
-				"descriptionChanged": "updated the description",
-				"dueDateRemoved": "removed the due date",
-				"dueDateSet": "set the due date to {{date}}",
-				"priorityChanged": "changed priority from {{from}} to {{to}}",
-				"renamed": "renamed this to “{{title}}”",
-				"selfAssigned": "self-assigned this",
-				"statusChanged": "moved this from {{from}} to {{to}}",
-				"taskUpdated": "updated the task",
-				"titleChanged": "changed the title",
-				"unassigned": "removed the assignee"
+				"created": "membuat tugas",
+				"commented": "berkomentar: {{text}}",
+				"statusChanged": "memindahkan ini dari {{from}} ke {{to}}",
+				"priorityChanged": "mengubah prioritas dari {{from}} ke {{to}}",
+				"assigneeChanged": "mengubah penanggung jawab",
+				"selfAssigned": "menugaskan ini ke dirinya sendiri",
+				"assignedTo": "menugaskan ini ke {{assignee}}",
+				"unassigned": "menghapus penanggung jawab",
+				"dueDateSet": "menetapkan tenggat ke {{date}}",
+				"dueDateRemoved": "menghapus tenggat",
+				"renamed": "mengganti nama menjadi “{{title}}”",
+				"titleChanged": "mengubah judul",
+				"descriptionChanged": "memperbarui deskripsi",
+				"taskUpdated": "memperbarui tugas"
 			},
-			"assignedByActor": "{{actor}} assigned you a task",
-			"assignedToTask": "You were assigned to “{{title}}”",
-			"assignedToUntitled": "You were assigned to a task",
-			"commentedByActor": "{{actor}} commented",
-			"mentioned": "You were mentioned",
-			"mentionedByActor": "{{actor}} mentioned you",
-			"newComment": "New comment",
-			"statusChangedOnTask": "Status changed on “{{title}}”",
-			"statusChangedOnUntitled": "Status changed on a task",
-			"statusTransition": "{{from}} to {{to}}",
-			"taskCreated": "New task assigned to you",
-			"timeLoggedOnTask": "Time logged on “{{title}}”",
-			"timeLoggedOnUntitled": "Time logged on a task",
-			"workspaceCreated": "Workspace “{{name}}” created"
+			"taskCreated": "Tugas baru ditugaskan kepada Anda",
+			"assignedByActor": "{{actor}} menugaskan tugas kepada Anda",
+			"assignedToTask": "Anda ditugaskan ke “{{title}}”",
+			"assignedToUntitled": "Anda ditugaskan ke sebuah tugas",
+			"statusChangedOnTask": "Status “{{title}}” berubah",
+			"statusChangedOnUntitled": "Status sebuah tugas berubah",
+			"statusTransition": "{{from}} ke {{to}}",
+			"commentedByActor": "{{actor}} berkomentar",
+			"newComment": "Komentar baru",
+			"mentionedByActor": "{{actor}} menyebut Anda",
+			"mentioned": "Anda disebut",
+			"timeLoggedOnTask": "Waktu dicatat di “{{title}}”",
+			"timeLoggedOnUntitled": "Waktu dicatat di sebuah tugas",
+			"workspaceCreated": "Ruang kerja “{{name}}” dibuat"
 		},
-		"picker": {
-			"clear": "Clear",
-			"nextMonth": "Next month",
-			"nextWeek": "Next week",
-			"previousMonth": "Previous month"
-		},
-		"projectNew": {
-			"createProject": "Create project",
-			"customerPortal": "Customer Portal",
-			"key": "Key",
-			"name": "Name",
-			"newProject": "New project",
-			"usedInTaskIDs": "Used in task IDs"
-		},
-		"projectSettings": {
-			"addColumn": "Add column",
-			"addField": "Add field",
-			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "All tasks, comments and time entries in this project will be permanently deleted.",
-			"androidIOSWeb": "Android, iOS, Web",
-			"anyoneWithTheLinkCanViewTheBoard": "Anyone with the link can view the board",
-			"archive": "Archive",
-			"archiveProject": "Archive project",
-			"archiveProjectTitle": "Archive project?",
-			"blocked": "Blocked",
-			"changesFutureAndExistingTaskIDs": "Changes future and existing task IDs",
-			"checkbox": "Checkbox",
-			"column": "Column",
-			"columnDeleted": "Column deleted",
-			"columns": "Columns",
-			"customFields": "Custom fields",
-			"date": "Date",
-			"deleteColumn": "Delete column",
-			"deleteField": "Delete field",
-			"deleteNamedTitle": "Delete “{{name}}”?",
-			"deleteProject": "Delete project",
-			"deleteProjectTitle": "Delete project?",
-			"doneColumn": "Done column",
-			"dropdown": "Dropdown",
-			"field": "Field",
-			"fieldDeleted": "Field deleted",
-			"general": "General",
-			"itDisappearsFromTheProjectListYouCanRestoreItLater": "It disappears from the project list. You can restore it later.",
-			"key": "Key",
-			"markAsDoneColumn": "Mark as done column",
-			"moveDown": "Move down",
-			"moveToAnotherWorkspace": "Move to another workspace",
-			"moveToWorkspace": "Move to workspace",
-			"moveUp": "Move up",
-			"multiSelect": "Multi-select",
-			"name": "Name",
-			"newColumn": "New column",
-			"newCustomField": "New custom field",
-			"noCustomFields": "No custom fields",
-			"number": "Number",
-			"ok": "OK",
-			"options": "Options",
-			"platform": "Platform",
-			"project": "Project",
-			"projectArchived": "Project archived",
-			"projectDeleted": "Project deleted",
-			"projectMoved": "Project moved",
-			"projectRestored": "Project restored",
-			"projectSettings": "Project settings",
-			"projectUpdated": "Project updated",
-			"publicBoard": "Public board",
-			"rename": "Rename",
-			"renameColumn": "Rename column",
-			"required": "Required",
-			"restoreProject": "Restore project",
-			"saveChanges": "Save changes",
-			"separateWithCommas": "Separate with commas",
-			"tasksHereCountAsFinished": "Tasks here count as finished",
-			"tasksInThisColumnMayNeedToBeMovedFirst": "Tasks in this column may need to be moved first.",
-			"text": "Text",
-			"type": "Type",
-			"unmarkAsDoneColumn": "Unmark as done column",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Values stored in this field are deleted from every task."
-		},
-		"search": {
-			"clear": "Clear",
-			"commentMeta": "{{name}}, {{when}}",
-			"empty": {
-				"message": "Find tasks by title or number, projects, and comments.",
-				"title": "Search this workspace"
-			},
-			"failed": "Search failed",
-			"kinds": {
-				"all": "All",
-				"comments": "Comments",
-				"projects": "Projects",
-				"tasks": "Tasks"
-			},
-			"noResults": "No results for “{{query}}”",
-			"placeholder": "Search tasks, projects, comments"
-		},
-		"signIn": {
-			"apiKey": {
-				"label": "API key",
-				"message": "Create one on the web under Settings, then API keys. It works even when other sign-in methods are turned off."
-			},
-			"browserHint": "GitHub, Google, Discord or SSO",
-			"captcha": "This server requires a browser check for this step. Use “Continue in browser” instead.",
-			"change": "Change",
-			"cloud": "Kaneo Cloud",
-			"code": {
-				"checkEmail": "Check your email",
-				"didntGet": "Didn’t get it?",
-				"message": "We'll email you a 6-digit code. No password needed.",
-				"resend": "Resend code",
-				"send": "Send code",
-				"sent": "We sent a 6-digit code to {{email}}",
-				"title": "Sign in with a code",
-				"verify": "Verify"
-			},
-			"connect": "Connect",
-			"continueInBrowser": "Continue in browser",
-			"createAccount": "Create account",
-			"device": {
-				"codeCopied": "Code copied",
-				"copyCode": "Copy code",
-				"copyLink": "Copy link",
-				"denied": "Sign-in was denied in the browser.",
-				"expired": "The sign-in code expired. Start again to get a new one.",
-				"gettingCode": "Getting a code…",
-				"linkCopied": "Link copied",
-				"message": "Approve this device from the Kaneo website. GitHub, Google, Discord and SSO all work there.",
-				"openBrowser": "Open browser",
-				"openFailed": "Couldn’t open a browser. Copy the link instead.",
-				"tryAgain": "Try again",
-				"waiting": "Waiting for approval…",
-				"yourCode": "Your code"
-			},
-			"email": "Email",
-			"emailCode": "Email me a sign-in code",
-			"invalidClient": "This server doesn’t allow device sign-in. Ask its admin to add “kaneo-cli” to DEVICE_AUTH_CLIENT_IDS, or sign in with a password or API key.",
-			"newToKaneo": "New to Kaneo?",
-			"noPassword": "No password needed",
-			"or": "or",
-			"password": "Password",
-			"recent": "Recent",
-			"selfHosted": "Self-hosted",
-			"sendTo": "Send to {{email}}",
-			"serverAddress": "Server address",
-			"serverAddressHint": "The address you open Kaneo at. Use http:// for servers without TLS. If the API runs on another host, enter the API address.",
-			"signIn": "Sign in",
-			"signUp": {
-				"name": "Name",
-				"passwordHint": "At least 8 characters"
-			},
-			"tagline": "Simple project management. Connect to Kaneo Cloud or your own instance.",
-			"togglePassword": "Toggle password visibility",
-			"useApiKey": "Use an API key"
-		},
-		"taskDetail": {
-			"activity": {
-				"comment": "Comment",
-				"deleteMessage": "This can't be undone.",
-				"deleteTitle": "Delete comment?",
-				"edit": "Edit",
-				"editComment": "Edit comment",
-				"edited": "{{time}}, edited",
-				"entry": "{{name}} {{action}}",
-				"title": "Activity"
-			},
-			"fields": {
-				"empty": "Empty",
-				"none": "None",
-				"title": "Fields"
-			},
-			"links": {
-				"add": "Add link",
-				"empty": "No links",
-				"optional": "Optional",
-				"remove": "Remove link",
-				"synced": "Synced",
-				"title": "Links",
-				"titleLabel": "Title",
-				"url": "URL"
-			},
-			"menu": {
-				"delete": "Delete task",
-				"deleted": "Task deleted",
-				"deleteMessage": "“{{title}}” and its comments will be permanently deleted.",
-				"deleteTitle": "Delete task?",
-				"duplicate": "Duplicate",
-				"duplicated": "Task duplicated",
-				"move": "Move to project…",
-				"moved": "Task moved",
-				"moveTitle": "Move to project",
-				"refresh": "Refresh",
-				"share": "Share"
-			},
-			"relations": {
-				"blockedBy": "Blocked by",
-				"blocks": "Blocks",
-				"empty": "No related tasks",
-				"link": "Link a task",
-				"related": "Related",
-				"relatedTo": "Related to",
-				"remove": "Remove relation",
-				"removeConfirm": "Remove",
-				"removeMessage": "The tasks stay; only the link between them is removed.",
-				"removeTitle": "Remove relation?",
-				"searchPlaceholder": "Search tasks by title or number",
-				"title": "Relations"
-			},
-			"screen": {
-				"addDescription": "Add a description…",
-				"copyLink": "Copy link",
-				"editDescription": "Edit description",
-				"editTitle": "Edit title",
-				"linkCopied": "Link copied",
-				"more": "More"
-			},
-			"section": {
-				"addTo": "Add to {{title}}"
-			},
-			"someone": "Someone",
-			"status": {
-				"archived": "Archived",
-				"planned": "Planned"
-			},
-			"subtasks": {
-				"add": "Add subtask",
-				"empty": "No subtasks",
-				"parent": "Parent task",
-				"title": "Subtasks"
-			},
-			"time": {
-				"chipHours": "{{count}}h",
-				"chipMinutes": "{{count}}m",
-				"date": "Date",
-				"durationHoursMinutes": "{{hours}}h {{minutes}}m",
-				"durationMinutes": "{{minutes}}m",
-				"editEntry": "Edit time entry",
-				"hoursUnit": "h",
-				"log": "Log time",
-				"logDuration": "Log {{duration}}",
-				"logged": "Time logged",
-				"minutesUnit": "m",
-				"notePlaceholder": "What did you work on?",
-				"running": "{{time}} (running)",
-				"start": "Start timer",
-				"stop": "Stop",
-				"title": "Time",
-				"total": "{{duration}} total"
-			}
-		},
-		"taskFields": {
-			"addNumber": "Add a number",
-			"archived": "Archived",
-			"assignee": "Assignee",
-			"createLabel": "Create label “{{name}}”",
-			"done": "Done",
-			"doneColumn": "Done column",
-			"dueDate": "Due date",
-			"empty": "Empty",
-			"labelColor": "Color for the new label",
-			"labels": "Labels",
-			"noLabels": "No labels yet. Type a name to create one.",
-			"none": "None",
-			"overdue_other": "{{date}}, {{count}} days overdue",
-			"planned": "Planned",
-			"priority": "Priority",
-			"searchOrCreate": "Search or create",
-			"searchPeople": "Search people",
-			"startDate": "Start date",
-			"starts": "Starts {{date}}",
-			"status": "Status",
-			"unassigned": "Unassigned",
-			"you": "{{name}} (you)"
-		},
-		"taskNew": {
-			"create": "Create",
-			"newSubtask": "New subtask",
-			"noLabels": "No labels in this workspace yet.",
-			"project": "Project",
-			"taskTitle": "Task title"
-		},
-		"time": {
-			"durationHoursMinutes": "{{hours}}h {{minutes}}m",
-			"goodAfternoon": "Good afternoon",
-			"goodEvening": "Good evening",
-			"goodMorning": "Good morning",
-			"hours_other": "{{count}} hr",
-			"hoursAgo_other": "{{count}} hr ago",
-			"hoursShort_other": "{{count}}h",
-			"justNow": "just now",
-			"minutes_other": "{{count}} min",
-			"minutesAgo_other": "{{count}} min ago",
-			"minutesShort_other": "{{count}}m",
-			"now": "now",
-			"secondsShort_other": "{{count}}s",
-			"today": "Today",
-			"tomorrow": "Tomorrow",
-			"yesterday": "Yesterday"
+		"background": {
+			"summary_other": "{{count}} notifikasi baru lainnya",
+			"channelName": "Aktivitas Kaneo",
+			"channelDescription": "Penugasan, komentar, dan sebutan dari ruang kerja Anda"
 		},
 		"ui": {
-			"back": "Back",
-			"loadFailed": "Couldn't load this",
-			"nothingMatches": "Nothing matches “{{query}}”",
-			"search": "Search"
+			"back": "Kembali",
+			"loadFailed": "Tidak dapat memuat ini",
+			"search": "Cari",
+			"nothingMatches": "Tidak ada yang cocok dengan “{{query}}”"
 		},
-		"workspaceNew": {
-			"create": "Create workspace",
-			"description": "A home for your team’s projects. You can invite people next.",
-			"descriptionLabel": "Description",
-			"descriptionPlaceholder": "What's this workspace for?",
-			"name": "Name",
-			"namePlaceholder": "Design studio",
-			"optional": "Optional",
-			"title": "New workspace"
+		"picker": {
+			"clear": "Hapus",
+			"nextWeek": "Minggu depan",
+			"previousMonth": "Bulan sebelumnya",
+			"nextMonth": "Bulan berikutnya"
 		},
-		"workspaceSettings": {
-			"confirm": {
-				"deleteMessage": "Every project, task and comment in {{name}} will be permanently deleted.",
-				"deleteTitle": "Delete workspace?",
-				"leaveMessage": "You will lose access until someone invites you again.",
-				"leaveTitle": "Leave workspace?"
+		"time": {
+			"now": "sekarang",
+			"justNow": "baru saja",
+			"minutesShort_other": "{{count}} mnt",
+			"hoursShort_other": "{{count}} j",
+			"secondsShort_other": "{{count}} dtk",
+			"minutesAgo_other": "{{count}} mnt lalu",
+			"hoursAgo_other": "{{count}} jam lalu",
+			"durationHoursMinutes": "{{hours}} j {{minutes}} mnt",
+			"goodEvening": "Selamat malam",
+			"goodMorning": "Selamat pagi",
+			"goodAfternoon": "Selamat siang",
+			"today": "Hari ini",
+			"tomorrow": "Besok",
+			"yesterday": "Kemarin",
+			"minutes_other": "{{count}} mnt",
+			"hours_other": "{{count}} jam"
+		},
+		"meta": {
+			"priority": {
+				"noPriority": "Tanpa prioritas",
+				"low": "Rendah",
+				"medium": "Sedang",
+				"high": "Tinggi",
+				"urgent": "Mendesak"
 			},
-			"danger": {
-				"delete": "Delete workspace",
-				"deleteHint": "Deletes all projects and tasks in it",
-				"leave": "Leave workspace",
-				"leaveButton": "Leave",
-				"leaveHint": "You can rejoin with a new invitation",
-				"title": "Danger zone"
+			"labelColor": {
+				"stone": "Batu",
+				"slate": "Batu tulis",
+				"lavender": "Lavender",
+				"sage": "Sage",
+				"forest": "Hutan",
+				"amber": "Amber",
+				"terracotta": "Terakota",
+				"rose": "Mawar",
+				"crimson": "Merah tua"
 			},
-			"description": "Settings for everyone in {{name}}.",
-			"general": {
-				"description": "Description",
-				"name": "Name",
-				"save": "Save changes",
-				"slug": "Slug: <mono>{{slug}}</mono>",
-				"title": "General"
+			"role": {
+				"owner": "Pemilik",
+				"admin": "Admin",
+				"member": "Anggota",
+				"viewer": "Lihat Saja"
 			},
-			"manage": {
-				"labels": "Labels",
-				"members": "Members",
-				"title": "Manage"
-			},
-			"thisWorkspace": "this workspace",
-			"title": "Workspace",
-			"toast": {
-				"deleted": "Workspace deleted",
-				"left": "You left the workspace",
-				"updated": "Workspace updated"
+			"roleHint": {
+				"owner": "Kontrol penuh, termasuk menghapus ruang kerja",
+				"admin": "Juga dapat mengelola anggota dan pengaturan",
+				"member": "Dapat membuat dan mengedit tugas",
+				"viewer": "Dapat melihat proyek dan tugas"
 			}
 		},
-		"workspaceSwitcher": {
-			"create": "Create workspace",
-			"invitations": "Invitations",
-			"labels": "Labels",
-			"members": "Members",
-			"settings": "Workspace settings",
-			"title": "Workspaces"
+		"account": {
+			"title": "Akun",
+			"description": "Tampilan Anda bagi rekan tim di setiap ruang kerja.",
+			"profile": {
+				"title": "Profil",
+				"photo": "Foto profil",
+				"photoFormats": "PNG, JPG, atau WebP",
+				"change": "Ubah",
+				"name": "Nama",
+				"changePassword": "Ubah kata sandi"
+			},
+			"notifications": {
+				"title": "Notifikasi",
+				"phone": "Notifikasi ponsel",
+				"phoneHint": "Diperiksa sekitar setiap 15 menit",
+				"delivery": "Pengiriman dan peristiwa",
+				"deliveryHint": "Email, ntfy, Gotify, webhook",
+				"invitations": "Undangan",
+				"permissionDenied": "Izinkan notifikasi untuk Kaneo di pengaturan sistem terlebih dahulu."
+			},
+			"connection": {
+				"title": "Koneksi",
+				"server": "Server",
+				"signedInWith": "Masuk dengan",
+				"apiKey": "API key",
+				"sessionToken": "Token sesi",
+				"appVersion": "Versi aplikasi"
+			},
+			"signOut": {
+				"button": "Keluar",
+				"title": "Keluar?",
+				"message": "Anda dapat masuk lagi kapan saja."
+			},
+			"photoMenu": {
+				"choose": "Pilih foto",
+				"remove": "Hapus foto"
+			},
+			"toast": {
+				"photoUpdated": "Foto diperbarui",
+				"photoRemoved": "Foto dihapus",
+				"nameUpdated": "Nama diperbarui",
+				"passwordChanged": "Kata sandi diubah"
+			},
+			"password": {
+				"title": "Ubah kata sandi",
+				"current": "Kata sandi saat ini",
+				"new": "Kata sandi baru",
+				"confirm": "Konfirmasi kata sandi baru",
+				"confirmPlaceholder": "Ketik sekali lagi",
+				"mismatch": "Kata sandi tidak cocok",
+				"signOutOthers": "Keluar dari perangkat lain"
+			}
+		},
+		"notificationSettings": {
+			"title": "Notifikasi",
+			"description": "Di mana Kaneo menghubungi Anda, dan tentang apa.",
+			"on": "Aktif",
+			"off": "Nonaktif",
+			"notSet": "Belum diatur",
+			"delivery": {
+				"title": "Pengiriman",
+				"email": "Email",
+				"emailHint": "Dikirim ke email akun Anda",
+				"ntfyHint": "Kirim notifikasi ke topik ntfy",
+				"gotifyHint": "Kirim notifikasi ke server Gotify",
+				"webhook": "Webhook",
+				"webhookHint": "Kirim notifikasi lewat POST ke URL"
+			},
+			"events": {
+				"title": "Beri tahu saya tentang",
+				"assignments": "Penugasan",
+				"assignmentsHint": "Saat tugas ditugaskan kepada Anda",
+				"comments": "Komentar",
+				"commentsHint": "Komentar baru di tugas Anda",
+				"statusChanges": "Perubahan status",
+				"statusChangesHint": "Saat tugas Anda berpindah kolom",
+				"dueDate": "Pengingat tenggat",
+				"dueDateHint": "Sebelum tenggat tugas yang ditugaskan kepada Anda",
+				"remindMe": "Ingatkan saya",
+				"remindBefore": "{{time}} sebelumnya",
+				"remindPickerTitle": "Ingatkan saya sebelumnya"
+			},
+			"leadTime": {
+				"minutes15": "15 menit",
+				"hour1": "1 jam",
+				"hours3": "3 jam",
+				"day1": "1 hari",
+				"days2": "2 hari",
+				"week1": "1 minggu",
+				"minutes_other": "{{count}} menit"
+			},
+			"channel": {
+				"enabled": "Kirim notifikasi ke sini",
+				"webhookUrl": "URL webhook",
+				"serverUrl": "URL server",
+				"topic": "Topik",
+				"accessToken": "Token akses",
+				"appToken": "Token aplikasi",
+				"signingSecret": "Secret penandatanganan",
+				"secretSaved": "Tersimpan. Masukkan yang baru untuk menggantinya",
+				"secretOptional": "Opsional"
+			}
+		},
+		"workspaceSettings": {
+			"title": "Ruang kerja",
+			"description": "Pengaturan untuk semua orang di {{name}}.",
+			"thisWorkspace": "ruang kerja ini",
+			"general": {
+				"title": "Umum",
+				"name": "Nama",
+				"description": "Deskripsi",
+				"slug": "Slug: <mono>{{slug}}</mono>",
+				"save": "Simpan perubahan"
+			},
+			"manage": {
+				"title": "Kelola",
+				"members": "Anggota",
+				"labels": "Label"
+			},
+			"danger": {
+				"title": "Zona berbahaya",
+				"leave": "Keluar dari ruang kerja",
+				"leaveHint": "Anda bisa bergabung lagi dengan undangan baru",
+				"leaveButton": "Keluar",
+				"delete": "Hapus ruang kerja",
+				"deleteHint": "Menghapus semua proyek dan tugas di dalamnya"
+			},
+			"confirm": {
+				"deleteTitle": "Hapus ruang kerja?",
+				"leaveTitle": "Keluar dari ruang kerja?",
+				"deleteMessage": "Semua proyek, tugas, dan komentar di {{name}} akan dihapus permanen.",
+				"leaveMessage": "Anda akan kehilangan akses sampai seseorang mengundang Anda lagi."
+			},
+			"toast": {
+				"updated": "Ruang kerja diperbarui",
+				"deleted": "Ruang kerja dihapus",
+				"left": "Anda keluar dari ruang kerja"
+			}
+		},
+		"members": {
+			"title": "Anggota",
+			"description_other": "{{count}} orang di {{name}}",
+			"thisWorkspace": "ruang kerja ini",
+			"invite": "Undang",
+			"pending": {
+				"title": "Undangan tertunda",
+				"expires": "{{role}}, berakhir {{date}}",
+				"manage": "Kelola"
+			},
+			"people": {
+				"title": "Orang",
+				"unknown": "Tidak dikenal",
+				"you": "(Anda)"
+			},
+			"memberMenu": {
+				"fallbackTitle": "Anggota",
+				"changeRole": "Ubah peran",
+				"remove": "Keluarkan dari ruang kerja"
+			},
+			"rolePicker": {
+				"title": "Peran"
+			},
+			"remove": {
+				"title": "Keluarkan anggota?",
+				"message": "{{name}} akan kehilangan akses ke {{workspace}}.",
+				"they": "Anggota ini",
+				"confirm": "Keluarkan"
+			},
+			"inviteMenu": {
+				"fallbackTitle": "Undangan",
+				"resend": "Kirim ulang undangan",
+				"cancel": "Batalkan undangan"
+			},
+			"inviteForm": {
+				"title": "Undang anggota",
+				"intro": "Mereka akan menerima email berisi tautan untuk bergabung ke {{workspace}}.",
+				"email": "Email",
+				"role": "Peran",
+				"send": "Kirim undangan"
+			},
+			"toast": {
+				"roleUpdated": "Peran diperbarui",
+				"removed": "Anggota dikeluarkan",
+				"resent": "Undangan dikirim ulang",
+				"canceled": "Undangan dibatalkan",
+				"sent": "Undangan dikirim ke {{email}}"
+			}
+		},
+		"labels": {
+			"title": "Label",
+			"description": "Label membantu Anda mengelompokkan dan memfilter tugas.",
+			"new": "Label baru",
+			"edit": "Edit label",
+			"delete": "Hapus label",
+			"fallbackTitle": "Label",
+			"empty": {
+				"title": "Tidak ada label",
+				"message": "Buat label untuk mengelompokkan dan memfilter tugas di semua proyek."
+			},
+			"actions": "Tindakan untuk {{name}}",
+			"deleteTitle": "Hapus “{{name}}”?",
+			"deleteMessage": "Label ini akan dihapus dari setiap tugas di ruang kerja ini.",
+			"form": {
+				"name": "Nama",
+				"color": "Warna"
+			},
+			"toast": {
+				"deleted": "Label dihapus"
+			}
 		}
 	}
 }

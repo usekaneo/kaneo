@@ -3780,813 +3780,813 @@
 		}
 	},
 	"mobile": {
-		"account": {
-			"connection": {
-				"apiKey": "API key",
-				"appVersion": "App version",
-				"server": "Server",
-				"sessionToken": "Session token",
-				"signedInWith": "Signed in with",
-				"title": "Connection"
+		"common": {
+			"save": "Зачувај",
+			"cancel": "Откажи",
+			"delete": "Избриши",
+			"retry": "Обиди се повторно",
+			"somethingWrong": "Нешто тргна наопаку",
+			"close": "Затвори"
+		},
+		"errors": {
+			"notSignedIn": "Не си најавен",
+			"unreachable": "Серверот не е достапен. Провери ја врската и адресата на серверот.",
+			"sessionExpired": "Сесијата истече. Најави се повторно.",
+			"forbidden": "Немаш дозвола за тоа.",
+			"notFound": "Не е пронајдено.",
+			"tooManyRequests": "Премногу барања. Почекај малку.",
+			"serverProblem": "Серверот имаше проблем ({{status}}).",
+			"requestFailed": "Барањето не успеа ({{status}}).",
+			"notKaneo": "{{url}} не изгледа како Kaneo сервер.",
+			"noInstance": "Не е пронајдена Kaneo инстанца на {{url}} (HTTP {{status}}).",
+			"noSession": "Серверот не врати сесија. Обиди се да се најавиш преку прелистувач.",
+			"deviceFailed": "Најавата на уредот не успеа (HTTP {{status}}).",
+			"apiKeyRejected": "Тој API клуч е одбиен.",
+			"signInRejected": "Серверот не ја прифати најавата.",
+			"uploadFailed": "Прикачувањето не успеа ({{status}})"
+		},
+		"signIn": {
+			"tagline": "Едноставно управување со проекти. Поврзи се со Kaneo Cloud или со своја инстанца.",
+			"cloud": "Kaneo Cloud",
+			"selfHosted": "Сопствен сервер",
+			"captcha": "Серверот бара проверка во прелистувач за овој чекор. Наместо тоа, користи „Продолжи во прелистувач“.",
+			"invalidClient": "Овој сервер не дозволува најава преку уред. Побарај од администраторот да додаде „kaneo-cli“ во DEVICE_AUTH_CLIENT_IDS или најави се со лозинка или API клуч.",
+			"serverAddress": "Адреса на серверот",
+			"serverAddressHint": "Адресата на која го отвораш Kaneo. Користи http:// за сервери без TLS. Ако API-то работи на друг хост, внеси ја адресата на API-то.",
+			"connect": "Поврзи се",
+			"recent": "Неодамнешни",
+			"change": "Промени",
+			"email": "Е-пошта",
+			"password": "Лозинка",
+			"togglePassword": "Прикажи или скриј ја лозинката",
+			"signIn": "Најави се",
+			"or": "или",
+			"continueInBrowser": "Продолжи во прелистувач",
+			"browserHint": "GitHub, Google, Discord или SSO",
+			"emailCode": "Испрати ми код за најава по е-пошта",
+			"sendTo": "Испрати на {{email}}",
+			"noPassword": "Не треба лозинка",
+			"useApiKey": "Користи API клуч",
+			"newToKaneo": "Нов си во Kaneo?",
+			"createAccount": "Создај сметка",
+			"code": {
+				"title": "Најави се со код",
+				"message": "Ќе ти испратиме 6-цифрен код по е-пошта. Не треба лозинка.",
+				"send": "Испрати код",
+				"checkEmail": "Провери ја е-поштата",
+				"sent": "Испративме 6-цифрен код на {{email}}",
+				"verify": "Потврди",
+				"didntGet": "Не стигна?",
+				"resend": "Испрати повторно"
 			},
-			"description": "How you appear to teammates across every workspace.",
-			"notifications": {
-				"delivery": "Delivery and events",
-				"deliveryHint": "Email, ntfy, Gotify, webhooks",
-				"invitations": "Invitations",
-				"permissionDenied": "Allow notifications for Kaneo in system settings first.",
-				"phone": "Phone notifications",
-				"phoneHint": "Checked about every 15 minutes",
-				"title": "Notifications"
+			"device": {
+				"denied": "Најавата е одбиена во прелистувачот.",
+				"expired": "Кодот за најава истече. Почни одново за да добиеш нов.",
+				"openFailed": "Не може да се отвори прелистувач. Копирај ја врската.",
+				"message": "Одобри го овој уред на веб-страницата на Kaneo. Таму работат GitHub, Google, Discord и SSO.",
+				"yourCode": "Твојот код",
+				"copyCode": "Копирај код",
+				"codeCopied": "Кодот е копиран",
+				"copyLink": "Копирај врска",
+				"linkCopied": "Врската е копирана",
+				"openBrowser": "Отвори прелистувач",
+				"tryAgain": "Обиди се повторно",
+				"waiting": "Се чека одобрување…",
+				"gettingCode": "Се добива код…"
 			},
-			"password": {
-				"confirm": "Confirm new password",
-				"confirmPlaceholder": "Type it again",
-				"current": "Current password",
-				"mismatch": "Passwords don't match",
-				"new": "New password",
-				"signOutOthers": "Sign out other devices",
-				"title": "Change password"
+			"apiKey": {
+				"message": "Создај го на веб во Поставки, па API клучеви. Работи дури и кога другите начини за најава се исклучени.",
+				"label": "API клуч"
 			},
-			"photoMenu": {
-				"choose": "Choose photo",
-				"remove": "Remove photo"
+			"signUp": {
+				"name": "Име",
+				"passwordHint": "Најмалку 8 знаци"
+			}
+		},
+		"invitations": {
+			"accepted": "Поканата е прифатена",
+			"declined": "Поканата е одбиена",
+			"title": "Покани",
+			"description": "Работни простори во кои си поканет.",
+			"emptyTitle": "Нема покани на чекање",
+			"emptyMessage": "Поканите се појавуваат тука откако ќе се потврди твојата е-пошта. Секогаш можеш да се приклучиш преку врската од е-поштата.",
+			"invitedYou": "{{name}} те покани",
+			"decline": "Одбиј",
+			"accept": "Прифати",
+			"joinWithLink": "Приклучи се со врска за покана",
+			"linkPlaceholder": "Залепи ја врската од е-поштата",
+			"join": "Приклучи се"
+		},
+		"taskDetail": {
+			"someone": "Некој",
+			"status": {
+				"planned": "Планирано",
+				"archived": "Архивирано"
 			},
-			"profile": {
-				"change": "Change",
-				"changePassword": "Change password",
-				"name": "Name",
-				"photo": "Profile photo",
-				"photoFormats": "PNG, JPG or WebP",
-				"title": "Profile"
+			"section": {
+				"addTo": "Додај во {{title}}"
 			},
-			"signOut": {
-				"button": "Sign out",
-				"message": "You can sign in again at any time.",
-				"title": "Sign out?"
+			"fields": {
+				"title": "Полиња",
+				"empty": "Празно",
+				"none": "Нема"
 			},
-			"title": "Account",
-			"toast": {
-				"nameUpdated": "Name updated",
-				"passwordChanged": "Password changed",
-				"photoRemoved": "Photo removed",
-				"photoUpdated": "Photo updated"
+			"subtasks": {
+				"title": "Подзадачи",
+				"add": "Додај подзадача",
+				"parent": "Надредена задача",
+				"empty": "Нема подзадачи"
+			},
+			"relations": {
+				"title": "Релации",
+				"link": "Поврзи задача",
+				"blocks": "Блокира",
+				"blockedBy": "Блокирана од",
+				"related": "Поврзани",
+				"relatedTo": "Поврзана со",
+				"remove": "Отстрани релација",
+				"empty": "Нема поврзани задачи",
+				"removeTitle": "Да се отстрани релацијата?",
+				"removeMessage": "Задачите остануваат; се отстранува само врската меѓу нив.",
+				"removeConfirm": "Отстрани",
+				"searchPlaceholder": "Пребарај задачи по наслов или број"
+			},
+			"links": {
+				"title": "Врски",
+				"add": "Додај врска",
+				"remove": "Отстрани врска",
+				"synced": "Синхронизирано",
+				"empty": "Нема врски",
+				"url": "URL",
+				"titleLabel": "Наслов",
+				"optional": "Опционално"
+			},
+			"time": {
+				"title": "Време",
+				"total": "Вкупно {{duration}}",
+				"log": "Внеси време",
+				"editEntry": "Уреди внес за време",
+				"logged": "Времето е внесено",
+				"stop": "Запри",
+				"start": "Вклучи тајмер",
+				"running": "{{time}} (тече)",
+				"hoursUnit": "ч",
+				"minutesUnit": "мин",
+				"chipMinutes": "{{count}} мин",
+				"chipHours": "{{count}} ч",
+				"logDuration": "Внеси {{duration}}",
+				"durationHoursMinutes": "{{hours}} ч {{minutes}} мин",
+				"durationMinutes": "{{minutes}} мин",
+				"date": "Датум",
+				"notePlaceholder": "На што работеше?"
+			},
+			"activity": {
+				"title": "Активност",
+				"comment": "Коментирај",
+				"edit": "Уреди",
+				"editComment": "Уреди коментар",
+				"edited": "{{time}}, уредено",
+				"deleteTitle": "Да се избрише коментарот?",
+				"deleteMessage": "Ова не може да се врати.",
+				"entry": "{{name}} {{action}}"
+			},
+			"menu": {
+				"share": "Сподели",
+				"duplicate": "Дуплирај",
+				"move": "Премести во проект…",
+				"refresh": "Освежи",
+				"delete": "Избриши задача",
+				"moveTitle": "Премести во проект",
+				"duplicated": "Задачата е дуплирана",
+				"moved": "Задачата е преместена",
+				"deleted": "Задачата е избришана",
+				"deleteTitle": "Да се избрише задачата?",
+				"deleteMessage": "„{{title}}“ и нејзините коментари ќе бидат трајно избришани."
+			},
+			"screen": {
+				"copyLink": "Копирај врска",
+				"linkCopied": "Врската е копирана",
+				"more": "Повеќе",
+				"editTitle": "Уреди наслов",
+				"editDescription": "Уреди опис",
+				"addDescription": "Додај опис…"
+			}
+		},
+		"workspaceNew": {
+			"title": "Нов работен простор",
+			"description": "Дом за проектите на твојот тим. Потоа можеш да поканиш луѓе.",
+			"name": "Име",
+			"namePlaceholder": "Дизајн студио",
+			"descriptionLabel": "Опис",
+			"optional": "Опционално",
+			"descriptionPlaceholder": "За што служи овој работен простор?",
+			"create": "Создај работен простор"
+		},
+		"taskFields": {
+			"status": "Статус",
+			"planned": "Планирано",
+			"priority": "Приоритет",
+			"assignee": "Доделен",
+			"unassigned": "Недоделен",
+			"startDate": "Датум на почеток",
+			"dueDate": "Краен рок",
+			"labels": "Етикети",
+			"none": "Нема",
+			"searchPeople": "Пребарај луѓе",
+			"you": "{{name}} (ти)",
+			"addNumber": "Додај број",
+			"empty": "Празно",
+			"archived": "Архивирано",
+			"doneColumn": "Колона за завршени",
+			"starts": "Почнува {{date}}",
+			"overdue_one": "{{date}}, {{count}} ден задоцнета",
+			"overdue_other": "{{date}}, {{count}} дена задоцнета",
+			"done": "Завршено",
+			"searchOrCreate": "Пребарај или создај",
+			"createLabel": "Создај етикета „{{name}}“",
+			"labelColor": "Боја за новата етикета",
+			"noLabels": "Сè уште нема етикети. Внеси име за да создадеш."
+		},
+		"taskNew": {
+			"newSubtask": "Нова подзадача",
+			"project": "Проект",
+			"create": "Создај",
+			"taskTitle": "Наслов на задачата",
+			"noLabels": "Сè уште нема етикети во овој работен простор."
+		},
+		"editor": {
+			"description": "Опис",
+			"placeholder": "Додај опис… Работи Markdown.",
+			"write": "Пишувај",
+			"preview": "Преглед",
+			"nothingToPreview": "Нема што да се прегледа",
+			"bold": "Задебелено",
+			"italic": "Курзив",
+			"heading": "Наслов",
+			"list": "Листа",
+			"code": "Код",
+			"link": "Врска",
+			"boldPlaceholder": "задебелено",
+			"italicPlaceholder": "курзив",
+			"codePlaceholder": "код",
+			"linkPlaceholder": "врска",
+			"insertImage": "Вметни слика",
+			"attachment": "Прилог"
+		},
+		"composer": {
+			"reply": "Одговори на {{name}}…",
+			"placeholder": "Додај коментар…",
+			"mentionSomeone": "Спомни некого",
+			"attachImage": "Прикачи слика",
+			"sendComment": "Испрати коментар",
+			"mention": "Спомни",
+			"searchPeople": "Пребарај луѓе"
+		},
+		"board": {
+			"filterTasksActive": "Филтрирај задачи… (активни: {{count}})",
+			"movedTask": "{{ticket}} е преместена во {{status}}",
+			"showTasks_one": "Прикажи {{count}} задача",
+			"showTasks_other": "Прикажи {{count}} задачи",
+			"memberYou": "{{name}} (ти)",
+			"dueDateOverdue_one": "{{date}}, {{count}} д задоцнета",
+			"dueDateOverdue_other": "{{date}}, {{count}} д задоцнета",
+			"projects": "Проекти",
+			"back": "Назад",
+			"boardView": "Приказ како табла",
+			"listView": "Приказ како листа",
+			"more": "Повеќе",
+			"switchProject": "Промени проект",
+			"noTasksMatchTheFilters": "Ниедна задача не одговара на филтрите",
+			"nothingPlannedYet": "Сè уште нема ништо планирано",
+			"noTasksHere": "Тука нема задачи",
+			"addTask": "Додај задача",
+			"noTasksMatch": "Нема соодветни задачи",
+			"noTasksYet": "Сè уште нема задачи",
+			"filters": "Филтри",
+			"filterTasks": "Филтрирај задачи…",
+			"me": "Јас",
+			"newTask": "Нова задача",
+			"board": "Табла",
+			"projectSettings": "Поставки на проектот",
+			"hidePlanned": "Скриј планирани",
+			"showPlanned": "Прикажи планирани",
+			"hideArchived": "Скриј архивирани",
+			"showArchived": "Прикажи архивирани",
+			"refresh": "Освежи",
+			"planned": "Планирано",
+			"archived": "Архивирано",
+			"reset": "Ресетирај",
+			"assignee": "Доделен",
+			"unassigned": "Недоделен",
+			"priority": "Приоритет",
+			"labels": "Етикети",
+			"overdueOnly": "Само задоцнети",
+			"tasksNotOnTheBoardYet": "Задачи што сè уште не се на таблата",
+			"moveTo": "Премести во",
+			"assignToMe": "Додели ми",
+			"sendToTopOfColumn": "На врвот на колоната",
+			"sendToBottomOfColumn": "На дното на колоната",
+			"openTask": "Отвори задача",
+			"searchPeople": "Пребарај луѓе"
+		},
+		"projectSettings": {
+			"deleteNamedTitle": "Да се избрише „{{name}}“?",
+			"text": "Текст",
+			"number": "Број",
+			"date": "Датум",
+			"checkbox": "Поле за штиклирање",
+			"dropdown": "Паѓачко мени",
+			"multiSelect": "Повеќекратен избор",
+			"projectUpdated": "Проектот е ажуриран",
+			"project": "Проект",
+			"projectSettings": "Поставки на проектот",
+			"general": "Општо",
+			"publicBoard": "Јавна табла",
+			"anyoneWithTheLinkCanViewTheBoard": "Секој со врската може да ја гледа таблата",
+			"columns": "Колони",
+			"addColumn": "Додај колона",
+			"doneColumn": "Колона за завршени",
+			"moveUp": "Помести нагоре",
+			"moveDown": "Помести надолу",
+			"customFields": "Прилагодени полиња",
+			"addField": "Додај поле",
+			"noCustomFields": "Нема прилагодени полиња",
+			"projectRestored": "Проектот е вратен",
+			"archiveProjectTitle": "Да се архивира проектот?",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "Ќе исчезне од листата на проекти. Можеш да го вратиш подоцна.",
+			"archive": "Архивирај",
+			"projectArchived": "Проектот е архивиран",
+			"restoreProject": "Врати проект",
+			"archiveProject": "Архивирај проект",
+			"moveToAnotherWorkspace": "Премести во друг работен простор",
+			"deleteProjectTitle": "Да се избрише проектот?",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "Сите задачи, коментари и внесови за време во овој проект ќе бидат трајно избришани.",
+			"projectDeleted": "Проектот е избришан",
+			"deleteProject": "Избриши проект",
+			"column": "Колона",
+			"rename": "Преименувај",
+			"unmarkAsDoneColumn": "Отстрани ознака за завршени",
+			"markAsDoneColumn": "Означи како колона за завршени",
+			"deleteColumn": "Избриши колона",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "Можеби прво ќе треба да ги преместиш задачите од оваа колона.",
+			"columnDeleted": "Колоната е избришана",
+			"renameColumn": "Преименувај колона",
+			"field": "Поле",
+			"deleteField": "Избриши поле",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Вредностите во ова поле се бришат од секоја задача.",
+			"fieldDeleted": "Полето е избришано",
+			"moveToWorkspace": "Премести во работен простор",
+			"projectMoved": "Проектот е преместен",
+			"ok": "OK",
+			"name": "Име",
+			"key": "Клуч",
+			"changesFutureAndExistingTaskIDs": "Ги менува ID-ата на идните и постојните задачи",
+			"saveChanges": "Зачувај промени",
+			"newColumn": "Нова колона",
+			"blocked": "Блокирано",
+			"tasksHereCountAsFinished": "Задачите тука се сметаат за завршени",
+			"newCustomField": "Ново прилагодено поле",
+			"platform": "Платформа",
+			"type": "Тип",
+			"options": "Опции",
+			"separateWithCommas": "Одвој со запирки",
+			"androidIOSWeb": "Android, iOS, Web",
+			"required": "Задолжително"
+		},
+		"projectNew": {
+			"newProject": "Нов проект",
+			"name": "Име",
+			"customerPortal": "Портал за клиенти",
+			"key": "Клуч",
+			"usedInTaskIDs": "Се користи во ID-ата на задачите",
+			"createProject": "Создај проект"
+		},
+		"home": {
+			"noWorkspace": {
+				"title": "Сè уште нема работен простор",
+				"body": "Работните простори ги содржат твоите проекти и тим. Создај еден или прифати покана.",
+				"create": "Создај работен простор",
+				"viewInvitations_one": "Види {{count}} покана",
+				"viewInvitations_other": "Види {{count}} покани",
+				"joinWithLink": "Приклучи се со врска за покана",
+				"signedInAs": "Најавен си како {{email}}"
+			},
+			"switchWorkspace": "Промени работен простор",
+			"search": "Пребарај",
+			"account": "Сметка",
+			"archived": "Архивирано",
+			"due": "Рок {{date}}",
+			"progress": "{{done}} од {{total}}",
+			"noTasks": "Нема задачи",
+			"upNext": "Следно",
+			"viewAll": "Види сè",
+			"projects": "Проекти",
+			"newProject": "Нов проект",
+			"empty": {
+				"title": "Сè уште нема проекти",
+				"message": "Проектите ги содржат твоите табли и задачи."
+			},
+			"hideArchived": "Скриј архивирани проекти",
+			"showArchived": "Прикажи архивирани проекти"
+		},
+		"inbox": {
+			"title": "Сандаче",
+			"markAllRead": "Означи сè како прочитано",
+			"allCaughtUpToast": "Сè е прочитано",
+			"more": "Повеќе",
+			"empty": {
+				"title": "Сè е прочитано",
+				"message": "Доделувањата, коментарите и спомнувањата се појавуваат тука."
+			},
+			"today": "Денес",
+			"earlier": "Порано",
+			"recent": "Неодамнешни",
+			"clearAll": "Исчисти ги сите известувања",
+			"confirmClear": {
+				"title": "Да се исчистат сите известувања?",
+				"message": "Ова ги отстранува сите известувања во овој работен простор.",
+				"confirm": "Исчисти сè"
 			}
 		},
 		"activity": {
-			"commentedOn": "commented on {{target}}",
-			"empty": "No recent activity",
-			"someone": "Someone",
-			"subtitle": "Everything happening in {{workspace}}",
-			"title": "Activity"
-		},
-		"background": {
-			"channelDescription": "Assignments, comments and mentions from your workspaces",
-			"channelName": "Kaneo activity",
-			"summary_one": "{{count}} more new notification",
-			"summary_other": "{{count}} more new notifications"
-		},
-		"board": {
-			"addTask": "Add task",
-			"archived": "Archived",
-			"assignee": "Assignee",
-			"assignToMe": "Assign to me",
-			"back": "Back",
-			"board": "Board",
-			"boardView": "Board view",
-			"dueDateOverdue_one": "{{date}}, {{count}}d overdue",
-			"dueDateOverdue_other": "{{date}}, {{count}}d overdue",
-			"filters": "Filters",
-			"filterTasks": "Filter tasks…",
-			"filterTasksActive": "Filter tasks… ({{count}} active)",
-			"hideArchived": "Hide archived",
-			"hidePlanned": "Hide planned",
-			"labels": "Labels",
-			"listView": "List view",
-			"me": "Me",
-			"memberYou": "{{name}} (you)",
-			"more": "More",
-			"movedTask": "Moved {{ticket}} to {{status}}",
-			"moveTo": "Move to",
-			"newTask": "New task",
-			"noTasksHere": "No tasks here",
-			"noTasksMatch": "No tasks match",
-			"noTasksMatchTheFilters": "No tasks match the filters",
-			"noTasksYet": "No tasks yet",
-			"nothingPlannedYet": "Nothing planned yet",
-			"openTask": "Open task",
-			"overdueOnly": "Overdue only",
-			"planned": "Planned",
-			"priority": "Priority",
-			"projects": "Projects",
-			"projectSettings": "Project settings",
-			"refresh": "Refresh",
-			"reset": "Reset",
-			"searchPeople": "Search people",
-			"sendToBottomOfColumn": "Send to bottom of column",
-			"sendToTopOfColumn": "Send to top of column",
-			"showArchived": "Show archived",
-			"showPlanned": "Show planned",
-			"showTasks_one": "Show {{count}} task",
-			"showTasks_other": "Show {{count}} tasks",
-			"switchProject": "Switch project",
-			"tasksNotOnTheBoardYet": "Tasks not on the board yet",
-			"unassigned": "Unassigned"
-		},
-		"common": {
-			"cancel": "Cancel",
-			"close": "Close",
-			"delete": "Delete",
-			"retry": "Try again",
-			"save": "Save",
-			"somethingWrong": "Something went wrong"
-		},
-		"composer": {
-			"attachImage": "Attach image",
-			"mention": "Mention",
-			"mentionSomeone": "Mention someone",
-			"placeholder": "Add a comment…",
-			"reply": "Reply to {{name}}…",
-			"searchPeople": "Search people",
-			"sendComment": "Send comment"
-		},
-		"editor": {
-			"attachment": "Attachment",
-			"bold": "Bold",
-			"boldPlaceholder": "bold",
-			"code": "Code",
-			"codePlaceholder": "code",
-			"description": "Description",
-			"heading": "Heading",
-			"insertImage": "Insert image",
-			"italic": "Italic",
-			"italicPlaceholder": "italic",
-			"link": "Link",
-			"linkPlaceholder": "link",
-			"list": "List",
-			"nothingToPreview": "Nothing to preview",
-			"placeholder": "Add a description… Markdown works.",
-			"preview": "Preview",
-			"write": "Write"
-		},
-		"errors": {
-			"apiKeyRejected": "That API key was rejected.",
-			"deviceFailed": "Device sign-in failed (HTTP {{status}}).",
-			"forbidden": "You don't have permission to do that.",
-			"noInstance": "No Kaneo instance found at {{url}} (HTTP {{status}}).",
-			"noSession": "The server didn't return a session. Try signing in through the browser.",
-			"notFound": "Not found.",
-			"notKaneo": "{{url}} doesn't look like a Kaneo server.",
-			"notSignedIn": "Not signed in",
-			"requestFailed": "Request failed ({{status}}).",
-			"serverProblem": "The server had a problem ({{status}}).",
-			"sessionExpired": "Your session has expired. Please sign in again.",
-			"signInRejected": "Sign-in was not accepted by the server.",
-			"tooManyRequests": "Too many requests. Please wait a moment.",
-			"unreachable": "Can't reach the server. Check your connection and the server address.",
-			"uploadFailed": "Upload failed ({{status}})"
-		},
-		"home": {
-			"account": "Account",
-			"archived": "Archived",
-			"due": "Due {{date}}",
-			"empty": {
-				"message": "Projects hold your boards and tasks.",
-				"title": "No projects yet"
-			},
-			"hideArchived": "Hide archived projects",
-			"newProject": "New project",
-			"noTasks": "No tasks",
-			"noWorkspace": {
-				"body": "Workspaces hold your projects and team. Create one, or accept an invitation.",
-				"create": "Create workspace",
-				"joinWithLink": "Join with an invitation link",
-				"signedInAs": "Signed in as {{email}}",
-				"title": "No workspace yet",
-				"viewInvitations_one": "View {{count}} invitation",
-				"viewInvitations_other": "View {{count}} invitations"
-			},
-			"progress": "{{done}} of {{total}}",
-			"projects": "Projects",
-			"search": "Search",
-			"showArchived": "Show archived projects",
-			"switchWorkspace": "Switch workspace",
-			"upNext": "Up next",
-			"viewAll": "View all"
-		},
-		"inbox": {
-			"allCaughtUpToast": "All caught up",
-			"clearAll": "Clear all notifications",
-			"confirmClear": {
-				"confirm": "Clear all",
-				"message": "This removes every notification in this workspace.",
-				"title": "Clear all notifications?"
-			},
-			"earlier": "Earlier",
-			"empty": {
-				"message": "Assignments, comments and mentions appear here.",
-				"title": "You're all caught up"
-			},
-			"markAllRead": "Mark all read",
-			"more": "More",
-			"recent": "Recent",
-			"title": "Inbox",
-			"today": "Today"
-		},
-		"invitations": {
-			"accept": "Accept",
-			"accepted": "Invitation accepted",
-			"decline": "Decline",
-			"declined": "Invitation declined",
-			"description": "Workspaces you've been invited to join.",
-			"emptyMessage": "Invitations appear here once your email address is verified. You can always join with the link from the email.",
-			"emptyTitle": "No pending invitations",
-			"invitedYou": "{{name}} invited you",
-			"join": "Join",
-			"joinWithLink": "Join with an invitation link",
-			"linkPlaceholder": "Paste the link from your email",
-			"title": "Invitations"
-		},
-		"labels": {
-			"actions": "Actions for {{name}}",
-			"delete": "Delete label",
-			"deleteMessage": "The label is removed from every task in this workspace.",
-			"deleteTitle": "Delete “{{name}}”?",
-			"description": "Labels help you group and filter tasks.",
-			"edit": "Edit label",
-			"empty": {
-				"message": "Create labels to group and filter tasks across projects.",
-				"title": "No labels"
-			},
-			"fallbackTitle": "Label",
-			"form": {
-				"color": "Color",
-				"name": "Name"
-			},
-			"new": "New label",
-			"title": "Labels",
-			"toast": {
-				"deleted": "Label deleted"
-			}
-		},
-		"members": {
-			"description_one": "{{count}} person in {{name}}",
-			"description_other": "{{count}} people in {{name}}",
-			"invite": "Invite",
-			"inviteForm": {
-				"email": "Email",
-				"intro": "They’ll get an email with a link to join {{workspace}}.",
-				"role": "Role",
-				"send": "Send invite",
-				"title": "Invite member"
-			},
-			"inviteMenu": {
-				"cancel": "Cancel invitation",
-				"fallbackTitle": "Invitation",
-				"resend": "Resend invitation"
-			},
-			"memberMenu": {
-				"changeRole": "Change role",
-				"fallbackTitle": "Member",
-				"remove": "Remove from workspace"
-			},
-			"pending": {
-				"expires": "{{role}}, expires {{date}}",
-				"manage": "Manage",
-				"title": "Pending invitations"
-			},
-			"people": {
-				"title": "People",
-				"unknown": "Unknown",
-				"you": "(you)"
-			},
-			"remove": {
-				"confirm": "Remove",
-				"message": "{{name}} will lose access to {{workspace}}.",
-				"they": "They",
-				"title": "Remove member?"
-			},
-			"rolePicker": {
-				"title": "Role"
-			},
-			"thisWorkspace": "this workspace",
-			"title": "Members",
-			"toast": {
-				"canceled": "Invitation canceled",
-				"removed": "Member removed",
-				"resent": "Invitation resent",
-				"roleUpdated": "Role updated",
-				"sent": "Invitation sent to {{email}}"
-			}
-		},
-		"meta": {
-			"labelColor": {
-				"amber": "Amber",
-				"crimson": "Crimson",
-				"forest": "Forest",
-				"lavender": "Lavender",
-				"rose": "Rose",
-				"sage": "Sage",
-				"slate": "Slate",
-				"stone": "Stone",
-				"terracotta": "Terracotta"
-			},
-			"priority": {
-				"high": "High",
-				"low": "Low",
-				"medium": "Medium",
-				"noPriority": "No priority",
-				"urgent": "Urgent"
-			},
-			"role": {
-				"admin": "Admin",
-				"member": "Member",
-				"owner": "Owner",
-				"viewer": "Viewer"
-			},
-			"roleHint": {
-				"admin": "Can also manage members and settings",
-				"member": "Can create and edit tasks",
-				"owner": "Full control, including deleting the workspace",
-				"viewer": "Can view projects and tasks"
-			}
+			"title": "Активност",
+			"subtitle": "Сè што се случува во {{workspace}}",
+			"empty": "Нема неодамнешна активност",
+			"someone": "Некој",
+			"commentedOn": "коментираше на {{target}}"
 		},
 		"myTasks": {
-			"assigned_one": "{{count}} assigned",
-			"assigned_other": "{{count}} assigned",
+			"title": "Мои задачи",
 			"by": {
-				"due": "Due date",
-				"project": "Project",
-				"status": "Status"
+				"due": "Краен рок",
+				"project": "Проект",
+				"status": "Статус"
 			},
 			"due": {
-				"later": "Later",
-				"none": "No due date",
-				"overdue": "Overdue",
-				"thisWeek": "This week",
-				"today": "Today"
+				"overdue": "Задоцнети",
+				"today": "Денес",
+				"thisWeek": "Оваа недела",
+				"later": "Подоцна",
+				"none": "Без краен рок"
 			},
 			"empty": {
-				"message": "Tasks assigned to you in this workspace show up here.",
-				"title": "Nothing assigned to you"
+				"title": "Ништо не ти е доделено",
+				"message": "Задачите што ти се доделени во овој работен простор се појавуваат тука."
 			},
-			"showing": "Showing {{shown}} of {{total}} tasks",
-			"title": "My tasks"
+			"showing": "Прикажани {{shown}} од {{total}} задачи",
+			"assigned_one": "{{count}} доделена",
+			"assigned_other": "{{count}} доделени"
 		},
 		"nav": {
-			"activity": "Activity",
-			"home": "Home",
-			"inbox": "Inbox",
-			"inboxUnread": "Inbox, {{count}} unread",
-			"tasks": "My tasks"
+			"home": "Почетна",
+			"tasks": "Мои задачи",
+			"inbox": "Сандаче",
+			"activity": "Активност",
+			"inboxUnread": "Сандаче, непрочитани: {{count}}"
 		},
-		"notificationSettings": {
-			"channel": {
-				"accessToken": "Access token",
-				"appToken": "App token",
-				"enabled": "Send notifications here",
-				"secretOptional": "Optional",
-				"secretSaved": "Saved. Enter a new one to replace it",
-				"serverUrl": "Server URL",
-				"signingSecret": "Signing secret",
-				"topic": "Topic",
-				"webhookUrl": "Webhook URL"
+		"workspaceSwitcher": {
+			"title": "Работни простори",
+			"settings": "Поставки на работниот простор",
+			"members": "Членови",
+			"labels": "Етикети",
+			"invitations": "Покани",
+			"create": "Создај работен простор"
+		},
+		"search": {
+			"placeholder": "Пребарај задачи, проекти, коментари",
+			"clear": "Исчисти",
+			"kinds": {
+				"all": "Сè",
+				"tasks": "Задачи",
+				"projects": "Проекти",
+				"comments": "Коментари"
 			},
-			"delivery": {
-				"email": "Email",
-				"emailHint": "Sent to your account email",
-				"gotifyHint": "Send notifications to a Gotify server",
-				"ntfyHint": "Send notifications to an ntfy topic",
-				"title": "Delivery",
-				"webhook": "Webhook",
-				"webhookHint": "POST notifications to a URL"
+			"empty": {
+				"title": "Пребарај го овој работен простор",
+				"message": "Најди задачи по наслов или број, проекти и коментари."
 			},
-			"description": "Where Kaneo reaches you, and about what.",
-			"events": {
-				"assignments": "Assignments",
-				"assignmentsHint": "When a task is assigned to you",
-				"comments": "Comments",
-				"commentsHint": "New comments on your tasks",
-				"dueDate": "Due date reminders",
-				"dueDateHint": "Before a task you’re assigned to is due",
-				"remindBefore": "{{time}} before",
-				"remindMe": "Remind me",
-				"remindPickerTitle": "Remind me before",
-				"statusChanges": "Status changes",
-				"statusChangesHint": "When your tasks move between columns",
-				"title": "Notify me about"
-			},
-			"leadTime": {
-				"day1": "1 day",
-				"days2": "2 days",
-				"hour1": "1 hour",
-				"hours3": "3 hours",
-				"minutes_one": "{{count}} minute",
-				"minutes_other": "{{count}} minutes",
-				"minutes15": "15 minutes",
-				"week1": "1 week"
-			},
-			"notSet": "Not set",
-			"off": "Off",
-			"on": "On",
-			"title": "Notifications"
+			"failed": "Пребарувањето не успеа",
+			"noResults": "Нема резултати за „{{query}}“",
+			"commentMeta": "{{name}}, {{when}}"
 		},
 		"notificationText": {
 			"activity": {
-				"assignedTo": "assigned this to {{assignee}}",
-				"assigneeChanged": "changed the assignee",
-				"commented": "commented: {{text}}",
-				"created": "created the task",
-				"descriptionChanged": "updated the description",
-				"dueDateRemoved": "removed the due date",
-				"dueDateSet": "set the due date to {{date}}",
-				"priorityChanged": "changed priority from {{from}} to {{to}}",
-				"renamed": "renamed this to “{{title}}”",
-				"selfAssigned": "self-assigned this",
-				"statusChanged": "moved this from {{from}} to {{to}}",
-				"taskUpdated": "updated the task",
-				"titleChanged": "changed the title",
-				"unassigned": "removed the assignee"
+				"created": "ја создаде задачата",
+				"commented": "коментираше: {{text}}",
+				"statusChanged": "ја премести од {{from}} во {{to}}",
+				"priorityChanged": "го промени приоритетот од {{from}} во {{to}}",
+				"assigneeChanged": "го промени доделениот",
+				"selfAssigned": "си ја додели задачата",
+				"assignedTo": "ја додели на {{assignee}}",
+				"unassigned": "го отстрани доделениот",
+				"dueDateSet": "го постави крајниот рок на {{date}}",
+				"dueDateRemoved": "го отстрани крајниот рок",
+				"renamed": "ја преименува во „{{title}}“",
+				"titleChanged": "го промени насловот",
+				"descriptionChanged": "го ажурираше описот",
+				"taskUpdated": "ја ажурираше задачата"
 			},
-			"assignedByActor": "{{actor}} assigned you a task",
-			"assignedToTask": "You were assigned to “{{title}}”",
-			"assignedToUntitled": "You were assigned to a task",
-			"commentedByActor": "{{actor}} commented",
-			"mentioned": "You were mentioned",
-			"mentionedByActor": "{{actor}} mentioned you",
-			"newComment": "New comment",
-			"statusChangedOnTask": "Status changed on “{{title}}”",
-			"statusChangedOnUntitled": "Status changed on a task",
-			"statusTransition": "{{from}} to {{to}}",
-			"taskCreated": "New task assigned to you",
-			"timeLoggedOnTask": "Time logged on “{{title}}”",
-			"timeLoggedOnUntitled": "Time logged on a task",
-			"workspaceCreated": "Workspace “{{name}}” created"
+			"taskCreated": "Ти е доделена нова задача",
+			"assignedByActor": "{{actor}} ти додели задача",
+			"assignedToTask": "Ти е доделена „{{title}}“",
+			"assignedToUntitled": "Ти е доделена задача",
+			"statusChangedOnTask": "Променет статус на „{{title}}“",
+			"statusChangedOnUntitled": "Променет статус на задача",
+			"statusTransition": "{{from}} → {{to}}",
+			"commentedByActor": "{{actor}} коментираше",
+			"newComment": "Нов коментар",
+			"mentionedByActor": "{{actor}} те спомна",
+			"mentioned": "Спомнат си",
+			"timeLoggedOnTask": "Внесено време на „{{title}}“",
+			"timeLoggedOnUntitled": "Внесено време на задача",
+			"workspaceCreated": "Работниот простор „{{name}}“ е создаден"
 		},
-		"picker": {
-			"clear": "Clear",
-			"nextMonth": "Next month",
-			"nextWeek": "Next week",
-			"previousMonth": "Previous month"
-		},
-		"projectNew": {
-			"createProject": "Create project",
-			"customerPortal": "Customer Portal",
-			"key": "Key",
-			"name": "Name",
-			"newProject": "New project",
-			"usedInTaskIDs": "Used in task IDs"
-		},
-		"projectSettings": {
-			"addColumn": "Add column",
-			"addField": "Add field",
-			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "All tasks, comments and time entries in this project will be permanently deleted.",
-			"androidIOSWeb": "Android, iOS, Web",
-			"anyoneWithTheLinkCanViewTheBoard": "Anyone with the link can view the board",
-			"archive": "Archive",
-			"archiveProject": "Archive project",
-			"archiveProjectTitle": "Archive project?",
-			"blocked": "Blocked",
-			"changesFutureAndExistingTaskIDs": "Changes future and existing task IDs",
-			"checkbox": "Checkbox",
-			"column": "Column",
-			"columnDeleted": "Column deleted",
-			"columns": "Columns",
-			"customFields": "Custom fields",
-			"date": "Date",
-			"deleteColumn": "Delete column",
-			"deleteField": "Delete field",
-			"deleteNamedTitle": "Delete “{{name}}”?",
-			"deleteProject": "Delete project",
-			"deleteProjectTitle": "Delete project?",
-			"doneColumn": "Done column",
-			"dropdown": "Dropdown",
-			"field": "Field",
-			"fieldDeleted": "Field deleted",
-			"general": "General",
-			"itDisappearsFromTheProjectListYouCanRestoreItLater": "It disappears from the project list. You can restore it later.",
-			"key": "Key",
-			"markAsDoneColumn": "Mark as done column",
-			"moveDown": "Move down",
-			"moveToAnotherWorkspace": "Move to another workspace",
-			"moveToWorkspace": "Move to workspace",
-			"moveUp": "Move up",
-			"multiSelect": "Multi-select",
-			"name": "Name",
-			"newColumn": "New column",
-			"newCustomField": "New custom field",
-			"noCustomFields": "No custom fields",
-			"number": "Number",
-			"ok": "OK",
-			"options": "Options",
-			"platform": "Platform",
-			"project": "Project",
-			"projectArchived": "Project archived",
-			"projectDeleted": "Project deleted",
-			"projectMoved": "Project moved",
-			"projectRestored": "Project restored",
-			"projectSettings": "Project settings",
-			"projectUpdated": "Project updated",
-			"publicBoard": "Public board",
-			"rename": "Rename",
-			"renameColumn": "Rename column",
-			"required": "Required",
-			"restoreProject": "Restore project",
-			"saveChanges": "Save changes",
-			"separateWithCommas": "Separate with commas",
-			"tasksHereCountAsFinished": "Tasks here count as finished",
-			"tasksInThisColumnMayNeedToBeMovedFirst": "Tasks in this column may need to be moved first.",
-			"text": "Text",
-			"type": "Type",
-			"unmarkAsDoneColumn": "Unmark as done column",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Values stored in this field are deleted from every task."
-		},
-		"search": {
-			"clear": "Clear",
-			"commentMeta": "{{name}}, {{when}}",
-			"empty": {
-				"message": "Find tasks by title or number, projects, and comments.",
-				"title": "Search this workspace"
-			},
-			"failed": "Search failed",
-			"kinds": {
-				"all": "All",
-				"comments": "Comments",
-				"projects": "Projects",
-				"tasks": "Tasks"
-			},
-			"noResults": "No results for “{{query}}”",
-			"placeholder": "Search tasks, projects, comments"
-		},
-		"signIn": {
-			"apiKey": {
-				"label": "API key",
-				"message": "Create one on the web under Settings, then API keys. It works even when other sign-in methods are turned off."
-			},
-			"browserHint": "GitHub, Google, Discord or SSO",
-			"captcha": "This server requires a browser check for this step. Use “Continue in browser” instead.",
-			"change": "Change",
-			"cloud": "Kaneo Cloud",
-			"code": {
-				"checkEmail": "Check your email",
-				"didntGet": "Didn’t get it?",
-				"message": "We'll email you a 6-digit code. No password needed.",
-				"resend": "Resend code",
-				"send": "Send code",
-				"sent": "We sent a 6-digit code to {{email}}",
-				"title": "Sign in with a code",
-				"verify": "Verify"
-			},
-			"connect": "Connect",
-			"continueInBrowser": "Continue in browser",
-			"createAccount": "Create account",
-			"device": {
-				"codeCopied": "Code copied",
-				"copyCode": "Copy code",
-				"copyLink": "Copy link",
-				"denied": "Sign-in was denied in the browser.",
-				"expired": "The sign-in code expired. Start again to get a new one.",
-				"gettingCode": "Getting a code…",
-				"linkCopied": "Link copied",
-				"message": "Approve this device from the Kaneo website. GitHub, Google, Discord and SSO all work there.",
-				"openBrowser": "Open browser",
-				"openFailed": "Couldn’t open a browser. Copy the link instead.",
-				"tryAgain": "Try again",
-				"waiting": "Waiting for approval…",
-				"yourCode": "Your code"
-			},
-			"email": "Email",
-			"emailCode": "Email me a sign-in code",
-			"invalidClient": "This server doesn’t allow device sign-in. Ask its admin to add “kaneo-cli” to DEVICE_AUTH_CLIENT_IDS, or sign in with a password or API key.",
-			"newToKaneo": "New to Kaneo?",
-			"noPassword": "No password needed",
-			"or": "or",
-			"password": "Password",
-			"recent": "Recent",
-			"selfHosted": "Self-hosted",
-			"sendTo": "Send to {{email}}",
-			"serverAddress": "Server address",
-			"serverAddressHint": "The address you open Kaneo at. Use http:// for servers without TLS. If the API runs on another host, enter the API address.",
-			"signIn": "Sign in",
-			"signUp": {
-				"name": "Name",
-				"passwordHint": "At least 8 characters"
-			},
-			"tagline": "Simple project management. Connect to Kaneo Cloud or your own instance.",
-			"togglePassword": "Toggle password visibility",
-			"useApiKey": "Use an API key"
-		},
-		"taskDetail": {
-			"activity": {
-				"comment": "Comment",
-				"deleteMessage": "This can't be undone.",
-				"deleteTitle": "Delete comment?",
-				"edit": "Edit",
-				"editComment": "Edit comment",
-				"edited": "{{time}}, edited",
-				"entry": "{{name}} {{action}}",
-				"title": "Activity"
-			},
-			"fields": {
-				"empty": "Empty",
-				"none": "None",
-				"title": "Fields"
-			},
-			"links": {
-				"add": "Add link",
-				"empty": "No links",
-				"optional": "Optional",
-				"remove": "Remove link",
-				"synced": "Synced",
-				"title": "Links",
-				"titleLabel": "Title",
-				"url": "URL"
-			},
-			"menu": {
-				"delete": "Delete task",
-				"deleted": "Task deleted",
-				"deleteMessage": "“{{title}}” and its comments will be permanently deleted.",
-				"deleteTitle": "Delete task?",
-				"duplicate": "Duplicate",
-				"duplicated": "Task duplicated",
-				"move": "Move to project…",
-				"moved": "Task moved",
-				"moveTitle": "Move to project",
-				"refresh": "Refresh",
-				"share": "Share"
-			},
-			"relations": {
-				"blockedBy": "Blocked by",
-				"blocks": "Blocks",
-				"empty": "No related tasks",
-				"link": "Link a task",
-				"related": "Related",
-				"relatedTo": "Related to",
-				"remove": "Remove relation",
-				"removeConfirm": "Remove",
-				"removeMessage": "The tasks stay; only the link between them is removed.",
-				"removeTitle": "Remove relation?",
-				"searchPlaceholder": "Search tasks by title or number",
-				"title": "Relations"
-			},
-			"screen": {
-				"addDescription": "Add a description…",
-				"copyLink": "Copy link",
-				"editDescription": "Edit description",
-				"editTitle": "Edit title",
-				"linkCopied": "Link copied",
-				"more": "More"
-			},
-			"section": {
-				"addTo": "Add to {{title}}"
-			},
-			"someone": "Someone",
-			"status": {
-				"archived": "Archived",
-				"planned": "Planned"
-			},
-			"subtasks": {
-				"add": "Add subtask",
-				"empty": "No subtasks",
-				"parent": "Parent task",
-				"title": "Subtasks"
-			},
-			"time": {
-				"chipHours": "{{count}}h",
-				"chipMinutes": "{{count}}m",
-				"date": "Date",
-				"durationHoursMinutes": "{{hours}}h {{minutes}}m",
-				"durationMinutes": "{{minutes}}m",
-				"editEntry": "Edit time entry",
-				"hoursUnit": "h",
-				"log": "Log time",
-				"logDuration": "Log {{duration}}",
-				"logged": "Time logged",
-				"minutesUnit": "m",
-				"notePlaceholder": "What did you work on?",
-				"running": "{{time}} (running)",
-				"start": "Start timer",
-				"stop": "Stop",
-				"title": "Time",
-				"total": "{{duration}} total"
-			}
-		},
-		"taskFields": {
-			"addNumber": "Add a number",
-			"archived": "Archived",
-			"assignee": "Assignee",
-			"createLabel": "Create label “{{name}}”",
-			"done": "Done",
-			"doneColumn": "Done column",
-			"dueDate": "Due date",
-			"empty": "Empty",
-			"labelColor": "Color for the new label",
-			"labels": "Labels",
-			"noLabels": "No labels yet. Type a name to create one.",
-			"none": "None",
-			"overdue_one": "{{date}}, {{count}} day overdue",
-			"overdue_other": "{{date}}, {{count}} days overdue",
-			"planned": "Planned",
-			"priority": "Priority",
-			"searchOrCreate": "Search or create",
-			"searchPeople": "Search people",
-			"startDate": "Start date",
-			"starts": "Starts {{date}}",
-			"status": "Status",
-			"unassigned": "Unassigned",
-			"you": "{{name}} (you)"
-		},
-		"taskNew": {
-			"create": "Create",
-			"newSubtask": "New subtask",
-			"noLabels": "No labels in this workspace yet.",
-			"project": "Project",
-			"taskTitle": "Task title"
-		},
-		"time": {
-			"durationHoursMinutes": "{{hours}}h {{minutes}}m",
-			"goodAfternoon": "Good afternoon",
-			"goodEvening": "Good evening",
-			"goodMorning": "Good morning",
-			"hours_one": "{{count}} hr",
-			"hours_other": "{{count}} hr",
-			"hoursAgo_one": "{{count}} hr ago",
-			"hoursAgo_other": "{{count}} hr ago",
-			"hoursShort_one": "{{count}}h",
-			"hoursShort_other": "{{count}}h",
-			"justNow": "just now",
-			"minutes_one": "{{count}} min",
-			"minutes_other": "{{count}} min",
-			"minutesAgo_one": "{{count}} min ago",
-			"minutesAgo_other": "{{count}} min ago",
-			"minutesShort_one": "{{count}}m",
-			"minutesShort_other": "{{count}}m",
-			"now": "now",
-			"secondsShort_one": "{{count}}s",
-			"secondsShort_other": "{{count}}s",
-			"today": "Today",
-			"tomorrow": "Tomorrow",
-			"yesterday": "Yesterday"
+		"background": {
+			"summary_one": "Уште {{count}} ново известување",
+			"summary_other": "Уште {{count}} нови известувања",
+			"channelName": "Активност во Kaneo",
+			"channelDescription": "Доделувања, коментари и спомнувања од твоите работни простори"
 		},
 		"ui": {
-			"back": "Back",
-			"loadFailed": "Couldn't load this",
-			"nothingMatches": "Nothing matches “{{query}}”",
-			"search": "Search"
+			"back": "Назад",
+			"loadFailed": "Не може да се вчита",
+			"search": "Пребарај",
+			"nothingMatches": "Ништо не одговара на „{{query}}“"
 		},
-		"workspaceNew": {
-			"create": "Create workspace",
-			"description": "A home for your team’s projects. You can invite people next.",
-			"descriptionLabel": "Description",
-			"descriptionPlaceholder": "What's this workspace for?",
-			"name": "Name",
-			"namePlaceholder": "Design studio",
-			"optional": "Optional",
-			"title": "New workspace"
+		"picker": {
+			"clear": "Исчисти",
+			"nextWeek": "Следната недела",
+			"previousMonth": "Претходен месец",
+			"nextMonth": "Следен месец"
 		},
-		"workspaceSettings": {
-			"confirm": {
-				"deleteMessage": "Every project, task and comment in {{name}} will be permanently deleted.",
-				"deleteTitle": "Delete workspace?",
-				"leaveMessage": "You will lose access until someone invites you again.",
-				"leaveTitle": "Leave workspace?"
+		"time": {
+			"now": "сега",
+			"justNow": "токму сега",
+			"minutesShort_one": "{{count}} мин",
+			"minutesShort_other": "{{count}} мин",
+			"hoursShort_one": "{{count}} ч",
+			"hoursShort_other": "{{count}} ч",
+			"secondsShort_one": "{{count}} с",
+			"secondsShort_other": "{{count}} с",
+			"minutesAgo_one": "пред {{count}} мин",
+			"minutesAgo_other": "пред {{count}} мин",
+			"hoursAgo_one": "пред {{count}} ч",
+			"hoursAgo_other": "пред {{count}} ч",
+			"durationHoursMinutes": "{{hours}} ч {{minutes}} мин",
+			"goodEvening": "Добра вечер",
+			"goodMorning": "Добро утро",
+			"goodAfternoon": "Добар ден",
+			"today": "Денес",
+			"tomorrow": "Утре",
+			"yesterday": "Вчера",
+			"minutes_one": "{{count}} мин",
+			"minutes_other": "{{count}} мин",
+			"hours_one": "{{count}} ч",
+			"hours_other": "{{count}} ч"
+		},
+		"meta": {
+			"priority": {
+				"noPriority": "Без приоритет",
+				"low": "Низок",
+				"medium": "Среден",
+				"high": "Висок",
+				"urgent": "Итен"
 			},
-			"danger": {
-				"delete": "Delete workspace",
-				"deleteHint": "Deletes all projects and tasks in it",
-				"leave": "Leave workspace",
-				"leaveButton": "Leave",
-				"leaveHint": "You can rejoin with a new invitation",
-				"title": "Danger zone"
+			"labelColor": {
+				"stone": "Камен",
+				"slate": "Плочест",
+				"lavender": "Лаванда",
+				"sage": "Жалфија",
+				"forest": "Шума",
+				"amber": "Килибар",
+				"terracotta": "Теракота",
+				"rose": "Роза",
+				"crimson": "Гримизна"
 			},
-			"description": "Settings for everyone in {{name}}.",
-			"general": {
-				"description": "Description",
-				"name": "Name",
-				"save": "Save changes",
-				"slug": "Slug: <mono>{{slug}}</mono>",
-				"title": "General"
+			"role": {
+				"owner": "Сопственик",
+				"admin": "Администратор",
+				"member": "Член",
+				"viewer": "Прегледувач"
 			},
-			"manage": {
-				"labels": "Labels",
-				"members": "Members",
-				"title": "Manage"
-			},
-			"thisWorkspace": "this workspace",
-			"title": "Workspace",
-			"toast": {
-				"deleted": "Workspace deleted",
-				"left": "You left the workspace",
-				"updated": "Workspace updated"
+			"roleHint": {
+				"owner": "Целосна контрола, вклучително и бришење на работниот простор",
+				"admin": "Може да управува и со членови и поставки",
+				"member": "Може да создава и уредува задачи",
+				"viewer": "Може да гледа проекти и задачи"
 			}
 		},
-		"workspaceSwitcher": {
-			"create": "Create workspace",
-			"invitations": "Invitations",
-			"labels": "Labels",
-			"members": "Members",
-			"settings": "Workspace settings",
-			"title": "Workspaces"
+		"account": {
+			"title": "Сметка",
+			"description": "Како те гледаат соработниците во сите работни простори.",
+			"profile": {
+				"title": "Профил",
+				"photo": "Профилна слика",
+				"photoFormats": "PNG, JPG или WebP",
+				"change": "Промени",
+				"name": "Име",
+				"changePassword": "Промени лозинка"
+			},
+			"notifications": {
+				"title": "Известувања",
+				"phone": "Известувања на телефон",
+				"phoneHint": "Проверува приближно на секои 15 минути",
+				"delivery": "Испорака и настани",
+				"deliveryHint": "Е-пошта, ntfy, Gotify, webhooks",
+				"invitations": "Покани",
+				"permissionDenied": "Прво дозволи известувања за Kaneo во системските поставки."
+			},
+			"connection": {
+				"title": "Врска",
+				"server": "Сервер",
+				"signedInWith": "Најавен со",
+				"apiKey": "API клуч",
+				"sessionToken": "Токен за сесија",
+				"appVersion": "Верзија на апликацијата"
+			},
+			"signOut": {
+				"button": "Одјави се",
+				"title": "Да се одјавиш?",
+				"message": "Можеш повторно да се најавиш во секое време."
+			},
+			"photoMenu": {
+				"choose": "Избери слика",
+				"remove": "Отстрани слика"
+			},
+			"toast": {
+				"photoUpdated": "Сликата е ажурирана",
+				"photoRemoved": "Сликата е отстранета",
+				"nameUpdated": "Името е ажурирано",
+				"passwordChanged": "Лозинката е променета"
+			},
+			"password": {
+				"title": "Промени лозинка",
+				"current": "Тековна лозинка",
+				"new": "Нова лозинка",
+				"confirm": "Потврди ја новата лозинка",
+				"confirmPlaceholder": "Внеси ја повторно",
+				"mismatch": "Лозинките не се совпаѓаат",
+				"signOutOthers": "Одјави ги другите уреди"
+			}
+		},
+		"notificationSettings": {
+			"title": "Известувања",
+			"description": "Каде и за што те известува Kaneo.",
+			"on": "Вклучено",
+			"off": "Исклучено",
+			"notSet": "Не е поставено",
+			"delivery": {
+				"title": "Испорака",
+				"email": "Е-пошта",
+				"emailHint": "Се испраќа на е-поштата на твојата сметка",
+				"ntfyHint": "Испраќај известувања до ntfy тема",
+				"gotifyHint": "Испраќај известувања до Gotify сервер",
+				"webhook": "Webhook",
+				"webhookHint": "Испраќај известувања со POST до URL"
+			},
+			"events": {
+				"title": "За што да те известува",
+				"assignments": "Доделувања",
+				"assignmentsHint": "Кога ќе ти биде доделена задача",
+				"comments": "Коментари",
+				"commentsHint": "Нови коментари на твоите задачи",
+				"statusChanges": "Промени на статус",
+				"statusChangesHint": "Кога твоите задачи се преместуваат меѓу колони",
+				"dueDate": "Потсетници за краен рок",
+				"dueDateHint": "Пред крајниот рок на задача што ти е доделена",
+				"remindMe": "Потсети ме",
+				"remindBefore": "{{time}} пред тоа",
+				"remindPickerTitle": "Потсети ме пред"
+			},
+			"leadTime": {
+				"minutes15": "15 минути",
+				"hour1": "1 час",
+				"hours3": "3 часа",
+				"day1": "1 ден",
+				"days2": "2 дена",
+				"week1": "1 недела",
+				"minutes_one": "{{count}} минута",
+				"minutes_other": "{{count}} минути"
+			},
+			"channel": {
+				"enabled": "Испраќај известувања тука",
+				"webhookUrl": "Webhook URL",
+				"serverUrl": "URL на серверот",
+				"topic": "Тема",
+				"accessToken": "Токен за пристап",
+				"appToken": "Токен за апликација",
+				"signingSecret": "Тајна за потпишување",
+				"secretSaved": "Зачувано. Внеси нова за да ја замениш",
+				"secretOptional": "Опционално"
+			}
+		},
+		"workspaceSettings": {
+			"title": "Работен простор",
+			"description": "Поставки за сите во {{name}}.",
+			"thisWorkspace": "овој работен простор",
+			"general": {
+				"title": "Општо",
+				"name": "Име",
+				"description": "Опис",
+				"slug": "Slug: <mono>{{slug}}</mono>",
+				"save": "Зачувај промени"
+			},
+			"manage": {
+				"title": "Управувај",
+				"members": "Членови",
+				"labels": "Етикети"
+			},
+			"danger": {
+				"title": "Опасна зона",
+				"leave": "Напушти го работниот простор",
+				"leaveHint": "Можеш да се вратиш со нова покана",
+				"leaveButton": "Напушти",
+				"delete": "Избриши го работниот простор",
+				"deleteHint": "Ги брише сите проекти и задачи во него"
+			},
+			"confirm": {
+				"deleteTitle": "Да се избрише работниот простор?",
+				"leaveTitle": "Да се напушти работниот простор?",
+				"deleteMessage": "Секој проект, задача и коментар во {{name}} ќе биде трајно избришан.",
+				"leaveMessage": "Ќе изгубиш пристап сè додека некој повторно не те покани."
+			},
+			"toast": {
+				"updated": "Работниот простор е ажуриран",
+				"deleted": "Работниот простор е избришан",
+				"left": "Го напушти работниот простор"
+			}
+		},
+		"members": {
+			"title": "Членови",
+			"description_one": "{{count}} член во {{name}}",
+			"description_other": "{{count}} членови во {{name}}",
+			"thisWorkspace": "овој работен простор",
+			"invite": "Покани",
+			"pending": {
+				"title": "Покани на чекање",
+				"expires": "{{role}}, истекува {{date}}",
+				"manage": "Управувај"
+			},
+			"people": {
+				"title": "Луѓе",
+				"unknown": "Непознат",
+				"you": "(ти)"
+			},
+			"memberMenu": {
+				"fallbackTitle": "Член",
+				"changeRole": "Промени улога",
+				"remove": "Отстрани од работниот простор"
+			},
+			"rolePicker": {
+				"title": "Улога"
+			},
+			"remove": {
+				"title": "Да се отстрани членот?",
+				"message": "{{name}} ќе го изгуби пристапот до {{workspace}}.",
+				"they": "Членот",
+				"confirm": "Отстрани"
+			},
+			"inviteMenu": {
+				"fallbackTitle": "Покана",
+				"resend": "Испрати повторно",
+				"cancel": "Откажи покана"
+			},
+			"inviteForm": {
+				"title": "Покани член",
+				"intro": "Ќе добие е-пошта со врска за да се приклучи на {{workspace}}.",
+				"email": "Е-пошта",
+				"role": "Улога",
+				"send": "Испрати покана"
+			},
+			"toast": {
+				"roleUpdated": "Улогата е ажурирана",
+				"removed": "Членот е отстранет",
+				"resent": "Поканата е повторно испратена",
+				"canceled": "Поканата е откажана",
+				"sent": "Поканата е испратена на {{email}}"
+			}
+		},
+		"labels": {
+			"title": "Етикети",
+			"description": "Етикетите ти помагаат да ги групираш и филтрираш задачите.",
+			"new": "Нова етикета",
+			"edit": "Уреди етикета",
+			"delete": "Избриши етикета",
+			"fallbackTitle": "Етикета",
+			"empty": {
+				"title": "Нема етикети",
+				"message": "Создај етикети за да ги групираш и филтрираш задачите низ проектите."
+			},
+			"actions": "Дејства за {{name}}",
+			"deleteTitle": "Да се избрише „{{name}}“?",
+			"deleteMessage": "Етикетата се отстранува од секоја задача во овој работен простор.",
+			"form": {
+				"name": "Име",
+				"color": "Боја"
+			},
+			"toast": {
+				"deleted": "Етикетата е избришана"
+			}
 		}
 	}
 }
