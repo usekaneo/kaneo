@@ -18,6 +18,7 @@ import {
   sessionTable,
   taskRelationTable,
   taskReminderSentTable,
+  taskShareTable,
   taskTable,
   teamMemberTable,
   teamTable,
@@ -158,6 +159,14 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   targetRelations: many(taskRelationTable, { relationName: "targetTask" }),
   remindersSent: many(taskReminderSentTable),
   customFieldValues: many(customFieldValueTable),
+  share: one(taskShareTable),
+}));
+
+export const taskShareTableRelations = relations(taskShareTable, ({ one }) => ({
+  task: one(taskTable, {
+    fields: [taskShareTable.taskId],
+    references: [taskTable.id],
+  }),
 }));
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({

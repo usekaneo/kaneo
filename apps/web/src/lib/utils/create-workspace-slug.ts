@@ -18,6 +18,7 @@ const RESERVED_WORKSPACE_SLUGS = new Set([
   "onboarding",
   "profile-setup",
   "public-project",
+  "shared-task",
   "test-error",
 ]);
 
