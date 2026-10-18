@@ -68,7 +68,7 @@ jobs:
         run: node scripts/ui-review-bot/code-review/cli.mjs "$PEEKAREVIEW_PR" --output peekareview-report
       - name: Authenticate as Peekareq
         id: bot-token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510
         with:
           client-id: ${{ vars.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
