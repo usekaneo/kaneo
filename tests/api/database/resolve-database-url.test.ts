@@ -176,11 +176,39 @@ describe("resolve-database-url", () => {
   });
 
   it("rejects a DATABASE_POOL_MAX that is not a positive integer", () => {
-    for (const value of ["0", "-1", "2.5", "1e1", "ten", "05"]) {
+    for (const value of [
+      "0",
+      "-1",
+      "2.5",
+      "1e1",
+      "ten",
+      "05",
+      "9007199254740993",
+      "9".repeat(309),
+    ]) {
       process.env.DATABASE_POOL_MAX = value;
       expect(() => resolveDatabasePoolMax()).toThrow(
         "DATABASE_POOL_MAX must be a positive integer",
       );
     }
+  });
+
+  it("includes the pool size in the resolved config and its log metadata", () => {
+    process.env.DATABASE_URL = "postgresql://app:secret@example.com:5433/appdb";
+    process.env.DATABASE_POOL_MAX = "2";
+
+    const config = resolveDatabaseConfig();
+
+    expect(config.poolMax).toBe(2);
+    expect(config.logConfig.poolMax).toBe(2);
+  });
+
+  it("fails config resolution when DATABASE_POOL_MAX is invalid", () => {
+    process.env.DATABASE_URL = "postgresql://app:secret@example.com:5433/appdb";
+    process.env.DATABASE_POOL_MAX = "0";
+
+    expect(() => resolveDatabaseConfig()).toThrow(
+      "DATABASE_POOL_MAX must be a positive integer",
+    );
   });
 });

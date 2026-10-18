@@ -12,12 +12,14 @@ export type ResolvedDatabaseConfig = {
   port: number;
   database: string;
   username: string;
+  poolMax: number;
   logConfig: {
     source: DatabaseConfigSource;
     host: string;
     port: number;
     database: string;
     username: string;
+    poolMax: number;
   };
 };
 
@@ -42,6 +44,7 @@ function toResolvedConfig(
     port: Number(url.port || 5432),
     database: url.pathname.replace(/^\//, ""),
     username: decodeURIComponent(url.username),
+    poolMax: resolveDatabasePoolMax(),
   };
 
   return {
@@ -89,9 +92,10 @@ export function resolveDatabasePoolMax(): number {
     return DEFAULT_POOL_MAX;
   }
 
-  if (!/^[1-9]\d*$/.test(raw)) {
+  const value = Number(raw);
+  if (!/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(value)) {
     throw new Error("DATABASE_POOL_MAX must be a positive integer");
   }
 
-  return Number(raw);
+  return value;
 }

@@ -34,10 +34,7 @@ import {
   workspaceTableRelations,
   workspaceUserTableRelations,
 } from "./relations";
-import {
-  resolveDatabaseConnectionString,
-  resolveDatabasePoolMax,
-} from "./resolve-database-url";
+import { resolveDatabaseConfig } from "./resolve-database-url";
 import {
   dataMigrationTable,
   storageCleanupTable,
@@ -176,13 +173,14 @@ let dbInstance: DatabaseInstance | undefined;
 
 export function getDatabasePool(): Pool {
   if (!pool) {
+    const config = resolveDatabaseConfig();
     pool = new Pool({
-      connectionString: resolveDatabaseConnectionString(),
+      connectionString: config.connectionString,
       // Fail fast when Railway's internal network is slow rather than hanging
       // indefinitely and blocking every API request.
       connectionTimeoutMillis: 5_000,
       idleTimeoutMillis: 30_000,
-      max: resolveDatabasePoolMax(),
+      max: config.poolMax,
     });
   }
 
