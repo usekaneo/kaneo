@@ -4304,7 +4304,11 @@
 				"amber": "Amber",
 				"terracotta": "Terakota",
 				"rose": "Mawar",
-				"crimson": "Merah tua"
+				"crimson": "Merah tua",
+				"ocean": "Biru Laut",
+				"sky": "Biru Langit",
+				"lagoon": "Biru Laguna",
+				"orchid": "Ungu Anggrek"
 			},
 			"role": {
 				"owner": "Pemilik",

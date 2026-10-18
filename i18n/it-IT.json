@@ -4454,7 +4454,11 @@
 				"amber": "Ambra",
 				"terracotta": "Terracotta",
 				"rose": "Rosa",
-				"crimson": "Cremisi"
+				"crimson": "Cremisi",
+				"ocean": "Oceano",
+				"sky": "Cielo",
+				"lagoon": "Laguna",
+				"orchid": "Orchidea"
 			},
 			"role": {
 				"owner": "Proprietario",

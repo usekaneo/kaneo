@@ -4304,7 +4304,11 @@
 				"amber": "Hổ phách",
 				"terracotta": "Đất nung",
 				"rose": "Hồng",
-				"crimson": "Đỏ thẫm"
+				"crimson": "Đỏ thẫm",
+				"ocean": "Xanh đại dương",
+				"sky": "Xanh da trời",
+				"lagoon": "Xanh ngọc",
+				"orchid": "Tím phong lan"
 			},
 			"role": {
 				"owner": "Chủ sở hữu",

@@ -4454,7 +4454,11 @@
 				"amber": "Ambre",
 				"terracotta": "Terre cuite",
 				"rose": "Rose",
-				"crimson": "Cramoisi"
+				"crimson": "Cramoisi",
+				"ocean": "Océan",
+				"sky": "Ciel",
+				"lagoon": "Lagon",
+				"orchid": "Orchidée"
 			},
 			"role": {
 				"owner": "Propriétaire",

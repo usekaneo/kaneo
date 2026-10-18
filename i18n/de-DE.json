@@ -4379,7 +4379,11 @@
 				"amber": "Bernstein",
 				"terracotta": "Terrakotta",
 				"rose": "Rosé",
-				"crimson": "Karmesin"
+				"crimson": "Karmesin",
+				"ocean": "Ozean",
+				"sky": "Himmel",
+				"lagoon": "Lagune",
+				"orchid": "Orchidee"
 			},
 			"role": {
 				"owner": "Eigentümer",

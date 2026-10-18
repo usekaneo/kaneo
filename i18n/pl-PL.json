@@ -4529,7 +4529,11 @@
 				"amber": "Bursztyn",
 				"terracotta": "Terakota",
 				"rose": "Róża",
-				"crimson": "Karmazyn"
+				"crimson": "Karmazyn",
+				"ocean": "Ocean",
+				"sky": "Niebo",
+				"lagoon": "Laguna",
+				"orchid": "Orchidea"
 			},
 			"role": {
 				"owner": "Właściciel",
