@@ -327,12 +327,7 @@ function KanbanBoard({
             {(dragPreview.preview ?? project).columns.map((column) => (
               <div
                 key={column.id}
-                className={cn(
-                  "h-full max-w-96 min-w-[min(20rem,calc(100vw-4.5rem))] shrink-0 flex-1 snap-start",
-                  {
-                    "h-fit": !!background,
-                  },
-                )}
+                className="h-full max-w-96 min-w-[min(20rem,calc(100vw-4.5rem))] shrink-0 flex-1 snap-start"
               >
                 <Column
                   column={column}

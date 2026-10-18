@@ -5,6 +5,7 @@ import db from "../../database";
 import { externalLinkTable, taskTable } from "../../database/schema";
 import { isTaskInFinalState } from "../../plugins/github/services/task-service";
 import { taskMatchesRule } from "../../plugins/sync/eligibility";
+import { isStateSyncPaused } from "../../plugins/sync/state-sync-paused";
 import { providerIssue } from "../../plugins/sync/provider-issue";
 import { isSyncPaused, readSyncRules } from "../../plugins/sync/rules";
 import { getSyncIntegration } from "./get-integration";
@@ -56,13 +57,6 @@ export async function reviewSyncResume(
       message:
         "The task must match the current rule and be paused before resuming",
     });
-  const local = {
-    title: task.title,
-    description: task.description ?? "",
-    state: (await isTaskInFinalState(task, database))
-      ? ("closed" as const)
-      : ("open" as const),
-  };
   let snapshot = providerSnapshot;
   if (!snapshot) {
     try {
@@ -86,6 +80,15 @@ export async function reviewSyncResume(
     title: remoteIssue.title,
     description: remoteIssue.description,
     state: remoteIssue.state,
+  };
+  const local = {
+    title: task.title,
+    description: task.description ?? "",
+    state: isStateSyncPaused(task.status)
+      ? remote.state
+      : (await isTaskInFinalState(task, database))
+        ? ("closed" as const)
+        : ("open" as const),
   };
   const token = createHash("sha256")
     .update(

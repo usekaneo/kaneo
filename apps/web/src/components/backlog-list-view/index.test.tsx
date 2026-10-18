@@ -113,7 +113,10 @@ beforeEach(() => {
   );
   vi.clearAllMocks();
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+});
 
 describe("backlog row lifecycle", () => {
   it("mounts each row once and preserves the other section when collapsing and expanding", () => {
@@ -148,6 +151,23 @@ describe("backlog row lifecycle", () => {
     expect(
       useBacklogBulkSelectionStore.getState().availableTaskIds,
     ).toHaveLength(totalTaskCount);
+  });
+
+  it("keeps collapsed sections after the backlog unmounts", () => {
+    const plannedToggle = () =>
+      screen.getByRole("button", { name: /tasks:backlog.sections.planned/ });
+    const { unmount } = render(<BacklogListView project={project} />, {
+      wrapper: Providers,
+    });
+    fireEvent.click(plannedToggle());
+    // Visiting the board unmounts the backlog.
+    unmount();
+
+    render(<BacklogListView project={project} />, { wrapper: Providers });
+    expect(plannedToggle()).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.getByRole("button", { name: /tasks:backlog.sections.archived/ }),
+    ).toHaveAttribute("aria-expanded", "true");
   });
 
   it("does not render the list again on selection or keyboard focus changes", () => {

@@ -529,7 +529,8 @@
 				"title": "로그인하여 기기 연결",
 				"description": "로그인 후 바로 이곳으로 돌아와 승인할 수 있습니다.",
 				"submit": "로그인"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -3743,6 +3744,814 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"mobile": {
+		"account": {
+			"connection": {
+				"apiKey": "API 키",
+				"appVersion": "앱 버전",
+				"server": "서버",
+				"sessionToken": "세션 토큰",
+				"signedInWith": "로그인 방법",
+				"title": "연결"
+			},
+			"description": "모든 워크스페이스에서 팀원에게 표시되는 정보입니다.",
+			"notifications": {
+				"delivery": "전달 방식 및 이벤트",
+				"deliveryHint": "이메일, ntfy, Gotify, 웹훅",
+				"invitations": "초대",
+				"permissionDenied": "먼저 시스템 설정에서 Kaneo 알림을 허용하세요.",
+				"phone": "휴대폰 알림",
+				"phoneHint": "약 15분마다 확인",
+				"title": "알림"
+			},
+			"password": {
+				"confirm": "새 비밀번호 확인",
+				"confirmPlaceholder": "다시 입력하세요",
+				"current": "현재 비밀번호",
+				"mismatch": "비밀번호가 일치하지 않습니다",
+				"new": "새 비밀번호",
+				"signOutOthers": "다른 기기에서 로그아웃",
+				"title": "비밀번호 변경"
+			},
+			"photoMenu": {
+				"choose": "사진 선택",
+				"remove": "사진 제거"
+			},
+			"profile": {
+				"change": "변경",
+				"changePassword": "비밀번호 변경",
+				"name": "이름",
+				"photo": "프로필 사진",
+				"photoFormats": "PNG, JPG 또는 WebP",
+				"title": "프로필"
+			},
+			"signOut": {
+				"button": "로그아웃",
+				"message": "언제든 다시 로그인할 수 있습니다.",
+				"title": "로그아웃할까요?"
+			},
+			"title": "계정",
+			"toast": {
+				"nameUpdated": "이름이 업데이트되었습니다",
+				"passwordChanged": "비밀번호가 변경되었습니다",
+				"photoRemoved": "사진이 제거되었습니다",
+				"photoUpdated": "사진이 업데이트되었습니다"
+			}
+		},
+		"activity": {
+			"commentedOn": "{{target}}에 댓글을 남김",
+			"empty": "최근 활동이 없습니다",
+			"someone": "누군가",
+			"subtitle": "{{workspace}}의 모든 활동",
+			"title": "활동"
+		},
+		"background": {
+			"channelDescription": "워크스페이스의 할당, 댓글, 멘션",
+			"channelName": "Kaneo 활동",
+			"summary_other": "새 알림 {{count}}개 더 있음"
+		},
+		"board": {
+			"addTask": "작업 추가",
+			"archived": "보관됨",
+			"assignee": "담당자",
+			"assignToMe": "나에게 할당",
+			"back": "뒤로",
+			"board": "보드",
+			"boardView": "보드 보기",
+			"dueDateOverdue_other": "{{date}}, {{count}}일 지남",
+			"filters": "필터",
+			"filterTasks": "작업 필터…",
+			"filterTasksActive": "작업 필터… ({{count}}개 적용 중)",
+			"hideArchived": "보관된 작업 숨기기",
+			"hidePlanned": "계획된 작업 숨기기",
+			"labels": "라벨",
+			"listView": "목록 보기",
+			"me": "나",
+			"memberYou": "{{name}} (나)",
+			"more": "더 보기",
+			"movedTask": "{{ticket}}을(를) {{status}}(으)로 이동했습니다",
+			"moveTo": "이동 위치",
+			"newTask": "새 작업",
+			"noTasksHere": "여기에 작업이 없습니다",
+			"noTasksMatch": "일치하는 작업이 없습니다",
+			"noTasksMatchTheFilters": "필터에 맞는 작업이 없습니다",
+			"noTasksYet": "아직 작업이 없습니다",
+			"nothingPlannedYet": "아직 계획된 작업이 없습니다",
+			"openTask": "작업 열기",
+			"overdueOnly": "마감일이 지난 작업만",
+			"planned": "계획됨",
+			"priority": "우선순위",
+			"projects": "프로젝트",
+			"projectSettings": "프로젝트 설정",
+			"refresh": "새로고침",
+			"reset": "재설정",
+			"searchPeople": "사람 검색",
+			"sendToBottomOfColumn": "컬럼 맨 아래로 이동",
+			"sendToTopOfColumn": "컬럼 맨 위로 이동",
+			"showArchived": "보관된 작업 표시",
+			"showPlanned": "계획된 작업 표시",
+			"showTasks_other": "작업 {{count}}개 표시",
+			"switchProject": "프로젝트 전환",
+			"tasksNotOnTheBoardYet": "아직 보드에 없는 작업",
+			"unassigned": "미할당"
+		},
+		"common": {
+			"cancel": "취소",
+			"close": "닫기",
+			"delete": "삭제",
+			"retry": "다시 시도",
+			"save": "저장",
+			"somethingWrong": "문제가 발생했습니다"
+		},
+		"composer": {
+			"attachImage": "이미지 첨부",
+			"mention": "멘션",
+			"mentionSomeone": "다른 사람 멘션",
+			"placeholder": "댓글 추가…",
+			"reply": "{{name}}님에게 답글…",
+			"searchPeople": "사람 검색",
+			"sendComment": "댓글 보내기"
+		},
+		"editor": {
+			"attachment": "첨부 파일",
+			"bold": "굵게",
+			"boldPlaceholder": "굵게",
+			"code": "코드",
+			"codePlaceholder": "코드",
+			"description": "설명",
+			"heading": "제목",
+			"insertImage": "이미지 삽입",
+			"italic": "기울임꼴",
+			"italicPlaceholder": "기울임꼴",
+			"link": "링크",
+			"linkPlaceholder": "링크",
+			"list": "목록",
+			"nothingToPreview": "미리 볼 내용이 없습니다",
+			"placeholder": "설명 추가… Markdown을 사용할 수 있습니다.",
+			"preview": "미리보기",
+			"write": "작성"
+		},
+		"errors": {
+			"apiKeyRejected": "API 키가 거부되었습니다.",
+			"deviceFailed": "기기 로그인에 실패했습니다(HTTP {{status}}).",
+			"forbidden": "이 작업을 수행할 권한이 없습니다.",
+			"noInstance": "{{url}}에서 Kaneo 인스턴스를 찾을 수 없습니다(HTTP {{status}}).",
+			"noSession": "서버에서 세션을 반환하지 않았습니다. 브라우저에서 로그인해 보세요.",
+			"notFound": "찾을 수 없습니다.",
+			"notKaneo": "{{url}}은(는) Kaneo 서버가 아닌 것 같습니다.",
+			"notSignedIn": "로그인되지 않았습니다",
+			"requestFailed": "요청에 실패했습니다({{status}}).",
+			"serverProblem": "서버에 문제가 발생했습니다({{status}}).",
+			"sessionExpired": "세션이 만료되었습니다. 다시 로그인하세요.",
+			"signInRejected": "서버에서 로그인을 거부했습니다.",
+			"tooManyRequests": "요청이 너무 많습니다. 잠시 기다려 주세요.",
+			"unreachable": "서버에 연결할 수 없습니다. 연결 상태와 서버 주소를 확인하세요.",
+			"uploadFailed": "업로드에 실패했습니다({{status}})"
+		},
+		"home": {
+			"account": "계정",
+			"archived": "보관됨",
+			"due": "마감 {{date}}",
+			"empty": {
+				"message": "프로젝트는 보드와 작업을 모아두는 공간입니다.",
+				"title": "아직 프로젝트가 없습니다"
+			},
+			"hideArchived": "보관된 프로젝트 숨기기",
+			"newProject": "새 프로젝트",
+			"noTasks": "작업 없음",
+			"noWorkspace": {
+				"body": "워크스페이스는 프로젝트와 팀을 모아두는 공간입니다. 새로 만들거나 초대를 수락하세요.",
+				"create": "워크스페이스 만들기",
+				"joinWithLink": "초대 링크로 참여",
+				"signedInAs": "{{email}} 계정으로 로그인됨",
+				"title": "아직 워크스페이스가 없습니다",
+				"viewInvitations_other": "초대 {{count}}개 보기"
+			},
+			"progress": "{{total}}개 중 {{done}}개",
+			"projects": "프로젝트",
+			"search": "검색",
+			"showArchived": "보관된 프로젝트 표시",
+			"switchWorkspace": "워크스페이스 전환",
+			"upNext": "다음 할 일",
+			"viewAll": "모두 보기"
+		},
+		"inbox": {
+			"allCaughtUpToast": "모두 확인했습니다",
+			"clearAll": "모든 알림 지우기",
+			"confirmClear": {
+				"confirm": "모두 지우기",
+				"message": "이 워크스페이스의 모든 알림이 제거됩니다.",
+				"title": "모든 알림을 지우시겠습니까?"
+			},
+			"earlier": "이전",
+			"empty": {
+				"message": "할당, 댓글, 멘션이 여기에 표시됩니다.",
+				"title": "모두 확인했습니다"
+			},
+			"markAllRead": "모두 읽음으로 표시",
+			"more": "더 보기",
+			"recent": "최근",
+			"title": "받은 편지함",
+			"today": "오늘"
+		},
+		"invitations": {
+			"accept": "수락",
+			"accepted": "초대를 수락했습니다",
+			"decline": "거절",
+			"declined": "초대를 거절했습니다",
+			"description": "참여 초대를 받은 워크스페이스입니다.",
+			"emptyMessage": "이메일 주소를 인증하면 초대가 표시됩니다. 이메일의 링크로도 언제든 참여할 수 있습니다.",
+			"emptyTitle": "대기 중인 초대가 없습니다",
+			"invitedYou": "{{name}}님이 초대했습니다",
+			"join": "참여",
+			"joinWithLink": "초대 링크로 참여",
+			"linkPlaceholder": "이메일의 링크 붙여넣기",
+			"title": "초대"
+		},
+		"labels": {
+			"actions": "{{name}} 메뉴",
+			"delete": "라벨 삭제",
+			"deleteMessage": "이 워크스페이스의 모든 작업에서 라벨이 제거됩니다.",
+			"deleteTitle": "“{{name}}”을(를) 삭제할까요?",
+			"description": "라벨로 작업을 분류하고 필터링할 수 있습니다.",
+			"edit": "라벨 편집",
+			"empty": {
+				"message": "라벨을 만들어 여러 프로젝트의 작업을 분류하고 필터링하세요.",
+				"title": "라벨 없음"
+			},
+			"fallbackTitle": "라벨",
+			"form": {
+				"color": "색상",
+				"name": "이름"
+			},
+			"new": "새 라벨",
+			"title": "라벨",
+			"toast": {
+				"deleted": "라벨이 삭제되었습니다"
+			}
+		},
+		"members": {
+			"description_other": "{{name}}의 멤버 {{count}}명",
+			"invite": "초대",
+			"inviteForm": {
+				"email": "이메일",
+				"intro": "{{workspace}} 참여 링크가 담긴 이메일을 받게 됩니다.",
+				"role": "역할",
+				"send": "초대 보내기",
+				"title": "멤버 초대"
+			},
+			"inviteMenu": {
+				"cancel": "초대 취소",
+				"fallbackTitle": "초대",
+				"resend": "초대 다시 보내기"
+			},
+			"memberMenu": {
+				"changeRole": "역할 변경",
+				"fallbackTitle": "멤버",
+				"remove": "워크스페이스에서 제거"
+			},
+			"pending": {
+				"expires": "{{role}}, {{date}} 만료",
+				"manage": "관리",
+				"title": "대기 중인 초대"
+			},
+			"people": {
+				"title": "사람",
+				"unknown": "알 수 없음",
+				"you": "(나)"
+			},
+			"remove": {
+				"confirm": "제거",
+				"message": "{{name}}님이 {{workspace}}에 접근할 수 없게 됩니다.",
+				"they": "이 멤버",
+				"title": "멤버를 제거할까요?"
+			},
+			"rolePicker": {
+				"title": "역할"
+			},
+			"thisWorkspace": "이 워크스페이스",
+			"title": "멤버",
+			"toast": {
+				"canceled": "초대가 취소되었습니다",
+				"removed": "멤버가 제거되었습니다",
+				"resent": "초대를 다시 보냈습니다",
+				"roleUpdated": "역할이 업데이트되었습니다",
+				"sent": "{{email}}(으)로 초대를 보냈습니다"
+			}
+		},
+		"meta": {
+			"labelColor": {
+				"amber": "앰버",
+				"crimson": "크림슨",
+				"forest": "포레스트",
+				"lavender": "라벤더",
+				"rose": "로즈",
+				"sage": "세이지",
+				"slate": "슬레이트",
+				"stone": "스톤",
+				"terracotta": "테라코타"
+			},
+			"priority": {
+				"high": "높음",
+				"low": "낮음",
+				"medium": "보통",
+				"noPriority": "우선순위 없음",
+				"urgent": "긴급"
+			},
+			"role": {
+				"admin": "관리자",
+				"member": "멤버",
+				"owner": "소유자",
+				"viewer": "뷰어"
+			},
+			"roleHint": {
+				"admin": "멤버와 설정 관리도 가능",
+				"member": "작업 생성 및 편집 가능",
+				"owner": "워크스페이스 삭제를 포함한 모든 권한",
+				"viewer": "프로젝트와 작업 보기 가능"
+			}
+		},
+		"myTasks": {
+			"assigned_other": "{{count}}개 할당됨",
+			"by": {
+				"due": "마감일",
+				"project": "프로젝트",
+				"status": "상태"
+			},
+			"due": {
+				"later": "나중에",
+				"none": "마감일 없음",
+				"overdue": "마감일 지남",
+				"thisWeek": "이번 주",
+				"today": "오늘"
+			},
+			"empty": {
+				"message": "이 워크스페이스에서 나에게 할당된 작업이 여기에 표시됩니다.",
+				"title": "할당된 작업이 없습니다"
+			},
+			"showing": "작업 {{total}}개 중 {{shown}}개 표시",
+			"title": "내 작업"
+		},
+		"nav": {
+			"activity": "활동",
+			"home": "홈",
+			"inbox": "받은 편지함",
+			"inboxUnread": "받은 편지함, 읽지 않음 {{count}}개",
+			"tasks": "내 작업"
+		},
+		"notificationSettings": {
+			"channel": {
+				"accessToken": "액세스 토큰",
+				"appToken": "앱 토큰",
+				"enabled": "여기로 알림 보내기",
+				"secretOptional": "선택 사항",
+				"secretSaved": "저장되었습니다. 바꾸려면 새 값을 입력하세요",
+				"serverUrl": "서버 URL",
+				"signingSecret": "서명 시크릿",
+				"topic": "토픽",
+				"webhookUrl": "웹훅 URL"
+			},
+			"delivery": {
+				"email": "이메일",
+				"emailHint": "계정 이메일로 전송",
+				"gotifyHint": "Gotify 서버로 알림 보내기",
+				"ntfyHint": "ntfy 토픽으로 알림 보내기",
+				"title": "전달 방식",
+				"webhook": "웹훅",
+				"webhookHint": "URL로 알림 POST 전송"
+			},
+			"description": "Kaneo의 알림 전달 방식과 알림 받을 내용을 설정하세요.",
+			"events": {
+				"assignments": "할당",
+				"assignmentsHint": "나에게 작업이 할당될 때",
+				"comments": "댓글",
+				"commentsHint": "내 작업에 새 댓글이 달릴 때",
+				"dueDate": "마감일 미리 알림",
+				"dueDateHint": "나에게 할당된 작업의 마감일 전에",
+				"remindBefore": "{{time}} 전",
+				"remindMe": "알림 받기",
+				"remindPickerTitle": "미리 알림 시점",
+				"statusChanges": "상태 변경",
+				"statusChangesHint": "내 작업이 컬럼 간에 이동할 때",
+				"title": "알림 받을 항목"
+			},
+			"leadTime": {
+				"day1": "1일",
+				"days2": "2일",
+				"hour1": "1시간",
+				"hours3": "3시간",
+				"minutes_other": "{{count}}분",
+				"minutes15": "15분",
+				"week1": "1주"
+			},
+			"notSet": "설정되지 않음",
+			"off": "꺼짐",
+			"on": "켜짐",
+			"title": "알림"
+		},
+		"notificationText": {
+			"activity": {
+				"assignedTo": "{{assignee}}에게 할당함",
+				"assigneeChanged": "담당자를 변경함",
+				"commented": "댓글을 남김: {{text}}",
+				"created": "작업을 만듦",
+				"descriptionChanged": "설명을 업데이트함",
+				"dueDateRemoved": "마감일을 제거함",
+				"dueDateSet": "마감일을 {{date}}(으)로 설정함",
+				"priorityChanged": "우선순위를 {{from}}에서 {{to}}(으)로 변경함",
+				"renamed": "이름을 “{{title}}”(으)로 변경함",
+				"selfAssigned": "자신에게 할당함",
+				"statusChanged": "{{from}}에서 {{to}}(으)로 이동함",
+				"taskUpdated": "작업을 업데이트함",
+				"titleChanged": "제목을 변경함",
+				"unassigned": "담당자를 해제함"
+			},
+			"assignedByActor": "{{actor}}님이 나에게 작업을 할당했습니다",
+			"assignedToTask": "“{{title}}” 작업이 할당되었습니다",
+			"assignedToUntitled": "작업이 할당되었습니다",
+			"commentedByActor": "{{actor}}님이 댓글을 남겼습니다",
+			"mentioned": "나를 멘션했습니다",
+			"mentionedByActor": "{{actor}}님이 나를 멘션했습니다",
+			"newComment": "새 댓글",
+			"statusChangedOnTask": "“{{title}}”의 상태가 변경되었습니다",
+			"statusChangedOnUntitled": "작업 상태가 변경되었습니다",
+			"statusTransition": "{{from}}에서 {{to}}(으)로",
+			"taskCreated": "새 작업이 할당되었습니다",
+			"timeLoggedOnTask": "“{{title}}”에 시간이 기록되었습니다",
+			"timeLoggedOnUntitled": "작업에 시간이 기록되었습니다",
+			"workspaceCreated": "“{{name}}” 워크스페이스가 생성되었습니다"
+		},
+		"picker": {
+			"clear": "지우기",
+			"nextMonth": "다음 달",
+			"nextWeek": "다음 주",
+			"previousMonth": "이전 달"
+		},
+		"projectNew": {
+			"createProject": "프로젝트 만들기",
+			"customerPortal": "고객 포털",
+			"key": "키",
+			"name": "이름",
+			"newProject": "새 프로젝트",
+			"usedInTaskIDs": "작업 ID에 사용"
+		},
+		"projectSettings": {
+			"addColumn": "컬럼 추가",
+			"addField": "필드 추가",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "이 프로젝트의 모든 작업, 댓글, 시간 기록이 영구적으로 삭제됩니다.",
+			"androidIOSWeb": "Android, iOS, 웹",
+			"anyoneWithTheLinkCanViewTheBoard": "링크가 있는 누구나 보드를 볼 수 있습니다",
+			"archive": "보관",
+			"archiveProject": "프로젝트 보관",
+			"archiveProjectTitle": "프로젝트를 보관할까요?",
+			"blocked": "차단됨",
+			"changesFutureAndExistingTaskIDs": "새 작업과 기존 작업의 ID가 변경됩니다",
+			"checkbox": "체크박스",
+			"column": "컬럼",
+			"columnDeleted": "컬럼이 삭제되었습니다",
+			"columns": "컬럼",
+			"customFields": "사용자 정의 필드",
+			"date": "날짜",
+			"deleteColumn": "컬럼 삭제",
+			"deleteField": "필드 삭제",
+			"deleteNamedTitle": "“{{name}}”을(를) 삭제할까요?",
+			"deleteProject": "프로젝트 삭제",
+			"deleteProjectTitle": "프로젝트를 삭제할까요?",
+			"doneColumn": "완료 컬럼",
+			"dropdown": "드롭다운",
+			"field": "필드",
+			"fieldDeleted": "필드가 삭제되었습니다",
+			"general": "일반",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "프로젝트 목록에서 사라집니다. 나중에 복원할 수 있습니다.",
+			"key": "키",
+			"markAsDoneColumn": "완료 컬럼으로 지정",
+			"moveDown": "아래로 이동",
+			"moveToAnotherWorkspace": "다른 워크스페이스로 이동",
+			"moveToWorkspace": "워크스페이스로 이동",
+			"moveUp": "위로 이동",
+			"multiSelect": "다중 선택",
+			"name": "이름",
+			"newColumn": "새 컬럼",
+			"newCustomField": "새 사용자 정의 필드",
+			"noCustomFields": "사용자 정의 필드 없음",
+			"number": "숫자",
+			"ok": "확인",
+			"options": "옵션",
+			"platform": "플랫폼",
+			"project": "프로젝트",
+			"projectArchived": "프로젝트가 보관되었습니다",
+			"projectDeleted": "프로젝트가 삭제되었습니다",
+			"projectMoved": "프로젝트가 이동되었습니다",
+			"projectRestored": "프로젝트가 복원되었습니다",
+			"projectSettings": "프로젝트 설정",
+			"projectUpdated": "프로젝트가 업데이트되었습니다",
+			"publicBoard": "공개 보드",
+			"rename": "이름 변경",
+			"renameColumn": "컬럼 이름 변경",
+			"required": "필수",
+			"restoreProject": "프로젝트 복원",
+			"saveChanges": "변경사항 저장",
+			"separateWithCommas": "쉼표로 구분",
+			"tasksHereCountAsFinished": "여기에 있는 작업은 완료로 간주됩니다",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "먼저 이 컬럼의 작업을 이동해야 할 수 있습니다.",
+			"text": "텍스트",
+			"type": "유형",
+			"unmarkAsDoneColumn": "완료 컬럼 지정 해제",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "모든 작업에서 이 필드에 저장된 값이 삭제됩니다.",
+			"checked": "체크됨",
+			"chooseDefault": "기본값 선택",
+			"defaultValue": "기본값",
+			"multiselectOptionsRequired": "서로 다른 옵션을 두 개 이상 추가하세요.",
+			"unchecked": "체크 안 됨",
+			"validDefaultRequired": "이 필수 필드에 유효한 기본값을 입력하세요."
+		},
+		"search": {
+			"clear": "지우기",
+			"commentMeta": "{{name}}, {{when}}",
+			"empty": {
+				"message": "제목이나 번호로 작업을 찾거나 프로젝트와 댓글을 검색하세요.",
+				"title": "이 워크스페이스 검색"
+			},
+			"failed": "검색에 실패했습니다",
+			"kinds": {
+				"all": "전체",
+				"comments": "댓글",
+				"projects": "프로젝트",
+				"tasks": "작업",
+				"activity": "활동"
+			},
+			"noResults": "“{{query}}” 검색 결과가 없습니다",
+			"placeholder": "작업, 프로젝트, 댓글 검색"
+		},
+		"signIn": {
+			"apiKey": {
+				"label": "API 키",
+				"message": "웹의 설정에서 API 키를 선택해 만드세요. 다른 로그인 방법이 꺼져 있어도 사용할 수 있습니다."
+			},
+			"browserHint": "GitHub, Google, Discord 또는 SSO",
+			"captcha": "이 단계는 브라우저 확인이 필요합니다. “브라우저에서 계속”을 이용하세요.",
+			"change": "변경",
+			"cloud": "Kaneo Cloud",
+			"code": {
+				"checkEmail": "이메일을 확인하세요",
+				"didntGet": "받지 못하셨나요?",
+				"message": "이메일로 6자리 코드를 보내드립니다. 비밀번호는 필요 없습니다.",
+				"resend": "코드 다시 보내기",
+				"send": "코드 보내기",
+				"sent": "{{email}}(으)로 6자리 코드를 보냈습니다",
+				"title": "코드로 로그인",
+				"verify": "확인"
+			},
+			"connect": "연결",
+			"continueInBrowser": "브라우저에서 계속",
+			"createAccount": "계정 만들기",
+			"device": {
+				"codeCopied": "코드가 복사되었습니다",
+				"copyCode": "코드 복사",
+				"copyLink": "링크 복사",
+				"denied": "브라우저에서 로그인이 거부되었습니다.",
+				"expired": "로그인 코드가 만료되었습니다. 처음부터 다시 시작해 새 코드를 받으세요.",
+				"gettingCode": "코드 받는 중…",
+				"linkCopied": "링크가 복사되었습니다",
+				"message": "Kaneo 웹사이트에서 이 기기를 승인하세요. GitHub, Google, Discord, SSO를 모두 사용할 수 있습니다.",
+				"openBrowser": "브라우저 열기",
+				"openFailed": "브라우저를 열 수 없습니다. 링크를 복사하세요.",
+				"tryAgain": "다시 시도",
+				"waiting": "승인 대기 중…",
+				"yourCode": "인증 코드"
+			},
+			"email": "이메일",
+			"emailCode": "이메일로 로그인 코드 받기",
+			"invalidClient": "이 서버는 기기 로그인을 허용하지 않습니다. 관리자에게 DEVICE_AUTH_CLIENT_IDS에 “kaneo-cli”를 추가하도록 요청하거나 비밀번호 또는 API 키로 로그인하세요.",
+			"newToKaneo": "Kaneo가 처음이신가요?",
+			"noPassword": "비밀번호가 필요 없습니다",
+			"or": "또는",
+			"password": "비밀번호",
+			"recent": "최근",
+			"selfHosted": "셀프 호스팅",
+			"sendTo": "{{email}}(으)로 보내기",
+			"serverAddress": "서버 주소",
+			"serverAddressHint": "Kaneo에 접속할 때 사용하는 주소입니다. TLS가 없는 서버는 http://를 사용하세요. API가 다른 호스트에서 실행 중이면 API 주소를 입력하세요.",
+			"signIn": "로그인",
+			"signUp": {
+				"name": "이름",
+				"passwordHint": "8자 이상"
+			},
+			"tagline": "간편한 프로젝트 관리. Kaneo Cloud 또는 직접 호스팅한 인스턴스에 연결하세요.",
+			"togglePassword": "비밀번호 표시 전환",
+			"useApiKey": "API 키 사용"
+		},
+		"taskDetail": {
+			"activity": {
+				"comment": "댓글",
+				"deleteMessage": "이 작업은 되돌릴 수 없습니다.",
+				"deleteTitle": "댓글을 삭제할까요?",
+				"edit": "편집",
+				"editComment": "댓글 편집",
+				"edited": "{{time}}, 수정됨",
+				"entry": "{{name}} {{action}}",
+				"title": "활동"
+			},
+			"fields": {
+				"empty": "비어 있음",
+				"none": "없음",
+				"title": "필드"
+			},
+			"links": {
+				"add": "링크 추가",
+				"empty": "링크 없음",
+				"optional": "선택 사항",
+				"remove": "링크 제거",
+				"synced": "동기화됨",
+				"title": "링크",
+				"titleLabel": "제목",
+				"url": "URL"
+			},
+			"menu": {
+				"delete": "작업 삭제",
+				"deleted": "작업이 삭제되었습니다",
+				"deleteMessage": "“{{title}}” 및 해당 댓글이 영구적으로 삭제됩니다.",
+				"deleteTitle": "작업을 삭제할까요?",
+				"duplicate": "복제",
+				"duplicated": "작업이 복제되었습니다",
+				"move": "프로젝트로 이동…",
+				"moved": "작업이 이동되었습니다",
+				"moveTitle": "프로젝트로 이동",
+				"refresh": "새로고침",
+				"share": "공유"
+			},
+			"relations": {
+				"blockedBy": "차단한 작업",
+				"blocks": "차단",
+				"empty": "관련 작업 없음",
+				"link": "작업 연결",
+				"related": "관련",
+				"relatedTo": "관련 작업",
+				"remove": "관계 제거",
+				"removeConfirm": "제거",
+				"removeMessage": "작업은 유지되며 작업 간의 연결만 제거됩니다.",
+				"removeTitle": "관계를 제거할까요?",
+				"searchPlaceholder": "제목 또는 번호로 작업 검색",
+				"title": "관계"
+			},
+			"screen": {
+				"addDescription": "설명 추가…",
+				"copyLink": "링크 복사",
+				"editDescription": "설명 편집",
+				"editTitle": "제목 편집",
+				"linkCopied": "링크가 복사되었습니다",
+				"more": "더 보기"
+			},
+			"section": {
+				"addTo": "{{title}}에 추가"
+			},
+			"someone": "누군가",
+			"status": {
+				"archived": "보관됨",
+				"planned": "계획됨"
+			},
+			"subtasks": {
+				"add": "하위 작업 추가",
+				"empty": "하위 작업 없음",
+				"parent": "상위 작업",
+				"title": "하위 작업"
+			},
+			"time": {
+				"chipHours": "{{count}}시간",
+				"chipMinutes": "{{count}}분",
+				"date": "날짜",
+				"durationHoursMinutes": "{{hours}}시간 {{minutes}}분",
+				"durationMinutes": "{{minutes}}분",
+				"editEntry": "시간 기록 편집",
+				"hoursUnit": "시간",
+				"log": "시간 기록",
+				"logDuration": "{{duration}} 기록",
+				"logged": "시간이 기록되었습니다",
+				"minutesUnit": "분",
+				"notePlaceholder": "어떤 작업을 하셨나요?",
+				"running": "{{time}} (측정 중)",
+				"start": "타이머 시작",
+				"stop": "중지",
+				"title": "시간",
+				"total": "총 {{duration}}"
+			}
+		},
+		"taskFields": {
+			"addNumber": "숫자 추가",
+			"archived": "보관됨",
+			"assignee": "담당자",
+			"createLabel": "“{{name}}” 라벨 만들기",
+			"done": "완료",
+			"doneColumn": "완료 컬럼",
+			"dueDate": "마감일",
+			"empty": "비어 있음",
+			"labelColor": "새 라벨 색상",
+			"labels": "라벨",
+			"noLabels": "아직 라벨이 없습니다. 이름을 입력해 만드세요.",
+			"none": "없음",
+			"overdue_other": "{{date}}, {{count}}일 지남",
+			"planned": "계획됨",
+			"priority": "우선순위",
+			"searchOrCreate": "검색 또는 만들기",
+			"searchPeople": "사람 검색",
+			"startDate": "시작일",
+			"starts": "시작: {{date}}",
+			"status": "상태",
+			"unassigned": "미할당",
+			"you": "{{name}} (나)"
+		},
+		"taskNew": {
+			"create": "만들기",
+			"newSubtask": "새 하위 작업",
+			"noLabels": "이 워크스페이스에는 아직 라벨이 없습니다.",
+			"project": "프로젝트",
+			"taskTitle": "작업 제목",
+			"labelsAndParentFailed": "작업이 생성되었지만 일부 라벨과 상위 작업 연결을 저장하지 못했습니다.",
+			"labelsFailed": "작업이 생성되었지만 일부 라벨을 추가하지 못했습니다.",
+			"parentFailed": "작업이 생성되었지만 상위 작업에 연결하지 못했습니다."
+		},
+		"time": {
+			"durationHoursMinutes": "{{hours}}시간 {{minutes}}분",
+			"goodAfternoon": "좋은 오후예요",
+			"goodEvening": "좋은 저녁이에요",
+			"goodMorning": "좋은 아침이에요",
+			"hours_other": "{{count}}시간",
+			"hoursAgo_other": "{{count}}시간 전",
+			"hoursShort_other": "{{count}}시간",
+			"justNow": "방금",
+			"minutes_other": "{{count}}분",
+			"minutesAgo_other": "{{count}}분 전",
+			"minutesShort_other": "{{count}}분",
+			"now": "지금",
+			"secondsShort_other": "{{count}}초",
+			"today": "오늘",
+			"tomorrow": "내일",
+			"yesterday": "어제"
+		},
+		"ui": {
+			"back": "뒤로",
+			"loadFailed": "불러오지 못했습니다",
+			"nothingMatches": "“{{query}}”와 일치하는 항목이 없습니다",
+			"search": "검색"
+		},
+		"workspaceNew": {
+			"create": "워크스페이스 만들기",
+			"description": "팀의 프로젝트를 모아두는 공간입니다. 다음 단계에서 사람들을 초대할 수 있습니다.",
+			"descriptionLabel": "설명",
+			"descriptionPlaceholder": "이 워크스페이스의 용도는 무엇인가요?",
+			"name": "이름",
+			"namePlaceholder": "디자인 스튜디오",
+			"optional": "선택 사항",
+			"title": "새 워크스페이스"
+		},
+		"workspaceSettings": {
+			"confirm": {
+				"deleteMessage": "{{name}}의 모든 프로젝트, 작업, 댓글이 영구적으로 삭제됩니다.",
+				"deleteTitle": "워크스페이스를 삭제할까요?",
+				"leaveMessage": "다시 초대받을 때까지 접근할 수 없게 됩니다.",
+				"leaveTitle": "워크스페이스에서 나갈까요?"
+			},
+			"danger": {
+				"delete": "워크스페이스 삭제",
+				"deleteHint": "안의 모든 프로젝트와 작업 삭제",
+				"leave": "워크스페이스 나가기",
+				"leaveButton": "나가기",
+				"leaveHint": "새 초대를 받으면 다시 참여할 수 있습니다",
+				"title": "위험 영역"
+			},
+			"description": "{{name}}의 모든 멤버에게 적용되는 설정입니다.",
+			"general": {
+				"description": "설명",
+				"name": "이름",
+				"save": "변경사항 저장",
+				"slug": "슬러그: <mono>{{slug}}</mono>",
+				"title": "일반"
+			},
+			"manage": {
+				"labels": "라벨",
+				"members": "멤버",
+				"title": "관리"
+			},
+			"thisWorkspace": "이 워크스페이스",
+			"title": "워크스페이스",
+			"toast": {
+				"deleted": "워크스페이스가 삭제되었습니다",
+				"left": "워크스페이스에서 나갔습니다",
+				"updated": "워크스페이스가 업데이트되었습니다"
+			}
+		},
+		"workspaceSwitcher": {
+			"create": "워크스페이스 만들기",
+			"invitations": "초대",
+			"labels": "라벨",
+			"members": "멤버",
+			"settings": "워크스페이스 설정",
+			"title": "워크스페이스"
+		},
+		"permissions": {
+			"photos": "Kaneo는 작업과 댓글에 이미지를 첨부하고 프로필 사진을 설정하기 위해 사진을 사용합니다."
 		}
 	}
 }

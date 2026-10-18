@@ -1,5 +1,5 @@
 import type { ImportedColumn } from "@kaneo/importers";
-import { toSlug } from "../../column/controllers/create-column";
+import { toSlug } from "../../column/to-slug";
 import { VIRTUAL_STATUSES } from "../../task/validate-task-fields";
 
 export type PlannedImportColumn = {

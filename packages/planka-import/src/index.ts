@@ -6,6 +6,7 @@ import prompts from "prompts";
 import { DEFAULT_KANEO_URL, HELP_TEXT, parseArgs } from "./args.js";
 import { KaneoClient } from "./kaneo.js";
 import { type BoardReport, type BoardTarget, migrate } from "./migrate.js";
+import { formatWait } from "./retry-after.js";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json") as { version: string };
@@ -108,6 +109,8 @@ async function main(): Promise<number> {
   const kaneo = new KaneoClient({
     baseUrl: args.kaneoUrl ?? DEFAULT_KANEO_URL,
     apiKey: kaneoApiKey ?? "",
+    onRateLimit: (waitMs) =>
+      log(`Kaneo rate limit reached, waiting ${formatWait(waitMs)}…`),
   });
 
   let workspaceId = args.workspace ?? "";
