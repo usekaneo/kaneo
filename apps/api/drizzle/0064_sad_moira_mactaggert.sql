@@ -1,7 +1,7 @@
 CREATE TABLE "task_share" (
 	"task_id" text PRIMARY KEY NOT NULL,
 	"token" text NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
+	"created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
 	CONSTRAINT "task_share_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint

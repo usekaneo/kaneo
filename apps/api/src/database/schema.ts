@@ -581,7 +581,9 @@ export const taskShareTable = pgTable("task_share", {
       onUpdate: "cascade",
     }),
   token: text("token").notNull().unique(),
-  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { mode: "date" })
+    .default(utcNow)
+    .notNull(),
 });
 
 export const billingReminderSentTable = pgTable(

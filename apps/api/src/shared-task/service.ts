@@ -36,8 +36,16 @@ function publicDescription(token: string): SQL<string> {
   for (const tag of PUBLIC_DESCRIPTION_TAGS) {
     result = sql<string>`regexp_replace(${result}, ${`<${tag}[^>]*>`}, '', 'gi')`;
   }
-  const replacement = `\\1shared-task/${token}/asset/\\2`;
-  return sql<string>`regexp_replace(${result}, '(/api/)asset/([A-Za-z0-9_-]+)', ${replacement}, 'g')`;
+  result = sql<string>`regexp_replace(${result}, '<kaneo-mention[^>]*>[^<]*</kaneo-mention>', '', 'gi')`;
+  const replacement = `\\1/api/shared-task/${token}/asset/\\2`;
+  return sql<string>`regexp_replace(${result}, '(^|[\\s"''(])/api/asset/([A-Za-z0-9_-]+)', ${replacement}, 'g')`;
+}
+
+function sharedDescriptionAssetPath(
+  token: string,
+  assetId: string,
+): SQL<string> {
+  return sql<string>`'/api/shared-task/' || ${token} || '/asset/' || ${assetId}`;
 }
 
 export async function getTaskShare(taskId: string) {
@@ -181,6 +189,8 @@ export async function getSharedTaskDescriptionPage(
 
 export async function getSharedTaskImage(token: string, assetId: string) {
   requireToken(token);
+  const description = publicDescription(token);
+  const assetPath = sharedDescriptionAssetPath(token, assetId);
   const [asset] = await db
     .select({
       id: assetTable.id,
@@ -189,6 +199,7 @@ export async function getSharedTaskImage(token: string, assetId: string) {
       filename: assetTable.filename,
     })
     .from(taskShareTable)
+    .innerJoin(taskTable, eq(taskTable.id, taskShareTable.taskId))
     .innerJoin(assetTable, eq(assetTable.taskId, taskShareTable.taskId))
     .where(
       and(
@@ -196,6 +207,7 @@ export async function getSharedTaskImage(token: string, assetId: string) {
         eq(assetTable.id, assetId),
         eq(assetTable.surface, "description"),
         eq(assetTable.kind, "image"),
+        sql`position(${assetPath} in ${description}) > 0`,
       ),
     )
     .limit(1);

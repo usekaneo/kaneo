@@ -194,7 +194,8 @@ describe("API integration: shared tasks", () => {
       .update(schema.taskTable)
       .set({
         description: [
-          `Visible text ![repair](http://localhost:1337/api/asset/${image.id})`,
+          `Visible text ![repair](/api/asset/${image.id})`,
+          `External link https://external.example/api/asset/should-not-rewrite`,
           `<kaneo-attachment url="http://localhost:1337/api/asset/${file.id}" filename="private-invoice.pdf" mime-type="application/pdf" size="12" />`,
           '<kaneo-embed url="https://youtube.example/private" mode="embed" />',
           '<kaneo-issue-link url="https://kaneo.example/private" issue-key="SECRET-1" task-id="secret" />',
@@ -214,6 +215,9 @@ describe("API integration: shared tasks", () => {
     expect(shared.description).not.toContain("private-invoice.pdf");
     expect(shared.description).not.toContain("youtube.example");
     expect(shared.description).not.toContain("SECRET-1");
+    expect(shared.description).toContain(
+      "https://external.example/api/asset/should-not-rewrite",
+    );
     await expect(
       getSharedTaskImage(share.token, image.id),
     ).resolves.toMatchObject({ id: image.id });
@@ -225,6 +229,61 @@ describe("API integration: shared tasks", () => {
     await expect(
       getSharedTaskImage(share.token, commentImage.id),
     ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it("blocks description images removed from the text but still stored on the task", async () => {
+    const { app, managePath, member, project, task } = await setup();
+    const [image] = await db
+      .insert(schema.assetTable)
+      .values({
+        id: "orphaned-description-image",
+        workspaceId: member.workspace.id,
+        projectId: project.id,
+        taskId: task.id,
+        objectKey: "shared/orphan.png",
+        filename: "orphan.png",
+        mimeType: "image/png",
+        size: 12,
+        kind: "image",
+        surface: "description",
+      })
+      .returning();
+    await db
+      .update(schema.taskTable)
+      .set({ description: "No embedded images anymore" })
+      .where(eq(schema.taskTable.id, task.id));
+    const share = (await (
+      await app.request(managePath, { method: "PUT" })
+    ).json()) as { token: string };
+
+    await expect(
+      getSharedTaskImage(share.token, image.id),
+    ).rejects.toMatchObject({ status: 404 });
+    expect(
+      (await app.request(`/api/shared-task/${share.token}/asset/${image.id}`))
+        .status,
+    ).toBe(404);
+  });
+
+  it("strips @mention widgets from shared descriptions", async () => {
+    const { app, managePath, member, task } = await setup();
+    await db
+      .update(schema.taskTable)
+      .set({
+        description: `<kaneo-mention id="${member.user.id}">@${member.user.name}</kaneo-mention> please review`,
+      })
+      .where(eq(schema.taskTable.id, task.id));
+    const share = (await (
+      await app.request(managePath, { method: "PUT" })
+    ).json()) as { token: string };
+    const shared = (await (
+      await app.request(`/api/shared-task/${share.token}`)
+    ).json()) as { description: string };
+    const serialized = JSON.stringify(shared);
+
+    expect(shared.description).toBe(" please review");
+    expect(serialized).not.toContain(member.user.id);
+    expect(serialized).not.toContain(member.user.name);
   });
 
   it("revokes the summary and its images and issues a new token when recreated", async () => {

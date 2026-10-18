@@ -3429,7 +3429,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "now()"
+          "default": "(now() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {},

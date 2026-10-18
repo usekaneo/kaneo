@@ -11,6 +11,7 @@ import {
   buildContentDisposition,
   isSafeInlineAssetType,
 } from "../storage/asset-response";
+import { isMissingObjectError } from "../storage/head-uploaded-object";
 import { getPrivateObject } from "../storage/s3";
 import { descriptionPageSchema } from "../task/response";
 import { requireWorkspacePermission } from "../utils/require-workspace-permission";
@@ -129,7 +130,8 @@ export const publicSharedTask = apiRouter()
       let object: Awaited<ReturnType<typeof getPrivateObject>>;
       try {
         object = await getPrivateObject(asset.objectKey);
-      } catch {
+      } catch (error) {
+        if (!isMissingObjectError(error)) throw error;
         throw new HTTPException(404, { message: "Shared task not found" });
       }
       const contentType = (object.contentType || asset.mimeType)
