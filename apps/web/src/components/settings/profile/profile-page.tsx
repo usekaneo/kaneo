@@ -6,11 +6,13 @@ import { DeleteAccountSection } from "@/components/settings/profile/delete-accou
 import { ProfileDetailsSection } from "@/components/settings/profile/profile-details-section";
 import { useProfileNameAutosave } from "@/components/settings/profile/use-profile-name-autosave";
 import { SettingsPage } from "@/components/settings/settings-page";
+import useManagedProfileFields from "@/hooks/queries/user/use-managed-profile-fields";
 
 export function ProfilePage() {
   const { t } = useTranslation();
   const { user, refetchUser } = useAuth();
   const form = useProfileNameAutosave({ name: user?.name, refetchUser });
+  const managedFields = useManagedProfileFields();
 
   return (
     <>
@@ -24,6 +26,7 @@ export function ProfilePage() {
           form={form}
           user={user ?? undefined}
           refetchUser={refetchUser}
+          managedFields={managedFields}
         />
         <DeleteAccountSection email={user?.email} />
       </SettingsPage>

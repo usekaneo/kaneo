@@ -28,6 +28,8 @@ function config(overrides: Partial<GetConfigResponse> = {}) {
     customOAuthName: null,
     customOAuthAutoLogin: false,
     customOAuthLogoutUrl: null,
+    customOAuthManagedProfileFields: [],
+    customOAuthAccountUrl: null,
     billingEnabled: false,
     ...overrides,
   } satisfies GetConfigResponse;

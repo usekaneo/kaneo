@@ -55,6 +55,7 @@ An unknown path under `/api` returns `404` with `{"message": "Not found", "code"
 | `API_KEY_SCOPE` | 403 | The API key was created with permissions that do not cover the action. `missingPermissions` lists what is missing. |
 | `SESSION_REQUIRED` | 403 | The endpoint needs a signed-in user session and does not accept API keys. This covers account-level actions such as billing, instance administration, and some GitHub setup routes. |
 | `INTEGRATION_AUTH_FAILED` | 401 | A connected service such as GitLab rejected the token in the request, or could not be reached to check it. Your Kaneo session or API key is still valid. |
+| `PROFILE_FIELD_MANAGED_BY_PROVIDER` | 403 | The custom OAuth/OIDC provider manages this profile field for the user, so Kaneo does not change it. Returned by `POST /api/auth/update-user`, `POST /api/auth/admin/update-user`, and `PUT` or `DELETE /api/user/avatar`. See [Managed profile fields](/core/social-providers/custom-oauth#managed-profile-fields). |
 
 `missingPermissions` only names permissions for the route you called in the workspace it targets.
 
@@ -96,6 +97,7 @@ These endpoints follow external standards and keep their own error bodies:
 - **Device authorization.** `/api/auth/device/code` and `/api/auth/device/token` return RFC 8628 errors such as `{"error": "authorization_pending"}` and `{"error": "slow_down"}`. See [Authentication](/api-reference/authentication#poll-for-a-token).
 - **MCP OAuth.** `/api/mcp/register`, `/api/mcp/authorize`, `/api/mcp/authorize/request/{requestId}`, and `/api/mcp/token` return RFC 6749 and RFC 7591 errors shaped as `{"error": "invalid_request", "error_description": "..."}`. The `/api/mcp` endpoint itself answers with `{"error": ...}` bodies, such as `invalid_token`, and MCP protocol messages.
 - **Inbound webhooks.** The GitHub, Gitea, and GitLab webhook receivers are called by those services, not by API clients, and keep their existing responses.
+- **Back-channel logout.** Your identity provider calls `POST /api/auth/oauth2/backchannel-logout/custom`, which answers as OpenID Connect back-channel logout describes: `200` with an empty body, `400` with `{"error": "invalid_request"}` for a missing, invalid, or reused logout token, and `503` with `{"error": "temporarily_unavailable"}` when Kaneo cannot load the provider's discovery document or signing keys. See [Back-channel logout](/core/social-providers/custom-oauth#back-channel-logout).
 
 ## Older instances
 
