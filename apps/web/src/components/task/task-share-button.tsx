@@ -1,13 +1,8 @@
 import { Share2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { HeaderIconButton } from "./header/header-icon-button";
 import TaskShareDialog from "./task-share-dialog";
 
 export default function TaskShareButton({ taskId }: { taskId: string }) {
@@ -19,20 +14,12 @@ export default function TaskShareButton({ taskId }: { taskId: string }) {
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            aria-label={t("tasks:share.action")}
-            className="text-foreground"
-            onClick={() => setOpen(true)}
-          >
-            <Share2 className="size-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>{t("tasks:share.action")}</TooltipContent>
-      </Tooltip>
+      <HeaderIconButton
+        label={t("tasks:share.action")}
+        onClick={() => setOpen(true)}
+      >
+        <Share2 />
+      </HeaderIconButton>
       <TaskShareDialog taskId={taskId} open={open} onOpenChange={setOpen} />
     </>
   );

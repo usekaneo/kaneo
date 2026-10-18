@@ -1,5 +1,4 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import TaskShareButton from "./task-share-button";
 
@@ -14,10 +13,18 @@ vi.mock("@/hooks/use-workspace-permission", () => ({
     isCheckingPermissions: false,
   }),
 }));
-vi.mock("@/components/ui/tooltip", () => ({
-  Tooltip: ({ children }: { children: ReactNode }) => children,
-  TooltipContent: ({ children }: { children: ReactNode }) => children,
-  TooltipTrigger: ({ children }: { children: ReactNode }) => children,
+vi.mock("./header/header-icon-button", () => ({
+  HeaderIconButton: ({
+    label,
+    onClick,
+  }: {
+    label: string;
+    onClick?: () => void;
+  }) => (
+    <button type="button" aria-label={label} onClick={onClick}>
+      share
+    </button>
+  ),
 }));
 vi.mock("./task-share-dialog", () => ({
   default: ({ open }: { open: boolean }) =>
