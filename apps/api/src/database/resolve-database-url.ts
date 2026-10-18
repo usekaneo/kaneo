@@ -1,7 +1,7 @@
 import { resolveFileSecret } from "../utils/file-secret";
+import { resolveDatabasePoolMax } from "./pool-config";
 
 const LOCAL_FALLBACK_CONNECTION_STRING = "postgresql://localhost:5432/kaneo";
-const DEFAULT_POOL_MAX = 10;
 
 type DatabaseConfigSource = "DATABASE_URL" | "POSTGRES_ENV" | "LOCAL_FALLBACK";
 
@@ -84,18 +84,4 @@ export function resolveDatabaseConfig(): ResolvedDatabaseConfig {
 
 export function resolveDatabaseConnectionString(): string {
   return resolveDatabaseConfig().connectionString;
-}
-
-export function resolveDatabasePoolMax(): number {
-  const raw = process.env.DATABASE_POOL_MAX?.trim();
-  if (!raw) {
-    return DEFAULT_POOL_MAX;
-  }
-
-  const value = Number(raw);
-  if (!/^[1-9]\d*$/.test(raw) || !Number.isSafeInteger(value)) {
-    throw new Error("DATABASE_POOL_MAX must be a positive integer");
-  }
-
-  return value;
 }
