@@ -34,7 +34,10 @@ import {
   workspaceTableRelations,
   workspaceUserTableRelations,
 } from "./relations";
-import { resolveDatabaseConnectionString } from "./resolve-database-url";
+import {
+  resolveDatabaseConnectionString,
+  resolveDatabasePoolMax,
+} from "./resolve-database-url";
 import {
   dataMigrationTable,
   storageCleanupTable,
@@ -179,7 +182,7 @@ export function getDatabasePool(): Pool {
       // indefinitely and blocking every API request.
       connectionTimeoutMillis: 5_000,
       idleTimeoutMillis: 30_000,
-      max: 10,
+      max: resolveDatabasePoolMax(),
     });
   }
 

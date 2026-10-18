@@ -41,6 +41,7 @@ Name | Description |
 | `POSTGRES_HOST` | Database hostname for derived configuration. Default: `postgres`; use `localhost` for a host-native API connected to local PostgreSQL. |
 | `POSTGRES_PORT` | Database port for derived configuration. Default: `5432`. |
 | `POSTGRES_PASSWORD_FILE` | Path to a UTF-8 file containing the database password. Used when `POSTGRES_PASSWORD` is unset and Kaneo derives `DATABASE_URL` from `POSTGRES_*`. Set the same file variable on the PostgreSQL container when using the bundled Compose setup; see [Keep secrets in files](/core/installation/docker-compose#keep-secrets-in-files). |
+| `DATABASE_POOL_MAX` | Maximum number of PostgreSQL connections each API process keeps open. Default: `10`. Lower it when the database user has a connection limit, for example on a shared PostgreSQL server; with several API replicas, the limit has to cover all of them. Must be a positive integer, otherwise startup fails. |
 
 ### Authentication
 

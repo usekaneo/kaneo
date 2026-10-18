@@ -5,10 +5,12 @@ import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import {
   resolveDatabaseConfig,
   resolveDatabaseConnectionString,
+  resolveDatabasePoolMax,
 } from "../../../apps/api/src/database/resolve-database-url";
 
 const keys = [
   "DATABASE_URL",
+  "DATABASE_POOL_MAX",
   "POSTGRES_HOST",
   "POSTGRES_PORT",
   "POSTGRES_DB",
@@ -156,5 +158,29 @@ describe("resolve-database-url", () => {
 
     expect(config.logConfig).not.toHaveProperty("password");
     expect(JSON.stringify(config.logConfig)).not.toContain("super-secret");
+  });
+
+  it("defaults the pool size to 10 when DATABASE_POOL_MAX is unset or empty", () => {
+    expect(resolveDatabasePoolMax()).toBe(10);
+
+    process.env.DATABASE_POOL_MAX = " ";
+    expect(resolveDatabasePoolMax()).toBe(10);
+  });
+
+  it("uses DATABASE_POOL_MAX as the pool size", () => {
+    process.env.DATABASE_POOL_MAX = "2";
+    expect(resolveDatabasePoolMax()).toBe(2);
+
+    process.env.DATABASE_POOL_MAX = " 25 ";
+    expect(resolveDatabasePoolMax()).toBe(25);
+  });
+
+  it("rejects a DATABASE_POOL_MAX that is not a positive integer", () => {
+    for (const value of ["0", "-1", "2.5", "1e1", "ten", "05"]) {
+      process.env.DATABASE_POOL_MAX = value;
+      expect(() => resolveDatabasePoolMax()).toThrow(
+        "DATABASE_POOL_MAX must be a positive integer",
+      );
+    }
   });
 });
