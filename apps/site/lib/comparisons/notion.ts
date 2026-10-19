@@ -4,9 +4,9 @@ export const notion: Comparison = {
   slug: "notion",
   competitor: "Notion",
   category: "saas",
-  title: "Open-source Notion alternative for project management",
+  title: "Open-source Notion alternative for managing projects",
   description:
-    "Kaneo is an open-source, self-hostable alternative to Notion for project tracking: real boards, backlog, and workflows instead of databases you have to build yourself.",
+    "Kaneo is an open-source, self-hostable Notion alternative for project tracking: real boards, backlog, and workflows, not databases you build yourself.",
   summary:
     "A real tracker instead of a task database somebody has to maintain.",
   heading: "The open-source Notion alternative for running projects",
