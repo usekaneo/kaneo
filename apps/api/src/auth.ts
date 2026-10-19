@@ -1012,6 +1012,9 @@ export const auth = betterAuth({
             userId,
             idToken,
             accessToken,
+          }).catch((error) => {
+            console.error("Google avatar sync failed:", error);
+            return null;
           });
           if (imageUrl) {
             if (newSession?.user) {

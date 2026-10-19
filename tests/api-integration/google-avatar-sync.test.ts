@@ -132,6 +132,31 @@ describe("syncGoogleAvatar", () => {
     expect(Buffer.from(row.data).equals(PNG_1)).toBe(true);
   });
 
+  it("preserves a custom upload stored in user_avatar before user.image is updated", async () => {
+    const { user } = await createWorkspaceMember();
+    const custom = await saveAvatar({
+      userId: user.id,
+      contentType: "image/png",
+      data: PNG_1.toString("base64"),
+    });
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const result = await syncGoogleAvatar({
+      userId: user.id,
+      pictureUrl: "https://lh3.googleusercontent.com/a/new-google-pic",
+    });
+
+    expect(result).toBeNull();
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    const [row] = await db
+      .select()
+      .from(schema.userAvatarTable)
+      .where(eq(schema.userAvatarTable.userId, user.id));
+    expect(row.id).toBe(custom.id);
+    expect(Buffer.from(row.data).equals(PNG_1)).toBe(true);
+  });
+
   it("falls back to Google userinfo when idToken does not contain a picture claim", async () => {
     const { user } = await createWorkspaceMember();
     const fetchSpy = vi
