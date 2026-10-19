@@ -56,6 +56,7 @@ import { hideInaccessibleInvitationProjects } from "./project-access/hide-inacce
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
+import syncGoogleAvatar from "./user/controllers/sync-google-avatar";
 import { resolveAuthSecret } from "./utils/auth-secret";
 import {
   canSendSignInEmail,
@@ -333,6 +334,9 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      mapProfileToUser: () => ({
+        image: undefined,
+      }),
     },
     discord: {
       clientId: process.env.DISCORD_CLIENT_ID || "",
@@ -969,6 +973,58 @@ export const auth = betterAuth({
               role: ctx.context.session?.user.role ?? null,
             },
           );
+        }
+      }
+
+      const isGoogleCallback =
+        (ctx.path === "/callback/:id" || ctx.path === "/callback/google") &&
+        (ctx.params?.id === "google" || ctx.path === "/callback/google");
+      const isGoogleIdTokenSignIn =
+        ctx.path === "/sign-in/social" &&
+        ctx.body?.provider === "google" &&
+        Boolean(ctx.body?.idToken);
+
+      if (isGoogleCallback || isGoogleIdTokenSignIn) {
+        const newSession = ctx.context.newSession;
+        const location = ctx.context.responseHeaders?.get("location") ?? "";
+        const isErrorRedirect =
+          Boolean(ctx.query?.error) || location.includes("error=");
+        const userId =
+          newSession?.user.id ??
+          (!isErrorRedirect
+            ? (
+                await getSessionFromCtx(ctx, { disableRefresh: true }).catch(
+                  () => null,
+                )
+              )?.user.id
+            : undefined);
+
+        if (userId) {
+          const idToken =
+            typeof ctx.body?.idToken?.token === "string"
+              ? ctx.body.idToken.token
+              : null;
+          const accessToken =
+            typeof ctx.body?.idToken?.accessToken === "string"
+              ? ctx.body.idToken.accessToken
+              : null;
+          const imageUrl = await syncGoogleAvatar({
+            userId,
+            idToken,
+            accessToken,
+          });
+          if (imageUrl) {
+            if (newSession?.user) {
+              newSession.user.image = imageUrl;
+            }
+            const returned = ctx.context.returned as
+              | { user?: { image?: string | null } }
+              | null
+              | undefined;
+            if (returned?.user && typeof returned.user === "object") {
+              returned.user.image = imageUrl;
+            }
+          }
         }
       }
 
