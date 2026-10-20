@@ -1,6 +1,6 @@
 ---
-title: "10 Best Trello Alternatives in 2026 (Free, Open-Source, and Self-Hosted)"
-description: "The best Trello alternatives in 2026, compared on price, free tiers, single sign-on, and self-hosting. Includes open-source kanban boards you can run on your own server for free and hosted tools for teams that outgrew a single board."
+title: "10 Best Trello Alternatives in 2026 (Free and Paid)"
+description: "The best Trello alternatives in 2026, compared on price, free tiers, single sign-on, and self-hosting, from open-source boards to hosted team tools."
 excerpt: "Trello is the easiest board to start with and one of the easiest to outgrow. Here are 10 alternatives, from open-source boards you can host yourself to trackers with a real backlog, and what each one costs."
 date: 2026-10-02
 updatedOn: 2026-10-12

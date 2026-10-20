@@ -35,6 +35,7 @@ export default function Page() {
               description="Tools that people build around Kaneo and share in the open. Each one is made and maintained by its authors, not the Kaneo team."
             />
 
+            <h2 className="sr-only">Community projects</h2>
             <div className="mt-12 grid gap-6 md:grid-cols-2">
               {communityProjects.map((project) => (
                 <CommunityProjectCard key={project.href} project={project} />
@@ -54,6 +55,38 @@ export default function Page() {
                 does, and we will add it here. Review any project before you
                 give it an API key or point it at a production instance.
               </p>
+              <ul className="mt-6 max-w-2xl space-y-3 text-muted-foreground leading-relaxed">
+                <li>
+                  <a
+                    className="font-medium text-foreground underline-offset-4 hover:underline"
+                    href="/docs/api-reference/introduction"
+                  >
+                    Public API
+                  </a>
+                  : create and update tasks, projects, and comments from your
+                  own scripts with a personal API key.
+                </li>
+                <li>
+                  <a
+                    className="font-medium text-foreground underline-offset-4 hover:underline"
+                    href="/docs/core/integrations/mcp"
+                  >
+                    MCP server
+                  </a>
+                  : let Claude, Cursor, and other AI clients read and change
+                  work in your workspace.
+                </li>
+                <li>
+                  <a
+                    className="font-medium text-foreground underline-offset-4 hover:underline"
+                    href="/docs/core/integrations/outgoing-webhooks"
+                  >
+                    Outgoing webhooks
+                  </a>
+                  : post task activity from a project to your own HTTP endpoint
+                  as it happens.
+                </li>
+              </ul>
               <div className="mt-8">
                 <Button
                   variant="outline"

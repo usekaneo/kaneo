@@ -7,7 +7,8 @@ import { withSocialMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = withSocialMetadata({
   title: "Privacy Policy",
-  description: "How Kaneo Cloud collects, uses, and protects your data.",
+  description:
+    "How Kaneo Cloud collects, uses, stores, and protects your data, how long we keep it, and the rights you have over it.",
   alternates: {
     canonical: "/privacy",
   },
