@@ -1,6 +1,6 @@
 ---
-title: "11 Best Jira Alternatives in 2026 (Free and Self-Hosted Options)"
-description: "The best Jira alternatives in 2026, compared on licensing, self-hosting, single sign-on, and price. Includes free open-source options you can run yourself and hosted tools that replace Jira without the admin console."
+title: "11 Best Jira Alternatives in 2026 (Free and Paid)"
+description: "The 11 best Jira alternatives in 2026, hosted and self-hosted, compared on price, single sign-on, and how much administration each one needs."
 excerpt: "Jira can run a 500-person organisation. Most teams do not need that, and pay for it anyway. Here are 11 alternatives that actually replace it, what each one costs, and which of them you can host yourself for free."
 date: 2026-08-18
 updatedOn: 2026-10-12

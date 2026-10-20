@@ -21,13 +21,22 @@ test("sign up, create a workspace with a starter project, and sign in again", as
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByLabel("Workspace name", { exact: true }).fill(workspaceName);
   await page.getByRole("button", { name: "Continue", exact: true }).click();
-
-  // Solo skips the invite step even if SMTP is enabled later.
-  // Click the option card: the radio is sr-only and decorative avatars
-  // intercept pointer events on the hidden input's hit target.
+  await expect(
+    page.getByRole("heading", { name: "Who's it for?", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(page.getByLabel("Project name", { exact: true })).toHaveValue(
+    "My first project",
+  );
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: `${workspaceName} is ready`,
+      exact: true,
+    }),
+  ).toBeVisible();
   await page
-    .locator("label")
-    .filter({ has: page.getByRole("radio", { name: /Just me/ }) })
+    .getByRole("button", { name: `Open ${workspaceName}`, exact: true })
     .click();
   await page.getByRole("button", { name: "Continue", exact: true }).click();
 

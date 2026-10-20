@@ -8,13 +8,14 @@ import { PageIntro } from "@/components/landing/page-intro";
 import { SectionSeparator } from "@/components/landing/section-separator";
 import { getPosts } from "@/lib/blog";
 import { formatBlogDateShort } from "@/lib/blog/format";
-import { guideList, guidePath } from "@/lib/guides";
+import { guidePath } from "@/lib/guides";
+import { guideGroups } from "@/lib/guides/groups";
 import { withSocialMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = withSocialMetadata({
   title: "Guides",
   description:
-    "Practical guides to open-source and self-hosted project management: choosing a tool, self-hosting with Docker, single sign-on, data residency, and AI agents.",
+    "Practical guides to project management: choosing a tool, planning and scheduling a project, agile and kanban basics, and self-hosting your own tracker.",
   alternates: { canonical: "/guides" },
 });
 
@@ -34,12 +35,14 @@ export default function Page() {
           "@context": "https://schema.org",
           "@type": "ItemList",
           name: "Kaneo guides",
-          itemListElement: guideList.map((guide, index) => ({
-            "@type": "ListItem",
-            position: index + 1,
-            name: guide.question,
-            url: `https://kaneo.app${guidePath(guide.slug)}`,
-          })),
+          itemListElement: guideGroups
+            .flatMap((group) => group.guides)
+            .map((guide, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: guide.question,
+              url: `https://kaneo.app${guidePath(guide.slug)}`,
+            })),
         }}
       />
       <Navbar />
@@ -52,20 +55,32 @@ export default function Page() {
               description="The questions people actually ask before choosing a project manager, answered without pretending Kaneo is the answer to all of them."
             />
 
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {guideList.map((guide) => (
-                <ContentCard
-                  body={guide.summary}
-                  href={guidePath(guide.slug)}
-                  key={guide.slug}
-                  meta={[
-                    "Guide",
-                    <time dateTime={guide.updatedOn} key="updated">
-                      Updated {formatBlogDateShort(guide.updatedOn)}
-                    </time>,
-                  ]}
-                  title={guide.question}
-                />
+            <div className="mt-12 space-y-14">
+              {guideGroups.map((group) => (
+                <section aria-labelledby={group.id} key={group.id}>
+                  <h2
+                    className="scroll-mt-24 font-medium text-2xl md:text-3xl"
+                    id={group.id}
+                  >
+                    {group.title}
+                  </h2>
+                  <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {group.guides.map((guide) => (
+                      <ContentCard
+                        body={guide.summary}
+                        href={guidePath(guide.slug)}
+                        key={guide.slug}
+                        meta={[
+                          "Guide",
+                          <time dateTime={guide.updatedOn} key="updated">
+                            Updated {formatBlogDateShort(guide.updatedOn)}
+                          </time>,
+                        ]}
+                        title={guide.question}
+                      />
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </div>

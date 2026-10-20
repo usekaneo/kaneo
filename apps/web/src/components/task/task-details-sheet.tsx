@@ -1,5 +1,11 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AlertDialogCreateHandle } from "@/components/ui/alert-dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { TaskSheetHeader } from "./header/task-sheet-header";
@@ -27,6 +33,7 @@ export default function TaskDetailsSheet({
     taskId,
   );
   const [deleteHandle] = useState(() => AlertDialogCreateHandle());
+  const shownTaskId = useDeferredValue(currentTaskId);
 
   const lastTaskIdRef = useRef(taskId);
 
@@ -47,16 +54,16 @@ export default function TaskDetailsSheet({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleOpenFullPage = useCallback(() => {
-    if (!currentTaskId) return;
+    if (!shownTaskId) return;
     navigate({
       to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
       params: {
         workspaceId,
         projectId,
-        taskId: currentTaskId,
+        taskId: shownTaskId,
       },
     });
-  }, [navigate, workspaceId, projectId, currentTaskId]);
+  }, [navigate, workspaceId, projectId, shownTaskId]);
 
   return (
     <Sheet open={!!taskId} onOpenChange={(open) => !open && onClose()}>
@@ -74,9 +81,9 @@ export default function TaskDetailsSheet({
           ) ?? true
         }
       >
-        {currentTaskId && (
+        {shownTaskId && (
           <TaskSheetHeader
-            taskId={currentTaskId}
+            taskId={shownTaskId}
             projectId={projectId}
             workspaceId={workspaceId}
             deleteHandle={deleteHandle}
@@ -86,36 +93,36 @@ export default function TaskDetailsSheet({
           />
         )}
 
-        {currentTaskId && (
+        {shownTaskId && (
           <TaskShortcuts
-            taskId={currentTaskId}
+            taskId={shownTaskId}
             projectId={projectId}
             workspaceId={workspaceId}
             enabled={Boolean(taskId)}
           />
         )}
-        {currentTaskId && (
+        {shownTaskId && (
           <TaskDeleteDialog
             handle={deleteHandle}
-            taskId={currentTaskId}
+            taskId={shownTaskId}
             onDeleted={onClose}
             shortcutEnabled={Boolean(taskId)}
           />
         )}
-        {currentTaskId && (
+        {shownTaskId && (
           <div
-            key={currentTaskId}
+            key={shownTaskId}
             className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden"
           >
             <div className="min-w-0 flex-1 lg:overflow-y-auto">
               <TaskDetailsContent
-                taskId={currentTaskId}
+                taskId={shownTaskId}
                 projectId={projectId}
                 workspaceId={workspaceId}
                 className="px-5 pt-5 pb-10 lg:px-9 lg:pt-7"
                 properties={
                   <PropertyChips
-                    taskId={currentTaskId}
+                    taskId={shownTaskId}
                     projectId={projectId}
                     workspaceId={workspaceId}
                     className="pb-5 lg:hidden"
@@ -124,7 +131,7 @@ export default function TaskDetailsSheet({
               />
             </div>
             <PropertiesRail
-              taskId={currentTaskId}
+              taskId={shownTaskId}
               projectId={projectId}
               workspaceId={workspaceId}
               className="hidden w-73 shrink-0 overflow-y-auto border-border border-l lg:flex"

@@ -1,10 +1,12 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
   cleanup,
   fireEvent,
-  render,
+  render as renderWithoutClient,
   screen,
 } from "@testing-library/react";
+import type { ReactElement, ReactNode } from "react";
 import {
   afterEach,
   beforeEach,
@@ -19,10 +21,20 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import BacklogTaskRow from "./backlog-task-row";
 
+const testQueryClient = new QueryClient();
+const render = (ui: ReactElement) =>
+  renderWithoutClient(ui, {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={testQueryClient}>
+        {children}
+      </QueryClientProvider>
+    ),
+  });
+
 const { sortableKeyDown } = vi.hoisted(() => ({ sortableKeyDown: vi.fn() }));
 const { useSortable } = vi.hoisted(() => ({
   useSortable: vi.fn((_options: { id: string }) => ({
-    attributes: { role: "button" },
+    attributes: { role: "button", tabIndex: 0 },
     listeners: { onKeyDown: sortableKeyDown },
     setNodeRef: vi.fn(),
     transform: null,
@@ -169,7 +181,8 @@ describe("backlog row subscriptions", () => {
   it("takes keyboard focus when the row is focused", () => {
     render(<BacklogTaskRow task={task} />);
 
-    fireEvent.focus(screen.getByRole("button", { name: /First task/ }));
+    fireEvent.keyDown(document, { key: "Tab" });
+    act(() => screen.getByRole("button", { name: /First task/ }).focus());
 
     expect(useBacklogBulkSelectionStore.getState().focusedTaskId).toBe(task.id);
   });
@@ -223,7 +236,9 @@ describe("backlog row subscriptions", () => {
       "task-1",
     ]);
     expect(
-      screen.getByRole("button", { name: /First task/ }).closest(".ring-2"),
+      screen
+        .getByRole("button", { name: /First task/ })
+        .closest(".ring-board-card-focus"),
     ).not.toBeNull();
 
     useSortable.mockClear();
@@ -234,10 +249,14 @@ describe("backlog row subscriptions", () => {
       useSortable.mock.calls.map(([options]) => options.id).sort(),
     ).toEqual(["task-1", "task-2"]);
     expect(
-      screen.getByRole("button", { name: /First task/ }).closest(".ring-2"),
+      screen
+        .getByRole("button", { name: /First task/ })
+        .closest(".ring-board-card-focus"),
     ).toBeNull();
     expect(
-      screen.getByRole("button", { name: /Second task/ }).closest(".ring-2"),
+      screen
+        .getByRole("button", { name: /Second task/ })
+        .closest(".ring-board-card-focus"),
     ).not.toBeNull();
   });
 

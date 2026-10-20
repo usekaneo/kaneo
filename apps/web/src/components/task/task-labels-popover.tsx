@@ -53,8 +53,35 @@ export default function TaskLabelsPopover({
   workspaceId,
   children,
 }: TaskLabelsPopoverProps) {
-  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const { canUpdateLabels } = useWorkspacePermission();
+
+  if (!canUpdateLabels()) return <>{children}</>;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent className="w-60 p-0" align="start">
+        {open && (
+          <TaskLabelsMenu
+            task={task}
+            workspaceId={workspaceId}
+            onClose={() => setOpen(false)}
+          />
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+type TaskLabelsMenuProps = {
+  task: Task;
+  workspaceId: string;
+  onClose: () => void;
+};
+
+function TaskLabelsMenu({ task, workspaceId, onClose }: TaskLabelsMenuProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [newLabelName, setNewLabelName] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -62,13 +89,10 @@ export default function TaskLabelsPopover({
   const { mutateAsync: attachLabel } = useAttachLabelToTask();
   const { mutateAsync: createLabel } = useCreateLabel();
   const { mutateAsync: detachLabel } = useDetachLabelFromTask();
-  const { canCreateLabels, canUpdateLabels } = useWorkspacePermission();
+  const { canCreateLabels } = useWorkspacePermission();
 
   const { data: taskLabels = [] } = useGetLabelsByTask(task.id);
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(workspaceId);
-
-  if (!canUpdateLabels()) return <>{children}</>;
-
   const name = query.trim();
   const assignedNames = new Set(taskLabels.map((label) => label.name));
   const canCreateLabel =
@@ -110,7 +134,7 @@ export default function TaskLabelsPopover({
 
   const createWithColor = async (color: string) => {
     if (!newLabelName) return;
-    setOpen(false);
+    onClose();
     try {
       const created = await createLabel({
         name: newLabelName,
@@ -147,44 +171,29 @@ export default function TaskLabelsPopover({
       : []),
   ];
 
-  return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (next) return;
-        setQuery("");
-        setNewLabelName(null);
+  return newLabelName === null ? (
+    <OptionMenu
+      key="labels"
+      label={t("tasks:properties.labels")}
+      placeholder={t("tasks:popover.labels.searchPlaceholder")}
+      options={labelOptions}
+      onQueryChange={setQuery}
+      onSelect={(value) => {
+        if (value === CREATE_LABEL) setNewLabelName(name);
+        else void toggleLabel(value);
       }}
-    >
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-60 p-0" align="start">
-        {newLabelName === null ? (
-          <OptionMenu
-            key="labels"
-            label={t("tasks:properties.labels")}
-            placeholder={t("tasks:popover.labels.searchPlaceholder")}
-            options={labelOptions}
-            onQueryChange={setQuery}
-            onSelect={(value) => {
-              if (value === CREATE_LABEL) setNewLabelName(name);
-              else void toggleLabel(value);
-            }}
-          />
-        ) : (
-          <OptionMenu
-            key="colors"
-            label={t("tasks:popover.labels.chooseColor")}
-            placeholder={t("tasks:popover.labels.chooseColor")}
-            options={labelColors.map((color) => ({
-              value: color.value,
-              label: t(`tasks:popover.labels.colors.${color.key}`),
-              icon: <ColorDot color={color.color} />,
-            }))}
-            onSelect={createWithColor}
-          />
-        )}
-      </PopoverContent>
-    </Popover>
+    />
+  ) : (
+    <OptionMenu
+      key="colors"
+      label={t("tasks:popover.labels.chooseColor")}
+      placeholder={t("tasks:popover.labels.chooseColor")}
+      options={labelColors.map((color) => ({
+        value: color.value,
+        label: t(`tasks:popover.labels.colors.${color.key}`),
+        icon: <ColorDot color={color.color} />,
+      }))}
+      onSelect={createWithColor}
+    />
   );
 }

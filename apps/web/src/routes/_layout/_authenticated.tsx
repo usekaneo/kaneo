@@ -3,11 +3,15 @@ import { GlobalShortcuts } from "@/components/shortcuts/global-shortcuts";
 import { useTrackSignup } from "@/hooks/use-track-signup";
 import { useUserWebSocket } from "@/hooks/use-user-websocket";
 import { authClient } from "@/lib/auth-client";
+import { getCachedSession } from "@/lib/cached-session";
 
 // protects all child routes, must be logged in
 export const Route = createFileRoute("/_layout/_authenticated")({
   component: AuthenticatedLayout,
   beforeLoad: async ({ location }) => {
+    const cached = getCachedSession();
+    if (cached) return { session: cached, sessionError: false };
+
     let session = null;
     let sessionError = false;
     try {

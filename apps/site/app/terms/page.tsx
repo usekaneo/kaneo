@@ -7,7 +7,8 @@ import { withSocialMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = withSocialMetadata({
   title: "Terms of Service",
-  description: "The terms that govern your use of Kaneo Cloud.",
+  description:
+    "The terms that govern your use of Kaneo Cloud: accounts, plans and billing, your content, acceptable use, and termination.",
   alternates: {
     canonical: "/terms",
   },

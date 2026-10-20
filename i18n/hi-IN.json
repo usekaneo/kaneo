@@ -535,7 +535,8 @@
 				"title": "अपना डिवाइस कनेक्ट करने के लिए साइन इन करें",
 				"description": "इसे स्वीकृत करने के लिए आप तुरंत यहीं वापस आएँगे।",
 				"submit": "साइन इन करें"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -3117,7 +3118,8 @@
 			"open": "खुला",
 			"label": "पुल अनुरोध",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR"
+			"count_other": "{{count}} PR",
+			"closed": "बंद"
 		},
 		"assignee": {
 			"label": "सौंपा गया",
@@ -3223,7 +3225,6 @@
 			"required": "आवश्यक",
 			"enterKey": "Enter",
 			"toSave": "सहेजने के लिए",
-			"today": "आज",
 			"clear": "साफ़ करें",
 			"setValue": "{{field}} सेट करें…",
 			"noMatches": "कोई मिलता-जुलता विकल्प नहीं",
@@ -3272,6 +3273,28 @@
 			"markdownCopied": "Markdown के रूप में कॉपी हुआ",
 			"copyFailed": "क्लिपबोर्ड पर कॉपी नहीं हो सका।",
 			"pageUrlCopied": "पेज URL कॉपी हुआ"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} दिन देर",
+			"overdueDays_other": "{{count}} दिन देर",
+			"overdueWeeks_one": "{{count}} सप्ताह देर",
+			"overdueWeeks_other": "{{count}} सप्ताह देर",
+			"today": "आज",
+			"tomorrow": "कल",
+			"inDays_one": "{{count}} दिन में",
+			"inDays_other": "{{count}} दिन में",
+			"fullDate": "नियत तिथि {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "नियत तारीख सेट करें…",
+			"startDatePlaceholder": "प्रारंभ तारीख सेट करें…",
+			"datePlaceholder": "तारीख सेट करें…",
+			"thisWeekend": "इस सप्ताहांत",
+			"nextWeek": "अगले सप्ताह",
+			"pickDate": "तारीख चुनें",
+			"startsOn": "शुरुआत: {{date}}",
+			"beforeStart": "{{date}} प्रारंभ तारीख से पहले है",
+			"afterDue": "{{date}} नियत तारीख के बाद है"
 		}
 	},
 	"invitations": {
@@ -3766,6 +3789,829 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"mobile": {
+		"common": {
+			"save": "सहेजें",
+			"cancel": "रद्द करें",
+			"delete": "हटाएँ",
+			"retry": "फिर से कोशिश करें",
+			"somethingWrong": "कुछ गलत हो गया",
+			"close": "बंद करें"
+		},
+		"errors": {
+			"notSignedIn": "साइन इन नहीं है",
+			"unreachable": "सर्वर तक नहीं पहुँच सके। अपना कनेक्शन और सर्वर का पता जाँचें।",
+			"sessionExpired": "आपका सत्र समाप्त हो गया है। कृपया फिर से साइन इन करें।",
+			"forbidden": "आपको ऐसा करने की अनुमति नहीं है।",
+			"notFound": "नहीं मिला।",
+			"tooManyRequests": "बहुत अधिक अनुरोध। कृपया थोड़ा रुकें।",
+			"serverProblem": "सर्वर में कोई समस्या हुई ({{status}})।",
+			"requestFailed": "अनुरोध विफल रहा ({{status}})।",
+			"notKaneo": "{{url}} Kaneo सर्वर नहीं लगता।",
+			"noInstance": "{{url}} पर कोई Kaneo इंस्टेंस नहीं मिला (HTTP {{status}})।",
+			"noSession": "सर्वर ने कोई सत्र नहीं लौटाया। ब्राउज़र से साइन इन करके देखें।",
+			"deviceFailed": "डिवाइस साइन-इन विफल रहा (HTTP {{status}})।",
+			"apiKeyRejected": "यह API कुंजी अस्वीकार कर दी गई।",
+			"signInRejected": "सर्वर ने साइन-इन स्वीकार नहीं किया।",
+			"uploadFailed": "अपलोड विफल रहा ({{status}})"
+		},
+		"signIn": {
+			"tagline": "सरल प्रोजेक्ट प्रबंधन। Kaneo Cloud या अपने खुद के इंस्टेंस से कनेक्ट करें।",
+			"cloud": "Kaneo Cloud",
+			"selfHosted": "सेल्फ़-होस्टेड",
+			"captcha": "इस चरण के लिए यह सर्वर ब्राउज़र जाँच माँगता है। इसके बजाय “ब्राउज़र में जारी रखें” का उपयोग करें।",
+			"invalidClient": "यह सर्वर डिवाइस साइन-इन की अनुमति नहीं देता। इसके एडमिन से DEVICE_AUTH_CLIENT_IDS में “kaneo-cli” जोड़ने को कहें, या पासवर्ड या API कुंजी से साइन इन करें।",
+			"serverAddress": "सर्वर का पता",
+			"serverAddressHint": "वह पता जिस पर आप Kaneo खोलते हैं। बिना TLS वाले सर्वर के लिए http:// का उपयोग करें। अगर API किसी दूसरे होस्ट पर चलता है, तो API का पता डालें।",
+			"connect": "कनेक्ट करें",
+			"recent": "हाल के",
+			"change": "बदलें",
+			"email": "ईमेल",
+			"password": "पासवर्ड",
+			"togglePassword": "पासवर्ड दिखाएँ या छिपाएँ",
+			"signIn": "साइन इन करें",
+			"or": "या",
+			"continueInBrowser": "ब्राउज़र में जारी रखें",
+			"browserHint": "GitHub, Google, Discord या SSO",
+			"emailCode": "मुझे साइन-इन कोड ईमेल करें",
+			"sendTo": "{{email}} पर भेजें",
+			"noPassword": "पासवर्ड की ज़रूरत नहीं",
+			"useApiKey": "API कुंजी का उपयोग करें",
+			"newToKaneo": "Kaneo पर नए हैं?",
+			"createAccount": "खाता बनाएँ",
+			"code": {
+				"title": "कोड से साइन इन करें",
+				"message": "हम आपको 6 अंकों का कोड ईमेल करेंगे। पासवर्ड की ज़रूरत नहीं।",
+				"send": "कोड भेजें",
+				"checkEmail": "अपना ईमेल देखें",
+				"sent": "हमने {{email}} पर 6 अंकों का कोड भेजा है",
+				"verify": "सत्यापित करें",
+				"didntGet": "कोड नहीं मिला?",
+				"resend": "कोड फिर से भेजें"
+			},
+			"device": {
+				"denied": "ब्राउज़र में साइन-इन अस्वीकार कर दिया गया।",
+				"expired": "साइन-इन कोड की समय-सीमा खत्म हो गई। नया कोड पाने के लिए फिर से शुरू करें।",
+				"openFailed": "ब्राउज़र नहीं खुल सका। इसके बजाय लिंक कॉपी करें।",
+				"message": "Kaneo वेबसाइट से इस डिवाइस को स्वीकृत करें। वहाँ GitHub, Google, Discord और SSO सभी काम करते हैं।",
+				"yourCode": "आपका कोड",
+				"copyCode": "कोड कॉपी करें",
+				"codeCopied": "कोड कॉपी हो गया",
+				"copyLink": "लिंक कॉपी करें",
+				"linkCopied": "लिंक कॉपी हो गया",
+				"openBrowser": "ब्राउज़र खोलें",
+				"tryAgain": "फिर से कोशिश करें",
+				"waiting": "स्वीकृति की प्रतीक्षा है…",
+				"gettingCode": "कोड प्राप्त किया जा रहा है…"
+			},
+			"apiKey": {
+				"message": "वेब पर सेटिंग में API कुंजियाँ खोलकर एक कुंजी बनाएँ। यह तब भी काम करती है जब साइन-इन के दूसरे तरीके बंद हों।",
+				"label": "API कुंजी"
+			},
+			"signUp": {
+				"name": "नाम",
+				"passwordHint": "कम से कम 8 अक्षर"
+			}
+		},
+		"invitations": {
+			"accepted": "निमंत्रण स्वीकार किया गया",
+			"declined": "निमंत्रण अस्वीकार किया गया",
+			"title": "निमंत्रण",
+			"description": "वे वर्कस्पेस जिनमें शामिल होने के लिए आपको आमंत्रित किया गया है।",
+			"emptyTitle": "कोई लंबित निमंत्रण नहीं",
+			"emptyMessage": "आपका ईमेल पता सत्यापित होने के बाद निमंत्रण यहाँ दिखते हैं। आप ईमेल में मिले लिंक से कभी भी शामिल हो सकते हैं।",
+			"invitedYou": "{{name}} ने आपको आमंत्रित किया",
+			"decline": "अस्वीकार करें",
+			"accept": "स्वीकार करें",
+			"joinWithLink": "निमंत्रण लिंक से शामिल हों",
+			"linkPlaceholder": "अपने ईमेल से लिंक पेस्ट करें",
+			"join": "शामिल हों"
+		},
+		"taskDetail": {
+			"someone": "कोई",
+			"status": {
+				"planned": "नियोजित",
+				"archived": "संग्रहित"
+			},
+			"section": {
+				"addTo": "{{title}} में जोड़ें"
+			},
+			"fields": {
+				"title": "फ़ील्ड",
+				"empty": "खाली",
+				"none": "कोई नहीं"
+			},
+			"subtasks": {
+				"title": "उप-कार्य",
+				"add": "उप-कार्य जोड़ें",
+				"parent": "मूल कार्य",
+				"empty": "कोई उप-कार्य नहीं"
+			},
+			"relations": {
+				"title": "संबंध",
+				"link": "कार्य लिंक करें",
+				"blocks": "ब्लॉक करता है",
+				"blockedBy": "इसके द्वारा अवरुद्ध",
+				"related": "संबंधित",
+				"relatedTo": "इससे संबंधित",
+				"remove": "संबंध हटाएँ",
+				"empty": "कोई संबंधित कार्य नहीं",
+				"removeTitle": "संबंध हटाएँ?",
+				"removeMessage": "कार्य बने रहेंगे; केवल उनके बीच का लिंक हटेगा।",
+				"removeConfirm": "हटाएँ",
+				"searchPlaceholder": "शीर्षक या नंबर से कार्य खोजें"
+			},
+			"links": {
+				"title": "लिंक",
+				"add": "लिंक जोड़ें",
+				"remove": "लिंक हटाएँ",
+				"synced": "सिंक किया गया",
+				"empty": "कोई लिंक नहीं",
+				"url": "URL",
+				"titleLabel": "शीर्षक",
+				"optional": "वैकल्पिक"
+			},
+			"time": {
+				"title": "समय",
+				"total": "कुल {{duration}}",
+				"log": "समय दर्ज करें",
+				"editEntry": "समय प्रविष्टि संपादित करें",
+				"logged": "समय दर्ज हो गया",
+				"stop": "रोकें",
+				"start": "टाइमर शुरू करें",
+				"running": "{{time}} (चल रहा है)",
+				"hoursUnit": "घं",
+				"minutesUnit": "मि",
+				"chipMinutes": "{{count}} मि",
+				"chipHours": "{{count}} घं",
+				"logDuration": "{{duration}} दर्ज करें",
+				"durationHoursMinutes": "{{hours}} घं {{minutes}} मि",
+				"durationMinutes": "{{minutes}} मि",
+				"date": "तारीख",
+				"notePlaceholder": "आपने किस पर काम किया?"
+			},
+			"activity": {
+				"title": "गतिविधि",
+				"comment": "टिप्पणी",
+				"edit": "संपादित करें",
+				"editComment": "टिप्पणी संपादित करें",
+				"edited": "{{time}}, संपादित",
+				"deleteTitle": "टिप्पणी हटाएँ?",
+				"deleteMessage": "इसे पूर्ववत नहीं किया जा सकता।",
+				"entry": "{{name}} {{action}}"
+			},
+			"menu": {
+				"share": "शेयर करें",
+				"duplicate": "डुप्लिकेट करें",
+				"move": "प्रोजेक्ट में ले जाएँ…",
+				"refresh": "रिफ़्रेश करें",
+				"delete": "कार्य हटाएँ",
+				"moveTitle": "प्रोजेक्ट में ले जाएँ",
+				"duplicated": "कार्य डुप्लिकेट हो गया",
+				"moved": "कार्य ले जाया गया",
+				"deleted": "कार्य हटा दिया गया",
+				"deleteTitle": "कार्य हटाएँ?",
+				"deleteMessage": "“{{title}}” और उसकी टिप्पणियाँ हमेशा के लिए हटा दी जाएँगी।"
+			},
+			"screen": {
+				"copyLink": "लिंक कॉपी करें",
+				"linkCopied": "लिंक कॉपी हो गया",
+				"more": "और",
+				"editTitle": "शीर्षक संपादित करें",
+				"editDescription": "विवरण संपादित करें",
+				"addDescription": "विवरण जोड़ें…"
+			}
+		},
+		"workspaceNew": {
+			"title": "नया वर्कस्पेस",
+			"description": "आपकी टीम के प्रोजेक्ट के लिए एक जगह। इसके बाद आप लोगों को आमंत्रित कर सकते हैं।",
+			"name": "नाम",
+			"namePlaceholder": "डिज़ाइन स्टूडियो",
+			"descriptionLabel": "विवरण",
+			"optional": "वैकल्पिक",
+			"descriptionPlaceholder": "यह वर्कस्पेस किसलिए है?",
+			"create": "वर्कस्पेस बनाएँ"
+		},
+		"taskFields": {
+			"status": "स्थिति",
+			"planned": "नियोजित",
+			"priority": "प्राथमिकता",
+			"assignee": "सौंपा गया",
+			"unassigned": "असाइन नहीं",
+			"startDate": "शुरू की तारीख",
+			"dueDate": "नियत तारीख",
+			"labels": "लेबल",
+			"none": "कोई नहीं",
+			"searchPeople": "लोगों को खोजें",
+			"you": "{{name}} (आप)",
+			"addNumber": "नंबर जोड़ें",
+			"empty": "खाली",
+			"archived": "संग्रहित",
+			"doneColumn": "पूर्ण कॉलम",
+			"starts": "{{date}} से शुरू",
+			"overdue_one": "{{date}}, {{count}} दिन की देरी",
+			"overdue_other": "{{date}}, {{count}} दिन की देरी",
+			"done": "पूर्ण",
+			"searchOrCreate": "खोजें या बनाएँ",
+			"createLabel": "लेबल “{{name}}” बनाएँ",
+			"labelColor": "नए लेबल का रंग",
+			"noLabels": "अभी कोई लेबल नहीं। बनाने के लिए नाम लिखें।"
+		},
+		"taskNew": {
+			"newSubtask": "नया उप-कार्य",
+			"project": "प्रोजेक्ट",
+			"create": "बनाएँ",
+			"taskTitle": "कार्य का शीर्षक",
+			"noLabels": "इस वर्कस्पेस में अभी कोई लेबल नहीं।",
+			"labelsAndParentFailed": "कार्य बनाया गया, लेकिन कुछ लेबल और मूल कार्य का लिंक सहेजा नहीं जा सका।",
+			"labelsFailed": "कार्य बनाया गया, लेकिन कुछ लेबल नहीं जोड़े जा सके।",
+			"parentFailed": "कार्य बनाया गया, लेकिन उसे मूल कार्य से लिंक नहीं किया जा सका।"
+		},
+		"editor": {
+			"description": "विवरण",
+			"placeholder": "विवरण जोड़ें… Markdown काम करता है।",
+			"write": "लिखें",
+			"preview": "पूर्वावलोकन",
+			"nothingToPreview": "पूर्वावलोकन के लिए कुछ नहीं",
+			"bold": "बोल्ड",
+			"italic": "इटैलिक",
+			"heading": "शीर्षक",
+			"list": "सूची",
+			"code": "कोड",
+			"link": "लिंक",
+			"boldPlaceholder": "बोल्ड",
+			"italicPlaceholder": "इटैलिक",
+			"codePlaceholder": "कोड",
+			"linkPlaceholder": "लिंक",
+			"insertImage": "इमेज डालें",
+			"attachment": "अटैचमेंट"
+		},
+		"composer": {
+			"reply": "{{name}} को जवाब दें…",
+			"placeholder": "टिप्पणी जोड़ें…",
+			"mentionSomeone": "किसी का उल्लेख करें",
+			"attachImage": "इमेज अटैच करें",
+			"sendComment": "टिप्पणी भेजें",
+			"mention": "उल्लेख करें",
+			"searchPeople": "लोगों को खोजें"
+		},
+		"board": {
+			"filterTasksActive": "कार्य फ़िल्टर करें… ({{count}} सक्रिय)",
+			"movedTask": "{{ticket}} को {{status}} में ले जाया गया",
+			"showTasks_one": "{{count}} कार्य दिखाएँ",
+			"showTasks_other": "{{count}} कार्य दिखाएँ",
+			"memberYou": "{{name}} (आप)",
+			"dueDateOverdue_one": "{{date}}, {{count}} दिन देर",
+			"dueDateOverdue_other": "{{date}}, {{count}} दिन देर",
+			"projects": "प्रोजेक्ट",
+			"back": "वापस",
+			"boardView": "बोर्ड व्यू",
+			"listView": "सूची व्यू",
+			"more": "और",
+			"switchProject": "प्रोजेक्ट बदलें",
+			"noTasksMatchTheFilters": "फ़िल्टर से कोई कार्य मेल नहीं खाता",
+			"nothingPlannedYet": "अभी कुछ नियोजित नहीं",
+			"noTasksHere": "यहाँ कोई कार्य नहीं",
+			"addTask": "कार्य जोड़ें",
+			"noTasksMatch": "कोई कार्य मेल नहीं खाता",
+			"noTasksYet": "अभी कोई कार्य नहीं",
+			"filters": "फ़िल्टर",
+			"filterTasks": "कार्य फ़िल्टर करें…",
+			"me": "मैं",
+			"newTask": "नया कार्य",
+			"board": "बोर्ड",
+			"projectSettings": "प्रोजेक्ट सेटिंग",
+			"hidePlanned": "नियोजित छिपाएँ",
+			"showPlanned": "नियोजित दिखाएँ",
+			"hideArchived": "संग्रहित छिपाएँ",
+			"showArchived": "संग्रहित दिखाएँ",
+			"refresh": "रिफ़्रेश करें",
+			"planned": "नियोजित",
+			"archived": "संग्रहित",
+			"reset": "रीसेट करें",
+			"assignee": "सौंपा गया",
+			"unassigned": "असाइन नहीं",
+			"priority": "प्राथमिकता",
+			"labels": "लेबल",
+			"overdueOnly": "केवल देर वाले",
+			"tasksNotOnTheBoardYet": "वे कार्य जो अभी बोर्ड पर नहीं हैं",
+			"moveTo": "यहाँ ले जाएँ",
+			"assignToMe": "मुझे असाइन करें",
+			"sendToTopOfColumn": "कॉलम में सबसे ऊपर भेजें",
+			"sendToBottomOfColumn": "कॉलम में सबसे नीचे भेजें",
+			"openTask": "कार्य खोलें",
+			"searchPeople": "लोगों को खोजें"
+		},
+		"projectSettings": {
+			"deleteNamedTitle": "“{{name}}” हटाएँ?",
+			"text": "टेक्स्ट",
+			"number": "नंबर",
+			"date": "तारीख",
+			"checkbox": "चेकबॉक्स",
+			"dropdown": "ड्रॉपडाउन",
+			"multiSelect": "बहु-चयन",
+			"projectUpdated": "प्रोजेक्ट अपडेट हो गया",
+			"project": "प्रोजेक्ट",
+			"projectSettings": "प्रोजेक्ट सेटिंग",
+			"general": "सामान्य",
+			"publicBoard": "सार्वजनिक बोर्ड",
+			"anyoneWithTheLinkCanViewTheBoard": "लिंक वाला कोई भी व्यक्ति बोर्ड देख सकता है",
+			"columns": "कॉलम",
+			"addColumn": "कॉलम जोड़ें",
+			"doneColumn": "पूर्ण कॉलम",
+			"moveUp": "ऊपर ले जाएँ",
+			"moveDown": "नीचे ले जाएँ",
+			"customFields": "कस्टम फ़ील्ड",
+			"addField": "फ़ील्ड जोड़ें",
+			"noCustomFields": "कोई कस्टम फ़ील्ड नहीं",
+			"projectRestored": "प्रोजेक्ट पुनर्स्थापित हो गया",
+			"archiveProjectTitle": "प्रोजेक्ट संग्रहित करें?",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "यह प्रोजेक्ट सूची से हट जाएगा। आप इसे बाद में पुनर्स्थापित कर सकते हैं।",
+			"archive": "संग्रहित करें",
+			"projectArchived": "प्रोजेक्ट संग्रहित हो गया",
+			"restoreProject": "प्रोजेक्ट पुनर्स्थापित करें",
+			"archiveProject": "प्रोजेक्ट संग्रहित करें",
+			"moveToAnotherWorkspace": "दूसरे वर्कस्पेस में ले जाएँ",
+			"deleteProjectTitle": "प्रोजेक्ट हटाएँ?",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "इस प्रोजेक्ट के सभी कार्य, टिप्पणियाँ और समय प्रविष्टियाँ हमेशा के लिए हटा दी जाएँगी।",
+			"projectDeleted": "प्रोजेक्ट हटा दिया गया",
+			"deleteProject": "प्रोजेक्ट हटाएँ",
+			"column": "कॉलम",
+			"rename": "नाम बदलें",
+			"unmarkAsDoneColumn": "पूर्ण कॉलम से हटाएँ",
+			"markAsDoneColumn": "पूर्ण कॉलम के रूप में चिह्नित करें",
+			"deleteColumn": "कॉलम हटाएँ",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "पहले इस कॉलम के कार्यों को कहीं और ले जाना पड़ सकता है।",
+			"columnDeleted": "कॉलम हटा दिया गया",
+			"renameColumn": "कॉलम का नाम बदलें",
+			"field": "फ़ील्ड",
+			"deleteField": "फ़ील्ड हटाएँ",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "इस फ़ील्ड में सहेजे गए मान हर कार्य से हटा दिए जाएँगे।",
+			"fieldDeleted": "फ़ील्ड हटा दिया गया",
+			"moveToWorkspace": "वर्कस्पेस में ले जाएँ",
+			"projectMoved": "प्रोजेक्ट ले जाया गया",
+			"ok": "ठीक है",
+			"name": "नाम",
+			"key": "कुंजी",
+			"changesFutureAndExistingTaskIDs": "मौजूदा और आने वाले कार्यों की ID बदल जाती हैं",
+			"saveChanges": "बदलाव सहेजें",
+			"newColumn": "नया कॉलम",
+			"blocked": "अवरुद्ध",
+			"tasksHereCountAsFinished": "यहाँ के कार्य पूरे माने जाते हैं",
+			"newCustomField": "नया कस्टम फ़ील्ड",
+			"platform": "प्लेटफ़ॉर्म",
+			"type": "प्रकार",
+			"options": "विकल्प",
+			"separateWithCommas": "अल्पविराम से अलग करें",
+			"androidIOSWeb": "Android, iOS, Web",
+			"required": "आवश्यक",
+			"checked": "चेक किया हुआ",
+			"chooseDefault": "डिफ़ॉल्ट मान चुनें",
+			"defaultValue": "डिफ़ॉल्ट मान",
+			"multiselectOptionsRequired": "कम से कम दो अलग-अलग विकल्प जोड़ें।",
+			"unchecked": "चेक नहीं किया हुआ",
+			"validDefaultRequired": "इस आवश्यक फ़ील्ड के लिए एक मान्य डिफ़ॉल्ट मान दर्ज करें।"
+		},
+		"projectNew": {
+			"newProject": "नया प्रोजेक्ट",
+			"name": "नाम",
+			"customerPortal": "ग्राहक पोर्टल",
+			"key": "कुंजी",
+			"usedInTaskIDs": "कार्य ID में उपयोग होती है",
+			"createProject": "प्रोजेक्ट बनाएँ"
+		},
+		"home": {
+			"noWorkspace": {
+				"title": "अभी कोई वर्कस्पेस नहीं",
+				"body": "वर्कस्पेस में आपके प्रोजेक्ट और टीम रहते हैं। एक बनाएँ, या कोई निमंत्रण स्वीकार करें।",
+				"create": "वर्कस्पेस बनाएँ",
+				"viewInvitations_one": "{{count}} निमंत्रण देखें",
+				"viewInvitations_other": "{{count}} निमंत्रण देखें",
+				"joinWithLink": "निमंत्रण लिंक से शामिल हों",
+				"signedInAs": "{{email}} के रूप में साइन इन"
+			},
+			"switchWorkspace": "वर्कस्पेस बदलें",
+			"search": "खोजें",
+			"account": "खाता",
+			"archived": "संग्रहित",
+			"due": "नियत {{date}}",
+			"progress": "{{total}} में से {{done}}",
+			"noTasks": "कोई कार्य नहीं",
+			"upNext": "आगे",
+			"viewAll": "सभी देखें",
+			"projects": "प्रोजेक्ट",
+			"newProject": "नया प्रोजेक्ट",
+			"empty": {
+				"title": "अभी कोई प्रोजेक्ट नहीं",
+				"message": "प्रोजेक्ट में आपके बोर्ड और कार्य रहते हैं।"
+			},
+			"hideArchived": "संग्रहित प्रोजेक्ट छिपाएँ",
+			"showArchived": "संग्रहित प्रोजेक्ट दिखाएँ"
+		},
+		"inbox": {
+			"title": "इनबॉक्स",
+			"markAllRead": "सभी को पढ़ा गया चिह्नित करें",
+			"allCaughtUpToast": "सब देख लिया",
+			"more": "और",
+			"empty": {
+				"title": "आपने सब कुछ देख लिया है",
+				"message": "असाइनमेंट, टिप्पणियाँ और उल्लेख यहाँ दिखते हैं।"
+			},
+			"today": "आज",
+			"earlier": "पहले",
+			"recent": "हाल के",
+			"clearAll": "सभी सूचनाएँ साफ़ करें",
+			"confirmClear": {
+				"title": "सभी सूचनाएँ साफ़ करें?",
+				"message": "इससे इस वर्कस्पेस की हर सूचना हट जाएगी।",
+				"confirm": "सभी साफ़ करें"
+			}
+		},
+		"activity": {
+			"title": "गतिविधि",
+			"subtitle": "{{workspace}} में हो रही हर गतिविधि",
+			"empty": "कोई हाल की गतिविधि नहीं",
+			"someone": "कोई",
+			"commentedOn": "ने {{target}} पर टिप्पणी की"
+		},
+		"myTasks": {
+			"title": "मेरे कार्य",
+			"by": {
+				"due": "नियत तारीख",
+				"project": "प्रोजेक्ट",
+				"status": "स्थिति"
+			},
+			"due": {
+				"overdue": "देर से",
+				"today": "आज",
+				"thisWeek": "इस सप्ताह",
+				"later": "बाद में",
+				"none": "कोई नियत तारीख नहीं"
+			},
+			"empty": {
+				"title": "आपको कुछ असाइन नहीं है",
+				"message": "इस वर्कस्पेस में आपको असाइन किए गए कार्य यहाँ दिखते हैं।"
+			},
+			"showing": "{{total}} में से {{shown}} कार्य दिखाए जा रहे हैं",
+			"assigned_one": "{{count}} असाइन",
+			"assigned_other": "{{count}} असाइन"
+		},
+		"nav": {
+			"home": "होम",
+			"tasks": "मेरे कार्य",
+			"inbox": "इनबॉक्स",
+			"activity": "गतिविधि",
+			"inboxUnread": "इनबॉक्स, {{count}} अपठित"
+		},
+		"workspaceSwitcher": {
+			"title": "वर्कस्पेस",
+			"settings": "वर्कस्पेस सेटिंग",
+			"members": "सदस्य",
+			"labels": "लेबल",
+			"invitations": "निमंत्रण",
+			"create": "वर्कस्पेस बनाएँ"
+		},
+		"search": {
+			"placeholder": "कार्य, प्रोजेक्ट, टिप्पणियाँ खोजें",
+			"clear": "साफ़ करें",
+			"kinds": {
+				"all": "सभी",
+				"tasks": "कार्य",
+				"projects": "प्रोजेक्ट",
+				"comments": "टिप्पणियाँ",
+				"activity": "गतिविधि"
+			},
+			"empty": {
+				"title": "इस वर्कस्पेस में खोजें",
+				"message": "शीर्षक या नंबर से कार्य, प्रोजेक्ट और टिप्पणियाँ खोजें।"
+			},
+			"failed": "खोज विफल रही",
+			"noResults": "“{{query}}” के लिए कोई परिणाम नहीं",
+			"commentMeta": "{{name}}, {{when}}"
+		},
+		"notificationText": {
+			"activity": {
+				"created": "ने कार्य बनाया",
+				"commented": "ने टिप्पणी की: {{text}}",
+				"statusChanged": "ने इसे {{from}} से {{to}} में ले जाया",
+				"priorityChanged": "ने प्राथमिकता {{from}} से {{to}} की",
+				"assigneeChanged": "ने असाइनी बदला",
+				"selfAssigned": "ने इसे खुद को असाइन किया",
+				"assignedTo": "ने इसे {{assignee}} को असाइन किया",
+				"unassigned": "ने असाइनी हटाया",
+				"dueDateSet": "ने नियत तारीख {{date}} तय की",
+				"dueDateRemoved": "ने नियत तारीख हटाई",
+				"renamed": "ने इसका नाम बदलकर “{{title}}” किया",
+				"titleChanged": "ने शीर्षक बदला",
+				"descriptionChanged": "ने विवरण अपडेट किया",
+				"taskUpdated": "ने कार्य अपडेट किया"
+			},
+			"taskCreated": "आपको एक नया कार्य असाइन हुआ",
+			"assignedByActor": "{{actor}} ने आपको एक कार्य असाइन किया",
+			"assignedToTask": "आपको “{{title}}” असाइन किया गया",
+			"assignedToUntitled": "आपको एक कार्य असाइन किया गया",
+			"statusChangedOnTask": "“{{title}}” की स्थिति बदली",
+			"statusChangedOnUntitled": "एक कार्य की स्थिति बदली",
+			"statusTransition": "{{from}} से {{to}}",
+			"commentedByActor": "{{actor}} ने टिप्पणी की",
+			"newComment": "नई टिप्पणी",
+			"mentionedByActor": "{{actor}} ने आपका उल्लेख किया",
+			"mentioned": "आपका उल्लेख किया गया",
+			"timeLoggedOnTask": "“{{title}}” पर समय दर्ज किया गया",
+			"timeLoggedOnUntitled": "एक कार्य पर समय दर्ज किया गया",
+			"workspaceCreated": "वर्कस्पेस “{{name}}” बनाया गया"
+		},
+		"background": {
+			"summary_one": "{{count}} और नई सूचना",
+			"summary_other": "{{count}} और नई सूचनाएँ",
+			"channelName": "Kaneo गतिविधि",
+			"channelDescription": "आपके वर्कस्पेस से असाइनमेंट, टिप्पणियाँ और उल्लेख"
+		},
+		"ui": {
+			"back": "वापस",
+			"loadFailed": "इसे लोड नहीं किया जा सका",
+			"search": "खोजें",
+			"nothingMatches": "“{{query}}” से कुछ मेल नहीं खाता"
+		},
+		"picker": {
+			"clear": "साफ़ करें",
+			"nextWeek": "अगला सप्ताह",
+			"previousMonth": "पिछला महीना",
+			"nextMonth": "अगला महीना"
+		},
+		"time": {
+			"now": "अभी",
+			"justNow": "अभी-अभी",
+			"minutesShort_one": "{{count}} मि",
+			"minutesShort_other": "{{count}} मि",
+			"hoursShort_one": "{{count}} घं",
+			"hoursShort_other": "{{count}} घं",
+			"secondsShort_one": "{{count}} से",
+			"secondsShort_other": "{{count}} से",
+			"minutesAgo_one": "{{count}} मिनट पहले",
+			"minutesAgo_other": "{{count}} मिनट पहले",
+			"hoursAgo_one": "{{count}} घंटा पहले",
+			"hoursAgo_other": "{{count}} घंटे पहले",
+			"durationHoursMinutes": "{{hours}} घं {{minutes}} मि",
+			"goodEvening": "शुभ संध्या",
+			"goodMorning": "सुप्रभात",
+			"goodAfternoon": "शुभ दोपहर",
+			"today": "आज",
+			"tomorrow": "कल",
+			"yesterday": "बीता कल",
+			"minutes_one": "{{count}} मिनट",
+			"minutes_other": "{{count}} मिनट",
+			"hours_one": "{{count}} घंटा",
+			"hours_other": "{{count}} घंटे"
+		},
+		"meta": {
+			"priority": {
+				"noPriority": "कोई प्राथमिकता नहीं",
+				"low": "कम",
+				"medium": "मध्यम",
+				"high": "उच्च",
+				"urgent": "अत्यावश्यक"
+			},
+			"labelColor": {
+				"stone": "पत्थर",
+				"slate": "स्लेटी",
+				"lavender": "लैवेंडर",
+				"sage": "सेज",
+				"forest": "जंगल हरा",
+				"amber": "एम्बर",
+				"terracotta": "टेराकोटा",
+				"rose": "गुलाबी",
+				"crimson": "किरमिजी"
+			},
+			"role": {
+				"owner": "मालिक",
+				"admin": "व्यवस्थापक",
+				"member": "सदस्य",
+				"viewer": "दर्शक"
+			},
+			"roleHint": {
+				"owner": "पूरा नियंत्रण, वर्कस्पेस हटाने सहित",
+				"admin": "सदस्यों और सेटिंग का प्रबंधन भी कर सकते हैं",
+				"member": "कार्य बना और संपादित कर सकते हैं",
+				"viewer": "प्रोजेक्ट और कार्य देख सकते हैं"
+			}
+		},
+		"account": {
+			"title": "खाता",
+			"description": "हर वर्कस्पेस में आपके साथी आपको कैसे देखते हैं।",
+			"profile": {
+				"title": "प्रोफ़ाइल",
+				"photo": "प्रोफ़ाइल फ़ोटो",
+				"photoFormats": "PNG, JPG या WebP",
+				"change": "बदलें",
+				"name": "नाम",
+				"changePassword": "पासवर्ड बदलें"
+			},
+			"notifications": {
+				"title": "सूचनाएँ",
+				"phone": "फ़ोन सूचनाएँ",
+				"phoneHint": "लगभग हर 15 मिनट में जाँच होती है",
+				"delivery": "डिलीवरी और इवेंट",
+				"deliveryHint": "ईमेल, ntfy, Gotify, वेबहुक",
+				"invitations": "निमंत्रण",
+				"permissionDenied": "पहले सिस्टम सेटिंग में Kaneo के लिए सूचनाओं की अनुमति दें।"
+			},
+			"connection": {
+				"title": "कनेक्शन",
+				"server": "सर्वर",
+				"signedInWith": "इससे साइन इन",
+				"apiKey": "API कुंजी",
+				"sessionToken": "सत्र टोकन",
+				"appVersion": "ऐप संस्करण"
+			},
+			"signOut": {
+				"button": "साइन आउट करें",
+				"title": "साइन आउट करें?",
+				"message": "आप कभी भी फिर से साइन इन कर सकते हैं।"
+			},
+			"photoMenu": {
+				"choose": "फ़ोटो चुनें",
+				"remove": "फ़ोटो हटाएँ"
+			},
+			"toast": {
+				"photoUpdated": "फ़ोटो अपडेट हो गई",
+				"photoRemoved": "फ़ोटो हटा दी गई",
+				"nameUpdated": "नाम अपडेट हो गया",
+				"passwordChanged": "पासवर्ड बदल गया"
+			},
+			"password": {
+				"title": "पासवर्ड बदलें",
+				"current": "मौजूदा पासवर्ड",
+				"new": "नया पासवर्ड",
+				"confirm": "नए पासवर्ड की पुष्टि करें",
+				"confirmPlaceholder": "इसे फिर से लिखें",
+				"mismatch": "पासवर्ड मेल नहीं खाते",
+				"signOutOthers": "दूसरे डिवाइस से साइन आउट करें"
+			}
+		},
+		"notificationSettings": {
+			"title": "सूचनाएँ",
+			"description": "Kaneo आपसे कहाँ और किन बातों के बारे में संपर्क करे।",
+			"on": "चालू",
+			"off": "बंद",
+			"notSet": "सेट नहीं",
+			"delivery": {
+				"title": "डिलीवरी",
+				"email": "ईमेल",
+				"emailHint": "आपके खाते के ईमेल पर भेजा जाता है",
+				"ntfyHint": "ntfy टॉपिक पर सूचनाएँ भेजें",
+				"gotifyHint": "Gotify सर्वर पर सूचनाएँ भेजें",
+				"webhook": "वेबहुक",
+				"webhookHint": "किसी URL पर सूचनाएँ POST करें"
+			},
+			"events": {
+				"title": "मुझे सूचित करें",
+				"assignments": "असाइनमेंट",
+				"assignmentsHint": "जब आपको कोई कार्य असाइन हो",
+				"comments": "टिप्पणियाँ",
+				"commentsHint": "आपके कार्यों पर नई टिप्पणियाँ",
+				"statusChanges": "स्थिति में बदलाव",
+				"statusChangesHint": "जब आपके कार्य एक कॉलम से दूसरे में जाएँ",
+				"dueDate": "नियत तारीख के रिमाइंडर",
+				"dueDateHint": "आपको असाइन किए गए कार्य की नियत तारीख से पहले",
+				"remindMe": "मुझे याद दिलाएँ",
+				"remindBefore": "{{time}} पहले",
+				"remindPickerTitle": "इतना पहले याद दिलाएँ"
+			},
+			"leadTime": {
+				"minutes15": "15 मिनट",
+				"hour1": "1 घंटा",
+				"hours3": "3 घंटे",
+				"day1": "1 दिन",
+				"days2": "2 दिन",
+				"week1": "1 सप्ताह",
+				"minutes_one": "{{count}} मिनट",
+				"minutes_other": "{{count}} मिनट"
+			},
+			"channel": {
+				"enabled": "सूचनाएँ यहाँ भेजें",
+				"webhookUrl": "वेबहुक URL",
+				"serverUrl": "सर्वर URL",
+				"topic": "टॉपिक",
+				"accessToken": "एक्सेस टोकन",
+				"appToken": "ऐप टोकन",
+				"signingSecret": "साइनिंग सीक्रेट",
+				"secretSaved": "सहेजा गया। बदलने के लिए नया डालें",
+				"secretOptional": "वैकल्पिक"
+			}
+		},
+		"workspaceSettings": {
+			"title": "वर्कस्पेस",
+			"description": "{{name}} में सभी के लिए सेटिंग।",
+			"thisWorkspace": "यह वर्कस्पेस",
+			"general": {
+				"title": "सामान्य",
+				"name": "नाम",
+				"description": "विवरण",
+				"slug": "स्लग: <mono>{{slug}}</mono>",
+				"save": "बदलाव सहेजें"
+			},
+			"manage": {
+				"title": "प्रबंधन",
+				"members": "सदस्य",
+				"labels": "लेबल"
+			},
+			"danger": {
+				"title": "खतरनाक क्षेत्र",
+				"leave": "वर्कस्पेस छोड़ें",
+				"leaveHint": "नए निमंत्रण से आप फिर से जुड़ सकते हैं",
+				"leaveButton": "छोड़ें",
+				"delete": "वर्कस्पेस हटाएँ",
+				"deleteHint": "इसके सभी प्रोजेक्ट और कार्य हट जाएँगे"
+			},
+			"confirm": {
+				"deleteTitle": "वर्कस्पेस हटाएँ?",
+				"leaveTitle": "वर्कस्पेस छोड़ें?",
+				"deleteMessage": "{{name}} का हर प्रोजेक्ट, कार्य और टिप्पणी हमेशा के लिए हटा दी जाएगी।",
+				"leaveMessage": "जब तक कोई आपको फिर से आमंत्रित नहीं करता, आपकी पहुँच नहीं रहेगी।"
+			},
+			"toast": {
+				"updated": "वर्कस्पेस अपडेट हो गया",
+				"deleted": "वर्कस्पेस हटा दिया गया",
+				"left": "आपने वर्कस्पेस छोड़ दिया"
+			}
+		},
+		"members": {
+			"title": "सदस्य",
+			"description_one": "{{name}} में {{count}} व्यक्ति",
+			"description_other": "{{name}} में {{count}} लोग",
+			"thisWorkspace": "यह वर्कस्पेस",
+			"invite": "आमंत्रित करें",
+			"pending": {
+				"title": "लंबित निमंत्रण",
+				"expires": "{{role}}, {{date}} को समाप्त",
+				"manage": "प्रबंधित करें"
+			},
+			"people": {
+				"title": "लोग",
+				"unknown": "अज्ञात",
+				"you": "(आप)"
+			},
+			"memberMenu": {
+				"fallbackTitle": "सदस्य",
+				"changeRole": "भूमिका बदलें",
+				"remove": "वर्कस्पेस से हटाएँ"
+			},
+			"rolePicker": {
+				"title": "भूमिका"
+			},
+			"remove": {
+				"title": "सदस्य हटाएँ?",
+				"message": "{{name}} की {{workspace}} तक पहुँच खत्म हो जाएगी।",
+				"they": "इस सदस्य",
+				"confirm": "हटाएँ"
+			},
+			"inviteMenu": {
+				"fallbackTitle": "निमंत्रण",
+				"resend": "निमंत्रण फिर से भेजें",
+				"cancel": "निमंत्रण रद्द करें"
+			},
+			"inviteForm": {
+				"title": "सदस्य आमंत्रित करें",
+				"intro": "उन्हें {{workspace}} में शामिल होने के लिंक के साथ एक ईमेल मिलेगा।",
+				"email": "ईमेल",
+				"role": "भूमिका",
+				"send": "निमंत्रण भेजें"
+			},
+			"toast": {
+				"roleUpdated": "भूमिका अपडेट हो गई",
+				"removed": "सदस्य हटा दिया गया",
+				"resent": "निमंत्रण फिर से भेजा गया",
+				"canceled": "निमंत्रण रद्द किया गया",
+				"sent": "{{email}} को निमंत्रण भेजा गया"
+			}
+		},
+		"labels": {
+			"title": "लेबल",
+			"description": "लेबल से आप कार्यों को समूहित और फ़िल्टर कर सकते हैं।",
+			"new": "नया लेबल",
+			"edit": "लेबल संपादित करें",
+			"delete": "लेबल हटाएँ",
+			"fallbackTitle": "लेबल",
+			"empty": {
+				"title": "कोई लेबल नहीं",
+				"message": "सभी प्रोजेक्ट में कार्यों को समूहित और फ़िल्टर करने के लिए लेबल बनाएँ।"
+			},
+			"actions": "{{name}} के लिए कार्रवाइयाँ",
+			"deleteTitle": "“{{name}}” हटाएँ?",
+			"deleteMessage": "यह लेबल इस वर्कस्पेस के हर कार्य से हटा दिया जाएगा।",
+			"form": {
+				"name": "नाम",
+				"color": "रंग"
+			},
+			"toast": {
+				"deleted": "लेबल हटा दिया गया"
+			}
+		},
+		"permissions": {
+			"photos": "Kaneo आपकी फ़ोटो का उपयोग कार्यों और टिप्पणियों में चित्र जोड़ने और आपकी प्रोफ़ाइल फ़ोटो के लिए करता है।"
 		}
 	}
 }

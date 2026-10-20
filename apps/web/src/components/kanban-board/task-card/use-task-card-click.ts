@@ -1,5 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
+import { isOwnDomEvent } from "@/lib/is-own-dom-event";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
@@ -17,7 +18,7 @@ export function useTaskCardClick(task: Task) {
   );
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
-    if (!project || !task || !workspace) return;
+    if (!project || !task || !workspace || !isOwnDomEvent(e)) return;
 
     if (e.shiftKey) {
       e.preventDefault();
