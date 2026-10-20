@@ -1,3 +1,4 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { useTranslation } from "react-i18next";
 import type { SettingsBreadcrumb } from "@/components/settings/nav/get-settings-breadcrumb";
 import {
@@ -7,7 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { KbdSequence } from "@/components/ui/kbd";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -15,7 +15,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
 
 type SettingsHeaderProps = {
   breadcrumb: SettingsBreadcrumb | null;
@@ -34,9 +33,7 @@ export function SettingsHeader({ breadcrumb }: SettingsHeaderProps) {
           <TooltipContent>
             <p className="flex items-center gap-2 text-[10px]">
               {t("navigation:settingsLayout.toggleSidebar")}
-              <KbdSequence
-                keys={[shortcuts.sidebar.prefix, shortcuts.sidebar.toggle]}
-              />
+              <ShortcutKeys id="toggleSidebar" />
             </p>
           </TooltipContent>
         </Tooltip>

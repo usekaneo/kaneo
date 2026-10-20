@@ -496,6 +496,16 @@ it("refreshes workspace label filters when a remote project event changes labels
   });
 });
 
+it("refreshes the project's column list when a remote project event arrives", async () => {
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("PROJECT_UPDATED", {});
+  await vi.waitFor(() =>
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["columns", "p"],
+    }),
+  );
+});
+
 it("refreshes task link details when a project event explicitly changes links", async () => {
   renderHook(() => useProjectWebSocket("p"));
   Socket.current.message("PROJECT_UPDATED", { linksChanged: true });

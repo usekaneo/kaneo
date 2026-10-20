@@ -2,10 +2,12 @@ import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod/v4";
-import { AuthLayout } from "@/components/auth/layout";
+import { authMessageClassName } from "@/components/auth/auth-form-styles";
+import { authLinkClassName } from "@/components/auth/auth-link-class";
+import { AuthPage } from "@/components/auth/auth-page";
+import { PasswordInput } from "@/components/auth/password-input";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 
@@ -61,95 +63,116 @@ function ResetPassword() {
     }
   };
 
-  return (
-    <>
-      <PageTitle title={t("auth:passwordReset.resetTitle")} />
-      <AuthLayout
-        title={t("auth:passwordReset.resetTitle")}
-        subtitle={t("auth:passwordReset.resetSubtitle")}
-      >
-        <div className="space-y-4 mt-4">
-          {success ? (
-            <p role="status" className="text-sm text-muted-foreground">
-              {t("auth:passwordReset.success")}
-            </p>
-          ) : invalidLink ? (
-            <>
-              <p role="alert" className="text-sm text-destructive">
-                {t("auth:passwordReset.invalidLink")}
-              </p>
-              <Button
-                render={<Link to="/auth/forgot-password" />}
-                className="w-full"
-              >
-                {t("auth:passwordReset.requestNewLink")}
-              </Button>
-            </>
-          ) : (
-            <form onSubmit={onSubmit} className="space-y-3">
-              <div className="space-y-2">
-                <Label htmlFor="new-password">
-                  {t("auth:passwordReset.newPassword")}
-                </Label>
-                <Input
-                  id="new-password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  maxLength={128}
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  disabled={isPending}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">
-                  {t("auth:passwordReset.confirmPassword")}
-                </Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  maxLength={128}
-                  value={confirmation}
-                  onChange={(event) => setConfirmation(event.target.value)}
-                  disabled={isPending}
-                  aria-describedby={error ? "reset-error" : undefined}
-                />
-              </div>
-              {error && (
-                <p
-                  id="reset-error"
-                  role="alert"
-                  className="text-sm text-destructive"
-                >
-                  {error}
-                </p>
-              )}
-              <Button
-                type="submit"
-                size="sm"
-                className="w-full"
-                disabled={isPending}
-              >
-                {isPending
-                  ? t("auth:passwordReset.resetting")
-                  : t("auth:passwordReset.resetPassword")}
-              </Button>
-            </form>
-          )}
+  if (success) {
+    return (
+      <>
+        <PageTitle title={t("auth:passwordReset.resetTitle")} />
+        <AuthPage
+          title={t("auth:passwordReset.successTitle")}
+          description={
+            <span role="status">{t("auth:passwordReset.success")}</span>
+          }
+        >
           <Button
-            variant="ghost"
+            size="lg"
+            className="w-full"
             render={<Link to="/auth/sign-in" />}
-            className="w-full text-muted-foreground"
           >
             {t("auth:passwordReset.backToSignIn")}
           </Button>
-        </div>
-      </AuthLayout>
+        </AuthPage>
+      </>
+    );
+  }
+
+  if (invalidLink) {
+    return (
+      <>
+        <PageTitle title={t("auth:passwordReset.resetTitle")} />
+        <AuthPage
+          title={t("auth:passwordReset.invalidLinkTitle")}
+          description={
+            <span role="alert">{t("auth:passwordReset.invalidLink")}</span>
+          }
+        >
+          <Button
+            size="lg"
+            className="w-full"
+            render={<Link to="/auth/forgot-password" />}
+          >
+            {t("auth:passwordReset.requestNewLink")}
+          </Button>
+          <p className="pt-8 text-muted-foreground text-sm">
+            <Link to="/auth/sign-in" className={authLinkClassName}>
+              {t("auth:passwordReset.backToSignIn")}
+            </Link>
+          </p>
+        </AuthPage>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <PageTitle title={t("auth:passwordReset.resetTitle")} />
+      <AuthPage
+        title={t("auth:passwordReset.resetTitle")}
+        description={t("auth:passwordReset.resetDescription")}
+      >
+        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="new-password">
+              {t("auth:passwordReset.newPassword")}
+            </Label>
+            <PasswordInput
+              id="new-password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              maxLength={128}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              disabled={isPending}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="confirm-password">
+              {t("auth:passwordReset.confirmPassword")}
+            </Label>
+            <PasswordInput
+              id="confirm-password"
+              autoComplete="new-password"
+              required
+              minLength={8}
+              maxLength={128}
+              value={confirmation}
+              onChange={(event) => setConfirmation(event.target.value)}
+              disabled={isPending}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "reset-error" : undefined}
+            />
+            {error ? (
+              <p id="reset-error" role="alert" className={authMessageClassName}>
+                {error}
+              </p>
+            ) : null}
+          </div>
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            loading={isPending}
+          >
+            {t("auth:passwordReset.updatePassword")}
+          </Button>
+        </form>
+        <p className="pt-8 text-muted-foreground text-sm">
+          {t("auth:passwordReset.changedMind")}{" "}
+          <Link to="/auth/sign-in" className={authLinkClassName}>
+            {t("auth:passwordReset.backToSignIn")}
+          </Link>
+        </p>
+      </AuthPage>
     </>
   );
 }

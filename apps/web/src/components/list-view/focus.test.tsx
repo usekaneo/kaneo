@@ -1,9 +1,22 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { ProjectWithTasks } from "@/types/project";
 import ListView from ".";
 
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
+function Providers({ children }: { children: ReactNode }) {
+  return (
+    <QueryClientProvider client={new QueryClient()}>
+      {children}
+    </QueryClientProvider>
+  );
+}
+
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn(),
+  useRouter: () => ({ preloadRoute: () => Promise.resolve() }),
+}));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
@@ -45,7 +58,7 @@ vi.mock("./task-row", () => ({
     rowId: string;
     childCount: number;
     isExpanded: boolean;
-    onToggleExpanded: () => void;
+    onToggleExpanded: (rowId: string) => void;
   }) => (
     <div>
       {rowId}
@@ -54,7 +67,7 @@ vi.mock("./task-row", () => ({
           type="button"
           aria-label={`Toggle ${rowId}`}
           aria-expanded={isExpanded}
-          onClick={onToggleExpanded}
+          onClick={() => onToggleExpanded(rowId)}
         >
           Toggle
         </button>
@@ -89,7 +102,7 @@ afterEach(() => {
 
 describe("ListView focus", () => {
   it("retains the focused toggle when expanding and collapsing parent and nested rows", () => {
-    render(<ListView project={project} />);
+    render(<ListView project={project} />, { wrapper: Providers });
 
     for (const rowId of ["parent", "parent/child"]) {
       const toggle = screen.getByRole("button", { name: `Toggle ${rowId}` });
@@ -111,7 +124,7 @@ describe("ListView focus", () => {
   });
 
   it("retains header focus when collapsing and expanding a status group", () => {
-    render(<ListView project={project} />);
+    render(<ListView project={project} />, { wrapper: Providers });
     const header = screen.getByRole("button", { name: /^To Do/ });
     header.focus();
 

@@ -229,16 +229,22 @@ describe("WorkspaceManagementPanel", () => {
   it("lists workspaces with their owners and counts", () => {
     render(<WorkspaceManagementPanel />);
 
-    const acmeRow = screen.getByText("Acme").closest("tr") as HTMLElement;
+    const acmeRow = screen
+      .getByText("Acme")
+      .closest('[role="row"]') as HTMLElement;
     expect(within(acmeRow).getByText("acme-inc")).toBeTruthy();
-    expect(within(acmeRow).getByText("Ada Lovelace")).toBeTruthy();
+    expect(within(acmeRow).getAllByText("Ada Lovelace").length).toBeGreaterThan(
+      0,
+    );
     expect(within(acmeRow).getByText("2")).toBeTruthy();
     expect(within(acmeRow).getByText("4")).toBeTruthy();
 
-    const orphanRow = screen.getByText("Orphaned").closest("tr") as HTMLElement;
+    const orphanRow = screen
+      .getByText("Orphaned")
+      .closest('[role="row"]') as HTMLElement;
     expect(
-      within(orphanRow).getByText("settings:adminWorkspaces.noOwner"),
-    ).toBeTruthy();
+      within(orphanRow).getAllByText("settings:adminWorkspaces.noOwner").length,
+    ).toBeGreaterThan(0);
   });
 
   it("shows the empty state when nothing matches", () => {
@@ -248,13 +254,34 @@ describe("WorkspaceManagementPanel", () => {
     expect(
       screen.getByText("settings:adminWorkspaces.emptyTitle"),
     ).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: "settings:adminWorkspaces.next" }),
+    ).toBeNull();
+  });
+
+  it("retries after a failed load", () => {
+    const refetch = vi.fn();
+    useAdminWorkspacesMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isFetching: false,
+      isError: true,
+      refetch,
+    } as unknown as ReturnType<typeof useAdminWorkspaces>);
+    render(<WorkspaceManagementPanel />);
+
+    expect(screen.getByText("settings:adminWorkspaces.loadError")).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:adminWorkspaces.retry" }),
+    );
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it("opens a workspace's members with owners first", async () => {
     const dialog = await openAcme();
 
     expect(useAdminWorkspaceMembersMock).toHaveBeenLastCalledWith("acme", true);
-    const rows = within(dialog).getAllByRole("row").slice(1);
+    const rows = within(dialog).getAllByRole("listitem");
     expect(rows[0]?.textContent).toContain("Ada Lovelace");
     expect(
       within(rows[0] as HTMLElement).getByText("team:roles.owner"),
@@ -299,6 +326,24 @@ describe("WorkspaceManagementPanel", () => {
         userId: "grace",
       }),
     );
+    expect(mocks.remove).not.toHaveBeenCalled();
+  });
+
+  it("does not remove a member when the confirmation is cancelled", async () => {
+    await openAcme();
+    openMemberMenu("Grace Hopper");
+    fireEvent.click(
+      await screen.findByRole("menuitem", {
+        name: "settings:adminWorkspaces.members.remove",
+      }),
+    );
+
+    const confirm = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(confirm).getByRole("button", { name: "common:actions.cancel" }),
+    );
+
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
     expect(mocks.remove).not.toHaveBeenCalled();
   });
 

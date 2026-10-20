@@ -1,5 +1,5 @@
 import { fireEvent, render, waitFor } from "@testing-library/react";
-import { Extension } from "@tiptap/core";
+import { type Editor, Extension } from "@tiptap/core";
 import TaskItem from "@tiptap/extension-task-item";
 import { describe, expect, it, vi } from "vite-plus/test";
 import TaskDescription from "./task-description";
@@ -7,6 +7,7 @@ import TaskDescription from "./task-description";
 const mocks = vi.hoisted(() => ({
   t: (key: string) => key,
   save: vi.fn(),
+  editor: null as Editor | null,
   tasks: new Map<string, { id: string; description: string }>(),
 }));
 
@@ -16,7 +17,12 @@ const mocks = vi.hoisted(() => ({
 // thing under test here; stubbing it out is what let the previous version of
 // this file pass while #1580 was still broken.
 function inert(name: string) {
-  return Extension.create({ name });
+  return Extension.create({
+    name,
+    onCreate() {
+      mocks.editor = this.editor;
+    },
+  });
 }
 
 vi.mock("./extensions/shiki-code-block", () => ({
@@ -109,6 +115,56 @@ describe("TaskDescription", () => {
       ),
     );
     reopened.unmount();
+  });
+
+  it("preserves blank paragraphs when editing, saving and reopening (#2017)", async () => {
+    const taskId = "blank-paragraphs-task";
+    let description = "First\n\n\n\nSecond\n\n\n\n\n\nThird\n\n\n\n";
+
+    for (let cycle = 0; cycle < 4; cycle++) {
+      mocks.save.mockClear();
+      mocks.save.mockResolvedValue(undefined);
+      mocks.tasks.set(taskId, { id: taskId, description });
+      const { container, unmount } = render(
+        <TaskDescription taskId={taskId} />,
+      );
+      await waitFor(() =>
+        expect(
+          container.querySelector('[contenteditable="true"]'),
+        ).not.toBeNull(),
+      );
+      await new Promise(requestAnimationFrame);
+      const editable = container.querySelector<HTMLElement>(
+        '[contenteditable="true"]',
+      )!;
+      const paragraphs = Array.from(editable.querySelectorAll("p"));
+      expect(
+        paragraphs.map((paragraph) =>
+          paragraph.textContent?.replace(/\u00a0/g, ""),
+        ),
+      ).toEqual([
+        `${"!".repeat(cycle)}First`,
+        "",
+        "Second",
+        "",
+        "",
+        "Third",
+        "",
+        "",
+      ]);
+
+      if (cycle === 3) {
+        unmount();
+        break;
+      }
+
+      // Make a real editor change so both hydration and saving are exercised.
+      mocks.editor!.commands.insertContent("!");
+      await waitFor(() => expect(mocks.save).toHaveBeenCalled());
+      const saved = mocks.save.mock.calls.at(-1)![0].description as string;
+      unmount();
+      description = saved;
+    }
   });
 
   it("renders the parent description when navigating from a subtask (#1580)", async () => {

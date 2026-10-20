@@ -142,10 +142,10 @@ const getProjectTaskRelationsRoute = createRoute({
       "Relations between tasks in the project",
       taskRelationListSchema,
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
+    403: errorResponse(
+      "No access to the project, or missing task:read permission",
     ),
-    403: errorResponse("No workspace access, or missing task:read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 

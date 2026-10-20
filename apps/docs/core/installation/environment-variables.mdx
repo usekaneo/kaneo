@@ -41,6 +41,7 @@ Name | Description |
 | `POSTGRES_HOST` | Database hostname for derived configuration. Default: `postgres`; use `localhost` for a host-native API connected to local PostgreSQL. |
 | `POSTGRES_PORT` | Database port for derived configuration. Default: `5432`. |
 | `POSTGRES_PASSWORD_FILE` | Path to a UTF-8 file containing the database password. Used when `POSTGRES_PASSWORD` is unset and Kaneo derives `DATABASE_URL` from `POSTGRES_*`. Set the same file variable on the PostgreSQL container when using the bundled Compose setup; see [Keep secrets in files](/core/installation/docker-compose#keep-secrets-in-files). |
+| `DATABASE_POOL_MAX` | Maximum number of PostgreSQL connections each API process keeps open. Default: `10`. Lower it when the database user has a connection limit, for example on a shared PostgreSQL server; with several API replicas, the limit has to cover all of them. Label deletions and GitHub imports running at once beyond the pool size minus one get a retryable `429`. Must be an integer of at least `2`, otherwise startup fails. |
 
 ### Authentication
 
@@ -124,7 +125,15 @@ Name | Description | Default |
 Name | Description | Default |
 --- | --- | --- |
 | `NOTIFICATION_SECRET_ENCRYPTION_KEY` | Required to store personal notification tokens and webhook signing secrets. Generate a random value, keep it stable, and include it in protected configuration backups. Changing or losing it prevents decryption of existing secrets. | Unset |
-| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks) and self-managed Gitea or GitLab instances that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
+| `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS` | Allow outbound notification destinations (ntfy, Gotify, generic webhooks), self-managed Gitea or GitLab instances, and [import sources](/core/migrations) that resolve to private or non-routable addresses. Off by default to prevent SSRF; the `http`/`https` requirement still applies. Only enable on a trusted, isolated deployment. | `false` |
+
+### Imports
+
+The [in-app importer](/core/migrations) reads from the source on the API server. Sources on a private network, such as a PLANKA container in the same Docker network, also need `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` (see [Notifications](#notifications)).
+
+Name | Description | Default |
+--- | --- | --- |
+| `TRELLO_API_KEY` | API key of a Trello Power-Up you create at [trello.com/power-ups/admin](https://trello.com/power-ups/admin). Enables the one-click **Authorize on Trello** button when importing from Trello. Kaneo only hands it to workspace admins, inside the authorize link, when they start a Trello import. The key identifies the app and grants no access by itself. Without it, users paste their own Trello API key in the import form. See [Import from Trello](/core/migrations/from-trello#set-up-trello-on-a-self-hosted-instance). | Unset |
 
 ### GitHub SSO
 
@@ -177,6 +186,7 @@ Name | Description |
 | `CUSTOM_OAUTH_SCOPES` | (Optional) Comma-separated list of OAuth scopes. Default: `profile,email`.
 | `CUSTOM_OAUTH_RESPONSE_TYPE` | (Optional) OAuth response type. Default: `code`.
 | `CUSTOM_AUTH_PKCE` | (Optional) Enable/disable PKCE. Default: `true`.
+| `CUSTOM_OAUTH_NAME` | (Optional) Provider name on the sign-in button, for example `Authentik`. Default: `SSO`.
 | `CUSTOM_OAUTH_LOGOUT_URL` | (Optional) Logout endpoint URL for your identity provider.
 
 ### Redis
@@ -225,6 +235,7 @@ Name | Description |
 | `SMTP_REQUIRE_TLS` | Require STARTTLS when `SMTP_SECURE=false` (default: `true`). Sending fails if the server cannot upgrade. Only use `false` for an intentionally unencrypted local development relay.
 | `SMTP_IGNORE_TLS` | Removed: `true` is rejected. This option disabled STARTTLS; it never bypassed certificate validation.
 | `NODE_EXTRA_CA_CERTS` | Path to a trusted CA PEM file for a private SMTP certificate authority. Set before starting the API; certificate expiry and hostname checks remain enabled.
+| `KANEO_EMAIL_ASSETS_URL` | Optional base URL for the logo and icons in emails (default: `KANEO_CLIENT_URL` followed by `/email`). Mail clients load these images directly, so set this to a public URL if your instance is only reachable on a private network.
 
 When upgrading, remove `SMTP_IGNORE_TLS=true` and verify delivery with the corrected certificate trust configuration before rollout. Fix invalid certificates instead of disabling validation. [Nodemailer documents the difference between STARTTLS and certificate validation](https://nodemailer.com/smtp#tls-options).
 

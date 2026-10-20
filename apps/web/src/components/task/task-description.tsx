@@ -1,8 +1,11 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import {
   richTextCommands,
   type SlashCommand,
   type SlashRange,
 } from "@/components/editor/slash-commands";
+import { BubbleLinkEditor } from "@/components/editor/bubble-link-editor";
+import { selectionStartAnchor } from "@/components/editor/selection-start-anchor";
 import { TableToolbar } from "@/components/editor/table-toolbar";
 import { createEditorExtensions } from "@/components/editor/extensions";
 import { insertUploadedAsset as insertEditorAsset } from "@/components/editor/insert-uploaded-asset";
@@ -29,6 +32,7 @@ import {
   Strikethrough,
   Table2,
   Underline as UnderlineIcon,
+  ImageUpIcon,
 } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import {
@@ -94,10 +98,7 @@ type SlashMenuState = {
 };
 
 function formatMarkdown(markdown: string) {
-  return markdown
-    .replace(/\r\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\n{2,}$/g, "\n");
+  return markdown.replace(/\r\n/g, "\n");
 }
 
 function resetUndoHistory(editor: Editor) {
@@ -338,6 +339,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           uploadedAsset.kind === "image"
             ? t("tasks:detail.editor.upload.imageSuccess")
             : t("tasks:detail.editor.upload.fileSuccess"),
+          { icon: ImageUpIcon },
         );
       } catch (error) {
         toast.dismiss(loadingToast);
@@ -458,6 +460,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     );
   }, []);
 
+  const linkShortcutRef = useRef(() => {});
+  const attachShortcutRef = useRef(() => {});
   const editor = useEditor(
     {
       immediatelyRender: false,
@@ -583,12 +587,20 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           return true;
         },
         handleKeyDown: (view, event) => {
-          if (
-            !(
-              (event.metaKey || event.ctrlKey) &&
-              event.key.toLowerCase() === "a"
-            )
-          ) {
+          const mod = event.metaKey || event.ctrlKey;
+          const key = event.key.toLowerCase();
+          if (mod && !event.altKey && key === "k") {
+            if (event.shiftKey || view.state.selection.empty) return false;
+            event.preventDefault();
+            linkShortcutRef.current();
+            return true;
+          }
+          if (mod && event.shiftKey && !event.altKey && key === "u") {
+            event.preventDefault();
+            attachShortcutRef.current();
+            return true;
+          }
+          if (!(mod && key === "a")) {
             return false;
           }
 
@@ -694,29 +706,23 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     slashMenuRef.current = slashMenu;
   }, [slashMenu]);
 
-  const setLink = useCallback(
-    (prefilledUrl?: string) => {
-      if (!canEditRef.current || !editor) return;
-      const previousUrl = editor.getAttributes("link").href as
-        | string
-        | undefined;
-      const url = window.prompt(
-        t("tasks:detail.editor.enterUrl"),
-        prefilledUrl || previousUrl || "",
-      );
-      if (url === null) return;
-      if (url.trim() === "") {
-        editor.chain().focus().extendMarkRange("link").unsetLink().run();
-        return;
-      }
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: url })
-        .run();
-    },
-    [editor, t],
+  const [isEditingLink, setIsEditingLink] = useState(false);
+
+  const setLink = useCallback(() => {
+    if (!canEditRef.current || !editor) return;
+    setIsEditingLink(true);
+  }, [editor]);
+  linkShortcutRef.current = setLink;
+  attachShortcutRef.current = () => openImagePicker(editor);
+
+  const bubbleAnchor = useCallback(
+    () => (editor ? selectionStartAnchor(editor) : null),
+    [editor],
+  );
+
+  const bubbleOptions = useMemo(
+    () => ({ onHide: () => setIsEditingLink(false) }),
+    [],
   );
 
   const filteredSlashCommands = useMemo(() => {
@@ -983,6 +989,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
       const commands = filteredSlashCommandsRef.current;
       if (event.key === "Escape") {
         event.preventDefault();
+        event.stopPropagation();
         setSlashMenu(null);
         return;
       }
@@ -1170,6 +1177,24 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
     };
   }, [hoveredCodeBlock, updateHoveredCodeBlockFromElement]);
 
+  useEffect(() => {
+    if (!editor || !hoveredCodeBlock) return;
+    const syncAfterEdit = () => {
+      const element = hoveredCodeBlockElementRef.current;
+      if (element?.isConnected) {
+        updateHoveredCodeBlockFromElement(element);
+        return;
+      }
+      hoveredCodeBlockElementRef.current = null;
+      setHoveredCodeBlock(null);
+      setIsCodeLanguageMenuOpen(false);
+    };
+    editor.on("update", syncAfterEdit);
+    return () => {
+      editor.off("update", syncAfterEdit);
+    };
+  }, [editor, hoveredCodeBlock, updateHoveredCodeBlockFromElement]);
+
   const handleEditorMouseMove = useCallback(
     (event: ReactMouseEvent<HTMLElement>) => {
       const target = event.target as HTMLElement;
@@ -1205,9 +1230,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
   return (
     <section
       ref={editorShellRef}
+      data-task-action="description"
       aria-label={t("tasks:detail.editor.ariaLabel")}
       className={cn(
-        "kaneo-tiptap-shell group",
+        "kaneo-tiptap-shell group relative",
         isDragActive && "is-drag-active",
       )}
       onDragEnter={handleShellDragEnter}
@@ -1219,7 +1245,10 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center gap-2 text-xs text-muted-foreground"
+          className={cn(
+            "absolute right-0 -top-6 flex h-6 items-center gap-2 text-muted-foreground text-xs",
+            saveState === "saved" && "sr-only",
+          )}
         >
           {saveState === "failed"
             ? t("tasks:detail.editor.saveFailed")
@@ -1338,6 +1367,8 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
         <BubbleMenu
           editor={editor}
           className="kaneo-tiptap-bubble"
+          getReferencedVirtualElement={bubbleAnchor}
+          options={bubbleOptions}
           shouldShow={({ editor: activeEditor, from, to }) => {
             if (activeEditor.isActive("embedBlock")) return false;
             if (activeEditor.isActive("image")) return false;
@@ -1345,170 +1376,183 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
             return from !== to;
           }}
         >
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("heading", { level: 2 }) &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-          >
-            <Heading2 className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("bulletList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-          >
-            <List className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("taskList") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleTaskList().run()}
-          >
-            <ListTodo className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("orderedList") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          >
-            <ListOrdered className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("blockquote") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          >
-            <Quote className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("codeBlock") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          >
-            <Braces className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className="kaneo-tiptap-bubble-btn"
-            onClick={() =>
-              editor.chain().focus().insertTable({ cols: 3, rows: 3 }).run()
-            }
-          >
-            <Table2 className="size-3.5" />
-          </Button>
-          <span className="kaneo-tiptap-bubble-separator" />
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("bold") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleBold().run()}
-          >
-            <Bold className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("italic") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-          >
-            <Italic className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("underline") &&
-                "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-          >
-            <UnderlineIcon className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("strike") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleStrike().run()}
-          >
-            <Strikethrough className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("code") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => editor.chain().focus().toggleCode().run()}
-          >
-            <Code className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            className={cn(
-              "kaneo-tiptap-bubble-btn",
-              editor.isActive("link") && "bg-accent text-accent-foreground",
-            )}
-            onClick={() => setLink()}
-          >
-            <Link2 className="size-3.5" />
-          </Button>
+          {isEditingLink ? (
+            <BubbleLinkEditor
+              editor={editor}
+              buttonClassName="kaneo-tiptap-bubble-btn"
+              onClose={() => setIsEditingLink(false)}
+            />
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("heading", { level: 2 }) &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() =>
+                  editor.chain().focus().toggleHeading({ level: 2 }).run()
+                }
+              >
+                <Heading2 className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("bulletList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+              >
+                <List className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("taskList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleTaskList().run()}
+              >
+                <ListTodo className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("orderedList") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+              >
+                <ListOrdered className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("blockquote") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+              >
+                <Quote className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("codeBlock") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+              >
+                <Braces className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className="kaneo-tiptap-bubble-btn"
+                onClick={() =>
+                  editor.chain().focus().insertTable({ cols: 3, rows: 3 }).run()
+                }
+              >
+                <Table2 className="size-3.5" />
+              </Button>
+              <span className="kaneo-tiptap-bubble-separator" />
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("bold") && "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleBold().run()}
+              >
+                <Bold className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("italic") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+              >
+                <Italic className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("underline") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+              >
+                <UnderlineIcon className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("strike") &&
+                    "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleStrike().run()}
+              >
+                <Strikethrough className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("code") && "bg-accent text-accent-foreground",
+                )}
+                onClick={() => editor.chain().focus().toggleCode().run()}
+              >
+                <Code className="size-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="xs"
+                className={cn(
+                  "kaneo-tiptap-bubble-btn",
+                  editor.isActive("link") && "bg-accent text-accent-foreground",
+                )}
+                onClick={setLink}
+              >
+                <Link2 className="size-3.5" />
+              </Button>
+            </>
+          )}
         </BubbleMenu>
       )}
 
@@ -1595,9 +1639,12 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
                         <span className="kaneo-tiptap-slash-label">
                           {command.label}
                         </span>
-                        {command.shortcut && (
+                        {command.shortcutId && (
                           <span className="kaneo-tiptap-slash-shortcut">
-                            {command.shortcut}
+                            <ShortcutKeys
+                              id={command.shortcutId}
+                              tone="muted"
+                            />
                           </span>
                         )}
                       </button>

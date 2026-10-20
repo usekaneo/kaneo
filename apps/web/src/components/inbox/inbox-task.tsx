@@ -1,9 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Activity from "@/components/activity";
 import CommentInput from "@/components/activity/comment-input";
-import { isCommentActivity } from "@/components/activity/utils";
 import { DueDateText } from "@/components/my-work/due-date-text";
 import { Button } from "@/components/ui/button";
 import { HttpError } from "@/lib/http-error";
@@ -16,6 +15,7 @@ import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { getPriorityLabel, getStatusDisplayLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 
 type InboxTaskProps = {
   taskId: string;
@@ -49,6 +49,23 @@ export function InboxTask({ taskId, workspaceId }: InboxTaskProps) {
     columns.find((column) => column.id === task?.columnId) ??
     (slugColumns.length === 1 ? slugColumns[0] : undefined);
   const { canUpdateTasks } = useWorkspacePermission();
+  const navigate = useNavigate();
+  const openWorkspaceId = task?.workspaceId || workspaceId;
+  useShortcut(
+    "openFocusedTask",
+    () => {
+      if (!task || !openWorkspaceId) return;
+      navigate({
+        to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+        params: {
+          workspaceId: openWorkspaceId,
+          projectId: task.projectId,
+          taskId: task.id,
+        },
+      });
+    },
+    { enabled: Boolean(task && openWorkspaceId) },
+  );
 
   if (isLoading) {
     return (
@@ -168,21 +185,13 @@ export function InboxTask({ taskId, workspaceId }: InboxTaskProps) {
         ) : (
           recent.length > 0 && (
             <Timeline>
-              {recent.map((activity, index) => {
-                const next = recent[index + 1];
-                return (
-                  <Activity
-                    key={activity.id}
-                    activity={activity}
-                    step={recent.length - index}
-                    showConnector={
-                      !isCommentActivity(activity) &&
-                      Boolean(next) &&
-                      !isCommentActivity(next)
-                    }
-                  />
-                );
-              })}
+              {recent.map((activity, index) => (
+                <Activity
+                  key={activity.id}
+                  activity={activity}
+                  step={recent.length - index}
+                />
+              ))}
             </Timeline>
           )
         )}

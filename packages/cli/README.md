@@ -24,6 +24,13 @@ Windows (PowerShell):
 irm https://kaneo.app/cli/install.ps1 | iex
 ```
 
+With Homebrew, or with npm and Node.js 20 or newer:
+
+```bash
+brew install usekaneo/tap/kaneo
+npm install -g @kaneo/cli
+```
+
 The script picks the build for your system from the `cli-v<version>` GitHub release, verifies it against the release's `SHA256SUMS`, and installs it to `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`, added to your user `PATH`). Both scripts are plain text, so you can read [install.sh](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.sh) and [install.ps1](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.ps1) before running them.
 
 | Variable | What it does |
@@ -42,9 +49,9 @@ curl -fsSL https://kaneo.app/cli/install.sh | KANEO_DOWNLOAD_URL=https://mirror.
 $env:KANEO_VERSION = "0.1.0"; irm https://kaneo.app/cli/install.ps1 | iex
 ```
 
-To update, run the install command again. To uninstall, delete the binary, and `~/.config/kaneo` too if you want to remove your logins.
+To update, run the install command again, `brew upgrade kaneo` for Homebrew, or `npm install -g @kaneo/cli@latest` for npm. To uninstall, delete the binary, and `~/.config/kaneo` too if you want to remove your logins.
 
-Prefer the script to downloading a binary from the release page with a browser: the macOS builds are signed ad hoc but not notarized, so Gatekeeper can block browser downloads. On Alpine and other musl distributions, install the C++ runtime first with `apk add libstdc++`. See the [install guide](https://kaneo.app/docs/core/integrations/cli#install) for mirrors, offline installs and supported systems.
+Prefer the script to downloading a binary from the release page with a browser: the macOS builds are signed ad hoc but not notarized, so Gatekeeper can block browser downloads. On Alpine and other musl distributions, install the C++ runtime first with `apk add libstdc++`. See the [install guide](https://kaneo.app/docs/cli/install) for mirrors, offline installs and supported systems.
 
 ## Sign in
 
@@ -97,7 +104,7 @@ Credentials are resolved in this order: `--token`, then `KANEO_API_KEY`, then th
 | `kaneo doctor` | Check the server, your login and API compatibility |
 | `kaneo api` | Send an authenticated request to any API endpoint, like `gh api` |
 
-The [command reference](https://kaneo.app/docs/core/integrations/cli-commands) lists every argument and flag. Run any command with `--help` for the same information, and `kaneo --completions zsh` (or `bash`, `fish`, `sh`) to print a shell completion script.
+The [command reference](https://kaneo.app/docs/cli/reference) lists every argument and flag. Run any command with `--help` for the same information, and `kaneo --completions zsh` (or `bash`, `fish`, `sh`) to print a shell completion script.
 
 Tasks are addressed by their ticket ID, such as `KAN-123`, or by id. When a required workspace, project or column is missing and you are in a terminal, the CLI offers a searchable picker. In scripts it fails with an error that says which flag to pass.
 
@@ -120,6 +127,14 @@ kaneo task list -p KAN --jq '.[] | select(.priority == "urgent") | .ticketId'
 Use `--human` to force styled output. Styled output respects `NO_COLOR`, `FORCE_COLOR` and `TERM=dumb`, and falls back to ASCII when the terminal cannot show Unicode.
 
 Images in task descriptions (`kaneo task images`), uploads (`kaneo task attach`) and your avatar (`kaneo whoami`) are shown inline in Kitty, Ghostty, iTerm2 and WezTerm. Other terminals with 256 colors and Unicode get a preview drawn with colored blocks, and the rest get links. Set `KANEO_IMAGES=kitty|iterm|blocks|off` to override this. Your token is only sent with requests for files on your Kaneo server.
+
+## Agent skill
+
+The [`kaneo-cli` skill](https://github.com/usekaneo/kaneo/tree/main/skills/kaneo-cli) teaches coding agents such as Claude Code, Codex and Cursor to use the CLI: check the login and workspace, read JSON output, address tasks by ticket ID, and confirm before deleting anything.
+
+```bash
+npx skills add usekaneo/kaneo --skill kaneo-cli
+```
 
 ## Configuration
 
@@ -161,4 +176,6 @@ The CLI is written with [Effect](https://effect.website) 4 (`effect/cli`, `effec
 
 Bump `version` in `package.json` and merge to `main`. The `Release CLI` workflow (`.github/workflows/publish-cli.yml`) tests and bundles the CLI, compiles standalone binaries with Bun for macOS, Linux (glibc and musl) and Windows, and creates the `cli-v<version>` GitHub release with the binaries and a `SHA256SUMS` file. It skips versions that already have a release, and you can also run it by hand from the Actions tab.
 
-Publishing to npm stays off until the `CLI_NPM_PUBLISH` repository variable is set to `true`. With it on, the same workflow publishes `@kaneo/cli` to npm with provenance, skipping versions that are already published.
+After a stable release, the workflow also points the `kaneo` formula in [usekaneo/homebrew-tap](https://github.com/usekaneo/homebrew-tap) at the new binaries. It writes the formula with `scripts/homebrew-formula.sh` and pushes with the `HOMEBREW_TAP_TOKEN` secret, a fine-grained token that can write to that repository only.
+
+While the `CLI_NPM_PUBLISH` repository variable is `true`, the same workflow also publishes `@kaneo/cli` to npm with provenance through trusted publishing, skipping versions that are already published.

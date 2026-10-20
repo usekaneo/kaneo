@@ -12,7 +12,7 @@ const entrypoint = readFileSync(
 );
 const startup = entrypoint.slice(
   0,
-  entrypoint.indexOf("/docker-entrypoint.d/env.sh"),
+  entrypoint.indexOf("/docker-entrypoint.d/05-kaneo-runtime-storage.sh"),
 );
 
 function runStartup(env) {

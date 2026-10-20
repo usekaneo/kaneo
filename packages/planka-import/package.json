@@ -40,12 +40,14 @@
 		"lint": "vp check .",
 		"start": "node dist/index.js",
 		"test": "vp run test:run",
-		"test:watch": "vp test --config vitest.config.ts"
+		"test:watch": "vp test --config vitest.config.ts",
+		"typecheck": "vp run check:types"
 	},
 	"dependencies": {
 		"prompts": "^2.4.2"
 	},
 	"devDependencies": {
+		"@kaneo/importers": "workspace:*",
 		"@kaneo/typescript-config": "workspace:*",
 		"@types/node": "^26.6.2",
 		"@types/prompts": "^2.4.9",

@@ -1,10 +1,10 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowUp, Paperclip } from "lucide-react";
+import { ArrowUp, Paperclip, MessageSquareIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CommentEditor from "@/components/activity/comment-editor";
 import { Button } from "@/components/ui/button";
-import { KbdSequence } from "@/components/ui/kbd";
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import {
   Tooltip,
   TooltipContent,
@@ -12,7 +12,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useCreateComment from "@/hooks/mutations/comment/use-create-comment";
-import { getModifierKeyText } from "@/hooks/use-keyboard-shortcuts";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
 
@@ -43,7 +42,7 @@ export default function CommentInput({ taskId, projectId }: CommentInputProps) {
       setContent("");
       await queryClient.invalidateQueries({ queryKey: ["activities", taskId] });
 
-      toast.success(t("activity:comment.added"));
+      toast.success(t("activity:comment.added"), { icon: MessageSquareIcon });
     } catch (error) {
       console.error("Failed to create comment:", error);
       toast.error(t("activity:comment.failedToAdd"));
@@ -58,7 +57,7 @@ export default function CommentInput({ taskId, projectId }: CommentInputProps) {
   );
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-task-action="comment">
       <div className="rounded-xl border border-border/80 bg-card/70 transition-colors focus-within:border-ring/60 focus-within:shadow-[0_0_0_2px_color-mix(in_srgb,var(--ring)_20%,transparent)]">
         <CommentEditor
           value={content}
@@ -102,10 +101,10 @@ export default function CommentInput({ taskId, projectId }: CommentInputProps) {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <KbdSequence
-                  keys={[getModifierKeyText(), "Enter"]}
-                  description={t("activity:comment.submitShortcut")}
-                />
+                <span className="flex items-center gap-2">
+                  {t("activity:comment.submitShortcut")}
+                  <ShortcutKeys id="submit" tone="tooltip" />
+                </span>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

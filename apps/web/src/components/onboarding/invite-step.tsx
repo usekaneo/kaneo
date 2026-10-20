@@ -1,5 +1,5 @@
-import { Plus } from "lucide-react";
-import { useId, useState } from "react";
+import { Plus, SendIcon } from "lucide-react";
+import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +13,15 @@ import { InviteEmailField } from "./invite-email-field";
 
 type InviteStepProps = {
   workspaceId: string;
-  onDone: () => void;
+  onEmailsChange: (emails: string[]) => void;
+  onDone: (sent: number) => void;
 };
 
-export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
+export function InviteStep({
+  workspaceId,
+  onEmailsChange,
+  onDone,
+}: InviteStepProps) {
   const { t } = useTranslation();
   const { mutateAsync: invite } = useInviteWorkspaceUser();
   const [emails, setEmails] = useState<string[]>(() =>
@@ -25,7 +30,13 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
   const [invalid, setInvalid] = useState<Set<number>>(new Set());
   const [isSending, setIsSending] = useState(false);
   const [isRetry, setIsRetry] = useState(false);
+  const [sentSoFar, setSentSoFar] = useState(0);
   const idPrefix = useId();
+  const filled = emails.filter((email) => email.trim()).length;
+
+  useEffect(() => {
+    onEmailsChange(emails);
+  }, [emails, onEmailsChange]);
 
   const update = (index: number, value: string) => {
     setEmails((current) => current.map((e, i) => (i === index ? value : e)));
@@ -54,7 +65,7 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
       return;
     }
     if (parsed.emails.length === 0) {
-      onDone();
+      onDone(sentSoFar);
       return;
     }
 
@@ -73,7 +84,9 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
 
     const sent = results.filter((r) => r.status === "fulfilled").length;
     if (sent > 0) {
-      toast.success(t("auth:onboarding.cloud.invite.sent", { count: sent }));
+      toast.success(t("auth:onboarding.cloud.invite.sent", { count: sent }), {
+        icon: SendIcon,
+      });
     }
     const failed: string[] = [];
     results.forEach((result, i) => {
@@ -92,61 +105,71 @@ export function InviteStep({ workspaceId, onDone }: InviteStepProps) {
     });
 
     if (failed.length > 0) {
+      setSentSoFar((current) => current + sent);
       setEmails(failed);
       setInvalid(new Set());
       setIsRetry(true);
       return;
     }
 
-    onDone();
+    onDone(sentSoFar + sent);
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3" noValidate>
-      {emails.map((email, index) => {
-        const id = `${idPrefix}-${index}`;
-        return (
-          <InviteEmailField
-            key={id}
-            id={id}
-            position={index + 1}
-            value={email}
-            invalid={invalid.has(index)}
-            autoFocus={index === 0}
-            removable={emails.length > 1}
+    <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
+      <div className="flex flex-col gap-2">
+        <p className="font-medium text-foreground text-sm leading-4">
+          {t("auth:onboarding.invite.label")}
+        </p>
+        {emails.map((email, index) => {
+          const id = `${idPrefix}-${index}`;
+          return (
+            <InviteEmailField
+              key={id}
+              id={id}
+              position={index + 1}
+              value={email}
+              invalid={invalid.has(index)}
+              autoFocus={index === 0}
+              removable={emails.length > 1}
+              disabled={isSending}
+              onChange={(value) => update(index, value)}
+              onRemove={() => remove(index)}
+            />
+          );
+        })}
+        {emails.length < MAX_INVITE_FIELDS ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="-ms-2 self-start text-muted-foreground"
             disabled={isSending}
-            onChange={(value) => update(index, value)}
-            onRemove={() => remove(index)}
-          />
-        );
-      })}
-
-      {emails.length < MAX_INVITE_FIELDS ? (
+            onClick={() => setEmails((current) => [...current, ""])}
+          >
+            <Plus />
+            {t("auth:onboarding.cloud.invite.addAnother")}
+          </Button>
+        ) : null}
+      </div>
+      <div className="flex items-center justify-between gap-3">
         <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="-ml-2"
-          disabled={isSending}
-          onClick={() => setEmails((current) => [...current, ""])}
+          type="submit"
+          size="lg"
+          loading={isSending}
+          disabled={filled === 0}
         >
-          <Plus className="size-4" />
-          {t("auth:onboarding.cloud.invite.addAnother")}
-        </Button>
-      ) : null}
-
-      <div className="flex flex-col gap-2 pt-3">
-        <Button type="submit" disabled={isSending} className="w-full">
-          {isSending
-            ? t("auth:onboarding.cloud.invite.sending")
-            : t("auth:onboarding.cloud.invite.send")}
+          {filled > 0
+            ? t("auth:onboarding.invite.send", { count: filled })
+            : t("auth:onboarding.invite.sendNone")}
         </Button>
         <Button
           type="button"
           variant="ghost"
+          size="lg"
+          className="text-muted-foreground"
           disabled={isSending}
-          className="w-full"
-          onClick={onDone}
+          onClick={() => onDone(sentSoFar)}
         >
           {t("auth:onboarding.cloud.invite.skip")}
         </Button>

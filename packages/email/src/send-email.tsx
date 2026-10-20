@@ -1,6 +1,7 @@
 import { render } from "@react-email/components";
 import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
+import { instanceHost } from "./components/instance-host";
 import { getSmtpTransportOptions, isSmtpConfigured } from "./smtp-config";
 import { getSmtpErrorDetails } from "./smtp-error-details";
 import type { MagicLinkEmailProps } from "./templates/magic-link";
@@ -29,7 +30,9 @@ export const sendMagicLinkEmail = async (
   subject: string,
   data: MagicLinkEmailProps,
 ) => {
-  const emailTemplate = await render(MagicLinkEmail(data));
+  const emailTemplate = await render(
+    MagicLinkEmail({ email: to, instance: instanceHost(), ...data }),
+  );
   try {
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
@@ -47,7 +50,9 @@ export const sendOtpEmail = async (
   subject: string,
   data: OtpEmailProps,
 ) => {
-  const emailTemplate = await render(OtpEmail(data));
+  const emailTemplate = await render(
+    OtpEmail({ email: to, instance: instanceHost(), ...data }),
+  );
   try {
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
@@ -67,7 +72,9 @@ export const sendPasswordResetEmail = async (
 ) => {
   let emailTemplate: string;
   try {
-    emailTemplate = await render(PasswordResetEmail(data));
+    emailTemplate = await render(
+      PasswordResetEmail({ email: to, instance: instanceHost(), ...data }),
+    );
   } catch {
     console.error("Error rendering password reset email");
     return;
@@ -103,7 +110,7 @@ export const sendWorkspaceInvitationEmail = async (
 
   try {
     const emailTemplate = await render(
-      WorkspaceInvitationEmail({ ...data, to }),
+      WorkspaceInvitationEmail({ instance: instanceHost(), ...data, to }),
     );
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
@@ -147,7 +154,9 @@ export const sendTrialReminderEmail = async (
   subject: string,
   data: TrialReminderEmailProps,
 ) => {
-  const emailTemplate = await render(TrialReminderEmail(data));
+  const emailTemplate = await render(
+    TrialReminderEmail({ email: to, ...data }),
+  );
   try {
     await transporter.sendMail({
       from: process.env.SMTP_FROM,

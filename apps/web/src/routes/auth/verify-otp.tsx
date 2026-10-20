@@ -1,31 +1,38 @@
-import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
-import { createFileRoute, useRouter, useSearch } from "@tanstack/react-router";
-import { REGEXP_ONLY_DIGITS } from "input-otp";
-import { ArrowLeft, RefreshCcw } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { z } from "zod/v4";
-import { Turnstile } from "@/components/auth/turnstile";
-import PageTitle from "@/components/page-title";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+  createFileRoute,
+  Link,
+  useLocation,
+  useRouter,
+  useSearch,
+} from "@tanstack/react-router";
+import { MailIcon } from "lucide-react";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { AuthCaptcha } from "@/components/auth/auth-captcha";
+import { authMessageClassName } from "@/components/auth/auth-form-styles";
+import { authLinkClassName } from "@/components/auth/auth-link-class";
+import { getSafeRedirectPath } from "@/components/auth/auth-methods";
+import { AuthPage } from "@/components/auth/auth-page";
+import { useAuthCaptcha } from "@/components/auth/use-auth-captcha";
+import { readSignUpName } from "@/components/auth/verify-otp-path";
+import PageTitle from "@/components/page-title";
+import { Button } from "@/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "@/lib/toast";
-import { AuthLayout } from "../../components/auth/layout";
+
+const CODE_LENGTH = 6;
+const CODE_EXPIRY_MINUTES = 5;
+const slots = Array.from({ length: CODE_LENGTH }, (_, index) => ({
+  id: `slot-${index}`,
+  index,
+}));
 
 export const Route = createFileRoute("/auth/verify-otp")({
   component: VerifyOtp,
@@ -42,224 +49,192 @@ function VerifyOtp() {
   const { email, invitationId, redirect } = useSearch({
     from: "/auth/verify-otp",
   });
-  const [isPending, setIsPending] = useState(false);
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [captchaKey, setCaptchaKey] = useState(0);
-  const captchaPending = Boolean(siteKey) && !turnstileToken;
+  const signUpName = readSignUpName(useLocation().state);
+  const captcha = useAuthCaptcha();
+  const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const safeRedirect = getSafeRedirectPath(redirect);
 
-  const verifyOtpSchema = useMemo(
-    () =>
-      z.object({
-        otp: z.string().length(6, t("auth:verifyOtp.validation.codeLength")),
-      }),
-    [t],
-  );
-
-  type VerifyOtpFormValues = z.infer<typeof verifyOtpSchema>;
-
-  const form = useForm<VerifyOtpFormValues>({
-    resolver: standardSchemaResolver(verifyOtpSchema),
-    defaultValues: { otp: "" },
-  });
-
-  const safeRedirect = useMemo(() => {
-    if (redirect?.startsWith("/") && !redirect.includes("//")) {
-      return redirect;
-    }
-    return undefined;
-  }, [redirect]);
-
-  const signInPath = useMemo(() => {
-    if (!redirect) {
-      return "/auth/sign-in";
-    }
-
-    return `/auth/sign-in?redirect=${encodeURIComponent(redirect)}`;
-  }, [redirect]);
-
-  const onSubmit = useCallback(
-    async (data: VerifyOtpFormValues) => {
-      setIsPending(true);
+  const verify = useCallback(
+    async (otp: string) => {
+      if (otp.length !== CODE_LENGTH) {
+        setError(t("auth:verifyOtp.validation.codeLength"));
+        return;
+      }
+      setIsVerifying(true);
+      setError(null);
       try {
         // A first-time OTP sign-in creates the account, so instances with
         // DISABLE_REGISTRATION=true reject it unless the request carries the
         // invitation the visitor arrived with.
         const result = await authClient.signIn.emailOtp(
-          {
-            email,
-            otp: data.otp,
-          },
+          signUpName ? { email, otp, name: signUpName } : { email, otp },
           invitationId
             ? { headers: { "x-invitation-id": invitationId } }
             : undefined,
         );
-
         if (result.error) {
-          toast.error(
-            result.error.message || t("auth:verifyOtp.toast.invalidCode"),
+          const messages: Record<string, string> = {
+            INVALID_OTP: t("auth:verifyOtp.toast.invalidCode"),
+            OTP_EXPIRED: t("auth:verifyOtp.expired"),
+            TOO_MANY_ATTEMPTS: t("auth:verifyOtp.tooManyAttempts"),
+            DISPOSABLE_EMAIL_NOT_ALLOWED: t("auth:forms.disposableEmail"),
+          };
+          setError(
+            messages[result.error.code ?? ""] ??
+              (result.error.message || t("auth:verifyOtp.toast.invalidCode")),
           );
+          setIsVerifying(false);
           return;
         }
-
-        toast.success(t("auth:verifyOtp.toast.signedInSuccess"));
-        if (safeRedirect) {
-          history.push(safeRedirect);
-        } else if (invitationId) {
-          history.push(`/invitation/accept/${invitationId}`);
-        } else {
-          history.push("/dashboard");
-        }
-      } catch (error) {
+        history.push(
+          safeRedirect ??
+            (invitationId
+              ? `/invitation/accept/${invitationId}`
+              : "/dashboard"),
+        );
+      } catch (caught) {
         toast.error(
-          error instanceof Error
-            ? error.message
+          caught instanceof Error && caught.message
+            ? caught.message
             : t("auth:verifyOtp.toast.verifyFailed"),
         );
-      } finally {
-        setIsPending(false);
+        setIsVerifying(false);
       }
     },
-    [email, invitationId, history, safeRedirect, t],
+    [email, history, invitationId, safeRedirect, signUpName, t],
   );
 
-  useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === "otp" && value.otp?.length === 6 && !isPending) {
-        form.handleSubmit(onSubmit)();
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form, isPending, onSubmit]);
-
-  const handleResendOtp = async () => {
-    if (captchaPending) return;
-    setIsPending(true);
+  const resend = async () => {
+    if (captcha.pending) return;
+    setIsResending(true);
     try {
       const result = await authClient.emailOtp.sendVerificationOtp(
-        {
-          email,
-          type: "sign-in",
-        },
-        {
-          headers: turnstileToken
-            ? { "x-turnstile-token": turnstileToken }
-            : undefined,
-        },
+        { email, type: "sign-in" },
+        { headers: captcha.headers },
       );
-
       if (result.error) {
         toast.error(
           result.error.message || t("auth:verifyOtp.toast.resendFailed"),
         );
         return;
       }
-
-      toast.success(t("auth:verifyOtp.toast.resendSuccess"));
-      form.reset();
-    } catch (error) {
+      toast.success(t("auth:verifyOtp.toast.resendSuccess"), {
+        icon: MailIcon,
+      });
+      setCode("");
+      setError(null);
+    } catch (caught) {
       toast.error(
-        error instanceof Error
-          ? error.message
+        caught instanceof Error && caught.message
+          ? caught.message
           : t("auth:verifyOtp.toast.resendFailed"),
       );
     } finally {
-      setIsPending(false);
-      setTurnstileToken(null);
-      setCaptchaKey((key) => key + 1);
+      setIsResending(false);
+      captcha.reset();
     }
+  };
+
+  const onChange = (value: string) => {
+    setCode(value);
+    setError(null);
+    if (value.length === CODE_LENGTH && !isVerifying) void verify(value);
   };
 
   return (
     <>
       <PageTitle title={t("auth:verifyOtp.pageTitle")} />
-      <AuthLayout
-        title={t("auth:verifyOtp.title")}
-        subtitle={t("auth:verifyOtp.subtitle")}
+      <AuthPage
+        title={t("auth:verifyOtp.heading")}
+        description={t("auth:verifyOtp.description", {
+          email,
+          minutes: CODE_EXPIRY_MINUTES,
+        })}
       >
-        <div className="space-y-4">
-          {siteKey && (
-            <Turnstile
-              key={captchaKey}
-              siteKey={siteKey}
-              onVerify={setTurnstileToken}
-              onExpire={() => setTurnstileToken(null)}
-              onError={() => setTurnstileToken(null)}
-            />
-          )}
-          <Alert>
-            <AlertDescription className="text-xs">
-              {t("auth:verifyOtp.codeSentTo", { email })}
-            </AlertDescription>
-          </Alert>
-
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="otp"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium sr-only">
-                      {t("auth:verifyOtp.verificationCodeLabel")}
-                    </FormLabel>
-                    <FormControl>
-                      <InputOTP
-                        maxLength={6}
-                        value={field.value}
-                        onChange={field.onChange}
-                        onBlur={field.onBlur}
-                        pattern={REGEXP_ONLY_DIGITS}
-                        autoComplete="one-time-code"
-                        inputMode="numeric"
-                        name="one-time-code"
-                      >
-                        <InputOTPGroup className="grid w-full grid-cols-6 gap-1.5">
-                          <InputOTPSlot className="h-11 w-full" index={0} />
-                          <InputOTPSlot className="h-11 w-full" index={1} />
-                          <InputOTPSlot className="h-11 w-full" index={2} />
-                          <InputOTPSlot className="h-11 w-full" index={3} />
-                          <InputOTPSlot className="h-11 w-full" index={4} />
-                          <InputOTPSlot className="h-11 w-full" index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </FormControl>
-                    <FormMessage>{fieldState.error?.message}</FormMessage>
-                  </FormItem>
-                )}
-              />
-
-              <Button type="submit" disabled={isPending} className="w-full">
-                {isPending
-                  ? t("auth:verifyOtp.verifying")
-                  : t("auth:verifyOtp.verifyAndSignIn")}
-              </Button>
-
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => history.push(signInPath)}
-                  className="w-full"
-                >
-                  <ArrowLeft className="size-4" />
-                  {t("auth:verifyOtp.changeEmail")}
-                </Button>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={handleResendOtp}
-                  disabled={isPending || captchaPending}
-                  className="w-full"
-                >
-                  <RefreshCcw className="size-4" />
-                  {t("auth:verifyOtp.resend")}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
-      </AuthLayout>
+        <form
+          className="flex flex-col gap-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void verify(code);
+          }}
+        >
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="verification-code">
+              {t("auth:verifyOtp.label")}
+            </Label>
+            <InputOTP
+              id="verification-code"
+              maxLength={CODE_LENGTH}
+              value={code}
+              onChange={onChange}
+              pattern={REGEXP_ONLY_DIGITS}
+              autoComplete="one-time-code"
+              inputMode="numeric"
+              name="one-time-code"
+              autoFocus
+              disabled={isVerifying}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "verification-code-error" : undefined}
+            >
+              <InputOTPGroup className="grid w-full grid-cols-6 gap-1.5">
+                {slots.map((slot) => (
+                  <InputOTPSlot
+                    key={slot.id}
+                    index={slot.index}
+                    className="h-11 w-full text-base dark:bg-input/32"
+                  />
+                ))}
+              </InputOTPGroup>
+            </InputOTP>
+            {error ? (
+              <p
+                id="verification-code-error"
+                role="alert"
+                className={authMessageClassName}
+              >
+                {error}
+              </p>
+            ) : null}
+          </div>
+          <AuthCaptcha captcha={captcha} />
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            loading={isVerifying}
+          >
+            {t("auth:verifyOtp.submit")}
+          </Button>
+        </form>
+        <p className="flex flex-wrap items-center gap-x-1 gap-y-2 pt-8 text-muted-foreground text-sm">
+          {t("auth:verifyOtp.didntGetIt")}{" "}
+          <button
+            type="button"
+            className={authLinkClassName}
+            disabled={captcha.pending || isResending || isVerifying}
+            onClick={resend}
+          >
+            {t("auth:verifyOtp.resendCode")}
+          </button>
+          <span aria-hidden="true" className="px-1">
+            ·
+          </span>
+          <Link
+            to={signUpName ? "/auth/sign-up" : "/auth/sign-in"}
+            search={
+              signUpName
+                ? { invitationId }
+                : { invitationId, redirect: safeRedirect }
+            }
+            className={authLinkClassName}
+          >
+            {t("auth:verifyOtp.useDifferentEmail")}
+          </Link>
+        </p>
+      </AuthPage>
     </>
   );
 }

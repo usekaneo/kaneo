@@ -44,6 +44,11 @@ export const trello: Comparison = {
       body: "Self-host under MIT for free, or use our managed cloud. Your data is exportable and never locked in.",
     },
   ],
+  migration: {
+    body: "Kaneo imports your Trello boards from the app: authorize Trello, pick the boards, and lists, cards, checklists, dates, labels, members, comments, and archived cards come across.",
+    href: "https://kaneo.app/docs/core/migrations/from-trello",
+    linkText: "Read the import guide",
+  },
   honestNote:
     "If you only need a couple of personal boards, never want to self-host, and Trello's free tier covers you, it's a perfectly good choice. Kaneo makes more sense the moment you care about owning your data or your team outgrows a simple board.",
   faq: [
@@ -65,7 +70,7 @@ export const trello: Comparison = {
     {
       question: "Can I import my Trello boards into Kaneo?",
       answer:
-        "There is no one-click Trello importer yet. Trello exports each board to JSON, and Kaneo has a public, documented API you can post those cards to. If you want this as a built-in feature, open an issue on GitHub, since import work is prioritised by demand.",
+        "Yes. In Settings, open Workspace, then Import, choose Trello, and authorize Kaneo to read your boards. Lists, cards, checklists, dates, labels, members, comments, and archived cards carry over. Attachments, custom fields, and Power-Up data do not.",
     },
     {
       question: "Is Kaneo free?",

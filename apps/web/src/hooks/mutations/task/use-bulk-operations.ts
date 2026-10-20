@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import bulkOperation from "@/fetchers/task/bulk-operation";
 import deleteTask from "@/fetchers/task/delete-task";
+import { removeTasksFromRelations } from "./remove-task-from-relations";
 
 export function useBulkOperations() {
   const queryClientRef = useQueryClient();
@@ -16,12 +17,9 @@ export function useBulkOperations() {
     mutationFn: async (taskIds: string[]) => {
       await Promise.all(taskIds.map((id) => deleteTask(id)));
     },
-    onSuccess: () => {
+    onSuccess: (_, taskIds) => {
+      removeTasksFromRelations(queryClientRef, taskIds);
       invalidateCommon();
-      // Relations cascade with each task, and the task-deleted broadcast skips
-      // the window that issued the delete. Only this path refreshes the edge
-      // set for whoever ran the bulk operation.
-      queryClientRef.invalidateQueries({ queryKey: ["task-relations"] });
     },
   });
 
@@ -154,6 +152,7 @@ export function useBulkOperations() {
 
   return {
     bulkDelete: bulkDelete.mutateAsync,
+    isDeleting: bulkDelete.isPending,
     bulkArchive: bulkArchive.mutateAsync,
     bulkChangeStatus: bulkChangeStatus.mutateAsync,
     bulkAssign: bulkAssign.mutateAsync,

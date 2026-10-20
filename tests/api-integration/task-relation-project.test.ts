@@ -180,6 +180,7 @@ describe("API integration: project task relations", () => {
 
     const response = await fetchProjectRelations(project.id);
 
-    expect(response.status).toBe(403);
+    // Outside the workspace, the project is reported as not found.
+    expect(response.status).toBe(404);
   });
 });

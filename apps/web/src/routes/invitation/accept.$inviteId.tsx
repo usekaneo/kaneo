@@ -4,25 +4,21 @@ import {
   useNavigate,
   useParams,
 } from "@tanstack/react-router";
-import {
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Loader2,
-  LogIn,
-  UserPlus,
-  Users,
-  XCircle,
-} from "lucide-react";
+import { TriangleAlert, UserCheckIcon } from "lucide-react";
 import { useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
+import { AuthDetails } from "@/components/auth/auth-details";
+import { AuthFormSkeleton } from "@/components/auth/auth-form-skeleton";
+import { authLinkClassName } from "@/components/auth/auth-link-class";
+import { AuthPage } from "@/components/auth/auth-page";
+import { useSettledSession } from "@/components/auth/use-settled-session";
 import PageTitle from "@/components/page-title";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { useGetInvitationDetails } from "@/hooks/queries/invitation/use-get-invitation-details";
 import { authClient } from "@/lib/auth-client";
+import { formatDateMedium } from "@/lib/format";
 import { toast } from "@/lib/toast";
-import { AuthLayout } from "../../components/auth/layout";
 
 export const Route = createFileRoute("/invitation/accept/$inviteId")({
   component: AcceptInvitation,
@@ -30,89 +26,39 @@ export const Route = createFileRoute("/invitation/accept/$inviteId")({
 
 function AcceptInvitation() {
   const { t } = useTranslation();
-  const { inviteId } = useParams({
-    from: "/invitation/accept/$inviteId",
-  });
+  const { inviteId } = useParams({ from: "/invitation/accept/$inviteId" });
   const navigate = useNavigate();
   const [isAccepting, setIsAccepting] = useState(false);
-
-  const { data: session, isPending: isSessionLoading } =
-    authClient.useSession();
+  const [isSwitching, setIsSwitching] = useState(false);
+  const { session, isLoading: isSessionLoading } = useSettledSession();
   const {
     data: invitationData,
     isLoading: isInvitationLoading,
     error: invitationError,
   } = useGetInvitationDetails(inviteId);
+  const invitation = invitationData?.invitation;
 
-  const isLoading = isSessionLoading || isInvitationLoading;
-  const isSignedIn = !!session?.user;
-
-  const handleAcceptInvitation = async () => {
-    setIsAccepting(true);
-    try {
-      const { data, error } = await authClient.organization.acceptInvitation({
-        invitationId: inviteId,
-      });
-
-      if (error) {
-        toast.error(error.message || t("auth:invitation.toast.acceptFailed"));
-        return;
-      }
-
-      await authClient.organization.setActive({
-        organizationId: data?.invitation.organizationId,
-      });
-
-      toast.success(t("auth:invitation.toast.acceptSuccess"));
-
-      if (!session?.user?.name) {
-        navigate({ to: "/profile-setup" });
-        return;
-      }
-
-      navigate({
-        to: "/dashboard/workspace/$workspaceId",
-        params: { workspaceId: data?.invitation.organizationId || "" },
-      });
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("auth:invitation.toast.acceptFailed"),
-      );
-    } finally {
-      setIsAccepting(false);
-    }
-  };
-
-  const handleSignIn = () => {
-    const email = invitationData?.invitation?.email;
+  const goToAuth = (to: "/auth/sign-in" | "/auth/sign-up") =>
     navigate({
-      to: "/auth/sign-in",
-      search: { invitationId: inviteId, email },
+      to,
+      search: { invitationId: inviteId, email: invitation?.email },
     });
-  };
 
-  // Invitees without an account need the sign-up page: sign-in cannot create
-  // one. Both flows forward the invitation id, which is what allows account
-  // creation on instances running with DISABLE_REGISTRATION=true.
-  const handleCreateAccount = () => {
-    const email = invitationData?.invitation?.email;
-    navigate({
-      to: "/auth/sign-up",
-      search: { invitationId: inviteId, email },
-    });
-  };
+  const goToKaneo = (
+    <p className="pt-8 text-muted-foreground text-sm">
+      <Link to="/dashboard" className={authLinkClassName}>
+        {t("auth:invitation.goToKaneo")}
+      </Link>
+    </p>
+  );
 
-  if (isLoading) {
+  if (isSessionLoading || isInvitationLoading) {
     return (
       <>
         <PageTitle title={t("auth:invitation.pageTitleAccept")} />
-        <AuthLayout title={t("auth:invitation.loadingTitle")}>
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          </div>
-        </AuthLayout>
+        <AuthPage title={t("auth:invitation.pageTitleAccept")}>
+          <AuthFormSkeleton />
+        </AuthPage>
       </>
     );
   }
@@ -121,212 +67,192 @@ function AcceptInvitation() {
     return (
       <>
         <PageTitle title={t("auth:invitation.pageTitleError")} />
-        <AuthLayout title={t("auth:invitation.errorTitle")}>
-          <div className="space-y-4 mt-4">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
-              <XCircle className="w-6 h-6 text-destructive" />
-            </div>
-            <Alert variant="error">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {t("auth:invitation.errorLoadDescription")}
-              </AlertDescription>
-            </Alert>
-            <Button
-              render={<Link to="/auth/sign-in" />}
-              variant="outline"
-              className="w-full"
-            >
-              {t("auth:invitation.goToSignIn")}
-            </Button>
-          </div>
-        </AuthLayout>
+        <AuthPage
+          title={t("auth:invitation.loadFailed.title")}
+          description={t("auth:invitation.loadFailed.description")}
+        >
+          {goToKaneo}
+        </AuthPage>
       </>
     );
   }
 
-  if (!invitationData.valid) {
+  if (!invitationData.valid || !invitation) {
+    const expired = invitation?.expired;
     return (
       <>
         <PageTitle title={t("auth:invitation.pageTitleInvalid")} />
-        <AuthLayout title={t("auth:invitation.invalidTitle")}>
-          <div className="space-y-4 mt-4">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
-              {invitationData.invitation?.expired ? (
-                <Clock className="w-6 h-6 text-destructive" />
-              ) : (
-                <XCircle className="w-6 h-6 text-destructive" />
-              )}
-            </div>
-
-            <div className="space-y-3 text-center">
-              <h2 className="text-lg font-semibold text-foreground">
-                {invitationData.invitation?.expired
-                  ? t("auth:invitation.invitationExpired")
-                  : t("auth:invitation.invalidTitle")}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {invitationData.error}
-              </p>
-              {invitationData.invitation && (
-                <p className="text-xs text-muted-foreground">
-                  {t("auth:invitation.workspaceLabel", {
-                    workspaceName: invitationData.invitation.workspaceName,
-                  })}
-                </p>
-              )}
-            </div>
-
-            <Button
-              render={<Link to="/auth/sign-in" />}
-              variant="outline"
-              className="w-full"
-            >
-              {t("auth:invitation.goToSignIn")}
-            </Button>
-          </div>
-        </AuthLayout>
+        <AuthPage
+          title={
+            expired
+              ? t("auth:invitation.expired.title")
+              : t("auth:invitation.invalid.title")
+          }
+          description={
+            expired
+              ? t("auth:invitation.expired.description", {
+                  inviterName: invitation.inviterName,
+                  workspaceName: invitation.workspaceName,
+                })
+              : t("auth:invitation.invalid.description")
+          }
+        >
+          {goToKaneo}
+        </AuthPage>
       </>
     );
   }
 
-  const invitation = invitationData.invitation ?? null;
+  const title = t("auth:invitation.joinWorkspace", {
+    workspaceName: invitation.workspaceName,
+  });
+  const description = t("auth:invitation.description", {
+    inviterName: invitation.inviterName,
+  });
+  const invitedBy = {
+    label: t("auth:invitation.invitedBy"),
+    value: invitation.inviterName,
+  };
+  const expires = {
+    label: t("auth:invitation.expires"),
+    value: formatDateMedium(invitation.expiresAt),
+  };
 
-  if (!invitation) {
-    return (
-      <>
-        <PageTitle title={t("auth:invitation.pageTitleInvalid")} />
-        <AuthLayout title={t("auth:invitation.invalidTitle")}>
-          <div className="space-y-4 mt-4">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-destructive/10 rounded-full">
-              <XCircle className="w-6 h-6 text-destructive" />
-            </div>
-          </div>
-        </AuthLayout>
-      </>
-    );
-  }
-
-  if (isSignedIn) {
+  if (!session?.user) {
     return (
       <>
         <PageTitle title={t("auth:invitation.pageTitleAccept")} />
-        <AuthLayout title={t("auth:invitation.pageTitleAccept")}>
-          <div className="space-y-4 mt-4">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-primary/10 rounded-full">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-
-            <div className="space-y-3 text-center">
-              <h2 className="text-lg font-semibold text-foreground">
-                {t("auth:invitation.joinWorkspace", {
-                  workspaceName: invitation.workspaceName,
-                })}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                <Trans
-                  i18nKey="auth:invitation.inviteBodySignedIn"
-                  values={{ inviterName: invitation.inviterName }}
-                  components={{ inviter: <strong /> }}
-                />
-              </p>
-            </div>
-
-            <div className="space-y-3 pt-2">
-              <Button
-                onClick={handleAcceptInvitation}
-                disabled={isAccepting}
-                className="w-full"
-              >
-                {isAccepting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t("auth:invitation.accepting")}
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {t("auth:invitation.acceptInvitation")}
-                  </>
-                )}
-              </Button>
-
-              <Button
-                render={<Link to="/dashboard" />}
-                variant="outline"
-                className="w-full"
-              >
-                {t("auth:invitation.goToDashboard")}
-              </Button>
-            </div>
-
-            <div className="pt-4 border-t border-border">
-              <p className="text-xs text-center text-muted-foreground">
-                <Trans
-                  i18nKey="auth:invitation.signedInAs"
-                  values={{ email: session.user.email }}
-                  components={{ email: <strong /> }}
-                />
-              </p>
-            </div>
+        <AuthPage title={title} description={description}>
+          <div className="flex flex-col gap-4">
+            <AuthDetails
+              rows={[
+                invitedBy,
+                {
+                  label: t("auth:invitation.sentTo"),
+                  value: invitation.email,
+                },
+                expires,
+              ]}
+            />
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => goToAuth("/auth/sign-up")}
+            >
+              {t("auth:invitation.createAccount")}
+            </Button>
           </div>
-        </AuthLayout>
+          <p className="pt-8 text-muted-foreground text-sm">
+            {t("auth:signUp.toggleMessage")}{" "}
+            <button
+              type="button"
+              className={authLinkClassName}
+              onClick={() => goToAuth("/auth/sign-in")}
+            >
+              {t("auth:invitation.signIn")}
+            </button>
+          </p>
+        </AuthPage>
       </>
     );
   }
+
+  const isRecipient =
+    session.user.email.toLowerCase() === invitation.email.toLowerCase();
+
+  const accept = async () => {
+    setIsAccepting(true);
+    try {
+      const { data, error } = await authClient.organization.acceptInvitation({
+        invitationId: inviteId,
+      });
+      if (error) {
+        toast.error(error.message || t("auth:invitation.toast.acceptFailed"));
+        setIsAccepting(false);
+        return;
+      }
+      const workspaceId = data?.invitation.organizationId ?? "";
+      await authClient.organization.setActive({ organizationId: workspaceId });
+      toast.success(t("auth:invitation.toast.acceptSuccess"), {
+        icon: UserCheckIcon,
+      });
+      if (!session.user.name) {
+        navigate({ to: "/profile-setup" });
+        return;
+      }
+      navigate({
+        to: "/dashboard/workspace/$workspaceId",
+        params: { workspaceId },
+      });
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : t("auth:invitation.toast.acceptFailed"),
+      );
+      setIsAccepting(false);
+    }
+  };
+
+  const switchAccount = async () => {
+    setIsSwitching(true);
+    try {
+      await authClient.signOut();
+      goToAuth("/auth/sign-in");
+    } catch {
+      setIsSwitching(false);
+    }
+  };
 
   return (
     <>
       <PageTitle title={t("auth:invitation.pageTitleAccept")} />
-      <AuthLayout title={t("auth:invitation.youveBeenInvited")}>
-        <div className="space-y-4 mt-4">
-          <div className="flex items-center justify-center w-12 h-12 mx-auto bg-primary/10 rounded-full">
-            <Users className="w-6 h-6 text-primary" />
-          </div>
-
-          <div className="space-y-3 text-center">
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("auth:invitation.joinWorkspace", {
-                workspaceName: invitation.workspaceName,
-              })}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              <Trans
-                i18nKey="auth:invitation.inviteBodySignedOut"
-                values={{ inviterName: invitation.inviterName }}
-                components={{ inviter: <strong /> }}
-              />
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {t("auth:invitation.createAccountOrSignIn")}
-            </p>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <Button onClick={handleCreateAccount} className="w-full">
-              <UserPlus className="w-4 h-4 mr-2" />
-              {t("auth:invitation.createAccount")}
+      <AuthPage title={title} description={description}>
+        <div className="flex flex-col gap-4">
+          {isRecipient ? (
+            <AuthDetails
+              rows={[
+                invitedBy,
+                {
+                  label: t("auth:invitation.signedInAs"),
+                  value: session.user.email,
+                },
+                expires,
+              ]}
+            />
+          ) : (
+            <Alert variant="warning">
+              <TriangleAlert />
+              <AlertTitle>{t("auth:invitation.mismatch.title")}</AlertTitle>
+              <AlertDescription>
+                {t("auth:invitation.mismatch.description", {
+                  invitedEmail: invitation.email,
+                  email: session.user.email,
+                })}
+              </AlertDescription>
+            </Alert>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="lg"
+              disabled={isAccepting || isSwitching}
+              render={<Link to="/dashboard" />}
+            >
+              {t("auth:invitation.notNow")}
             </Button>
-
-            <Button onClick={handleSignIn} variant="outline" className="w-full">
-              <LogIn className="w-4 h-4 mr-2" />
-              {t("auth:invitation.signIn")}
-            </Button>
-          </div>
-
-          <div className="pt-4 border-t border-border">
-            <div className="text-center space-y-1">
-              <p className="text-xs text-muted-foreground">
-                <Trans
-                  i18nKey="auth:invitation.invitationFor"
-                  values={{ email: invitation.email }}
-                  components={{ email: <strong /> }}
-                />
-              </p>
-            </div>
+            {isRecipient ? (
+              <Button size="lg" loading={isAccepting} onClick={accept}>
+                {t("auth:invitation.join")}
+              </Button>
+            ) : (
+              <Button size="lg" loading={isSwitching} onClick={switchAccount}>
+                {t("auth:invitation.switchAccount")}
+              </Button>
+            )}
           </div>
         </div>
-      </AuthLayout>
+      </AuthPage>
     </>
   );
 }

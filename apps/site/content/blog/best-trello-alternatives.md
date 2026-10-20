@@ -1,9 +1,9 @@
 ---
-title: "10 Best Trello Alternatives in 2026 (Free, Open-Source, and Self-Hosted)"
-description: "The best Trello alternatives in 2026, compared on price, free tiers, single sign-on, and self-hosting. Includes open-source kanban boards you can run on your own server for free and hosted tools for teams that outgrew a single board."
+title: "10 Best Trello Alternatives in 2026 (Free and Paid)"
+description: "The best Trello alternatives in 2026, compared on price, free tiers, single sign-on, and self-hosting, from open-source boards to hosted team tools."
 excerpt: "Trello is the easiest board to start with and one of the easiest to outgrow. Here are 10 alternatives, from open-source boards you can host yourself to trackers with a real backlog, and what each one costs."
 date: 2026-10-02
-updatedOn: 2026-10-02
+updatedOn: 2026-10-12
 author: kaneo-team
 category: alternatives
 ---
@@ -89,11 +89,11 @@ Kaneo Cloud is hosted in the EU and costs $5 per user a month, with single sign-
 - Single sign-on with Google, GitHub, Discord, or any OIDC provider, on every plan
 - GitHub, GitLab, and Gitea integrations with two-way issue sync, plus notifications in Slack, Discord, Telegram, and Mattermost
 - Public REST API, API keys, webhooks, and an MCP server for AI agents
-- Per-project JSON export and import
+- Per-project JSON export and import, plus a built-in Trello importer
 
 **Pros:** The structure Trello leaves to Power-Ups is included: backlog, workflows, priorities, Gantt, calendar, custom fields, and time tracking. Single sign-on on every plan, and the same features in the free MIT-licensed self-hosted build.
 
-**Cons:** No Power-Up marketplace, no butler-style automation builder beyond rules that move tasks on integration events, and no one-click Trello importer yet. Moving boards over means Trello's JSON export plus Kaneo's API or JSON import.
+**Cons:** No Power-Up marketplace, no butler-style automation builder beyond rules that move tasks on integration events, and Trello attachments, custom fields, and Power-Up data do not come across in the import.
 
 **Pricing:** Kaneo Cloud is $4 a month for one user and $5 per user a month for teams, 14-day trial, no credit card. Annual billing works out at $3.33 and $4.17 a month. Self-hosting under MIT is free.
 
@@ -276,7 +276,7 @@ Kaneo Cloud is the cheapest per-seat row, below even Trello Standard, and it inc
 
 Any board member can export a board to JSON from the board menu, on every plan, with its cards, lists, labels, checklists, and members. The JSON only carries the 1,000 most recent actions, which is where comments live, so a busy board's older comment history may be missing. CSV export is limited to Premium Workspaces and leaves out comments. Attachments are links rather than files, so download the ones that matter separately.
 
-From there it is a scripting job against the target tool's API. Kaneo has a documented public REST API and per-project JSON import, so a board of a few hundred cards is an afternoon. Import into a scratch project first, check that assignees resolve by email and that due dates land in the right timezone, and keep Trello readable for a few weeks rather than cancelling on day one. If you want a one-click Trello importer, say so in a [GitHub issue](https://github.com/usekaneo/kaneo), since import work is prioritised by demand.
+From there it is a scripting job against the target tool's API, unless the tool has a Trello importer. Kaneo has one built in: authorize Trello, pick your boards, and lists, cards, checklists, labels, members, comments, and archived cards come across ([import guide](https://kaneo.app/docs/core/migrations/from-trello)). Import one board first, check that card members matched the right people (Trello hides emails, so Kaneo matches by full name), and keep Trello readable for a few weeks rather than cancelling on day one.
 
 ## Frequently asked questions
 

@@ -266,6 +266,51 @@ jobs:
             --latest=false \
             --prerelease="$PRERELEASE"
 
+  homebrew:
+    name: Update Homebrew tap
+    needs: [check, release]
+    if: ${{ !cancelled() && needs.check.result == 'success' && needs.check.outputs.prerelease == 'false' && (needs.release.result == 'success' || needs.check.outputs.release_exists == 'true') }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          sparse-checkout: packages/cli/scripts
+
+      - name: Checkout Homebrew tap
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: usekaneo/homebrew-tap
+          path: homebrew-tap
+          persist-credentials: false
+
+      - name: Update the kaneo formula
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          VERSION: ${{ needs.check.outputs.version }}
+        run: |
+          set -euo pipefail
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "::error::Set the HOMEBREW_TAP_TOKEN secret to a token that can push to usekaneo/homebrew-tap."
+            exit 1
+          fi
+          gh release download "cli-v$VERSION" --repo "$GITHUB_REPOSITORY" --pattern SHA256SUMS --dir "$RUNNER_TEMP"
+          sh packages/cli/scripts/homebrew-formula.sh "$VERSION" "$RUNNER_TEMP/SHA256SUMS" > homebrew-tap/Formula/kaneo.rb
+          cd homebrew-tap
+          if git diff --quiet; then
+            echo "The formula is already at $VERSION."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "kaneo $VERSION"
+          git push "https://x-access-token:${TAP_TOKEN}@github.com/usekaneo/homebrew-tap.git" HEAD:main
+
   npm:
     name: Publish to npm
     needs: check

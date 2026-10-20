@@ -1,15 +1,12 @@
-import { Check } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+import { OptionMenu } from "@/components/common/option-menu/option-menu";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ShortcutNumber } from "@/components/ui/shortcut-number";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
-import { useNumberedShortcuts } from "@/hooks/use-numbered-shortcuts";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
@@ -21,13 +18,7 @@ type TaskPriorityPopoverProps = {
   children: React.ReactNode;
 };
 
-const priorityOptions = [
-  { value: "no-priority" },
-  { value: "low" },
-  { value: "medium" },
-  { value: "high" },
-  { value: "urgent" },
-];
+const priorities = ["no-priority", "low", "medium", "high", "urgent"];
 
 export default function TaskPriorityPopover({
   task,
@@ -37,66 +28,37 @@ export default function TaskPriorityPopover({
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
   const { canUpdateTasks } = useWorkspacePermission();
-  const canEdit = canUpdateTasks();
 
-  const handlePriorityChange = useCallback(
-    async (newPriority: string) => {
-      try {
-        await updateTaskPriority({
-          ...task,
-          priority: newPriority,
-        });
-        setOpen(false);
-      } catch (error) {
-        toast.error(
-          error instanceof Error
-            ? error.message
-            : t("tasks:popover.priority.updateError"),
-        );
-      }
-    },
-    [t, task, updateTaskPriority],
-  );
+  if (!canUpdateTasks()) return <>{children}</>;
 
-  const shortcutOptions = useMemo(
-    () =>
-      priorityOptions.map((priority) => ({
-        onSelect: () => handlePriorityChange(priority.value),
-      })),
-    [handlePriorityChange],
-  );
-
-  useNumberedShortcuts(open, shortcutOptions);
-
-  // Read-only role: render the trigger child as a plain element so the user
-  // still sees the current priority but can't open the popover.
-  if (!canEdit) return <>{children}</>;
+  const changePriority = async (priority: string) => {
+    setOpen(false);
+    try {
+      await updateTaskPriority({ ...task, priority });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("tasks:popover.priority.updateError"),
+      );
+    }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-48 p-0" align="start">
-        <div>
-          {priorityOptions.map((priority, index) => (
-            <Button
-              key={priority.value}
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start gap-2 h-8 px-2 rounded-none first:rounded-t-md last:rounded-b-md"
-              onClick={() => handlePriorityChange(priority.value)}
-            >
-              {getPriorityIcon(priority.value)}
-              <span className="text-sm">
-                {getPriorityLabel(priority.value)}
-              </span>
-              {task.priority === priority.value ? (
-                <Check className="ml-auto h-4 w-4" />
-              ) : (
-                <ShortcutNumber number={index + 1} />
-              )}
-            </Button>
-          ))}
-        </div>
+      <PopoverContent className="w-60 p-0" align="start">
+        <OptionMenu
+          label={t("tasks:priority.label")}
+          placeholder={t("tasks:bulk.priorityPlaceholder")}
+          options={priorities.map((priority) => ({
+            value: priority,
+            label: getPriorityLabel(priority),
+            icon: getPriorityIcon(priority),
+            selected: (task.priority || "no-priority") === priority,
+          }))}
+          onSelect={changePriority}
+        />
       </PopoverContent>
     </Popover>
   );

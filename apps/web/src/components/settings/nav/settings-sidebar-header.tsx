@@ -1,6 +1,5 @@
 import { ChevronLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Kbd } from "@/components/ui/kbd";
 import {
   SidebarHeader,
   SidebarMenu,
@@ -28,9 +27,6 @@ export function SettingsSidebarHeader({ onLeave }: SettingsSidebarHeaderProps) {
           >
             <ChevronLeft aria-hidden="true" />
             <span className="flex-1">{t("navigation:page.settingsTitle")}</span>
-            <Kbd aria-hidden="true" className="hidden md:inline-flex">
-              Esc
-            </Kbd>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

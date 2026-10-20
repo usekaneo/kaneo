@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { stopCardEvents } from "@/components/task-chips/stop-card-events";
 import {
   HoverCard,
   HoverCardContent,
@@ -46,22 +47,14 @@ export function TaskPullRequests({
             href={single.href}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
+            {...stopCardEvents}
             className={badgeClassName}
           >
             <PullRequestStatusIcon status={getPullRequestStatus(single)} />
             <span>#{single.externalId}</span>
           </a>
         ) : (
-          <button
-            type="button"
-            onClick={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
-            className={badgeClassName}
-          >
+          <button type="button" {...stopCardEvents} className={badgeClassName}>
             <PullRequestStatusIcon
               status={getPullRequestsStatus(pullRequests)}
             />
@@ -73,9 +66,7 @@ export function TaskPullRequests({
         className="w-80 flex-col gap-px p-1"
         side="bottom"
         align="start"
-        onClick={(e) => e.stopPropagation()}
-        onPointerDown={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
+        {...stopCardEvents}
         onKeyDown={(e) => e.stopPropagation()}
       >
         {pullRequests.map((pr) => (

@@ -6,8 +6,6 @@ import { SettingsNavProjects } from "@/components/settings/nav/settings-nav-proj
 import { SettingsSidebarHeader } from "@/components/settings/nav/settings-sidebar-header";
 import type { SettingsNav } from "@/components/settings/nav/types";
 import { Sidebar, SidebarContent, useSidebar } from "@/components/ui/sidebar";
-import { shortcuts } from "@/constants/shortcuts";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 type SettingsSidebarProps = {
   nav: SettingsNav;
@@ -18,15 +16,7 @@ export function SettingsSidebar({ nav, onLeave }: SettingsSidebarProps) {
   const pathname = useLocation({
     select: (location) => normalizeSettingsPath(location.pathname),
   });
-  const { setOpenMobile, toggleSidebar } = useSidebar();
-
-  useRegisterShortcuts({
-    modifierShortcuts: {
-      [shortcuts.sidebar.prefix]: {
-        [shortcuts.sidebar.toggle]: toggleSidebar,
-      },
-    },
-  });
+  const { setOpenMobile } = useSidebar();
 
   useEffect(() => {
     if (pathname) setOpenMobile(false);

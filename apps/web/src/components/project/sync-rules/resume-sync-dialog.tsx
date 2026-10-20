@@ -53,7 +53,7 @@ export function ResumeSyncDialog({
           )}
           {(preview.isError || resume.isError) && (
             <div role="alert" className="space-y-3">
-              <p className="text-sm text-destructive">
+              <p className="text-sm text-destructive-foreground">
                 {t("settings:syncRules.resumeError")}
               </p>
               <Button
@@ -109,13 +109,12 @@ export function ResumeSyncDialog({
         <DialogFooter className="flex-wrap">
           <DialogClose
             disabled={resume.isPending}
-            render={<Button variant="ghost" size="sm" />}
+            render={<Button variant="outline" />}
           >
             {t("common:actions.cancel")}
           </DialogClose>
           <Button
             variant="outline"
-            size="sm"
             disabled={
               !data ||
               preview.isFetching ||
@@ -128,7 +127,6 @@ export function ResumeSyncDialog({
             {t("settings:syncRules.useRepository")}
           </Button>
           <Button
-            size="sm"
             loading={resume.isPending}
             disabled={
               !data || preview.isFetching || resume.isError || preview.isError

@@ -1,6 +1,10 @@
 import { HTTPException } from "hono/http-exception";
 import type { PoolClient } from "pg";
 import { getDatabasePool } from "../database";
+import {
+  releaseSessionLock,
+  reserveSessionLock,
+} from "../database/session-lock-budget";
 
 export const MAX_LABEL_DELETIONS_IN_FLIGHT = 4;
 const LOCK_NAMESPACE = 773622;
@@ -20,7 +24,8 @@ export async function withLabelDeletionLock<T>(
   id: string,
   run: () => Promise<T>,
 ): Promise<T> {
-  if (active >= MAX_LABEL_DELETIONS_IN_FLIGHT) throw busy();
+  if (active >= MAX_LABEL_DELETIONS_IN_FLIGHT || !reserveSessionLock())
+    throw busy();
   active++;
   let client: PoolClient | undefined;
   let slot: number | undefined;
@@ -72,6 +77,7 @@ export async function withLabelDeletionLock<T>(
       }
       client.release(releaseError);
     }
+    releaseSessionLock();
     active--;
   }
 }
