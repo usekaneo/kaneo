@@ -5,6 +5,10 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type Task from "@/types/task";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
+vi.mock("./queries/label/use-get-labels-by-workspace", () => ({
+  default: () => ({ data: undefined }),
+}));
+
 const storageKey = "kaneo:board-filters:project-1";
 const task: Task = {
   id: "task-1",
