@@ -2751,7 +2751,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "heeft gereageerd op {{forge}}"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "{{name}} verwijderd uit de toegewezen personen"
 	},
 	"tasks": {
 		"title": "Taken",
@@ -3315,7 +3316,8 @@
 			"replace": "Replace with current view",
 			"deleteConfirm": "Delete this saved view? Tasks will remain unchanged.",
 			"confirmDelete": "Confirm delete",
-			"error": "Could not load or save personal views. Please try again."
+			"error": "Could not load or save personal views. Please try again.",
+			"limit": "You have reached 50 personal views for this project. Delete a view before saving another."
 		}
 	},
 	"invitations": {

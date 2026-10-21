@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 export type OptionMenuItem = {
   value: string;
   label: string;
+  keywords?: readonly string[];
   icon?: ReactNode;
   selected?: boolean;
   hint?: string;

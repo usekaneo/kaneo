@@ -1255,7 +1255,8 @@
 		"moved": "przeniósł(ęła) zadanie z \"{{from}}\" do \"{{to}}\"",
 		"setDueDate": "ustawił(a) termin na {{date}}",
 		"unassigned": "usunął(ęła) przypisanie zadania",
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "Usunięto {{name}} z przypisanych osób"
 	},
 	"settings": {
 		"advancedSettings": "Ustawienia zaawansowane",
@@ -3711,7 +3712,8 @@
 			"replace": "Replace with current view",
 			"deleteConfirm": "Delete this saved view? Tasks will remain unchanged.",
 			"confirmDelete": "Confirm delete",
-			"error": "Could not load or save personal views. Please try again."
+			"error": "Could not load or save personal views. Please try again.",
+			"limit": "You have reached 50 personal views for this project. Delete a view before saving another."
 		}
 	},
 	"press": {

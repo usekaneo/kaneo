@@ -20,6 +20,7 @@ function useCreateTask() {
       priority,
       customFields,
       draftAssetIds,
+      assigneeIds,
     }: CreateTaskRequest) =>
       createTask(
         title,
@@ -32,6 +33,7 @@ function useCreateTask() {
         priority,
         customFields,
         draftAssetIds,
+        assigneeIds,
       ),
     onSuccess: (_data, variables) => {
       invalidateMyWork(queryClient);

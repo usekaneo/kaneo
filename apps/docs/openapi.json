@@ -244,6 +244,12 @@
             "type": "string",
             "format": "date-time"
           },
+          "assignees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskAssignee"
+            }
+          },
           "userId": {
             "type": [
               "string",
@@ -321,6 +327,28 @@
           "subtaskCounts",
           "labels",
           "externalLinks"
+        ]
+      },
+      "TaskAssignee": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "image"
         ]
       },
       "TaskLabel": {
@@ -1187,12 +1215,18 @@
             ],
             "description": "Per-project counter shown as {projectSlug}-{number}."
           },
+          "assignees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskAssignee"
+            }
+          },
           "userId": {
             "type": [
               "string",
               "null"
             ],
-            "description": "The assignee, if any."
+            "description": "Legacy primary-assignee field. Use assignees for the complete set."
           },
           "title": {
             "type": "string"
@@ -1455,6 +1489,12 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "assigneeIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "userId": {
             "type": [
@@ -4176,6 +4216,12 @@
               "string",
               "null"
             ]
+          },
+          "assignees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskAssignee"
+            }
           }
         },
         "required": [
@@ -10916,6 +10962,14 @@
                       "updateDueDate"
                     ]
                   },
+                  "assigneeMode": {
+                    "type": "string",
+                    "enum": [
+                      "set",
+                      "add",
+                      "remove"
+                    ]
+                  },
                   "value": {
                     "type": [
                       "string",
@@ -11467,7 +11521,15 @@
                   },
                   "userId": {
                     "type": "string",
-                    "description": "Assignee, if any."
+                    "description": "First assignee, for legacy clients."
+                  },
+                  "assigneeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "maxItems": 100
                   },
                   "draftAssetIds": {
                     "type": "array",
@@ -11920,6 +11982,14 @@
                   },
                   "userId": {
                     "type": "string"
+                  },
+                  "assigneeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "maxItems": 100
                   }
                 },
                 "required": [
@@ -12290,6 +12360,14 @@
                             "null"
                           ]
                         },
+                        "assigneeIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "maxItems": 100
+                        },
                         "userId": {
                           "type": [
                             "string",
@@ -12548,6 +12626,279 @@
           },
           "404": {
             "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/{id}/assignees": {
+      "put": {
+        "operationId": "setTaskAssignees",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Set task assignees",
+        "description": "Change task assignees atomically. Only eligible project members can be added. Existing single-assignee fields remain available for older clients.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "assigneeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [
+                  "assigneeIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated task and its assignees",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid assignee list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No project access or assignment permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or user not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "addTaskAssignees",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Add task assignees",
+        "description": "Change task assignees atomically. Only eligible project members can be added. Existing single-assignee fields remain available for older clients.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated task and its assignees",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid assignee list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No project access or assignment permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or user not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/{id}/assignees/{userId}": {
+      "delete": {
+        "operationId": "removeTaskAssignees",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Remove task assignees",
+        "description": "Change task assignees atomically. Only eligible project members can be added. Existing single-assignee fields remain available for older clients.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The updated task and its assignees",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid assignee list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No project access or assignment permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task or user not found",
             "content": {
               "application/json": {
                 "schema": {

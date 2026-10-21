@@ -1,4 +1,4 @@
-import type { BoardFilters } from "@/hooks/use-task-filters";
+import type { BoardFilters } from "@/lib/task-filters/types";
 
 export function countActiveFilters(filters: BoardFilters) {
   const listCount = (

@@ -5,12 +5,14 @@ import TaskCardContextMenuContent from "./task-card-context-menu-content";
 
 const duplicateTask = vi.fn();
 const canCreateTasks = vi.fn(() => true);
+const canAssignTasks = vi.fn(() => true);
 vi.mock("@/hooks/mutations/task/use-duplicate-task", () => ({
   useDuplicateTask: () => ({ mutate: duplicateTask }),
 }));
 
 afterEach(() => {
   canCreateTasks.mockReturnValue(true);
+  canAssignTasks.mockReturnValue(true);
   cleanup();
   vi.clearAllMocks();
 });
@@ -112,7 +114,7 @@ vi.mock("@/hooks/use-workspace-permission", () => ({
     canCreateTasks,
     canUpdateTasks: () => true,
     canDeleteTasks: () => true,
-    canAssignTasks: () => true,
+    canAssignTasks,
   }),
 }));
 
@@ -197,4 +199,20 @@ it("hides duplication without task-create permission", () => {
   canCreateTasks.mockReturnValue(false);
   renderTask(task);
   expect(screen.queryByText("tasks:actions.duplicate")).toBeNull();
+});
+
+it("opens searchable assignment when Assignee is clicked", () => {
+  renderTask(task);
+  fireEvent.click(screen.getByRole("button", { name: "tasks:assignee.label" }));
+  expect(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(
+    screen.getByRole("combobox", { name: "tasks:assignee.label" }),
+  ).toBeInTheDocument();
+});
+it("does not offer assignment without permission", () => {
+  canAssignTasks.mockReturnValue(false);
+  renderTask(task);
+  expect(
+    screen.queryByRole("button", { name: "tasks:assignee.label" }),
+  ).toBeNull();
 });

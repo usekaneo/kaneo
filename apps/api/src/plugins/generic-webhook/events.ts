@@ -1,3 +1,7 @@
+import {
+  getTaskAssignees,
+  type TaskAssignee,
+} from "../../task/assignees/get-task-assignees";
 import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import {
@@ -12,6 +16,7 @@ import { safeOutboundError } from "../../utils/outbound-request";
 import type {
   PluginContext,
   TaskAssigneeChangedEvent,
+  TaskAssigneeRemovedEvent,
   TaskCommentCreatedEvent,
   TaskCreatedEvent,
   TaskDeletedEvent,
@@ -28,6 +33,7 @@ import type { GenericWebhookConfig, GenericWebhookEventKey } from "./config";
 import { normalizeGenericWebhookConfig } from "./config";
 
 type GenericWebhookTaskData = {
+  assignees?: TaskAssignee[];
   id: string;
   title: string;
   number: number | null;
@@ -84,6 +90,7 @@ async function getTaskData(
 
   return {
     ...taskRow,
+    assignees: (await getTaskAssignees([taskId])).get(taskId) ?? [],
     status: taskRow.status,
     statusName: taskRow.columnName ?? taskRow.status,
     taskUrl: `${clientUrl}/dashboard/workspace/${taskRow.workspaceId}/project/${taskRow.projectId}/task/${taskId}`,
@@ -543,6 +550,28 @@ export async function handleTaskUnassigned(
     event.userId,
     {
       title: event.title,
+    },
+  );
+}
+
+export async function handleTaskAssigneeRemoved(
+  event: TaskAssigneeRemovedEvent,
+  context: PluginContext,
+): Promise<void> {
+  const config = normalizeGenericWebhookConfig(
+    context.config as GenericWebhookConfig,
+  );
+  if (!isEnabled(config, "taskAssigneeChanged")) return;
+  await sendEvent(
+    config,
+    "task.assignee_removed",
+    event.taskId,
+    event.projectId,
+    event.userId,
+    {
+      title: event.title,
+      removedAssigneeId: event.removedAssigneeId,
+      removedAssignee: event.removedAssignee ?? null,
     },
   );
 }

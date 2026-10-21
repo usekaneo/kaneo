@@ -6,7 +6,7 @@ import { CardFieldToggles } from "./card-field-toggles";
 import { CustomFieldToggles } from "./custom-field-toggles";
 import { DisplaySection } from "./display-section";
 import { ProjectBackgroundSwitch } from "./project-background-switch";
-import { MANUAL_SORT } from "./sort-fields";
+import { MANUAL_SORT } from "@/lib/task-sort-config";
 import { SortOrderControl } from "./sort-order-control";
 
 type TaskDisplayOptionsProps = {

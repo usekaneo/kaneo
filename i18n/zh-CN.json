@@ -2704,7 +2704,8 @@
 			"importedBy": "由 {{name}} 导入",
 			"commentedOnForge": "在 {{forge}} 上评论"
 		},
-		"movedFromOtherProject": "将任务从其它项目移动到「{{to}}」"
+		"movedFromOtherProject": "将任务从其它项目移动到「{{to}}」",
+		"removedAssignee": "已将 {{name}} 从负责人中移除"
 	},
 	"tasks": {
 		"title": "任务",
@@ -3258,7 +3259,8 @@
 			"replace": "Replace with current view",
 			"deleteConfirm": "Delete this saved view? Tasks will remain unchanged.",
 			"confirmDelete": "Confirm delete",
-			"error": "Could not load or save personal views. Please try again."
+			"error": "Could not load or save personal views. Please try again.",
+			"limit": "You have reached 50 personal views for this project. Delete a view before saving another."
 		}
 	},
 	"invitations": {

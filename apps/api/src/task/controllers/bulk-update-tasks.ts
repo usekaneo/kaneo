@@ -1,3 +1,4 @@
+import { bulkChangeTaskAssignees } from "../assignees/bulk-change-task-assignees";
 import { queueStorageCleanup } from "../../storage/cleanup-queue";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -8,7 +9,6 @@ import {
   labelTable,
   projectTable,
   taskTable,
-  userTable,
   taskReminderSentTable,
   workspaceUserTable,
 } from "../../database/schema";
@@ -16,7 +16,6 @@ import { publishEvent } from "../../events";
 import { removeLabelFromGitea } from "../../plugins/gitea/utils/sync-label-to-gitea";
 import { removeLabelFromGitHub } from "../../plugins/github/utils/sync-label-to-github";
 import { removeLabelFromGitlab } from "../../plugins/gitlab/utils/sync-label-to-gitlab";
-import { assertAssignableUser } from "../../utils/assert-assignable-user";
 import { publishTaskMutation } from "./task-mutation-effects";
 import { getSubtaskParentProjects } from "../get-subtask-parent-projects";
 import {
@@ -38,10 +37,12 @@ async function bulkUpdateTasks({
   operation,
   value,
   userId,
+  assigneeMode = "set",
 }: {
   taskIds: string[];
   operation: BulkOperation;
   value?: string | null;
+  assigneeMode?: "set" | "add" | "remove";
   userId: string;
 }) {
   const tasks = await db
@@ -243,63 +244,13 @@ async function bulkUpdateTasks({
     }
 
     case "updateAssignee": {
-      const assigneeId = value?.trim() || null;
-
-      if (assigneeId) {
-        await assertAssignableUser(
-          assigneeId,
-          workspaceId,
-          tasks.map((task) => task.projectId),
-        );
-      }
-
-      const assignee = assigneeId
-        ? await db.query.userTable.findFirst({
-            columns: { name: true },
-            where: eq(userTable.id, assigneeId),
-          })
-        : undefined;
-      const before = await db.transaction(async (tx) => {
-        const locked = await tx
-          .select({
-            id: taskTable.id,
-            projectId: taskTable.projectId,
-            title: taskTable.title,
-            userId: taskTable.userId,
-          })
-          .from(taskTable)
-          .where(inArray(taskTable.id, foundIds))
-          .orderBy(asc(taskTable.id))
-          .for("update");
-        const originalProjects = new Map(
-          tasks.map((task) => [task.id, task.projectId]),
-        );
-        if (
-          locked.length !== foundIds.length ||
-          locked.some(
-            (task) => task.projectId !== originalProjects.get(task.id),
-          )
-        )
-          throw new HTTPException(409, {
-            message: "Tasks changed projects; retry the operation",
-          });
-        await tx
-          .update(taskTable)
-          .set({ userId: assigneeId })
-          .where(inArray(taskTable.id, foundIds));
-        return locked;
+      updatedCount = await bulkChangeTaskAssignees({
+        tasks,
+        workspaceId,
+        value,
+        userId,
+        assigneeMode,
       });
-      updatedCount = before.length;
-      for (const task of before)
-        await publishTaskMutation(
-          task,
-          {
-            ...task,
-            userId: assigneeId,
-          },
-          userId,
-          { fields: ["userId"], assigneeName: assignee?.name ?? null },
-        );
       break;
     }
 

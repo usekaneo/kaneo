@@ -578,4 +578,41 @@ describe("registerTools", () => {
       }),
     ]);
   });
+  it("changes one assignee through the atomic add/remove routes", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ assignees: [] }) };
+    registerTools(server as never, { client: client as never });
+    await tools
+      .get("add_task_assignee")
+      ?.handler({ taskId: "task/a", userId: "person/b" });
+    expect(client.json).toHaveBeenLastCalledWith(
+      "/api/task/task%2Fa/assignees",
+      { method: "POST", body: JSON.stringify({ userId: "person/b" }) },
+    );
+    await tools
+      .get("remove_task_assignee")
+      ?.handler({ taskId: "task/a", userId: "person/b" });
+    expect(client.json).toHaveBeenLastCalledWith(
+      "/api/task/task%2Fa/assignees/person%2Fb",
+      { method: "DELETE" },
+    );
+  });
+  it("passes a selected assignee set intact during creation", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ assignees: [] }) };
+    registerTools(server as never, { client: client as never });
+    await tools.get("create_task")?.handler({
+      projectId: "project",
+      title: "Pair",
+      description: "",
+      status: "to-do",
+      priority: "low",
+      assigneeIds: ["ada", "grace"],
+    });
+    const [, request] = client.json.mock.calls[0];
+    expect(JSON.parse(request.body)).toHaveProperty("assigneeIds", [
+      "ada",
+      "grace",
+    ]);
+  });
 });

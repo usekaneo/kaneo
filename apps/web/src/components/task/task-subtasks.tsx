@@ -119,6 +119,7 @@ export default function TaskSubtasks({
     userId: subtask.task.userId,
     assigneeId: subtask.task.userId,
     assigneeName: subtask.task.assigneeName,
+    assignees: subtask.task.assignees,
     projectId: subtask.task.projectId,
   });
 

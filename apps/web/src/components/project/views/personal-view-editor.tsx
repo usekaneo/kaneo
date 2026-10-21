@@ -1,3 +1,4 @@
+import { HttpError } from "@/lib/http-error";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -62,81 +63,103 @@ export function PersonalViewEditor({
       }}
     >
       <DialogPopup>
-        <DialogHeader>
-          <DialogTitle>
-            {t(
-              view ? "tasks:personalViews.manage" : "tasks:personalViews.save",
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            {t("tasks:personalViews.description")}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogPanel>
-          <label htmlFor="personal-view-name" className="mb-2 block text-sm">
-            {t("tasks:personalViews.name")}
-          </label>
-          <Input
-            id="personal-view-name"
-            value={name}
-            maxLength={80}
-            disabled={mutation.isPending}
-            onChange={(event) => setName(event.target.value)}
-          />
-          {mutation.isError && (
-            <p role="alert" className="mt-2 text-destructive text-sm">
-              {t("tasks:personalViews.error")}
-            </p>
-          )}
-          {confirmDelete && (
-            <p className="mt-3 text-sm">
-              {t("tasks:personalViews.deleteConfirm")}
-            </p>
-          )}
-        </DialogPanel>
-        <DialogFooter className="flex-wrap">
-          <Button
-            variant="ghost"
-            disabled={mutation.isPending}
-            onClick={onClose}
-          >
-            {t("common:actions.cancel")}
-          </Button>
-          {view && (
-            <>
-              <Button
-                variant="destructive"
-                disabled={mutation.isPending}
-                onClick={() =>
-                  confirmDelete
-                    ? mutation.mutate("delete")
-                    : setConfirmDelete(true)
-                }
-              >
+        <form
+          className="contents"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!disabled) mutation.mutate(view ? "rename" : "replace");
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>
+              {t(
+                view
+                  ? "tasks:personalViews.manage"
+                  : "tasks:personalViews.save",
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {t("tasks:personalViews.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogPanel>
+            <label htmlFor="personal-view-name" className="mb-2 block text-sm">
+              {t("tasks:personalViews.name")}
+            </label>
+            <Input
+              id="personal-view-name"
+              autoFocus
+              value={name}
+              maxLength={80}
+              disabled={mutation.isPending}
+              onChange={(event) => setName(event.target.value)}
+            />
+            {mutation.isError && (
+              <p role="alert" className="mt-2 text-destructive text-sm">
                 {t(
-                  confirmDelete
-                    ? "tasks:personalViews.confirmDelete"
-                    : "common:actions.delete",
+                  mutation.error instanceof HttpError &&
+                    mutation.error.status === 409
+                    ? "tasks:personalViews.limit"
+                    : "tasks:personalViews.error",
                 )}
-              </Button>
-              <Button
-                variant="outline"
-                disabled={disabled}
-                onClick={() => mutation.mutate("rename")}
-              >
-                {t("tasks:personalViews.rename")}
-              </Button>
-            </>
-          )}
-          <Button
-            disabled={disabled}
-            onClick={() => mutation.mutate("replace")}
-          >
-            {t(
-              view ? "tasks:personalViews.replace" : "tasks:personalViews.save",
+              </p>
             )}
-          </Button>
-        </DialogFooter>
+            {confirmDelete && (
+              <p className="mt-3 text-sm">
+                {t("tasks:personalViews.deleteConfirm")}
+              </p>
+            )}
+          </DialogPanel>
+          <DialogFooter className="flex-wrap">
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={mutation.isPending}
+              onClick={onClose}
+            >
+              {t("common:actions.cancel")}
+            </Button>
+            {view && (
+              <>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={mutation.isPending}
+                  onClick={() =>
+                    confirmDelete
+                      ? mutation.mutate("delete")
+                      : setConfirmDelete(true)
+                  }
+                >
+                  {t(
+                    confirmDelete
+                      ? "tasks:personalViews.confirmDelete"
+                      : "common:actions.delete",
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={disabled}
+                  onClick={() => mutation.mutate("rename")}
+                >
+                  {t("tasks:personalViews.rename")}
+                </Button>
+              </>
+            )}
+            <Button
+              type="button"
+              disabled={disabled}
+              onClick={() => mutation.mutate("replace")}
+            >
+              {t(
+                view
+                  ? "tasks:personalViews.replace"
+                  : "tasks:personalViews.save",
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogPopup>
     </Dialog>
   );

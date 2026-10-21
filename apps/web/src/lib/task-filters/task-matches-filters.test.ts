@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import type { BoardFilters } from "@/hooks/use-task-filters";
+import type { BoardFilters } from "@/lib/task-filters/types";
 import type Task from "@/types/task";
 import {
   type TaskFilterContext,
@@ -167,5 +167,38 @@ describe("taskMatchesFilters", () => {
         context,
       ),
     ).toBe(true);
+  });
+  it("matches an additional assignee and applies negation to the complete set", () => {
+    const shared = task({
+      assignees: [
+        { id: "u1", name: "Ada", image: null },
+        { id: "u2", name: "Grace", image: null },
+      ],
+    });
+    expect(
+      taskMatchesFilters(shared, { ...noFilters, assignee: ["u2"] }, context),
+    ).toBe(true);
+    expect(
+      taskMatchesFilters(
+        shared,
+        { ...noFilters, assignee: ["u2"], negated: ["assignee"] },
+        context,
+      ),
+    ).toBe(false);
+    expect(
+      taskMatchesFilters(shared, { ...noFilters, assignee: [""] }, context),
+    ).toBe(false);
+  });
+  it("does not call a task unassigned when only the legacy primary field is empty", () => {
+    const shared = task({
+      userId: null,
+      assignees: [{ id: "u2", name: "Grace", image: null }],
+    });
+    expect(
+      taskMatchesFilters(shared, { ...noFilters, assignee: ["u2"] }, context),
+    ).toBe(true);
+    expect(
+      taskMatchesFilters(shared, { ...noFilters, assignee: [""] }, context),
+    ).toBe(false);
   });
 });

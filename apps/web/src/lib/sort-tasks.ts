@@ -1,19 +1,9 @@
+import type { ProjectViewConfig } from "@/fetchers/saved-view";
 import type Task from "@/types/task";
 
-export type SortField =
-  | "position"
-  | "createdAt"
-  | "priority"
-  | "dueDate"
-  | "title"
-  | "number";
-
-export type SortDirection = "asc" | "desc";
-
-export type SortConfig = {
-  field: SortField;
-  direction: SortDirection;
-};
+export type SortConfig = ProjectViewConfig["sort"];
+export type SortField = SortConfig["field"];
+export type SortDirection = SortConfig["direction"];
 
 const priorityOrder: Record<string, number> = {
   urgent: 4,

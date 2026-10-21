@@ -28,6 +28,7 @@ export function PersonalViews({ projectId, config, onApply }: Props) {
   const query = useQuery({
     queryKey: ["personal-views", projectId],
     queryFn: () => getPersonalViews(projectId),
+    enabled: open || editing !== null,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
   });

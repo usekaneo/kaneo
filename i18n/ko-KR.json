@@ -2704,7 +2704,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}}에 댓글을 남김"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "담당자에서 {{name}} 님을 제거했습니다"
 	},
 	"tasks": {
 		"title": "작업",
@@ -3258,7 +3259,8 @@
 			"replace": "Replace with current view",
 			"deleteConfirm": "Delete this saved view? Tasks will remain unchanged.",
 			"confirmDelete": "Confirm delete",
-			"error": "Could not load or save personal views. Please try again."
+			"error": "Could not load or save personal views. Please try again.",
+			"limit": "You have reached 50 personal views for this project. Delete a view before saving another."
 		}
 	},
 	"invitations": {

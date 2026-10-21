@@ -21,6 +21,8 @@ type BulkOptionPopoverProps = {
   picker?: BulkPicker;
   onDismiss?: () => void;
   returnFocus?: () => HTMLElement | null;
+  multiple?: boolean;
+  disabled?: boolean;
 };
 
 export function BulkOptionPopover({
@@ -33,6 +35,8 @@ export function BulkOptionPopover({
   picker,
   onDismiss,
   returnFocus,
+  multiple = false,
+  disabled,
 }: BulkOptionPopoverProps) {
   const [open, setOpen] = useState(false);
   const { openedByRequest, openedManually } = useBulkPickerRequest(
@@ -41,7 +45,7 @@ export function BulkOptionPopover({
   );
 
   const select = (value: string) => {
-    setOpen(false);
+    if (!multiple) setOpen(false);
     onSelect(value);
   };
 
@@ -80,6 +84,8 @@ export function BulkOptionPopover({
         finalFocus={() => (openedByRequest() && returnFocus?.()) || true}
       >
         <OptionMenu
+          multiple={multiple}
+          disabled={disabled}
           label={label}
           placeholder={placeholder}
           options={options}

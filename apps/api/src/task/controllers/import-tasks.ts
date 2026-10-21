@@ -1,3 +1,4 @@
+import { writeTaskAssignees } from "../assignees/write-task-assignees";
 import { and, asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -22,6 +23,7 @@ export type ImportTask = {
   startDate?: string | null;
   dueDate?: string | null;
   userId?: string | null;
+  assigneeIds?: string[];
 };
 
 async function importTasks(
@@ -42,7 +44,7 @@ async function importTasks(
   const assigneeIds = [
     ...new Set(
       tasksToImport
-        .map((task) => task.userId?.trim())
+        .flatMap((task) => task.assigneeIds ?? [task.userId?.trim()])
         .filter((id): id is string => Boolean(id)),
     ),
   ];
@@ -64,10 +66,14 @@ async function importTasks(
   const results = [];
 
   for (const taskData of tasksToImport) {
-    const reference = taskData.userId?.trim() || null;
+    const references =
+      taskData.assigneeIds ??
+      (taskData.userId?.trim() ? [taskData.userId.trim()] : []);
+    const reference = references[0] ?? null;
+    const resolvedIds = references.map((reference) => assignees.get(reference));
     const assigneeId = reference ? assignees.get(reference) : null;
 
-    if (reference && (!assigneeId || !assignableIds.has(assigneeId))) {
+    if (resolvedIds.some((id) => !id || !assignableIds.has(id))) {
       results.push({
         success: false,
         error: assigneeId ? NO_PROJECT_ACCESS : NOT_ASSIGNABLE,
@@ -135,6 +141,12 @@ async function importTasks(
             position,
           })
           .returning();
+        if (task && taskData.assigneeIds)
+          await writeTaskAssignees(
+            tx,
+            task,
+            resolvedIds.filter((id): id is string => Boolean(id)),
+          );
 
         return task;
       });

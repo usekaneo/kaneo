@@ -1,14 +1,13 @@
+import { PublicTaskAssignees } from "./public-task-assignees";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useRef } from "react";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   dueDateStatusColors,
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
-import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -82,22 +81,7 @@ export function PublicTaskCard({
           {projectSlug}-{task.number}
         </div>
 
-        {task.assigneeName && (
-          <div className="flex items-center gap-1.5 mb-2">
-            <Avatar className="h-5 w-5">
-              <AvatarImage
-                src={task.assigneeImage ?? ""}
-                alt={task.assigneeName ?? ""}
-              />
-              <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                {getInitials(task.assigneeName)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-[10px] text-muted-foreground font-medium truncate">
-              {task.assigneeName}
-            </span>
-          </div>
-        )}
+        <PublicTaskAssignees task={task} />
 
         <div className="mb-3">
           <h3

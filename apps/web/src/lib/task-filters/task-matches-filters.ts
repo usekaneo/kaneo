@@ -1,3 +1,4 @@
+import { getTaskAssigneeIds } from "@/lib/get-task-assignee-ids";
 import {
   addWeeks,
   type Day,
@@ -8,7 +9,7 @@ import {
 import {
   type BoardFilters,
   DUE_DATE_FILTER_VALUES,
-} from "@/hooks/use-task-filters";
+} from "@/lib/task-filters/types";
 import type Task from "@/types/task";
 import { customFieldSubjectId } from "./filter-subject-id";
 import { matchesCreatedDate } from "./matches-created-date";
@@ -92,7 +93,12 @@ export function taskMatchesFilters(
     [
       "assignee",
       filters.assignee,
-      () => filters.assignee?.includes(task.userId ?? "") ?? false,
+      () => {
+        const ids = getTaskAssigneeIds(task);
+        return ids.length
+          ? ids.some((id) => filters.assignee?.includes(id))
+          : (filters.assignee?.includes("") ?? false);
+      },
     ],
     [
       "dueDate",

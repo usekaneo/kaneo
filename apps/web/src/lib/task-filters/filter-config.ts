@@ -1,6 +1,6 @@
-import type { BoardFilters } from "@/hooks/use-task-filters";
+import type { BoardFilters } from "@/lib/task-filters/types";
 
-export const DEFAULT_FILTERS: BoardFilters = {
+export const DEFAULT_FILTERS: Required<BoardFilters> = {
   status: null,
   priority: null,
   assignee: null,
@@ -24,15 +24,11 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
 
 export function normalizeFilters(raw: unknown): Required<BoardFilters> {
   if (!raw || typeof raw !== "object") {
-    return { ...DEFAULT_FILTERS, createdDate: null, negated: null };
+    return { ...DEFAULT_FILTERS };
   }
 
   const candidate = raw as Partial<Record<keyof BoardFilters, unknown>>;
-  const normalized = {
-    ...DEFAULT_FILTERS,
-    createdDate: null as string[] | null,
-    negated: null as string[] | null,
-  };
+  const normalized = { ...DEFAULT_FILTERS };
 
   for (const key of FILTER_KEYS) {
     if (key === "customFields") {

@@ -305,6 +305,18 @@ subscribeToEvent<{
 subscribeToEvent<{
   taskId: string;
   userId: string;
+  removedAssigneeId: string;
+  removedAssignee: string;
+}>("task.assignee_removed", async (data) => {
+  await createActivity(data.taskId, "assignee_removed", data.userId, null, {
+    removedAssigneeId: data.removedAssigneeId,
+    removedAssignee: data.removedAssignee,
+  });
+});
+
+subscribeToEvent<{
+  taskId: string;
+  userId: string;
   oldAssignee: string | null;
   newAssignee: string;
   newAssigneeId: string;

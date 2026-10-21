@@ -81,7 +81,10 @@ export async function requireBulkTaskEntitlement(c: Context, next: Next) {
 
 export async function requireTaskAssigneePermission(c: Context, next: Next) {
   const id = c.req.param("id");
-  const { userId } = await readJsonBody(c);
+  const { userId, assigneeIds } = await readJsonBody(c);
+  if (Array.isArray(assigneeIds))
+    return requireWorkspacePermission({ task: ["assign"] })(c, next);
+  if (userId === undefined) return next();
   const nextAssignee = typeof userId === "string" ? userId : null;
 
   const [existingTask] = await db

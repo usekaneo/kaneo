@@ -1,3 +1,5 @@
+import { getTaskAssignees } from "../assignees/get-task-assignees";
+import { writeTaskAssignees } from "../assignees/write-task-assignees";
 import { and, asc, eq, isNotNull, notInArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import createActivities from "../../activity/controllers/create-activities";
@@ -167,37 +169,36 @@ async function moveTask({
       });
     }
 
-    let movedTask = updatedTask;
-    const assigneeId = updatedTask.userId;
-    if (
-      assigneeId &&
-      !(
-        await filterUsersWithProjectAccess(
-          [assigneeId],
-          destinationProjectId,
-          tx,
-        )
-      ).has(assigneeId)
-    ) {
-      const [unassignedTask] = await tx
-        .update(taskTable)
-        .set({ userId: null })
-        .where(eq(taskTable.id, taskId))
-        .returning();
-      movedTask = unassignedTask ?? { ...updatedTask, userId: null };
-      await createActivities(
-        [
-          {
-            taskId,
-            type: "unassigned",
-            userId: currentUserId,
-            content: null,
-            eventData: {},
-          },
-        ],
-        tx,
-      );
-    }
+    const previousAssignees =
+      (await getTaskAssignees([taskId], tx)).get(taskId) ?? [];
+    const eligible = await filterUsersWithProjectAccess(
+      previousAssignees.map((person) => person.id),
+      destinationProjectId,
+      tx,
+    );
+    const movedTask = await writeTaskAssignees(
+      tx,
+      updatedTask,
+      previousAssignees
+        .filter((person) => eligible.has(person.id))
+        .map((person) => person.id),
+    );
+    const removed = previousAssignees.filter(
+      (person) => !eligible.has(person.id),
+    );
+    await createActivities(
+      removed.map((person) => ({
+        taskId,
+        type: eligible.size ? "assignee_removed" : "unassigned",
+        userId: currentUserId,
+        content: null,
+        eventData: {
+          removedAssigneeId: person.id,
+          removedAssignee: person.name,
+        },
+      })),
+      tx,
+    );
 
     await tx
       .delete(externalLinkTable)

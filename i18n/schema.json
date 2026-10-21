@@ -11291,6 +11291,9 @@
 						"importedFrom",
 						"importedBy"
 					]
+				},
+				"removedAssignee": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -11307,7 +11310,8 @@
 				"movedFromOtherProject",
 				"created",
 				"githubUser",
-				"comment"
+				"comment",
+				"removedAssignee"
 			]
 		},
 		"tasks": {
@@ -13405,6 +13409,70 @@
 						}
 					},
 					"required": ["reorderFailed"]
+				},
+				"personalViews": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"private": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"save": {
+							"type": "string"
+						},
+						"manage": {
+							"type": "string"
+						},
+						"description": {
+							"type": "string"
+						},
+						"name": {
+							"type": "string"
+						},
+						"edit": {
+							"type": "string"
+						},
+						"rename": {
+							"type": "string"
+						},
+						"replace": {
+							"type": "string"
+						},
+						"deleteConfirm": {
+							"type": "string"
+						},
+						"confirmDelete": {
+							"type": "string"
+						},
+						"error": {
+							"type": "string"
+						},
+						"limit": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"private",
+						"empty",
+						"save",
+						"manage",
+						"description",
+						"name",
+						"edit",
+						"rename",
+						"replace",
+						"deleteConfirm",
+						"confirmDelete",
+						"error",
+						"limit"
+					]
 				}
 			},
 			"required": [
@@ -13447,7 +13515,8 @@
 				"descriptionRetry",
 				"descriptionLoading",
 				"descriptionLoadError",
-				"board"
+				"board",
+				"personalViews"
 			]
 		},
 		"invitations": {

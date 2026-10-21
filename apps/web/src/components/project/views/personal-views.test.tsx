@@ -1,3 +1,4 @@
+import { i18n } from "@/lib/i18n";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   cleanup,
@@ -38,7 +39,8 @@ const config: ProjectViewConfig = {
   layout: "list",
 };
 let views: PersonalView[];
-beforeEach(() => {
+beforeEach(async () => {
+  await i18n.changeLanguage("en-US");
   views = [];
   api.list.mockImplementation(async () => views);
   api.save.mockImplementation(
@@ -76,7 +78,9 @@ function mount(current = config) {
 }
 it("saves, restores, renames without overwriting filters, and confirms deletion", async () => {
   const apply = mount();
-  fireEvent.click(screen.getByRole("button", { name: "Personal views" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Personal views" }),
+  );
   fireEvent.click(
     await screen.findByRole("button", { name: "Save current view" }),
   );
@@ -94,10 +98,14 @@ it("saves, restores, renames without overwriting filters, and confirms deletion"
     config,
     undefined,
   );
-  fireEvent.click(screen.getByRole("button", { name: "Personal views" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Personal views" }),
+  );
   fireEvent.click(await screen.findByRole("button", { name: "My bugs" }));
   expect(apply).toHaveBeenCalledWith(config);
-  fireEvent.click(screen.getByRole("button", { name: "Personal views" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Personal views" }),
+  );
   fireEvent.click(await screen.findByRole("button", { name: "Edit My bugs" }));
   dialog = await screen.findByRole("dialog");
   fireEvent.change(within(dialog).getByLabelText("View name"), {
@@ -111,7 +119,9 @@ it("saves, restores, renames without overwriting filters, and confirms deletion"
     config,
     "view-1",
   );
-  fireEvent.click(screen.getByRole("button", { name: "Personal views" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Personal views" }),
+  );
   fireEvent.click(await screen.findByRole("button", { name: "Edit Renamed" }));
   dialog = await screen.findByRole("dialog");
   fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }));
@@ -126,7 +136,9 @@ it("saves, restores, renames without overwriting filters, and confirms deletion"
 it("shows a retryable loading failure without inventing an empty view list", async () => {
   api.list.mockRejectedValue(new Error("offline"));
   mount();
-  fireEvent.click(screen.getByRole("button", { name: "Personal views" }));
+  fireEvent.click(
+    await screen.findByRole("button", { name: "Personal views" }),
+  );
   const alert = await screen.findByRole("alert");
   expect(alert.textContent).toContain("Could not load");
   api.list.mockResolvedValue([]);

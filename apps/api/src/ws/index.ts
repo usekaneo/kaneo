@@ -700,6 +700,7 @@ const taskUpdateEvents = [
   "task.priority_changed",
   "task.unassigned",
   "task.assignee_changed",
+  "task.assignee_removed",
   "task.due_date_changed",
   "task.title_changed",
   "task.description_changed",

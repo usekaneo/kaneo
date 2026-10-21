@@ -2,6 +2,7 @@ import type { IntegrationPlugin } from "../types";
 import { validateGenericWebhookConfig } from "./config";
 import {
   handleTaskAssigneeChanged,
+  handleTaskAssigneeRemoved,
   handleTaskCommentCreated,
   handleTaskCreated,
   handleTaskDeleted,
@@ -27,6 +28,7 @@ export const genericWebhookPlugin: IntegrationPlugin = {
   onTaskMoved: handleTaskMoved,
   onTaskDueDateChanged: handleTaskDueDateChanged,
   onTaskAssigneeChanged: handleTaskAssigneeChanged,
+  onTaskAssigneeRemoved: handleTaskAssigneeRemoved,
   onTaskUnassigned: handleTaskUnassigned,
   validateConfig: validateGenericWebhookConfig,
 };

@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { SortConfig, SortField } from "@/lib/sort-tasks";
-import { nextSortForField, SORT_FIELDS } from "./sort-fields";
+import { nextSortForField, SORT_FIELDS } from "@/lib/task-sort-config";
 
 type SortOrderControlProps = {
   sort: SortConfig;

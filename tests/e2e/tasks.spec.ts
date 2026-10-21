@@ -19,11 +19,11 @@ async function post(request: APIRequestContext, path: string, data: object) {
   return response.json();
 }
 
-async function signUp(request: APIRequestContext) {
+async function signUp(request: APIRequestContext, name = "Task Tester") {
   const suffix = randomUUID();
   const email = `task-${suffix}@example.com`;
   await post(request, "auth/sign-up/email", {
-    name: "Task Tester",
+    name,
     email,
     password: `Browser-test-${suffix}`,
   });
@@ -209,5 +209,254 @@ test("another workspace member receives task edits in realtime", async ({
     ).toHaveCount(0);
   } finally {
     await colleague.close();
+  }
+});
+
+test("search for people, select multiple assignees, and remove just one", async ({
+  page,
+  browser,
+}) => {
+  const workspaceId = await createWorkspace(page);
+  const boardUrl = await createProject(page);
+  const projectId = new URL(boardUrl).pathname
+    .split("/project/")[1]
+    .split("/")[0];
+  const baseURL = test.info().project.use.baseURL;
+  const colleague = await browser.newContext({
+    baseURL,
+    ignoreHTTPSErrors: test.info().project.use.ignoreHTTPSErrors,
+    locale: "en-US",
+  });
+  try {
+    const email = await signUp(colleague.request, "Pair Programmer");
+    const invitation = await post(
+      page.request,
+      "auth/organization/invite-member",
+      { organizationId: workspaceId, email, role: "member" },
+    );
+    await post(colleague.request, "auth/organization/accept-invitation", {
+      invitationId: invitation.id,
+    });
+    const me = await (await page.request.get("/api/auth/get-session")).json();
+    const teammate = await (
+      await colleague.request.get("/api/auth/get-session")
+    ).json();
+    // Reload to exercise the same persisted member data as a fresh browser session.
+    await page.goto(boardUrl);
+    await page.getByTitle("Add task", { exact: true }).first().click();
+    const title = `Pair work ${randomUUID()}`;
+    await page.getByPlaceholder("Task title", { exact: true }).fill(title);
+    await page.getByRole("button", { name: "Assign", exact: true }).click();
+    const search = page.getByRole("combobox", {
+      name: "Assignee",
+      exact: true,
+    });
+    await search.fill(email);
+    await page
+      .getByRole("option", { name: "Pair Programmer", exact: true })
+      .click();
+    await search.fill(me.user.email);
+    await page
+      .getByRole("option", { name: "Task Tester", exact: true })
+      .click();
+    await expect(
+      page.getByRole("option", { name: "Task Tester", exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
+    await search.press("Escape");
+    const [created] = await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.request().method() === "POST" &&
+          new URL(response.url()).pathname === `/api/task/${projectId}`,
+      ),
+      page.getByRole("button", { name: "Create Task", exact: true }).click(),
+    ]);
+    expect(created.ok()).toBe(true);
+    const task = await created.json();
+    const readPeople = async () => {
+      const response = await page.request.get(`/api/task/${task.id}`);
+      await expect(response).toBeOK();
+      return (await response.json()).assignees
+        .map((person: { id: string }) => person.id)
+        .sort();
+    };
+    expect(await readPeople()).toEqual([me.user.id, teammate.user.id].sort());
+    await page.getByText(title, { exact: true }).click();
+    await page.locator('[data-task-action="assignee"]:visible').first().click();
+    await search.fill(email);
+    await page
+      .getByRole("option", { name: "Pair Programmer", exact: true })
+      .click();
+    await expect(
+      page.getByRole("option", { name: "Pair Programmer", exact: true }),
+    ).toHaveAttribute("aria-selected", "false");
+    expect(await readPeople()).toEqual([me.user.id]);
+    await page.goto(boardUrl);
+    await page
+      .locator(`[data-task-id="${task.id}"]`)
+      .first()
+      .click({ button: "right" });
+    await page.getByRole("menuitem", { name: "Assignee", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Assignee", exact: true });
+    await dialog
+      .getByRole("combobox", { name: "Assignee", exact: true })
+      .fill(email);
+    await dialog
+      .getByRole("option", { name: "Pair Programmer", exact: true })
+      .click();
+    await expect(
+      dialog.getByRole("option", { name: "Pair Programmer", exact: true }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("combobox").press("Escape");
+    await page.reload();
+    expect(await readPeople()).toEqual([me.user.id, teammate.user.id].sort());
+    const colleaguePage = await colleague.newPage();
+    await colleaguePage.goto(`/dashboard/workspace/${workspaceId}/my-tasks`);
+    await expect(colleaguePage.getByText(title, { exact: true })).toBeVisible();
+  } finally {
+    await colleague.close();
+  }
+});
+
+test("personal views persist across browsers and support rename replace and delete", async ({
+  page,
+  browser,
+}) => {
+  const workspaceId = await createWorkspace(page);
+  const project = await post(page.request, "project", {
+    name: "Saved views project",
+    workspaceId,
+    slug: "SV",
+    icon: "Folder",
+  });
+  for (const title of ["Bug for saved view", "Unrelated work"])
+    await post(page.request, `task/${project.id}`, {
+      title,
+      description: "",
+      priority: "high",
+      status: "to-do",
+    });
+  const boardUrl = `/dashboard/workspace/${workspaceId}/project/${project.id}/board`;
+  await page.goto(boardUrl);
+  await expect(page.getByText("Unrelated work", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Search tasks", exact: true }).click();
+  await page
+    .getByRole("searchbox", { name: "Search tasks", exact: true })
+    .fill("Bug");
+  await expect(page.getByText("Unrelated work", { exact: true })).toBeHidden();
+  await page.getByRole("button", { name: "Display", exact: true }).click();
+  await page.getByRole("button", { name: "List", exact: true }).click();
+  await page.getByRole("combobox", { name: "Sort by", exact: true }).click();
+  await page.getByRole("option", { name: "Title", exact: true }).click();
+  await page.getByRole("button", { name: "Display", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Personal views", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Save current view", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("View name", { exact: true }).fill("My bugs");
+  await dialog.getByLabel("View name", { exact: true }).press("Enter");
+  await expect(dialog).toBeHidden();
+  const fresh = await browser.newContext();
+  try {
+    await fresh.addCookies(await page.context().cookies());
+    const other = await fresh.newPage();
+    await other.goto(boardUrl);
+    await expect(
+      other.getByText("Unrelated work", { exact: true }),
+    ).toBeVisible();
+    await other
+      .getByRole("button", { name: "Personal views", exact: true })
+      .click();
+    await other.getByRole("button", { name: "My bugs", exact: true }).click();
+    await expect(
+      other.getByRole("searchbox", { name: "Search tasks", exact: true }),
+    ).toHaveValue("Bug");
+    await expect(
+      other.getByText("Unrelated work", { exact: true }),
+    ).toBeHidden();
+    await other.getByRole("button", { name: "Display", exact: true }).click();
+    await expect(
+      other.getByRole("button", { name: "List", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await expect(
+      other.getByRole("combobox", { name: "Sort by", exact: true }),
+    ).toHaveText("Title");
+    await other.getByRole("button", { name: "Display", exact: true }).click();
+    await other
+      .getByRole("button", { name: "Personal views", exact: true })
+      .click();
+    await other
+      .getByRole("button", { name: "Edit My bugs", exact: true })
+      .click();
+    const edit = other.getByRole("dialog");
+    await edit.getByLabel("View name", { exact: true }).fill("Renamed bugs");
+    await edit.getByLabel("View name", { exact: true }).press("Enter");
+    await expect(edit).toBeHidden();
+    await other
+      .getByRole("searchbox", { name: "Search tasks", exact: true })
+      .fill("Unrelated");
+    await other
+      .getByRole("button", { name: "Personal views", exact: true })
+      .click();
+    await other
+      .getByRole("button", { name: "Edit Renamed bugs", exact: true })
+      .click();
+    await edit
+      .getByRole("button", { name: "Replace with current view", exact: true })
+      .click();
+    await expect(edit).toBeHidden();
+    await other
+      .getByRole("searchbox", { name: "Search tasks", exact: true })
+      .fill("Bug");
+    await other
+      .getByRole("button", { name: "Personal views", exact: true })
+      .click();
+    await other
+      .getByRole("button", { name: "Renamed bugs", exact: true })
+      .click();
+    await expect(
+      other.getByRole("searchbox", { name: "Search tasks", exact: true }),
+    ).toHaveValue("Unrelated");
+    await expect(
+      other.getByText("Bug for saved view", { exact: true }),
+    ).toBeHidden();
+    await other
+      .getByRole("button", { name: "Personal views", exact: true })
+      .click();
+    await expect(
+      other.getByText("Only you can see these views.", { exact: true }),
+    ).toBeVisible();
+    await expect(other.locator('[data-slot="popover-popup"]')).toHaveCSS(
+      "opacity",
+      "1",
+    );
+    await other.screenshot({
+      path: ".cache/personal-views-desktop.png",
+      fullPage: true,
+    });
+    await other
+      .getByRole("button", { name: "Edit Renamed bugs", exact: true })
+      .click();
+    await edit.getByRole("button", { name: "Delete", exact: true }).click();
+    await edit
+      .getByRole("button", { name: "Confirm delete", exact: true })
+      .click();
+    await expect(edit).toBeHidden();
+    await other
+      .getByRole("button", { name: "Personal views", exact: true })
+      .click();
+    await expect(
+      other.getByText("No saved views yet.", { exact: true }),
+    ).toBeVisible();
+    await other.reload();
+    await expect(
+      other.getByText("Unrelated work", { exact: true }),
+    ).toBeVisible();
+  } finally {
+    await fresh.close();
   }
 });

@@ -1,6 +1,7 @@
+import { getTaskAssigneeIds } from "@/lib/get-task-assignee-ids";
+import { AssigneeOptionsMenu } from "./menus/assignee-options-menu";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { OptionMenu } from "@/components/common/option-menu/option-menu";
 import {
   Popover,
   PopoverContent,
@@ -11,7 +12,6 @@ import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-projec
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
-import { assigneeMenuOptions } from "./menus/assignee-menu-options";
 
 type TaskAssigneePopoverProps = {
   task: Task;
@@ -26,7 +26,8 @@ export default function TaskAssigneePopover({
 }: TaskAssigneePopoverProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
+  const { mutateAsync: updateTaskAssignee, isPending } =
+    useUpdateTaskAssignee();
   const { data: members = [] } = useGetProjectMembers({
     workspaceId,
     projectId: task.projectId,
@@ -36,9 +37,18 @@ export default function TaskAssigneePopover({
   if (!canAssignTasks()) return <>{children}</>;
 
   const changeAssignee = async (userId: string) => {
-    setOpen(false);
+    if (isPending) return;
     try {
-      await updateTaskAssignee({ ...task, userId });
+      await updateTaskAssignee({
+        ...task,
+        userId,
+        assigneeMode: userId
+          ? getTaskAssigneeIds(task).includes(userId)
+            ? "remove"
+            : "add"
+          : "set",
+        assigneeIds: [],
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -52,15 +62,11 @@ export default function TaskAssigneePopover({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-60 p-0" align="start">
-        <OptionMenu
-          label={t("tasks:assignee.label")}
-          placeholder={t("tasks:bulk.assigneePlaceholder")}
-          options={assigneeMenuOptions(
-            members,
-            task.userId ?? null,
-            t("tasks:popover.assignee.unassigned"),
-          )}
+        <AssigneeOptionsMenu
+          members={members}
+          current={getTaskAssigneeIds(task)}
           onSelect={changeAssignee}
+          disabled={isPending}
         />
       </PopoverContent>
     </Popover>

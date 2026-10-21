@@ -13,7 +13,7 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import useGetCachedCustomFieldValues from "./queries/custom-field/use-get-all-custom-field-values-by-project";
-import type { BoardFilters } from "./use-task-filters";
+import type { BoardFilters } from "@/lib/task-filters/types";
 import { useLocalDay } from "./use-local-day";
 import { useStoredState } from "./use-stored-state";
 
@@ -28,7 +28,7 @@ export function useTaskFiltersWithLabelsSupport(
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const day = useLocalDay();
-  const [filters, setFilters] = useStoredState(
+  const [filters, setFilters] = useStoredState<BoardFilters>(
     projectId ? `kaneo:board-filters:${projectId}` : null,
     normalizeFilters,
     DEFAULT_FILTERS,

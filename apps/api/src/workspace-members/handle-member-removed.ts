@@ -1,3 +1,5 @@
+import db from "../database";
+import { unassignInaccessibleTasks } from "../project-access/unassign-inaccessible-tasks";
 import { syncWorkspaceSeats } from "../billing/controllers/sync-seats";
 import { publishEvent } from "../events";
 import { clearMemberProjectAccess } from "../project-access/clear-member-project-access";
@@ -13,6 +15,18 @@ export async function handleMemberRemoved(removal: {
   await clearMemberProjectAccess(workspaceId, userId).catch((error) => {
     console.error("Project access cleanup failed:", error);
   });
+  const unassigned = hasInstanceAdminRole(userRole)
+    ? []
+    : await db.transaction((tx) =>
+        unassignInaccessibleTasks(tx, {
+          workspaceId,
+          userId,
+          actorId: null,
+          reason: "workspace-membership",
+        }),
+      );
+  for (const projectId of new Set(unassigned.map((task) => task.projectId)))
+    await publishEvent("task.bulk_unassigned", { projectId });
   await publishEvent("project_members.updated", { workspaceId });
   if (!hasInstanceAdminRole(userRole)) {
     await revokeWorkspaceConnections(userId, workspaceId, {
