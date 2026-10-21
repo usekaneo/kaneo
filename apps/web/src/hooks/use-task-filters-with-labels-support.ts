@@ -86,7 +86,7 @@ export function useTaskFiltersWithLabelsSupport(
     normalizeFilters,
     DEFAULT_FILTERS,
   );
-  const { getValuesForTask } = useGetCachedCustomFieldValues();
+  const { getValuesForTask } = useGetCachedCustomFieldValues(projectId);
   const { data: workspaceLabels } = useGetLabelsByWorkspace(
     project?.workspaceId ?? "",
   );
