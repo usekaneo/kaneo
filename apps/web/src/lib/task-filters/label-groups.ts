@@ -51,3 +51,23 @@ export function expandLabelFilter(
   }
   return [...selectedIds];
 }
+
+// Keep one selected ID per label group; matching expands it against live labels.
+// Unknown IDs remain filters rather than silently widening the saved result.
+export function compactLabelFilter(
+  labels: FilterLabel[],
+  selected: string[] | null,
+): string[] | null {
+  if (!selected?.length) return selected;
+  const byId = new Map(labels.map((label) => [label.id, label]));
+  const seen = new Set<string>();
+  return selected.filter((id) => {
+    const label = byId.get(id);
+    const key = label
+      ? JSON.stringify(["group", label.name, label.color])
+      : JSON.stringify(["id", id]);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}

@@ -5,7 +5,10 @@ import {
 import { useCallback, useMemo } from "react";
 import { countActiveFilters } from "@/lib/task-filters/count-active-filters";
 import { filterProjectTasks } from "@/lib/task-filters/filter-project-tasks";
-import { expandLabelFilter } from "@/lib/task-filters/label-groups";
+import {
+  compactLabelFilter,
+  expandLabelFilter,
+} from "@/lib/task-filters/label-groups";
 import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import { setSubjectNegated } from "@/lib/task-filters/set-subject-negated";
 import { taskMatchesFilters } from "@/lib/task-filters/task-matches-filters";
@@ -188,7 +191,10 @@ export function useTaskFiltersWithLabelsSupport(
 
   return {
     filters: effectiveFilters,
-    storedFilters: filters,
+    getStoredFilters: () => ({
+      ...filters,
+      labels: compactLabelFilter(labels, filters.labels),
+    }),
     setFilters,
     updateFilter,
     toggleFilter,

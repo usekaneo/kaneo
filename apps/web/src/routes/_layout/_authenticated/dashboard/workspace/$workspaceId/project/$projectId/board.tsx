@@ -139,13 +139,13 @@ function RouteComponent() {
           actions={
             <PersonalViews
               projectId={projectId}
-              config={{
+              config={() => ({
                 version: 1,
                 search: view.search,
-                filters: normalizeFilters(filters.storedFilters),
+                filters: normalizeFilters(filters.getStoredFilters()),
                 sort,
                 layout: viewMode,
-              }}
+              })}
               onApply={(config) => {
                 filters.setFilters(normalizeFilters(config.filters));
                 view.setSearch(config.search);

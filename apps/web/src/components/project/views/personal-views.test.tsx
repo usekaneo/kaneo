@@ -71,7 +71,11 @@ function mount(current = config) {
   const apply = vi.fn();
   render(
     <QueryClientProvider client={client}>
-      <PersonalViews projectId="project-1" config={current} onApply={apply} />
+      <PersonalViews
+        projectId="project-1"
+        config={() => current}
+        onApply={apply}
+      />
     </QueryClientProvider>,
   );
   return apply;

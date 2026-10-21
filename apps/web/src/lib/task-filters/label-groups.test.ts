@@ -1,3 +1,4 @@
+import { compactLabelFilter } from "./label-groups";
 import { describe, expect, it } from "vite-plus/test";
 import {
   groupLabels,
@@ -49,4 +50,19 @@ describe("label groups", () => {
     expect(expandLabelFilter(labels, ["deleted"])).toEqual(["deleted"]);
     expect(expandLabelFilter(labels, null)).toBeNull();
   });
+});
+
+it("keeps a large saved label choice compact without dropping unavailable selections", () => {
+  const labels = Array.from({ length: 250 }, (_, index) => ({
+    id: `bug-${index}`,
+    name: "Bug",
+    color: "red",
+  }));
+  labels.push({ id: "blue-bug", name: "Bug", color: "blue" });
+  expect(
+    compactLabelFilter(labels, [
+      ...labels.map((label) => label.id),
+      "removed-label",
+    ]),
+  ).toEqual(["bug-0", "blue-bug", "removed-label"]);
 });

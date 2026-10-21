@@ -18,7 +18,7 @@ import { PersonalViewEditor } from "./personal-view-editor";
 
 type Props = {
   projectId: string;
-  config: ProjectViewConfig;
+  config: () => ProjectViewConfig;
   onApply: (config: ProjectViewConfig) => void;
 };
 export function PersonalViews({ projectId, config, onApply }: Props) {
@@ -112,7 +112,7 @@ export function PersonalViews({ projectId, config, onApply }: Props) {
           key={editing === "new" ? "new" : editing.id}
           projectId={projectId}
           view={editing === "new" ? undefined : editing}
-          config={config}
+          config={config()}
           onClose={() => setEditing(null)}
         />
       )}

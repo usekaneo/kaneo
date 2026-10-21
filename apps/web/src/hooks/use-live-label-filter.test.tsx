@@ -92,7 +92,7 @@ describe("saved label filters", () => {
           negated ? 0 : 1,
         );
       });
-      expect(result.current.storedFilters.labels).toEqual([root.id]);
+      expect(result.current.getStoredFilters().labels).toEqual([root.id]);
       expect(result.current.filters.labels).toContain(attached.id);
       expect(
         JSON.parse(
