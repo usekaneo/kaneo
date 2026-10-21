@@ -142,7 +142,7 @@ function RouteComponent() {
               config={{
                 version: 1,
                 search: view.search,
-                filters: normalizeFilters(filters.filters),
+                filters: normalizeFilters(filters.storedFilters),
                 sort,
                 layout: viewMode,
               }}

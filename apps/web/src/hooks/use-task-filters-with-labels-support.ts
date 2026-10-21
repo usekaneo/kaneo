@@ -5,6 +5,7 @@ import {
 import { useCallback, useMemo } from "react";
 import { countActiveFilters } from "@/lib/task-filters/count-active-filters";
 import { filterProjectTasks } from "@/lib/task-filters/filter-project-tasks";
+import { expandLabelFilter } from "@/lib/task-filters/label-groups";
 import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import { setSubjectNegated } from "@/lib/task-filters/set-subject-negated";
 import { taskMatchesFilters } from "@/lib/task-filters/task-matches-filters";
@@ -15,6 +16,7 @@ import type Task from "@/types/task";
 import useGetCachedCustomFieldValues from "./queries/custom-field/use-get-all-custom-field-values-by-project";
 import type { BoardFilters } from "@/lib/task-filters/types";
 import { useLocalDay } from "./use-local-day";
+import useGetLabelsByWorkspace from "./queries/label/use-get-labels-by-workspace";
 import { useStoredState } from "./use-stored-state";
 
 const NO_IGNORED_FILTERS: ReadonlyArray<keyof BoardFilters> = [];
@@ -33,18 +35,35 @@ export function useTaskFiltersWithLabelsSupport(
     normalizeFilters,
     DEFAULT_FILTERS,
   );
-  const { getValuesForTask } = useGetCachedCustomFieldValues();
+  const { getValuesForTask } = useGetCachedCustomFieldValues(projectId);
+  const { data: workspaceLabels } = useGetLabelsByWorkspace(
+    project?.workspaceId ?? "",
+  );
+  const labels = useMemo(
+    () => [
+      ...(workspaceLabels ?? []),
+      ...[
+        ...(project?.columns.flatMap((column) => column.tasks) ?? []),
+        ...(project?.plannedTasks ?? []),
+        ...(project?.archivedTasks ?? []),
+      ].flatMap((task) => task.labels ?? []),
+    ],
+    [workspaceLabels, project],
+  );
 
-  const effectiveFilters = useMemo(
-    () =>
+  const effectiveFilters = useMemo(() => {
+    const visibleFilters =
       ignore.length === 0
         ? filters
         : ({
             ...filters,
             ...Object.fromEntries(ignore.map((key) => [key, null])),
-          } as BoardFilters),
-    [filters, ignore],
-  );
+          } as BoardFilters);
+    return {
+      ...visibleFilters,
+      labels: expandLabelFilter(labels, visibleFilters.labels),
+    };
+  }, [filters, ignore, labels]);
 
   const createMatcher = useCallback(() => {
     const context = {
@@ -169,6 +188,7 @@ export function useTaskFiltersWithLabelsSupport(
 
   return {
     filters: effectiveFilters,
+    storedFilters: filters,
     setFilters,
     updateFilter,
     toggleFilter,

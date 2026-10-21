@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
+vi.mock("./queries/label/use-get-labels-by-workspace", () => ({
+  default: () => ({ data: undefined }),
+}));
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
