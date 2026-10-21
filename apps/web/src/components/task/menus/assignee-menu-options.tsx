@@ -25,6 +25,7 @@ export function assigneeMenuOptions(
     ...members.map((member) => ({
       value: member.id,
       label: member.name || member.email || "",
+      keywords: member.email ? [member.email] : [],
       icon: (
         <Avatar className="size-4">
           <AvatarImage src={member.image ?? ""} alt="" />

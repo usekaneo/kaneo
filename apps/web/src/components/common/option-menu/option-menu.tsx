@@ -28,7 +28,11 @@ export function OptionMenu({
   const [query, setQuery] = useState("");
   const needle = query.trim().toLowerCase();
   const filtered = options.filter(
-    (option) => option.pinned || option.label.toLowerCase().includes(needle),
+    (option) =>
+      option.pinned ||
+      [option.label, ...(option.keywords ?? [])].some((value) =>
+        value.toLowerCase().includes(needle),
+      ),
   );
 
   const selectByNumber = (key: string) => {
@@ -106,7 +110,10 @@ export function OptionMenu({
                   className="flex h-8 cursor-default select-none items-center gap-2 rounded-md px-2 text-[13px] text-foreground outline-none data-highlighted:bg-accent [&_svg]:size-3.5"
                 >
                   {option.icon && (
-                    <span className="inline-flex size-4 shrink-0 items-center justify-center">
+                    <span
+                      aria-hidden="true"
+                      className="inline-flex size-4 shrink-0 items-center justify-center"
+                    >
                       {option.icon}
                     </span>
                   )}
