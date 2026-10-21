@@ -972,7 +972,8 @@
 				"project": "Project"
 			},
 			"pageTitle": "My tasks",
-			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+			"truncated": "Showing the first {{shown}} of {{total}} tasks.",
+			"loadMore": "Wczytaj więcej zadań"
 		},
 		"myWork": {
 			"due": {

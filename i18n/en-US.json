@@ -3448,7 +3448,8 @@
 				"dueDate": "Due date",
 				"project": "Project"
 			},
-			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+			"truncated": "Showing the first {{shown}} of {{total}} tasks.",
+			"loadMore": "Load more tasks"
 		}
 	},
 	"team": {

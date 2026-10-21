@@ -236,6 +236,92 @@ describe("API integration: assigned tasks", () => {
       expect(response.status).toBe(404);
     }
   });
+
+  it("paginates past 100 without exposing tasks from inaccessible projects", async () => {
+    const member = await createWorkspaceMember();
+    const visible = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const hidden = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    await db.insert(schema.workspaceMemberAccessTable).values({
+      workspaceId: member.workspace.id,
+      userId: member.user.id,
+      projectAccess: "selected",
+    });
+    await db.insert(schema.workspaceMemberProjectTable).values({
+      workspaceId: member.workspace.id,
+      userId: member.user.id,
+      projectId: visible.project.id,
+    });
+    const rows = await db
+      .insert(schema.taskTable)
+      .values(
+        Array.from({ length: 105 }, (_, index) => ({
+          projectId: visible.project.id,
+          columnId: visible.columns.todo.id,
+          userId: member.user.id,
+          status: "to-do",
+          title: `Task ${index}`,
+          number: index + 1,
+          priority: "low",
+          createdAt: new Date("2026-01-01T00:00:00Z"),
+        })),
+      )
+      .returning({ id: schema.taskTable.id });
+    await db.insert(schema.taskTable).values({
+      projectId: hidden.project.id,
+      columnId: hidden.columns.todo.id,
+      userId: member.user.id,
+      title: "Private",
+      status: "to-do",
+      number: 1,
+    });
+    const expected = rows.map((row) => row.id).sort();
+    await db.insert(schema.labelTable).values({
+      workspaceId: member.workspace.id,
+      taskId: expected[104],
+      name: "Bug",
+      color: "red",
+    });
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+    const url = `/api/task/assigned?workspaceId=${member.workspace.id}`;
+    const first = await app.request(url);
+    const second = await app.request(`${url}&page=2`);
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    const a = (await first.json()) as AssignedTasksResponse;
+    const b = (await second.json()) as AssignedTasksResponse;
+    expect(a.total).toBe(105);
+    expect(b.total).toBe(105);
+    expect(a.tasks.map((task) => task.id)).toEqual(expected.slice(0, 100));
+    expect(b.tasks.map((task) => task.id)).toEqual(expected.slice(100));
+    expect(b.tasks.at(-1)?.labels).toEqual([
+      expect.objectContaining({ name: "Bug" }),
+    ]);
+    expect(await (await app.request(`${url}&page=3`)).json()).toEqual({
+      tasks: [],
+      total: 105,
+    });
+    expect(
+      await (await app.request(`${url}&page=2&countOnly=true`)).json(),
+    ).toEqual({ tasks: [], total: 105 });
+  });
+
+  it.each(["0", "-1", "1.5", "NaN", "1000001"])(
+    "rejects an invalid assigned-task page %s",
+    async (page) => {
+      const member = await createWorkspaceMember();
+      mockAuthenticatedSession(member.user);
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/task/assigned?workspaceId=${member.workspace.id}&page=${page}`,
+      );
+      expect(response.status).toBe(400);
+    },
+  );
   it.each([
     { workspace: ["read"] },
     { workspace: ["read"], project: ["read"] },

@@ -14051,9 +14051,18 @@
 						},
 						"truncated": {
 							"type": "string"
+						},
+						"loadMore": {
+							"type": "string"
 						}
 					},
-					"required": ["pageTitle", "emptyDescription", "groupBy", "truncated"]
+					"required": [
+						"pageTitle",
+						"emptyDescription",
+						"groupBy",
+						"truncated",
+						"loadMore"
+					]
 				}
 			},
 			"required": ["projects", "search", "create", "home", "myWork", "myTasks"]

@@ -31,6 +31,10 @@ export const projectIdParam = z.object({ projectId: z.string() });
 
 export const assignedTasksQuery = z.object({
   workspaceId: z.string().min(1),
+  page: pagingNumber(1, 1_000_000).optional().openapi({
+    description:
+      "Page of assigned tasks, starting at 1. Each page contains at most 100 tasks.",
+  }),
   countOnly: z.enum(["true", "false"]).optional().openapi({
     description:
       "Return only the total, with an empty tasks array, without loading task rows or labels.",

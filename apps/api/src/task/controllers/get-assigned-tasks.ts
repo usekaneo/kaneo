@@ -19,7 +19,7 @@ import {
 import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { taskIsCompleted } from "../task-is-completed";
 
-// Home and My tasks render this list whole, so it stays one bounded page.
+// Keep the Home preview and each My Tasks page bounded.
 export const ASSIGNED_TASKS_LIMIT = 100;
 
 const priorityRank = sql<number>`CASE
@@ -34,6 +34,7 @@ async function getAssignedTasks(
   workspaceId: string,
   userId: string,
   countOnly = false,
+  page = 1,
 ) {
   const openAndMine = and(
     eq(projectTable.workspaceId, workspaceId),
@@ -105,7 +106,8 @@ async function getAssignedTasks(
         asc(taskTable.createdAt),
         asc(taskTable.id),
       )
-      .limit(ASSIGNED_TASKS_LIMIT),
+      .limit(ASSIGNED_TASKS_LIMIT)
+      .offset((page - 1) * ASSIGNED_TASKS_LIMIT),
     totalsQuery,
   ]);
 

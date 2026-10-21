@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleCheck } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import WorkspaceLayout from "@/components/common/workspace-layout";
 import {
@@ -8,6 +8,8 @@ import {
   MyTasksGroupByToggle,
 } from "@/components/my-tasks/my-tasks-group-by";
 import { MyTasksList } from "@/components/my-tasks/my-tasks-list";
+import { MyTasksPagination } from "@/components/my-tasks/my-tasks-pagination";
+import { mergeAssignedTaskPages } from "@/components/my-tasks/merge-assigned-task-pages";
 import PageTitle from "@/components/page-title";
 import {
   Empty,
@@ -17,7 +19,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
-import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
+import { useGetAssignedTaskPages } from "@/hooks/queries/task/use-get-assigned-task-pages";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/workspace/$workspaceId/my-tasks",
@@ -29,10 +31,18 @@ function RouteComponent() {
   const { t } = useTranslation();
   const { workspaceId } = Route.useParams();
   const {
-    data: assigned,
+    data,
     isLoading,
     isError,
-  } = useGetAssignedTasks(workspaceId);
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    fetchNextPage,
+  } = useGetAssignedTaskPages(workspaceId);
+  const assigned = useMemo(
+    () => (data ? mergeAssignedTaskPages(data.pages) : undefined),
+    [data],
+  );
   const [groupBy, setGroupBy] = useState<MyTasksGroupBy>("dueDate");
 
   return (
@@ -85,6 +95,12 @@ function RouteComponent() {
               workspaceId={workspaceId}
             />
           )}
+          <MyTasksPagination
+            hasMore={hasNextPage}
+            loading={isFetchingNextPage}
+            error={isFetchNextPageError}
+            onLoadMore={() => void fetchNextPage()}
+          />
         </div>
       </WorkspaceLayout>
     </>

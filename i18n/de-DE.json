@@ -3436,7 +3436,8 @@
 				"project": "Projekt"
 			},
 			"pageTitle": "Meine Aufgaben",
-			"truncated": "Die ersten {{shown}} von {{total}} Aufgaben werden angezeigt."
+			"truncated": "Die ersten {{shown}} von {{total}} Aufgaben werden angezeigt.",
+			"loadMore": "Weitere Aufgaben laden"
 		},
 		"myWork": {
 			"due": {

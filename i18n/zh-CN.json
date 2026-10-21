@@ -3375,7 +3375,8 @@
 				"project": "项目"
 			},
 			"pageTitle": "我的任务",
-			"truncated": "共 {{total}} 个任务，只显示前 {{shown}} 个。"
+			"truncated": "共 {{total}} 个任务，只显示前 {{shown}} 个。",
+			"loadMore": "加载更多任务"
 		},
 		"myWork": {
 			"due": {

@@ -311,7 +311,7 @@ export const assignedTasksSchema = z
     ),
     total: z.number().openapi({
       description:
-        "All open tasks assigned to the caller, including any beyond the first 100 returned.",
+        "All open tasks assigned to the caller, including any beyond the returned page.",
     }),
   })
   .openapi("AssignedTasks");

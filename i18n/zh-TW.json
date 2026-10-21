@@ -3387,7 +3387,8 @@
 				"dueDate": "截止日",
 				"project": "專案"
 			},
-			"truncated": "顯示 {{total}} 個任務中的前 {{shown}} 個。"
+			"truncated": "顯示 {{total}} 個任務中的前 {{shown}} 個。",
+			"loadMore": "載入更多任務"
 		}
 	},
 	"team": {

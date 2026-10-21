@@ -9,9 +9,17 @@ export type AssignedTasks = InferResponseType<
 
 export type AssignedTask = AssignedTasks["tasks"][number];
 
-async function getAssignedTasks(workspaceId: string, countOnly = false) {
+async function getAssignedTasks(
+  workspaceId: string,
+  countOnly = false,
+  page = 1,
+) {
   const response = await client.task.assigned.$get({
-    query: { workspaceId, countOnly: countOnly ? "true" : "false" },
+    query: {
+      workspaceId,
+      countOnly: countOnly ? "true" : "false",
+      page: String(page),
+    },
   });
 
   if (!response.ok) {
