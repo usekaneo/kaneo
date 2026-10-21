@@ -1,3 +1,4 @@
+import workspaceView from "./workspace-view";
 import { changeTaskAssignees } from "./assignees/change-task-assignees";
 import {
   taskAssigneesBody,
@@ -869,6 +870,7 @@ const descriptionMatchesRoute = createRoute({
 });
 
 const task = apiRouter<BaseVariables & { workspaceId: string }>()
+  .route("/workspace", workspaceView)
   .openapi(descriptionPageRoute, async (c) =>
     c.json(
       await getDescriptionPage(c.req.valid("param").id, c.req.valid("query")),

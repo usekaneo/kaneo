@@ -3573,6 +3573,23 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"taskViews": {
+			"title": "Workspace tasks",
+			"search": "Search titles or task IDs",
+			"project": "Project",
+			"allProjects": "All projects",
+			"allPriorities": "All priorities",
+			"completion": "Completion",
+			"allStates": "All states",
+			"open": "Open",
+			"completed": "Completed",
+			"allAssignees": "All assignees",
+			"filterPerson": "Filter tasks assigned to {{name}}",
+			"optionsError": "Some filter options could not be loaded. Please try again.",
+			"boardNote": "This page's tasks, grouped by each project's completion rules. Open a task to change its status.",
+			"empty": "No tasks match these filters.",
+			"count": "Showing {{from}}–{{to}} of {{total}} tasks"
 		}
 	},
 	"team": {

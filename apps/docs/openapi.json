@@ -1000,46 +1000,6 @@
           "createdAt"
         ]
       },
-      "TaskDescriptionMatches": {
-        "type": "object",
-        "properties": {
-          "ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "nextCursor": {
-            "type": [
-              "string",
-              "null"
-            ]
-          }
-        },
-        "required": [
-          "ids",
-          "nextCursor"
-        ]
-      },
-      "AssignedTasks": {
-        "type": "object",
-        "properties": {
-          "tasks": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AssignedTask"
-            }
-          },
-          "total": {
-            "type": "number",
-            "description": "All open tasks assigned to the caller, including any beyond the returned page."
-          }
-        },
-        "required": [
-          "tasks",
-          "total"
-        ]
-      },
       "AssignedTask": {
         "type": "object",
         "properties": {
@@ -1119,6 +1079,46 @@
           "projectSlug",
           "projectIcon",
           "labels"
+        ]
+      },
+      "AssignedTasks": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssignedTask"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "All open tasks assigned to the caller, including any beyond the returned page."
+          }
+        },
+        "required": [
+          "tasks",
+          "total"
+        ]
+      },
+      "TaskDescriptionMatches": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "ids",
+          "nextCursor"
         ]
       },
       "BoardResponse": {
@@ -10247,6 +10247,207 @@
           },
           "404": {
             "description": "Project or calendar feed not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/workspace": {
+      "get": {
+        "operationId": "listWorkspaceTasks",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "List tasks across accessible workspace projects",
+        "description": "A bounded read-only workspace overview. Filters apply before pagination; at most 100 compact task summaries per page. Archived tasks and projects are excluded. Completion follows each project's workflow rather than merging status slugs. Total is the matching accessible task count. Defaults to open tasks, ordered by due date, priority, creation time and ID.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "required": false,
+            "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "A member ID, or unassigned. Matches every assignee, including additional assignees."
+            },
+            "required": false,
+            "description": "A member ID, or unassigned. Matches every assignee, including additional assignees.",
+            "name": "assigneeId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "no-priority",
+                "low",
+                "medium",
+                "high",
+                "urgent"
+              ]
+            },
+            "required": false,
+            "name": "priority",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "completed",
+                "all"
+              ]
+            },
+            "required": false,
+            "name": "completion",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Case-insensitive literal search of titles and project task identifiers."
+            },
+            "required": false,
+            "description": "Case-insensitive literal search of titles and project task identifiers.",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Workspace task page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/AssignedTasks"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "tasks": {
+                          "type": "array",
+                          "items": {
+                            "allOf": [
+                              {
+                                "$ref": "#/components/schemas/AssignedTask"
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "completed": {
+                                    "type": "boolean"
+                                  },
+                                  "assignees": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "image": {
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "name",
+                                        "image"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "completed",
+                                  "assignees"
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing project or task read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "application/json": {
                 "schema": {

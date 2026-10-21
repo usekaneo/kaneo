@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   CircleCheck,
+  ListTodo,
   House,
   Inbox,
   type LucideIcon,
@@ -61,6 +62,11 @@ export function NavMain() {
       icon: CircleCheck,
       url: `${homeUrl}/my-tasks`,
       count: assignedTasks?.total,
+    },
+    {
+      title: t("workspace:taskViews.title"),
+      icon: ListTodo,
+      url: `${homeUrl}/tasks`,
     },
     {
       title: t("navigation:sidebar.members"),

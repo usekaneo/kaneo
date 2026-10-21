@@ -14067,9 +14067,85 @@
 						"truncated",
 						"loadMore"
 					]
+				},
+				"taskViews": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"search": {
+							"type": "string"
+						},
+						"project": {
+							"type": "string"
+						},
+						"allProjects": {
+							"type": "string"
+						},
+						"allPriorities": {
+							"type": "string"
+						},
+						"completion": {
+							"type": "string"
+						},
+						"allStates": {
+							"type": "string"
+						},
+						"open": {
+							"type": "string"
+						},
+						"completed": {
+							"type": "string"
+						},
+						"allAssignees": {
+							"type": "string"
+						},
+						"filterPerson": {
+							"type": "string"
+						},
+						"optionsError": {
+							"type": "string"
+						},
+						"boardNote": {
+							"type": "string"
+						},
+						"empty": {
+							"type": "string"
+						},
+						"count": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"search",
+						"project",
+						"allProjects",
+						"allPriorities",
+						"completion",
+						"allStates",
+						"open",
+						"completed",
+						"allAssignees",
+						"filterPerson",
+						"optionsError",
+						"boardNote",
+						"empty",
+						"count"
+					]
 				}
 			},
-			"required": ["projects", "search", "create", "home", "myWork", "myTasks"]
+			"required": [
+				"projects",
+				"search",
+				"create",
+				"home",
+				"myWork",
+				"myTasks",
+				"taskViews"
+			]
 		},
 		"team": {
 			"type": "object",

@@ -1,3 +1,4 @@
+import { taskPriorityRank } from "../priority-rank";
 import { legacyAssigneeFields } from "../assignees/legacy-assignee-fields";
 import { taskCoAssigneeTable } from "../../database/schema";
 import {
@@ -56,20 +57,12 @@ export type GetTasksOptions = {
   status?: string;
 };
 
-const priorityCaseExpr = sql<number>`CASE
-  WHEN ${taskTable.priority} = 'urgent' THEN 4
-  WHEN ${taskTable.priority} = 'high' THEN 3
-  WHEN ${taskTable.priority} = 'medium' THEN 2
-  WHEN ${taskTable.priority} = 'low' THEN 1
-  ELSE 0
-END`;
-
 function sortValue(sortBy: GetTasksOptions["sortBy"]): SQLWrapper {
   switch (sortBy) {
     case "createdAt":
       return taskTable.createdAt;
     case "priority":
-      return priorityCaseExpr;
+      return taskPriorityRank;
     case "dueDate":
       return taskTable.dueDate;
     case "title":
