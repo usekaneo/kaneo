@@ -1,3 +1,6 @@
+vi.mock("@/components/project/views/personal-views", () => ({
+  PersonalViews: () => null,
+}));
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentType, ReactNode } from "react";
 import { afterEach, expect, it, vi } from "vite-plus/test";

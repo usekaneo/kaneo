@@ -1,3 +1,4 @@
+import savedView from "./saved-view";
 import integrationSync from "./integration-sync";
 import { syncWorkspaceAccess } from "./ws/workspace-access";
 import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
@@ -829,6 +830,7 @@ export function createApp() {
   const projectApi = api.route("/project", project);
   const calendarFeedApi = api.route("/calendar-feed", calendarFeed);
   const taskApi = api.route("/task", task);
+  const savedViewApi = api.route("/saved-view", savedView);
   const columnApi = api.route("/column", column);
   const activityApi = api.route("/activity", activity);
   const commentApi = api.route("/comment", comment);
@@ -997,6 +999,7 @@ export function createApp() {
     mattermostIntegrationApi,
     slackIntegrationApi,
     taskApi,
+    savedViewApi,
     taskRelationApi,
     telegramIntegrationApi,
     timeEntryApi,
@@ -1130,6 +1133,7 @@ const {
   searchApi,
   slackIntegrationApi,
   taskApi,
+  savedViewApi,
   taskRelationApi,
   telegramIntegrationApi,
   timeEntryApi,
@@ -1157,6 +1161,7 @@ export type AppType =
   | typeof configApi
   | typeof projectApi
   | typeof calendarFeedApi
+  | typeof savedViewApi
   | typeof taskApi
   | typeof columnApi
   | typeof activityApi

@@ -1,3 +1,5 @@
+import { PersonalViews } from "@/components/project/views/personal-views";
+import { normalizeFilters } from "@/lib/task-filters/filter-config";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -134,6 +136,25 @@ function RouteComponent() {
       toolbar={
         <ProjectToolbar
           view={view}
+          actions={
+            <PersonalViews
+              projectId={projectId}
+              config={{
+                version: 1,
+                search: view.search,
+                filters: normalizeFilters(filters.filters),
+                sort,
+                layout: viewMode,
+              }}
+              onApply={(config) => {
+                filters.setFilters(normalizeFilters(config.filters));
+                view.setSearch(config.search);
+                setSort(config.sort);
+                useUserPreferencesStore.getState().setViewMode(config.layout);
+                useUserPreferencesStore.getState().setTaskLayout(config.layout);
+              }}
+            />
+          }
           display={
             <>
               <DisplaySection>

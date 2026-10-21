@@ -3358,6 +3358,21 @@
 			"startsOn": "Empieza: {{date}}",
 			"beforeStart": "{{date}} es anterior a la fecha de inicio",
 			"afterDue": "{{date}} es posterior a la fecha límite"
+		},
+		"personalViews": {
+			"title": "Personal views",
+			"private": "Only you can see these views.",
+			"empty": "No saved views yet.",
+			"save": "Save current view",
+			"manage": "Manage personal view",
+			"description": "Save this project's filters, search, sort and board or list layout. Views sync across your browsers.",
+			"name": "View name",
+			"edit": "Edit {{name}}",
+			"rename": "Rename",
+			"replace": "Replace with current view",
+			"deleteConfirm": "Delete this saved view? Tasks will remain unchanged.",
+			"confirmDelete": "Confirm delete",
+			"error": "Could not load or save personal views. Please try again."
 		}
 	},
 	"invitations": {

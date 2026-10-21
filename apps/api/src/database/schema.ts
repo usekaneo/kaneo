@@ -1,3 +1,4 @@
+import type { ProjectViewConfig } from "../saved-view/schema";
 import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
@@ -1494,3 +1495,26 @@ export const dataMigrationTable = pgTable("data_migration", {
     .default(utcNow)
     .notNull(),
 });
+
+export const personalProjectViewTable = pgTable(
+  "personal_project_view",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    config: jsonb("config").$type<ProjectViewConfig>().notNull(),
+  },
+  (table) => [
+    index("personal_project_view_owner_project_idx").on(
+      table.userId,
+      table.projectId,
+    ),
+  ],
+);
