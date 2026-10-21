@@ -2704,7 +2704,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}} でコメント"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "担当者から {{name}} を削除しました"
 	},
 	"tasks": {
 		"title": "タスク",

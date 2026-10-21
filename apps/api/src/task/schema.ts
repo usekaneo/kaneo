@@ -38,6 +38,15 @@ export const assignedTasksQuery = z.object({
 });
 
 const priority = z.enum(VALID_PRIORITIES);
+export const assigneeIds = z.array(z.string().trim().min(1)).max(100);
+export const taskAssigneesBody = z.object({ assigneeIds });
+export const addTaskAssigneeBody = z.object({
+  userId: z.string().trim().min(1),
+});
+export const taskAssigneeParam = z.object({
+  id: z.string(),
+  userId: z.string(),
+});
 
 // Required object of optional filters: a RouteParameter cannot itself be optional.
 export const listTasksQuery = z.object({
@@ -67,6 +76,7 @@ export const bulkUpdateBody = z.object({
     "removeLabel",
     "updateDueDate",
   ]),
+  assigneeMode: z.enum(["set", "add", "remove"]).optional(),
   value: z.string().nullable().optional().openapi({
     description:
       "The new value for the chosen operation. Unused by `delete`; null clears an assignee or due date.",
@@ -80,7 +90,11 @@ export const createTaskBody = z.object({
   dueDate: z.string().optional(),
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
-  userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  userId: z
+    .string()
+    .optional()
+    .openapi({ description: "First assignee, for legacy clients." }),
+  assigneeIds: assigneeIds.optional(),
   draftAssetIds: z.array(z.string()).max(100).optional(),
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))
@@ -100,6 +114,7 @@ export const updateTaskBody = z.object({
   projectId: z.string(),
   position: z.number().int().min(0).max(MAX_TASK_POSITION),
   userId: z.string().optional(),
+  assigneeIds: assigneeIds.optional(),
 });
 
 export const moveTaskBody = z.object({
@@ -121,6 +136,7 @@ export const importTasksBody = z.object({
       priority: z.string().optional(),
       startDate: z.string().nullable().optional(),
       dueDate: z.string().nullable().optional(),
+      assigneeIds: assigneeIds.optional(),
       userId: z.string().nullable().optional().openapi({
         description:
           "Assignable user's ID or email address. Emails match case-insensitively. Null, empty, or omitted leaves the task unassigned.",

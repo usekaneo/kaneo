@@ -56,7 +56,7 @@ Open a task to edit its description and properties. Use **Open in full page** fr
   <img className="hidden dark:block" src="/images/product/task-dark.png" alt="The full task page keeps the description, properties, and conversation together." />
 </Frame>
 
-- **Assignee:** choose the person responsible for the next step. Clear it to leave the task unassigned.
+- **Assignee:** type a name or email to find people, then select everyone responsible for the work. The picker stays open so you can select several people. Select a checked person to remove just them, or choose **Unassigned** to clear everyone.
 - **Priority:** show what needs attention first. A task can have no priority.
 - **Dates:** add start and due dates when the work has a schedule.
 - **Labels:** group related work across projects. Removing a label from one task does not delete the workspace label.
@@ -66,7 +66,7 @@ Use the attachment button, paste, or drag a file into the editor to add supporti
 
 ## Break work into subtasks
 
-In the task’s **Sub-tasks** section, enter a title and choose **Add**. Each subtask is a task with its own status and assignee. Open it to add more detail. The **Subtask of** link takes you back to its parent.
+In the task’s **Sub-tasks** section, enter a title and choose **Add**. Each subtask is a task with its own status and assignees. Open it to add more detail. The **Subtask of** link takes you back to its parent.
 
 Use checkboxes in the description for a simple checklist. Use subtasks when each piece needs its own owner or progress tracking.
 
@@ -87,3 +87,13 @@ Required fields always keep a value, so they have no **Clear** option. If one is
 Use **Delete Task** only when you want to remove the task, rather than mark it done. Check the confirmation before proceeding. If deletion or assignment is unavailable, your workspace role may not permit it.
 
 For work you want to keep but are not ready to start, use the [backlog](/core/functional/backlog-planning).
+
+## Share task ownership
+
+You can select several assignees when creating a task or from its assignee button. The task appears in each person's **My Tasks**, and assignee filters match any selected person. Cards show up to three avatars and an overflow count; the full task shows all names.
+
+Right-click a task and choose **Assignee** to open the same searchable selection. For several selected tasks, choosing a person in the bulk picker adds them to every task. Choosing someone already checked removes only that person. **Unassigned** clears all assignees.
+
+Each assignee receives eligible assignment, comment, status, and due-date notifications according to their preferences. Removing a person from the workspace or revoking their project access removes the affected assignments. Changing the project during task creation removes selections that are unavailable in that project.
+
+Older clients can continue using the single-assignee API. Explicit legacy reassignment replaces the complete set; use the add/remove endpoints to preserve other assignees. The mobile assignment UI and forge-specific assignment synchronization remain separate from these web controls.

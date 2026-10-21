@@ -2751,7 +2751,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "коментираше на {{forge}}"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "{{name}} е отстранет од одговорните лица"
 	},
 	"tasks": {
 		"title": "Задачи",

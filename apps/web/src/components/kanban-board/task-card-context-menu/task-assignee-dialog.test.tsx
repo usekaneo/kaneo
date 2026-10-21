@@ -73,9 +73,11 @@ describe("assignment search opened from context menus", () => {
       expect(mocks.mutate).toHaveBeenCalledWith({
         ...task,
         userId: "person-49",
+        assigneeMode: "add",
+        assigneeIds: [],
       }),
     );
-    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+    expect(onClose).not.toHaveBeenCalled();
   });
   it("keeps Unassigned reachable while searching and clears assignment", async () => {
     const { input, onClose } = open();
@@ -84,9 +86,14 @@ describe("assignment search opened from context menus", () => {
       screen.getByRole("option", { name: /tasks:popover.assignee.unassigned/ }),
     );
     await waitFor(() =>
-      expect(mocks.mutate).toHaveBeenCalledWith({ ...task, userId: "" }),
+      expect(mocks.mutate).toHaveBeenCalledWith({
+        ...task,
+        userId: "",
+        assigneeMode: "set",
+        assigneeIds: [],
+      }),
     );
-    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+    expect(onClose).not.toHaveBeenCalled();
   });
   it("keeps the picker open when assignment fails", async () => {
     mocks.mutate.mockRejectedValue(new Error("Assignment failed"));

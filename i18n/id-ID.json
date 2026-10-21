@@ -2704,7 +2704,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "berkomentar di {{forge}}"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "Menghapus {{name}} dari penanggung jawab"
 	},
 	"tasks": {
 		"title": "Tugas",

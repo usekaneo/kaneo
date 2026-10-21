@@ -2798,7 +2798,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "comentou no {{forge}}"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "{{name}} removido dos responsáveis"
 	},
 	"tasks": {
 		"title": "Tarefas",

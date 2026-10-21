@@ -97,6 +97,15 @@ export type TaskAssigneeChangedEvent = {
   newAssigneeId: string;
 };
 
+export type TaskAssigneeRemovedEvent = {
+  taskId: string;
+  projectId: string;
+  userId: string | null;
+  title: string;
+  removedAssigneeId: string;
+  removedAssignee?: string;
+};
+
 export type TaskUnassignedEvent = {
   taskId: string;
   projectId: string;
@@ -115,6 +124,7 @@ export type TaskEvent =
   | TaskMovedEvent
   | TaskDueDateChangedEvent
   | TaskAssigneeChangedEvent
+  | TaskAssigneeRemovedEvent
   | TaskUnassignedEvent;
 
 export type ExternalMetadata = {
@@ -160,6 +170,7 @@ export type IntegrationPlugin = {
   onTaskMoved?: TaskEventHandler<TaskMovedEvent>;
   onTaskDueDateChanged?: TaskEventHandler<TaskDueDateChangedEvent>;
   onTaskAssigneeChanged?: TaskEventHandler<TaskAssigneeChangedEvent>;
+  onTaskAssigneeRemoved?: TaskEventHandler<TaskAssigneeRemovedEvent>;
   onTaskUnassigned?: TaskEventHandler<TaskUnassignedEvent>;
 
   handleWebhook?: WebhookHandler;

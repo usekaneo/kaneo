@@ -1,3 +1,8 @@
+import { legacyAssigneeFields } from "../../task/assignees/legacy-assignee-fields";
+import {
+  getTaskAssignees,
+  type TaskAssignee,
+} from "../../task/assignees/get-task-assignees";
 import { and, eq, inArray, or } from "drizzle-orm";
 import db from "../../database";
 import {
@@ -48,6 +53,7 @@ async function getTaskRelations(
       projectId: string;
       userId: string | null;
       assigneeName: string | null;
+      assignees?: TaskAssignee[];
     }
   >();
 
@@ -75,8 +81,11 @@ async function getTaskRelations(
         ),
       );
 
+    const assignees = await getTaskAssignees(taskRows.map((task) => task.id));
     for (const task of taskRows) {
-      tasks.set(task.id, task);
+      const people = assignees.get(task.id) ?? [];
+      const { userId, assigneeName } = legacyAssigneeFields(people);
+      tasks.set(task.id, { ...task, userId, assigneeName, assignees: people });
     }
   }
 

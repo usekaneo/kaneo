@@ -1,3 +1,4 @@
+import { hasTaskAssignee } from "../task/assignees/has-task-assignee";
 import { and, between, eq, isNotNull, isNull, ne, or, sql } from "drizzle-orm";
 import db from "../database";
 import {
@@ -51,7 +52,7 @@ async function getTasksNeedingReminder(
     .select({
       id: taskTable.id,
       title: taskTable.title,
-      userId: taskTable.userId,
+      userId: workspaceUserTable.userId,
       dueDate: taskTable.dueDate,
       projectId: taskTable.projectId,
       leadTimeMinutes:
@@ -63,24 +64,26 @@ async function getTasksNeedingReminder(
       workspaceUserTable,
       and(
         eq(workspaceUserTable.workspaceId, projectTable.workspaceId),
-        eq(workspaceUserTable.userId, taskTable.userId),
+        hasTaskAssignee(workspaceUserTable.userId),
       ),
     )
     .leftJoin(columnTable, eq(taskTable.columnId, columnTable.id))
     .leftJoin(
       userNotificationPreferenceTable,
-      eq(userNotificationPreferenceTable.userId, taskTable.userId),
+      eq(userNotificationPreferenceTable.userId, workspaceUserTable.userId),
     )
     .leftJoin(
       taskReminderSentTable,
       and(
         eq(taskReminderSentTable.taskId, taskTable.id),
-        eq(taskReminderSentTable.reminderType, reminderType),
+        eq(
+          taskReminderSentTable.reminderType,
+          sql`concat(${reminderType}::text, ':', ${workspaceUserTable.userId})`,
+        ),
       ),
     )
     .where(
       and(
-        isNotNull(taskTable.userId),
         isNotNull(taskTable.dueDate),
         reminderType === "configured_before"
           ? sql`${taskTable.dueDate} - (COALESCE(${userNotificationPreferenceTable.dueDateReminderLeadTimeMinutes}, 1440) * interval '1 minute') BETWEEN ${windowStart.toISOString()} AND ${windowEnd.toISOString()}`
@@ -119,7 +122,7 @@ async function processReminder(
       .insert(taskReminderSentTable)
       .values({
         taskId: task.id,
-        reminderType,
+        reminderType: `${reminderType}:${task.userId}`,
       })
       .onConflictDoNothing({
         target: [

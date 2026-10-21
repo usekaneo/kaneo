@@ -1,3 +1,5 @@
+import { writeTaskAssignees } from "../assignees/write-task-assignees";
+import { getTaskAssignees } from "../assignees/get-task-assignees";
 import { extractAssetIds } from "../../storage/cleanup-assets";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -49,6 +51,7 @@ async function createTask({
   projectId,
   currentUserId,
   userId,
+  assigneeIds,
   title,
   status,
   startDate,
@@ -61,6 +64,7 @@ async function createTask({
   projectId: string;
   currentUserId: string;
   userId?: string;
+  assigneeIds?: string[];
   title: string;
   status: string;
   startDate?: Date;
@@ -74,7 +78,8 @@ async function createTask({
   const resolvedPriority = priority || "no-priority";
   const normalizedCustomFields = deduplicateCustomFields(customFields);
 
-  const normalizedUserId = userId?.trim() || undefined;
+  const normalizedUserId =
+    (assigneeIds ? assigneeIds[0] : userId)?.trim() || undefined;
 
   await assertValidTaskStatus(resolvedStatus, projectId);
 
@@ -158,6 +163,8 @@ async function createTask({
       })
       .returning();
 
+    if (task && assigneeIds) await writeTaskAssignees(tx, task, assigneeIds);
+
     if (task && draftAssetIds?.length) {
       const referenced = extractAssetIds(description);
       const ids = [...new Set(draftAssetIds)].filter((id) =>
@@ -227,6 +234,8 @@ async function createTask({
   return {
     ...createdTask,
     assigneeName: assignee?.name,
+    assignees:
+      (await getTaskAssignees([createdTask.id])).get(createdTask.id) ?? [],
   };
 }
 

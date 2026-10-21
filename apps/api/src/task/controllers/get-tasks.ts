@@ -1,3 +1,5 @@
+import { legacyAssigneeFields } from "../assignees/legacy-assignee-fields";
+import { taskCoAssigneeTable } from "../../database/schema";
 import {
   and,
   asc,
@@ -29,6 +31,8 @@ import {
   descriptionDeferred,
   projectDescriptionDeferred,
 } from "../description-pages";
+import { hasTaskAssignee } from "../assignees/has-task-assignee";
+import { getTaskAssignees } from "../assignees/get-task-assignees";
 import { taskIsCompleted } from "../task-is-completed";
 import { getSubtaskCounts } from "../get-subtask-counts";
 
@@ -128,7 +132,7 @@ async function getTasksPage(
   }
 
   if (options.assigneeId) {
-    conditions.push(eq(taskTable.userId, options.assigneeId));
+    conditions.push(hasTaskAssignee(options.assigneeId)!);
   }
 
   if (options.dueBefore) {
@@ -206,6 +210,7 @@ async function getTasksPage(
   const paginatedTasks = await query.limit(pageSize).offset(offset);
 
   const taskIds = paginatedTasks.map((task) => task.id);
+  const assignees = await getTaskAssignees(taskIds, db);
 
   const subtaskCounts = await getSubtaskCounts(
     db,
@@ -414,7 +419,19 @@ async function getTasksPage(
           eq(projectTable.isPublic, true),
         ),
       );
-    publicRelatedRevision = `${labels?.revision}:${links?.revision}:${children?.revision}`;
+    const [coAssignees] = await db
+      .select({
+        revision: boardRevision(true, [
+          taskCoAssigneeTable.userId,
+          userTable.name,
+          userTable.image,
+        ]),
+      })
+      .from(taskCoAssigneeTable)
+      .innerJoin(taskTable, eq(taskCoAssigneeTable.taskId, taskTable.id))
+      .innerJoin(userTable, eq(taskCoAssigneeTable.userId, userTable.id))
+      .where(whereClause);
+    publicRelatedRevision = `${labels?.revision}:${links?.revision}:${children?.revision}:${coAssignees?.revision}`;
   }
 
   const columns = projectColumns.map((column) => ({
@@ -428,6 +445,8 @@ async function getTasksPage(
       .filter((task) => task.status === column.slug)
       .map((task) => ({
         ...task,
+        ...legacyAssigneeFields(assignees.get(task.id) ?? []),
+        assignees: assignees.get(task.id) ?? [],
         subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
         labels: taskLabelsMap.get(task.id) || [],
         externalLinks: taskExternalLinksMap.get(task.id) || [],
@@ -438,6 +457,8 @@ async function getTasksPage(
     .filter((task) => task.status === "archived")
     .map((task) => ({
       ...task,
+      ...legacyAssigneeFields(assignees.get(task.id) ?? []),
+      assignees: assignees.get(task.id) ?? [],
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
@@ -447,6 +468,8 @@ async function getTasksPage(
     .filter((task) => task.status === "planned")
     .map((task) => ({
       ...task,
+      ...legacyAssigneeFields(assignees.get(task.id) ?? []),
+      assignees: assignees.get(task.id) ?? [],
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],

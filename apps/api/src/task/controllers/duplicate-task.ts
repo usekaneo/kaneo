@@ -1,3 +1,5 @@
+import { getTaskAssignees } from "../assignees/get-task-assignees";
+import { writeTaskAssignees } from "../assignees/write-task-assignees";
 import { createId } from "@paralleldrive/cuid2";
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -300,6 +302,23 @@ async function duplicateTask({
           position: nextPosition,
         })
         .returning();
+      if (task) {
+        const people =
+          (await getTaskAssignees([sourceTask.id], tx)).get(sourceTask.id) ??
+          [];
+        const eligible = await filterUsersWithProjectAccess(
+          people.map((person) => person.id),
+          sourceTask.projectId,
+          tx,
+        );
+        await writeTaskAssignees(
+          tx,
+          task,
+          people
+            .filter((person) => eligible.has(person.id))
+            .map((person) => person.id),
+        );
+      }
 
       if (!task) {
         throw new HTTPException(500, {

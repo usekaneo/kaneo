@@ -1,3 +1,4 @@
+import { getTaskAssigneeIds } from "@/lib/get-task-assignee-ids";
 import {
   addWeeks,
   type Day,
@@ -91,7 +92,12 @@ export function taskMatchesFilters(
     [
       "assignee",
       filters.assignee,
-      () => filters.assignee?.includes(task.userId ?? "") ?? false,
+      () => {
+        const ids = getTaskAssigneeIds(task);
+        return ids.length
+          ? ids.some((id) => filters.assignee?.includes(id))
+          : (filters.assignee?.includes("") ?? false);
+      },
     ],
     [
       "dueDate",

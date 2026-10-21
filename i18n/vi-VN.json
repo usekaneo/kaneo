@@ -2704,7 +2704,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "đã bình luận trên {{forge}}"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "Đã xóa {{name}} khỏi người được giao"
 	},
 	"tasks": {
 		"title": "Nhiệm vụ",

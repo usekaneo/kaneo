@@ -24,3 +24,36 @@ describe("buildFullTaskUpdateBody", () => {
     expect(body.position).toBe(1);
   });
 });
+
+it("does not echo an assignee when updating unrelated fields on a multi-assignee server", () => {
+  const original = {
+    title: "Shared",
+    description: "",
+    status: "to-do",
+    priority: "low",
+    projectId: "project",
+    position: 1,
+    userId: "ada",
+    assignees: [{ id: "ada" }, { id: "grace" }],
+  };
+  expect(
+    buildFullTaskUpdateBody(original, { title: "Renamed" }),
+  ).not.toHaveProperty("userId");
+  expect(
+    buildFullTaskUpdateBody(original, { assigneeIds: ["grace"] }),
+  ).toHaveProperty("assigneeIds", ["grace"]);
+});
+it("keeps the old single-assignee contract for older servers", () => {
+  const original = {
+    title: "Work",
+    description: "",
+    status: "to-do",
+    priority: "low",
+    projectId: "project",
+    position: 1,
+    userId: "ada",
+  };
+  expect(
+    buildFullTaskUpdateBody(original, { title: "Renamed" }),
+  ).toHaveProperty("userId", "ada");
+});

@@ -1,3 +1,4 @@
+import { taskCoAssigneeTable } from "../../database/schema";
 import { and, eq, inArray, isNotNull, max, notInArray, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import createActivities from "../../activity/controllers/create-activities";
@@ -200,6 +201,47 @@ async function moveProject(
           );
       }
     }
+
+    const coPeople = await tx
+      .selectDistinct({ userId: taskCoAssigneeTable.userId })
+      .from(taskCoAssigneeTable)
+      .innerJoin(taskTable, eq(taskCoAssigneeTable.taskId, taskTable.id))
+      .where(eq(taskTable.projectId, id));
+    const coMembers = coPeople.length
+      ? await tx
+          .select({ userId: workspaceUserTable.userId })
+          .from(workspaceUserTable)
+          .where(
+            and(
+              eq(workspaceUserTable.workspaceId, targetWorkspaceId),
+              inArray(
+                workspaceUserTable.userId,
+                coPeople.map((person) => person.userId),
+              ),
+            ),
+          )
+      : [];
+    const eligibleCoMembers = await filterUsersWithProjectAccess(
+      coMembers.map((person) => person.userId),
+      id,
+      tx,
+    );
+    await tx
+      .delete(taskCoAssigneeTable)
+      .where(
+        and(
+          inArray(
+            taskCoAssigneeTable.taskId,
+            tx
+              .select({ id: taskTable.id })
+              .from(taskTable)
+              .where(eq(taskTable.projectId, id)),
+          ),
+          eligibleCoMembers.size
+            ? notInArray(taskCoAssigneeTable.userId, [...eligibleCoMembers])
+            : undefined,
+        ),
+      );
 
     // Older task moves could leave links owned by a different project.
     await tx

@@ -1,3 +1,9 @@
+import {
+  getTaskAssignees,
+  type TaskAssignee,
+} from "../assignees/get-task-assignees";
+import { writeTaskAssignees } from "../assignees/write-task-assignees";
+import { publishAssigneeChanges } from "../assignees/publish-assignee-changes";
 import { and, eq, getTableColumns, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -27,6 +33,7 @@ async function updateTask(
   position: number,
   userId?: string,
   currentUserId?: string,
+  assigneeIds?: string[],
 ) {
   assertTaskPosition(position);
 
@@ -61,7 +68,15 @@ async function updateTask(
 
   await assertValidTaskStatus(status, projectId);
 
-  const normalizedUserId = userId?.trim() || undefined;
+  const normalizedUserId =
+    userId === undefined ? existingTask.userId : userId.trim() || null;
+  // An older client can echo the owner it read while only editing the title.
+  // Keep that echo from undoing an assignment committed before our row lock.
+  const keepLegacyAssignees =
+    userId === undefined ||
+    (normalizedUserId !== null && normalizedUserId === existingTask.userId);
+  let beforeAssignees: TaskAssignee[] = [];
+  let afterAssignees: TaskAssignee[] = [];
 
   if (normalizedUserId && normalizedUserId !== existingTask.userId) {
     await assertAssignableUser(
@@ -114,6 +129,17 @@ async function updateTask(
         message: "Task order changed; refresh before updating",
       });
     existingTask = locked;
+    beforeAssignees = (await getTaskAssignees([id], tx)).get(id) ?? [];
+    const requested =
+      assigneeIds ??
+      (keepLegacyAssignees ||
+      beforeAssignees.some((person) => person.id === normalizedUserId)
+        ? undefined
+        : normalizedUserId
+          ? [normalizedUserId]
+          : []);
+    if (requested) await writeTaskAssignees(tx, locked, requested);
+    afterAssignees = (await getTaskAssignees([id], tx)).get(id) ?? [];
 
     const [task] = await tx
       .update(taskTable)
@@ -127,7 +153,7 @@ async function updateTask(
         description,
         priority,
         position,
-        userId: normalizedUserId ?? null,
+        userId: requested ? (afterAssignees[0]?.id ?? null) : locked.userId,
       })
       .where(and(eq(taskTable.id, id), eq(taskTable.projectId, projectId)))
       .returning({
@@ -159,6 +185,13 @@ async function updateTask(
     },
     { ...updatedTask, description: description ?? updatedTask.description },
     currentUserId,
+    { fields: ["title", "status", "priority", "description", "dueDate"] },
+  );
+  await publishAssigneeChanges(
+    updatedTask,
+    beforeAssignees,
+    afterAssignees,
+    currentUserId,
   );
 
   await publishEvent("task.updated", {
@@ -169,7 +202,7 @@ async function updateTask(
     userId: currentUserId,
   });
 
-  return updatedTask;
+  return { ...updatedTask, assignees: afterAssignees };
 }
 
 export default updateTask;

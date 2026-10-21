@@ -2751,7 +2751,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "{{forge}}-da şərh yazdı"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "{{name}} məsul şəxslərdən çıxarıldı"
 	},
 	"tasks": {
 		"title": "Tapşırıqlar",

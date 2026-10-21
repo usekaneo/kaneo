@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { OptionMenu } from "@/components/common/option-menu/option-menu";
-import { assigneeMenuOptions } from "@/components/task/menus/assignee-menu-options";
+import { AssigneeOptionsMenu } from "@/components/task/menus/assignee-options-menu";
+import { getTaskAssigneeIds } from "@/lib/get-task-assignee-ids";
 import { Dialog, DialogPopup, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
@@ -26,20 +25,19 @@ export function TaskAssigneeDialog({
     projectId: task.projectId,
   });
   const { mutateAsync, isPending } = useUpdateTaskAssignee();
-  const [query, setQuery] = useState("");
-  const options = assigneeMenuOptions(
-    members.data ?? [],
-    task.userId,
-    t("tasks:popover.assignee.unassigned"),
-  );
-  const unassigned = { ...options[0]!, pinned: true };
-  const people = options.slice(1);
-
   const select = async (userId: string) => {
     if (isPending || members.isPending || members.isError) return;
     try {
-      await mutateAsync({ ...task, userId });
-      onClose();
+      await mutateAsync({
+        ...task,
+        userId,
+        assigneeMode: userId
+          ? getTaskAssigneeIds(task).includes(userId)
+            ? "remove"
+            : "add"
+          : "set",
+        assigneeIds: [],
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -60,14 +58,11 @@ export function TaskAssigneeDialog({
         <DialogTitle className="sr-only">
           {t("tasks:assignee.label")}
         </DialogTitle>
-        <OptionMenu
-          label={t("tasks:assignee.label")}
-          placeholder={t("tasks:bulk.assigneePlaceholder")}
-          options={
-            query.trim() ? [...people, unassigned] : [unassigned, ...people]
-          }
-          onQueryChange={setQuery}
-          onSelect={(userId) => void select(userId)}
+        <AssigneeOptionsMenu
+          members={members.data ?? []}
+          current={getTaskAssigneeIds(task)}
+          onSelect={(id) => void select(id)}
+          disabled={isPending}
           status={
             members.isError ? (
               <div role="alert" className="space-y-2">
@@ -80,7 +75,7 @@ export function TaskAssigneeDialog({
                   {t("common:error.tryAgain")}
                 </Button>
               </div>
-            ) : members.isPending || isPending ? (
+            ) : members.isPending ? (
               t("common:empty.loading")
             ) : undefined
           }

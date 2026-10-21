@@ -19,6 +19,7 @@ import {
   taskRelationTable,
   taskReminderSentTable,
   taskTable,
+  taskCoAssigneeTable,
   teamMemberTable,
   teamTable,
   timeEntryTable,
@@ -39,6 +40,7 @@ export const userTableRelations = relations(userTable, ({ many, one }) => ({
   teamMembers: many(teamMemberTable),
   workspaceMemberships: many(workspaceUserTable),
   assignedTasks: many(taskTable),
+  coAssignedTasks: many(taskCoAssigneeTable),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   comments: many(commentTable),
@@ -135,7 +137,22 @@ export const workflowRuleTableRelations = relations(
   }),
 );
 
+export const taskCoAssigneeTableRelations = relations(
+  taskCoAssigneeTable,
+  ({ one }) => ({
+    task: one(taskTable, {
+      fields: [taskCoAssigneeTable.taskId],
+      references: [taskTable.id],
+    }),
+    user: one(userTable, {
+      fields: [taskCoAssigneeTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
+
 export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
+  coAssignees: many(taskCoAssigneeTable),
   project: one(projectTable, {
     fields: [taskTable.projectId],
     references: [projectTable.id],
