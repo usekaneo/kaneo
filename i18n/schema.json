@@ -11291,6 +11291,9 @@
 						"importedFrom",
 						"importedBy"
 					]
+				},
+				"removedAssignee": {
+					"type": "string"
 				}
 			},
 			"required": [
@@ -11307,7 +11310,8 @@
 				"movedFromOtherProject",
 				"created",
 				"githubUser",
-				"comment"
+				"comment",
+				"removedAssignee"
 			]
 		},
 		"tasks": {

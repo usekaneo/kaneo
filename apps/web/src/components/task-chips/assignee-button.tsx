@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import TaskAssigneePopover from "@/components/task/task-assignee-popover";
-import { AssigneeAvatar } from "@/components/task/properties/assignee-avatar";
+import { AssigneeAvatars } from "@/components/task/assignee-avatars";
 import type Task from "@/types/task";
 import { stopCardEvents } from "./stop-card-events";
 
@@ -22,9 +22,11 @@ export function AssigneeButton({
   avatarFallbackClassName,
 }: AssigneeButtonProps) {
   const { t } = useTranslation();
-  const label = task.userId
-    ? name || t("tasks:assignee.label")
-    : t("tasks:assignee.unassigned");
+  const label = task.assignees?.length
+    ? task.assignees.map((person) => person.name).join(", ")
+    : task.userId
+      ? name || t("tasks:assignee.label")
+      : t("tasks:assignee.unassigned");
 
   return (
     <TaskAssigneePopover task={task} workspaceId={workspaceId}>
@@ -35,10 +37,10 @@ export function AssigneeButton({
         className="relative flex shrink-0 cursor-pointer rounded-full outline-none ring-offset-1 ring-offset-board-card transition-shadow before:absolute before:-inset-1 hover:ring-2 hover:ring-chip-border-hover focus-visible:ring-[3px] focus-visible:ring-board-card-ring data-popup-open:ring-2 data-popup-open:ring-chip-border-open"
         {...stopCardEvents}
       >
-        <AssigneeAvatar
+        <AssigneeAvatars
+          task={task}
           name={name}
           image={image}
-          assigned={Boolean(task.userId)}
           className={avatarClassName}
           fallbackClassName={avatarFallbackClassName}
         />

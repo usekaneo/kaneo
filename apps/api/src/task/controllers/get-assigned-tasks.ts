@@ -17,6 +17,7 @@ import {
   taskTable,
 } from "../../database/schema";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
+import { hasTaskAssignee } from "../assignees/has-task-assignee";
 import { taskIsCompleted } from "../task-is-completed";
 
 // Keep the Home preview and each My Tasks page bounded.
@@ -39,7 +40,7 @@ async function getAssignedTasks(
   const openAndMine = and(
     eq(projectTable.workspaceId, workspaceId),
     isNull(projectTable.archivedAt),
-    eq(taskTable.userId, userId),
+    hasTaskAssignee(userId),
     ne(taskTable.status, "archived"),
     sql`not coalesce((
       select ${columnTable.isFinal} from ${columnTable}

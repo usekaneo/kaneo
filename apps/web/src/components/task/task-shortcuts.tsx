@@ -70,7 +70,7 @@ export function TaskShortcuts({
     async () => {
       if (!task || !user) return;
       try {
-        await updateAssignee({ ...task, userId: user.id });
+        await updateAssignee({ ...task, userId: user.id, assigneeMode: "add" });
         toast.message(t("tasks:shortcuts.assignedToMe"), {
           icon: UserRoundIcon,
         });

@@ -226,6 +226,8 @@ export function BulkBar({
               options={options.memberOptions}
               onSelect={(value) => void actions.assign(value)}
               picker="assignee"
+              multiple
+              disabled={actions.assignPending}
               onDismiss={dismissTemporary}
               returnFocus={focusedTaskElement}
             />

@@ -8,9 +8,8 @@ import {
   Trash2,
   UserRound,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ContextMenuCheckboxItem,
   ContextMenuContent,
@@ -22,18 +21,15 @@ import {
 } from "@/components/ui/context-menu";
 import { useDuplicateTask } from "@/hooks/mutations/task/use-duplicate-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
 import type getProjects from "@/fetchers/project/get-projects";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
-import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
-import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { getTaskPath } from "@/lib/task-link";
@@ -42,6 +38,7 @@ import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
 import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
 import { DueDateSubmenu } from "./due-date-submenu";
+import { TaskAssigneeDialog } from "./task-assignee-dialog";
 
 type TaskCardContext = {
   worskpaceId: string;
@@ -78,14 +75,10 @@ export default function TaskCardContextMenuContent({
           icon: col.icon,
           isFinal: col.isFinal,
         }));
-  const { data: projectMembers } = useGetProjectMembers({
-    workspaceId: taskCardContext.worskpaceId,
-    projectId: taskCardContext.projectId,
-  });
+  const [assigneeDialogOpen, setAssigneeDialogOpen] = useState(false);
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
-  const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
   const { mutate: duplicateTask } = useDuplicateTask();
@@ -95,15 +88,6 @@ export default function TaskCardContextMenuContent({
   const canEdit = canUpdateTasks();
   const canDelete = canDeleteTasks();
   const canAssign = canAssignTasks();
-
-  const usersOptions = useMemo(() => {
-    return projectMembers?.map((member) => ({
-      label: member.name || member.email,
-      value: member.id,
-      image: member.image ?? "",
-      name: member.name,
-    }));
-  }, [projectMembers]);
 
   const handleCopyTaskLink = () => {
     const path = getTaskPath({
@@ -142,9 +126,6 @@ export default function TaskCardContextMenuContent({
         case "status":
           await updateTaskStatus({ ...task, status: value as string });
           break;
-        case "userId":
-          await updateTaskAssignee({ ...task, userId: value as string });
-          break;
         case "title":
           await updateTaskTitle({ ...task, title: value as string });
           break;
@@ -168,174 +149,149 @@ export default function TaskCardContextMenuContent({
   };
 
   return (
-    <ContextMenuContent className="w-46">
-      <ContextMenuItem className="[&>svg]:mx-0" onClick={handleCopyTaskLink}>
-        <LinkIcon className="size-3.5 text-muted-foreground" />
-        <span>{t("tasks:contextMenu.copyLink")}</span>
-      </ContextMenuItem>
+    <>
+      <ContextMenuContent className="w-46">
+        <ContextMenuItem className="[&>svg]:mx-0" onClick={handleCopyTaskLink}>
+          <LinkIcon className="size-3.5 text-muted-foreground" />
+          <span>{t("tasks:contextMenu.copyLink")}</span>
+        </ContextMenuItem>
 
-      {(canEdit || canAssign) && <ContextMenuSeparator />}
+        {(canEdit || canAssign) && <ContextMenuSeparator />}
 
-      {canEdit && (
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <PriorityGlyph priority="high" />
-            <span>{t("tasks:priority.label")}</span>
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-48">
-            <ContextMenuCheckboxItem
-              key="no-priority"
-              checked={task.priority === "no-priority"}
-              onCheckedChange={() => handleChange("priority", "no-priority")}
-              closeOnClick
-              className="[&_svg]:text-muted-foreground"
-            >
-              {getPriorityIcon("no-priority")}
-              <span>{getPriorityLabel("no-priority")}</span>
-            </ContextMenuCheckboxItem>
-            {["low", "medium", "high", "urgent"].map((priority) => (
+        {canEdit && (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <PriorityGlyph priority="high" />
+              <span>{t("tasks:priority.label")}</span>
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
               <ContextMenuCheckboxItem
-                key={priority}
-                checked={task.priority === priority}
-                onCheckedChange={() => handleChange("priority", priority)}
+                key="no-priority"
+                checked={task.priority === "no-priority"}
+                onCheckedChange={() => handleChange("priority", "no-priority")}
                 closeOnClick
                 className="[&_svg]:text-muted-foreground"
               >
-                {getPriorityIcon(priority)}
-                <span className="capitalize">{getPriorityLabel(priority)}</span>
+                {getPriorityIcon("no-priority")}
+                <span>{getPriorityLabel("no-priority")}</span>
               </ContextMenuCheckboxItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      )}
+              {["low", "medium", "high", "urgent"].map((priority) => (
+                <ContextMenuCheckboxItem
+                  key={priority}
+                  checked={task.priority === priority}
+                  onCheckedChange={() => handleChange("priority", priority)}
+                  closeOnClick
+                  className="[&_svg]:text-muted-foreground"
+                >
+                  {getPriorityIcon(priority)}
+                  <span className="capitalize">
+                    {getPriorityLabel(priority)}
+                  </span>
+                </ContextMenuCheckboxItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        )}
 
-      {canEdit && (
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <CircleDot className="size-3.5 text-muted-foreground" />
-            <span>{t("tasks:status.label")}</span>
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-48">
-            {columns.map((col) => (
-              <ContextMenuCheckboxItem
-                key={col.slug}
-                checked={task.status === col.slug}
-                onCheckedChange={() => handleChange("status", col.slug)}
-                closeOnClick
-                className="[&_svg]:text-muted-foreground"
-              >
-                {getColumnIcon(col.slug, col.isFinal, col.icon)}
-                <span>{col.name}</span>
-              </ContextMenuCheckboxItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      )}
+        {canEdit && (
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <CircleDot className="size-3.5 text-muted-foreground" />
+              <span>{t("tasks:status.label")}</span>
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
+              {columns.map((col) => (
+                <ContextMenuCheckboxItem
+                  key={col.slug}
+                  checked={task.status === col.slug}
+                  onCheckedChange={() => handleChange("status", col.slug)}
+                  closeOnClick
+                  className="[&_svg]:text-muted-foreground"
+                >
+                  {getColumnIcon(col.slug, col.isFinal, col.icon)}
+                  <span>{col.name}</span>
+                </ContextMenuCheckboxItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        )}
 
-      {canEdit && <DueDateSubmenu task={task} />}
+        {canEdit && <DueDateSubmenu task={task} />}
 
-      {canAssign && usersOptions && (
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
+        {canAssign && (
+          <ContextMenuItem onClick={() => setAssigneeDialogOpen(true)}>
             <UserRound className="size-3.5 text-muted-foreground" />
             <span>{t("tasks:assignee.label")}</span>
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-48">
-            <ContextMenuCheckboxItem
-              checked={!task.userId}
-              onCheckedChange={() => handleChange("userId", "")}
-              closeOnClick
-            >
-              <div
-                className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
-                title={t("tasks:assignee.unassigned")}
-              >
-                <span className="text-[10px] font-medium text-muted-foreground">
-                  ?
-                </span>{" "}
-              </div>
-              {t("tasks:assignee.unassigned")}
-            </ContextMenuCheckboxItem>
-            {usersOptions.map((user) => (
-              <ContextMenuCheckboxItem
-                key={user.value}
-                checked={task.userId === user.value}
-                onCheckedChange={() => handleChange("userId", user.value ?? "")}
-                closeOnClick
-              >
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={user.image ?? ""} alt={user.name || ""} />
-                  <AvatarFallback className="text-xs font-medium border border-border/30">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
+          </ContextMenuItem>
+        )}
 
-                {user.label}
-              </ContextMenuCheckboxItem>
-            ))}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      )}
+        {(canCreate || canEdit || canDelete) && (
+          <>
+            {(canCreate || canEdit) && (
+              <>
+                <ContextMenuSeparator />
 
-      {(canCreate || canEdit || canDelete) && (
-        <>
-          {(canCreate || canEdit) && (
-            <>
-              <ContextMenuSeparator />
-
-              {canCreate && (
-                <ContextMenuItem
-                  className="[&>svg]:mx-0"
-                  onClick={handleDuplicateTask}
-                >
-                  <Copy className="size-3.5 text-muted-foreground" />
-                  <span>{t("tasks:actions.duplicate")}</span>
-                </ContextMenuItem>
-              )}
-
-              {canEdit && (
-                <>
+                {canCreate && (
                   <ContextMenuItem
                     className="[&>svg]:mx-0"
-                    onClick={() => handleChange("status", "archived")}
+                    onClick={handleDuplicateTask}
                   >
-                    <Archive className="size-3.5 text-muted-foreground" />
-                    <span>{t("tasks:actions.archive")}</span>
+                    <Copy className="size-3.5 text-muted-foreground" />
+                    <span>{t("tasks:actions.duplicate")}</span>
                   </ContextMenuItem>
-                  {task.status !== "planned" && (
+                )}
+
+                {canEdit && (
+                  <>
                     <ContextMenuItem
                       className="[&>svg]:mx-0"
-                      onClick={() => handleChange("status", "planned")}
+                      onClick={() => handleChange("status", "archived")}
                     >
-                      <Clock className="size-3.5 text-muted-foreground" />
-                      <span>{t("tasks:actions.markAsPlanned")}</span>
+                      <Archive className="size-3.5 text-muted-foreground" />
+                      <span>{t("tasks:actions.archive")}</span>
                     </ContextMenuItem>
-                  )}
-                </>
-              )}
-            </>
-          )}
+                    {task.status !== "planned" && (
+                      <ContextMenuItem
+                        className="[&>svg]:mx-0"
+                        onClick={() => handleChange("status", "planned")}
+                      >
+                        <Clock className="size-3.5 text-muted-foreground" />
+                        <span>{t("tasks:actions.markAsPlanned")}</span>
+                      </ContextMenuItem>
+                    )}
+                  </>
+                )}
+              </>
+            )}
 
-          {canDelete && (
-            <>
-              <ContextMenuSeparator />
+            {canDelete && (
+              <>
+                <ContextMenuSeparator />
 
-              <ContextMenuItem
-                className="text-destructive [&>svg]:mx-0"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setTimeout(() => {
-                    onDeleteClick();
-                  }, 0);
-                }}
-              >
-                <Trash2 className="size-3.5" />
-                <span>{t("tasks:actions.delete")}</span>
-              </ContextMenuItem>
-            </>
-          )}
-        </>
+                <ContextMenuItem
+                  className="text-destructive [&>svg]:mx-0"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setTimeout(() => {
+                      onDeleteClick();
+                    }, 0);
+                  }}
+                >
+                  <Trash2 className="size-3.5" />
+                  <span>{t("tasks:actions.delete")}</span>
+                </ContextMenuItem>
+              </>
+            )}
+          </>
+        )}
+      </ContextMenuContent>
+      {canAssign && assigneeDialogOpen && (
+        <TaskAssigneeDialog
+          task={task}
+          workspaceId={taskCardContext.worskpaceId}
+          onClose={() => setAssigneeDialogOpen(false)}
+        />
       )}
-    </ContextMenuContent>
+    </>
   );
 }

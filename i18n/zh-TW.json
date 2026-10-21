@@ -2704,7 +2704,8 @@
 			"importedBy": "由 {{name}} 匯入",
 			"commentedOnForge": "在 {{forge}} 上留言"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "已將 {{name}} 從負責人中移除"
 	},
 	"tasks": {
 		"title": "任務",

@@ -297,10 +297,11 @@ export function registerTools(
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
         userId: optionalNonEmptyString,
+        assigneeIds: z.array(nonEmptyString).max(100).optional(),
       }),
     },
     async (args) => {
-      const body: Record<string, string | undefined> = {
+      const body: Record<string, string | string[] | undefined> = {
         title: args.title,
         description: args.description,
         priority: args.priority,
@@ -315,6 +316,7 @@ export function registerTools(
       if (args.userId !== undefined) {
         body.userId = args.userId;
       }
+      if (args.assigneeIds !== undefined) body.assigneeIds = args.assigneeIds;
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
           method: "POST",
@@ -359,6 +361,7 @@ export function registerTools(
     startDate: nullableOptionalIsoDateTimeSchema,
     dueDate: nullableOptionalIsoDateTimeSchema,
     userId: nullableOptionalNonEmptyString,
+    assigneeIds: z.array(nonEmptyString).max(100).optional(),
   });
 
   registerTool(
@@ -808,6 +811,38 @@ export function registerTools(
           method: "PUT",
           body: JSON.stringify({ userId: args.userId }),
         }),
+      ),
+  );
+
+  registerTool(
+    "add_task_assignee",
+    {
+      description:
+        "Add an eligible project member to a task without replacing other assignees.",
+      inputSchema: z.object({ taskId: nonEmptyString, userId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/${encodeURIComponent(args.taskId)}/assignees`, {
+          method: "POST",
+          body: JSON.stringify({ userId: args.userId }),
+        }),
+      ),
+  );
+
+  registerTool(
+    "remove_task_assignee",
+    {
+      description:
+        "Remove one assignee without affecting the other assigned people.",
+      inputSchema: z.object({ taskId: nonEmptyString, userId: nonEmptyString }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/task/${encodeURIComponent(args.taskId)}/assignees/${encodeURIComponent(args.userId)}`,
+          { method: "DELETE" },
+        ),
       ),
   );
 

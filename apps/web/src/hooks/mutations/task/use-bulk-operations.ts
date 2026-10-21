@@ -55,14 +55,17 @@ export function useBulkOperations() {
     mutationFn: async ({
       taskIds,
       userId,
+      mode,
     }: {
       taskIds: string[];
       userId: string;
+      mode?: "set" | "add" | "remove";
     }) => {
       await bulkOperation({
         taskIds,
         operation: "updateAssignee",
         value: userId,
+        assigneeMode: mode,
       });
     },
     onSuccess: invalidateCommon,
@@ -156,6 +159,7 @@ export function useBulkOperations() {
     bulkArchive: bulkArchive.mutateAsync,
     bulkChangeStatus: bulkChangeStatus.mutateAsync,
     bulkAssign: bulkAssign.mutateAsync,
+    isAssigning: bulkAssign.isPending,
     bulkMoveToBacklog: bulkMoveToBacklog.mutateAsync,
     bulkMoveToBoard: bulkMoveToBoard.mutateAsync,
     bulkPriority: bulkPriority.mutateAsync,

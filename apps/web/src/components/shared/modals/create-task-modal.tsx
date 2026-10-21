@@ -1,3 +1,4 @@
+import { AssigneeOptionsMenu } from "@/components/task/menus/assignee-options-menu";
 import { useLocation, useParams } from "@tanstack/react-router";
 import { produce } from "immer";
 import {
@@ -126,6 +127,7 @@ function normalizeTask(
     userId: task.userId ?? null,
     assigneeId: task.assigneeId ?? task.userId ?? null,
     assigneeName: task.assigneeName ?? null,
+    assignees: task.assignees,
     assigneeImage: task.assigneeImage ?? null,
     labels: task.labels ?? [],
     externalLinks: task.externalLinks ?? [],
@@ -213,7 +215,8 @@ function CreateTaskModalContent({
   const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
-  const [assigneeId, setAssigneeId] = useState("");
+  const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
+  const assigneeId = assigneeIds[0] ?? "";
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [startDateOpen, setStartDateOpen] = useState(false);
@@ -251,12 +254,18 @@ function CreateTaskModalContent({
         id: member.userId,
         name: member.user?.name ?? "",
         image: member.user?.image ?? null,
+        email: member.user?.email ?? null,
       })),
     [workspaceUsers?.members],
   );
   const projectMembersPending =
     Boolean(resolvedProjectId) && projectMembers === undefined;
-  const assigneeUnconfirmed = Boolean(assigneeId) && projectMembersPending;
+  const assigneeUnconfirmed =
+    assigneeIds.length > 0 &&
+    (projectMembersPending ||
+      assigneeIds.some(
+        (id) => !(projectMembers ?? []).some((person) => person.id === id),
+      ));
   const assigneeOptions = useMemo(
     () =>
       resolvedProjectId
@@ -264,10 +273,19 @@ function CreateTaskModalContent({
             id: member.id,
             name: member.name,
             image: member.image,
+            email: member.email,
           }))
         : workspaceAssigneeOptions,
     [resolvedProjectId, projectMembers, workspaceAssigneeOptions],
   );
+  useEffect(() => {
+    if (!resolvedProjectId || projectMembersPending) return;
+    const eligible = new Set((projectMembers ?? []).map((person) => person.id));
+    setAssigneeIds((current) => {
+      const next = current.filter((id) => eligible.has(id));
+      return next.length === current.length ? current : next;
+    });
+  }, [resolvedProjectId, projectMembers, projectMembersPending]);
   const selectedUser =
     assigneeOptions.find((option) => option.id === assigneeId) ??
     (projectMembersPending
@@ -373,7 +391,7 @@ function CreateTaskModalContent({
     title.trim() ||
     description.trim() ||
     priority !== "no-priority" ||
-    assigneeId ||
+    assigneeIds.length ||
     startDate ||
     dueDate ||
     selectedProjectId ||
@@ -530,6 +548,7 @@ function CreateTaskModalContent({
           title: title.trim(),
           description: description.trim() || "",
           userId: selectedUser?.id ?? "",
+          assigneeIds,
           priority,
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
@@ -577,7 +596,7 @@ function CreateTaskModalContent({
         setTitle("");
         setDescription("");
         setPriority("no-priority");
-        setAssigneeId("");
+        setAssigneeIds([]);
         setStartDate(undefined);
         setDueDate(undefined);
         setLabels([]);
@@ -982,7 +1001,12 @@ function CreateTaskModalContent({
                             {getInitials(selectedUser.name)}
                           </AvatarFallback>
                         </Avatar>
-                        <span>{selectedUser.name}</span>
+                        <span>
+                          {selectedUser.name}
+                          {assigneeIds.length > 1
+                            ? ` +${assigneeIds.length - 1}`
+                            : ""}
+                        </span>
                       </>
                     ) : (
                       <>
@@ -992,51 +1016,20 @@ function CreateTaskModalContent({
                     )}
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-48 p-1" align="start">
-                  <div className="space-y-1">
-                    <button
-                      type="button"
-                      className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                      onClick={() => setAssigneeId("")}
-                    >
-                      <div
-                        className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
-                        title={t(
-                          "common:modals.createTask.assignUnassignedTitle",
-                        )}
-                      >
-                        <span className="text-[10px] font-medium text-muted-foreground">
-                          ?
-                        </span>
-                      </div>
-                      <span className="text-sm">
-                        {t("common:modals.createTask.assignUnassigned")}
-                      </span>
-                      {!selectedUser && <Check className="ml-auto h-4 w-4" />}
-                    </button>
-                    {assigneeOptions.map((member) => (
-                      <button
-                        key={member.id}
-                        type="button"
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-sm hover:bg-accent/50 text-left transition-colors h-8"
-                        onClick={() => setAssigneeId(member.id)}
-                      >
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage
-                            src={member.image ?? ""}
-                            alt={member.name}
-                          />
-                          <AvatarFallback className="text-xs font-medium border border-border/30">
-                            {getInitials(member.name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm">{member.name}</span>
-                        {selectedUser?.id === member.id && (
-                          <Check className="ml-auto h-4 w-4" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                <PopoverContent className="w-60 p-0" align="start">
+                  <AssigneeOptionsMenu
+                    members={assigneeOptions}
+                    current={assigneeIds}
+                    onSelect={(id) =>
+                      setAssigneeIds((current) =>
+                        !id
+                          ? []
+                          : current.includes(id)
+                            ? current.filter((person) => person !== id)
+                            : [...current, id],
+                      )
+                    }
+                  />
                 </PopoverContent>
               </Popover>
 

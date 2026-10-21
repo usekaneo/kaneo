@@ -143,3 +143,7 @@ When running from source in this monorepo:
 pnpm --filter @kaneo/mcp run build
 pnpm --filter @kaneo/mcp run start
 ```
+
+### Tasks with several assignees
+
+`create_task` and `update_task` accept `assigneeIds`. Use `add_task_assignee` and `remove_task_assignee` with a task ID and user ID to change one person without replacing the others. The older `update_task_assignee` tool explicitly replaces the set with one person, or clears it with a null user ID.

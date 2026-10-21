@@ -7,6 +7,7 @@ import type {
   IntegrationPlugin,
   PluginContext,
   TaskAssigneeChangedEvent,
+  TaskAssigneeRemovedEvent,
   TaskCommentCreatedEvent,
   TaskCreatedEvent,
   TaskDeletedEvent,
@@ -34,6 +35,13 @@ export function initializeEventSubscriptions(): void {
   if (eventSubscriptionsInitialized) {
     return;
   }
+
+  subscribeToEvent<TaskAssigneeRemovedEvent>(
+    "task.assignee_removed",
+    async (data) => {
+      await broadcastTaskAssigneeRemoved(data);
+    },
+  );
 
   subscribeToEvent<{
     taskId: string;
@@ -499,6 +507,28 @@ export async function broadcastTaskAssigneeChanged(
     } catch (error) {
       console.error(
         `Plugin ${plugin.type} error on task.assignee_changed:`,
+        error,
+      );
+    }
+  }
+}
+
+export async function broadcastTaskAssigneeRemoved(
+  event: TaskAssigneeRemovedEvent,
+): Promise<void> {
+  const integrations = await getActiveIntegrations(event.projectId);
+
+  for (const integration of integrations) {
+    const plugin = getPlugin(integration.type);
+    if (!plugin?.onTaskAssigneeRemoved) continue;
+
+    const context = createContext(integration);
+
+    try {
+      await plugin.onTaskAssigneeRemoved(event, context);
+    } catch (error) {
+      console.error(
+        `Plugin ${plugin.type} error on task.assignee_removed:`,
         error,
       );
     }

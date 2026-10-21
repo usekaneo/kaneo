@@ -1,3 +1,4 @@
+import { taskAssigneeSchema } from "../task/response";
 import { responseTimestamp, z } from "../openapi";
 
 const relationTypeDescription =
@@ -16,6 +17,7 @@ const relatedTaskSchema = z
     projectId: z.string(),
     userId: z.string().nullable(),
     assigneeName: z.string().nullable(),
+    assignees: z.array(taskAssigneeSchema).optional(),
   })
   .openapi("RelatedTask");
 

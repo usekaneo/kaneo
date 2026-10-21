@@ -573,6 +573,33 @@ export const taskTable = pgTable(
   ],
 );
 
+// The existing task.assignee_id remains the first assignee for older clients.
+// This table stores the additional people, without rewriting existing tasks.
+export const taskCoAssigneeTable = pgTable(
+  "task_co_assignee",
+  {
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    unique("task_co_assignee_pair_unique").on(table.taskId, table.userId),
+    index("task_co_assignee_user_idx").on(table.userId, table.taskId),
+  ],
+);
+
 export const billingReminderSentTable = pgTable(
   "billing_reminder_sent",
   {

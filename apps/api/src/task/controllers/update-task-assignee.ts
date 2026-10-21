@@ -1,14 +1,6 @@
-import { eq } from "drizzle-orm";
-import { HTTPException } from "hono/http-exception";
-import { withLockedTask } from "./with-locked-task";
-import { taskTable } from "../../database/schema";
-import { publishTaskMutation } from "./task-mutation-effects";
-import {
-  assertAssignableUser,
-  getProjectWorkspaceId,
-} from "../../utils/assert-assignable-user";
+import { changeTaskAssignees } from "../assignees/change-task-assignees";
 
-async function updateTaskAssignee({
+export default function updateTaskAssignee({
   id,
   userId,
   currentUserId,
@@ -17,44 +9,10 @@ async function updateTaskAssignee({
   userId: string | null;
   currentUserId: string;
 }) {
-  const { before: existingTask, after: updatedTask } = await withLockedTask(
+  return changeTaskAssignees({
     id,
-    async (tx, existingTask) => {
-      const nextAssigneeId = userId?.trim() || null;
-      if (existingTask.userId === nextAssigneeId) {
-        return existingTask;
-      }
-
-      if (nextAssigneeId) {
-        await assertAssignableUser(
-          nextAssigneeId,
-          await getProjectWorkspaceId(existingTask.projectId, tx),
-          existingTask.projectId,
-          tx,
-        );
-      }
-
-      const [updatedTask] = await tx
-        .update(taskTable)
-        .set({ userId: nextAssigneeId })
-        .where(eq(taskTable.id, id))
-        .returning();
-
-      if (!updatedTask) {
-        throw new HTTPException(500, {
-          message: "Failed to update task assignee",
-        });
-      }
-
-      return updatedTask;
-    },
-  );
-
-  await publishTaskMutation(existingTask, updatedTask, currentUserId, {
-    fields: ["userId"],
+    userIds: userId?.trim() ? [userId.trim()] : [],
+    mode: "set",
+    currentUserId,
   });
-
-  return updatedTask;
 }
-
-export default updateTaskAssignee;

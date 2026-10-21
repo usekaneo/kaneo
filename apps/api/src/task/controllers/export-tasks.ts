@@ -1,3 +1,4 @@
+import { getTaskAssignees } from "../assignees/get-task-assignees";
 import { eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
@@ -41,6 +42,7 @@ async function exportTasks(projectId: string) {
     .orderBy(taskTable.position);
 
   const taskIds = tasks.map((task) => task.id);
+  const assignees = await getTaskAssignees(taskIds);
 
   const labelsData =
     taskIds.length > 0
@@ -86,6 +88,7 @@ async function exportTasks(projectId: string) {
       dueDate: task.dueDate ? new Date(task.dueDate).toISOString() : null,
       startDate: task.startDate ? new Date(task.startDate).toISOString() : null,
       userId: task.userId || null,
+      assigneeIds: (assignees.get(task.id) ?? []).map((person) => person.id),
       labels: taskLabelsMap.get(task.id) || [],
     })),
   };

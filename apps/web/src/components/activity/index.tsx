@@ -57,6 +57,7 @@ function getActivityTypeIcon(type: string) {
       return <CircleAlert className={iconClass} />;
     case "due_date_changed":
       return <Calendar className={iconClass} />;
+    case "assignee_removed":
     case "assignee_changed":
     case "unassigned":
       return <UserRound className={iconClass} />;
@@ -286,6 +287,17 @@ function renderActivityContent({
     return <span className="text-muted-foreground">{content}</span>;
   }
 
+  if (activity.type === "assignee_removed") {
+    return (
+      <span className="text-muted-foreground">
+        {t("activity:removedAssignee", {
+          name: String(
+            eventData?.removedAssignee ?? eventData?.removedAssigneeId ?? "",
+          ),
+        })}
+      </span>
+    );
+  }
   if (activity.type === "unassigned") {
     return (
       <span className="text-muted-foreground">{t("activity:unassigned")}</span>

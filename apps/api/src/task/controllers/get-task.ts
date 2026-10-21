@@ -1,3 +1,5 @@
+import { legacyAssigneeFields } from "../assignees/legacy-assignee-fields";
+import { getTaskAssignees } from "../assignees/get-task-assignees";
 import { boundedTaskRead } from "../bounded-read";
 import { alias } from "drizzle-orm/pg-core";
 import { boardDescription, descriptionDeferred } from "../description-pages";
@@ -48,7 +50,9 @@ async function getTask(taskId: string, board = false, userId?: string) {
     });
   }
 
-  if (!board) return task[0];
+  const assignees = (await getTaskAssignees([taskId])).get(taskId) ?? [];
+  if (!board)
+    return { ...task[0], ...legacyAssigneeFields(assignees), assignees };
   const { workspaceId, ...result } = task[0];
   if (!workspaceId) return result;
   const parent = alias(taskTable, "parent");
@@ -74,6 +78,8 @@ async function getTask(taskId: string, board = false, userId?: string) {
   );
   return {
     ...result,
+    ...legacyAssigneeFields(assignees),
+    assignees,
     subtaskCounts: counts.get(taskId) ?? { completed: 0, total: 0 },
     parentSubtaskCounts: parents.map(({ id }) => ({
       taskId: id,

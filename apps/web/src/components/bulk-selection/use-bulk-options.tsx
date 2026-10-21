@@ -13,7 +13,8 @@ const PRIORITIES = ["urgent", "high", "medium", "low", "no-priority"];
 
 export function useBulkOptions(actions: BulkActions) {
   const { t } = useTranslation();
-  const { columns, members, labels } = actions;
+  const { columns, members, labels, commonAssigneeIds, allUnassigned } =
+    actions;
 
   return useMemo(() => {
     const columnOptions: OptionMenuItem[] = columns.map((column) => ({
@@ -26,18 +27,27 @@ export function useBulkOptions(actions: BulkActions) {
       label: getPriorityLabel(priority),
       icon: getPriorityIcon(priority),
     }));
-    const memberOptions: OptionMenuItem[] = members.map((member) => ({
-      value: member.id,
-      label: member.name || t("common:people.someone"),
-      icon: (
-        <Avatar className="size-4">
-          <AvatarImage src={member.image ?? ""} alt="" />
-          <AvatarFallback className="text-[8px]">
-            {getInitials(member.name)}
-          </AvatarFallback>
-        </Avatar>
-      ),
-    }));
+    const memberOptions: OptionMenuItem[] = [
+      {
+        value: "",
+        label: t("tasks:popover.assignee.unassigned"),
+        selected: allUnassigned,
+      },
+      ...members.map((member) => ({
+        selected: commonAssigneeIds.includes(member.id),
+        keywords: member.email ? [member.email] : [],
+        value: member.id,
+        label: member.name || t("common:people.someone"),
+        icon: (
+          <Avatar className="size-4">
+            <AvatarImage src={member.image ?? ""} alt="" />
+            <AvatarFallback className="text-[8px]">
+              {getInitials(member.name)}
+            </AvatarFallback>
+          </Avatar>
+        ),
+      })),
+    ];
     const labelOptions: OptionMenuItem[] = labels.map((label) => ({
       value: label.id,
       label: label.name,
@@ -49,5 +59,5 @@ export function useBulkOptions(actions: BulkActions) {
       ),
     }));
     return { columnOptions, priorityOptions, memberOptions, labelOptions };
-  }, [columns, members, labels, t]);
+  }, [columns, members, labels, commonAssigneeIds, allUnassigned, t]);
 }

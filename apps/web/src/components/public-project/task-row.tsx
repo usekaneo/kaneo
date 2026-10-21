@@ -1,14 +1,13 @@
+import { PublicTaskAssignees } from "./public-task-assignees";
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   dueDateStatusColors,
   getDueDateStatus,
   isTaskCompleted,
 } from "@/lib/due-date-status";
 import { formatDateShort } from "@/lib/format";
-import { getInitials } from "@/lib/get-initials";
 import { getPriorityIcon } from "@/lib/priority";
 import type { ExternalLink } from "@/types/external-link";
 import type Task from "@/types/task";
@@ -62,22 +61,7 @@ export function PublicTaskRow({
 
       <div className="pointer-events-none flex flex-wrap items-center gap-2">
         <TaskProgressBadges task={task} asText />
-        {task.assigneeName && (
-          <div className="flex items-center gap-1.5">
-            <Avatar className="h-5 w-5">
-              <AvatarImage
-                src={task.assigneeImage ?? ""}
-                alt={task.assigneeName ?? ""}
-              />
-              <AvatarFallback className="text-[10px] font-medium border border-border/30">
-                {getInitials(task.assigneeName)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-xs text-muted-foreground font-medium">
-              {task.assigneeName}
-            </span>
-          </div>
-        )}
+        <PublicTaskAssignees task={task} />
 
         {task.dueDate && (
           <div

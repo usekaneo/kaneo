@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { AssigneeAvatar } from "@/components/task/properties/assignee-avatar";
+import { AssigneeAvatars } from "@/components/task/assignee-avatars";
 import { useProjectSlugs } from "@/components/task/sections/use-project-slugs";
 import CircularProgress from "@/components/ui/circular-progress";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
@@ -80,14 +80,14 @@ export function SubtasksHoverList({
               >
                 {subtask.title}
               </span>
-              <AssigneeAvatar
+              <AssigneeAvatars
+                task={subtask}
                 name={subtask.assigneeName}
                 image={
                   workspaceUsers?.members?.find(
                     (member) => member.userId === subtask.userId,
                   )?.user?.image
                 }
-                assigned={Boolean(subtask.userId)}
               />
             </button>
           ))

@@ -2798,7 +2798,8 @@
 			"importedBy": "Imported by {{name}}",
 			"commentedOnForge": "ha commentato su {{forge}}"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "moved task from another project to \"{{to}}\"",
+		"removedAssignee": "{{name}} rimosso dagli assegnatari"
 	},
 	"tasks": {
 		"title": "Attività",

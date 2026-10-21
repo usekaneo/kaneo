@@ -34,6 +34,7 @@ type Task = {
   createdAt: string;
   updatedAt?: string;
   userId: string | null;
+  assignees?: { id: string; name: string; image: string | null }[];
   assigneeId: string | null;
   assigneeName: string | null;
   assigneeImage?: string | null;

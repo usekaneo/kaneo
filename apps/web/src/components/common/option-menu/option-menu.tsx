@@ -13,6 +13,8 @@ type OptionMenuProps = {
   onQueryChange?: (query: string) => void;
   status?: ReactNode;
   inputHint?: ReactNode;
+  multiple?: boolean;
+  disabled?: boolean;
 };
 
 export function OptionMenu({
@@ -23,16 +25,22 @@ export function OptionMenu({
   onQueryChange,
   status,
   inputHint,
+  multiple = false,
+  disabled = false,
 }: OptionMenuProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const needle = query.trim().toLowerCase();
   const filtered = options.filter(
-    (option) => option.pinned || option.label.toLowerCase().includes(needle),
+    (option) =>
+      option.pinned ||
+      [option.label, ...(option.keywords ?? [])].some((value) =>
+        value.toLowerCase().includes(needle),
+      ),
   );
 
   const selectByNumber = (key: string) => {
-    if (query || !/^[1-9]$/.test(key)) return false;
+    if (disabled || query || !/^[1-9]$/.test(key)) return false;
     const option = filtered[Number(key) - 1];
     if (!option) return false;
     onSelect(option.value);
@@ -94,19 +102,32 @@ export function OptionMenu({
           <Autocomplete.Empty className="px-3 text-muted-foreground text-xs not-empty:py-5">
             {t("tasks:filterMenu.noResults")}
           </Autocomplete.Empty>
-          <Autocomplete.List className="max-h-72 overflow-y-auto p-1 empty:hidden">
+          <Autocomplete.List
+            aria-busy={disabled || undefined}
+            aria-multiselectable={multiple || undefined}
+            className="max-h-72 overflow-y-auto p-1 empty:hidden"
+          >
             {(option: OptionMenuItem) => {
               const index = filtered.indexOf(option);
               return (
                 <Autocomplete.Item
                   key={option.value}
                   value={option}
+                  disabled={disabled}
                   aria-current={option.selected || undefined}
-                  onClick={() => onSelect(option.value)}
+                  {...(multiple
+                    ? { "aria-selected": Boolean(option.selected) }
+                    : {})}
+                  onClick={() => {
+                    if (!disabled) onSelect(option.value);
+                  }}
                   className="flex h-8 cursor-default select-none items-center gap-2 rounded-md px-2 text-[13px] text-foreground outline-none data-highlighted:bg-accent [&_svg]:size-3.5"
                 >
                   {option.icon && (
-                    <span className="inline-flex size-4 shrink-0 items-center justify-center">
+                    <span
+                      aria-hidden="true"
+                      className="inline-flex size-4 shrink-0 items-center justify-center"
+                    >
                       {option.icon}
                     </span>
                   )}

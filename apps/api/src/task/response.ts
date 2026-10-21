@@ -1,5 +1,9 @@
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 
+export const taskAssigneeSchema = z
+  .object({ id: z.string(), name: z.string(), image: z.string().nullable() })
+  .openapi("TaskAssignee");
+
 const priorityDescription = "One of: no-priority, low, medium, high, urgent.";
 
 export const taskSchema = z
@@ -12,10 +16,11 @@ export const taskSchema = z
     number: z.number().nullable().openapi({
       description: "Per-project counter shown as {projectSlug}-{number}.",
     }),
-    userId: z
-      .string()
-      .nullable()
-      .openapi({ description: "The assignee, if any." }),
+    assignees: z.array(taskAssigneeSchema).optional(),
+    userId: z.string().nullable().openapi({
+      description:
+        "Legacy primary-assignee field. Use assignees for the complete set.",
+    }),
     title: z.string(),
     description: z.string().nullable(),
     descriptionDeferred: z.boolean().optional().openapi({
@@ -108,6 +113,7 @@ export const boardTaskSchema = z
     dueDate: nullableResponseTimestamp,
     position: z.number().nullable(),
     createdAt: responseTimestamp,
+    assignees: z.array(taskAssigneeSchema).optional(),
     userId: z.string().nullable(),
     assigneeName: z.string().nullable(),
     assigneeId: z.string().nullable(),
@@ -217,6 +223,7 @@ export const taskExportSchema = z
           priority: z.string(),
           dueDate: z.string().nullable().openapi({ format: "date-time" }),
           startDate: z.string().nullable().openapi({ format: "date-time" }),
+          assigneeIds: z.array(z.string()).optional(),
           userId: z.string().nullable(),
           labels: z
             .array(
