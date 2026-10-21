@@ -3049,7 +3049,8 @@
 				"priority": "प्राथमिकता",
 				"assignee": "सौंपा गया",
 				"dueDate": "नियत तारीख",
-				"labels": "लेबल"
+				"labels": "लेबल",
+				"createdDate": "बनाने की तारीख"
 			},
 			"operators": {
 				"isAnyOf": "में से कोई है",
@@ -3062,7 +3063,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "आज",
+				"thisWeek": "इस सप्ताह",
+				"last7Days": "पिछले 7 दिन",
+				"last30Days": "पिछले 30 दिन"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "शेड्यूल किए गए टिकट खोजें...",

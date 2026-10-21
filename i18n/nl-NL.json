@@ -3038,7 +3038,8 @@
 				"priority": "Prioriteit",
 				"assignee": "Toegewezen persoon",
 				"dueDate": "Einddatum",
-				"labels": "Labels"
+				"labels": "Labels",
+				"createdDate": "Aanmaakdatum"
 			},
 			"operators": {
 				"isAnyOf": "is een van",
@@ -3051,7 +3052,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Vandaag",
+				"thisWeek": "Deze week",
+				"last7Days": "Afgelopen 7 dagen",
+				"last30Days": "Afgelopen 30 dagen"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Zoek geplande tickets...",

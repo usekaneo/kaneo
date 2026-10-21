@@ -3049,7 +3049,8 @@
 				"priority": "Prioritet",
 				"assignee": "İcraçı",
 				"dueDate": "Son tarix",
-				"labels": "Etiketlər"
+				"labels": "Etiketlər",
+				"createdDate": "Yaradılma tarixi"
 			},
 			"operators": {
 				"isAnyOf": "Bunlardan biridir",
@@ -3062,7 +3063,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Bu gün",
+				"thisWeek": "Bu həftə",
+				"last7Days": "Son 7 gün",
+				"last30Days": "Son 30 gün"
+			}
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – Təqvim",

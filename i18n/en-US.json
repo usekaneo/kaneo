@@ -3053,7 +3053,8 @@
 				"priority": "Priority",
 				"assignee": "Assignee",
 				"dueDate": "Due date",
-				"labels": "Labels"
+				"labels": "Labels",
+				"createdDate": "Created date"
 			},
 			"operators": {
 				"isAnyOf": "is any of",
@@ -3063,6 +3064,12 @@
 				"isNoneOf": "is none of",
 				"include": "include",
 				"exclude": "exclude"
+			},
+			"createdDate": {
+				"today": "Today",
+				"thisWeek": "This week",
+				"last7Days": "Last 7 days",
+				"last30Days": "Last 30 days"
 			}
 		},
 		"calendar": {

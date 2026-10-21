@@ -3185,11 +3185,18 @@
 				"dueDate": "Termin",
 				"labels": "Etykiety",
 				"priority": "Priorytet",
-				"status": "Status"
+				"status": "Status",
+				"createdDate": "Data utworzenia"
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Dzisiaj",
+				"thisWeek": "W tym tygodniu",
+				"last7Days": "Ostatnie 7 dni",
+				"last30Days": "Ostatnie 30 dni"
+			}
 		},
 		"bulk": {
 			"actions": "Akcje",

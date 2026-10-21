@@ -3002,7 +3002,8 @@
 				"priority": "優先順序",
 				"assignee": "負責人",
 				"dueDate": "截止日期",
-				"labels": "標籤"
+				"labels": "標籤",
+				"createdDate": "建立日期"
 			},
 			"operators": {
 				"isAnyOf": "為以下任一",
@@ -3015,7 +3016,13 @@
 			},
 			"allCustomFieldValues": "所有值",
 			"noCustomFieldValues": "沒有自訂欄位值",
-			"noValuesUsedYet": "尚未使用任何值"
+			"noValuesUsedYet": "尚未使用任何值",
+			"createdDate": {
+				"today": "今天",
+				"thisWeek": "本週",
+				"last7Days": "過去7天",
+				"last30Days": "過去30天"
+			}
 		},
 		"calendar": {
 			"pageTitle": "{{name}} - 行事曆",

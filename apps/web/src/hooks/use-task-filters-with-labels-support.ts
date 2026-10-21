@@ -10,6 +10,7 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import useGetCachedCustomFieldValues from "./queries/custom-field/use-get-all-custom-field-values-by-project";
 import type { BoardFilters } from "./use-task-filters";
+import { useLocalDay } from "./use-local-day";
 import { useStoredState } from "./use-stored-state";
 
 const DEFAULT_FILTERS: BoardFilters = {
@@ -17,6 +18,7 @@ const DEFAULT_FILTERS: BoardFilters = {
   priority: null,
   assignee: null,
   dueDate: null,
+  createdDate: null,
   labels: null,
   customFields: null,
   negated: null,
@@ -29,6 +31,7 @@ const FILTER_KEYS: Array<keyof BoardFilters> = [
   "priority",
   "assignee",
   "dueDate",
+  "createdDate",
   "labels",
   "customFields",
   "negated",
@@ -79,6 +82,7 @@ export function useTaskFiltersWithLabelsSupport(
   ignore: ReadonlyArray<keyof BoardFilters> = NO_IGNORED_FILTERS,
 ) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
+  const day = useLocalDay();
   const [filters, setFilters] = useStoredState(
     projectId ? `kaneo:board-filters:${projectId}` : null,
     normalizeFilters,
@@ -103,7 +107,7 @@ export function useTaskFiltersWithLabelsSupport(
       projectSlug: project?.slug,
       descriptionMatches,
       weekStartsOn,
-      today: new Date(),
+      today: new Date(day),
       getCustomFieldValues: getValuesForTask,
     };
     return (task: Task) => taskMatchesFilters(task, effectiveFilters, context);
@@ -114,6 +118,7 @@ export function useTaskFiltersWithLabelsSupport(
     weekStartsOn,
     getValuesForTask,
     descriptionMatches,
+    day,
   ]);
 
   const filterTasks = useCallback(
@@ -166,7 +171,13 @@ export function useTaskFiltersWithLabelsSupport(
   };
 
   const toggleFilter = (
-    key: "status" | "priority" | "assignee" | "dueDate" | "labels",
+    key:
+      | "status"
+      | "priority"
+      | "assignee"
+      | "dueDate"
+      | "createdDate"
+      | "labels",
     value: string,
   ) => {
     setFilters((prev) => {

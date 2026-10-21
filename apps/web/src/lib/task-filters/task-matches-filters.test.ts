@@ -39,6 +39,32 @@ function task(overrides: Partial<Task>): Task {
 }
 
 describe("taskMatchesFilters", () => {
+  it("combines creation date with other filters and supports negation", () => {
+    const current = task({ createdAt: new Date(2026, 9, 14, 9).toISOString() });
+    const filters = {
+      ...noFilters,
+      createdDate: ["today"],
+      priority: ["high"],
+    };
+    expect(taskMatchesFilters(current, filters, context)).toBe(true);
+    expect(
+      taskMatchesFilters(current, { ...filters, priority: ["low"] }, context),
+    ).toBe(false);
+    expect(
+      taskMatchesFilters(
+        current,
+        { ...filters, negated: ["createdDate"] },
+        context,
+      ),
+    ).toBe(false);
+    expect(
+      taskMatchesFilters(
+        task({ createdAt: new Date(2026, 9, 13).toISOString() }),
+        { ...filters, negated: ["createdDate"] },
+        context,
+      ),
+    ).toBe(true);
+  });
   it.each([
     ["pricing", true],
     ["faq", true],

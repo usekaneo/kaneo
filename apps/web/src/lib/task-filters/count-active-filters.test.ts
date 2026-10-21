@@ -13,3 +13,17 @@ it("counts each filtered subject once", () => {
     }),
   ).toBe(3);
 });
+
+it("counts multiple creation-date presets as one subject", () => {
+  expect(
+    countActiveFilters({
+      status: null,
+      priority: null,
+      assignee: null,
+      dueDate: null,
+      labels: null,
+      customFields: null,
+      createdDate: ["today", "last7Days"],
+    }),
+  ).toBe(1);
+});

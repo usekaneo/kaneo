@@ -3049,7 +3049,8 @@
 				"priority": "Приоритет",
 				"assignee": "Доделен",
 				"dueDate": "Краен рок",
-				"labels": "Етикети"
+				"labels": "Етикети",
+				"createdDate": "Датум на создавање"
 			},
 			"operators": {
 				"isAnyOf": "е било кој од",
@@ -3062,7 +3063,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Денес",
+				"thisWeek": "Оваа недела",
+				"last7Days": "Последни 7 дена",
+				"last30Days": "Последни 30 дена"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Пребарај закажани тикети...",

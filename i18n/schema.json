@@ -12592,6 +12592,9 @@
 								},
 								"labels": {
 									"type": "string"
+								},
+								"createdDate": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -12599,7 +12602,8 @@
 								"priority",
 								"assignee",
 								"dueDate",
-								"labels"
+								"labels",
+								"createdDate"
 							]
 						},
 						"operators": {
@@ -12614,6 +12618,25 @@
 								}
 							},
 							"required": ["isAnyOf", "includeAnyOf"]
+						},
+						"createdDate": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"today": {
+									"type": "string"
+								},
+								"thisWeek": {
+									"type": "string"
+								},
+								"last7Days": {
+									"type": "string"
+								},
+								"last30Days": {
+									"type": "string"
+								}
+							},
+							"required": ["today", "thisWeek", "last7Days", "last30Days"]
 						}
 					},
 					"required": [
@@ -12628,7 +12651,8 @@
 						"allCustomFieldValues",
 						"all",
 						"subjects",
-						"operators"
+						"operators",
+						"createdDate"
 					]
 				},
 				"calendar": {

@@ -3158,7 +3158,8 @@
 				"priority": "Приоритет",
 				"assignee": "Исполнитель",
 				"dueDate": "Срок выполнения",
-				"labels": "Метки"
+				"labels": "Метки",
+				"createdDate": "Дата создания"
 			},
 			"operators": {
 				"isAnyOf": "любой из",
@@ -3172,7 +3173,13 @@
 			"selectedCount": "{{count}} выбрано",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Сегодня",
+				"thisWeek": "На этой неделе",
+				"last7Days": "За последние 7 дней",
+				"last30Days": "За последние 30 дней"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Поиск запланированных задач...",

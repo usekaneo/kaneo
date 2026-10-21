@@ -9,6 +9,7 @@ export type BoardFilters = {
   priority: string[] | null;
   assignee: string[] | null;
   dueDate: string[] | null;
+  createdDate?: string[] | null;
   labels: string[] | null;
   customFields: Record<string, string[]> | null;
   negated?: string[] | null;

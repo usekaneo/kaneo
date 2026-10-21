@@ -3143,7 +3143,8 @@
 				"priority": "Пріоритет",
 				"assignee": "Виконавець",
 				"dueDate": "Дата завершення",
-				"labels": "Мітки"
+				"labels": "Мітки",
+				"createdDate": "Дата створення"
 			},
 			"operators": {
 				"isAnyOf": "є будь-яким з",
@@ -3156,7 +3157,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Сьогодні",
+				"thisWeek": "Цього тижня",
+				"last7Days": "Останні 7 днів",
+				"last30Days": "Останні 30 днів"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Пошук запланованих тікетів...",

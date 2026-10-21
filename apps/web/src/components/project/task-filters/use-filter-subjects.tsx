@@ -5,6 +5,7 @@ import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
 import { countValues } from "@/lib/task-filters/count-values";
 import { DUE_DATE_OPTIONS } from "@/lib/task-filters/due-date-options";
+import { CREATED_DATE_OPTIONS } from "@/lib/task-filters/created-date-options";
 import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import {
   groupLabels,
@@ -62,7 +63,7 @@ export function useFilterSubjects({
   });
 
   const listSubject = (
-    key: "status" | "priority" | "assignee" | "dueDate",
+    key: "status" | "priority" | "assignee" | "dueDate" | "createdDate",
     fields: Pick<FilterSubject, "label" | "icon" | "options">,
   ) =>
     subject(key, {
@@ -160,6 +161,14 @@ export function useFilterSubjects({
       label: t("tasks:boardFilters.subjects.dueDate"),
       icon: <CalendarDays />,
       options: DUE_DATE_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(option.labelKey),
+      })),
+    }),
+    listSubject("createdDate", {
+      label: t("tasks:boardFilters.subjects.createdDate"),
+      icon: <CalendarDays />,
+      options: CREATED_DATE_OPTIONS.map((option) => ({
         value: option.value,
         label: t(option.labelKey),
       })),

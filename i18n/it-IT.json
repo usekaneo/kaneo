@@ -3096,7 +3096,8 @@
 				"priority": "Priorità",
 				"assignee": "Assegnatario",
 				"dueDate": "Data scadenza",
-				"labels": "Etichette"
+				"labels": "Etichette",
+				"createdDate": "Data di creazione"
 			},
 			"operators": {
 				"isAnyOf": "è uno di",
@@ -3109,7 +3110,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Oggi",
+				"thisWeek": "Questa settimana",
+				"last7Days": "Ultimi 7 giorni",
+				"last30Days": "Ultimi 30 giorni"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Cerca ticket programmati...",

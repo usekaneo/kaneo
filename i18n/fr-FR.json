@@ -3096,7 +3096,8 @@
 				"priority": "Priorité",
 				"assignee": "Assigné",
 				"dueDate": "Date d'échéance",
-				"labels": "Labels"
+				"labels": "Labels",
+				"createdDate": "Date de création"
 			},
 			"operators": {
 				"isAnyOf": "est l'un des",
@@ -3109,7 +3110,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Aujourd’hui",
+				"thisWeek": "Cette semaine",
+				"last7Days": "7 derniers jours",
+				"last30Days": "30 derniers jours"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Rechercher des tâches planifiées...",

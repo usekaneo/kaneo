@@ -3002,7 +3002,8 @@
 				"priority": "Prioritas",
 				"assignee": "Penanggung jawab",
 				"dueDate": "Tenggat",
-				"labels": "Label"
+				"labels": "Label",
+				"createdDate": "Tanggal dibuat"
 			},
 			"operators": {
 				"isAnyOf": "adalah salah satu dari",
@@ -3015,7 +3016,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Hari ini",
+				"thisWeek": "Minggu ini",
+				"last7Days": "7 hari terakhir",
+				"last30Days": "30 hari terakhir"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Cari tiket terjadwal...",

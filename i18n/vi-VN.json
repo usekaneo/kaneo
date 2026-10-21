@@ -3002,7 +3002,8 @@
 				"priority": "Mức ưu tiên",
 				"assignee": "Người được giao",
 				"dueDate": "Ngày đến hạn",
-				"labels": "Nhãn"
+				"labels": "Nhãn",
+				"createdDate": "Ngày tạo"
 			},
 			"operators": {
 				"isAnyOf": "là một trong",
@@ -3015,7 +3016,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Hôm nay",
+				"thisWeek": "Tuần này",
+				"last7Days": "7 ngày qua",
+				"last30Days": "30 ngày qua"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Tìm phiếu đã lên lịch...",

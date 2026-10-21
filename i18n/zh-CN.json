@@ -3002,7 +3002,8 @@
 				"priority": "优先级",
 				"assignee": "负责人",
 				"dueDate": "截止日期",
-				"labels": "标签"
+				"labels": "标签",
+				"createdDate": "创建日期"
 			},
 			"operators": {
 				"isAnyOf": "为以下任一",
@@ -3015,7 +3016,13 @@
 			},
 			"allCustomFieldValues": "所有值",
 			"noCustomFieldValues": "没有自定义字段的值",
-			"noValuesUsedYet": "还没有使用过任何值"
+			"noValuesUsedYet": "还没有使用过任何值",
+			"createdDate": {
+				"today": "今天",
+				"thisWeek": "本周",
+				"last7Days": "过去7天",
+				"last30Days": "过去30天"
+			}
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – 日历",

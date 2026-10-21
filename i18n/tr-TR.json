@@ -3049,7 +3049,8 @@
 				"priority": "Öncelik",
 				"assignee": "Atanan",
 				"dueDate": "Bitiş tarihi",
-				"labels": "Etiketler"
+				"labels": "Etiketler",
+				"createdDate": "Oluşturulma tarihi"
 			},
 			"operators": {
 				"isAnyOf": "herhangi biri",
@@ -3062,7 +3063,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Bugün",
+				"thisWeek": "Bu hafta",
+				"last7Days": "Son 7 gün",
+				"last30Days": "Son 30 gün"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Zamanlanmış talep ara...",

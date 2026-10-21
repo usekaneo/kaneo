@@ -3002,7 +3002,8 @@
 				"priority": "優先度",
 				"assignee": "担当者",
 				"dueDate": "期限",
-				"labels": "ラベル"
+				"labels": "ラベル",
+				"createdDate": "作成日"
 			},
 			"operators": {
 				"isAnyOf": "次のいずれか",
@@ -3015,7 +3016,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "今日",
+				"thisWeek": "今週",
+				"last7Days": "過去7日間",
+				"last30Days": "過去30日間"
+			}
 		},
 		"calendar": {
 			"pageTitle": "{{name}} – カレンダー",

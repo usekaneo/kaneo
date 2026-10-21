@@ -3049,7 +3049,8 @@
 				"priority": "Προτεραιότητα",
 				"assignee": "Ανατεθειμένος",
 				"dueDate": "Ημερομηνία λήξης",
-				"labels": "Ετικέτες"
+				"labels": "Ετικέτες",
+				"createdDate": "Ημερομηνία δημιουργίας"
 			},
 			"operators": {
 				"isAnyOf": "είναι ένα από",
@@ -3062,7 +3063,13 @@
 			},
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"createdDate": {
+				"today": "Σήμερα",
+				"thisWeek": "Αυτή την εβδομάδα",
+				"last7Days": "Τελευταίες 7 ημέρες",
+				"last30Days": "Τελευταίες 30 ημέρες"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Αναζήτηση προγραμματισμένων αιτημάτων...",

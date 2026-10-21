@@ -3049,7 +3049,8 @@
 				"priority": "Priorität",
 				"assignee": "Zugewiesen",
 				"dueDate": "Fälligkeitsdatum",
-				"labels": "Labels"
+				"labels": "Labels",
+				"createdDate": "Erstellungsdatum"
 			},
 			"operators": {
 				"isAnyOf": "ist einer von",
@@ -3062,7 +3063,13 @@
 			},
 			"allCustomFieldValues": "Alle Werte",
 			"noCustomFieldValues": "Keine Werte für benutzerdefinierte Felder",
-			"noValuesUsedYet": "Noch keine Werte verwendet"
+			"noValuesUsedYet": "Noch keine Werte verwendet",
+			"createdDate": {
+				"today": "Heute",
+				"thisWeek": "Diese Woche",
+				"last7Days": "Letzte 7 Tage",
+				"last30Days": "Letzte 30 Tage"
+			}
 		},
 		"gantt": {
 			"searchPlaceholder": "Geplante Tickets suchen...",

@@ -11,6 +11,7 @@ import {
 } from "@/hooks/use-task-filters";
 import type Task from "@/types/task";
 import { customFieldSubjectId } from "./filter-subject-id";
+import { matchesCreatedDate } from "./matches-created-date";
 
 export type TaskFilterContext = {
   query?: string;
@@ -99,6 +100,19 @@ export function taskMatchesFilters(
       () =>
         filters.dueDate?.some((value) =>
           matchesDueDate(task, value, context),
+        ) ?? false,
+    ],
+    [
+      "createdDate",
+      filters.createdDate,
+      () =>
+        filters.createdDate?.some((value) =>
+          matchesCreatedDate(
+            task.createdAt,
+            value,
+            context.today,
+            context.weekStartsOn,
+          ),
         ) ?? false,
     ],
     [
