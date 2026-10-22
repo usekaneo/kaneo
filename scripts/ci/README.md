@@ -25,6 +25,14 @@ the previous image. It runs the MinIO binary directly with temporary test data.
   example a release commit containing `[skip ci]`), dispatch **CI** on main before
   dispatching **Release**. Dry runs don't wait or publish.
 
+PR change detection uses the whole paginated GitHub PR-files list and verifies
+its base/head revisions and declared file count before allowing only the
+integration, storage, Docker image, and browser suites to skip for clearly
+allowlisted documentation-only changes. Any uncertainty runs the full suite.
+Both workflows have final result gates; configure these new checks as required
+in GitHub branch rules if they should block merges (workflow changes do not
+update branch protection).
+
 The separate PR title check uses the base branch's commitlint policy and reruns
 when the title changes. Helm validation also executes the existing secret and
 upgrade-rendering regression checks. Configure the new job checks as required in
