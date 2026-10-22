@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyChanges, assessGate } from "./pr-change-classification.mjs";
+import {
+  assessGate,
+  classifyChanges,
+  getPrFiles,
+} from "./pr-change-classification.mjs";
 
 test("known GitHub modified-file status allows an allowlisted docs path", () => {
   assert.equal(
@@ -36,6 +40,31 @@ test("hidden and environment configuration paths require full validation", () =>
     "apps/site/.nvmrc",
     "apps/site/.node-version",
     "apps/site/.env.production",
+  ]) {
+    assert.equal(
+      classifyChanges({
+        eventName: "pull_request",
+        files: [path],
+        complete: true,
+      }).skipExpensive,
+      false,
+      path,
+    );
+  }
+});
+
+test("allowlisted sponsor data skips while nearby JSON configuration does not", () => {
+  assert.equal(
+    classifyChanges({
+      eventName: "pull_request",
+      files: ["apps/site/constants/sponsors.json"],
+      complete: true,
+    }).skipExpensive,
+    true,
+  );
+  for (const path of [
+    "apps/site/constants/other.json",
+    "apps/site/data/sponsors.json",
   ]) {
     assert.equal(
       classifyChanges({
@@ -143,6 +172,128 @@ test("rename endpoints are both classified and incomplete/unknown detection fail
     },
   ])
     assert.equal(classifyChanges(input).skipExpensive, false);
+});
+
+const expectedBase = "a".repeat(40);
+const expectedHead = "b".repeat(40);
+
+function prMetadata(changedFiles, overrides = {}) {
+  return {
+    base: { sha: expectedBase },
+    head: { sha: expectedHead },
+    changed_files: changedFiles,
+    ...overrides,
+  };
+}
+
+function apiResponse(value) {
+  return Response.json(value);
+}
+
+function prApiUrl(input) {
+  return new URL(input).pathname + new URL(input).search;
+}
+
+test("complete 3000-file PR fetch succeeds through page 30 and revision recheck", async (t) => {
+  const file = { filename: "apps/site/page.md", status: "modified" };
+  const page = Array.from({ length: 100 }, () => file);
+  const fetch = t.mock.method(globalThis, "fetch", async (input) => {
+    const url = prApiUrl(input);
+    if (url === "/repos/owner/repo/pulls/12")
+      return apiResponse(prMetadata(3000));
+    const requestUrl = new URL(input);
+    if (
+      requestUrl.pathname !== "/repos/owner/repo/pulls/12/files" ||
+      requestUrl.searchParams.get("per_page") !== "100"
+    )
+      throw new Error(`Unexpected PR API request: ${url}`);
+    const pageNumber = Number(requestUrl.searchParams.get("page"));
+    if (pageNumber > 30) throw new Error("Unexpected request past page 30");
+    return apiResponse(page);
+  });
+
+  const files = await getPrFiles({
+    token: "read-only-token",
+    repository: "owner/repo",
+    pullNumber: 12,
+    expectedBase,
+    expectedHead,
+  });
+
+  assert.equal(files.length, 3000);
+  assert.equal(fetch.mock.callCount(), 32);
+});
+
+test("PR file API refuses metadata counts above 3000", async (t) => {
+  const fetch = t.mock.method(globalThis, "fetch", async () =>
+    apiResponse(prMetadata(3001)),
+  );
+  await assert.rejects(
+    getPrFiles({
+      token: "read-only-token",
+      repository: "owner/repo",
+      pullNumber: 12,
+      expectedBase,
+      expectedHead,
+    }),
+    /file count exceeds API limit/,
+  );
+  assert.equal(fetch.mock.callCount(), 1);
+});
+
+test("PR file API refuses an incomplete page list", async (t) => {
+  t.mock.method(globalThis, "fetch", async (input) => {
+    const url = prApiUrl(input);
+    if (url === "/repos/owner/repo/pulls/12")
+      return apiResponse(prMetadata(101));
+    if (url.endsWith("page=1"))
+      return apiResponse(
+        Array.from({ length: 100 }, () => ({
+          filename: "docs/page.md",
+          status: "modified",
+        })),
+      );
+    if (url.endsWith("page=2")) return apiResponse([]);
+    throw new Error(`Unexpected PR API request: ${url}`);
+  });
+  await assert.rejects(
+    getPrFiles({
+      token: "read-only-token",
+      repository: "owner/repo",
+      pullNumber: 12,
+      expectedBase,
+      expectedHead,
+    }),
+    /Incomplete PR file list/,
+  );
+});
+
+test("PR file API refuses a base or head revision change during pagination", async (t) => {
+  let metadataReads = 0;
+  t.mock.method(globalThis, "fetch", async (input) => {
+    const url = prApiUrl(input);
+    if (url === "/repos/owner/repo/pulls/12") {
+      metadataReads += 1;
+      return apiResponse(
+        metadataReads === 1
+          ? prMetadata(1)
+          : prMetadata(1, { head: { sha: "c".repeat(40) } }),
+      );
+    }
+    if (url.endsWith("page=1"))
+      return apiResponse([{ filename: "docs/page.md", status: "modified" }]);
+    throw new Error(`Unexpected PR API request: ${url}`);
+  });
+  await assert.rejects(
+    getPrFiles({
+      token: "read-only-token",
+      repository: "owner/repo",
+      pullNumber: 12,
+      expectedBase,
+      expectedHead,
+    }),
+    /PR changed while files were fetched/,
+  );
 });
 
 test("non-PR events always run the full checks", () => {

@@ -15,7 +15,8 @@ function allowedPath(path) {
   )
     return false;
   if (path.split("/").some((segment) => segment.startsWith("."))) return false;
-  if (configName.test(path)) return false;
+  if (configName.test(path) && path !== "apps/site/constants/sponsors.json")
+    return false;
   return (
     path === "README.md" || /^(docs|apps\/docs|apps\/site)\/[^/].*$/.test(path)
   );
@@ -136,7 +137,6 @@ export async function getPrFiles({
     if (!Array.isArray(batch)) throw new Error("Malformed PR files response");
     files.push(...batch);
     if (batch.length < 100) break;
-    if (page === 30) throw new Error("PR file pagination limit reached");
   }
   if (files.length !== pull.changed_files)
     throw new Error("Incomplete PR file list");
