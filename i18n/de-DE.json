@@ -122,7 +122,6 @@
 				"startDate": "Startdatum",
 				"dueDate": "Fälligkeitsdatum",
 				"clearStartDate": "Startdatum entfernen",
-				"clearDueDate": "Fälligkeitsdatum entfernen",
 				"assign": "Zuweisen",
 				"assignUnassigned": "Nicht zugewiesen",
 				"assignUnassignedTitle": "Nicht zugewiesen",
@@ -3007,6 +3006,33 @@
 					"crimson": "Karmesinrot"
 				},
 				"editLabels": "Labels bearbeiten"
+			},
+			"recurrence": {
+				"updateError": "Wiederholung konnte nicht aktualisiert werden",
+				"every": "Alle",
+				"hint": "Wenn diese Aufgabe erledigt ist, wird die nächste erstellt.",
+				"interval": "Intervall",
+				"onDays": "An diesen Tagen",
+				"pattern": {
+					"daily": "Täglich",
+					"monthly": "Monatlich",
+					"periodically": "Periodisch",
+					"weekly": "Wöchentlich",
+					"yearly": "Jährlich"
+				},
+				"repeats": "Wiederholung",
+				"toggle": "Wiederholen",
+				"unit": {
+					"days_one": "Tag",
+					"days_other": "Tage",
+					"label": "Einheit",
+					"months_one": "Monat",
+					"months_other": "Monate",
+					"weeks_one": "Woche",
+					"weeks_other": "Wochen",
+					"years_one": "Jahr",
+					"years_other": "Jahre"
+				}
 			}
 		},
 		"backlog": {
@@ -3237,6 +3263,17 @@
 		"board": {
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden.",
 			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie."
+		},
+		"recurrence": {
+			"daily_one": "Jeden Tag",
+			"daily_other": "Alle {{count}} Tage",
+			"monthly_one": "Jeden Monat",
+			"monthly_other": "Alle {{count}} Monate",
+			"weekly_one": "Jede Woche",
+			"weekly_other": "Alle {{count}} Wochen",
+			"yearly_one": "Jedes Jahr",
+			"yearly_other": "Alle {{count}} Jahre",
+			"onDays": "{{rule}} am {{days}}"
 		},
 		"toolbar": {
 			"search": "Aufgaben suchen",
