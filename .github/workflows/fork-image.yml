@@ -1,0 +1,41 @@
+name: Fork image
+
+# Builds the combined image for this fork's own deployment.
+# workflow_dispatch only works from the default branch, so pushes to this
+# branch trigger it; bump IMAGE_TAG with the feature commit it builds.
+on:
+  push:
+    branches: [build/global-board-image]
+
+env:
+  IMAGE_TAG: 2.46.2-gb-3662b59
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 3662b5900c684b60c7885059246951687eb0a841
+          persist-credentials: false
+      # Alpine replaced nginx 1.30.4 with a 1.30.x patch release; the source
+      # Dockerfile still pins the old patch version.
+      - name: Accept current nginx 1.30 patch release
+        run: sed -i 's/nginx=~1\.30\.4/nginx=~1.30/' Dockerfile.kaneo && grep -n "nginx=" Dockerfile.kaneo
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.kaneo
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/kaneo:${{ env.IMAGE_TAG }}
