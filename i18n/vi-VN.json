@@ -148,7 +148,16 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2531,8 +2540,7 @@
 			"empty": "Pin a label to open the global board filtered by it.",
 			"error": "Couldn't update pinned labels.",
 			"pin": "Pin a label",
-			"title": "Pinned labels",
-			"unpin": "Unpin {{name}}"
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -2974,7 +2982,16 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "Chỉnh sửa nhãn"
 			}
@@ -3288,7 +3305,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4347,7 +4365,16 @@
 				"amber": "Hổ phách",
 				"terracotta": "Đất nung",
 				"rose": "Hồng",
-				"crimson": "Đỏ thẫm"
+				"crimson": "Đỏ thẫm",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"role": {
 				"owner": "Chủ sở hữu",

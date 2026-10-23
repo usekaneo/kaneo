@@ -8,6 +8,15 @@ const NAMED_COLORS: Record<string, string> = {
   orange: "#ea580c",
   pink: "#e11d48",
   red: "#dc2626",
+  blue: "#155dfc",
+  sky: "#00a6f4",
+  cyan: "#0092b8",
+  indigo: "#615fff",
+  fuchsia: "#c800de",
+  lime: "#5ea500",
+  brown: "#7b3306",
+  navy: "#1c398e",
+  coral: "#ff6467",
 };
 
 const FALLBACK_COLOR = "#6b7280";

@@ -7,7 +7,7 @@ export type PinnedLabelGroup = {
 };
 
 // The board filters labels by name across workspaces, so pins of the same name
-// from several workspaces are one shortcut.
+// from several workspaces are one shortcut. Shortcuts are listed by name.
 export function groupPinnedLabels(pins: PinnedLabel[]): PinnedLabelGroup[] {
   const groups = new Map<string, PinnedLabelGroup>();
   for (const pin of pins) {
@@ -16,5 +16,7 @@ export function groupPinnedLabels(pins: PinnedLabel[]): PinnedLabelGroup[] {
     if (group) group.pins.push(pin);
     else groups.set(key, { name: pin.name, color: pin.color, pins: [pin] });
   }
-  return [...groups.values()];
+  return [...groups.values()].sort((left, right) =>
+    left.name.localeCompare(right.name, undefined, { sensitivity: "base" }),
+  );
 }

@@ -9,10 +9,10 @@ const pin = (id: string, name: string, workspaceId = "w1") => ({
 });
 
 describe("groupPinnedLabels", () => {
-  it("merges same-named pins from different workspaces, keeping pin order", () => {
+  it("merges same-named pins from different workspaces and sorts by name", () => {
     const groups = groupPinnedLabels([
-      pin("a", "animacja"),
       pin("b", "pc-oldschool"),
+      pin("a", "animacja"),
       pin("c", "Animacja", "w2"),
     ]);
     expect(groups.map((group) => group.name)).toEqual([

@@ -148,7 +148,16 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2531,8 +2540,7 @@
 			"empty": "Pin a label to open the global board filtered by it.",
 			"error": "Couldn't update pinned labels.",
 			"pin": "Pin a label",
-			"title": "Pinned labels",
-			"unpin": "Unpin {{name}}"
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -2974,7 +2982,16 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "라벨 편집"
 			}
@@ -3288,7 +3305,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4073,7 +4091,16 @@
 				"sage": "세이지",
 				"slate": "슬레이트",
 				"stone": "스톤",
-				"terracotta": "테라코타"
+				"terracotta": "테라코타",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"priority": {
 				"high": "높음",

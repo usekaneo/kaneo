@@ -19,6 +19,7 @@ import { AssigneeButton } from "@/components/task-chips/assignee-button";
 import { ChecklistChip } from "@/components/task-chips/checklist-chip";
 import { DueDateChip } from "@/components/task-chips/due-date-chip";
 import { LabelChips } from "@/components/task-chips/label-chips";
+import { ParentTaskHint } from "@/components/task-chips/parent-task-hint";
 import { PriorityChip } from "@/components/task-chips/priority-chip";
 import { SubtasksChip } from "@/components/task-chips/subtasks-chip";
 import { taskChipClass } from "@/components/task-chips/task-chip-class";
@@ -81,7 +82,8 @@ function TaskCardContent({
   const isTaskFocused = useBulkSelectionStore(
     (state) => state.focusedTaskId === task.id,
   );
-  const showIdRow = showTaskNumbers || showAssignees || isTaskSelected;
+  const showIdRow =
+    showTaskNumbers || showAssignees || isTaskSelected || !!task.parentTask;
 
   const cardFields = useTaskCardFields(task.projectId, task.id);
 
@@ -152,7 +154,7 @@ function TaskCardContent({
                   {showTaskNumbers && (
                     <span
                       className={cn(
-                        "truncate font-mono text-[11px] leading-3.5",
+                        "shrink-0 font-mono text-[11px] leading-3.5",
                         taskIsCompleted
                           ? "text-board-id-done"
                           : "text-board-id",
@@ -161,6 +163,10 @@ function TaskCardContent({
                       {project?.slug}-{task.number}
                     </span>
                   )}
+                  <ParentTaskHint
+                    parent={task.parentTask}
+                    className="text-[11px] leading-3.5 text-muted-foreground"
+                  />
                 </div>
                 {showAssignees && (
                   <AssigneeButton

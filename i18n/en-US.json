@@ -149,7 +149,16 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"indigo": "Indigo",
+					"orchid": "Orchid",
+					"moss": "Moss",
+					"walnut": "Walnut",
+					"midnight": "Midnight",
+					"coral": "Coral"
 				}
 			}
 		},
@@ -2573,7 +2582,6 @@
 		"pinnedLabels": {
 			"title": "Pinned labels",
 			"pin": "Pin a label",
-			"unpin": "Unpin {{name}}",
 			"empty": "Pin a label to open the global board filtered by it.",
 			"error": "Couldn't update pinned labels."
 		}
@@ -3022,7 +3030,16 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"indigo": "Indigo",
+					"orchid": "Orchid",
+					"moss": "Moss",
+					"walnut": "Walnut",
+					"midnight": "Midnight",
+					"coral": "Coral"
 				},
 				"editLabels": "Edit labels"
 			}
@@ -3346,7 +3363,8 @@
 				"me": "Me",
 				"unassigned": "Unassigned"
 			}
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4423,7 +4441,16 @@
 				"amber": "Amber",
 				"terracotta": "Terracotta",
 				"rose": "Rose",
-				"crimson": "Crimson"
+				"crimson": "Crimson",
+				"ocean": "Ocean",
+				"sky": "Sky",
+				"lagoon": "Lagoon",
+				"indigo": "Indigo",
+				"orchid": "Orchid",
+				"moss": "Moss",
+				"walnut": "Walnut",
+				"midnight": "Midnight",
+				"coral": "Coral"
 			},
 			"role": {
 				"owner": "Owner",

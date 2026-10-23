@@ -25,6 +25,7 @@ import { escapeLikePattern } from "../../search/like-pattern";
 import { TASK_SHORT_ID_PATTERN } from "../../search/task-short-id";
 import type { PermissionMap } from "../../utils/role-permissions";
 import { VIRTUAL_STATUSES } from "../validate-task-fields";
+import { getParentTasks } from "../get-parent-tasks";
 import { loadBoardScope } from "./board-scope";
 import {
   type GlobalBoardFilterQuery,
@@ -194,6 +195,25 @@ async function getGlobalBoardTasks(
   const projects = new Map(
     scope.projects.map((project) => [project.id, project]),
   );
+  // Parents stay within a task's workspace; look them up one workspace at a time.
+  const taskIdsByWorkspace = new Map<string, string[]>();
+  for (const row of rows) {
+    const workspaceId = projects.get(row.projectId)?.workspaceId;
+    if (!workspaceId) continue;
+    taskIdsByWorkspace.set(workspaceId, [
+      ...(taskIdsByWorkspace.get(workspaceId) ?? []),
+      row.id,
+    ]);
+  }
+  const parentTasks = new Map(
+    (
+      await Promise.all(
+        [...taskIdsByWorkspace].map(([workspaceId, taskIds]) =>
+          getParentTasks(db, taskIds, workspaceId, false, userId),
+        ),
+      )
+    ).flatMap((parents) => [...parents]),
+  );
   const workspaces = new Map(
     scope.workspaces.map((workspace) => [workspace.id, workspace]),
   );
@@ -225,6 +245,7 @@ async function getGlobalBoardTasks(
                   image: assigneeImage,
                 }
               : null,
+            parentTask: parentTasks.get(task.id) ?? null,
             labels: labelsByTask.get(task.id) ?? [],
           },
         ];

@@ -148,7 +148,16 @@
 					"amber": "Bursztyn",
 					"terracotta": "Terakota",
 					"rose": "Róża",
-					"crimson": "Karmazyn"
+					"crimson": "Karmazyn",
+					"ocean": "Ocean",
+					"sky": "Niebo",
+					"lagoon": "Laguna",
+					"indigo": "Indygo",
+					"orchid": "Orchidea",
+					"moss": "Mech",
+					"walnut": "Orzech",
+					"midnight": "Granat",
+					"coral": "Koral"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -778,7 +787,6 @@
 		"pinnedLabels": {
 			"title": "Przypięte etykiety",
 			"pin": "Przypnij etykietę",
-			"unpin": "Odepnij {{name}}",
 			"empty": "Przypnij etykietę, by otworzyć global board przefiltrowany po niej.",
 			"error": "Nie udało się zmienić przypiętych etykiet."
 		}
@@ -3488,7 +3496,16 @@
 					"sage": "Szałwia",
 					"slate": "Łupek",
 					"stone": "Kamień",
-					"terracotta": "Terakota"
+					"terracotta": "Terakota",
+					"ocean": "Ocean",
+					"sky": "Niebo",
+					"lagoon": "Laguna",
+					"indigo": "Indygo",
+					"orchid": "Orchidea",
+					"moss": "Mech",
+					"walnut": "Orzech",
+					"midnight": "Granat",
+					"coral": "Koral"
 				},
 				"create": "Utwórz „{{name}}”",
 				"createError": "Nie udało się utworzyć etykiety",
@@ -3744,7 +3761,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"press": {
 		"title": "Press kit",
@@ -4575,7 +4593,16 @@
 				"amber": "Bursztyn",
 				"terracotta": "Terakota",
 				"rose": "Róża",
-				"crimson": "Karmazyn"
+				"crimson": "Karmazyn",
+				"ocean": "Ocean",
+				"sky": "Niebo",
+				"lagoon": "Laguna",
+				"indigo": "Indygo",
+				"orchid": "Orchidea",
+				"moss": "Mech",
+				"walnut": "Orzech",
+				"midnight": "Granat",
+				"coral": "Koral"
 			},
 			"role": {
 				"owner": "Właściciel",

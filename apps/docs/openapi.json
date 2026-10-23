@@ -289,6 +289,9 @@
             ],
             "description": "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects."
           },
+          "parentTask": {
+            "$ref": "#/components/schemas/ParentTask"
+          },
           "labels": {
             "type": "array",
             "items": {
@@ -322,6 +325,36 @@
           "labels",
           "externalLinks"
         ]
+      },
+      "ParentTask": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "number": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "projectSlug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "title",
+          "projectSlug"
+        ],
+        "description": "The task this one is a subtask of, when the caller can see it. Public boards show only parents in public projects."
       },
       "TaskLabel": {
         "type": "object",
@@ -1284,6 +1317,9 @@
               "image"
             ]
           },
+          "parentTask": {
+            "$ref": "#/components/schemas/ParentTask"
+          },
           "labels": {
             "type": "array",
             "items": {
@@ -1307,6 +1343,7 @@
           "workspaceId",
           "workspaceName",
           "assignee",
+          "parentTask",
           "labels"
         ]
       },

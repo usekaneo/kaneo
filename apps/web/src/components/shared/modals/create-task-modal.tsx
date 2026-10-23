@@ -72,6 +72,7 @@ import { cn } from "@/lib/cn";
 import { uploadDraftAsset } from "@/lib/upload-draft-asset";
 import { formatDateMedium } from "@/lib/format";
 import { getInitials } from "@/lib/get-initials";
+import paletteColors, { type LabelColorValue } from "@/constants/label-colors";
 import { resolveLabelColor } from "@/lib/label-color";
 import { getPriorityIcon } from "@/lib/priority";
 import { toast } from "@/lib/toast";
@@ -91,16 +92,7 @@ type CreateTaskModalProps = {
 
 type Priority = "no-priority" | "low" | "medium" | "high" | "urgent";
 
-type LabelColor =
-  | "gray"
-  | "dark-gray"
-  | "purple"
-  | "teal"
-  | "green"
-  | "yellow"
-  | "orange"
-  | "pink"
-  | "red";
+type LabelColor = LabelColorValue;
 
 type Label = {
   id: string;
@@ -146,55 +138,9 @@ function CreateTaskModalContent({
 
   const labelColors = useMemo(
     () =>
-      [
-        {
-          value: "gray" as LabelColor,
-          labelKey: "stone" as const,
-          color: "var(--color-stone-500)",
-        },
-        {
-          value: "dark-gray" as LabelColor,
-          labelKey: "slate" as const,
-          color: "var(--color-slate-500)",
-        },
-        {
-          value: "purple" as LabelColor,
-          labelKey: "lavender" as const,
-          color: "var(--color-violet-500)",
-        },
-        {
-          value: "teal" as LabelColor,
-          labelKey: "sage" as const,
-          color: "var(--color-emerald-600)",
-        },
-        {
-          value: "green" as LabelColor,
-          labelKey: "forest" as const,
-          color: "var(--color-green-600)",
-        },
-        {
-          value: "yellow" as LabelColor,
-          labelKey: "amber" as const,
-          color: "var(--color-amber-600)",
-        },
-        {
-          value: "orange" as LabelColor,
-          labelKey: "terracotta" as const,
-          color: "var(--color-orange-600)",
-        },
-        {
-          value: "pink" as LabelColor,
-          labelKey: "rose" as const,
-          color: "var(--color-rose-600)",
-        },
-        {
-          value: "red" as LabelColor,
-          labelKey: "crimson" as const,
-          color: "var(--color-red-600)",
-        },
-      ].map(({ labelKey, ...rest }) => ({
+      paletteColors.map(({ key, ...rest }) => ({
         ...rest,
-        label: t(`common:modals.createTask.labelColors.${labelKey}`),
+        label: t(`common:modals.createTask.labelColors.${key}`),
       })),
     [t],
   );

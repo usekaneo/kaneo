@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useSearch } from "@tanstack/react-router";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { LabelDot } from "@/components/settings/labels/label-dot";
 import {
@@ -12,13 +12,10 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import useSetLabelPinned from "@/hooks/mutations/label/use-set-label-pinned";
 import useGetPinnedLabels from "@/hooks/queries/label/use-get-pinned-labels";
-import { toast } from "@/lib/toast";
 import {
   groupPinnedLabels,
   type PinnedLabelGroup,
@@ -34,7 +31,6 @@ export function NavPinnedLabels() {
   const pathname = useLocation({ select: (location) => location.pathname });
   const search = useSearch({ strict: false }) as { label?: unknown };
   const { data: pins = [] } = useGetPinnedLabels();
-  const { mutate: setPinned } = useSetLabelPinned();
   const groups = groupPinnedLabels(pins);
 
   const isActive = (group: PinnedLabelGroup) =>
@@ -42,14 +38,6 @@ export function NavPinnedLabels() {
     Array.isArray(search.label) &&
     search.label.length === 1 &&
     String(search.label[0]).toLowerCase() === group.name.toLowerCase();
-
-  const unpin = (group: PinnedLabelGroup) => {
-    for (const label of group.pins)
-      setPinned(
-        { label, pinned: false },
-        { onError: () => toast.error(t("navigation:pinnedLabels.error")) },
-      );
-  };
 
   return (
     <Collapsible defaultOpen className="group/collapsible">
@@ -92,18 +80,6 @@ export function NavPinnedLabels() {
                         {group.name}
                       </span>
                     </SidebarMenuButton>
-                    <SidebarMenuAction
-                      showOnHover
-                      title={t("navigation:pinnedLabels.unpin", {
-                        name: group.name,
-                      })}
-                      aria-label={t("navigation:pinnedLabels.unpin", {
-                        name: group.name,
-                      })}
-                      onClick={() => unpin(group)}
-                    >
-                      <X />
-                    </SidebarMenuAction>
                   </SidebarMenuItem>
                 ))
               )}

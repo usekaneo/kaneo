@@ -1,4 +1,5 @@
 import { Calendar, CalendarClock, CalendarX } from "lucide-react";
+import { ParentTaskHint } from "@/components/task-chips/parent-task-hint";
 import { useRef } from "react";
 import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -78,8 +79,11 @@ export function PublicTaskCard({
         aria-label={`View details for task ${task.title}`}
       />
       <div className="pointer-events-none">
-        <div className="text-[10px] font-mono text-muted-foreground mb-2">
-          {projectSlug}-{task.number}
+        <div className="mb-2 flex min-w-0 items-center gap-1.5 text-[10px] text-muted-foreground">
+          <span className="shrink-0 font-mono">
+            {projectSlug}-{task.number}
+          </span>
+          <ParentTaskHint parent={task.parentTask} />
         </div>
 
         {task.assigneeName && (

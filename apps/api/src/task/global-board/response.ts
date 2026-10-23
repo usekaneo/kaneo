@@ -1,5 +1,5 @@
 import { nullableResponseTimestamp, z } from "../../openapi";
-import { taskLabelSchema } from "../response";
+import { parentTaskSchema, taskLabelSchema } from "../response";
 import { GLOBAL_STATUSES } from "./global-status";
 
 const globalStatusSchema = z.enum(GLOBAL_STATUSES).nullable().openapi({
@@ -79,6 +79,7 @@ export const globalBoardTasksSchema = z
               image: z.string().nullable(),
             })
             .nullable(),
+          parentTask: parentTaskSchema.nullable(),
           labels: z.array(taskLabelSchema),
         })
         .openapi("GlobalBoardTask"),

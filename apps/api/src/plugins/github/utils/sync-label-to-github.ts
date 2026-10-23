@@ -7,6 +7,10 @@ import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { getVerifiedInstallationOctokit } from "./github-app";
 
 const namedColorToHex: Record<string, string> = {
+  brown: "7B3306",
+  navy: "1C398E",
+  coral: "FF6467",
+  "dark-gray": "64748B",
   red: "EF4444",
   orange: "F97316",
   amber: "F59E0B",

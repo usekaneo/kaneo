@@ -148,7 +148,16 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2574,8 +2583,7 @@
 			"empty": "Pin a label to open the global board filtered by it.",
 			"error": "Couldn't update pinned labels.",
 			"pin": "Pin a label",
-			"title": "Pinned labels",
-			"unpin": "Unpin {{name}}"
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -3010,7 +3018,16 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "Labels bewerken"
 			}
@@ -3346,7 +3363,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4141,7 +4159,16 @@
 				"sage": "Salie",
 				"slate": "Leisteen",
 				"stone": "Steen",
-				"terracotta": "Terracotta"
+				"terracotta": "Terracotta",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"priority": {
 				"high": "Hoog",

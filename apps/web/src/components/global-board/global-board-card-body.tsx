@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { TaskLabels } from "@/components/kanban-board/task-labels";
 import { DueDateText } from "@/components/my-work/due-date-text";
 import { MemberFilterAvatar } from "@/components/project/task-filters/member-filter-avatar";
+import { ParentTaskHint } from "@/components/task-chips/parent-task-hint";
 import type { GlobalBoardTask } from "@/fetchers/task/get-global-board-tasks";
 import { getPriorityIcon } from "@/lib/priority";
 
@@ -26,6 +27,7 @@ export function GlobalBoardCardBody({
             ? task.projectSlug
             : `${task.projectSlug}-${task.number}`}
         </span>
+        <ParentTaskHint parent={task.parentTask} className="max-w-[55%]" />
         <span className="min-w-0 truncate">
           {task.workspaceName} / {task.projectName}
         </span>
