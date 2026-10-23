@@ -22,6 +22,10 @@ jobs:
         with:
           ref: 3662b5900c684b60c7885059246951687eb0a841
           persist-credentials: false
+      # Alpine replaced nginx 1.30.4 with a 1.30.x patch release; the source
+      # Dockerfile still pins the old patch version.
+      - name: Accept current nginx 1.30 patch release
+        run: sed -i 's/nginx=~1\.30\.4/nginx=~1.30/' Dockerfile.kaneo && grep -n "nginx=" Dockerfile.kaneo
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
         with:
