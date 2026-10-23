@@ -57,7 +57,7 @@
     "pg": "^8.23.1",
     "undici": "^7.30.0",
     "valibot": "^1.5.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",

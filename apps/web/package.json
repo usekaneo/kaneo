@@ -102,7 +102,7 @@
 		"tippy.js": "^6.3.7",
 		"turndown": "^7.2.4",
 		"turndown-plugin-gfm": "^1.0.2",
-		"zod": "^4.6.5",
+		"zod": "^4.6.6",
 		"zustand": "^5.0.15"
 	},
 	"devDependencies": {
