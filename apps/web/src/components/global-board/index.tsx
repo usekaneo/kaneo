@@ -28,6 +28,7 @@ import {
 } from "./global-board-filters";
 import { GlobalBoardLaneColumn } from "./global-board-lane";
 import { resolveDropTarget } from "./resolve-drop-target";
+import { suppressNextClick } from "./suppress-next-click";
 
 type ProjectColumn = GlobalBoardProject["columns"][number];
 
@@ -114,6 +115,7 @@ export function GlobalBoard({
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActive(null);
+    suppressNextClick();
     const data = active.data.current as ActiveDrag | undefined;
     const to = over?.data.current?.lane as GlobalBoardLane | undefined;
     if (data && to && to !== data.lane) dropOnLane(data.task, data.lane, to);
@@ -132,7 +134,10 @@ export function GlobalBoard({
       }}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => setActive(null)}
+      onDragCancel={() => {
+        setActive(null);
+        suppressNextClick();
+      }}
     >
       <div
         className={cn(

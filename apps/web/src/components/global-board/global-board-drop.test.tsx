@@ -147,12 +147,14 @@ describe("global board drops", () => {
     });
   });
 
-  it("asks which column when the lane matches several, and moves only after a choice", () => {
+  it("asks which column when the lane matches several, and moves only after a choice", async () => {
     const view = render(<GlobalBoard meta={meta} filters={{}} />);
     const dragged = task("web", "to-do");
     drop(dragged, "to-do", "in-progress");
     expect(mocks.move).not.toHaveBeenCalled();
 
+    // A real choice comes well after the drop's own click is swallowed.
+    await new Promise((resolve) => setTimeout(resolve, 60));
     fireEvent.click(view.getByText("choose-in-review"));
     expect(mocks.move).toHaveBeenCalledWith({
       task: dragged,

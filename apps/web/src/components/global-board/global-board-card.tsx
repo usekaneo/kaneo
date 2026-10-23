@@ -45,6 +45,7 @@ function GlobalBoardCard({
         "group/card relative rounded-lg border border-border/60 bg-card shadow-xs transition-[opacity,border-color] hover:border-border",
         isDragging && "opacity-40",
         canMove && "touch-manipulation",
+        isOverlay && "pointer-events-none",
       )}
     >
       <Link
