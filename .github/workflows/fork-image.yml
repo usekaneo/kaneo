@@ -1,14 +1,15 @@
 name: Fork image
 
-# Builds the combined image for this fork's own deployment.
-# workflow_dispatch only works from the default branch, so pushes to this
-# branch trigger it; bump IMAGE_TAG with the feature commit it builds.
+# Builds the combined image for this fork's own deployment. Run it by hand
+# (Actions → Fork image → Run workflow, or `gh workflow run fork-image.yml`);
+# nothing deploys until dokku-infra points at the new tag.
 on:
-  push:
-    branches: [build/global-board-image]
-
-env:
-  IMAGE_TAG: 2.46.2-gb-3662b59
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, or commit to build
+        default: main
+        required: true
 
 permissions:
   contents: read
@@ -20,8 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 3662b5900c684b60c7885059246951687eb0a841
+          ref: ${{ inputs.ref }}
           persist-credentials: false
+      # Tagged <app version>-gb-<short commit>, so each build names its source.
+      - name: Image tag
+        id: tag
+        run: echo "tag=$(jq -r .version package.json)-gb-$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
       # Alpine replaced nginx 1.30.4 with a 1.30.x patch release; the source
       # Dockerfile still pins the old patch version.
       - name: Accept current nginx 1.30 patch release
@@ -38,4 +43,6 @@ jobs:
           file: ./Dockerfile.kaneo
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/kaneo:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/${{ github.repository_owner }}/kaneo:${{ steps.tag.outputs.tag }}
+      - name: Report the tag
+        run: echo "Built ghcr.io/${{ github.repository_owner }}/kaneo:${{ steps.tag.outputs.tag }}" >> "$GITHUB_STEP_SUMMARY"
