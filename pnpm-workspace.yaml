@@ -6,6 +6,7 @@ overrides:
   "@hono/node-server": ">=1.19.13"
   ajv: 8.18.0
   diff: 8.0.3
+  dompurify: ^3.4.17
   esbuild: 0.28.1
   express-rate-limit: 8.2.2
   hono: ">=4.13.5"
