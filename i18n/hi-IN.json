@@ -3180,8 +3180,9 @@
 		"actions": {
 			"duplicate": "डुप्लिकेट करें",
 			"archive": "संग्रहित करें",
-			"markAsPlanned": "नियोजित चिह्नित करें",
-			"delete": "हटाएँ..."
+			"delete": "हटाएँ...",
+			"movedToBacklog": "Moved to backlog",
+			"moveToBacklog": "Move to backlog"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} चयनित",
@@ -3362,7 +3363,8 @@
 			"pageTitle": "Global board",
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
-			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
+			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu.",
+			"moveToTop": "Move to top"
 		},
 		"parentHint": "parent: {{id}} {{title}}"
 	},

@@ -58,7 +58,11 @@ export default function SubtaskStatusPopover({
         <OptionMenu
           label={t("tasks:status.label")}
           placeholder={t("tasks:bulk.statusPlaceholder")}
-          options={statusMenuOptions(columns, current)}
+          options={statusMenuOptions(
+            columns,
+            current,
+            t("tasks:actions.moveToBacklog"),
+          )}
           onSelect={changeStatus}
         />
       </PopoverContent>

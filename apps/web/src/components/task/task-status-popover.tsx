@@ -54,7 +54,11 @@ export default function TaskStatusPopover({
         <OptionMenu
           label={t("tasks:status.label")}
           placeholder={t("tasks:bulk.statusPlaceholder")}
-          options={statusMenuOptions(columns, task.status)}
+          options={statusMenuOptions(
+            columns,
+            task.status,
+            t("tasks:actions.moveToBacklog"),
+          )}
           onSelect={changeStatus}
           status={
             isLoading ? (

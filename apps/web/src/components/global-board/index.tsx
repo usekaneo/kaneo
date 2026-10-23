@@ -102,13 +102,14 @@ export function GlobalBoard({
   const laneName = (lane: GlobalBoardLane) =>
     t(`tasks:globalBoard.lanes.${lane}`);
 
+  // Without a column the card only goes to the top of its own lane.
   const onMenuMove = (
     task: GlobalBoardTask,
     from: GlobalBoardLane,
-    column: ProjectColumn,
+    column?: ProjectColumn,
   ) => {
-    if (column.slug === task.status) return;
-    const to = column.globalStatus ?? "unmapped";
+    if (column?.slug === task.status) return;
+    const to = column ? (column.globalStatus ?? "unmapped") : from;
     move({
       task,
       from,

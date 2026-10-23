@@ -3195,8 +3195,9 @@
 		"actions": {
 			"duplicate": "Duplicate",
 			"archive": "Archive",
-			"markAsPlanned": "Mark as planned",
-			"delete": "Delete..."
+			"delete": "Delete...",
+			"moveToBacklog": "Move to backlog",
+			"movedToBacklog": "Moved to backlog"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} selected",
@@ -3362,7 +3363,8 @@
 				"project": "Project",
 				"me": "Me",
 				"unassigned": "Unassigned"
-			}
+			},
+			"moveToTop": "Move to top"
 		},
 		"parentHint": "parent: {{id}} {{title}}"
 	},

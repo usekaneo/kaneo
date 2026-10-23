@@ -126,6 +126,22 @@ describe("API integration: auto-assign", () => {
     expect(await assigneeOf(stays.id)).toBeNull();
   });
 
+  it("leaves tasks sent to the backlog or archive unassigned", async () => {
+    const { project, json, me } = await setup();
+    await optIn(me.user.id);
+    const backlog = await addTask(project);
+    const archived = await addTask(project);
+
+    expect(
+      (await json("PUT", `/status/${backlog.id}`, { status: "planned" }))
+        .status,
+    ).toBe(200);
+    await json("PUT", `/status/${archived.id}`, { status: "archived" });
+
+    expect(await assigneeOf(backlog.id)).toBeNull();
+    expect(await assigneeOf(archived.id)).toBeNull();
+  });
+
   it("assigns cards dragged to another column on the project board", async () => {
     const { me, project, json } = await setup();
     await optIn(me.user.id);

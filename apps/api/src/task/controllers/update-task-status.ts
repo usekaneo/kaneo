@@ -4,7 +4,13 @@ import { withLockedTask } from "./with-locked-task";
 import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { publishTaskMutation } from "./task-mutation-effects";
-import { assertValidTaskStatus } from "../validate-task-fields";
+import {
+  assertValidTaskStatus,
+  VIRTUAL_STATUSES,
+} from "../validate-task-fields";
+
+const isVirtualStatus = (status: string) =>
+  (VIRTUAL_STATUSES as readonly string[]).includes(status);
 
 async function updateTaskStatus({
   id,
@@ -15,7 +21,8 @@ async function updateTaskStatus({
   id: string;
   status: string;
   currentUserId: string;
-  // Fills an empty assignee when the task actually changes column.
+  // Fills an empty assignee when the task moves to another board column;
+  // sending it to the backlog or archive leaves it unassigned.
   autoAssigneeId?: string | null;
 }) {
   const { before: existingTask, after: updatedTask } = await withLockedTask(
@@ -37,7 +44,8 @@ async function updateTaskStatus({
           columnId: column?.id ?? null,
           ...(autoAssigneeId &&
           !existingTask.userId &&
-          existingTask.status !== status
+          existingTask.status !== status &&
+          !isVirtualStatus(status)
             ? { userId: autoAssigneeId }
             : {}),
         })

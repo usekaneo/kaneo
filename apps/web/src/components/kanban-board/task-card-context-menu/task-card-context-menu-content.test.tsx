@@ -172,14 +172,14 @@ describe("TaskCardContextMenuContent", () => {
     });
 
     expect(
-      screen.queryByText("tasks:actions.markAsPlanned"),
+      screen.queryByText("tasks:actions.moveToBacklog"),
     ).not.toBeInTheDocument();
   });
 
   it("shows Mark as planned for tasks that are not planned", () => {
     renderTask(task);
 
-    expect(screen.getByText("tasks:actions.markAsPlanned")).toBeInTheDocument();
+    expect(screen.getByText("tasks:actions.moveToBacklog")).toBeInTheDocument();
   });
 });
 
