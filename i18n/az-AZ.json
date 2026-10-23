@@ -761,7 +761,10 @@
 			"priority": "Prioritet",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Layihənin öz lövhəsi üçün təyin etdiyi arxa fon şəklini göstər.",
-			"advancedTitle": "Qabaqcıl"
+			"advancedTitle": "Qabaqcıl",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API açarları",

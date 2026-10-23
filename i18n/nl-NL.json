@@ -639,7 +639,10 @@
 			"priority": "Prioriteit",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Toon de afbeelding die een project achter het bord instelt.",
-			"advancedTitle": "Geavanceerd"
+			"advancedTitle": "Geavanceerd",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API-sleutels",

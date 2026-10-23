@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { AutoAssignRow } from "@/components/settings/preferences/auto-assign-row";
 import { DefaultViewRow } from "@/components/settings/preferences/default-view-row";
 import { LanguageRow } from "@/components/settings/preferences/language-row";
 import { PreferenceSwitchRow } from "@/components/settings/preferences/preference-switch-row";
@@ -28,6 +29,7 @@ export function GeneralPreferencesSection() {
         <LanguageRow />
         <WeekStartRow />
         <DefaultViewRow />
+        <AutoAssignRow />
         <PreferenceSwitchRow
           title={t("settings:preferencesPage.projectBackgrounds")}
           description={t(

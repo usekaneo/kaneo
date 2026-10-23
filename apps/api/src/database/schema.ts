@@ -38,6 +38,7 @@ export const userTable = pgTable("user", {
     .notNull(),
   image: text("image"),
   locale: text("locale"),
+  autoAssignSelf: boolean("auto_assign_self").default(false).notNull(),
   createdAt: timestamp("created_at", { mode: "date" })
     .default(utcNow)
     .notNull(),

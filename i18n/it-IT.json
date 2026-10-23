@@ -769,7 +769,10 @@
 			"priority": "Priorità",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Mostra l'immagine che un progetto imposta dietro la sua board.",
-			"advancedTitle": "Avanzate"
+			"advancedTitle": "Avanzate",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "Chiavi API",

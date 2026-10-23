@@ -752,7 +752,10 @@
 			"priority": "優先順序",
 			"projectBackgrounds": "專案背景",
 			"projectBackgroundsDescription": "顯示專案為看板設定的背景圖片。",
-			"advancedTitle": "進階"
+			"advancedTitle": "進階",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API 金鑰",

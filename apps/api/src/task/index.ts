@@ -49,6 +49,7 @@ import {
   globalBoardTasksSchema,
 } from "./global-board/response";
 import { globalBoardTasksQuery } from "./global-board/schema";
+import { resolveAutoAssignee } from "./auto-assign/resolve-auto-assignee";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -936,7 +937,13 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(reorderTasksRoute, async (c) => {
     const { projectId, tasks, expectedTasks } = c.req.valid("json");
     return c.json(
-      await reorderTasks(projectId, tasks, c.get("userId"), expectedTasks),
+      await reorderTasks(
+        projectId,
+        tasks,
+        c.get("userId"),
+        expectedTasks,
+        await resolveAutoAssignee(c),
+      ),
       200,
     );
   })
@@ -968,7 +975,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const task = await createTask({
       projectId,
       currentUserId: c.get("userId"),
-      userId: userId,
+      userId: userId === undefined ? await resolveAutoAssignee(c) : userId,
       title,
       description,
       startDate: parsedStartDate,
@@ -1098,7 +1105,12 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const { status } = c.req.valid("json");
     const currentUserId = c.get("userId");
 
-    const task = await updateTaskStatus({ id, status, currentUserId });
+    const task = await updateTaskStatus({
+      id,
+      status,
+      currentUserId,
+      autoAssigneeId: await resolveAutoAssignee(c),
+    });
 
     return c.json(task, 200);
   })

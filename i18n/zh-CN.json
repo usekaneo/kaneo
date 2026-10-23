@@ -753,7 +753,10 @@
 			"priority": "优先级",
 			"projectBackgrounds": "项目背景",
 			"projectBackgroundsDescription": "显示项目为看板设置的背景图片。",
-			"advancedTitle": "高级"
+			"advancedTitle": "高级",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API 密钥",

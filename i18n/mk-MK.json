@@ -761,7 +761,10 @@
 			"priority": "Приоритет",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Прикажи ја сликата што проектот ја поставува зад својата табла.",
-			"advancedTitle": "Напредно"
+			"advancedTitle": "Напредно",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API клучеви",

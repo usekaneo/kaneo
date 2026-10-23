@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
@@ -13,6 +13,8 @@ export default async function reorderTasks(
   tasks: Reorder[],
   userId: string,
   expectedTasks?: { id: string; position: number | null; status: string }[],
+  // Fills an empty assignee on cards that change column.
+  autoAssigneeId: string | null = null,
 ) {
   if (new Set(tasks.map((task) => task.id)).size !== tasks.length)
     throw new HTTPException(400, { message: "Task IDs must be unique" });
@@ -49,6 +51,7 @@ export default async function reorderTasks(
         id: taskTable.id,
         status: taskTable.status,
         position: taskTable.position,
+        userId: taskTable.userId,
       })
       .from(taskTable)
       .where(
@@ -128,6 +131,20 @@ export default async function reorderTasks(
       throw new HTTPException(409, {
         message: "Task changed projects; retry the move",
       });
+    const statusById = new Map(before.map((task) => [task.id, task.status]));
+    const moved = after
+      .filter((task) => !task.userId && statusById.get(task.id) !== task.status)
+      .map((task) => task.id);
+    if (autoAssigneeId && moved.length) {
+      const assigned = await tx
+        .update(taskTable)
+        .set({ userId: autoAssigneeId })
+        .where(and(inArray(taskTable.id, moved), isNull(taskTable.userId)))
+        .returning({ id: taskTable.id });
+      const assignedIds = new Set(assigned.map((task) => task.id));
+      for (const task of after)
+        if (assignedIds.has(task.id)) task.userId = autoAssigneeId;
+    }
     return { before, after };
   });
   const beforeById = new Map(before.map((task) => [task.id, task]));
@@ -136,7 +153,7 @@ export default async function reorderTasks(
     const prior = beforeById.get(updated.id)!;
     if (prior.status !== updated.status) statusChanged = true;
     await publishTaskMutation(prior, updated, userId, {
-      fields: ["status"],
+      fields: ["status", "userId"],
       skipRelationRefresh: true,
     });
   }

@@ -11800,8 +11800,11 @@
                     "description": "The target column's slug."
                   },
                   "userId": {
-                    "type": "string",
-                    "description": "Assignee, if any."
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Assignee. Omit it to assign the caller when they turned on auto-assign; send null to leave the task unassigned."
                   },
                   "draftAssetIds": {
                     "type": "array",

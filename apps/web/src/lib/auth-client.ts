@@ -75,6 +75,11 @@ export const authClient = createAuthClient({
           required: false,
           input: true,
         },
+        autoAssignSelf: {
+          type: "boolean",
+          required: false,
+          input: true,
+        },
       },
     }),
   ],

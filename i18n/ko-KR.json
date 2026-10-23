@@ -753,7 +753,10 @@
 			"priority": "우선순위",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "프로젝트에서 보드 배경으로 설정한 이미지를 표시합니다.",
-			"advancedTitle": "고급"
+			"advancedTitle": "고급",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API 키",

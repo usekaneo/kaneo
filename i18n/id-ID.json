@@ -753,7 +753,10 @@
 			"priority": "Prioritas",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Tampilkan gambar yang diatur proyek di belakang papannya.",
-			"advancedTitle": "Lanjutan"
+			"advancedTitle": "Lanjutan",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API key",

@@ -777,7 +777,10 @@
 			"priority": "Приоритет",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Показывать изображение, которое проект задаёт за своей доской.",
-			"advancedTitle": "Дополнительно"
+			"advancedTitle": "Дополнительно",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API-ключи",

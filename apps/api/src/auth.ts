@@ -271,6 +271,12 @@ export const auth = betterAuth({
         input: true,
         required: false,
       },
+      autoAssignSelf: {
+        type: "boolean",
+        input: true,
+        required: false,
+        defaultValue: false,
+      },
     },
     deleteUser: {
       enabled: true,

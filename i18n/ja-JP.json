@@ -753,7 +753,10 @@
 			"priority": "優先度",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "プロジェクトがボードの背景に設定した画像を表示します。",
-			"advancedTitle": "詳細設定"
+			"advancedTitle": "詳細設定",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "APIキー",
