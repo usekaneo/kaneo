@@ -45,7 +45,9 @@ export const globalBoardMetaSchema = z
         image: z.string().nullable(),
       }),
     ),
-    labels: z.array(z.object({ name: z.string(), color: z.string() })),
+    labels: z.array(
+      z.object({ id: z.string(), name: z.string(), color: z.string() }),
+    ),
   })
   .openapi("GlobalBoardMeta");
 

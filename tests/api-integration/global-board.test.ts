@@ -323,10 +323,60 @@ describe("API integration: global board", () => {
     // Ordered by priority when unfiltered.
     expect(await ids("")).toEqual([mine.id, nobody.id, theirs.id]);
 
+    // Several values match any of them; filters combine like project boards.
+    expect(await ids("priority=low&priority=urgent")).toEqual([
+      mine.id,
+      theirs.id,
+    ]);
+    expect(
+      await ids(`projectId=${web.project.id}&projectId=${api.project.id}`),
+    ).toEqual([mine.id, theirs.id]);
+    expect(await ids("label=nope&label=BUG")).toEqual([mine.id]);
+    // A negated filter keeps tasks without the value, unassigned included.
+    expect(await ids("assigneeId=me&negate=assigneeId")).toEqual([
+      nobody.id,
+      theirs.id,
+    ]);
+    expect(await ids("label=bug&negate=label")).toEqual([nobody.id, theirs.id]);
+    expect(
+      await ids(
+        `workspaceId=${second.workspace.id}&negate=workspaceId&priority=low`,
+      ),
+    ).toEqual([theirs.id]);
+
     const invalid = await app.request(
       "/api/task/global-board?globalStatus=to-do&priority=critical",
     );
     expect(invalid.status).toBe(400);
+  });
+
+  it("filters by due date in the caller's week", async () => {
+    const me = await createWorkspaceMember();
+    const project = await createProjectFixture({
+      workspaceId: me.workspace.id,
+    });
+    const thisWeek = await addTask(project, "This week", "todo", {
+      dueDate: new Date("2026-10-21T10:00:00Z"),
+    });
+    const nextWeek = await addTask(project, "Next week", "todo", {
+      dueDate: new Date("2026-10-27T10:00:00Z"),
+    });
+    const undated = await addTask(project, "Undated", "todo");
+
+    mockAuthenticatedSession(me.user);
+    const { app } = createApp();
+    const week = "dueWeekStart=2026-10-19T00:00:00%2B02:00";
+    const titlesFor = async (query: string) =>
+      titles(await board(app, `globalStatus=to-do&${week}&${query}`));
+
+    expect(await titlesFor("dueDate=dueThisWeek")).toEqual([thisWeek.title]);
+    expect(await titlesFor("dueDate=dueNextWeek")).toEqual([nextWeek.title]);
+    expect(await titlesFor("dueDate=noDueDate&dueDate=dueThisWeek")).toEqual(
+      [thisWeek.title, undated.title].sort(),
+    );
+    expect(await titlesFor("dueDate=noDueDate&negate=dueDate")).toEqual(
+      [nextWeek.title, thisWeek.title].sort(),
+    );
   });
 
   it("pages through a column", async () => {

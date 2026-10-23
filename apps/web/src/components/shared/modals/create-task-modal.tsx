@@ -61,6 +61,7 @@ import useCreateLabel from "@/hooks/mutations/label/use-create-label";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import useGetCustomFieldsByProject from "@/hooks/queries/custom-field/use-get-custom-fields-by-project";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
+import useGetProjectDefaultLabels from "@/hooks/queries/label/use-get-project-default-labels";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
@@ -225,7 +226,8 @@ function CreateTaskModalContent({
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [dueDateOpen, setDueDateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
-  const [labels, setLabels] = useState<Label[]>([]);
+  // null until the user picks; the project's default labels show until then.
+  const [labelsChoice, setLabels] = useState<Label[] | null>(null);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
 
   const [labelsOpen, setLabelsOpen] = useState(false);
@@ -247,6 +249,19 @@ function CreateTaskModalContent({
     (candidate) => candidate.id === (explicitProjectId || selectedProjectId),
   );
   const resolvedProjectId = resolvedProject?.id ?? "";
+  const { data: projectDefaultLabels, isSuccess: defaultLabelsLoaded } =
+    useGetProjectDefaultLabels(resolvedProjectId);
+  const labels = useMemo<Label[]>(
+    () =>
+      labelsChoice ??
+      (projectDefaultLabels ?? []).map((label) => ({
+        ...label,
+        taskId: null,
+        workspaceId: workspace?.id ?? "",
+        createdAt: "",
+      })),
+    [labelsChoice, projectDefaultLabels, workspace?.id],
+  );
   const { data: projectMembers } = useGetProjectMembers({
     workspaceId: workspace?.id || "",
     projectId: resolvedProjectId,
@@ -383,7 +398,7 @@ function CreateTaskModalContent({
     startDate ||
     dueDate ||
     selectedProjectId ||
-    labels.length > 0 ||
+    labelsChoice !== null ||
     stagedAssetsRef.current.length > 0 ||
     hasCustomFieldChanges,
   );
@@ -557,6 +572,10 @@ function CreateTaskModalContent({
               fieldId: field.id,
               value: customFieldValues[field.id] ?? "",
             })),
+          // The labels below already include the defaults the user kept.
+          ...(labelsChoice !== null || defaultLabelsLoaded
+            ? { defaultLabels: false }
+            : {}),
         }),
       );
 
@@ -587,7 +606,7 @@ function CreateTaskModalContent({
         setAssigneeId(null);
         setStartDate(undefined);
         setDueDate(undefined);
-        setLabels([]);
+        setLabels(null);
         setLabelsStep("select");
         setSearchValue("");
         setSelectedColor("gray");

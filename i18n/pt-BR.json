@@ -1171,7 +1171,13 @@
 			"moveDialogTitle": "Mover para outro espaço de trabalho?",
 			"moveTargetLabel": "Espaço de trabalho",
 			"moving": "Movendo...",
-			"tasksTitle": "Tarefas"
+			"tasksTitle": "Tarefas",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrações",
@@ -2606,6 +2612,13 @@
 			"then": "depois",
 			"or": "ou",
 			"thenEllipsis": "depois…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels",
+			"unpin": "Unpin {{name}}"
 		}
 	},
 	"notifications": {
@@ -3367,14 +3380,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",

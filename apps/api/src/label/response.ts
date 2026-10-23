@@ -18,3 +18,15 @@ export const labelListSchema = z.array(labelSchema);
 export const pendingLabelDeletionSchema = labelSchema
   .extend({ pendingDeletion: z.literal(true) })
   .openapi("PendingLabelDeletion");
+
+export const labelSummarySchema = z
+  .object({ id: z.string(), name: z.string(), color: z.string() })
+  .openapi("LabelSummary");
+
+export const pinnedLabelSchema = labelSummarySchema
+  .extend({ workspaceId: z.string().nullable() })
+  .openapi("PinnedLabel");
+
+export const labelPinSchema = z
+  .object({ id: z.string(), pinned: z.boolean() })
+  .openapi("LabelPin");

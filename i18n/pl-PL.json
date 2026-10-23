@@ -774,6 +774,13 @@
 			"then": "potem",
 			"or": "lub",
 			"thenEllipsis": "potem…"
+		},
+		"pinnedLabels": {
+			"title": "Przypięte etykiety",
+			"pin": "Przypnij etykietę",
+			"unpin": "Odepnij {{name}}",
+			"empty": "Przypnij etykietę, by otworzyć global board przefiltrowany po niej.",
+			"error": "Nie udało się zmienić przypiętych etykiet."
 		}
 	},
 	"notifications": {
@@ -1750,7 +1757,13 @@
 			"moveDialogTitle": "Przenieść do innego obszaru roboczego?",
 			"moveTargetLabel": "Obszar roboczy",
 			"moving": "Przenoszenie...",
-			"tasksTitle": "Zadania"
+			"tasksTitle": "Zadania",
+			"defaultLabels": {
+				"title": "Domyślne etykiety",
+				"description": "Nowe zadania w tym projekcie dostają te etykiety.",
+				"choose": "Wybierz etykiety",
+				"error": "Nie udało się zapisać domyślnych etykiet."
+			}
 		},
 		"projectIntegrations": {
 			"discordSectionSubtitle": "Wysyłaj aktualizacje zadań projektu na kanał Discord za pomocą webhooka.",
@@ -3706,14 +3719,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",

@@ -1153,7 +1153,13 @@
 			"moveDialogTitle": "移动到其他工作区？",
 			"moveTargetLabel": "工作区",
 			"moving": "正在移动...",
-			"tasksTitle": "任务"
+			"tasksTitle": "任务",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "集成",
@@ -2520,6 +2526,13 @@
 			"then": "然后",
 			"or": "或",
 			"thenEllipsis": "然后…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels",
+			"unpin": "Unpin {{name}}"
 		}
 	},
 	"notifications": {
@@ -3253,14 +3266,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",

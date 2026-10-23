@@ -40,6 +40,7 @@ async function getGlobalBoardMeta(
       .limit(FILTER_OPTION_LIMIT),
     db
       .selectDistinctOn([labelName], {
+        id: labelTable.id,
         name: labelTable.name,
         color: labelTable.color,
       })

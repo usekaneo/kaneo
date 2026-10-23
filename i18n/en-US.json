@@ -1649,7 +1649,13 @@
 			"moveTargetLabel": "Workspace",
 			"moveDialogTitle": "Move to another workspace?",
 			"moveDialogDescription": "Tasks assigned to people outside the new workspace become unassigned, and notification subscriptions for this project are cleared.",
-			"moving": "Moving..."
+			"moving": "Moving...",
+			"defaultLabels": {
+				"title": "Default labels",
+				"description": "New tasks in this project start with these labels.",
+				"choose": "Choose labels",
+				"error": "Couldn't save the default labels."
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrations",
@@ -2563,6 +2569,13 @@
 			"then": "then",
 			"or": "or",
 			"thenEllipsis": "then…"
+		},
+		"pinnedLabels": {
+			"title": "Pinned labels",
+			"pin": "Pin a label",
+			"unpin": "Unpin {{name}}",
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels."
 		}
 	},
 	"notifications": {
@@ -3329,17 +3342,9 @@
 			"dragInstructions": "To move a task without dragging, open its menu and pick a column.",
 			"filters": {
 				"workspace": "Workspace",
-				"allWorkspaces": "All workspaces",
 				"project": "Project",
-				"allProjects": "All projects",
-				"assignee": "Assignee",
-				"anyone": "Anyone",
 				"me": "Me",
-				"unassigned": "Unassigned",
-				"anyPriority": "Any priority",
-				"label": "Label",
-				"anyLabel": "Any label",
-				"clear": "Clear"
+				"unassigned": "Unassigned"
 			}
 		}
 	},

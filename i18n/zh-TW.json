@@ -1152,7 +1152,13 @@
 			"moveDialogTitle": "要移動到其他工作區嗎？",
 			"moveTargetLabel": "工作區",
 			"moving": "移動中...",
-			"tasksTitle": "任務"
+			"tasksTitle": "任務",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "整合",
@@ -2520,6 +2526,13 @@
 			"then": "然後",
 			"or": "或",
 			"thenEllipsis": "然後…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels",
+			"unpin": "Unpin {{name}}"
 		}
 	},
 	"notifications": {
@@ -3253,14 +3266,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",

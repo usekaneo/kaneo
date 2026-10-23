@@ -3,8 +3,12 @@ import {
   createRoute,
   errorResponse,
   jsonResponse,
+  z,
 } from "../openapi";
-import { requireWorkspacePermission } from "../utils/require-workspace-permission";
+import {
+  requireApiKeyScope,
+  requireWorkspacePermission,
+} from "../utils/require-workspace-permission";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import assignLabelToTask from "./controllers/assign-label-to-task";
 import createLabel from "./controllers/create-label";
@@ -12,17 +16,26 @@ import deleteLabel from "./controllers/delete-label";
 import getLabel from "./controllers/get-label";
 import getLabelsByTaskId from "./controllers/get-labels-by-task-id";
 import getLabelsByWorkspaceId from "./controllers/get-labels-by-workspace-id";
+import getPinnedLabels from "./controllers/get-pinned-labels";
+import { getProjectDefaultLabels } from "./controllers/get-project-default-labels";
+import { pinLabel, unpinLabel } from "./controllers/pin-label";
+import { setProjectDefaultLabels } from "./controllers/set-project-default-labels";
 import unassignLabelFromTask from "./controllers/unassign-label-from-task";
 import updateLabel from "./controllers/update-label";
 import {
   labelListSchema,
+  labelPinSchema,
   labelSchema,
+  labelSummarySchema,
   pendingLabelDeletionSchema,
+  pinnedLabelSchema,
 } from "./response";
 import {
   attachLabelBody,
   createLabelBody,
   labelParam,
+  projectIdParam,
+  setProjectDefaultLabelsBody,
   taskIdParam,
   updateLabelBody,
   workspaceIdParam,
@@ -208,7 +221,128 @@ const deleteLabelRoute = createRoute({
   },
 });
 
+const getPinnedLabelsRoute = createRoute({
+  method: "get",
+  operationId: "getPinnedLabels",
+  path: "/pinned",
+  tags: ["Labels"],
+  summary: "Get pinned labels",
+  description:
+    "The caller's pinned workspace labels, oldest pin first. Labels from workspaces the caller has left are omitted.",
+  middleware: [requireApiKeyScope({ label: ["read"] })] as const,
+  responses: {
+    200: jsonResponse("Pinned labels", z.array(pinnedLabelSchema)),
+    403: errorResponse("Missing label:read API key scope"),
+  },
+});
+
+const pinLabelRoute = createRoute({
+  method: "put",
+  operationId: "pinLabel",
+  path: "/{id}/pin",
+  tags: ["Labels"],
+  summary: "Pin label",
+  description:
+    "Pin a workspace label for the caller. Pins are personal and do not change the label.",
+  middleware: [
+    workspaceAccess.fromLabel(),
+    requireWorkspacePermission({ label: ["read"] }),
+  ] as const,
+  request: { params: labelParam },
+  responses: {
+    200: jsonResponse("The label is pinned", labelPinSchema),
+    400: errorResponse("The label belongs to a task, not the workspace"),
+    403: errorResponse("Missing label:read permission"),
+    404: errorResponse("Label not found"),
+    409: errorResponse("The workspace label is being deleted"),
+  },
+});
+
+const unpinLabelRoute = createRoute({
+  method: "delete",
+  operationId: "unpinLabel",
+  path: "/{id}/pin",
+  tags: ["Labels"],
+  summary: "Unpin label",
+  description: "Remove a label from the caller's pins.",
+  middleware: [workspaceAccess.fromLabel()] as const,
+  request: { params: labelParam },
+  responses: {
+    200: jsonResponse("The label is unpinned", labelPinSchema),
+    404: errorResponse("Label not found"),
+  },
+});
+
+const getProjectDefaultLabelsRoute = createRoute({
+  method: "get",
+  operationId: "getProjectDefaultLabels",
+  path: "/project/{projectId}/defaults",
+  tags: ["Labels"],
+  summary: "Get project default labels",
+  description:
+    "The workspace labels every new task in the project starts with.",
+  middleware: [workspaceAccess.fromProjectId()] as const,
+  request: { params: projectIdParam },
+  responses: {
+    200: jsonResponse("Default labels", z.array(labelSummarySchema)),
+    403: errorResponse("No access to the project"),
+    404: errorResponse("Project not found"),
+  },
+});
+
+const setProjectDefaultLabelsRoute = createRoute({
+  method: "put",
+  operationId: "setProjectDefaultLabels",
+  path: "/project/{projectId}/defaults",
+  tags: ["Labels"],
+  summary: "Set project default labels",
+  description:
+    "Replace the labels new tasks in the project start with. Existing tasks keep their labels.",
+  middleware: [
+    workspaceAccess.fromProjectId(),
+    requireWorkspacePermission({ project: ["update"] }),
+  ] as const,
+  request: {
+    params: projectIdParam,
+    body: {
+      required: true,
+      content: {
+        "application/json": { schema: setProjectDefaultLabelsBody },
+      },
+    },
+  },
+  responses: {
+    200: jsonResponse("The new default labels", z.array(labelSummarySchema)),
+    400: errorResponse("A label is not a workspace label of this project"),
+    403: errorResponse(
+      "No access to the project, or missing project:update permission",
+    ),
+    404: errorResponse("Project not found"),
+  },
+});
+
 const label = apiRouter()
+  // Registered before `/{id}` so `pinned` is not read as a label ID.
+  .openapi(getPinnedLabelsRoute, async (c) =>
+    c.json(await getPinnedLabels(c.get("userId")), 200),
+  )
+  .openapi(pinLabelRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    return c.json(await pinLabel(id, c.get("userId")), 200);
+  })
+  .openapi(unpinLabelRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    return c.json(await unpinLabel(id, c.get("userId")), 200);
+  })
+  .openapi(getProjectDefaultLabelsRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    return c.json(await getProjectDefaultLabels(projectId), 200);
+  })
+  .openapi(setProjectDefaultLabelsRoute, async (c) => {
+    const { projectId } = c.req.valid("param");
+    const { labelIds } = c.req.valid("json");
+    return c.json(await setProjectDefaultLabels(projectId, labelIds), 200);
+  })
   .openapi(getTaskLabelsRoute, async (c) => {
     const { taskId } = c.req.valid("param");
     return c.json(await getLabelsByTaskId(taskId), 200);

@@ -7,7 +7,6 @@ import {
   exists,
   ilike,
   inArray,
-  isNull,
   not,
   notInArray,
   or,
@@ -27,15 +26,14 @@ import { TASK_SHORT_ID_PATTERN } from "../../search/task-short-id";
 import type { PermissionMap } from "../../utils/role-permissions";
 import { VIRTUAL_STATUSES } from "../validate-task-fields";
 import { loadBoardScope } from "./board-scope";
+import {
+  type GlobalBoardFilterQuery,
+  globalBoardFilterConditions,
+} from "./filter-conditions";
 import type { GlobalStatus } from "./global-status";
 
-export type GlobalBoardTasksQuery = {
+export type GlobalBoardTasksQuery = GlobalBoardFilterQuery & {
   globalStatus: GlobalStatus | "unmapped";
-  workspaceId?: string;
-  projectId?: string;
-  assigneeId?: string;
-  priority?: string;
-  label?: string;
   q?: string;
   page: number;
   limit: number;
@@ -79,15 +77,26 @@ function searchCondition(q: string) {
   );
 }
 
+function onlyValue(
+  values: string[] | undefined,
+  negate: GlobalBoardFilterQuery["negate"],
+  subject: "workspaceId" | "projectId",
+) {
+  return values?.length === 1 && !negate?.includes(subject)
+    ? values[0]
+    : undefined;
+}
+
 async function getGlobalBoardTasks(
   userId: string,
   apiKeyScope: PermissionMap | null,
   query: GlobalBoardTasksQuery,
 ) {
   const { page, limit } = query;
+  // A single workspace or project narrows the scope query itself.
   const scope = await loadBoardScope(userId, apiKeyScope, {
-    workspaceId: query.workspaceId,
-    projectId: query.projectId,
+    workspaceId: onlyValue(query.workspaceId, query.negate, "workspaceId"),
+    projectId: onlyValue(query.projectId, query.negate, "projectId"),
   });
   const empty = {
     tasks: [],
@@ -108,28 +117,7 @@ async function getGlobalBoardTasks(
     ),
     notInArray(taskTable.status, [...VIRTUAL_STATUSES]),
     statusCondition,
-    query.priority ? eq(taskTable.priority, query.priority) : undefined,
-    query.assigneeId === "unassigned"
-      ? isNull(taskTable.userId)
-      : query.assigneeId
-        ? eq(
-            taskTable.userId,
-            query.assigneeId === "me" ? userId : query.assigneeId,
-          )
-        : undefined,
-    query.label
-      ? exists(
-          db
-            .select({ one: sql`1` })
-            .from(labelTable)
-            .where(
-              and(
-                eq(labelTable.taskId, taskTable.id),
-                sql`lower(${labelTable.name}) = lower(${query.label})`,
-              ),
-            ),
-        )
-      : undefined,
+    ...globalBoardFilterConditions(query, userId),
     q ? searchCondition(q) : undefined,
   );
 

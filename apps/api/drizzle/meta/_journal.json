@@ -463,6 +463,13 @@
       "when": 1792766231391,
       "tag": "0065_global_board_order",
       "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1792775570653,
+      "tag": "0066_label_defaults_and_pins",
+      "breakpoints": true
     }
   ]
 }
