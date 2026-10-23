@@ -405,6 +405,38 @@ describe("API integration: global board", () => {
     ).toBe(400);
   });
 
+  it("keeps each project column in its project board order", async () => {
+    const me = await createWorkspaceMember();
+    const alpha = await createProjectFixture({ workspaceId: me.workspace.id });
+    const beta = await createProjectFixture({ workspaceId: me.workspace.id });
+    const a1 = await addTask(alpha, "A1", "todo", { position: 0 });
+    const a2 = await addTask(alpha, "A2", "todo", { position: 1 });
+    const b1 = await addTask(beta, "B1", "todo", { position: 0 });
+    // A personal order that disagrees with alpha's board.
+    await db.insert(schema.globalBoardOrderTable).values([
+      { userId: me.user.id, taskId: a2.id, position: 0 },
+      { userId: me.user.id, taskId: b1.id, position: 1 },
+      { userId: me.user.id, taskId: a1.id, position: 2 },
+    ]);
+
+    mockAuthenticatedSession(me.user);
+    const { app } = createApp();
+    const order = async (query = "") =>
+      (await board(app, `globalStatus=to-do${query}`)).tasks.map(
+        (task) => task.title,
+      );
+
+    expect(await order()).toEqual(["A1", "B1", "A2"]);
+    expect(await order("&limit=1&page=3")).toEqual(["A2"]);
+
+    // Reordering the project board reorders its cards on the global board.
+    await db
+      .update(schema.taskTable)
+      .set({ position: 2 })
+      .where(eq(schema.taskTable.id, a1.id));
+    expect(await order()).toEqual(["A2", "B1", "A1"]);
+  });
+
   it("moves a task between global columns only where the caller may update it", async () => {
     const me = await createWorkspaceMember();
     const project = await createProjectFixture({

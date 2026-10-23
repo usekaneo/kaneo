@@ -4,6 +4,7 @@ import { DueDateText } from "@/components/my-work/due-date-text";
 import { MemberFilterAvatar } from "@/components/project/task-filters/member-filter-avatar";
 import { ParentTaskHint } from "@/components/task-chips/parent-task-hint";
 import type { GlobalBoardTask } from "@/fetchers/task/get-global-board-tasks";
+import { cn } from "@/lib/cn";
 import { getPriorityIcon } from "@/lib/priority";
 
 const cardBodyClass = "flex flex-col gap-1.5 rounded-lg p-2.5";
@@ -12,9 +13,12 @@ const cardBodyClass = "flex flex-col gap-1.5 rounded-lg p-2.5";
 export function GlobalBoardCardBody({
   task,
   asLink = true,
+  done = false,
 }: {
   task: GlobalBoardTask;
   asLink?: boolean;
+  /** Greyed out without chips, like completed cards on project boards. */
+  done?: boolean;
 }) {
   const content = (
     <>
@@ -32,10 +36,15 @@ export function GlobalBoardCardBody({
           {task.workspaceName} / {task.projectName}
         </span>
       </span>
-      <span className="line-clamp-3 break-words text-foreground text-sm leading-snug">
+      <span
+        className={cn(
+          "line-clamp-3 break-words text-sm leading-snug",
+          done ? "text-board-title-done" : "text-foreground",
+        )}
+      >
         {task.title}
       </span>
-      <TaskLabels labels={task.labels} />
+      {!done && <TaskLabels labels={task.labels} />}
       {(task.dueDate || task.assignee || task.statusName) && (
         <span className="flex min-w-0 items-center gap-2 text-[11px] text-muted-foreground">
           {task.statusName && (

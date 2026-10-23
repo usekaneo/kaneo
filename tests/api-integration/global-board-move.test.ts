@@ -94,7 +94,6 @@ describe("API integration: global board move", () => {
     expect(await projectOrder(web, "to-do")).toEqual(["W2", "W1"]);
     expect(await projectOrder(ops, "to-do")).toEqual(["O1"]);
 
-    // Another member's board keeps its own order.
     const [teammate] = await db
       .insert(schema.userTable)
       .values({ id: "teammate", email: "t@example.com", name: "T" })
@@ -105,10 +104,13 @@ describe("API integration: global board move", () => {
       role: "member",
       joinedAt: new Date(),
     });
-    expect((await client(teammate).lane("to-do")).sort()).toEqual([
-      "O1",
-      "W1",
+    // Another member's board keeps its own interleaving, but follows the
+    // project board within a project.
+    const theirs = await client(teammate).lane("to-do");
+    expect([...theirs].sort()).toEqual(["O1", "W1", "W2"]);
+    expect(theirs.filter((title) => title.startsWith("W"))).toEqual([
       "W2",
+      "W1",
     ]);
     const saved = await db
       .select()
@@ -149,11 +151,15 @@ describe("API integration: global board move", () => {
     });
   });
 
-  it("lets viewers arrange their own board but not change projects", async () => {
+  it("lets viewers interleave projects on their board but not change projects", async () => {
     const owner = await createWorkspaceMember();
     const web = await createProjectFixture({ workspaceId: owner.workspace.id });
     const w1 = await addTask(web, "W1", 0);
     const w2 = await addTask(web, "W2", 1);
+    const docs = await createProjectFixture({
+      workspaceId: owner.workspace.id,
+    });
+    const d1 = await addTask(docs, "D1", 0);
     const [viewer] = await db
       .insert(schema.userTable)
       .values({ id: "viewer", email: "v@example.com", name: "V" })
@@ -167,10 +173,25 @@ describe("API integration: global board move", () => {
     const api = client(viewer);
 
     expect(
-      (await api.move({ taskId: w2.id, visibleTaskIds: [w2.id, w1.id] }))
-        .status,
+      (
+        await api.move({
+          taskId: d1.id,
+          visibleTaskIds: [d1.id, w1.id, w2.id],
+        })
+      ).status,
     ).toBe(200);
-    expect(await api.lane("to-do")).toEqual(["W2", "W1"]);
+    expect(await api.lane("to-do")).toEqual(["D1", "W1", "W2"]);
+
+    // Within a project the project board order wins, which viewers cannot change.
+    expect(
+      (
+        await api.move({
+          taskId: w2.id,
+          visibleTaskIds: [d1.id, w2.id, w1.id],
+        })
+      ).status,
+    ).toBe(200);
+    expect(await api.lane("to-do")).toEqual(["D1", "W1", "W2"]);
     expect(await projectOrder(web, "to-do")).toEqual(["W1", "W2"]);
 
     expect(
