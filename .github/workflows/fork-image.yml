@@ -1,13 +1,14 @@
 name: Fork image
 
 # Builds the combined image for this fork's own deployment.
+# workflow_dispatch only works from the default branch, so pushes to this
+# branch trigger it; bump IMAGE_TAG with the feature commit it builds.
 on:
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Image tag"
-        required: true
-        type: string
+  push:
+    branches: [build/global-board-image]
+
+env:
+  IMAGE_TAG: 2.46.2-gb-3662b59
 
 permissions:
   contents: read
@@ -19,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feat/global-board
+          ref: 3662b5900c684b60c7885059246951687eb0a841
           persist-credentials: false
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
@@ -33,4 +34,4 @@ jobs:
           file: ./Dockerfile.kaneo
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/kaneo:${{ inputs.tag }}
+          tags: ghcr.io/${{ github.repository_owner }}/kaneo:${{ env.IMAGE_TAG }}
