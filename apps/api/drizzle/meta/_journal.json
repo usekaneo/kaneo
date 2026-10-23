@@ -456,6 +456,13 @@
       "when": 1792764734820,
       "tag": "0064_user_auto_assign_self",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1792766231391,
+      "tag": "0065_global_board_order",
+      "breakpoints": true
     }
   ]
 }

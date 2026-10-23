@@ -1,53 +1,53 @@
 import { useDroppable } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { useTranslation } from "react-i18next";
 import { columnVariants } from "@/components/kanban-board/column";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { GlobalBoardProject } from "@/fetchers/task/get-global-board-meta";
 import type { GlobalBoardTask } from "@/fetchers/task/get-global-board-tasks";
-import useGlobalBoardTasks from "@/hooks/queries/task/use-global-board-tasks";
+import type useGlobalBoardTasks from "@/hooks/queries/task/use-global-board-tasks";
 import GlobalBoardCard from "./global-board-card";
-import type {
-  GlobalBoardFilters,
-  GlobalBoardLane,
-} from "./global-board-filters";
+import type { GlobalBoardLane } from "./global-board-filters";
 
 type GlobalBoardLaneProps = {
   lane: GlobalBoardLane;
   title: string;
   description?: string;
-  filters: GlobalBoardFilters;
+  query: ReturnType<typeof useGlobalBoardTasks>;
+  /** The cards to render, including any drag preview. */
+  tasks: GlobalBoardTask[];
   projects: Map<string, GlobalBoardProject>;
   canMoveIn: (workspaceId: string) => boolean;
-  onMove: (
+  onMenuMove: (
     task: GlobalBoardTask,
     from: GlobalBoardLane,
     column: GlobalBoardProject["columns"][number],
   ) => void;
-  hideWhenEmpty?: boolean;
 };
 
 export function GlobalBoardLaneColumn({
   lane,
   title,
   description,
-  filters,
+  query,
+  tasks,
   projects,
   canMoveIn,
-  onMove,
-  hideWhenEmpty = false,
+  onMenuMove,
 }: GlobalBoardLaneProps) {
   const { t } = useTranslation();
-  const query = useGlobalBoardTasks(lane, filters);
+  // Shaped like a project board column so the board's collision detection
+  // can pick the card under the pointer.
   const { setNodeRef, isOver } = useDroppable({
     id: lane,
-    data: { lane },
-    disabled: lane === "unmapped",
+    data: { type: "column", column: { tasks }, lane },
   });
-  const tasks = query.data?.pages.flatMap((page) => page.tasks) ?? [];
+  const loaded = query.data?.pages.flatMap((page) => page.tasks).length ?? 0;
   const total = query.data?.pages.at(-1)?.pagination.total ?? 0;
-
-  if (hideWhenEmpty && (query.isLoading || total === 0)) return null;
 
   return (
     <section
@@ -72,11 +72,13 @@ export function GlobalBoardLaneColumn({
             </p>
           )}
         </header>
-        <div className="flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto overflow-x-hidden px-1.5 pt-1.5 pb-1.5 [-webkit-overflow-scrolling:touch]">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden px-1.5 pt-1.5 pb-1.5 [-webkit-overflow-scrolling:touch]">
           {query.isLoading ? (
-            [0, 1, 2].map((row) => (
-              <Skeleton key={row} className="h-20 w-full rounded-lg" />
-            ))
+            <div className="flex flex-col gap-1.5">
+              {[0, 1, 2].map((row) => (
+                <Skeleton key={row} className="h-20 w-full rounded-lg" />
+              ))}
+            </div>
           ) : query.isError && !query.data ? (
             <div role="alert" className="flex flex-col items-start gap-2 p-2">
               <p className="text-muted-foreground text-xs">
@@ -90,38 +92,42 @@ export function GlobalBoardLaneColumn({
                 {t("tasks:globalBoard.retry")}
               </Button>
             </div>
-          ) : tasks.length === 0 ? (
-            <p className="p-2 text-muted-foreground text-xs">
-              {t("tasks:globalBoard.emptyLane")}
-            </p>
           ) : (
-            tasks.map((task) => {
-              const project = projects.get(task.projectId);
-              return (
-                <GlobalBoardCard
-                  key={task.id}
-                  task={task}
-                  lane={lane}
-                  project={project}
-                  canMove={canMoveIn(task.workspaceId)}
-                  onMove={(column) => onMove(task, lane, column)}
-                />
-              );
-            })
+            <SortableContext
+              items={tasks.map((task) => task.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {/* min-h keeps an empty lane a drop target. */}
+              <div className="flex min-h-16 flex-col gap-1.5">
+                {tasks.length === 0 && (
+                  <p className="p-2 text-muted-foreground text-xs">
+                    {t("tasks:globalBoard.emptyLane")}
+                  </p>
+                )}
+                {tasks.map((task) => (
+                  <GlobalBoardCard
+                    key={task.id}
+                    task={task}
+                    lane={lane}
+                    project={projects.get(task.projectId)}
+                    canMove={canMoveIn(task.workspaceId)}
+                    onMove={(column) => onMenuMove(task, lane, column)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
           )}
           {query.hasNextPage && (
             <Button
               variant="ghost"
               size="sm"
-              className="w-full shrink-0 text-muted-foreground"
+              className="mt-1.5 w-full shrink-0 text-muted-foreground"
               disabled={query.isFetchingNextPage}
               onClick={() => query.fetchNextPage()}
             >
               {query.isFetchingNextPage
                 ? t("tasks:globalBoard.loadingMore")
-                : t("tasks:globalBoard.loadMore", {
-                    count: total - tasks.length,
-                  })}
+                : t("tasks:globalBoard.loadMore", { count: total - loaded })}
             </Button>
           )}
         </div>

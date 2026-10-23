@@ -9,7 +9,7 @@ import type {
   GlobalBoardLane,
 } from "@/components/global-board/global-board-filters";
 import {
-  addToLane,
+  insertIntoLane,
   removeFromLane,
 } from "@/components/global-board/move-between-lanes";
 import type { GlobalBoardProject } from "@/fetchers/task/get-global-board-meta";
@@ -17,66 +17,89 @@ import type {
   GlobalBoardTask,
   GlobalBoardTasksPage,
 } from "@/fetchers/task/get-global-board-tasks";
-import updateTaskStatus from "@/fetchers/task/update-task-status";
+import moveGlobalBoardTask from "@/fetchers/task/move-global-board-task";
 import { globalBoardTasksKey } from "@/hooks/queries/task/use-global-board-tasks";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { toast } from "@/lib/toast";
 
 type LaneData = InfiniteData<GlobalBoardTasksPage, number>;
+type LaneKey = ReturnType<typeof globalBoardTasksKey>;
 
 export type GlobalBoardMove = {
   task: GlobalBoardTask;
   from: GlobalBoardLane;
   to: GlobalBoardLane;
-  column: GlobalBoardProject["columns"][number];
+  index: number;
+  /** The target lane top to bottom after the move, including the task. */
+  visibleIds: string[];
+  /** A new project column; omitted for a reorder within the lane. */
+  column?: GlobalBoardProject["columns"][number];
 };
 
-export function useMoveGlobalBoardTask(filters: GlobalBoardFilters) {
+type Snapshot = { key: LaneKey; data: LaneData | undefined }[];
+
+export function useMoveGlobalBoardTask(
+  filters: GlobalBoardFilters,
+  { onSettled }: { onSettled?: () => void } = {},
+) {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
-  return useMutation({
-    mutationFn: ({ task, column }: GlobalBoardMove) =>
-      updateTaskStatus(task.id, { status: column.slug }),
-    onMutate: async ({ task, from, to, column }) => {
-      const fromKey = globalBoardTasksKey(from, filters);
-      const toKey = globalBoardTasksKey(to, filters);
-      await queryClient.cancelQueries({ queryKey: ["global-board", "tasks"] });
-      const previous = {
-        from: queryClient.getQueryData<LaneData>(fromKey),
-        to: queryClient.getQueryData<LaneData>(toKey),
-      };
-      queryClient.setQueryData<LaneData>(fromKey, (lane) =>
-        removeFromLane(lane, task.id),
-      );
-      queryClient.setQueryData<LaneData>(toKey, (lane) =>
-        addToLane(lane, {
-          ...task,
-          status: column.slug,
-          statusName: column.name,
-          statusIcon: column.icon,
-        }),
-      );
-      return { fromKey, toKey, previous };
-    },
-    onError: (_error, _move, context) => {
-      if (context) {
-        queryClient.setQueryData(context.fromKey, context.previous.from);
-        queryClient.setQueryData(context.toKey, context.previous.to);
-      }
+  const mutation = useMutation({
+    mutationFn: ({ move }: { move: GlobalBoardMove; snapshot: Snapshot }) =>
+      moveGlobalBoardTask({
+        taskId: move.task.id,
+        visibleTaskIds: move.visibleIds,
+        ...(move.column ? { status: move.column.slug } : {}),
+      }),
+    onError: (_error, { snapshot }) => {
+      for (const { key, data } of snapshot) queryClient.setQueryData(key, data);
       toast.error(t("tasks:globalBoard.moveFailed"));
     },
-    onSettled: (_result, _error, { task }) => {
+    onSettled: (_result, _error, { move }) => {
+      onSettled?.();
       invalidateMyWork(queryClient);
-      void queryClient.invalidateQueries({ queryKey: ["task", task.id] });
+      void queryClient.invalidateQueries({ queryKey: ["task", move.task.id] });
       void queryClient.invalidateQueries({
-        queryKey: ["tasks", task.projectId],
+        queryKey: ["tasks", move.task.projectId],
       });
-      void queryClient.invalidateQueries({ queryKey: ["projects"] });
-      void queryClient.invalidateQueries({
-        queryKey: ["activities", task.id],
-      });
-      void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      if (move.column) {
+        void queryClient.invalidateQueries({ queryKey: ["projects"] });
+        void queryClient.invalidateQueries({
+          queryKey: ["activities", move.task.id],
+        });
+        void queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      }
     },
   });
+
+  // Writes the cache before returning, so a drop and its new order render in
+  // the same frame instead of snapping back while the request starts.
+  return (move: GlobalBoardMove) => {
+    void queryClient.cancelQueries({ queryKey: ["global-board", "tasks"] });
+    const keys = [...new Set([move.from, move.to])].map((lane) =>
+      globalBoardTasksKey(lane, filters),
+    );
+    const snapshot = keys.map((key) => ({
+      key,
+      data: queryClient.getQueryData<LaneData>(key),
+    }));
+    const moved = move.column
+      ? {
+          ...move.task,
+          status: move.column.slug,
+          statusName: move.column.name,
+          statusIcon: move.column.icon,
+        }
+      : move.task;
+    queryClient.setQueryData<LaneData>(
+      globalBoardTasksKey(move.from, filters),
+      (lane) => removeFromLane(lane, move.task.id),
+    );
+    queryClient.setQueryData<LaneData>(
+      globalBoardTasksKey(move.to, filters),
+      (lane) => insertIntoLane(lane, moved, move.index),
+    );
+    mutation.mutate({ move, snapshot });
+  };
 }

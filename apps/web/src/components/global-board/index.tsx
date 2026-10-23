@@ -2,25 +2,36 @@ import {
   DndContext,
   type DragEndEvent,
   DragOverlay,
+  type DragOverEvent,
   type DragStartEvent,
+  type DropAnimation,
+  defaultDropAnimationSideEffects,
   MouseSensor,
-  pointerWithin,
   TouchSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+import { useReducedMotion } from "framer-motion";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { boardCollisionDetection } from "@/components/kanban-board/board-collision-detection";
 import type {
   GlobalBoardMeta,
   GlobalBoardProject,
 } from "@/fetchers/task/get-global-board-meta";
 import type { GlobalBoardTask } from "@/fetchers/task/get-global-board-tasks";
-import { useMoveGlobalBoardTask } from "@/hooks/mutations/task/use-move-global-board-task";
+import {
+  type GlobalBoardMove,
+  useMoveGlobalBoardTask,
+} from "@/hooks/mutations/task/use-move-global-board-task";
+import useGlobalBoardTasks from "@/hooks/queries/task/use-global-board-tasks";
 import { cn } from "@/lib/cn";
+import { EASE_OUT_CSS } from "@/lib/motion";
 import { toast } from "@/lib/toast";
+import { type BoardDrag, dropIndex, laneTasksDuringDrag } from "./board-drag";
 import { type ColumnChoice, ColumnChoiceDialog } from "./column-choice-dialog";
-import GlobalBoardCard from "./global-board-card";
+import { GlobalBoardCardBody } from "./global-board-card-body";
 import {
   GLOBAL_BOARD_LANES,
   type GlobalBoardFilters,
@@ -32,7 +43,13 @@ import { suppressNextClick } from "./suppress-next-click";
 
 type ProjectColumn = GlobalBoardProject["columns"][number];
 
-type ActiveDrag = { task: GlobalBoardTask; lane: GlobalBoardLane };
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: { active: { opacity: "0.8" } },
+  }),
+  duration: 250,
+  easing: EASE_OUT_CSS,
+};
 
 export function GlobalBoard({
   meta,
@@ -42,9 +59,27 @@ export function GlobalBoard({
   filters: GlobalBoardFilters;
 }) {
   const { t } = useTranslation();
-  const { mutate: moveTask } = useMoveGlobalBoardTask(filters);
-  const [active, setActive] = useState<ActiveDrag | null>(null);
+  const reduceMotion = useReducedMotion();
+  const [drag, setDrag] = useState<BoardDrag | null>(null);
   const [choice, setChoice] = useState<ColumnChoice | null>(null);
+  const move = useMoveGlobalBoardTask(filters, {
+    // A newer drag may have started; only release the one that was dropped.
+    onSettled: () => setDrag((current) => (current?.dropped ? null : current)),
+  });
+
+  const queries: Record<
+    GlobalBoardLane,
+    ReturnType<typeof useGlobalBoardTasks>
+  > = {
+    "to-do": useGlobalBoardTasks("to-do", filters),
+    "in-progress": useGlobalBoardTasks("in-progress", filters),
+    done: useGlobalBoardTasks("done", filters),
+    unmapped: useGlobalBoardTasks("unmapped", filters),
+  };
+  const loadedTasks = (lane: GlobalBoardLane) =>
+    queries[lane].data?.pages.flatMap((page) => page.tasks) ?? [];
+  const shownTasks = (lane: GlobalBoardLane) =>
+    laneTasksDuringDrag(lane, loadedTasks(lane), drag);
 
   const projects = useMemo(
     () => new Map(meta.projects.map((project) => [project.id, project])),
@@ -67,38 +102,26 @@ export function GlobalBoard({
   const laneName = (lane: GlobalBoardLane) =>
     t(`tasks:globalBoard.lanes.${lane}`);
 
-  const commit = (
+  const onMenuMove = (
     task: GlobalBoardTask,
     from: GlobalBoardLane,
     column: ProjectColumn,
   ) => {
     if (column.slug === task.status) return;
-    moveTask({ task, from, to: column.globalStatus ?? "unmapped", column });
-  };
-
-  const dropOnLane = (
-    task: GlobalBoardTask,
-    from: GlobalBoardLane,
-    to: GlobalBoardLane,
-  ) => {
-    const project = projects.get(task.projectId);
-    const target = resolveDropTarget(project, task.status, to);
-    if (target.kind === "move") commit(task, from, target.column);
-    else if (target.kind === "choose" && project)
-      setChoice({
-        taskTitle: task.title,
-        projectName: project.name,
-        laneName: laneName(to),
-        columns: target.columns,
-        onChoose: (column) => commit(task, from, column),
-      });
-    else if (target.kind === "unavailable")
-      toast.error(
-        t("tasks:globalBoard.noMatchingColumn", {
-          project: task.projectName,
-          lane: laneName(to),
-        }),
-      );
+    const to = column.globalStatus ?? "unmapped";
+    move({
+      task,
+      from,
+      to,
+      index: 0,
+      visibleIds: [
+        task.id,
+        ...loadedTasks(to)
+          .filter((other) => other.id !== task.id)
+          .map((other) => other.id),
+      ],
+      column,
+    });
   };
 
   const sensors = useSensors(
@@ -109,33 +132,123 @@ export function GlobalBoard({
   );
 
   const handleDragStart = ({ active }: DragStartEvent) => {
-    const data = active.data.current as ActiveDrag | undefined;
-    setActive(data ? { task: data.task, lane: data.lane } : null);
+    const data = active.data.current as
+      | { task: GlobalBoardTask; lane: GlobalBoardLane }
+      | undefined;
+    if (!data) return;
+    setDrag({
+      task: data.task,
+      from: data.lane,
+      lane: data.lane,
+      index: loadedTasks(data.lane).findIndex(
+        (task) => task.id === data.task.id,
+      ),
+    });
   };
 
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    setActive(null);
+  // Moves the preview into another lane as soon as the card enters it.
+  const handleDragOver = ({ over }: DragOverEvent) => {
+    if (!drag || drag.dropped || !over) return;
+    const lane = over.data.current?.lane as GlobalBoardLane | undefined;
+    if (!lane || lane === drag.lane) return;
+    const allowed =
+      lane === drag.from ||
+      (lane !== "unmapped" && canMoveIn(drag.task.workspaceId));
+    if (!allowed) return;
+    const target = shownTasks(lane);
+    const overIndex = target.findIndex((task) => task.id === over.id);
+    setDrag({
+      ...drag,
+      lane,
+      index: overIndex < 0 ? target.length : overIndex,
+    });
+  };
+
+  const handleDragEnd = ({ over }: DragEndEvent) => {
     suppressNextClick();
-    const data = active.data.current as ActiveDrag | undefined;
-    const to = over?.data.current?.lane as GlobalBoardLane | undefined;
-    if (data && to && to !== data.lane) dropOnLane(data.task, data.lane, to);
+    if (!drag || drag.dropped || !over) {
+      setDrag(null);
+      return;
+    }
+    const { task, from, lane } = drag;
+    const list = shownTasks(lane);
+    const at = list.findIndex((candidate) => candidate.id === task.id);
+    // Over a card: take its place. Over the lane's empty space: go last.
+    // Anywhere else (a lane it may not enter): stay where it is.
+    const overId = list.some((candidate) => candidate.id === over.id)
+      ? String(over.id)
+      : over.id === lane
+        ? null
+        : task.id;
+    const index = dropIndex(list, task.id, overId);
+    const visibleIds = arrayMove(list, at, index).map((card) => card.id);
+
+    const finish = (column?: ProjectColumn) => {
+      const next: GlobalBoardMove = {
+        task,
+        from,
+        to: lane,
+        index,
+        visibleIds,
+        column,
+      };
+      setDrag({ ...drag, lane, index, dropped: true });
+      move(next);
+    };
+
+    if (lane === from) {
+      if (index === at) setDrag(null);
+      else finish();
+      return;
+    }
+
+    const project = projects.get(task.projectId);
+    const target = resolveDropTarget(project, task.status, lane);
+    if (target.kind === "move") finish(target.column);
+    else if (target.kind === "unchanged") finish();
+    else {
+      setDrag(null);
+      if (target.kind === "choose" && project)
+        setChoice({
+          taskTitle: task.title,
+          projectName: project.name,
+          laneName: laneName(lane),
+          columns: target.columns,
+          onChoose: (column) =>
+            move({ task, from, to: lane, index, visibleIds, column }),
+        });
+      else
+        toast.error(
+          t("tasks:globalBoard.noMatchingColumn", {
+            project: task.projectName,
+            lane: laneName(lane),
+          }),
+        );
+    }
   };
 
-  const laneProps = { filters, projects, canMoveIn, onMove: commit };
+  const unmappedTotal =
+    queries.unmapped.data?.pages.at(-1)?.pagination.total ?? 0;
+  const lanes: GlobalBoardLane[] =
+    unmappedTotal > 0 || drag?.from === "unmapped"
+      ? [...GLOBAL_BOARD_LANES, "unmapped"]
+      : [...GLOBAL_BOARD_LANES];
+  const dragging = drag !== null && !drag.dropped;
 
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={pointerWithin}
+      collisionDetection={boardCollisionDetection}
       accessibility={{
         screenReaderInstructions: {
           draggable: t("tasks:globalBoard.dragInstructions"),
         },
       }}
       onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       onDragCancel={() => {
-        setActive(null);
+        setDrag(null);
         suppressNextClick();
       }}
     >
@@ -144,36 +257,35 @@ export function GlobalBoard({
           "min-h-0 flex-1 scroll-px-4 overflow-x-auto [-webkit-overflow-scrolling:touch]",
           // Snap whole lanes on phones; off while dragging so it doesn't fight
           // dnd-kit's auto-scroll.
-          active === null && "snap-x snap-mandatory sm:snap-none",
+          !dragging && "snap-x snap-mandatory sm:snap-none",
         )}
       >
         <div className="flex h-full min-w-max gap-4 px-4 py-3 md:px-5">
-          {GLOBAL_BOARD_LANES.map((lane) => (
+          {lanes.map((lane) => (
             <GlobalBoardLaneColumn
               key={lane}
               lane={lane}
               title={laneName(lane)}
-              {...laneProps}
+              description={
+                lane === "unmapped"
+                  ? t("tasks:globalBoard.unmappedDescription")
+                  : undefined
+              }
+              query={queries[lane]}
+              tasks={shownTasks(lane)}
+              projects={projects}
+              canMoveIn={canMoveIn}
+              onMenuMove={onMenuMove}
             />
           ))}
-          <GlobalBoardLaneColumn
-            lane="unmapped"
-            title={laneName("unmapped")}
-            description={t("tasks:globalBoard.unmappedDescription")}
-            hideWhenEmpty
-            {...laneProps}
-          />
         </div>
       </div>
-      <DragOverlay>
-        {active ? (
-          <div className="rotate-1 shadow-lg ring-2 ring-ring/35 rounded-lg">
-            <GlobalBoardCard
-              task={active.task}
-              lane={active.lane}
-              canMove
-              isOverlay
-            />
+      <DragOverlay dropAnimation={reduceMotion ? null : dropAnimation}>
+        {dragging ? (
+          <div className="rotate-1 scale-[1.03] shadow-lg transition-[rotate,scale] duration-150 ease-out starting:rotate-0 starting:scale-100 motion-reduce:transition-none">
+            <div className="rounded-lg border border-border/60 bg-card ring-2 ring-ring/35">
+              <GlobalBoardCardBody task={drag.task} asLink={false} />
+            </div>
           </div>
         ) : null}
       </DragOverlay>

@@ -3,11 +3,13 @@ import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   customType,
+  doublePrecision,
   foreignKey,
   index,
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -571,6 +573,31 @@ export const taskTable = pgTable(
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
     unique("task_project_number_unique").on(table.projectId, table.number),
+  ],
+);
+
+// Each user's own card order on the global board. Unplaced tasks sort after
+// placed ones; project boards keep their own positions.
+export const globalBoardOrderTable = pgTable(
+  "global_board_order",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    taskId: text("task_id")
+      .notNull()
+      .references(() => taskTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    position: doublePrecision("position").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.taskId] }),
+    index("global_board_order_task_id_idx").on(table.taskId),
   ],
 );
 

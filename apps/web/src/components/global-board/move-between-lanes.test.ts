@@ -3,7 +3,7 @@ import type {
   GlobalBoardTask,
   GlobalBoardTasksPage,
 } from "@/fetchers/task/get-global-board-tasks";
-import { addToLane, removeFromLane } from "./move-between-lanes";
+import { insertIntoLane, removeFromLane } from "./move-between-lanes";
 
 const task = (id: string) => ({ id }) as GlobalBoardTask;
 const page = (
@@ -37,13 +37,31 @@ describe("global board lane cache", () => {
     expect(removeFromLane(original, "z")).toBe(original);
   });
 
-  it("adds a task to the top of the first page", () => {
-    const next = addToLane(lane(page(["a"], 1, 1)), task("b"));
-    expect(next?.pages[0]?.tasks.map((t) => t.id)).toEqual(["b", "a"]);
+  it("inserts a task where it was dropped, across loaded pages", () => {
+    const ids = (index: number) =>
+      insertIntoLane(
+        lane(page(["a", "b"], 1, 3), page(["c"], 2, 3)),
+        task("x"),
+        index,
+      )?.pages.map((p) => p.tasks.map((t) => t.id));
+    expect(ids(0)).toEqual([["x", "a", "b"], ["c"]]);
+    expect(ids(2)).toEqual([["a", "b", "x"], ["c"]]);
+    expect(ids(3)).toEqual([
+      ["a", "b"],
+      ["c", "x"],
+    ]);
+    expect(ids(9)).toEqual([
+      ["a", "b"],
+      ["c", "x"],
+    ]);
+  });
+
+  it("counts the inserted task in every page total", () => {
+    const next = insertIntoLane(lane(page(["a"], 1, 1)), task("b"), 1);
     expect(next?.pages[0]?.pagination.total).toBe(2);
   });
 
   it("skips lanes that have not loaded", () => {
-    expect(addToLane(undefined, task("b"))).toBeUndefined();
+    expect(insertIntoLane(undefined, task("b"), 0)).toBeUndefined();
   });
 });

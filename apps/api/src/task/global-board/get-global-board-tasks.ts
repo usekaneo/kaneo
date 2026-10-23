@@ -16,6 +16,7 @@ import {
 import db from "../../database";
 import {
   columnTable,
+  globalBoardOrderTable,
   labelTable,
   projectTable,
   taskTable,
@@ -149,8 +150,17 @@ async function getGlobalBoardTasks(
       .from(taskTable)
       .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
       .leftJoin(userTable, eq(taskTable.userId, userTable.id))
+      .leftJoin(
+        globalBoardOrderTable,
+        and(
+          eq(globalBoardOrderTable.taskId, taskTable.id),
+          eq(globalBoardOrderTable.userId, userId),
+        ),
+      )
       .where(where)
       .orderBy(
+        // The caller's own arrangement first; unplaced tasks follow by priority.
+        sql`${globalBoardOrderTable.position} asc nulls last`,
         desc(priorityRank),
         sql`${taskTable.dueDate} asc nulls last`,
         desc(taskTable.createdAt),

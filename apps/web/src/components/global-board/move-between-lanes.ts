@@ -34,18 +34,31 @@ export function removeFromLane(
   };
 }
 
-// The server orders lanes by priority; the next refetch settles the position.
-export function addToLane(
+// Inserts at a position across the loaded pages, as the user dropped it.
+export function insertIntoLane(
   lane: LaneData | undefined,
   task: GlobalBoardTask,
+  index: number,
 ): LaneData | undefined {
-  const [first, ...rest] = lane?.pages ?? [];
-  if (!lane || !first) return lane;
+  if (!lane?.pages.length) return lane;
+  let remaining = Math.max(0, index);
+  const last = lane.pages.length - 1;
+  let inserted = false;
   return {
     ...lane,
-    pages: [
-      { ...adjustTotal(first, 1), tasks: [task, ...first.tasks] },
-      ...rest.map((page) => adjustTotal(page, 1)),
-    ],
+    pages: lane.pages.map((page, pageIndex) => {
+      const counted = adjustTotal(page, 1);
+      if (inserted) return counted;
+      if (remaining <= page.tasks.length || pageIndex === last) {
+        inserted = true;
+        const at = Math.min(remaining, page.tasks.length);
+        return {
+          ...counted,
+          tasks: [...page.tasks.slice(0, at), task, ...page.tasks.slice(at)],
+        };
+      }
+      remaining -= page.tasks.length;
+      return counted;
+    }),
   };
 }

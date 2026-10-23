@@ -10791,6 +10791,128 @@
         }
       }
     },
+    "/task/global-board/move": {
+      "post": {
+        "operationId": "moveGlobalBoardTask",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Move or reorder a global board card",
+        "description": "Save where the caller dropped a card on the global board. Their personal order is always updated. With task:update, an optional new column is applied and the task is placed next to its nearest same-project neighbours on the project board; moving an unassigned task to a new column assigns the caller when they turned on auto-assign.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "status": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The project column slug to move the task into. Omit to only reorder it."
+                  },
+                  "visibleTaskIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1,
+                    "maxItems": 1000,
+                    "description": "The lane's cards as the caller sees them after the drop, top to bottom, including the moved task. Neighbours decide its place in the caller's order and among same-project tasks on the project board."
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "visibleTaskIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The task's new column",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid column, or the moved task is not in the lane",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing task:update permission to change the column",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Project board changed; refresh before moving",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
     "/task/global-board": {
       "get": {
         "operationId": "listGlobalBoardTasks",

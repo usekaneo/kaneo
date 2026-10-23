@@ -48,7 +48,11 @@ import {
   globalBoardMetaSchema,
   globalBoardTasksSchema,
 } from "./global-board/response";
-import { globalBoardTasksQuery } from "./global-board/schema";
+import {
+  globalBoardTasksQuery,
+  moveGlobalBoardTaskBody,
+} from "./global-board/schema";
+import moveGlobalBoardTask from "./global-board/move-global-board-task";
 import { resolveAutoAssignee } from "./auto-assign/resolve-auto-assignee";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
@@ -173,6 +177,37 @@ const listGlobalBoardTasksRoute = createRoute({
     200: jsonResponse("One page of global board tasks", globalBoardTasksSchema),
     400: errorResponse("Invalid query parameters"),
     403: errorResponse("Missing project:read or task:read API key scope"),
+  },
+});
+
+const moveGlobalBoardTaskRoute = createRoute({
+  method: "post",
+  operationId: "moveGlobalBoardTask",
+  path: "/global-board/move",
+  tags: ["Tasks"],
+  summary: "Move or reorder a global board card",
+  description:
+    "Save where the caller dropped a card on the global board. Their personal order is always updated. With task:update, an optional new column is applied and the task is placed next to its nearest same-project neighbours on the project board; moving an unassigned task to a new column assigns the caller when they turned on auto-assign.",
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["read"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: moveGlobalBoardTaskBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "The task's new column",
+      z.object({ id: z.string(), status: z.string() }),
+    ),
+    400: errorResponse("Invalid column, or the moved task is not in the lane"),
+    403: errorResponse("Missing task:update permission to change the column"),
+    404: errorResponse("Task not found"),
+    409: errorResponse("Project board changed; refresh before moving"),
   },
 });
 
@@ -857,6 +892,24 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       200,
     ),
   )
+  .openapi(moveGlobalBoardTaskRoute, async (c) => {
+    const { taskId, status, visibleTaskIds } = c.req.valid("json");
+    const canUpdateProject = await hasWorkspacePermission(c, {
+      task: ["update"],
+    });
+    return c.json(
+      await moveGlobalBoardTask({
+        userId: c.get("userId"),
+        apiKeyScope: c.get("apiKey")?.permissions ?? null,
+        taskId,
+        status,
+        visibleTaskIds,
+        canUpdateProject,
+        autoAssigneeId: canUpdateProject ? await resolveAutoAssignee(c) : null,
+      }),
+      200,
+    );
+  })
   .openapi(listGlobalBoardTasksRoute, async (c) =>
     c.json(
       await getGlobalBoardTasks(
