@@ -70,6 +70,19 @@ describe("API integration: project default labels", () => {
     const task = (await created.json()) as { id: string };
     expect(await taskLabels(task.id)).toEqual(["animacja", "pc-oldschool"]);
 
+    const byWorkspace = await api(
+      "GET",
+      `/label/workspace/${me.workspace.id}/project-defaults`,
+    );
+    expect(
+      ((await byWorkspace.json()) as { projectId: string; name: string }[]).map(
+        (row) => [row.projectId, row.name],
+      ),
+    ).toEqual([
+      [web.project.id, "animacja"],
+      [web.project.id, "pc-oldschool"],
+    ]);
+
     // A client that picked labels itself opts out.
     const picked = await api("POST", `/task/${web.project.id}`, {
       ...newTask,

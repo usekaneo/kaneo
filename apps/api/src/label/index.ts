@@ -18,12 +18,14 @@ import getLabelsByTaskId from "./controllers/get-labels-by-task-id";
 import getLabelsByWorkspaceId from "./controllers/get-labels-by-workspace-id";
 import getPinnedLabels from "./controllers/get-pinned-labels";
 import { getProjectDefaultLabels } from "./controllers/get-project-default-labels";
+import { getWorkspaceDefaultLabels } from "./controllers/get-workspace-default-labels";
 import { pinLabel, unpinLabel } from "./controllers/pin-label";
 import { setProjectDefaultLabels } from "./controllers/set-project-default-labels";
 import unassignLabelFromTask from "./controllers/unassign-label-from-task";
 import updateLabel from "./controllers/update-label";
 import {
   labelListSchema,
+  projectDefaultLabelSchema,
   labelPinSchema,
   labelSchema,
   labelSummarySchema,
@@ -321,6 +323,25 @@ const setProjectDefaultLabelsRoute = createRoute({
   },
 });
 
+const getWorkspaceDefaultLabelsRoute = createRoute({
+  method: "get",
+  operationId: "getWorkspaceDefaultLabels",
+  path: "/workspace/{workspaceId}/project-defaults",
+  tags: ["Labels"],
+  summary: "Get default labels of a workspace's projects",
+  description:
+    "Each readable project's default labels in the workspace, one row per project and label.",
+  middleware: [workspaceAccess.fromParam()] as const,
+  request: { params: workspaceIdParam },
+  responses: {
+    200: jsonResponse(
+      "Default labels by project",
+      z.array(projectDefaultLabelSchema),
+    ),
+    404: errorResponse("Workspace not found"),
+  },
+});
+
 const label = apiRouter()
   // Registered before `/{id}` so `pinned` is not read as a label ID.
   .openapi(getPinnedLabelsRoute, async (c) =>
@@ -333,6 +354,13 @@ const label = apiRouter()
   .openapi(unpinLabelRoute, async (c) => {
     const { id } = c.req.valid("param");
     return c.json(await unpinLabel(id, c.get("userId")), 200);
+  })
+  .openapi(getWorkspaceDefaultLabelsRoute, async (c) => {
+    const { workspaceId } = c.req.valid("param");
+    return c.json(
+      await getWorkspaceDefaultLabels(workspaceId, c.get("userId")),
+      200,
+    );
   })
   .openapi(getProjectDefaultLabelsRoute, async (c) => {
     const { projectId } = c.req.valid("param");

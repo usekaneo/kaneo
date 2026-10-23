@@ -2267,6 +2267,24 @@
           "pinned"
         ]
       },
+      "ProjectDefaultLabel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LabelSummary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "projectId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "projectId"
+            ]
+          }
+        ]
+      },
       "Label": {
         "type": "object",
         "properties": {
@@ -15660,6 +15678,64 @@
           },
           "404": {
             "description": "Label not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/label/workspace/{workspaceId}/project-defaults": {
+      "get": {
+        "operationId": "getWorkspaceDefaultLabels",
+        "tags": [
+          "Labels"
+        ],
+        "summary": "Get default labels of a workspace's projects",
+        "description": "Each readable project's default labels in the workspace, one row per project and label.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default labels by project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectDefaultLabel"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
             "content": {
               "application/json": {
                 "schema": {

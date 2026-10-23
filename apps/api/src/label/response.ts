@@ -30,3 +30,7 @@ export const pinnedLabelSchema = labelSummarySchema
 export const labelPinSchema = z
   .object({ id: z.string(), pinned: z.boolean() })
   .openapi("LabelPin");
+
+export const projectDefaultLabelSchema = labelSummarySchema
+  .extend({ projectId: z.string() })
+  .openapi("ProjectDefaultLabel");
