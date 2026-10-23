@@ -71,7 +71,7 @@ jobs:
 
   quality:
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
@@ -91,21 +91,26 @@ jobs:
 
       - id: install
         name: Install dependencies
+        timeout-minutes: 15
         run: pnpm install --frozen-lockfile
 
       - name: Run Vite+ checks
+        timeout-minutes: 15
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm lint
 
       - name: Check locale files against en-US
+        timeout-minutes: 15
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm i18n:check
 
       - name: Check the API reference against the routes
+        timeout-minutes: 15
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm openapi:check
 
       - name: Run typecheck
+        timeout-minutes: 15
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm typecheck
 
