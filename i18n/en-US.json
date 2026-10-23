@@ -3032,7 +3032,10 @@
 				"dueThisWeek": "Due this week",
 				"dueNextWeek": "Due next week",
 				"noDueDate": "No due date"
-			}
+			},
+			"moveToColumn": "Move to {{column}}",
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "Direction",

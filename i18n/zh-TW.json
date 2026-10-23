@@ -2984,7 +2984,10 @@
 				"dueThisWeek": "本週到期",
 				"dueNextWeek": "下週到期",
 				"noDueDate": "無截止日期"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "方向",

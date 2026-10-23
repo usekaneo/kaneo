@@ -31,6 +31,8 @@ import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/t
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
 import { TaskRowBody } from "../list-view/task-row-body";
 import { EASE_OUT_CSS } from "@/lib/motion";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { MoveToBoardButton } from "./move-to-board-button";
 
 type BacklogTaskRowProps = {
   task: Task;
@@ -81,6 +83,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
   );
 
   const hoverPrefetch = useTaskHoverPrefetch(task.id);
+  const { canUpdateTasks } = useWorkspacePermission();
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
   );
@@ -191,6 +194,7 @@ const BacklogTaskRow = memo(function BacklogTaskRow({
               assigneeImage={assignee?.user?.image}
               showPullRequests={false}
             />
+            {canUpdateTasks() && <MoveToBoardButton task={task} />}
           </div>
         </ContextMenuTrigger>
 

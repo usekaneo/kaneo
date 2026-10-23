@@ -3078,7 +3078,10 @@
 				"dueThisWeek": "Vence esta semana",
 				"dueNextWeek": "Vence na próxima semana",
 				"noDueDate": "Sem data de vencimento"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "Direção",

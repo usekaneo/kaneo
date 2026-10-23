@@ -2984,7 +2984,10 @@
 				"dueThisWeek": "이번 주 마감",
 				"dueNextWeek": "다음 주 마감",
 				"noDueDate": "마감일 없음"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "방향",

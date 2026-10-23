@@ -3031,7 +3031,10 @@
 				"dueThisWeek": "Bu hafta bitiyor",
 				"dueNextWeek": "Önümüzdeki hafta bitiyor",
 				"noDueDate": "Bitiş tarihi yok"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "Yön",

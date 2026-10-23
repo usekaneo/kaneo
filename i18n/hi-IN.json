@@ -3031,7 +3031,10 @@
 				"dueThisWeek": "इस सप्ताह देय",
 				"dueNextWeek": "अगले सप्ताह देय",
 				"noDueDate": "कोई नियत तारीख नहीं"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "दिशा",
