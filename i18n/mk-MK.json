@@ -3031,7 +3031,10 @@
 				"dueThisWeek": "Рок оваа недела",
 				"dueNextWeek": "Рок следна недела",
 				"noDueDate": "Без краен рок"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "Насока",

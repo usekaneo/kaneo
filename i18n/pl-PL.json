@@ -3171,7 +3171,10 @@
 			"sections": {
 				"archived": "Zarchiwizowane",
 				"planned": "Zaplanowane"
-			}
+			},
+			"movedToColumn": "Przeniesiono do {{column}}",
+			"moveToColumn": "Przenieś do {{column}}",
+			"moveToColumnError": "Nie udało się przenieść zadania na tablicę."
 		},
 		"boardFilters": {
 			"operators": {

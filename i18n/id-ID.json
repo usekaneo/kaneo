@@ -2984,7 +2984,10 @@
 				"dueThisWeek": "Tenggat minggu ini",
 				"dueNextWeek": "Tenggat minggu depan",
 				"noDueDate": "Tanpa tenggat"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "Arah",

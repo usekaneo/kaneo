@@ -3137,7 +3137,10 @@
 				"dueNextWeek": "Срок на следующей неделе",
 				"noDueDate": "Без срока"
 			},
-			"moveAllSuccess": "{{count}} задач перемещено в «К выполнению»"
+			"moveAllSuccess": "{{count}} задач перемещено в «К выполнению»",
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "Направление",

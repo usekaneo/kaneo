@@ -3125,7 +3125,10 @@
 				"dueThisWeek": "Термін цього тижня",
 				"dueNextWeek": "Термін наступного тижня",
 				"noDueDate": "Без дати завершення"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "Напрямок",

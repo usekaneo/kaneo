@@ -3031,7 +3031,10 @@
 				"dueThisWeek": "Son tarixi bu həftə olan",
 				"dueNextWeek": "Son tarixi gələn həftə olan",
 				"noDueDate": "Son tarix yoxdur"
-			}
+			},
+			"movedToColumn": "Moved to {{column}}",
+			"moveToColumn": "Move to {{column}}",
+			"moveToColumnError": "Couldn't move the task to the board."
 		},
 		"sort": {
 			"direction": "İstiqamət",
