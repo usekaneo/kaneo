@@ -3,6 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { type CSSProperties, memo } from "react";
 import type { GlobalBoardProject } from "@/fetchers/task/get-global-board-meta";
 import type { GlobalBoardTask } from "@/fetchers/task/get-global-board-tasks";
+import { useMoveGlobalTaskToBacklog } from "@/hooks/mutations/task/use-move-global-task-to-backlog";
 import { cn } from "@/lib/cn";
 import { EASE_OUT_CSS } from "@/lib/motion";
 import { GlobalBoardCardBody } from "./global-board-card-body";
@@ -15,6 +16,8 @@ type GlobalBoardCardProps = {
   project?: GlobalBoardProject;
   canMove: boolean;
   onMove?: (column: GlobalBoardProject["columns"][number]) => void;
+  /** Absent for the lane's first card. */
+  onMoveToTop?: () => void;
 };
 
 function GlobalBoardCard({
@@ -23,7 +26,9 @@ function GlobalBoardCard({
   project,
   canMove,
   onMove,
+  onMoveToTop,
 }: GlobalBoardCardProps) {
+  const moveToBacklog = useMoveGlobalTaskToBacklog();
   // Only pointer listeners: the link and move menu inside stay the keyboard
   // and screen-reader path, so the wrapper must not become a second button.
   // Everyone can drag to arrange their own board; changing lanes is checked
@@ -53,14 +58,16 @@ function GlobalBoardCard({
       )}
     >
       <GlobalBoardCardBody task={task} />
-      {canMove && project && onMove && (
-        <TaskMoveMenu
-          task={task}
-          columns={project.columns}
-          onMove={onMove}
-          className="absolute top-1.5 right-1.5"
-        />
-      )}
+      {/* Arranging the board is personal, so viewers get the menu too;
+          changing columns needs move rights. */}
+      <TaskMoveMenu
+        task={task}
+        columns={canMove && project ? project.columns : []}
+        onMove={(column) => onMove?.(column)}
+        onMoveToTop={onMoveToTop}
+        onMoveToBacklog={canMove ? () => moveToBacklog(task) : undefined}
+        className="absolute top-1.5 right-1.5"
+      />
     </div>
   );
 }

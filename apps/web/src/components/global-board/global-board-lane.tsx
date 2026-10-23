@@ -25,7 +25,7 @@ type GlobalBoardLaneProps = {
   onMenuMove: (
     task: GlobalBoardTask,
     from: GlobalBoardLane,
-    column: GlobalBoardProject["columns"][number],
+    column?: GlobalBoardProject["columns"][number],
   ) => void;
 };
 
@@ -104,7 +104,7 @@ export function GlobalBoardLaneColumn({
                     {t("tasks:globalBoard.emptyLane")}
                   </p>
                 )}
-                {tasks.map((task) => (
+                {tasks.map((task, index) => (
                   <GlobalBoardCard
                     key={task.id}
                     task={task}
@@ -112,6 +112,9 @@ export function GlobalBoardLaneColumn({
                     project={projects.get(task.projectId)}
                     canMove={canMoveIn(task.workspaceId)}
                     onMove={(column) => onMenuMove(task, lane, column)}
+                    onMoveToTop={
+                      index > 0 ? () => onMenuMove(task, lane) : undefined
+                    }
                   />
                 ))}
               </div>

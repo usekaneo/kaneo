@@ -308,7 +308,7 @@ export default function TaskCardContextMenuContent({
                       onClick={() => handleChange("status", "planned")}
                     >
                       <Clock className="size-3.5 text-muted-foreground" />
-                      <span>{t("tasks:actions.markAsPlanned")}</span>
+                      <span>{t("tasks:actions.moveToBacklog")}</span>
                     </ContextMenuItem>
                   )}
                 </>

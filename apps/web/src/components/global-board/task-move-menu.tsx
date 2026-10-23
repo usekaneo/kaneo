@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { ArrowUpToLine, Clock, MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   Menu,
@@ -6,6 +6,7 @@ import {
   MenuGroupLabel,
   MenuItem,
   MenuPopup,
+  MenuSeparator,
   MenuTrigger,
 } from "@/components/ui/menu";
 import type { GlobalBoardProject } from "@/fetchers/task/get-global-board-meta";
@@ -19,6 +20,8 @@ type TaskMoveMenuProps = {
   task: GlobalBoardTask;
   columns: ProjectColumn[];
   onMove: (column: ProjectColumn) => void;
+  onMoveToTop?: () => void;
+  onMoveToBacklog?: () => void;
   className?: string;
 };
 
@@ -28,6 +31,8 @@ export function TaskMoveMenu({
   task,
   columns,
   onMove,
+  onMoveToTop,
+  onMoveToBacklog,
   className,
 }: TaskMoveMenuProps) {
   const { t } = useTranslation();
@@ -49,21 +54,39 @@ export function TaskMoveMenu({
         <MoreHorizontal className="size-4" aria-hidden="true" />
       </MenuTrigger>
       <MenuPopup align="end">
-        <MenuGroup>
-          <MenuGroupLabel>
-            {t("tasks:globalBoard.moveTo", { project: task.projectName })}
-          </MenuGroupLabel>
-          {columns.map((column) => (
-            <MenuItem
-              key={`${column.slug}-${column.position}`}
-              disabled={column.slug === task.status}
-              onClick={() => onMove(column)}
-            >
-              {getColumnIcon(column.slug, column.isFinal, column.icon)}
-              <span className="truncate">{column.name}</span>
+        <MenuItem disabled={!onMoveToTop} onClick={onMoveToTop}>
+          <ArrowUpToLine />
+          <span>{t("tasks:globalBoard.moveToTop")}</span>
+        </MenuItem>
+        {columns.length > 0 && (
+          <>
+            <MenuSeparator />
+            <MenuGroup>
+              <MenuGroupLabel>
+                {t("tasks:globalBoard.moveTo", { project: task.projectName })}
+              </MenuGroupLabel>
+              {columns.map((column) => (
+                <MenuItem
+                  key={`${column.slug}-${column.position}`}
+                  disabled={column.slug === task.status}
+                  onClick={() => onMove(column)}
+                >
+                  {getColumnIcon(column.slug, column.isFinal, column.icon)}
+                  <span className="truncate">{column.name}</span>
+                </MenuItem>
+              ))}
+            </MenuGroup>
+          </>
+        )}
+        {onMoveToBacklog && (
+          <>
+            <MenuSeparator />
+            <MenuItem onClick={onMoveToBacklog}>
+              <Clock />
+              <span>{t("tasks:actions.moveToBacklog")}</span>
             </MenuItem>
-          ))}
-        </MenuGroup>
+          </>
+        )}
       </MenuPopup>
     </Menu>
   );

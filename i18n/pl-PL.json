@@ -3159,8 +3159,9 @@
 		"actions": {
 			"archive": "Archiwizuj",
 			"delete": "Usuń...",
-			"markAsPlanned": "Oznacz jako zaplanowane",
-			"duplicate": "Duplicate"
+			"duplicate": "Duplicate",
+			"moveToBacklog": "Przenieś do backlogu",
+			"movedToBacklog": "Przeniesiono do backlogu"
 		},
 		"archive": {
 			"success": "Zarchiwizowano zadań: {{count}}",
@@ -3760,7 +3761,8 @@
 			"pageTitle": "Global board",
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
-			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
+			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu.",
+			"moveToTop": "Przenieś na górę"
 		},
 		"parentHint": "parent: {{id}} {{title}}"
 	},

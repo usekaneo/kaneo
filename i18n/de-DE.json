@@ -3180,8 +3180,9 @@
 		"actions": {
 			"duplicate": "Duplizieren",
 			"archive": "Archivieren",
-			"markAsPlanned": "Als geplant markieren",
-			"delete": "Löschen..."
+			"delete": "Löschen...",
+			"movedToBacklog": "Moved to backlog",
+			"moveToBacklog": "Move to backlog"
 		},
 		"bulk": {
 			"selectedCount": "{{count}} ausgewählt",
@@ -3362,7 +3363,8 @@
 			"pageTitle": "Global board",
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
-			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
+			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu.",
+			"moveToTop": "Move to top"
 		},
 		"parentHint": "parent: {{id}} {{title}}"
 	},

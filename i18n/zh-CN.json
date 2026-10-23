@@ -3145,8 +3145,9 @@
 		"actions": {
 			"duplicate": "创建副本",
 			"archive": "归档",
-			"markAsPlanned": "标记为已计划",
-			"delete": "删除…"
+			"delete": "删除…",
+			"movedToBacklog": "Moved to backlog",
+			"moveToBacklog": "Move to backlog"
 		},
 		"bulk": {
 			"selectedCount": "已选 {{count}} 个",
@@ -3304,7 +3305,8 @@
 			"pageTitle": "Global board",
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
-			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
+			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu.",
+			"moveToTop": "Move to top"
 		},
 		"parentHint": "parent: {{id}} {{title}}"
 	},
