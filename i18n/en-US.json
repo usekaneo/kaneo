@@ -984,7 +984,10 @@
 			"priority": "Priority",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Show the image a project sets behind its board.",
-			"advancedTitle": "Advanced"
+			"advancedTitle": "Advanced",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API keys",
@@ -2390,6 +2393,7 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"myTasks": "My tasks",
+			"globalBoard": "Global board",
 			"invitePeople": "Invite people"
 		},
 		"projectList": {
@@ -3294,6 +3298,46 @@
 			"startsOn": "Starts {{date}}",
 			"beforeStart": "{{date}} is before the start date",
 			"afterDue": "{{date}} is after the due date"
+		},
+		"globalBoard": {
+			"pageTitle": "Global board",
+			"lanes": {
+				"to-do": "To Do",
+				"in-progress": "In Progress",
+				"done": "Done",
+				"unmapped": "Needs a column"
+			},
+			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu.",
+			"emptyTitle": "No projects to show",
+			"emptyDescription": "Tasks from every workspace and project you can open show up here.",
+			"emptyLane": "No tasks",
+			"loadError": "Couldn't load the board.",
+			"retry": "Try again",
+			"loadMore_one": "Load 1 more",
+			"loadMore_other": "Load {{count}} more",
+			"loadingMore": "Loading…",
+			"searchPlaceholder": "Search tasks",
+			"moveTask": "Move {{title}}",
+			"moveTo": "Move within {{project}}",
+			"moveFailed": "Couldn't move the task.",
+			"noMatchingColumn": "{{project}} has no column for {{lane}}.",
+			"chooseColumnTitle": "Choose a column",
+			"chooseColumnDescription": "{{project}} has more than one column for {{lane}}. Where should “{{title}}” go?",
+			"dragInstructions": "To move a task without dragging, open its menu and pick a column.",
+			"filters": {
+				"workspace": "Workspace",
+				"allWorkspaces": "All workspaces",
+				"project": "Project",
+				"allProjects": "All projects",
+				"assignee": "Assignee",
+				"anyone": "Anyone",
+				"me": "Me",
+				"unassigned": "Unassigned",
+				"anyPriority": "Any priority",
+				"label": "Label",
+				"anyLabel": "Any label",
+				"clear": "Clear"
+			}
 		}
 	},
 	"invitations": {

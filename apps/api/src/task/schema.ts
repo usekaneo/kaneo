@@ -80,7 +80,10 @@ export const createTaskBody = z.object({
   dueDate: z.string().optional(),
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
-  userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  userId: z.string().nullable().optional().openapi({
+    description:
+      "Assignee. Omit it to assign the caller when they turned on auto-assign; send null to leave the task unassigned.",
+  }),
   draftAssetIds: z.array(z.string()).max(100).optional(),
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))

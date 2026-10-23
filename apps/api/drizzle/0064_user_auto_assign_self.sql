@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "auto_assign_self" boolean DEFAULT false NOT NULL;

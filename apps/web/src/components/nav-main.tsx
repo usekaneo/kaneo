@@ -5,6 +5,7 @@ import {
   Inbox,
   type LucideIcon,
   Mail,
+  SquareKanban,
   Users,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -61,6 +62,11 @@ export function NavMain() {
       icon: CircleCheck,
       url: `${homeUrl}/my-tasks`,
       count: assignedTasks?.total,
+    },
+    {
+      title: t("navigation:sidebar.globalBoard"),
+      icon: SquareKanban,
+      url: "/dashboard/global-board",
     },
     {
       title: t("navigation:sidebar.members"),

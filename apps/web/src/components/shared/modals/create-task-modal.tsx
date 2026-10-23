@@ -66,6 +66,7 @@ import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
 import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { useAuth } from "@/components/providers/auth-provider/hooks/use-auth";
 import { cn } from "@/lib/cn";
 import { uploadDraftAsset } from "@/lib/upload-draft-asset";
 import { formatDateMedium } from "@/lib/format";
@@ -205,7 +206,9 @@ function CreateTaskModalContent({
   const { data: workspaceLabels = [] } = useGetLabelsByWorkspace(
     workspace?.id || "",
   );
-  const { canCreateTasks, canCreateLabels } = useWorkspacePermission();
+  const { canCreateTasks, canCreateLabels, canAssignTasks } =
+    useWorkspacePermission();
+  const { user } = useAuth();
   const canCreateTaskCapability = canCreateTasks();
   const canCreateLabelCapability = canCreateLabels();
 
@@ -213,7 +216,10 @@ function CreateTaskModalContent({
   const titleRef = useAutoGrowTextarea(title);
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<Priority>("no-priority");
-  const [assigneeId, setAssigneeId] = useState("");
+  // null until the user picks; "" is an explicit "no assignee".
+  const [assigneeChoice, setAssigneeId] = useState<string | null>(null);
+  const assigneeId =
+    assigneeChoice ?? (user?.autoAssignSelf && canAssignTasks() ? user.id : "");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [startDateOpen, setStartDateOpen] = useState(false);
@@ -373,7 +379,7 @@ function CreateTaskModalContent({
     title.trim() ||
     description.trim() ||
     priority !== "no-priority" ||
-    assigneeId ||
+    assigneeChoice !== null ||
     startDate ||
     dueDate ||
     selectedProjectId ||
@@ -529,7 +535,8 @@ function CreateTaskModalContent({
         await createTask({
           title: title.trim(),
           description: description.trim() || "",
-          userId: selectedUser?.id ?? "",
+          // Explicit null keeps an unassigned choice from being auto-assigned.
+          userId: selectedUser?.id ?? null,
           priority,
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
@@ -577,7 +584,7 @@ function CreateTaskModalContent({
         setTitle("");
         setDescription("");
         setPriority("no-priority");
-        setAssigneeId("");
+        setAssigneeId(null);
         setStartDate(undefined);
         setDueDate(undefined);
         setLabels([]);

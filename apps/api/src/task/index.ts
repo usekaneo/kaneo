@@ -28,6 +28,7 @@ import {
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import {
   hasWorkspacePermission,
+  requireApiKeyScope,
   requireWorkspacePermission,
 } from "../utils/require-workspace-permission";
 import {
@@ -41,6 +42,18 @@ import deleteTask from "./controllers/delete-task";
 import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
 import getAssignedTasks from "./controllers/get-assigned-tasks";
+import getGlobalBoardMeta from "./global-board/get-global-board-meta";
+import getGlobalBoardTasks from "./global-board/get-global-board-tasks";
+import {
+  globalBoardMetaSchema,
+  globalBoardTasksSchema,
+} from "./global-board/response";
+import {
+  globalBoardTasksQuery,
+  moveGlobalBoardTaskBody,
+} from "./global-board/schema";
+import moveGlobalBoardTask from "./global-board/move-global-board-task";
+import { resolveAutoAssignee } from "./auto-assign/resolve-auto-assignee";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -128,6 +141,73 @@ const listAssignedTasksRoute = createRoute({
     400: errorResponse("Invalid workspace ID or query parameters"),
     403: errorResponse("Missing project:read or task:read permission"),
     404: errorResponse("Workspace not found"),
+  },
+});
+
+const globalBoardMetaRoute = createRoute({
+  method: "get",
+  operationId: "getGlobalBoardMeta",
+  path: "/global-board/meta",
+  tags: ["Tasks"],
+  summary: "Get global board setup",
+  description:
+    "List the workspaces and active projects whose tasks the caller can read, each project's columns placed on the global to-do, in-progress, and done statuses, and the assignees and labels the board can filter by. Only workspaces the caller is a member of are included, and restricted project access applies.",
+  middleware: [
+    requireApiKeyScope({ project: ["read"], task: ["read"] }),
+  ] as const,
+  responses: {
+    200: jsonResponse("Global board setup", globalBoardMetaSchema),
+    403: errorResponse("Missing project:read or task:read API key scope"),
+  },
+});
+
+const listGlobalBoardTasksRoute = createRoute({
+  method: "get",
+  operationId: "listGlobalBoardTasks",
+  path: "/global-board",
+  tags: ["Tasks"],
+  summary: "List global board tasks",
+  description:
+    "Page through one column of the global board: tasks across every workspace and active project the caller can read whose column maps to the requested status. Planned and archived tasks are excluded. Ordered by priority, then due date (undated last), then newest.",
+  middleware: [
+    requireApiKeyScope({ project: ["read"], task: ["read"] }),
+  ] as const,
+  request: { query: globalBoardTasksQuery },
+  responses: {
+    200: jsonResponse("One page of global board tasks", globalBoardTasksSchema),
+    400: errorResponse("Invalid query parameters"),
+    403: errorResponse("Missing project:read or task:read API key scope"),
+  },
+});
+
+const moveGlobalBoardTaskRoute = createRoute({
+  method: "post",
+  operationId: "moveGlobalBoardTask",
+  path: "/global-board/move",
+  tags: ["Tasks"],
+  summary: "Move or reorder a global board card",
+  description:
+    "Save where the caller dropped a card on the global board. Their personal order is always updated. With task:update, an optional new column is applied and the task is placed next to its nearest same-project neighbours on the project board; moving an unassigned task to a new column assigns the caller when they turned on auto-assign.",
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["read"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    body: {
+      required: true,
+      content: { "application/json": { schema: moveGlobalBoardTaskBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse(
+      "The task's new column",
+      z.object({ id: z.string(), status: z.string() }),
+    ),
+    400: errorResponse("Invalid column, or the moved task is not in the lane"),
+    403: errorResponse("Missing task:update permission to change the column"),
+    404: errorResponse("Task not found"),
+    409: errorResponse("Project board changed; refresh before moving"),
   },
 });
 
@@ -802,7 +882,44 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       200,
     );
   })
-  // Registered ahead of the `/{id}` routes, which would otherwise claim it.
+  // Registered ahead of the `/{id}` routes, which would otherwise claim them.
+  .openapi(globalBoardMetaRoute, async (c) =>
+    c.json(
+      await getGlobalBoardMeta(
+        c.get("userId"),
+        c.get("apiKey")?.permissions ?? null,
+      ),
+      200,
+    ),
+  )
+  .openapi(moveGlobalBoardTaskRoute, async (c) => {
+    const { taskId, status, visibleTaskIds } = c.req.valid("json");
+    const canUpdateProject = await hasWorkspacePermission(c, {
+      task: ["update"],
+    });
+    return c.json(
+      await moveGlobalBoardTask({
+        userId: c.get("userId"),
+        apiKeyScope: c.get("apiKey")?.permissions ?? null,
+        taskId,
+        status,
+        visibleTaskIds,
+        canUpdateProject,
+        autoAssigneeId: canUpdateProject ? await resolveAutoAssignee(c) : null,
+      }),
+      200,
+    );
+  })
+  .openapi(listGlobalBoardTasksRoute, async (c) =>
+    c.json(
+      await getGlobalBoardTasks(
+        c.get("userId"),
+        c.get("apiKey")?.permissions ?? null,
+        c.req.valid("query"),
+      ),
+      200,
+    ),
+  )
   .openapi(listAssignedTasksRoute, async (c) => {
     const { workspaceId, countOnly } = c.req.valid("query");
     return c.json(
@@ -873,7 +990,13 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(reorderTasksRoute, async (c) => {
     const { projectId, tasks, expectedTasks } = c.req.valid("json");
     return c.json(
-      await reorderTasks(projectId, tasks, c.get("userId"), expectedTasks),
+      await reorderTasks(
+        projectId,
+        tasks,
+        c.get("userId"),
+        expectedTasks,
+        await resolveAutoAssignee(c),
+      ),
       200,
     );
   })
@@ -905,7 +1028,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const task = await createTask({
       projectId,
       currentUserId: c.get("userId"),
-      userId: userId,
+      userId: userId === undefined ? await resolveAutoAssignee(c) : userId,
       title,
       description,
       startDate: parsedStartDate,
@@ -1035,7 +1158,12 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const { status } = c.req.valid("json");
     const currentUserId = c.get("userId");
 
-    const task = await updateTaskStatus({ id, status, currentUserId });
+    const task = await updateTaskStatus({
+      id,
+      status,
+      currentUserId,
+      autoAssigneeId: await resolveAutoAssignee(c),
+    });
 
     return c.json(task, 200);
   })

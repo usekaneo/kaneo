@@ -60,7 +60,7 @@ async function createTask({
 }: {
   projectId: string;
   currentUserId: string;
-  userId?: string;
+  userId?: string | null;
   title: string;
   status: string;
   startDate?: Date;

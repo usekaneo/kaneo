@@ -753,7 +753,10 @@
 			"priority": "Prioritas",
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Tampilkan gambar yang diatur proyek di belakang papannya.",
-			"advancedTitle": "Lanjutan"
+			"advancedTitle": "Lanjutan",
+			"autoAssign": "Assign tasks to me",
+			"autoAssignDescription": "When you create a task without an assignee, or move an unassigned task to another column, it's assigned to you. Applies in workspaces where your role can assign tasks.",
+			"autoAssignError": "Couldn't save this preference."
 		},
 		"developerPage": {
 			"pageTitle": "API key",
@@ -2348,7 +2351,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"globalBoard": "Global board"
 		},
 		"projectList": {
 			"viewProject": "Lihat Proyek",
@@ -3237,6 +3241,45 @@
 			"startsOn": "Mulai {{date}}",
 			"beforeStart": "{{date}} sebelum tanggal mulai",
 			"afterDue": "{{date}} setelah tenggat"
+		},
+		"globalBoard": {
+			"chooseColumnDescription": "{{project}} has more than one column for {{lane}}. Where should “{{title}}” go?",
+			"chooseColumnTitle": "Choose a column",
+			"dragInstructions": "To move a task without dragging, open its menu and pick a column.",
+			"emptyDescription": "Tasks from every workspace and project you can open show up here.",
+			"emptyLane": "No tasks",
+			"emptyTitle": "No projects to show",
+			"filters": {
+				"allProjects": "All projects",
+				"allWorkspaces": "All workspaces",
+				"anyLabel": "Any label",
+				"anyone": "Anyone",
+				"anyPriority": "Any priority",
+				"assignee": "Assignee",
+				"clear": "Clear",
+				"label": "Label",
+				"me": "Me",
+				"project": "Project",
+				"unassigned": "Unassigned",
+				"workspace": "Workspace"
+			},
+			"lanes": {
+				"done": "Done",
+				"in-progress": "In Progress",
+				"to-do": "To Do",
+				"unmapped": "Needs a column"
+			},
+			"loadError": "Couldn't load the board.",
+			"loadingMore": "Loading…",
+			"loadMore_other": "Load {{count}} more",
+			"moveFailed": "Couldn't move the task.",
+			"moveTask": "Move {{title}}",
+			"moveTo": "Move within {{project}}",
+			"noMatchingColumn": "{{project}} has no column for {{lane}}.",
+			"pageTitle": "Global board",
+			"retry": "Try again",
+			"searchPlaceholder": "Search tasks",
+			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
 		}
 	},
 	"invitations": {

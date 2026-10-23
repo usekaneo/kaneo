@@ -11,7 +11,7 @@ async function createTask(
   title: string,
   description: string,
   projectId: string,
-  userId: string | undefined,
+  userId: string | null | undefined,
   status: string,
   startDate: Date | undefined,
   dueDate: Date | undefined,
@@ -27,7 +27,8 @@ async function createTask(
     json: {
       title,
       description,
-      ...(userId ? { userId } : {}),
+      // Omitted lets the API apply the caller's auto-assign preference.
+      ...(userId === undefined || userId === "" ? {} : { userId }),
       status,
       startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,

@@ -54,6 +54,11 @@ let storedProject: { id: string; columns: unknown[] } | null = null;
 let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
 let customFieldDefs: unknown[] | undefined;
+let authUser: { id: string; autoAssignSelf?: boolean } | undefined;
+let canAssign = false;
+let projectMembers:
+  | { id: string; name: string; image: string | null }[]
+  | undefined;
 vi.mock("@/lib/upload-draft-asset", () => ({
   uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
 }));
@@ -66,6 +71,9 @@ beforeEach(() => {
   ];
   storedProject = null;
   customFieldDefs = undefined;
+  authUser = undefined;
+  canAssign = false;
+  projectMembers = undefined;
   columnsError = false;
   columnsFetching = false;
   refetchColumns.mockImplementation(async () => ({
@@ -152,13 +160,18 @@ vi.mock(
 );
 
 vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
-  default: () => ({ data: undefined }),
+  default: () => ({ data: projectMembers }),
+}));
+
+vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({
+  useAuth: () => ({ user: authUser }),
 }));
 
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: () => true,
     canCreateLabels: () => true,
+    canAssignTasks: () => canAssign,
   }),
 }));
 
@@ -523,6 +536,49 @@ async function chooseBeta() {
 function submit() {
   fireEvent.submit(document.querySelector("form") as HTMLFormElement);
 }
+
+describe("CreateTaskModal auto-assign", () => {
+  const me = { id: "me", name: "Me Myself", image: null };
+
+  async function createInBeta(clear = false) {
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    if (clear) {
+      fireEvent.click(screen.getByText(me.name));
+      fireEvent.click(
+        await screen.findByText("common:modals.createTask.assignUnassigned"),
+      );
+    }
+    enterTitle();
+    submit();
+    await vi.waitFor(() => expect(createTask).toHaveBeenCalledOnce());
+    return createTask.mock.calls[0]?.[0];
+  }
+
+  beforeEach(() => {
+    createTask.mockClear();
+    projectMembers = [me];
+  });
+
+  it("pre-selects the user who opted in and may assign", async () => {
+    authUser = { id: "me", autoAssignSelf: true };
+    canAssign = true;
+    expect(await createInBeta()).toMatchObject({ userId: "me" });
+  });
+
+  it("sends an explicit null when the user clears the pre-selection", async () => {
+    authUser = { id: "me", autoAssignSelf: true };
+    canAssign = true;
+    expect(await createInBeta(true)).toMatchObject({ userId: null });
+  });
+
+  it("leaves the assignee empty without permission to assign", async () => {
+    authUser = { id: "me", autoAssignSelf: true };
+    expect(await createInBeta()).toMatchObject({ userId: null });
+  });
+});
 
 describe("CreateTaskModal context isolation", () => {
   it("never falls back to the last globally visited project", () => {

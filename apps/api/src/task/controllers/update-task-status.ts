@@ -10,10 +10,13 @@ async function updateTaskStatus({
   id,
   status,
   currentUserId,
+  autoAssigneeId = null,
 }: {
   id: string;
   status: string;
   currentUserId: string;
+  // Fills an empty assignee when the task actually changes column.
+  autoAssigneeId?: string | null;
 }) {
   const { before: existingTask, after: updatedTask } = await withLockedTask(
     id,
@@ -29,7 +32,15 @@ async function updateTaskStatus({
 
       const [updatedTask] = await tx
         .update(taskTable)
-        .set({ status, columnId: column?.id ?? null })
+        .set({
+          status,
+          columnId: column?.id ?? null,
+          ...(autoAssigneeId &&
+          !existingTask.userId &&
+          existingTask.status !== status
+            ? { userId: autoAssigneeId }
+            : {}),
+        })
         .where(eq(taskTable.id, id))
         .returning();
 
@@ -44,7 +55,7 @@ async function updateTaskStatus({
   );
 
   await publishTaskMutation(existingTask, updatedTask, currentUserId, {
-    fields: ["status"],
+    fields: ["status", "userId"],
   });
 
   if (
