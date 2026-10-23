@@ -28,6 +28,7 @@ import {
 import { normalizeApiServerUrl } from "../utils/openapi-spec";
 import {
   hasWorkspacePermission,
+  requireApiKeyScope,
   requireWorkspacePermission,
 } from "../utils/require-workspace-permission";
 import {
@@ -41,6 +42,13 @@ import deleteTask from "./controllers/delete-task";
 import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
 import getAssignedTasks from "./controllers/get-assigned-tasks";
+import getGlobalBoardMeta from "./global-board/get-global-board-meta";
+import getGlobalBoardTasks from "./global-board/get-global-board-tasks";
+import {
+  globalBoardMetaSchema,
+  globalBoardTasksSchema,
+} from "./global-board/response";
+import { globalBoardTasksQuery } from "./global-board/schema";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -128,6 +136,42 @@ const listAssignedTasksRoute = createRoute({
     400: errorResponse("Invalid workspace ID or query parameters"),
     403: errorResponse("Missing project:read or task:read permission"),
     404: errorResponse("Workspace not found"),
+  },
+});
+
+const globalBoardMetaRoute = createRoute({
+  method: "get",
+  operationId: "getGlobalBoardMeta",
+  path: "/global-board/meta",
+  tags: ["Tasks"],
+  summary: "Get global board setup",
+  description:
+    "List the workspaces and active projects whose tasks the caller can read, each project's columns placed on the global to-do, in-progress, and done statuses, and the assignees and labels the board can filter by. Only workspaces the caller is a member of are included, and restricted project access applies.",
+  middleware: [
+    requireApiKeyScope({ project: ["read"], task: ["read"] }),
+  ] as const,
+  responses: {
+    200: jsonResponse("Global board setup", globalBoardMetaSchema),
+    403: errorResponse("Missing project:read or task:read API key scope"),
+  },
+});
+
+const listGlobalBoardTasksRoute = createRoute({
+  method: "get",
+  operationId: "listGlobalBoardTasks",
+  path: "/global-board",
+  tags: ["Tasks"],
+  summary: "List global board tasks",
+  description:
+    "Page through one column of the global board: tasks across every workspace and active project the caller can read whose column maps to the requested status. Planned and archived tasks are excluded. Ordered by priority, then due date (undated last), then newest.",
+  middleware: [
+    requireApiKeyScope({ project: ["read"], task: ["read"] }),
+  ] as const,
+  request: { query: globalBoardTasksQuery },
+  responses: {
+    200: jsonResponse("One page of global board tasks", globalBoardTasksSchema),
+    400: errorResponse("Invalid query parameters"),
+    403: errorResponse("Missing project:read or task:read API key scope"),
   },
 });
 
@@ -802,7 +846,26 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       200,
     );
   })
-  // Registered ahead of the `/{id}` routes, which would otherwise claim it.
+  // Registered ahead of the `/{id}` routes, which would otherwise claim them.
+  .openapi(globalBoardMetaRoute, async (c) =>
+    c.json(
+      await getGlobalBoardMeta(
+        c.get("userId"),
+        c.get("apiKey")?.permissions ?? null,
+      ),
+      200,
+    ),
+  )
+  .openapi(listGlobalBoardTasksRoute, async (c) =>
+    c.json(
+      await getGlobalBoardTasks(
+        c.get("userId"),
+        c.get("apiKey")?.permissions ?? null,
+        c.req.valid("query"),
+      ),
+      200,
+    ),
+  )
   .openapi(listAssignedTasksRoute, async (c) => {
     const { workspaceId, countOnly } = c.req.valid("query");
     return c.json(

@@ -70,7 +70,7 @@ export const taskByTicketIdSchema = taskWithAssigneeSchema
   })
   .openapi("TaskByTicketId");
 
-const taskLabelSchema = z
+export const taskLabelSchema = z
   .object({ id: z.string(), name: z.string(), color: z.string() })
   .openapi("TaskLabel");
 

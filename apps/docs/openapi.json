@@ -993,6 +993,319 @@
           "nextCursor"
         ]
       },
+      "GlobalBoardMeta": {
+        "type": "object",
+        "properties": {
+          "workspaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "canMoveTasks": {
+                  "type": "boolean",
+                  "description": "Whether the caller may change task status here."
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug",
+                "canMoveTasks"
+              ]
+            }
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "icon": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "workspaceId": {
+                  "type": "string"
+                },
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "slug": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "icon": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "isFinal": {
+                        "type": "boolean"
+                      },
+                      "position": {
+                        "type": "number"
+                      },
+                      "globalStatus": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "enum": [
+                          "to-do",
+                          "in-progress",
+                          "done",
+                          null
+                        ],
+                        "description": "Where the column sits on the global board. Null when it cannot be placed without guessing, such as a non-final column named Done."
+                      }
+                    },
+                    "required": [
+                      "slug",
+                      "name",
+                      "icon",
+                      "isFinal",
+                      "position",
+                      "globalStatus"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "slug",
+                "icon",
+                "workspaceId",
+                "columns"
+              ]
+            }
+          },
+          "assignees": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "image": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "image"
+              ]
+            }
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "color"
+              ]
+            }
+          }
+        },
+        "required": [
+          "workspaces",
+          "projects",
+          "assignees",
+          "labels"
+        ]
+      },
+      "GlobalBoardTasks": {
+        "type": "object",
+        "properties": {
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GlobalBoardTask"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "number"
+              },
+              "pageSize": {
+                "type": "number"
+              },
+              "total": {
+                "type": "number"
+              },
+              "totalPages": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "page",
+              "pageSize",
+              "total",
+              "totalPages"
+            ]
+          }
+        },
+        "required": [
+          "tasks",
+          "pagination"
+        ]
+      },
+      "GlobalBoardTask": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "number": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "description": "The slug of the project column the task sits in."
+          },
+          "statusName": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "statusIcon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "priority": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "projectName": {
+            "type": "string"
+          },
+          "projectSlug": {
+            "type": "string"
+          },
+          "projectIcon": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "workspaceName": {
+            "type": "string"
+          },
+          "assignee": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "image": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "image"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskLabel"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "projectId",
+          "number",
+          "title",
+          "status",
+          "statusName",
+          "statusIcon",
+          "priority",
+          "dueDate",
+          "projectName",
+          "projectSlug",
+          "projectIcon",
+          "workspaceId",
+          "workspaceName",
+          "assignee",
+          "labels"
+        ]
+      },
       "AssignedTasks": {
         "type": "object",
         "properties": {
@@ -10429,6 +10742,213 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/task/global-board/meta": {
+      "get": {
+        "operationId": "getGlobalBoardMeta",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Get global board setup",
+        "description": "List the workspaces and active projects whose tasks the caller can read, each project's columns placed on the global to-do, in-progress, and done statuses, and the assignees and labels the board can filter by. Only workspaces the caller is a member of are included, and restricted project access applies.",
+        "responses": {
+          "200": {
+            "description": "Global board setup",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalBoardMeta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing project:read or task:read API key scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/global-board": {
+      "get": {
+        "operationId": "listGlobalBoardTasks",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "List global board tasks",
+        "description": "Page through one column of the global board: tasks across every workspace and active project the caller can read whose column maps to the requested status. Planned and archived tasks are excluded. Ordered by priority, then due date (undated last), then newest.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "to-do",
+                "in-progress",
+                "done",
+                "unmapped"
+              ],
+              "description": "The board column to page through. `unmapped` lists tasks whose project column cannot be placed on to-do, in-progress, or done without guessing."
+            },
+            "required": true,
+            "description": "The board column to page through. `unmapped` lists tasks whose project column cannot be placed on to-do, in-progress, or done without guessing.",
+            "name": "globalStatus",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": false,
+            "name": "workspaceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": false,
+            "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A user ID, `me` for the caller, or `unassigned`."
+            },
+            "required": false,
+            "description": "A user ID, `me` for the caller, or `unassigned`.",
+            "name": "assigneeId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "no-priority",
+                "low",
+                "medium",
+                "high",
+                "urgent"
+              ]
+            },
+            "required": false,
+            "name": "priority",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Label name, matched case-insensitively."
+            },
+            "required": false,
+            "description": "Label name, matched case-insensitively.",
+            "name": "label",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Matches task titles, or a ticket ID such as KAN-12."
+            },
+            "required": false,
+            "description": "Matches task titles, or a ticket ID such as KAN-12.",
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "One page of global board tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalBoardTasks"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing project:read or task:read API key scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
           }
         }
       }

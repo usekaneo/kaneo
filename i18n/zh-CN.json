@@ -2348,7 +2348,8 @@
 			"home": "首页",
 			"inbox": "收件箱",
 			"invitePeople": "邀请成员",
-			"myTasks": "我的任务"
+			"myTasks": "我的任务",
+			"globalBoard": "Global board"
 		},
 		"projectList": {
 			"viewProject": "查看项目",
@@ -3237,6 +3238,45 @@
 			"startsOn": "开始于 {{date}}",
 			"beforeStart": "{{date}} 早于开始日期",
 			"afterDue": "{{date}} 晚于截止日期"
+		},
+		"globalBoard": {
+			"chooseColumnDescription": "{{project}} has more than one column for {{lane}}. Where should “{{title}}” go?",
+			"chooseColumnTitle": "Choose a column",
+			"dragInstructions": "To move a task without dragging, open its menu and pick a column.",
+			"emptyDescription": "Tasks from every workspace and project you can open show up here.",
+			"emptyLane": "No tasks",
+			"emptyTitle": "No projects to show",
+			"filters": {
+				"allProjects": "All projects",
+				"allWorkspaces": "All workspaces",
+				"anyLabel": "Any label",
+				"anyone": "Anyone",
+				"anyPriority": "Any priority",
+				"assignee": "Assignee",
+				"clear": "Clear",
+				"label": "Label",
+				"me": "Me",
+				"project": "Project",
+				"unassigned": "Unassigned",
+				"workspace": "Workspace"
+			},
+			"lanes": {
+				"done": "Done",
+				"in-progress": "In Progress",
+				"to-do": "To Do",
+				"unmapped": "Needs a column"
+			},
+			"loadError": "Couldn't load the board.",
+			"loadingMore": "Loading…",
+			"loadMore_other": "Load {{count}} more",
+			"moveFailed": "Couldn't move the task.",
+			"moveTask": "Move {{title}}",
+			"moveTo": "Move within {{project}}",
+			"noMatchingColumn": "{{project}} has no column for {{lane}}.",
+			"pageTitle": "Global board",
+			"retry": "Try again",
+			"searchPlaceholder": "Search tasks",
+			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
 		}
 	},
 	"invitations": {
