@@ -149,15 +149,15 @@
 					"terracotta": "Terracota",
 					"rose": "Rosa",
 					"crimson": "Carmesim",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3077,15 +3077,15 @@
 					"terracotta": "Terracota",
 					"rose": "Rosa",
 					"crimson": "Carmesim",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"editLabels": "Editar etiquetas"
 			}
@@ -4230,15 +4230,15 @@
 				"slate": "Ardósia",
 				"stone": "Pedra",
 				"terracotta": "Terracota",
-				"coral": "Coral",
-				"indigo": "Indigo",
-				"lagoon": "Lagoon",
-				"midnight": "Midnight",
-				"moss": "Moss",
 				"ocean": "Ocean",
-				"orchid": "Orchid",
-				"sky": "Sky",
-				"walnut": "Walnut"
+				"blush": "Blush",
+				"ink": "Ink",
+				"lilac": "Lilac",
+				"mint": "Mint",
+				"mist": "Mist",
+				"peach": "Peach",
+				"powder": "Powder blue",
+				"sunflower": "Sunflower"
 			},
 			"priority": {
 				"high": "Alta",

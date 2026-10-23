@@ -54,46 +54,68 @@ const labelColors = [
     label: "Ocean",
     color: "var(--color-blue-600)",
   },
-  { value: "sky", key: "sky", label: "Sky", color: "var(--color-sky-500)" },
   {
-    value: "cyan",
-    key: "lagoon",
-    label: "Lagoon",
-    color: "var(--color-cyan-600)",
+    value: "bright-yellow",
+    key: "sunflower",
+    label: "Sunflower",
+    color: "var(--color-yellow-400)",
   },
   {
-    value: "indigo",
-    key: "indigo",
-    label: "Indigo",
-    color: "var(--color-indigo-500)",
+    value: "pale-pink",
+    key: "blush",
+    label: "Blush",
+    color: "var(--color-pink-300)",
   },
   {
-    value: "fuchsia",
-    key: "orchid",
-    label: "Orchid",
-    color: "var(--color-fuchsia-600)",
-  },
-  { value: "lime", key: "moss", label: "Moss", color: "var(--color-lime-600)" },
-  {
-    value: "brown",
-    key: "walnut",
-    label: "Walnut",
-    color: "var(--color-amber-900)",
+    value: "pale-purple",
+    key: "lilac",
+    label: "Lilac",
+    color: "var(--color-violet-300)",
   },
   {
-    value: "navy",
-    key: "midnight",
-    label: "Midnight",
-    color: "var(--color-blue-900)",
+    value: "pale-green",
+    key: "mint",
+    label: "Mint",
+    color: "var(--color-emerald-300)",
   },
   {
-    value: "coral",
-    key: "coral",
-    label: "Coral",
-    color: "var(--color-red-400)",
+    value: "pale-blue",
+    key: "powder",
+    label: "Powder blue",
+    color: "var(--color-sky-300)",
+  },
+  {
+    value: "pale-orange",
+    key: "peach",
+    label: "Peach",
+    color: "var(--color-orange-300)",
+  },
+  {
+    value: "pale-gray",
+    key: "mist",
+    label: "Mist",
+    color: "var(--color-stone-300)",
+  },
+  {
+    value: "black",
+    key: "ink",
+    label: "Ink",
+    color: "var(--color-neutral-900)",
   },
 ] as const;
 
 export type LabelColorValue = (typeof labelColors)[number]["value"];
+
+// Briefly offered, no longer in the pickers; labels that use them keep their color.
+export const retiredLabelColors = [
+  { value: "sky", color: "var(--color-sky-500)" },
+  { value: "cyan", color: "var(--color-cyan-600)" },
+  { value: "indigo", color: "var(--color-indigo-500)" },
+  { value: "fuchsia", color: "var(--color-fuchsia-600)" },
+  { value: "lime", color: "var(--color-lime-600)" },
+  { value: "brown", color: "var(--color-amber-900)" },
+  { value: "navy", color: "var(--color-blue-900)" },
+  { value: "coral", color: "var(--color-red-400)" },
+] as const;
 
 export default labelColors;

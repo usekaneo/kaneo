@@ -18,14 +18,14 @@ export const LABEL_PALETTE: ReadonlyArray<PaletteColor> = [
   { key: "pink", name: "Rose", hex: "#ec003f" },
   { key: "red", name: "Crimson", hex: "#e7000b" },
   { key: "blue", name: "Ocean", hex: "#155dfc" },
-  { key: "sky", name: "Sky", hex: "#00a6f4" },
-  { key: "cyan", name: "Lagoon", hex: "#0092b8" },
-  { key: "indigo", name: "Indigo", hex: "#615fff" },
-  { key: "fuchsia", name: "Orchid", hex: "#c800de" },
-  { key: "lime", name: "Moss", hex: "#5ea500" },
-  { key: "brown", name: "Walnut", hex: "#7b3306" },
-  { key: "navy", name: "Midnight", hex: "#1c398e" },
-  { key: "coral", name: "Coral", hex: "#ff6467" },
+  { key: "bright-yellow", name: "Sunflower", hex: "#fdc700" },
+  { key: "pale-pink", name: "Blush", hex: "#fda5d5" },
+  { key: "pale-purple", name: "Lilac", hex: "#c4b4ff" },
+  { key: "pale-green", name: "Mint", hex: "#5ee9b5" },
+  { key: "pale-blue", name: "Powder blue", hex: "#74d4ff" },
+  { key: "pale-orange", name: "Peach", hex: "#ffb86a" },
+  { key: "pale-gray", name: "Mist", hex: "#d6d3d1" },
+  { key: "black", name: "Ink", hex: "#171717" },
 ];
 
 export const FALLBACK_LABEL_HEX = "#a1a1a1";
