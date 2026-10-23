@@ -8,6 +8,7 @@ import { ChecklistChip } from "@/components/task-chips/checklist-chip";
 import { DueDateChip } from "@/components/task-chips/due-date-chip";
 import { LabelChips } from "@/components/task-chips/label-chips";
 import { stopCardEvents } from "@/components/task-chips/stop-card-events";
+import { ParentTaskHint } from "@/components/task-chips/parent-task-hint";
 import { SubtasksChip } from "@/components/task-chips/subtasks-chip";
 import { cn } from "@/lib/cn";
 import { getPriorityLabel } from "@/lib/i18n/domain";
@@ -78,6 +79,10 @@ export function TaskRowBody({
 
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <span className="truncate text-foreground text-sm">{task.title}</span>
+        <ParentTaskHint
+          parent={task.parentTask}
+          className="max-w-56 shrink text-muted-foreground text-xs"
+        />
         <div className="flex shrink-0 items-center gap-0.5">
           <SubtasksChip
             task={task}

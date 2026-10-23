@@ -36,6 +36,7 @@ import {
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { ProjectLabelDots } from "@/components/project-label-dots";
 import { ProjectProgress } from "@/components/project-progress";
 import {
   Collapsible,
@@ -62,6 +63,7 @@ import {
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
 import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
+import useGetWorkspaceDefaultLabels from "@/hooks/queries/label/use-get-workspace-default-labels";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -124,6 +126,9 @@ export function NavProjects() {
   const { t } = useTranslation();
   const { isMobile } = useSidebar();
   const { data: workspace } = useActiveWorkspace();
+  const { data: defaultLabels } = useGetWorkspaceDefaultLabels(
+    workspace?.id ?? "",
+  );
   const { data: projects } = useGetProjects(
     {
       workspaceId: workspace?.id || "",
@@ -282,9 +287,13 @@ export function NavProjects() {
                             onClick={() => handleProjectClick(project)}
                           >
                             <ProjectIcon aria-hidden="true" />
-                            <span className="min-w-0 flex-1 truncate">
+                            <span className="min-w-0 truncate">
                               {project.name}
                             </span>
+                            <ProjectLabelDots
+                              labels={defaultLabels?.get(project.id) ?? []}
+                            />
+                            <span className="flex-1" />
                             {/* Gives way to the row menu, which sits here on hover. */}
                             <ProjectProgress
                               percentage={

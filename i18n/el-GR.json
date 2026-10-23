@@ -148,7 +148,16 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -917,7 +926,13 @@
 			"moveDialogTitle": "Μετακίνηση σε άλλο χώρο εργασίας;",
 			"moveTargetLabel": "Χώρος εργασίας",
 			"moving": "Γίνεται μετακίνηση...",
-			"tasksTitle": "Εργασίες"
+			"tasksTitle": "Εργασίες",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "Ενσωματώσεις",
@@ -2563,6 +2578,12 @@
 			"then": "μετά",
 			"or": "ή",
 			"thenEllipsis": "μετά…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -3008,7 +3029,16 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "Επεξεργασία ετικετών"
 			}
@@ -3310,14 +3340,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",
@@ -3341,7 +3363,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4418,7 +4441,16 @@
 				"amber": "Κεχριμπάρι",
 				"terracotta": "Τερακότα",
 				"rose": "Ροζ",
-				"crimson": "Βυσσινί"
+				"crimson": "Βυσσινί",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"role": {
 				"owner": "Ιδιοκτήτης",

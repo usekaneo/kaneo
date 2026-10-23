@@ -601,6 +601,58 @@ export const globalBoardOrderTable = pgTable(
   ],
 );
 
+// Workspace labels every new task in the project starts with.
+export const projectDefaultLabelTable = pgTable(
+  "project_default_label",
+  {
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    labelId: text("label_id")
+      .notNull()
+      .references(() => labelTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.projectId, table.labelId] }),
+    index("project_default_label_label_id_idx").on(table.labelId),
+  ],
+);
+
+// Workspace labels a user keeps in the sidebar as shortcuts to the global board.
+export const pinnedLabelTable = pgTable(
+  "pinned_label",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    labelId: text("label_id")
+      .notNull()
+      .references(() => labelTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.labelId] }),
+    index("pinned_label_label_id_idx").on(table.labelId),
+  ],
+);
+
 export const billingReminderSentTable = pgTable(
   "billing_reminder_sent",
   {

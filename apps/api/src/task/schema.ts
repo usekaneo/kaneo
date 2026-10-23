@@ -88,6 +88,10 @@ export const createTaskBody = z.object({
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))
     .optional(),
+  defaultLabels: z.boolean().optional().openapi({
+    description:
+      "Attach the project's default labels. Defaults to true; a client that lets the user pick labels before creating sends false and attaches its own.",
+  }),
 });
 
 export const updateTaskBody = z.object({

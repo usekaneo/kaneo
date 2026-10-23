@@ -31,7 +31,7 @@ describe("labelColorHex", () => {
   });
 
   it("falls back for colors it cannot read", () => {
-    expect(labelColorHex("blue")).toBe(FALLBACK_LABEL_HEX);
+    expect(labelColorHex("chartreuse")).toBe(FALLBACK_LABEL_HEX);
     expect(labelColorHex("#12345")).toBe(FALLBACK_LABEL_HEX);
     expect(labelColorHex("")).toBe(FALLBACK_LABEL_HEX);
   });
@@ -40,6 +40,7 @@ describe("labelColorHex", () => {
 describe("labelColorName", () => {
   it("names palette colors and leaves hex alone", () => {
     expect(labelColorName("purple")).toBe("lavender");
+    expect(labelColorName("navy")).toBe("midnight");
     expect(labelColorName("#8e51ff")).toBeNull();
   });
 });

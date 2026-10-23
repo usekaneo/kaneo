@@ -102,6 +102,69 @@ export const LABEL_COLORS = [
     },
     color: "#E7000B",
   },
+  {
+    value: "blue",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.ocean");
+    },
+    color: "#155DFC",
+  },
+  {
+    value: "sky",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.sky");
+    },
+    color: "#00A6F4",
+  },
+  {
+    value: "cyan",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.lagoon");
+    },
+    color: "#0092B8",
+  },
+  {
+    value: "indigo",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.indigo");
+    },
+    color: "#615FFF",
+  },
+  {
+    value: "fuchsia",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.orchid");
+    },
+    color: "#C800DE",
+  },
+  {
+    value: "lime",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.moss");
+    },
+    color: "#5EA500",
+  },
+  {
+    value: "brown",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.walnut");
+    },
+    color: "#7B3306",
+  },
+  {
+    value: "navy",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.midnight");
+    },
+    color: "#1C398E",
+  },
+  {
+    value: "coral",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.coral");
+    },
+    color: "#FF6467",
+  },
 ] as const;
 
 export function labelColor(value?: string | null): string {

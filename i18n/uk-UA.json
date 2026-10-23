@@ -148,7 +148,16 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -933,7 +942,13 @@
 			"moveDialogTitle": "Перемістити до іншого робочого простору?",
 			"moveTargetLabel": "Робочий простір",
 			"moving": "Переміщення...",
-			"tasksTitle": "Завдання"
+			"tasksTitle": "Завдання",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "Інтеґрації",
@@ -2649,6 +2664,12 @@
 			"then": "потім",
 			"or": "або",
 			"thenEllipsis": "потім…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -3102,7 +3123,16 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "Редагувати мітки"
 			}
@@ -3424,14 +3454,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",
@@ -3457,7 +3479,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4570,7 +4593,16 @@
 				"amber": "Бурштин",
 				"terracotta": "Теракота",
 				"rose": "Троянда",
-				"crimson": "Багряний"
+				"crimson": "Багряний",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"role": {
 				"owner": "Власник",

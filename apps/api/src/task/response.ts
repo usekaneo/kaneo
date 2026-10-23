@@ -92,6 +92,18 @@ const taskExternalLinkSchema = z
   })
   .openapi("TaskExternalLink");
 
+export const parentTaskSchema = z
+  .object({
+    id: z.string(),
+    number: z.number().nullable(),
+    title: z.string(),
+    projectSlug: z.string(),
+  })
+  .openapi("ParentTask", {
+    description:
+      "The task this one is a subtask of, when the caller can see it. Public boards show only parents in public projects.",
+  });
+
 export const boardTaskSchema = z
   .object({
     id: z.string(),
@@ -122,6 +134,7 @@ export const boardTaskSchema = z
         description:
           "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects.",
       }),
+    parentTask: parentTaskSchema.nullable().optional(),
     labels: z.array(taskLabelSchema),
     externalLinks: z.array(taskExternalLinkSchema),
   })

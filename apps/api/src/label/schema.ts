@@ -19,3 +19,12 @@ export const updateLabelBody = z.object({
 });
 
 export const attachLabelBody = z.object({ taskId: z.string() });
+
+export const projectIdParam = z.object({ projectId: z.string() });
+
+export const setProjectDefaultLabelsBody = z.object({
+  labelIds: z.array(z.string().min(1)).max(50).openapi({
+    description:
+      "Workspace labels new tasks in the project start with. Replaces the current set; send an empty list to clear it.",
+  }),
+});

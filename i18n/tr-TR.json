@@ -148,7 +148,16 @@
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
-					"crimson": "Koyu Kırmızı"
+					"crimson": "Koyu Kırmızı",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -917,7 +926,13 @@
 			"moveDialogTitle": "Başka bir çalışma alanına taşınsın mı?",
 			"moveTargetLabel": "Çalışma alanı",
 			"moving": "Taşınıyor...",
-			"tasksTitle": "Talepler"
+			"tasksTitle": "Talepler",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "Entegrasyonlar",
@@ -2563,6 +2578,12 @@
 			"then": "sonra",
 			"or": "veya",
 			"thenEllipsis": "sonra…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -3008,7 +3029,16 @@
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
-					"crimson": "Koyu Kırmızı"
+					"crimson": "Koyu Kırmızı",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "Etiketleri düzenle"
 			}
@@ -3310,14 +3340,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",
@@ -3341,7 +3363,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"pageTitle": "Davetler",
@@ -4136,7 +4159,16 @@
 				"sage": "Adaçayı",
 				"slate": "Arduvaz",
 				"stone": "Taş",
-				"terracotta": "Terakota"
+				"terracotta": "Terakota",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"priority": {
 				"high": "Yüksek",

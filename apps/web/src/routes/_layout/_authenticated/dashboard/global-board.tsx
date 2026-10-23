@@ -3,12 +3,11 @@ import { SquareKanban } from "lucide-react";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
-import { GlobalBoard } from "@/components/global-board";
 import {
   type GlobalBoardFilters,
   parseGlobalBoardFilters,
 } from "@/components/global-board/global-board-filters";
-import { GlobalBoardToolbar } from "@/components/global-board/global-board-toolbar";
+import { GlobalBoardView } from "@/components/global-board/global-board-view";
 import PageTitle from "@/components/page-title";
 import {
   Empty,
@@ -85,14 +84,11 @@ function GlobalBoardPage() {
                 </EmptyHeader>
               </Empty>
             ) : (
-              <>
-                <GlobalBoardToolbar
-                  meta={meta}
-                  filters={filters}
-                  onChange={setFilters}
-                />
-                <GlobalBoard meta={meta} filters={filters} />
-              </>
+              <GlobalBoardView
+                meta={meta}
+                filters={filters}
+                onChange={setFilters}
+              />
             )}
           </div>
         </Layout.Content>

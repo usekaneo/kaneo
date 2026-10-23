@@ -37,6 +37,7 @@ import {
 } from "../utils/validate-dates";
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import bulkUpdateTasks from "./controllers/bulk-update-tasks";
+import { applyProjectDefaultLabels } from "../label/controllers/apply-project-default-labels";
 import createTask from "./controllers/create-task";
 import deleteTask from "./controllers/delete-task";
 import duplicateTask from "./controllers/duplicate-task";
@@ -1012,6 +1013,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       userId,
       customFields,
       draftAssetIds,
+      defaultLabels,
     } = c.req.valid("json");
 
     const parsedStartDate =
@@ -1038,6 +1040,13 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       customFields,
       draftAssetIds,
     });
+    if (defaultLabels !== false)
+      await applyProjectDefaultLabels({
+        id: task.id,
+        projectId,
+        workspaceId: c.get("workspaceId"),
+        userId: c.get("userId"),
+      });
 
     return c.json(task, 200);
   })

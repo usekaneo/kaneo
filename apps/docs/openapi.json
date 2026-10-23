@@ -289,6 +289,9 @@
             ],
             "description": "Direct subtasks in the workspace; completed means a final column in the child project. Public boards count only children in public projects."
           },
+          "parentTask": {
+            "$ref": "#/components/schemas/ParentTask"
+          },
           "labels": {
             "type": "array",
             "items": {
@@ -322,6 +325,36 @@
           "labels",
           "externalLinks"
         ]
+      },
+      "ParentTask": {
+        "type": [
+          "object",
+          "null"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "number": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "projectSlug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "title",
+          "projectSlug"
+        ],
+        "description": "The task this one is a subtask of, when the caller can see it. Public boards show only parents in public projects."
       },
       "TaskLabel": {
         "type": "object",
@@ -1134,6 +1167,9 @@
             "items": {
               "type": "object",
               "properties": {
+                "id": {
+                  "type": "string"
+                },
                 "name": {
                   "type": "string"
                 },
@@ -1142,6 +1178,7 @@
                 }
               },
               "required": [
+                "id",
                 "name",
                 "color"
               ]
@@ -1280,6 +1317,9 @@
               "image"
             ]
           },
+          "parentTask": {
+            "$ref": "#/components/schemas/ParentTask"
+          },
           "labels": {
             "type": "array",
             "items": {
@@ -1303,6 +1343,7 @@
           "workspaceId",
           "workspaceName",
           "assignee",
+          "parentTask",
           "labels"
         ]
       },
@@ -2206,6 +2247,79 @@
           "duration",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "PinnedLabel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LabelSummary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "workspaceId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "workspaceId"
+            ]
+          }
+        ]
+      },
+      "LabelSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "color"
+        ]
+      },
+      "LabelPin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pinned": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "pinned"
+        ]
+      },
+      "ProjectDefaultLabel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LabelSummary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "projectId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "projectId"
+            ]
+          }
         ]
       },
       "Label": {
@@ -10940,58 +11054,210 @@
           },
           {
             "schema": {
-              "type": "string",
-              "minLength": 1
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "maxItems": 100
+                }
+              ],
+              "description": "Workspace IDs."
             },
             "required": false,
+            "description": "Workspace IDs.",
             "name": "workspaceId",
             "in": "query"
           },
           {
             "schema": {
-              "type": "string",
-              "minLength": 1
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "maxItems": 100
+                }
+              ],
+              "description": "Project IDs."
             },
             "required": false,
+            "description": "Project IDs.",
             "name": "projectId",
             "in": "query"
           },
           {
             "schema": {
-              "type": "string",
-              "minLength": 1,
-              "description": "A user ID, `me` for the caller, or `unassigned`."
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "maxItems": 100
+                }
+              ],
+              "description": "User IDs, `me` for the caller, or `unassigned`."
             },
             "required": false,
-            "description": "A user ID, `me` for the caller, or `unassigned`.",
+            "description": "User IDs, `me` for the caller, or `unassigned`.",
             "name": "assigneeId",
             "in": "query"
           },
           {
             "schema": {
-              "type": "string",
-              "enum": [
-                "no-priority",
-                "low",
-                "medium",
-                "high",
-                "urgent"
-              ]
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "no-priority",
+                    "low",
+                    "medium",
+                    "high",
+                    "urgent"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "no-priority",
+                      "low",
+                      "medium",
+                      "high",
+                      "urgent"
+                    ]
+                  },
+                  "maxItems": 100
+                }
+              ],
+              "description": "Priorities."
             },
             "required": false,
+            "description": "Priorities.",
             "name": "priority",
             "in": "query"
           },
           {
             "schema": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 100,
-              "description": "Label name, matched case-insensitively."
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "maxItems": 100
+                }
+              ],
+              "description": "Label names, matched case-insensitively. A task matches when it has any of them."
             },
             "required": false,
-            "description": "Label name, matched case-insensitively.",
+            "description": "Label names, matched case-insensitively. A task matches when it has any of them.",
             "name": "label",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "dueThisWeek",
+                    "dueNextWeek",
+                    "noDueDate"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "dueThisWeek",
+                      "dueNextWeek",
+                      "noDueDate"
+                    ]
+                  },
+                  "maxItems": 100
+                }
+              ],
+              "description": "`dueThisWeek`, `dueNextWeek`, or `noDueDate`."
+            },
+            "required": false,
+            "description": "`dueThisWeek`, `dueNextWeek`, or `noDueDate`.",
+            "name": "dueDate",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "workspaceId",
+                    "projectId",
+                    "assigneeId",
+                    "priority",
+                    "label",
+                    "dueDate"
+                  ]
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "workspaceId",
+                      "projectId",
+                      "assigneeId",
+                      "priority",
+                      "label",
+                      "dueDate"
+                    ]
+                  },
+                  "maxItems": 100
+                }
+              ],
+              "description": "Filters to invert: a task matches when it does not match that filter."
+            },
+            "required": false,
+            "description": "Filters to invert: a task matches when it does not match that filter.",
+            "name": "negate",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the caller's current week starts, for the week due-date filters. Defaults to Monday 00:00 UTC."
+            },
+            "required": false,
+            "description": "When the caller's current week starts, for the week due-date filters. Defaults to Monday 00:00 UTC.",
+            "name": "dueWeekStart",
             "in": "query"
           },
           {
@@ -11952,6 +12218,10 @@
                         "value"
                       ]
                     }
+                  },
+                  "defaultLabels": {
+                    "type": "boolean",
+                    "description": "Attach the project's default labels. Defaults to true; a client that lets the user pick labels before creating sends false and attaches its own."
                   }
                 },
                 "required": [
@@ -15259,6 +15529,418 @@
           },
           "404": {
             "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/label/pinned": {
+      "get": {
+        "operationId": "getPinnedLabels",
+        "tags": [
+          "Labels"
+        ],
+        "summary": "Get pinned labels",
+        "description": "The caller's pinned workspace labels, oldest pin first. Labels from workspaces the caller has left are omitted.",
+        "responses": {
+          "200": {
+            "description": "Pinned labels",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PinnedLabel"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing label:read API key scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/label/{id}/pin": {
+      "put": {
+        "operationId": "pinLabel",
+        "tags": [
+          "Labels"
+        ],
+        "summary": "Pin label",
+        "description": "Pin a workspace label for the caller. Pins are personal and do not change the label.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The label is pinned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabelPin"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The label belongs to a task, not the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing label:read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Label not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workspace label is being deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "unpinLabel",
+        "tags": [
+          "Labels"
+        ],
+        "summary": "Unpin label",
+        "description": "Remove a label from the caller's pins.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The label is unpinned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LabelPin"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Label not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/label/workspace/{workspaceId}/project-defaults": {
+      "get": {
+        "operationId": "getWorkspaceDefaultLabels",
+        "tags": [
+          "Labels"
+        ],
+        "summary": "Get default labels of a workspace's projects",
+        "description": "Each readable project's default labels in the workspace, one row per project and label.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default labels by project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProjectDefaultLabel"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/label/project/{projectId}/defaults": {
+      "get": {
+        "operationId": "getProjectDefaultLabels",
+        "tags": [
+          "Labels"
+        ],
+        "summary": "Get project default labels",
+        "description": "The workspace labels every new task in the project starts with.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default labels",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelSummary"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "put": {
+        "operationId": "setProjectDefaultLabels",
+        "tags": [
+          "Labels"
+        ],
+        "summary": "Set project default labels",
+        "description": "Replace the labels new tasks in the project start with. Existing tasks keep their labels.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "labelIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "maxItems": 50,
+                    "description": "Workspace labels new tasks in the project start with. Replaces the current set; send an empty list to clear it."
+                  }
+                },
+                "required": [
+                  "labelIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The new default labels",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelSummary"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A label is not a workspace label of this project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project, or missing project:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "application/json": {
                 "schema": {

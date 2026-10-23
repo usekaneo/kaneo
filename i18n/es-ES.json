@@ -148,7 +148,16 @@
 					"amber": "Ámbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesí"
+					"crimson": "Carmesí",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -800,7 +809,13 @@
 			"moveDialogTitle": "¿Mover a otro espacio de trabajo?",
 			"moveTargetLabel": "Espacio de trabajo",
 			"moving": "Moviendo...",
-			"tasksTitle": "Tareas"
+			"tasksTitle": "Tareas",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integraciones",
@@ -2606,6 +2621,12 @@
 			"then": "luego",
 			"or": "o",
 			"thenEllipsis": "luego…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -3044,7 +3065,16 @@
 					"amber": "Ámbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesí"
+					"crimson": "Carmesí",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "Editar etiquetas"
 			}
@@ -3367,14 +3397,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",
@@ -3399,7 +3421,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4494,7 +4517,16 @@
 				"amber": "Ámbar",
 				"terracotta": "Terracota",
 				"rose": "Rosa",
-				"crimson": "Carmesí"
+				"crimson": "Carmesí",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"role": {
 				"owner": "Propietario",

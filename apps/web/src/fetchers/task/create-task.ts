@@ -18,6 +18,7 @@ async function createTask(
   priority: CreateTaskRequest["priority"],
   customFields?: { fieldId: string; value: string }[],
   draftAssetIds?: string[],
+  defaultLabels?: boolean,
 ) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
@@ -35,6 +36,7 @@ async function createTask(
       priority,
       customFields,
       draftAssetIds,
+      defaultLabels,
     },
     param: { projectId },
   });

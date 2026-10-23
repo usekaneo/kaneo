@@ -56,6 +56,7 @@ export function ProjectGeneralPage() {
         {project ? (
           <ProjectTasksSection
             project={project}
+            canEdit={canEdit}
             isCurrentProject={isCurrentProject}
             flushPendingSave={flushPendingSave}
           />

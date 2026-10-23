@@ -148,7 +148,16 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"statusLoadError": "项目状态加载失败。"
 			}
@@ -1153,7 +1162,13 @@
 			"moveDialogTitle": "移动到其他工作区？",
 			"moveTargetLabel": "工作区",
 			"moving": "正在移动...",
-			"tasksTitle": "任务"
+			"tasksTitle": "任务",
+			"defaultLabels": {
+				"choose": "Choose labels",
+				"description": "New tasks in this project start with these labels.",
+				"error": "Couldn't save the default labels.",
+				"title": "Default labels"
+			}
 		},
 		"projectIntegrations": {
 			"pageTitle": "集成",
@@ -2520,6 +2535,12 @@
 			"then": "然后",
 			"or": "或",
 			"thenEllipsis": "然后…"
+		},
+		"pinnedLabels": {
+			"empty": "Pin a label to open the global board filtered by it.",
+			"error": "Couldn't update pinned labels.",
+			"pin": "Pin a label",
+			"title": "Pinned labels"
 		}
 	},
 	"notifications": {
@@ -2961,7 +2982,16 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"coral": "Coral",
+					"indigo": "Indigo",
+					"lagoon": "Lagoon",
+					"midnight": "Midnight",
+					"moss": "Moss",
+					"ocean": "Ocean",
+					"orchid": "Orchid",
+					"sky": "Sky",
+					"walnut": "Walnut"
 				},
 				"editLabels": "编辑标签"
 			}
@@ -3253,14 +3283,6 @@
 			"emptyLane": "No tasks",
 			"emptyTitle": "No projects to show",
 			"filters": {
-				"allProjects": "All projects",
-				"allWorkspaces": "All workspaces",
-				"anyLabel": "Any label",
-				"anyone": "Anyone",
-				"anyPriority": "Any priority",
-				"assignee": "Assignee",
-				"clear": "Clear",
-				"label": "Label",
 				"me": "Me",
 				"project": "Project",
 				"unassigned": "Unassigned",
@@ -3283,7 +3305,8 @@
 			"retry": "Try again",
 			"searchPlaceholder": "Search tasks",
 			"unmappedDescription": "These tasks sit in a column that can't be placed on To Do, In Progress, or Done, such as one named Done that isn't marked final. Move them with the task menu."
-		}
+		},
+		"parentHint": "parent: {{id}} {{title}}"
 	},
 	"invitations": {
 		"email": {
@@ -4068,7 +4091,16 @@
 				"sage": "鼠尾草绿",
 				"slate": "石板蓝",
 				"stone": "石板灰",
-				"terracotta": "赤陶"
+				"terracotta": "赤陶",
+				"coral": "Coral",
+				"indigo": "Indigo",
+				"lagoon": "Lagoon",
+				"midnight": "Midnight",
+				"moss": "Moss",
+				"ocean": "Ocean",
+				"orchid": "Orchid",
+				"sky": "Sky",
+				"walnut": "Walnut"
 			},
 			"priority": {
 				"high": "高",

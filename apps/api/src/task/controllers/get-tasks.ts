@@ -30,6 +30,7 @@ import {
   projectDescriptionDeferred,
 } from "../description-pages";
 import { taskIsCompleted } from "../task-is-completed";
+import { getParentTasks } from "../get-parent-tasks";
 import { getSubtaskCounts } from "../get-subtask-counts";
 
 export type GetTasksOptions = {
@@ -208,6 +209,13 @@ async function getTasksPage(
   const taskIds = paginatedTasks.map((task) => task.id);
 
   const subtaskCounts = await getSubtaskCounts(
+    db,
+    taskIds,
+    project.workspaceId,
+    options.publicOnly ?? false,
+    userId,
+  );
+  const parentTasks = await getParentTasks(
     db,
     taskIds,
     project.workspaceId,
@@ -429,6 +437,7 @@ async function getTasksPage(
       .map((task) => ({
         ...task,
         subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
+        parentTask: parentTasks.get(task.id) ?? null,
         labels: taskLabelsMap.get(task.id) || [],
         externalLinks: taskExternalLinksMap.get(task.id) || [],
       })),
@@ -439,6 +448,7 @@ async function getTasksPage(
     .map((task) => ({
       ...task,
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
+      parentTask: parentTasks.get(task.id) ?? null,
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));
@@ -448,6 +458,7 @@ async function getTasksPage(
     .map((task) => ({
       ...task,
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
+      parentTask: parentTasks.get(task.id) ?? null,
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
     }));

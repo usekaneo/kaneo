@@ -15,21 +15,10 @@ import useGetLabelsByTask from "@/hooks/queries/label/use-get-labels-by-task";
 import useGetLabelsByWorkspace from "@/hooks/queries/label/use-get-labels-by-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getTaskLabelOptions } from "@/lib/get-task-label-options";
+import labelColors from "@/constants/label-colors";
 import { resolveLabelColor } from "@/lib/label-color";
 import { toast } from "@/lib/toast";
 import type Task from "@/types/task";
-
-const labelColors = [
-  { value: "gray", key: "stone", color: "var(--color-stone-500)" },
-  { value: "dark-gray", key: "slate", color: "var(--color-slate-500)" },
-  { value: "purple", key: "lavender", color: "var(--color-violet-500)" },
-  { value: "teal", key: "sage", color: "var(--color-emerald-600)" },
-  { value: "green", key: "forest", color: "var(--color-green-600)" },
-  { value: "yellow", key: "amber", color: "var(--color-amber-600)" },
-  { value: "orange", key: "terracotta", color: "var(--color-orange-600)" },
-  { value: "pink", key: "rose", color: "var(--color-rose-600)" },
-  { value: "red", key: "crimson", color: "var(--color-red-600)" },
-];
 
 const CREATE_LABEL = ":create";
 

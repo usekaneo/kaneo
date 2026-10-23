@@ -16,6 +16,15 @@ const labelColors: Record<string, string> = {
   orange: "#F54900",
   pink: "#EC003F",
   red: "#E7000B",
+  blue: "#155DFC",
+  sky: "#00A6F4",
+  cyan: "#0092B8",
+  indigo: "#615FFF",
+  fuchsia: "#C800DE",
+  lime: "#5EA500",
+  brown: "#7B3306",
+  navy: "#1C398E",
+  coral: "#FF6467",
 };
 
 const FALLBACK_LABEL_COLOR = "#A1A1A1";

@@ -1,9 +1,13 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { startOfWeek } from "date-fns";
 import type {
   GlobalBoardFilters,
   GlobalBoardLane,
 } from "@/components/global-board/global-board-filters";
-import getGlobalBoardTasks from "@/fetchers/task/get-global-board-tasks";
+import getGlobalBoardTasks, {
+  type GlobalBoardTasksQuery,
+} from "@/fetchers/task/get-global-board-tasks";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 
 export const GLOBAL_BOARD_PAGE_SIZE = 25;
 
@@ -18,11 +22,20 @@ function useGlobalBoardTasks(
   lane: GlobalBoardLane,
   filters: GlobalBoardFilters,
 ) {
+  const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   return useInfiniteQuery({
     queryKey: globalBoardTasksKey(lane, filters),
     queryFn: ({ pageParam }) =>
       getGlobalBoardTasks({
-        ...filters,
+        ...(filters as Omit<GlobalBoardTasksQuery, "globalStatus">),
+        // "This week" follows the viewer's calendar, like project boards.
+        ...(filters.dueDate
+          ? {
+              dueWeekStart: startOfWeek(new Date(), {
+                weekStartsOn,
+              }).toISOString(),
+            }
+          : {}),
         globalStatus: lane,
         page: String(pageParam),
         limit: String(GLOBAL_BOARD_PAGE_SIZE),

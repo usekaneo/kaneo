@@ -2,19 +2,56 @@ import { pagingNumber, z } from "../../openapi";
 import { VALID_PRIORITIES } from "../validate-task-fields";
 import { GLOBAL_STATUSES } from "./global-status";
 
+export const DUE_DATE_FILTERS = [
+  "dueThisWeek",
+  "dueNextWeek",
+  "noDueDate",
+] as const;
+
+export const GLOBAL_BOARD_FILTER_SUBJECTS = [
+  "workspaceId",
+  "projectId",
+  "assigneeId",
+  "priority",
+  "label",
+  "dueDate",
+] as const;
+
+// Query strings repeat a key for several values; one value arrives bare.
+const listParam = <T extends z.ZodType<string>>(item: T, description: string) =>
+  z
+    .union([item, z.array(item).max(100)])
+    .optional()
+    .transform((value) => (value === undefined ? undefined : [value].flat()))
+    .openapi({ description });
+
 export const globalBoardTasksQuery = z.object({
   globalStatus: z.enum([...GLOBAL_STATUSES, "unmapped"]).openapi({
     description:
       "The board column to page through. `unmapped` lists tasks whose project column cannot be placed on to-do, in-progress, or done without guessing.",
   }),
-  workspaceId: z.string().min(1).optional(),
-  projectId: z.string().min(1).optional(),
-  assigneeId: z.string().min(1).optional().openapi({
-    description: "A user ID, `me` for the caller, or `unassigned`.",
-  }),
-  priority: z.enum(VALID_PRIORITIES).optional(),
-  label: z.string().trim().min(1).max(100).optional().openapi({
-    description: "Label name, matched case-insensitively.",
+  workspaceId: listParam(z.string().min(1), "Workspace IDs."),
+  projectId: listParam(z.string().min(1), "Project IDs."),
+  assigneeId: listParam(
+    z.string().min(1),
+    "User IDs, `me` for the caller, or `unassigned`.",
+  ),
+  priority: listParam(z.enum(VALID_PRIORITIES), "Priorities."),
+  label: listParam(
+    z.string().trim().min(1).max(100),
+    "Label names, matched case-insensitively. A task matches when it has any of them.",
+  ),
+  dueDate: listParam(
+    z.enum(DUE_DATE_FILTERS),
+    "`dueThisWeek`, `dueNextWeek`, or `noDueDate`.",
+  ),
+  negate: listParam(
+    z.enum(GLOBAL_BOARD_FILTER_SUBJECTS),
+    "Filters to invert: a task matches when it does not match that filter.",
+  ),
+  dueWeekStart: z.iso.datetime({ offset: true }).optional().openapi({
+    description:
+      "When the caller's current week starts, for the week due-date filters. Defaults to Monday 00:00 UTC.",
   }),
   q: z.string().max(200).optional().openapi({
     description: "Matches task titles, or a ticket ID such as KAN-12.",

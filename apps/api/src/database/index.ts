@@ -38,6 +38,8 @@ import { resolveDatabaseConfig } from "./resolve-database-url";
 import {
   dataMigrationTable,
   globalBoardOrderTable,
+  pinnedLabelTable,
+  projectDefaultLabelTable,
   storageCleanupTable,
   accountTable,
   activityTable,
@@ -90,6 +92,8 @@ config();
 export const schema = {
   dataMigrationTable,
   globalBoardOrderTable,
+  pinnedLabelTable,
+  projectDefaultLabelTable,
   storageCleanupTable,
   accountTable,
   assetTable,
