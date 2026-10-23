@@ -13,6 +13,10 @@ vi.mock("../../../apps/api/src/events", () => ({
   publishEvent: vi.fn(),
 }));
 
+vi.mock("../../../apps/api/src/task/get-task-descendant-projects", () => ({
+  getTaskDescendantProjects: vi.fn().mockResolvedValue([]),
+}));
+
 import { subscribeToEvent } from "../../../apps/api/src/events";
 import {
   addConnection,

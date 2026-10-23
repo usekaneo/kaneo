@@ -1,3 +1,4 @@
+import { promptSubtaskStatus } from "@/components/task/subtask-status-dialog/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import bulkOperation from "@/fetchers/task/bulk-operation";
@@ -31,7 +32,10 @@ export function useBulkOperations() {
         value: "archived",
       });
     },
-    onSuccess: invalidateCommon,
+    onSuccess: (_, taskIds) => {
+      invalidateCommon();
+      for (const id of taskIds) void promptSubtaskStatus(id, "archived");
+    },
   });
 
   const bulkChangeStatus = useMutation({
@@ -48,7 +52,10 @@ export function useBulkOperations() {
         value: status,
       });
     },
-    onSuccess: invalidateCommon,
+    onSuccess: (_, { taskIds, status }) => {
+      invalidateCommon();
+      for (const id of taskIds) void promptSubtaskStatus(id, status);
+    },
   });
 
   const bulkAssign = useMutation({
@@ -93,7 +100,10 @@ export function useBulkOperations() {
         value: status,
       });
     },
-    onSuccess: invalidateCommon,
+    onSuccess: (_, { taskIds, status }) => {
+      invalidateCommon();
+      for (const id of taskIds) void promptSubtaskStatus(id, status);
+    },
   });
 
   const bulkPriority = useMutation({

@@ -1,3 +1,4 @@
+import { promptSubtaskStatus } from "@/components/task/subtask-status-dialog/store";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import { markBoardCacheChanged } from "@/lib/board-cache-version";
 import { selectReorderBoard } from "./select-reorder-board";
@@ -74,6 +75,16 @@ function KanbanBoard({
       reorderTasks(request),
     onMutate: (variables) => ({ previousBoard: variables.previousBoard }),
     onSuccess: (_result, variables) => {
+      const previousStatuses = new Map(
+        variables.previousBoard.columns.flatMap((column) =>
+          column.tasks.map((task) => [task.id, task.status] as const),
+        ),
+      );
+      for (const task of variables.tasks) {
+        if (task.status && task.status !== previousStatuses.get(task.id)) {
+          void promptSubtaskStatus(task.id, task.status);
+        }
+      }
       if (variables.tasks.some((task) => task.status !== undefined)) {
         invalidateMyWork(queryClient);
         void queryClient.invalidateQueries({ queryKey: ["projects"] });

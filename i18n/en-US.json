@@ -3236,7 +3236,8 @@
 		"descriptionLoadError": "The description could not be loaded. Retry to load the current version.",
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Press Space to preview and Enter to open this task. Use Alt or Option with the arrow keys to move it."
+			"keyboardInstructions": "Press Space to preview and Enter to open this task. Use Alt or Option with the arrow keys to move it.",
+			"ancestorBreadcrumbs": "Task ancestry"
 		},
 		"toolbar": {
 			"search": "Search tasks",
@@ -3294,6 +3295,19 @@
 			"startsOn": "Starts {{date}}",
 			"beforeStart": "{{date}} is before the start date",
 			"afterDue": "{{date}} is after the due date"
+		},
+		"subtaskStatus": {
+			"title": "Update the status of open subtasks too?",
+			"description_one": "“{{title}}” still has {{count}} open subtask. Would you like to also update its status to {{status}}?",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"skip": "Skip subtasks",
+			"updateAll": "Update all",
+			"updating": "Updating…",
+			"archived": "Archived",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"retry": "Retry"
 		}
 	},
 	"invitations": {

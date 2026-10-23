@@ -57,7 +57,7 @@ async function updateTaskStatus({
       userId: currentUserId,
     });
 
-  return updatedTask;
+  return { ...updatedTask, previousStatus: existingTask.status };
 }
 
 export default updateTaskStatus;

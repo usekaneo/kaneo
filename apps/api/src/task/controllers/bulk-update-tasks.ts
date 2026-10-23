@@ -1,3 +1,4 @@
+import { getTaskDescendantProjects } from "../get-task-descendant-projects";
 import { queueStorageCleanup } from "../../storage/cleanup-queue";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -304,6 +305,7 @@ async function bulkUpdateTasks({
     }
 
     case "delete": {
+      const descendantProjects = await getTaskDescendantProjects(foundIds);
       // Relations cascade away with the children, so capture parents first.
       const parentProjects = await getSubtaskParentProjects(foundIds);
       const result = await db.transaction(async (tx) => {
@@ -347,7 +349,7 @@ async function bulkUpdateTasks({
         });
       }
       await publishEvent("subtask-parents.refresh", {
-        projects: parentProjects,
+        projects: [...parentProjects, ...descendantProjects],
       });
       break;
     }
