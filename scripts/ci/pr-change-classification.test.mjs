@@ -317,10 +317,7 @@ test("result gate accepts only successful jobs and deliberate expensive skips", 
     "detect-pr-changes": "success",
     "peekareq-tests": "success",
     "slop-labeler-tests": "success",
-    lint: "success",
-    i18n: "success",
-    openapi: "success",
-    typecheck: "success",
+    quality: "success",
     unit: "success",
     build: "success",
     integration: "skipped",
@@ -354,7 +351,7 @@ test("result gate accepts only successful jobs and deliberate expensive skips", 
         workflow: "ci",
         eventName: "pull_request",
         skipExpensive: true,
-        jobs: { ...ciJobs, lint: state },
+        jobs: { ...ciJobs, quality: state },
       }),
       "failure",
     );
@@ -408,7 +405,7 @@ test("result gate accepts only successful jobs and deliberate expensive skips", 
       workflow: "ci",
       eventName: "pull_request",
       skipExpensive: true,
-      jobs: { lint: "success" },
+      jobs: { quality: "success" },
     }),
     "failure",
   );
@@ -421,4 +418,46 @@ test("result gate accepts only successful jobs and deliberate expensive skips", 
     }),
     "success",
   );
+});
+
+test("result gate requires successful quality checks on every CI event", () => {
+  const jobs = {
+    "detect-pr-changes": "success",
+    "peekareq-tests": "success",
+    "slop-labeler-tests": "success",
+    quality: "success",
+    unit: "success",
+    build: "success",
+    integration: "success",
+    "docker-build": "success",
+    workflows: "success",
+    storage: "success",
+    "split-images": "success",
+    "secret-scan": "success",
+  };
+  const withoutQuality = { ...jobs };
+  delete withoutQuality.quality;
+
+  for (const eventName of [
+    "pull_request",
+    "push",
+    "workflow_dispatch",
+    "workflow_call",
+    "schedule",
+  ]) {
+    const input = { workflow: "ci", eventName, skipExpensive: false, jobs };
+    assert.equal(assessGate(input), "success", `${eventName}: all checks pass`);
+    assert.equal(
+      assessGate({ ...input, jobs: withoutQuality }),
+      "failure",
+      `${eventName}: missing quality result blocks the gate`,
+    );
+    for (const quality of ["failure", "cancelled", "skipped"]) {
+      assert.equal(
+        assessGate({ ...input, jobs: { ...jobs, quality } }),
+        "failure",
+        `${eventName}: ${quality} quality checks block the gate`,
+      );
+    }
+  }
 });
