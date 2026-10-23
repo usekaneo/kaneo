@@ -11,7 +11,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  detect-pr-changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    outputs:
+      skip_expensive: ${{ steps.classify.outputs.skip_expensive }}
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - id: classify
+        name: Classify complete pull request diff
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/ci/pr-change-classification.mjs
+
   smoke:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     name: Chromium smoke tests
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
@@ -66,3 +90,22 @@ jobs:
       - name: Stop disposable test instance
         if: always()
         run: docker compose -f tests/e2e/compose.yml down --volumes
+
+  browser-result:
+    if: ${{ always() }}
+    needs: [detect-pr-changes, smoke]
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - name: Reject failed, cancelled, and unexpected skipped checks
+        env:
+          CI_GATE_WORKFLOW: browser
+          CI_SKIP_EXPENSIVE: ${{ needs.detect-pr-changes.outputs.skip_expensive }}
+          CI_GATE_JOBS: '{"detect-pr-changes":"${{ needs.detect-pr-changes.result }}","smoke":"${{ needs.smoke.result }}"}'
+        run: node scripts/ci/pr-change-classification.mjs

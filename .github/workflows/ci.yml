@@ -15,6 +15,28 @@ permissions:
   contents: read
 
 jobs:
+  detect-pr-changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    outputs:
+      skip_expensive: ${{ steps.classify.outputs.skip_expensive }}
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - id: classify
+        name: Classify complete pull request diff
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/ci/pr-change-classification.mjs
+
   peekareq-tests:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 5
@@ -207,6 +229,8 @@ jobs:
         run: pnpm --filter @kaneo/site seo:check
 
   integration:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     timeout-minutes: 15
     runs-on: blacksmith-4vcpu-ubuntu-2404
     services:
@@ -252,6 +276,8 @@ jobs:
         run: pnpm test:integration
 
   docker-build:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     steps:
@@ -358,6 +384,8 @@ jobs:
           fi
 
   storage:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
     steps:
@@ -396,6 +424,8 @@ jobs:
         run: docker rm -f -v kaneo-storage-ci
 
   split-images:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     strategy:
@@ -508,3 +538,21 @@ jobs:
             --data-binary @"$RUNNER_TEMP/discord-payload.json" \
             "$TRUFFLEHOG_WEBHOOK" \
             || echo "::warning::Discord notification could not be delivered."
+
+  ci-result:
+    if: ${{ always() }}
+    needs: [detect-pr-changes, peekareq-tests, slop-labeler-tests, lint, i18n, openapi, typecheck, unit, build, integration, docker-build, workflows, storage, split-images, secret-scan]
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - name: Reject failed, cancelled, and unexpected skipped checks
+        env:
+          CI_SKIP_EXPENSIVE: ${{ needs.detect-pr-changes.outputs.skip_expensive }}
+          CI_GATE_JOBS: '{"detect-pr-changes":"${{ needs.detect-pr-changes.result }}","peekareq-tests":"${{ needs.peekareq-tests.result }}","slop-labeler-tests":"${{ needs.slop-labeler-tests.result }}","lint":"${{ needs.lint.result }}","i18n":"${{ needs.i18n.result }}","openapi":"${{ needs.openapi.result }}","typecheck":"${{ needs.typecheck.result }}","unit":"${{ needs.unit.result }}","build":"${{ needs.build.result }}","integration":"${{ needs.integration.result }}","docker-build":"${{ needs.docker-build.result }}","workflows":"${{ needs.workflows.result }}","storage":"${{ needs.storage.result }}","split-images":"${{ needs.split-images.result }}","secret-scan":"${{ needs.secret-scan.result }}"}'
+        run: node scripts/ci/pr-change-classification.mjs
