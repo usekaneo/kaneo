@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
-    "browserstack-node-sdk": "1.71.0"
+    "browserstack-node-sdk": "1.74.0"
   }
 }
