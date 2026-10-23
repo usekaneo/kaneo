@@ -33,6 +33,11 @@ Both workflows have final result gates; configure these new checks as required
 in GitHub branch rules if they should block merges (workflow changes do not
 update branch protection).
 
+The four quality checks share one job setup and dependency installation.
+Each check has its own step and runs after ordinary check failures, provided installation succeeded and the job was not cancelled.
+Any failed check fails `quality`, and `ci-result` remains the final CI gate.
+The former `lint`, `i18n`, `openapi`, and `typecheck` check names are replaced by `quality`; update external consumers that require those individual job names.
+
 The separate PR title check uses the base branch's commitlint policy and reruns
 when the title changes. Helm validation also executes the existing secret and
 upgrade-rendering regression checks. Configure the new job checks as required in
