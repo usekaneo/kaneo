@@ -22,7 +22,7 @@ sequenceDiagram
   K-->>B: Private attachment
 ```
 
-The browser and the Kaneo API must both reach `S3_ENDPOINT`. Use a hostname such as `https://files.example.com`. An internal Docker name such as `http://silo:9000` will not work in a normal browser, even if the containers can reach one another.
+The browser and the Kaneo API must both reach `S3_ENDPOINT` when `S3_PUBLIC_BASE_URL` is unset. Use a hostname such as `https://files.example.com`. An internal Docker name such as `http://silo:9000` will not work in a normal browser, even if the containers can reach one another. If storage is only reachable from inside the network, set `S3_PUBLIC_BASE_URL` to the public hostname so presigned upload URLs are addressed to that browser-reachable host while the API still talks to the private `S3_ENDPOINT`.
 
 The storage bucket stays private. Kaneo checks access and serves files through its own API. Images appear inline; PDFs, ZIPs, and other files appear as attachments.
 
