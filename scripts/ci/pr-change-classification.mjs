@@ -54,18 +54,19 @@ export function classifyChanges({ eventName, files, complete, error = false }) {
   return { skipExpensive: true };
 }
 
-export function assessGate({
-  workflow = "ci",
-  eventName,
-  skipExpensive,
-  jobs,
-}) {
+export function assessGate({ eventName, skipExpensive, jobs }) {
   if (!jobs || typeof jobs !== "object") return "failure";
   const allowedSkipped = new Set(
     skipExpensive && eventName === "pull_request"
       ? [...expensive, "smoke"]
       : [],
   );
+  if (
+    ["push", "workflow_dispatch", "workflow_call", "schedule"].includes(
+      eventName,
+    )
+  )
+    allowedSkipped.add("smoke");
   for (const [name, status] of Object.entries(jobs)) {
     if (
       name === "secret-scan" &&
@@ -76,26 +77,21 @@ export function assessGate({
     if (allowedSkipped.has(name) && status === "skipped") continue;
     if (status !== "success") return "failure";
   }
-  const required =
-    workflow === "browser"
-      ? ["detect-pr-changes", "smoke"]
-      : [
-          "detect-pr-changes",
-          "peekareq-tests",
-          "slop-labeler-tests",
-          "lint",
-          "i18n",
-          "openapi",
-          "typecheck",
-          "unit",
-          "build",
-          "integration",
-          "docker-build",
-          "workflows",
-          "storage",
-          "split-images",
-          "secret-scan",
-        ];
+  const required = [
+    "detect-pr-changes",
+    "smoke",
+    "peekareq-tests",
+    "slop-labeler-tests",
+    "quality",
+    "unit",
+    "build",
+    "integration",
+    "docker-build",
+    "workflows",
+    "storage",
+    "split-images",
+    "secret-scan",
+  ];
   if (required.some((name) => !(name in jobs))) return "failure";
   return "success";
 }
@@ -156,7 +152,6 @@ async function main() {
   if (process.env.CI_GATE_JOBS) {
     const jobs = JSON.parse(process.env.CI_GATE_JOBS);
     const result = assessGate({
-      workflow: process.env.CI_GATE_WORKFLOW ?? "ci",
       eventName: process.env.GITHUB_EVENT_NAME,
       skipExpensive: process.env.CI_SKIP_EXPENSIVE === "true",
       jobs,

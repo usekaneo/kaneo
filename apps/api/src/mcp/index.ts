@@ -1,4 +1,3 @@
-import { McpServer as LegacyMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import {
   isJsonContentType,
@@ -17,7 +16,11 @@ import {
 } from "./controllers/oauth-consent";
 import { createModernMcpHandler } from "./modern";
 import { exchangeCode } from "./oauth";
-import { oauthRequestBounds } from "./request-bounds";
+import {
+  MCP_BODY_BYTES,
+  mcpRequestBounds,
+  oauthRequestBounds,
+} from "./request-bounds";
 import {
   authorizationDecisionResponseSchema,
   authorizationDecisionSchema,
@@ -28,7 +31,7 @@ import {
   clientRegistrationSchema,
   oauthErrorSchema,
 } from "./schemas";
-import { registerMcpTools, toMcpToolRegistrar } from "./tools";
+import { createMcpServerForUser } from "./legacy-server";
 
 const publicApiUrl = (process.env.KANEO_API_URL || "http://localhost:1337")
   .replace(/\/api\/?$/, "")
@@ -38,15 +41,6 @@ const internalApiUrl = (
 )
   .replace(/\/api\/?$/, "")
   .replace(/\/+$/, "");
-
-function createMcpServerForUser(token: string): LegacyMcpServer {
-  const server = new LegacyMcpServer({
-    name: "kaneo-mcp",
-    version: "1.0.0",
-  });
-  registerMcpTools(toMcpToolRegistrar(server), internalApiUrl, token);
-  return server;
-}
 
 async function validateBearerToken(
   req: Request,
@@ -329,7 +323,13 @@ mcp.all("/mcp", async (c) => {
     return c.json({ error: "Unsupported Media Type" }, 415);
   }
 
-  if (!(await isLegacyRequest(c.req.raw.clone()))) {
+  await mcpRequestBounds(c, async () => {});
+
+  if (
+    !(await isLegacyRequest(c.req.raw.clone(), undefined, {
+      maxRequestBodySize: MCP_BODY_BYTES,
+    }))
+  ) {
     const modern = createModernMcpHandler(authResult.token, internalApiUrl);
     return modern.fetch(c.req.raw);
   }
@@ -338,8 +338,9 @@ mcp.all("/mcp", async (c) => {
   // accepts session IDs issued before this change after their owner is gone.
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
+    maxRequestBodySize: MCP_BODY_BYTES,
   });
-  const server = createMcpServerForUser(authResult.token);
+  const server = createMcpServerForUser(authResult.token, internalApiUrl);
   await server.connect(transport);
   return transport.handleRequest(c.req.raw);
 });

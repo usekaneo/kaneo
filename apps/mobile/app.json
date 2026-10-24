@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "Kaneo",
 		"slug": "kaneo",
-		"version": "0.2.0",
+		"version": "0.3.1",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "kaneo",
@@ -24,7 +24,7 @@
 		},
 		"android": {
 			"package": "de.usekaneo.kaneo",
-			"versionCode": 2,
+			"versionCode": 4,
 			"adaptiveIcon": {
 				"backgroundColor": "#141414",
 				"foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -73,7 +73,8 @@
 				"expo-build-properties",
 				{
 					"android": {
-						"usesCleartextTraffic": true
+						"usesCleartextTraffic": true,
+						"extraProguardRules": "# expo-background-task uses WorkManager 2.9.1 / Room 2.5.0. SDK 58 enables R8, so keep their reflectively invoked constructors.\n-keep class * extends androidx.room.RoomDatabase { <init>(); }\n-keep class * extends androidx.work.InputMerger { <init>(); }"
 					}
 				}
 			]
