@@ -169,6 +169,10 @@
 				"apply": "Keçidi tətbiq et",
 				"remove": "Keçidi sil"
 			}
+		},
+		"offline": {
+			"banner": "Oflayn · yalnız oxuma",
+			"changesDisabled": "Oflayn rejimdəsiniz. Yenidən qoşulana qədər dəyişikliklər deaktivdir."
 		}
 	},
 	"auth": {

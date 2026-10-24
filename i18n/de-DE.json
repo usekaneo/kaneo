@@ -169,6 +169,10 @@
 				"apply": "Link übernehmen",
 				"remove": "Link entfernen"
 			}
+		},
+		"offline": {
+			"banner": "Offline · nur lesen",
+			"changesDisabled": "Du bist offline. Änderungen sind bis zur erneuten Verbindung deaktiviert."
 		}
 	},
 	"auth": {

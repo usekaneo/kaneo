@@ -9,15 +9,21 @@ export type HabitDay = {
   isWeekend: boolean;
 };
 
-export const DAYS_BEFORE = 20;
-export const DAYS_AFTER = 3;
+export type HabitSpan = { before: number; after: number };
+
+export const FULL_SPAN: HabitSpan = { before: 20, after: 3 };
+// Phones fit five columns without sideways scrolling: the last four days and today.
+export const COMPACT_SPAN: HabitSpan = { before: 4, after: 0 };
 
 export const toDateKey = (date: Date) => format(date, "yyyy-MM-dd");
 
-// The grid's columns: the last DAYS_BEFORE days, today, and DAYS_AFTER more.
-export function habitDays(today: Date): HabitDay[] {
-  return Array.from({ length: DAYS_BEFORE + 1 + DAYS_AFTER }, (_, index) => {
-    const offset = index - DAYS_BEFORE;
+// The grid's columns: `before` days, today, and `after` more.
+export function habitDays(
+  today: Date,
+  { before, after }: HabitSpan = FULL_SPAN,
+): HabitDay[] {
+  return Array.from({ length: before + 1 + after }, (_, index) => {
+    const offset = index - before;
     const value = addDays(today, offset);
     return {
       date: toDateKey(value),

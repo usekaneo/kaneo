@@ -169,6 +169,10 @@
 				"apply": "应用链接",
 				"remove": "移除链接"
 			}
+		},
+		"offline": {
+			"banner": "离线 · 只读",
+			"changesDisabled": "你已离线。重新连接前无法进行更改。"
 		}
 	},
 	"auth": {

@@ -1,12 +1,25 @@
+import { onlineManager } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getPendingInvitations } from "@/fetchers/invitation/get-pending-invitations";
 import getWorkspaces from "@/fetchers/workspace/get-workspaces";
 import { authClient } from "@/lib/auth-client";
+import { getCachedSession } from "@/lib/cached-session";
 import { handleUnauthorized, isUnauthorizedError } from "@/lib/http-error";
 import type Workspace from "@/types/workspace";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard/")({
   beforeLoad: async () => {
+    // Offline, the workspace list can't be fetched; reopen the last one.
+    const offlineWorkspaceId = onlineManager.isOnline()
+      ? null
+      : getCachedSession()?.session.activeOrganizationId;
+    if (offlineWorkspaceId) {
+      throw redirect({
+        to: "/dashboard/workspace/$workspaceId",
+        params: { workspaceId: offlineWorkspaceId },
+      });
+    }
+
     let workspaces: Workspace[];
     let invitations: Awaited<ReturnType<typeof getPendingInvitations>>;
     try {

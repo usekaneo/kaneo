@@ -17,16 +17,21 @@ import {
 } from "@/hooks/mutations/habit/use-save-habit";
 import useSetHabitCheck from "@/hooks/mutations/habit/use-set-habit-check";
 import useGetHabits from "@/hooks/queries/habit/use-get-habits";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/lib/toast";
-import { habitDays, toDateKey } from "./habit-days";
+import { COMPACT_SPAN, FULL_SPAN, habitDays, toDateKey } from "./habit-days";
 import { HabitNameInput } from "./habit-name-input";
 import { HabitsGrid } from "./habits-grid";
 
 export function HabitsView() {
   const { t } = useTranslation();
   const today = toDateKey(new Date());
+  const isMobile = useIsMobile();
   // Recomputed when the date changes, so the grid moves on after midnight.
-  const days = useMemo(() => habitDays(parseISO(today)), [today]);
+  const days = useMemo(
+    () => habitDays(parseISO(today), isMobile ? COMPACT_SPAN : FULL_SPAN),
+    [today, isMobile],
+  );
   const range = {
     from: days[0]?.date ?? today,
     to: days.at(-1)?.date ?? today,
@@ -74,7 +79,7 @@ export function HabitsView() {
           onDelete={(habit) => deleteHabit.mutate(habit.id, { onError })}
         />
       )}
-      <div className="w-60">
+      <div className="w-full max-w-60">
         <HabitNameInput
           ariaLabel={t("navigation:habits.add")}
           placeholder={t("navigation:habits.addPlaceholder")}

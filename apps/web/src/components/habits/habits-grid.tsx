@@ -49,7 +49,7 @@ export function HabitsGrid({
           <tr>
             <th
               scope="col"
-              className="sticky left-0 z-10 bg-background px-2 pb-1.5 text-left font-medium text-muted-foreground text-xs"
+              className="sticky left-0 z-10 bg-background pr-1.5 pb-1.5 text-left font-medium text-muted-foreground text-xs md:px-2"
             >
               {t("navigation:habits.habit")}
             </th>

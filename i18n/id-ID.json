@@ -169,6 +169,10 @@
 				"apply": "Terapkan tautan",
 				"remove": "Hapus tautan"
 			}
+		},
+		"offline": {
+			"banner": "Offline · hanya baca",
+			"changesDisabled": "Anda sedang offline. Perubahan dinonaktifkan hingga Anda terhubung kembali."
 		}
 	},
 	"auth": {

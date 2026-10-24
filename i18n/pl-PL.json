@@ -169,6 +169,10 @@
 				"apply": "Zastosuj link",
 				"remove": "Usuń link"
 			}
+		},
+		"offline": {
+			"banner": "Offline · tylko odczyt",
+			"changesDisabled": "Jesteś offline. Zmiany są wyłączone do czasu ponownego połączenia."
 		}
 	},
 	"auth": {

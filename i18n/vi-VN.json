@@ -169,6 +169,10 @@
 				"apply": "Áp dụng liên kết",
 				"remove": "Xóa liên kết"
 			}
+		},
+		"offline": {
+			"banner": "Ngoại tuyến · chỉ đọc",
+			"changesDisabled": "Bạn đang ngoại tuyến. Không thể thay đổi cho đến khi kết nối lại."
 		}
 	},
 	"auth": {

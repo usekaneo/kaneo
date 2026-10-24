@@ -169,6 +169,10 @@
 				"apply": "Appliquer le lien",
 				"remove": "Supprimer le lien"
 			}
+		},
+		"offline": {
+			"banner": "Hors ligne · lecture seule",
+			"changesDisabled": "Vous êtes hors ligne. Les modifications sont désactivées jusqu'à la reconnexion."
 		}
 	},
 	"auth": {
