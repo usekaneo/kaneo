@@ -3923,6 +3923,35 @@
           "updatedAt"
         ]
       },
+      "TaskRelation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sourceTaskId": {
+            "type": "string"
+          },
+          "targetTaskId": {
+            "type": "string"
+          },
+          "relationType": {
+            "type": "string",
+            "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "sourceTaskId",
+          "targetTaskId",
+          "relationType",
+          "createdAt"
+        ]
+      },
       "TaskRelationWithTasks": {
         "allOf": [
           {
@@ -4002,35 +4031,6 @@
           "projectId",
           "userId",
           "assigneeName"
-        ]
-      },
-      "TaskRelation": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "sourceTaskId": {
-            "type": "string"
-          },
-          "targetTaskId": {
-            "type": "string"
-          },
-          "relationType": {
-            "type": "string",
-            "description": "How the two tasks relate: `subtask`, `blocks`, or `related`."
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": [
-          "id",
-          "sourceTaskId",
-          "targetTaskId",
-          "relationType",
-          "createdAt"
         ]
       },
       "CreatedExternalLink": {
@@ -20920,6 +20920,74 @@
           },
           "404": {
             "description": "Project or Telegram integration not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task-relation/project/{projectId}": {
+      "get": {
+        "operationId": "getProjectTaskRelations",
+        "tags": [
+          "Task Relations"
+        ],
+        "summary": "Get a project's task relations",
+        "description": "Get every relation joining two tasks in the project, without the task summaries the per-task endpoint returns. Intended for views that render many tasks at once and already hold them. Relations reaching outside the project are omitted.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "projectId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Relations between tasks in the project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TaskRelation"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project, or missing task:read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Project not found",
             "content": {
               "application/json": {
                 "schema": {
