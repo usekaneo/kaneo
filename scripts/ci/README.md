@@ -1,11 +1,11 @@
 # CI checks
 
-`ci.yml` runs on PRs and main, and is reused by Nightly. It checks formatting,
-translations, OpenAPI, types, unit/integration tests, site links, workflow syntax,
-real S3 uploads, and all three Dockerfiles. The bundled image is loaded and run
-against disposable PostgreSQL and MinIO services for browser, realtime and
-upgrade tests. Runtime failures retain container logs, a browser screenshot and
-a Playwright trace for seven days.
+`ci.yml` runs on PRs and main, supports manual runs, and is reused by Nightly.
+It checks formatting, translations, OpenAPI, types, unit/integration tests, site links, workflow syntax, real S3 uploads, and all three Dockerfiles.
+The bundled image runs against disposable PostgreSQL and MinIO services for browser, realtime, and upgrade tests.
+Runtime failures retain container logs, a browser screenshot, and a Playwright trace for seven days.
+PRs also run the independent **Chromium smoke tests** job unless change detection confirms an allowlisted docs/site-only change.
+BrowserStack runs separately for main pushes and manual runs on main.
 
 The disposable S3 fixture pins Bitnami's archived MinIO 2025.7.23 image by its
 multi-platform digest because the upstream public registries no longer serve
@@ -25,13 +25,13 @@ the previous image. It runs the MinIO binary directly with temporary test data.
   example a release commit containing `[skip ci]`), dispatch **CI** on main before
   dispatching **Release**. Dry runs don't wait or publish.
 
-PR change detection uses the whole paginated GitHub PR-files list and verifies
-its base/head revisions and declared file count before allowing only the
-integration, storage, Docker image, and browser suites to skip for clearly
-allowlisted documentation-only changes. Any uncertainty runs the full suite.
-Both workflows have final result gates; configure these new checks as required
-in GitHub branch rules if they should block merges (workflow changes do not
-update branch protection).
+PR change detection uses the paginated GitHub PR-files list and verifies base/head revisions and the declared file count.
+Only clearly allowlisted docs/site-only PRs may skip integration, storage, Docker image, and Chromium smoke jobs.
+Uncertainty runs all PR suites.
+The PR-only smoke job skips for recognized non-PR events; other application validation still runs in full.
+`ci-result` rejects failures, cancellations, missing results, and unexpected skips.
+Require `ci-result` in branch rules to gate PRs; it replaces the retired `browser-result` check.
+Workflow changes do not configure GitHub branch rules.
 
 The four quality checks share one job setup and dependency installation.
 Each check has its own step and runs after ordinary check failures, provided installation succeeded and the job was not cancelled.
