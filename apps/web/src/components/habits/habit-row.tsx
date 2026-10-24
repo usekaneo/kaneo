@@ -32,9 +32,9 @@ export function HabitRow({
     <tr className="group/habit border-border/60 border-t">
       <th
         scope="row"
-        className="sticky left-0 z-10 bg-background px-2 py-1.5 text-left font-normal"
+        className="sticky left-0 z-10 bg-background py-1.5 pr-1.5 text-left font-normal md:px-2"
       >
-        <div className="flex w-56 items-center gap-1.5">
+        <div className="flex w-40 items-center gap-1 md:w-56 md:gap-1.5">
           {renaming ? (
             <HabitNameInput
               initial={habit.name}
