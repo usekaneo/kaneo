@@ -1,26 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { appendFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { areRuntimeNeutralFiles } from "./runtime-neutral-changes.mjs";
 
 const expensive = ["integration", "storage", "docker-build", "split-images"];
-const configName =
-  /(^|\/)(package\.json|pnpm-lock\.yaml|package-lock\.json|yarn\.lock|bun\.lockb?|pnpm-workspace\.yaml|turbo\.json|vite\.config\.[^/]+|next\.config\.[^/]+|tsconfig[^/]*\.json|Dockerfile(?:\.[^/]*)?|docker-compose[^/]*\.ya?ml|Makefile|.*\.config\.[^/]+|.*\.ya?ml|.*\.toml|.*\.json|.*\.lock)$/i;
-
-function allowedPath(path) {
-  if (
-    typeof path !== "string" ||
-    !path ||
-    path.startsWith("/") ||
-    path.split("/").includes("..")
-  )
-    return false;
-  if (path.split("/").some((segment) => segment.startsWith("."))) return false;
-  if (configName.test(path) && path !== "apps/site/constants/sponsors.json")
-    return false;
-  return (
-    path === "README.md" || /^(docs|apps\/docs|apps\/site)\/[^/].*$/.test(path)
-  );
-}
 
 export function classifyChanges({ eventName, files, complete, error = false }) {
   const full = { skipExpensive: false };
@@ -32,26 +15,7 @@ export function classifyChanges({ eventName, files, complete, error = false }) {
     files.length === 0
   )
     return full;
-  for (const file of files) {
-    if (typeof file === "string") {
-      if (!allowedPath(file)) return full;
-      continue;
-    }
-    if (!file || typeof file !== "object" || !allowedPath(file.filename))
-      return full;
-    if (!new Set(["added", "modified", "removed", "renamed"]).has(file.status))
-      return full;
-    if (file.status === "renamed" && !allowedPath(file.previous_filename))
-      return full;
-    if (
-      file.previous_filename !== undefined &&
-      !allowedPath(file.previous_filename)
-    )
-      return full;
-    if (file.status === "renamed" && typeof file.previous_filename !== "string")
-      return full;
-  }
-  return { skipExpensive: true };
+  return areRuntimeNeutralFiles(files) ? { skipExpensive: true } : full;
 }
 
 export function assessGate({ eventName, skipExpensive, jobs }) {
