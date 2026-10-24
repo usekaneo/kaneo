@@ -1,6 +1,13 @@
 {
 	"current": [
 		{
+			"login": "blendbyte",
+			"name": "Blendbyte",
+			"avatarUrl": "https://avatars.githubusercontent.com/u/69378377?v=4",
+			"tier": 15,
+			"founding": false
+		},
+		{
 			"login": "bojanmilevski",
 			"name": "Bojan Milevski",
 			"avatarUrl": "https://avatars.githubusercontent.com/u/113335496?v=4",
