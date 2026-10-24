@@ -31,6 +31,7 @@ describe("translated constants", () => {
     expect(priorityLabel("urgent")).toBe("Urgent");
     expect(priorityLabel(null)).toBe("No priority");
     expect(LABEL_COLORS[0].label).toBe("Stone");
+    expect(LABEL_COLORS.at(-1)?.label).toBe("Orchid");
     expect(ROLE_HINTS.viewer).toBe("Can view projects and tasks");
     expect(ROLE_HINTS.auditor).toBeUndefined();
   });

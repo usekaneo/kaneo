@@ -148,7 +148,11 @@
 					"amber": "琥珀黃",
 					"terracotta": "赤陶紅",
 					"rose": "玫瑰紅",
-					"crimson": "緋紅"
+					"crimson": "緋紅",
+					"lagoon": "潟湖青",
+					"ocean": "海洋藍",
+					"orchid": "蘭花紫",
+					"sky": "天空藍"
 				},
 				"statusLoadError": "無法載入專案狀態。"
 			}
@@ -2957,7 +2961,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫瑰紅",
-					"crimson": "深紅"
+					"crimson": "深紅",
+					"lagoon": "潟湖青",
+					"ocean": "海洋藍",
+					"orchid": "蘭花紫",
+					"sky": "天空藍"
 				},
 				"editLabels": "編輯標籤"
 			}
@@ -4017,9 +4025,13 @@
 				"amber": "琥珀黃",
 				"crimson": "緋紅",
 				"forest": "森林綠",
+				"lagoon": "潟湖青",
 				"lavender": "薰衣草紫",
+				"ocean": "海洋藍",
+				"orchid": "蘭花紫",
 				"rose": "玫瑰紅",
 				"sage": "鼠尾草綠",
+				"sky": "天空藍",
 				"slate": "石板灰",
 				"stone": "岩石灰",
 				"terracotta": "赤陶紅"

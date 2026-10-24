@@ -148,7 +148,11 @@
 					"amber": "एम्बर",
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
-					"crimson": "किरमिज़ी"
+					"crimson": "किरमिज़ी",
+					"lagoon": "लैगून",
+					"ocean": "महासागर",
+					"orchid": "ऑर्किड",
+					"sky": "आकाश"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3004,7 +3008,11 @@
 					"amber": "एम्बर",
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
-					"crimson": "किरमिज़ी"
+					"crimson": "किरमिज़ी",
+					"lagoon": "लैगून",
+					"ocean": "महासागर",
+					"orchid": "ऑर्किड",
+					"sky": "आकाश"
 				},
 				"editLabels": "लेबल संपादित करें"
 			}
@@ -4371,7 +4379,11 @@
 				"amber": "एम्बर",
 				"terracotta": "टेराकोटा",
 				"rose": "गुलाबी",
-				"crimson": "किरमिजी"
+				"crimson": "किरमिजी",
+				"ocean": "महासागर",
+				"sky": "आकाश",
+				"lagoon": "लैगून",
+				"orchid": "ऑर्किड"
 			},
 			"role": {
 				"owner": "मालिक",

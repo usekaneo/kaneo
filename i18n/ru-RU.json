@@ -148,7 +148,11 @@
 					"amber": "Янтарь",
 					"terracotta": "Терракота",
 					"rose": "Роза",
-					"crimson": "Малиновый"
+					"crimson": "Малиновый",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидея",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3106,7 +3110,11 @@
 					"amber": "Янтарь",
 					"terracotta": "Терракота",
 					"rose": "Роза",
-					"crimson": "Малиновый"
+					"crimson": "Малиновый",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидея",
+					"sky": "Небо"
 				},
 				"editLabels": "Изменить метки"
 			}
@@ -4573,7 +4581,11 @@
 				"amber": "Янтарь",
 				"terracotta": "Терракота",
 				"rose": "Роза",
-				"crimson": "Малиновый"
+				"crimson": "Малиновый",
+				"ocean": "Океан",
+				"sky": "Небо",
+				"lagoon": "Лагуна",
+				"orchid": "Орхидея"
 			},
 			"role": {
 				"owner": "Владелец",

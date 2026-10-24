@@ -10,6 +10,7 @@ import {
 describe("email task format", () => {
   it("maps label color names and keeps hex values", () => {
     expect(resolveLabelColor("purple")).toBe("#8E51FF");
+    expect(resolveLabelColor("fuchsia")).toBe("#C800DE");
     expect(resolveLabelColor("#123abc")).toBe("#123abc");
     expect(resolveLabelColor("var(--x)")).toBe("#A1A1A1");
   });

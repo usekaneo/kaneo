@@ -148,7 +148,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"lagoon": "泻湖青",
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
 				},
 				"statusLoadError": "项目状态加载失败。"
 			}
@@ -2957,7 +2961,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"lagoon": "泻湖青",
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
 				},
 				"editLabels": "编辑标签"
 			}
@@ -4017,9 +4025,13 @@
 				"amber": "琥珀",
 				"crimson": "深红",
 				"forest": "森林绿",
+				"lagoon": "泻湖青",
 				"lavender": "薰衣草",
+				"ocean": "海洋蓝",
+				"orchid": "兰花紫",
 				"rose": "玫红",
 				"sage": "鼠尾草绿",
+				"sky": "天空蓝",
 				"slate": "石板蓝",
 				"stone": "石板灰",
 				"terracotta": "赤陶"

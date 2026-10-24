@@ -148,7 +148,11 @@
 					"amber": "Kuning Ambar",
 					"terracotta": "Merah Bata",
 					"rose": "Merah Mawar",
-					"crimson": "Merah Tua"
+					"crimson": "Merah Tua",
+					"lagoon": "Biru Laguna",
+					"ocean": "Biru Laut",
+					"orchid": "Ungu Anggrek",
+					"sky": "Biru Langit"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2957,7 +2961,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"lagoon": "Biru Laguna",
+					"ocean": "Biru Laut",
+					"orchid": "Ungu Anggrek",
+					"sky": "Biru Langit"
 				},
 				"editLabels": "Edit label"
 			}
@@ -4296,7 +4304,11 @@
 				"amber": "Amber",
 				"terracotta": "Terakota",
 				"rose": "Mawar",
-				"crimson": "Merah tua"
+				"crimson": "Merah tua",
+				"ocean": "Biru Laut",
+				"sky": "Biru Langit",
+				"lagoon": "Biru Laguna",
+				"orchid": "Ungu Anggrek"
 			},
 			"role": {
 				"owner": "Pemilik",

@@ -148,7 +148,11 @@
 					"amber": "Kəhrəba rəngi",
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
-					"crimson": "Tünd qırmızı"
+					"crimson": "Tünd qırmızı",
+					"lagoon": "Laqun rəngi",
+					"ocean": "Okean mavisi",
+					"orchid": "Orxideya rəngi",
+					"sky": "Səma mavisi"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3004,7 +3008,11 @@
 					"amber": "Kəhrəba rəngi",
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
-					"crimson": "Tünd qırmızı"
+					"crimson": "Tünd qırmızı",
+					"lagoon": "Laqun rəngi",
+					"ocean": "Okean mavisi",
+					"orchid": "Orxideya rəngi",
+					"sky": "Səma mavisi"
 				},
 				"editLabels": "Etiketləri redaktə et"
 			}
@@ -4084,9 +4092,13 @@
 				"amber": "Kəhrəba",
 				"crimson": "Al qırmızı",
 				"forest": "Meşə",
+				"lagoon": "Laqun rəngi",
 				"lavender": "Lavanda",
+				"ocean": "Okean mavisi",
+				"orchid": "Orxideya rəngi",
 				"rose": "Çəhrayı",
 				"sage": "Adaçayı",
+				"sky": "Səma mavisi",
 				"slate": "Şifer",
 				"stone": "Daş",
 				"terracotta": "Terrakota"
