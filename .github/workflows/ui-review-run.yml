@@ -43,7 +43,7 @@ jobs:
           UI_REVIEW_PR: ${{ inputs.pr }}
           UI_REVIEW_MODEL: ${{ inputs.model }}
         run: node scripts/ui-review-bot/ci.mjs plan ui-review-plan
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         id: plan-artifact
         with:
           name: ui-review-plan-${{ github.run_attempt }}
@@ -81,7 +81,7 @@ jobs:
           merge-multiple: true
       - name: Capture base and PR screenshots
         run: node scripts/ui-review-bot/ci.mjs capture ui-review-plan ui-review-capture
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         id: capture-artifact
         with:
