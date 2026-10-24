@@ -914,12 +914,13 @@ export function createApp() {
       assertWebSocketOrigin(c.req.raw.headers);
 
       const userId = c.get("userId");
+      const sessionId = c.get("session")?.id ?? null;
       let conn: ReturnType<typeof addUserConnection> | null = null;
 
       return {
         onOpen(_evt, ws) {
           if (userId) {
-            conn = addUserConnection(userId, ws);
+            conn = addUserConnection(userId, ws, sessionId);
             void syncWorkspaceAccess(userId, ws);
           }
         },
@@ -962,6 +963,7 @@ export function createApp() {
 
       const windowId = c.req.query("windowId");
       const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+      const sessionId = c.get("session")?.id ?? null;
       let conn: ReturnType<typeof addConnection> | null = null;
 
       return {
@@ -973,6 +975,7 @@ export function createApp() {
               userId,
               initiatorId,
               workspaceId,
+              sessionId,
             );
           }
         },

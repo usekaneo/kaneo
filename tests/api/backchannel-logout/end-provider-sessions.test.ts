@@ -11,8 +11,7 @@ const mocks = vi.hoisted(() => {
   const rows = {
     claimed: [] as Array<{ id: string }>,
     accounts: [] as Array<{ userId: string }>,
-    ended: [] as Array<{ userId: string }>,
-    activeSessions: [] as Array<{ id: string }>,
+    ended: [] as Array<{ id: string; userId: string }>,
   };
   const deleteWhere = vi.fn(() => ({ returning: async () => rows.ended }));
   const tx = {
@@ -30,13 +29,8 @@ const mocks = vi.hoisted(() => {
     transaction: vi.fn(async (callback: (transaction: typeof tx) => unknown) =>
       callback(tx),
     ),
-    select: vi.fn(() => ({
-      from: () => ({
-        where: () => ({ limit: async () => rows.activeSessions }),
-      }),
-    })),
   };
-  return { rows, tx, db, deleteWhere, revokeUserConnections: vi.fn() };
+  return { rows, tx, db, deleteWhere, revokeSessionConnections: vi.fn() };
 });
 
 vi.mock("../../../apps/api/src/database", async () => ({
@@ -45,7 +39,7 @@ vi.mock("../../../apps/api/src/database", async () => ({
 }));
 
 vi.mock("../../../apps/api/src/ws", () => ({
-  revokeUserConnections: mocks.revokeUserConnections,
+  revokeSessionConnections: mocks.revokeSessionConnections,
 }));
 
 import { endProviderSessions } from "../../../apps/api/src/backchannel-logout/controllers/end-provider-sessions";
@@ -60,8 +54,7 @@ const TOKEN = {
 beforeEach(() => {
   mocks.rows.claimed = [{ id: "claim" }];
   mocks.rows.accounts = [{ userId: "user-1" }];
-  mocks.rows.ended = [{ userId: "user-1" }];
-  mocks.rows.activeSessions = [];
+  mocks.rows.ended = [{ id: "session-1", userId: "user-1" }];
 });
 
 afterEach(() => {
@@ -97,7 +90,7 @@ describe("endProviderSessions", () => {
 
     expect(mocks.tx.insert).toHaveBeenCalledOnce();
     expect(mocks.tx.delete).not.toHaveBeenCalled();
-    expect(mocks.revokeUserConnections).not.toHaveBeenCalled();
+    expect(mocks.revokeSessionConnections).not.toHaveBeenCalled();
   });
 
   it("ends sessions by session ID without looking up an account", async () => {
@@ -107,26 +100,41 @@ describe("endProviderSessions", () => {
     expect(mocks.deleteWhere).toHaveBeenCalledWith(expect.anything());
   });
 
-  it("closes the realtime connections of users without a session left", async () => {
-    mocks.rows.ended = [{ userId: "user-1" }, { userId: "user-1" }];
+  it("closes the connections of every session a subject logout ended", async () => {
+    mocks.rows.ended = [
+      { id: "session-1", userId: "user-1" },
+      { id: "session-3", userId: "user-1" },
+    ];
 
     await endProviderSessions({ ...TOKEN, sub: "kc-user-1" });
 
-    expect(mocks.revokeUserConnections).toHaveBeenCalledOnce();
-    expect(mocks.revokeUserConnections).toHaveBeenCalledWith("user-1");
+    expect(mocks.revokeSessionConnections).toHaveBeenCalledOnce();
+    expect(mocks.revokeSessionConnections).toHaveBeenCalledWith("user-1", [
+      "session-1",
+      "session-3",
+    ]);
   });
 
-  it("keeps the connections of users who still have a session", async () => {
-    mocks.rows.activeSessions = [{ id: "session-2" }];
+  it("closes the ended sessions' connections of each user", async () => {
+    mocks.rows.ended = [
+      { id: "session-1", userId: "user-1" },
+      { id: "session-2", userId: "user-2" },
+    ];
 
     await endProviderSessions({ ...TOKEN, sid: "kc-session-1" });
 
-    expect(mocks.revokeUserConnections).not.toHaveBeenCalled();
+    expect(mocks.revokeSessionConnections).toHaveBeenCalledTimes(2);
+    expect(mocks.revokeSessionConnections).toHaveBeenCalledWith("user-1", [
+      "session-1",
+    ]);
+    expect(mocks.revokeSessionConnections).toHaveBeenCalledWith("user-2", [
+      "session-2",
+    ]);
   });
 
   it("logs, but does not fail, when closing connections fails", async () => {
     const error = vi.spyOn(console, "error").mockImplementation(() => {});
-    mocks.revokeUserConnections.mockRejectedValueOnce(new Error("socket"));
+    mocks.revokeSessionConnections.mockRejectedValueOnce(new Error("socket"));
 
     await expect(
       endProviderSessions({ ...TOKEN, sub: "kc-user-1" }),

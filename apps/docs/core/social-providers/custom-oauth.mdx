@@ -210,7 +210,7 @@ What a logout signs out:
 - Only sign-ins through the provider store a session ID. Sessions of the Kaneo mobile app, the Kaneo CLI and MCP clients have none, even when someone approves them while signed in through the provider. Sessions that started before you upgraded to a Kaneo version with back-channel logout, or without the `openid` scope, have none either. Only a logout token without a session ID ends them.
 - API keys are not sessions. They keep working until you revoke them.
 
-Open Kaneo tabs return to the sign-in page right away once the person has no Kaneo session left. Otherwise, a signed-out tab notices on its next request. With several API instances, this needs [Redis](/core/installation/environment-variables#redis).
+Open Kaneo tabs of an ended session return to the sign-in page right away, while tabs of the person's other sessions stay signed in. A tab without an open connection at that moment notices on its next request. With several API instances, this needs [Redis](/core/installation/environment-variables#redis).
 
 Kaneo answers `200` when it accepts a logout token, also when no session matched, and `400` for an invalid or reused token. It answers `503` when it cannot load the discovery document or the signing keys, and `404` while `CUSTOM_OAUTH_BACKCHANNEL_LOGOUT` is not `true`. Once Kaneo has loaded the signing keys, it keeps using them while they cannot be refreshed, so a token signed with a key the provider added since then answers `400` until the keys load again.
 

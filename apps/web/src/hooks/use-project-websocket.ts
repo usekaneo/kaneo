@@ -529,6 +529,12 @@ export function useProjectWebSocket(projectId: string) {
         }
         activeSocket = null;
 
+        // The user socket signs this tab out after the provider ended its session.
+        if (event?.code === 4001) {
+          disposed = true;
+          return;
+        }
+
         if (
           event?.code === 1008 &&
           event.reason === "Workspace access revoked"

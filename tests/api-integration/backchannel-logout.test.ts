@@ -12,7 +12,12 @@ import {
 import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
-import { addUserConnection, removeUserConnection } from "../../apps/api/src/ws";
+import {
+  addUserConnection,
+  broadcastToUser,
+  removeUserConnection,
+  SESSION_ENDED_CLOSE_CODE,
+} from "../../apps/api/src/ws";
 import { resetTestDatabase } from "./helpers/database";
 import {
   enableBackchannelLogout,
@@ -117,22 +122,30 @@ describe("API integration: back-channel logout", () => {
   it("ends every session of the subject, closes its realtime connections and keeps its API keys", async () => {
     const user = await seedUser("kc-user-1");
     const other = await seedUser("kc-user-2");
-    await seedSession(user.id, "kc-session-1");
-    await seedSession(user.id);
+    const providerSession = await seedSession(user.id, "kc-session-1");
+    const appSession = await seedSession(user.id);
     const kept = await seedSession(other.id, "kc-session-3");
     const { key } = await auth.api.createApiKey({
       body: { userId: user.id, name: "Logout test" },
     });
     const { app } = createApp();
-    const socket = fakeSocket();
+    const providerSocket = fakeSocket();
+    const appSocket = fakeSocket();
+    const apiKeySocket = fakeSocket();
     const otherSocket = fakeSocket();
-    const connection = addUserConnection(
-      user.id,
-      socket as unknown as WSContext,
-    );
+    const connections = [
+      addUserConnection(
+        user.id,
+        providerSocket as unknown as WSContext,
+        providerSession,
+      ),
+      addUserConnection(user.id, appSocket as unknown as WSContext, appSession),
+      addUserConnection(user.id, apiKeySocket as unknown as WSContext),
+    ];
     const otherConnection = addUserConnection(
       other.id,
       otherSocket as unknown as WSContext,
+      kept,
     );
     try {
       const response = await postLogoutToken(
@@ -142,17 +155,20 @@ describe("API integration: back-channel logout", () => {
 
       expect(response.status).toBe(200);
       expect(await remainingSessionIds()).toEqual([kept]);
-      expect(socket.send).toHaveBeenCalledWith(
-        JSON.stringify({ type: "USER_ACCESS_REVOKED" }),
-      );
-      expect(socket.close).toHaveBeenCalledWith(1008, "User access revoked");
+      for (const socket of [providerSocket, appSocket])
+        expect(socket.close).toHaveBeenCalledWith(
+          SESSION_ENDED_CLOSE_CODE,
+          "Session ended",
+        );
+      expect(apiKeySocket.close).not.toHaveBeenCalled();
       expect(otherSocket.close).not.toHaveBeenCalled();
       expect(
         (await app.request("/api/user/me", { headers: { "x-api-key": key } }))
           .status,
       ).toBe(200);
     } finally {
-      removeUserConnection(user.id, connection);
+      for (const connection of connections)
+        removeUserConnection(user.id, connection);
       removeUserConnection(other.id, otherConnection);
     }
   });
@@ -172,15 +188,16 @@ describe("API integration: back-channel logout", () => {
     expect(await remainingSessionIds()).toEqual([kept]);
   });
 
-  it("keeps the realtime connections while the user has another session", async () => {
+  it("closes only the ended session's realtime connections while the user has another session", async () => {
     const user = await seedUser("kc-user-1");
-    await seedSession(user.id, "kc-session-1");
+    const ended = await seedSession(user.id, "kc-session-1");
     const kept = await seedSession(user.id, "kc-session-2");
-    const socket = fakeSocket();
-    const connection = addUserConnection(
-      user.id,
-      socket as unknown as WSContext,
-    );
+    const endedSocket = fakeSocket();
+    const keptSocket = fakeSocket();
+    const connections = [
+      addUserConnection(user.id, endedSocket as unknown as WSContext, ended),
+      addUserConnection(user.id, keptSocket as unknown as WSContext, kept),
+    ];
     try {
       const response = await postLogoutToken(
         createApp().app,
@@ -189,9 +206,24 @@ describe("API integration: back-channel logout", () => {
 
       expect(response.status).toBe(200);
       expect(await remainingSessionIds()).toEqual([kept]);
-      expect(socket.close).not.toHaveBeenCalled();
+      expect(endedSocket.close).toHaveBeenCalledWith(
+        SESSION_ENDED_CLOSE_CODE,
+        "Session ended",
+      );
+      expect(keptSocket.close).not.toHaveBeenCalled();
+      expect(keptSocket.send).not.toHaveBeenCalled();
+
+      broadcastToUser(user.id, { type: "NOTIFICATION_CREATED" });
+
+      await vi.waitFor(() =>
+        expect(keptSocket.send).toHaveBeenCalledWith(
+          JSON.stringify({ type: "NOTIFICATION_CREATED" }),
+        ),
+      );
+      expect(endedSocket.send).not.toHaveBeenCalled();
     } finally {
-      removeUserConnection(user.id, connection);
+      for (const connection of connections)
+        removeUserConnection(user.id, connection);
     }
   });
 
