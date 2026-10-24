@@ -264,10 +264,10 @@ async function main() {
     });
     skip = result.skip === true;
     console.log(
-      `BrowserStack classification: ${skip ? "proven-neutral" : "full-validation"}`,
+      `BrowserStack classification: ${skip ? "proven-neutral" : `full-validation (${result.reason})`}`,
     );
   } catch {
-    console.log("BrowserStack classification: full-validation");
+    console.log("BrowserStack classification: full-validation (invalid-event)");
   }
   await appendFile(output, `skip_browserstack=${skip}\n`);
 }

@@ -516,6 +516,100 @@ test("CLI emits explicit false and exits successfully for manual/schedule fallba
         "skip_browserstack=false\n",
       );
       assert.match(child.stdout, /full-validation/);
+      assert.match(child.stdout, /non-qualifying-context/);
+    } finally {
+      await rm(directory, { recursive: true });
+    }
+  }
+});
+
+test("CLI reports fallback reasons while keeping credentials and payloads private", async () => {
+  const token = "TOKEN_FIXTURE_MUST_STAY_PRIVATE";
+  const payload = "API_PAYLOAD_FIXTURE_MUST_STAY_PRIVATE";
+  const errorText = JSON.stringify(`${token} ${payload}`);
+  const cases = [
+    {
+      name: "API rejection",
+      preload: `globalThis.fetch = async () => { throw new Error(${errorText}); };`,
+      reason: "api-or-budget-error",
+    },
+    {
+      name: "request timeout",
+      preload: `globalThis.fetch = async () => { throw new DOMException(${errorText}, "TimeoutError"); };`,
+      reason: "api-or-budget-error",
+    },
+    {
+      name: "invalid API JSON",
+      preload: `globalThis.fetch = async () => new Response(${JSON.stringify(payload)}, { status: 200 });`,
+      reason: "api-or-budget-error",
+    },
+    {
+      name: "missing token",
+      preload: `globalThis.fetch = async () => { throw new Error(${errorText}); };`,
+      token: "",
+      reason: "insufficient-evidence",
+    },
+    {
+      name: "invalid event JSON",
+      preload: `globalThis.fetch = async () => { throw new Error(${errorText}); };`,
+      event: payload,
+      reason: "invalid-event",
+    },
+  ];
+  for (const scenario of cases) {
+    const directory = await mkdtemp(join(tmpdir(), "browserstack-log-cli-"));
+    try {
+      const eventPath = join(directory, "event.json");
+      const outputPath = join(directory, "output.txt");
+      const preloadPath = join(directory, "preload.mjs");
+      await writeFile(eventPath, scenario.event ?? JSON.stringify(push));
+      await writeFile(preloadPath, scenario.preload);
+      const child = spawnSync(
+        process.execPath,
+        [
+          "--import",
+          preloadPath,
+          fileURLToPath(
+            new URL(
+              "./browserstack-change-classification.mjs",
+              import.meta.url,
+            ),
+          ),
+        ],
+        {
+          encoding: "utf8",
+          timeout: 15_000,
+          env: {
+            ...process.env,
+            GITHUB_EVENT_NAME: "push",
+            GITHUB_REF: "refs/heads/main",
+            GITHUB_SHA: sha("b"),
+            GITHUB_RUN_ID: "20",
+            GITHUB_RUN_ATTEMPT: "1",
+            GITHUB_EVENT_PATH: eventPath,
+            GITHUB_REPOSITORY: "owner/repo",
+            GITHUB_TOKEN: scenario.token ?? token,
+            GITHUB_OUTPUT: outputPath,
+          },
+        },
+      );
+      assert.equal(child.status, 0, `${scenario.name}: ${child.stderr}`);
+      assert.equal(
+        await readFile(outputPath, "utf8"),
+        "skip_browserstack=false\n",
+        scenario.name,
+      );
+      assert.match(child.stdout, /full-validation/, scenario.name);
+      assert.ok(
+        child.stdout.includes(scenario.reason),
+        `${scenario.name}: missing fallback reason`,
+      );
+      const logs = child.stdout + child.stderr;
+      assert.ok(!logs.includes(token), `${scenario.name}: token leaked`);
+      assert.ok(
+        !logs.includes(payload),
+        `${scenario.name}: response payload leaked`,
+      );
     } finally {
       await rm(directory, { recursive: true });
     }
