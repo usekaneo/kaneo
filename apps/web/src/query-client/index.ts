@@ -1,7 +1,14 @@
 import * as Sentry from "@sentry/react";
-import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
+import {
+  MutationCache,
+  onlineManager,
+  QueryCache,
+  QueryClient,
+} from "@tanstack/react-query";
 import { handleUnauthorized, isUnauthorizedError } from "@/lib/http-error";
 import { isForbiddenOrNotFound } from "@/lib/is-forbidden-or-not-found";
+import { OfflineError } from "@/lib/offline/offline-error";
+import { toast } from "@/lib/toast";
 
 // TanStack raises these before any fetcher-level message exists; CORS rejections
 // from the browser also surface here. Used both to skip auto-retry and to tag
@@ -67,7 +74,16 @@ const queryClient = new QueryClient({
     },
   }),
   mutationCache: new MutationCache({
+    // Runs before each mutation's own onMutate, so an offline change fails
+    // before any optimistic update touches the cache.
+    onMutate: () => {
+      if (!onlineManager.isOnline()) throw new OfflineError();
+    },
     onError: (error) => {
+      if (error instanceof OfflineError) {
+        toast.error(error.message);
+        return;
+      }
       if (isUnauthorizedError(error)) {
         handleUnauthorized();
         return;
@@ -77,6 +93,9 @@ const queryClient = new QueryClient({
   }),
   defaultOptions: {
     queries: {
+      // The offline snapshot persists only what the cache still holds, so
+      // keep unused data for the day instead of the default five minutes.
+      gcTime: 1000 * 60 * 60 * 24,
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       retry: (failureCount, error) =>

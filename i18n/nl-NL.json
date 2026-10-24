@@ -169,6 +169,10 @@
 				"apply": "Link toepassen",
 				"remove": "Link verwijderen"
 			}
+		},
+		"offline": {
+			"banner": "Offline · alleen lezen",
+			"changesDisabled": "Je bent offline. Wijzigingen zijn uitgeschakeld tot je weer verbinding hebt."
 		}
 	},
 	"auth": {

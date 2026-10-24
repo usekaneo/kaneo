@@ -169,6 +169,10 @@
 				"apply": "Bağlantıyı uygula",
 				"remove": "Bağlantıyı kaldır"
 			}
+		},
+		"offline": {
+			"banner": "Çevrimdışı · salt okunur",
+			"changesDisabled": "Çevrimdışısınız. Yeniden bağlanana kadar değişiklikler devre dışı."
 		}
 	},
 	"auth": {

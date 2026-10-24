@@ -169,6 +169,10 @@
 				"apply": "套用連結",
 				"remove": "移除連結"
 			}
+		},
+		"offline": {
+			"banner": "離線 · 唯讀",
+			"changesDisabled": "你已離線。重新連線前無法進行變更。"
 		}
 	},
 	"auth": {
