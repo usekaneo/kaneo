@@ -18,7 +18,7 @@ import { ColumnList } from "@/components/project/columns/column-list";
 import { toast } from "@/lib/toast";
 
 const m = vi.hoisted(() => ({
-  canManage: true,
+  canUpdate: true,
   createColumn: vi.fn(),
   updateColumn: vi.fn(),
   deleteColumn: vi.fn(),
@@ -31,7 +31,7 @@ vi.mock("react-i18next", () => ({
 }));
 vi.mock("@/lib/toast", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock("@/hooks/use-workspace-permission", () => ({
-  useWorkspacePermission: () => ({ canManageProjects: () => m.canManage }),
+  useWorkspacePermission: () => ({ canUpdateProjects: () => m.canUpdate }),
 }));
 vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   useGetColumns: () => ({
@@ -72,7 +72,7 @@ vi.mock("@/hooks/mutations/column/use-reorder-columns", () => ({
 describe("ColumnList", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    m.canManage = true;
+    m.canUpdate = true;
     for (const fn of [m.createColumn, m.updateColumn, m.deleteColumn]) {
       fn.mockResolvedValue({});
     }
@@ -174,8 +174,8 @@ describe("ColumnList", () => {
     await waitFor(() => expect(input).toHaveValue(""));
   });
 
-  it("is read-only without permission to manage projects", () => {
-    m.canManage = false;
+  it("is read-only without permission to update projects", () => {
+    m.canUpdate = false;
     render(<ColumnList projectId="p1" />);
     expect(
       screen.queryByRole("button", { name: "settings:columnEditor.addColumn" }),
