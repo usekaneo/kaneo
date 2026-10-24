@@ -771,6 +771,10 @@
 			"projectBackgroundsDescription": "Mostrar a imagem que um projeto define atrás do quadro.",
 			"advancedTitle": "Avançado"
 		},
+		"managedProfile": {
+			"note": "Gerenciado pela sua organização.",
+			"edit": "Editar em {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "Chaves de API",
 			"title": "Chaves de API",

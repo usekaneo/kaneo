@@ -74,7 +74,7 @@ class TestSocket {
   static instances: TestSocket[] = [];
   readyState = 0;
   onopen: (() => void) | null = null;
-  onclose: (() => void) | null = null;
+  onclose: ((event?: { code: number }) => void) | null = null;
   onmessage: ((event: { data: string }) => void) | null = null;
   send = vi.fn();
   close = vi.fn(() => {
@@ -222,6 +222,18 @@ describe("user WebSocket lifecycle", () => {
     expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
     unmount();
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("signs this browser out when the provider ends its session", async () => {
+    renderHook(useUserWebSocket);
+    const socket = TestSocket.instances[0];
+    act(() => socket.open());
+    await act(async () => socket.onclose?.({ code: 4001 }));
+    act(() => vi.advanceTimersByTime(60_000));
+    expect(client.clear).toHaveBeenCalledOnce();
+    expect(auth.signOut).toHaveBeenCalledOnce();
+    expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+    expect(TestSocket.instances).toHaveLength(1);
   });
 
   it("keeps users in their current workspace when an inactive membership is revoked", () => {

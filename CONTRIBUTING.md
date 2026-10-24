@@ -219,7 +219,7 @@ The root `package.json` includes scripts to keep locale files in sync:
 
 1. Create a new file in [`i18n/`](./i18n) using a locale code filename such as `fr-FR.json`.
 2. Copy [`i18n/en-US.json`](./i18n/en-US.json) and translate the values.
-3. Register the locale in [`i18n/resources.ts`](./i18n/resources.ts) by updating `supportedLocales` and `resources`.
+3. Register the locale in [`i18n/resources.ts`](./i18n/resources.ts) by updating `supportedLocales` and `resources`, and add it at the same position to `SUPPORTED_LOCALES` in [`apps/api/src/utils/supported-locales.ts`](./apps/api/src/utils/supported-locales.ts) (a unit test checks that both lists match).
 4. If the locale should be selectable in the UI, add it to the language picker in [`apps/web/src/routes/_layout/_authenticated/dashboard/settings/account/preferences.tsx`](./apps/web/src/routes/_layout/_authenticated/dashboard/settings/account/preferences.tsx).
 5. Run `pnpm i18n:check`, `pnpm i18n:report`, and `pnpm i18n:schema` before opening your PR.
 

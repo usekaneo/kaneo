@@ -755,6 +755,10 @@
 			"projectBackgroundsDescription": "Tampilkan gambar yang diatur proyek di belakang papannya.",
 			"advancedTitle": "Lanjutan"
 		},
+		"managedProfile": {
+			"note": "Dikelola oleh organisasi Anda.",
+			"edit": "Edit di {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "API key",
 			"title": "API key",

@@ -35,7 +35,10 @@ If you use a discovery URL, the provider can supply the authorization, token, an
 | `CUSTOM_AUTH_PKCE` | Enable/disable PKCE (Proof Key for Code Exchange) | `true` |
 | `CUSTOM_OAUTH_NAME` | Provider name on the sign-in button, for example `Authentik` | `SSO` |
 | `CUSTOM_OAUTH_LOGOUT_URL` | Provider logout endpoint, if needed | Unset |
+| `CUSTOM_OAUTH_BACKCHANNEL_LOGOUT` | Sign out Kaneo sessions when the provider sends a back-channel logout. Requires `CUSTOM_OAUTH_DISCOVERY_URL`. See [back-channel logout](#back-channel-logout) | `false` |
 | `CUSTOM_OAUTH_AUTO_LOGIN` | Auto-redirect to the custom OAuth provider, bypassing the login page | `false` |
+| `CUSTOM_OAUTH_MANAGED_PROFILE_FIELDS` | Comma-separated profile fields the provider manages: `name`, `image`, `locale`. See [managed profile fields](#managed-profile-fields) | Unset |
+| `CUSTOM_OAUTH_ACCOUNT_URL` | Provider account page, linked next to managed profile fields | Unset |
 
 ## Setup Steps
 
@@ -180,6 +183,47 @@ CUSTOM_OAUTH_DISCOVERY_URL=https://your-idp.com/.well-known/openid-configuration
 
 This will automatically discover the authorization, token, and userinfo endpoints. However, you still need to provide the client ID and secret.
 
+## Back-channel logout
+
+With OpenID Connect back-channel logout, your identity provider tells Kaneo when a session ends there, for example when someone signs out in another app or an administrator ends their session. Kaneo then signs out the matching Kaneo sessions, even when no Kaneo tab is open.
+
+Kaneo reads the issuer and the signing keys from the discovery document, and it needs the `openid` scope to remember which provider session each sign-in belongs to:
+
+```bash
+CUSTOM_OAUTH_DISCOVERY_URL=https://keycloak.example.com/realms/your-realm/.well-known/openid-configuration
+CUSTOM_OAUTH_SCOPES=openid,profile,email
+CUSTOM_OAUTH_BACKCHANNEL_LOGOUT=true
+```
+
+Recreate the Kaneo container, then register this back-channel logout URL with your provider:
+
+```
+https://kaneo.example.com/api/auth/oauth2/backchannel-logout/custom
+```
+
+For a separately hosted API at `https://api.kaneo.example.com`, use `https://api.kaneo.example.com/api/auth/oauth2/backchannel-logout/custom`. If `KANEO_API_URL` already ends in `/api`, do not add another `/api` segment. The provider calls this URL directly, so it must be able to reach Kaneo.
+
+What a logout signs out:
+
+- A logout token with a session ID (`sid`) ends the Kaneo sessions that started from that provider session. Kaneo stores the `sid` of the ID token at every sign-in through the provider, also while `CUSTOM_OAUTH_BACKCHANNEL_LOGOUT` is off, so turning it on later also covers sessions that already exist.
+- A logout token without a session ID ends all Kaneo sessions of that person.
+- Only sign-ins through the provider store a session ID. Sessions of the Kaneo mobile app, the Kaneo CLI and MCP clients have none, even when someone approves them while signed in through the provider. Sessions that started before you upgraded to a Kaneo version with back-channel logout, or without the `openid` scope, have none either. Only a logout token without a session ID ends them.
+- API keys are not sessions. They keep working until you revoke them.
+
+Open Kaneo tabs of an ended session return to the sign-in page right away, while tabs of the person's other sessions stay signed in. A tab without an open connection at that moment notices on its next request. With several API instances, this needs [Redis](/core/installation/environment-variables#redis).
+
+Kaneo answers `200` when it accepts a logout token, also when no session matched, and `400` for an invalid or reused token. It answers `503` when it cannot load the discovery document or the signing keys, and `404` while `CUSTOM_OAUTH_BACKCHANNEL_LOGOUT` is not `true`. Once Kaneo has loaded the signing keys, it keeps using them while they cannot be refreshed, so a token signed with a key the provider added since then answers `400` until the keys load again.
+
+In Keycloak, open your client and go to **Settings** > **Logout settings**:
+
+1. Turn off **Front channel logout**.
+2. Set **Backchannel logout URL** to the URL above.
+3. Keep **Backchannel logout session required** on, so that logout tokens carry the session ID.
+
+With **Backchannel logout session required** on, Keycloak sends a session ID in every logout token, so mobile app, CLI and MCP sessions stay signed in after a Keycloak logout. When someone leaves, also [deactivate their account](/core/operations/administration#manage-users) in Kaneo. That ends all of their sessions and stops their API keys from working.
+
+If Kaneo reads the discovery document through an internal address, configure Keycloak's hostname so the issuer in the document matches the `iss` claim of Keycloak's tokens. Otherwise, Kaneo rejects every logout token.
+
 ## Account linking
 
 When a user signs in with this provider using an email that already belongs to a Kaneo account, Kaneo can link the OIDC identity to that account. The provider must return a verified email claim; being configured does not make an unverified email trusted. Configure your identity provider to return `email_verified: true` only after establishing ownership of the email address. An unverified claim cannot satisfy email-based invitation matching either.
@@ -187,6 +231,34 @@ When a user signs in with this provider using an email that already belongs to a
 For safety, Kaneo only links to an existing local account if that account's email has already been verified. This prevents someone from pre-registering another person's email with a password account and retaining access after the real owner signs in through OIDC. If your instance allows password registration alongside OIDC, consider setting `DISABLE_PASSWORD_REGISTRATION=true` (which also blocks new OTP, magic-link and guest accounts) or requiring email verification for password users to avoid account-linking surprises.
 
 On existing installations, local accounts created before this requirement may still have an unverified email. Those users will receive `error=account_not_linked` until they verify the local account. Before enforcing SSO-only access, keep the login form available so affected users can sign in with an email OTP or magic link, which verifies the email. If users are already locked out, temporarily set `DISABLE_LOGIN_FORM=false` and `CUSTOM_OAUTH_AUTO_LOGIN=false`, recreate the Kaneo container, and have them complete an email sign-in before enabling SSO-only access again.
+
+## Managed profile fields
+
+When your identity provider is the source of truth for names, profile pictures, or languages, let it manage them in Kaneo:
+
+```bash
+CUSTOM_OAUTH_MANAGED_PROFILE_FIELDS=name,image,locale
+# Optional: link people to the page where they change these fields
+CUSTOM_OAUTH_ACCOUNT_URL=https://keycloak.example.com/realms/your-realm/account
+```
+
+At every sign-in through this provider, Kaneo copies the listed fields from the provider's claims. It reads the claims from the ID token when the token contains `sub` and `email`, and from the user info endpoint otherwise.
+
+| Field | Claim | What Kaneo stores |
+|-------|-------|-------------------|
+| `name` | `name` | The same name Kaneo uses when it creates the account: `name`, then `given_name` and `family_name`, then `preferred_username`, then the part of the email before the `@`. |
+| `image` | `picture` | An absolute `http` or `https` URL of up to 2,048 characters. Without one, Kaneo removes the profile picture, but keeps a picture uploaded in Kaneo until the provider sends one. A picture from the provider replaces the upload and deletes it. |
+| `locale` | `locale` | The matching Kaneo language: first by tag, then by language and script, then by language, so `de` becomes `de-DE` and `zh-Hant` or `zh-HK` becomes `zh-TW`. A missing or unsupported value keeps the current language. |
+
+Fields you do not list stay as they are. Accounts that Kaneo creates through the provider start with the same values. Signing in never changes the email address, but it marks the email of an account already linked to the provider as verified when the provider reports the same address as verified.
+
+People with a linked provider account see managed fields as read-only on their profile and preferences pages, with a link to `CUSTOM_OAUTH_ACCOUNT_URL` when you set it. They can still remove a picture they uploaded in Kaneo earlier, but they cannot upload a new one. People without a linked provider account keep full editing.
+
+The API enforces this too, also for API keys and administrators. `POST /api/auth/update-user` and `POST /api/auth/admin/update-user` answer `403` with the code `PROFILE_FIELD_MANAGED_BY_PROVIDER` when they would change a managed field, except removing a picture uploaded in Kaneo. A request that sends the current value again succeeds. While the provider manages the picture, `PUT /api/user/avatar` answers the same way, and so does `DELETE /api/user/avatar` if a picture other than an upload made in Kaneo is stored.
+
+In Keycloak, the default `profile` client scope maps the `picture` and `locale` user attributes to these claims. Keycloak only sets `locale` when internationalization is enabled for the realm.
+
+If you remove the provider settings later, remove `CUSTOM_OAUTH_MANAGED_PROFILE_FIELDS` as well, so people can edit their profiles in Kaneo again.
 
 ## Security Notes
 

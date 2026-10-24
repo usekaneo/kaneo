@@ -2,6 +2,10 @@ import { isSmtpConfigured } from "@kaneo/email";
 import { config } from "dotenv-mono";
 import { isBillingEnabled } from "../billing/config";
 import { isStorageConfigured } from "../storage/s3";
+import {
+  parseCustomOAuthAccountUrl,
+  parseManagedProfileFields,
+} from "./custom-oauth-env";
 import { resolveFileSecret } from "./file-secret";
 import { isGithubSsoConfigured } from "./github-sso-env";
 import { isCloud } from "./is-cloud";
@@ -39,6 +43,8 @@ function getSettings() {
     customOAuthName: process.env.CUSTOM_OAUTH_NAME?.trim() || null,
     customOAuthAutoLogin: process.env.CUSTOM_OAUTH_AUTO_LOGIN === "true",
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
+    customOAuthManagedProfileFields: parseManagedProfileFields(),
+    customOAuthAccountUrl: parseCustomOAuthAccountUrl(),
     billingEnabled: isBillingEnabled(),
   };
 }

@@ -755,6 +755,10 @@
 			"projectBackgroundsDescription": "Hiển thị hình ảnh mà dự án đặt làm nền bảng.",
 			"advancedTitle": "Nâng cao"
 		},
+		"managedProfile": {
+			"note": "Được quản lý bởi tổ chức của bạn.",
+			"edit": "Chỉnh sửa trong {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "Khóa API",
 			"title": "Khóa API",

@@ -11,6 +11,10 @@ import deleteAvatar from "./controllers/delete-avatar";
 import getCurrentUser from "./controllers/get-current-user";
 import saveAvatar from "./controllers/save-avatar";
 import {
+  requireRemovableAvatar,
+  requireUnmanagedAvatar,
+} from "./managed-avatar-guards";
+import {
   avatarDeletedSchema,
   avatarSchema,
   currentUserSchema,
@@ -40,7 +44,10 @@ const uploadAvatarRoute = createRoute({
   description: `Store a base64 encoded avatar (PNG, JPEG, or WebP, up to ${Math.floor(
     MAX_AVATAR_BYTES / 1024,
   )}KB) for the current user and return its public URL. Replaces any existing avatar.`,
-  middleware: [boundedRequestBody(MAX_AVATAR_REQUEST_BYTES)] as const,
+  middleware: [
+    requireUnmanagedAvatar,
+    boundedRequestBody(MAX_AVATAR_REQUEST_BYTES),
+  ] as const,
   request: {
     body: {
       required: true,
@@ -49,6 +56,9 @@ const uploadAvatarRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Avatar stored", avatarSchema),
+    403: errorResponse(
+      "The custom OAuth/OIDC provider manages the profile picture",
+    ),
     408: errorResponse("Request body timed out"),
     413: errorResponse("Request body exceeds the upload limit"),
     400: errorResponse(
@@ -65,8 +75,12 @@ const deleteAvatarRoute = createRoute({
   summary: "Delete avatar",
   description:
     "Remove the uploaded avatar of the current user. Succeeds even when there was nothing to remove.",
+  middleware: [requireRemovableAvatar] as const,
   responses: {
     200: jsonResponse("Avatar removed", avatarDeletedSchema),
+    403: errorResponse(
+      "The custom OAuth/OIDC provider manages the profile picture",
+    ),
   },
 });
 

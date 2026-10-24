@@ -47,6 +47,7 @@ export function createRevocationDelivery(
         message.userId,
         message.message.workspaceId,
         message.message.type,
+        message.message.sessionIds,
       ]);
       const entry = { message, shouldRetry };
       pending.set(key, entry);

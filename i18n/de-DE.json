@@ -840,6 +840,10 @@
 			"projectBackgroundsDescription": "Das Hintergrundbild eines Projekts hinter seinem Board anzeigen.",
 			"advancedTitle": "Erweitert"
 		},
+		"managedProfile": {
+			"note": "Von deiner Organisation verwaltet.",
+			"edit": "In {{provider}} bearbeiten"
+		},
 		"developerPage": {
 			"pageTitle": "API-Schlüssel",
 			"title": "API-Schlüssel",

@@ -76,4 +76,51 @@ describe("AvatarRow", () => {
     await waitFor(() => expect(m.remove).toHaveBeenCalled());
     await waitFor(() => expect(m.refetch).toHaveBeenCalled());
   });
+
+  it("shows the managed note instead of the upload controls", () => {
+    render(
+      <AvatarRow
+        name="Jo"
+        image="https://id.example.com/jo.png"
+        refetchUser={m.refetch}
+        managedNote="Managed elsewhere"
+      />,
+    );
+
+    expect(screen.getByText("Managed elsewhere")).toBeTruthy();
+    expect(
+      screen.queryByText("settings:informationPage.avatar.hint"),
+    ).toBeNull();
+    for (const action of ["upload", "remove"]) {
+      expect(
+        screen.queryByRole("button", {
+          name: `settings:informationPage.avatar.${action}`,
+        }),
+      ).toBeNull();
+    }
+  });
+
+  it("still removes a managed user's earlier upload", async () => {
+    render(
+      <AvatarRow
+        name="Jo"
+        image="/api/user/avatar/avatar-1"
+        refetchUser={m.refetch}
+        managedNote="Managed elsewhere"
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:informationPage.avatar.remove",
+      }),
+    );
+
+    await waitFor(() => expect(m.remove).toHaveBeenCalled());
+    expect(
+      screen.queryByRole("button", {
+        name: "settings:informationPage.avatar.upload",
+      }),
+    ).toBeNull();
+  });
 });

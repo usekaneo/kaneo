@@ -986,6 +986,10 @@
 			"projectBackgroundsDescription": "Show the image a project sets behind its board.",
 			"advancedTitle": "Advanced"
 		},
+		"managedProfile": {
+			"note": "Managed by your organization.",
+			"edit": "Edit in {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "API keys",
 			"title": "API keys",

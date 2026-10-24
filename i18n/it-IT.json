@@ -771,6 +771,10 @@
 			"projectBackgroundsDescription": "Mostra l'immagine che un progetto imposta dietro la sua board.",
 			"advancedTitle": "Avanzate"
 		},
+		"managedProfile": {
+			"note": "Gestito dalla tua organizzazione.",
+			"edit": "Modifica in {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "Chiavi API",
 			"title": "Chiavi API",

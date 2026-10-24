@@ -763,6 +763,10 @@
 			"projectBackgroundsDescription": "Projenin panosunun arkasına ayarladığı görseli göster.",
 			"advancedTitle": "Gelişmiş"
 		},
+		"managedProfile": {
+			"note": "Kuruluşunuz tarafından yönetiliyor.",
+			"edit": "{{provider}} üzerinde düzenle"
+		},
 		"developerPage": {
 			"pageTitle": "API anahtarları",
 			"title": "API anahtarları",

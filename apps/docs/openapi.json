@@ -606,6 +606,25 @@
               "null"
             ]
           },
+          "customOAuthManagedProfileFields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "name",
+                "image",
+                "locale"
+              ]
+            },
+            "description": "Profile fields the custom OAuth/OIDC provider manages for people with a linked provider account."
+          },
+          "customOAuthAccountUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Account page of the custom OAuth/OIDC provider, where people change managed profile fields. Null when not configured."
+          },
           "billingEnabled": {
             "type": "boolean"
           }
@@ -628,6 +647,8 @@
           "customOAuthName",
           "customOAuthAutoLogin",
           "customOAuthLogoutUrl",
+          "customOAuthManagedProfileFields",
+          "customOAuthAccountUrl",
           "billingEnabled"
         ]
       },
@@ -5175,6 +5196,18 @@
               "string",
               "null"
             ]
+          },
+          "managedProfileFields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "name",
+                "image",
+                "locale"
+              ]
+            },
+            "description": "Profile fields the custom OAuth/OIDC provider manages for this user. Kaneo updates them at sign-in and refuses changes to them."
           }
         },
         "required": [
@@ -5182,7 +5215,8 @@
           "name",
           "email",
           "image",
-          "role"
+          "role",
+          "managedProfileFields"
         ]
       },
       "UserAvatar": {
@@ -23569,6 +23603,16 @@
               }
             }
           },
+          "403": {
+            "description": "The custom OAuth/OIDC provider manages the profile picture",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
           "408": {
             "description": "Request body timed out",
             "content": {
@@ -23614,6 +23658,16 @@
           },
           "401": {
             "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The custom OAuth/OIDC provider manages the profile picture",
             "content": {
               "application/json": {
                 "schema": {

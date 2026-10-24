@@ -164,7 +164,8 @@ export function useUserWebSocket() {
         if (disposed || activeSocket !== ws) return;
         clearPing();
         activeSocket = null;
-        if (event?.code === 1008) revokeUserAccess();
+        // 4001 reaches only the sockets of a session the provider ended.
+        if (event?.code === 1008 || event?.code === 4001) revokeUserAccess();
         if (userRevoked) return;
 
         const delay = retryDelay;

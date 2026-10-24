@@ -139,6 +139,22 @@ describe("project WebSocket access", () => {
     expect(navigate).toHaveBeenCalledWith({ to: "/dashboard" });
   });
 
+  it("stops reconnecting after the provider ends the session", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() => {
+      TestSocket.instances[0].open();
+      TestSocket.instances[0].onclose?.({
+        code: 4001,
+        reason: "Session ended",
+      });
+      vi.advanceTimersByTime(60_000);
+    });
+    expect(TestSocket.instances).toHaveLength(1);
+    expect(vi.getTimerCount()).toBe(0);
+    expect(client.clear).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   it("reconnects after a project move without clearing authorized data", () => {
     renderHook(() => useProjectWebSocket("project-a"));
     act(() => {
