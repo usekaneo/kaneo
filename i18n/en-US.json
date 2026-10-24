@@ -2958,6 +2958,28 @@
 			"dates": "Dates",
 			"project": "Project"
 		},
+		"share": {
+			"action": "Share task",
+			"title": "Share task",
+			"description": "Create a read-only link for people who don't have a Kaneo account.",
+			"accessWarning": "Anyone with the link can see this task's shared details and description images. The page updates when they refresh it.",
+			"create": "Create share link",
+			"creating": "Creating...",
+			"created": "Share link created",
+			"createError": "Failed to create the share link",
+			"loadError": "Failed to load the share link",
+			"retry": "Try again",
+			"activeHint": "Anyone with this link can view the current read-only task summary.",
+			"url": "Public task URL",
+			"copy": "Copy",
+			"copied": "Share link copied",
+			"copyError": "Failed to copy the share link",
+			"revoke": "Revoke link",
+			"revoking": "Revoking...",
+			"revokeConfirmation": "Revoke this link? Anyone using it will immediately lose access, including access to description images.",
+			"revoked": "Share link revoked",
+			"revokeError": "Failed to revoke the share link"
+		},
 		"move": {
 			"title": "Move task",
 			"projectLabel": "Destination project",
@@ -3567,6 +3589,29 @@
 		"branding": {
 			"poweredBy": "Powered by"
 		}
+	},
+	"sharedTask": {
+		"pageTitle": "Shared task",
+		"badge": "Shared",
+		"readOnly": "Read-only",
+		"error": {
+			"title": "Task Not Found",
+			"description": "This share link doesn't exist, has been revoked, or is no longer available."
+		},
+		"fields": {
+			"status": "Status",
+			"priority": "Priority",
+			"assignee": "Assignee",
+			"unassigned": "Unassigned",
+			"startDate": "Start date",
+			"dueDate": "Due date",
+			"created": "Created",
+			"updated": "Last updated",
+			"description": "Description"
+		},
+		"descriptionLoading": "Loading description...",
+		"descriptionError": "The description couldn't be loaded. Refresh the page to try again.",
+		"noDescription": "No description was shared for this task."
 	},
 	"press": {
 		"title": "Press kit",

@@ -19,6 +19,7 @@ const RESERVED_SLUGS = new Set([
   "onboarding",
   "profile-setup",
   "public-project",
+  "shared-task",
   "test-error",
 ]);
 
