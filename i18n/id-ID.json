@@ -149,15 +149,15 @@
 					"terracotta": "Merah Bata",
 					"rose": "Merah Mawar",
 					"crimson": "Merah Tua",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2983,15 +2983,15 @@
 					"terracotta": "Terracotta",
 					"rose": "Rose",
 					"crimson": "Crimson",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"editLabels": "Edit label"
 			}
@@ -4368,15 +4368,15 @@
 				"terracotta": "Terakota",
 				"rose": "Mawar",
 				"crimson": "Merah tua",
-				"coral": "Coral",
-				"indigo": "Indigo",
-				"lagoon": "Lagoon",
-				"midnight": "Midnight",
-				"moss": "Moss",
 				"ocean": "Ocean",
-				"orchid": "Orchid",
-				"sky": "Sky",
-				"walnut": "Walnut"
+				"blush": "Blush",
+				"ink": "Ink",
+				"lilac": "Lilac",
+				"mint": "Mint",
+				"mist": "Mist",
+				"peach": "Peach",
+				"powder": "Powder blue",
+				"sunflower": "Sunflower"
 			},
 			"role": {
 				"owner": "Pemilik",

@@ -17,6 +17,14 @@ const NAMED_COLORS: Record<string, string> = {
   brown: "#7b3306",
   navy: "#1c398e",
   coral: "#ff6467",
+  "bright-yellow": "#fdc700",
+  "pale-pink": "#fda5d5",
+  "pale-purple": "#c4b4ff",
+  "pale-green": "#5ee9b5",
+  "pale-blue": "#74d4ff",
+  "pale-orange": "#ffb86a",
+  "pale-gray": "#d6d3d1",
+  black: "#171717",
 };
 
 const FALLBACK_COLOR = "#6b7280";

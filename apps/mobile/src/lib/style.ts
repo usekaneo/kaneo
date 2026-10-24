@@ -110,66 +110,80 @@ export const LABEL_COLORS = [
     color: "#155DFC",
   },
   {
-    value: "sky",
+    value: "bright-yellow",
     get label() {
-      return i18n.t("mobile:meta.labelColor.sky");
+      return i18n.t("mobile:meta.labelColor.sunflower");
     },
-    color: "#00A6F4",
+    color: "#FDC700",
   },
   {
-    value: "cyan",
+    value: "pale-pink",
     get label() {
-      return i18n.t("mobile:meta.labelColor.lagoon");
+      return i18n.t("mobile:meta.labelColor.blush");
     },
-    color: "#0092B8",
+    color: "#FDA5D5",
   },
   {
-    value: "indigo",
+    value: "pale-purple",
     get label() {
-      return i18n.t("mobile:meta.labelColor.indigo");
+      return i18n.t("mobile:meta.labelColor.lilac");
     },
-    color: "#615FFF",
+    color: "#C4B4FF",
   },
   {
-    value: "fuchsia",
+    value: "pale-green",
     get label() {
-      return i18n.t("mobile:meta.labelColor.orchid");
+      return i18n.t("mobile:meta.labelColor.mint");
     },
-    color: "#C800DE",
+    color: "#5EE9B5",
   },
   {
-    value: "lime",
+    value: "pale-blue",
     get label() {
-      return i18n.t("mobile:meta.labelColor.moss");
+      return i18n.t("mobile:meta.labelColor.powder");
     },
-    color: "#5EA500",
+    color: "#74D4FF",
   },
   {
-    value: "brown",
+    value: "pale-orange",
     get label() {
-      return i18n.t("mobile:meta.labelColor.walnut");
+      return i18n.t("mobile:meta.labelColor.peach");
     },
-    color: "#7B3306",
+    color: "#FFB86A",
   },
   {
-    value: "navy",
+    value: "pale-gray",
     get label() {
-      return i18n.t("mobile:meta.labelColor.midnight");
+      return i18n.t("mobile:meta.labelColor.mist");
     },
-    color: "#1C398E",
+    color: "#D6D3D1",
   },
   {
-    value: "coral",
+    value: "black",
     get label() {
-      return i18n.t("mobile:meta.labelColor.coral");
+      return i18n.t("mobile:meta.labelColor.ink");
     },
-    color: "#FF6467",
+    color: "#171717",
   },
 ] as const;
+
+// Briefly offered, no longer in the picker; labels that use them keep their color.
+const RETIRED_LABEL_COLORS: Record<string, string> = {
+  sky: "#00A6F4",
+  cyan: "#0092B8",
+  indigo: "#615FFF",
+  fuchsia: "#C800DE",
+  lime: "#5EA500",
+  brown: "#7B3306",
+  navy: "#1C398E",
+  coral: "#FF6467",
+};
 
 export function labelColor(value?: string | null): string {
   const named = LABEL_COLORS.find((c) => c.value === value);
   if (named) return named.color;
+  const retired = value ? RETIRED_LABEL_COLORS[value] : undefined;
+  if (retired) return retired;
   // Older and imported labels may store a hex color.
   if (value && /^#[0-9a-f]{3,8}$/i.test(value)) return value;
   return "#A1A1A1";

@@ -151,14 +151,14 @@
 					"rose": "Rose",
 					"crimson": "Crimson",
 					"ocean": "Ocean",
-					"sky": "Sky",
-					"lagoon": "Lagoon",
-					"indigo": "Indigo",
-					"orchid": "Orchid",
-					"moss": "Moss",
-					"walnut": "Walnut",
-					"midnight": "Midnight",
-					"coral": "Coral"
+					"sunflower": "Sunflower",
+					"blush": "Blush",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"powder": "Powder blue",
+					"peach": "Peach",
+					"mist": "Mist",
+					"ink": "Ink"
 				}
 			}
 		},
@@ -3032,14 +3032,14 @@
 					"rose": "Rose",
 					"crimson": "Crimson",
 					"ocean": "Ocean",
-					"sky": "Sky",
-					"lagoon": "Lagoon",
-					"indigo": "Indigo",
-					"orchid": "Orchid",
-					"moss": "Moss",
-					"walnut": "Walnut",
-					"midnight": "Midnight",
-					"coral": "Coral"
+					"sunflower": "Sunflower",
+					"blush": "Blush",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"powder": "Powder blue",
+					"peach": "Peach",
+					"mist": "Mist",
+					"ink": "Ink"
 				},
 				"editLabels": "Edit labels"
 			}
@@ -4445,14 +4445,14 @@
 				"rose": "Rose",
 				"crimson": "Crimson",
 				"ocean": "Ocean",
-				"sky": "Sky",
-				"lagoon": "Lagoon",
-				"indigo": "Indigo",
-				"orchid": "Orchid",
-				"moss": "Moss",
-				"walnut": "Walnut",
-				"midnight": "Midnight",
-				"coral": "Coral"
+				"sunflower": "Sunflower",
+				"blush": "Blush",
+				"lilac": "Lilac",
+				"mint": "Mint",
+				"powder": "Powder blue",
+				"peach": "Peach",
+				"mist": "Mist",
+				"ink": "Ink"
 			},
 			"role": {
 				"owner": "Owner",

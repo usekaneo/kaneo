@@ -52,12 +52,15 @@ function GlobalBoardCard({
       {...listeners}
       data-task-id={task.id}
       className={cn(
-        "group/card relative touch-manipulation rounded-lg border border-border/60 bg-card shadow-xs transition-[opacity,border-color] hover:border-border",
+        "group/card relative touch-manipulation rounded-lg border shadow-xs transition-[opacity,border-color] hover:border-border",
+        lane === "done"
+          ? "border-board-card-done-border bg-board-card-done"
+          : "border-border/60 bg-card",
         // The slot the card will drop into, while the overlay follows the pointer.
         isDragging && "border-dashed border-border opacity-40 shadow-none",
       )}
     >
-      <GlobalBoardCardBody task={task} />
+      <GlobalBoardCardBody task={task} done={lane === "done"} />
       {/* Arranging the board is personal, so viewers get the menu too;
           changing columns needs move rights. */}
       <TaskMoveMenu

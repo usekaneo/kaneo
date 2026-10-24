@@ -149,15 +149,15 @@
 					"terracotta": "테라코타",
 					"rose": "로즈",
 					"crimson": "크림슨",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2983,15 +2983,15 @@
 					"terracotta": "테라코타",
 					"rose": "로즈",
 					"crimson": "크림슨",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"editLabels": "라벨 편집"
 			}
@@ -4094,15 +4094,15 @@
 				"slate": "슬레이트",
 				"stone": "스톤",
 				"terracotta": "테라코타",
-				"coral": "Coral",
-				"indigo": "Indigo",
-				"lagoon": "Lagoon",
-				"midnight": "Midnight",
-				"moss": "Moss",
 				"ocean": "Ocean",
-				"orchid": "Orchid",
-				"sky": "Sky",
-				"walnut": "Walnut"
+				"blush": "Blush",
+				"ink": "Ink",
+				"lilac": "Lilac",
+				"mint": "Mint",
+				"mist": "Mist",
+				"peach": "Peach",
+				"powder": "Powder blue",
+				"sunflower": "Sunflower"
 			},
 			"priority": {
 				"high": "높음",

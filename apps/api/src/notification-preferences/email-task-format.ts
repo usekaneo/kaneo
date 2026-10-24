@@ -25,6 +25,14 @@ const labelColors: Record<string, string> = {
   brown: "#7B3306",
   navy: "#1C398E",
   coral: "#FF6467",
+  "bright-yellow": "#FDC700",
+  "pale-pink": "#FDA5D5",
+  "pale-purple": "#C4B4FF",
+  "pale-green": "#5EE9B5",
+  "pale-blue": "#74D4FF",
+  "pale-orange": "#FFB86A",
+  "pale-gray": "#D6D3D1",
+  black: "#171717",
 };
 
 const FALLBACK_LABEL_COLOR = "#A1A1A1";

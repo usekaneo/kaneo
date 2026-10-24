@@ -149,15 +149,15 @@
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
 					"crimson": "Karmesinrot",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"statusLoadError": "Die Projektstatus konnten nicht geladen werden."
 			}
@@ -3030,15 +3030,15 @@
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
 					"crimson": "Karmesinrot",
-					"coral": "Coral",
-					"indigo": "Indigo",
-					"lagoon": "Lagoon",
-					"midnight": "Midnight",
-					"moss": "Moss",
 					"ocean": "Ocean",
-					"orchid": "Orchid",
-					"sky": "Sky",
-					"walnut": "Walnut"
+					"blush": "Blush",
+					"ink": "Ink",
+					"lilac": "Lilac",
+					"mint": "Mint",
+					"mist": "Mist",
+					"peach": "Peach",
+					"powder": "Powder blue",
+					"sunflower": "Sunflower"
 				},
 				"editLabels": "Labels bearbeiten"
 			}
@@ -4444,15 +4444,15 @@
 				"terracotta": "Terrakotta",
 				"rose": "Rosé",
 				"crimson": "Karmesin",
-				"coral": "Coral",
-				"indigo": "Indigo",
-				"lagoon": "Lagoon",
-				"midnight": "Midnight",
-				"moss": "Moss",
 				"ocean": "Ocean",
-				"orchid": "Orchid",
-				"sky": "Sky",
-				"walnut": "Walnut"
+				"blush": "Blush",
+				"ink": "Ink",
+				"lilac": "Lilac",
+				"mint": "Mint",
+				"mist": "Mist",
+				"peach": "Peach",
+				"powder": "Powder blue",
+				"sunflower": "Sunflower"
 			},
 			"role": {
 				"owner": "Eigentümer",

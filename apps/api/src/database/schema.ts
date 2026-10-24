@@ -577,7 +577,8 @@ export const taskTable = pgTable(
 );
 
 // Each user's own card order on the global board. Unplaced tasks sort after
-// placed ones; project boards keep their own positions.
+// placed ones. Within one project column the project board order wins; this
+// only interleaves projects.
 export const globalBoardOrderTable = pgTable(
   "global_board_order",
   {

@@ -40,7 +40,7 @@ describe("labelColorHex", () => {
 describe("labelColorName", () => {
   it("names palette colors and leaves hex alone", () => {
     expect(labelColorName("purple")).toBe("lavender");
-    expect(labelColorName("navy")).toBe("midnight");
+    expect(labelColorName("pale-pink")).toBe("blush");
     expect(labelColorName("#8e51ff")).toBeNull();
   });
 });
