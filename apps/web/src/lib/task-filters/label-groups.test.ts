@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 import {
   groupLabels,
+  expandLabelFilter,
   isLabelGroupSelected,
   toggleLabelGroup,
 } from "./label-groups";
@@ -23,5 +24,29 @@ describe("label groups", () => {
     expect(isLabelGroupSelected(labels, design, selected)).toBe(true);
     expect(toggleLabelGroup(labels, design, selected)).toEqual(["b1"]);
     expect(toggleLabelGroup(labels, design, ["a2"])).toBeNull();
+  });
+
+  it("includes label assignments added after the filter was saved", () => {
+    const attached = { ...design, id: "new-assignment" };
+    expect(expandLabelFilter([...labels, attached], ["a1"])).toEqual([
+      "a1",
+      "a2",
+      "new-assignment",
+    ]);
+  });
+
+  it("keeps differently named or colored groups separate", () => {
+    const other = { ...design, id: "different-color", color: "red" };
+    expect(expandLabelFilter([...labels, other], ["a1"])).toEqual(["a1", "a2"]);
+  });
+
+  it("follows current metadata after a selected label is renamed", () => {
+    const renamed = labels.map((label) => ({ ...label, name: "Renamed" }));
+    expect(expandLabelFilter(renamed, ["a1"])).toEqual(["a1", "a2"]);
+  });
+
+  it("does not broaden a filter whose selected labels no longer exist", () => {
+    expect(expandLabelFilter(labels, ["deleted"])).toEqual(["deleted"]);
+    expect(expandLabelFilter(labels, null)).toBeNull();
   });
 });
