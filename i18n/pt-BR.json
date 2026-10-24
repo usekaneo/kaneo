@@ -1407,7 +1407,9 @@
 			"validation": {
 				"botTokenInvalid": "Digite um token de bot do Telegram válido",
 				"chatIdRequired": "O ID do chat é obrigatório",
-				"threadIdInvalid": "Digite um ID de tópico válido"
+				"threadIdInvalid": "Digite um ID de tópico válido",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Integração com o Telegram salva com sucesso",
@@ -1422,6 +1424,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Crie um bot com o BotFather e cole o token aqui.",
 			"botTokenHintConfigured": "Token atual: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "ID do chat",
 			"chatIdPlaceholder": "-1001234567890 ou @atualizacoes_equipe",
 			"threadIdLabel": "ID do tópico",

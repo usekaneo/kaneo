@@ -1873,6 +1873,9 @@
 		"telegramIntegration": {
 			"botTokenHint": "Utwórz bota za pomocą BotFather i wklej tutaj jego token.",
 			"botTokenHintConfigured": "Bieżący token: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"botTokenLabel": "Token bota",
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"chatIdLabel": "ID czatu",
@@ -1894,7 +1897,9 @@
 			"validation": {
 				"botTokenInvalid": "Wpisz prawidłowy token bota Telegram",
 				"chatIdRequired": "ID czatu jest wymagane",
-				"threadIdInvalid": "Wpisz prawidłowe ID tematu"
+				"threadIdInvalid": "Wpisz prawidłowe ID tematu",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"botTokenSavedPlaceholder": "Zapisano. Wklej nowy token, aby go zastąpić.",
 			"loadError": "Nie udało się wczytać ustawień Telegrama."

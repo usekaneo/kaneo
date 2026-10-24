@@ -1471,7 +1471,9 @@
 			"validation": {
 				"botTokenInvalid": "Voer een geldig Telegram-bottoken in",
 				"chatIdRequired": "Chat-ID is verplicht",
-				"threadIdInvalid": "Voer een geldig topic-ID in"
+				"threadIdInvalid": "Voer een geldig topic-ID in",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram-integratie succesvol opgeslagen",
@@ -1486,6 +1488,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Maak een bot aan met BotFather en plak het token hier.",
 			"botTokenHintConfigured": "Huidig token: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Chat-ID",
 			"chatIdPlaceholder": "-1001234567890 of @team_updates",
 			"threadIdLabel": "Topic-ID",

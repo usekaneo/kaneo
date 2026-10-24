@@ -61,6 +61,31 @@ export function TelegramFields({
       />
       <FormField
         control={control}
+        name="serverUrl"
+        render={({ field }) => (
+          <FormItem className="space-y-1.5">
+            <FormLabel>
+              {t("settings:telegramIntegration.serverUrlLabel")}
+            </FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                autoComplete="off"
+                inputMode="url"
+                placeholder={t(
+                  "settings:telegramIntegration.serverUrlPlaceholder",
+                )}
+              />
+            </FormControl>
+            <FormDescription className="text-xs">
+              {t("settings:telegramIntegration.serverUrlHint")}
+            </FormDescription>
+            <FormMessage className="text-xs" />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
         name="chatId"
         render={({ field }) => (
           <FormItem className="space-y-1.5">

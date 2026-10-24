@@ -1407,7 +1407,9 @@
 			"validation": {
 				"botTokenInvalid": "请输入有效的 Telegram Bot 令牌",
 				"chatIdRequired": "聊天 ID 不能为空",
-				"threadIdInvalid": "请输入有效的话题 ID"
+				"threadIdInvalid": "请输入有效的话题 ID",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram 集成保存成功",
@@ -1422,6 +1424,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "使用 BotFather 创建机器人，然后粘贴其令牌。",
 			"botTokenHintConfigured": "当前令牌：{{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "聊天 ID",
 			"chatIdPlaceholder": "-1001234567890 或 @team_updates",
 			"threadIdLabel": "话题 ID",
