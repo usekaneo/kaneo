@@ -36,6 +36,7 @@ export function useUserWebSocket() {
   activeWorkspaceRef.current = session?.session?.activeOrganizationId;
   useEffect(() => {
     if (!session?.user?.id) return;
+    const userId = session.user.id;
 
     // A previous session's delayed socket events must not control this session.
     let disposed = false;
@@ -62,16 +63,31 @@ export function useUserWebSocket() {
         authClient.$store.notify(signal);
     }
 
-    function revokeUserAccess() {
+    // The cookie may hold another tab's newer session, so never sign it out.
+    function leaveSession() {
       if (userRevoked) return;
       userRevoked = true;
       clearPing();
       queryClient.clear();
       refreshOrganizationState();
+      void navigate({ to: "/auth/sign-in" });
+    }
+
+    function checkEndedSession() {
       void authClient
-        .signOut()
-        .finally(() => navigate({ to: "/auth/sign-in" }))
-        .catch(() => {});
+        .getSession()
+        .then(({ data, error }) => {
+          if (disposed) return;
+          if (error && error.status !== 401) throw error;
+          if (data?.user.id === userId) connect();
+          else leaveSession();
+        })
+        .catch(() => {
+          if (disposed) return;
+          const delay = retryDelay;
+          retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY);
+          retryTimeout = setTimeout(checkEndedSession, delay);
+        });
     }
 
     function connect() {
@@ -101,7 +117,7 @@ export function useUserWebSocket() {
             workspaceIds?: string[] | null;
           };
           if (message.type === "USER_ACCESS_REVOKED") {
-            revokeUserAccess();
+            leaveSession();
             return;
           }
           if (
@@ -165,7 +181,11 @@ export function useUserWebSocket() {
         clearPing();
         activeSocket = null;
         // 4001 reaches only the sockets of a session the provider ended.
-        if (event?.code === 1008 || event?.code === 4001) revokeUserAccess();
+        if (event?.code === 4001) {
+          checkEndedSession();
+          return;
+        }
+        if (event?.code === 1008) leaveSession();
         if (userRevoked) return;
 
         const delay = retryDelay;
@@ -184,5 +204,5 @@ export function useUserWebSocket() {
       }
       activeSocket?.close();
     };
-  }, [session?.user?.id, queryClient, navigate]);
+  }, [session?.user?.id, session?.session?.id, queryClient, navigate]);
 }

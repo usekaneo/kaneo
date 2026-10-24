@@ -52,7 +52,7 @@ type UserConnection = {
   sessionId: string | null;
 };
 
-// Only sockets of an ended session get this code, so the web signs out just that browser.
+// Only sockets of an ended session get this code, so the web rechecks its cookie.
 export const SESSION_ENDED_CLOSE_CODE = 4001;
 
 /**
