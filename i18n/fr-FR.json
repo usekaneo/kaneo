@@ -1573,6 +1573,8 @@
 			"noDefault": "Aucune valeur par défaut",
 			"optionsLabel": "Options",
 			"removeOptionAria": "Retirer {{option}}",
+			"hideOptionAria": "Masquer {{option}} pour les nouvelles sélections",
+			"showOptionAria": "Proposer à nouveau {{option}} pour les nouvelles sélections",
 			"renameOptionAria": "Renommer {{option}}",
 			"requiredDescription": "Chaque tâche a toujours une valeur.",
 			"save": "Enregistrer",

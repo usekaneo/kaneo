@@ -1555,6 +1555,8 @@
 			"noDefault": "기본값 없음",
 			"optionsLabel": "옵션",
 			"removeOptionAria": "{{option}} 제거",
+			"hideOptionAria": "새 선택에서 {{option}} 숨기기",
+			"showOptionAria": "새 선택에 {{option}} 다시 표시",
 			"renameOptionAria": "{{option}} 이름 변경",
 			"requiredDescription": "모든 작업에 항상 값이 있습니다.",
 			"save": "저장",

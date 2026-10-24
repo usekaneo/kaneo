@@ -1573,6 +1573,8 @@
 			"noDefault": "Sem padrão",
 			"optionsLabel": "Opções",
 			"removeOptionAria": "Remover {{option}}",
+			"hideOptionAria": "Ocultar {{option}} das novas seleções",
+			"showOptionAria": "Oferecer {{option}} novamente nas novas seleções",
 			"renameOptionAria": "Renomear {{option}}",
 			"requiredDescription": "Toda tarefa sempre tem um valor.",
 			"save": "Salvar",

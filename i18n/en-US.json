@@ -1777,6 +1777,8 @@
 			"dragOptionAria": "Reorder {{option}}",
 			"renameOptionAria": "Rename {{option}}",
 			"removeOptionAria": "Remove {{option}}",
+			"hideOptionAria": "Hide {{option}} from new selections",
+			"showOptionAria": "Offer {{option}} for new selections again",
 			"allowSeveral": "Allow several",
 			"allowSeveralDescription": "A task can pick more than one option.",
 			"requiredDescription": "Every task always has a value.",

@@ -73,6 +73,7 @@ async function updateCustomField(id: string, input: CustomFieldUpdateInput) {
         required: next.required,
         defaultValue: next.defaultValue,
         options: next.options,
+        hiddenOptions: next.hiddenOptions,
       })
       .where(eq(customFieldDefinitionTable.id, id))
       .returning();

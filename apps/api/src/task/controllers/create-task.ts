@@ -11,6 +11,12 @@ import {
   projectTable,
   userTable,
 } from "../../database/schema";
+import {
+  findNewHiddenPicks,
+  isChoiceType,
+  readHiddenOptions,
+  readOptions,
+} from "../../custom-field/choice-options";
 import { publishEvent } from "../../events";
 import {
   assertAssignableUser,
@@ -82,6 +88,20 @@ async function createTask({
     .select()
     .from(customFieldDefinitionTable)
     .where(eq(customFieldDefinitionTable.projectId, projectId));
+
+  for (const input of normalizedCustomFields ?? []) {
+    const field = allFields.find((candidate) => candidate.id === input.fieldId);
+    if (!field || !isChoiceType(field.type)) continue;
+    const hidden = readHiddenOptions(
+      field.hiddenOptions,
+      readOptions(field.options),
+    );
+    if (findNewHiddenPicks(input.value, null, field.type, hidden).length > 0) {
+      throw new HTTPException(400, {
+        message: `Custom field "${field.name}" has a hidden option selected.`,
+      });
+    }
+  }
 
   const mergedCustomFields: CustomFieldInput[] = normalizedCustomFields ?? [];
   const providedFieldIds = new Set(mergedCustomFields.map((f) => f.fieldId));

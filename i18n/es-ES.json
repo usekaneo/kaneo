@@ -1573,6 +1573,8 @@
 			"noDefault": "Sin valor por defecto",
 			"optionsLabel": "Opciones",
 			"removeOptionAria": "Quitar {{option}}",
+			"hideOptionAria": "Ocultar {{option}} en nuevas selecciones",
+			"showOptionAria": "Volver a ofrecer {{option}} en nuevas selecciones",
 			"renameOptionAria": "Renombrar {{option}}",
 			"requiredDescription": "Todas las tareas tienen siempre un valor.",
 			"save": "Guardar",

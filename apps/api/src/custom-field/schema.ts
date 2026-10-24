@@ -50,6 +50,10 @@ export const updateCustomFieldBody = z.object({
     description:
       "The full option list for dropdown and multiselect fields, in display order. Adding and reordering options is always allowed. Removing or renaming an option that a task still uses is rejected with 400, so task values are never changed silently.",
   }),
+  hiddenOptions: z.array(z.string()).optional().openapi({
+    description:
+      "Options to retire without removing them: tasks keep their existing selections, but hidden options can't be picked anew or used as the default. Must be a subset of `options`. Omit to keep the current hidden options that are still options.",
+  }),
 });
 
 export const reorderCustomFieldsBody = z.object({

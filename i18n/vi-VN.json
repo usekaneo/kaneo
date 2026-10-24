@@ -1555,6 +1555,8 @@
 			"noDefault": "Không có mặc định",
 			"optionsLabel": "Tùy chọn",
 			"removeOptionAria": "Gỡ {{option}}",
+			"hideOptionAria": "Ẩn {{option}} khỏi lựa chọn mới",
+			"showOptionAria": "Hiển thị lại {{option}} cho lựa chọn mới",
 			"renameOptionAria": "Đổi tên {{option}}",
 			"requiredDescription": "Mọi công việc luôn có giá trị.",
 			"save": "Lưu",

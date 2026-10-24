@@ -22,7 +22,11 @@ export function OptionFieldEditor({
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const multiple = field.type === "multiselect";
-  const options = Array.from(new Set(field.options ?? []));
+  // Hidden options stay listed only while selected, so they can be removed.
+  const options = Array.from(new Set(field.options ?? [])).filter(
+    (option) =>
+      !field.hiddenOptions?.includes(option) || selected.includes(option),
+  );
   const needle = query.trim().toLowerCase();
   const filtered = options.filter((option) =>
     option.toLowerCase().includes(needle),
