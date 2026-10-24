@@ -612,7 +612,8 @@
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
 			"myTasks": "My tasks",
-			"globalBoard": "Global board"
+			"globalBoard": "Global board",
+			"habits": "Nawyki"
 		},
 		"projectList": {
 			"viewProject": "Zobacz projekt",
@@ -789,6 +790,29 @@
 			"pin": "Przypnij etykietę",
 			"empty": "Przypnij etykietę, by otworzyć global board przefiltrowany po niej.",
 			"error": "Nie udało się zmienić przypiętych etykiet."
+		},
+		"habits": {
+			"title": "Nawyki",
+			"description": "Zaznaczaj dni, w które trzymasz się nawyku. Liczba obok nawyku to wszystkie dni, w które go wykonałeś.",
+			"habit": "Nawyk",
+			"daysDone_one": "{{count}} dzień",
+			"daysDone_few": "{{count}} dni",
+			"daysDone_many": "{{count}} dni",
+			"daysDone_other": "{{count}} dni",
+			"add": "Dodaj nawyk",
+			"addPlaceholder": "Nowy nawyk, np. Ćwiczenia",
+			"emptyTitle": "Nie masz jeszcze nawyków",
+			"emptyDescription": "Dodaj nawyk, np. ćwiczenia albo śpiew, i zaznaczaj każdy dzień, w którym go wykonasz.",
+			"loadError": "Nie udało się wczytać nawyków.",
+			"saveError": "Nie udało się zapisać nawyku.",
+			"checkLabel": "{{habit}}, {{date}}",
+			"options": "Opcje nawyku {{habit}}",
+			"rename": "Zmień nazwę",
+			"delete": "Usuń",
+			"deleteTitle": "Usunąć „{{habit}}”?",
+			"deleteDescription": "Cała jego historia też zostanie usunięta. Tego nie można cofnąć.",
+			"cancel": "Anuluj",
+			"today": "Dziś"
 		}
 	},
 	"notifications": {

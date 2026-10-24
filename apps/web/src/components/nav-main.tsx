@@ -3,6 +3,7 @@ import {
   CircleCheck,
   House,
   Inbox,
+  ListChecks,
   type LucideIcon,
   Mail,
   SquareKanban,
@@ -67,6 +68,11 @@ export function NavMain() {
       title: t("navigation:sidebar.globalBoard"),
       icon: SquareKanban,
       url: "/dashboard/global-board",
+    },
+    {
+      title: t("navigation:sidebar.habits"),
+      icon: ListChecks,
+      url: "/dashboard/habits",
     },
     {
       title: t("navigation:sidebar.members"),

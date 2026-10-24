@@ -2409,6 +2409,7 @@
 			"inbox": "Inbox",
 			"myTasks": "My tasks",
 			"globalBoard": "Global board",
+			"habits": "Habits",
 			"invitePeople": "Invite people"
 		},
 		"projectList": {
@@ -2584,6 +2585,27 @@
 			"pin": "Pin a label",
 			"empty": "Pin a label to open the global board filtered by it.",
 			"error": "Couldn't update pinned labels."
+		},
+		"habits": {
+			"title": "Habits",
+			"description": "Tick the days you kept a habit. The number next to a habit counts every day it was done.",
+			"habit": "Habit",
+			"daysDone_one": "{{count}} day done",
+			"daysDone_other": "{{count}} days done",
+			"add": "Add habit",
+			"addPlaceholder": "New habit, e.g. Exercise",
+			"emptyTitle": "No habits yet",
+			"emptyDescription": "Add a habit like exercise or singing, then tick each day you do it.",
+			"loadError": "Couldn't load your habits.",
+			"saveError": "Couldn't save the habit.",
+			"checkLabel": "{{habit}} on {{date}}",
+			"options": "Options for {{habit}}",
+			"rename": "Rename",
+			"delete": "Delete",
+			"deleteTitle": "Delete \"{{habit}}\"?",
+			"deleteDescription": "Its whole history will be deleted too. This can't be undone.",
+			"cancel": "Cancel",
+			"today": "Today"
 		}
 	},
 	"notifications": {

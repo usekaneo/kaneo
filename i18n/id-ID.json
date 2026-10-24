@@ -2367,7 +2367,8 @@
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
 			"myTasks": "My tasks",
-			"globalBoard": "Global board"
+			"globalBoard": "Global board",
+			"habits": "Habits"
 		},
 		"projectList": {
 			"viewProject": "Lihat Proyek",
@@ -2541,6 +2542,26 @@
 			"error": "Couldn't update pinned labels.",
 			"pin": "Pin a label",
 			"title": "Pinned labels"
+		},
+		"habits": {
+			"add": "Add habit",
+			"addPlaceholder": "New habit, e.g. Exercise",
+			"cancel": "Cancel",
+			"checkLabel": "{{habit}} on {{date}}",
+			"daysDone_other": "{{count}} days done",
+			"delete": "Delete",
+			"deleteDescription": "Its whole history will be deleted too. This can't be undone.",
+			"deleteTitle": "Delete \"{{habit}}\"?",
+			"description": "Tick the days you kept a habit. The number next to a habit counts every day it was done.",
+			"emptyDescription": "Add a habit like exercise or singing, then tick each day you do it.",
+			"emptyTitle": "No habits yet",
+			"habit": "Habit",
+			"loadError": "Couldn't load your habits.",
+			"options": "Options for {{habit}}",
+			"rename": "Rename",
+			"saveError": "Couldn't save the habit.",
+			"title": "Habits",
+			"today": "Today"
 		}
 	},
 	"notifications": {
