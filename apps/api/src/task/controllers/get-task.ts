@@ -1,3 +1,4 @@
+import { getTaskAncestors } from "../get-task-ancestors";
 import { boundedTaskRead } from "../bounded-read";
 import { alias } from "drizzle-orm/pg-core";
 import { boardDescription, descriptionDeferred } from "../description-pages";
@@ -72,8 +73,17 @@ async function getTask(taskId: string, board = false, userId?: string) {
       userId,
     ),
   );
+  const ancestors = userId
+    ? await boundedTaskRead((tx) =>
+        getTaskAncestors(tx, [taskId], workspaceId, userId),
+      )
+    : new Map<
+        string,
+        Array<{ id: string; title: string; projectId: string }>
+      >();
   return {
     ...result,
+    ancestors: ancestors.get(taskId) ?? [],
     subtaskCounts: counts.get(taskId) ?? { completed: 0, total: 0 },
     parentSubtaskCounts: parents.map(({ id }) => ({
       taskId: id,

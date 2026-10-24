@@ -3184,7 +3184,8 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya."
+			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya.",
+			"ancestorBreadcrumbs": "Hierarki tugas"
 		},
 		"toolbar": {
 			"search": "Cari tugas",
@@ -3237,6 +3238,18 @@
 			"startsOn": "Mulai {{date}}",
 			"beforeStart": "{{date}} sebelum tanggal mulai",
 			"afterDue": "{{date}} setelah tenggat"
+		},
+		"subtaskStatus": {
+			"archived": "Archived",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"retry": "Retry",
+			"skip": "Skip subtasks",
+			"title": "Update the status of open subtasks too?",
+			"updateAll": "Update all",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"updating": "Updating…"
 		}
 	},
 	"invitations": {

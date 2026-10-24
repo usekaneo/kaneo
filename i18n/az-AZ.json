@@ -3236,7 +3236,8 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin."
+			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin.",
+			"ancestorBreadcrumbs": "Tapşırıq iyerarxiyası"
 		},
 		"toolbar": {
 			"search": "Tapşırıqları axtar",
@@ -3294,6 +3295,19 @@
 			"startsOn": "Başlayır: {{date}}",
 			"beforeStart": "{{date}} başlama tarixindən əvvəldir",
 			"afterDue": "{{date}} son tarixdən sonradır"
+		},
+		"subtaskStatus": {
+			"archived": "Archived",
+			"description_one": "“{{title}}” still has {{count}} open subtask. Would you like to also update its status to {{status}}?",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"retry": "Retry",
+			"skip": "Skip subtasks",
+			"title": "Update the status of open subtasks too?",
+			"updateAll": "Update all",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"updating": "Updating…"
 		}
 	},
 	"invitations": {

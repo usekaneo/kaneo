@@ -3184,7 +3184,8 @@
 		},
 		"board": {
 			"reorderFailed": "无法移动任务，请重试。",
-			"keyboardInstructions": "按空格键预览，按 Enter 打开此任务。按住 Alt 或 Option 并使用方向键移动任务。"
+			"keyboardInstructions": "按空格键预览，按 Enter 打开此任务。按住 Alt 或 Option 并使用方向键移动任务。",
+			"ancestorBreadcrumbs": "任务层级"
 		},
 		"toolbar": {
 			"search": "搜索任务",
@@ -3237,6 +3238,18 @@
 			"startsOn": "开始于 {{date}}",
 			"beforeStart": "{{date}} 早于开始日期",
 			"afterDue": "{{date}} 晚于截止日期"
+		},
+		"subtaskStatus": {
+			"archived": "Archived",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"retry": "Retry",
+			"skip": "Skip subtasks",
+			"title": "Update the status of open subtasks too?",
+			"updateAll": "Update all",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"updating": "Updating…"
 		}
 	},
 	"invitations": {

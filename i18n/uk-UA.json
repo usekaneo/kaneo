@@ -3340,7 +3340,8 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Натисніть Пробіл для попереднього перегляду та Enter, щоб відкрити це завдання. Використовуйте Alt або Option зі стрілками, щоб перемістити його."
+			"keyboardInstructions": "Натисніть Пробіл для попереднього перегляду та Enter, щоб відкрити це завдання. Використовуйте Alt або Option зі стрілками, щоб перемістити його.",
+			"ancestorBreadcrumbs": "Ієрархія завдань"
 		},
 		"toolbar": {
 			"search": "Пошук завдань",
@@ -3408,6 +3409,21 @@
 			"startsOn": "Початок: {{date}}",
 			"beforeStart": "{{date}} раніше за дату початку",
 			"afterDue": "{{date}} пізніше за термін"
+		},
+		"subtaskStatus": {
+			"archived": "Archived",
+			"description_few": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"description_many": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"description_one": "“{{title}}” still has {{count}} open subtask. Would you like to also update its status to {{status}}?",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"retry": "Retry",
+			"skip": "Skip subtasks",
+			"title": "Update the status of open subtasks too?",
+			"updateAll": "Update all",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"updating": "Updating…"
 		}
 	},
 	"invitations": {

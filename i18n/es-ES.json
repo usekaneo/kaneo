@@ -3288,7 +3288,8 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla."
+			"keyboardInstructions": "Pulsa Espacio para ver la vista previa y Enter para abrir esta tarea. Usa Alt u Opción con las flechas para moverla.",
+			"ancestorBreadcrumbs": "Jerarquía de tareas"
 		},
 		"toolbar": {
 			"search": "Buscar tareas",
@@ -3351,6 +3352,20 @@
 			"startsOn": "Empieza: {{date}}",
 			"beforeStart": "{{date}} es anterior a la fecha de inicio",
 			"afterDue": "{{date}} es posterior a la fecha límite"
+		},
+		"subtaskStatus": {
+			"archived": "Archived",
+			"description_many": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"description_one": "“{{title}}” still has {{count}} open subtask. Would you like to also update its status to {{status}}?",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"retry": "Retry",
+			"skip": "Skip subtasks",
+			"title": "Update the status of open subtasks too?",
+			"updateAll": "Update all",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"updating": "Updating…"
 		}
 	},
 	"invitations": {

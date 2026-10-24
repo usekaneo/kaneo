@@ -13378,9 +13378,74 @@
 					"properties": {
 						"reorderFailed": {
 							"type": "string"
+						},
+						"ancestorBreadcrumbs": {
+							"type": "string"
 						}
 					},
-					"required": ["reorderFailed"]
+					"required": ["reorderFailed", "ancestorBreadcrumbs"]
+				},
+				"subtaskStatus": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"description_one": {
+							"type": "string"
+						},
+						"description_zero": {
+							"type": "string"
+						},
+						"description_two": {
+							"type": "string"
+						},
+						"description_few": {
+							"type": "string"
+						},
+						"description_many": {
+							"type": "string"
+						},
+						"description_other": {
+							"type": "string"
+						},
+						"skip": {
+							"type": "string"
+						},
+						"updateAll": {
+							"type": "string"
+						},
+						"updating": {
+							"type": "string"
+						},
+						"archived": {
+							"type": "string"
+						},
+						"previewError": {
+							"type": "string"
+						},
+						"updateError": {
+							"type": "string"
+						},
+						"noFinalColumn": {
+							"type": "string"
+						},
+						"retry": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"title",
+						"skip",
+						"updateAll",
+						"updating",
+						"archived",
+						"previewError",
+						"updateError",
+						"noFinalColumn",
+						"retry"
+					]
 				}
 			},
 			"required": [
@@ -13423,7 +13488,8 @@
 				"descriptionRetry",
 				"descriptionLoading",
 				"descriptionLoadError",
-				"board"
+				"board",
+				"subtaskStatus"
 			]
 		},
 		"invitations": {

@@ -1,3 +1,4 @@
+import { TaskCardBreadcrumbs } from "./task-card-breadcrumbs";
 import { Trash2Icon } from "lucide-react";
 import { memo, type TouchEvent, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -81,7 +82,11 @@ function TaskCardContent({
   const isTaskFocused = useBulkSelectionStore(
     (state) => state.focusedTaskId === task.id,
   );
-  const showIdRow = showTaskNumbers || showAssignees || isTaskSelected;
+  const showIdRow =
+    showTaskNumbers ||
+    showAssignees ||
+    isTaskSelected ||
+    Boolean(task.ancestors?.length);
 
   const cardFields = useTaskCardFields(task.projectId, task.id);
 
@@ -145,22 +150,26 @@ function TaskCardContent({
           >
             {showIdRow && (
               <div className="flex h-4.5 items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-1.5">
+                <div className="flex min-w-0 flex-1 items-center gap-1.5">
                   {isTaskSelected && (
                     <CheckboxMark checked className="size-3.5 shrink-0" />
                   )}
-                  {showTaskNumbers && (
-                    <span
-                      className={cn(
-                        "truncate font-mono text-[11px] leading-3.5",
-                        taskIsCompleted
-                          ? "text-board-id-done"
-                          : "text-board-id",
-                      )}
-                    >
-                      {project?.slug}-{task.number}
-                    </span>
-                  )}
+                  <div
+                    className={cn(
+                      "min-w-0 flex-1",
+                      taskIsCompleted ? "text-board-id-done" : "text-board-id",
+                    )}
+                  >
+                    <TaskCardBreadcrumbs
+                      task={task}
+                      workspaceId={workspaceId}
+                      ticketId={
+                        showTaskNumbers
+                          ? `${project?.slug}-${task.number}`
+                          : undefined
+                      }
+                    />
+                  </div>
                 </div>
                 {showAssignees && (
                   <AssigneeButton

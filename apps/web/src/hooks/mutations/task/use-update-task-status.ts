@@ -1,3 +1,4 @@
+import { promptSubtaskStatus } from "@/components/task/subtask-status-dialog/store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
 import updateTaskStatus from "@/fetchers/task/update-task-status";
@@ -8,7 +9,9 @@ export function useUpdateTaskStatus() {
 
   return useMutation({
     mutationFn: (task: Task) => updateTaskStatus(task.id, task),
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
+      if (result.previousStatus !== variables.status)
+        void promptSubtaskStatus(variables.id, variables.status);
       invalidateMyWork(queryClient);
       queryClient.invalidateQueries({
         queryKey: ["task", variables.id],
