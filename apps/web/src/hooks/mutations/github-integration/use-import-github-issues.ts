@@ -12,6 +12,7 @@ function useImportGithubIssues() {
         queryClient.invalidateQueries({ queryKey: ["labels"] }),
         queryClient.invalidateQueries({ queryKey: ["projects"] }),
         queryClient.invalidateQueries({ queryKey: ["assigned-tasks"] }),
+        queryClient.invalidateQueries({ queryKey: ["scheduled-tasks"] }),
         queryClient.invalidateQueries({ queryKey: ["workspace-activity"] }),
         queryClient.invalidateQueries({
           queryKey: ["github-integration", variables.projectId],

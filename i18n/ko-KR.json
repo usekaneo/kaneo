@@ -2348,7 +2348,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "캘린더"
 		},
 		"projectList": {
 			"viewProject": "프로젝트 보기",
@@ -3388,6 +3389,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "이 기간의 예정 작업 {{total}}개 중 처음 {{shown}}개를 표시합니다.",
+			"assignedToMe": "나에게 배정됨",
+			"allTasks": "모든 작업",
+			"noTasksThisMonth": "이번 달에 예정된 작업이 없습니다",
+			"noTasksThisMonthSubtitle": "다른 달을 확인하거나 프로젝트 작업에 시작일 또는 마감일을 추가하세요.",
+			"noAssignedTasksThisMonth": "이번 달에 나에게 할당된 작업이 없습니다",
+			"noAssignedTasksThisMonthSubtitle": "이 기간에 나에게 할당된 예정 작업이 없습니다. 필터를 끄면 모든 프로젝트의 날짜를 볼 수 있습니다."
 		}
 	},
 	"team": {

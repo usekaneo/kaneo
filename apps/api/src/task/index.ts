@@ -41,6 +41,7 @@ import deleteTask from "./controllers/delete-task";
 import duplicateTask from "./controllers/duplicate-task";
 import exportTasks from "./controllers/export-tasks";
 import getAssignedTasks from "./controllers/get-assigned-tasks";
+import getScheduledTasks from "./controllers/get-scheduled-tasks";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
@@ -69,6 +70,7 @@ import {
 } from "./description-pages";
 import {
   assignedTasksSchema,
+  scheduledTasksSchema,
   boardSchema,
   bulkResultSchema,
   descriptionMatchesSchema,
@@ -84,6 +86,7 @@ import {
 } from "./response";
 import {
   assignedTasksQuery,
+  scheduledTasksQuery,
   bulkUpdateBody,
   createTaskBody,
   descriptionMatchesQuery,
@@ -125,6 +128,30 @@ const listAssignedTasksRoute = createRoute({
   request: { query: assignedTasksQuery },
   responses: {
     200: jsonResponse("Open tasks assigned to the caller", assignedTasksSchema),
+    400: errorResponse("Invalid workspace ID or query parameters"),
+    403: errorResponse("Missing project:read or task:read permission"),
+    404: errorResponse("Workspace not found"),
+  },
+});
+
+const listScheduledTasksRoute = createRoute({
+  method: "get",
+  operationId: "listScheduledTasks",
+  path: "/scheduled",
+  tags: ["Tasks"],
+  summary: "List scheduled tasks across a workspace",
+  description:
+    "Get tasks that have a start date, due date, or both across a workspace's active projects and whose schedule overlaps the inclusive [from, to] range. Archived projects and archived tasks are excluded. Optionally restrict to tasks assigned to the caller. Ordered by schedule start (coalesce of start and due date). At most 500 tasks are returned; total counts all matches. Used by the workspace calendar.",
+  middleware: [
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
+  request: { query: scheduledTasksQuery },
+  responses: {
+    200: jsonResponse(
+      "Scheduled tasks across the workspace",
+      scheduledTasksSchema,
+    ),
     400: errorResponse("Invalid workspace ID or query parameters"),
     403: errorResponse("Missing project:read or task:read permission"),
     404: errorResponse("Workspace not found"),
@@ -811,6 +838,20 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
         c.get("userId"),
         countOnly === "true",
       ),
+      200,
+    );
+  })
+  .openapi(listScheduledTasksRoute, async (c) => {
+    const { workspaceId, from, to, assignedToMe } = c.req.valid("query");
+    const rangeStart = validateAndParseDate(from, "from");
+    const rangeEnd = validateAndParseDate(to, "to");
+    validateDateRange(rangeStart, rangeEnd);
+    return c.json(
+      await getScheduledTasks(workspaceId, c.get("userId"), {
+        from: rangeStart,
+        to: rangeEnd,
+        assignedToMe: assignedToMe === "true",
+      }),
       200,
     );
   })
