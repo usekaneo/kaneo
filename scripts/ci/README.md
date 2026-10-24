@@ -5,7 +5,10 @@ It checks formatting, translations, OpenAPI, types, unit/integration tests, site
 The bundled image runs against disposable PostgreSQL and MinIO services for browser, realtime, and upgrade tests.
 Runtime failures retain container logs, a browser screenshot, and a Playwright trace for seven days.
 PRs also run the independent **Chromium smoke tests** job unless change detection confirms an allowlisted docs/site-only change.
-BrowserStack runs separately for main pushes and manual runs on main.
+BrowserStack runs separately for main pushes, manual runs on main, and daily at 05:43 UTC.
+`browserstack-change-classification.mjs` skips Docker/cloud work only for proven runtime-neutral changes since a successful full validation less than 24 hours old.
+Skipped runs do not refresh that clock.
+Manual runs, scheduled runs, and uncertain evidence run both engines in full.
 
 The disposable S3 fixture pins Bitnami's archived MinIO 2025.7.23 image by its
 multi-platform digest because the upstream public registries no longer serve

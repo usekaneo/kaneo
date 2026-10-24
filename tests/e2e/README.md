@@ -81,7 +81,9 @@ videos appear in the Automate dashboard under **Kaneo**.
 
 The CI workflow runs the independent **Chromium smoke tests** job for PRs, including forks, without cloud credentials.
 It skips that job only for qualifying docs/site-only PRs.
-**BrowserStack** runs Chrome on Windows and WebKit on macOS after a push to `main` or a manual dispatch on `main`.
+**BrowserStack** runs Chrome on Windows and WebKit on macOS for runtime-relevant main pushes, manual runs on main, and its daily schedule at 05:43 UTC.
+A main push may skip cloud work only when its complete diff since a proven full validation is runtime-neutral and that validation is less than 24 hours old.
+Uncertain evidence, manual runs, and scheduled runs execute both engines in full.
 Cloud runs are serialized to stay within the two-session limit; obsolete PR runs are cancelled.
 
 Both workflows build the checked-out revision, use a disposable database, upload
