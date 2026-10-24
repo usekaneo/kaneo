@@ -16,12 +16,15 @@ export type AvatarMimeType = (typeof AVATAR_MIME_TYPES)[number];
 
 const BASE64_PATTERN = /^[A-Za-z0-9+/]+={0,2}$/;
 
+export const GOOGLE_AVATAR_ID_PREFIX = "google-";
+
 export function isAvatarMimeType(value: string): value is AvatarMimeType {
   return (AVATAR_MIME_TYPES as readonly string[]).includes(value);
 }
 
 export function normalizeAvatarMimeType(value: string) {
-  const normalized = value.trim().toLowerCase();
+  const [mediaType = ""] = value.split(";");
+  const normalized = mediaType.trim().toLowerCase();
   return normalized === "image/jpg" ? "image/jpeg" : normalized;
 }
 
@@ -55,6 +58,35 @@ export function stripDataUrlPrefix(value: string) {
   return value.replace(/^data:[^;,]*;base64,/, "");
 }
 
+export function validateAvatarBytes(input: {
+  contentType: string;
+  bytes: Buffer;
+}): { mimeType: AvatarMimeType; bytes: Buffer } {
+  const mimeType = normalizeAvatarMimeType(input.contentType);
+
+  if (!isAvatarMimeType(mimeType)) {
+    throw new Error(
+      "Unsupported image type. Upload a PNG, JPEG, or WebP image.",
+    );
+  }
+
+  if (input.bytes.length === 0) {
+    throw new Error("Image data must not be empty.");
+  }
+
+  if (input.bytes.length > MAX_AVATAR_BYTES) {
+    throw new Error(
+      `Image exceeds the maximum avatar size of ${Math.floor(MAX_AVATAR_BYTES / 1024)}KB.`,
+    );
+  }
+
+  if (!hasMagicBytes(mimeType, input.bytes)) {
+    throw new Error(`Image data does not match the declared ${mimeType} type.`);
+  }
+
+  return { mimeType, bytes: input.bytes };
+}
+
 export function decodeAvatarUpload(input: {
   contentType: string;
   data: string;
@@ -81,23 +113,16 @@ export function decodeAvatarUpload(input: {
     throw avatarSizeError();
   const bytes = Buffer.from(payload, "base64");
 
-  if (bytes.length === 0) {
-    throw new Error("Image data must not be empty.");
-  }
-
-  if (bytes.length > MAX_AVATAR_BYTES) {
-    throw new Error(
-      `Image exceeds the maximum avatar size of ${Math.floor(MAX_AVATAR_BYTES / 1024)}KB.`,
-    );
-  }
-
-  if (!hasMagicBytes(mimeType, bytes)) {
-    throw new Error(`Image data does not match the declared ${mimeType} type.`);
-  }
-
-  return { mimeType, bytes };
+  return validateAvatarBytes({ contentType: mimeType, bytes });
 }
 
 export function buildAvatarUrl(avatarId: string) {
   return `/api/user/avatar/${avatarId}`;
+}
+
+export function isCustomAvatarUrl(image: string | null | undefined) {
+  return Boolean(
+    image?.startsWith("/api/user/avatar/") &&
+    !image.startsWith(`/api/user/avatar/${GOOGLE_AVATAR_ID_PREFIX}`),
+  );
 }
