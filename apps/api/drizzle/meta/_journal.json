@@ -470,6 +470,13 @@
       "when": 1792775570653,
       "tag": "0066_label_defaults_and_pins",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1792830143293,
+      "tag": "0067_habits",
+      "breakpoints": true
     }
   ]
 }

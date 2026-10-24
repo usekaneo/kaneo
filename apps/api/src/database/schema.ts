@@ -3,6 +3,7 @@ import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   customType,
+  date,
   doublePrecision,
   foreignKey,
   index,
@@ -652,6 +653,42 @@ export const pinnedLabelTable = pgTable(
     primaryKey({ columns: [table.userId, table.labelId] }),
     index("pinned_label_label_id_idx").on(table.labelId),
   ],
+);
+
+// Personal habits, tracked one day at a time on the Habits page.
+export const habitTable = pgTable(
+  "habit",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [index("habit_user_id_idx").on(table.userId)],
+);
+
+// A day the habit was done, as the user's own calendar date.
+export const habitCheckTable = pgTable(
+  "habit_check",
+  {
+    habitId: text("habit_id")
+      .notNull()
+      .references(() => habitTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    date: date("date", { mode: "string" }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.habitId, table.date] })],
 );
 
 export const billingReminderSentTable = pgTable(
