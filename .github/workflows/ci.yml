@@ -58,6 +58,9 @@ jobs:
           package-manager-cache: false
       - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
 
+      - name: Check browser-test dependency security regressions
+        run: pnpm --dir tests/e2e test:security
+
       - run: pnpm --dir tests/e2e exec playwright install --with-deps chromium
 
       - name: Setup Blacksmith Builder

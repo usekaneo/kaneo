@@ -19,6 +19,7 @@ WORKDIR /app
 
 # Copy package files first for better layer caching
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json vite.config.ts ./
+COPY patches ./patches
 COPY apps/web/package.json ./apps/web/
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
