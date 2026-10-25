@@ -75,3 +75,45 @@ it("shows the negative operator for an excluded subject", () => {
   );
   expect(screen.getByRole("button", { name: "is none of" })).toBeVisible();
 });
+
+it("announces pending custom-field values without losing the selected filter", () => {
+  render(
+    <ActiveFiltersBar
+      subjects={[subject({ id: "customField:size", selected: ["high"] })]}
+      onClear={vi.fn()}
+      customFieldValues={{
+        hasData: false,
+        isLoading: true,
+        isError: false,
+        retry: vi.fn(),
+      }}
+    />,
+  );
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "tasks:filterBar.customFieldsLoading",
+  );
+  expect(screen.getByRole("button", { name: "High" })).toBeVisible();
+});
+
+it.each([false, true])(
+  "explains failed custom-field requests and retries with cached data=%s",
+  (hasData) => {
+    const retry = vi.fn();
+    render(
+      <ActiveFiltersBar
+        subjects={[subject({ selected: ["high"] })]}
+        onClear={vi.fn()}
+        customFieldValues={{ hasData, isLoading: false, isError: true, retry }}
+      />,
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      hasData
+        ? "tasks:filterBar.customFieldsRefreshError"
+        : "tasks:filterBar.customFieldsUnavailable",
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:error.tryAgain" }),
+    );
+    expect(retry).toHaveBeenCalledOnce();
+  },
+);

@@ -3648,7 +3648,10 @@
 		"filterBar": {
 			"label": "Aktywne filtry",
 			"removeFilter": "Usuń filtr {{name}}",
-			"noMatches": "Żadne zadanie nie pasuje do wyszukiwania ani filtrów."
+			"noMatches": "Żadne zadanie nie pasuje do wyszukiwania ani filtrów.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Dodaj filtr…",

@@ -3312,7 +3312,10 @@
 		"filterBar": {
 			"label": "Filtros activos",
 			"removeFilter": "Quitar filtro de {{name}}",
-			"noMatches": "Ninguna tarea coincide con tu búsqueda o tus filtros."
+			"noMatches": "Ninguna tarea coincide con tu búsqueda o tus filtros.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Añadir filtro…",

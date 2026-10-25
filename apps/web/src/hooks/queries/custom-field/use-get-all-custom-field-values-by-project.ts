@@ -4,7 +4,8 @@ import useGetCustomFieldValuesByProject, {
 } from "./use-get-custom-field-values-by-project";
 
 function useGetCachedCustomFieldValues(projectId?: string) {
-  const { data } = useGetCustomFieldValuesByProject(projectId ?? "");
+  const query = useGetCustomFieldValuesByProject(projectId ?? "");
+  const { data } = query;
   const valuesByTask = useMemo(() => {
     const grouped = new Map<string, CustomFieldValue[]>();
     for (const value of data ?? []) {
@@ -20,7 +21,13 @@ function useGetCachedCustomFieldValues(projectId?: string) {
     [valuesByTask],
   );
 
-  return { getValuesForTask };
+  return {
+    getValuesForTask,
+    hasData: data !== undefined,
+    isLoading: query.isPending,
+    isError: query.isError,
+    retry: query.refetch,
+  };
 }
 
 export default useGetCachedCustomFieldValues;
