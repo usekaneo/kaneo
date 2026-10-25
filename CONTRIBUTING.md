@@ -73,22 +73,7 @@ issue gains or loses the label, and when the voucher list changes. It can't
 react to sidebar links or permission changes, so an hourly scheduled run picks
 those up (GitHub sometimes runs these late). Maintainers can also trigger the
 workflow by hand. Dependabot PRs are checked after their CI run finishes,
-because Dependabot-triggered workflows may only get read-only tokens. This timing is specific to Dependabot.
-
-Dependency updates use the hosted Mend Renovate GitHub App, configured in [`renovate.json`](renovate.json), without a repository-hosted runner.
-Routine PR creation is allowed Mondays from 00:00 to 06:00 UTC; the hosted App determines when it runs within that window.
-npm minor and patch updates form one group, as do GitHub Actions minor, patch, digest, and pin updates.
-Major updates remain separate, Actions retain full SHA pins, and every update requires manual merge.
-Commit prefixes remain `chore(deps):` for npm and `ci(deps):` for Actions.
-The npm manager includes the root pnpm workspace/catalog and the independent lockfiles under `tests/e2e`, `scripts/slop-labeler`, and `scripts/ui-review-bot`.
-Frozen-lockfile checks remain the CI consistency gate.
-
-Renovate PRs generated from GitHub vulnerability alerts bypass the routine schedule and still require manual merge.
-This does not guarantee that every security fix is detected or opened immediately.
-The repository owner must install the hosted App with the required repository access and verify the first routine PRs and a vulnerability-alert PR, including changed lockfiles and CI results.
-During cutover, separately disable Dependabot's automatic security-update PR creation after confirming Renovate's replacement path, while retaining GitHub vulnerability alerts and the dependency graph.
-Removing the Dependabot configuration alone does not change those repository settings.
-Do not enable automatic dismissals or leave security fixes without an update path.
+because bot-triggered workflows may only get read-only tokens.
 
 Once the check is required, a failing result blocks merging. Anyone can still
 open a PR; ineligible PRs become drafts and are never automatically closed.
