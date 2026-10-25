@@ -38,11 +38,58 @@ function mappedIpv4(ip: string): string | null {
 }
 
 function isDisallowedIpv6(ip: string): boolean {
-  const normalized = ip.toLowerCase();
+  // DNS can return expanded/dotted spellings too. Use one canonical spelling
+  // before matching prefixes or extracting IPv4 transition destinations.
+  let normalized: string;
+  try {
+    normalized = new URL(`http://[${ip}]`).hostname.slice(1, -1);
+  } catch {
+    return true;
+  }
 
   const mapped = mappedIpv4(normalized);
   if (mapped) {
     return isDisallowedIpv4(mapped);
+  }
+
+  const [head, tail] = normalized.split("::");
+  const start = head ? head.split(":") : [];
+  const end = tail ? tail.split(":") : [];
+  const words = [
+    ...start,
+    ...Array<string>(8 - start.length - end.length).fill("0"),
+    ...end,
+  ].map((word) => Number.parseInt(word, 16));
+  const ipv4 = (high: number, low: number) =>
+    `${high >> 8}.${high & 0xff}.${low >> 8}.${low & 0xff}`;
+  const embedded = (high: number, low: number) =>
+    isDisallowedIpv4(ipv4(high, low));
+
+  // RFC 3056 (6to4), RFC 6052 (NAT64), RFC 4291 (IPv4-compatible),
+  // and RFC 4380 (Teredo) can route a global-looking IPv6 address to IPv4.
+  if (words[0] === 0x2002) return embedded(words[1]!, words[2]!);
+  if (words.slice(0, 6).every((word) => word === 0)) {
+    return embedded(words[6]!, words[7]!);
+  }
+  if (
+    words.slice(0, 4).every((word) => word === 0) &&
+    words[4] === 0xffff &&
+    words[5] === 0
+  ) {
+    return embedded(words[6]!, words[7]!);
+  }
+  if (
+    words[0] === 0x64 &&
+    words[1] === 0xff9b &&
+    words.slice(2, 6).every((word) => word === 0)
+  ) {
+    return embedded(words[6]!, words[7]!);
+  }
+  if (words[0] === 0x2001 && words[1] === 0) {
+    return (
+      embedded(words[2]!, words[3]!) ||
+      embedded(words[6]! ^ 0xffff, words[7]! ^ 0xffff)
+    );
   }
 
   return (
@@ -52,6 +99,8 @@ function isDisallowedIpv6(ip: string): boolean {
     normalized.startsWith("fe9") ||
     normalized.startsWith("fea") ||
     normalized.startsWith("feb") ||
+    // RFC 8215 reserves this prefix for network-local translation.
+    (words[0] === 0x64 && words[1] === 0xff9b && words[2] === 1) ||
     normalized.startsWith("fc") ||
     normalized.startsWith("fd")
   );
@@ -103,11 +152,16 @@ export async function assertPublicDestination(
     return;
   }
 
-  if (isDisallowedAddress(url.hostname)) {
+  const hostname = url.hostname.replace(/^\[|\]$/g, "");
+  if (isDisallowedAddress(hostname)) {
     throw new Error(nonRoutableDestinationMessage(label));
   }
 
-  const addresses = await lookup(url.hostname, { all: true, verbatim: true });
+  // Literal addresses do not use the socket's DNS lookup callback. Validate
+  // them here, and avoid looking up bracketed IPv6 literals as hostnames.
+  if (net.isIP(hostname)) return;
+
+  const addresses = await lookup(hostname, { all: true, verbatim: true });
   if (addresses.length === 0) {
     throw new Error(`${label} destination could not be resolved`);
   }

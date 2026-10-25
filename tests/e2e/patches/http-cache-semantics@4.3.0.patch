@@ -1,0 +1,163 @@
+diff --git a/index.js b/index.js
+index 56c26025074cbcf218e3ec4d810662da93f8024e..84d5581906268edf44d4f1469be5c276f67f1605 100644
+--- a/index.js
++++ b/index.js
+@@ -278,6 +278,10 @@ module.exports = class CachePolicy {
+             !this._rescc['no-store'] &&
+             // the "private" response directive does not appear in the response, if the cache is shared, and
+             (!this._isShared || !this._rescc.private) &&
++            // Local hardening: shared cookie responses require an explicit public directive.
++            (!this._isShared ||
++                !this._resHeaders['set-cookie'] ||
++                this._rescc.public) &&
+             // the Authorization header field does not appear in the request, if the cache is shared,
+             (!this._isShared ||
+                 this._noAuthorization ||
+@@ -395,8 +399,7 @@ module.exports = class CachePolicy {
+     evaluateRequest(req) {
+         this._assertRequestHasHeaders(req);
+ 
+-        // In all circumstances, a cache MUST NOT ignore the must-revalidate directive
+-        if (this._rescc['must-revalidate']) {
++        if (!this.storable() || this._rescc['no-cache']) {
+             return this._evaluateRequestMissResult(req);
+         }
+ 
+@@ -424,6 +427,9 @@ module.exports = class CachePolicy {
+         // the stored response is either:
+         // fresh, or allowed to be served stale
+         if (this.stale()) {
++            if (!this._allowsStale()) {
++                return this._evaluateRequestMissResult(req);
++            }
+             // If a value is present, then the client is willing to accept a response that has
+             // exceeded its freshness lifetime by no more than the specified number of seconds
+             const allowsStaleWithoutRevalidation = 'max-stale' in requestCC &&
+@@ -624,25 +630,11 @@ module.exports = class CachePolicy {
+             return 0;
+         }
+ 
+-        // Shared responses with cookies are cacheable according to the RFC, but IMHO it'd be unwise to do so by default
+-        // so this implementation requires explicit opt-in via public header
+-        if (
+-            this._isShared &&
+-            (this._resHeaders['set-cookie'] &&
+-                !this._rescc.public &&
+-                !this._rescc.immutable)
+-        ) {
+-            return 0;
+-        }
+-
+         if (this._resHeaders.vary === '*') {
+             return 0;
+         }
+ 
+         if (this._isShared) {
+-            if (this._rescc['proxy-revalidate']) {
+-                return 0;
+-            }
+             // if a response includes the s-maxage directive, a shared cache recipient MUST ignore the Expires field.
+             if (this._rescc['s-maxage']) {
+                 return toNumberOrZero(this._rescc['s-maxage']);
+@@ -702,11 +694,17 @@ module.exports = class CachePolicy {
+         return this.maxAge() <= this.age();
+     }
+ 
+-    /**
+-     * @returns {boolean} `true` if `stale-if-error` condition allows use of a stale response.
+-     */
++    // Client stale directives and extensions cannot bypass response reuse restrictions.
++    _allowsStale() {
++        return this.storable() &&
++            !this._rescc['no-cache'] &&
++            !this._rescc['must-revalidate'] &&
++            !(this._isShared &&
++                (this._rescc['proxy-revalidate'] || 's-maxage' in this._rescc));
++    }
++
+     _useStaleIfError() {
+-        return this.maxAge() + toNumberOrZero(this._rescc['stale-if-error']) > this.age();
++        return this._allowsStale() && this.maxAge() + toNumberOrZero(this._rescc['stale-if-error']) > this.age();
+     }
+ 
+     /** See `evaluateRequest()` for a more complete solution
+@@ -714,7 +712,7 @@ module.exports = class CachePolicy {
+      */
+     useStaleWhileRevalidate() {
+         const swr = toNumberOrZero(this._rescc['stale-while-revalidate']);
+-        return swr > 0 && this.maxAge() + swr > this.age();
++        return this._allowsStale() && swr > 0 && this.maxAge() + swr > this.age();
+     }
+ 
+     /**
+@@ -855,7 +853,28 @@ module.exports = class CachePolicy {
+     revalidatedPolicy(request, response) {
+         this._assertRequestHasHeaders(request);
+ 
+-        if (this._useStaleIfError() && isErrorResponse(response)) {
++        const optionsCopy = {
++            shared: this._isShared,
++            cacheHeuristic: this._cacheHeuristic,
++            immutableMinTimeToLive: this._immutableMinTtl,
++            ignoreCargoCult: this._ignoreCargoCult,
++        };
++
++        // Also reject old serialized entries and responses selected for a different request.
++        if (!this.storable() || !this._requestMatches(request, true)) {
++            if (!response || !response.headers) {
++                throw Error('Response headers missing');
++            }
++            return {
++                policy: new this.constructor(request, response, optionsCopy),
++                modified: true,
++                matches: false,
++            };
++        }
++
++        if (!parseCacheControl(request.headers['cache-control'])['no-cache'] &&
++            !/no-cache/.test(request.headers.pragma) &&
++            this._useStaleIfError() && isErrorResponse(response)) {
+           return {
+               policy: this,
+               modified: false,
+@@ -909,32 +928,23 @@ module.exports = class CachePolicy {
+             }
+         }
+ 
+-        const optionsCopy = {
+-            shared: this._isShared,
+-            cacheHeuristic: this._cacheHeuristic,
+-            immutableMinTimeToLive: this._immutableMinTtl,
+-            ignoreCargoCult: this._ignoreCargoCult,
+-        };
+-
+         if (!matches) {
+             return {
+                 policy: new this.constructor(request, response, optionsCopy),
+-                // Client receiving 304 without body, even if it's invalid/mismatched has no option
+-                // but to reuse a cached body. We don't have a good way to tell clients to do
+-                // error recovery in such case.
+-                modified: response.status != 304,
++                // Consumers use modified to decide whether to replay the old body.
++                // An invalid 304 must not authorize replay of an unrelated representation.
++                modified: true,
+                 matches: false,
+             };
+         }
+ 
+         // use other header fields provided in the 304 (Not Modified) response to replace all instances
+         // of the corresponding header fields in the stored response.
+-        const headers = {};
+-        for (const k in this._resHeaders) {
+-            headers[k] =
+-                k in response.headers && !excludedFromRevalidationUpdate[k]
+-                    ? response.headers[k]
+-                    : this._resHeaders[k];
++        const headers = { ...this._resHeaders };
++        for (const k of Object.keys(response.headers)) {
++            if (!Object.prototype.hasOwnProperty.call(excludedFromRevalidationUpdate, k)) {
++                headers[k] = response.headers[k];
++            }
+         }
+ 
+         const newResponse = Object.assign({}, response, {

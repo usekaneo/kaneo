@@ -34,4 +34,29 @@ describe("isDisallowedAddress", () => {
     expect(isDisallowedAddress("93.184.216.34")).toBe(false);
     expect(isDisallowedAddress("example.com")).toBe(false);
   });
+
+  it.each([
+    "0:0:0:0:0:0:0:1",
+    "0:0:0:0:0:ffff:7f00:1",
+    "2002:c0a8:0101::1",
+    "64:ff9b::c0a8:101",
+    "64:ff9b::192.168.1.1",
+    "::c0a8:101",
+    "::ffff:0:c0a8:101",
+    "2001:0000:4136:e378:8000:63bf:f5ff:fffe",
+    "64:ff9b:1::808:808",
+  ])("blocks non-public IPv6 transition destinations: %s", (address) => {
+    expect(isDisallowedAddress(address)).toBe(true);
+  });
+
+  it.each([
+    "2606:4700:4700::1111",
+    "2002:0808:0808::1",
+    "64:ff9b::808:808",
+    "::ffff:808:808",
+    "::808:808",
+    "2001:0:808:808:0:0:f7f7:f7f7",
+  ])("preserves public IPv6 and transition destinations: %s", (address) => {
+    expect(isDisallowedAddress(address)).toBe(false);
+  });
 });

@@ -26,6 +26,21 @@ its temporary database is discarded. The stack's project name is
 Reports, failure screenshots, and local Playwright traces are stored in `.cache/e2e/`.
 BrowserStack disables native Playwright tracing; use its session recordings for cloud runs.
 
+## Dependency security checks
+
+Run the isolated dependency regressions without browsers, Docker, cloud accounts,
+or Kaneo services:
+
+```sh
+pnpm --dir tests/e2e test:security
+```
+
+These tests exercise the installed BrowserStack dependency graph: cache-policy
+reuse and revalidation, redirect credential stripping, and FTP listing parsing.
+They run separately from Playwright discovery. This workspace carries a local
+cache-policy patch and an FTP dependency override; see
+[the patch notes](patches/README.md) before updating either dependency.
+
 ## BrowserStack Automate
 
 Set `BROWSERSTACK_USERNAME` and `BROWSERSTACK_ACCESS_KEY` in your shell's environment
