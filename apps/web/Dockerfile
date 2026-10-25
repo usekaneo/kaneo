@@ -49,7 +49,7 @@ RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,required=false \
     pnpm run build && find dist -type f -name '*.map' -delete
 
 # Production stage with specific version
-FROM nginx:1.30.6-alpine AS runtime
+FROM nginx:1.31.0-alpine AS runtime
 
 # Only runtime storage needs write access, including for an arbitrary UID.
 RUN addgroup -g 1001 appuser && \
