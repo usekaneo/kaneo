@@ -14,13 +14,16 @@ import getCustomFieldValuesByProject from "@/fetchers/custom-field/get-custom-fi
 import setCustomFieldValue from "@/fetchers/custom-field/set-custom-field-value";
 import type Task from "@/types/task";
 import useSetCustomFieldValue from "./mutations/custom-field/use-set-custom-field-value";
-import type { CustomFieldValue } from "./queries/custom-field/use-get-custom-field-values-by-project";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
 vi.mock("@/fetchers/custom-field/get-custom-field-values-by-project");
 vi.mock("@/fetchers/custom-field/set-custom-field-value");
 
-const value: CustomFieldValue = {
+type ProjectValue = Awaited<
+  ReturnType<typeof getCustomFieldValuesByProject>
+>[number];
+
+const value: ProjectValue = {
   id: "value-1",
   taskId: "unopened-task",
   fieldId: "size",
@@ -92,8 +95,8 @@ describe("custom-field filters with project queries", () => {
     async (negated) => {
       saveFilter(negated);
       const { client, wrapper } = setup();
-      let resolve!: (values: CustomFieldValue[]) => void;
-      const pending = new Promise<CustomFieldValue[]>((done) => {
+      let resolve!: (values: ProjectValue[]) => void;
+      const pending = new Promise<ProjectValue[]>((done) => {
         resolve = done;
       });
       vi.mocked(getCustomFieldValuesByProject).mockReturnValue(pending);
