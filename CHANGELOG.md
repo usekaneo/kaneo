@@ -1,3 +1,26 @@
+### Bug Fixes
+
+- **security:** enforce authorization and harden outbound requests: #2106
+- **web:** preserve custom OAuth logout redirects: #2103
+- **web:** keep saved label filters matching new assignments: #2064
+- **web:** paste markdown into the active editor: #2102
+- **web:** match custom-field filters before opening tasks: #2063
+- **i18n:** complete French translations: #2101
+- allow project:update to edit workflow columns and project details: #2073
+- **web:** color priority marks by level: [9293522](https://github.com/usekaneo/kaneo/commit/9293522d7f35c95f029c55d60dde34d79453efd9)
+- **ci:** budget sequential quality checks: #2089
+- **mobile:** restore Android startup and release 0.3.1: [56f6d00](https://github.com/usekaneo/kaneo/commit/56f6d00f14be7e4fc9061eba5391c92c4c3c3914)
+- **ci:** restore nightly permissions: #2088
+- **mobile:** upgrade to Expo SDK 58 so the app launches on iOS 27: [d3d1572](https://github.com/usekaneo/kaneo/commit/d3d1572626e6e117940370490f334e705a30adcf)
+
+### Documentation
+
+- update sponsors: [9ba2e34](https://github.com/usekaneo/kaneo/commit/9ba2e3431bd3682c7a879648a94514a42e3a3797)
+
+### Credits
+
+Huge thanks to @tinsever, @markussagens, @Hexalyse, and @randoneering for helping!
+
 ### Features
 
 - **ci:** skip expensive checks for docs-only and site-only PRs: #2080
