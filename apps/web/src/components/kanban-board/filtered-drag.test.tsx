@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render } from "@testing-library/react";
+import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import {
   afterEach,
   beforeEach,
@@ -18,6 +18,8 @@ const mocks = vi.hoisted(() => ({
   reorder: vi.fn(),
   setQueryData: vi.fn(),
   invalidateQueries: vi.fn(),
+  isReordering: false,
+  isFetching: false,
   success: undefined as
     | ((
         result: unknown,
@@ -26,6 +28,7 @@ const mocks = vi.hoisted(() => ({
     | undefined,
 }));
 vi.mock("@tanstack/react-query", () => ({
+  useIsFetching: () => Number(mocks.isFetching),
   useQueryClient: () => ({
     setQueryData: mocks.setQueryData,
     invalidateQueries: mocks.invalidateQueries,
@@ -34,7 +37,7 @@ vi.mock("@tanstack/react-query", () => ({
   }),
   useMutation: ({ onSuccess }: { onSuccess: typeof mocks.success }) => {
     mocks.success = onSuccess;
-    return { mutate: mocks.reorder, isPending: false };
+    return { mutate: mocks.reorder, isPending: mocks.isReordering };
   },
 }));
 vi.mock("@kaneo/libs", () => ({ client: {} }));
@@ -73,7 +76,7 @@ vi.mock("./column", () => ({
     />
   ),
 }));
-vi.mock("./task-card", () => ({ default: () => null }));
+vi.mock("./task-card/task-card-content", () => ({ default: () => null }));
 vi.mock("@dnd-kit/core", () => ({
   DndContext: ({
     children,
@@ -106,6 +109,11 @@ vi.mock("@dnd-kit/core", () => ({
         <button onClick={drop("b")}>drop</button>
         <button onClick={drop("a")}>drop-on-card</button>
         <button onClick={drop("c")}>drop-c</button>
+        <button
+          onClick={() => onDragEnd({ active: { id: "b" }, over: { id: "c" } })}
+        >
+          drop-b-on-c
+        </button>
         <button onClick={() => onDragEnd({ active: { id: "a" }, over: null })}>
           drop-gap
         </button>
@@ -124,7 +132,11 @@ vi.mock("@dnd-kit/core", () => ({
   defaultDropAnimationSideEffects: vi.fn(),
 }));
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  mocks.isReordering = false;
+  mocks.isFetching = false;
+});
 afterEach(cleanup);
 describe("filtered board dragging", () => {
   it("moves visible tasks in canonical state and sends one ordering mutation", () => {
@@ -201,6 +213,68 @@ it("rejects an in-flight Kanban drop after a failed refresh disables dragging", 
   expect(mocks.reorder).not.toHaveBeenCalled();
   expect(mocks.setProject).not.toHaveBeenCalled();
   expect(mocks.setQueryData).not.toHaveBeenCalled();
+});
+
+it("queues a second task move through the first save and refresh", () => {
+  const canonical = {
+    id: "p",
+    columns: [
+      {
+        id: "todo",
+        slug: "todo",
+        tasks: [
+          { id: "a", status: "todo", position: 0 },
+          { id: "b", status: "todo", position: 1 },
+        ],
+      },
+      {
+        id: "doing",
+        slug: "doing",
+        tasks: [{ id: "c", status: "doing", position: 0 }],
+      },
+    ],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  mocks.project = canonical;
+  const view = render(<KanbanBoard project={canonical} />);
+  fireEvent.click(view.getByText("drop-c"));
+  expect(mocks.reorder).toHaveBeenCalledOnce();
+
+  const afterFirst = mocks.setProject.mock.calls[0][0];
+  mocks.project = afterFirst;
+  mocks.isReordering = true;
+  view.rerender(<KanbanBoard project={afterFirst} />);
+  fireEvent.click(view.getByText("drop-b-on-c"));
+  expect(mocks.reorder).toHaveBeenCalledOnce();
+  expect(view.getByTestId("column-doing")).toHaveAttribute(
+    "data-task-ids",
+    "c,b,a",
+  );
+
+  mocks.isReordering = false;
+  mocks.isFetching = true;
+  act(() => mocks.reorder.mock.calls[0][1].onSettled());
+  view.rerender(<KanbanBoard project={afterFirst} />);
+  expect(mocks.reorder).toHaveBeenCalledOnce();
+
+  mocks.isFetching = false;
+  view.rerender(<KanbanBoard project={afterFirst} />);
+  expect(mocks.reorder).toHaveBeenCalledTimes(2);
+  const request = mocks.reorder.mock.calls[1][0];
+  expect(request.previousBoard).toBe(afterFirst);
+  expect(request.tasks).toContainEqual(
+    expect.objectContaining({ id: "b", status: "doing" }),
+  );
+  expect(request.expectedTasks).toEqual(
+    afterFirst.columns.flatMap((column: ProjectWithTasks["columns"][number]) =>
+      column.tasks.map(({ id, position, status }) => ({
+        id,
+        position,
+        status,
+      })),
+    ),
+  );
 });
 
 it("refreshes personal work after a cross-column status change", () => {
