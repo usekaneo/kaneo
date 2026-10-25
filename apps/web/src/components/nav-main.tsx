@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
+  CalendarDays,
   CircleCheck,
   House,
   Inbox,
@@ -61,6 +62,11 @@ export function NavMain() {
       icon: CircleCheck,
       url: `${homeUrl}/my-tasks`,
       count: assignedTasks?.total,
+    },
+    {
+      title: t("navigation:sidebar.calendar"),
+      icon: CalendarDays,
+      url: `${homeUrl}/calendar`,
     },
     {
       title: t("navigation:sidebar.members"),

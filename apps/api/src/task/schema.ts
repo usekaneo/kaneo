@@ -37,6 +37,22 @@ export const assignedTasksQuery = z.object({
   }),
 });
 
+export const scheduledTasksQuery = z.object({
+  workspaceId: z.string().min(1),
+  from: z.string().min(1).openapi({
+    description:
+      "Inclusive start of the visible range (ISO 8601). Tasks whose schedule overlaps [from, to] are returned.",
+  }),
+  to: z.string().min(1).openapi({
+    description:
+      "Inclusive end of the visible range (ISO 8601). Tasks whose schedule overlaps [from, to] are returned.",
+  }),
+  assignedToMe: z.enum(["true", "false"]).optional().openapi({
+    description:
+      "When true, only return tasks assigned to the caller. Defaults to all accessible scheduled tasks.",
+  }),
+});
+
 const priority = z.enum(VALID_PRIORITIES);
 
 // Required object of optional filters: a RouteParameter cannot itself be optional.

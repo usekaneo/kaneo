@@ -2432,7 +2432,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Calendrier"
 		},
 		"projectList": {
 			"viewProject": "Voir le projet",
@@ -3498,6 +3499,17 @@
 			},
 			"pageTitle": "My tasks",
 			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"calendar": {
+			"pageTitle": "Calendrier",
+			"loadError": "Impossible de charger les tâches planifiées.",
+			"truncated": "Affichage des {{shown}} premières tâches planifiées sur {{total}} pour cette période.",
+			"allTasks": "Toutes les tâches",
+			"assignedToMe": "Assignées à moi",
+			"noTasksThisMonth": "Rien de planifié ce mois-ci",
+			"noTasksThisMonthSubtitle": "Essayez un autre mois, ou ajoutez une date de début ou d’échéance aux tâches de vos projets.",
+			"noAssignedTasksThisMonth": "Rien ne vous est assigné ce mois-ci",
+			"noAssignedTasksThisMonthSubtitle": "Aucune tâche planifiée de cette période ne vous est assignée. Désactivez le filtre pour voir les dates de tous les projets."
 		},
 		"myWork": {
 			"due": {

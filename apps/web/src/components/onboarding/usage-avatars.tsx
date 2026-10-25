@@ -5,7 +5,7 @@ export function UsageAvatars({ initial, team }: UsageAvatarsProps) {
     "-ms-2 flex size-6 items-center justify-center rounded-full border-2 border-background first:ms-0";
 
   return (
-    <span aria-hidden="true" className="flex w-13 shrink-0">
+    <span aria-hidden="true" className="pointer-events-none flex w-13 shrink-0">
       <span
         className={`${avatar} bg-foreground font-semibold text-[10px] text-background`}
       >

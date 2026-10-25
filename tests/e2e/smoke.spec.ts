@@ -38,8 +38,19 @@ test("sign up, create a workspace with a starter project, and sign in again", as
   await page
     .getByRole("button", { name: `Open ${workspaceName}`, exact: true })
     .click();
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+
+  await page.getByRole("button", { name: "Continue", exact: true }).click();
+  const openWorkspace = page.getByRole("button", {
+    name: `Open ${workspaceName}`,
+    exact: true,
+  });
+  await expect(openWorkspace).toBeVisible({ timeout: 30_000 });
+  await openWorkspace.click();
+
   await expect(page).toHaveURL(
     /\/dashboard\/workspace\/[^/]+\/project\/[^/]+\/board$/,
+    { timeout: 30_000 },
   );
   await expect(
     page.getByText("Drag this card to the next column", { exact: true }),

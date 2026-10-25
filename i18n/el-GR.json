@@ -2390,7 +2390,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"calendar": "Ημερολόγιο"
 		},
 		"projectList": {
 			"viewProject": "Προβολή έργου",
@@ -3449,6 +3450,17 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"calendar": {
+			"loadError": "Scheduled tasks couldn't be loaded.",
+			"pageTitle": "Calendar",
+			"truncated": "Εμφανίζονται οι πρώτες {{shown}} από {{total}} προγραμματισμένες εργασίες αυτής της περιόδου.",
+			"assignedToMe": "Ανατεθειμένα σε μένα",
+			"allTasks": "Όλες οι εργασίες",
+			"noTasksThisMonth": "Τίποτα προγραμματισμένο αυτόν τον μήνα",
+			"noTasksThisMonthSubtitle": "Δοκιμάστε άλλον μήνα ή προσθέστε ημερομηνία έναρξης ή λήξης στις εργασίες των έργων σας.",
+			"noAssignedTasksThisMonth": "Τίποτα ανατεθειμένο σε εσάς αυτόν τον μήνα",
+			"noAssignedTasksThisMonthSubtitle": "Δεν σας έχουν ανατεθεί προγραμματισμένες εργασίες σε αυτή την περίοδο. Απενεργοποιήστε το φίλτρο για να δείτε τις ημερομηνίες όλων των έργων."
 		}
 	},
 	"team": {
