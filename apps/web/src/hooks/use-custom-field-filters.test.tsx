@@ -18,6 +18,13 @@ import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-
 
 vi.mock("@/fetchers/custom-field/get-custom-field-values-by-project");
 vi.mock("@/fetchers/custom-field/set-custom-field-value");
+vi.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: "en-US", resolvedLanguage: "en-US" },
+  }),
+  initReactI18next: { type: "3rdParty", init: () => {} },
+}));
 
 type ProjectValue = Awaited<
   ReturnType<typeof getCustomFieldValuesByProject>

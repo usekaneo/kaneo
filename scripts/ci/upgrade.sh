@@ -11,7 +11,19 @@ if [[ "$tag" != "v$version" ]]; then
 fi
 owner=$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')
 image="ghcr.io/$owner/kaneo:$version"
-docker pull "$image"
+# GHCR can time out before returning headers even when the image is available.
+# Retry only acquisition; the upgrade and its assertions still run once.
+for attempt in 1 2 3; do
+  if docker pull "$image"; then
+    break
+  fi
+  if [[ "$attempt" == 3 ]]; then
+    echo "Unable to pull the stable upgrade image after $attempt attempts" >&2
+    exit 1
+  fi
+  echo "Retrying stable image pull (attempt $((attempt + 1))/3)" >&2
+  sleep "$((attempt * 5))"
+done
 # Record and use the pulled digest so a mutable tag cannot change the baseline mid-test.
 export KANEO_UPGRADE_IMAGE
 authoritative_ref=$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')
