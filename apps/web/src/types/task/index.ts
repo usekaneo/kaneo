@@ -39,6 +39,7 @@ type Task = {
   assigneeImage?: string | null;
   projectId: string;
   columnId?: string | null;
+  ancestors?: Array<{ id: string; title: string; projectId: string }>;
   subtaskCounts?: { completed: number; total: number };
   labels?: TaskLabel[];
   externalLinks?: TaskExternalLink[];

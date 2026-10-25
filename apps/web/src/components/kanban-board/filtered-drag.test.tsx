@@ -13,6 +13,7 @@ import type { ProjectWithTasks } from "@/types/project";
 import KanbanBoard from "./index";
 
 const mocks = vi.hoisted(() => ({
+  prompt: vi.fn(),
   project: null as unknown,
   setProject: vi.fn(),
   reorder: vi.fn(),
@@ -24,6 +25,9 @@ const mocks = vi.hoisted(() => ({
         variables: TaskReorder & { previousBoard: ProjectWithTasks },
       ) => void)
     | undefined,
+}));
+vi.mock("@/components/task/subtask-status-dialog/store", () => ({
+  promptSubtaskStatus: mocks.prompt,
 }));
 vi.mock("@tanstack/react-query", () => ({
   useQueryClient: () => ({
@@ -439,4 +443,32 @@ describe.each([
       "data-sort-hint",
     );
   });
+});
+
+it("offers the subtask choice only after a successful status-changing drop", () => {
+  const project = crossColumnBoard();
+  project.columns[1].id = "done";
+  project.columns[1].slug = "done";
+  project.columns[1].isFinal = true;
+  for (const task of project.columns[1].tasks) task.status = "done";
+  mocks.project = project;
+  const view = render(<KanbanBoard project={project} />);
+  fireEvent.click(view.getByText("drop-c"));
+  expect(mocks.prompt).not.toHaveBeenCalled();
+  const request = mocks.reorder.mock.calls[0][0];
+  mocks.success?.([], request);
+  expect(mocks.prompt).toHaveBeenCalledExactlyOnceWith("a", "done");
+});
+it("does not prompt when dragging only changes the order", () => {
+  const project = crossColumnBoard();
+  project.columns[0].tasks.push({
+    id: "b",
+    status: "todo",
+    position: 1,
+  } as ProjectWithTasks["columns"][number]["tasks"][number]);
+  mocks.project = project;
+  const view = render(<KanbanBoard project={project} />);
+  fireEvent.click(view.getByText("drop"));
+  mocks.success?.([], mocks.reorder.mock.calls[0][0]);
+  expect(mocks.prompt).not.toHaveBeenCalled();
 });

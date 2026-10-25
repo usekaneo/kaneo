@@ -1,3 +1,4 @@
+import { getTaskAncestors } from "../get-task-ancestors";
 import {
   and,
   asc,
@@ -206,6 +207,14 @@ async function getTasksPage(
   const paginatedTasks = await query.limit(pageSize).offset(offset);
 
   const taskIds = paginatedTasks.map((task) => task.id);
+
+  const ancestors =
+    !options.publicOnly && userId
+      ? await getTaskAncestors(db, taskIds, project.workspaceId, userId)
+      : new Map<
+          string,
+          Array<{ id: string; title: string; projectId: string }>
+        >();
 
   const subtaskCounts = await getSubtaskCounts(
     db,
@@ -428,6 +437,9 @@ async function getTasksPage(
       .filter((task) => task.status === column.slug)
       .map((task) => ({
         ...task,
+        ...(options.publicOnly
+          ? {}
+          : { ancestors: ancestors.get(task.id) ?? [] }),
         subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
         labels: taskLabelsMap.get(task.id) || [],
         externalLinks: taskExternalLinksMap.get(task.id) || [],
@@ -438,6 +450,9 @@ async function getTasksPage(
     .filter((task) => task.status === "archived")
     .map((task) => ({
       ...task,
+      ...(options.publicOnly
+        ? {}
+        : { ancestors: ancestors.get(task.id) ?? [] }),
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],
@@ -447,6 +462,9 @@ async function getTasksPage(
     .filter((task) => task.status === "planned")
     .map((task) => ({
       ...task,
+      ...(options.publicOnly
+        ? {}
+        : { ancestors: ancestors.get(task.id) ?? [] }),
       subtaskCounts: subtaskCounts.get(task.id) ?? { completed: 0, total: 0 },
       labels: taskLabelsMap.get(task.id) || [],
       externalLinks: taskExternalLinksMap.get(task.id) || [],

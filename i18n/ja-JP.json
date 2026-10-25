@@ -3184,7 +3184,8 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。"
+			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。",
+			"ancestorBreadcrumbs": "タスクの階層"
 		},
 		"toolbar": {
 			"search": "タスクを検索",
@@ -3237,6 +3238,18 @@
 			"startsOn": "開始: {{date}}",
 			"beforeStart": "{{date}} は開始日より前です",
 			"afterDue": "{{date}} は期日より後です"
+		},
+		"subtaskStatus": {
+			"archived": "Archived",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"retry": "Retry",
+			"skip": "Skip subtasks",
+			"title": "Update the status of open subtasks too?",
+			"updateAll": "Update all",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"updating": "Updating…"
 		}
 	},
 	"invitations": {

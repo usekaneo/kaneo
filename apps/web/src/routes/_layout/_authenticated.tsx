@@ -1,3 +1,4 @@
+import { SubtaskStatusDialog } from "@/components/task/subtask-status-dialog";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { GlobalShortcuts } from "@/components/shortcuts/global-shortcuts";
 import { useTrackSignup } from "@/hooks/use-track-signup";
@@ -52,6 +53,7 @@ function AuthenticatedLayout() {
   return (
     <>
       <GlobalShortcuts />
+      <SubtaskStatusDialog />
       <Outlet />
     </>
   );

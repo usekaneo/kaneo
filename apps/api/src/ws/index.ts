@@ -1,3 +1,4 @@
+import { getTaskDescendantProjects } from "../task/get-task-descendant-projects";
 import { hasWorkspaceAccess, syncWorkspaceAccess } from "./workspace-access";
 import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
@@ -741,6 +742,7 @@ subscribeToEvent<{
     initiatorId,
   );
   refreshParentBoards(await getSubtaskParentProjects([taskId]), toProjectId);
+  refreshParentBoards(await getTaskDescendantProjects([taskId]));
 });
 
 subscribeToEvent<{
@@ -901,6 +903,17 @@ for (const eventName of taskUpdateEvents) {
       },
       initiatorId,
     );
+    if (eventName === "task.title_changed" || data.titleChanged) {
+      refreshParentBoards(await getTaskDescendantProjects([taskId]));
+    } else if (
+      (eventName === "task-relation.created" ||
+        eventName === "task-relation.deleted") &&
+      data.targetTaskId
+    ) {
+      refreshParentBoards(
+        await getTaskDescendantProjects([data.targetTaskId], true),
+      );
+    }
     if (eventName === "task.status_changed" && !data.skipSubtaskParentRefresh) {
       refreshParentBoards(await getSubtaskParentProjects([taskId]), projectId);
     } else if (eventName === "task-relation.deleted" && data.sourceTaskId) {

@@ -1,5 +1,18 @@
 import { nullableResponseTimestamp, responseTimestamp, z } from "../openapi";
 
+const taskAncestorSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  projectId: z.string(),
+});
+const taskAncestorsSchema = z
+  .array(taskAncestorSchema)
+  .max(32)
+  .optional()
+  .describe(
+    "Accessible ancestors, nearest parent first (up to 32). Included on authenticated board reads; omitted on public boards.",
+  );
+
 const priorityDescription = "One of: no-priority, low, medium, high, urgent.";
 
 export const taskSchema = z
@@ -22,6 +35,12 @@ export const taskSchema = z
       description:
         "True when the list omits a large description; load the task detail or description pages to read it. Do not replace stored text with this null summary.",
     }),
+    previousStatus: z
+      .string()
+      .optional()
+      .describe(
+        "Status before a task update; included by status and full-task mutations.",
+      ),
     status: z.string().openapi({
       description: "The slug of the column the task sits in.",
     }),
@@ -37,6 +56,7 @@ export const taskSchema = z
 
 export const taskWithAssigneeSchema = taskSchema
   .extend({
+    ancestors: taskAncestorsSchema,
     workspaceId: z.string().optional().openapi({
       description:
         "The workspace currently owning the task's project. Included in the detail view; omitted from the compact board view.",
@@ -94,6 +114,7 @@ const taskExternalLinkSchema = z
 
 export const boardTaskSchema = z
   .object({
+    ancestors: taskAncestorsSchema,
     id: z.string(),
     title: z.string(),
     number: z.number().nullable(),

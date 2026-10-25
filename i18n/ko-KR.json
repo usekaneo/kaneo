@@ -3184,7 +3184,8 @@
 		},
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
-			"keyboardInstructions": "Space를 눌러 미리 보고 Enter를 눌러 이 작업을 엽니다. Alt 또는 Option과 화살표 키로 이동할 수 있습니다."
+			"keyboardInstructions": "Space를 눌러 미리 보고 Enter를 눌러 이 작업을 엽니다. Alt 또는 Option과 화살표 키로 이동할 수 있습니다.",
+			"ancestorBreadcrumbs": "작업 계층 구조"
 		},
 		"toolbar": {
 			"search": "작업 검색",
@@ -3237,6 +3238,18 @@
 			"startsOn": "시작: {{date}}",
 			"beforeStart": "{{date}}은(는) 시작일 이전입니다",
 			"afterDue": "{{date}}은(는) 마감일 이후입니다"
+		},
+		"subtaskStatus": {
+			"archived": "Archived",
+			"description_other": "“{{title}}” still has {{count}} open subtasks, including nested subtasks. Would you like to also update their status to {{status}}?",
+			"noFinalColumn": "A subtask’s project has no Done column. Add a final column in that project before updating all subtasks.",
+			"previewError": "The parent was updated, but its open subtasks could not be loaded.",
+			"retry": "Retry",
+			"skip": "Skip subtasks",
+			"title": "Update the status of open subtasks too?",
+			"updateAll": "Update all",
+			"updateError": "Subtasks could not be updated. The parent remains updated. Try again or skip subtasks.",
+			"updating": "Updating…"
 		}
 	},
 	"invitations": {

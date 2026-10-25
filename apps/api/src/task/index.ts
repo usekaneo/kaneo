@@ -1,3 +1,10 @@
+import getSubtaskStatusPreview from "./controllers/subtask-status-preview";
+import updateSubtaskStatuses from "./controllers/update-subtask-statuses";
+import {
+  subtaskStatusQuery,
+  subtaskStatusBody,
+  subtaskStatusPreviewSchema,
+} from "./subtask-status-schema";
 import { withVerifiedStorageObject } from "../storage/cleanup-queue";
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -507,6 +514,57 @@ const deleteTaskRoute = createRoute({
       "No access to the project, or missing task:delete permission",
     ),
     404: errorResponse("Task not found"),
+  },
+});
+
+const subtaskStatusPreviewRoute = createRoute({
+  method: "get",
+  operationId: "getSubtaskStatusPreview",
+  path: "/subtask-status/{id}",
+  tags: ["Tasks"],
+  summary: "Preview open descendants after completing or archiving a parent",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
+  request: { params: taskParam, query: subtaskStatusQuery },
+  responses: {
+    200: jsonResponse(
+      "Accessible open descendants and their target statuses",
+      subtaskStatusPreviewSchema,
+    ),
+    400: errorResponse("Too many subtasks"),
+    403: errorResponse("No access"),
+    404: errorResponse("Task not found"),
+    409: errorResponse("Parent status changed"),
+  },
+});
+const updateSubtaskStatusesRoute = createRoute({
+  method: "put",
+  operationId: "updateSubtaskStatuses",
+  path: "/subtask-status/{id}",
+  tags: ["Tasks"],
+  summary: "Explicitly complete or archive the confirmed open descendants",
+  description:
+    "Changes only accessible open descendants included in taskIds. Closed descendants are preserved. Completion uses each project's final column. Ordinary parent status updates never cascade.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["update"] }),
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: subtaskStatusBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("Updated descendants", bulkResultSchema),
+    400: errorResponse("Invalid destination or too many subtasks"),
+    403: errorResponse("No access"),
+    404: errorResponse("Task not found"),
+    409: errorResponse("Parent status changed"),
   },
 });
 
@@ -1029,6 +1087,30 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const task = await deleteTask(id, currentUserId);
 
     return c.json(task, 200);
+  })
+  .openapi(subtaskStatusPreviewRoute, async (c) =>
+    c.json(
+      await getSubtaskStatusPreview(
+        c.req.valid("param").id,
+        c.req.valid("query").status,
+        c.get("userId"),
+        c.get("workspaceId"),
+      ),
+      200,
+    ),
+  )
+  .openapi(updateSubtaskStatusesRoute, async (c) => {
+    const { status, taskIds } = c.req.valid("json");
+    return c.json(
+      await updateSubtaskStatuses(
+        c.req.valid("param").id,
+        status,
+        taskIds,
+        c.get("userId"),
+        c.get("workspaceId"),
+      ),
+      200,
+    );
   })
   .openapi(updateTaskStatusRoute, async (c) => {
     const { id } = c.req.valid("param");

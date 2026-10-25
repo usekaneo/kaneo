@@ -191,6 +191,30 @@
       "BoardTask": {
         "type": "object",
         "properties": {
+          "ancestors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title",
+                "projectId"
+              ]
+            },
+            "maxItems": 32,
+            "description": "Accessible ancestors, nearest parent first (up to 32). Included on authenticated board reads; omitted on public boards."
+          },
           "id": {
             "type": "string"
           },
@@ -1207,6 +1231,10 @@
             "type": "boolean",
             "description": "True when the list omits a large description; load the task detail or description pages to read it. Do not replace stored text with this null summary."
           },
+          "previousStatus": {
+            "type": "string",
+            "description": "Status before a task update; included by status and full-task mutations."
+          },
           "status": {
             "type": "string",
             "description": "The slug of the column the task sits in."
@@ -1294,6 +1322,30 @@
           {
             "type": "object",
             "properties": {
+              "ancestors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "projectId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "projectId"
+                  ]
+                },
+                "maxItems": 32,
+                "description": "Accessible ancestors, nearest parent first (up to 32). Included on authenticated board reads; omitted on public boards."
+              },
               "workspaceId": {
                 "type": "string",
                 "description": "The workspace currently owning the task's project. Included in the detail view; omitted from the compact board view."
@@ -12169,6 +12221,268 @@
           },
           "404": {
             "description": "Project not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/subtask-status/{id}": {
+      "get": {
+        "operationId": "getSubtaskStatusPreview",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Preview open descendants after completing or archiving a parent",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "status",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accessible open descendants and their target statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "parentTitle": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "statusName": {
+                      "type": "string"
+                    },
+                    "subtasks": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "projectId": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "assigneeName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "destinationStatus": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "projectId",
+                          "status",
+                          "assigneeName",
+                          "destinationStatus"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "parentTitle",
+                    "status",
+                    "statusName",
+                    "subtasks"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Too many subtasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Parent status changed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateSubtaskStatuses",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Explicitly complete or archive the confirmed open descendants",
+        "description": "Changes only accessible open descendants included in taskIds. Closed descendants are preserved. Completion uses each project's final column. Ordinary parent status updates never cascade.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "taskIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "minItems": 1,
+                    "maxItems": 1000
+                  }
+                },
+                "required": [
+                  "status",
+                  "taskIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated descendants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkTaskResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid destination or too many subtasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Parent status changed",
             "content": {
               "application/json": {
                 "schema": {
