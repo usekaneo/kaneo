@@ -15571,7 +15571,7 @@
           "Notifications"
         ],
         "summary": "Mark all read",
-        "description": "Mark notifications for the current user as read, optionally limited to one workspace.",
+        "description": "Mark accessible notifications for the current user as read, optionally limited to one workspace. Resource notifications require current read permission and API key scope.",
         "parameters": [
           {
             "schema": {
@@ -15619,7 +15619,7 @@
           "Notifications"
         ],
         "summary": "Clear all",
-        "description": "Permanently delete notifications for the current user, optionally limited to one workspace. This cannot be undone.",
+        "description": "Permanently delete accessible notifications for the current user, optionally limited to one workspace. Resource notifications require current read permission and API key scope. This cannot be undone.",
         "parameters": [
           {
             "schema": {
@@ -15667,7 +15667,7 @@
           "Notifications"
         ],
         "summary": "Clear read notifications",
-        "description": "Permanently delete the current user's read notifications, optionally limited to one workspace. Unread notifications are kept. This cannot be undone.",
+        "description": "Permanently delete the current user's accessible read notifications, optionally limited to one workspace. Resource notifications require current read permission and API key scope. Unread notifications are kept. This cannot be undone.",
         "parameters": [
           {
             "schema": {
@@ -15715,7 +15715,7 @@
           "Notifications"
         ],
         "summary": "Delete notification",
-        "description": "Permanently delete one notification. Scoped to the current user, so another user's notification is not found.",
+        "description": "Permanently delete one notification. Only the current user's notifications with current resource read permission and API key scope are accessible. Other notifications are not found.",
         "parameters": [
           {
             "schema": {

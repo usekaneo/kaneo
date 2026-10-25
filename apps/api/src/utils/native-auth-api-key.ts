@@ -1,4 +1,5 @@
 import { APIError, getSessionFromCtx } from "better-auth/api";
+import { apiKeyDenialHeaders } from "./rate-limit-headers";
 import { type PermissionMap, satisfies } from "./role-permissions";
 import { verifyApiKey } from "./verify-api-key";
 
@@ -80,6 +81,19 @@ export async function assertNativeAuthApiKeyAllowed(ctx: AuthContext) {
     });
   }
   const verified = await verifyApiKey(credential, { consume: false });
+  if (verified && verified.status !== "valid") {
+    throw new APIError(
+      "TOO_MANY_REQUESTS",
+      {
+        code: "RATE_LIMITED",
+        message:
+          verified.status === "rate_limited"
+            ? "Rate limit exceeded"
+            : "API key usage limit exceeded",
+      },
+      apiKeyDenialHeaders(verified, new Date()),
+    );
+  }
   if (verified?.status !== "valid") {
     throw new APIError("UNAUTHORIZED", {
       code: "INVALID_API_KEY",

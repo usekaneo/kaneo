@@ -100,7 +100,7 @@ const markAllAsReadRoute = createRoute({
   summary: "Mark all read",
   request: { query: notificationWorkspaceQuery },
   description:
-    "Mark notifications for the current user as read, optionally limited to one workspace.",
+    "Mark accessible notifications for the current user as read, optionally limited to one workspace. Resource notifications require current read permission and API key scope.",
   responses: {
     200: jsonResponse("All notifications marked as read", bulkResultSchema),
   },
@@ -114,7 +114,7 @@ const clearAllRoute = createRoute({
   summary: "Clear all",
   request: { query: notificationWorkspaceQuery },
   description:
-    "Permanently delete notifications for the current user, optionally limited to one workspace. This cannot be undone.",
+    "Permanently delete accessible notifications for the current user, optionally limited to one workspace. Resource notifications require current read permission and API key scope. This cannot be undone.",
   responses: {
     200: jsonResponse("All notifications cleared", bulkResultSchema),
   },
@@ -128,7 +128,7 @@ const clearReadRoute = createRoute({
   summary: "Clear read notifications",
   request: { query: notificationWorkspaceQuery },
   description:
-    "Permanently delete the current user's read notifications, optionally limited to one workspace. Unread notifications are kept. This cannot be undone.",
+    "Permanently delete the current user's accessible read notifications, optionally limited to one workspace. Resource notifications require current read permission and API key scope. Unread notifications are kept. This cannot be undone.",
   responses: {
     200: jsonResponse("Read notifications cleared", bulkResultSchema),
   },
@@ -141,7 +141,7 @@ const deleteNotificationRoute = createRoute({
   tags: ["Notifications"],
   summary: "Delete notification",
   description:
-    "Permanently delete one notification. Scoped to the current user, so another user's notification is not found.",
+    "Permanently delete one notification. Only the current user's notifications with current resource read permission and API key scope are accessible. Other notifications are not found.",
   request: { params: notificationParam },
   responses: {
     200: jsonResponse("Notification deleted", bulkResultSchema),
@@ -209,6 +209,7 @@ const notification = apiRouter()
       await markAllNotificationsAsRead(
         c.get("userId"),
         c.req.valid("query").workspaceId,
+        c.get("apiKey")?.permissions,
       ),
       200,
     ),
@@ -218,6 +219,8 @@ const notification = apiRouter()
       await clearNotifications(
         c.get("userId"),
         c.req.valid("query").workspaceId,
+        false,
+        c.get("apiKey")?.permissions,
       ),
       200,
     ),
@@ -228,13 +231,18 @@ const notification = apiRouter()
         c.get("userId"),
         c.req.valid("query").workspaceId,
         true,
+        c.get("apiKey")?.permissions,
       ),
       200,
     ),
   )
   .openapi(deleteNotificationRoute, async (c) =>
     c.json(
-      await deleteNotification(c.req.valid("param").id, c.get("userId")),
+      await deleteNotification(
+        c.req.valid("param").id,
+        c.get("userId"),
+        c.get("apiKey")?.permissions,
+      ),
       200,
     ),
   );
