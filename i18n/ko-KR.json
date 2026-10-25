@@ -3240,6 +3240,28 @@
 			"startsOn": "시작: {{date}}",
 			"beforeStart": "{{date}}은(는) 시작일 이전입니다",
 			"afterDue": "{{date}}은(는) 마감일 이후입니다"
+		},
+		"share": {
+			"accessWarning": "Anyone with the link can see this task's shared details and description images. The page updates when they refresh it.",
+			"action": "Share task",
+			"activeHint": "Anyone with this link can view the current read-only task summary.",
+			"copied": "Share link copied",
+			"copy": "Copy",
+			"copyError": "Failed to copy the share link",
+			"create": "Create share link",
+			"created": "Share link created",
+			"createError": "Failed to create the share link",
+			"creating": "Creating...",
+			"description": "Create a read-only link for people who don't have a Kaneo account.",
+			"loadError": "Failed to load the share link",
+			"retry": "Try again",
+			"revoke": "Revoke link",
+			"revokeConfirmation": "Revoke this link? Anyone using it will immediately lose access, including access to description images.",
+			"revoked": "Share link revoked",
+			"revokeError": "Failed to revoke the share link",
+			"revoking": "Revoking...",
+			"title": "Share task",
+			"url": "Public task URL"
 		}
 	},
 	"invitations": {
@@ -4527,5 +4549,28 @@
 		"permissions": {
 			"photos": "Kaneo는 작업과 댓글에 이미지를 첨부하고 프로필 사진을 설정하기 위해 사진을 사용합니다."
 		}
+	},
+	"sharedTask": {
+		"badge": "Shared",
+		"descriptionError": "The description couldn't be loaded. Refresh the page to try again.",
+		"descriptionLoading": "Loading description...",
+		"error": {
+			"description": "This share link doesn't exist, has been revoked, or is no longer available.",
+			"title": "Task Not Found"
+		},
+		"fields": {
+			"assignee": "Assignee",
+			"created": "Created",
+			"description": "Description",
+			"dueDate": "Due date",
+			"priority": "Priority",
+			"startDate": "Start date",
+			"status": "Status",
+			"unassigned": "Unassigned",
+			"updated": "Last updated"
+		},
+		"noDescription": "No description was shared for this task.",
+		"pageTitle": "Shared task",
+		"readOnly": "Read-only"
 	}
 }

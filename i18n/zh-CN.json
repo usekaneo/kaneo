@@ -3240,6 +3240,28 @@
 			"startsOn": "开始于 {{date}}",
 			"beforeStart": "{{date}} 早于开始日期",
 			"afterDue": "{{date}} 晚于截止日期"
+		},
+		"share": {
+			"accessWarning": "Anyone with the link can see this task's shared details and description images. The page updates when they refresh it.",
+			"action": "Share task",
+			"activeHint": "Anyone with this link can view the current read-only task summary.",
+			"copied": "Share link copied",
+			"copy": "Copy",
+			"copyError": "Failed to copy the share link",
+			"create": "Create share link",
+			"created": "Share link created",
+			"createError": "Failed to create the share link",
+			"creating": "Creating...",
+			"description": "Create a read-only link for people who don't have a Kaneo account.",
+			"loadError": "Failed to load the share link",
+			"retry": "Try again",
+			"revoke": "Revoke link",
+			"revokeConfirmation": "Revoke this link? Anyone using it will immediately lose access, including access to description images.",
+			"revoked": "Share link revoked",
+			"revokeError": "Failed to revoke the share link",
+			"revoking": "Revoking...",
+			"title": "Share task",
+			"url": "Public task URL"
 		}
 	},
 	"invitations": {
@@ -4527,5 +4549,28 @@
 		"permissions": {
 			"photos": "Kaneo 使用你的照片为任务和评论添加图片，以及设置你的头像。"
 		}
+	},
+	"sharedTask": {
+		"badge": "Shared",
+		"descriptionError": "The description couldn't be loaded. Refresh the page to try again.",
+		"descriptionLoading": "Loading description...",
+		"error": {
+			"description": "This share link doesn't exist, has been revoked, or is no longer available.",
+			"title": "Task Not Found"
+		},
+		"fields": {
+			"assignee": "Assignee",
+			"created": "Created",
+			"description": "Description",
+			"dueDate": "Due date",
+			"priority": "Priority",
+			"startDate": "Start date",
+			"status": "Status",
+			"unassigned": "Unassigned",
+			"updated": "Last updated"
+		},
+		"noDescription": "No description was shared for this task.",
+		"pageTitle": "Shared task",
+		"readOnly": "Read-only"
 	}
 }

@@ -1,6 +1,7 @@
 import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import { GitBranch, Link2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import TaskShareButton from "../task-share-button";
 import { HeaderIconButton } from "./header-icon-button";
 import { TaskMoreMenu } from "./task-more-menu";
 import { useTaskCopyActions } from "./use-task-copy-actions";
@@ -39,6 +40,7 @@ export function TaskHeaderActions({
       >
         <GitBranch />
       </HeaderIconButton>
+      <TaskShareButton taskId={taskId} />
       <TaskMoreMenu actions={actions} deleteHandle={deleteHandle} />
     </div>
   );
