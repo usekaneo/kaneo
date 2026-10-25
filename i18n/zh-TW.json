@@ -3204,7 +3204,10 @@
 		"filterBar": {
 			"label": "已套用的篩選",
 			"removeFilter": "移除「{{name}}」篩選",
-			"noMatches": "沒有符合搜尋或篩選條件的任務。"
+			"noMatches": "沒有符合搜尋或篩選條件的任務。",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "新增篩選…",

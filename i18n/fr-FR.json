@@ -3312,7 +3312,10 @@
 		"filterBar": {
 			"label": "Filtres actifs",
 			"removeFilter": "Retirer le filtre {{name}}",
-			"noMatches": "Aucune tâche ne correspond à votre recherche ou à vos filtres."
+			"noMatches": "Aucune tâche ne correspond à votre recherche ou à vos filtres.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Ajouter un filtre…",

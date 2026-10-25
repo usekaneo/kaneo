@@ -3418,7 +3418,10 @@
 		"filterBar": {
 			"label": "Активные фильтры",
 			"removeFilter": "Убрать фильтр «{{name}}»",
-			"noMatches": "Нет задач, подходящих под поиск или фильтры."
+			"noMatches": "Нет задач, подходящих под поиск или фильтры.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Добавить фильтр…",

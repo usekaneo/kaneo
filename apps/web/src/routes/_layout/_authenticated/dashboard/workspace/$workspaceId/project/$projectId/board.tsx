@@ -167,6 +167,7 @@ function RouteComponent() {
         <ActiveFiltersBar
           subjects={view.subjects}
           onClear={filters.clearFilters}
+          customFieldValues={filters.customFieldValues}
         />
       }
     >
