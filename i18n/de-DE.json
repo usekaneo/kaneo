@@ -3258,7 +3258,10 @@
 		"filterBar": {
 			"label": "Aktive Filter",
 			"removeFilter": "Filter {{name}} entfernen",
-			"noMatches": "Keine Aufgaben passen zu deiner Suche oder deinen Filtern."
+			"noMatches": "Keine Aufgaben passen zu deiner Suche oder deinen Filtern.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Filter hinzufügen…",

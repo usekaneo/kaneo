@@ -89,7 +89,6 @@ export function useTaskFiltersWithLabelsSupport(
     normalizeFilters,
     DEFAULT_FILTERS,
   );
-  const { getValuesForTask } = useGetCachedCustomFieldValues(projectId);
   const { data: workspaceLabels } = useGetLabelsByWorkspace(
     project?.workspaceId ?? "",
   );
@@ -125,6 +124,10 @@ export function useTaskFiltersWithLabelsSupport(
     () => new Set(expandLabelFilter(labels, effectiveFilters.labels)),
     [labels, effectiveFilters.labels],
   );
+  const customFieldValues = useGetCachedCustomFieldValues(
+    effectiveFilters.customFields ? projectId : undefined,
+  );
+  const { getValuesForTask, hasData } = customFieldValues;
 
   const createMatcher = useCallback(() => {
     const context = {
@@ -136,13 +139,18 @@ export function useTaskFiltersWithLabelsSupport(
       getCustomFieldValues: getValuesForTask,
       labelIds: matchingLabelIds,
     };
-    return (task: Task) => taskMatchesFilters(task, effectiveFilters, context);
+    // Missing query data is unknown, rather than an empty value on every task.
+    const readyFilters = !hasData
+      ? { ...effectiveFilters, customFields: null }
+      : effectiveFilters;
+    return (task: Task) => taskMatchesFilters(task, readyFilters, context);
   }, [
     effectiveFilters,
     project?.slug,
     textQuery,
     weekStartsOn,
     getValuesForTask,
+    hasData,
     descriptionMatches,
     matchingLabelIds,
   ]);
@@ -243,6 +251,11 @@ export function useTaskFiltersWithLabelsSupport(
   };
 
   return {
+    customFieldValues: {
+      ...customFieldValues,
+      isLoading: !!effectiveFilters.customFields && customFieldValues.isLoading,
+      isError: !!effectiveFilters.customFields && customFieldValues.isError,
+    },
     filters: effectiveFilters,
     setFilters,
     updateFilter,

@@ -79,10 +79,12 @@ videos appear in the Automate dashboard under **Kaneo**.
 3. Every push to `main` now runs **BrowserStack** automatically. To rerun it,
    open **Actions → BrowserStack → Run workflow**, selecting `main`.
 
-**Browser tests** runs the same suite in Chromium for every pull request, including
-forks, without cloud credentials. **BrowserStack** runs Chrome on Windows and
-WebKit on macOS after a push to `main`, or a manual dispatch on `main`. Cloud runs
-are serialized to stay within the two-session limit; obsolete PR runs are cancelled.
+The CI workflow runs the independent **Chromium smoke tests** job for PRs, including forks, without cloud credentials.
+It skips that job only for qualifying docs/site-only PRs.
+**BrowserStack** runs Chrome on Windows and WebKit on macOS for runtime-relevant main pushes, manual runs on main, and its daily schedule at 05:43 UTC.
+A main push may skip cloud work only when its complete diff since a proven full validation is runtime-neutral and that validation is less than 24 hours old.
+Uncertain evidence, manual runs, and scheduled runs execute both engines in full.
+Cloud runs are serialized to stay within the two-session limit; obsolete PR runs are cancelled.
 
 Both workflows build the checked-out revision, use a disposable database, upload
 reports for seven days, and tear down the stack even after failure. BrowserStack
@@ -90,8 +92,10 @@ credentials are passed only to its credential check and cloud test step. No
 production instance is contacted. Tests use synthetic accounts; invitation setup
 uses the normal API without sending email because SMTP is not configured.
 
-Add the **Chromium smoke tests** check to branch protection when it has proven
-stable. The cloud check runs after merge and does not currently gate releases.
+**Chromium smoke tests** keeps its display name for external check consumers.
+Require `ci-result` for PR gating; the former `browser-result` gate is retired.
+Workflow edits do not configure GitHub branch rules.
+The cloud check runs after merge and does not currently gate releases.
 
 References:
 

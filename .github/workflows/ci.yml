@@ -15,6 +15,86 @@ permissions:
   contents: read
 
 jobs:
+  detect-pr-changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    outputs:
+      skip_expensive: ${{ steps.classify.outputs.skip_expensive }}
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - id: classify
+        name: Classify complete pull request diff
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/ci/pr-change-classification.mjs
+
+  smoke:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
+    name: Chromium smoke tests
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 30
+    env:
+      KANEO_E2E_HOST: localhost
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: 10.32.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
+
+      - run: pnpm --dir tests/e2e exec playwright install --with-deps chromium
+
+      - name: Setup Blacksmith Builder
+        uses: useblacksmith/setup-docker-builder@19215110ab936351210feebdfa5b440b4493e184 # v2.2.0
+        with:
+          cache-key: ${{ github.repository }}/kaneo
+      - name: Build this revision of Kaneo
+        uses: useblacksmith/build-push-action@9b0579bbec7a6cad2f171596c57e7ac1e7658850 # v2
+        with:
+          context: .
+          file: Dockerfile.kaneo
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: kaneo-browserstack:test
+
+      - name: Start disposable test instance
+        run: docker compose -f tests/e2e/compose.yml up --no-build --wait --wait-timeout 180
+      - name: Run browser smoke tests
+        run: pnpm test:e2e
+
+      - name: Collect instance logs
+        if: failure()
+        run: |
+          mkdir -p .cache/e2e
+          docker compose -f tests/e2e/compose.yml logs --no-color > .cache/e2e/instance.log
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: browser-test-results
+          path: .cache/e2e/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop disposable test instance
+        if: always()
+        run: docker compose -f tests/e2e/compose.yml down --volumes
+
   peekareq-tests:
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 5
@@ -22,7 +102,7 @@ jobs:
       - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           package-manager-cache: false
@@ -38,7 +118,7 @@ jobs:
       - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           package-manager-cache: false
@@ -47,12 +127,14 @@ jobs:
       - run: npm test
         working-directory: scripts/slop-labeler
 
-  lint:
+  quality:
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
@@ -60,91 +142,34 @@ jobs:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           cache: pnpm
 
-      - name: Install dependencies
+      - id: install
+        name: Install dependencies
+        timeout-minutes: 15
         run: pnpm install --frozen-lockfile
 
       - name: Run Vite+ checks
+        timeout-minutes: 15
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm lint
 
-  i18n:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
-        with:
-          persist-credentials: false
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
-        with:
-          node-version: 24.19.0
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Check locale files against en-US
+        timeout-minutes: 15
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm i18n:check
 
-  openapi:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
-        with:
-          persist-credentials: false
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
-        with:
-          node-version: 24.19.0
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Check the API reference against the routes
+        timeout-minutes: 15
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm openapi:check
 
-  typecheck:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    timeout-minutes: 15
-    steps:
-      - name: Checkout repository
-        uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
-        with:
-          version: 10.32.1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
-        with:
-          node-version: 24.19.0
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Run typecheck
+        timeout-minutes: 15
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: pnpm typecheck
 
   unit:
@@ -160,7 +185,7 @@ jobs:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           cache: pnpm
@@ -192,7 +217,7 @@ jobs:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           cache: pnpm
@@ -207,6 +232,8 @@ jobs:
         run: pnpm --filter @kaneo/site seo:check
 
   integration:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     timeout-minutes: 15
     runs-on: blacksmith-4vcpu-ubuntu-2404
     services:
@@ -240,7 +267,7 @@ jobs:
           version: 10.32.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           cache: pnpm
@@ -252,6 +279,8 @@ jobs:
         run: pnpm test:integration
 
   docker-build:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     steps:
@@ -276,7 +305,7 @@ jobs:
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 10.32.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           cache: pnpm
@@ -305,7 +334,7 @@ jobs:
         run: |
           mkdir -p .cache/ci-results
           docker compose --env-file /dev/null -p kaneo-ci -f scripts/ci/compose.yml --profile realtime --profile upgrade logs --no-color > .cache/ci-results/containers.log
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: failure()
         with:
           name: runtime-failures
@@ -358,6 +387,8 @@ jobs:
           fi
 
   storage:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 10
     steps:
@@ -367,7 +398,7 @@ jobs:
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 10.32.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 24.19.0
           cache: pnpm
@@ -396,6 +427,8 @@ jobs:
         run: docker rm -f -v kaneo-storage-ci
 
   split-images:
+    needs: detect-pr-changes
+    if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     strategy:
@@ -465,7 +498,7 @@ jobs:
       - name: Upload results to GitHub Code Scanning
         # Fork pull requests hold a read-only token and cannot write code scanning data.
         if: ${{ always() && !github.event.pull_request.head.repo.fork }}
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: trufflehog-results.sarif
       - name: Notify Discord on findings
@@ -508,3 +541,21 @@ jobs:
             --data-binary @"$RUNNER_TEMP/discord-payload.json" \
             "$TRUFFLEHOG_WEBHOOK" \
             || echo "::warning::Discord notification could not be delivered."
+
+  ci-result:
+    if: ${{ always() }}
+    needs: [detect-pr-changes, smoke, peekareq-tests, slop-labeler-tests, quality, unit, build, integration, docker-build, workflows, storage, split-images, secret-scan]
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: useblacksmith/checkout@25227e61ff9dafe400e22fa487b673eac4e4409a # v1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - name: Reject failed, cancelled, and unexpected skipped checks
+        env:
+          CI_SKIP_EXPENSIVE: ${{ needs.detect-pr-changes.outputs.skip_expensive }}
+          CI_GATE_JOBS: '{"detect-pr-changes":"${{ needs.detect-pr-changes.result }}","smoke":"${{ needs.smoke.result }}","peekareq-tests":"${{ needs.peekareq-tests.result }}","slop-labeler-tests":"${{ needs.slop-labeler-tests.result }}","quality":"${{ needs.quality.result }}","unit":"${{ needs.unit.result }}","build":"${{ needs.build.result }}","integration":"${{ needs.integration.result }}","docker-build":"${{ needs.docker-build.result }}","workflows":"${{ needs.workflows.result }}","storage":"${{ needs.storage.result }}","split-images":"${{ needs.split-images.result }}","secret-scan":"${{ needs.secret-scan.result }}"}'
+        run: node scripts/ci/pr-change-classification.mjs

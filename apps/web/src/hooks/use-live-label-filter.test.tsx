@@ -7,7 +7,15 @@ import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
-const root = { id: "root-label", name: "Bug", color: "red" };
+const root = {
+  id: "root-label",
+  name: "Bug",
+  color: "red",
+  createdAt: "2026-10-01T00:00:00Z",
+  updatedAt: "2026-10-01T00:00:00Z",
+  taskId: null,
+  workspaceId: "workspace-1",
+};
 const task: Task = {
   id: "task-1",
   title: "A new bug",

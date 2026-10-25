@@ -17,6 +17,7 @@ import {
   TextInput,
   useWindowDimensions,
   View,
+  type ScrollViewInstance,
 } from "react-native";
 import { LinearGradientFallback } from "@/features/board/fade";
 
@@ -84,7 +85,7 @@ export default function BoardScreen() {
   );
   const [page, setPage] = useState(showPlanned ? 1 : 0);
   const pager = useRef<FlatList<Lane>>(null);
-  const tabs = useRef<ScrollView>(null);
+  const tabs = useRef<ScrollViewInstance>(null);
   const reloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const board = useQuery({

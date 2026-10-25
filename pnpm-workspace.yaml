@@ -25,7 +25,9 @@ overrides:
   ws: ">=8.20.1"
   ip-address: 10.3.1
   postcss: ">=8.5.23"
-  sharp: ">=0.35.4"
+  sharp: ">=0.35.5"
+  dompurify: ">=3.4.17 <4"
+  handlebars: ">=4.7.10 <5"
   engine.io: ">=6.6.7"
   valibot: ">=1.4.2"
   better-auth: 1.6.26

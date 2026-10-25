@@ -6,6 +6,7 @@ import {
   View,
   type PressableProps,
   type StyleProp,
+  type TextInputInstance,
   type TextInputProps,
   type ViewStyle,
 } from "react-native";
@@ -466,7 +467,7 @@ export function Segmented<T extends string>({
 }
 
 export const TextField = forwardRef<
-  TextInput,
+  TextInputInstance,
   TextInputProps & {
     label?: string;
     hint?: string;

@@ -17,6 +17,7 @@ import {
   ScrollView,
   TextInput,
   View,
+  type TextInputInstance,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -90,7 +91,7 @@ function EditorBody({
     end: initial.length,
   });
   const [uploading, setUploading] = useState(false);
-  const input = useRef<TextInput>(null);
+  const input = useRef<TextInputInstance>(null);
   const insets = useSafeAreaInsets();
   const [keyboardShown, setKeyboardShown] = useState(false);
   // The keyboard covers the system navigation area, so only clear it while the keyboard is down.

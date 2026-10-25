@@ -4,8 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '43 5 * * *'
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -22,7 +25,21 @@ jobs:
       KANEO_E2E_TLS: "true"
       COMPOSE_FILE: tests/e2e/compose.yml:tests/e2e/compose.tls.yml
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24.19.0
+          package-manager-cache: false
+      - name: Classify BrowserStack changes
+        id: classify
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/ci/browserstack-change-classification.mjs
+
       - name: Check BrowserStack credentials
+        if: steps.classify.outputs.skip_browserstack != 'true'
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -32,20 +49,17 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        if: steps.classify.outputs.skip_browserstack != 'true'
         with:
           version: 10.32.1
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
-        with:
-          node-version: 24.19.0
-          package-manager-cache: false
       - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
+        if: steps.classify.outputs.skip_browserstack != 'true'
 
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+        if: steps.classify.outputs.skip_browserstack != 'true'
       - name: Build this revision of Kaneo
+        if: steps.classify.outputs.skip_browserstack != 'true'
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
           context: .
@@ -56,31 +70,34 @@ jobs:
           cache-to: type=gha,mode=max,scope=browserstack
 
       - name: Create disposable test certificate
+        if: steps.classify.outputs.skip_browserstack != 'true'
         run: |
           mkdir -p .cache/e2e-tls
           openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
             -keyout .cache/e2e-tls/key.pem -out .cache/e2e-tls/cert.pem \
             -subj '/CN=bs-local.com' -addext 'subjectAltName=DNS:bs-local.com'
       - name: Start disposable test instance
+        if: steps.classify.outputs.skip_browserstack != 'true'
         run: docker compose up --no-build --wait --wait-timeout 180
       - name: Run browser smoke tests
+        if: steps.classify.outputs.skip_browserstack != 'true'
         env:
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
         run: pnpm test:browserstack
 
       - name: Collect instance logs
-        if: failure()
+        if: failure() && steps.classify.outputs.skip_browserstack != 'true'
         run: |
           mkdir -p .cache/e2e
           docker compose logs --no-color > .cache/e2e/instance.log
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always() && steps.classify.outputs.skip_browserstack != 'true'
         with:
           name: browserstack-results
           path: .cache/e2e/
           if-no-files-found: ignore
           retention-days: 7
       - name: Stop disposable test instance
-        if: always()
+        if: always() && steps.classify.outputs.skip_browserstack != 'true'
         run: docker compose down --volumes
