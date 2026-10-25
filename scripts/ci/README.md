@@ -47,6 +47,17 @@ upgrade-rendering regression checks. Configure the new job checks as required in
 GitHub if they should block merging; editing workflows alone does not change
 branch protection.
 
+## Dependency updates
+
+The hosted Mend Renovate GitHub App handles npm and GitHub Actions updates from `renovate.json`.
+Routine PR creation is allowed Monday 00:00–06:00 UTC, subject to hosted App availability.
+npm minor and patch updates are grouped; Actions minor, patch, digest, and pin updates are grouped.
+Majors remain separate, Actions retain full SHA pins, and all updates require manual merge.
+PRs generated from GitHub vulnerability alerts bypass the routine schedule; detection and immediate creation of every security fix are not guaranteed.
+Root npm updates include the pnpm workspace/catalog and root lockfile; `tests/e2e`, `scripts/slop-labeler`, and `scripts/ui-review-bot` keep independent locks.
+CI frozen-lockfile checks catch inconsistencies.
+See the owner cutover steps in [the contribution guide](../../CONTRIBUTING.md#contribution-eligibility).
+
 **Contribution eligibility** is a separate workflow. It posts a status on the
 head commit of every open PR. Maintainers, vouched accounts, and approved bots
 pass without an issue; everyone else has to link an open
