@@ -67,6 +67,61 @@ branch-rule setup are covered in
 [the contribution guide](../../CONTRIBUTING.md#contribution-eligibility). Run
 its tests with `node --test scripts/contribution-eligibility/*.test.mjs`.
 
+## Releasing dependency security fixes
+
+Integrate dependency fixes together with their lockfiles. The application and
+the BrowserStack runner have separate pnpm workspaces; validate frozen installs
+in both. Keep Vite+ and the aliased Vite core on the same release, and commit
+dependency patches with the lockfile that references them. Keep the root Vite
+alias explicit so automatically installed test-tool peers also use the patched
+core. Docker dependency stages must copy those patches before installing.
+
+Use one reviewed security-fix PR, with a conventional `fix(deps):` title so the
+automatic release plan includes it. Land that consolidated change before
+rebasing remaining dependency PRs; close superseded bot updates and review
+unrelated upgrades separately against the new main lockfile.
+
+Before merging, run the dependency regression tests, lint, typechecks, unit
+tests, and builds. CI also checks the bundled image against disposable services,
+including an upgrade from the previous release. A patched dependency can still
+appear in advisory scanners because its upstream version has not changed;
+record the advisory, patch, and regression evidence instead of changing package
+versions to hide the finding.
+
+The root backports cover Node-forge's nested DigestAlgorithm validation
+([GHSA-86w9-cpqp-85rv](https://github.com/advisories/GHSA-86w9-cpqp-85rv),
+[upstream fix](https://github.com/digitalbazaar/forge/pull/1152)) and bounded
+collection validation in Zod 3, including its embedded Zod 4 exports
+([GHSA-mrhx-c7xc-m3w5](https://github.com/advisories/GHSA-mrhx-c7xc-m3w5),
+[upstream fix](https://github.com/colinhacks/zod/pull/6652),
+[Zod 3 tracking](https://github.com/colinhacks/zod/issues/6653)). Run
+`pnpm test:security:dependencies` against the installed dependency graph.
+Remove a backport only when its replacement passes the same regression cases.
+The BrowserStack cache-policy patch and its removal conditions are documented
+in [the test workspace](../../tests/e2e/patches/README.md); run its checks with
+`pnpm --dir tests/e2e test:security`.
+
+Publication is a separate step:
+
+1. Merge the reviewed security fixes and wait for successful CI on that exact
+   main commit. Preview the manual **Release** workflow with `dry_run` enabled,
+   reviewing all changes since the previous app release before choosing a bump.
+   Run **Release** on the same reviewed source when ready. It builds versioned
+   images before publishing and then promotes their tags and publishes Helm.
+2. Publish an MCP update through a separate reviewed version bump in
+   `packages/mcp/package.json` and `packages/mcp/server.json`. The MCP workflow
+   runs on those main-branch changes; editing its dependency ranges alone does
+   not republish an already published version. Verify a packed package in a
+   fresh consumer installation, where repository overrides and patches do not
+   apply. Check the CLI bundle too if its embedded MCP code changes; CLI version
+   bumps have their own publishing workflow.
+3. Rebuild and distribute the mobile app to deliver mobile Markdown fixes.
+   The **Android APK** workflow produces an artifact, not a store release.
+   Apply the normal version/build-number and signing process for each mobile
+   distribution target; an updated server image does not update installed apps.
+
+Do not run release dispatches or change package versions just to validate a fix.
+
 ## Local runtime checks
 
 Use disposable services only. The HTTP helpers refuse non-loopback origins.

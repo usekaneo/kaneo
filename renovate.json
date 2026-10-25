@@ -30,7 +30,7 @@
 		},
 		{
 			"matchManagers": ["github-actions"],
-			"matchUpdateTypes": ["minor", "patch", "digest", "pin"],
+			"matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
 			"groupName": "GitHub Actions non-major updates"
 		}
 	]

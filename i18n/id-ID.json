@@ -3204,7 +3204,10 @@
 		"filterBar": {
 			"label": "Filter aktif",
 			"removeFilter": "Hapus filter {{name}}",
-			"noMatches": "Tidak ada tugas yang cocok dengan pencarian atau filter Anda."
+			"noMatches": "Tidak ada tugas yang cocok dengan pencarian atau filter Anda.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Tambah filter…",

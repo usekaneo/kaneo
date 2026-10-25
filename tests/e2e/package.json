@@ -5,10 +5,11 @@
   "packageManager": "pnpm@10.32.1",
   "scripts": {
     "test": "playwright test",
-    "test:browserstack": "browserstack-node-sdk playwright test"
+    "test:browserstack": "browserstack-node-sdk playwright test",
+    "test:security": "node --test --test-concurrency=1 security/*.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
-    "browserstack-node-sdk": "1.74.0"
+    "browserstack-node-sdk": "1.75.0"
   }
 }

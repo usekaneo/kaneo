@@ -3258,7 +3258,10 @@
 		"filterBar": {
 			"label": "Etkin filtreler",
 			"removeFilter": "{{name}} filtresini kaldır",
-			"noMatches": "Aramanızla veya filtrelerinizle eşleşen görev yok."
+			"noMatches": "Aramanızla veya filtrelerinizle eşleşen görev yok.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Filtre ekle…",
