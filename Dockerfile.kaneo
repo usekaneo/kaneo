@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS api-builder
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS api-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
@@ -42,7 +42,7 @@ RUN pnpm run build
 # Assembles the production node_modules on the BUILD platform (native, no QEMU emulation).
 # All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so this
 # node_modules is architecture-independent and is copied into the runtime stage below.
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS api-runtime
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS api-runtime
 
 WORKDIR /app
 
@@ -68,7 +68,7 @@ COPY --from=api-builder /app/packages/permissions ./packages/permissions
 COPY --from=api-builder /app/packages/importers/dist ./packages/importers/dist
 COPY --from=api-builder /app/packages/mcp/dist ./packages/mcp/dist
 
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS web-builder
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS web-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
@@ -95,9 +95,10 @@ RUN pnpm run build
 WORKDIR /app/apps/web
 RUN pnpm run build && find dist -type f -name '*.map' -delete
 
-FROM node:24.19.0-alpine AS runtime
+FROM node:24.22.1-alpine AS runtime
 
-RUN apk add --no-cache nginx=~1.30.4 && \
+# Alpine replaces older package patches, so accept later security fixes too.
+RUN apk add --no-cache 'nginx>=1.30.6' && \
   addgroup -g 1001 appuser && \
   adduser -u 1001 -G appuser -D appuser && \
   mkdir -p /app /app/apps/api/data /var/lib/kaneo /docker-entrypoint.d && \

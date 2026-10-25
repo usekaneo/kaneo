@@ -1,4 +1,5 @@
 import type { WSContext } from "hono/ws";
+import { workspaceUserTable } from "../../../apps/api/src/database/schema";
 import {
   afterEach,
   beforeEach,
@@ -46,7 +47,7 @@ vi.mock("../../../apps/api/src/database", () => ({
     select: (fields: Record<string, unknown>) => ({
       from: () => ({
         where: () =>
-          fields.role
+          fields.role && fields.userId !== workspaceUserTable.userId
             ? m.admins()
             : fields.userId
               ? m.members()
@@ -623,3 +624,17 @@ it("revokes all remote subscriptions on a deleted-user Redis message", async () 
   );
   expect(ws.close).toHaveBeenCalledWith(1008, "User access revoked");
 });
+
+vi.mock("../../../apps/api/src/ws/project-read-access", () => ({
+  getProjectReadAccess: async (
+    _workspaceId: string,
+    recipients: Array<{ userId: string; apiKeyId?: string }>,
+  ) => ({
+    readers: new Set(recipients.map((conn) => conn.userId)),
+    apiKeys: new Map(
+      recipients.flatMap((conn) =>
+        conn.apiKeyId ? [[conn.apiKeyId, conn.userId] as const] : [],
+      ),
+    ),
+  }),
+}));

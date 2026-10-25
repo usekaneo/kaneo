@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Build stage
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS builder
 
 # Sentry org/project are public identifiers (not secrets). The auth token
 # is the only real secret; it is mounted via `--mount=type=secret` during
@@ -49,7 +49,7 @@ RUN --mount=type=secret,id=SENTRY_AUTH_TOKEN,required=false \
     pnpm run build && find dist -type f -name '*.map' -delete
 
 # Production stage with specific version
-FROM nginx:1.29.5-alpine AS runtime
+FROM nginx:1.30.6-alpine AS runtime
 
 # Only runtime storage needs write access, including for an arbitrary UID.
 RUN addgroup -g 1001 appuser && \

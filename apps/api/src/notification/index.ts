@@ -33,7 +33,7 @@ const listNotificationsRoute = createRoute({
   summary: "List notifications",
   request: { query: notificationWorkspaceQuery },
   description:
-    "Get up to 50 notifications for the current user, read and unread. Optionally limit them to one workspace before applying the limit.",
+    "Get up to 50 notifications for the current user, read and unread. Resource notifications require current read permission and API key scope. Optionally limit them to one workspace before applying the limit.",
   responses: {
     200: jsonResponse("List of notifications", notificationListSchema),
   },
@@ -69,7 +69,7 @@ const markAsReadRoute = createRoute({
   tags: ["Notifications"],
   summary: "Mark notification read",
   description:
-    "Mark one notification as read. Scoped to the current user, so another user's notification is not found.",
+    "Mark one notification as read. Only the current user's notifications with current resource read permission and API key scope are accessible.",
   request: { params: notificationParam },
   responses: {
     200: jsonResponse("The updated notification", notificationSchema),
@@ -84,7 +84,7 @@ const markAsUnreadRoute = createRoute({
   tags: ["Notifications"],
   summary: "Mark notification unread",
   description:
-    "Mark one notification as unread again. Scoped to the current user, so another user's notification is not found.",
+    "Mark one notification as unread again. Only the current user's notifications with current resource read permission and API key scope are accessible.",
   request: { params: notificationParam },
   responses: {
     200: jsonResponse("The updated notification", notificationSchema),
@@ -152,7 +152,11 @@ const deleteNotificationRoute = createRoute({
 const notification = apiRouter()
   .openapi(listNotificationsRoute, async (c) =>
     c.json(
-      await getNotifications(c.get("userId"), c.req.valid("query").workspaceId),
+      await getNotifications(
+        c.get("userId"),
+        c.req.valid("query").workspaceId,
+        c.get("apiKey")?.permissions,
+      ),
       200,
     ),
   )
@@ -180,7 +184,12 @@ const notification = apiRouter()
   })
   .openapi(markAsReadRoute, async (c) =>
     c.json(
-      await setNotificationRead(c.req.valid("param").id, c.get("userId"), true),
+      await setNotificationRead(
+        c.req.valid("param").id,
+        c.get("userId"),
+        true,
+        c.get("apiKey")?.permissions,
+      ),
       200,
     ),
   )
@@ -190,6 +199,7 @@ const notification = apiRouter()
         c.req.valid("param").id,
         c.get("userId"),
         false,
+        c.get("apiKey")?.permissions,
       ),
       200,
     ),

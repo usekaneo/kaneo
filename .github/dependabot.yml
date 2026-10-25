@@ -36,6 +36,24 @@ updates:
           - "minor"
           - "patch"
 
+  - package-ecosystem: "docker"
+    directories:
+      - "/"
+      - "/apps/api"
+      - "/apps/web"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "fix(deps)"
+    groups:
+      container-minor:
+        group-by: dependency-name
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

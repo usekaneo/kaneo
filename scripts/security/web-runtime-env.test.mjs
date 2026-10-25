@@ -17,7 +17,7 @@ import { runInNewContext } from "node:vm";
 const root = resolve(import.meta.dirname, "../..");
 // Uses the production standalone-web runtime, without networking or published ports.
 // Pull this public image explicitly before running the test; never pull implicitly.
-const image = "nginx:1.29.5-alpine";
+const image = "nginx:1.30.6-alpine";
 const scenarios = [
   {
     name: "ordinary URLs",

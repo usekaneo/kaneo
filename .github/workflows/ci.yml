@@ -29,7 +29,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           package-manager-cache: false
       - id: classify
         name: Classify complete pull request diff
@@ -54,7 +54,7 @@ jobs:
           version: 10.32.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           package-manager-cache: false
       - run: pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts
 
@@ -107,7 +107,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           package-manager-cache: false
       - run: npm ci --ignore-scripts
         working-directory: scripts/ui-review-bot
@@ -123,7 +123,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           package-manager-cache: false
       - run: npm ci --ignore-scripts --no-audit --no-fund
         working-directory: scripts/slop-labeler
@@ -147,7 +147,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: pnpm
 
       - id: install
@@ -190,7 +190,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: pnpm
 
       - name: Install dependencies
@@ -198,7 +198,7 @@ jobs:
 
       - name: Test release security controls
         run: |
-          docker pull nginx:1.29.5-alpine
+          docker pull nginx:1.30.6-alpine
           node --test scripts/security/*.test.mjs scripts/ci/*.test.mjs scripts/contribution-eligibility/*.test.mjs
 
       - name: Run unit tests
@@ -222,7 +222,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: pnpm
 
       - name: Install dependencies
@@ -272,7 +272,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: pnpm
 
       - name: Install dependencies
@@ -310,7 +310,7 @@ jobs:
           version: 10.32.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: pnpm
       - run: pnpm install --frozen-lockfile --ignore-scripts --filter @kaneo/api...
       - run: npm ci --ignore-scripts
@@ -403,7 +403,7 @@ jobs:
           version: 10.32.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Start disposable S3 storage
@@ -555,7 +555,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: 24.19.0
+          node-version: 24.22.1
           package-manager-cache: false
       - name: Reject failed, cancelled, and unexpected skipped checks
         env:

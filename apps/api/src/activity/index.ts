@@ -60,11 +60,14 @@ const getActivitiesRoute = createRoute({
   summary: "Get task activity",
   description:
     "Get a task's activity feed, newest first: comments alongside system events such as status and assignee changes. Set limit to request a bounded preview; omit it for the full feed.",
-  middleware: [workspaceAccess.fromTaskId()] as const,
+  middleware: [
+    workspaceAccess.fromTaskId(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskIdParam, query: activitiesQuery },
   responses: {
     200: jsonResponse("List of activities for the task", activityListSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
   },
 });
@@ -134,7 +137,10 @@ const updateCommentRoute = createRoute({
   tags: ["Activity"],
   summary: "Update comment",
   description: "Edit a comment. Only the comment's author may do this.",
-  middleware: [workspaceAccess.fromActivity("activityId")] as const,
+  middleware: [
+    workspaceAccess.fromActivity("activityId"),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
   request: {
     body: {
       required: true,
@@ -144,7 +150,9 @@ const updateCommentRoute = createRoute({
   responses: {
     200: jsonResponse("The updated comment", activitySchema),
     400: errorResponse("Invalid body"),
-    403: errorResponse("Not the author, or no access to the project"),
+    403: errorResponse(
+      "Not the author, no access to the project, or missing task:update permission",
+    ),
     404: errorResponse("Activity or comment not found"),
   },
 });
@@ -156,7 +164,10 @@ const deleteCommentRoute = createRoute({
   tags: ["Activity"],
   summary: "Delete comment",
   description: "Delete a comment. Only the comment's author may do this.",
-  middleware: [workspaceAccess.fromActivity("activityId")] as const,
+  middleware: [
+    workspaceAccess.fromActivity("activityId"),
+    requireWorkspacePermission({ task: ["update"] }),
+  ] as const,
   request: {
     body: {
       required: true,
@@ -166,7 +177,9 @@ const deleteCommentRoute = createRoute({
   responses: {
     200: jsonResponse("The deleted comment", activitySchema),
     400: errorResponse("Invalid body"),
-    403: errorResponse("Not the author, or no access to the project"),
+    403: errorResponse(
+      "Not the author, no access to the project, or missing task:update permission",
+    ),
     404: errorResponse("Activity or comment not found"),
   },
 });

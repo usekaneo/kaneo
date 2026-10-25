@@ -8983,6 +8983,16 @@
               }
             }
           },
+          "403": {
+            "description": "Missing read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Workspace not found",
             "content": {
@@ -9142,7 +9152,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -9391,7 +9401,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -10284,7 +10294,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -10398,7 +10408,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -10661,7 +10671,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -11493,7 +11503,7 @@
           "Tasks"
         ],
         "summary": "Get task by ticket ID",
-        "description": "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
+        "description": "Get a single task by its project key and number, such as KAN-12. Only tasks with current task:read permission and API key scope are considered. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
         "parameters": [
           {
             "schema": {
@@ -11650,7 +11660,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -12024,7 +12034,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -13027,7 +13037,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -13576,7 +13586,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -13854,7 +13864,7 @@
             }
           },
           "403": {
-            "description": "Not the author, or no access to the project",
+            "description": "Not the author, no access to the project, or missing task:update permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -13935,7 +13945,7 @@
             }
           },
           "403": {
-            "description": "Not the author, or no access to the project",
+            "description": "Not the author, no access to the project, or missing task:update permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -14003,7 +14013,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -14339,7 +14349,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -14404,7 +14414,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -14671,7 +14681,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -14730,6 +14740,16 @@
           },
           "401": {
             "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -14898,7 +14918,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -15291,7 +15311,7 @@
           "Notifications"
         ],
         "summary": "List notifications",
-        "description": "Get up to 50 notifications for the current user, read and unread. Optionally limit them to one workspace before applying the limit.",
+        "description": "Get up to 50 notifications for the current user, read and unread. Resource notifications require current read permission and API key scope. Optionally limit them to one workspace before applying the limit.",
         "parameters": [
           {
             "schema": {
@@ -15441,7 +15461,7 @@
           "Notifications"
         ],
         "summary": "Mark notification read",
-        "description": "Mark one notification as read. Scoped to the current user, so another user's notification is not found.",
+        "description": "Mark one notification as read. Only the current user's notifications with current resource read permission and API key scope are accessible.",
         "parameters": [
           {
             "schema": {
@@ -15496,7 +15516,7 @@
           "Notifications"
         ],
         "summary": "Mark notification unread",
-        "description": "Mark one notification as unread again. Scoped to the current user, so another user's notification is not found.",
+        "description": "Mark one notification as unread again. Only the current user's notifications with current resource read permission and API key scope are accessible.",
         "parameters": [
           {
             "schema": {
@@ -16177,6 +16197,16 @@
           },
           "401": {
             "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing read permission for the requested search type",
             "content": {
               "application/json": {
                 "schema": {
@@ -17304,7 +17334,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -17977,7 +18007,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -18605,7 +18635,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -19036,7 +19066,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -19460,7 +19490,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -19834,7 +19864,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -20208,7 +20238,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -20582,7 +20612,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing project:read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -20977,7 +21007,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -21313,7 +21343,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -21464,7 +21494,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {
@@ -21910,7 +21940,7 @@
             }
           },
           "403": {
-            "description": "No access to the project",
+            "description": "No access to the project, or missing read permission",
             "content": {
               "application/json": {
                 "schema": {

@@ -25,11 +25,14 @@ const getTaskTimeEntriesRoute = createRoute({
   tags: ["Time Entries"],
   summary: "Get task time entries",
   description: "Get every time entry logged against a task.",
-  middleware: [workspaceAccess.fromTaskId()] as const,
+  middleware: [
+    workspaceAccess.fromTaskId(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse("List of time entries for the task", timeEntryListSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
   },
 });
@@ -41,11 +44,14 @@ const getTimeEntryRoute = createRoute({
   tags: ["Time Entries"],
   summary: "Get time entry",
   description: "Get a single time entry by ID.",
-  middleware: [workspaceAccess.fromTimeEntry()] as const,
+  middleware: [
+    workspaceAccess.fromTimeEntry(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: timeEntryParam },
   responses: {
     200: jsonResponse("Time entry details", timeEntrySchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Time entry not found"),
   },
 });
