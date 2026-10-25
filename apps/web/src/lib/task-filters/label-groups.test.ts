@@ -49,4 +49,26 @@ describe("label groups", () => {
     expect(expandLabelFilter(labels, ["deleted"])).toEqual(["deleted"]);
     expect(expandLabelFilter(labels, null)).toBeNull();
   });
+
+  it("groups, selects, expands and clears mixed-case colors consistently", () => {
+    const lower = { ...design, id: "lower", color: "#bb87fc" };
+    const upper = { ...lower, id: "upper", color: "#BB87FC" };
+    const mixed = [lower, upper, labels[2]];
+    expect(groupLabels(mixed)).toEqual([lower, labels[2]]);
+    for (const selected of [lower, upper]) {
+      expect(isLabelGroupSelected(mixed, lower, [selected.id])).toBe(true);
+      expect(expandLabelFilter(mixed, [selected.id])).toEqual(
+        expect.arrayContaining([lower.id, upper.id]),
+      );
+      expect(toggleLabelGroup(mixed, upper, [selected.id])).toBeNull();
+    }
+  });
+
+  it("retains a legacy snapshot when some assignments have been deleted", () => {
+    expect(expandLabelFilter(labels, ["deleted", "a2"])).toEqual([
+      "deleted",
+      "a2",
+      "a1",
+    ]);
+  });
 });

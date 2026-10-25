@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it } from "vite-plus/test";
+import { useFilterSubjects } from "@/components/project/task-filters/use-filter-subjects";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
@@ -78,9 +79,7 @@ describe("saved label filters", () => {
 
       const attached = { ...root, id: "new-task-label" };
       const updatedTask = { ...task, labels: [attached] };
-      act(() => {
-        client.setQueryData(["labels", "workspace-1"], [root, attached]);
-      });
+      // Remote assignments patch the task before workspace label options refresh.
       rerender({
         current: {
           ...project,
@@ -97,6 +96,99 @@ describe("saved label filters", () => {
           window.localStorage.getItem("kaneo:board-filters:project-1") ?? "{}",
         ).labels,
       ).toEqual([root.id]);
+
+      rerender({ current: project });
+      expect(result.current.filterTasks([task])).toHaveLength(negated ? 1 : 0);
     },
   );
+
+  it.each([
+    ["red", "red"],
+    ["#bb87fc", "#BB87FC"],
+  ])(
+    "can uncheck a remote %s/%s group with stale workspace options",
+    (color, assignedColor) => {
+      const label = { ...root, color };
+      const client = new QueryClient({
+        defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+      });
+      client.setQueryData(["labels", "workspace-1"], [label]);
+      window.localStorage.setItem(
+        "kaneo:board-filters:project-1",
+        JSON.stringify({ labels: [root.id] }),
+      );
+      const wrapper = ({ children }: { children: ReactNode }) => (
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      );
+      const updatedTask = {
+        ...task,
+        labels: [{ ...label, color: assignedColor, id: "remote-copy" }],
+      };
+      const current = {
+        ...project,
+        columns: [{ ...project.columns[0], tasks: [updatedTask] }],
+      };
+      const { result } = renderHook(
+        () => {
+          const controls = useTaskFiltersWithLabelsSupport(current, current.id);
+          const subjects = useFilterSubjects({
+            controls,
+            options: {
+              labels: [label],
+              members: [],
+              customFields: [],
+              usedCustomFieldValues: {},
+            },
+            tasks: [updatedTask],
+            showStatus: false,
+          });
+          return {
+            controls,
+            labels: subjects.find((subject) => subject.id === "labels")!,
+          };
+        },
+        { wrapper },
+      );
+
+      expect(result.current.controls.filterTasks([updatedTask])).toHaveLength(
+        1,
+      );
+      expect(result.current.labels.options[0]?.count).toBe(1);
+      act(() => result.current.labels.onToggle(root.id));
+      expect(result.current.labels.selected).toEqual([]);
+      expect(result.current.controls.filters.labels).toBeNull();
+      expect(result.current.controls.hasActiveFilters).toBe(false);
+    },
+  );
+
+  it("uses the current task metadata when a saved assignment is renamed", () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    client.setQueryData(["labels", "workspace-1"], [root]);
+    window.localStorage.setItem(
+      "kaneo:board-filters:project-1",
+      JSON.stringify({ labels: [root.id] }),
+    );
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    );
+    const renamedTask = { ...task, labels: [{ ...root, name: "Renamed" }] };
+    const otherTask = {
+      ...task,
+      id: "other",
+      labels: [{ ...root, id: "other-label" }],
+    };
+    const current = {
+      ...project,
+      columns: [{ ...project.columns[0], tasks: [renamedTask, otherTask] }],
+    };
+    const { result } = renderHook(
+      () => useTaskFiltersWithLabelsSupport(current, current.id),
+      { wrapper },
+    );
+    expect(result.current.filterTasks([renamedTask, otherTask])).toEqual([
+      renamedTask,
+    ]);
+  });
 });

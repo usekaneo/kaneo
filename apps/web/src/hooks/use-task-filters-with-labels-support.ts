@@ -1,7 +1,10 @@
 import { useCallback, useMemo } from "react";
 import { countActiveFilters } from "@/lib/task-filters/count-active-filters";
 import { filterProjectTasks } from "@/lib/task-filters/filter-project-tasks";
-import { expandLabelFilter } from "@/lib/task-filters/label-groups";
+import {
+  expandLabelFilter,
+  type FilterLabel,
+} from "@/lib/task-filters/label-groups";
 import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import { setSubjectNegated } from "@/lib/task-filters/set-subject-negated";
 import { taskMatchesFilters } from "@/lib/task-filters/task-matches-filters";
@@ -90,31 +93,38 @@ export function useTaskFiltersWithLabelsSupport(
   const { data: workspaceLabels } = useGetLabelsByWorkspace(
     project?.workspaceId ?? "",
   );
-  const labels = useMemo(
-    () => [
-      ...(workspaceLabels ?? []),
-      ...[
-        ...(project?.columns.flatMap((column) => column.tasks) ?? []),
-        ...(project?.plannedTasks ?? []),
-        ...(project?.archivedTasks ?? []),
-      ].flatMap((task) => task.labels ?? []),
-    ],
-    [workspaceLabels, project],
-  );
+  const labels = useMemo(() => {
+    if (!filters.labels?.length) return [];
+    const byId = new Map<string, FilterLabel>(
+      (workspaceLabels ?? []).map((label) => [label.id, label]),
+    );
+    const tasks = [
+      ...(project?.columns.flatMap((column) => column.tasks) ?? []),
+      ...(project?.plannedTasks ?? []),
+      ...(project?.archivedTasks ?? []),
+    ];
+    for (const task of tasks) {
+      // A live task update may be newer than the workspace-label query.
+      for (const label of task.labels ?? []) byId.set(label.id, label);
+    }
+    return [...byId.values()];
+  }, [workspaceLabels, project, filters.labels]);
 
-  const effectiveFilters = useMemo(() => {
-    const visibleFilters =
+  const effectiveFilters = useMemo(
+    () =>
       ignore.length === 0
         ? filters
         : ({
             ...filters,
             ...Object.fromEntries(ignore.map((key) => [key, null])),
-          } as BoardFilters);
-    return {
-      ...visibleFilters,
-      labels: expandLabelFilter(labels, visibleFilters.labels),
-    };
-  }, [filters, ignore, labels]);
+          } as BoardFilters),
+    [filters, ignore],
+  );
+  // Expansion is matching-only: controls must edit the saved selection.
+  const matchingLabelIds = useMemo(
+    () => new Set(expandLabelFilter(labels, effectiveFilters.labels)),
+    [labels, effectiveFilters.labels],
+  );
 
   const createMatcher = useCallback(() => {
     const context = {
@@ -124,6 +134,7 @@ export function useTaskFiltersWithLabelsSupport(
       weekStartsOn,
       today: new Date(),
       getCustomFieldValues: getValuesForTask,
+      labelIds: matchingLabelIds,
     };
     return (task: Task) => taskMatchesFilters(task, effectiveFilters, context);
   }, [
@@ -133,6 +144,7 @@ export function useTaskFiltersWithLabelsSupport(
     weekStartsOn,
     getValuesForTask,
     descriptionMatches,
+    matchingLabelIds,
   ]);
 
   const filterTasks = useCallback(

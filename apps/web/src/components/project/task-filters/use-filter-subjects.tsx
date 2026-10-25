@@ -9,6 +9,7 @@ import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import {
   groupLabels,
   isLabelGroupSelected,
+  labelGroupKey,
   toggleLabelGroup,
 } from "@/lib/task-filters/label-groups";
 import type { ProjectWithTasks } from "@/types/project";
@@ -74,7 +75,7 @@ export function useFilterSubjects({
 
   const labelGroups = groupLabels(options.labels);
   const groupIdByLabel = new Map(
-    labelGroups.map((group) => [`${group.name}|${group.color}`, group.id]),
+    labelGroups.map((group) => [labelGroupKey(group), group.id]),
   );
   const counts = {
     status: countValues(tasks, (task) => [task.status]),
@@ -82,7 +83,7 @@ export function useFilterSubjects({
     priority: countValues(tasks, (task) => [task.priority]),
     labels: countValues(tasks, (task) =>
       (task.labels ?? []).map((label) =>
-        groupIdByLabel.get(`${label.name}|${label.color}`),
+        groupIdByLabel.get(labelGroupKey(label)),
       ),
     ),
   };
