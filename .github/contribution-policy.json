@@ -28,6 +28,11 @@
 	],
 	"exemptBots": [
 		{
+			"id": 29139614,
+			"login": "renovate[bot]",
+			"reason": "Repository-managed dependency updates."
+		},
+		{
 			"id": 49699333,
 			"login": "dependabot[bot]",
 			"reason": "Repository-managed dependency updates."

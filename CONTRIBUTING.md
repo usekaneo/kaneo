@@ -98,7 +98,7 @@ matters for eligibility; `login` and `reason` are there so people can tell who
 it is and why. That way a renamed account keeps its voucher, and whoever grabs
 an old username doesn't inherit it.
 
-Bots go in `exemptBots`. For now that's just Dependabot.
+Bots go in `exemptBots`. Approved automation includes Renovate and Dependabot. The policy matches each bot's GitHub-verified numeric ID and Bot account type, not a reusable login alone.
 
 To turn on enforcement once this workflow is on `main`:
 
