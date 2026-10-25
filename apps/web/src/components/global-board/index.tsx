@@ -76,8 +76,15 @@ export function GlobalBoard({
     done: useGlobalBoardTasks("done", filters),
     unmapped: useGlobalBoardTasks("unmapped", filters),
   };
-  const loadedTasks = (lane: GlobalBoardLane) =>
-    queries[lane].data?.pages.flatMap((page) => page.tasks) ?? [];
+  // Offset pages overlap when tasks move between page fetches; keep the first.
+  const loadedTasks = (lane: GlobalBoardLane) => {
+    const seen = new Set<string>();
+    return (
+      queries[lane].data?.pages.flatMap((page) =>
+        page.tasks.filter((task) => !seen.has(task.id) && seen.add(task.id)),
+      ) ?? []
+    );
+  };
   const shownTasks = (lane: GlobalBoardLane) =>
     laneTasksDuringDrag(lane, loadedTasks(lane), drag);
 

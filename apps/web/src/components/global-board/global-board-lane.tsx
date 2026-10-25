@@ -12,6 +12,7 @@ import type { GlobalBoardTask } from "@/fetchers/task/get-global-board-tasks";
 import type useGlobalBoardTasks from "@/hooks/queries/task/use-global-board-tasks";
 import GlobalBoardCard from "./global-board-card";
 import type { GlobalBoardLane } from "./global-board-filters";
+import { useLoadMoreOnScroll } from "./use-load-more-on-scroll";
 
 type GlobalBoardLaneProps = {
   lane: GlobalBoardLane;
@@ -48,6 +49,7 @@ export function GlobalBoardLaneColumn({
   });
   const loaded = query.data?.pages.flatMap((page) => page.tasks).length ?? 0;
   const total = query.data?.pages.at(-1)?.pagination.total ?? 0;
+  const loadMoreRef = useLoadMoreOnScroll(query);
 
   return (
     <section
@@ -122,6 +124,7 @@ export function GlobalBoardLaneColumn({
           )}
           {query.hasNextPage && (
             <Button
+              ref={loadMoreRef}
               variant="ghost"
               size="sm"
               className="mt-1.5 w-full shrink-0 text-muted-foreground"
