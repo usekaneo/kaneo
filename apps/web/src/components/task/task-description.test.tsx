@@ -71,6 +71,44 @@ vi.mock("@/lib/shiki-highlighter", () => ({
 }));
 
 describe("TaskDescription", () => {
+  it("pastes Markdown after a language change recreates the editor (#2037)", async () => {
+    const taskId = "markdown-recreated-task";
+    mocks.editor = null;
+    mocks.save.mockClear();
+    mocks.tasks.set(taskId, { id: taskId, description: "" });
+    const { rerender } = render(<TaskDescription taskId={taskId} />);
+    await waitFor(() => expect(mocks.editor?.isDestroyed).toBe(false));
+    const firstEditor = mocks.editor!;
+    const originalT = mocks.t;
+
+    try {
+      mocks.t = (key: string) => key;
+      rerender(<TaskDescription taskId={taskId} />);
+      await waitFor(() => {
+        expect(mocks.editor).not.toBe(firstEditor);
+        expect(mocks.editor?.isDestroyed).toBe(false);
+      });
+      expect(firstEditor.isDestroyed).toBe(true);
+
+      fireEvent.paste(mocks.editor!.view.dom, {
+        clipboardData: {
+          files: [],
+          getData: (type: string) =>
+            type === "text/plain" ? "Status\n---\n22/tcp ALLOW Anywhere" : "",
+        },
+      });
+
+      expect(mocks.editor!.getHTML()).toContain("<h2>Status</h2>");
+      expect(mocks.editor!.getText()).toContain("22/tcp ALLOW Anywhere");
+      await waitFor(() => expect(mocks.save).toHaveBeenCalled());
+      expect(mocks.save.mock.calls.at(-1)![0].description).toContain(
+        "22/tcp ALLOW Anywhere",
+      );
+    } finally {
+      mocks.t = originalT;
+    }
+  });
+
   it("preserves bold Markdown when pasting, saving and reopening a checklist (#1779)", async () => {
     mocks.save.mockClear();
     mocks.tasks.set("markdown-task", { id: "markdown-task", description: "" });
