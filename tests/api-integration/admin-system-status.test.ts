@@ -53,6 +53,7 @@ type SystemStatus = {
   storage: { status: string; configured: boolean; errorCode: string | null };
   auth: {
     passwordSignIn: boolean;
+    emailOtpSignIn: boolean;
     registration: boolean;
     providers: { id: string; name: string; status: string }[];
   };
@@ -282,6 +283,24 @@ describe("admin system status", () => {
     expect(
       body.integrations.find((provider) => provider.type === "github")?.status,
     ).toBe("ok");
+  });
+  it("reports email sign-in codes only when the login form can use them", async () => {
+    smtp.configured.mockReturnValue(true);
+    const admin = await createInstanceAdmin();
+    mockAuthenticatedSession(admin);
+    const auth = async () =>
+      (
+        (await (
+          await projectAccessApi()("/admin/system")
+        ).json()) as SystemStatus
+      ).auth;
+
+    expect((await auth()).emailOtpSignIn).toBe(true);
+    const hidden = await withEnv({ DISABLE_LOGIN_FORM: "true" }, auth);
+    expect(hidden).toMatchObject({
+      passwordSignIn: false,
+      emailOtpSignIn: false,
+    });
   });
 });
 

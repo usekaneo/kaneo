@@ -73,7 +73,11 @@ export function describeAuth() {
 
   return {
     passwordSignIn: !settings.disableLoginForm,
-    emailOtpSignIn: !settings.disableEmailOtpSignIn && settings.hasSmtp,
+    // Mirrors isEmailCodeSignInAvailable in auth.ts.
+    emailOtpSignIn:
+      settings.hasSmtp &&
+      !settings.disableEmailOtpSignIn &&
+      !settings.disableLoginForm,
     registration: !settings.disableRegistration,
     passwordRegistration:
       !settings.disableRegistration && !settings.disablePasswordRegistration,
