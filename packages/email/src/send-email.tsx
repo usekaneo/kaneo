@@ -1,9 +1,16 @@
+import type { ReactElement } from "react";
 import { render } from "react-email";
 import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
 import { instanceHost } from "./components/instance-host";
 import { getSmtpTransportOptions, isSmtpConfigured } from "./smtp-config";
 import { getSmtpErrorDetails } from "./smtp-error-details";
+import AccountPasswordEmail, {
+  type AccountPasswordEmailProps,
+} from "./templates/account-password";
+import EmailVerificationEmail, {
+  type EmailVerificationEmailProps,
+} from "./templates/email-verification";
 import type { MagicLinkEmailProps } from "./templates/magic-link";
 import MagicLinkEmail from "./templates/magic-link";
 import NotificationEmail, {
@@ -168,3 +175,55 @@ export const sendTrialReminderEmail = async (
     console.error("Error sending trial reminder email", error);
   }
 };
+
+/**
+ * Emails an administrator asks Kaneo to send. They report delivery so the
+ * administrator can be told, and throw when the SMTP server rejects them.
+ */
+async function sendAdministratorEmail(
+  kind: string,
+  to: string,
+  subject: string,
+  template: ReactElement,
+): Promise<EmailResult> {
+  if (!isSmtpConfigured()) {
+    return { success: false, reason: "SMTP_NOT_CONFIGURED" };
+  }
+  try {
+    const html = await render(template);
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error(`Error sending ${kind} email`, getSmtpErrorDetails(error));
+    throw new Error(`The ${kind} email could not be sent`);
+  }
+}
+
+export const sendAccountPasswordEmail = (
+  to: string,
+  subject: string,
+  data: AccountPasswordEmailProps,
+) =>
+  sendAdministratorEmail(
+    "account password",
+    to,
+    subject,
+    AccountPasswordEmail({ email: to, instance: instanceHost(), ...data }),
+  );
+
+export const sendEmailVerificationEmail = (
+  to: string,
+  subject: string,
+  data: EmailVerificationEmailProps,
+) =>
+  sendAdministratorEmail(
+    "email verification",
+    to,
+    subject,
+    EmailVerificationEmail({ email: to, instance: instanceHost(), ...data }),
+  );

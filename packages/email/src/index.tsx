@@ -1,5 +1,8 @@
 export { OTP_EXPIRY_SECONDS } from "./otp-expiry";
 export {
+  type EmailResult,
+  sendAccountPasswordEmail,
+  sendEmailVerificationEmail,
   sendMagicLinkEmail,
   sendNotificationEmail,
   sendOtpEmail,
@@ -14,3 +17,4 @@ export type {
   TaskCardPriority,
 } from "./components/task-card";
 export type { NotificationEmailTask } from "./templates/notification";
+export type { AccountPasswordPurpose } from "./templates/account-password";
