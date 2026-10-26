@@ -1,13 +1,16 @@
 export type FilterLabel = { id: string; name: string; color: string };
 
-const sameGroup = (left: FilterLabel, right: FilterLabel) =>
-  left.name === right.name && left.color === right.color;
+export const labelGroupKey = (label: FilterLabel) =>
+  JSON.stringify([label.name, label.color.toLowerCase()]);
 
 export function groupLabels(labels: FilterLabel[]): FilterLabel[] {
-  return labels.filter(
-    (label, index) =>
-      labels.findIndex((other) => sameGroup(other, label)) === index,
-  );
+  const seen = new Set<string>();
+  return labels.filter((label) => {
+    const key = labelGroupKey(label);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function isLabelGroupSelected(
@@ -15,8 +18,10 @@ export function isLabelGroupSelected(
   group: FilterLabel,
   selected: string[] | null | undefined,
 ) {
+  const key = labelGroupKey(group);
+  const selectedIds = new Set(selected);
   return labels.some(
-    (label) => sameGroup(label, group) && (selected ?? []).includes(label.id),
+    (label) => selectedIds.has(label.id) && labelGroupKey(label) === key,
   );
 }
 
@@ -25,12 +30,31 @@ export function toggleLabelGroup(
   group: FilterLabel,
   selected: string[] | null | undefined,
 ): string[] | null {
-  const groupIds = labels
-    .filter((label) => sameGroup(label, group))
-    .map((label) => label.id);
+  const key = labelGroupKey(group);
+  const groupIds = new Set(
+    labels
+      .filter((label) => labelGroupKey(label) === key)
+      .map((label) => label.id),
+  );
   const current = selected ?? [];
-  const next = isLabelGroupSelected(labels, group, current)
-    ? current.filter((id) => !groupIds.includes(id))
-    : [...current, ...groupIds.filter((id) => !current.includes(id))];
+  const selectedIds = new Set(current);
+  const next = current.some((id) => groupIds.has(id))
+    ? current.filter((id) => !groupIds.has(id))
+    : [...current, ...[...groupIds].filter((id) => !selectedIds.has(id))];
   return next.length > 0 ? next : null;
+}
+
+export function expandLabelFilter(
+  labels: FilterLabel[],
+  selected: string[] | null,
+): string[] | null {
+  if (!selected?.length) return selected;
+  const selectedIds = new Set(selected);
+  const selectedGroups = new Set(
+    labels.filter((label) => selectedIds.has(label.id)).map(labelGroupKey),
+  );
+  for (const label of labels) {
+    if (selectedGroups.has(labelGroupKey(label))) selectedIds.add(label.id);
+  }
+  return [...selectedIds];
 }

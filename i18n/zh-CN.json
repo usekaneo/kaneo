@@ -148,7 +148,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"lagoon": "泻湖青",
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
 				},
 				"statusLoadError": "项目状态加载失败。"
 			}
@@ -754,6 +758,10 @@
 			"projectBackgrounds": "项目背景",
 			"projectBackgroundsDescription": "显示项目为看板设置的背景图片。",
 			"advancedTitle": "高级"
+		},
+		"managedProfile": {
+			"note": "由你的组织管理。",
+			"edit": "在 {{provider}} 中编辑"
 		},
 		"developerPage": {
 			"pageTitle": "API 密钥",
@@ -1555,6 +1563,8 @@
 			"noDefault": "无默认值",
 			"optionsLabel": "选项",
 			"removeOptionAria": "移除 {{option}}",
+			"hideOptionAria": "在新选择中隐藏 {{option}}",
+			"showOptionAria": "在新选择中重新提供 {{option}}",
 			"renameOptionAria": "重命名 {{option}}",
 			"requiredDescription": "每个任务始终都有值。",
 			"save": "保存",
@@ -2957,7 +2967,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"lagoon": "泻湖青",
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
 				},
 				"editLabels": "编辑标签"
 			}
@@ -3208,7 +3222,10 @@
 		"filterBar": {
 			"label": "已应用的筛选",
 			"removeFilter": "移除“{{name}}”筛选",
-			"noMatches": "没有任务符合你的搜索或筛选条件。"
+			"noMatches": "没有任务符合你的搜索或筛选条件。",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "添加筛选…",
@@ -4021,9 +4038,13 @@
 				"amber": "琥珀",
 				"crimson": "深红",
 				"forest": "森林绿",
+				"lagoon": "泻湖青",
 				"lavender": "薰衣草",
+				"ocean": "海洋蓝",
+				"orchid": "兰花紫",
 				"rose": "玫红",
 				"sage": "鼠尾草绿",
+				"sky": "天空蓝",
 				"slate": "石板蓝",
 				"stone": "石板灰",
 				"terracotta": "赤陶"

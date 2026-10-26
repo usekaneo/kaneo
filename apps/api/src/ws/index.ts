@@ -6,6 +6,7 @@ import type { WSContext } from "hono/ws";
 import db from "../database";
 import {
   projectTable,
+  sessionTable,
   userTable,
   workspaceUserTable,
 } from "../database/schema";
@@ -31,6 +32,7 @@ import type {
 } from "./broadcast-adapter";
 import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
+import { getProjectReadAccess } from "./project-read-access";
 
 const INSTANCE_ID = randomUUID();
 let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
@@ -43,11 +45,17 @@ type ProjectConnection = {
   userId: string;
   initiatorId: string;
   workspaceId: string;
+  sessionId: string | null;
+  apiKeyId?: string;
 };
 
 type UserConnection = {
   ws: WSContext;
+  sessionId: string | null;
 };
+
+// Only sockets of an ended session get this code, so the web rechecks its cookie.
+export const SESSION_ENDED_CLOSE_CODE = 4001;
 
 /**
  * User-scoped connections: tracks WebSocket connections keyed by userId.
@@ -55,11 +63,15 @@ type UserConnection = {
  */
 const userConnections = new Map<string, Set<UserConnection>>();
 
-export function addUserConnection(userId: string, ws: WSContext) {
+export function addUserConnection(
+  userId: string,
+  ws: WSContext,
+  sessionId: string | null = null,
+) {
   if (!userConnections.has(userId)) {
     userConnections.set(userId, new Set());
   }
-  const conn: UserConnection = { ws };
+  const conn: UserConnection = { ws, sessionId };
   userConnections.get(userId)?.add(conn);
   return conn;
 }
@@ -88,10 +100,44 @@ export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
     });
 }
 
+function closeLocalSessionConnections(
+  userId: string,
+  sessionIds: ReadonlySet<string>,
+) {
+  const ended = (sessionId: string | null) =>
+    sessionId !== null && sessionIds.has(sessionId);
+  for (const [projectId, connections] of projectConnections)
+    for (const conn of [...connections]) {
+      if (conn.userId !== userId || !ended(conn.sessionId)) continue;
+      removeConnection(projectId, conn);
+      try {
+        conn.ws.close(SESSION_ENDED_CLOSE_CODE, "Session ended");
+      } catch {
+        /* Already closed. */
+      }
+    }
+  for (const conn of [...(userConnections.get(userId) ?? [])]) {
+    if (!ended(conn.sessionId)) continue;
+    removeUserConnection(userId, conn);
+    try {
+      conn.ws.close(SESSION_ENDED_CLOSE_CODE, "Session ended");
+    } catch {
+      /* Already closed. */
+    }
+  }
+}
+
 function deliverToLocalUserConnections(
   userId: string,
   message: UserBroadcastMessage,
 ) {
+  if (message.type === "SESSIONS_ENDED") {
+    const sessionIds = Array.isArray(message.sessionIds)
+      ? message.sessionIds.filter((id): id is string => typeof id === "string")
+      : [];
+    closeLocalSessionConnections(userId, new Set(sessionIds));
+    return;
+  }
   if (
     message.type === "WORKSPACE_ACCESS_REVOKED" &&
     typeof message.workspaceId === "string"
@@ -221,6 +267,7 @@ export async function initializeWebSocketAdapter() {
             [...connections].map(({ ws }) => syncWorkspaceAccess(userId, ws)),
           ),
           recheckLocalProjectAccess(),
+          recheckLocalSessions(),
         ]);
       },
     );
@@ -375,8 +422,50 @@ async function recheckLocalProjectAccess() {
   );
 }
 
+async function recheckLocalSessions() {
+  const sessionsByUser = new Map<string, Set<string>>();
+  const note = (userId: string, sessionId: string | null) => {
+    if (sessionId === null) return;
+    const sessionIds = sessionsByUser.get(userId) ?? new Set<string>();
+    sessionsByUser.set(userId, sessionIds.add(sessionId));
+  };
+  for (const [userId, connections] of userConnections)
+    for (const conn of connections) note(userId, conn.sessionId);
+  for (const connections of projectConnections.values())
+    for (const conn of connections) note(conn.userId, conn.sessionId);
+  const ids = [...sessionsByUser.values()].flatMap((sessionIds) => [
+    ...sessionIds,
+  ]);
+  if (ids.length === 0) return;
+  let existing: Set<string>;
+  try {
+    const rows = await db
+      .select({ id: sessionTable.id })
+      .from(sessionTable)
+      .where(inArray(sessionTable.id, ids));
+    existing = new Set(rows.map((row) => row.id));
+  } catch (error) {
+    console.error("Failed to verify realtime sessions:", error);
+    return;
+  }
+  for (const [userId, sessionIds] of sessionsByUser) {
+    const ended = new Set([...sessionIds].filter((id) => !existing.has(id)));
+    if (ended.size > 0) closeLocalSessionConnections(userId, ended);
+  }
+}
+
 export async function revokeUserConnections(userId: string) {
   const message = { type: "USER_ACCESS_REVOKED" };
+  deliverToLocalUserConnections(userId, message);
+  await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
+}
+
+export async function revokeSessionConnections(
+  userId: string,
+  sessionIds: string[],
+) {
+  if (sessionIds.length === 0) return;
+  const message = { type: "SESSIONS_ENDED", sessionIds };
   deliverToLocalUserConnections(userId, message);
   await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
 }
@@ -459,15 +548,27 @@ const authorizationLookups = new Map<
     workspaceId: string | null;
     members: Set<string>;
     restricted: Set<string>;
+    readers: Set<string>;
+    apiKeys: Map<string, string>;
   } | null>
 >();
 function currentBroadcastAccess(
   projectId: string,
-  recipients: Array<{ userId: string }>,
+  recipients: Array<{ userId: string; apiKeyId?: string }>,
   authorizationBatch: string,
 ) {
   const userIds = [...new Set(recipients.map((conn) => conn.userId))].sort();
-  const key = JSON.stringify([projectId, authorizationBatch, userIds]);
+  const apiKeyIds = [
+    ...new Set(
+      recipients.flatMap((conn) => (conn.apiKeyId ? [conn.apiKeyId] : [])),
+    ),
+  ].sort();
+  const key = JSON.stringify([
+    projectId,
+    authorizationBatch,
+    userIds,
+    apiKeyIds,
+  ]);
   let pending = authorizationLookups.get(key);
   if (!pending) {
     pending = (async () => {
@@ -480,11 +581,16 @@ function currentBroadcastAccess(
       }
       let members = new Set<string>();
       let restricted = new Set<string>();
+      let readers = new Set<string>();
+      let apiKeys = new Map<string, string>();
       if (workspaceId) {
         try {
           const [rows, permitted] = await Promise.all([
             db
-              .select({ userId: workspaceUserTable.userId })
+              .select({
+                userId: workspaceUserTable.userId,
+                role: workspaceUserTable.role,
+              })
               .from(workspaceUserTable)
               .where(
                 and(
@@ -498,6 +604,11 @@ function currentBroadcastAccess(
           restricted = new Set(
             userIds.filter((userId) => !permitted.has(userId)),
           );
+          ({ readers, apiKeys } = await getProjectReadAccess(
+            workspaceId,
+            recipients,
+            rows,
+          ));
           const nonmembers = userIds.filter((userId) => !members.has(userId));
           if (nonmembers.length > 0) {
             const admins = await db
@@ -516,7 +627,7 @@ function currentBroadcastAccess(
           return null;
         }
       }
-      return { workspaceId, members, restricted };
+      return { workspaceId, members, restricted, readers, apiKeys };
     })().finally(() => authorizationLookups.delete(key));
     authorizationLookups.set(key, pending);
   }
@@ -542,7 +653,7 @@ async function deliverToLocalConnections(
     authorizationBatch,
   );
   if (!access) return;
-  const { workspaceId, members, restricted } = access;
+  const { workspaceId, members, restricted, readers, apiKeys } = access;
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.
@@ -554,7 +665,10 @@ async function deliverToLocalConnections(
           ? "Workspace access revoked"
           : restricted.has(conn.userId)
             ? "Project access revoked"
-            : null;
+            : !readers.has(conn.userId) ||
+                (conn.apiKeyId && apiKeys.get(conn.apiKeyId) !== conn.userId)
+              ? "Read permission revoked"
+              : null;
     if (revoked) {
       removeConnection(projectId, conn);
       try {
@@ -579,11 +693,20 @@ export function addConnection(
   userId: string,
   initiatorId: string,
   workspaceId: string,
+  apiKeyId?: string,
+  sessionId: string | null = null,
 ) {
   if (!projectConnections.has(projectId)) {
     projectConnections.set(projectId, new Set());
   }
-  const conn: ProjectConnection = { ws, userId, initiatorId, workspaceId };
+  const conn: ProjectConnection = {
+    ws,
+    userId,
+    initiatorId,
+    workspaceId,
+    sessionId,
+    ...(apiKeyId ? { apiKeyId } : {}),
+  };
   projectConnections.get(projectId)?.add(conn);
   return conn;
 }

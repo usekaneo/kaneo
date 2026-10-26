@@ -135,6 +135,7 @@ export async function decideMcpAuthorizationRequest(params: {
     {
       clientId: request.clientId,
       userId: session.user.id,
+      sessionId: session.session.id,
       codeChallenge: request.codeChallenge,
       redirectUri: request.redirectUri,
     },

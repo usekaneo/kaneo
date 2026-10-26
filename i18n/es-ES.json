@@ -148,7 +148,11 @@
 					"amber": "Ámbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesí"
+					"crimson": "Carmesí",
+					"lagoon": "Laguna",
+					"ocean": "Océano",
+					"orchid": "Orquídea",
+					"sky": "Cielo"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -645,6 +649,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Muestra la imagen que un proyecto pone detrás de su tablero.",
 			"advancedTitle": "Avanzado"
+		},
+		"managedProfile": {
+			"note": "Gestionado por tu organización.",
+			"edit": "Editar en {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Claves de API",
@@ -1573,6 +1581,8 @@
 			"noDefault": "Sin valor por defecto",
 			"optionsLabel": "Opciones",
 			"removeOptionAria": "Quitar {{option}}",
+			"hideOptionAria": "Ocultar {{option}} en nuevas selecciones",
+			"showOptionAria": "Volver a ofrecer {{option}} en nuevas selecciones",
 			"renameOptionAria": "Renombrar {{option}}",
 			"requiredDescription": "Todas las tareas tienen siempre un valor.",
 			"save": "Guardar",
@@ -3040,7 +3050,11 @@
 					"amber": "Ámbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesí"
+					"crimson": "Carmesí",
+					"lagoon": "Laguna",
+					"ocean": "Océano",
+					"orchid": "Orquídea",
+					"sky": "Cielo"
 				},
 				"editLabels": "Editar etiquetas"
 			}
@@ -3316,7 +3330,10 @@
 		"filterBar": {
 			"label": "Filtros activos",
 			"removeFilter": "Quitar filtro de {{name}}",
-			"noMatches": "Ninguna tarea coincide con tu búsqueda o tus filtros."
+			"noMatches": "Ninguna tarea coincide con tu búsqueda o tus filtros.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Añadir filtro…",
@@ -4450,7 +4467,11 @@
 				"amber": "Ámbar",
 				"terracotta": "Terracota",
 				"rose": "Rosa",
-				"crimson": "Carmesí"
+				"crimson": "Carmesí",
+				"ocean": "Océano",
+				"sky": "Cielo",
+				"lagoon": "Laguna",
+				"orchid": "Orquídea"
 			},
 			"role": {
 				"owner": "Propietario",

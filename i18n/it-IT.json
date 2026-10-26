@@ -148,7 +148,11 @@
 					"amber": "Ambra",
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
-					"crimson": "Cremisi"
+					"crimson": "Cremisi",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orchidea",
+					"sky": "Cielo"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -770,6 +774,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Mostra l'immagine che un progetto imposta dietro la sua board.",
 			"advancedTitle": "Avanzate"
+		},
+		"managedProfile": {
+			"note": "Gestito dalla tua organizzazione.",
+			"edit": "Modifica in {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Chiavi API",
@@ -1573,6 +1581,8 @@
 			"noDefault": "Nessun valore predefinito",
 			"optionsLabel": "Opzioni",
 			"removeOptionAria": "Rimuovi {{option}}",
+			"hideOptionAria": "Nascondi {{option}} dalle nuove selezioni",
+			"showOptionAria": "Offri di nuovo {{option}} per le nuove selezioni",
 			"renameOptionAria": "Rinomina {{option}}",
 			"requiredDescription": "Ogni attività ha sempre un valore.",
 			"save": "Salva",
@@ -3051,7 +3061,11 @@
 					"amber": "Ambra",
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
-					"crimson": "Cremisi"
+					"crimson": "Cremisi",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orchidea",
+					"sky": "Cielo"
 				},
 				"editLabels": "Modifica etichette"
 			}
@@ -3316,7 +3330,10 @@
 		"filterBar": {
 			"label": "Filtri attivi",
 			"removeFilter": "Rimuovi filtro {{name}}",
-			"noMatches": "Nessuna attività corrisponde alla tua ricerca o ai tuoi filtri."
+			"noMatches": "Nessuna attività corrisponde alla tua ricerca o ai tuoi filtri.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Aggiungi filtro…",
@@ -4450,7 +4467,11 @@
 				"amber": "Ambra",
 				"terracotta": "Terracotta",
 				"rose": "Rosa",
-				"crimson": "Cremisi"
+				"crimson": "Cremisi",
+				"ocean": "Oceano",
+				"sky": "Cielo",
+				"lagoon": "Laguna",
+				"orchid": "Orchidea"
 			},
 			"role": {
 				"owner": "Proprietario",

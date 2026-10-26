@@ -148,7 +148,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -640,6 +644,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Toon de afbeelding die een project achter het bord instelt.",
 			"advancedTitle": "Geavanceerd"
+		},
+		"managedProfile": {
+			"note": "Beheerd door je organisatie.",
+			"edit": "Bewerken in {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "API-sleutels",
@@ -1564,6 +1572,8 @@
 			"noDefault": "Geen standaardwaarde",
 			"optionsLabel": "Opties",
 			"removeOptionAria": "{{option}} verwijderen",
+			"hideOptionAria": "{{option}} verbergen voor nieuwe selecties",
+			"showOptionAria": "{{option}} weer aanbieden voor nieuwe selecties",
 			"renameOptionAria": "{{option}} hernoemen",
 			"requiredDescription": "Elke taak heeft altijd een waarde.",
 			"save": "Opslaan",
@@ -2993,7 +3003,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"editLabels": "Labels bewerken"
 			}
@@ -3262,7 +3276,10 @@
 		"filterBar": {
 			"label": "Actieve filters",
 			"removeFilter": "Filter {{name}} verwijderen",
-			"noMatches": "Geen taken komen overeen met je zoekopdracht of filters."
+			"noMatches": "Geen taken komen overeen met je zoekopdracht of filters.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Filter toevoegen…",
@@ -4088,9 +4105,13 @@
 				"amber": "Amber",
 				"crimson": "Karmozijn",
 				"forest": "Bos",
+				"lagoon": "Lagune",
 				"lavender": "Lavendel",
+				"ocean": "Oceaan",
+				"orchid": "Orchidee",
 				"rose": "Roos",
 				"sage": "Salie",
+				"sky": "Hemel",
 				"slate": "Leisteen",
 				"stone": "Steen",
 				"terracotta": "Terracotta"

@@ -148,7 +148,11 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"lagoon": "Xanh ngọc",
+					"ocean": "Xanh đại dương",
+					"orchid": "Tím phong lan",
+					"sky": "Xanh da trời"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -754,6 +758,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Hiển thị hình ảnh mà dự án đặt làm nền bảng.",
 			"advancedTitle": "Nâng cao"
+		},
+		"managedProfile": {
+			"note": "Được quản lý bởi tổ chức của bạn.",
+			"edit": "Chỉnh sửa trong {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Khóa API",
@@ -1555,6 +1563,8 @@
 			"noDefault": "Không có mặc định",
 			"optionsLabel": "Tùy chọn",
 			"removeOptionAria": "Gỡ {{option}}",
+			"hideOptionAria": "Ẩn {{option}} khỏi lựa chọn mới",
+			"showOptionAria": "Hiển thị lại {{option}} cho lựa chọn mới",
 			"renameOptionAria": "Đổi tên {{option}}",
 			"requiredDescription": "Mọi công việc luôn có giá trị.",
 			"save": "Lưu",
@@ -2957,7 +2967,11 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"lagoon": "Xanh ngọc",
+					"ocean": "Xanh đại dương",
+					"orchid": "Tím phong lan",
+					"sky": "Xanh da trời"
 				},
 				"editLabels": "Chỉnh sửa nhãn"
 			}
@@ -3208,7 +3222,10 @@
 		"filterBar": {
 			"label": "Bộ lọc đang áp dụng",
 			"removeFilter": "Xóa bộ lọc {{name}}",
-			"noMatches": "Không có công việc nào khớp với tìm kiếm hoặc bộ lọc của bạn."
+			"noMatches": "Không có công việc nào khớp với tìm kiếm hoặc bộ lọc của bạn.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Thêm bộ lọc…",
@@ -4300,7 +4317,11 @@
 				"amber": "Hổ phách",
 				"terracotta": "Đất nung",
 				"rose": "Hồng",
-				"crimson": "Đỏ thẫm"
+				"crimson": "Đỏ thẫm",
+				"ocean": "Xanh đại dương",
+				"sky": "Xanh da trời",
+				"lagoon": "Xanh ngọc",
+				"orchid": "Tím phong lan"
 			},
 			"role": {
 				"owner": "Chủ sở hữu",

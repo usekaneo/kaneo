@@ -148,7 +148,11 @@
 					"amber": "Kəhrəba rəngi",
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
-					"crimson": "Tünd qırmızı"
+					"crimson": "Tünd qırmızı",
+					"lagoon": "Laqun rəngi",
+					"ocean": "Okean mavisi",
+					"orchid": "Orxideya rəngi",
+					"sky": "Səma mavisi"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -762,6 +766,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Layihənin öz lövhəsi üçün təyin etdiyi arxa fon şəklini göstər.",
 			"advancedTitle": "Qabaqcıl"
+		},
+		"managedProfile": {
+			"note": "Təşkilatınız tərəfindən idarə olunur.",
+			"edit": "{{provider}} vasitəsilə redaktə et"
 		},
 		"developerPage": {
 			"pageTitle": "API açarları",
@@ -1564,6 +1572,8 @@
 			"noDefault": "Standart dəyər yoxdur",
 			"optionsLabel": "Seçimlər",
 			"removeOptionAria": "{{option}} seçimini çıxar",
+			"hideOptionAria": "{{option}} seçimini yeni seçimlərdən gizlət",
+			"showOptionAria": "{{option}} seçimini yeni seçimlər üçün yenidən göstər",
 			"renameOptionAria": "{{option}} seçiminin adını dəyiş",
 			"requiredDescription": "Hər tapşırığın həmişə dəyəri olur.",
 			"save": "Yadda saxla",
@@ -3004,7 +3014,11 @@
 					"amber": "Kəhrəba rəngi",
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
-					"crimson": "Tünd qırmızı"
+					"crimson": "Tünd qırmızı",
+					"lagoon": "Laqun rəngi",
+					"ocean": "Okean mavisi",
+					"orchid": "Orxideya rəngi",
+					"sky": "Səma mavisi"
 				},
 				"editLabels": "Etiketləri redaktə et"
 			}
@@ -3262,7 +3276,10 @@
 		"filterBar": {
 			"label": "Aktiv süzgəclər",
 			"removeFilter": "{{name}} süzgəcini sil",
-			"noMatches": "Axtarışınıza və ya süzgəclərinizə uyğun tapşırıq yoxdur."
+			"noMatches": "Axtarışınıza və ya süzgəclərinizə uyğun tapşırıq yoxdur.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Süzgəc əlavə et…",
@@ -4088,9 +4105,13 @@
 				"amber": "Kəhrəba",
 				"crimson": "Al qırmızı",
 				"forest": "Meşə",
+				"lagoon": "Laqun rəngi",
 				"lavender": "Lavanda",
+				"ocean": "Okean mavisi",
+				"orchid": "Orxideya rəngi",
 				"rose": "Çəhrayı",
 				"sage": "Adaçayı",
+				"sky": "Səma mavisi",
 				"slate": "Şifer",
 				"stone": "Daş",
 				"terracotta": "Terrakota"

@@ -49,6 +49,7 @@ const platforms: CustomFieldDefinition = {
   required: false,
   defaultValue: '["Web"]',
   options: ["iOS", "Web"],
+  hiddenOptions: [],
   position: 0,
   createdAt: "",
   updatedAt: "",
@@ -203,10 +204,60 @@ describe("CustomFieldDialog", () => {
           required: false,
           defaultValue: null,
           options: ["iOS", "Android"],
+          hiddenOptions: [],
         },
       }),
     );
     expect(m.createField).not.toHaveBeenCalled();
+  });
+
+  it("hides an option when editing and drops it from the default", async () => {
+    const { dialog } = renderDialog(platforms);
+    const hide = within(dialog).getAllByRole("button", {
+      name: "settings:customFields.hideOptionAria",
+    })[1];
+    expect(hide).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(hide);
+    expect(
+      within(dialog).getAllByRole("button", {
+        name: "settings:customFields.showOptionAria",
+      }),
+    ).toHaveLength(1);
+
+    fireEvent.click(
+      within(dialog).getByRole("button", {
+        name: "settings:customFields.save",
+      }),
+    );
+    await waitFor(() =>
+      expect(m.updateField).toHaveBeenCalledWith({
+        id: "f1",
+        data: expect.objectContaining({
+          defaultValue: null,
+          options: ["iOS", "Web"],
+          hiddenOptions: ["Web"],
+        }),
+      }),
+    );
+  });
+
+  it("offers no hide control while creating a field", () => {
+    const { dialog } = renderDialog();
+    fireEvent.click(
+      within(dialog).getByRole("radio", {
+        name: "settings:customFields.types.dropdown",
+      }),
+    );
+    const addOption = within(dialog).getByRole("textbox", {
+      name: "settings:customFields.addOption",
+    });
+    fireEvent.change(addOption, { target: { value: "Small" } });
+    fireEvent.keyDown(addOption, { key: "Enter" });
+    expect(
+      within(dialog).queryByRole("button", {
+        name: "settings:customFields.hideOptionAria",
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps the dialog open and shows the API error", async () => {

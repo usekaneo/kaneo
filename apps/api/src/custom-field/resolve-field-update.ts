@@ -4,6 +4,7 @@ import {
   convertChoiceValue,
   isChoiceType,
   normalizeOptions,
+  readHiddenOptions,
   readOptions,
 } from "./choice-options";
 
@@ -13,6 +14,7 @@ export type CurrentCustomField = {
   required: boolean;
   defaultValue: string | null;
   options: unknown;
+  hiddenOptions: unknown;
 };
 
 export type CustomFieldUpdateInput = {
@@ -21,6 +23,7 @@ export type CustomFieldUpdateInput = {
   required?: boolean;
   defaultValue?: string | null;
   options?: string[];
+  hiddenOptions?: string[];
 };
 
 export type ResolvedFieldUpdate = {
@@ -29,6 +32,7 @@ export type ResolvedFieldUpdate = {
   required: boolean;
   defaultValue: string | null;
   options: unknown;
+  hiddenOptions: string[];
   removedOptions: string[];
 };
 
@@ -83,7 +87,10 @@ export function resolveFieldUpdate(
   const name = input.name === undefined ? field.name : input.name.trim();
   if (!name) badRequest("Name cannot be empty");
 
-  if (input.options !== undefined && !isChoiceType(type)) {
+  if (
+    (input.options !== undefined || input.hiddenOptions !== undefined) &&
+    !isChoiceType(type)
+  ) {
     badRequest("Only dropdown and multiselect fields have options");
   }
 
@@ -94,10 +101,24 @@ export function resolveFieldUpdate(
       : normalizeOptions(input.options)
     : null;
 
+  // Without new hidden options, keep the old ones that are still options.
+  const hiddenOptions = !options
+    ? []
+    : input.hiddenOptions === undefined
+      ? readHiddenOptions(field.hiddenOptions, options)
+      : normalizeOptions(input.hiddenOptions);
+
   const required = input.required ?? field.required;
   const defaultValue = resolveDefault(field, type, input.defaultValue);
 
-  assertValidDefinition({ name, type, required, defaultValue, options });
+  assertValidDefinition({
+    name,
+    type,
+    required,
+    defaultValue,
+    options,
+    hiddenOptions,
+  });
 
   return {
     name,
@@ -105,6 +126,7 @@ export function resolveFieldUpdate(
     required,
     defaultValue,
     options: options ?? field.options,
+    hiddenOptions,
     removedOptions: options
       ? previousOptions.filter((option) => !options.includes(option))
       : [],

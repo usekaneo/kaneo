@@ -29,6 +29,8 @@ const m = vi.hoisted(() => ({
   inviteMember: vi.fn(),
   checkout: vi.fn(),
   signOut: vi.fn(),
+  useSignOut: vi.fn(),
+  toastError: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
@@ -37,6 +39,12 @@ vi.mock("@tanstack/react-router", async (importOriginal) => ({
 }));
 vi.mock("@/hooks/queries/config/use-get-config", () => ({
   default: () => m.config(),
+}));
+vi.mock("@/hooks/mutations/use-sign-out", () => ({
+  default: (logoutUrl?: string | null) => m.useSignOut(logoutUrl),
+}));
+vi.mock("@/lib/toast", () => ({
+  toast: { error: m.toastError, success: vi.fn() },
 }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
@@ -90,6 +98,7 @@ beforeEach(() => {
   m.getBilling.mockResolvedValue({ billingEnabled: false });
   m.inviteMember.mockResolvedValue({ id: "invite-1" });
   m.signOut.mockResolvedValue({});
+  m.useSignOut.mockReturnValue({ mutateAsync: m.signOut });
 });
 
 afterEach(() => {
@@ -237,10 +246,41 @@ describe("OnboardingFlow steps", () => {
       screen.getByRole("button", { name: "auth:onboarding.signOut" }),
     );
 
-    await waitFor(() =>
-      expect(m.navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" }),
+    await waitFor(() => expect(m.signOut).toHaveBeenCalledTimes(1));
+    expect(m.navigate).not.toHaveBeenCalled();
+  });
+
+  it("uses the configured provider logout without a competing sign-in navigation", async () => {
+    m.config.mockReturnValue({
+      data: { customOAuthLogoutUrl: "https://idp.example.test/end-session" },
+      isPending: false,
+    });
+    render(<OnboardingFlow />);
+    await settled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.signOut" }),
     );
-    expect(m.signOut).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => expect(m.signOut).toHaveBeenCalledTimes(1));
+    expect(m.useSignOut).toHaveBeenCalledWith(
+      "https://idp.example.test/end-session",
+    );
+    expect(m.navigate).not.toHaveBeenCalled();
+  });
+
+  it("stays on onboarding and reports a failed sign-out", async () => {
+    m.signOut.mockRejectedValueOnce(new Error("Could not sign out"));
+    render(<OnboardingFlow />);
+    await settled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.signOut" }),
+    );
+
+    await waitFor(() =>
+      expect(m.toastError).toHaveBeenCalledWith("Could not sign out"),
+    );
+    expect(m.navigate).not.toHaveBeenCalled();
+    expect(creationForm()).toBeInTheDocument();
   });
 });
 

@@ -148,7 +148,11 @@
 					"amber": "Bernstein",
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
-					"crimson": "Karmesinrot"
+					"crimson": "Karmesinrot",
+					"lagoon": "Lagune",
+					"ocean": "Ozean",
+					"orchid": "Orchidee",
+					"sky": "Himmel"
 				},
 				"statusLoadError": "Die Projektstatus konnten nicht geladen werden."
 			}
@@ -839,6 +843,10 @@
 			"projectBackgrounds": "Projekthintergründe",
 			"projectBackgroundsDescription": "Das Hintergrundbild eines Projekts hinter seinem Board anzeigen.",
 			"advancedTitle": "Erweitert"
+		},
+		"managedProfile": {
+			"note": "Von deiner Organisation verwaltet.",
+			"edit": "In {{provider}} bearbeiten"
 		},
 		"developerPage": {
 			"pageTitle": "API-Schlüssel",
@@ -1641,6 +1649,8 @@
 			"noDefault": "Kein Standardwert",
 			"optionsLabel": "Optionen",
 			"removeOptionAria": "{{option}} entfernen",
+			"hideOptionAria": "{{option}} für neue Auswahlen ausblenden",
+			"showOptionAria": "{{option}} wieder für neue Auswahlen anbieten",
 			"renameOptionAria": "{{option}} umbenennen",
 			"requiredDescription": "Jede Aufgabe hat immer einen Wert.",
 			"save": "Speichern",
@@ -3004,7 +3014,11 @@
 					"amber": "Bernstein",
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
-					"crimson": "Karmesinrot"
+					"crimson": "Karmesinrot",
+					"lagoon": "Lagune",
+					"ocean": "Ozean",
+					"orchid": "Orchidee",
+					"sky": "Himmel"
 				},
 				"editLabels": "Labels bearbeiten"
 			}
@@ -3262,7 +3276,10 @@
 		"filterBar": {
 			"label": "Aktive Filter",
 			"removeFilter": "Filter {{name}} entfernen",
-			"noMatches": "Keine Aufgaben passen zu deiner Suche oder deinen Filtern."
+			"noMatches": "Keine Aufgaben passen zu deiner Suche oder deinen Filtern.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Filter hinzufügen…",
@@ -4375,7 +4392,11 @@
 				"amber": "Bernstein",
 				"terracotta": "Terrakotta",
 				"rose": "Rosé",
-				"crimson": "Karmesin"
+				"crimson": "Karmesin",
+				"ocean": "Ozean",
+				"sky": "Himmel",
+				"lagoon": "Lagune",
+				"orchid": "Orchidee"
 			},
 			"role": {
 				"owner": "Eigentümer",

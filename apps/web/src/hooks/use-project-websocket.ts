@@ -42,6 +42,7 @@ export function useProjectWebSocket(projectId: string) {
 
   useEffect(() => {
     if (!projectId || !session?.user?.id) return;
+    const userId = session.user.id;
 
     // Each effect owns its sockets and timers. Late events from an old project
     // or session must not alter the next effect's connection or reconnect it.
@@ -560,6 +561,22 @@ export function useProjectWebSocket(projectId: string) {
         }
         activeSocket = null;
 
+        // The provider ended this socket's session. Reconnect if another tab signed in again.
+        if (event?.code === 4001) {
+          void authClient
+            .getSession()
+            .then(({ data, error }) => {
+              if (disposed) return;
+              if (error && error.status !== 401) throw error;
+              if (data?.user.id === userId) connect();
+              else disposed = true;
+            })
+            .catch(() => {
+              if (!disposed) scheduleReconnect();
+            });
+          return;
+        }
+
         if (
           event?.code === 1008 &&
           event.reason === "Workspace access revoked"
@@ -591,24 +608,26 @@ export function useProjectWebSocket(projectId: string) {
           return;
         }
 
-        if (retries < MAX_RETRIES) {
-          const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
-          retries += 1;
-          retryTimeout = setTimeout(connect, delay);
-        } else if (fallbackInterval === null) {
-          // Refresh only when realtime delivery could not reconnect.
-          fallbackInterval = setInterval(() => {
-            void queryClient.invalidateQueries({
-              queryKey: ["tasks", projectId],
-            });
-            // The hierarchy has no message to refresh it while polling.
-            void queryClient.invalidateQueries({
-              queryKey: ["task-relations", "project", projectId],
-            });
-          }, 30_000);
-          flushPending();
-        }
+        scheduleReconnect();
       };
+    }
+    function scheduleReconnect() {
+      if (retries < MAX_RETRIES) {
+        const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
+        retries += 1;
+        retryTimeout = setTimeout(connect, delay);
+      } else if (fallbackInterval === null) {
+        // Refresh only when realtime delivery could not reconnect.
+        fallbackInterval = setInterval(() => {
+          void queryClient.invalidateQueries({
+            queryKey: ["tasks", projectId],
+          });
+          void queryClient.invalidateQueries({
+            queryKey: ["task-relations", "project", projectId],
+          });
+        }, 30_000);
+        flushPending();
+      }
     }
     connect();
     function flushPending() {
@@ -680,5 +699,11 @@ export function useProjectWebSocket(projectId: string) {
       }
       activeSocket?.close();
     };
-  }, [projectId, session?.user?.id, queryClient, navigate]);
+  }, [
+    projectId,
+    session?.user?.id,
+    session?.session?.id,
+    queryClient,
+    navigate,
+  ]);
 }

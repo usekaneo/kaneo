@@ -52,6 +52,7 @@ const size: CustomFieldDefinition = {
   required: true,
   defaultValue: "Medium",
   options: ["Small", "Medium", "Large"],
+  hiddenOptions: [],
   position: 0,
   createdAt: "",
   updatedAt: "",

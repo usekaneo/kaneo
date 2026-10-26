@@ -449,6 +449,20 @@
       "when": 1791727180448,
       "tag": "0063_import_runs",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1792228916894,
+      "tag": "0064_custom_field_hidden_options",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1793006127458,
+      "tag": "0065_session_oidc_sid",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { InlineNameInput } from "@/components/project/inline-name-input";
 import { DragHandle } from "@/components/project/sortable/drag-handle";
@@ -8,14 +8,19 @@ import { cn } from "@/lib/cn";
 
 type FieldOptionRowProps = {
   option: string;
+  hidden: boolean;
   onRename: (name: string) => boolean;
   onRemove: () => void;
+  /** Hiding retires an option; only offered for fields that already exist. */
+  onToggleHidden?: () => void;
 };
 
 export function FieldOptionRow({
   option,
+  hidden,
   onRename,
   onRemove,
+  onToggleHidden,
 }: FieldOptionRowProps) {
   const { t } = useTranslation();
   const { rowRef, rowStyle, isDragging, handleProps } = useSortableRow(
@@ -40,8 +45,26 @@ export function FieldOptionRow({
         name={option}
         label={t("settings:customFields.renameOptionAria", { option })}
         onRename={onRename}
-        className="h-7"
+        className={cn("h-7", hidden && "text-muted-foreground")}
       />
+      {onToggleHidden ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-xs"
+          aria-label={t(
+            hidden
+              ? "settings:customFields.showOptionAria"
+              : "settings:customFields.hideOptionAria",
+            { option },
+          )}
+          aria-pressed={hidden}
+          onClick={onToggleHidden}
+          className="text-muted-foreground"
+        >
+          {hidden ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}
+        </Button>
+      ) : null}
       <Button
         type="button"
         variant="ghost"

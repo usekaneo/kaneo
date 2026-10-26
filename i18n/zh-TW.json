@@ -148,7 +148,11 @@
 					"amber": "琥珀黃",
 					"terracotta": "赤陶紅",
 					"rose": "玫瑰紅",
-					"crimson": "緋紅"
+					"crimson": "緋紅",
+					"lagoon": "潟湖青",
+					"ocean": "海洋藍",
+					"orchid": "蘭花紫",
+					"sky": "天空藍"
 				},
 				"statusLoadError": "無法載入專案狀態。"
 			}
@@ -753,6 +757,10 @@
 			"projectBackgrounds": "專案背景",
 			"projectBackgroundsDescription": "顯示專案為看板設定的背景圖片。",
 			"advancedTitle": "進階"
+		},
+		"managedProfile": {
+			"note": "由你的組織管理。",
+			"edit": "在 {{provider}} 中編輯"
 		},
 		"developerPage": {
 			"pageTitle": "API 金鑰",
@@ -1554,6 +1562,8 @@
 			"noDefault": "無預設值",
 			"optionsLabel": "選項",
 			"removeOptionAria": "移除 {{option}}",
+			"hideOptionAria": "在新選擇中隱藏 {{option}}",
+			"showOptionAria": "在新選擇中重新提供 {{option}}",
 			"renameOptionAria": "重新命名 {{option}}",
 			"requiredDescription": "每個任務一律會有值。",
 			"save": "儲存",
@@ -2957,7 +2967,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫瑰紅",
-					"crimson": "深紅"
+					"crimson": "深紅",
+					"lagoon": "潟湖青",
+					"ocean": "海洋藍",
+					"orchid": "蘭花紫",
+					"sky": "天空藍"
 				},
 				"editLabels": "編輯標籤"
 			}
@@ -3208,7 +3222,10 @@
 		"filterBar": {
 			"label": "已套用的篩選",
 			"removeFilter": "移除「{{name}}」篩選",
-			"noMatches": "沒有符合搜尋或篩選條件的任務。"
+			"noMatches": "沒有符合搜尋或篩選條件的任務。",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "新增篩選…",
@@ -4021,9 +4038,13 @@
 				"amber": "琥珀黃",
 				"crimson": "緋紅",
 				"forest": "森林綠",
+				"lagoon": "潟湖青",
 				"lavender": "薰衣草紫",
+				"ocean": "海洋藍",
+				"orchid": "蘭花紫",
 				"rose": "玫瑰紅",
 				"sage": "鼠尾草綠",
+				"sky": "天空藍",
 				"slate": "石板灰",
 				"stone": "岩石灰",
 				"terracotta": "赤陶紅"

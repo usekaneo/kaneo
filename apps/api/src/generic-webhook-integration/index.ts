@@ -85,14 +85,19 @@ const getGenericWebhookIntegrationRoute = createRoute({
   summary: "Get webhook integration",
   description:
     "Get the outgoing webhook integration for a project, or null when none is configured.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
       "Webhook integration details, or null",
       genericWebhookIntegrationSchema.nullable(),
     ),
-    403: errorResponse("No access to the project"),
+    403: errorResponse(
+      "No access to the project, or missing project:read permission",
+    ),
     404: errorResponse("Project not found"),
   },
 });
