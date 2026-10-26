@@ -54,6 +54,26 @@ it("waits for each save even before the mutation's pending state renders", () =>
   expect(onMove).toHaveBeenCalledTimes(2);
 });
 
+it("drops queued moves when a save fails", () => {
+  const onMove = vi.fn();
+  const { result } = renderHook(() =>
+    useBoardMoveQueue({
+      projectId: "p",
+      waiting: false,
+      disabled: false,
+      onMove,
+      onCancel: vi.fn(),
+    }),
+  );
+  act(() => {
+    result.current.queueMove({ activeId: "a", overId: "b" });
+    result.current.queueMove({ activeId: "c", overId: "a" });
+  });
+  act(() => onMove.mock.calls[0][1](true));
+  expect(onMove).toHaveBeenCalledOnce();
+  expect(result.current.pendingMoves).toEqual([]);
+});
+
 it("applies an idle drop synchronously before the drag preview is cleared", () => {
   const onMove = vi.fn();
   const { result } = renderHook(() =>

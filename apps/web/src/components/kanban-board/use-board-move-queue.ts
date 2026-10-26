@@ -16,7 +16,7 @@ export function useBoardMoveQueue({
   projectId: string;
   waiting: boolean;
   disabled: boolean;
-  onMove: (move: BoardMove, onSettled: () => void) => void;
+  onMove: (move: BoardMove, onSettled: (failed?: boolean) => void) => void;
   onCancel: () => void;
 }) {
   const [queue, setQueue] = useState<Array<BoardMove & { projectId: string }>>(
@@ -28,9 +28,10 @@ export function useBoardMoveQueue({
     (move: BoardMove) => {
       // Mutation pending state can lag the next queued drop.
       processing.current = true;
-      onMove(move, () => {
+      onMove(move, (failed) => {
         processing.current = false;
-        setQueue((queue) => [...queue]);
+        // Queued drops were aimed at the board this failed move would have made.
+        setQueue((queue) => (failed ? [] : [...queue]));
       });
     },
     [onMove],

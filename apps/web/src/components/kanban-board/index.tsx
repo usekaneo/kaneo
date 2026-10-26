@@ -190,7 +190,7 @@ function KanbanBoard({
   const commitMove = (
     activeId: string,
     overId: string,
-    onSettled: () => void,
+    onSettled: (failed?: boolean) => void,
     insertAfterTarget?: boolean,
   ) => {
     if (!project?.columns || disableDragDrop) {
@@ -227,7 +227,7 @@ function KanbanBoard({
         expectedTasks: moved.expectedTasks,
         previousBoard: canonical,
       },
-      { onSettled },
+      { onSettled: (_result, error) => onSettled(Boolean(error)) },
     );
   };
 
@@ -264,7 +264,7 @@ function KanbanBoard({
     layout: "board",
     selection: useBulkSelectionStore,
     getGroups: () =>
-      (project?.columns ?? []).map((column) => ({
+      queuedProject.columns.map((column) => ({
         id: column.id,
         taskIds: column.tasks.map((task) => task.id),
       })),
@@ -357,6 +357,7 @@ function KanbanBoard({
               >
                 <Column
                   column={column}
+                  activeTaskId={activeId?.toString() ?? null}
                   sortHint={
                     column.id === sortHintColumnId
                       ? t("tasks:kanban.automaticallySortedHint", {
