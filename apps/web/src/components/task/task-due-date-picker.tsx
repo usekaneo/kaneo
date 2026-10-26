@@ -17,6 +17,7 @@ type TaskDueDatePickerProps = {
   recurrence: TaskRecurrence | null;
   onDateChange: (date: Date | null) => void;
   onRecurrenceChange: (recurrence: TaskRecurrence | null) => void;
+  canSetRecurrence?: boolean;
 };
 
 // Shared by an existing task's due date popover and the create task modal.
@@ -28,6 +29,7 @@ export default function TaskDueDatePicker({
   recurrence,
   onDateChange,
   onRecurrenceChange,
+  canSetRecurrence = true,
 }: TaskDueDatePickerProps) {
   const { t } = useTranslation();
   const upcoming = useMemo(
@@ -48,31 +50,33 @@ export default function TaskDueDatePicker({
         formatLimit={(date) => t("tasks:datePicker.startsOn", { date })}
         highlighted={upcoming}
       />
-      {recurrence && (
+      {recurrence && canSetRecurrence && (
         <TaskRecurrenceSettings
           recurrence={recurrence}
           defaultWeekday={dueDate?.getDay()}
           onChange={onRecurrenceChange}
         />
       )}
-      <div className="border-t border-border p-1.5">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          aria-pressed={Boolean(recurrence)}
-          className={cn(
-            "gap-2 text-muted-foreground hover:text-foreground",
-            recurrence && "bg-accent text-foreground",
-          )}
-          onClick={() =>
-            onRecurrenceChange(recurrence ? null : defaultRecurrence())
-          }
-        >
-          <Repeat className="h-4 w-4" />
-          {t("tasks:popover.recurrence.toggle")}
-        </Button>
-      </div>
+      {(canSetRecurrence || recurrence) && (
+        <div className="border-t border-border p-1.5">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-pressed={Boolean(recurrence)}
+            className={cn(
+              "gap-2 text-muted-foreground hover:text-foreground",
+              recurrence && "bg-accent text-foreground",
+            )}
+            onClick={() =>
+              onRecurrenceChange(recurrence ? null : defaultRecurrence())
+            }
+          >
+            <Repeat className="h-4 w-4" />
+            {t("tasks:popover.recurrence.toggle")}
+          </Button>
+        </div>
+      )}
     </>
   );
 }

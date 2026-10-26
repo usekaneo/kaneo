@@ -55,6 +55,7 @@ import {
   requireBulkTaskEntitlement,
   requireBulkTaskPermission,
   requireTaskAssigneePermission,
+  requireTaskRecurrencePermission,
 } from "./controllers/require-task-permission";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
@@ -648,10 +649,10 @@ const updateTaskRecurrenceRoute = createRoute({
   tags: ["Tasks"],
   summary: "Update task recurrence",
   description:
-    "Make a task repeat, or stop it repeating. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
+    "Make a task repeat, or stop it repeating. Setting a rule requires task:update and task:create; clearing it requires task:update. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
   middleware: [
     workspaceAccess.fromTask(),
-    requireWorkspacePermission({ task: ["update"] }),
+    requireTaskRecurrencePermission,
     requireEntitlement,
   ] as const,
   request: {
@@ -665,7 +666,7 @@ const updateTaskRecurrenceRoute = createRoute({
     200: jsonResponse("The updated task", taskSchema),
     400: errorResponse("Invalid recurrence rule"),
     403: errorResponse(
-      "No access to the project, or missing task:update permission",
+      "No access to the project, missing task:update, or missing task:create when setting a rule",
     ),
     404: errorResponse("Task not found"),
     409: errorResponse(

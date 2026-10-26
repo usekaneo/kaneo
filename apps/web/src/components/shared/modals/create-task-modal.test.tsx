@@ -1,3 +1,4 @@
+import enUS from "@i18n/en-US.json";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
@@ -192,13 +193,46 @@ vi.mock("@/lib/toast", () => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string) => {
+      if (key === "tasks:popover.dueDate.clear")
+        return enUS.tasks.popover.dueDate.clear;
+      // Keep the real source bundle involved so a deleted clear label fails.
+      if (key === "common:modals.createTask.clearDueDate") {
+        const source: Record<string, unknown> = enUS.common.modals.createTask;
+        return typeof source.clearDueDate === "string"
+          ? source.clearDueDate
+          : key;
+      }
+      return key;
+    },
     i18n: { language: "en-US" },
   }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
 describe("CreateTaskModal", () => {
+  it("shows a translated clear-date action and clears the selected due date", async () => {
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    const trigger = screen
+      .getByText("common:modals.createTask.dueDate")
+      .closest("button")!;
+    fireEvent.click(trigger);
+    fireEvent.click(await screen.findByText("tasks:due.today"));
+    fireEvent.click(trigger);
+    fireEvent.click(await screen.findByText("Clear date"));
+    expect(trigger).toHaveTextContent("common:modals.createTask.dueDate");
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ dueDate: undefined }),
+      ),
+    );
+  });
+
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",

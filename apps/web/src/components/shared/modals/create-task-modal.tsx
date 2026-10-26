@@ -1094,7 +1094,7 @@ function CreateTaskModalContent({
                 <PopoverContent className="w-65 p-0" align="start">
                   <TaskDueDatePicker
                     label={t("common:modals.createTask.dueDate")}
-                    clearLabel={t("common:modals.createTask.clearDueDate")}
+                    clearLabel={t("tasks:popover.dueDate.clear")}
                     dueDate={dueDate ?? null}
                     startDate={startDate}
                     recurrence={recurrence}

@@ -26,7 +26,7 @@ export default function TaskDueDatePopover({
   const [open, setOpen] = useState(false);
   const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
   const { mutateAsync: updateTaskRecurrence } = useUpdateTaskRecurrence();
-  const { canUpdateTasks } = useWorkspacePermission();
+  const { canUpdateTasks, canCreateTasks } = useWorkspacePermission();
   const canEdit = canUpdateTasks();
   const recurrence = task.recurrence ?? null;
   const dueDate = useMemo(
@@ -81,6 +81,7 @@ export default function TaskDueDatePopover({
           recurrence={recurrence}
           onDateChange={handleDateChange}
           onRecurrenceChange={handleRecurrenceChange}
+          canSetRecurrence={canCreateTasks()}
         />
       </PopoverContent>
     </Popover>
