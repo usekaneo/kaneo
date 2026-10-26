@@ -10,12 +10,23 @@ const dropdown: CurrentCustomField = {
   required: false,
   defaultValue: "Medium",
   options: ["Small", "Medium", "Large"],
+  hiddenOptions: [],
 };
 
 describe("resolveFieldUpdate", () => {
   it("keeps what the request leaves out", () => {
     expect(resolveFieldUpdate(dropdown, { name: "  T-shirt size " })).toEqual({
       ...dropdown,
+      name: "T-shirt size",
+      removedOptions: [],
+    });
+  });
+
+  it("preserves hidden options when editing unrelated fields", () => {
+    const field = { ...dropdown, hiddenOptions: ["Large"] };
+
+    expect(resolveFieldUpdate(field, { name: "  T-shirt size " })).toEqual({
+      ...field,
       name: "T-shirt size",
       removedOptions: [],
     });

@@ -1568,6 +1568,8 @@
 			"noDefault": "Geen standaardwaarde",
 			"optionsLabel": "Opties",
 			"removeOptionAria": "{{option}} verwijderen",
+			"hideOptionAria": "{{option}} verbergen voor nieuwe selecties",
+			"showOptionAria": "{{option}} weer aanbieden voor nieuwe selecties",
 			"renameOptionAria": "{{option}} hernoemen",
 			"requiredDescription": "Elke taak heeft altijd een waarde.",
 			"save": "Opslaan",

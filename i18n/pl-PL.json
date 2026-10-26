@@ -2272,6 +2272,8 @@
 			"noDefault": "Brak wartości domyślnej",
 			"optionsLabel": "Opcje",
 			"removeOptionAria": "Usuń: {{option}}",
+			"hideOptionAria": "Ukryj w nowych wyborach: {{option}}",
+			"showOptionAria": "Przywróć w nowych wyborach: {{option}}",
 			"renameOptionAria": "Zmień nazwę: {{option}}",
 			"requiredDescription": "Każde zadanie zawsze ma wartość.",
 			"save": "Zapisz",

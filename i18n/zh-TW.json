@@ -1558,6 +1558,8 @@
 			"noDefault": "無預設值",
 			"optionsLabel": "選項",
 			"removeOptionAria": "移除 {{option}}",
+			"hideOptionAria": "在新選擇中隱藏 {{option}}",
+			"showOptionAria": "在新選擇中重新提供 {{option}}",
 			"renameOptionAria": "重新命名 {{option}}",
 			"requiredDescription": "每個任務一律會有值。",
 			"save": "儲存",

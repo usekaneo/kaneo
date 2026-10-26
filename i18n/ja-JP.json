@@ -1559,6 +1559,8 @@
 			"noDefault": "デフォルトなし",
 			"optionsLabel": "選択肢",
 			"removeOptionAria": "{{option}} を削除",
+			"hideOptionAria": "{{option}} を新しい選択肢から非表示",
+			"showOptionAria": "{{option}} を新しい選択肢に再表示",
 			"renameOptionAria": "{{option}} の名前を変更",
 			"requiredDescription": "すべてのタスクに常に値が設定されます。",
 			"save": "保存",

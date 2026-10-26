@@ -1559,6 +1559,8 @@
 			"noDefault": "Tanpa default",
 			"optionsLabel": "Opsi",
 			"removeOptionAria": "Hapus {{option}}",
+			"hideOptionAria": "Sembunyikan {{option}} dari pilihan baru",
+			"showOptionAria": "Tawarkan lagi {{option}} untuk pilihan baru",
 			"renameOptionAria": "Ganti nama {{option}}",
 			"requiredDescription": "Setiap tugas selalu memiliki nilai.",
 			"save": "Simpan",

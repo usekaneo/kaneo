@@ -17,6 +17,7 @@ const field = (
   required,
   defaultValue: null,
   options: null,
+  hiddenOptions: [],
   position: 0,
   createdAt: "",
   updatedAt: "",

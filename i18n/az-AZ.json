@@ -1568,6 +1568,8 @@
 			"noDefault": "Standart dəyər yoxdur",
 			"optionsLabel": "Seçimlər",
 			"removeOptionAria": "{{option}} seçimini çıxar",
+			"hideOptionAria": "{{option}} seçimini yeni seçimlərdən gizlət",
+			"showOptionAria": "{{option}} seçimini yeni seçimlər üçün yenidən göstər",
 			"renameOptionAria": "{{option}} seçiminin adını dəyiş",
 			"requiredDescription": "Hər tapşırığın həmişə dəyəri olur.",
 			"save": "Yadda saxla",

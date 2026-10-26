@@ -1568,6 +1568,8 @@
 			"noDefault": "कोई डिफ़ॉल्ट नहीं",
 			"optionsLabel": "विकल्प",
 			"removeOptionAria": "{{option}} निकालें",
+			"hideOptionAria": "नए चयनों से {{option}} छिपाएँ",
+			"showOptionAria": "नए चयनों के लिए {{option}} फिर से दिखाएँ",
 			"renameOptionAria": "{{option}} का नाम बदलें",
 			"requiredDescription": "हर कार्य में हमेशा एक मान होता है।",
 			"save": "सहेजें",
