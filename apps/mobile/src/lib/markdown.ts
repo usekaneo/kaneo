@@ -67,13 +67,19 @@ export function toDisplayMarkdown(markdown: string, serverUrl: string): string {
 /** Plain-text preview for list rows. */
 export function toPlainText(markdown?: string | null): string {
   if (!markdown) return "";
+  // Park escaped characters so the stripping below leaves literal text alone.
   return toDisplayMarkdown(markdown, "")
-    .replace(/\\([!-/:-@[-`{-~])/g, "$1")
+    .replace(/\\([!-/:-@[-`{-~])/g, (_, c: string) =>
+      String.fromCharCode(0xe000 + c.charCodeAt(0)),
+    )
     .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/<[^>]+>/g, "")
     .replace(/[*_`#>~]+/g, "")
     .replace(/\s+/g, " ")
+    .replace(/[\ue000-\ue07f]/g, (c) =>
+      String.fromCharCode(c.charCodeAt(0) - 0xe000),
+    )
     .trim();
 }
 

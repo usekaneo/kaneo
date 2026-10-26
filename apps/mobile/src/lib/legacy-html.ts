@@ -29,6 +29,7 @@ const framed = new Set([
   "blockquote",
   "a",
   "code",
+  "pre",
   ...Object.keys(marks),
 ]);
 
@@ -65,6 +66,10 @@ function attr(raw: string, name: string): string | undefined {
   return match ? decode(match[1] ?? match[2]) : undefined;
 }
 
+function longestBackticks(text: string): number {
+  return Math.max(0, ...(text.match(/`+/g) ?? []).map((run) => run.length));
+}
+
 function finish(frame: Frame, parent: Frame): string {
   const body = frame.out.trim();
   switch (frame.tag) {
@@ -95,12 +100,12 @@ function finish(frame: Frame, parent: Frame): string {
         .split("\n")
         .map((line) => (line ? `> ${line}` : ">"))
         .join("\n")}\n\n`;
+    case "pre": {
+      const fence = "`".repeat(Math.max(3, longestBackticks(frame.out) + 1));
+      return `${fence}\n${frame.out.replace(/\n$/, "")}\n${fence}\n\n`;
+    }
     case "code": {
-      const longest = Math.max(
-        0,
-        ...(frame.out.match(/`+/g) ?? []).map((run) => run.length),
-      );
-      const fence = "`".repeat(longest + 1);
+      const fence = "`".repeat(longestBackticks(frame.out) + 1);
       const pad = /^`|`$/.test(frame.out) ? " " : "";
       return frame.out ? `${fence}${pad}${frame.out}${pad}${fence}` : "";
     }
@@ -147,6 +152,7 @@ export function legacyHtmlToMarkdown(html: string): string {
     } else if (name === "code" && pre) {
       continue;
     } else if (framed.has(name)) {
+      if (name === "pre") pre = Math.max(0, pre + (closing ? -1 : 1));
       if (!closing) {
         stack.push({ tag: name, attrs: rawAttrs, out: "", items: 0 });
       } else if (stack.some((frame, i) => i > 0 && frame.tag === name)) {
@@ -156,9 +162,6 @@ export function legacyHtmlToMarkdown(html: string): string {
           top().out += finish(frame, top());
         } while (frame.tag !== name);
       }
-    } else if (name === "pre") {
-      pre = Math.max(0, pre + (closing ? -1 : 1));
-      emit(closing ? "\n```\n\n" : "```\n");
     } else if (/^h[1-6]$/.test(name)) {
       emit(closing ? "\n\n" : `${"#".repeat(Number(name[1]))} `);
     } else if (name === "br") {

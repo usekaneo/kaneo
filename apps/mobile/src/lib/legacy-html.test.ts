@@ -37,6 +37,12 @@ describe("legacy HTML descriptions", () => {
     ).toBe("**Hello** world, *in*line and `` echo `hostname` ``");
   });
 
+  it("fences code blocks that contain backtick fences", () => {
+    expect(
+      legacyHtmlToMarkdown("<pre><code>a\n```\nb\n</code></pre><p>after</p>"),
+    ).toBe("````\na\n```\nb\n````\n\nafter");
+  });
+
   it("converts editor task lists with their checked state", () => {
     const html =
       '<ul class="not-prose pl-2" data-type="taskList"><li class="flex gap-2 items-start" data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Move the instances.json</p></div></li><li data-checked="true" data-type="taskItem"><label><input type="checkbox" checked="checked"><span></span></label><div><p>Use a $schema</p></div></li></ul>';
@@ -59,7 +65,7 @@ describe("legacy HTML descriptions", () => {
         '<h2>Title</h2><p>See <a href="https://kaneo.app" target="_blank">site</a></p><blockquote><p>Quote</p><p>More</p></blockquote><pre><code class="language-ts">const a = 1 &lt; 2;\n</code></pre>',
       ),
     ).toBe(
-      "## Title\n\nSee [site](https://kaneo.app)\n\n> Quote\n>\n> More\n\n```\nconst a = 1 < 2;\n\n```",
+      "## Title\n\nSee [site](https://kaneo.app)\n\n> Quote\n>\n> More\n\n```\nconst a = 1 < 2;\n```",
     );
   });
 
