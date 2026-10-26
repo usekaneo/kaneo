@@ -318,6 +318,10 @@ describe("CreateTaskModal", () => {
         screen.queryByText("common:modals.createTask.assignUnassigned"),
       ).toBeNull();
     });
+    expect(screen.queryByText("Ada")).toBeNull();
+    expect(
+      screen.getByText("common:modals.createTask.assign"),
+    ).toBeInTheDocument();
   });
 
   it("shows a project picker and creates the task in the chosen project", async () => {
