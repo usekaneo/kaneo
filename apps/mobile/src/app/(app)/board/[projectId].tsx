@@ -13,6 +13,7 @@ import {
 import { useMemo, useRef, useState } from "react";
 import {
   FlatList,
+  KeyboardAvoidingView,
   ScrollView,
   TextInput,
   useWindowDimensions,
@@ -531,7 +532,8 @@ export default function BoardScreen() {
       {header}
       <View style={{ flex: 1 }}>{body}</View>
 
-      <View
+      <KeyboardAvoidingView
+        behavior="padding"
         style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
         pointerEvents="box-none"
       >
@@ -641,7 +643,7 @@ export default function BoardScreen() {
             <Plus size={20} color={c.onPrimary} strokeWidth={2} />
           </Touch>
         </View>
-      </View>
+      </KeyboardAvoidingView>
 
       <FilterSheet
         visible={filterSheet}
