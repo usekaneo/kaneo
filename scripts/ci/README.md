@@ -51,9 +51,12 @@ branch protection.
 
 The hosted Mend Renovate GitHub App handles npm and GitHub Actions updates from `renovate.json`.
 Routine PR creation is allowed Monday 00:00–06:00 UTC, subject to hosted App availability.
-npm minor and patch updates are grouped; Actions minor, patch, digest, and pin updates are grouped.
-Majors remain separate, Actions retain full SHA pins, and all updates require manual merge.
-PRs generated from GitHub vulnerability alerts bypass the routine schedule; detection and immediate creation of every security fix are not guaranteed.
+Routine npm updates wait seven days and group related package families, with patches and minors on separate branches.
+Unrelated npm updates stay separate; at most three routine dependency PRs remain open at once.
+Majors and replacements require Dependency Dashboard approval before PR creation.
+Actions non-major updates remain grouped, including digest pinning, and retain full SHA pins.
+All updates require manual merge.
+PRs generated from GitHub vulnerability alerts bypass the routine schedule, release-age delay, dashboard approval, and routine PR limit; detection and immediate creation of every security fix are not guaranteed.
 Root npm updates include the pnpm workspace/catalog and root lockfile; `tests/e2e`, `scripts/slop-labeler`, and `scripts/ui-review-bot` keep independent locks.
 CI frozen-lockfile checks catch inconsistencies.
 See the owner cutover steps in [the contribution guide](../../CONTRIBUTING.md#contribution-eligibility).
