@@ -50,7 +50,8 @@
 			"matchManagers": ["npm"],
 			"matchPackageNames": [
 				"@tanstack/react-router",
-				"@tanstack/router-plugin"
+				"@tanstack/router-plugin",
+				"@tanstack/router-devtools"
 			],
 			"matchUpdateTypes": ["minor", "patch"],
 			"groupName": "TanStack Router"
