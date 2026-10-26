@@ -27,7 +27,6 @@ export function DateFilterEditor({
   const [endpoint, setEndpoint] = useState<"date" | "end">("date");
   const activeDate = operator === "range" && endpoint === "end" ? end : date;
   const value = serializeDateCondition({ operator, date, end });
-  const reversed = operator === "range" && !!date && !!end && end < date;
   const operators = [
     { value: "exact", label: t("tasks:dateFilter.exact") },
     { value: "range", label: t("tasks:dateFilter.range") },
@@ -112,11 +111,6 @@ export function DateFilterEditor({
           }
         }}
       />
-      {reversed && (
-        <p role="alert" className="text-xs text-destructive">
-          {t("tasks:dateFilter.invalidRange")}
-        </p>
-      )}
       <Button
         type="button"
         size="sm"
