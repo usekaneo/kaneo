@@ -21273,7 +21273,7 @@
                   "url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "An HTTP or HTTPS URL"
+                    "description": "A URL, such as an HTTPS link or an app link like obsidian://. javascript:, data:, vbscript:, file: and blob: URLs are rejected."
                   },
                   "title": {
                     "type": "string",

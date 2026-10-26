@@ -227,7 +227,7 @@ describe("manual external resource links", () => {
   it.each([
     "javascript:alert(1)",
     "data:text/html,hello",
-    "ftp://example.com/file",
+    "file:///etc/passwd",
   ])("rejects unsafe URL %s", async (url) => {
     const own = await context();
     mockAuthenticatedSession(own.user);
