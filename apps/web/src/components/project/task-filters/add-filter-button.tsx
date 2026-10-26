@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,10 @@ import type { FilterSubject } from "./filter-subject";
 
 export function AddFilterButton({ subjects }: { subjects: FilterSubject[] }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
           <Button
@@ -27,7 +29,7 @@ export function AddFilterButton({ subjects }: { subjects: FilterSubject[] }) {
         <Plus />
       </PopoverTrigger>
       <PopoverContent align="start" className="w-60">
-        <FilterRootPanel subjects={subjects} />
+        <FilterRootPanel subjects={subjects} onApplied={() => setOpen(false)} />
       </PopoverContent>
     </Popover>
   );

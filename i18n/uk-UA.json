@@ -2848,6 +2848,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Дата початку",
+			"noDate": "Без дати",
+			"condition": "Умова за датою",
+			"exact": "Точна дата",
+			"range": "Діапазон дат",
+			"before": "До",
+			"after": "Після",
+			"from": "Від (включно)",
+			"to": "До (включно)",
+			"date": "Дата",
+			"invalidRange": "Дата завершення має збігатися з датою початку або бути пізнішою.",
+			"apply": "Застосувати фільтр за датою",
+			"exactValue": "На {{date}}",
+			"beforeValue": "До {{date}}",
+			"afterValue": "Після {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Завдання",
 		"status": {
 			"label": "Статус",

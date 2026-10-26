@@ -2707,6 +2707,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "開始日",
+			"noDate": "日付なし",
+			"condition": "日付の条件",
+			"exact": "指定日",
+			"range": "日付範囲",
+			"before": "指定日より前",
+			"after": "指定日より後",
+			"from": "開始日（当日を含む）",
+			"to": "終了日（当日を含む）",
+			"date": "日付",
+			"invalidRange": "終了日は開始日以降にしてください。",
+			"apply": "日付フィルターを適用",
+			"exactValue": "{{date}}",
+			"beforeValue": "{{date}}より前",
+			"afterValue": "{{date}}より後",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "タスク",
 		"status": {
 			"label": "ステータス",

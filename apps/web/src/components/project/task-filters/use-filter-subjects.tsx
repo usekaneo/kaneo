@@ -1,3 +1,5 @@
+import { parseDateCondition } from "@/lib/task-filters/date-condition";
+import { formatDateCondition } from "./format-date-condition";
 import { CalendarDays, CircleDot, Tag, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getColumnIcon } from "@/lib/column";
@@ -71,6 +73,35 @@ export function useFilterSubjects({
       onToggle: (value) => toggleFilter(key, value),
       onClear: () => updateFilter(key, null),
     });
+
+  const dateSubject = (key: "startDate" | "dueDate") => {
+    const selected = filters[key] ?? [];
+    return subject(key, {
+      label:
+        key === "startDate"
+          ? t("tasks:dateFilter.startDate")
+          : t("tasks:boardFilters.subjects.dueDate"),
+      icon: <CalendarDays />,
+      selected,
+      options: [
+        ...(key === "dueDate"
+          ? DUE_DATE_OPTIONS.map((option) => ({
+              value: option.value,
+              label: t(option.labelKey),
+            }))
+          : [{ value: "noDate", label: t("tasks:dateFilter.noDate") }]),
+        ...selected
+          .filter((value) => parseDateCondition(value))
+          .map((value) => ({ value, label: formatDateCondition(value, t) })),
+      ],
+      onToggle: (value) => toggleFilter(key, value),
+      onDateApply: (value) => {
+        updateFilter(key, [value]);
+        setNegated(key, false);
+      },
+      onClear: () => updateFilter(key, null),
+    });
+  };
 
   const labelGroups = groupLabels(options.labels);
   const groupIdByLabel = new Map(
@@ -156,14 +187,8 @@ export function useFilterSubjects({
       },
       "include",
     ),
-    listSubject("dueDate", {
-      label: t("tasks:boardFilters.subjects.dueDate"),
-      icon: <CalendarDays />,
-      options: DUE_DATE_OPTIONS.map((option) => ({
-        value: option.value,
-        label: t(option.labelKey),
-      })),
-    }),
+    dateSubject("startDate"),
+    dateSubject("dueDate"),
   ];
 
   const customFields = options.customFields.map((field) => {

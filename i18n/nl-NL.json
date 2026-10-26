@@ -2754,6 +2754,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Startdatum",
+			"noDate": "Geen datum",
+			"condition": "Datumvoorwaarde",
+			"exact": "Exacte datum",
+			"range": "Datumbereik",
+			"before": "Vóór",
+			"after": "Na",
+			"from": "Van (inclusief)",
+			"to": "Tot en met",
+			"date": "Datum",
+			"invalidRange": "De einddatum moet op of na de startdatum liggen.",
+			"apply": "Datumfilter toepassen",
+			"exactValue": "Op {{date}}",
+			"beforeValue": "Vóór {{date}}",
+			"afterValue": "Na {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Taken",
 		"status": {
 			"label": "Status",

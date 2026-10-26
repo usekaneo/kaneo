@@ -2856,6 +2856,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Дата начала",
+			"noDate": "Без даты",
+			"condition": "Условие по дате",
+			"exact": "Точная дата",
+			"range": "Диапазон дат",
+			"before": "До",
+			"after": "После",
+			"from": "С (включительно)",
+			"to": "По (включительно)",
+			"date": "Дата",
+			"invalidRange": "Дата окончания должна совпадать с датой начала или быть позже неё.",
+			"apply": "Применить фильтр по дате",
+			"exactValue": "На {{date}}",
+			"beforeValue": "До {{date}}",
+			"afterValue": "После {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Задачи",
 		"status": {
 			"label": "Статус",

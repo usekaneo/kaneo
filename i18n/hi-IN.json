@@ -2754,6 +2754,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "आरंभ तिथि",
+			"noDate": "कोई तिथि नहीं",
+			"condition": "तिथि की शर्त",
+			"exact": "निश्चित तिथि",
+			"range": "तिथि सीमा",
+			"before": "से पहले",
+			"after": "के बाद",
+			"from": "से (शामिल)",
+			"to": "तक (शामिल)",
+			"date": "तिथि",
+			"invalidRange": "समाप्ति तिथि आरंभ तिथि के समान या उसके बाद होनी चाहिए।",
+			"apply": "तिथि फ़िल्टर लागू करें",
+			"exactValue": "{{date}} को",
+			"beforeValue": "{{date}} से पहले",
+			"afterValue": "{{date}} के बाद",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "कार्य",
 		"status": {
 			"label": "स्थिति",

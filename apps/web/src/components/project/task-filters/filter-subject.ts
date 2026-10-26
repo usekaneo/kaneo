@@ -28,6 +28,7 @@ export type FilterSubject = {
   options: FilterOption[];
   selected: string[];
   negated: boolean;
+  onDateApply?: (value: string) => void;
   onToggle: (value: string) => void;
   onNegate: (negated: boolean) => void;
   onClear: () => void;

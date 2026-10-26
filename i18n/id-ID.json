@@ -2707,6 +2707,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Tanggal mulai",
+			"noDate": "Tanpa tanggal",
+			"condition": "Kondisi tanggal",
+			"exact": "Tanggal tertentu",
+			"range": "Rentang tanggal",
+			"before": "Sebelum",
+			"after": "Setelah",
+			"from": "Dari (termasuk)",
+			"to": "Hingga (termasuk)",
+			"date": "Tanggal",
+			"invalidRange": "Tanggal selesai harus sama dengan atau setelah tanggal mulai.",
+			"apply": "Terapkan filter tanggal",
+			"exactValue": "Pada {{date}}",
+			"beforeValue": "Sebelum {{date}}",
+			"afterValue": "Setelah {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Tugas",
 		"status": {
 			"label": "Status",

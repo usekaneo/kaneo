@@ -2707,6 +2707,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "시작일",
+			"noDate": "날짜 없음",
+			"condition": "날짜 조건",
+			"exact": "특정 날짜",
+			"range": "날짜 범위",
+			"before": "지정일 이전",
+			"after": "지정일 이후",
+			"from": "시작일(당일 포함)",
+			"to": "종료일(당일 포함)",
+			"date": "날짜",
+			"invalidRange": "종료일은 시작일과 같거나 그 이후여야 합니다.",
+			"apply": "날짜 필터 적용",
+			"exactValue": "{{date}} 당일",
+			"beforeValue": "{{date}} 이전",
+			"afterValue": "{{date}} 이후",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "작업",
 		"status": {
 			"label": "상태",

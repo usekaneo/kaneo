@@ -3294,6 +3294,24 @@
 			"startsOn": "Starts {{date}}",
 			"beforeStart": "{{date}} is before the start date",
 			"afterDue": "{{date}} is after the due date"
+		},
+		"dateFilter": {
+			"startDate": "Start date",
+			"noDate": "No date",
+			"condition": "Date condition",
+			"exact": "Exact date",
+			"range": "Date range",
+			"before": "Before",
+			"after": "After",
+			"from": "From (inclusive)",
+			"to": "To (inclusive)",
+			"date": "Date",
+			"invalidRange": "The end date must be on or after the start date.",
+			"apply": "Apply date filter",
+			"exactValue": "On {{date}}",
+			"beforeValue": "Before {{date}}",
+			"afterValue": "After {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
 		}
 	},
 	"invitations": {

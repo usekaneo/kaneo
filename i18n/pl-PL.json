@@ -3130,6 +3130,24 @@
 		}
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Data rozpoczęcia",
+			"noDate": "Brak daty",
+			"condition": "Warunek daty",
+			"exact": "Dokładna data",
+			"range": "Zakres dat",
+			"before": "Przed",
+			"after": "Po",
+			"from": "Od (włącznie)",
+			"to": "Do (włącznie)",
+			"date": "Data",
+			"invalidRange": "Data zakończenia musi być taka sama jak data rozpoczęcia lub późniejsza.",
+			"apply": "Zastosuj filtr daty",
+			"exactValue": "W dniu {{date}}",
+			"beforeValue": "Przed {{date}}",
+			"afterValue": "Po {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Zadania",
 		"actions": {
 			"archive": "Archiwizuj",

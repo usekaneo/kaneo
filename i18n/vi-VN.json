@@ -2707,6 +2707,24 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Ngày bắt đầu",
+			"noDate": "Không có ngày",
+			"condition": "Điều kiện ngày",
+			"exact": "Ngày cụ thể",
+			"range": "Khoảng ngày",
+			"before": "Trước",
+			"after": "Sau",
+			"from": "Từ (bao gồm)",
+			"to": "Đến (bao gồm)",
+			"date": "Ngày",
+			"invalidRange": "Ngày kết thúc phải trùng hoặc sau ngày bắt đầu.",
+			"apply": "Áp dụng bộ lọc ngày",
+			"exactValue": "Vào {{date}}",
+			"beforeValue": "Trước {{date}}",
+			"afterValue": "Sau {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Nhiệm vụ",
 		"status": {
 			"label": "Trạng thái",

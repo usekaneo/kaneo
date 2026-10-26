@@ -2754,6 +2754,24 @@
 		"movedFromOtherProject": "hat die Aufgabe aus einem anderen Projekt nach „{{to}}“ verschoben"
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Startdatum",
+			"noDate": "Kein Datum",
+			"condition": "Datumsbedingung",
+			"exact": "Genaues Datum",
+			"range": "Datumsbereich",
+			"before": "Vor",
+			"after": "Nach",
+			"from": "Von (einschließlich)",
+			"to": "Bis (einschließlich)",
+			"date": "Datum",
+			"invalidRange": "Das Enddatum muss am oder nach dem Startdatum liegen.",
+			"apply": "Datumsfilter anwenden",
+			"exactValue": "Am {{date}}",
+			"beforeValue": "Vor dem {{date}}",
+			"afterValue": "Nach dem {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Aufgaben",
 		"status": {
 			"label": "Status",
