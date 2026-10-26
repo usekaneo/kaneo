@@ -95,6 +95,7 @@ export default defineConfig({
     projects: [
       "apps/api/vitest.config.ts",
       "apps/web/vitest.config.ts",
+      "apps/mobile/vitest.config.ts",
       "packages/*/vitest.config.ts",
     ],
   },

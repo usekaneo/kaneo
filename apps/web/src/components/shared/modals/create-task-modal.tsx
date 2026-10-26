@@ -98,7 +98,11 @@ type LabelColor =
   | "yellow"
   | "orange"
   | "pink"
-  | "red";
+  | "red"
+  | "blue"
+  | "sky"
+  | "cyan"
+  | "fuchsia";
 
 type Label = {
   id: string;
@@ -189,6 +193,26 @@ function CreateTaskModalContent({
           value: "red" as LabelColor,
           labelKey: "crimson" as const,
           color: "var(--color-red-600)",
+        },
+        {
+          value: "blue" as LabelColor,
+          labelKey: "ocean" as const,
+          color: "var(--color-blue-600)",
+        },
+        {
+          value: "sky" as LabelColor,
+          labelKey: "sky" as const,
+          color: "var(--color-sky-500)",
+        },
+        {
+          value: "cyan" as LabelColor,
+          labelKey: "lagoon" as const,
+          color: "var(--color-cyan-600)",
+        },
+        {
+          value: "fuchsia" as LabelColor,
+          labelKey: "orchid" as const,
+          color: "var(--color-fuchsia-600)",
         },
       ].map(({ labelKey, ...rest }) => ({
         ...rest,

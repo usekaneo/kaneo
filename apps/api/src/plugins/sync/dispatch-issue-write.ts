@@ -1,16 +1,18 @@
 import type { IssueWrite } from "./issue-write";
 import { and, eq, inArray, isNull, or } from "drizzle-orm";
 import db from "../../database";
-import { labelTable } from "../../database/schema";
+import { labelTable, taskTable } from "../../database/schema";
 import { withIntegrationLink } from "../github/services/with-integration-link";
 import { canSyncTask } from "./eligibility";
 import { readSyncRules } from "./rules";
 import { sameConfig } from "./same-config";
+import { isStateSyncPaused } from "./state-sync-paused";
 
 export async function dispatchIssueWrite<T>(
   link: { id: string; taskId: string; integrationId: string | null },
   expectedConfig: string | undefined,
   send: () => Promise<T>,
+  options: { issueState?: boolean } = {},
 ): Promise<{ value: T } | undefined> {
   if (!link.integrationId) return;
   const integration = await db.query.integrationTable.findFirst({
@@ -48,6 +50,14 @@ export async function dispatchIssueWrite<T>(
           !(await canSyncTask(link.taskId, integration.id, tx, expectedConfig))
         )
           return;
+        // An open/closed write must not start once the task is archived.
+        if (options.issueState) {
+          const task = await tx.query.taskTable.findFirst({
+            where: eq(taskTable.id, link.taskId),
+            columns: { status: true },
+          });
+          if (!task || isStateSyncPaused(task.status)) return;
+        }
         // Start the request while pause/rule/label writes are excluded. Settle it
         // after commit so provider latency never holds these row locks.
         request = send().then(

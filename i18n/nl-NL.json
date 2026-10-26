@@ -148,7 +148,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -535,7 +539,8 @@
 				"title": "Log in om je apparaat te koppelen",
 				"description": "Daarna kom je meteen hier terug om het goed te keuren.",
 				"submit": "Inloggen"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -2994,7 +2999,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"editLabels": "Labels bewerken"
 			}
@@ -3259,7 +3268,10 @@
 		"filterBar": {
 			"label": "Actieve filters",
 			"removeFilter": "Filter {{name}} verwijderen",
-			"noMatches": "Geen taken komen overeen met je zoekopdracht of filters."
+			"noMatches": "Geen taken komen overeen met je zoekopdracht of filters.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Filter toevoegen…",
@@ -3778,6 +3790,833 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"mobile": {
+		"account": {
+			"connection": {
+				"apiKey": "API-sleutel",
+				"appVersion": "Appversie",
+				"server": "Server",
+				"sessionToken": "Sessietoken",
+				"signedInWith": "Ingelogd met",
+				"title": "Verbinding"
+			},
+			"description": "Hoe je wordt weergegeven aan teamgenoten in alle werkruimtes.",
+			"notifications": {
+				"delivery": "Bezorging en gebeurtenissen",
+				"deliveryHint": "E-mail, ntfy, Gotify, webhooks",
+				"invitations": "Uitnodigingen",
+				"permissionDenied": "Sta meldingen voor Kaneo eerst toe in de systeeminstellingen.",
+				"phone": "Telefoonmeldingen",
+				"phoneHint": "Ongeveer elke 15 minuten gecontroleerd",
+				"title": "Meldingen"
+			},
+			"password": {
+				"confirm": "Nieuw wachtwoord bevestigen",
+				"confirmPlaceholder": "Typ het opnieuw",
+				"current": "Huidig wachtwoord",
+				"mismatch": "Wachtwoorden komen niet overeen",
+				"new": "Nieuw wachtwoord",
+				"signOutOthers": "Andere apparaten uitloggen",
+				"title": "Wachtwoord wijzigen"
+			},
+			"photoMenu": {
+				"choose": "Foto kiezen",
+				"remove": "Foto verwijderen"
+			},
+			"profile": {
+				"change": "Wijzigen",
+				"changePassword": "Wachtwoord wijzigen",
+				"name": "Naam",
+				"photo": "Profielfoto",
+				"photoFormats": "PNG, JPG of WebP",
+				"title": "Profiel"
+			},
+			"signOut": {
+				"button": "Uitloggen",
+				"message": "Je kunt op elk moment opnieuw inloggen.",
+				"title": "Uitloggen?"
+			},
+			"title": "Account",
+			"toast": {
+				"nameUpdated": "Naam bijgewerkt",
+				"passwordChanged": "Wachtwoord gewijzigd",
+				"photoRemoved": "Foto verwijderd",
+				"photoUpdated": "Foto bijgewerkt"
+			}
+		},
+		"activity": {
+			"commentedOn": "heeft gereageerd op {{target}}",
+			"empty": "Geen recente activiteit",
+			"someone": "Iemand",
+			"subtitle": "Alles wat er in {{workspace}} gebeurt",
+			"title": "Activiteit"
+		},
+		"background": {
+			"channelDescription": "Toewijzingen, reacties en vermeldingen uit je werkruimtes",
+			"channelName": "Kaneo-activiteit",
+			"summary_one": "Nog {{count}} nieuwe melding",
+			"summary_other": "Nog {{count}} nieuwe meldingen"
+		},
+		"board": {
+			"addTask": "Taak toevoegen",
+			"archived": "Gearchiveerd",
+			"assignee": "Toegewezen persoon",
+			"assignToMe": "Aan mij toewijzen",
+			"back": "Terug",
+			"board": "Bord",
+			"boardView": "Bordweergave",
+			"dueDateOverdue_one": "{{date}}, {{count}} d te laat",
+			"dueDateOverdue_other": "{{date}}, {{count}} d te laat",
+			"filters": "Filters",
+			"filterTasks": "Taken filteren…",
+			"filterTasksActive": "Taken filteren… ({{count}} actief)",
+			"hideArchived": "Gearchiveerde verbergen",
+			"hidePlanned": "Geplande verbergen",
+			"labels": "Labels",
+			"listView": "Lijstweergave",
+			"me": "Ik",
+			"memberYou": "{{name}} (jij)",
+			"more": "Meer",
+			"movedTask": "{{ticket}} verplaatst naar {{status}}",
+			"moveTo": "Verplaatsen naar",
+			"newTask": "Nieuwe taak",
+			"noTasksHere": "Hier zijn geen taken",
+			"noTasksMatch": "Geen overeenkomende taken",
+			"noTasksMatchTheFilters": "Geen taken voldoen aan de filters",
+			"noTasksYet": "Nog geen taken",
+			"nothingPlannedYet": "Nog niets gepland",
+			"openTask": "Taak openen",
+			"overdueOnly": "Alleen te laat",
+			"planned": "Gepland",
+			"priority": "Prioriteit",
+			"projects": "Projecten",
+			"projectSettings": "Projectinstellingen",
+			"refresh": "Vernieuwen",
+			"reset": "Herstellen",
+			"searchPeople": "Personen zoeken",
+			"sendToBottomOfColumn": "Naar onderkant van kolom verplaatsen",
+			"sendToTopOfColumn": "Naar bovenkant van kolom verplaatsen",
+			"showArchived": "Gearchiveerde tonen",
+			"showPlanned": "Geplande tonen",
+			"showTasks_one": "{{count}} taak tonen",
+			"showTasks_other": "{{count}} taken tonen",
+			"switchProject": "Project wisselen",
+			"tasksNotOnTheBoardYet": "Taken die nog niet op het bord staan",
+			"unassigned": "Niet toegewezen"
+		},
+		"common": {
+			"cancel": "Annuleren",
+			"close": "Sluiten",
+			"delete": "Verwijderen",
+			"retry": "Opnieuw proberen",
+			"save": "Opslaan",
+			"somethingWrong": "Er is iets misgegaan"
+		},
+		"composer": {
+			"attachImage": "Afbeelding bijvoegen",
+			"mention": "Vermelden",
+			"mentionSomeone": "Iemand vermelden",
+			"placeholder": "Reactie toevoegen…",
+			"reply": "Reageren op {{name}}…",
+			"searchPeople": "Personen zoeken",
+			"sendComment": "Reactie versturen"
+		},
+		"editor": {
+			"attachment": "Bijlage",
+			"bold": "Vet",
+			"boldPlaceholder": "vet",
+			"code": "Code",
+			"codePlaceholder": "code",
+			"description": "Beschrijving",
+			"heading": "Koptekst",
+			"insertImage": "Afbeelding invoegen",
+			"italic": "Cursief",
+			"italicPlaceholder": "cursief",
+			"link": "Link",
+			"linkPlaceholder": "link",
+			"list": "Lijst",
+			"nothingToPreview": "Niets om te bekijken",
+			"placeholder": "Beschrijving toevoegen… Markdown wordt ondersteund.",
+			"preview": "Voorbeeld",
+			"write": "Schrijven"
+		},
+		"errors": {
+			"apiKeyRejected": "Die API-sleutel is geweigerd.",
+			"deviceFailed": "Inloggen via apparaat mislukt (HTTP {{status}}).",
+			"forbidden": "Je hebt geen toestemming om dat te doen.",
+			"noInstance": "Geen Kaneo-instantie gevonden op {{url}} (HTTP {{status}}).",
+			"noSession": "De server heeft geen sessie teruggestuurd. Probeer via de browser in te loggen.",
+			"notFound": "Niet gevonden.",
+			"notKaneo": "{{url}} lijkt geen Kaneo-server te zijn.",
+			"notSignedIn": "Niet ingelogd",
+			"requestFailed": "Verzoek mislukt ({{status}}).",
+			"serverProblem": "Er is een probleem met de server ({{status}}).",
+			"sessionExpired": "Je sessie is verlopen. Log opnieuw in.",
+			"signInRejected": "De server heeft het inloggen geweigerd.",
+			"tooManyRequests": "Te veel verzoeken. Wacht even.",
+			"unreachable": "Kan de server niet bereiken. Controleer je verbinding en het serveradres.",
+			"uploadFailed": "Uploaden mislukt ({{status}})"
+		},
+		"home": {
+			"account": "Account",
+			"archived": "Gearchiveerd",
+			"due": "Einddatum {{date}}",
+			"empty": {
+				"message": "Projecten bevatten je borden en taken.",
+				"title": "Nog geen projecten"
+			},
+			"hideArchived": "Gearchiveerde projecten verbergen",
+			"newProject": "Nieuw project",
+			"noTasks": "Geen taken",
+			"noWorkspace": {
+				"body": "Werkruimtes bevatten je projecten en team. Maak er een aan of accepteer een uitnodiging.",
+				"create": "Werkruimte aanmaken",
+				"joinWithLink": "Deelnemen met een uitnodigingslink",
+				"signedInAs": "Ingelogd als {{email}}",
+				"title": "Nog geen werkruimte",
+				"viewInvitations_one": "{{count}} uitnodiging bekijken",
+				"viewInvitations_other": "{{count}} uitnodigingen bekijken"
+			},
+			"progress": "{{done}} van {{total}}",
+			"projects": "Projecten",
+			"search": "Zoeken",
+			"showArchived": "Gearchiveerde projecten tonen",
+			"switchWorkspace": "Werkruimte wisselen",
+			"upNext": "Hierna",
+			"viewAll": "Alles bekijken"
+		},
+		"inbox": {
+			"allCaughtUpToast": "Je bent helemaal bij",
+			"clearAll": "Alle meldingen wissen",
+			"confirmClear": {
+				"confirm": "Alles wissen",
+				"message": "Hiermee worden alle meldingen in deze werkruimte verwijderd.",
+				"title": "Alle meldingen wissen?"
+			},
+			"earlier": "Eerder",
+			"empty": {
+				"message": "Toewijzingen, reacties en vermeldingen verschijnen hier.",
+				"title": "Je bent helemaal bij"
+			},
+			"markAllRead": "Alles als gelezen markeren",
+			"more": "Meer",
+			"recent": "Recent",
+			"title": "Inbox",
+			"today": "Vandaag"
+		},
+		"invitations": {
+			"accept": "Accepteren",
+			"accepted": "Uitnodiging geaccepteerd",
+			"decline": "Weigeren",
+			"declined": "Uitnodiging geweigerd",
+			"description": "Werkruimtes waarvoor je bent uitgenodigd.",
+			"emptyMessage": "Uitnodigingen verschijnen hier zodra je e-mailadres is geverifieerd. Je kunt altijd deelnemen via de link in de e-mail.",
+			"emptyTitle": "Geen openstaande uitnodigingen",
+			"invitedYou": "{{name}} heeft je uitgenodigd",
+			"join": "Deelnemen",
+			"joinWithLink": "Deelnemen met een uitnodigingslink",
+			"linkPlaceholder": "Plak de link uit je e-mail",
+			"title": "Uitnodigingen"
+		},
+		"labels": {
+			"actions": "Acties voor {{name}}",
+			"delete": "Label verwijderen",
+			"deleteMessage": "Het label wordt verwijderd van elke taak in deze werkruimte.",
+			"deleteTitle": "“{{name}}” verwijderen?",
+			"description": "Met labels kun je taken groeperen en filteren.",
+			"edit": "Label bewerken",
+			"empty": {
+				"message": "Maak labels aan om taken in verschillende projecten te groeperen en filteren.",
+				"title": "Geen labels"
+			},
+			"fallbackTitle": "Label",
+			"form": {
+				"color": "Kleur",
+				"name": "Naam"
+			},
+			"new": "Nieuw label",
+			"title": "Labels",
+			"toast": {
+				"deleted": "Label verwijderd"
+			}
+		},
+		"members": {
+			"description_one": "{{count}} persoon in {{name}}",
+			"description_other": "{{count}} personen in {{name}}",
+			"invite": "Uitnodigen",
+			"inviteForm": {
+				"email": "E-mail",
+				"intro": "Ze krijgen een e-mail met een link om lid te worden van {{workspace}}.",
+				"role": "Rol",
+				"send": "Uitnodiging versturen",
+				"title": "Lid uitnodigen"
+			},
+			"inviteMenu": {
+				"cancel": "Uitnodiging annuleren",
+				"fallbackTitle": "Uitnodiging",
+				"resend": "Uitnodiging opnieuw versturen"
+			},
+			"memberMenu": {
+				"changeRole": "Rol wijzigen",
+				"fallbackTitle": "Lid",
+				"remove": "Uit werkruimte verwijderen"
+			},
+			"pending": {
+				"expires": "{{role}}, verloopt op {{date}}",
+				"manage": "Beheren",
+				"title": "Openstaande uitnodigingen"
+			},
+			"people": {
+				"title": "Personen",
+				"unknown": "Onbekend",
+				"you": "(jij)"
+			},
+			"remove": {
+				"confirm": "Verwijderen",
+				"message": "{{name}} verliest toegang tot {{workspace}}.",
+				"they": "Deze persoon",
+				"title": "Lid verwijderen?"
+			},
+			"rolePicker": {
+				"title": "Rol"
+			},
+			"thisWorkspace": "deze werkruimte",
+			"title": "Leden",
+			"toast": {
+				"canceled": "Uitnodiging geannuleerd",
+				"removed": "Lid verwijderd",
+				"resent": "Uitnodiging opnieuw verstuurd",
+				"roleUpdated": "Rol bijgewerkt",
+				"sent": "Uitnodiging verstuurd naar {{email}}"
+			}
+		},
+		"meta": {
+			"labelColor": {
+				"amber": "Amber",
+				"crimson": "Karmozijn",
+				"forest": "Bos",
+				"lagoon": "Lagune",
+				"lavender": "Lavendel",
+				"ocean": "Oceaan",
+				"orchid": "Orchidee",
+				"rose": "Roos",
+				"sage": "Salie",
+				"sky": "Hemel",
+				"slate": "Leisteen",
+				"stone": "Steen",
+				"terracotta": "Terracotta"
+			},
+			"priority": {
+				"high": "Hoog",
+				"low": "Laag",
+				"medium": "Gemiddeld",
+				"noPriority": "Geen prioriteit",
+				"urgent": "Urgent"
+			},
+			"role": {
+				"admin": "Beheerder",
+				"member": "Lid",
+				"owner": "Eigenaar",
+				"viewer": "Lezer"
+			},
+			"roleHint": {
+				"admin": "Kan ook leden en instellingen beheren",
+				"member": "Kan taken aanmaken en bewerken",
+				"owner": "Volledige controle, inclusief het verwijderen van de werkruimte",
+				"viewer": "Kan projecten en taken bekijken"
+			}
+		},
+		"myTasks": {
+			"assigned_one": "{{count}} toegewezen",
+			"assigned_other": "{{count}} toegewezen",
+			"by": {
+				"due": "Einddatum",
+				"project": "Project",
+				"status": "Status"
+			},
+			"due": {
+				"later": "Later",
+				"none": "Geen einddatum",
+				"overdue": "Te laat",
+				"thisWeek": "Deze week",
+				"today": "Vandaag"
+			},
+			"empty": {
+				"message": "Taken die aan jou zijn toegewezen in deze werkruimte verschijnen hier.",
+				"title": "Niets aan jou toegewezen"
+			},
+			"showing": "{{shown}} van {{total}} taken worden getoond",
+			"title": "Mijn taken"
+		},
+		"nav": {
+			"activity": "Activiteit",
+			"home": "Start",
+			"inbox": "Inbox",
+			"inboxUnread": "Inbox, {{count}} ongelezen",
+			"tasks": "Mijn taken"
+		},
+		"notificationSettings": {
+			"channel": {
+				"accessToken": "Toegangstoken",
+				"appToken": "App-token",
+				"enabled": "Meldingen hierheen sturen",
+				"secretOptional": "Optioneel",
+				"secretSaved": "Opgeslagen. Voer een nieuwe in om deze te vervangen",
+				"serverUrl": "Server-URL",
+				"signingSecret": "Ondertekeningsgeheim",
+				"topic": "Topic",
+				"webhookUrl": "Webhook-URL"
+			},
+			"delivery": {
+				"email": "E-mail",
+				"emailHint": "Verstuurd naar het e-mailadres van je account",
+				"gotifyHint": "Meldingen naar een Gotify-server sturen",
+				"ntfyHint": "Meldingen naar een ntfy-onderwerp sturen",
+				"title": "Bezorging",
+				"webhook": "Webhook",
+				"webhookHint": "Meldingen via POST naar een URL sturen"
+			},
+			"description": "Waar en waarover Kaneo je op de hoogte houdt.",
+			"events": {
+				"assignments": "Toewijzingen",
+				"assignmentsHint": "Wanneer een taak aan jou wordt toegewezen",
+				"comments": "Reacties",
+				"commentsHint": "Nieuwe reacties op je taken",
+				"dueDate": "Herinneringen aan einddatums",
+				"dueDateHint": "Voordat een aan jou toegewezen taak vervalt",
+				"remindBefore": "{{time}} van tevoren",
+				"remindMe": "Mij herinneren",
+				"remindPickerTitle": "Mij van tevoren herinneren",
+				"statusChanges": "Statuswijzigingen",
+				"statusChangesHint": "Wanneer je taken naar een andere kolom gaan",
+				"title": "Mij op de hoogte houden van"
+			},
+			"leadTime": {
+				"day1": "1 dag",
+				"days2": "2 dagen",
+				"hour1": "1 uur",
+				"hours3": "3 uur",
+				"minutes_one": "{{count}} minuut",
+				"minutes_other": "{{count}} minuten",
+				"minutes15": "15 minuten",
+				"week1": "1 week"
+			},
+			"notSet": "Niet ingesteld",
+			"off": "Uit",
+			"on": "Aan",
+			"title": "Meldingen"
+		},
+		"notificationText": {
+			"activity": {
+				"assignedTo": "heeft dit toegewezen aan {{assignee}}",
+				"assigneeChanged": "heeft de toegewezen persoon gewijzigd",
+				"commented": "heeft gereageerd: {{text}}",
+				"created": "heeft de taak aangemaakt",
+				"descriptionChanged": "heeft de beschrijving bijgewerkt",
+				"dueDateRemoved": "heeft de einddatum verwijderd",
+				"dueDateSet": "heeft de einddatum ingesteld op {{date}}",
+				"priorityChanged": "heeft de prioriteit gewijzigd van {{from}} naar {{to}}",
+				"renamed": "heeft de naam gewijzigd in “{{title}}”",
+				"selfAssigned": "heeft dit aan zichzelf toegewezen",
+				"statusChanged": "heeft dit verplaatst van {{from}} naar {{to}}",
+				"taskUpdated": "heeft de taak bijgewerkt",
+				"titleChanged": "heeft de titel gewijzigd",
+				"unassigned": "heeft de toewijzing verwijderd"
+			},
+			"assignedByActor": "{{actor}} heeft een taak aan jou toegewezen",
+			"assignedToTask": "“{{title}}” is aan jou toegewezen",
+			"assignedToUntitled": "Er is een taak aan jou toegewezen",
+			"commentedByActor": "{{actor}} heeft gereageerd",
+			"mentioned": "Je bent vermeld",
+			"mentionedByActor": "{{actor}} heeft je vermeld",
+			"newComment": "Nieuwe reactie",
+			"statusChangedOnTask": "Status gewijzigd voor “{{title}}”",
+			"statusChangedOnUntitled": "Status van een taak gewijzigd",
+			"statusTransition": "{{from}} naar {{to}}",
+			"taskCreated": "Nieuwe taak aan jou toegewezen",
+			"timeLoggedOnTask": "Tijd geregistreerd voor “{{title}}”",
+			"timeLoggedOnUntitled": "Tijd geregistreerd voor een taak",
+			"workspaceCreated": "Werkruimte “{{name}}” aangemaakt"
+		},
+		"picker": {
+			"clear": "Wissen",
+			"nextMonth": "Volgende maand",
+			"nextWeek": "Volgende week",
+			"previousMonth": "Vorige maand"
+		},
+		"projectNew": {
+			"createProject": "Project aanmaken",
+			"customerPortal": "Klantenportaal",
+			"key": "Sleutel",
+			"name": "Naam",
+			"newProject": "Nieuw project",
+			"usedInTaskIDs": "Gebruikt in taak-ID's"
+		},
+		"projectSettings": {
+			"addColumn": "Kolom toevoegen",
+			"addField": "Veld toevoegen",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "Alle taken, reacties en tijdregistraties in dit project worden permanent verwijderd.",
+			"androidIOSWeb": "Android, iOS, web",
+			"anyoneWithTheLinkCanViewTheBoard": "Iedereen met de link kan het bord bekijken",
+			"archive": "Archiveren",
+			"archiveProject": "Project archiveren",
+			"archiveProjectTitle": "Project archiveren?",
+			"blocked": "Geblokkeerd",
+			"changesFutureAndExistingTaskIDs": "Wijzigt toekomstige en bestaande taak-ID's",
+			"checkbox": "Selectievakje",
+			"column": "Kolom",
+			"columnDeleted": "Kolom verwijderd",
+			"columns": "Kolommen",
+			"customFields": "Aangepaste velden",
+			"date": "Datum",
+			"deleteColumn": "Kolom verwijderen",
+			"deleteField": "Veld verwijderen",
+			"deleteNamedTitle": "“{{name}}” verwijderen?",
+			"deleteProject": "Project verwijderen",
+			"deleteProjectTitle": "Project verwijderen?",
+			"doneColumn": "Gereed-kolom",
+			"dropdown": "Keuzelijst",
+			"field": "Veld",
+			"fieldDeleted": "Veld verwijderd",
+			"general": "Algemeen",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "Het verdwijnt uit de projectenlijst. Je kunt het later herstellen.",
+			"key": "Sleutel",
+			"markAsDoneColumn": "Als gereed-kolom markeren",
+			"moveDown": "Omlaag verplaatsen",
+			"moveToAnotherWorkspace": "Naar een andere werkruimte verplaatsen",
+			"moveToWorkspace": "Naar werkruimte verplaatsen",
+			"moveUp": "Omhoog verplaatsen",
+			"multiSelect": "Meervoudige selectie",
+			"name": "Naam",
+			"newColumn": "Nieuwe kolom",
+			"newCustomField": "Nieuw aangepast veld",
+			"noCustomFields": "Geen aangepaste velden",
+			"number": "Getal",
+			"ok": "OK",
+			"options": "Opties",
+			"platform": "Platform",
+			"project": "Project",
+			"projectArchived": "Project gearchiveerd",
+			"projectDeleted": "Project verwijderd",
+			"projectMoved": "Project verplaatst",
+			"projectRestored": "Project hersteld",
+			"projectSettings": "Projectinstellingen",
+			"projectUpdated": "Project bijgewerkt",
+			"publicBoard": "Openbaar bord",
+			"rename": "Naam wijzigen",
+			"renameColumn": "Kolomnaam wijzigen",
+			"required": "Verplicht",
+			"restoreProject": "Project herstellen",
+			"saveChanges": "Wijzigingen opslaan",
+			"separateWithCommas": "Met komma's scheiden",
+			"tasksHereCountAsFinished": "Taken hier gelden als voltooid",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "Mogelijk moeten de taken in deze kolom eerst worden verplaatst.",
+			"text": "Tekst",
+			"type": "Type",
+			"unmarkAsDoneColumn": "Markering als gereed-kolom verwijderen",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Waarden in dit veld worden uit elke taak verwijderd.",
+			"checked": "Aangevinkt",
+			"chooseDefault": "Kies een standaardwaarde",
+			"defaultValue": "Standaardwaarde",
+			"multiselectOptionsRequired": "Voeg minimaal twee verschillende opties toe.",
+			"unchecked": "Niet aangevinkt",
+			"validDefaultRequired": "Voer een geldige standaardwaarde in voor dit verplichte veld."
+		},
+		"search": {
+			"clear": "Wissen",
+			"commentMeta": "{{name}}, {{when}}",
+			"empty": {
+				"message": "Zoek taken op titel of nummer, projecten en reacties.",
+				"title": "Deze werkruimte doorzoeken"
+			},
+			"failed": "Zoeken mislukt",
+			"kinds": {
+				"all": "Alles",
+				"comments": "Reacties",
+				"projects": "Projecten",
+				"tasks": "Taken",
+				"activity": "Activiteit"
+			},
+			"noResults": "Geen resultaten voor “{{query}}”",
+			"placeholder": "Taken, projecten en reacties zoeken"
+		},
+		"signIn": {
+			"apiKey": {
+				"label": "API-sleutel",
+				"message": "Maak er een aan op het web onder Instellingen en dan API-sleutels. Deze werkt ook als andere inlogmethoden zijn uitgeschakeld."
+			},
+			"browserHint": "GitHub, Google, Discord of SSO",
+			"captcha": "Deze server vereist een browsercontrole voor deze stap. Gebruik ‘Doorgaan in browser’.",
+			"change": "Wijzigen",
+			"cloud": "Kaneo Cloud",
+			"code": {
+				"checkEmail": "Controleer je e-mail",
+				"didntGet": "Niets ontvangen?",
+				"message": "We sturen je een 6-cijferige code per e-mail. Geen wachtwoord nodig.",
+				"resend": "Code opnieuw versturen",
+				"send": "Code versturen",
+				"sent": "We hebben een 6-cijferige code naar {{email}} gestuurd",
+				"title": "Inloggen met een code",
+				"verify": "Verifiëren"
+			},
+			"connect": "Verbinden",
+			"continueInBrowser": "Doorgaan in browser",
+			"createAccount": "Account aanmaken",
+			"device": {
+				"codeCopied": "Code gekopieerd",
+				"copyCode": "Code kopiëren",
+				"copyLink": "Link kopiëren",
+				"denied": "Inloggen is geweigerd in de browser.",
+				"expired": "De inlogcode is verlopen. Begin opnieuw om een nieuwe te krijgen.",
+				"gettingCode": "Code ophalen…",
+				"linkCopied": "Link gekopieerd",
+				"message": "Keur dit apparaat goed via de Kaneo-website. GitHub, Google, Discord en SSO werken daar allemaal.",
+				"openBrowser": "Browser openen",
+				"openFailed": "Kan geen browser openen. Kopieer de link.",
+				"tryAgain": "Opnieuw proberen",
+				"waiting": "Wachten op goedkeuring…",
+				"yourCode": "Je code"
+			},
+			"email": "E-mail",
+			"emailCode": "Stuur mij een inlogcode per e-mail",
+			"invalidClient": "Deze server staat inloggen via apparaten niet toe. Vraag de beheerder om ‘kaneo-cli’ aan DEVICE_AUTH_CLIENT_IDS toe te voegen, of log in met een wachtwoord of API-sleutel.",
+			"newToKaneo": "Nieuw bij Kaneo?",
+			"noPassword": "Geen wachtwoord nodig",
+			"or": "of",
+			"password": "Wachtwoord",
+			"recent": "Recent",
+			"selfHosted": "Zelfgehost",
+			"sendTo": "Versturen naar {{email}}",
+			"serverAddress": "Serveradres",
+			"serverAddressHint": "Het adres waarop je Kaneo opent. Gebruik http:// voor servers zonder TLS. Voer het API-adres in als de API op een andere host draait.",
+			"signIn": "Inloggen",
+			"signUp": {
+				"name": "Naam",
+				"passwordHint": "Minimaal 8 tekens"
+			},
+			"tagline": "Eenvoudig projectbeheer. Verbind met Kaneo Cloud of je eigen instantie.",
+			"togglePassword": "Zichtbaarheid wachtwoord wijzigen",
+			"useApiKey": "API-sleutel gebruiken"
+		},
+		"taskDetail": {
+			"activity": {
+				"comment": "Reactie",
+				"deleteMessage": "Dit kan niet ongedaan worden gemaakt.",
+				"deleteTitle": "Reactie verwijderen?",
+				"edit": "Bewerken",
+				"editComment": "Reactie bewerken",
+				"edited": "{{time}}, bewerkt",
+				"entry": "{{name}} {{action}}",
+				"title": "Activiteit"
+			},
+			"fields": {
+				"empty": "Leeg",
+				"none": "Geen",
+				"title": "Velden"
+			},
+			"links": {
+				"add": "Link toevoegen",
+				"empty": "Geen links",
+				"optional": "Optioneel",
+				"remove": "Link verwijderen",
+				"synced": "Gesynchroniseerd",
+				"title": "Links",
+				"titleLabel": "Titel",
+				"url": "URL"
+			},
+			"menu": {
+				"delete": "Taak verwijderen",
+				"deleted": "Taak verwijderd",
+				"deleteMessage": "“{{title}}” en de bijbehorende reacties worden permanent verwijderd.",
+				"deleteTitle": "Taak verwijderen?",
+				"duplicate": "Dupliceren",
+				"duplicated": "Taak gedupliceerd",
+				"move": "Naar project verplaatsen…",
+				"moved": "Taak verplaatst",
+				"moveTitle": "Naar project verplaatsen",
+				"refresh": "Vernieuwen",
+				"share": "Delen"
+			},
+			"relations": {
+				"blockedBy": "Geblokkeerd door",
+				"blocks": "Blokkeert",
+				"empty": "Geen gerelateerde taken",
+				"link": "Taak koppelen",
+				"related": "Gerelateerd",
+				"relatedTo": "Gerelateerd aan",
+				"remove": "Relatie verwijderen",
+				"removeConfirm": "Verwijderen",
+				"removeMessage": "De taken blijven bestaan; alleen de koppeling ertussen wordt verwijderd.",
+				"removeTitle": "Relatie verwijderen?",
+				"searchPlaceholder": "Taken zoeken op titel of nummer",
+				"title": "Relaties"
+			},
+			"screen": {
+				"addDescription": "Beschrijving toevoegen…",
+				"copyLink": "Link kopiëren",
+				"editDescription": "Beschrijving bewerken",
+				"editTitle": "Titel bewerken",
+				"linkCopied": "Link gekopieerd",
+				"more": "Meer"
+			},
+			"section": {
+				"addTo": "Toevoegen aan {{title}}"
+			},
+			"someone": "Iemand",
+			"status": {
+				"archived": "Gearchiveerd",
+				"planned": "Gepland"
+			},
+			"subtasks": {
+				"add": "Subtaak toevoegen",
+				"empty": "Geen subtaken",
+				"parent": "Bovenliggende taak",
+				"title": "Subtaken"
+			},
+			"time": {
+				"chipHours": "{{count}} u",
+				"chipMinutes": "{{count}} min",
+				"date": "Datum",
+				"durationHoursMinutes": "{{hours}} u {{minutes}} min",
+				"durationMinutes": "{{minutes}} min",
+				"editEntry": "Tijdregistratie bewerken",
+				"hoursUnit": "u",
+				"log": "Tijd registreren",
+				"logDuration": "{{duration}} registreren",
+				"logged": "Tijd geregistreerd",
+				"minutesUnit": "min",
+				"notePlaceholder": "Waar heb je aan gewerkt?",
+				"running": "{{time}} (loopt)",
+				"start": "Timer starten",
+				"stop": "Stoppen",
+				"title": "Tijd",
+				"total": "{{duration}} totaal"
+			}
+		},
+		"taskFields": {
+			"addNumber": "Getal toevoegen",
+			"archived": "Gearchiveerd",
+			"assignee": "Toegewezen persoon",
+			"createLabel": "Label “{{name}}” aanmaken",
+			"done": "Gereed",
+			"doneColumn": "Voltooiingskolom",
+			"dueDate": "Einddatum",
+			"empty": "Leeg",
+			"labelColor": "Kleur voor het nieuwe label",
+			"labels": "Labels",
+			"noLabels": "Nog geen labels. Typ een naam om er een aan te maken.",
+			"none": "Geen",
+			"overdue_one": "{{date}}, {{count}} dag te laat",
+			"overdue_other": "{{date}}, {{count}} dagen te laat",
+			"planned": "Gepland",
+			"priority": "Prioriteit",
+			"searchOrCreate": "Zoeken of aanmaken",
+			"searchPeople": "Personen zoeken",
+			"startDate": "Startdatum",
+			"starts": "Begint op {{date}}",
+			"status": "Status",
+			"unassigned": "Niet toegewezen",
+			"you": "{{name}} (jij)"
+		},
+		"taskNew": {
+			"create": "Aanmaken",
+			"newSubtask": "Nieuwe subtaak",
+			"noLabels": "Nog geen labels in deze werkruimte.",
+			"project": "Project",
+			"taskTitle": "Taaknaam",
+			"labelsAndParentFailed": "Taak aangemaakt, maar sommige labels en de koppeling met de bovenliggende taak konden niet worden opgeslagen.",
+			"labelsFailed": "Taak aangemaakt, maar sommige labels konden niet worden toegevoegd.",
+			"parentFailed": "Taak aangemaakt, maar deze kon niet aan de bovenliggende taak worden gekoppeld."
+		},
+		"time": {
+			"durationHoursMinutes": "{{hours}} u {{minutes}} min",
+			"goodAfternoon": "Goedemiddag",
+			"goodEvening": "Goedenavond",
+			"goodMorning": "Goedemorgen",
+			"hours_one": "{{count}} u",
+			"hours_other": "{{count}} u",
+			"hoursAgo_one": "{{count}} u geleden",
+			"hoursAgo_other": "{{count}} u geleden",
+			"hoursShort_one": "{{count}} u",
+			"hoursShort_other": "{{count}} u",
+			"justNow": "zojuist",
+			"minutes_one": "{{count}} min",
+			"minutes_other": "{{count}} min",
+			"minutesAgo_one": "{{count}} min geleden",
+			"minutesAgo_other": "{{count}} min geleden",
+			"minutesShort_one": "{{count}} min",
+			"minutesShort_other": "{{count}} min",
+			"now": "nu",
+			"secondsShort_one": "{{count}} s",
+			"secondsShort_other": "{{count}} s",
+			"today": "Vandaag",
+			"tomorrow": "Morgen",
+			"yesterday": "Gisteren"
+		},
+		"ui": {
+			"back": "Terug",
+			"loadFailed": "Kan dit niet laden",
+			"nothingMatches": "Niets komt overeen met “{{query}}”",
+			"search": "Zoeken"
+		},
+		"workspaceNew": {
+			"create": "Werkruimte aanmaken",
+			"description": "Een plek voor de projecten van je team. Hierna kun je mensen uitnodigen.",
+			"descriptionLabel": "Beschrijving",
+			"descriptionPlaceholder": "Waarvoor is deze werkruimte?",
+			"name": "Naam",
+			"namePlaceholder": "Ontwerpstudio",
+			"optional": "Optioneel",
+			"title": "Nieuwe werkruimte"
+		},
+		"workspaceSettings": {
+			"confirm": {
+				"deleteMessage": "Alle projecten, taken en reacties in {{name}} worden permanent verwijderd.",
+				"deleteTitle": "Werkruimte verwijderen?",
+				"leaveMessage": "Je verliest toegang totdat iemand je opnieuw uitnodigt.",
+				"leaveTitle": "Werkruimte verlaten?"
+			},
+			"danger": {
+				"delete": "Werkruimte verwijderen",
+				"deleteHint": "Verwijdert alle projecten en taken erin",
+				"leave": "Werkruimte verlaten",
+				"leaveButton": "Verlaten",
+				"leaveHint": "Je kunt opnieuw deelnemen met een nieuwe uitnodiging",
+				"title": "Gevarenzone"
+			},
+			"description": "Instellingen voor iedereen in {{name}}.",
+			"general": {
+				"description": "Beschrijving",
+				"name": "Naam",
+				"save": "Wijzigingen opslaan",
+				"slug": "Slug: <mono>{{slug}}</mono>",
+				"title": "Algemeen"
+			},
+			"manage": {
+				"labels": "Labels",
+				"members": "Leden",
+				"title": "Beheren"
+			},
+			"thisWorkspace": "deze werkruimte",
+			"title": "Werkruimte",
+			"toast": {
+				"deleted": "Werkruimte verwijderd",
+				"left": "Je hebt de werkruimte verlaten",
+				"updated": "Werkruimte bijgewerkt"
+			}
+		},
+		"workspaceSwitcher": {
+			"create": "Werkruimte aanmaken",
+			"invitations": "Uitnodigingen",
+			"labels": "Labels",
+			"members": "Leden",
+			"settings": "Werkruimte-instellingen",
+			"title": "Werkruimtes"
+		},
+		"permissions": {
+			"photos": "Kaneo gebruikt je foto's om afbeeldingen aan taken en opmerkingen toe te voegen, en voor je profielfoto."
 		}
 	}
 }

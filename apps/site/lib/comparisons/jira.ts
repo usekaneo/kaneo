@@ -83,6 +83,10 @@ export const jira: Comparison = {
       label: "Free, open-source Jira alternatives compared",
       href: "/guides/open-source-jira-alternatives",
     },
+    {
+      label: "Best Jira alternatives, free and paid",
+      href: "/blog/best-jira-alternatives",
+    },
   ],
   verifiedOn: "2026-08-19",
   sources: [

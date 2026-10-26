@@ -3,7 +3,7 @@ import type { Guide } from "./types";
 export const bestOpenSourceProjectManagement: Guide = {
   slug: "best-open-source-project-management-software",
   question: "What is the best open-source project management software?",
-  title: "Open-source project management software: 10 compared",
+  title: "10 Best Open-Source Project Management Tools (2026)",
   description:
     "The best open-source project management tools in 2026 are Kaneo, OpenProject, Plane, Redmine, Taiga, and Vikunja. Compare licences, paid tiers, and setup.",
   summary:
@@ -168,6 +168,14 @@ export const bestOpenSourceProjectManagement: Guide = {
   related: [
     { label: "Kaneo vs Jira", href: "/jira-alternative" },
     { label: "Kaneo vs Plane", href: "/plane-alternative" },
+    {
+      label: "Free, open-source Jira alternatives",
+      href: "/guides/open-source-jira-alternatives",
+    },
+    {
+      label: "Self-host a project management tool with Docker",
+      href: "/guides/self-host-project-management-docker",
+    },
     { label: "All comparisons", href: "/alternatives" },
   ],
   updatedOn: "2026-10-05",

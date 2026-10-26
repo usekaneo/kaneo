@@ -1,6 +1,10 @@
 import { useCallback, useMemo } from "react";
 import { countActiveFilters } from "@/lib/task-filters/count-active-filters";
 import { filterProjectTasks } from "@/lib/task-filters/filter-project-tasks";
+import {
+  expandLabelFilter,
+  type FilterLabel,
+} from "@/lib/task-filters/label-groups";
 import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import { setSubjectNegated } from "@/lib/task-filters/set-subject-negated";
 import { taskMatchesFilters } from "@/lib/task-filters/task-matches-filters";
@@ -9,6 +13,7 @@ import { useUserPreferencesStore } from "@/store/user-preferences";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import useGetCachedCustomFieldValues from "./queries/custom-field/use-get-all-custom-field-values-by-project";
+import useGetLabelsByWorkspace from "./queries/label/use-get-labels-by-workspace";
 import type { BoardFilters } from "./use-task-filters";
 import { useStoredState } from "./use-stored-state";
 
@@ -84,7 +89,25 @@ export function useTaskFiltersWithLabelsSupport(
     normalizeFilters,
     DEFAULT_FILTERS,
   );
-  const { getValuesForTask } = useGetCachedCustomFieldValues();
+  const { data: workspaceLabels } = useGetLabelsByWorkspace(
+    project?.workspaceId ?? "",
+  );
+  const labels = useMemo(() => {
+    if (!filters.labels?.length) return [];
+    const byId = new Map<string, FilterLabel>(
+      (workspaceLabels ?? []).map((label) => [label.id, label]),
+    );
+    const tasks = [
+      ...(project?.columns.flatMap((column) => column.tasks) ?? []),
+      ...(project?.plannedTasks ?? []),
+      ...(project?.archivedTasks ?? []),
+    ];
+    for (const task of tasks) {
+      // A live task update may be newer than the workspace-label query.
+      for (const label of task.labels ?? []) byId.set(label.id, label);
+    }
+    return [...byId.values()];
+  }, [workspaceLabels, project, filters.labels]);
 
   const effectiveFilters = useMemo(
     () =>
@@ -96,6 +119,15 @@ export function useTaskFiltersWithLabelsSupport(
           } as BoardFilters),
     [filters, ignore],
   );
+  // Expansion is matching-only: controls must edit the saved selection.
+  const matchingLabelIds = useMemo(
+    () => new Set(expandLabelFilter(labels, effectiveFilters.labels)),
+    [labels, effectiveFilters.labels],
+  );
+  const customFieldValues = useGetCachedCustomFieldValues(
+    effectiveFilters.customFields ? projectId : undefined,
+  );
+  const { getValuesForTask, hasData } = customFieldValues;
 
   const createMatcher = useCallback(() => {
     const context = {
@@ -105,15 +137,22 @@ export function useTaskFiltersWithLabelsSupport(
       weekStartsOn,
       today: new Date(),
       getCustomFieldValues: getValuesForTask,
+      labelIds: matchingLabelIds,
     };
-    return (task: Task) => taskMatchesFilters(task, effectiveFilters, context);
+    // Missing query data is unknown, rather than an empty value on every task.
+    const readyFilters = !hasData
+      ? { ...effectiveFilters, customFields: null }
+      : effectiveFilters;
+    return (task: Task) => taskMatchesFilters(task, readyFilters, context);
   }, [
     effectiveFilters,
     project?.slug,
     textQuery,
     weekStartsOn,
     getValuesForTask,
+    hasData,
     descriptionMatches,
+    matchingLabelIds,
   ]);
 
   const filterTasks = useCallback(
@@ -212,6 +251,11 @@ export function useTaskFiltersWithLabelsSupport(
   };
 
   return {
+    customFieldValues: {
+      ...customFieldValues,
+      isLoading: !!effectiveFilters.customFields && customFieldValues.isLoading,
+      isError: !!effectiveFilters.customFields && customFieldValues.isError,
+    },
     filters: effectiveFilters,
     setFilters,
     updateFilter,

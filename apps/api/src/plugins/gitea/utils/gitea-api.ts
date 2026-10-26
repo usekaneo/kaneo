@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/node";
+import { destinationFetch } from "../../../import/destination-fetch";
 import { assertPublicDestination } from "../../../utils/assert-public-destination";
 import type { GiteaConfig } from "../config";
 import { normalizeGiteaBaseUrl } from "../config";
@@ -104,7 +105,7 @@ export async function giteaFetch<T>(
       level: "info",
       data: { integration: "gitea" },
     });
-    const res = await fetch(url, {
+    const res = await destinationFetch(url, {
       ...init,
       signal: controller.signal,
       // Following redirects would let a public host bounce the request to an
@@ -117,6 +118,7 @@ export async function giteaFetch<T>(
     });
 
     if (res.status >= 300 && res.status < 400) {
+      void res.body?.cancel().catch(() => {});
       throw new GiteaApiError(
         `Gitea request was redirected (HTTP ${res.status})`,
         res.status,

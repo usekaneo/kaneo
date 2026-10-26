@@ -11,10 +11,16 @@ import createComment from "../../apps/api/src/activity/controllers/create-commen
 import db, { schema } from "../../apps/api/src/database";
 import { taskReminderSentTable } from "../../apps/api/src/database/schema";
 import clearNotifications from "../../apps/api/src/notification/controllers/clear-notifications";
-import createNotification from "../../apps/api/src/notification/controllers/create-notification";
+import createNotification, {
+  persistNotification,
+} from "../../apps/api/src/notification/controllers/create-notification";
 import deleteNotification from "../../apps/api/src/notification/controllers/delete-notification";
 import getNotifications from "../../apps/api/src/notification/controllers/get-notifications";
 import setNotificationRead from "../../apps/api/src/notification/controllers/set-notification-read";
+
+vi.mock("../../apps/api/src/import/destination-fetch", () => ({
+  destinationFetch: (input: string, init?: RequestInit) => fetch(input, init),
+}));
 
 const { deliverNotification } = await vi.importActual<
   typeof import("../../apps/api/src/notification-preferences/delivery")
@@ -264,6 +270,116 @@ describe("notification recipient boundaries", () => {
     expect(
       (await db.select().from(schema.notificationTable)).map((row) => row.id),
     ).toEqual([foreign.id]);
+  });
+
+  it.each(["task", "workspace"])(
+    "rechecks current %s read permission before creation and personal email/webhook delivery",
+    async (resourceType) => {
+      const { actor, member, task } = await fixture();
+      const [role] = await db
+        .insert(schema.workspaceRoleTable)
+        .values({
+          workspaceId: actor.workspace.id,
+          role: "limited",
+          permission: JSON.stringify({ task: ["read"], workspace: ["read"] }),
+        })
+        .returning();
+      await db
+        .update(schema.workspaceUserTable)
+        .set({ role: "limited" })
+        .where(
+          and(
+            eq(schema.workspaceUserTable.userId, member.user.id),
+            eq(schema.workspaceUserTable.workspaceId, actor.workspace.id),
+          ),
+        );
+      await db.insert(schema.userNotificationPreferenceTable).values({
+        userId: member.user.id,
+        emailEnabled: true,
+        webhookEnabled: true,
+        webhookUrl: "http://127.0.0.1/notifications",
+      });
+      await db.insert(schema.userNotificationWorkspaceRuleTable).values({
+        userId: member.user.id,
+        workspaceId: actor.workspace.id,
+        isActive: true,
+        emailEnabled: true,
+        webhookEnabled: true,
+      });
+      vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "true");
+      const fetchMock = vi.fn().mockResolvedValue(new Response(null));
+      vi.stubGlobal("fetch", fetchMock);
+      const input = {
+        userId: member.user.id,
+        resourceType,
+        resourceId: resourceType === "task" ? task.id : actor.workspace.id,
+        type: resourceType === "task" ? "task_comment" : "workspace_created",
+        eventData: {
+          taskTitle: "Private title",
+          workspaceName: "Private workspace",
+        },
+      };
+      const notification = await createNotification(input);
+      if (!notification) throw new Error("Expected readable notification");
+      await deliverNotification(notification.id);
+      expect(sendEmail).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      await db
+        .update(schema.workspaceRoleTable)
+        .set({ permission: "{}" })
+        .where(eq(schema.workspaceRoleTable.id, role.id));
+      await deliverNotification(notification.id);
+      expect(sendEmail).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(await createNotification(input)).toBeNull();
+      expect(
+        await createNotification({ userId: member.user.id, title: "Personal" }),
+      ).toHaveProperty("title", "Personal");
+    },
+  );
+
+  it("uses injected transaction grants for creation, including uncommitted role revocation", async () => {
+    const { actor, member, task } = await fixture();
+    const [role] = await db
+      .insert(schema.workspaceRoleTable)
+      .values({
+        workspaceId: actor.workspace.id,
+        role: "limited",
+        permission: JSON.stringify({ task: ["read"] }),
+      })
+      .returning();
+    await db
+      .update(schema.workspaceUserTable)
+      .set({ role: "limited" })
+      .where(
+        and(
+          eq(schema.workspaceUserTable.userId, member.user.id),
+          eq(schema.workspaceUserTable.workspaceId, actor.workspace.id),
+        ),
+      );
+    await db.transaction(async (tx) => {
+      const input = {
+        userId: member.user.id,
+        resourceType: "task",
+        resourceId: task.id,
+      };
+      expect(await persistNotification(input, tx)).toHaveProperty(
+        "resourceId",
+        task.id,
+      );
+      await tx
+        .update(schema.workspaceRoleTable)
+        .set({ permission: "{}" })
+        .where(eq(schema.workspaceRoleTable.id, role.id));
+      expect(await persistNotification(input, tx)).toBeNull();
+      expect(
+        await persistNotification(
+          { userId: member.user.id, title: "Personal" },
+          tx,
+        ),
+      ).toHaveProperty("title", "Personal");
+    });
   });
 
   it("rejects foreign assignees while preserving valid partial imports", async () => {

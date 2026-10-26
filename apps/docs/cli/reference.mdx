@@ -436,7 +436,7 @@ Lists the labels in your workspace.
 kaneo label create [<name>] [-c <color>]
 ```
 
-Creates a workspace label. `-c`, `--color` takes a hex color such as `#e7000b`, or one of `stone`, `slate`, `lavender`, `sage`, `forest`, `amber`, `terracotta`, `rose` or `crimson`. By default the CLI picks an unused color.
+Creates a workspace label. `-c`, `--color` takes a hex color such as `#e7000b`, or one of `stone`, `slate`, `lavender`, `sage`, `forest`, `amber`, `terracotta`, `rose`, `crimson`, `ocean`, `sky`, `lagoon` or `orchid`. By default the CLI picks an unused color.
 
 ### `kaneo label edit`
 
@@ -605,7 +605,7 @@ Lists a project's columns in board order.
 kaneo column create [<name>] [-p <project>] [--final] [--icon <name>] [--color <hex>]
 ```
 
-Adds a column to the end of the board. The slug comes from the name. `--final` marks it as a done column, which stops overdue reminders for its tasks.
+Adds a column to the end of the board. The slug comes from the name, with a suffix such as `-2` if another column already uses it. `--final` marks it as a done column, which stops overdue reminders for its tasks.
 
 ### `kaneo column edit`
 

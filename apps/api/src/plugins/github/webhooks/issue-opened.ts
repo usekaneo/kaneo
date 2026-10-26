@@ -14,6 +14,7 @@ import {
 import { claimTaskNumber } from "../../../task/controllers/claim-task-numbers";
 import type { GitHubConfig } from "../config";
 import { createExternalLink, findExternalLink } from "../services/link-manager";
+import { confirmedFieldLabels } from "../../sync/field-labels";
 import { findAllIntegrationsByRepo } from "../services/task-service";
 import {
   extractIssuePriority,
@@ -144,6 +145,7 @@ export async function handleIssueOpened(
             state: closed ? "closed" : "open",
             createdFrom: "github",
             author: issue.user?.login,
+            ...confirmedFieldLabels(issue.labels),
           },
         },
         tx,

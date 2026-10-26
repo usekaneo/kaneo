@@ -43,6 +43,7 @@ export function CardFieldList({ fields, max, className }: CardFieldListProps) {
               })}
               onClick={keepCardIdle}
               onPointerDown={keepCardIdle}
+              onTouchStart={(event) => event.stopPropagation()}
               className={cn(
                 cardChipClass,
                 "cursor-default text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring",

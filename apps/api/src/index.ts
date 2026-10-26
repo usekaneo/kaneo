@@ -19,6 +19,7 @@ import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
 import admin from "./admin";
 import { auth } from "./auth";
+import { forwardAuthRequest } from "./utils/forward-auth-request";
 import { organizationRoutes } from "./auth-openapi";
 import billing from "./billing";
 import calendarFeed, { publicCalendarFeed } from "./calendar-feed";
@@ -29,10 +30,7 @@ import customField from "./custom-field";
 import db, { getDatabase, schema } from "./database";
 import { apiErrorSchema } from "./errors/api-error-schema";
 import { httpExceptionResponse } from "./errors/http-exception-response";
-import {
-  notFoundResponse,
-  withJsonNotFound,
-} from "./errors/not-found-response";
+import { notFoundResponse } from "./errors/not-found-response";
 import { withJsonRateLimit } from "./errors/rate-limit-response";
 import {
   validationHook,
@@ -101,6 +99,8 @@ import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
+import { requireWorkspacePermission } from "./utils/require-workspace-permission";
+import { PROJECT_READ_PERMISSIONS } from "./ws/project-read-permissions";
 import { apiKeyResponseHeaders } from "./utils/rate-limit-headers";
 import { readApiKeyCheck, verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
@@ -143,6 +143,7 @@ type ApiVariables = {
     userEmail: string;
     apiKey?: ApiKey;
     apiKeyHeaders?: Record<string, string>;
+    workspaceId?: string;
   };
 };
 
@@ -483,7 +484,7 @@ export function createApp() {
         429: apiKeyRateLimited.ref,
       },
     }),
-    async (c) => withJsonRateLimit(await auth.handler(c.req.raw)),
+    forwardAuthRequest,
   );
 
   api.openapi(
@@ -746,51 +747,11 @@ export function createApp() {
     },
   );
 
-  api.on(["POST", "GET", "PUT", "PATCH", "DELETE"], "/auth/*", async (c) => {
-    const authHeader = c.req.header("Authorization");
-    const apiKeyHeader = c.req.header("x-api-key")?.trim();
-    const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];
-
-    if (bearerToken && !apiKeyHeader) {
-      const headers = new Headers(c.req.raw.headers);
-      headers.delete("cookie");
-      const session = await auth.api.getSession({ headers });
-
-      // Preserve Better Auth bearer session tokens on auth routes.
-      if (session?.session && session.user) {
-        return withJsonRateLimit(
-          await withJsonNotFound(
-            await auth.handler(new Request(c.req.raw, { headers })),
-          ),
-        );
-      }
-
-      const apiKeyResult = await verifyApiKey(bearerToken, { consume: false });
-      if (apiKeyResult?.status !== "valid") throw apiKeyRejection(apiKeyResult);
-
-      // Better Auth API key plugin validates from x-api-key by default.
-      headers.set("x-api-key", bearerToken);
-
-      const response = await withJsonRateLimit(
-        await withJsonNotFound(
-          await auth.handler(new Request(c.req.raw, { headers })),
-        ),
-      );
-      c.set(
-        "apiKeyHeaders",
-        await apiKeyResponseHeaders(
-          await readApiKeyCheck(bearerToken),
-          response,
-          new Date(),
-        ),
-      );
-      return response;
-    }
-
-    return withJsonRateLimit(
-      await withJsonNotFound(await auth.handler(c.req.raw)),
-    );
-  });
+  api.on(
+    ["POST", "GET", "PUT", "PATCH", "DELETE"],
+    "/auth/*",
+    forwardAuthRequest,
+  );
 
   api.route("/", mcpRoutes);
 
@@ -939,6 +900,11 @@ export function createApp() {
         });
         await assertProjectAccess(userId, projectId);
         workspaceId = project.workspaceId;
+        c.set("workspaceId", workspaceId);
+        await requireWorkspacePermission(PROJECT_READ_PERMISSIONS)(
+          c,
+          async () => {},
+        );
       }
 
       const windowId = c.req.query("windowId");
@@ -954,6 +920,7 @@ export function createApp() {
               userId,
               initiatorId,
               workspaceId,
+              c.get("apiKey")?.id,
             );
           }
         },

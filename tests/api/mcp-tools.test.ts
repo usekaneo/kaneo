@@ -98,6 +98,40 @@ describe("MCP tool catalog", () => {
     expect(lastRequest().url).toBe("http://api.test/api/column/p1");
   });
 
+  it("reads custom field definitions and task values", async () => {
+    await call("list_project_custom_fields", { projectId: "p1" });
+    expect(lastRequest().url).toBe(
+      "http://api.test/api/custom-field/project/p1",
+    );
+
+    await call("get_task_custom_field_values", { taskId: "t1" });
+    expect(lastRequest().url).toBe("http://api.test/api/custom-field/task/t1");
+  });
+
+  it("sets a multiselect custom field value and clears it", async () => {
+    await call("set_task_custom_field_value", {
+      taskId: "t1",
+      fieldId: "f1",
+      value: ["Frontend", "API"],
+    });
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/custom-field/value",
+      method: "PUT",
+      body: { taskId: "t1", fieldId: "f1", value: '["Frontend","API"]' },
+    });
+
+    await call("set_task_custom_field_value", {
+      taskId: "t1",
+      fieldId: "f1",
+      value: null,
+    });
+    expect(lastRequest().body).toEqual({
+      taskId: "t1",
+      fieldId: "f1",
+      value: "",
+    });
+  });
+
   it("deletes a task", async () => {
     await call("delete_task", { taskId: "t1" });
 

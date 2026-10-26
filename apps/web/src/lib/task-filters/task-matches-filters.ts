@@ -18,6 +18,7 @@ export type TaskFilterContext = {
   descriptionMatches?: ReadonlySet<string>;
   weekStartsOn: Day;
   today: Date;
+  labelIds?: ReadonlySet<string>;
   getCustomFieldValues: (
     taskId: string,
   ) => Array<{ fieldId: string; value: string | null }>;
@@ -76,7 +77,6 @@ export function taskMatchesFilters(
   const negated = new Set(filters.negated ?? []);
   const passes = (subject: string, matches: boolean) =>
     negated.has(subject) ? !matches : matches;
-  const labelIds = (task.labels ?? []).map((label) => label.id);
   const checks: Array<[string, string[] | null | undefined, () => boolean]> = [
     [
       "status",
@@ -104,7 +104,12 @@ export function taskMatchesFilters(
     [
       "labels",
       filters.labels,
-      () => filters.labels?.some((id) => labelIds.includes(id)) ?? false,
+      () =>
+        (task.labels ?? []).some((label) =>
+          context.labelIds
+            ? context.labelIds.has(label.id)
+            : filters.labels?.includes(label.id),
+        ),
     ],
   ];
 
