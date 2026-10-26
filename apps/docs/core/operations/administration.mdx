@@ -1,11 +1,11 @@
 ---
 title: "Administer users and workspaces"
-description: "Manage every account and workspace on your instance as an instance administrator."
+description: "Manage every account and workspace on your instance and review administrative actions as an instance administrator."
 ---
 
 Instance administrators manage the whole Kaneo instance, not just the workspaces they belong to. The first account created on a new instance becomes an instance administrator, and an administrator can give the role to others from **User management**.
 
-Both pages live under **Settings → Administration** and are only visible to instance administrators.
+These pages live under **Settings → Administration** and are only visible to instance administrators.
 
 ## Manage users
 
@@ -26,3 +26,21 @@ From the members list you can:
 - **Change project access.** Use the member's **Projects** entry to limit them to selected projects, the same way workspace admins can from **Members**. See [Members and roles](/core/functional/collaborate-with-team#limit-a-member-to-selected-projects).
 
 The only owner can't be removed or given another role. Transfer ownership to someone else first.
+
+## Review the audit log
+
+Open **Settings → Administration → Audit log** to see what administrators changed, newest first. Each entry shows the action, the administrator who did it, the affected user or workspace, the time, and the IP address the request came from. Filter by users, sessions, or workspaces to narrow the list.
+
+Kaneo records these actions when they succeed. Rejected or failed attempts aren't recorded.
+
+- **Users:** created, details updated (which fields changed), instance role changed, deactivated, reactivated, deleted, password set by an administrator, and signed in as the user (impersonation).
+- **Sessions:** one session or all of a user's sessions revoked.
+- **Workspaces:** member added, member removed, member role changed, and ownership transferred.
+
+The first account becoming an administrator on a new instance isn't an administrative action and isn't recorded.
+
+Entries never contain passwords, session tokens, password reset links, or API key values. Names and emails are copied into each entry, so the history stays readable after an account is deleted. The IP address comes from the same trusted proxy settings Kaneo uses for sign-in (`TRUSTED_PROXIES`).
+
+Kaneo keeps audit log entries until you remove them; there's no automatic retention. To prune old entries, delete rows from the `admin_audit_log` table in PostgreSQL, for example `DELETE FROM admin_audit_log WHERE created_at < (now() AT TIME ZONE 'utc') - interval '1 year';`.
+
+Only instance administrators signed in with a session can read the audit log, in the app or through `GET /api/admin/audit-log`. API keys are rejected.
