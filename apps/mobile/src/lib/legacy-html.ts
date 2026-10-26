@@ -16,13 +16,21 @@ const entities: Record<string, string> = {
 const marks: Record<string, string> = {
   strong: "**",
   b: "**",
-  em: "_",
-  i: "_",
+  em: "*",
+  i: "*",
   s: "~~",
   del: "~~",
   strike: "~~",
 };
-const framed = new Set(["ul", "ol", "li", "blockquote", "a"]);
+const framed = new Set([
+  "ul",
+  "ol",
+  "li",
+  "blockquote",
+  "a",
+  "code",
+  ...Object.keys(marks),
+]);
 
 type Frame = { tag: string; attrs: string; out: string; items: number };
 
@@ -87,7 +95,24 @@ function finish(frame: Frame, parent: Frame): string {
         .split("\n")
         .map((line) => (line ? `> ${line}` : ">"))
         .join("\n")}\n\n`;
+    case "code": {
+      const longest = Math.max(
+        0,
+        ...(frame.out.match(/`+/g) ?? []).map((run) => run.length),
+      );
+      const fence = "`".repeat(longest + 1);
+      const pad = /^`|`$/.test(frame.out) ? " " : "";
+      return frame.out ? `${fence}${pad}${frame.out}${pad}${fence}` : "";
+    }
     default: {
+      const mark = marks[frame.tag];
+      if (mark) {
+        // Markdown ignores delimiters next to inner spaces, so keep spaces outside.
+        const [, lead, core, trail] = /^(\s*)([\s\S]*?)(\s*)$/.exec(
+          frame.out,
+        ) as RegExpExecArray;
+        return core ? `${lead}${mark}${core}${mark}${trail}` : frame.out;
+      }
       const href = attr(frame.attrs, "href");
       return href ? `[${frame.out}](${href})` : frame.out;
     }
@@ -102,7 +127,6 @@ export function legacyHtmlToMarkdown(html: string): string {
     top().out += text;
   };
   let pre = 0;
-  let code = false;
 
   for (const token of html.split(tagToken)) {
     const tag = tagParts.exec(token);
@@ -110,7 +134,8 @@ export function legacyHtmlToMarkdown(html: string): string {
       if (pre) emit(decode(token));
       else if (token.trim()) {
         const text = decode(token.replace(/\s+/g, " "));
-        emit(code ? text : escapeText(text));
+        const inCode = stack.some((frame) => frame.tag === "code");
+        emit(inCode ? text : escapeText(text));
       } else if (token && !/\s$/.test(top().out)) emit(" ");
       continue;
     }
@@ -119,6 +144,8 @@ export function legacyHtmlToMarkdown(html: string): string {
     const name = rawName.toLowerCase();
     if (name === "img" || name.startsWith("kaneo-")) {
       emit(token);
+    } else if (name === "code" && pre) {
+      continue;
     } else if (framed.has(name)) {
       if (!closing) {
         stack.push({ tag: name, attrs: rawAttrs, out: "", items: 0 });
@@ -129,12 +156,6 @@ export function legacyHtmlToMarkdown(html: string): string {
           top().out += finish(frame, top());
         } while (frame.tag !== name);
       }
-    } else if (marks[name]) {
-      emit(marks[name]);
-    } else if (name === "code") {
-      if (pre) continue;
-      code = !closing;
-      emit("`");
     } else if (name === "pre") {
       pre = Math.max(0, pre + (closing ? -1 : 1));
       emit(closing ? "\n```\n\n" : "```\n");

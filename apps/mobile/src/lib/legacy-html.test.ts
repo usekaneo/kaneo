@@ -16,7 +16,7 @@ describe("legacy HTML descriptions", () => {
       legacyHtmlToMarkdown(
         "<p>Hello <strong>bold</strong> and <em>soft</em> &amp; <code>x &lt; y</code></p><p>Next<br>line</p>",
       ),
-    ).toBe("Hello **bold** and _soft_ & `x < y`\n\nNext  \nline");
+    ).toBe("Hello **bold** and *soft* & `x < y`\n\nNext  \nline");
   });
 
   it("keeps Markdown characters in text literal", () => {
@@ -27,6 +27,14 @@ describe("legacy HTML descriptions", () => {
     ).toBe(
       "Use \\*literal\\* markers, \\[draft\\](notes) and `a*b`\n\n1\\. not a list",
     );
+  });
+
+  it("keeps spaces outside marks and backticks inside code", () => {
+    expect(
+      legacyHtmlToMarkdown(
+        "<p><strong>Hello </strong>world, <em>in</em>line and <code>echo `hostname`</code></p>",
+      ),
+    ).toBe("**Hello** world, *in*line and `` echo `hostname` ``");
   });
 
   it("converts editor task lists with their checked state", () => {
