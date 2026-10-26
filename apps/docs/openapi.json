@@ -5391,6 +5391,21 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "lastActiveAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When one of the user's current sessions was last refreshed; null without a session."
+          },
+          "signInMethods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Linked sign-in methods: `credential` (password), `github`, `google`, `discord`, or `custom` (OIDC)."
           }
         },
         "required": [
@@ -5404,7 +5419,9 @@
           "role",
           "banned",
           "banReason",
-          "banExpires"
+          "banExpires",
+          "lastActiveAt",
+          "signInMethods"
         ]
       },
       "AdminWorkspaceList": {
@@ -5625,6 +5642,79 @@
           "metadata",
           "ipAddress",
           "userAgent"
+        ]
+      },
+      "CreatedAdminUser": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AdminUser"
+          },
+          "passwordSetupEmail": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "failed",
+              "not_configured",
+              "not_needed"
+            ],
+            "description": "Whether the link to choose a password was emailed: `not_configured` without SMTP, `not_needed` when the account is for single sign-on. The link itself is never returned."
+          }
+        },
+        "required": [
+          "user",
+          "passwordSetupEmail"
+        ]
+      },
+      "AdminEmailSent": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "sent"
+        ]
+      },
+      "AdminEmailVerified": {
+        "type": "object",
+        "properties": {
+          "emailVerified": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "emailVerified"
+        ]
+      },
+      "AdminUserAvatar": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "image"
+        ]
+      },
+      "AdminUserAvatarRemoved": {
+        "type": "object",
+        "properties": {
+          "removed": {
+            "type": "boolean",
+            "description": "False when the user had no picture to remove."
+          }
+        },
+        "required": [
+          "removed"
         ]
       }
     },
@@ -24096,7 +24186,7 @@
           "Admin"
         ],
         "summary": "List instance users",
-        "description": "Page through every user account on this instance, optionally filtered by a case-insensitive name or email search. Requires an instance administrator session; API keys are rejected.",
+        "description": "Page through every user account on this instance, newest first, optionally filtered by a case-insensitive name or email search, status, instance role, and email verification. Each user lists their linked sign-in methods and last session activity. Requires an instance administrator session; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24107,6 +24197,48 @@
             "required": false,
             "description": "Case-insensitive match against user name or email.",
             "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "deactivated"
+              ],
+              "description": "Only active or only deactivated accounts."
+            },
+            "required": false,
+            "description": "Only active or only deactivated accounts.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "user"
+              ],
+              "description": "Only instance administrators, or only everyone else."
+            },
+            "required": false,
+            "description": "Only instance administrators, or only everyone else.",
+            "name": "role",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Only users whose email is verified, or is not."
+            },
+            "required": false,
+            "description": "Only users whose email is verified, or is not.",
+            "name": "emailVerified",
             "in": "query"
           },
           {
@@ -24165,6 +24297,105 @@
           },
           "403": {
             "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createAdminUser",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a user",
+        "description": "Create an account with an instance role. No password is set or returned. When password sign-in is available, the user is emailed a single-use link, valid for 2 days, to choose their own password. When password registration or the login form is disabled, the account is created with a verified email so the user can sign in with single sign-on, and no email is sent. Registration restrictions do not apply to administrators.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "email": {
+                    "type": "string",
+                    "maxLength": 254,
+                    "format": "email",
+                    "description": "The new user's email address. They sign in with it and receive their password link there."
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "admin",
+                      "user"
+                    ],
+                    "default": "user",
+                    "description": "Instance role: `admin` administers the instance."
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedAdminUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, email, or role, or a disposable address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A user with this email already exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -24929,6 +25160,441 @@
           },
           "403": {
             "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/password-reset-email": {
+      "post": {
+        "operationId": "sendAdminUserPasswordReset",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Email a password reset link",
+        "description": "Email the user a single-use link to choose a new password, using the regular reset lifetime. The link is never returned to the administrator.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The email was sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEmailSent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nothing to send: a guest account, an already verified address, or password sign-in is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "The SMTP server did not accept the email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Email delivery is not configured on this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/verification-email": {
+      "post": {
+        "operationId": "sendAdminUserVerificationEmail",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Email a verification link",
+        "description": "Email the user a link, valid for 24 hours, that confirms their email address. The link is never returned to the administrator.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The email was sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEmailSent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nothing to send: a guest account, an already verified address, or password sign-in is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "The SMTP server did not accept the email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Email delivery is not configured on this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/email-verified": {
+      "put": {
+        "operationId": "markAdminUserEmailVerified",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Mark an email as verified",
+        "description": "Mark the user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The email is verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEmailVerified"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/avatar": {
+      "put": {
+        "operationId": "setAdminUserAvatar",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Set a user's avatar",
+        "description": "Store a base64 encoded avatar (PNG, JPEG, or WebP, up to 512KB) for the user and make it their profile picture. Not available when the identity provider manages the user's picture.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contentType": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "One of image/png, image/jpeg, or image/webp.",
+                    "example": "image/png"
+                  },
+                  "data": {
+                    "type": "string",
+                    "maxLength": 700076,
+                    "description": "Base64 encoded image bytes."
+                  }
+                },
+                "required": [
+                  "contentType",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The new picture",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserAvatar"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported, invalid, or oversized image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not an instance administrator, an API key, or the picture is managed by the identity provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body is too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeAdminUserAvatar",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Remove a user's avatar",
+        "description": "Remove the user's profile picture. A picture managed by the identity provider can't be removed, but an earlier Kaneo upload can.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Picture removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserAvatarRemoved"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not an instance administrator, an API key, or the picture is managed by the identity provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
             "content": {
               "application/json": {
                 "schema": {

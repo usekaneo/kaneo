@@ -15,6 +15,14 @@ export const adminUserSchema = z
     banned: z.boolean(),
     banReason: z.string().nullable(),
     banExpires: isoTimestamp.nullable(),
+    lastActiveAt: isoTimestamp.nullable().openapi({
+      description:
+        "When one of the user's current sessions was last refreshed; null without a session.",
+    }),
+    signInMethods: z.array(z.string()).openapi({
+      description:
+        "Linked sign-in methods: `credential` (password), `github`, `google`, `discord`, or `custom` (OIDC).",
+    }),
   })
   .openapi("AdminUser");
 
@@ -107,3 +115,35 @@ export const adminAuditLogSchema = z
     }),
   })
   .openapi("AdminAuditLog");
+
+export const createdAdminUserSchema = z
+  .object({
+    user: adminUserSchema,
+    passwordSetupEmail: z
+      .enum(["sent", "failed", "not_configured", "not_needed"])
+      .openapi({
+        description:
+          "Whether the link to choose a password was emailed: `not_configured` without SMTP, `not_needed` when the account is for single sign-on. The link itself is never returned.",
+      }),
+  })
+  .openapi("CreatedAdminUser");
+
+export const adminEmailSentSchema = z
+  .object({ sent: z.literal(true) })
+  .openapi("AdminEmailSent");
+
+export const adminEmailVerifiedSchema = z
+  .object({ emailVerified: z.literal(true) })
+  .openapi("AdminEmailVerified");
+
+export const adminUserAvatarSchema = z
+  .object({ image: z.string() })
+  .openapi("AdminUserAvatar");
+
+export const adminUserAvatarRemovedSchema = z
+  .object({
+    removed: z.boolean().openapi({
+      description: "False when the user had no picture to remove.",
+    }),
+  })
+  .openapi("AdminUserAvatarRemoved");

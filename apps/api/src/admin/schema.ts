@@ -4,6 +4,21 @@ export const listAdminUsersQuery = z.object({
   search: z.string().max(200).optional().openapi({
     description: "Case-insensitive match against user name or email.",
   }),
+  status: z.enum(["active", "deactivated"]).optional().openapi({
+    description: "Only active or only deactivated accounts.",
+  }),
+  role: z.enum(["admin", "user"]).optional().openapi({
+    description: "Only instance administrators, or only everyone else.",
+  }),
+  emailVerified: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional()
+    .openapi({
+      type: "string",
+      enum: ["true", "false"],
+      description: "Only users whose email is verified, or is not.",
+    }),
   page: pagingNumber(1, 1_000_000, 1),
   limit: pagingNumber(1, 100, 20),
 });
@@ -65,4 +80,17 @@ export const listAdminAuditLogQuery = z.object({
   }),
   page: pagingNumber(1, 1_000_000, 1),
   limit: pagingNumber(1, 100, 25),
+});
+
+export const adminUserParam = z.object({ userId: z.string().min(1) });
+
+export const createAdminUserBody = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.email().max(254).openapi({
+    description:
+      "The new user's email address. They sign in with it and receive their password link there.",
+  }),
+  role: z.enum(["admin", "user"]).default("user").openapi({
+    description: "Instance role: `admin` administers the instance.",
+  }),
 });

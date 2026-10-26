@@ -16,6 +16,7 @@ import listWorkspaces from "./controllers/list-workspaces";
 import removeWorkspaceMember from "./controllers/remove-workspace-member";
 import transferWorkspaceOwnership from "./controllers/transfer-workspace-ownership";
 import updateWorkspaceMemberRole from "./controllers/update-workspace-member-role";
+import adminUserRoutes from "./user-routes";
 import {
   adminAuditLogSchema,
   adminUserListSchema,
@@ -45,7 +46,7 @@ const listUsersRoute = createRoute({
   tags: ["Admin"],
   summary: "List instance users",
   description:
-    "Page through every user account on this instance, optionally filtered by a case-insensitive name or email search. Requires an instance administrator session; API keys are rejected.",
+    "Page through every user account on this instance, newest first, optionally filtered by a case-insensitive name or email search, status, instance role, and email verification. Each user lists their linked sign-in methods and last session activity. Requires an instance administrator session; API keys are rejected.",
   middleware: [requireUserSession, requireInstanceAdmin] as const,
   request: { query: listAdminUsersQuery },
   responses: {
@@ -288,6 +289,7 @@ const admin = apiRouter()
   )
   .openapi(listAuditLogRoute, async (c) =>
     c.json(await listAuditLog(c.req.valid("query")), 200),
-  );
+  )
+  .route("/users", adminUserRoutes);
 
 export default admin;
