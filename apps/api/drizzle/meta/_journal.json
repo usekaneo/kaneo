@@ -477,6 +477,13 @@
       "when": 1793094838163,
       "tag": "0067_better_auth_team_membership",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1793128120924,
+      "tag": "0068_admin_audit_log",
+      "breakpoints": true
     }
   ]
 }

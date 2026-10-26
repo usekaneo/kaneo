@@ -140,6 +140,41 @@ export const userAvatarTable = pgTable(
   (table) => [index("user_avatar_userId_idx").on(table.userId)],
 );
 
+// Instance administration history. Actor and target details are snapshots so
+// entries stay readable after the people or records involved are deleted.
+export const adminAuditLogTable = pgTable(
+  "admin_audit_log",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    actorUserId: text("actor_user_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    actorName: text("actor_name"),
+    actorEmail: text("actor_email"),
+    action: text("action").notNull(),
+    targetType: text("target_type").notNull(),
+    targetId: text("target_id"),
+    targetLabel: text("target_label"),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    index("admin_audit_log_createdAt_idx").on(
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
+    index("admin_audit_log_actorUserId_idx").on(table.actorUserId),
+    index("admin_audit_log_target_idx").on(table.targetType, table.targetId),
+  ],
+);
+
 export const verificationTable = pgTable(
   "verification",
   {
