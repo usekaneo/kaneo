@@ -7,6 +7,17 @@ const ACTION_LABEL_KEYS = new Map([
   ["user.deleted", "settings:adminAuditLog.actions.userDeleted"],
   ["user.password_set", "settings:adminAuditLog.actions.userPasswordSet"],
   ["user.impersonated", "settings:adminAuditLog.actions.userImpersonated"],
+  [
+    "user.password_reset_sent",
+    "settings:adminAuditLog.actions.userPasswordResetSent",
+  ],
+  [
+    "user.verification_sent",
+    "settings:adminAuditLog.actions.userVerificationSent",
+  ],
+  ["user.email_verified", "settings:adminAuditLog.actions.userEmailVerified"],
+  ["user.avatar_changed", "settings:adminAuditLog.actions.userAvatarChanged"],
+  ["user.avatar_removed", "settings:adminAuditLog.actions.userAvatarRemoved"],
   ["session.revoked", "settings:adminAuditLog.actions.sessionRevoked"],
   ["session.revoked_all", "settings:adminAuditLog.actions.sessionRevokedAll"],
   [

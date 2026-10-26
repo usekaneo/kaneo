@@ -1598,7 +1598,10 @@
 				"deactivate": "Деактивирај",
 				"edit": "Уреди",
 				"open": "Actions for {{name}}",
-				"reactivate": "Повторно активирај"
+				"reactivate": "Повторно активирај",
+				"markEmailVerified": "Mark email as verified",
+				"sendPasswordReset": "Send password reset link",
+				"sendVerification": "Resend verification email"
 			},
 			"clearSearch": "Clear search",
 			"columns": {
@@ -1606,7 +1609,8 @@
 				"joined": "Joined",
 				"role": "Улога",
 				"status": "Status",
-				"user": "User"
+				"user": "User",
+				"lastActive": "Last active"
 			},
 			"confirm": {
 				"deactivate": {
@@ -1624,7 +1628,22 @@
 					"description": "{{name}} will be able to sign in and access their workspaces again.",
 					"title": "Reactivate this account?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"markEmailVerified": {
+					"action": "Mark as verified",
+					"description": "Only do this if you know {{email}} belongs to {{name}}. Single sign-on accounts with a verified address can link to this account.",
+					"title": "Mark this email as verified?"
+				},
+				"sendPasswordReset": {
+					"action": "Send link",
+					"description": "{{name}} gets an email at {{email}} with a link to choose a new password. The link works once and expires in 1 hour. You won't see the link.",
+					"title": "Send a password reset link?"
+				},
+				"sendVerification": {
+					"action": "Send email",
+					"description": "{{name}} gets an email at {{email}} with a link to confirm the address. The link expires in 24 hours.",
+					"title": "Resend the verification email?"
+				}
 			},
 			"directoryTitle": "Сите корисници",
 			"edit": {
@@ -1665,9 +1684,59 @@
 				"deleted": "User deleted",
 				"reactivated": "User reactivated",
 				"updated": "User updated",
-				"updateError": "Failed to update user"
+				"updateError": "Failed to update user",
+				"avatarChanged": "Profile picture updated",
+				"avatarError": "Failed to update the profile picture",
+				"avatarRemoved": "Profile picture removed",
+				"createdForSso": "User created. They can sign in with single sign-on as {{email}}.",
+				"createdLinkFailed": "User created, but the password link could not be emailed. Try “Send password reset link” later.",
+				"createdLinkSent": "User created. We emailed {{email}} a link to set their password.",
+				"createdNoSmtp": "User created, but email isn't configured, so no password link was sent.",
+				"createError": "Failed to create user",
+				"emailError": "The email could not be sent",
+				"emailVerified": "Email marked as verified",
+				"passwordResetSent": "Password reset link sent to {{email}}",
+				"verificationSent": "Verification email sent to {{email}}"
 			},
-			"you": "Ти"
+			"you": "Ти",
+			"create": {
+				"creating": "Creating…",
+				"description": "Add an account for someone. You never choose or see their password.",
+				"hintEmail": "They'll get an email with a link to set their own password. The link expires in 2 days.",
+				"hintNoEmail": "Email isn't configured on this instance, so no password link can be sent. Once SMTP is set up, use “Send password reset link”.",
+				"hintSso": "Password sign-in is turned off here, so no email is sent. They sign in with single sign-on using this email address.",
+				"open": "Create user",
+				"submit": "Create user",
+				"title": "Create user"
+			},
+			"details": {
+				"avatarHint": "PNG, JPEG, or WebP. Cropped to a square.",
+				"avatarManaged": "This picture comes from the identity provider.",
+				"emailStatus": "Email",
+				"methods": {
+					"password": "Password"
+				},
+				"noSignInMethods": "No password or linked account yet",
+				"notVerified": "Not verified",
+				"removeAvatar": "Remove",
+				"signInMethods": "Sign-in methods",
+				"uploadAvatar": "Upload",
+				"verified": "Verified"
+			},
+			"filters": {
+				"anyEmail": "Any email",
+				"anyRole": "Any role",
+				"anyStatus": "Any status",
+				"clear": "Clear filters",
+				"email": "Email verification",
+				"label": "Filter users",
+				"role": "Role",
+				"status": "Status",
+				"unverified": "Unverified email",
+				"verified": "Verified email"
+			},
+			"never": "Never",
+			"unverified": "Unverified"
 		},
 		"security": "Security",
 		"securityPage": {
@@ -2386,7 +2455,12 @@
 				"workspaceMemberAdded": "Added workspace member",
 				"workspaceMemberRemoved": "Removed workspace member",
 				"workspaceMemberRoleChanged": "Changed workspace member role",
-				"workspaceOwnerTransferred": "Transferred workspace ownership"
+				"workspaceOwnerTransferred": "Transferred workspace ownership",
+				"userAvatarChanged": "Changed profile picture",
+				"userAvatarRemoved": "Removed profile picture",
+				"userEmailVerified": "Marked email as verified",
+				"userPasswordResetSent": "Sent password reset link",
+				"userVerificationSent": "Sent verification email"
 			},
 			"categories": {
 				"all": "All actions",
@@ -2409,7 +2483,8 @@
 				"memberChange": "{{member}}: {{from}} → {{to}}",
 				"memberWithRole": "{{member}} as {{role}}",
 				"noRole": "No role",
-				"reason": "Reason: {{reason}}"
+				"reason": "Reason: {{reason}}",
+				"createdWithRole": "Role: {{role}}"
 			},
 			"directoryTitle": "Recorded actions",
 			"emptyTitle": "No actions recorded",

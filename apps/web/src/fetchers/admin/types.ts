@@ -18,3 +18,21 @@ export type ToggleAdminUserStatusRequest = {
   userId: string;
   deactivate: boolean;
 };
+
+export type AdminUserFilters = {
+  status?: "active" | "deactivated";
+  role?: "admin" | "user";
+  emailVerified?: "true" | "false";
+};
+
+export type CreateAdminUserRequest = {
+  name: string;
+  email: string;
+  role: "admin" | "user";
+};
+
+export type SetAdminUserAvatarRequest = {
+  userId: string;
+  contentType: string;
+  data: string;
+};

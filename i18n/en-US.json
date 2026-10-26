@@ -663,7 +663,8 @@
 				"role": "Role",
 				"status": "Status",
 				"joined": "Joined",
-				"actions": "Actions"
+				"actions": "Actions",
+				"lastActive": "Last active"
 			},
 			"roles": {
 				"admin": "Admin",
@@ -677,7 +678,10 @@
 				"open": "Actions for {{name}}",
 				"edit": "Edit",
 				"deactivate": "Deactivate",
-				"reactivate": "Reactivate"
+				"reactivate": "Reactivate",
+				"sendPasswordReset": "Send password reset link",
+				"sendVerification": "Resend verification email",
+				"markEmailVerified": "Mark email as verified"
 			},
 			"edit": {
 				"title": "Edit user",
@@ -705,6 +709,21 @@
 					"title": "Permanently delete this account?",
 					"description": "This permanently deletes {{name}}, their sessions, memberships, and associated data. This cannot be undone.",
 					"action": "Delete permanently"
+				},
+				"sendPasswordReset": {
+					"title": "Send a password reset link?",
+					"description": "{{name}} gets an email at {{email}} with a link to choose a new password. The link works once and expires in 1 hour. You won't see the link.",
+					"action": "Send link"
+				},
+				"sendVerification": {
+					"title": "Resend the verification email?",
+					"description": "{{name}} gets an email at {{email}} with a link to confirm the address. The link expires in 24 hours.",
+					"action": "Send email"
+				},
+				"markEmailVerified": {
+					"title": "Mark this email as verified?",
+					"description": "Only do this if you know {{email}} belongs to {{name}}. Single sign-on accounts with a verified address can link to this account.",
+					"action": "Mark as verified"
 				}
 			},
 			"toast": {
@@ -713,7 +732,57 @@
 				"deactivated": "User deactivated",
 				"reactivated": "User reactivated",
 				"deleted": "User deleted",
-				"actionError": "Failed to update user status"
+				"actionError": "Failed to update user status",
+				"createdLinkSent": "User created. We emailed {{email}} a link to set their password.",
+				"createdForSso": "User created. They can sign in with single sign-on as {{email}}.",
+				"createdNoSmtp": "User created, but email isn't configured, so no password link was sent.",
+				"createdLinkFailed": "User created, but the password link could not be emailed. Try “Send password reset link” later.",
+				"createError": "Failed to create user",
+				"passwordResetSent": "Password reset link sent to {{email}}",
+				"verificationSent": "Verification email sent to {{email}}",
+				"emailVerified": "Email marked as verified",
+				"emailError": "The email could not be sent",
+				"avatarChanged": "Profile picture updated",
+				"avatarRemoved": "Profile picture removed",
+				"avatarError": "Failed to update the profile picture"
+			},
+			"never": "Never",
+			"unverified": "Unverified",
+			"filters": {
+				"label": "Filter users",
+				"status": "Status",
+				"role": "Role",
+				"email": "Email verification",
+				"anyStatus": "Any status",
+				"anyRole": "Any role",
+				"anyEmail": "Any email",
+				"verified": "Verified email",
+				"unverified": "Unverified email",
+				"clear": "Clear filters"
+			},
+			"create": {
+				"open": "Create user",
+				"title": "Create user",
+				"description": "Add an account for someone. You never choose or see their password.",
+				"hintEmail": "They'll get an email with a link to set their own password. The link expires in 2 days.",
+				"hintNoEmail": "Email isn't configured on this instance, so no password link can be sent. Once SMTP is set up, use “Send password reset link”.",
+				"hintSso": "Password sign-in is turned off here, so no email is sent. They sign in with single sign-on using this email address.",
+				"submit": "Create user",
+				"creating": "Creating…"
+			},
+			"details": {
+				"emailStatus": "Email",
+				"verified": "Verified",
+				"notVerified": "Not verified",
+				"signInMethods": "Sign-in methods",
+				"noSignInMethods": "No password or linked account yet",
+				"methods": {
+					"password": "Password"
+				},
+				"avatarHint": "PNG, JPEG, or WebP. Cropped to a square.",
+				"avatarManaged": "This picture comes from the identity provider.",
+				"uploadAvatar": "Upload",
+				"removeAvatar": "Remove"
 			}
 		},
 		"adminWorkspaces": {
@@ -840,7 +909,12 @@
 				"workspaceMemberAdded": "Added workspace member",
 				"workspaceMemberRemoved": "Removed workspace member",
 				"workspaceMemberRoleChanged": "Changed workspace member role",
-				"workspaceOwnerTransferred": "Transferred workspace ownership"
+				"workspaceOwnerTransferred": "Transferred workspace ownership",
+				"userPasswordResetSent": "Sent password reset link",
+				"userVerificationSent": "Sent verification email",
+				"userEmailVerified": "Marked email as verified",
+				"userAvatarChanged": "Changed profile picture",
+				"userAvatarRemoved": "Removed profile picture"
 			},
 			"fields": {
 				"name": "name",
@@ -854,7 +928,8 @@
 				"reason": "Reason: {{reason}}",
 				"noRole": "No role",
 				"memberWithRole": "{{member}} as {{role}}",
-				"memberChange": "{{member}}: {{from}} → {{to}}"
+				"memberChange": "{{member}}: {{from}} → {{to}}",
+				"createdWithRole": "Role: {{role}}"
 			}
 		},
 		"informationPage": {

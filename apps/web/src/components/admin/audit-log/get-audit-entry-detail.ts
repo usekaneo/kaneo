@@ -49,6 +49,12 @@ export function getAuditEntryDetail(
     getWorkspaceRoleLabel(text(role) ?? "", t);
 
   switch (action) {
+    case "user.created":
+      return metadata.role === undefined
+        ? null
+        : t("settings:adminAuditLog.details.createdWithRole", {
+            role: instanceRole(metadata.role, t),
+          });
     case "user.role_changed":
       return t("settings:adminAuditLog.details.change", {
         from: instanceRole(metadata.from, t),

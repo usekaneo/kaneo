@@ -47,6 +47,55 @@ vi.mock("@/hooks/mutations/admin/use-toggle-admin-user-status", () => ({
 vi.mock("@/hooks/mutations/admin/use-delete-admin-user", () => ({
   default: () => ({ mutateAsync: deleteUserMock, isPending: false }),
 }));
+const { credentialMocks } = vi.hoisted(() => ({
+  credentialMocks: {
+    sendPasswordReset: vi.fn(),
+    sendVerification: vi.fn(),
+    markEmailVerified: vi.fn(),
+    createUser: vi.fn(),
+  },
+}));
+vi.mock("@/hooks/mutations/admin/use-send-admin-user-password-reset", () => ({
+  default: () => ({
+    mutateAsync: credentialMocks.sendPasswordReset,
+    isPending: false,
+  }),
+}));
+vi.mock(
+  "@/hooks/mutations/admin/use-send-admin-user-verification-email",
+  () => ({
+    default: () => ({
+      mutateAsync: credentialMocks.sendVerification,
+      isPending: false,
+    }),
+  }),
+);
+vi.mock("@/hooks/mutations/admin/use-mark-admin-user-email-verified", () => ({
+  default: () => ({
+    mutateAsync: credentialMocks.markEmailVerified,
+    isPending: false,
+  }),
+}));
+vi.mock("@/hooks/mutations/admin/use-create-admin-user", () => ({
+  default: () => ({
+    mutateAsync: credentialMocks.createUser,
+    isPending: false,
+  }),
+}));
+vi.mock("@/hooks/mutations/admin/use-set-admin-user-avatar", () => ({
+  default: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+vi.mock("@/hooks/mutations/admin/use-remove-admin-user-avatar", () => ({
+  default: () => ({ mutateAsync: vi.fn(), isPending: false }),
+}));
+const { configMock } = vi.hoisted(() => ({
+  configMock: {
+    data: { hasSmtp: true, disableLoginForm: false } as Record<string, unknown>,
+  },
+}));
+vi.mock("@/hooks/queries/config/use-get-config", () => ({
+  default: () => configMock,
+}));
 
 const useAdminUsersMock = vi.mocked(useAdminUsers);
 
@@ -63,6 +112,8 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
     banned: false,
     banReason: null,
     banExpires: null,
+    lastActiveAt: null,
+    signInMethods: ["credential"],
     ...overrides,
   };
 }
@@ -142,6 +193,11 @@ beforeEach(() => {
   toggleStatusMock.mockResolvedValue(undefined);
   deleteUserMock.mockReset();
   deleteUserMock.mockResolvedValue(undefined);
+  for (const mock of Object.values(credentialMocks)) {
+    mock.mockReset();
+    mock.mockResolvedValue(undefined);
+  }
+  configMock.data = { hasSmtp: true, disableLoginForm: false };
 });
 
 afterEach(() => {
@@ -412,5 +468,165 @@ describe("UserManagementPanel", () => {
 
     await waitFor(() => expect(deleteUserMock).toHaveBeenCalledWith("user-1"));
     expect(toggleStatusMock).not.toHaveBeenCalled();
+  });
+
+  it("sends a password reset link only after confirmation", async () => {
+    vi.useRealTimers();
+    useAdminUsersMock.mockReturnValue(success(1));
+    render(<UserManagementPanel />);
+
+    openRowMenu();
+    fireEvent.click(
+      await screen.findByRole("menuitem", {
+        name: "settings:adminUsers.actions.sendPasswordReset",
+      }),
+    );
+    expect(credentialMocks.sendPasswordReset).not.toHaveBeenCalled();
+    const confirm = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(confirm).getByRole("button", {
+        name: "settings:adminUsers.confirm.sendPasswordReset.action",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(credentialMocks.sendPasswordReset).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "user-1", email: "ada@example.com" }),
+      ),
+    );
+  });
+
+  it("hides reset links when password sign-in is off", async () => {
+    vi.useRealTimers();
+    configMock.data = { hasSmtp: true, disableLoginForm: true };
+    useAdminUsersMock.mockReturnValue(success(1));
+    render(<UserManagementPanel />);
+
+    openRowMenu();
+    await screen.findByRole("menuitem", {
+      name: "settings:adminUsers.actions.edit",
+    });
+    expect(
+      screen.queryByRole("menuitem", {
+        name: "settings:adminUsers.actions.sendPasswordReset",
+      }),
+    ).toBeNull();
+  });
+
+  it("offers verification actions for an unverified address", async () => {
+    vi.useRealTimers();
+    useAdminUsersMock.mockReturnValue(
+      success(1, [user({ emailVerified: false })]),
+    );
+    render(<UserManagementPanel />);
+
+    expect(screen.getByText("settings:adminUsers.unverified")).toBeTruthy();
+    openRowMenu();
+    expect(
+      await screen.findByRole("menuitem", {
+        name: "settings:adminUsers.actions.sendVerification",
+      }),
+    ).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("menuitem", {
+        name: "settings:adminUsers.actions.markEmailVerified",
+      }),
+    );
+    const confirm = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(confirm).getByRole("button", {
+        name: "settings:adminUsers.confirm.markEmailVerified.action",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(credentialMocks.markEmailVerified).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "user-1" }),
+      ),
+    );
+    expect(credentialMocks.sendVerification).not.toHaveBeenCalled();
+  });
+
+  it("passes filters to the query and returns to the first page", async () => {
+    useAdminUsersMock.mockReturnValue(success(60));
+    render(<UserManagementPanel />);
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    goToThirdPage();
+    vi.useRealTimers();
+
+    fireEvent.click(
+      screen.getByRole("combobox", {
+        name: "settings:adminUsers.filters.status",
+      }),
+      { detail: 1 },
+    );
+    const option = await screen.findByRole("option", {
+      name: "settings:adminUsers.status.deactivated",
+    });
+    fireEvent.pointerDown(option);
+    fireEvent.mouseDown(option);
+    fireEvent.pointerUp(option);
+    fireEvent.mouseUp(option);
+    fireEvent.click(option, { detail: 1 });
+
+    await waitFor(() =>
+      expect(useAdminUsersMock.mock.calls.at(-1)?.[2]).toEqual({
+        status: "deactivated",
+      }),
+    );
+    expect(lastPageArgument()).toBe(0);
+  });
+
+  it("creates a user without asking for a password", async () => {
+    vi.useRealTimers();
+    useAdminUsersMock.mockReturnValue(success(1));
+    render(<UserManagementPanel />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:adminUsers.create.open" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByText("settings:adminUsers.create.hintEmail"),
+    ).toBeTruthy();
+    expect(dialog.querySelector('input[type="password"]')).toBeNull();
+    fireEvent.change(
+      within(dialog).getByLabelText("settings:adminUsers.edit.name"),
+      { target: { value: " Nora New " } },
+    );
+    fireEvent.change(
+      within(dialog).getByLabelText("settings:adminUsers.edit.email"),
+      { target: { value: "Nora@Example.com" } },
+    );
+    fireEvent.click(
+      within(dialog).getByRole("button", {
+        name: "settings:adminUsers.create.submit",
+      }),
+    );
+
+    await waitFor(() =>
+      expect(credentialMocks.createUser).toHaveBeenCalledWith({
+        name: "Nora New",
+        email: "nora@example.com",
+        role: "user",
+      }),
+    );
+  });
+
+  it("explains single sign-on accounts when password registration is off", async () => {
+    vi.useRealTimers();
+    configMock.data = { hasSmtp: true, disablePasswordRegistration: true };
+    useAdminUsersMock.mockReturnValue(success(1));
+    render(<UserManagementPanel />);
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:adminUsers.create.open" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    expect(
+      within(dialog).getByText("settings:adminUsers.create.hintSso"),
+    ).toBeTruthy();
   });
 });

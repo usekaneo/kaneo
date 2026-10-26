@@ -5,6 +5,17 @@ const t = (key: string, values?: Record<string, unknown>) =>
   values ? `${key} ${JSON.stringify(values)}` : key;
 
 describe("getAuditEntryDetail", () => {
+  it("names the role a user was created with", () => {
+    expect(
+      getAuditEntryDetail(
+        { action: "user.created", metadata: { name: "Nora", role: "admin" } },
+        t,
+      ),
+    ).toBe(
+      'settings:adminAuditLog.details.createdWithRole {"role":"settings:adminUsers.roles.admin"}',
+    );
+  });
+
   it("translates instance role changes", () => {
     expect(
       getAuditEntryDetail(
