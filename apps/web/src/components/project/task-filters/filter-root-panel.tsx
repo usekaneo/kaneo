@@ -63,7 +63,6 @@ export function FilterRootPanel({
             openNested(entry, element);
           } else {
             entry.toggle?.();
-            onApplied?.();
           }
         }}
         onEntryHover={(entry, element) => {
