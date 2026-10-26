@@ -23,6 +23,7 @@ type TaskViewShortcutsOptions = {
   layout: TaskLayout;
   selection: TaskSelectionStore;
   getGroups: () => TaskGroup[];
+  getMoveGroups?: () => TaskGroup[];
   project: { id: string; workspaceId: string } | null | undefined;
   enabled?: boolean;
   canMove?: boolean;
@@ -38,6 +39,7 @@ export function useTaskViewShortcuts({
   layout,
   selection,
   getGroups,
+  getMoveGroups = getGroups,
   project,
   enabled = true,
   canMove = false,
@@ -84,14 +86,17 @@ export function useTaskViewShortcuts({
   const move = (direction: MoveDirection) => {
     const taskId = focused();
     if (!taskId || !onMove) return;
-    const overId = moveTarget(getGroups(), layout, taskId, direction);
+    const overId = moveTarget(getMoveGroups(), layout, taskId, direction);
     if (!overId) return;
     onMove(taskId, overId);
     requestAnimationFrame(() => focusTaskElement(taskId, !peekedTaskId()));
   };
 
   const withFocusedGroup = (run: (group: TaskGroup) => void) => {
-    const found = findTaskGroup(getGroups(), focused());
+    const found = findTaskGroup(
+      getGroups().filter((group) => !group.collapsed),
+      focused(),
+    );
     if (found) run(found.group);
   };
 

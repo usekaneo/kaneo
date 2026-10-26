@@ -307,6 +307,13 @@ function ListView({
         taskIds: shownTaskIds(column),
         collapsed: !isExpanded(column.id),
       })),
+    // Repeated children follow their parent for navigation, but reordering
+    // must use their actual status and position rather than their nested row.
+    getMoveGroups: () =>
+      project.columns.map((column) => ({
+        id: column.id,
+        taskIds: column.tasks.map((task) => task.id),
+      })),
     project,
     enabled: activeId === null,
     canMove: !disableDragDrop,

@@ -30,7 +30,9 @@ function stepList(
   direction: FocusDirection,
 ) {
   if (direction === "left" || direction === "right") return null;
-  const ids = visibleGroups(groups).flatMap((group) => group.taskIds);
+  const ids = [
+    ...new Set(visibleGroups(groups).flatMap((group) => group.taskIds)),
+  ];
   if (ids.length === 0) return null;
   const index = taskId ? ids.indexOf(taskId) : -1;
   if (index === -1) return direction === "down" ? ids[0] : ids.at(-1);

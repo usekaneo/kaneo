@@ -1,7 +1,8 @@
+import { createHash, randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
-import { mockAuthenticatedSession } from "./helpers/auth";
+import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import {
   createProjectFixture,
@@ -167,6 +168,47 @@ describe("API integration: project task relations", () => {
     const payload = (await response.json()) as RelationRow[];
     expect(payload.map((row) => row.id)).toEqual([relation.id]);
   });
+
+  it.each([false, true])(
+    "requires task:read on API keys (granted: %s)",
+    async (canReadTasks) => {
+      const member = await createWorkspaceMember({ role: "owner" });
+      const { project } = await createProjectFixture({
+        workspaceId: member.workspace.id,
+      });
+      const parent = await seedTask(member.user.id, project.id, "Parent");
+      const child = await seedTask(member.user.id, project.id, "Child");
+      const relation = await relate(parent.id, child.id);
+      mockAnonymousSession();
+      const key = `kaneo_test_${randomUUID()}`;
+      await db.insert(schema.apikeyTable).values({
+        referenceId: member.user.id,
+        userId: member.user.id,
+        key: createHash("sha256").update(key).digest("base64url"),
+        name: "project relations key",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        permissions: JSON.stringify({
+          project: ["read"],
+          ...(canReadTasks ? { task: ["read"] } : {}),
+        }),
+        enabled: true,
+      });
+      const { app } = createApp();
+      const response = await app.request(
+        `/api/task-relation/project/${project.id}`,
+        {
+          headers: { Authorization: `Bearer ${key}` },
+        },
+      );
+      expect(response.status).toBe(canReadTasks ? 200 : 403);
+      if (canReadTasks) {
+        expect(await response.json()).toEqual([
+          expect.objectContaining({ id: relation.id }),
+        ]);
+      }
+    },
+  );
 
   it("refuses a caller outside the project's workspace", async () => {
     const owner = await createWorkspaceMember({ role: "owner" });

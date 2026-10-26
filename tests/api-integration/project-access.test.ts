@@ -42,6 +42,7 @@ describe("project access enforcement", () => {
       `/label/task/${ctx.betaTask.id}`,
       `/time-entry/task/${ctx.betaTask.id}`,
       `/task-relation/${ctx.betaTask.id}`,
+      `/task-relation/project/${ctx.beta.id}`,
       `/custom-field/project/${ctx.beta.id}`,
       `/external-link/task/${ctx.betaTask.id}`,
       `/workflow-rule/${ctx.beta.id}`,
@@ -57,6 +58,7 @@ describe("project access enforcement", () => {
       `/project/${ctx.alpha.id}`,
       `/task/tasks/${ctx.alpha.id}`,
       `/task/${ctx.alphaTask.id}`,
+      `/task-relation/project/${ctx.alpha.id}`,
     ]) {
       expect({ path, status: (await request(path)).status }).toEqual({
         path,
