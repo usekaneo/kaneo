@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Popover,
@@ -10,6 +11,7 @@ import { formatChipValue } from "./format-chip-value";
 
 export function FilterValueButton({ subject }: { subject: FilterSubject }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
   const chosen = subject.selected.map(
     (value) =>
       subject.options.find((option) => option.value === value) ?? {
@@ -21,7 +23,7 @@ export function FilterValueButton({ subject }: { subject: FilterSubject }) {
   const icons = chosen.filter((option) => option.icon).slice(0, 3);
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
           <button
@@ -43,14 +45,22 @@ export function FilterValueButton({ subject }: { subject: FilterSubject }) {
           </span>
         )}
         <span className="truncate">
-          {formatChipValue(
-            chosen.map((option) => option.label),
-            (count) => t("tasks:boardFilters.selectedCount", { count }),
-          )}
+          {subject.onDateApply
+            ? chosen.map((option) => option.label).join(", ")
+            : formatChipValue(
+                chosen.map((option) => option.label),
+                (count) => t("tasks:boardFilters.selectedCount", { count }),
+              )}
         </span>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-64">
-        <FilterSubjectPanel subject={subject} />
+      <PopoverContent
+        align="start"
+        className={subject.onDateApply ? "w-80" : "w-64"}
+      >
+        <FilterSubjectPanel
+          subject={subject}
+          onApplied={() => setOpen(false)}
+        />
       </PopoverContent>
     </Popover>
   );
