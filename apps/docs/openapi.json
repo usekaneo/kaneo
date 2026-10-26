@@ -5619,6 +5619,375 @@
           "joinedAt"
         ]
       },
+      "AdminSystemStatus": {
+        "type": "object",
+        "properties": {
+          "checkedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Kaneo release version of this API instance."
+          },
+          "api": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "uptimeSeconds": {
+                "type": "integer"
+              },
+              "nodeVersion": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "status",
+              "uptimeSeconds",
+              "nodeVersion"
+            ]
+          },
+          "database": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "serverVersion": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "latencyMs": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "migrationsApplied": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "serverVersion",
+              "latencyMs",
+              "migrationsApplied",
+              "errorCode"
+            ]
+          },
+          "realtime": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "adapter": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "in-memory",
+                  "redis",
+                  null
+                ],
+                "description": "How events reach WebSocket clients: in-memory for a single instance, redis to fan out across instances. Null before WebSockets start."
+              },
+              "connections": {
+                "type": "integer",
+                "description": "Open WebSocket connections on this API instance."
+              },
+              "connectedUsers": {
+                "type": "integer",
+                "description": "Distinct people with an open connection to this instance."
+              }
+            },
+            "required": [
+              "status",
+              "adapter",
+              "connections",
+              "connectedUsers"
+            ]
+          },
+          "redis": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "mode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "standalone",
+                  "sentinel",
+                  "cluster",
+                  null
+                ]
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "mode",
+              "errorCode"
+            ]
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "configured": {
+                "type": "boolean"
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "configured",
+              "errorCode"
+            ]
+          },
+          "storage": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "configured": {
+                "type": "boolean"
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "configured",
+              "errorCode"
+            ]
+          },
+          "auth": {
+            "type": "object",
+            "properties": {
+              "passwordSignIn": {
+                "type": "boolean"
+              },
+              "emailOtpSignIn": {
+                "type": "boolean"
+              },
+              "registration": {
+                "type": "boolean"
+              },
+              "passwordRegistration": {
+                "type": "boolean"
+              },
+              "guestAccess": {
+                "type": "boolean"
+              },
+              "workspaceCreation": {
+                "type": "boolean"
+              },
+              "providers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "enum": [
+                        "github",
+                        "google",
+                        "discord",
+                        "custom"
+                      ]
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "warning",
+                        "not_configured",
+                        "down"
+                      ],
+                      "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "status"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "passwordSignIn",
+              "emailOtpSignIn",
+              "registration",
+              "passwordRegistration",
+              "guestAccess",
+              "workspaceCreation",
+              "providers"
+            ]
+          },
+          "integrations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "warning",
+                    "not_configured",
+                    "down"
+                  ],
+                  "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+                },
+                "requiresInstanceSetup": {
+                  "type": "boolean",
+                  "description": "Whether the provider needs instance settings. Others are connected per project."
+                },
+                "connectedProjects": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "Projects with an active connection to this provider. Null when the database could not be read."
+                }
+              },
+              "required": [
+                "type",
+                "name",
+                "status",
+                "requiresInstanceSetup",
+                "connectedProjects"
+              ]
+            }
+          }
+        },
+        "required": [
+          "checkedAt",
+          "version",
+          "api",
+          "database",
+          "realtime",
+          "redis",
+          "email",
+          "storage",
+          "auth",
+          "integrations"
+        ]
+      },
+      "AdminTestEmailResult": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "to": {
+            "type": "string",
+            "description": "The administrator's own address, the only recipient."
+          }
+        },
+        "required": [
+          "sent",
+          "to"
+        ]
+      },
       "AdminAuditLog": {
         "type": "object",
         "properties": {
@@ -25232,6 +25601,123 @@
           },
           "429": {
             "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/system": {
+      "get": {
+        "operationId": "getAdminSystemStatus",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get system status",
+        "description": "Check this API instance and the services it uses: version, uptime, database, WebSockets, Redis fan-out, SMTP, object storage, sign-in providers and integration providers. Each check gives up after a few seconds, so one unreachable service can't block the response. Only statuses, counts and short error categories are returned, never hosts, credentials or secrets. Requires an instance administrator session; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Status of this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSystemStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/system/test-email": {
+      "post": {
+        "operationId": "sendAdminTestEmail",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Send a test email",
+        "description": "Send a test email to the calling administrator's own address to check the SMTP settings. There is no recipient parameter. Limited to 5 per administrator every 10 minutes on each API instance.",
+        "responses": {
+          "200": {
+            "description": "The mail server accepted the test email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTestEmailResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "SMTP is not configured on this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many test emails; retry after Retry-After seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The mail server did not accept the test email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
           }
         }
       }

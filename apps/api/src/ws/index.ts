@@ -249,6 +249,33 @@ const projectBroadcastTimeouts = new Map<
 
 let adapter: BroadcastAdapter | null = null;
 
+/** Open sockets on this API instance, for the admin system page. */
+export function getLocalRealtimeStats() {
+  const users = new Set<string>();
+  let connections = 0;
+  for (const [userId, sockets] of userConnections) {
+    if (sockets.size === 0) continue;
+    users.add(userId);
+    connections += sockets.size;
+  }
+  for (const sockets of projectConnections.values()) {
+    for (const socket of sockets) {
+      users.add(socket.userId);
+      connections += 1;
+    }
+  }
+  return {
+    adapter:
+      adapter === null
+        ? null
+        : adapter instanceof RedisBroadcastAdapter
+          ? ("redis" as const)
+          : ("in-memory" as const),
+    connections,
+    connectedUsers: users.size,
+  };
+}
+
 // --- Subscribe to incoming broadcasts and deliver to local connections ---
 export async function initializeWebSocketAdapter() {
   if (adapter) return;

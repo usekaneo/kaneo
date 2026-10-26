@@ -9,11 +9,13 @@ import { requireUserSession } from "../utils/require-user-session";
 import { adminAuditRequest } from "./audit/admin-audit-request";
 import addWorkspaceMember from "./controllers/add-workspace-member";
 import listAuditLog from "./controllers/list-audit-log";
+import getSystemStatus from "./controllers/get-system-status";
 import listUsers from "./controllers/list-users";
 import listWorkspaceMembers from "./controllers/list-workspace-members";
 import listWorkspaceRoles from "./controllers/list-workspace-roles";
 import listWorkspaces from "./controllers/list-workspaces";
 import removeWorkspaceMember from "./controllers/remove-workspace-member";
+import sendAdminTestEmail from "./controllers/send-test-email";
 import transferWorkspaceOwnership from "./controllers/transfer-workspace-ownership";
 import updateWorkspaceMemberRole from "./controllers/update-workspace-member-role";
 import adminUserRoutes from "./user-routes";
@@ -34,6 +36,10 @@ import {
   transferAdminWorkspaceOwnershipBody,
   updateAdminWorkspaceMemberRoleBody,
 } from "./schema";
+import {
+  adminSystemStatusSchema,
+  adminTestEmailResultSchema,
+} from "./system/response";
 import { adminUserSecurityRoutes } from "./user-security-routes";
 
 const forbidden = errorResponse(
@@ -236,6 +242,42 @@ const listAuditLogRoute = createRoute({
   },
 });
 
+const getSystemStatusRoute = createRoute({
+  method: "get",
+  operationId: "getAdminSystemStatus",
+  path: "/system",
+  tags: ["Admin"],
+  summary: "Get system status",
+  description:
+    "Check this API instance and the services it uses: version, uptime, database, WebSockets, Redis fan-out, SMTP, object storage, sign-in providers and integration providers. Each check gives up after a few seconds, so one unreachable service can't block the response. Only statuses, counts and short error categories are returned, never hosts, credentials or secrets. Requires an instance administrator session; API keys are rejected.",
+  middleware: [requireUserSession, requireInstanceAdmin] as const,
+  responses: {
+    200: jsonResponse("Status of this instance", adminSystemStatusSchema),
+    403: forbidden,
+  },
+});
+
+const sendTestEmailRoute = createRoute({
+  method: "post",
+  operationId: "sendAdminTestEmail",
+  path: "/system/test-email",
+  tags: ["Admin"],
+  summary: "Send a test email",
+  description:
+    "Send a test email to the calling administrator's own address to check the SMTP settings. There is no recipient parameter. Limited to 5 per administrator every 10 minutes on each API instance.",
+  middleware: [requireUserSession, requireInstanceAdmin] as const,
+  responses: {
+    200: jsonResponse(
+      "The mail server accepted the test email",
+      adminTestEmailResultSchema,
+    ),
+    403: forbidden,
+    409: errorResponse("SMTP is not configured on this instance"),
+    429: errorResponse("Too many test emails; retry after Retry-After seconds"),
+    502: errorResponse("The mail server did not accept the test email"),
+  },
+});
+
 const admin = apiRouter()
   .openapi(listUsersRoute, async (c) =>
     c.json(await listUsers(c.req.valid("query")), 200),
@@ -273,6 +315,18 @@ const admin = apiRouter()
   .openapi(removeWorkspaceMemberRoute, async (c) =>
     c.json(
       await removeWorkspaceMember(c.req.valid("param"), adminAuditRequest(c)),
+      200,
+    ),
+  )
+  .openapi(getSystemStatusRoute, async (c) =>
+    c.json(await getSystemStatus(), 200),
+  )
+  .openapi(sendTestEmailRoute, async (c) =>
+    c.json(
+      await sendAdminTestEmail({
+        userId: c.get("userId"),
+        email: c.get("userEmail"),
+      }),
       200,
     ),
   )
