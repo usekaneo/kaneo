@@ -38,6 +38,8 @@ const userColumns = {
   email: schema.userTable.email,
   role: schema.userTable.role,
   banned: schema.userTable.banned,
+  banReason: schema.userTable.banReason,
+  banExpires: schema.userTable.banExpires,
   emailVerified: schema.userTable.emailVerified,
   image: schema.userTable.image,
 };

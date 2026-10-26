@@ -6,6 +6,9 @@ const MAX_DEPTH = 4;
  * looks like one so a future mistake cannot write a secret into the log.
  */
 export function sanitizeAuditMetadata(value: unknown, depth = 0): unknown {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
   if (Array.isArray(value)) {
     return depth >= MAX_DEPTH
       ? []

@@ -5,6 +5,8 @@ export type AuditUserSnapshot = {
   email: string;
   role: string | null;
   banned: boolean | null;
+  banReason: string | null;
+  banExpires: Date | null;
   emailVerified: boolean;
   image: string | null;
 };

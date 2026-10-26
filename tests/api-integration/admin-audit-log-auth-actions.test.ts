@@ -128,6 +128,16 @@ describe("audit of better-auth admin endpoints", () => {
     expect(rows.every((row) => row.targetId === target.userId)).toBe(true);
   });
 
+  it("keeps a temporary deactivation's expiry", async () => {
+    await expectOk(
+      await asAdmin("ban-user", { userId: target.userId, banExpiresIn: 3600 }),
+    );
+
+    const [row] = await readAuditLog();
+    const expiresAt = (row.metadata as { expiresAt: string }).expiresAt;
+    expect(Date.parse(expiresAt)).toBeGreaterThan(Date.now() + 3_000_000);
+  });
+
   it("keeps the label of a deleted user", async () => {
     await expectOk(await asAdmin("remove-user", { userId: target.userId }));
 

@@ -146,7 +146,7 @@ export function describeAuthAdminAction({
     case "/admin/ban-user":
       return [about("user.deactivated", deactivation(user))];
     case "/admin/unban-user":
-      return [about("user.reactivated")];
+      return target.banned ? [about("user.reactivated")] : [];
     case "/admin/remove-user":
       return [about("user.deleted", { name: target.name })];
     case "/admin/set-user-password":

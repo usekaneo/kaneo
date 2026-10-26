@@ -8,6 +8,8 @@ const target: AuditUserSnapshot = {
   email: "tom@example.com",
   role: "user",
   banned: false,
+  banReason: null,
+  banExpires: null,
   emailVerified: true,
   image: null,
 };
@@ -66,8 +68,16 @@ describe("describeAuthAdminAction", () => {
     ).toEqual([["user.deactivated", { reason: "Spam", expiresAt: null }]]);
   });
 
-  it("records nothing for unchanged updates or unchanged roles", () => {
+  it("records nothing for unchanged updates, roles, or reactivations", () => {
     expect(update({ name: "Tom" }, {})).toEqual([]);
+    expect(
+      describeAuthAdminAction({
+        path: "/admin/unban-user",
+        body: { userId: "u1" },
+        target,
+        returned: { user: target },
+      }),
+    ).toEqual([]);
     expect(
       describeAuthAdminAction({
         path: "/admin/set-role",

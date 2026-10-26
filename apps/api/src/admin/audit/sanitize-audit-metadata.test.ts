@@ -15,6 +15,12 @@ describe("sanitizeAuditMetadata", () => {
     ).toEqual({ reason: "Left", nested: {}, list: [{ role: "admin" }] });
   });
 
+  it("stores dates as ISO strings", () => {
+    expect(
+      sanitizeAuditMetadata({ expiresAt: new Date("2026-11-01T00:00:00Z") }),
+    ).toEqual({ expiresAt: "2026-11-01T00:00:00.000Z" });
+  });
+
   it("keeps ordinary values and removes undefined ones", () => {
     expect(
       sanitizeAuditMetadata({ role: "user", count: 2, gone: undefined }),
