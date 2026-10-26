@@ -41,6 +41,7 @@ Name | Description |
 | `POSTGRES_HOST` | Database hostname for derived configuration. Default: `postgres`; use `localhost` for a host-native API connected to local PostgreSQL. |
 | `POSTGRES_PORT` | Database port for derived configuration. Default: `5432`. |
 | `POSTGRES_PASSWORD_FILE` | Path to a UTF-8 file containing the database password. Used when `POSTGRES_PASSWORD` is unset and Kaneo derives `DATABASE_URL` from `POSTGRES_*`. Set the same file variable on the PostgreSQL container when using the bundled Compose setup; see [Keep secrets in files](/core/installation/docker-compose#keep-secrets-in-files). |
+| `DATABASE_POOL_MAX` | Maximum number of PostgreSQL connections each API process keeps open. Default: `10`. Lower it when the database user has a connection limit, for example on a shared PostgreSQL server; with several API replicas, the limit has to cover all of them. Label deletions and GitHub imports running at once beyond the pool size minus one get a retryable `429`. Must be an integer of at least `2`, otherwise startup fails. |
 
 ### Authentication
 
@@ -187,6 +188,9 @@ Name | Description |
 | `CUSTOM_AUTH_PKCE` | (Optional) Enable/disable PKCE. Default: `true`.
 | `CUSTOM_OAUTH_NAME` | (Optional) Provider name on the sign-in button, for example `Authentik`. Default: `SSO`.
 | `CUSTOM_OAUTH_LOGOUT_URL` | (Optional) Logout endpoint URL for your identity provider.
+| `CUSTOM_OAUTH_BACKCHANNEL_LOGOUT` | (Optional) Set to `true` to sign out Kaneo sessions when your identity provider sends an OpenID Connect back-channel logout to `/api/auth/oauth2/backchannel-logout/custom`. Requires `CUSTOM_OAUTH_DISCOVERY_URL` and `CUSTOM_OAUTH_CLIENT_ID`. Without them, the API stops at startup. Default: `false`.
+| `CUSTOM_OAUTH_MANAGED_PROFILE_FIELDS` | (Optional) Comma-separated profile fields your identity provider manages: `name`, `image`, `locale`. Kaneo updates them from the provider's claims whenever someone signs in with it, and people with a linked provider account cannot change them in Kaneo. Any other value stops the API at startup. Default: unset, so profiles stay editable.
+| `CUSTOM_OAUTH_ACCOUNT_URL` | (Optional) Absolute `http` or `https` URL of your identity provider's account page. Kaneo links to it next to managed profile fields. An invalid URL stops the API at startup.
 
 ### Redis
 

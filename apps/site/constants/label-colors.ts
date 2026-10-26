@@ -8,6 +8,10 @@ const labelColors = [
   { value: "orange", label: "Terracotta", color: "var(--color-orange-600)" },
   { value: "pink", label: "Rose", color: "var(--color-rose-600)" },
   { value: "red", label: "Crimson", color: "var(--color-red-600)" },
+  { value: "blue", label: "Ocean", color: "var(--color-blue-600)" },
+  { value: "sky", label: "Sky", color: "var(--color-sky-500)" },
+  { value: "cyan", label: "Lagoon", color: "var(--color-cyan-600)" },
+  { value: "fuchsia", label: "Orchid", color: "var(--color-fuchsia-600)" },
 ];
 
 export default labelColors;

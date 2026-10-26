@@ -147,7 +147,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -761,6 +765,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Прикажи ја сликата што проектот ја поставува зад својата табла.",
 			"advancedTitle": "Напредно"
+		},
+		"managedProfile": {
+			"note": "Се управува од твојата организација.",
+			"edit": "Уреди во {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "API клучеви",
@@ -1563,6 +1571,8 @@
 			"noDefault": "Без стандардна вредност",
 			"optionsLabel": "Опции",
 			"removeOptionAria": "Отстрани {{option}}",
+			"hideOptionAria": "Скриј {{option}} од нови избори",
+			"showOptionAria": "Повторно понуди {{option}} за нови избори",
 			"renameOptionAria": "Преименувај {{option}}",
 			"requiredDescription": "Секоја задача секогаш има вредност.",
 			"save": "Зачувај",
@@ -3003,7 +3013,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"editLabels": "Уреди етикети"
 			},
@@ -3295,7 +3309,10 @@
 		"filterBar": {
 			"label": "Активни филтри",
 			"removeFilter": "Отстрани го филтерот {{name}}",
-			"noMatches": "Ниту една задача не одговара на пребарувањето или филтрите."
+			"noMatches": "Ниту една задача не одговара на пребарувањето или филтрите.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Додај филтер…",
@@ -4408,7 +4425,11 @@
 				"amber": "Килибар",
 				"terracotta": "Теракота",
 				"rose": "Роза",
-				"crimson": "Гримизна"
+				"crimson": "Гримизна",
+				"ocean": "Океан",
+				"sky": "Небо",
+				"lagoon": "Лагуна",
+				"orchid": "Орхидеја"
 			},
 			"role": {
 				"owner": "Сопственик",

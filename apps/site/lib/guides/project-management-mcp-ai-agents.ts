@@ -3,9 +3,9 @@ import type { Guide } from "./types";
 export const projectManagementMcpAiAgents: Guide = {
   slug: "project-management-mcp-ai-agents",
   question: "Which project management tools work with AI agents through MCP?",
-  title: "Project management tools with an MCP server for AI agents",
+  title: "Project management tools with MCP for AI agents",
   description:
-    "How Model Context Protocol connects Claude, Cursor, and other AI clients to your project tracker, which tools ship an MCP server, and what to watch for on permissions.",
+    "How Model Context Protocol connects Claude, Cursor, and other AI clients to your tracker, which tools ship an MCP server, and what to watch for on permissions.",
   summary:
     "How MCP connects AI clients to your tracker, and what to check before you let one write.",
   answer:

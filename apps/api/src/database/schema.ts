@@ -73,8 +73,12 @@ export const sessionTable = pgTable(
     activeOrganizationId: text("active_organization_id"),
     activeTeamId: text("active_team_id"),
     impersonatedBy: text("impersonated_by"),
+    oidcSid: text("oidc_sid"),
   },
-  (table) => [index("session_userId_idx").on(table.userId)],
+  (table) => [
+    index("session_userId_idx").on(table.userId),
+    index("session_oidcSid_idx").on(table.oidcSid),
+  ],
 );
 
 export const accountTable = pgTable(
@@ -1432,6 +1436,11 @@ export const customFieldDefinitionTable = pgTable(
     required: boolean("required").default(false).notNull(),
     defaultValue: text("default_value"),
     options: jsonb("options"),
+    // Options kept for tasks that already use them but no longer offered.
+    hiddenOptions: jsonb("hidden_options")
+      .$type<string[]>()
+      .default([])
+      .notNull(),
     position: integer("position").default(0).notNull(),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)

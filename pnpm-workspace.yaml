@@ -8,9 +8,9 @@ overrides:
   diff: 8.0.3
   esbuild: 0.28.1
   express-rate-limit: 8.2.2
-  hono: ">=4.13.5"
+  hono: ">=4.13.14 <5"
   lodash: 4.18.1
-  markdown-it: 14.1.1
+  markdown-it: 14.3.3
   minimatch: 10.2.3
   rollup: 4.59.0
   seroval: ">=1.5.3"
@@ -19,36 +19,46 @@ overrides:
   socket.io-parser: ">=4.2.7"
   picomatch: ">=4.0.4"
   path-to-regexp: ">=8.4.0"
-  brace-expansion: ">=5.0.9"
+  brace-expansion: ">=5.0.12 <6"
   yaml: ">=2.8.3"
   qs: ">=6.16.0"
   ws: ">=8.20.1"
-  ip-address: 10.3.1
+  ip-address: 10.7.5
   postcss: ">=8.5.23"
-  sharp: ">=0.35.4"
-  engine.io: ">=6.6.7"
+  sharp: ">=0.35.5"
+  dompurify: ">=3.4.17 <4"
+  handlebars: ">=4.7.10 <5"
+  engine.io: ">=6.6.11 <7"
   valibot: ">=1.4.2"
   better-auth: 1.6.26
   "@better-auth/core": 1.6.26
   undici: ">=7.29.0 <8"
   js-yaml: ">=4.3.2 <5"
   "@babel/core": ">=7.29.6 <8"
-  fast-uri: ">=3.1.6 <4"
+  fast-uri: ">=3.1.9 <4"
   mysql2: ">=3.23.1"
   postcss-selector-parser: ">=7.1.3"
   deepmerge-ts: ">=8.0.0"
   "nanoid@3": ">=3.3.18 <4"
+  body-parser: ">=2.4.0 <3"
+  source-map-js: ">=1.2.2 <2"
+  # 0.18.11 was deprecated for accidental breaking changes; keep Mermaid 11 compatible.
+  katex: 0.18.10
   vite@*: "catalog:"
   vitest@*: "catalog:"
+patchedDependencies:
+  # No upstream release yet; preserve the existing Forge and Zod 3 consumer APIs.
+  node-forge@1.4.0: patches/node-forge@1.4.0.patch
+  zod@3.25.76: patches/zod@3.25.76.patch
 onlyBuiltDependencies:
   - bcrypt
   - better-sqlite3
   - esbuild
 catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@1.0.0
-  vitest: 5.0.3
-  vite-plus: 1.0.0
-  "@vitest/coverage-v8": 5.0.3
+  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
+  vitest: 5.0.5
+  vite-plus: 1.4.0
+  "@vitest/coverage-v8": 5.0.5
 peerDependencyRules:
   allowAny:
     - vite

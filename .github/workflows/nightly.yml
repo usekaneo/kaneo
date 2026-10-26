@@ -55,7 +55,7 @@ jobs:
             --sarif > trufflehog-results.sarif
       - name: Upload results to GitHub Code Scanning
         if: always()
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: trufflehog-results.sarif
       - name: Notify Discord on findings
@@ -130,7 +130,7 @@ jobs:
             > zizmor-results.json || true
       - name: Upload results to GitHub Code Scanning
         if: always()
-        uses: github/codeql-action/upload-sarif@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
           sarif_file: zizmor-results.sarif
       - name: Enforce high-severity findings
@@ -192,6 +192,7 @@ jobs:
     if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
     permissions:
       contents: read
+      pull-requests: read
       security-events: write
 
     uses: ./.github/workflows/ci.yml # zizmor: ignore[self-repository] $/-syntax not parsed by pinned actionlint v1.7.12; revisit when supported

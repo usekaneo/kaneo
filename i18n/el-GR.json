@@ -147,7 +147,11 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"lagoon": "Λιμνοθάλασσα",
+					"ocean": "Ωκεανός",
+					"orchid": "Ορχιδέα",
+					"sky": "Ουρανός"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -761,6 +765,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Εμφάνιση της εικόνας που ορίζει ένα έργο πίσω από τον πίνακά του.",
 			"advancedTitle": "Σύνθετα"
+		},
+		"managedProfile": {
+			"note": "Διαχειρίζεται από τον οργανισμό σας.",
+			"edit": "Επεξεργασία στο {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Κλειδιά API",
@@ -1563,6 +1571,8 @@
 			"noDefault": "Χωρίς προεπιλογή",
 			"optionsLabel": "Επιλογές",
 			"removeOptionAria": "Αφαίρεση {{option}}",
+			"hideOptionAria": "Απόκρυψη {{option}} από νέες επιλογές",
+			"showOptionAria": "Επαναφορά {{option}} για νέες επιλογές",
 			"renameOptionAria": "Μετονομασία {{option}}",
 			"requiredDescription": "Κάθε εργασία έχει πάντα τιμή.",
 			"save": "Αποθήκευση",
@@ -3003,7 +3013,11 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"lagoon": "Λιμνοθάλασσα",
+					"ocean": "Ωκεανός",
+					"orchid": "Ορχιδέα",
+					"sky": "Ουρανός"
 				},
 				"editLabels": "Επεξεργασία ετικετών"
 			},
@@ -3295,7 +3309,10 @@
 		"filterBar": {
 			"label": "Ενεργά φίλτρα",
 			"removeFilter": "Αφαίρεση φίλτρου {{name}}",
-			"noMatches": "Καμία εργασία δεν ταιριάζει με την αναζήτηση ή τα φίλτρα σας."
+			"noMatches": "Καμία εργασία δεν ταιριάζει με την αναζήτηση ή τα φίλτρα σας.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Προσθήκη φίλτρου…",
@@ -4408,7 +4425,11 @@
 				"amber": "Κεχριμπάρι",
 				"terracotta": "Τερακότα",
 				"rose": "Ροζ",
-				"crimson": "Βυσσινί"
+				"crimson": "Βυσσινί",
+				"ocean": "Ωκεανός",
+				"sky": "Ουρανός",
+				"lagoon": "Λιμνοθάλασσα",
+				"orchid": "Ορχιδέα"
 			},
 			"role": {
 				"owner": "Ιδιοκτήτης",

@@ -147,7 +147,11 @@
 					"amber": "एम्बर",
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
-					"crimson": "किरमिज़ी"
+					"crimson": "किरमिज़ी",
+					"lagoon": "लैगून",
+					"ocean": "महासागर",
+					"orchid": "ऑर्किड",
+					"sky": "आकाश"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -761,6 +765,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "प्रोजेक्ट द्वारा अपने बोर्ड के पीछे सेट की गई छवि दिखाएँ।",
 			"advancedTitle": "उन्नत"
+		},
+		"managedProfile": {
+			"note": "आपके संगठन द्वारा प्रबंधित।",
+			"edit": "{{provider}} में संपादित करें"
 		},
 		"developerPage": {
 			"pageTitle": "API कुंजियाँ",
@@ -1563,6 +1571,8 @@
 			"noDefault": "कोई डिफ़ॉल्ट नहीं",
 			"optionsLabel": "विकल्प",
 			"removeOptionAria": "{{option}} निकालें",
+			"hideOptionAria": "नए चयनों से {{option}} छिपाएँ",
+			"showOptionAria": "नए चयनों के लिए {{option}} फिर से दिखाएँ",
 			"renameOptionAria": "{{option}} का नाम बदलें",
 			"requiredDescription": "हर कार्य में हमेशा एक मान होता है।",
 			"save": "सहेजें",
@@ -3003,7 +3013,11 @@
 					"amber": "एम्बर",
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
-					"crimson": "किरमिज़ी"
+					"crimson": "किरमिज़ी",
+					"lagoon": "लैगून",
+					"ocean": "महासागर",
+					"orchid": "ऑर्किड",
+					"sky": "आकाश"
 				},
 				"editLabels": "लेबल संपादित करें"
 			},
@@ -3295,7 +3309,10 @@
 		"filterBar": {
 			"label": "सक्रिय फ़िल्टर",
 			"removeFilter": "{{name}} फ़िल्टर हटाएँ",
-			"noMatches": "आपकी खोज या फ़िल्टर से कोई कार्य मेल नहीं खाता।"
+			"noMatches": "आपकी खोज या फ़िल्टर से कोई कार्य मेल नहीं खाता।",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "फ़िल्टर जोड़ें…",
@@ -4408,7 +4425,11 @@
 				"amber": "एम्बर",
 				"terracotta": "टेराकोटा",
 				"rose": "गुलाबी",
-				"crimson": "किरमिजी"
+				"crimson": "किरमिजी",
+				"ocean": "महासागर",
+				"sky": "आकाश",
+				"lagoon": "लैगून",
+				"orchid": "ऑर्किड"
 			},
 			"role": {
 				"owner": "मालिक",

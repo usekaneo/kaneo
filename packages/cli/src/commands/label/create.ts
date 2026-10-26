@@ -92,7 +92,7 @@ export const labelCreate = Command.make(
     color: Flag.String("color").pipe(
       Flag.withAlias("c"),
       Flag.withDescription(
-        "Hex color such as #e7000b, or stone, slate, lavender, sage, forest, amber, terracotta, rose or crimson (default: an unused one)",
+        "Hex color such as #e7000b, or stone, slate, lavender, sage, forest, amber, terracotta, rose, crimson, ocean, sky, lagoon or orchid (default: an unused one)",
       ),
       Flag.optional,
     ),

@@ -9,6 +9,7 @@ import {
 
 const keys = [
   "DATABASE_URL",
+  "DATABASE_POOL_MAX",
   "POSTGRES_HOST",
   "POSTGRES_PORT",
   "POSTGRES_DB",
@@ -156,5 +157,24 @@ describe("resolve-database-url", () => {
 
     expect(config.logConfig).not.toHaveProperty("password");
     expect(JSON.stringify(config.logConfig)).not.toContain("super-secret");
+  });
+
+  it("includes the pool size in the resolved config and its log metadata", () => {
+    process.env.DATABASE_URL = "postgresql://app:secret@example.com:5433/appdb";
+    process.env.DATABASE_POOL_MAX = "2";
+
+    const config = resolveDatabaseConfig();
+
+    expect(config.poolMax).toBe(2);
+    expect(config.logConfig.poolMax).toBe(2);
+  });
+
+  it("fails config resolution when DATABASE_POOL_MAX is invalid", () => {
+    process.env.DATABASE_URL = "postgresql://app:secret@example.com:5433/appdb";
+    process.env.DATABASE_POOL_MAX = "1";
+
+    expect(() => resolveDatabaseConfig()).toThrow(
+      "DATABASE_POOL_MAX must be an integer of at least 2",
+    );
   });
 });

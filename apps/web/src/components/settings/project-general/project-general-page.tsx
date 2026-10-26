@@ -21,8 +21,8 @@ export function ProjectGeneralPage() {
   const { data: fetchedProject } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
   const isCurrentProject = project?.id === projectId;
-  const { canManageProjects, canDeleteProjects } = useWorkspacePermission();
-  const canEdit = canManageProjects();
+  const { canUpdateProjects, canDeleteProjects } = useWorkspacePermission();
+  const canEdit = canUpdateProjects();
   const canDelete = canDeleteProjects();
   const { form, flushPendingSave } = useProjectAutosave({
     project,

@@ -1,5 +1,5 @@
 # Build stage
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS builder
 
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
@@ -10,6 +10,7 @@ WORKDIR /app
 
 # Copy only package files first for better caching
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
+COPY patches ./patches
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
@@ -51,13 +52,14 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
 # Production dependencies stage - runs on the BUILD platform (native, no QEMU emulation).
 # All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so the
 # resulting node_modules is architecture-independent and safe to copy into the arm64 runtime.
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS prod-deps
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS prod-deps
 
 RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
 
 WORKDIR /app
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
+COPY patches ./patches
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/email/package.json ./packages/email/
@@ -70,7 +72,7 @@ RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
   HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
 
 # Production stage - use specific version tag without SHA256
-FROM node:24.19.0-alpine AS runtime
+FROM node:24.22.1-alpine AS runtime
 
 # Set up user in a single layer
 RUN addgroup -g 1001 appuser && \

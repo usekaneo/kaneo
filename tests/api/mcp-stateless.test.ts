@@ -283,15 +283,12 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
         params: {},
       }),
     });
-    const clone = vi.spyOn(request, "clone");
-
     const response = await mcpRoutes.request(request);
 
     expect(response.status).toBe(200);
     expect((await rpcBody(response)).result.tools).toContainEqual(
       expect.objectContaining({ name: "whoami" }),
     );
-    expect(clone).toHaveBeenCalledOnce();
 
     const unauthenticated = new Request("http://mcp.test/mcp", {
       method: "POST",

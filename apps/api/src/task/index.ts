@@ -142,12 +142,15 @@ const listTasksRoute = createRoute({
   summary: "List tasks",
   description:
     "Get a project's board: its columns, each with the tasks in it, plus the archived and planned buckets. Responses always contain at most 100 tasks (50 by default). Continue through pagination.totalPages for the whole board, and for each task page follow relatedPage through pagination.relatedTotalPages for all labels, links and column metadata. Filters and sorting apply before pagination. Descriptions larger than 64 KiB are omitted with descriptionDeferred=true; read the task detail or description pages for full text.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam, query: listTasksQuery },
   responses: {
     200: jsonResponse("The project board", boardSchema),
     503: errorResponse("Task list request timed out"),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Project not found"),
   },
 });
@@ -349,14 +352,17 @@ const getTaskRoute = createRoute({
   summary: "Get task",
   description:
     "Get a single task by ID, with its assignee name. The board view omits descriptions above 64 KiB and includes task and same-project parent subtask progress.",
-  middleware: [workspaceAccess.fromTask()] as const,
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: {
     params: taskParam,
     query: z.object({ view: z.enum(["detail", "board"]).optional() }),
   },
   responses: {
     200: jsonResponse("Task details", taskWithAssigneeSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
   },
 });
@@ -368,7 +374,7 @@ const getTaskByTicketIdRoute = createRoute({
   tags: ["Tasks"],
   summary: "Get task by ticket ID",
   description:
-    "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
+    "Get a single task by its project key and number, such as KAN-12. Only tasks with current task:read permission and API key scope are considered. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
     200: jsonResponse("Task details", taskByTicketIdSchema),
@@ -451,11 +457,14 @@ const exportTasksRoute = createRoute({
   summary: "Export tasks",
   description:
     "Export a project's tasks, with their labels, as a JSON document.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The exported project and tasks", taskExportSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Project not found"),
   },
 });
@@ -792,12 +801,15 @@ const descriptionPageRoute = createRoute({
   path: "/{id}/description",
   tags: ["Tasks"],
   summary: "Read a description page",
-  middleware: [workspaceAccess.fromTaskId("id")] as const,
+  middleware: [
+    workspaceAccess.fromTaskId("id"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskParam, query: descriptionPageQuery },
   responses: {
     200: jsonResponse("Description page", descriptionPageSchema),
     400: errorResponse("Invalid offset or version"),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
     409: errorResponse("Description changed; reload from offset zero"),
     503: errorResponse("Description request timed out"),
@@ -809,12 +821,15 @@ const descriptionMatchesRoute = createRoute({
   path: "/description-matches/{projectId}",
   tags: ["Tasks"],
   summary: "Search descriptions omitted from task lists",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam, query: descriptionMatchesQuery },
   responses: {
     200: jsonResponse("Matching task IDs", descriptionMatchesSchema),
     400: errorResponse("Invalid search query or cursor"),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     503: errorResponse("Description search timed out"),
     404: errorResponse("Project not found"),
   },
@@ -972,7 +987,12 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskByTicketIdRoute, async (c) => {
     const { ticketId } = c.req.valid("param");
     return c.json(
-      await getTaskByTicketId(ticketId, c.get("userId"), c.req.valid("query")),
+      await getTaskByTicketId(
+        ticketId,
+        c.get("userId"),
+        c.req.valid("query"),
+        c.get("apiKey")?.permissions,
+      ),
       200,
     );
   })

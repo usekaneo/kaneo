@@ -134,6 +134,9 @@ input:-webkit-autofill:active {
   --color-chip-icon: var(--chip-icon);
   --color-priority-bar: var(--priority-bar);
   --color-priority-bar-empty: var(--priority-bar-empty);
+  --color-priority-low: var(--priority-low);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-high: var(--priority-high);
   --color-priority-urgent: var(--priority-urgent);
   --color-due-overdue: var(--due-overdue);
   --color-avatar: var(--avatar);
@@ -259,6 +262,9 @@ input:-webkit-autofill:active {
   --chip-icon: #8a8a8a;
   --priority-bar: #525252;
   --priority-bar-empty: #00000021;
+  --priority-low: #2563eb;
+  --priority-medium: #d97706;
+  --priority-high: #ea580c;
   --priority-urgent: #dc2626;
   --due-overdue: #dc2626;
   --avatar: #e5e5e5;
@@ -350,6 +356,9 @@ input:-webkit-autofill:active {
   --chip-icon: #8a8a8a;
   --priority-bar: #a3a3a3;
   --priority-bar-empty: #ffffff24;
+  --priority-low: #60a5fa;
+  --priority-medium: #fbbf24;
+  --priority-high: #fb923c;
   --priority-urgent: #e5484d;
   --due-overdue: #ff6467;
   --avatar: #2e2e2e;

@@ -147,7 +147,11 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхідея",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -777,6 +781,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Показувати зображення, яке проєкт задає за своєю дошкою.",
 			"advancedTitle": "Додатково"
+		},
+		"managedProfile": {
+			"note": "Керується вашою організацією.",
+			"edit": "Редагувати в {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "API-ключі",
@@ -1581,6 +1589,8 @@
 			"noDefault": "Без значення за замовчуванням",
 			"optionsLabel": "Варіанти",
 			"removeOptionAria": "Видалити {{option}}",
+			"hideOptionAria": "Приховати {{option}} з нових виборів",
+			"showOptionAria": "Знову пропонувати {{option}} для нових виборів",
 			"renameOptionAria": "Перейменувати {{option}}",
 			"requiredDescription": "Кожне завдання завжди має значення.",
 			"save": "Зберегти",
@@ -3097,7 +3107,11 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхідея",
+					"sky": "Небо"
 				},
 				"editLabels": "Редагувати мітки"
 			},
@@ -3419,7 +3433,10 @@
 		"filterBar": {
 			"label": "Активні фільтри",
 			"removeFilter": "Прибрати фільтр «{{name}}»",
-			"noMatches": "Немає завдань, що відповідають пошуку чи фільтрам."
+			"noMatches": "Немає завдань, що відповідають пошуку чи фільтрам.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Додати фільтр…",
@@ -4574,7 +4591,11 @@
 				"amber": "Бурштин",
 				"terracotta": "Теракота",
 				"rose": "Троянда",
-				"crimson": "Багряний"
+				"crimson": "Багряний",
+				"ocean": "Океан",
+				"sky": "Небо",
+				"lagoon": "Лагуна",
+				"orchid": "Орхідея"
 			},
 			"role": {
 				"owner": "Власник",

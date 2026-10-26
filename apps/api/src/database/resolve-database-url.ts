@@ -1,4 +1,5 @@
 import { resolveFileSecret } from "../utils/file-secret";
+import { resolveDatabasePoolMax } from "./pool-config";
 
 const LOCAL_FALLBACK_CONNECTION_STRING = "postgresql://localhost:5432/kaneo";
 
@@ -11,12 +12,14 @@ export type ResolvedDatabaseConfig = {
   port: number;
   database: string;
   username: string;
+  poolMax: number;
   logConfig: {
     source: DatabaseConfigSource;
     host: string;
     port: number;
     database: string;
     username: string;
+    poolMax: number;
   };
 };
 
@@ -41,6 +44,7 @@ function toResolvedConfig(
     port: Number(url.port || 5432),
     database: url.pathname.replace(/^\//, ""),
     username: decodeURIComponent(url.username),
+    poolMax: resolveDatabasePoolMax(),
   };
 
   return {

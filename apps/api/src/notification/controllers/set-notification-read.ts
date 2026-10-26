@@ -3,13 +3,21 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { notificationTable } from "../../database/schema";
 
-import { notificationResourceAccess } from "../resource-access";
+import type { PermissionMap } from "../../utils/role-permissions";
+import { notificationReadAccess } from "../resource-access";
 
 async function setNotificationRead(
   id: string,
   userId: string,
   isRead: boolean,
+  apiKeyPermissions?: PermissionMap | null,
 ) {
+  const access = await notificationReadAccess(
+    userId,
+    notificationTable.resourceId,
+    notificationTable.resourceType,
+    apiKeyPermissions,
+  );
   const [notification] = await db
     .update(notificationTable)
     .set({ isRead })
@@ -17,11 +25,7 @@ async function setNotificationRead(
       and(
         eq(notificationTable.id, id),
         eq(notificationTable.userId, userId),
-        notificationResourceAccess(
-          userId,
-          notificationTable.resourceId,
-          notificationTable.resourceType,
-        ),
+        access,
       ),
     )
     .returning();

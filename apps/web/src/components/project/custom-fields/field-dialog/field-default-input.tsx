@@ -2,7 +2,10 @@ import { useTranslation } from "react-i18next";
 import { CheckboxDefaultSelect } from "@/components/project/custom-fields/field-dialog/checkbox-default-select";
 import { ChoiceDefaultSelect } from "@/components/project/custom-fields/field-dialog/choice-default-select";
 import { DateDefaultPicker } from "@/components/project/custom-fields/field-dialog/date-default-picker";
-import type { FieldFormState } from "@/components/project/custom-fields/field-dialog/field-form";
+import {
+  type FieldFormState,
+  visibleOptions,
+} from "@/components/project/custom-fields/field-dialog/field-form";
 import { MultiChoiceDefaultSelect } from "@/components/project/custom-fields/field-dialog/multi-choice-default-select";
 import { Input } from "@/components/ui/input";
 
@@ -44,7 +47,7 @@ export function FieldDefaultInput({
     case "dropdown":
       return form.multiple ? (
         <MultiChoiceDefaultSelect
-          options={form.options}
+          options={visibleOptions(form)}
           value={form.defaultValues}
           labelledBy={labelledBy}
           onChange={(defaultValues) =>
@@ -53,7 +56,7 @@ export function FieldDefaultInput({
         />
       ) : (
         <ChoiceDefaultSelect
-          options={form.options}
+          options={visibleOptions(form)}
           value={form.defaultValue}
           labelledBy={labelledBy}
           clearable={!form.required}

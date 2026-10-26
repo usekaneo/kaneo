@@ -1,1 +1,0 @@
-ALTER TABLE "task" ADD COLUMN IF NOT EXISTS "recurrence" jsonb;

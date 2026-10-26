@@ -147,7 +147,11 @@
 					"amber": "Bursztyn",
 					"terracotta": "Terakota",
 					"rose": "Róża",
-					"crimson": "Karmazyn"
+					"crimson": "Karmazyn",
+					"lagoon": "Laguna",
+					"ocean": "Ocean",
+					"orchid": "Orchidea",
+					"sky": "Niebo"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -1691,6 +1695,10 @@
 			"projectBackgroundsDescription": "Pokazuj obraz ustawiony przez projekt za jego tablicą.",
 			"advancedTitle": "Zaawansowane"
 		},
+		"managedProfile": {
+			"note": "Zarządzane przez Twoją organizację.",
+			"edit": "Edytuj w {{provider}}"
+		},
 		"projectGeneral": {
 			"dangerZone": "Strefa niebezpieczna",
 			"deleteModalConfirm": "Usuń projekt",
@@ -2267,6 +2275,8 @@
 			"noDefault": "Brak wartości domyślnej",
 			"optionsLabel": "Opcje",
 			"removeOptionAria": "Usuń: {{option}}",
+			"hideOptionAria": "Ukryj w nowych wyborach: {{option}}",
+			"showOptionAria": "Przywróć w nowych wyborach: {{option}}",
 			"renameOptionAria": "Zmień nazwę: {{option}}",
 			"requiredDescription": "Każde zadanie zawsze ma wartość.",
 			"save": "Zapisz",
@@ -3467,7 +3477,11 @@
 					"sage": "Szałwia",
 					"slate": "Łupek",
 					"stone": "Kamień",
-					"terracotta": "Terakota"
+					"terracotta": "Terakota",
+					"lagoon": "Laguna",
+					"ocean": "Ocean",
+					"orchid": "Orchidea",
+					"sky": "Niebo"
 				},
 				"create": "Utwórz „{{name}}”",
 				"createError": "Nie udało się utworzyć etykiety",
@@ -3701,7 +3715,10 @@
 		"filterBar": {
 			"label": "Aktywne filtry",
 			"removeFilter": "Usuń filtr {{name}}",
-			"noMatches": "Żadne zadanie nie pasuje do wyszukiwania ani filtrów."
+			"noMatches": "Żadne zadanie nie pasuje do wyszukiwania ani filtrów.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Dodaj filtr…",
@@ -4574,7 +4591,11 @@
 				"amber": "Bursztyn",
 				"terracotta": "Terakota",
 				"rose": "Róża",
-				"crimson": "Karmazyn"
+				"crimson": "Karmazyn",
+				"ocean": "Ocean",
+				"sky": "Niebo",
+				"lagoon": "Laguna",
+				"orchid": "Orchidea"
 			},
 			"role": {
 				"owner": "Właściciel",

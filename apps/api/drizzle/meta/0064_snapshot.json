@@ -1,5 +1,5 @@
 {
-  "id": "368550cc-8b66-45b1-b190-8bb6cb3ef98b",
+  "id": "c1e91718-d7d9-4e95-a7a0-c687aca3240c",
   "prevId": "f569b31a-0316-4069-acb6-0443dcf0a86f",
   "version": "7",
   "dialect": "postgresql",
@@ -1314,6 +1314,13 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
+        },
+        "hidden_options": {
+          "name": "hidden_options",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
         },
         "position": {
           "name": "position",
@@ -3485,12 +3492,6 @@
         "due_date": {
           "name": "due_date",
           "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "recurrence": {
-          "name": "recurrence",
-          "type": "jsonb",
           "primaryKey": false,
           "notNull": false
         },

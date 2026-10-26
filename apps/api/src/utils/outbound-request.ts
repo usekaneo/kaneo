@@ -1,3 +1,5 @@
+import { destinationFetch } from "../import/destination-fetch";
+import { isBlockedDestinationError } from "../import/blocked-destination-error";
 import { assertPublicDestination } from "./assert-public-destination";
 import { withoutOutboundTelemetry } from "./sensitive-outbound";
 
@@ -80,8 +82,11 @@ export async function sendOutboundRequest(
     }
     // DNS validation may finish after the deadline. Never start a late request.
     controller.signal.throwIfAborted();
+    // Check the DNS answers used by the socket too, including new connections
+    // after a pooled connection closes. A preflight alone permits rebinding.
+    const send = options.publicDestination ? destinationFetch : fetch;
     const response = await withoutOutboundTelemetry(() =>
-      fetch(url, {
+      send(url, {
         ...init,
         method: "POST",
         redirect: "error",
@@ -99,6 +104,9 @@ export async function sendOutboundRequest(
     return await Promise.race([request(), deadline]);
   } catch (error) {
     if (controller.signal.aborted) throw new OutboundRequestError("timeout");
+    if (isBlockedDestinationError(error)) {
+      throw new OutboundRequestError("destination");
+    }
     if (error instanceof OutboundRequestError) throw error;
     throw new OutboundRequestError("network");
   } finally {

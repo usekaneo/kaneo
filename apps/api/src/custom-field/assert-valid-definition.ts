@@ -1,4 +1,5 @@
 import { HTTPException } from "hono/http-exception";
+import { isChoiceType, parseChoiceValue } from "./choice-options";
 import {
   isCustomFieldValueEmpty,
   validateCustomFieldValue,
@@ -12,6 +13,7 @@ type CustomFieldDefinitionInput = {
   required: boolean;
   defaultValue?: string | null;
   options?: string[] | null;
+  hiddenOptions?: string[];
 };
 
 function badRequest(message: string): never {
@@ -57,6 +59,28 @@ function assertValidDefaultForType(
   }
 }
 
+function assertValidHiddenOptions({
+  type,
+  defaultValue,
+  options,
+  hiddenOptions = [],
+}: CustomFieldDefinitionInput) {
+  if (hiddenOptions.length === 0) return;
+  if (!isChoiceType(type)) {
+    badRequest("Only dropdown and multiselect fields have options");
+  }
+
+  const known = new Set((options ?? []).map((option) => option.trim()));
+  if (hiddenOptions.some((option) => !known.has(option))) {
+    badRequest("Hidden options must be options of this field");
+  }
+
+  const picked = parseChoiceValue(defaultValue ?? null, type);
+  if (picked.some((option) => hiddenOptions.includes(option))) {
+    badRequest("The default can't be a hidden option");
+  }
+}
+
 export function assertValidDefinition(input: CustomFieldDefinitionInput) {
   const { name, type, required, defaultValue, options } = input;
 
@@ -97,4 +121,6 @@ export function assertValidDefinition(input: CustomFieldDefinitionInput) {
       if (error) badRequest(error);
     }
   }
+
+  assertValidHiddenOptions(input);
 }

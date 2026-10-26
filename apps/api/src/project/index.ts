@@ -99,11 +99,15 @@ const listProjectsRoute = createRoute({
   summary: "List projects",
   description:
     "List a workspace's projects in sidebar order, each with rollup task statistics. Archived projects are excluded unless includeArchived is set.",
-  middleware: [workspaceAccess.fromQuery()] as const,
+  middleware: [
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { query: listProjectsQuery },
   responses: {
     200: jsonResponse("List of projects", projectListSchema),
     400: errorResponse("Workspace ID could not be determined"),
+    403: errorResponse("Missing read permission"),
     404: errorResponse("Workspace not found"),
   },
 });
@@ -143,11 +147,14 @@ const getProjectRoute = createRoute({
   tags: ["Projects"],
   summary: "Get project",
   description: "Get a single project by ID.",
-  middleware: [workspaceAccess.fromProject()] as const,
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectParam },
   responses: {
     200: jsonResponse("Project details", projectSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Project not found"),
   },
 });
@@ -286,7 +293,10 @@ const getProjectBackgroundRoute = createRoute({
   tags: ["Projects"],
   summary: "Download project background",
   description: "Download the current project board background image.",
-  middleware: [workspaceAccess.fromProject()] as const,
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectParam },
   responses: {
     200: {
@@ -296,7 +306,7 @@ const getProjectBackgroundRoute = createRoute({
       },
     },
     304: { description: "Not modified" },
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Project or project background not found"),
   },
 });
