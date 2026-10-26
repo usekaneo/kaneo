@@ -199,6 +199,44 @@ describe("TaskRow", () => {
     },
   );
 
+  it("shows the focus ring only on the focused occurrence of a repeated task", () => {
+    const { container } = render(
+      <>
+        <TaskRow
+          task={task}
+          projectSlug="kan"
+          rowId="parent/task-1"
+          depth={1}
+        />
+        <TaskRow task={task} projectSlug="kan" rowId="task-1" />
+      </>,
+    );
+    act(() =>
+      useBulkSelectionStore.getState().setFocusedTask(task.id, "task-1"),
+    );
+    const rows = container.querySelectorAll<HTMLElement>("[data-task-row-id]");
+    expect(rows[0].parentElement).not.toHaveClass("ring-board-card-focus");
+    expect(rows[1].parentElement).toHaveClass("ring-board-card-focus");
+  });
+
+  it("restores the focused occurrence when repeated rows remount", () => {
+    useBulkSelectionStore.getState().setFocusedTask(task.id, "task-1");
+    const { container } = render(
+      <>
+        <TaskRow
+          task={task}
+          projectSlug="kan"
+          rowId="parent/task-1"
+          depth={1}
+        />
+        <TaskRow task={task} projectSlug="kan" rowId="task-1" />
+      </>,
+    );
+    expect(
+      container.querySelector('[data-task-row-id="task-1"]'),
+    ).toHaveFocus();
+  });
+
   it.each(["board", "list"])(
     "takes keyboard focus and marks itself as a shortcut surface in the %s view",
     (view) => {

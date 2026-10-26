@@ -98,7 +98,7 @@ function ListView({
     return index;
   }, [project?.columns]);
 
-  // Per viewer and per project, and only a convenience: a row that cannot be
+  // Per browser and per project, and only a convenience: a row that cannot be
   // restored simply starts collapsed.
   const projectId = project?.id ?? "";
   const [expanded, setExpanded] = useState(() => ({
@@ -149,10 +149,8 @@ function ListView({
     [project?.columns, subtaskChildren, tasksById, expandedTasks, activeId],
   );
 
-  // j/k, select-all and shift-click ranges follow this order, so it is the
-  // order rows are shown in. Selection and focus stay per task, so a task
-  // shown both under its parent and in its own place is listed once, where it
-  // first appears.
+  // Bulk actions stay per task, even when the list renders several rows for
+  // it. Shift-click ranges use the first appearance in display order.
   const shownTaskIds = useCallback(
     (column: ProjectWithTasks["columns"][number]) => [
       ...new Set((rowsByColumn.get(column.id) ?? []).map((row) => row.task.id)),
@@ -305,6 +303,10 @@ function ListView({
       project.columns.map((column) => ({
         id: column.id,
         taskIds: shownTaskIds(column),
+        rows: (rowsByColumn.get(column.id) ?? []).map((row) => ({
+          taskId: row.task.id,
+          rowId: row.rowId,
+        })),
         collapsed: !isExpanded(column.id),
       })),
     // Repeated children follow their parent for navigation, but reordering

@@ -41,7 +41,18 @@ vi.mock("@/hooks/queries/task-relation/use-get-project-task-relations", () => ({
     isError: false,
   }),
 }));
-vi.mock("./task-row", () => ({ default: () => null }));
+vi.mock("./task-row", () => ({
+  default: ({ task, rowId }: { task: { id: string }; rowId: string }) => (
+    <button
+      type="button"
+      data-task-id={task.id}
+      data-task-row-id={rowId}
+      onFocus={() =>
+        useBulkSelectionStore.getState().setFocusedTask(task.id, rowId)
+      }
+    />
+  ),
+}));
 vi.mock("../bulk-selection/bulk-toolbar", () => ({ default: () => null }));
 vi.mock("../shared/modals/create-task-modal", () => ({ default: () => null }));
 vi.mock("../shared/modals/archive-tasks-modal", () => ({
@@ -94,14 +105,34 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-it("visits a child repeated across status groups once without looping", () => {
+it("visits each rendered occurrence in order without looping", () => {
   mount();
   const visited: (string | null)[] = [];
-  for (let index = 0; index < 5; index++) {
+  for (let index = 0; index < 6; index++) {
     press("j", "KeyJ");
-    visited.push(useBulkSelectionStore.getState().focusedTaskId);
+    visited.push(useBulkSelectionStore.getState().focusedTaskRowId);
   }
-  expect(visited).toEqual(["parent", "child", "sibling", "last", "last"]);
+  expect(visited).toEqual([
+    "parent",
+    "parent/child",
+    "sibling",
+    "child",
+    "last",
+    "last",
+  ]);
+});
+
+it("continues from the lower occurrence when a child is focused directly", () => {
+  mount();
+  const row = document.querySelector<HTMLElement>(
+    '[data-task-row-id="child"]',
+  )!;
+  act(() => row.focus());
+  press("j", "KeyJ");
+  expect(useBulkSelectionStore.getState().focusedTaskRowId).toBe("last");
+  act(() => row.focus());
+  press("k", "KeyK");
+  expect(useBulkSelectionStore.getState().focusedTaskRowId).toBe("sibling");
 });
 
 it("navigates to a child's own row when its parent group is collapsed", () => {
@@ -122,9 +153,12 @@ it("navigates to a child's own row when its parent group is collapsed", () => {
   );
 });
 
-it("reorders a repeated child within its own status group", () => {
+it("reorders a repeated child within its own status group and retains its occurrence", async () => {
   mount();
-  act(() => useBulkSelectionStore.getState().setFocusedTask("child"));
+  const row = document.querySelector<HTMLElement>(
+    '[data-task-row-id="child"]',
+  )!;
+  act(() => row.focus());
   press("ArrowDown", "ArrowDown", true);
   expect(
     mocks.mutate.mock.calls.map(([task]) => ({
@@ -135,4 +169,6 @@ it("reorders a repeated child within its own status group", () => {
     { id: "last", status: "doing" },
     { id: "child", status: "doing" },
   ]);
+  await act(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+  expect(row).toHaveFocus();
 });

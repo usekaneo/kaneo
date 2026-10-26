@@ -1,6 +1,7 @@
 export type TaskGroup = {
   id: string;
   taskIds: string[];
+  rows?: { taskId: string; rowId: string }[];
   collapsed?: boolean;
 };
 

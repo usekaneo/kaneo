@@ -1,5 +1,5 @@
 /**
- * Per-viewer, per-project record of which list-view rows are expanded.
+ * Browser-local, per-project record of which list-view rows are expanded.
  *
  * This is a convenience rather than state the app depends on: a value that
  * cannot be read or written simply leaves every row collapsed.

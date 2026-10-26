@@ -64,7 +64,7 @@ function TaskRow({
   task,
   projectSlug,
   depth = 0,
-  rowId,
+  rowId = task.id,
   childCount = 0,
   isExpanded = false,
   onToggleExpanded,
@@ -104,7 +104,7 @@ function TaskRow({
   );
   const selectRange = useBulkSelectionStore((state) => state.selectRange);
   const setFocusedTask = useBulkSelectionStore((state) => state.setFocusedTask);
-  useRestoreTaskFocus(task.id, useBulkSelectionStore);
+  useRestoreTaskFocus(task.id, useBulkSelectionStore, rowId);
   const setSelectionAnchor = useBulkSelectionStore(
     (state) => state.setSelectionAnchor,
   );
@@ -112,7 +112,11 @@ function TaskRow({
     state.selectedTaskIds.has(task.id),
   );
   const isTaskFocused = useBulkSelectionStore(
-    (state) => state.focusedTaskId === task.id,
+    (state) =>
+      state.focusedTaskId === task.id &&
+      (state.focusedTaskRowId
+        ? state.focusedTaskRowId === rowId
+        : rowId === task.id),
   );
 
   const hoverPrefetch = useTaskHoverPrefetch(task.id);
@@ -166,6 +170,7 @@ function TaskRow({
     }
 
     setSelectionAnchor(task.id);
+    setFocusedTask(null, rowId);
     openTask();
   };
 
@@ -176,9 +181,8 @@ function TaskRow({
       selectRange(task.id);
       return;
     }
-    // A repeated row is not sortable, so it takes none of dnd-kit's keys.
-    // Space activates a control with button semantics; the top-level rows
-    // hand it to dnd-kit instead, which starts a keyboard drag with it.
+    // Space activates the non-sortable repeat. Top-level rows leave Space to
+    // the view's peekTask shortcut; this view has no keyboard drag sensor.
     if (isNestedRepeat && e.key === " ") {
       e.preventDefault();
       setSelectionAnchor(task.id);
@@ -272,6 +276,7 @@ function TaskRow({
               isTaskSelected ? "bg-accent/45" : "group-hover/row:bg-accent/60",
             )}
             data-task-id={task.id}
+            data-task-row-id={rowId}
             data-shortcut-surface
             // A repeated row opens its task like any other, so it keeps the
             // button semantics but takes none of dnd-kit's attributes: those
@@ -284,7 +289,7 @@ function TaskRow({
             onKeyDown={handleKeyDown}
             onFocus={(event) => {
               if (event.target !== event.currentTarget) return;
-              setFocusedTask(isKeyboardFocus(event) ? task.id : null);
+              setFocusedTask(isKeyboardFocus(event) ? task.id : null, rowId);
             }}
           >
             {depth > 0 && (
