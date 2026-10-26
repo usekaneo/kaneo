@@ -2812,7 +2812,6 @@
 			"from": "Du (inclus)",
 			"to": "Au (inclus)",
 			"date": "Date",
-			"invalidRange": "La date de fin doit être égale ou postérieure à la date de début.",
 			"apply": "Appliquer le filtre de date",
 			"exactValue": "Le {{date}}",
 			"beforeValue": "Avant le {{date}}",

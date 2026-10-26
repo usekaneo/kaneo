@@ -3306,7 +3306,6 @@
 			"from": "From (inclusive)",
 			"to": "To (inclusive)",
 			"date": "Date",
-			"invalidRange": "The end date must be on or after the start date.",
 			"apply": "Apply date filter",
 			"exactValue": "On {{date}}",
 			"beforeValue": "Before {{date}}",

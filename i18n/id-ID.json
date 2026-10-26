@@ -2718,7 +2718,6 @@
 			"from": "Dari (termasuk)",
 			"to": "Hingga (termasuk)",
 			"date": "Tanggal",
-			"invalidRange": "Tanggal selesai harus sama dengan atau setelah tanggal mulai.",
 			"apply": "Terapkan filter tanggal",
 			"exactValue": "Pada {{date}}",
 			"beforeValue": "Sebelum {{date}}",

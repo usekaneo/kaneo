@@ -2718,7 +2718,6 @@
 			"from": "Từ (bao gồm)",
 			"to": "Đến (bao gồm)",
 			"date": "Ngày",
-			"invalidRange": "Ngày kết thúc phải trùng hoặc sau ngày bắt đầu.",
 			"apply": "Áp dụng bộ lọc ngày",
 			"exactValue": "Vào {{date}}",
 			"beforeValue": "Trước {{date}}",

@@ -2718,7 +2718,6 @@
 			"from": "시작일(당일 포함)",
 			"to": "종료일(당일 포함)",
 			"date": "날짜",
-			"invalidRange": "종료일은 시작일과 같거나 그 이후여야 합니다.",
 			"apply": "날짜 필터 적용",
 			"exactValue": "{{date}} 당일",
 			"beforeValue": "{{date}} 이전",

@@ -3141,7 +3141,6 @@
 			"from": "Od (włącznie)",
 			"to": "Do (włącznie)",
 			"date": "Data",
-			"invalidRange": "Data zakończenia musi być taka sama jak data rozpoczęcia lub późniejsza.",
 			"apply": "Zastosuj filtr daty",
 			"exactValue": "W dniu {{date}}",
 			"beforeValue": "Przed {{date}}",

@@ -2812,7 +2812,6 @@
 			"from": "Da (incluso)",
 			"to": "A (incluso)",
 			"date": "Data",
-			"invalidRange": "La data di fine deve essere uguale o successiva alla data di inizio.",
 			"apply": "Applica filtro per data",
 			"exactValue": "Il {{date}}",
 			"beforeValue": "Prima del {{date}}",

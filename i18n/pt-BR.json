@@ -2812,7 +2812,6 @@
 			"from": "De (inclusive)",
 			"to": "Até (inclusive)",
 			"date": "Data",
-			"invalidRange": "A data de término deve ser igual ou posterior à data de início.",
 			"apply": "Aplicar filtro de data",
 			"exactValue": "Em {{date}}",
 			"beforeValue": "Antes de {{date}}",

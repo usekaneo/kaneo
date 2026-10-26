@@ -2765,7 +2765,6 @@
 			"from": "Van (inclusief)",
 			"to": "Tot en met",
 			"date": "Datum",
-			"invalidRange": "De einddatum moet op of na de startdatum liggen.",
 			"apply": "Datumfilter toepassen",
 			"exactValue": "Op {{date}}",
 			"beforeValue": "Vóór {{date}}",

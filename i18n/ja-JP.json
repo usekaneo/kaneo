@@ -2718,7 +2718,6 @@
 			"from": "開始日（当日を含む）",
 			"to": "終了日（当日を含む）",
 			"date": "日付",
-			"invalidRange": "終了日は開始日以降にしてください。",
 			"apply": "日付フィルターを適用",
 			"exactValue": "{{date}}",
 			"beforeValue": "{{date}}より前",

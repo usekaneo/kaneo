@@ -2765,7 +2765,6 @@
 			"from": "Von (einschließlich)",
 			"to": "Bis (einschließlich)",
 			"date": "Datum",
-			"invalidRange": "Das Enddatum muss am oder nach dem Startdatum liegen.",
 			"apply": "Datumsfilter anwenden",
 			"exactValue": "Am {{date}}",
 			"beforeValue": "Vor dem {{date}}",

@@ -2765,7 +2765,6 @@
 			"from": "Başlanğıc (daxil olmaqla)",
 			"to": "Son (daxil olmaqla)",
 			"date": "Tarix",
-			"invalidRange": "Bitmə tarixi başlama tarixi ilə eyni və ya ondan sonra olmalıdır.",
 			"apply": "Tarix filtrini tətbiq et",
 			"exactValue": "{{date}} tarixində",
 			"beforeValue": "{{date}} tarixindən əvvəl",

@@ -2765,7 +2765,6 @@
 			"from": "Başlangıç (dahil)",
 			"to": "Bitiş (dahil)",
 			"date": "Tarih",
-			"invalidRange": "Bitiş tarihi, başlangıç tarihiyle aynı veya daha sonraki bir tarih olmalıdır.",
 			"apply": "Tarih filtresini uygula",
 			"exactValue": "{{date}} tarihinde",
 			"beforeValue": "{{date}} tarihinden önce",

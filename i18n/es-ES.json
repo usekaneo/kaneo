@@ -2812,7 +2812,6 @@
 			"from": "Desde (inclusive)",
 			"to": "Hasta (inclusive)",
 			"date": "Fecha",
-			"invalidRange": "La fecha de fin debe ser igual o posterior a la fecha de inicio.",
 			"apply": "Aplicar filtro de fecha",
 			"exactValue": "El {{date}}",
 			"beforeValue": "Antes del {{date}}",

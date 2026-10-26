@@ -2718,7 +2718,6 @@
 			"from": "起始日期（含當天）",
 			"to": "結束日期（含當天）",
 			"date": "日期",
-			"invalidRange": "結束日期必須等於或晚於開始日期。",
 			"apply": "套用日期篩選",
 			"exactValue": "在 {{date}}",
 			"beforeValue": "早於 {{date}}",
