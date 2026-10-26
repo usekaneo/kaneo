@@ -148,7 +148,11 @@
 					"amber": "アンバー",
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
-					"crimson": "クリムゾン"
+					"crimson": "クリムゾン",
+					"lagoon": "ラグーン",
+					"ocean": "オーシャン",
+					"orchid": "オーキッド",
+					"sky": "スカイ"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2961,7 +2965,11 @@
 					"amber": "アンバー",
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
-					"crimson": "クリムゾン"
+					"crimson": "クリムゾン",
+					"lagoon": "ラグーン",
+					"ocean": "オーシャン",
+					"orchid": "オーキッド",
+					"sky": "スカイ"
 				},
 				"editLabels": "ラベルを編集"
 			}
@@ -3208,7 +3216,10 @@
 		"filterBar": {
 			"label": "適用中のフィルター",
 			"removeFilter": "{{name}} フィルターを削除",
-			"noMatches": "検索またはフィルターに一致するタスクはありません。"
+			"noMatches": "検索またはフィルターに一致するタスクはありません。",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "フィルターを追加…",
@@ -4021,9 +4032,13 @@
 				"amber": "アンバー",
 				"crimson": "クリムゾン",
 				"forest": "フォレスト",
+				"lagoon": "ラグーン",
 				"lavender": "ラベンダー",
+				"ocean": "オーシャン",
+				"orchid": "オーキッド",
 				"rose": "ローズ",
 				"sage": "セージ",
+				"sky": "スカイ",
 				"slate": "スレート",
 				"stone": "ストーン",
 				"terracotta": "テラコッタ"

@@ -148,7 +148,11 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"lagoon": "Λιμνοθάλασσα",
+					"ocean": "Ωκεανός",
+					"orchid": "Ορχιδέα",
+					"sky": "Ουρανός"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3008,7 +3012,11 @@
 					"amber": "Κεχριμπάρι",
 					"terracotta": "Τερακότα",
 					"rose": "Ροζ",
-					"crimson": "Βυσσινί"
+					"crimson": "Βυσσινί",
+					"lagoon": "Λιμνοθάλασσα",
+					"ocean": "Ωκεανός",
+					"orchid": "Ορχιδέα",
+					"sky": "Ουρανός"
 				},
 				"editLabels": "Επεξεργασία ετικετών"
 			}
@@ -3262,7 +3270,10 @@
 		"filterBar": {
 			"label": "Ενεργά φίλτρα",
 			"removeFilter": "Αφαίρεση φίλτρου {{name}}",
-			"noMatches": "Καμία εργασία δεν ταιριάζει με την αναζήτηση ή τα φίλτρα σας."
+			"noMatches": "Καμία εργασία δεν ταιριάζει με την αναζήτηση ή τα φίλτρα σας.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Προσθήκη φίλτρου…",
@@ -4375,7 +4386,11 @@
 				"amber": "Κεχριμπάρι",
 				"terracotta": "Τερακότα",
 				"rose": "Ροζ",
-				"crimson": "Βυσσινί"
+				"crimson": "Βυσσινί",
+				"ocean": "Ωκεανός",
+				"sky": "Ουρανός",
+				"lagoon": "Λιμνοθάλασσα",
+				"orchid": "Ορχιδέα"
 			},
 			"role": {
 				"owner": "Ιδιοκτήτης",

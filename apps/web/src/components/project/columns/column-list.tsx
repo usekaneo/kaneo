@@ -32,8 +32,8 @@ export function ColumnList({ projectId }: ColumnListProps) {
   const { mutateAsync: updateColumn } = useUpdateColumn();
   const { mutateAsync: deleteColumn, isPending: deleting } = useDeleteColumn();
   const { mutateAsync: reorderColumns } = useReorderColumns();
-  const { canManageProjects } = useWorkspacePermission();
-  const canEdit = canManageProjects();
+  const { canUpdateProjects } = useWorkspacePermission();
+  const canEdit = canUpdateProjects();
   const [pendingDelete, setPendingDelete] = useState<ProjectColumn | null>(
     null,
   );

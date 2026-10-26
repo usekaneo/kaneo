@@ -17,6 +17,10 @@ export const LABEL_PALETTE: ReadonlyArray<PaletteColor> = [
   { key: "orange", name: "Terracotta", hex: "#f54900" },
   { key: "pink", name: "Rose", hex: "#ec003f" },
   { key: "red", name: "Crimson", hex: "#e7000b" },
+  { key: "blue", name: "Ocean", hex: "#155dfc" },
+  { key: "sky", name: "Sky", hex: "#00a6f4" },
+  { key: "cyan", name: "Lagoon", hex: "#0092b8" },
+  { key: "fuchsia", name: "Orchid", hex: "#c800de" },
 ];
 
 export const FALLBACK_LABEL_HEX = "#a1a1a1";

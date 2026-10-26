@@ -148,7 +148,11 @@
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
-					"crimson": "Koyu Kırmızı"
+					"crimson": "Koyu Kırmızı",
+					"lagoon": "Lagün",
+					"ocean": "Okyanus",
+					"orchid": "Orkide",
+					"sky": "Gökyüzü"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3008,7 +3012,11 @@
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
-					"crimson": "Koyu Kırmızı"
+					"crimson": "Koyu Kırmızı",
+					"lagoon": "Lagün",
+					"ocean": "Okyanus",
+					"orchid": "Orkide",
+					"sky": "Gökyüzü"
 				},
 				"editLabels": "Etiketleri düzenle"
 			}
@@ -3262,7 +3270,10 @@
 		"filterBar": {
 			"label": "Etkin filtreler",
 			"removeFilter": "{{name}} filtresini kaldır",
-			"noMatches": "Aramanızla veya filtrelerinizle eşleşen görev yok."
+			"noMatches": "Aramanızla veya filtrelerinizle eşleşen görev yok.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Filtre ekle…",
@@ -4088,9 +4099,13 @@
 				"amber": "Kehribar",
 				"crimson": "Kızıl",
 				"forest": "Orman",
+				"lagoon": "Lagün",
 				"lavender": "Lavanta",
+				"ocean": "Okyanus",
+				"orchid": "Orkide",
 				"rose": "Gül",
 				"sage": "Adaçayı",
+				"sky": "Gökyüzü",
 				"slate": "Arduvaz",
 				"stone": "Taş",
 				"terracotta": "Terakota"

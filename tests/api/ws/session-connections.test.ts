@@ -66,6 +66,7 @@ describe("revokeSessionConnections", () => {
     const apiKey = makeFakeWs();
     const endedBoard = makeFakeWs();
     const phoneBoard = makeFakeWs();
+    const apiKeyBoard = makeFakeWs();
     const connections = [
       addUserConnection("user-1", firstTab, "session-a"),
       addUserConnection("user-1", secondTab, "session-a"),
@@ -79,6 +80,7 @@ describe("revokeSessionConnections", () => {
         "user-1",
         "user-1:a",
         "ws-1",
+        undefined,
         "session-a",
       ),
       addConnection(
@@ -87,9 +89,23 @@ describe("revokeSessionConnections", () => {
         "user-1",
         "user-1:b",
         "ws-1",
+        undefined,
         "session-b",
       ),
+      addConnection(
+        "project-1",
+        apiKeyBoard,
+        "user-1",
+        "user-1:key",
+        "ws-1",
+        "api-key-1",
+      ),
     ];
+
+    expect(boards[2]).toMatchObject({
+      apiKeyId: "api-key-1",
+      sessionId: null,
+    });
 
     await revokeSessionConnections("user-1", ["session-a"]);
 
@@ -100,7 +116,7 @@ describe("revokeSessionConnections", () => {
       );
       expect(mocksOf(ws).send).not.toHaveBeenCalled();
     }
-    for (const ws of [phone, apiKey, phoneBoard]) {
+    for (const ws of [phone, apiKey, phoneBoard, apiKeyBoard]) {
       expect(mocksOf(ws).close).not.toHaveBeenCalled();
       expect(mocksOf(ws).send).not.toHaveBeenCalled();
     }

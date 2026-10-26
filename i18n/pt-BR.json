@@ -148,7 +148,11 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3055,7 +3059,11 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"editLabels": "Editar etiquetas"
 			}
@@ -3316,7 +3324,10 @@
 		"filterBar": {
 			"label": "Filtros ativos",
 			"removeFilter": "Remover filtro {{name}}",
-			"noMatches": "Nenhuma tarefa corresponde à sua busca ou aos seus filtros."
+			"noMatches": "Nenhuma tarefa corresponde à sua busca ou aos seus filtros.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Adicionar filtro…",
@@ -4155,9 +4166,13 @@
 				"amber": "Âmbar",
 				"crimson": "Carmesim",
 				"forest": "Floresta",
+				"lagoon": "Laguna",
 				"lavender": "Lavanda",
+				"ocean": "Oceano",
+				"orchid": "Orquídea",
 				"rose": "Rosa",
 				"sage": "Sálvia",
+				"sky": "Céu",
 				"slate": "Ardósia",
 				"stone": "Pedra",
 				"terracotta": "Terracota"

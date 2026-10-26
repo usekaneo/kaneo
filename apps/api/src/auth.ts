@@ -51,6 +51,7 @@ import {
 } from "./billing/controllers/find-billable-workspaces";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
+import { lockedSessionRevocation } from "./utils/locked-session-revocation";
 import { publishEvent } from "./events";
 import { applyInvitationProjectAccess } from "./project-access/apply-invitation-project-access";
 import { resolveInvitationProjectAccess } from "./project-access/resolve-invitation-project-access";
@@ -62,6 +63,17 @@ import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
 import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
 import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
 import assertManagedProfileUnchanged from "./user/controllers/assert-managed-profile-unchanged";
+import { hideInvitationsFromNonInviters } from "./utils/hide-invitations-from-non-inviters";
+import { assertOwnerInvitationResendAllowed } from "./utils/assert-owner-invitation-resend-allowed";
+import {
+  assertNativeAuthApiKeyAllowed,
+  nativeAuthApiKey,
+} from "./utils/native-auth-api-key";
+import {
+  assertNativeOrganizationReadAllowed,
+  readableNativeOrganizations,
+} from "./utils/native-organization-read-access";
+import { satisfies } from "./utils/role-permissions";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -366,6 +378,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    lockedSessionRevocation,
     ...(process.env.DISABLE_GUEST_ACCESS !== "true"
       ? [
           anonymous({
@@ -844,12 +857,43 @@ export const auth = betterAuth({
     },
   },
   hooks: {
-    before: createAuthMiddleware(async (ctx) => {
+    before: createAuthMiddleware(async (ctx): Promise<void> => {
+      // Runs before provider hooks can turn a key into its owner's session.
+      await assertNativeAuthApiKeyAllowed(ctx);
+      let organizationViewer: {
+        user: { id: string };
+        session: {
+          id?: string;
+          activeOrganizationId?: unknown;
+          activeTeamId?: unknown;
+        };
+      } | null = null;
+      if (ctx.path.startsWith("/organization/")) {
+        const key = nativeAuthApiKey(ctx);
+        // Resolve real bearer sessions through the provider's bearer hook as
+        // well as cookies. The nested /get-session call does not enter here.
+        organizationViewer = key
+          ? { user: { id: key.userId }, session: {} }
+          : await auth.api.getSession({ headers: new Headers(ctx.headers) });
+        await assertNativeOrganizationReadAllowed(ctx, organizationViewer);
+      }
       if (ctx.path === "/admin/remove-user") {
         await prepareAdminUserRemoval(ctx);
       }
 
       if (ctx.path === "/organization/invite-member") {
+        if (ctx.body?.resend === true && typeof ctx.body.email === "string") {
+          const viewer = organizationViewer;
+          const workspaceId =
+            ctx.body.organizationId || viewer?.session.activeOrganizationId;
+          if (viewer && typeof workspaceId === "string") {
+            await assertOwnerInvitationResendAllowed(
+              viewer.user.id,
+              workspaceId,
+              ctx.body.email,
+            );
+          }
+        }
         // Better Auth swallows email failures in runInBackgroundOrAwait.
         // Invitation callers need the delivery result, including on resend.
         ctx.context.runInBackgroundOrAwait = async (promise) => {
@@ -1000,19 +1044,80 @@ export const auth = betterAuth({
     }),
     after: createAuthMiddleware(async (ctx) => {
       if (
-        ctx.path === "/organization/list-invitations" ||
-        ctx.path === "/organization/get-full-organization"
+        (ctx.path === "/organization/list" ||
+          ctx.path === "/organization/list-user-teams") &&
+        Array.isArray(ctx.context.returned)
       ) {
+        const viewer = await getSessionFromCtx(ctx);
+        if (viewer) {
+          const organizations = ctx.context.returned as {
+            id: string;
+            organizationId?: string;
+          }[];
+          const visible = await readableNativeOrganizations(
+            viewer.user.id,
+            organizations.map(
+              (workspace) => workspace.organizationId ?? workspace.id,
+            ),
+          );
+          organizations.splice(
+            0,
+            organizations.length,
+            ...organizations.filter((workspace) =>
+              visible.has(workspace.organizationId ?? workspace.id),
+            ),
+          );
+        }
+      }
+      if (
+        ctx.path === "/organization/list-invitations" ||
+        ctx.path === "/organization/get-full-organization" ||
+        ctx.path === "/organization/invite-member"
+      ) {
+        const single = ctx.path === "/organization/invite-member";
         const viewer = await getSessionFromCtx(ctx);
         const returned = ctx.context.returned as
           | { invitations?: unknown }
           | unknown[]
           | null;
-        if (viewer)
-          await hideInaccessibleInvitationProjects(
-            viewer.user.id,
-            Array.isArray(returned) ? returned : returned?.invitations,
-          );
+        const created = returned as {
+          id?: unknown;
+          organizationId?: unknown;
+          role?: unknown;
+        } | null;
+        const invitations = single
+          ? typeof created?.id === "string" &&
+            typeof created.organizationId === "string" &&
+            typeof created.role === "string"
+            ? [created]
+            : undefined
+          : Array.isArray(returned)
+            ? returned
+            : returned?.invitations;
+        if (viewer) {
+          const scope = nativeAuthApiKey(ctx)?.permissions;
+          if (
+            scope &&
+            !satisfies(scope, { invitation: ["create"] }) &&
+            Array.isArray(invitations)
+          ) {
+            invitations.splice(0, invitations.length);
+          }
+          await hideInvitationsFromNonInviters(viewer.user, invitations);
+          // Resending returns the existing invitation's role, which may
+          // differ from the role Better Auth authorized in the request.
+          if (
+            single &&
+            Array.isArray(invitations) &&
+            invitations.length === 0
+          ) {
+            throw new APIError("FORBIDDEN", {
+              code: "YOU_ARE_NOT_ALLOWED_TO_INVITE_USER_WITH_THIS_ROLE",
+              message: "You are not allowed to invite a user with this role",
+            });
+          }
+          await hideInaccessibleInvitationProjects(viewer.user.id, invitations);
+        }
       }
 
       if (ctx.path === "/organization/leave") {

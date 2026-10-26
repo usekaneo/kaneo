@@ -70,3 +70,17 @@ it.each([1, 2])(
     }
   },
 );
+
+vi.mock("../../../apps/api/src/ws/project-read-access", () => ({
+  getProjectReadAccess: async (
+    _workspaceId: string,
+    recipients: Array<{ userId: string; apiKeyId?: string }>,
+  ) => ({
+    readers: new Set(recipients.map((conn) => conn.userId)),
+    apiKeys: new Map(
+      recipients.flatMap((conn) =>
+        conn.apiKeyId ? [[conn.apiKeyId, conn.userId] as const] : [],
+      ),
+    ),
+  }),
+}));

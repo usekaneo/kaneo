@@ -148,7 +148,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"lagoon": "泻湖青",
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
 				},
 				"statusLoadError": "项目状态加载失败。"
 			}
@@ -2961,7 +2965,11 @@
 					"amber": "琥珀",
 					"terracotta": "赤陶",
 					"rose": "玫红",
-					"crimson": "深红"
+					"crimson": "深红",
+					"lagoon": "泻湖青",
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
 				},
 				"editLabels": "编辑标签"
 			}
@@ -3208,7 +3216,10 @@
 		"filterBar": {
 			"label": "已应用的筛选",
 			"removeFilter": "移除“{{name}}”筛选",
-			"noMatches": "没有任务符合你的搜索或筛选条件。"
+			"noMatches": "没有任务符合你的搜索或筛选条件。",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "添加筛选…",
@@ -4021,9 +4032,13 @@
 				"amber": "琥珀",
 				"crimson": "深红",
 				"forest": "森林绿",
+				"lagoon": "泻湖青",
 				"lavender": "薰衣草",
+				"ocean": "海洋蓝",
+				"orchid": "兰花紫",
 				"rose": "玫红",
 				"sage": "鼠尾草绿",
+				"sky": "天空蓝",
 				"slate": "石板蓝",
 				"stone": "石板灰",
 				"terracotta": "赤陶"

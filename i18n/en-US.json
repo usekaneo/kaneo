@@ -149,7 +149,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"orchid": "Orchid"
 				}
 			}
 		},
@@ -3009,7 +3013,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"orchid": "Orchid"
 				},
 				"editLabels": "Edit labels"
 			}
@@ -3261,6 +3269,9 @@
 		},
 		"filterBar": {
 			"label": "Active filters",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
 			"removeFilter": "Remove {{name}} filter",
 			"noMatches": "No tasks match your search or filters."
 		},
@@ -4375,7 +4386,11 @@
 				"amber": "Amber",
 				"terracotta": "Terracotta",
 				"rose": "Rose",
-				"crimson": "Crimson"
+				"crimson": "Crimson",
+				"ocean": "Ocean",
+				"sky": "Sky",
+				"lagoon": "Lagoon",
+				"orchid": "Orchid"
 			},
 			"role": {
 				"owner": "Owner",

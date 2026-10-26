@@ -32,6 +32,7 @@ import type {
 } from "./broadcast-adapter";
 import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
+import { getProjectReadAccess } from "./project-read-access";
 
 const INSTANCE_ID = randomUUID();
 let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
@@ -45,6 +46,7 @@ type ProjectConnection = {
   initiatorId: string;
   workspaceId: string;
   sessionId: string | null;
+  apiKeyId?: string;
 };
 
 type UserConnection = {
@@ -546,15 +548,27 @@ const authorizationLookups = new Map<
     workspaceId: string | null;
     members: Set<string>;
     restricted: Set<string>;
+    readers: Set<string>;
+    apiKeys: Map<string, string>;
   } | null>
 >();
 function currentBroadcastAccess(
   projectId: string,
-  recipients: Array<{ userId: string }>,
+  recipients: Array<{ userId: string; apiKeyId?: string }>,
   authorizationBatch: string,
 ) {
   const userIds = [...new Set(recipients.map((conn) => conn.userId))].sort();
-  const key = JSON.stringify([projectId, authorizationBatch, userIds]);
+  const apiKeyIds = [
+    ...new Set(
+      recipients.flatMap((conn) => (conn.apiKeyId ? [conn.apiKeyId] : [])),
+    ),
+  ].sort();
+  const key = JSON.stringify([
+    projectId,
+    authorizationBatch,
+    userIds,
+    apiKeyIds,
+  ]);
   let pending = authorizationLookups.get(key);
   if (!pending) {
     pending = (async () => {
@@ -567,11 +581,16 @@ function currentBroadcastAccess(
       }
       let members = new Set<string>();
       let restricted = new Set<string>();
+      let readers = new Set<string>();
+      let apiKeys = new Map<string, string>();
       if (workspaceId) {
         try {
           const [rows, permitted] = await Promise.all([
             db
-              .select({ userId: workspaceUserTable.userId })
+              .select({
+                userId: workspaceUserTable.userId,
+                role: workspaceUserTable.role,
+              })
               .from(workspaceUserTable)
               .where(
                 and(
@@ -585,6 +604,11 @@ function currentBroadcastAccess(
           restricted = new Set(
             userIds.filter((userId) => !permitted.has(userId)),
           );
+          ({ readers, apiKeys } = await getProjectReadAccess(
+            workspaceId,
+            recipients,
+            rows,
+          ));
           const nonmembers = userIds.filter((userId) => !members.has(userId));
           if (nonmembers.length > 0) {
             const admins = await db
@@ -603,7 +627,7 @@ function currentBroadcastAccess(
           return null;
         }
       }
-      return { workspaceId, members, restricted };
+      return { workspaceId, members, restricted, readers, apiKeys };
     })().finally(() => authorizationLookups.delete(key));
     authorizationLookups.set(key, pending);
   }
@@ -629,7 +653,7 @@ async function deliverToLocalConnections(
     authorizationBatch,
   );
   if (!access) return;
-  const { workspaceId, members, restricted } = access;
+  const { workspaceId, members, restricted, readers, apiKeys } = access;
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.
@@ -641,7 +665,10 @@ async function deliverToLocalConnections(
           ? "Workspace access revoked"
           : restricted.has(conn.userId)
             ? "Project access revoked"
-            : null;
+            : !readers.has(conn.userId) ||
+                (conn.apiKeyId && apiKeys.get(conn.apiKeyId) !== conn.userId)
+              ? "Read permission revoked"
+              : null;
     if (revoked) {
       removeConnection(projectId, conn);
       try {
@@ -666,6 +693,7 @@ export function addConnection(
   userId: string,
   initiatorId: string,
   workspaceId: string,
+  apiKeyId?: string,
   sessionId: string | null = null,
 ) {
   if (!projectConnections.has(projectId)) {
@@ -677,6 +705,7 @@ export function addConnection(
     initiatorId,
     workspaceId,
     sessionId,
+    ...(apiKeyId ? { apiKeyId } : {}),
   };
   projectConnections.get(projectId)?.add(conn);
   return conn;

@@ -7,9 +7,19 @@ import type { FilterSubject } from "./filter-subject";
 type ActiveFiltersBarProps = {
   subjects: FilterSubject[];
   onClear: () => void;
+  customFieldValues?: {
+    hasData: boolean;
+    isLoading: boolean;
+    isError: boolean;
+    retry: () => unknown;
+  };
 };
 
-export function ActiveFiltersBar({ subjects, onClear }: ActiveFiltersBarProps) {
+export function ActiveFiltersBar({
+  subjects,
+  onClear,
+  customFieldValues,
+}: ActiveFiltersBarProps) {
   const { t } = useTranslation();
   const active = subjects.filter((subject) => subject.selected.length > 0);
   if (active.length === 0) return null;
@@ -24,6 +34,25 @@ export function ActiveFiltersBar({ subjects, onClear }: ActiveFiltersBarProps) {
           <ActiveFilterChip key={subject.id} subject={subject} />
         ))}
         <AddFilterButton subjects={subjects} />
+        {customFieldValues?.isLoading && (
+          <p role="status" className="w-full text-sm text-muted-foreground">
+            {t("tasks:filterBar.customFieldsLoading")}
+          </p>
+        )}
+        {customFieldValues?.isError && (
+          <p role="alert" className="w-full text-sm text-destructive">
+            {customFieldValues.hasData
+              ? t("tasks:filterBar.customFieldsRefreshError")
+              : t("tasks:filterBar.customFieldsUnavailable")}{" "}
+            <button
+              type="button"
+              className="underline"
+              onClick={() => void customFieldValues.retry()}
+            >
+              {t("common:error.tryAgain")}
+            </button>
+          </p>
+        )}
       </div>
       <Button
         variant="ghost"

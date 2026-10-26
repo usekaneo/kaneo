@@ -148,7 +148,11 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхідея",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3102,7 +3106,11 @@
 					"amber": "Бурштин",
 					"terracotta": "Теракота",
 					"rose": "Троянда",
-					"crimson": "Багряний"
+					"crimson": "Багряний",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхідея",
+					"sky": "Небо"
 				},
 				"editLabels": "Редагувати мітки"
 			}
@@ -3370,7 +3378,10 @@
 		"filterBar": {
 			"label": "Активні фільтри",
 			"removeFilter": "Прибрати фільтр «{{name}}»",
-			"noMatches": "Немає завдань, що відповідають пошуку чи фільтрам."
+			"noMatches": "Немає завдань, що відповідають пошуку чи фільтрам.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Додати фільтр…",
@@ -4525,7 +4536,11 @@
 				"amber": "Бурштин",
 				"terracotta": "Теракота",
 				"rose": "Троянда",
-				"crimson": "Багряний"
+				"crimson": "Багряний",
+				"ocean": "Океан",
+				"sky": "Небо",
+				"lagoon": "Лагуна",
+				"orchid": "Орхідея"
 			},
 			"role": {
 				"owner": "Власник",

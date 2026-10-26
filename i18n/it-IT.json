@@ -148,7 +148,11 @@
 					"amber": "Ambra",
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
-					"crimson": "Cremisi"
+					"crimson": "Cremisi",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orchidea",
+					"sky": "Cielo"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3055,7 +3059,11 @@
 					"amber": "Ambra",
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
-					"crimson": "Cremisi"
+					"crimson": "Cremisi",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orchidea",
+					"sky": "Cielo"
 				},
 				"editLabels": "Modifica etichette"
 			}
@@ -3316,7 +3324,10 @@
 		"filterBar": {
 			"label": "Filtri attivi",
 			"removeFilter": "Rimuovi filtro {{name}}",
-			"noMatches": "Nessuna attività corrisponde alla tua ricerca o ai tuoi filtri."
+			"noMatches": "Nessuna attività corrisponde alla tua ricerca o ai tuoi filtri.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Aggiungi filtro…",
@@ -4450,7 +4461,11 @@
 				"amber": "Ambra",
 				"terracotta": "Terracotta",
 				"rose": "Rosa",
-				"crimson": "Cremisi"
+				"crimson": "Cremisi",
+				"ocean": "Oceano",
+				"sky": "Cielo",
+				"lagoon": "Laguna",
+				"orchid": "Orchidea"
 			},
 			"role": {
 				"owner": "Proprietario",

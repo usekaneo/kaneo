@@ -148,7 +148,11 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"lagoon": "라군",
+					"ocean": "오션",
+					"orchid": "오키드",
+					"sky": "스카이"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2961,7 +2965,11 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"lagoon": "라군",
+					"ocean": "오션",
+					"orchid": "오키드",
+					"sky": "스카이"
 				},
 				"editLabels": "라벨 편집"
 			}
@@ -3208,7 +3216,10 @@
 		"filterBar": {
 			"label": "적용된 필터",
 			"removeFilter": "{{name}} 필터 제거",
-			"noMatches": "검색 또는 필터와 일치하는 작업이 없습니다."
+			"noMatches": "검색 또는 필터와 일치하는 작업이 없습니다.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "필터 추가…",
@@ -4021,9 +4032,13 @@
 				"amber": "앰버",
 				"crimson": "크림슨",
 				"forest": "포레스트",
+				"lagoon": "라군",
 				"lavender": "라벤더",
+				"ocean": "오션",
+				"orchid": "오키드",
 				"rose": "로즈",
 				"sage": "세이지",
+				"sky": "스카이",
 				"slate": "슬레이트",
 				"stone": "스톤",
 				"terracotta": "테라코타"

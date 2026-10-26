@@ -237,13 +237,15 @@ describe("API integration: profile fields managed by the custom provider", () =>
           body: { userId, name: "Managed profile test" },
         });
 
-        await expectManagedRefusal(
-          await updateUser(
-            app,
-            { [header]: header === "Authorization" ? `Bearer ${key}` : key },
-            { name: "Janet Doe" },
-          ),
+        const response = await updateUser(
+          app,
+          { [header]: header === "Authorization" ? `Bearer ${key}` : key },
+          { name: "Janet Doe" },
         );
+        expect(response.status).toBe(403);
+        expect(await readErrorBody(response)).toMatchObject({
+          code: "SESSION_REQUIRED",
+        });
         expect(await loadProfile(userId)).toMatchObject({ name: "Jane Doe" });
       },
     );

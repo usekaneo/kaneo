@@ -148,7 +148,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3008,7 +3012,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"editLabels": "Уреди етикети"
 			}
@@ -3262,7 +3270,10 @@
 		"filterBar": {
 			"label": "Активни филтри",
 			"removeFilter": "Отстрани го филтерот {{name}}",
-			"noMatches": "Ниту една задача не одговара на пребарувањето или филтрите."
+			"noMatches": "Ниту една задача не одговара на пребарувањето или филтрите.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Додај филтер…",
@@ -4375,7 +4386,11 @@
 				"amber": "Килибар",
 				"terracotta": "Теракота",
 				"rose": "Роза",
-				"crimson": "Гримизна"
+				"crimson": "Гримизна",
+				"ocean": "Океан",
+				"sky": "Небо",
+				"lagoon": "Лагуна",
+				"orchid": "Орхидеја"
 			},
 			"role": {
 				"owner": "Сопственик",

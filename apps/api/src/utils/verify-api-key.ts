@@ -13,7 +13,9 @@ async function hashApiKey(key: string): Promise<string> {
     .replace(/=/g, "");
 }
 
-function parsePermissions(raw: string | null): Record<string, string[]> | null {
+export function parsePermissions(
+  raw: string | null,
+): Record<string, string[]> | null {
   if (raw === null) return null;
 
   let value: unknown;

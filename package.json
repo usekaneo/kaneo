@@ -14,6 +14,7 @@
     "i18n:schema": "node ./scripts/i18n/schema.mjs && vp fmt i18n/schema.json",
     "lint": "vp check",
     "test": "vp run -r test",
+    "test:security:dependencies": "node --test scripts/security/dependency-*.test.mjs",
     "test:integration": "vp run -r test:integration",
     "test:e2e": "pnpm --dir tests/e2e test",
     "test:browserstack": "pnpm --dir tests/e2e test:browserstack",
@@ -35,13 +36,14 @@
     "semantic-release": "^25.0.9",
     "tar-fs": ">=3.1.3",
     "typescript": "7.0.2",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {
     "node": "^24.11.0 || >=26.0.0"
   },
   "packageManager": "pnpm@10.32.1",
-  "version": "2.47.0",
+  "version": "2.47.1",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

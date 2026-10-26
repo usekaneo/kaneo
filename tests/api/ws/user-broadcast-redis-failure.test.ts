@@ -223,6 +223,7 @@ describe("ended sessions with the redis adapter", () => {
       "user-1",
       "window",
       "workspace",
+      undefined,
       "session-a",
     );
     try {
@@ -262,6 +263,7 @@ describe("ended sessions with the redis adapter", () => {
       "user-1",
       "window",
       "workspace",
+      undefined,
       "session-c",
     );
     try {

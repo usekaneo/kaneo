@@ -148,7 +148,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2997,7 +3001,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Roos",
-					"crimson": "Karmozijn"
+					"crimson": "Karmozijn",
+					"lagoon": "Lagune",
+					"ocean": "Oceaan",
+					"orchid": "Orchidee",
+					"sky": "Hemel"
 				},
 				"editLabels": "Labels bewerken"
 			}
@@ -3262,7 +3270,10 @@
 		"filterBar": {
 			"label": "Actieve filters",
 			"removeFilter": "Filter {{name}} verwijderen",
-			"noMatches": "Geen taken komen overeen met je zoekopdracht of filters."
+			"noMatches": "Geen taken komen overeen met je zoekopdracht of filters.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Filter toevoegen…",
@@ -4088,9 +4099,13 @@
 				"amber": "Amber",
 				"crimson": "Karmozijn",
 				"forest": "Bos",
+				"lagoon": "Lagune",
 				"lavender": "Lavendel",
+				"ocean": "Oceaan",
+				"orchid": "Orchidee",
 				"rose": "Roos",
 				"sage": "Salie",
+				"sky": "Hemel",
 				"slate": "Leisteen",
 				"stone": "Steen",
 				"terracotta": "Terracotta"
