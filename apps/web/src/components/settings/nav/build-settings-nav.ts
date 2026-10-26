@@ -1,4 +1,5 @@
 import {
+  Activity,
   Bell,
   Building2,
   Code,
@@ -171,6 +172,12 @@ export function buildSettingsNav({
               label: t("settings:adminAuditLog.title"),
               to: "/dashboard/settings/admin/audit-log",
               icon: ScrollText,
+            },
+            {
+              id: "admin-system",
+              label: t("settings:adminSystem.title"),
+              to: "/dashboard/settings/admin/system",
+              icon: Activity,
             },
           ],
         }

@@ -2550,6 +2550,112 @@
 			"loadError": "Couldn't load sessions.",
 			"toastRevoked": "Session signed out.",
 			"toastRevokeError": "Couldn't sign out the session."
+		},
+		"adminSystem": {
+			"title": "System",
+			"subtitle": "Check this Kaneo instance and the services it relies on. Checks run on the API instance that answers this page.",
+			"refresh": "Refresh",
+			"refreshing": "Checking…",
+			"checkedAt": "Checked {{time}}",
+			"loadError": "System status could not be loaded.",
+			"retry": "Retry",
+			"status": {
+				"ok": "Operational",
+				"warning": "Warning",
+				"not_configured": "Not configured",
+				"down": "Down"
+			},
+			"setupStatus": {
+				"ok": "Configured",
+				"warning": "Incomplete",
+				"not_configured": "Not configured",
+				"down": "Down"
+			},
+			"instance": {
+				"title": "Instance",
+				"description": "The API, its database, and the optional services it uses.",
+				"version": "Kaneo version",
+				"versionDescription": "Release running on this API instance.",
+				"versionUnknown": "Unknown",
+				"api": "API",
+				"apiDescription": "Up {{uptime}} · Node {{node}}",
+				"database": "Database",
+				"databaseVersion": "PostgreSQL {{version}}",
+				"migrations_one": "{{count}} migration applied",
+				"migrations_other": "{{count}} migrations applied",
+				"latency": "{{ms}} ms",
+				"databaseDown": "Can't reach PostgreSQL ({{code}})",
+				"realtime": "Live updates",
+				"realtimeConnections_one": "{{count}} open connection on this instance",
+				"realtimeConnections_other": "{{count}} open connections on this instance",
+				"realtimeInMemory": "delivered in memory",
+				"realtimeRedis": "shared with other instances through Redis",
+				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
+				"realtimeNotStarted": "WebSockets haven't started",
+				"redis": "Redis",
+				"redisNotConfigured": "Not needed for a single API instance. Set REDIS_URL to share live updates across instances.",
+				"redisOk": "{{mode}}, reachable",
+				"redisDown": "Can't reach Redis ({{code}})",
+				"redisModes": {
+					"standalone": "Standalone",
+					"sentinel": "Sentinel",
+					"cluster": "Cluster"
+				},
+				"storage": "File storage",
+				"storageNotConfigured": "Image uploads are off. Set S3_ENDPOINT and S3_BUCKET to turn them on.",
+				"storageOk": "Bucket reachable",
+				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
+				"storageWarning": "The bucket answered, but these credentials can't check it ({{code}}). Uploads may still work.",
+				"storageDown": "Can't reach the bucket ({{code}})"
+			},
+			"email": {
+				"title": "Email",
+				"description": "Kaneo emails sign-in codes, password resets, invitations and notifications.",
+				"smtp": "SMTP",
+				"notConfigured": "Email is off. Set SMTP_HOST and SMTP_FROM to send sign-in codes, resets and invitations.",
+				"ok": "Connected to the mail server",
+				"down": "Can't connect to the mail server ({{code}})",
+				"sendTest": "Test email",
+				"sendTestDescription": "Sends a test message to your own address.",
+				"send": "Send test email",
+				"sending": "Sending…"
+			},
+			"signIn": {
+				"title": "Sign-in",
+				"description": "How people sign in and join this instance. These come from environment variables.",
+				"on": "On",
+				"off": "Off",
+				"passwordSignIn": "Email and password sign-in",
+				"emailOtpSignIn": "Email sign-in codes",
+				"registration": "Registration",
+				"passwordRegistration": "Sign-up with a password",
+				"guestAccess": "Guest access",
+				"workspaceCreation": "Workspace creation",
+				"providerDescriptions": {
+					"github": "Sign in with GitHub",
+					"google": "Sign in with Google",
+					"discord": "Sign in with Discord",
+					"custom": "Custom OAuth or OpenID Connect provider"
+				}
+			},
+			"integrations": {
+				"title": "Integrations",
+				"description": "Providers that projects can connect to. Each project connects with its own credentials.",
+				"available": "Available",
+				"connectedProjects_one": "Connected in {{count}} project",
+				"connectedProjects_other": "Connected in {{count}} projects",
+				"connectedUnknown": "Project count unavailable",
+				"instanceSetup": {
+					"ok": "GitHub App set up",
+					"warning": "Some GitHub App settings are missing",
+					"not_configured": "Needs the GitHub App settings on this instance",
+					"down": "GitHub App unavailable"
+				}
+			},
+			"toast": {
+				"testEmailSent": "Test email sent to {{to}}",
+				"testEmailError": "The test email could not be sent."
+			}
 		}
 	},
 	"navigation": {

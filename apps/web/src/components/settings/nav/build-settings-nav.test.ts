@@ -59,6 +59,7 @@ describe("buildSettingsNav", () => {
       "/dashboard/settings/admin/users",
       "/dashboard/settings/admin/workspaces",
       "/dashboard/settings/admin/audit-log",
+      "/dashboard/settings/admin/system",
     ]);
   });
 
