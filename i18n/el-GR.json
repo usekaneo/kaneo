@@ -1572,6 +1572,8 @@
 			"noDefault": "Χωρίς προεπιλογή",
 			"optionsLabel": "Επιλογές",
 			"removeOptionAria": "Αφαίρεση {{option}}",
+			"hideOptionAria": "Απόκρυψη {{option}} από νέες επιλογές",
+			"showOptionAria": "Επαναφορά {{option}} για νέες επιλογές",
 			"renameOptionAria": "Μετονομασία {{option}}",
 			"requiredDescription": "Κάθε εργασία έχει πάντα τιμή.",
 			"save": "Αποθήκευση",

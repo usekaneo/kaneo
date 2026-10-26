@@ -10,6 +10,7 @@ export type FieldFormState = {
   kind: FieldKind;
   name: string;
   options: string[];
+  hiddenOptions: string[];
   multiple: boolean;
   required: boolean;
   defaultValue: string;
@@ -26,6 +27,7 @@ export const EMPTY_FIELD_FORM: FieldFormState = {
   kind: "text",
   name: "",
   options: [],
+  hiddenOptions: [],
   multiple: false,
   required: false,
   defaultValue: "",
@@ -60,6 +62,7 @@ export function formFromField(field?: CustomFieldDefinition | null) {
     kind: toFieldKind(field.type),
     name: field.name,
     options: field.options ?? [],
+    hiddenOptions: field.hiddenOptions ?? [],
     multiple,
     required: field.required,
     defaultValue: initialDefault(field),
@@ -105,6 +108,9 @@ export function removeOption(state: FieldFormState, option: string) {
   return {
     ...state,
     options: state.options.filter((candidate) => candidate !== option),
+    hiddenOptions: state.hiddenOptions.filter(
+      (candidate) => candidate !== option,
+    ),
     defaultValue: state.defaultValue === option ? "" : state.defaultValue,
     defaultValues: state.defaultValues.filter((value) => value !== option),
   };
@@ -118,9 +124,34 @@ export function renameOption(state: FieldFormState, from: string, raw: string) {
   return {
     ...state,
     options: state.options.map(rename),
+    hiddenOptions: state.hiddenOptions.map(rename),
     defaultValue: rename(state.defaultValue),
     defaultValues: state.defaultValues.map(rename),
   };
+}
+
+// A hidden option can't be the default, so hiding one also clears it there.
+export function toggleOptionHidden(state: FieldFormState, option: string) {
+  if (state.hiddenOptions.includes(option)) {
+    return {
+      ...state,
+      hiddenOptions: state.hiddenOptions.filter(
+        (candidate) => candidate !== option,
+      ),
+    };
+  }
+  return {
+    ...state,
+    hiddenOptions: [...state.hiddenOptions, option],
+    defaultValue: state.defaultValue === option ? "" : state.defaultValue,
+    defaultValues: state.defaultValues.filter((value) => value !== option),
+  };
+}
+
+export function visibleOptions(state: FieldFormState) {
+  return state.options.filter(
+    (option) => !state.hiddenOptions.includes(option),
+  );
 }
 
 export function moveOption(state: FieldFormState, from: number, to: number) {
@@ -174,6 +205,8 @@ export function toUpdatePayload(state: FieldFormState) {
     type: toApiType(state),
     required: state.required,
     defaultValue: toApiDefault(state),
-    ...(state.kind === "dropdown" ? { options: state.options } : {}),
+    ...(state.kind === "dropdown"
+      ? { options: state.options, hiddenOptions: state.hiddenOptions }
+      : {}),
   };
 }

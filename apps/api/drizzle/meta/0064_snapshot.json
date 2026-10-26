@@ -1,5 +1,5 @@
 {
-  "id": "4f7ec868-e674-4d8e-b26f-313f84cb44ba",
+  "id": "c1e91718-d7d9-4e95-a7a0-c687aca3240c",
   "prevId": "f569b31a-0316-4069-acb6-0443dcf0a86f",
   "version": "7",
   "dialect": "postgresql",
@@ -1314,6 +1314,13 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": false
+        },
+        "hidden_options": {
+          "name": "hidden_options",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
         },
         "position": {
           "name": "position",
@@ -3142,12 +3149,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
-        },
-        "oidc_sid": {
-          "name": "oidc_sid",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -3156,21 +3157,6 @@
           "columns": [
             {
               "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "session_oidcSid_idx": {
-          "name": "session_oidcSid_idx",
-          "columns": [
-            {
-              "expression": "oidc_sid",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

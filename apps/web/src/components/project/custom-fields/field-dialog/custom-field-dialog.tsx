@@ -11,6 +11,7 @@ import {
   setKind,
   setMultiple,
   toCreatePayload,
+  toggleOptionHidden,
   toUpdatePayload,
 } from "@/components/project/custom-fields/field-dialog/field-form";
 import { FieldOptionsEditor } from "@/components/project/custom-fields/field-dialog/field-options-editor";
@@ -170,6 +171,7 @@ export function CustomFieldDialog({
                 </p>
                 <FieldOptionsEditor
                   options={form.options}
+                  hiddenOptions={form.hiddenOptions}
                   labelledBy={optionsLabelId}
                   onAdd={(option) =>
                     setForm((current) => addOption(current, option))
@@ -180,6 +182,14 @@ export function CustomFieldDialog({
                   }
                   onMove={(from, to) =>
                     setForm((current) => moveOption(current, from, to))
+                  }
+                  onToggleHidden={
+                    field
+                      ? (option) =>
+                          setForm((current) =>
+                            toggleOptionHidden(current, option),
+                          )
+                      : undefined
                   }
                 />
               </div>

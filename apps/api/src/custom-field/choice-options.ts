@@ -61,3 +61,23 @@ export function findUsedOptions(
   );
   return candidates.filter((option) => used.has(option));
 }
+
+// Hidden options are a subset of the field's options; stale entries drop out.
+export function readHiddenOptions(hidden: unknown, options: string[]) {
+  return readOptions(hidden).filter((option) => options.includes(option));
+}
+
+// Hidden options stay on tasks that already have them but can't be picked
+// anew, so only options missing from the current value count.
+export function findNewHiddenPicks(
+  next: string | null,
+  current: string | null,
+  type: ChoiceType,
+  hidden: string[],
+): string[] {
+  if (hidden.length === 0) return [];
+  const kept = new Set(parseChoiceValue(current, type));
+  return parseChoiceValue(next, type).filter(
+    (option) => hidden.includes(option) && !kept.has(option),
+  );
+}

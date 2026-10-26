@@ -1572,6 +1572,8 @@
 			"noDefault": "Без стандардна вредност",
 			"optionsLabel": "Опции",
 			"removeOptionAria": "Отстрани {{option}}",
+			"hideOptionAria": "Скриј {{option}} од нови избори",
+			"showOptionAria": "Повторно понуди {{option}} за нови избори",
 			"renameOptionAria": "Преименувај {{option}}",
 			"requiredDescription": "Секоја задача секогаш има вредност.",
 			"save": "Зачувај",

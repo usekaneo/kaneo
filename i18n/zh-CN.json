@@ -1563,6 +1563,8 @@
 			"noDefault": "无默认值",
 			"optionsLabel": "选项",
 			"removeOptionAria": "移除 {{option}}",
+			"hideOptionAria": "在新选择中隐藏 {{option}}",
+			"showOptionAria": "在新选择中重新提供 {{option}}",
 			"renameOptionAria": "重命名 {{option}}",
 			"requiredDescription": "每个任务始终都有值。",
 			"save": "保存",

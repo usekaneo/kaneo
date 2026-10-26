@@ -1581,6 +1581,8 @@
 			"noDefault": "Nessun valore predefinito",
 			"optionsLabel": "Opzioni",
 			"removeOptionAria": "Rimuovi {{option}}",
+			"hideOptionAria": "Nascondi {{option}} dalle nuove selezioni",
+			"showOptionAria": "Offri di nuovo {{option}} per le nuove selezioni",
 			"renameOptionAria": "Rinomina {{option}}",
 			"requiredDescription": "Ogni attività ha sempre un valore.",
 			"save": "Salva",

@@ -11,7 +11,9 @@ import {
   setKind,
   setMultiple,
   toCreatePayload,
+  toggleOptionHidden,
   toUpdatePayload,
+  visibleOptions,
 } from "@/components/project/custom-fields/field-dialog/field-form";
 import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
 
@@ -34,6 +36,7 @@ function definition(
     required: false,
     defaultValue: null,
     options: null,
+    hiddenOptions: [],
     position: 0,
     createdAt: "",
     updatedAt: "",
@@ -189,6 +192,38 @@ describe("payloads", () => {
       type: "number",
       required: false,
       defaultValue: null,
+    });
+  });
+});
+
+describe("hidden options", () => {
+  it("hides an option and clears it from the defaults", () => {
+    const hidden = toggleOptionHidden(
+      { ...dropdown, defaultValues: ["Medium", "Large"] },
+      "Medium",
+    );
+    expect(hidden.hiddenOptions).toEqual(["Medium"]);
+    expect(hidden.defaultValue).toBe("");
+    expect(hidden.defaultValues).toEqual(["Large"]);
+    expect(visibleOptions(hidden)).toEqual(["Small", "Large"]);
+
+    const shown = toggleOptionHidden(hidden, "Medium");
+    expect(shown.hiddenOptions).toEqual([]);
+    expect(visibleOptions(shown)).toEqual(["Small", "Medium", "Large"]);
+  });
+
+  it("keeps hidden options in step with renames and removals", () => {
+    const hidden = toggleOptionHidden(dropdown, "Large");
+    expect(renameOption(hidden, "Large", "XL").hiddenOptions).toEqual(["XL"]);
+    expect(removeOption(hidden, "Large").hiddenOptions).toEqual([]);
+  });
+
+  it("sends hidden options with dropdown updates", () => {
+    expect(
+      toUpdatePayload(toggleOptionHidden(dropdown, "Small")),
+    ).toMatchObject({
+      options: ["Small", "Medium", "Large"],
+      hiddenOptions: ["Small"],
     });
   });
 });

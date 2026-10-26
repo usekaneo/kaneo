@@ -1598,6 +1598,8 @@
 			"noDefault": "Без значения по умолчанию",
 			"optionsLabel": "Варианты",
 			"removeOptionAria": "Удалить {{option}}",
+			"hideOptionAria": "Скрыть {{option}} из новых выборов",
+			"showOptionAria": "Снова предлагать {{option}} для новых выборов",
 			"renameOptionAria": "Переименовать {{option}}",
 			"requiredDescription": "У каждой задачи всегда есть значение.",
 			"save": "Сохранить",
