@@ -1,3 +1,24 @@
+### Features
+
+- repeat tasks after completion: #2116
+- **web:** let people switch back to the classic priority icons: [cdc097e](https://github.com/usekaneo/kaneo/commit/cdc097e41233f8356e8e595ea465c6dfa8dbca0e)
+- **custom-fields:** hide retired selection options: #1803
+- **auth:** manage profile fields and back-channel logout for custom OIDC: #2046
+- **labels:** add ocean, sky, lagoon and orchid label colors: #2016
+
+### Bug Fixes
+
+- **mobile:** show older HTML task descriptions as formatted text instead of raw tags: #2126
+- **mobile:** keep the comment box and board filter above the Android keyboard: #2124
+- **web:** keep segmented control pills inside their track: #2125
+- **web:** let you drag the next task while the last move is still saving: #2121
+- **web:** upload every file dropped into an editor: #2114
+- **web:** open the workspace members page from the command palette: #2049
+
+### Credits
+
+Huge thanks to @tinsever, @randoneering, @tiran133, and @Debug-Jeff for helping!
+
 ### Bug Fixes
 
 - **security:** enforce authorization and harden outbound requests: #2106
