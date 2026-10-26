@@ -148,7 +148,11 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"lagoon": "라군",
+					"ocean": "오션",
+					"orchid": "오키드",
+					"sky": "스카이"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2957,7 +2961,11 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"lagoon": "라군",
+					"ocean": "오션",
+					"orchid": "오키드",
+					"sky": "스카이"
 				},
 				"editLabels": "라벨 편집"
 			}
@@ -4020,9 +4028,13 @@
 				"amber": "앰버",
 				"crimson": "크림슨",
 				"forest": "포레스트",
+				"lagoon": "라군",
 				"lavender": "라벤더",
+				"ocean": "오션",
+				"orchid": "오키드",
 				"rose": "로즈",
 				"sage": "세이지",
+				"sky": "스카이",
 				"slate": "슬레이트",
 				"stone": "스톤",
 				"terracotta": "테라코타"

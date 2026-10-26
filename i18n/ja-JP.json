@@ -148,7 +148,11 @@
 					"amber": "アンバー",
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
-					"crimson": "クリムゾン"
+					"crimson": "クリムゾン",
+					"lagoon": "ラグーン",
+					"ocean": "オーシャン",
+					"orchid": "オーキッド",
+					"sky": "スカイ"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -2957,7 +2961,11 @@
 					"amber": "アンバー",
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
-					"crimson": "クリムゾン"
+					"crimson": "クリムゾン",
+					"lagoon": "ラグーン",
+					"ocean": "オーシャン",
+					"orchid": "オーキッド",
+					"sky": "スカイ"
 				},
 				"editLabels": "ラベルを編集"
 			}
@@ -4020,9 +4028,13 @@
 				"amber": "アンバー",
 				"crimson": "クリムゾン",
 				"forest": "フォレスト",
+				"lagoon": "ラグーン",
 				"lavender": "ラベンダー",
+				"ocean": "オーシャン",
+				"orchid": "オーキッド",
 				"rose": "ローズ",
 				"sage": "セージ",
+				"sky": "スカイ",
 				"slate": "スレート",
 				"stone": "ストーン",
 				"terracotta": "テラコッタ"

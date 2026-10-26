@@ -148,7 +148,11 @@
 					"amber": "Ambre",
 					"terracotta": "Terre cuite",
 					"rose": "Rose",
-					"crimson": "Cramoisi"
+					"crimson": "Cramoisi",
+					"lagoon": "Lagon",
+					"ocean": "Océan",
+					"orchid": "Orchidée",
+					"sky": "Ciel"
 				},
 				"statusLoadError": "Impossible de charger les statuts du projet."
 			}
@@ -3051,7 +3055,11 @@
 					"amber": "Ambre",
 					"terracotta": "Terre cuite",
 					"rose": "Rose",
-					"crimson": "Cramoisi"
+					"crimson": "Cramoisi",
+					"lagoon": "Lagon",
+					"ocean": "Océan",
+					"orchid": "Orchidée",
+					"sky": "Ciel"
 				},
 				"editLabels": "Modifier les labels"
 			}
@@ -4449,7 +4457,11 @@
 				"amber": "Ambre",
 				"terracotta": "Terre cuite",
 				"rose": "Rose",
-				"crimson": "Cramoisi"
+				"crimson": "Cramoisi",
+				"ocean": "Océan",
+				"sky": "Ciel",
+				"lagoon": "Lagon",
+				"orchid": "Orchidée"
 			},
 			"role": {
 				"owner": "Propriétaire",

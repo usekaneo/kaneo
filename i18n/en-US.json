@@ -149,7 +149,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"orchid": "Orchid"
 				}
 			}
 		},
@@ -3005,7 +3009,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"orchid": "Orchid"
 				},
 				"editLabels": "Edit labels"
 			}
@@ -4374,7 +4382,11 @@
 				"amber": "Amber",
 				"terracotta": "Terracotta",
 				"rose": "Rose",
-				"crimson": "Crimson"
+				"crimson": "Crimson",
+				"ocean": "Ocean",
+				"sky": "Sky",
+				"lagoon": "Lagoon",
+				"orchid": "Orchid"
 			},
 			"role": {
 				"owner": "Owner",

@@ -148,7 +148,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3004,7 +3008,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"editLabels": "Уреди етикети"
 			}
@@ -4374,7 +4382,11 @@
 				"amber": "Килибар",
 				"terracotta": "Теракота",
 				"rose": "Роза",
-				"crimson": "Гримизна"
+				"crimson": "Гримизна",
+				"ocean": "Океан",
+				"sky": "Небо",
+				"lagoon": "Лагуна",
+				"orchid": "Орхидеја"
 			},
 			"role": {
 				"owner": "Сопственик",

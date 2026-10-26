@@ -148,7 +148,11 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -3051,7 +3055,11 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"editLabels": "Editar etiquetas"
 			}
@@ -4154,9 +4162,13 @@
 				"amber": "Âmbar",
 				"crimson": "Carmesim",
 				"forest": "Floresta",
+				"lagoon": "Laguna",
 				"lavender": "Lavanda",
+				"ocean": "Oceano",
+				"orchid": "Orquídea",
 				"rose": "Rosa",
 				"sage": "Sálvia",
+				"sky": "Céu",
 				"slate": "Ardósia",
 				"stone": "Pedra",
 				"terracotta": "Terracota"
