@@ -1,3 +1,6 @@
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vite-plus/test";
 import { getSmtpTransportOptions, isSmtpConfigured } from "./smtp-config";
 
@@ -73,6 +76,52 @@ describe("getSmtpTransportOptions", () => {
     });
     expect(options.requireTLS).toBe(false);
     expect(options.ignoreTLS).toBe(false);
+  });
+});
+
+describe("SMTP_PASSWORD_FILE", () => {
+  it("reads the password from a file and prefers SMTP_PASSWORD", () => {
+    const directory = mkdtempSync(path.join(tmpdir(), "kaneo-smtp-"));
+    try {
+      const file = path.join(directory, "smtp-password");
+      writeFileSync(file, "file-secret\n");
+      const env = {
+        SMTP_HOST: "smtp.example.com",
+        SMTP_USER: "me",
+        SMTP_PASSWORD_FILE: file,
+      };
+
+      expect(getSmtpTransportOptions(env).auth).toEqual({
+        user: "me",
+        pass: "file-secret",
+      });
+      expect(
+        getSmtpTransportOptions({ ...env, SMTP_PASSWORD: "direct" }).auth,
+      ).toEqual({ user: "me", pass: "direct" });
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("fails loudly when the file is missing or empty", () => {
+    const directory = mkdtempSync(path.join(tmpdir(), "kaneo-smtp-"));
+    try {
+      const empty = path.join(directory, "empty");
+      writeFileSync(empty, "\n");
+      const env = { SMTP_HOST: "smtp.example.com", SMTP_USER: "me" };
+
+      expect(() =>
+        getSmtpTransportOptions({
+          ...env,
+          SMTP_PASSWORD_FILE: path.join(directory, "missing"),
+        }),
+      ).toThrow("SMTP_PASSWORD_FILE could not be read (ENOENT)");
+      expect(() =>
+        getSmtpTransportOptions({ ...env, SMTP_PASSWORD_FILE: empty }),
+      ).toThrow("SMTP_PASSWORD_FILE points to an empty file");
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });
 

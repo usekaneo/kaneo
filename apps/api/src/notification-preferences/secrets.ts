@@ -5,13 +5,16 @@ import {
   randomBytes,
 } from "node:crypto";
 import { HTTPException } from "hono/http-exception";
+import { resolveFileSecret } from "../utils/file-secret";
 
 const SECRET_PREFIX = "enc:v1:";
 const SECRET_ALGORITHM = "aes-256-gcm";
 const SECRET_IV_BYTES = 12;
 
 function getSecretEncryptionKey() {
-  const rawKey = process.env.NOTIFICATION_SECRET_ENCRYPTION_KEY?.trim();
+  const rawKey = resolveFileSecret(
+    "NOTIFICATION_SECRET_ENCRYPTION_KEY",
+  )?.trim();
   if (!rawKey) {
     return null;
   }

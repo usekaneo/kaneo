@@ -2,6 +2,7 @@ import * as Sentry from "@sentry/node";
 import { config } from "dotenv-mono";
 import { App, Octokit } from "octokit";
 import { boundedGithubFetch } from "../../../utils/bounded-github-fetch";
+import { resolveFileSecret } from "../../../utils/file-secret";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 
 config();
@@ -20,11 +21,11 @@ let githubImportAppInstance: App | null = null;
 //
 // Returns "" when nothing is set; the caller's existence check handles that.
 export function resolveGithubPrivateKey(): string {
-  const base64 = process.env.GITHUB_PRIVATE_KEY_BASE64;
+  const base64 = resolveFileSecret("GITHUB_PRIVATE_KEY_BASE64");
   if (base64 && base64.trim() !== "") {
     return Buffer.from(base64.trim(), "base64").toString("utf8");
   }
-  const raw = process.env.GITHUB_PRIVATE_KEY ?? "";
+  const raw = resolveFileSecret("GITHUB_PRIVATE_KEY") ?? "";
   if (raw.includes("\\n") && !raw.includes("\n")) {
     return raw.replace(/\\n/g, "\n");
   }
@@ -38,11 +39,8 @@ export function getGithubApp(boundedImport = false): App | null {
   }
 
   const privateKey = resolveGithubPrivateKey();
-  if (
-    !process.env.GITHUB_WEBHOOK_SECRET ||
-    !process.env.GITHUB_APP_ID ||
-    !privateKey
-  ) {
+  const webhookSecret = resolveFileSecret("GITHUB_WEBHOOK_SECRET");
+  if (!webhookSecret || !process.env.GITHUB_APP_ID || !privateKey) {
     return null;
   }
 
@@ -59,7 +57,7 @@ export function getGithubApp(boundedImport = false): App | null {
     appId: process.env.GITHUB_APP_ID ?? "",
     privateKey,
     webhooks: {
-      secret: process.env.GITHUB_WEBHOOK_SECRET ?? "",
+      secret: webhookSecret,
     },
   });
 

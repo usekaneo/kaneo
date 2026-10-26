@@ -1,3 +1,4 @@
+import { resolveFileSecret } from "./file-secret";
 import { sendOutboundRequest } from "./outbound-request";
 
 const TURNSTILE_VERIFY_URL =
@@ -20,7 +21,7 @@ export const authCaptchaPaths = new Set([
 export async function verifyTurnstile(
   token: unknown,
 ): Promise<TurnstileResult> {
-  const secret = process.env.TURNSTILE_SECRET_KEY;
+  const secret = resolveFileSecret("TURNSTILE_SECRET_KEY");
   if (!secret) return { ok: true };
   const failure = {
     ok: false,
