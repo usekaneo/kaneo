@@ -1,6 +1,7 @@
 import { i18n } from "@/lib/i18n";
 
 import { resolveUrl } from "./api/client";
+import { isLegacyHtml, legacyHtmlToMarkdown } from "./legacy-html";
 
 /**
  * The web editor serializes rich nodes into Markdown as custom HTML tags. Markdown renderers
@@ -27,7 +28,10 @@ function attrs(raw: string): Record<string, string> {
 }
 
 export function toDisplayMarkdown(markdown: string, serverUrl: string): string {
-  let text = markdown.replace(
+  const source = isLegacyHtml(markdown)
+    ? legacyHtmlToMarkdown(markdown)
+    : markdown;
+  let text = source.replace(
     mentionRegex,
     (_, rawAttrs: string, inner: string) => {
       const label = attrs(rawAttrs).label || inner.replace(/^@/, "");
