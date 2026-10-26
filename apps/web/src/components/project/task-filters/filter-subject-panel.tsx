@@ -35,10 +35,7 @@ export function FilterSubjectPanel({
             ? subject.emptyLabel
             : t("tasks:filterMenu.noResults")
         }
-        onEntrySelect={(entry) => {
-          entry.toggle?.();
-          onApplied?.();
-        }}
+        onEntrySelect={(entry) => entry.toggle?.()}
         onInputKeyDown={(event) => {
           if (
             onBack &&
