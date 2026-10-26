@@ -18,6 +18,7 @@ import NotificationEmail, {
 } from "./templates/notification";
 import type { OtpEmailProps } from "./templates/otp";
 import OtpEmail from "./templates/otp";
+import TestEmail, { type TestEmailProps } from "./templates/test-email";
 import PasswordResetEmail, {
   type PasswordResetEmailProps,
 } from "./templates/password-reset";
@@ -227,3 +228,28 @@ export const sendEmailVerificationEmail = (
     subject,
     EmailVerificationEmail({ email: to, instance: instanceHost(), ...data }),
   );
+
+/**
+ * Send the administrator's SMTP test. It throws the SMTP error itself so the
+ * caller can tell the administrator what went wrong.
+ */
+export const sendTestEmail = async (
+  to: string,
+  subject: string,
+  data: Omit<TestEmailProps, "email" | "instance">,
+): Promise<EmailResult> => {
+  if (!isSmtpConfigured()) {
+    return { success: false, reason: "SMTP_NOT_CONFIGURED" };
+  }
+
+  const emailTemplate = await render(
+    TestEmail({ email: to, instance: instanceHost(), ...data }),
+  );
+  await transporter.sendMail({
+    from: process.env.SMTP_FROM,
+    to,
+    subject,
+    html: emailTemplate,
+  });
+  return { success: true };
+};

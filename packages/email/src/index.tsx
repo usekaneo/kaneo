@@ -7,10 +7,16 @@ export {
   sendNotificationEmail,
   sendOtpEmail,
   sendPasswordResetEmail,
+  sendTestEmail,
   sendTrialReminderEmail,
   sendWorkspaceInvitationEmail,
 } from "./send-email";
 export { isSmtpConfigured } from "./smtp-config";
+export { getSmtpErrorDetails } from "./smtp-error-details";
+export {
+  type SmtpVerification,
+  verifySmtpConnection,
+} from "./verify-smtp-connection";
 export type { BoardColumnIcon } from "./components/board-column";
 export type {
   TaskCardDueStatus,
