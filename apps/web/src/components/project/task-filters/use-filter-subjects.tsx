@@ -97,7 +97,6 @@ export function useFilterSubjects({
       onToggle: (value) => toggleFilter(key, value),
       onDateApply: (value) => {
         updateFilter(key, [value]);
-        setNegated(key, false);
       },
       onClear: () => updateFilter(key, null),
     });
