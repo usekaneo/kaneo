@@ -1,6 +1,6 @@
 ---
-title: "Administer users and workspaces"
-description: "Manage every account and workspace on your instance and review administrative actions as an instance administrator."
+title: "Administer your instance"
+description: "Manage accounts and workspaces, review administrative actions, and check your instance’s services."
 ---
 
 Instance administrators manage the whole Kaneo instance, not just the workspaces they belong to. The first account created on a new instance becomes an instance administrator, and an administrator can give the role to others from **User management**.
@@ -77,6 +77,34 @@ Entries never contain passwords, session tokens, password reset links, or API ke
 Kaneo keeps audit log entries until you remove them; there's no automatic retention. To prune old entries, delete rows from the `admin_audit_log` table in PostgreSQL, for example `DELETE FROM admin_audit_log WHERE created_at < (now() AT TIME ZONE 'utc') - interval '1 year';`.
 
 Only instance administrators signed in with a session can read the audit log, in the app or through `GET /api/admin/audit-log`. API keys are rejected.
+
+## Check system status
+
+Open **Settings → Administration → System** to check this instance and the services it relies on. The page checks again each time you open it or choose **Refresh**.
+
+- **Instance**: the Kaneo version, API uptime, PostgreSQL (version, applied migrations, response time), live updates (open WebSocket connections on this API instance), Redis, and S3-compatible file storage.
+- **Email**: whether SMTP is configured and whether Kaneo can connect and sign in to the mail server. Nothing is sent by this check.
+- **Sign-in**: which sign-in and registration options are on, and whether GitHub, Google, Discord, and your custom OAuth/OIDC provider are configured.
+- **Integrations**: every integration provider, how many projects are connected to it, and whether the GitHub App is set up. Other providers are connected per project and need no instance settings.
+
+Each row shows one of these statuses:
+
+| Status | Meaning |
+| --- | --- |
+| Operational | Working. |
+| Not configured | Optional and switched off. This is fine: a single API instance doesn't need Redis, and Kaneo works without SMTP or file storage. |
+| Warning | Works with a problem, or only some of its settings are present. For example, Redis is down so only people on this API instance get live updates, or a sign-in provider has a client ID but no secret. |
+| Down | Configured but not reachable. The row shows a short error code such as `TIMEOUT`, `ECONNREFUSED`, or `EAUTH`. |
+
+Each check gives up after a few seconds, so one unreachable service doesn't stop the page from loading. The page never shows hosts, passwords, client secrets, or other credentials.
+
+When you run more than one API instance behind a load balancer, the checks and connection counts come from whichever instance answered.
+
+### Send a test email
+
+Choose **Send test email** to send a short test message to your own account's address. Kaneo can't send it to anyone else. If the mail server rejects it, you see the error category (for example `EAUTH 535` for a wrong password), and the API logs the same. You can send 5 test emails every 10 minutes.
+
+The button is disabled until `SMTP_HOST` and `SMTP_FROM` are set. See [SMTP configuration](/core/installation/environment-variables#smtp-configuration) for the settings.
 
 ## API
 
