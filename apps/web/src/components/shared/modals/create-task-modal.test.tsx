@@ -211,6 +211,31 @@ vi.mock("react-i18next", () => ({
 }));
 
 describe("CreateTaskModal", () => {
+  it("stops offering recurrence when the target changes to a final column", async () => {
+    projectColumns = [
+      { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
+      { id: "done", slug: "done", name: "Done", isFinal: true },
+    ];
+    const onClose = vi.fn();
+    const { rerender } = render(<CreateTaskModal open onClose={onClose} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    fireEvent.click(screen.getByText("common:modals.createTask.dueDate"));
+    fireEvent.click(await screen.findByText("tasks:popover.recurrence.toggle"));
+    rerender(<CreateTaskModal open status="done" onClose={onClose} />);
+    expect(
+      screen.queryByText("tasks:popover.recurrence.toggle"),
+    ).not.toBeInTheDocument();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "done", recurrence: undefined }),
+      ),
+    );
+  });
+
   it("shows a translated clear-date action and clears the selected due date", async () => {
     render(<CreateTaskModal open onClose={vi.fn()} />, {
       wrapper: createWrapper(),

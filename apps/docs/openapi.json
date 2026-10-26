@@ -235,7 +235,14 @@
             "format": "date-time"
           },
           "recurrence": {
-            "$ref": "#/components/schemas/TaskRecurrence"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskRecurrence"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "position": {
             "type": [
@@ -328,10 +335,7 @@
         ]
       },
       "TaskRecurrence": {
-        "type": [
-          "object",
-          "null"
-        ],
+        "type": "object",
         "properties": {
           "frequency": {
             "type": "string",
@@ -1299,7 +1303,14 @@
             "format": "date-time"
           },
           "recurrence": {
-            "$ref": "#/components/schemas/TaskRecurrence"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskRecurrence"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -12702,14 +12713,15 @@
                 "type": "object",
                 "properties": {
                   "recurrence": {
-                    "allOf": [
+                    "anyOf": [
                       {
                         "$ref": "#/components/schemas/TaskRecurrence"
                       },
                       {
-                        "description": "Null stops the task from repeating."
+                        "type": "null"
                       }
-                    ]
+                    ],
+                    "description": "Null stops the task from repeating."
                   }
                 },
                 "required": [

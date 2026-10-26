@@ -1,9 +1,13 @@
+import { TZDate } from "@date-fns/tz";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import TaskDueDatePicker from "./task-due-date-picker";
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { language: "en-US" },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
@@ -18,6 +22,35 @@ describe("TaskDueDatePicker permissions", () => {
     onRecurrenceChange: vi.fn(),
     canSetRecurrence: false,
   };
+
+  it("selects the implicit weekday in the rule's time zone", () => {
+    const onRecurrenceChange = vi.fn();
+    render(
+      <TaskDueDatePicker
+        {...props}
+        canSetRecurrence
+        dueDate={new TZDate("2026-03-08T10:30:00Z", "UTC")}
+        recurrence={{
+          frequency: "weekly",
+          interval: 1,
+          timeZone: "Pacific/Kiritimati",
+        }}
+        onRecurrenceChange={onRecurrenceChange}
+      />,
+    );
+    expect(screen.getByRole("button", { name: "Monday" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    expect(screen.getByRole("button", { name: "Sunday" })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Thursday" }));
+    expect(onRecurrenceChange).toHaveBeenCalledWith(
+      expect.objectContaining({ weekdays: [1, 4] }),
+    );
+  });
 
   it("keeps date editing available without offering to enable recurrence", () => {
     render(<TaskDueDatePicker {...props} recurrence={null} />);

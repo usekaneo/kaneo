@@ -1,3 +1,4 @@
+import { TZDate } from "@date-fns/tz";
 import { Repeat } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,7 +54,11 @@ export default function TaskDueDatePicker({
       {recurrence && canSetRecurrence && (
         <TaskRecurrenceSettings
           recurrence={recurrence}
-          defaultWeekday={dueDate?.getDay()}
+          defaultWeekday={
+            dueDate
+              ? new TZDate(dueDate.getTime(), recurrence.timeZone).getDay()
+              : undefined
+          }
           onChange={onRecurrenceChange}
         />
       )}

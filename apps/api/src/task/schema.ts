@@ -140,8 +140,8 @@ export const updateAssigneeBody = z.object({
 });
 export const updateDueDateBody = z.object({ dueDate: z.string().optional() });
 export const updateRecurrenceBody = z.object({
-  recurrence: taskRecurrenceSchema
-    .nullable()
+  recurrence: z
+    .union([taskRecurrenceSchema, z.null()])
     .openapi({ description: "Null stops the task from repeating." }),
 });
 export const updateTitleBody = z.object({ title: z.string() });

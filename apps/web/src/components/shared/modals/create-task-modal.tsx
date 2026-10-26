@@ -309,6 +309,10 @@ function CreateTaskModalContent({
   } = useGetColumns(open ? resolvedProjectId : "", { refreshOnMount: true });
   const initialColumn = getInitialTaskColumn(projectColumns, status);
   const taskStatus = status ?? initialColumn?.slug ?? "planned";
+  const canSetRecurrence = !initialColumn?.isFinal;
+  useEffect(() => {
+    if (!canSetRecurrence) setRecurrence(null);
+  }, [canSetRecurrence]);
   const awaitingColumns =
     !status &&
     Boolean(resolvedProjectId) &&
@@ -563,7 +567,7 @@ function CreateTaskModalContent({
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
-          recurrence: recurrence ?? undefined,
+          recurrence: canSetRecurrence ? (recurrence ?? undefined) : undefined,
           status: submitStatus,
           draftAssetIds: stagedAssetsRef.current.filter((id) =>
             description.includes(`/asset/${id}`),
@@ -1104,6 +1108,7 @@ function CreateTaskModalContent({
                       if (!recurrence || !date) setDueDateOpen(false);
                     }}
                     onRecurrenceChange={setRecurrence}
+                    canSetRecurrence={canSetRecurrence}
                   />
                 </PopoverContent>
               </Popover>

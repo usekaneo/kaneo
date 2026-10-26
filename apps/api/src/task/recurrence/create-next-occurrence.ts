@@ -4,13 +4,15 @@ import { columnTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import duplicateTask from "../controllers/duplicate-task";
 import { taskIsCompleted } from "../task-is-completed";
+import { OccurrenceProjectChangedError } from "./occurrence-project-changed-error";
 
 // Creates the next task of a recurring series once the task sits in a final
 // column. The copy lands in the project's first open column, with its dates
 // moved forward one step from the completed task's due date.
-export async function createNextOccurrence(
+async function createInCurrentProject(
   taskId: string,
   currentUserId: string | null | undefined,
+  completedAt: Date,
 ) {
   const [task] = await db
     .select({ projectId: taskTable.projectId })
@@ -42,7 +44,11 @@ export async function createNextOccurrence(
     taskId,
     currentUserId: currentUserId ?? "",
     canUpdateTasks: true,
-    occurrence: { status: openColumn.slug, completedAt: new Date() },
+    occurrence: {
+      projectId: task.projectId,
+      status: openColumn.slug,
+      completedAt,
+    },
   });
   // Clients refetched the completed task on its status change, before its rule
   // moved, so they still show it as repeating.
@@ -53,4 +59,21 @@ export async function createNextOccurrence(
       userId: currentUserId,
     });
   return next;
+}
+
+export async function createNextOccurrence(
+  taskId: string,
+  currentUserId: string | null | undefined,
+) {
+  const completedAt = new Date();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await createInCurrentProject(taskId, currentUserId, completedAt);
+    } catch (error) {
+      if (!(error instanceof OccurrenceProjectChangedError) || attempt === 2) {
+        throw error;
+      }
+    }
+  }
+  return null;
 }

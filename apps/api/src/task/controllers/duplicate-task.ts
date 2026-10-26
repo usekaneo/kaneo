@@ -23,6 +23,7 @@ import {
   NOT_ASSIGNABLE,
 } from "../../utils/assert-assignable-user";
 import { nextOccurrenceDates } from "../recurrence/next-occurrence-date";
+import { OccurrenceProjectChangedError } from "../recurrence/occurrence-project-changed-error";
 import { taskIsCompleted } from "../task-is-completed";
 import {
   assertRequiredCustomFields,
@@ -133,6 +134,7 @@ type DuplicateTaskOptions = {
 // The next occurrence of a recurring task: a copy in a new status that takes
 // over the completed task's recurrence rule, with its dates moved one step on.
 type Occurrence = {
+  projectId: string;
   status: string;
   completedAt: Date;
 };
@@ -167,6 +169,10 @@ async function duplicateTask({
     throw new HTTPException(404, {
       message: "Task not found",
     });
+  }
+
+  if (occurrence && sourceTask.projectId !== occurrence.projectId) {
+    throw new OccurrenceProjectChangedError();
   }
 
   const [project] = await db
@@ -330,6 +336,7 @@ async function duplicateTask({
       if (occurrence) {
         const [claimed] = await tx
           .select({
+            projectId: taskTable.projectId,
             startDate: taskTable.startDate,
             dueDate: taskTable.dueDate,
             recurrence: taskTable.recurrence,
@@ -344,6 +351,12 @@ async function duplicateTask({
           )
           .for("update");
         if (!claimed?.recurrence) throw new RuleAlreadyMovedError();
+        // Attachment copies and workflow selection happened before this lock.
+        // A project move invalidates all of that work, so roll it back and
+        // reload the task in its current project before claiming its rule.
+        if (claimed.projectId !== occurrence.projectId) {
+          throw new OccurrenceProjectChangedError();
+        }
         recurrence = claimed.recurrence;
         dates = nextOccurrenceDates(
           claimed,
