@@ -62,14 +62,14 @@ export function PlankaConnectForm({
           <ToggleGroupItem
             value="apiKey"
             size="sm"
-            className="h-full flex-1 sm:h-full"
+            className="h-full flex-1 rounded-[calc(var(--radius-lg)-3px)] sm:h-full"
           >
             {t("settings:workspaceImport.planka.signInApiKey")}
           </ToggleGroupItem>
           <ToggleGroupItem
             value="password"
             size="sm"
-            className="h-full flex-1 sm:h-full"
+            className="h-full flex-1 rounded-[calc(var(--radius-lg)-3px)] sm:h-full"
           >
             {t("settings:workspaceImport.planka.signInPassword")}
           </ToggleGroupItem>

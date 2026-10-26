@@ -36,7 +36,7 @@ export function ApiKeyExpiryToggle({
           key={option.value}
           value={option.value}
           size="sm"
-          className="h-full flex-1 text-muted-foreground data-pressed:text-foreground sm:h-full"
+          className="h-full flex-1 rounded-[calc(var(--radius-lg)-3px)] text-muted-foreground data-pressed:text-foreground sm:h-full"
         >
           {t(option.labelKey)}
         </ToggleGroupItem>
