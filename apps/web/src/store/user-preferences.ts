@@ -10,6 +10,8 @@ export function isWeekStartDay(value: number): value is WeekStartDay {
 
 export type TaskLayout = "board" | "list" | "calendar" | "gantt";
 
+export type PriorityIconStyle = "marks" | "classic";
+
 type UserPreferencesStore = {
   theme: "light" | "dark" | "system";
   setTheme: (
@@ -58,6 +60,9 @@ type UserPreferencesStore = {
 
   weekStartsOn: WeekStartDay;
   setWeekStartsOn: (weekStartsOn: WeekStartDay) => void;
+
+  priorityIconStyle: PriorityIconStyle;
+  setPriorityIconStyle: (style: PriorityIconStyle) => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
@@ -152,6 +157,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       weekStartsOn: 0,
       setWeekStartsOn: (weekStartsOn) => set({ weekStartsOn }),
+
+      priorityIconStyle: "marks",
+      setPriorityIconStyle: (priorityIconStyle) => set({ priorityIconStyle }),
     }),
     {
       name: "user-preferences",

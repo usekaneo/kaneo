@@ -3859,6 +3859,18 @@
 						"gantt": {
 							"type": "string"
 						},
+						"priorityIcons": {
+							"type": "string"
+						},
+						"priorityIconsDescription": {
+							"type": "string"
+						},
+						"priorityIconsMarks": {
+							"type": "string"
+						},
+						"priorityIconsClassic": {
+							"type": "string"
+						},
 						"sidebarDefault": {
 							"type": "string"
 						},
@@ -3934,6 +3946,10 @@
 						"board",
 						"list",
 						"gantt",
+						"priorityIcons",
+						"priorityIconsDescription",
+						"priorityIconsMarks",
+						"priorityIconsClassic",
 						"sidebarDefault",
 						"sidebarDefaultDescription",
 						"displayOptions",
