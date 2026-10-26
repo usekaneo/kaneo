@@ -23,6 +23,7 @@ type DatePickerMenuProps = {
   bounds?: DateBounds;
   formatLimit?: (date: string) => string;
   canClear?: boolean;
+  highlighted?: Date[];
 };
 
 const PICK = "pick";
@@ -45,6 +46,7 @@ export function DatePickerMenu({
   bounds,
   formatLimit,
   canClear = value !== null,
+  highlighted,
 }: DatePickerMenuProps) {
   const { t } = useTranslation();
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
@@ -127,6 +129,7 @@ export function DatePickerMenu({
         disabled={disabledDays}
         limit={limit}
         limitHint={limitHint}
+        highlighted={highlighted}
         onBack={() => setView("menu")}
         onSelect={onChange}
       />

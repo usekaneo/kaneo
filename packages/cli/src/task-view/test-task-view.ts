@@ -78,6 +78,12 @@ export const resolvedTask: ResolvedTask = {
     priority: "urgent",
     startDate: at(-6),
     dueDate: at(2),
+    recurrence: {
+      frequency: "weekly",
+      interval: 1,
+      weekdays: [1, 4],
+      timeZone: "Europe/Madrid",
+    },
     createdAt: at(-8),
     assigneeId: "u1",
     assigneeName: "Ada Lovelace",

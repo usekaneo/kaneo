@@ -10,6 +10,7 @@ exports[`task view screen > fully loaded task at 80 columns, no color 1`] = `
     Assignee   Ada Lovelace
     Labels     ● bug  ● auth
     Due        ◷ Fri
+    Repeats    Weekly on Monday and Thursday
     Start      Oct 1
     Created    Sep 29
     Time       3h · ● Timer running (Ada Lovelace)
@@ -72,6 +73,7 @@ exports[`task view screen > fully loaded task at 80 columns, truecolor 1`] = `
     [38;2;115;115;115mAssignee  [39m Ada Lovelace
     [38;2;115;115;115mLabels    [39m [38;2;231;0;11m●[39m bug  [38;2;142;81;255m●[39m auth
     [38;2;115;115;115mDue       [39m ◷ Fri
+    [38;2;115;115;115mRepeats   [39m Weekly on Monday and Thursday
     [38;2;115;115;115mStart     [39m Oct 1
     [38;2;115;115;115mCreated   [39m Sep 29
     [38;2;115;115;115mTime      [39m 3h[38;2;115;115;115m · [39m[38;2;5;150;105m● Timer running[39m[38;2;115;115;115m (Ada Lovelace)[39m
@@ -134,6 +136,7 @@ exports[`task view screen > fully loaded task at 120 columns, no color 1`] = `
     Assignee   Ada Lovelace
     Labels     ● bug  ● auth
     Due        ◷ Fri
+    Repeats    Weekly on Monday and Thursday
     Start      Oct 1
     Created    Sep 29
     Time       3h · ● Timer running (Ada Lovelace)
@@ -196,6 +199,7 @@ exports[`task view screen > fully loaded task at 120 columns, truecolor 1`] = `
     [38;2;115;115;115mAssignee  [39m Ada Lovelace
     [38;2;115;115;115mLabels    [39m [38;2;231;0;11m●[39m bug  [38;2;142;81;255m●[39m auth
     [38;2;115;115;115mDue       [39m ◷ Fri
+    [38;2;115;115;115mRepeats   [39m Weekly on Monday and Thursday
     [38;2;115;115;115mStart     [39m Oct 1
     [38;2;115;115;115mCreated   [39m Sep 29
     [38;2;115;115;115mTime      [39m 3h[38;2;115;115;115m · [39m[38;2;5;150;105m● Timer running[39m[38;2;115;115;115m (Ada Lovelace)[39m

@@ -122,7 +122,6 @@
 				"startDate": "Дата початку",
 				"dueDate": "Дата завершення",
 				"clearStartDate": "Очистити дату початку",
-				"clearDueDate": "Очистити дату завершення",
 				"assign": "Призначити",
 				"assignUnassigned": "Не призначено",
 				"assignUnassignedTitle": "Не призначено",
@@ -3119,6 +3118,41 @@
 					"sky": "Небо"
 				},
 				"editLabels": "Редагувати мітки"
+			},
+			"recurrence": {
+				"updateError": "Не вдалося оновити повторення завдання",
+				"every": "Кожні",
+				"hint": "Коли це завдання буде виконано, буде створено наступне.",
+				"interval": "Інтервал",
+				"onDays": "У ці дні",
+				"pattern": {
+					"daily": "Щодня",
+					"monthly": "Щомісяця",
+					"periodically": "Періодично",
+					"weekly": "Щотижня",
+					"yearly": "Щороку"
+				},
+				"repeats": "Повторення",
+				"toggle": "Повторювати",
+				"unit": {
+					"days_few": "дні",
+					"days_many": "днів",
+					"days_one": "день",
+					"days_other": "дня",
+					"label": "Одиниця",
+					"months_few": "місяці",
+					"months_many": "місяців",
+					"months_one": "місяць",
+					"months_other": "місяця",
+					"weeks_few": "тижні",
+					"weeks_many": "тижнів",
+					"weeks_one": "тиждень",
+					"weeks_other": "тижня",
+					"years_few": "роки",
+					"years_many": "років",
+					"years_one": "рік",
+					"years_other": "року"
+				}
 			}
 		},
 		"backlog": {
@@ -3359,6 +3393,25 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Натисніть Пробіл для попереднього перегляду та Enter, щоб відкрити це завдання. Використовуйте Alt або Option зі стрілками, щоб перемістити його."
+		},
+		"recurrence": {
+			"daily_few": "Кожні {{count}} дні",
+			"daily_many": "Кожні {{count}} днів",
+			"daily_one": "Кожен {{count}} день",
+			"daily_other": "Кожні {{count}} дня",
+			"monthly_few": "Кожні {{count}} місяці",
+			"monthly_many": "Кожні {{count}} місяців",
+			"monthly_one": "Кожен {{count}} місяць",
+			"monthly_other": "Кожні {{count}} місяця",
+			"weekly_few": "Кожні {{count}} тижні",
+			"weekly_many": "Кожні {{count}} тижнів",
+			"weekly_one": "Кожен {{count}} тиждень",
+			"weekly_other": "Кожні {{count}} тижня",
+			"yearly_few": "Кожні {{count}} роки",
+			"yearly_many": "Кожні {{count}} років",
+			"yearly_one": "Кожен {{count}} рік",
+			"yearly_other": "Кожні {{count}} року",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"toolbar": {
 			"search": "Пошук завдань",

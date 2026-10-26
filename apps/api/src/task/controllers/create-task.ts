@@ -22,6 +22,7 @@ import {
   assertAssignableUser,
   getProjectWorkspaceId,
 } from "../../utils/assert-assignable-user";
+import type { TaskRecurrence } from "../recurrence/schema";
 import {
   assertRequiredCustomFields,
   assertValidTaskStatus,
@@ -61,6 +62,7 @@ async function createTask({
   dueDate,
   description,
   priority,
+  recurrence,
   customFields,
   draftAssetIds,
 }: {
@@ -73,6 +75,7 @@ async function createTask({
   dueDate?: Date;
   description?: string;
   priority?: string;
+  recurrence?: TaskRecurrence;
   customFields?: CustomFieldInput[];
   draftAssetIds?: string[];
 }) {
@@ -151,6 +154,11 @@ async function createTask({
       eq(columnTable.slug, resolvedStatus),
     ),
   });
+  // A rule would never fire on a task that starts out completed.
+  if (recurrence && column?.isFinal)
+    throw new HTTPException(400, {
+      message: "Create the task in an open column to make it repeat",
+    });
 
   const createdTask = await db.transaction(async (tx) => {
     const taskNumber = await claimTaskNumber(projectId, tx);
@@ -173,6 +181,7 @@ async function createTask({
         dueDate: dueDate || null,
         description: description || "",
         priority: resolvedPriority,
+        recurrence: recurrence ?? null,
         number: taskNumber,
         position: nextPosition,
       })

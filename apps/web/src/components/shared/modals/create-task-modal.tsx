@@ -22,6 +22,8 @@ import {
 } from "@/components/custom-fields/missing-required-fields";
 import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import TaskDueDatePicker from "@/components/task/task-due-date-picker";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -77,6 +79,7 @@ import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { stripLineBreaks } from "@/lib/strip-line-breaks";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import type { TaskRecurrence } from "@/types/task/recurrence";
 import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
@@ -240,6 +243,7 @@ function CreateTaskModalContent({
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [dueDateOpen, setDueDateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
@@ -305,6 +309,10 @@ function CreateTaskModalContent({
   } = useGetColumns(open ? resolvedProjectId : "", { refreshOnMount: true });
   const initialColumn = getInitialTaskColumn(projectColumns, status);
   const taskStatus = status ?? initialColumn?.slug ?? "planned";
+  const canSetRecurrence = !initialColumn?.isFinal;
+  useEffect(() => {
+    if (!canSetRecurrence) setRecurrence(null);
+  }, [canSetRecurrence]);
   const awaitingColumns =
     !status &&
     Boolean(resolvedProjectId) &&
@@ -400,6 +408,7 @@ function CreateTaskModalContent({
     assigneeId ||
     startDate ||
     dueDate ||
+    recurrence ||
     selectedProjectId ||
     labels.length > 0 ||
     stagedAssetsRef.current.length > 0 ||
@@ -558,6 +567,7 @@ function CreateTaskModalContent({
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
+          recurrence: canSetRecurrence ? (recurrence ?? undefined) : undefined,
           status: submitStatus,
           draftAssetIds: stagedAssetsRef.current.filter((id) =>
             description.includes(`/asset/${id}`),
@@ -604,6 +614,7 @@ function CreateTaskModalContent({
         setAssigneeId("");
         setStartDate(undefined);
         setDueDate(undefined);
+        setRecurrence(null);
         setLabels([]);
         setLabelsStep("select");
         setSearchValue("");
@@ -1070,7 +1081,7 @@ function CreateTaskModalContent({
                     type="button"
                     className={cn(
                       "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
-                      dueDate
+                      dueDate || recurrence
                         ? "bg-accent/30 text-foreground"
                         : "text-muted-foreground",
                     )}
@@ -1081,22 +1092,23 @@ function CreateTaskModalContent({
                         ? formatDateMedium(dueDate)
                         : t("common:modals.createTask.dueDate")}
                     </span>
+                    <TaskRecurrenceBadge task={{ recurrence }} asText />
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-65 p-0" align="start">
-                  <DatePickerMenu
+                  <TaskDueDatePicker
                     label={t("common:modals.createTask.dueDate")}
-                    placeholder={t("tasks:datePicker.dueDatePlaceholder")}
-                    clearLabel={t("common:modals.createTask.clearDueDate")}
-                    value={dueDate ?? null}
-                    onChange={(date) => {
+                    clearLabel={t("tasks:popover.dueDate.clear")}
+                    dueDate={dueDate ?? null}
+                    startDate={startDate}
+                    recurrence={recurrence}
+                    onDateChange={(date) => {
                       setDueDate(date ?? undefined);
-                      setDueDateOpen(false);
+                      // Keep a repeating task's picker open to show its upcoming dates.
+                      if (!recurrence || !date) setDueDateOpen(false);
                     }}
-                    bounds={startDate ? { before: startDate } : undefined}
-                    formatLimit={(date) =>
-                      t("tasks:datePicker.startsOn", { date })
-                    }
+                    onRecurrenceChange={setRecurrence}
+                    canSetRecurrence={canSetRecurrence}
                   />
                 </PopoverContent>
               </Popover>

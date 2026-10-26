@@ -10,6 +10,7 @@ type DatePickerMonthViewProps = {
   disabled: Matcher[];
   limit: Date | undefined;
   limitHint: string | null;
+  highlighted?: Date[];
   onBack: () => void;
   onSelect: (date: Date) => void;
 };
@@ -21,6 +22,7 @@ export function DatePickerMonthView({
   disabled,
   limit,
   limitHint,
+  highlighted,
   onBack,
   onSelect,
 }: DatePickerMonthViewProps) {
@@ -48,6 +50,7 @@ export function DatePickerMonthView({
         onSelect={onSelect}
         disabled={disabled}
         marked={limit}
+        highlighted={highlighted}
       />
       {limitHint && <DateLimitHint>{limitHint}</DateLimitHint>}
     </div>
