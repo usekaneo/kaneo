@@ -38,6 +38,14 @@ import type { UserWithAnonymous } from "better-auth/plugins/anonymous";
 import { config } from "dotenv-mono";
 import { eq } from "drizzle-orm";
 import {
+  assertBackchannelLogoutEnv,
+  resolveBackchannelLogoutConfig,
+} from "./backchannel-logout/config";
+import {
+  rememberSignInSessionId,
+  takeSignInSessionId,
+} from "./backchannel-logout/sign-in-session-id";
+import {
   findBillableWorkspaces,
   formatBillableWorkspacesMessage,
 } from "./billing/controllers/find-billable-workspaces";
@@ -54,6 +62,7 @@ import { handleMemberAdded } from "./workspace-members/handle-member-added";
 import { handleMemberRemoved } from "./workspace-members/handle-member-removed";
 import { handleOwnerPromoted } from "./workspace-members/handle-owner-promoted";
 import { hideInaccessibleInvitationProjects } from "./project-access/hide-inaccessible-invitation-projects";
+import assertManagedProfileUnchanged from "./user/controllers/assert-managed-profile-unchanged";
 import { hideInvitationsFromNonInviters } from "./utils/hide-invitations-from-non-inviters";
 import { assertOwnerInvitationResendAllowed } from "./utils/assert-owner-invitation-resend-allowed";
 import {
@@ -68,6 +77,7 @@ import { satisfies } from "./utils/role-permissions";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
+import refreshManagedProfile from "./user/controllers/refresh-managed-profile";
 import { resolveAuthSecret } from "./utils/auth-secret";
 import {
   canSendSignInEmail,
@@ -75,7 +85,15 @@ import {
   userExistsByEmail,
 } from "./utils/check-registration-allowed";
 import { checkWorkspaceName } from "./utils/check-workspace-name";
+import {
+  assertCustomOAuthEnv,
+  parseManagedProfileFields,
+} from "./utils/custom-oauth-env";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
+import {
+  rememberCustomOAuthProfile,
+  takeCustomOAuthProfile,
+} from "./utils/custom-oauth-sign-in";
 import { resolveFileSecret } from "./utils/file-secret";
 import { generateDemoName } from "./utils/generate-demo-name";
 import { getEmailRequestContext } from "./utils/email-request-context";
@@ -149,6 +167,14 @@ const authSecret = (() => {
     process.exit(1);
   }
 })();
+
+try {
+  assertCustomOAuthEnv();
+  assertBackchannelLogoutEnv();
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}
 
 async function getUserLocale(email: string) {
   const [user] = await db
@@ -690,7 +716,13 @@ export const auth = betterAuth({
           responseType: process.env.CUSTOM_OAUTH_RESPONSE_TYPE || "code",
           discoveryUrl: process.env.CUSTOM_OAUTH_DISCOVERY_URL || "",
           pkce: process.env.CUSTOM_AUTH_PKCE !== "false",
-          mapProfileToUser: mapCustomOAuthProfileToUser,
+          mapProfileToUser: (profile) => {
+            rememberCustomOAuthProfile(profile);
+            return mapCustomOAuthProfileToUser(
+              profile,
+              parseManagedProfileFields(),
+            );
+          },
         },
       ],
     }),
@@ -716,6 +748,14 @@ export const auth = betterAuth({
     openAPI(),
   ],
   session: {
+    additionalFields: {
+      oidcSid: {
+        type: "string",
+        required: false,
+        input: false,
+        returned: false,
+      },
+    },
     cookieCache: {
       // Consult the session store on every request so password recovery
       // immediately rejects revoked cookies, including caches issued before upgrade.
@@ -763,6 +803,7 @@ export const auth = betterAuth({
               message: "You cannot change your own role.",
             });
           }
+          await assertManagedProfileUnchanged(user, ctx);
           return clearEmailVerificationOnAdminChange(user, ctx);
         },
       },
@@ -791,6 +832,26 @@ export const auth = betterAuth({
           }
 
           await promoteInitialAdministrator(user.id);
+        },
+      },
+    },
+    account: {
+      create: {
+        before: async (account, ctx) => {
+          rememberSignInSessionId(account.idToken, ctx);
+        },
+      },
+      update: {
+        before: async (account, ctx) => {
+          rememberSignInSessionId(account.idToken, ctx);
+        },
+      },
+    },
+    session: {
+      create: {
+        before: async (_session, ctx) => {
+          const oidcSid = takeSignInSessionId(ctx);
+          if (oidcSid) return { data: { oidcSid } };
         },
       },
     },
@@ -914,6 +975,15 @@ export const auth = betterAuth({
               "Invitations to disposable-email addresses are not allowed.",
           });
         }
+      }
+
+      if (
+        ctx.path === "/callback/:id" &&
+        ctx.params?.id === "custom" &&
+        (parseManagedProfileFields().length > 0 ||
+          resolveBackchannelLogoutConfig().enabled)
+      ) {
+        throw new APIError("NOT_FOUND");
       }
 
       const isSignUpPath =
@@ -1094,6 +1164,27 @@ export const auth = betterAuth({
               .set({ activeOrganizationId: activeWorkspaceId })
               .where(eq(schema.sessionTable.id, newSession.session.id));
           }
+        }
+      }
+
+      if (
+        ctx.path === "/oauth2/callback/:providerId" &&
+        ctx.context.newSession
+      ) {
+        const profile = takeCustomOAuthProfile();
+        if (profile) {
+          await refreshManagedProfile(
+            ctx.context.newSession.user.id,
+            profile,
+          ).catch((error) => {
+            // Database errors repeat the query parameters, which hold the claims.
+            const cause = (error as { cause?: unknown } | null)?.cause ?? error;
+            const code = (cause as { code?: unknown } | null)?.code;
+            console.error("Managed profile refresh failed:", {
+              error: error instanceof Error ? error.name : typeof error,
+              code: typeof code === "string" ? code : undefined,
+            });
+          });
         }
       }
     }),

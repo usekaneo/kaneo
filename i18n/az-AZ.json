@@ -767,6 +767,10 @@
 			"projectBackgroundsDescription": "Layihənin öz lövhəsi üçün təyin etdiyi arxa fon şəklini göstər.",
 			"advancedTitle": "Qabaqcıl"
 		},
+		"managedProfile": {
+			"note": "Təşkilatınız tərəfindən idarə olunur.",
+			"edit": "{{provider}} vasitəsilə redaktə et"
+		},
 		"developerPage": {
 			"pageTitle": "API açarları",
 			"title": "API açarları",

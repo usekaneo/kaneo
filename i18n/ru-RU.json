@@ -783,6 +783,10 @@
 			"projectBackgroundsDescription": "Показывать изображение, которое проект задаёт за своей доской.",
 			"advancedTitle": "Дополнительно"
 		},
+		"managedProfile": {
+			"note": "Управляется вашей организацией.",
+			"edit": "Изменить в {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "API-ключи",
 			"title": "API-ключи",

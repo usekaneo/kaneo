@@ -759,6 +759,10 @@
 			"projectBackgroundsDescription": "显示项目为看板设置的背景图片。",
 			"advancedTitle": "高级"
 		},
+		"managedProfile": {
+			"note": "由你的组织管理。",
+			"edit": "在 {{provider}} 中编辑"
+		},
 		"developerPage": {
 			"pageTitle": "API 密钥",
 			"title": "API 密钥",

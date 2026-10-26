@@ -758,6 +758,10 @@
 			"projectBackgroundsDescription": "顯示專案為看板設定的背景圖片。",
 			"advancedTitle": "進階"
 		},
+		"managedProfile": {
+			"note": "由你的組織管理。",
+			"edit": "在 {{provider}} 中編輯"
+		},
 		"developerPage": {
 			"pageTitle": "API 金鑰",
 			"title": "API 金鑰",

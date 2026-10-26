@@ -775,6 +775,10 @@
 			"projectBackgroundsDescription": "Afficher l'image définie par un projet derrière son tableau.",
 			"advancedTitle": "Avancé"
 		},
+		"managedProfile": {
+			"note": "Géré par votre organisation.",
+			"edit": "Modifier dans {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "Clés API",
 			"title": "Clés API",

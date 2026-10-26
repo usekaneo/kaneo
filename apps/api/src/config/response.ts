@@ -1,4 +1,5 @@
 import { z } from "../openapi";
+import { MANAGED_PROFILE_FIELDS } from "../utils/custom-oauth-env";
 
 export const configSchema = z
   .object({
@@ -25,6 +26,16 @@ export const configSchema = z
     }),
     customOAuthAutoLogin: z.boolean(),
     customOAuthLogoutUrl: z.string().nullable(),
+    customOAuthManagedProfileFields: z
+      .array(z.enum(MANAGED_PROFILE_FIELDS))
+      .openapi({
+        description:
+          "Profile fields the custom OAuth/OIDC provider manages for people with a linked provider account.",
+      }),
+    customOAuthAccountUrl: z.string().nullable().openapi({
+      description:
+        "Account page of the custom OAuth/OIDC provider, where people change managed profile fields. Null when not configured.",
+    }),
     billingEnabled: z.boolean(),
   })
   .openapi("Config");

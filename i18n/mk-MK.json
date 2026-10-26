@@ -767,6 +767,10 @@
 			"projectBackgroundsDescription": "Прикажи ја сликата што проектот ја поставува зад својата табла.",
 			"advancedTitle": "Напредно"
 		},
+		"managedProfile": {
+			"note": "Се управува од твојата организација.",
+			"edit": "Уреди во {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "API клучеви",
 			"title": "API клучеви",

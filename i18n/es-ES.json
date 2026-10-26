@@ -650,6 +650,10 @@
 			"projectBackgroundsDescription": "Muestra la imagen que un proyecto pone detrás de su tablero.",
 			"advancedTitle": "Avanzado"
 		},
+		"managedProfile": {
+			"note": "Gestionado por tu organización.",
+			"edit": "Editar en {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "Claves de API",
 			"title": "Claves de API",

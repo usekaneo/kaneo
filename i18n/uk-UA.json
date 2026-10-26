@@ -783,6 +783,10 @@
 			"projectBackgroundsDescription": "Показувати зображення, яке проєкт задає за своєю дошкою.",
 			"advancedTitle": "Додатково"
 		},
+		"managedProfile": {
+			"note": "Керується вашою організацією.",
+			"edit": "Редагувати в {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "API-ключі",
 			"title": "API-ключі",

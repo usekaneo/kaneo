@@ -759,6 +759,10 @@
 			"projectBackgroundsDescription": "프로젝트에서 보드 배경으로 설정한 이미지를 표시합니다.",
 			"advancedTitle": "고급"
 		},
+		"managedProfile": {
+			"note": "조직에서 관리합니다.",
+			"edit": "{{provider}}에서 편집"
+		},
 		"developerPage": {
 			"pageTitle": "API 키",
 			"title": "API 키",

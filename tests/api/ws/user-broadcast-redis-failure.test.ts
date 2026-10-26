@@ -18,6 +18,22 @@ vi.mock("../../../apps/api/src/ws/workspace-access", () => ({
   syncWorkspaceAccess: accessSync,
   hasWorkspaceAccess: hasAccess,
 }));
+const sessionRows = vi.hoisted(() =>
+  vi.fn(async (): Promise<Array<{ id: string }>> => []),
+);
+vi.mock("../../../apps/api/src/database", async () => {
+  const schema = await import("../../../apps/api/src/database/schema");
+  return {
+    default: {
+      select: () => ({
+        from: (table: unknown) => ({
+          where: table === schema.sessionTable ? sessionRows : async () => [],
+        }),
+      }),
+    },
+    schema,
+  };
+});
 const publish = vi.fn();
 const listeners: Array<(p: string, c: string, d: string) => void> = [];
 const subscriber = {
@@ -48,6 +64,8 @@ import {
   broadcastToUser,
   initializeWebSocketAdapter,
   removeUserConnection,
+  revokeSessionConnections,
+  SESSION_ENDED_CLOSE_CODE,
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws/index";
 
@@ -66,6 +84,10 @@ function makeFakeWs() {
 
 function sendMock(ws: unknown) {
   return (ws as { send: ReturnType<typeof vi.fn> }).send;
+}
+
+function closeMock(ws: unknown) {
+  return (ws as { close: ReturnType<typeof vi.fn> }).close;
 }
 
 function emitUserBroadcast(payload: unknown, channelUserId = "user-1") {
@@ -162,6 +184,111 @@ describe("broadcastToUser with the redis adapter", () => {
     expect(sendMock(ws)).not.toHaveBeenCalled();
 
     removeUserConnection("user-1", conn);
+  });
+});
+
+describe("ended sessions with the redis adapter", () => {
+  beforeEach(async () => {
+    publish.mockReset().mockResolvedValue(1);
+    listeners.length = 0;
+    await initializeWebSocketAdapter();
+  });
+
+  afterEach(async () => {
+    await shutdownWebSocketAdapter();
+    sessionRows.mockReset().mockResolvedValue([]);
+  });
+
+  it("publishes the ended session IDs to the other instances", async () => {
+    await revokeSessionConnections("user-1", ["session-a"]);
+
+    await vi.waitFor(() => expect(publish).toHaveBeenCalledOnce());
+    expect(JSON.parse(publish.mock.calls[0][1])).toMatchObject({
+      userId: "user-1",
+      message: { type: "SESSIONS_ENDED", sessionIds: ["session-a"] },
+    });
+  });
+
+  it("closes only the ended session's sockets when another instance ends it", () => {
+    const ended = makeFakeWs();
+    const kept = makeFakeWs();
+    const endedBoard = makeFakeWs();
+    const connections = [
+      addUserConnection("user-1", ended, "session-a"),
+      addUserConnection("user-1", kept, "session-b"),
+    ];
+    const board = addConnection(
+      "project",
+      endedBoard,
+      "user-1",
+      "window",
+      "workspace",
+      undefined,
+      "session-a",
+    );
+    try {
+      emitUserBroadcast({
+        userId: "user-1",
+        origin: "other-instance",
+        message: { type: "SESSIONS_ENDED", sessionIds: ["session-a"] },
+      });
+
+      for (const ws of [ended, endedBoard])
+        expect(closeMock(ws)).toHaveBeenCalledWith(
+          SESSION_ENDED_CLOSE_CODE,
+          "Session ended",
+        );
+      expect(closeMock(kept)).not.toHaveBeenCalled();
+      expect(sendMock(kept)).not.toHaveBeenCalled();
+    } finally {
+      for (const conn of connections) removeUserConnection("user-1", conn);
+      removeConnection("project", board);
+    }
+  });
+
+  it("closes the sockets of sessions that ended while the subscriber was away", async () => {
+    sessionRows.mockResolvedValue([{ id: "session-b" }]);
+    const ended = makeFakeWs();
+    const kept = makeFakeWs();
+    const apiKey = makeFakeWs();
+    const endedBoard = makeFakeWs();
+    const connections = [
+      addUserConnection("user-1", ended, "session-a"),
+      addUserConnection("user-1", kept, "session-b"),
+      addUserConnection("user-1", apiKey),
+    ];
+    const board = addConnection(
+      "project",
+      endedBoard,
+      "user-1",
+      "window",
+      "workspace",
+      undefined,
+      "session-c",
+    );
+    try {
+      const ready = subscriber.on.mock.calls
+        .filter(([event]) => event === "ready")
+        .at(-1)?.[1];
+      ready?.("", "", "");
+
+      await vi.waitFor(() =>
+        expect(closeMock(ended)).toHaveBeenCalledWith(
+          SESSION_ENDED_CLOSE_CODE,
+          "Session ended",
+        ),
+      );
+      expect(closeMock(endedBoard)).toHaveBeenCalledWith(
+        SESSION_ENDED_CLOSE_CODE,
+        "Session ended",
+      );
+      expect(closeMock(kept)).not.toHaveBeenCalled();
+      expect(closeMock(apiKey)).not.toHaveBeenCalled();
+      expect(sessionRows).toHaveBeenCalledOnce();
+    } finally {
+      for (const conn of connections) removeUserConnection("user-1", conn);
+      removeConnection("project", board);
+    }
   });
 });
 

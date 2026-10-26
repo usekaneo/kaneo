@@ -645,6 +645,10 @@
 			"projectBackgroundsDescription": "Toon de afbeelding die een project achter het bord instelt.",
 			"advancedTitle": "Geavanceerd"
 		},
+		"managedProfile": {
+			"note": "Beheerd door je organisatie.",
+			"edit": "Bewerken in {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "API-sleutels",
 			"title": "API-sleutels",

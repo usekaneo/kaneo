@@ -1696,6 +1696,10 @@
 			"projectBackgroundsDescription": "Pokazuj obraz ustawiony przez projekt za jego tablicą.",
 			"advancedTitle": "Zaawansowane"
 		},
+		"managedProfile": {
+			"note": "Zarządzane przez Twoją organizację.",
+			"edit": "Edytuj w {{provider}}"
+		},
 		"projectGeneral": {
 			"dangerZone": "Strefa niebezpieczna",
 			"deleteModalConfirm": "Usuń projekt",

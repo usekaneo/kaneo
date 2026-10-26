@@ -767,6 +767,10 @@
 			"projectBackgroundsDescription": "Εμφάνιση της εικόνας που ορίζει ένα έργο πίσω από τον πίνακά του.",
 			"advancedTitle": "Σύνθετα"
 		},
+		"managedProfile": {
+			"note": "Διαχειρίζεται από τον οργανισμό σας.",
+			"edit": "Επεξεργασία στο {{provider}}"
+		},
 		"developerPage": {
 			"pageTitle": "Κλειδιά API",
 			"title": "Κλειδιά API",

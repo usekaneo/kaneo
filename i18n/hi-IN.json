@@ -767,6 +767,10 @@
 			"projectBackgroundsDescription": "प्रोजेक्ट द्वारा अपने बोर्ड के पीछे सेट की गई छवि दिखाएँ।",
 			"advancedTitle": "उन्नत"
 		},
+		"managedProfile": {
+			"note": "आपके संगठन द्वारा प्रबंधित।",
+			"edit": "{{provider}} में संपादित करें"
+		},
 		"developerPage": {
 			"pageTitle": "API कुंजियाँ",
 			"title": "API कुंजियाँ",
