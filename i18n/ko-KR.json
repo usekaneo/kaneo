@@ -3221,7 +3221,10 @@
 		"filterBar": {
 			"label": "적용된 필터",
 			"removeFilter": "{{name}} 필터 제거",
-			"noMatches": "검색 또는 필터와 일치하는 작업이 없습니다."
+			"noMatches": "검색 또는 필터와 일치하는 작업이 없습니다.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "필터 추가…",

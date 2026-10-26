@@ -3275,7 +3275,10 @@
 		"filterBar": {
 			"label": "Aktiv süzgəclər",
 			"removeFilter": "{{name}} süzgəcini sil",
-			"noMatches": "Axtarışınıza və ya süzgəclərinizə uyğun tapşırıq yoxdur."
+			"noMatches": "Axtarışınıza və ya süzgəclərinizə uyğun tapşırıq yoxdur.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Süzgəc əlavə et…",

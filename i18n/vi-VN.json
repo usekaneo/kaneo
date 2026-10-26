@@ -3221,7 +3221,10 @@
 		"filterBar": {
 			"label": "Bộ lọc đang áp dụng",
 			"removeFilter": "Xóa bộ lọc {{name}}",
-			"noMatches": "Không có công việc nào khớp với tìm kiếm hoặc bộ lọc của bạn."
+			"noMatches": "Không có công việc nào khớp với tìm kiếm hoặc bộ lọc của bạn.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Thêm bộ lọc…",

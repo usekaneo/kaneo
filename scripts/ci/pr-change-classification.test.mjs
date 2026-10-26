@@ -312,113 +312,160 @@ test("non-PR events always run the full checks", () => {
   }
 });
 
-test("result gate accepts only successful jobs and deliberate expensive skips", () => {
-  const ciJobs = {
-    "detect-pr-changes": "success",
-    "peekareq-tests": "success",
-    "slop-labeler-tests": "success",
-    lint: "success",
-    i18n: "success",
-    openapi: "success",
-    typecheck: "success",
-    unit: "success",
-    build: "success",
+const successfulCiJobs = {
+  "detect-pr-changes": "success",
+  "peekareq-tests": "success",
+  "slop-labeler-tests": "success",
+  quality: "success",
+  unit: "success",
+  build: "success",
+  integration: "success",
+  "docker-build": "success",
+  workflows: "success",
+  storage: "success",
+  "split-images": "success",
+  "secret-scan": "success",
+  smoke: "success",
+};
+
+test("PR result gate permits only deliberate documentation suite skips", () => {
+  const jobs = {
+    ...successfulCiJobs,
     integration: "skipped",
-    "docker-build": "skipped",
-    workflows: "success",
     storage: "skipped",
+    "docker-build": "skipped",
     "split-images": "skipped",
-    "secret-scan": "success",
+    smoke: "skipped",
   };
-  assert.equal(
-    assessGate({
-      workflow: "ci",
-      eventName: "pull_request",
-      skipExpensive: true,
-      jobs: ciJobs,
-    }),
-    "success",
-  );
-  assert.equal(
-    assessGate({
-      workflow: "ci",
-      eventName: "pull_request",
-      skipExpensive: true,
-      jobs: { ...ciJobs, "secret-scan": "skipped" },
-    }),
-    "failure",
-  );
-  for (const state of ["failure", "cancelled", "skipped"]) {
+  const input = { eventName: "pull_request", skipExpensive: true, jobs };
+  assert.equal(assessGate(input), "success");
+  for (const job of ["quality", "secret-scan", "detect-pr-changes", "smoke"]) {
+    for (const status of ["failure", "cancelled"]) {
+      assert.equal(
+        assessGate({ ...input, jobs: { ...jobs, [job]: status } }),
+        "failure",
+        `${job}: ${status} blocks documentation PRs`,
+      );
+    }
+  }
+  for (const job of ["quality", "secret-scan"]) {
     assert.equal(
-      assessGate({
-        workflow: "ci",
-        eventName: "pull_request",
-        skipExpensive: true,
-        jobs: { ...ciJobs, lint: state },
-      }),
+      assessGate({ ...input, jobs: { ...jobs, [job]: "skipped" } }),
       "failure",
     );
+  }
+  assert.equal(assessGate({ ...input, skipExpensive: false }), "failure");
+  assert.equal(
+    assessGate({ ...input, jobs: { quality: "success" } }),
+    "failure",
+  );
+});
+
+test("runtime PR result gate requires smoke success and a present result", () => {
+  const input = {
+    eventName: "pull_request",
+    skipExpensive: false,
+    jobs: successfulCiJobs,
+  };
+  assert.equal(assessGate(input), "success");
+  for (const job of [
+    "smoke",
+    "integration",
+    "storage",
+    "docker-build",
+    "split-images",
+  ]) {
+    for (const status of ["failure", "cancelled", "skipped"]) {
+      assert.equal(
+        assessGate({ ...input, jobs: { ...successfulCiJobs, [job]: status } }),
+        "failure",
+        `${job}: ${status} blocks runtime PRs`,
+      );
+    }
+  }
+  const withoutSmoke = { ...successfulCiJobs };
+  delete withoutSmoke.smoke;
+  assert.equal(assessGate({ ...input, jobs: withoutSmoke }), "failure");
+});
+
+test("non-PR result gate allows smoke skips but keeps runtime suites required", () => {
+  for (const [eventName, skippedSecretResult] of [
+    ["push", "failure"],
+    ["workflow_dispatch", "failure"],
+    ["workflow_call", "failure"],
+    ["schedule", "success"],
+  ]) {
+    const jobs = { ...successfulCiJobs, smoke: "skipped" };
+    const input = { eventName, skipExpensive: true, jobs };
+    assert.equal(assessGate(input), "success", eventName);
+    assert.equal(
+      assessGate({ ...input, jobs: { ...jobs, "secret-scan": "skipped" } }),
+      skippedSecretResult,
+      `${eventName}: scheduled secret-scan exception stays narrow`,
+    );
+    for (const status of ["failure", "cancelled"]) {
+      assert.equal(
+        assessGate({ ...input, jobs: { ...jobs, smoke: status } }),
+        "failure",
+      );
+    }
+    for (const job of [
+      "integration",
+      "storage",
+      "docker-build",
+      "split-images",
+    ]) {
+      assert.equal(
+        assessGate({ ...input, jobs: { ...jobs, [job]: "skipped" } }),
+        "failure",
+      );
+    }
+    const withoutSmoke = { ...jobs };
+    delete withoutSmoke.smoke;
+    assert.equal(assessGate({ ...input, jobs: withoutSmoke }), "failure");
+  }
+});
+
+test("unknown event context does not authorize a smoke skip", () => {
+  for (const eventName of [undefined, "unknown-event"]) {
     assert.equal(
       assessGate({
-        workflow: "ci",
-        eventName: "pull_request",
-        skipExpensive: false,
-        jobs: { ...ciJobs, integration: state },
+        eventName,
+        skipExpensive: true,
+        jobs: { ...successfulCiJobs, smoke: "skipped" },
       }),
       "failure",
     );
   }
-  assert.equal(
-    assessGate({
-      workflow: "ci",
-      eventName: "push",
-      skipExpensive: false,
-      jobs: ciJobs,
-    }),
-    "failure",
-  );
-  const scheduled = {
-    ...ciJobs,
-    integration: "success",
-    storage: "success",
-    "docker-build": "success",
-    "split-images": "success",
-    "secret-scan": "skipped",
-  };
-  assert.equal(
-    assessGate({
-      workflow: "ci",
-      eventName: "schedule",
-      skipExpensive: false,
-      jobs: scheduled,
-    }),
-    "success",
-  );
-  assert.equal(
-    assessGate({
-      workflow: "ci",
-      eventName: "schedule",
-      skipExpensive: false,
-      jobs: { ...scheduled, integration: "skipped" },
-    }),
-    "failure",
-  );
-  assert.equal(
-    assessGate({
-      workflow: "ci",
-      eventName: "pull_request",
-      skipExpensive: true,
-      jobs: { lint: "success" },
-    }),
-    "failure",
-  );
-  assert.equal(
-    assessGate({
-      workflow: "browser",
-      eventName: "pull_request",
-      skipExpensive: true,
-      jobs: { "detect-pr-changes": "success", smoke: "skipped" },
-    }),
-    "success",
-  );
+});
+
+test("result gate requires successful quality checks on every CI event", () => {
+  for (const eventName of [
+    "pull_request",
+    "push",
+    "workflow_dispatch",
+    "workflow_call",
+    "schedule",
+  ]) {
+    const jobs = {
+      ...successfulCiJobs,
+      smoke: eventName === "pull_request" ? "success" : "skipped",
+    };
+    const input = { eventName, skipExpensive: false, jobs };
+    assert.equal(assessGate(input), "success", `${eventName}: all checks pass`);
+    const withoutQuality = { ...jobs };
+    delete withoutQuality.quality;
+    assert.equal(
+      assessGate({ ...input, jobs: withoutQuality }),
+      "failure",
+      `${eventName}: missing quality result blocks the gate`,
+    );
+    for (const quality of ["failure", "cancelled", "skipped"]) {
+      assert.equal(
+        assessGate({ ...input, jobs: { ...jobs, quality } }),
+        "failure",
+        `${eventName}: ${quality} quality checks block the gate`,
+      );
+    }
+  }
 });

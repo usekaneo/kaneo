@@ -113,6 +113,23 @@ describe("taskMatchesFilters", () => {
     ).toBe(false);
   });
 
+  it.each([false, true])(
+    "uses current label IDs with negation=%s",
+    (negated) => {
+      expect(
+        taskMatchesFilters(
+          task({}),
+          {
+            ...noFilters,
+            labels: ["saved-label"],
+            negated: negated ? ["labels"] : null,
+          },
+          { ...context, labelIds: new Set(["saved-label", "l1"]) },
+        ),
+      ).toBe(!negated);
+    },
+  );
+
   it.each([
     [{ priority: ["high"], negated: ["priority"] }, false],
     [{ priority: ["low"], negated: ["priority"] }, true],

@@ -3275,7 +3275,10 @@
 		"filterBar": {
 			"label": "सक्रिय फ़िल्टर",
 			"removeFilter": "{{name}} फ़िल्टर हटाएँ",
-			"noMatches": "आपकी खोज या फ़िल्टर से कोई कार्य मेल नहीं खाता।"
+			"noMatches": "आपकी खोज या फ़िल्टर से कोई कार्य मेल नहीं खाता।",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "फ़िल्टर जोड़ें…",

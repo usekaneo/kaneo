@@ -2,14 +2,23 @@ import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { notificationTable } from "../../database/schema";
 
-import { notificationResourceAccess } from "../resource-access";
+import type { PermissionMap } from "../../utils/role-permissions";
+import { notificationReadAccess } from "../resource-access";
 import { notificationWorkspaceFilter } from "../workspace-filter";
 
 async function clearNotifications(
   userId: string,
   workspaceId?: string,
   onlyRead = false,
+  apiKeyPermissions?: PermissionMap | null,
 ) {
+  const access = await notificationReadAccess(
+    userId,
+    notificationTable.resourceId,
+    notificationTable.resourceType,
+    apiKeyPermissions,
+    workspaceId,
+  );
   await db
     .delete(notificationTable)
     .where(
@@ -17,13 +26,7 @@ async function clearNotifications(
         eq(notificationTable.userId, userId),
         onlyRead ? eq(notificationTable.isRead, true) : undefined,
         notificationWorkspaceFilter(workspaceId),
-        workspaceId
-          ? notificationResourceAccess(
-              userId,
-              notificationTable.resourceId,
-              notificationTable.resourceType,
-            )
-          : undefined,
+        access,
       ),
     );
 

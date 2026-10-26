@@ -67,7 +67,7 @@ This project is tested with BrowserStack.
 
 ### Community sponsors
 
-<!-- sponsors --><a href="https://github.com/danielsada"><img src="https:&#x2F;&#x2F;github.com&#x2F;danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><a href="https://github.com/randoneering"><img src="https:&#x2F;&#x2F;github.com&#x2F;randoneering.png" width="60px" alt="User avatar: (justin)randoneering" /></a><a href="https://github.com/ryanilano"><img src="https:&#x2F;&#x2F;github.com&#x2F;ryanilano.png" width="60px" alt="User avatar: Ryan Ilano" /></a><a href="https://github.com/bojanmilevski"><img src="https:&#x2F;&#x2F;github.com&#x2F;bojanmilevski.png" width="60px" alt="User avatar: Bojan Milevski" /></a><!-- sponsors -->
+<!-- sponsors --><a href="https://github.com/danielsada"><img src="https:&#x2F;&#x2F;github.com&#x2F;danielsada.png" width="60px" alt="User avatar: Daniel Sada" /></a><a href="https://github.com/randoneering"><img src="https:&#x2F;&#x2F;github.com&#x2F;randoneering.png" width="60px" alt="User avatar: (justin)randoneering" /></a><a href="https://github.com/ryanilano"><img src="https:&#x2F;&#x2F;github.com&#x2F;ryanilano.png" width="60px" alt="User avatar: Ryan Ilano" /></a><a href="https://github.com/bojanmilevski"><img src="https:&#x2F;&#x2F;github.com&#x2F;bojanmilevski.png" width="60px" alt="User avatar: Bojan Milevski" /></a><a href="https://github.com/blendbyte"><img src="https:&#x2F;&#x2F;github.com&#x2F;blendbyte.png" width="60px" alt="User avatar: Blendbyte" /></a><!-- sponsors -->
 
 ## License
 

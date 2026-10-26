@@ -3221,7 +3221,10 @@
 		"filterBar": {
 			"label": "已应用的筛选",
 			"removeFilter": "移除“{{name}}”筛选",
-			"noMatches": "没有任务符合你的搜索或筛选条件。"
+			"noMatches": "没有任务符合你的搜索或筛选条件。",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "添加筛选…",

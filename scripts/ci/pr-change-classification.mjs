@@ -1,26 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { appendFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { areRuntimeNeutralFiles } from "./runtime-neutral-changes.mjs";
 
 const expensive = ["integration", "storage", "docker-build", "split-images"];
-const configName =
-  /(^|\/)(package\.json|pnpm-lock\.yaml|package-lock\.json|yarn\.lock|bun\.lockb?|pnpm-workspace\.yaml|turbo\.json|vite\.config\.[^/]+|next\.config\.[^/]+|tsconfig[^/]*\.json|Dockerfile(?:\.[^/]*)?|docker-compose[^/]*\.ya?ml|Makefile|.*\.config\.[^/]+|.*\.ya?ml|.*\.toml|.*\.json|.*\.lock)$/i;
-
-function allowedPath(path) {
-  if (
-    typeof path !== "string" ||
-    !path ||
-    path.startsWith("/") ||
-    path.split("/").includes("..")
-  )
-    return false;
-  if (path.split("/").some((segment) => segment.startsWith("."))) return false;
-  if (configName.test(path) && path !== "apps/site/constants/sponsors.json")
-    return false;
-  return (
-    path === "README.md" || /^(docs|apps\/docs|apps\/site)\/[^/].*$/.test(path)
-  );
-}
 
 export function classifyChanges({ eventName, files, complete, error = false }) {
   const full = { skipExpensive: false };
@@ -32,40 +15,22 @@ export function classifyChanges({ eventName, files, complete, error = false }) {
     files.length === 0
   )
     return full;
-  for (const file of files) {
-    if (typeof file === "string") {
-      if (!allowedPath(file)) return full;
-      continue;
-    }
-    if (!file || typeof file !== "object" || !allowedPath(file.filename))
-      return full;
-    if (!new Set(["added", "modified", "removed", "renamed"]).has(file.status))
-      return full;
-    if (file.status === "renamed" && !allowedPath(file.previous_filename))
-      return full;
-    if (
-      file.previous_filename !== undefined &&
-      !allowedPath(file.previous_filename)
-    )
-      return full;
-    if (file.status === "renamed" && typeof file.previous_filename !== "string")
-      return full;
-  }
-  return { skipExpensive: true };
+  return areRuntimeNeutralFiles(files) ? { skipExpensive: true } : full;
 }
 
-export function assessGate({
-  workflow = "ci",
-  eventName,
-  skipExpensive,
-  jobs,
-}) {
+export function assessGate({ eventName, skipExpensive, jobs }) {
   if (!jobs || typeof jobs !== "object") return "failure";
   const allowedSkipped = new Set(
     skipExpensive && eventName === "pull_request"
       ? [...expensive, "smoke"]
       : [],
   );
+  if (
+    ["push", "workflow_dispatch", "workflow_call", "schedule"].includes(
+      eventName,
+    )
+  )
+    allowedSkipped.add("smoke");
   for (const [name, status] of Object.entries(jobs)) {
     if (
       name === "secret-scan" &&
@@ -76,26 +41,21 @@ export function assessGate({
     if (allowedSkipped.has(name) && status === "skipped") continue;
     if (status !== "success") return "failure";
   }
-  const required =
-    workflow === "browser"
-      ? ["detect-pr-changes", "smoke"]
-      : [
-          "detect-pr-changes",
-          "peekareq-tests",
-          "slop-labeler-tests",
-          "lint",
-          "i18n",
-          "openapi",
-          "typecheck",
-          "unit",
-          "build",
-          "integration",
-          "docker-build",
-          "workflows",
-          "storage",
-          "split-images",
-          "secret-scan",
-        ];
+  const required = [
+    "detect-pr-changes",
+    "smoke",
+    "peekareq-tests",
+    "slop-labeler-tests",
+    "quality",
+    "unit",
+    "build",
+    "integration",
+    "docker-build",
+    "workflows",
+    "storage",
+    "split-images",
+    "secret-scan",
+  ];
   if (required.some((name) => !(name in jobs))) return "failure";
   return "success";
 }
@@ -156,7 +116,6 @@ async function main() {
   if (process.env.CI_GATE_JOBS) {
     const jobs = JSON.parse(process.env.CI_GATE_JOBS);
     const result = assessGate({
-      workflow: process.env.CI_GATE_WORKFLOW ?? "ci",
       eventName: process.env.GITHUB_EVENT_NAME,
       skipExpensive: process.env.CI_SKIP_EXPENSIVE === "true",
       jobs,

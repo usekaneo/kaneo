@@ -75,11 +75,14 @@ const getWorkspaceMembersRoute = createRoute({
   summary: "Get workspace members",
   description:
     "Get all members of a workspace, with their role. Pass projectId to get only the members who can access that project.",
-  middleware: [workspaceAccess.fromParam("workspaceId")] as const,
+  middleware: [
+    workspaceAccess.fromParam("workspaceId"),
+    requireWorkspacePermission({ workspace: ["read"] }),
+  ] as const,
   request: { params: workspaceIdParam, query: workspaceMembersQuery },
   responses: {
     200: jsonResponse("List of workspace members", workspaceMemberListSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse(
       "Workspace not found, or project not found in this workspace",
     ),

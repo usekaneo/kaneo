@@ -35,11 +35,14 @@ const getTaskLabelsRoute = createRoute({
   tags: ["Labels"],
   summary: "Get task labels",
   description: "Get all labels assigned to a specific task",
-  middleware: [workspaceAccess.fromTaskId()] as const,
+  middleware: [
+    workspaceAccess.fromTaskId(),
+    requireWorkspacePermission({ label: ["read"] }),
+  ] as const,
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse("List of labels for the task", labelListSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
   },
 });
@@ -51,10 +54,14 @@ const getWorkspaceLabelsRoute = createRoute({
   tags: ["Labels"],
   summary: "Get workspace labels",
   description: "Get all labels for a specific workspace",
-  middleware: [workspaceAccess.fromParam()] as const,
+  middleware: [
+    workspaceAccess.fromParam(),
+    requireWorkspacePermission({ label: ["read"] }),
+  ] as const,
   request: { params: workspaceIdParam },
   responses: {
     200: jsonResponse("List of labels in the workspace", labelListSchema),
+    403: errorResponse("Missing read permission"),
     404: errorResponse("Workspace not found"),
   },
 });
@@ -92,11 +99,14 @@ const getLabelRoute = createRoute({
   tags: ["Labels"],
   summary: "Get label",
   description: "Get a specific label by ID",
-  middleware: [workspaceAccess.fromLabel()] as const,
+  middleware: [
+    workspaceAccess.fromLabel(),
+    requireWorkspacePermission({ label: ["read"] }),
+  ] as const,
   request: { params: labelParam },
   responses: {
     200: jsonResponse("Label details", labelSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Label not found"),
   },
 });

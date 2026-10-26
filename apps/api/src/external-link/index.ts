@@ -87,11 +87,14 @@ const getExternalLinksByTaskRoute = createRoute({
   summary: "Get task external links",
   description:
     "Get manually added resource links and links from connected integrations, such as GitHub or Gitea issues.",
-  middleware: [workspaceAccess.fromTaskId("taskId")] as const,
+  middleware: [
+    workspaceAccess.fromTaskId("taskId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse("External links for the task", externalLinkListSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
   },
 });

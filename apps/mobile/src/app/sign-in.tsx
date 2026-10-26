@@ -22,6 +22,7 @@ import {
   ScrollView,
   TextInput,
   View,
+  type TextInputInstance,
 } from "react-native";
 
 import { KaneoLogo } from "@/components/brand";
@@ -276,7 +277,7 @@ function StartStep(props: {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const passwordRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInputInstance>(null);
   const recent = prefs.recentServers.filter((s) => s !== CLOUD_URL);
   const connected = !!serverUrl && (mode === "cloud" || !!config);
   const loginForm = !config?.disableLoginForm;
@@ -567,7 +568,7 @@ function OtpStep({
   const { t } = useTranslation(["mobile"]);
   const [code, setCode] = useState("");
   const [draftEmail, setDraftEmail] = useState(email);
-  const input = useRef<TextInput>(null);
+  const input = useRef<TextInputInstance>(null);
   const hasEmail = !!email;
 
   if (!hasEmail) {

@@ -3257,6 +3257,9 @@
 		},
 		"filterBar": {
 			"label": "Active filters",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
 			"removeFilter": "Remove {{name}} filter",
 			"noMatches": "No tasks match your search or filters."
 		},
