@@ -795,6 +795,70 @@
 				"transferError": "Failed to transfer ownership"
 			}
 		},
+		"adminAuditLog": {
+			"title": "Audit log",
+			"subtitle": "Administrative actions on this Kaneo instance, newest first. Entries never include passwords, tokens, or reset links.",
+			"directoryTitle": "Recorded actions",
+			"refreshing": "Refreshing audit log",
+			"categoryLabel": "Filter by category",
+			"categories": {
+				"all": "All actions",
+				"user": "Users",
+				"session": "Sessions",
+				"workspace": "Workspaces"
+			},
+			"loadError": "The audit log could not be loaded.",
+			"retry": "Retry",
+			"emptyTitle": "No actions recorded",
+			"emptyDescription": "Administrative actions appear here after they happen.",
+			"clearFilter": "Show all actions",
+			"previous": "Previous",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"unknownActor": "Unknown",
+			"deletedActor": "Account deleted",
+			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
+			"columns": {
+				"action": "Action",
+				"actor": "Administrator",
+				"target": "Target",
+				"time": "Time and IP"
+			},
+			"targetTypes": {
+				"user": "User",
+				"workspace": "Workspace"
+			},
+			"actions": {
+				"userCreated": "Created user",
+				"userUpdated": "Updated user details",
+				"userRoleChanged": "Changed instance role",
+				"userDeactivated": "Deactivated user",
+				"userReactivated": "Reactivated user",
+				"userDeleted": "Deleted user",
+				"userPasswordSet": "Set user password",
+				"userImpersonated": "Signed in as user",
+				"sessionRevoked": "Revoked a session",
+				"sessionRevokedAll": "Revoked all sessions",
+				"workspaceMemberAdded": "Added workspace member",
+				"workspaceMemberRemoved": "Removed workspace member",
+				"workspaceMemberRoleChanged": "Changed workspace member role",
+				"workspaceOwnerTransferred": "Transferred workspace ownership"
+			},
+			"fields": {
+				"name": "name",
+				"email": "email",
+				"emailVerified": "email verification",
+				"image": "avatar"
+			},
+			"details": {
+				"change": "{{from}} → {{to}}",
+				"fields": "Changed {{fields}}",
+				"reason": "Reason: {{reason}}",
+				"noRole": "No role",
+				"memberWithRole": "{{member}} as {{role}}",
+				"memberChange": "{{member}}: {{from}} → {{to}}"
+			}
+		},
 		"informationPage": {
 			"pageTitle": "Profile",
 			"title": "Profile",

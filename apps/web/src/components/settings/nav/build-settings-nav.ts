@@ -5,6 +5,7 @@ import {
   CreditCard,
   Import,
   KeyRound,
+  ScrollText,
   Server,
   Settings,
   Shield,
@@ -164,6 +165,12 @@ export function buildSettingsNav({
               label: t("settings:adminWorkspaces.title"),
               to: "/dashboard/settings/admin/workspaces",
               icon: Building2,
+            },
+            {
+              id: "admin-audit-log",
+              label: t("settings:adminAuditLog.title"),
+              to: "/dashboard/settings/admin/audit-log",
+              icon: ScrollText,
             },
           ],
         }

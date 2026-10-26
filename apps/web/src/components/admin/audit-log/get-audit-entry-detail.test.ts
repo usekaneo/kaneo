@@ -1,0 +1,62 @@
+import { describe, expect, it } from "vite-plus/test";
+import { getAuditEntryDetail } from "./get-audit-entry-detail";
+
+const t = (key: string, values?: Record<string, unknown>) =>
+  values ? `${key} ${JSON.stringify(values)}` : key;
+
+describe("getAuditEntryDetail", () => {
+  it("translates instance role changes", () => {
+    expect(
+      getAuditEntryDetail(
+        {
+          action: "user.role_changed",
+          metadata: { from: "user", to: "admin,custom" },
+        },
+        t,
+      ),
+    ).toBe(
+      'settings:adminAuditLog.details.change {"from":"settings:adminUsers.roles.user","to":"settings:adminUsers.roles.admin, custom"}',
+    );
+  });
+
+  it("lists changed fields by their labels", () => {
+    expect(
+      getAuditEntryDetail(
+        { action: "user.updated", metadata: { fields: ["name", "locale"] } },
+        t,
+      ),
+    ).toBe(
+      'settings:adminAuditLog.details.fields {"fields":"settings:adminAuditLog.fields.name, locale"}',
+    );
+  });
+
+  it("names the workspace member and their roles", () => {
+    expect(
+      getAuditEntryDetail(
+        {
+          action: "workspace.member_role_changed",
+          metadata: {
+            member: { id: "u1", name: "", email: "ada@example.com" },
+            previousRole: "member",
+            role: "reviewer",
+          },
+        },
+        t,
+      ),
+    ).toBe(
+      'settings:adminAuditLog.details.memberChange {"member":"ada@example.com","from":"team:roles.member","to":"reviewer"}',
+    );
+  });
+
+  it("returns nothing when there is nothing to add", () => {
+    expect(
+      getAuditEntryDetail({ action: "user.deactivated", metadata: {} }, t),
+    ).toBeNull();
+    expect(
+      getAuditEntryDetail({ action: "session.revoked_all", metadata: null }, t),
+    ).toBeNull();
+    expect(
+      getAuditEntryDetail({ action: "role.created", metadata: { a: 1 } }, t),
+    ).toBeNull();
+  });
+});
