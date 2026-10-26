@@ -9,9 +9,30 @@ These pages live under **Settings → Administration** and are only visible to i
 
 ## Manage users
 
-Open **Settings → Administration → User management** to search every account on the instance. From a user's menu you can edit their name, email, and instance role, deactivate or reactivate the account, or delete it.
+Open **Settings → Administration → User management** to search every account on the instance. Filter by status (active or deactivated), role (admin or user), and email verification. Each row shows the user's role, status, when they were last active, and when they joined. **Last active** is the most recent activity of one of their current sessions, so it can lag by up to a day and is empty for someone who has never signed in or has no session left.
+
+From a user's menu you can:
+
+- **Edit.** Change their name, email, and instance role, and upload or remove their profile picture. The dialog also shows whether their email is verified and which sign-in methods are linked (password, GitHub, Google, Discord, or your OIDC provider).
+- **Send password reset link.** Kaneo emails them a single-use link to choose a new password. It expires in 1 hour, like a reset they request themselves. You never see the link.
+- **Resend verification email.** For an unverified address, Kaneo emails a link that confirms it. It expires in 24 hours.
+- **Mark email as verified.** Confirms the address without asking them. Only do this when you know the address is theirs: single sign-on identities with the same verified email can link to the account.
+- **Deactivate, reactivate, or delete** the account.
+
+Emails need [SMTP](/core/installation/environment-variables#smtp-configuration) to be configured. Without it, Kaneo tells you nothing was sent.
+
+If [the identity provider manages profile pictures](/core/social-providers/custom-oauth#managed-profile-fields), you can't replace a user's picture, and you can only remove one they uploaded in Kaneo.
 
 Deleting someone who is the only owner of a workspace that still has other members is blocked. Transfer that workspace's ownership first, as described below.
+
+### Create a user
+
+Choose **Create user** and enter their name, email, and instance role. You never choose or see their password:
+
+- **Password sign-in available:** Kaneo emails them a link to set their own password. The link works once and expires in 2 days. If it expires, or SMTP wasn't configured yet, send a new one with **Send password reset link**.
+- **`DISABLE_PASSWORD_REGISTRATION` or `DISABLE_LOGIN_FORM` set:** the account is created for single sign-on. No email is sent, and the email is marked verified so their first sign-in through GitHub, Google, Discord, or your OIDC provider with that address links to it.
+
+Administrators can create users even when `DISABLE_REGISTRATION` closes self-service sign-up. An email that already belongs to an account is rejected. On Kaneo Cloud, disposable email addresses are rejected as they are for sign-up.
 
 ## Manage workspaces
 
@@ -33,7 +54,7 @@ Open **Settings → Administration → Audit log** to see what administrators ch
 
 Kaneo records these actions when they succeed. Rejected or failed attempts aren't recorded.
 
-- **Users:** created, details updated (which fields changed), instance role changed, deactivated, reactivated, deleted, password set by an administrator, and signed in as the user (impersonation).
+- **Users:** created, details updated (which fields changed), instance role changed, deactivated, reactivated, deleted, password set by an administrator, password reset link sent, verification email sent, email marked verified, profile picture changed or removed, and signed in as the user (impersonation).
 - **Sessions:** one session or all of a user's sessions revoked.
 - **Workspaces:** member added, member removed, member role changed, and ownership transferred.
 
@@ -44,3 +65,7 @@ Entries never contain passwords, session tokens, password reset links, or API ke
 Kaneo keeps audit log entries until you remove them; there's no automatic retention. To prune old entries, delete rows from the `admin_audit_log` table in PostgreSQL, for example `DELETE FROM admin_audit_log WHERE created_at < (now() AT TIME ZONE 'utc') - interval '1 year';`.
 
 Only instance administrators signed in with a session can read the audit log, in the app or through `GET /api/admin/audit-log`. API keys are rejected.
+
+## API
+
+The user management actions are also available to instance administrators signed in with a session under `/api/admin/users`, for example `POST /api/admin/users` to create a user. API keys are rejected. See the API reference for every endpoint.
