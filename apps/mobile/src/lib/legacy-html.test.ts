@@ -19,6 +19,16 @@ describe("legacy HTML descriptions", () => {
     ).toBe("Hello **bold** and _soft_ & `x < y`\n\nNext  \nline");
   });
 
+  it("keeps Markdown characters in text literal", () => {
+    expect(
+      legacyHtmlToMarkdown(
+        "<p>Use *literal* markers, [draft](notes) and <code>a*b</code></p><p>1. not a list</p>",
+      ),
+    ).toBe(
+      "Use \\*literal\\* markers, \\[draft\\](notes) and `a*b`\n\n1\\. not a list",
+    );
+  });
+
   it("converts editor task lists with their checked state", () => {
     const html =
       '<ul class="not-prose pl-2" data-type="taskList"><li class="flex gap-2 items-start" data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Move the instances.json</p></div></li><li data-checked="true" data-type="taskItem"><label><input type="checkbox" checked="checked"><span></span></label><div><p>Use a $schema</p></div></li></ul>';

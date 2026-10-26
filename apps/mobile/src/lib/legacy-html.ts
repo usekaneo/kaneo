@@ -42,6 +42,13 @@ function decode(text: string): string {
   );
 }
 
+/** Keeps text literal, as the web shows it, instead of letting it read as Markdown. */
+function escapeText(text: string): string {
+  return text
+    .replace(/[\\`*_[\]<>#~|+-]/g, "\\$&")
+    .replace(/(\d)([.)])/g, "$1\\$2");
+}
+
 function attr(raw: string, name: string): string | undefined {
   const match = new RegExp(
     `\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`,
@@ -95,13 +102,16 @@ export function legacyHtmlToMarkdown(html: string): string {
     top().out += text;
   };
   let pre = 0;
+  let code = false;
 
   for (const token of html.split(tagToken)) {
     const tag = tagParts.exec(token);
     if (!tag) {
       if (pre) emit(decode(token));
-      else if (token.trim()) emit(decode(token.replace(/\s+/g, " ")));
-      else if (token && !/\s$/.test(top().out)) emit(" ");
+      else if (token.trim()) {
+        const text = decode(token.replace(/\s+/g, " "));
+        emit(code ? text : escapeText(text));
+      } else if (token && !/\s$/.test(top().out)) emit(" ");
       continue;
     }
 
@@ -122,7 +132,9 @@ export function legacyHtmlToMarkdown(html: string): string {
     } else if (marks[name]) {
       emit(marks[name]);
     } else if (name === "code") {
-      if (!pre) emit("`");
+      if (pre) continue;
+      code = !closing;
+      emit("`");
     } else if (name === "pre") {
       pre = Math.max(0, pre + (closing ? -1 : 1));
       emit(closing ? "\n```\n\n" : "```\n");

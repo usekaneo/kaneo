@@ -68,6 +68,7 @@ export function toDisplayMarkdown(markdown: string, serverUrl: string): string {
 export function toPlainText(markdown?: string | null): string {
   if (!markdown) return "";
   return toDisplayMarkdown(markdown, "")
+    .replace(/\\([!-/:-@[-`{-~])/g, "$1")
     .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/<[^>]+>/g, "")
