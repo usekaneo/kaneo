@@ -102,6 +102,34 @@ export const LABEL_COLORS = [
     },
     color: "#E7000B",
   },
+  {
+    value: "blue",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.ocean");
+    },
+    color: "#155DFC",
+  },
+  {
+    value: "sky",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.sky");
+    },
+    color: "#00A6F4",
+  },
+  {
+    value: "cyan",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.lagoon");
+    },
+    color: "#0092B8",
+  },
+  {
+    value: "fuchsia",
+    get label() {
+      return i18n.t("mobile:meta.labelColor.orchid");
+    },
+    color: "#C800DE",
+  },
 ] as const;
 
 export function labelColor(value?: string | null): string {

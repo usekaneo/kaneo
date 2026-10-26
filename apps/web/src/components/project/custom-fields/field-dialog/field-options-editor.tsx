@@ -4,20 +4,24 @@ import { SortableList } from "@/components/project/sortable/sortable-list";
 
 type FieldOptionsEditorProps = {
   options: string[];
+  hiddenOptions: string[];
   labelledBy: string;
   onAdd: (option: string) => void;
   onRename: (from: string, to: string) => boolean;
   onRemove: (option: string) => void;
   onMove: (from: number, to: number) => void;
+  onToggleHidden?: (option: string) => void;
 };
 
 export function FieldOptionsEditor({
   options,
+  hiddenOptions,
   labelledBy,
   onAdd,
   onRename,
   onRemove,
   onMove,
+  onToggleHidden,
 }: FieldOptionsEditorProps) {
   return (
     <div
@@ -30,8 +34,12 @@ export function FieldOptionsEditor({
           <FieldOptionRow
             key={option}
             option={option}
+            hidden={hiddenOptions.includes(option)}
             onRename={(to) => onRename(option, to)}
             onRemove={() => onRemove(option)}
+            onToggleHidden={
+              onToggleHidden ? () => onToggleHidden(option) : undefined
+            }
           />
         ))}
       </SortableList>

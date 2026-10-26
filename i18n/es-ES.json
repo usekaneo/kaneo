@@ -122,7 +122,6 @@
 				"startDate": "Fecha de inicio",
 				"dueDate": "Fecha de vencimiento",
 				"clearStartDate": "Borrar fecha de inicio",
-				"clearDueDate": "Borrar fecha de vencimiento",
 				"assign": "Asignar",
 				"assignUnassigned": "Sin asignar",
 				"assignUnassignedTitle": "Sin asignar",
@@ -148,7 +147,11 @@
 					"amber": "Ámbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesí"
+					"crimson": "Carmesí",
+					"lagoon": "Laguna",
+					"ocean": "Océano",
+					"orchid": "Orquídea",
+					"sky": "Cielo"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -633,6 +636,10 @@
 			"board": "Tablero",
 			"list": "Lista",
 			"gantt": "Gantt",
+			"priorityIcons": "Iconos de prioridad",
+			"priorityIconsDescription": "Cómo se ve la prioridad de las tareas en tarjetas, filas y menús.",
+			"priorityIconsMarks": "Marcas",
+			"priorityIconsClassic": "Clásicos",
 			"sidebarDefault": "Mantener la barra lateral abierta",
 			"sidebarDefaultDescription": "Empezar con la barra lateral desplegada.",
 			"displayOptions": "Detalles de las tareas",
@@ -645,6 +652,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Muestra la imagen que un proyecto pone detrás de su tablero.",
 			"advancedTitle": "Avanzado"
+		},
+		"managedProfile": {
+			"note": "Gestionado por tu organización.",
+			"edit": "Editar en {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Claves de API",
@@ -1573,6 +1584,8 @@
 			"noDefault": "Sin valor por defecto",
 			"optionsLabel": "Opciones",
 			"removeOptionAria": "Quitar {{option}}",
+			"hideOptionAria": "Ocultar {{option}} en nuevas selecciones",
+			"showOptionAria": "Volver a ofrecer {{option}} en nuevas selecciones",
 			"renameOptionAria": "Renombrar {{option}}",
 			"requiredDescription": "Todas las tareas tienen siempre un valor.",
 			"save": "Guardar",
@@ -3019,6 +3032,37 @@
 				"updateError": "Error al actualizar la fehca de vencimiento de la tarea",
 				"clear": "Eliminar fecha"
 			},
+			"recurrence": {
+				"toggle": "Repetir",
+				"repeats": "Se repite",
+				"pattern": {
+					"daily": "Diariamente",
+					"weekly": "Semanalmente",
+					"monthly": "Mensualmente",
+					"yearly": "Anualmente",
+					"periodically": "Periódicamente"
+				},
+				"every": "Cada",
+				"interval": "Intervalo",
+				"unit": {
+					"label": "Unidad",
+					"days_many": "días",
+					"days_one": "día",
+					"days_other": "días",
+					"weeks_many": "semanas",
+					"weeks_one": "semana",
+					"weeks_other": "semanas",
+					"months_many": "meses",
+					"months_one": "mes",
+					"months_other": "meses",
+					"years_many": "años",
+					"years_one": "año",
+					"years_other": "años"
+				},
+				"onDays": "Estos días",
+				"hint": "Al completar esta tarea, se crea la siguiente.",
+				"updateError": "No se pudo actualizar la repetición de la tarea"
+			},
 			"startDate": {
 				"updateError": "Error al actualizar la fecha de inicio de la tarea",
 				"clear": "Eliminar fecha de inicio"
@@ -3040,7 +3084,11 @@
 					"amber": "Ámbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesí"
+					"crimson": "Carmesí",
+					"lagoon": "Laguna",
+					"ocean": "Océano",
+					"orchid": "Orquídea",
+					"sky": "Cielo"
 				},
 				"editLabels": "Editar etiquetas"
 			}
@@ -3167,6 +3215,21 @@
 			"clear": "Eliminar fecha",
 			"updateError": "Error al actualizar fecha de vencimiento",
 			"clearError": "Error al eliminar fecha de vencimiento"
+		},
+		"recurrence": {
+			"daily_many": "Cada {{count}} días",
+			"daily_one": "Cada día",
+			"daily_other": "Cada {{count}} días",
+			"weekly_many": "Cada {{count}} semanas",
+			"weekly_one": "Cada semana",
+			"weekly_other": "Cada {{count}} semanas",
+			"monthly_many": "Cada {{count}} meses",
+			"monthly_one": "Cada mes",
+			"monthly_other": "Cada {{count}} meses",
+			"yearly_many": "Cada {{count}} años",
+			"yearly_one": "Cada año",
+			"yearly_other": "Cada {{count}} años",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"labels": {
 			"empty": "No hay etiquetas disponibles"
@@ -4449,7 +4512,11 @@
 				"amber": "Ámbar",
 				"terracotta": "Terracota",
 				"rose": "Rosa",
-				"crimson": "Carmesí"
+				"crimson": "Carmesí",
+				"ocean": "Océano",
+				"sky": "Cielo",
+				"lagoon": "Laguna",
+				"orchid": "Orquídea"
 			},
 			"role": {
 				"owner": "Propietario",

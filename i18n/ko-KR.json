@@ -122,7 +122,6 @@
 				"startDate": "시작일",
 				"dueDate": "마감일",
 				"clearStartDate": "시작일 지우기",
-				"clearDueDate": "마감일 지우기",
 				"assign": "할당",
 				"assignUnassigned": "미할당",
 				"assignUnassignedTitle": "미할당",
@@ -148,7 +147,11 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"lagoon": "라군",
+					"ocean": "오션",
+					"orchid": "오키드",
+					"sky": "스카이"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -742,6 +745,10 @@
 			"board": "보드",
 			"list": "목록",
 			"gantt": "간트",
+			"priorityIcons": "우선순위 아이콘",
+			"priorityIconsDescription": "카드, 행, 메뉴에서 작업 우선순위가 표시되는 방식입니다.",
+			"priorityIconsMarks": "마크",
+			"priorityIconsClassic": "클래식",
 			"sidebarDefault": "사이드바 열어 두기",
 			"sidebarDefaultDescription": "사이드바를 펼친 상태로 시작합니다.",
 			"displayOptions": "작업 세부 정보",
@@ -754,6 +761,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "프로젝트에서 보드 배경으로 설정한 이미지를 표시합니다.",
 			"advancedTitle": "고급"
+		},
+		"managedProfile": {
+			"note": "조직에서 관리합니다.",
+			"edit": "{{provider}}에서 편집"
 		},
 		"developerPage": {
 			"pageTitle": "API 키",
@@ -1555,6 +1566,8 @@
 			"noDefault": "기본값 없음",
 			"optionsLabel": "옵션",
 			"removeOptionAria": "{{option}} 제거",
+			"hideOptionAria": "새 선택에서 {{option}} 숨기기",
+			"showOptionAria": "새 선택에 {{option}} 다시 표시",
 			"renameOptionAria": "{{option}} 이름 변경",
 			"requiredDescription": "모든 작업에 항상 값이 있습니다.",
 			"save": "저장",
@@ -2957,9 +2970,36 @@
 					"amber": "앰버",
 					"terracotta": "테라코타",
 					"rose": "로즈",
-					"crimson": "크림슨"
+					"crimson": "크림슨",
+					"lagoon": "라군",
+					"ocean": "오션",
+					"orchid": "오키드",
+					"sky": "스카이"
 				},
 				"editLabels": "라벨 편집"
+			},
+			"recurrence": {
+				"updateError": "작업 반복 업데이트에 실패했습니다",
+				"every": "간격",
+				"hint": "이 작업을 완료하면 다음 작업이 생성됩니다.",
+				"interval": "간격",
+				"onDays": "반복 요일",
+				"pattern": {
+					"daily": "매일",
+					"monthly": "매월",
+					"periodically": "주기적으로",
+					"weekly": "매주",
+					"yearly": "매년"
+				},
+				"repeats": "반복",
+				"toggle": "반복",
+				"unit": {
+					"days_other": "일마다",
+					"label": "단위",
+					"months_other": "개월마다",
+					"weeks_other": "주마다",
+					"years_other": "년마다"
+				}
 			}
 		},
 		"backlog": {
@@ -3185,6 +3225,13 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Space를 눌러 미리 보고 Enter를 눌러 이 작업을 엽니다. Alt 또는 Option과 화살표 키로 이동할 수 있습니다."
+		},
+		"recurrence": {
+			"daily_other": "{{count}}일마다",
+			"monthly_other": "{{count}}개월마다",
+			"weekly_other": "{{count}}주마다",
+			"yearly_other": "{{count}}년마다",
+			"onDays": "{{rule}} {{days}}"
 		},
 		"toolbar": {
 			"search": "작업 검색",
@@ -4020,9 +4067,13 @@
 				"amber": "앰버",
 				"crimson": "크림슨",
 				"forest": "포레스트",
+				"lagoon": "라군",
 				"lavender": "라벤더",
+				"ocean": "오션",
+				"orchid": "오키드",
 				"rose": "로즈",
 				"sage": "세이지",
+				"sky": "스카이",
 				"slate": "슬레이트",
 				"stone": "스톤",
 				"terracotta": "테라코타"

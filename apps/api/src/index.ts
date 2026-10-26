@@ -21,6 +21,11 @@ import admin from "./admin";
 import { auth } from "./auth";
 import { forwardAuthRequest } from "./utils/forward-auth-request";
 import { organizationRoutes } from "./auth-openapi";
+import {
+  handleBackchannelLogoutRoute,
+  MAX_LOGOUT_REQUEST_BYTES,
+  noStore,
+} from "./backchannel-logout";
 import billing from "./billing";
 import calendarFeed, { publicCalendarFeed } from "./calendar-feed";
 import column from "./column";
@@ -89,8 +94,10 @@ import {
   authorizeAssetAccess,
   isPublicAsset,
 } from "./utils/authorize-asset-access";
+import { boundedRequestBody } from "./utils/bounded-request-body";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { clientIpMiddleware } from "./utils/client-ip";
+import { runCustomOAuthCallback } from "./utils/custom-oauth-sign-in";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
@@ -445,6 +452,13 @@ export function createApp() {
     handleGitlabWebhookRoute,
   );
 
+  api.post(
+    "/auth/oauth2/backchannel-logout/custom",
+    noStore,
+    boundedRequestBody(MAX_LOGOUT_REQUEST_BYTES),
+    handleBackchannelLogoutRoute,
+  );
+
   const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
     const { id } = c.req.param();
     const result = await getInvitationDetails(id);
@@ -466,6 +480,11 @@ export function createApp() {
       ),
     );
   });
+
+  // Lets the sign-in refresh in auth.ts read the claims the provider sent.
+  api.use("/auth/oauth2/callback/custom", (_c, next) =>
+    runCustomOAuthCallback(next),
+  );
 
   api.openapi(
     createRoute({
@@ -856,12 +875,13 @@ export function createApp() {
       assertWebSocketOrigin(c.req.raw.headers);
 
       const userId = c.get("userId");
+      const sessionId = c.get("session")?.id ?? null;
       let conn: ReturnType<typeof addUserConnection> | null = null;
 
       return {
         onOpen(_evt, ws) {
           if (userId) {
-            conn = addUserConnection(userId, ws);
+            conn = addUserConnection(userId, ws, sessionId);
             void syncWorkspaceAccess(userId, ws);
           }
         },
@@ -909,6 +929,7 @@ export function createApp() {
 
       const windowId = c.req.query("windowId");
       const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+      const sessionId = c.get("session")?.id ?? null;
       let conn: ReturnType<typeof addConnection> | null = null;
 
       return {
@@ -921,6 +942,7 @@ export function createApp() {
               initiatorId,
               workspaceId,
               c.get("apiKey")?.id,
+              sessionId,
             );
           }
         },

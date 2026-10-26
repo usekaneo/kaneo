@@ -234,6 +234,16 @@
             ],
             "format": "date-time"
           },
+          "recurrence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskRecurrence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "position": {
             "type": [
               "number",
@@ -311,6 +321,7 @@
           "priority",
           "startDate",
           "dueDate",
+          "recurrence",
           "position",
           "createdAt",
           "userId",
@@ -322,6 +333,47 @@
           "labels",
           "externalLinks"
         ]
+      },
+      "TaskRecurrence": {
+        "type": "object",
+        "properties": {
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly",
+              "yearly"
+            ]
+          },
+          "interval": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 99,
+            "description": "Repeat every this many days, weeks, months, or years."
+          },
+          "weekdays": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "minItems": 1,
+            "maxItems": 7,
+            "description": "Weekly rules only: the days to repeat on, 0 for Sunday to 6 for Saturday. Without them, a weekly rule repeats on the due date's weekday."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA time zone used to keep the next due date on the same local day and time."
+          }
+        },
+        "required": [
+          "frequency",
+          "interval",
+          "timeZone"
+        ],
+        "description": "When a task with this rule moves into a final column, the next task is created with its dates moved forward by one interval from the completed task's due date."
       },
       "TaskLabel": {
         "type": "object",
@@ -606,6 +658,25 @@
               "null"
             ]
           },
+          "customOAuthManagedProfileFields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "name",
+                "image",
+                "locale"
+              ]
+            },
+            "description": "Profile fields the custom OAuth/OIDC provider manages for people with a linked provider account."
+          },
+          "customOAuthAccountUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Account page of the custom OAuth/OIDC provider, where people change managed profile fields. Null when not configured."
+          },
           "billingEnabled": {
             "type": "boolean"
           }
@@ -628,6 +699,8 @@
           "customOAuthName",
           "customOAuthAutoLogin",
           "customOAuthLogoutUrl",
+          "customOAuthManagedProfileFields",
+          "customOAuthAccountUrl",
           "billingEnabled"
         ]
       },
@@ -1228,6 +1301,16 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "recurrence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskRecurrence"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -4576,6 +4659,13 @@
             ]
           },
           "options": {},
+          "hiddenOptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Options no longer offered for new selections. Tasks that already use them keep them."
+          },
           "position": {
             "type": "number"
           },
@@ -4595,6 +4685,7 @@
           "type",
           "required",
           "defaultValue",
+          "hiddenOptions",
           "position",
           "createdAt",
           "updatedAt"
@@ -5175,6 +5266,18 @@
               "string",
               "null"
             ]
+          },
+          "managedProfileFields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "name",
+                "image",
+                "locale"
+              ]
+            },
+            "description": "Profile fields the custom OAuth/OIDC provider manages for this user. Kaneo updates them at sign-in and refuses changes to them."
           }
         },
         "required": [
@@ -5182,7 +5285,8 @@
           "name",
           "email",
           "image",
-          "role"
+          "role",
+          "managedProfileFields"
         ]
       },
       "UserAvatar": {
@@ -11293,6 +11397,16 @@
                     "type": "string",
                     "description": "Assignee, if any."
                   },
+                  "recurrence": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/TaskRecurrence"
+                      },
+                      {
+                        "description": "Omit to create a task that does not repeat."
+                      }
+                    ]
+                  },
                   "draftAssetIds": {
                     "type": "array",
                     "items": {
@@ -11341,7 +11455,7 @@
             }
           },
           "400": {
-            "description": "Invalid body",
+            "description": "Invalid body, or a repeating task in a final column",
             "content": {
               "application/json": {
                 "schema": {
@@ -12559,6 +12673,117 @@
           },
           "404": {
             "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/recurrence/{id}": {
+      "put": {
+        "operationId": "updateTaskRecurrence",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Update task recurrence",
+        "description": "Make a task repeat, or stop it repeating. Setting a rule requires task:update and task:create; clearing it requires task:update. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "recurrence": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/TaskRecurrence"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Null stops the task from repeating."
+                  }
+                },
+                "required": [
+                  "recurrence"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid recurrence rule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project, missing task:update, or missing task:create when setting a rule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The task is completed and no longer holds a rule; reopen it first",
             "content": {
               "application/json": {
                 "schema": {
@@ -22962,6 +23187,13 @@
                       "type": "string"
                     },
                     "description": "The full option list for dropdown and multiselect fields, in display order. Adding and reordering options is always allowed. Removing or renaming an option that a task still uses is rejected with 400, so task values are never changed silently."
+                  },
+                  "hiddenOptions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Options to retire without removing them: tasks keep their existing selections, but hidden options can't be picked anew or used as the default. Must be a subset of `options`. Omit to keep the current hidden options that are still options."
                   }
                 }
               }
@@ -23599,6 +23831,16 @@
               }
             }
           },
+          "403": {
+            "description": "The custom OAuth/OIDC provider manages the profile picture",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
           "408": {
             "description": "Request body timed out",
             "content": {
@@ -23644,6 +23886,16 @@
           },
           "401": {
             "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The custom OAuth/OIDC provider manages the profile picture",
             "content": {
               "application/json": {
                 "schema": {

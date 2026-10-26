@@ -122,7 +122,6 @@
 				"startDate": "Data de início",
 				"dueDate": "Data de vencimento",
 				"clearStartDate": "Limpar data de início",
-				"clearDueDate": "Limpar data de vencimento",
 				"assign": "Atribuir",
 				"assignUnassigned": "Não atribuído",
 				"assignUnassignedTitle": "Não atribuído",
@@ -148,7 +147,11 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -758,6 +761,10 @@
 			"board": "Quadro",
 			"list": "Lista",
 			"gantt": "Gantt",
+			"priorityIcons": "Ícones de prioridade",
+			"priorityIconsDescription": "Como a prioridade das tarefas aparece em cartões, linhas e menus.",
+			"priorityIconsMarks": "Marcas",
+			"priorityIconsClassic": "Clássicos",
 			"sidebarDefault": "Manter a barra lateral aberta",
 			"sidebarDefaultDescription": "Começar com a barra lateral expandida.",
 			"displayOptions": "Detalhes da tarefa",
@@ -770,6 +777,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Mostrar a imagem que um projeto define atrás do quadro.",
 			"advancedTitle": "Avançado"
+		},
+		"managedProfile": {
+			"note": "Gerenciado pela sua organização.",
+			"edit": "Editar em {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Chaves de API",
@@ -1573,6 +1584,8 @@
 			"noDefault": "Sem padrão",
 			"optionsLabel": "Opções",
 			"removeOptionAria": "Remover {{option}}",
+			"hideOptionAria": "Ocultar {{option}} das novas seleções",
+			"showOptionAria": "Oferecer {{option}} novamente nas novas seleções",
 			"renameOptionAria": "Renomear {{option}}",
 			"requiredDescription": "Toda tarefa sempre tem um valor.",
 			"save": "Salvar",
@@ -3051,9 +3064,44 @@
 					"amber": "Âmbar",
 					"terracotta": "Terracota",
 					"rose": "Rosa",
-					"crimson": "Carmesim"
+					"crimson": "Carmesim",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orquídea",
+					"sky": "Céu"
 				},
 				"editLabels": "Editar etiquetas"
+			},
+			"recurrence": {
+				"updateError": "Falha ao atualizar a repetição da tarefa",
+				"every": "A cada",
+				"hint": "Quando esta tarefa for concluída, a próxima será criada.",
+				"interval": "Intervalo",
+				"onDays": "Nestes dias",
+				"pattern": {
+					"daily": "Diariamente",
+					"monthly": "Mensalmente",
+					"periodically": "Periodicamente",
+					"weekly": "Semanalmente",
+					"yearly": "Anualmente"
+				},
+				"repeats": "Repete",
+				"toggle": "Repetir",
+				"unit": {
+					"days_many": "dias",
+					"days_one": "dia",
+					"days_other": "dias",
+					"label": "Unidade",
+					"months_many": "meses",
+					"months_one": "mês",
+					"months_other": "meses",
+					"weeks_many": "semanas",
+					"weeks_one": "semana",
+					"weeks_other": "semanas",
+					"years_many": "anos",
+					"years_one": "ano",
+					"years_other": "anos"
+				}
 			}
 		},
 		"backlog": {
@@ -3289,6 +3337,21 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Pressione Espaço para pré-visualizar e Enter para abrir esta tarefa. Use Alt ou Option com as setas para movê-la."
+		},
+		"recurrence": {
+			"daily_many": "A cada {{count}} dias",
+			"daily_one": "Todos os dias",
+			"daily_other": "A cada {{count}} dias",
+			"monthly_many": "A cada {{count}} meses",
+			"monthly_one": "Todo mês",
+			"monthly_other": "A cada {{count}} meses",
+			"weekly_many": "A cada {{count}} semanas",
+			"weekly_one": "Toda semana",
+			"weekly_other": "A cada {{count}} semanas",
+			"yearly_many": "A cada {{count}} anos",
+			"yearly_one": "Todo ano",
+			"yearly_other": "A cada {{count}} anos",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"toolbar": {
 			"search": "Buscar tarefas",
@@ -4154,9 +4217,13 @@
 				"amber": "Âmbar",
 				"crimson": "Carmesim",
 				"forest": "Floresta",
+				"lagoon": "Laguna",
 				"lavender": "Lavanda",
+				"ocean": "Oceano",
+				"orchid": "Orquídea",
 				"rose": "Rosa",
 				"sage": "Sálvia",
+				"sky": "Céu",
 				"slate": "Ardósia",
 				"stone": "Pedra",
 				"terracotta": "Terracota"

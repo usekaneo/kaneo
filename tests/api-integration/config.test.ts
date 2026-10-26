@@ -66,4 +66,25 @@ describe("API integration: config", () => {
       "Authentik",
     );
   });
+
+  it("reports no managed profile fields and no account page by default", async () => {
+    const response = await createApp().app.request("/api/config");
+    expect(await response.json()).toMatchObject({
+      customOAuthManagedProfileFields: [],
+      customOAuthAccountUrl: null,
+    });
+  });
+
+  it("reports the managed profile fields and the provider account page", async () => {
+    vi.stubEnv("CUSTOM_OAUTH_MANAGED_PROFILE_FIELDS", " Locale,name ");
+    vi.stubEnv(
+      "CUSTOM_OAUTH_ACCOUNT_URL",
+      "https://keycloak.example.com/realms/acme/account",
+    );
+    const response = await createApp().app.request("/api/config");
+    expect(await response.json()).toMatchObject({
+      customOAuthManagedProfileFields: ["name", "locale"],
+      customOAuthAccountUrl: "https://keycloak.example.com/realms/acme/account",
+    });
+  });
 });

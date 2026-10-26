@@ -122,7 +122,6 @@
 				"startDate": "Startdatum",
 				"dueDate": "Fälligkeitsdatum",
 				"clearStartDate": "Startdatum entfernen",
-				"clearDueDate": "Fälligkeitsdatum entfernen",
 				"assign": "Zuweisen",
 				"assignUnassigned": "Nicht zugewiesen",
 				"assignUnassignedTitle": "Nicht zugewiesen",
@@ -148,7 +147,11 @@
 					"amber": "Bernstein",
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
-					"crimson": "Karmesinrot"
+					"crimson": "Karmesinrot",
+					"lagoon": "Lagune",
+					"ocean": "Ozean",
+					"orchid": "Orchidee",
+					"sky": "Himmel"
 				},
 				"statusLoadError": "Die Projektstatus konnten nicht geladen werden."
 			}
@@ -827,6 +830,10 @@
 			"board": "Board",
 			"list": "Liste",
 			"gantt": "Gantt",
+			"priorityIcons": "Prioritätssymbole",
+			"priorityIconsDescription": "Wie die Aufgabenpriorität auf Karten, Zeilen und in Menüs aussieht.",
+			"priorityIconsMarks": "Striche",
+			"priorityIconsClassic": "Klassisch",
 			"sidebarDefault": "Seitenleiste geöffnet lassen",
 			"sidebarDefaultDescription": "Mit ausgeklappter Seitenleiste starten.",
 			"displayOptions": "Aufgabendetails",
@@ -839,6 +846,10 @@
 			"projectBackgrounds": "Projekthintergründe",
 			"projectBackgroundsDescription": "Das Hintergrundbild eines Projekts hinter seinem Board anzeigen.",
 			"advancedTitle": "Erweitert"
+		},
+		"managedProfile": {
+			"note": "Von deiner Organisation verwaltet.",
+			"edit": "In {{provider}} bearbeiten"
 		},
 		"developerPage": {
 			"pageTitle": "API-Schlüssel",
@@ -1641,6 +1652,8 @@
 			"noDefault": "Kein Standardwert",
 			"optionsLabel": "Optionen",
 			"removeOptionAria": "{{option}} entfernen",
+			"hideOptionAria": "{{option}} für neue Auswahlen ausblenden",
+			"showOptionAria": "{{option}} wieder für neue Auswahlen anbieten",
 			"renameOptionAria": "{{option}} umbenennen",
 			"requiredDescription": "Jede Aufgabe hat immer einen Wert.",
 			"save": "Speichern",
@@ -3004,9 +3017,40 @@
 					"amber": "Bernstein",
 					"terracotta": "Terrakotta",
 					"rose": "Rosa",
-					"crimson": "Karmesinrot"
+					"crimson": "Karmesinrot",
+					"lagoon": "Lagune",
+					"ocean": "Ozean",
+					"orchid": "Orchidee",
+					"sky": "Himmel"
 				},
 				"editLabels": "Labels bearbeiten"
+			},
+			"recurrence": {
+				"updateError": "Wiederholung konnte nicht aktualisiert werden",
+				"every": "Alle",
+				"hint": "Wenn diese Aufgabe erledigt ist, wird die nächste erstellt.",
+				"interval": "Intervall",
+				"onDays": "An diesen Tagen",
+				"pattern": {
+					"daily": "Täglich",
+					"monthly": "Monatlich",
+					"periodically": "Periodisch",
+					"weekly": "Wöchentlich",
+					"yearly": "Jährlich"
+				},
+				"repeats": "Wiederholung",
+				"toggle": "Wiederholen",
+				"unit": {
+					"days_one": "Tag",
+					"days_other": "Tage",
+					"label": "Einheit",
+					"months_one": "Monat",
+					"months_other": "Monate",
+					"weeks_one": "Woche",
+					"weeks_other": "Wochen",
+					"years_one": "Jahr",
+					"years_other": "Jahre"
+				}
 			}
 		},
 		"backlog": {
@@ -3237,6 +3281,17 @@
 		"board": {
 			"reorderFailed": "Die Reihenfolge konnte nicht gespeichert werden.",
 			"keyboardInstructions": "Drücke die Leertaste für die Vorschau und Enter, um diese Aufgabe zu öffnen. Mit Alt oder Option und den Pfeiltasten verschiebst du sie."
+		},
+		"recurrence": {
+			"daily_one": "Jeden Tag",
+			"daily_other": "Alle {{count}} Tage",
+			"monthly_one": "Jeden Monat",
+			"monthly_other": "Alle {{count}} Monate",
+			"weekly_one": "Jede Woche",
+			"weekly_other": "Alle {{count}} Wochen",
+			"yearly_one": "Jedes Jahr",
+			"yearly_other": "Alle {{count}} Jahre",
+			"onDays": "{{rule}} am {{days}}"
 		},
 		"toolbar": {
 			"search": "Aufgaben suchen",
@@ -4374,7 +4429,11 @@
 				"amber": "Bernstein",
 				"terracotta": "Terrakotta",
 				"rose": "Rosé",
-				"crimson": "Karmesin"
+				"crimson": "Karmesin",
+				"ocean": "Ozean",
+				"sky": "Himmel",
+				"lagoon": "Lagune",
+				"orchid": "Orchidee"
 			},
 			"role": {
 				"owner": "Eigentümer",

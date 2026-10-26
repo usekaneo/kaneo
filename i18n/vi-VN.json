@@ -122,7 +122,6 @@
 				"startDate": "Ngày bắt đầu",
 				"dueDate": "Ngày đến hạn",
 				"clearStartDate": "Xóa ngày bắt đầu",
-				"clearDueDate": "Xóa ngày đến hạn",
 				"assign": "Giao việc",
 				"assignUnassigned": "Chưa giao",
 				"assignUnassignedTitle": "Chưa giao",
@@ -148,7 +147,11 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"lagoon": "Xanh ngọc",
+					"ocean": "Xanh đại dương",
+					"orchid": "Tím phong lan",
+					"sky": "Xanh da trời"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -742,6 +745,10 @@
 			"board": "Bảng",
 			"list": "Danh sách",
 			"gantt": "Gantt",
+			"priorityIcons": "Biểu tượng ưu tiên",
+			"priorityIconsDescription": "Cách hiển thị mức ưu tiên của công việc trên thẻ, hàng và menu.",
+			"priorityIconsMarks": "Dấu",
+			"priorityIconsClassic": "Cổ điển",
 			"sidebarDefault": "Giữ thanh bên mở",
 			"sidebarDefaultDescription": "Bắt đầu với thanh bên được mở rộng.",
 			"displayOptions": "Chi tiết công việc",
@@ -754,6 +761,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Hiển thị hình ảnh mà dự án đặt làm nền bảng.",
 			"advancedTitle": "Nâng cao"
+		},
+		"managedProfile": {
+			"note": "Được quản lý bởi tổ chức của bạn.",
+			"edit": "Chỉnh sửa trong {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Khóa API",
@@ -1555,6 +1566,8 @@
 			"noDefault": "Không có mặc định",
 			"optionsLabel": "Tùy chọn",
 			"removeOptionAria": "Gỡ {{option}}",
+			"hideOptionAria": "Ẩn {{option}} khỏi lựa chọn mới",
+			"showOptionAria": "Hiển thị lại {{option}} cho lựa chọn mới",
 			"renameOptionAria": "Đổi tên {{option}}",
 			"requiredDescription": "Mọi công việc luôn có giá trị.",
 			"save": "Lưu",
@@ -2957,9 +2970,36 @@
 					"amber": "Hổ phách",
 					"terracotta": "Đất nung",
 					"rose": "Hồng",
-					"crimson": "Đỏ thẫm"
+					"crimson": "Đỏ thẫm",
+					"lagoon": "Xanh ngọc",
+					"ocean": "Xanh đại dương",
+					"orchid": "Tím phong lan",
+					"sky": "Xanh da trời"
 				},
 				"editLabels": "Chỉnh sửa nhãn"
+			},
+			"recurrence": {
+				"updateError": "Không thể cập nhật lặp lại công việc",
+				"every": "Mỗi",
+				"hint": "Khi công việc này hoàn thành, công việc tiếp theo sẽ được tạo.",
+				"interval": "Khoảng cách",
+				"onDays": "Vào các ngày",
+				"pattern": {
+					"daily": "Hằng ngày",
+					"monthly": "Hằng tháng",
+					"periodically": "Định kỳ",
+					"weekly": "Hằng tuần",
+					"yearly": "Hằng năm"
+				},
+				"repeats": "Lặp lại",
+				"toggle": "Lặp lại",
+				"unit": {
+					"days_other": "ngày",
+					"label": "Đơn vị",
+					"months_other": "tháng",
+					"weeks_other": "tuần",
+					"years_other": "năm"
+				}
 			}
 		},
 		"backlog": {
@@ -3185,6 +3225,13 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Nhấn Space để xem trước và Enter để mở công việc này. Dùng Alt hoặc Option với phím mũi tên để di chuyển."
+		},
+		"recurrence": {
+			"daily_other": "Mỗi {{count}} ngày",
+			"monthly_other": "Mỗi {{count}} tháng",
+			"weekly_other": "Mỗi {{count}} tuần",
+			"yearly_other": "Mỗi {{count}} năm",
+			"onDays": "{{rule}} vào {{days}}"
 		},
 		"toolbar": {
 			"search": "Tìm công việc",
@@ -4299,7 +4346,11 @@
 				"amber": "Hổ phách",
 				"terracotta": "Đất nung",
 				"rose": "Hồng",
-				"crimson": "Đỏ thẫm"
+				"crimson": "Đỏ thẫm",
+				"ocean": "Xanh đại dương",
+				"sky": "Xanh da trời",
+				"lagoon": "Xanh ngọc",
+				"orchid": "Tím phong lan"
 			},
 			"role": {
 				"owner": "Chủ sở hữu",

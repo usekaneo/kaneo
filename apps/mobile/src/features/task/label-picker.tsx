@@ -144,6 +144,7 @@ function LabelPickerBody({
               style={{
                 flexDirection: "row",
                 alignItems: "center",
+                flexWrap: "wrap",
                 gap: 8,
                 paddingHorizontal: 12,
                 paddingTop: 12,

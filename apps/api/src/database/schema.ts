@@ -15,6 +15,7 @@ import {
 } from "drizzle-orm/pg-core";
 import type { GitHubImportState } from "../github-integration/import-state";
 import type { ImportRunProject } from "../import/import-run-project";
+import type { TaskRecurrence } from "../task/recurrence/schema";
 
 // Timestamp columns without a time zone hold UTC (Drizzle reads and writes
 // them as UTC). A bare now() default would be cast through the session time
@@ -72,8 +73,12 @@ export const sessionTable = pgTable(
     activeOrganizationId: text("active_organization_id"),
     activeTeamId: text("active_team_id"),
     impersonatedBy: text("impersonated_by"),
+    oidcSid: text("oidc_sid"),
   },
-  (table) => [index("session_userId_idx").on(table.userId)],
+  (table) => [
+    index("session_userId_idx").on(table.userId),
+    index("session_oidcSid_idx").on(table.oidcSid),
+  ],
 );
 
 export const accountTable = pgTable(
@@ -551,6 +556,7 @@ export const taskTable = pgTable(
     priority: text("priority").default("low").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
+    recurrence: jsonb("recurrence").$type<TaskRecurrence>(),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)
       .notNull(),
@@ -1430,6 +1436,11 @@ export const customFieldDefinitionTable = pgTable(
     required: boolean("required").default(false).notNull(),
     defaultValue: text("default_value"),
     options: jsonb("options"),
+    // Options kept for tasks that already use them but no longer offered.
+    hiddenOptions: jsonb("hidden_options")
+      .$type<string[]>()
+      .default([])
+      .notNull(),
     position: integer("position").default(0).notNull(),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)

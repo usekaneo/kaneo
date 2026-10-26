@@ -1,5 +1,5 @@
 import { Loader2, ImageMinusIcon, ImageUpIcon } from "lucide-react";
-import { type ChangeEvent, useRef } from "react";
+import { type ChangeEvent, type ReactNode, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,15 @@ type AvatarRowProps = {
   name: string | undefined;
   image: string | null | undefined;
   refetchUser: () => Promise<unknown>;
+  managedNote?: ReactNode;
 };
 
-export function AvatarRow({ name, image, refetchUser }: AvatarRowProps) {
+export function AvatarRow({
+  name,
+  image,
+  refetchUser,
+  managedNote,
+}: AvatarRowProps) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const { mutateAsync: updateAvatar, isPending: isUploading } =
@@ -23,6 +29,10 @@ export function AvatarRow({ name, image, refetchUser }: AvatarRowProps) {
   const { mutateAsync: removeAvatar, isPending: isRemoving } =
     useRemoveUserAvatar();
   const isBusy = isUploading || isRemoving;
+  // With a managed picture, only an earlier Kaneo upload can be removed.
+  const canRemove = managedNote
+    ? Boolean(image?.startsWith("/api/user/avatar/"))
+    : Boolean(image);
 
   const handleSelected = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -74,19 +84,12 @@ export function AvatarRow({ name, image, refetchUser }: AvatarRowProps) {
             {t("settings:informationPage.profilePicture")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {t("settings:informationPage.avatar.hint")}
+            {managedNote ?? t("settings:informationPage.avatar.hint")}
           </p>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <input
-          ref={inputRef}
-          type="file"
-          accept={ACCEPTED_AVATAR_TYPES}
-          className="hidden"
-          onChange={handleSelected}
-        />
-        {image ? (
+        {canRemove ? (
           <Button
             type="button"
             variant="ghost"
@@ -98,17 +101,28 @@ export function AvatarRow({ name, image, refetchUser }: AvatarRowProps) {
             {t("settings:informationPage.avatar.remove")}
           </Button>
         ) : null}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="w-24"
-          disabled={isBusy}
-          onClick={() => inputRef.current?.click()}
-        >
-          {isUploading ? <Loader2 className="animate-spin" /> : null}
-          {t("settings:informationPage.avatar.upload")}
-        </Button>
+        {managedNote ? null : (
+          <>
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPTED_AVATAR_TYPES}
+              className="hidden"
+              onChange={handleSelected}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-24"
+              disabled={isBusy}
+              onClick={() => inputRef.current?.click()}
+            >
+              {isUploading ? <Loader2 className="animate-spin" /> : null}
+              {t("settings:informationPage.avatar.upload")}
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );

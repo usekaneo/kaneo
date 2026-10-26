@@ -85,6 +85,7 @@ function RouteComponent() {
     data,
     isError: boardError,
     isFetching: boardFetching,
+    isSuccess: boardLoaded,
     refetch: retryBoard,
   } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
@@ -217,7 +218,7 @@ function RouteComponent() {
                 project={sortedProject}
                 disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
-                  boardFetching ||
+                  (boardFetching && !boardLoaded) ||
                   boardError ||
                   (sort.field !== "position" &&
                     sort.field !== "number" &&

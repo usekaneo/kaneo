@@ -122,7 +122,6 @@
 				"startDate": "शुरू की तारीख",
 				"dueDate": "नियत तारीख",
 				"clearStartDate": "शुरू की तारीख साफ़ करें",
-				"clearDueDate": "नियत तारीख साफ़ करें",
 				"assign": "सौंपें",
 				"assignUnassigned": "असाइन नहीं",
 				"assignUnassignedTitle": "असाइन नहीं",
@@ -148,7 +147,11 @@
 					"amber": "एम्बर",
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
-					"crimson": "किरमिज़ी"
+					"crimson": "किरमिज़ी",
+					"lagoon": "लैगून",
+					"ocean": "महासागर",
+					"orchid": "ऑर्किड",
+					"sky": "आकाश"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -750,6 +753,10 @@
 			"board": "बोर्ड",
 			"list": "सूची",
 			"gantt": "गैंट",
+			"priorityIcons": "प्राथमिकता आइकन",
+			"priorityIconsDescription": "कार्ड, पंक्तियों और मेनू में कार्य की प्राथमिकता कैसी दिखती है।",
+			"priorityIconsMarks": "निशान",
+			"priorityIconsClassic": "क्लासिक",
 			"sidebarDefault": "साइडबार खुला रखें",
 			"sidebarDefaultDescription": "साइडबार को विस्तारित रखकर शुरू करें।",
 			"displayOptions": "कार्य विवरण",
@@ -762,6 +769,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "प्रोजेक्ट द्वारा अपने बोर्ड के पीछे सेट की गई छवि दिखाएँ।",
 			"advancedTitle": "उन्नत"
+		},
+		"managedProfile": {
+			"note": "आपके संगठन द्वारा प्रबंधित।",
+			"edit": "{{provider}} में संपादित करें"
 		},
 		"developerPage": {
 			"pageTitle": "API कुंजियाँ",
@@ -1564,6 +1575,8 @@
 			"noDefault": "कोई डिफ़ॉल्ट नहीं",
 			"optionsLabel": "विकल्प",
 			"removeOptionAria": "{{option}} निकालें",
+			"hideOptionAria": "नए चयनों से {{option}} छिपाएँ",
+			"showOptionAria": "नए चयनों के लिए {{option}} फिर से दिखाएँ",
 			"renameOptionAria": "{{option}} का नाम बदलें",
 			"requiredDescription": "हर कार्य में हमेशा एक मान होता है।",
 			"save": "सहेजें",
@@ -3004,9 +3017,40 @@
 					"amber": "एम्बर",
 					"terracotta": "टेराकोटा",
 					"rose": "गुलाब",
-					"crimson": "किरमिज़ी"
+					"crimson": "किरमिज़ी",
+					"lagoon": "लैगून",
+					"ocean": "महासागर",
+					"orchid": "ऑर्किड",
+					"sky": "आकाश"
 				},
 				"editLabels": "लेबल संपादित करें"
+			},
+			"recurrence": {
+				"updateError": "कार्य का दोहराव अपडेट करने में विफल",
+				"every": "हर",
+				"hint": "यह कार्य पूरा होने पर अगला कार्य बनाया जाता है।",
+				"interval": "अंतराल",
+				"onDays": "इन दिनों पर",
+				"pattern": {
+					"daily": "रोज़ाना",
+					"monthly": "मासिक",
+					"periodically": "समय-समय पर",
+					"weekly": "साप्ताहिक",
+					"yearly": "वार्षिक"
+				},
+				"repeats": "दोहराव",
+				"toggle": "दोहराएँ",
+				"unit": {
+					"days_one": "दिन",
+					"days_other": "दिन",
+					"label": "इकाई",
+					"months_one": "महीना",
+					"months_other": "महीने",
+					"weeks_one": "सप्ताह",
+					"weeks_other": "सप्ताह",
+					"years_one": "साल",
+					"years_other": "साल"
+				}
 			}
 		},
 		"backlog": {
@@ -3237,6 +3281,17 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "पूर्वावलोकन के लिए Space और यह कार्य खोलने के लिए Enter दबाएँ। इसे ले जाने के लिए Alt या Option के साथ तीर कुंजियों का उपयोग करें।"
+		},
+		"recurrence": {
+			"daily_one": "हर दिन",
+			"daily_other": "हर {{count}} दिन",
+			"monthly_one": "हर महीने",
+			"monthly_other": "हर {{count}} महीने",
+			"weekly_one": "हर सप्ताह",
+			"weekly_other": "हर {{count}} सप्ताह",
+			"yearly_one": "हर साल",
+			"yearly_other": "हर {{count}} साल",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"toolbar": {
 			"search": "कार्य खोजें",
@@ -4374,7 +4429,11 @@
 				"amber": "एम्बर",
 				"terracotta": "टेराकोटा",
 				"rose": "गुलाबी",
-				"crimson": "किरमिजी"
+				"crimson": "किरमिजी",
+				"ocean": "महासागर",
+				"sky": "आकाश",
+				"lagoon": "लैगून",
+				"orchid": "ऑर्किड"
 			},
 			"role": {
 				"owner": "मालिक",

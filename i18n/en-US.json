@@ -123,7 +123,6 @@
 				"startDate": "Start date",
 				"dueDate": "Due date",
 				"clearStartDate": "Clear start date",
-				"clearDueDate": "Clear due date",
 				"assign": "Assign",
 				"assignUnassigned": "Unassigned",
 				"assignUnassignedTitle": "Unassigned",
@@ -149,7 +148,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"orchid": "Orchid"
 				}
 			}
 		},
@@ -973,6 +976,10 @@
 			"board": "Board",
 			"list": "List",
 			"gantt": "Gantt",
+			"priorityIcons": "Priority icons",
+			"priorityIconsDescription": "How task priority looks on cards, rows, and menus.",
+			"priorityIconsMarks": "Marks",
+			"priorityIconsClassic": "Classic",
 			"sidebarDefault": "Keep the sidebar open",
 			"sidebarDefaultDescription": "Start with the sidebar expanded.",
 			"displayOptions": "Task details",
@@ -985,6 +992,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Show the image a project sets behind its board.",
 			"advancedTitle": "Advanced"
+		},
+		"managedProfile": {
+			"note": "Managed by your organization.",
+			"edit": "Edit in {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "API keys",
@@ -1777,6 +1788,8 @@
 			"dragOptionAria": "Reorder {{option}}",
 			"renameOptionAria": "Rename {{option}}",
 			"removeOptionAria": "Remove {{option}}",
+			"hideOptionAria": "Hide {{option}} from new selections",
+			"showOptionAria": "Offer {{option}} for new selections again",
 			"allowSeveral": "Allow several",
 			"allowSeveralDescription": "A task can pick more than one option.",
 			"requiredDescription": "Every task always has a value.",
@@ -2984,6 +2997,33 @@
 				"updateError": "Failed to update task due date",
 				"clear": "Clear date"
 			},
+			"recurrence": {
+				"toggle": "Repeat",
+				"repeats": "Repeats",
+				"pattern": {
+					"daily": "Daily",
+					"weekly": "Weekly",
+					"monthly": "Monthly",
+					"yearly": "Yearly",
+					"periodically": "Periodically"
+				},
+				"every": "Every",
+				"interval": "Interval",
+				"unit": {
+					"label": "Unit",
+					"days_one": "day",
+					"days_other": "days",
+					"weeks_one": "week",
+					"weeks_other": "weeks",
+					"months_one": "month",
+					"months_other": "months",
+					"years_one": "year",
+					"years_other": "years"
+				},
+				"onDays": "On these days",
+				"hint": "When this task is done, the next one is created.",
+				"updateError": "Failed to update task repeat"
+			},
 			"startDate": {
 				"updateError": "Failed to update task start date",
 				"clear": "Clear start date"
@@ -3005,7 +3045,11 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"ocean": "Ocean",
+					"sky": "Sky",
+					"lagoon": "Lagoon",
+					"orchid": "Orchid"
 				},
 				"editLabels": "Edit labels"
 			}
@@ -3144,6 +3188,17 @@
 			"clear": "Clear date",
 			"updateError": "Failed to update task due date",
 			"clearError": "Failed to clear due date"
+		},
+		"recurrence": {
+			"daily_one": "Every day",
+			"daily_other": "Every {{count}} days",
+			"weekly_one": "Every week",
+			"weekly_other": "Every {{count}} weeks",
+			"monthly_one": "Every month",
+			"monthly_other": "Every {{count}} months",
+			"yearly_one": "Every year",
+			"yearly_other": "Every {{count}} years",
+			"onDays": "{{rule}} on {{days}}"
 		},
 		"labels": {
 			"empty": "No labels available"
@@ -4374,7 +4429,11 @@
 				"amber": "Amber",
 				"terracotta": "Terracotta",
 				"rose": "Rose",
-				"crimson": "Crimson"
+				"crimson": "Crimson",
+				"ocean": "Ocean",
+				"sky": "Sky",
+				"lagoon": "Lagoon",
+				"orchid": "Orchid"
 			},
 			"role": {
 				"owner": "Owner",

@@ -122,7 +122,6 @@
 				"startDate": "Tanggal mulai",
 				"dueDate": "Tenggat",
 				"clearStartDate": "Hapus tanggal mulai",
-				"clearDueDate": "Hapus tenggat",
 				"assign": "Tugaskan",
 				"assignUnassigned": "Belum ditugaskan",
 				"assignUnassignedTitle": "Belum ditugaskan",
@@ -148,7 +147,11 @@
 					"amber": "Kuning Ambar",
 					"terracotta": "Merah Bata",
 					"rose": "Merah Mawar",
-					"crimson": "Merah Tua"
+					"crimson": "Merah Tua",
+					"lagoon": "Biru Laguna",
+					"ocean": "Biru Laut",
+					"orchid": "Ungu Anggrek",
+					"sky": "Biru Langit"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -742,6 +745,10 @@
 			"board": "Papan",
 			"list": "Daftar",
 			"gantt": "Gantt",
+			"priorityIcons": "Ikon prioritas",
+			"priorityIconsDescription": "Tampilan prioritas tugas di kartu, baris, dan menu.",
+			"priorityIconsMarks": "Tanda",
+			"priorityIconsClassic": "Klasik",
 			"sidebarDefault": "Biarkan bilah sisi terbuka",
 			"sidebarDefaultDescription": "Mulai dengan bilah sisi terbuka.",
 			"displayOptions": "Detail tugas",
@@ -754,6 +761,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Tampilkan gambar yang diatur proyek di belakang papannya.",
 			"advancedTitle": "Lanjutan"
+		},
+		"managedProfile": {
+			"note": "Dikelola oleh organisasi Anda.",
+			"edit": "Edit di {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "API key",
@@ -1555,6 +1566,8 @@
 			"noDefault": "Tanpa default",
 			"optionsLabel": "Opsi",
 			"removeOptionAria": "Hapus {{option}}",
+			"hideOptionAria": "Sembunyikan {{option}} dari pilihan baru",
+			"showOptionAria": "Tawarkan lagi {{option}} untuk pilihan baru",
 			"renameOptionAria": "Ganti nama {{option}}",
 			"requiredDescription": "Setiap tugas selalu memiliki nilai.",
 			"save": "Simpan",
@@ -2957,9 +2970,36 @@
 					"amber": "Amber",
 					"terracotta": "Terracotta",
 					"rose": "Rose",
-					"crimson": "Crimson"
+					"crimson": "Crimson",
+					"lagoon": "Biru Laguna",
+					"ocean": "Biru Laut",
+					"orchid": "Ungu Anggrek",
+					"sky": "Biru Langit"
 				},
 				"editLabels": "Edit label"
+			},
+			"recurrence": {
+				"updateError": "Gagal memperbarui pengulangan tugas",
+				"every": "Setiap",
+				"hint": "Saat tugas ini selesai, tugas berikutnya dibuat.",
+				"interval": "Interval",
+				"onDays": "Pada hari-hari ini",
+				"pattern": {
+					"daily": "Harian",
+					"monthly": "Bulanan",
+					"periodically": "Berkala",
+					"weekly": "Mingguan",
+					"yearly": "Tahunan"
+				},
+				"repeats": "Berulang",
+				"toggle": "Ulangi",
+				"unit": {
+					"days_other": "hari",
+					"label": "Satuan",
+					"months_other": "bulan",
+					"weeks_other": "minggu",
+					"years_other": "tahun"
+				}
 			}
 		},
 		"backlog": {
@@ -3185,6 +3225,13 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Tekan Spasi untuk pratinjau dan Enter untuk membuka tugas ini. Gunakan Alt atau Option dengan tombol panah untuk memindahkannya."
+		},
+		"recurrence": {
+			"daily_other": "Setiap {{count}} hari",
+			"monthly_other": "Setiap {{count}} bulan",
+			"weekly_other": "Setiap {{count}} minggu",
+			"yearly_other": "Setiap {{count}} tahun",
+			"onDays": "{{rule}} pada {{days}}"
 		},
 		"toolbar": {
 			"search": "Cari tugas",
@@ -4299,7 +4346,11 @@
 				"amber": "Amber",
 				"terracotta": "Terakota",
 				"rose": "Mawar",
-				"crimson": "Merah tua"
+				"crimson": "Merah tua",
+				"ocean": "Biru Laut",
+				"sky": "Biru Langit",
+				"lagoon": "Biru Laguna",
+				"orchid": "Ungu Anggrek"
 			},
 			"role": {
 				"owner": "Pemilik",

@@ -132,10 +132,7 @@ export default function SignInScreen() {
 
   return (
     <Screen surface>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         {step !== "start" ? (
           <View
             style={{ height: 52, justifyContent: "center", paddingLeft: 6 }}

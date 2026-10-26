@@ -122,7 +122,6 @@
 				"startDate": "Başlangıç tarihi",
 				"dueDate": "Bitiş tarihi",
 				"clearStartDate": "Başlangıç tarihini temizle",
-				"clearDueDate": "Bitiş tarihini temizle",
 				"assign": "Ata",
 				"assignUnassigned": "Atanmamış",
 				"assignUnassignedTitle": "Atanmamış",
@@ -148,7 +147,11 @@
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
-					"crimson": "Koyu Kırmızı"
+					"crimson": "Koyu Kırmızı",
+					"lagoon": "Lagün",
+					"ocean": "Okyanus",
+					"orchid": "Orkide",
+					"sky": "Gökyüzü"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -750,6 +753,10 @@
 			"board": "Pano",
 			"list": "Liste",
 			"gantt": "Gantt",
+			"priorityIcons": "Öncelik simgeleri",
+			"priorityIconsDescription": "Görev önceliğinin kartlarda, satırlarda ve menülerde nasıl göründüğü.",
+			"priorityIconsMarks": "İşaretler",
+			"priorityIconsClassic": "Klasik",
 			"sidebarDefault": "Kenar çubuğunu açık tut",
 			"sidebarDefaultDescription": "Kenar çubuğu genişletilmiş olarak başlar.",
 			"displayOptions": "Talep ayrıntıları",
@@ -762,6 +769,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Projenin panosunun arkasına ayarladığı görseli göster.",
 			"advancedTitle": "Gelişmiş"
+		},
+		"managedProfile": {
+			"note": "Kuruluşunuz tarafından yönetiliyor.",
+			"edit": "{{provider}} üzerinde düzenle"
 		},
 		"developerPage": {
 			"pageTitle": "API anahtarları",
@@ -1564,6 +1575,8 @@
 			"noDefault": "Varsayılan yok",
 			"optionsLabel": "Seçenekler",
 			"removeOptionAria": "{{option}} seçeneğini kaldır",
+			"hideOptionAria": "{{option}} seçeneğini yeni seçimlerde gizle",
+			"showOptionAria": "{{option}} seçeneğini yeni seçimlerde yeniden sun",
 			"renameOptionAria": "{{option}} seçeneğini yeniden adlandır",
 			"requiredDescription": "Her talebin her zaman bir değeri olur.",
 			"save": "Kaydet",
@@ -3004,9 +3017,40 @@
 					"amber": "Kehribar",
 					"terracotta": "Terakota",
 					"rose": "Gül Kurusu",
-					"crimson": "Koyu Kırmızı"
+					"crimson": "Koyu Kırmızı",
+					"lagoon": "Lagün",
+					"ocean": "Okyanus",
+					"orchid": "Orkide",
+					"sky": "Gökyüzü"
 				},
 				"editLabels": "Etiketleri düzenle"
+			},
+			"recurrence": {
+				"updateError": "Talep tekrarı güncellenemedi",
+				"every": "Her",
+				"hint": "Bu talep tamamlandığında bir sonraki oluşturulur.",
+				"interval": "Aralık",
+				"onDays": "Bu günlerde",
+				"pattern": {
+					"daily": "Her gün",
+					"monthly": "Her ay",
+					"periodically": "Periyodik",
+					"weekly": "Her hafta",
+					"yearly": "Her yıl"
+				},
+				"repeats": "Tekrar",
+				"toggle": "Tekrarla",
+				"unit": {
+					"days_one": "günde",
+					"days_other": "günde",
+					"label": "Birim",
+					"months_one": "ayda",
+					"months_other": "ayda",
+					"weeks_one": "haftada",
+					"weeks_other": "haftada",
+					"years_one": "yılda",
+					"years_other": "yılda"
+				}
 			}
 		},
 		"backlog": {
@@ -3237,6 +3281,17 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Önizleme için Boşluk, bu talebi açmak için Enter tuşuna basın. Taşımak için Alt veya Option ile ok tuşlarını kullanın."
+		},
+		"recurrence": {
+			"daily_one": "Her gün",
+			"daily_other": "{{count}} günde bir",
+			"monthly_one": "Her ay",
+			"monthly_other": "{{count}} ayda bir",
+			"weekly_one": "Her hafta",
+			"weekly_other": "{{count}} haftada bir",
+			"yearly_one": "Her yıl",
+			"yearly_other": "{{count}} yılda bir",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"toolbar": {
 			"search": "Görev ara",
@@ -4087,9 +4142,13 @@
 				"amber": "Kehribar",
 				"crimson": "Kızıl",
 				"forest": "Orman",
+				"lagoon": "Lagün",
 				"lavender": "Lavanta",
+				"ocean": "Okyanus",
+				"orchid": "Orkide",
 				"rose": "Gül",
 				"sage": "Adaçayı",
+				"sky": "Gökyüzü",
 				"slate": "Arduvaz",
 				"stone": "Taş",
 				"terracotta": "Terakota"
