@@ -6,7 +6,9 @@ import {
 } from "../openapi";
 import { requireInstanceAdmin } from "../utils/require-instance-admin";
 import { requireUserSession } from "../utils/require-user-session";
+import { adminAuditRequest } from "./audit/admin-audit-request";
 import addWorkspaceMember from "./controllers/add-workspace-member";
+import listAuditLog from "./controllers/list-audit-log";
 import listUsers from "./controllers/list-users";
 import listWorkspaceMembers from "./controllers/list-workspace-members";
 import listWorkspaceRoles from "./controllers/list-workspace-roles";
@@ -15,6 +17,7 @@ import removeWorkspaceMember from "./controllers/remove-workspace-member";
 import transferWorkspaceOwnership from "./controllers/transfer-workspace-ownership";
 import updateWorkspaceMemberRole from "./controllers/update-workspace-member-role";
 import {
+  adminAuditLogSchema,
   adminUserListSchema,
   adminWorkspaceListSchema,
   adminWorkspaceMemberListSchema,
@@ -24,6 +27,7 @@ import {
   addAdminWorkspaceMemberBody,
   adminWorkspaceMemberParam,
   adminWorkspaceParam,
+  listAdminAuditLogQuery,
   listAdminUsersQuery,
   listAdminWorkspacesQuery,
   transferAdminWorkspaceOwnershipBody,
@@ -213,6 +217,23 @@ const transferWorkspaceOwnershipRoute = createRoute({
   },
 });
 
+const listAuditLogRoute = createRoute({
+  method: "get",
+  operationId: "listAdminAuditLog",
+  path: "/audit-log",
+  tags: ["Admin"],
+  summary: "List the admin audit log",
+  description:
+    "Page through recorded administrative actions, newest first, optionally filtered by action or category, actor, or target. Entries never contain passwords, tokens, reset links, or API key values. Requires an instance administrator session; API keys are rejected.",
+  middleware: [requireUserSession, requireInstanceAdmin] as const,
+  request: { query: listAdminAuditLogQuery },
+  responses: {
+    200: jsonResponse("Audit log entries, newest first", adminAuditLogSchema),
+    400: errorResponse("Invalid filter, page, or limit"),
+    403: forbidden,
+  },
+});
+
 const admin = apiRouter()
   .openapi(listUsersRoute, async (c) =>
     c.json(await listUsers(c.req.valid("query")), 200),
@@ -228,33 +249,45 @@ const admin = apiRouter()
   )
   .openapi(addWorkspaceMemberRoute, async (c) =>
     c.json(
-      await addWorkspaceMember({
-        workspaceId: c.req.valid("param").workspaceId,
-        ...c.req.valid("json"),
-      }),
+      await addWorkspaceMember(
+        {
+          workspaceId: c.req.valid("param").workspaceId,
+          ...c.req.valid("json"),
+        },
+        adminAuditRequest(c),
+      ),
       200,
     ),
   )
   .openapi(updateWorkspaceMemberRoleRoute, async (c) =>
     c.json(
-      await updateWorkspaceMemberRole({
-        ...c.req.valid("param"),
-        role: c.req.valid("json").role,
-      }),
+      await updateWorkspaceMemberRole(
+        { ...c.req.valid("param"), role: c.req.valid("json").role },
+        adminAuditRequest(c),
+      ),
       200,
     ),
   )
   .openapi(removeWorkspaceMemberRoute, async (c) =>
-    c.json(await removeWorkspaceMember(c.req.valid("param")), 200),
+    c.json(
+      await removeWorkspaceMember(c.req.valid("param"), adminAuditRequest(c)),
+      200,
+    ),
   )
   .openapi(transferWorkspaceOwnershipRoute, async (c) =>
     c.json(
-      await transferWorkspaceOwnership({
-        workspaceId: c.req.valid("param").workspaceId,
-        userId: c.req.valid("json").userId,
-      }),
+      await transferWorkspaceOwnership(
+        {
+          workspaceId: c.req.valid("param").workspaceId,
+          userId: c.req.valid("json").userId,
+        },
+        adminAuditRequest(c),
+      ),
       200,
     ),
+  )
+  .openapi(listAuditLogRoute, async (c) =>
+    c.json(await listAuditLog(c.req.valid("query")), 200),
   );
 
 export default admin;

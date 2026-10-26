@@ -74,6 +74,8 @@ import {
   readableNativeOrganizations,
 } from "./utils/native-organization-read-access";
 import { satisfies } from "./utils/role-permissions";
+import { captureAuthAdminAudit } from "./admin/audit/capture-auth-admin-audit";
+import { recordAuthAdminAudit } from "./admin/audit/record-auth-admin-audit";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -885,6 +887,8 @@ export const auth = betterAuth({
           : await auth.api.getSession({ headers: new Headers(ctx.headers) });
         await assertNativeOrganizationReadAllowed(ctx, organizationViewer);
       }
+      // Before removal prep deletes account data the entry needs to name.
+      await captureAuthAdminAudit(ctx);
       if (ctx.path === "/admin/remove-user") {
         await prepareAdminUserRemoval(ctx);
       }
@@ -1055,6 +1059,7 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      await recordAuthAdminAudit(ctx);
       if (
         (ctx.path === "/organization/list" ||
           ctx.path === "/organization/list-user-teams") &&

@@ -73,3 +73,37 @@ export const adminWorkspaceMemberListSchema = z.array(
 export const adminWorkspaceRoleListSchema = z.array(z.string()).openapi({
   description: "Role names an administrator can assign in the workspace.",
 });
+
+export const adminAuditLogEntrySchema = z
+  .object({
+    id: z.string(),
+    createdAt: isoTimestamp,
+    action: z.string().openapi({
+      description: "Dotted action name, for example `user.role_changed`.",
+    }),
+    actor: z.object({
+      id: z.string().nullable().openapi({
+        description: "Null when the administrator's account was deleted.",
+      }),
+      name: z.string().nullable(),
+      email: z.string().nullable(),
+    }),
+    targetType: z.string(),
+    targetId: z.string().nullable(),
+    targetLabel: z.string().nullable().openapi({
+      description: "The target's name or email when the action happened.",
+    }),
+    metadata: z.record(z.string(), z.unknown()).nullable(),
+    ipAddress: z.string().nullable(),
+    userAgent: z.string().nullable(),
+  })
+  .openapi("AdminAuditLogEntry");
+
+export const adminAuditLogSchema = z
+  .object({
+    entries: z.array(adminAuditLogEntrySchema),
+    total: z.number().int().openapi({
+      description: "Number of entries matching the filters, across all pages.",
+    }),
+  })
+  .openapi("AdminAuditLog");

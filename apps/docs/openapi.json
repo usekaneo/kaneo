@@ -5515,6 +5515,117 @@
           "role",
           "joinedAt"
         ]
+      },
+      "AdminAuditLog": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAuditLogEntry"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "Number of entries matching the filters, across all pages."
+          }
+        },
+        "required": [
+          "entries",
+          "total"
+        ]
+      },
+      "AdminAuditLogEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "action": {
+            "type": "string",
+            "description": "Dotted action name, for example `user.role_changed`."
+          },
+          "actor": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Null when the administrator's account was deleted."
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "email": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email"
+            ]
+          },
+          "targetType": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "targetLabel": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The target's name or email when the action happened."
+          },
+          "metadata": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": {}
+          },
+          "ipAddress": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "userAgent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "action",
+          "actor",
+          "targetType",
+          "targetId",
+          "targetLabel",
+          "metadata",
+          "ipAddress",
+          "userAgent"
+        ]
       }
     },
     "parameters": {}
@@ -24694,6 +24805,130 @@
           },
           "404": {
             "description": "Workspace or member not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/audit-log": {
+      "get": {
+        "operationId": "listAdminAuditLog",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List the admin audit log",
+        "description": "Page through recorded administrative actions, newest first, optionally filtered by action or category, actor, or target. Entries never contain passwords, tokens, reset links, or API key values. Requires an instance administrator session; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "pattern": "^[a-z_]+(\\.[a-z_]+)?$",
+              "description": "An exact action such as `user.deleted`, or a category such as `user` to match every `user.*` action."
+            },
+            "required": false,
+            "description": "An exact action such as `user.deleted`, or a category such as `user` to match every `user.*` action.",
+            "name": "action",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Only entries performed by this user id."
+            },
+            "required": false,
+            "description": "Only entries performed by this user id.",
+            "name": "actorId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Only entries about this kind of target, such as `user`."
+            },
+            "required": false,
+            "description": "Only entries about this kind of target, such as `user`.",
+            "name": "targetType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Only entries about this target id."
+            },
+            "required": false,
+            "description": "Only entries about this target id.",
+            "name": "targetId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit log entries, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAuditLog"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid filter, page, or limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {

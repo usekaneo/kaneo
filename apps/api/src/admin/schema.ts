@@ -43,3 +43,26 @@ export const transferAdminWorkspaceOwnershipBody = z.object({
       "An existing member who becomes the only owner. Previous owners become admins.",
   }),
 });
+
+export const listAdminAuditLogQuery = z.object({
+  action: z
+    .string()
+    .max(100)
+    .regex(/^[a-z_]+(\.[a-z_]+)?$/, "Expected an action or action category")
+    .optional()
+    .openapi({
+      description:
+        "An exact action such as `user.deleted`, or a category such as `user` to match every `user.*` action.",
+    }),
+  actorId: z.string().max(200).optional().openapi({
+    description: "Only entries performed by this user id.",
+  }),
+  targetType: z.string().max(100).optional().openapi({
+    description: "Only entries about this kind of target, such as `user`.",
+  }),
+  targetId: z.string().max(200).optional().openapi({
+    description: "Only entries about this target id.",
+  }),
+  page: pagingNumber(1, 1_000_000, 1),
+  limit: pagingNumber(1, 100, 25),
+});

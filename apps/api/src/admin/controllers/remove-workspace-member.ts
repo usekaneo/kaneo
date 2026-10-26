@@ -3,14 +3,19 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { userTable, workspaceUserTable } from "../../database/schema";
 import { isOwnerRole } from "../../project-access/is-owner-role";
+import type { AdminAuditRequest } from "../audit/admin-audit-request";
+import { recordWorkspaceMemberAction } from "../audit/record-workspace-member-action";
 import { handleMemberRemoved } from "../../workspace-members/handle-member-removed";
 import { lockWorkspace } from "../lock-workspace";
 import listWorkspaceMembers from "./list-workspace-members";
 
-async function removeWorkspaceMember(request: {
-  workspaceId: string;
-  userId: string;
-}) {
+async function removeWorkspaceMember(
+  request: {
+    workspaceId: string;
+    userId: string;
+  },
+  audit: AdminAuditRequest,
+) {
   const { workspaceId, userId } = request;
 
   await db.transaction(async (tx) => {
@@ -35,6 +40,12 @@ async function removeWorkspaceMember(request: {
           eq(workspaceUserTable.userId, userId),
         ),
       );
+    await recordWorkspaceMemberAction(tx, audit, {
+      action: "workspace.member_removed",
+      workspaceId,
+      userId,
+      metadata: { role: member.role },
+    });
   });
 
   const [user] = await db
