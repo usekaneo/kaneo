@@ -67,7 +67,7 @@ function TaskCard({
         if (event.target !== event.currentTarget) return;
         setFocusedTask(isKeyboardFocus(event) ? task.id : null);
       }}
-      className="outline-none"
+      className="select-none outline-none"
     >
       <TaskCardContent
         task={task}
