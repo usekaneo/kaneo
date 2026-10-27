@@ -501,7 +501,7 @@ describe("notification recipient boundaries", () => {
     await deliverNotification(notification.id);
     expect(fetchMock).toHaveBeenCalledTimes(3);
     for (const [, options] of fetchMock.mock.calls) {
-      expect(options.redirect).toBe("error");
+      expect(options.redirect).toBe("manual");
       expect(options.signal).toBeInstanceOf(AbortSignal);
     }
     expect(log).toHaveBeenCalledTimes(3);
