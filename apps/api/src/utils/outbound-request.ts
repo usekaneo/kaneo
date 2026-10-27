@@ -60,6 +60,7 @@ export async function sendOutboundRequest(
   init: Pick<RequestInit, "headers" | "body">,
   options: {
     readJson?: boolean;
+    readStatus?: boolean;
     publicDestination?: boolean;
     timeoutMs?: number;
   } = {},
@@ -96,7 +97,7 @@ export async function sendOutboundRequest(
     if (!response.ok || !options.readJson) {
       void response.body?.cancel().catch(() => {});
       if (!response.ok) throw new OutboundRequestError("http", response.status);
-      return undefined;
+      return options.readStatus ? response.status : undefined;
     }
     return readSmallJson(response);
   };

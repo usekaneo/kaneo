@@ -505,6 +505,13 @@
       "when": 1793128646236,
       "tag": "0071_instance_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1793129069447,
+      "tag": "0072_instance_webhooks",
+      "breakpoints": true
     }
   ]
 }

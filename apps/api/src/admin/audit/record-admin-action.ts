@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import db, { schema } from "../../database";
 import type { DbOrTx } from "../../project-access/db-or-tx";
+import { enqueueAuditWebhooks } from "../webhooks/enqueue-audit-webhooks";
 import { sanitizeAuditMetadata } from "./sanitize-audit-metadata";
 
 const MAX_USER_AGENT_LENGTH = 512;
@@ -25,7 +26,10 @@ export type AdminActionInput = {
 export async function recordAdminAction(
   input: AdminActionInput,
   database: DbOrTx = db,
-) {
+): Promise<void> {
+  if (database === db) {
+    return db.transaction((tx) => recordAdminAction(input, tx));
+  }
   const actorId = input.actorUserId;
   const actor = (column: "id" | "name" | "email") =>
     actorId
@@ -35,20 +39,24 @@ export async function recordAdminAction(
     ? (sanitizeAuditMetadata(input.metadata) as Record<string, unknown>)
     : null;
 
-  await database.insert(schema.adminAuditLogTable).values({
-    // Resolved in the insert so a concurrently deleted actor yields NULL
-    // instead of a foreign key error.
-    actorUserId: actor("id"),
-    actorName: actor("name"),
-    actorEmail: actor("email"),
-    action: input.action,
-    targetType: input.targetType,
-    targetId: input.targetId ?? null,
-    targetLabel: input.targetLabel ?? null,
-    metadata,
-    ipAddress: input.ipAddress ?? null,
-    userAgent: input.userAgent?.slice(0, MAX_USER_AGENT_LENGTH) ?? null,
-  });
+  const [entry] = await database
+    .insert(schema.adminAuditLogTable)
+    .values({
+      // Resolved in the insert so a concurrently deleted actor yields NULL
+      // instead of a foreign key error.
+      actorUserId: actor("id"),
+      actorName: actor("name"),
+      actorEmail: actor("email"),
+      action: input.action,
+      targetType: input.targetType,
+      targetId: input.targetId ?? null,
+      targetLabel: input.targetLabel ?? null,
+      metadata,
+      ipAddress: input.ipAddress ?? null,
+      userAgent: input.userAgent?.slice(0, MAX_USER_AGENT_LENGTH) ?? null,
+    })
+    .returning({ id: schema.adminAuditLogTable.id });
+  if (entry) await enqueueAuditWebhooks(database, entry.id);
 }
 
 export default recordAdminAction;

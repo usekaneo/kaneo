@@ -13,6 +13,8 @@ import {
   unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { WEBHOOK_CATEGORIES } from "../admin/webhooks/categories";
+import type { AuditWebhookPayload } from "../admin/webhooks/audit-webhook-payload";
 import type { GitHubImportState } from "../github-integration/import-state";
 import type { ImportRunProject } from "../import/import-run-project";
 import type { TaskRecurrence } from "../task/recurrence/schema";
@@ -176,6 +178,59 @@ export const adminAuditLogTable = pgTable(
     ),
     index("admin_audit_log_actorUserId_idx").on(table.actorUserId),
     index("admin_audit_log_target_idx").on(table.targetType, table.targetId),
+  ],
+);
+
+export const instanceWebhookTable = pgTable("instance_webhook", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  url: text("url").notNull(),
+  categories: text("categories")
+    .array()
+    .$type<(typeof WEBHOOK_CATEGORIES)[number][]>()
+    .notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
+  signingSecret: text("signing_secret").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" })
+    .default(utcNow)
+    .notNull(),
+});
+
+export const instanceWebhookDeliveryTable = pgTable(
+  "instance_webhook_delivery",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => instanceWebhookTable.id, { onDelete: "cascade" }),
+    payload: jsonb("payload").$type<AuditWebhookPayload>().notNull(),
+    state: text("state")
+      .$type<"pending" | "succeeded" | "failed">()
+      .default("pending")
+      .notNull(),
+    attempts: integer("attempts").default(0).notNull(),
+    statusCode: integer("status_code"),
+    errorCode: text("error_code"),
+    nextAttemptAt: timestamp("next_attempt_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    index("instance_webhook_delivery_due_idx").on(
+      table.state,
+      table.nextAttemptAt,
+    ),
+    index("instance_webhook_delivery_history_idx").on(
+      table.webhookId,
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
   ],
 );
 

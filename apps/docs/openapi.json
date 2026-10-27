@@ -6714,6 +6714,146 @@
           "integrationProviders"
         ]
       },
+      "InstanceWebhookList": {
+        "type": "object",
+        "properties": {
+          "webhooks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstanceWebhook"
+            }
+          },
+          "signingConfigured": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "webhooks",
+          "signingConfigured"
+        ]
+      },
+      "InstanceWebhook": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "user",
+                "session",
+                "api_key",
+                "workspace",
+                "role",
+                "instance",
+                "email",
+                "webhook"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "url",
+          "categories",
+          "enabled",
+          "id",
+          "createdAt"
+        ]
+      },
+      "InstanceWebhookSecret": {
+        "type": "object",
+        "properties": {
+          "webhook": {
+            "$ref": "#/components/schemas/InstanceWebhook"
+          },
+          "secret": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "webhook",
+          "secret"
+        ]
+      },
+      "InstanceWebhookQueued": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "InstanceWebhookDelivery": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "succeeded",
+              "failed"
+            ]
+          },
+          "attempts": {
+            "type": "integer"
+          },
+          "statusCode": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "errorCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "eventId",
+          "state",
+          "attempts",
+          "statusCode",
+          "errorCode",
+          "createdAt"
+        ]
+      },
       "AdminApiKeyList": {
         "type": "object",
         "properties": {
@@ -28098,6 +28238,581 @@
           },
           "409": {
             "description": "An environment variable locks the setting (code SETTING_LOCKED_BY_ENV)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "listInstanceWebhooks",
+        "summary": "List instance webhooks",
+        "description": "Returns configuration without signing secrets. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Instance webhooks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "createInstanceWebhook",
+        "summary": "Create an instance webhook",
+        "description": "The signing secret is returned once. URLs must resolve to public addresses (HTTPS in production). Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "format": "uri"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "user",
+                        "session",
+                        "api_key",
+                        "workspace",
+                        "role",
+                        "instance",
+                        "email",
+                        "webhook"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 8
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "url",
+                  "categories",
+                  "enabled"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created webhook and one-time secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookSecret"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid URL or categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "updateInstanceWebhook",
+        "summary": "Update an instance webhook",
+        "description": "Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "format": "uri"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "user",
+                        "session",
+                        "api_key",
+                        "workspace",
+                        "role",
+                        "instance",
+                        "email",
+                        "webhook"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 8
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "url",
+                  "categories",
+                  "enabled"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated webhook",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid URL or categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "deleteInstanceWebhook",
+        "summary": "Delete an instance webhook",
+        "description": "Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted webhook id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookQueued"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}/rotate-secret": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "rotateInstanceWebhookSecret",
+        "summary": "Rotate a webhook signing secret",
+        "description": "Returns the new secret once. Queued deliveries use the new secret. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook and one-time secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookSecret"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}/test": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "testInstanceWebhook",
+        "summary": "Queue a test webhook delivery",
+        "description": "Queues a webhook.test event regardless of selected categories. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Queued delivery id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookQueued"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Webhook is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}/deliveries": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "listInstanceWebhookDeliveries",
+        "summary": "List recent webhook deliveries",
+        "description": "The latest 20 deliveries, without payloads, URLs, secrets or response bodies. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent deliveries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstanceWebhookDelivery"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
             "content": {
               "application/json": {
                 "schema": {

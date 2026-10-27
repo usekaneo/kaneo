@@ -1,3 +1,4 @@
+import { startWebhookWorker } from "./admin/webhooks/start-webhook-worker";
 import integrationSync from "./integration-sync";
 import { syncWorkspaceAccess } from "./ws/workspace-access";
 import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
@@ -1081,6 +1082,7 @@ export async function startServer(
   );
 
   injectWebSocket(server);
+  const stopWebhookWorker = startWebhookWorker();
 
   const gracefulShutdown = async () => {
     if (shuttingDown) return;
@@ -1088,6 +1090,7 @@ export async function startServer(
 
     console.log("🛑 Shutting down gracefully...");
     shutdownScheduler();
+    await stopWebhookWorker();
     await shutdownWebSocketAdapter();
     server.close();
     const [, signInEmailsDrained] = await Promise.all([
