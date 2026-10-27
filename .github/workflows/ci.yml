@@ -239,6 +239,10 @@ jobs:
     if: ${{ !cancelled() && (needs.detect-pr-changes.result != 'success' || needs.detect-pr-changes.outputs.skip_expensive != 'true') }}
     timeout-minutes: 15
     runs-on: blacksmith-4vcpu-ubuntu-2404
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     services:
       postgres:
         image: postgres:16
@@ -279,7 +283,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run API integration tests
-        run: pnpm test:integration
+        # Each shard has its own Postgres service; files within a shard stay serial.
+        run: pnpm --filter @kaneo/api exec vp run test:integration:run --shard=${{ matrix.shard }}/${{ strategy.job-total }}
 
   docker-build:
     needs: detect-pr-changes
