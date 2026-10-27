@@ -5,7 +5,7 @@ description: "Manage accounts and workspaces, review administrative actions, and
 
 Instance administrators manage the whole Kaneo instance, not just the workspaces they belong to. The first account created on a new instance becomes an instance administrator, and an administrator can give the role to others from **User management**.
 
-These pages live under **Settings → Administration** and are only visible to instance administrators.
+These pages live under **Settings → Administration**. Administrators see all of them. Users with a [custom role](#custom-roles) see only the pages and actions their role allows.
 
 ## Overview
 
@@ -17,7 +17,7 @@ The same read-only overview is available at `GET /api/admin/overview` to instanc
 
 ## Manage users
 
-Open **Settings → Administration → User management** to search every account on the instance. Filter by status (active or deactivated), role (admin or user), and email verification. Each row shows the user's role, status, when they were last active, and when they joined. **Last active** is the most recent activity of one of their current sessions, so it can lag by up to a day and is empty for someone who has never signed in or has no session left.
+Open **Settings → Administration → User management** to search every account on the instance. Filter by status (active or deactivated), role (admin, user, or a custom role), and email verification. Each row shows the user's role, status, when they were last active, and when they joined. **Last active** is the most recent activity of one of their current sessions, so it can lag by up to a day and is empty for someone who has never signed in or has no session left.
 
 From a user's menu you can:
 
@@ -40,7 +40,7 @@ Choose **Sessions & API keys** from a user's menu to see where they're signed in
 - **Sessions** show the browser and device, IP address, sign-in time, and last activity. **Sign out** ends one session; **Sign out everywhere** ends all of them. Ended sessions stop working immediately, including open realtime connections. If you open your own account, your current session is marked **This device** and stays signed in; sign out normally to end it.
 - **API keys** show the name, the first characters, creation date, last use, expiry, and whether the key is enabled. The key itself is never shown. **Revoke** deletes the key, the same as when its owner deletes it, and requests with it fail right away. Signing a user out doesn't revoke their API keys, and deactivating a user blocks their keys as well.
 
-These actions are recorded in the audit log. The same operations are available to instance administrator sessions under `/api/admin/users/{userId}/sessions` and `/api/admin/users/{userId}/api-keys`; API keys are rejected, and session tokens are never returned.
+These actions are recorded in the audit log. The same operations are available to signed-in sessions with the `users:sessions` or `users:api_keys` permission under `/api/admin/users/{userId}/sessions` and `/api/admin/users/{userId}/api-keys`; API keys are rejected, and session tokens are never returned.
 
 Deleting someone who is the only owner of a workspace that still has other members is blocked. Transfer that workspace's ownership first, as described below.
 
@@ -52,6 +52,42 @@ Choose **Create user** and enter their name, email, and instance role. You never
 - **`DISABLE_PASSWORD_REGISTRATION` or `DISABLE_LOGIN_FORM` set:** the account is created for single sign-on. No email is sent, and the email is marked verified so their first sign-in through GitHub, Google, Discord, or your OIDC provider with that address links to it.
 
 Administrators can create users even when `DISABLE_REGISTRATION` closes self-service sign-up. An email that already belongs to an account is rejected. On Kaneo Cloud, disposable email addresses are rejected as they are for sign-up.
+
+## Custom roles
+
+Open **Settings → Administration → Roles** to give people part of the administrator's powers, for example a support team that can reset passwords and end sessions but can't delete accounts or workspaces. Only administrators see this page.
+
+Kaneo has two built-in roles: **Admin** has every permission and **User** has none. Choose **New role**, give it a name (lowercase letters, digits, and hyphens, like `support`), and tick its permissions:
+
+| Permission | Allows |
+| --- | --- |
+| `users:read` | Seeing the user directory and the list of roles |
+| `users:create` | Creating users |
+| `users:update` | Editing a user's name, email, role, and profile picture |
+| `users:disable` | Deactivating and reactivating users |
+| `users:delete` | Deleting users |
+| `users:credentials` | Sending password reset and verification emails, and marking an email verified |
+| `users:sessions` | Seeing and ending a user's sessions |
+| `users:api_keys` | Seeing and revoking a user's API keys |
+| `workspaces:read` | Seeing every workspace and its members |
+| `workspaces:manage` | Adding and removing members, changing their roles, and transferring ownership |
+| `workspaces:archive` | Archiving and restoring workspaces |
+| `workspaces:delete` | Deleting workspaces |
+| `audit:read` | Reading the audit log |
+| `system:read` | Seeing system status and sending yourself a test email |
+| `instance:settings` | Changing instance settings |
+
+Give someone a role from **Edit** in the user directory. Each person has one role. Each row on the Roles page shows how many people have that role; select the count to see them. Renaming a role keeps it on everyone who has it, and permission changes apply to their next request. A role can only be deleted once nobody has it.
+
+Custom roles only grant these administration permissions. Built-in admins can also open every workspace, and some powers stay with them alone: managing roles, editing project access from the workspace page, and creating workspaces when `DISABLE_WORKSPACE_CREATION` is set.
+
+Kaneo keeps custom roles from being used to gain more power:
+
+- Only admins can make someone an admin, and nobody can give a role with permissions they don't have themselves.
+- Someone with a custom role can't edit, deactivate, delete, sign out, or send emails to a user who has permissions they don't have, including every admin.
+- Nobody can change their own role, and the last admin can't be demoted.
+
+Roles are enforced by the API on every request, not only by hiding buttons.
 
 ## Manage workspaces
 
@@ -79,7 +115,7 @@ Choose **Delete** and type the workspace's exact name to confirm. This permanent
 
 ## Review the audit log
 
-Open **Settings → Administration → Audit log** to see what administrators changed, newest first. Each entry shows the action, the administrator who did it, the affected user or workspace, the time, and the IP address the request came from. Filter by users, sessions, API keys, workspaces, or email to narrow the list.
+Open **Settings → Administration → Audit log** to see what administrators changed, newest first. Each entry shows the action, the administrator who did it, the affected user or workspace, the time, and the IP address the request came from. Filter by users, sessions, API keys, workspaces, roles, or email to narrow the list.
 
 Kaneo records these actions when they succeed. Rejected or failed attempts aren't recorded.
 
@@ -88,6 +124,7 @@ Kaneo records these actions when they succeed. Rejected or failed attempts aren'
 - **Sessions:** one session or all of a user's sessions revoked.
 - **API keys:** a user's API key revoked (its name, never its value).
 - **Workspaces:** member added, member removed, member role changed, ownership transferred, archived, restored, and deleted.
+- **Roles:** custom role created, updated (renamed or permissions changed), and deleted.
 
 The first account becoming an administrator on a new instance isn't an administrative action and isn't recorded.
 
@@ -95,7 +132,7 @@ Entries never contain passwords, session tokens, password reset links, or API ke
 
 Kaneo keeps audit log entries until you remove them; there's no automatic retention. To prune old entries, delete rows from the `admin_audit_log` table in PostgreSQL, for example `DELETE FROM admin_audit_log WHERE created_at < (now() AT TIME ZONE 'utc') - interval '1 year';`.
 
-Only instance administrators signed in with a session can read the audit log, in the app or through `GET /api/admin/audit-log`. API keys are rejected.
+Reading the audit log, in the app or through `GET /api/admin/audit-log`, needs the `audit:read` permission and a signed-in session. API keys are rejected.
 
 ## Check system status
 
@@ -127,4 +164,6 @@ The button is disabled until `SMTP_HOST` and `SMTP_FROM` are set. See [SMTP conf
 
 ## API
 
-The user management actions are also available to instance administrators signed in with a session under `/api/admin/users`, for example `POST /api/admin/users` to create a user. API keys are rejected. See the API reference for every endpoint.
+Every administration action is available under `/api/admin` to signed-in sessions with the matching permission, for example `POST /api/admin/users` to create a user with `users:create`, or `POST /api/admin/roles` to create a role as an admin. `GET /api/admin/access` lists the caller's own permissions. API keys are rejected. See the API reference for every endpoint.
+
+better-auth's own `/api/auth/admin/*` endpoints remain available to built-in admins only. When they set a role, it must be `admin`, `user`, or an existing custom role.
