@@ -39,6 +39,7 @@ export const Route = createFileRoute(
 // anything past the cap surfaces as a per-day overflow hint. Phones use the
 // agenda list instead of the grid.
 const MAX_LANES_DESKTOP = 3;
+const NO_RELATIONS = [] as const;
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -47,10 +48,13 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { data: project, isLoading, isError } = useGetTasks(projectId);
   const {
-    data: relations = [],
+    data: relationData,
     isLoading: relationsLoading,
     isError: relationsError,
   } = useGetProjectTaskRelations(projectId);
+  const relations = relationsError
+    ? NO_RELATIONS
+    : (relationData ?? NO_RELATIONS);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const isMobile = useIsMobile();
   const view = useProjectTaskView({
@@ -157,7 +161,7 @@ function RouteComponent() {
               {t("common:empty.loading")}
             </p>
           </div>
-        ) : isError || relationsError ? (
+        ) : isError ? (
           <div className="border-b border-border/80 px-4 py-3 text-center">
             <p className="text-sm font-semibold text-destructive">
               {t("tasks:calendar.loadError")}
@@ -183,7 +187,6 @@ function RouteComponent() {
         {!isLoading &&
           !relationsLoading &&
           !isError &&
-          !relationsError &&
           (isMobile ? (
             scheduledTasks.length > 0 && (
               <MonthAgenda
