@@ -79,6 +79,17 @@ describe("buildSettingsNav", () => {
     ).toEqual(["/dashboard/settings/admin/audit-log"]);
   });
 
+  it("shows webhooks alongside instance settings", () => {
+    expect(
+      build({ adminPermissions: ["instance:settings"] }).admin?.links.map(
+        (link) => link.to,
+      ),
+    ).toEqual([
+      "/dashboard/settings/admin/settings",
+      "/dashboard/settings/admin/webhooks",
+    ]);
+  });
+
   it.each([
     "users:read",
     "workspaces:read",

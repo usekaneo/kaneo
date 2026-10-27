@@ -1,4 +1,5 @@
 const TARGET_TYPE_LABEL_KEYS = new Map([
+  ["webhook", "settings:adminAuditLog.targetTypes.webhook"],
   ["user", "settings:adminAuditLog.targetTypes.user"],
   ["workspace", "settings:adminAuditLog.targetTypes.workspace"],
   ["role", "settings:adminAuditLog.targetTypes.role"],

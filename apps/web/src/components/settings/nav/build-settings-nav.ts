@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
   Tag,
   User,
+  Webhook,
 } from "lucide-react";
 import type { InstancePermission } from "@kaneo/permissions";
 import {
@@ -82,6 +83,12 @@ const ADMIN_LINKS = [
     labelKey: "settings:adminSettings.title",
     to: "/dashboard/settings/admin/settings",
     icon: Settings2,
+  },
+  {
+    id: "admin-webhooks",
+    labelKey: "settings:adminWebhooks.title",
+    to: "/dashboard/settings/admin/webhooks",
+    icon: Webhook,
   },
 ] as const satisfies readonly {
   id: string;

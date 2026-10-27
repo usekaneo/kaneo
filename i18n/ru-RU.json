@@ -2615,7 +2615,11 @@
 				"roleCreated": "Role created",
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
-				"instanceSettingsUpdated": "Updated instance settings"
+				"instanceSettingsUpdated": "Updated instance settings",
+				"webhookCreated": "Created webhook",
+				"webhookDeleted": "Deleted webhook",
+				"webhookSecretRotated": "Rotated webhook secret",
+				"webhookUpdated": "Updated webhook"
 			},
 			"categories": {
 				"all": "All actions",
@@ -2625,7 +2629,8 @@
 				"apiKey": "API keys",
 				"email": "Email",
 				"role": "Roles",
-				"instance": "Instance settings"
+				"instance": "Instance settings",
+				"webhook": "Webhooks"
 			},
 			"categoryLabel": "Filter by category",
 			"clearFilter": "Show all actions",
@@ -2670,7 +2675,8 @@
 				"user": "User",
 				"workspace": "Workspace",
 				"role": "Role",
-				"instance": "Instance"
+				"instance": "Instance",
+				"webhook": "Webhook"
 			},
 			"title": "Audit log",
 			"unknownActor": "Unknown"
@@ -2896,6 +2902,49 @@
 			},
 			"workspaceCreationRestricted": "Only administrators can create workspaces",
 			"workspaces": "Workspaces",
+			"save": "Save"
+		},
+		"adminWebhooks": {
+			"actions": "Actions for {{url}}",
+			"add": "Add webhook",
+			"attempts_few": "{{count}} attempts",
+			"attempts_many": "{{count}} attempts",
+			"attempts_one": "{{count}} attempt",
+			"attempts_other": "{{count}} attempts",
+			"categories": "Events",
+			"deleteTitle": "Delete webhook?",
+			"deliveries": "Recent deliveries",
+			"disabled": "Disabled",
+			"edit": "Edit webhook",
+			"empty": "No webhooks",
+			"enabled": "Enabled",
+			"errors": {
+				"destination": "Destination blocked",
+				"disabled": "Webhook disabled",
+				"http": "HTTP error",
+				"interrupted": "Delivery interrupted",
+				"network": "Connection failed",
+				"response": "Invalid response",
+				"signing": "Signing failed",
+				"timeout": "Timed out"
+			},
+			"failed": "Failed",
+			"httpStatus": "HTTP {{status}}",
+			"loadError": "Webhooks could not be loaded.",
+			"noDeliveries": "No deliveries",
+			"pending": "Pending",
+			"rotate": "Rotate secret",
+			"rotateTitle": "Rotate signing secret?",
+			"saveError": "The webhook could not be saved.",
+			"secretTitle": "Signing secret — save it now",
+			"sendTest": "Send test",
+			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
+			"signingSecret": "Signing secret",
+			"succeeded": "Delivered",
+			"testEvent": "Test event",
+			"testQueued": "Test event queued.",
+			"title": "Webhooks",
+			"url": "URL",
 			"save": "Save"
 		}
 	},

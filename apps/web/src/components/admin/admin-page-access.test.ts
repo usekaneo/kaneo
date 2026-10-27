@@ -21,9 +21,19 @@ describe("admin page redirects", () => {
     "audit-log",
     "system",
     "settings",
+    "webhooks",
   ])("redirects a support role away from %s", (page) => {
     expect(getAdminPageRedirect(`${root}/${page}`, ["users:read"])).toBe(
       `${root}/users`,
+    );
+  });
+
+  it("requires instance settings permission for webhooks", () => {
+    expect(
+      getAdminPageRedirect(`${root}/webhooks`, ["instance:settings"]),
+    ).toBeNull();
+    expect(getAdminPageRedirect(`${root}/webhooks`, [])).toBe(
+      "/dashboard/settings/account/information",
     );
   });
 

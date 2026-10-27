@@ -14,4 +14,5 @@ export const AUDIT_LOG_CATEGORIES = [
     value: "instance",
     labelKey: "settings:adminAuditLog.categories.instance",
   },
+  { value: "webhook", labelKey: "settings:adminAuditLog.categories.webhook" },
 ] as const;

@@ -1,4 +1,12 @@
 const ACTION_LABEL_KEYS = new Map([
+  ["webhook.created", "settings:adminAuditLog.actions.webhookCreated"],
+  ["webhook.updated", "settings:adminAuditLog.actions.webhookUpdated"],
+  ["webhook.deleted", "settings:adminAuditLog.actions.webhookDeleted"],
+  [
+    "webhook.secret_rotated",
+    "settings:adminAuditLog.actions.webhookSecretRotated",
+  ],
+  ["webhook.test", "settings:adminWebhooks.testEvent"],
   ["email.test_sent", "settings:adminAuditLog.actions.emailTestSent"],
   ["user.created", "settings:adminAuditLog.actions.userCreated"],
   ["user.updated", "settings:adminAuditLog.actions.userUpdated"],

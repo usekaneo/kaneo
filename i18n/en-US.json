@@ -923,7 +923,8 @@
 				"workspace": "Workspaces",
 				"apiKey": "API keys",
 				"role": "Roles",
-				"instance": "Instance settings"
+				"instance": "Instance settings",
+				"webhook": "Webhooks"
 			},
 			"loadError": "The audit log could not be loaded.",
 			"retry": "Retry",
@@ -945,7 +946,8 @@
 				"user": "User",
 				"workspace": "Workspace",
 				"role": "Role",
-				"instance": "Instance"
+				"instance": "Instance",
+				"webhook": "Webhook"
 			},
 			"actions": {
 				"emailTestSent": "Sent test email",
@@ -975,7 +977,11 @@
 				"roleCreated": "Role created",
 				"roleUpdated": "Role updated",
 				"roleDeleted": "Role deleted",
-				"instanceSettingsUpdated": "Updated instance settings"
+				"instanceSettingsUpdated": "Updated instance settings",
+				"webhookCreated": "Created webhook",
+				"webhookUpdated": "Updated webhook",
+				"webhookDeleted": "Deleted webhook",
+				"webhookSecretRotated": "Rotated webhook secret"
 			},
 			"fields": {
 				"name": "name",
@@ -2793,6 +2799,47 @@
 				"saved": "Settings saved",
 				"error": "Couldn't save settings"
 			}
+		},
+		"adminWebhooks": {
+			"title": "Webhooks",
+			"add": "Add webhook",
+			"edit": "Edit webhook",
+			"url": "URL",
+			"categories": "Events",
+			"enabled": "Enabled",
+			"disabled": "Disabled",
+			"actions": "Actions for {{url}}",
+			"deliveries": "Recent deliveries",
+			"sendTest": "Send test",
+			"rotate": "Rotate secret",
+			"rotateTitle": "Rotate signing secret?",
+			"deleteTitle": "Delete webhook?",
+			"secretTitle": "Signing secret — save it now",
+			"signingSecret": "Signing secret",
+			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
+			"loadError": "Webhooks could not be loaded.",
+			"saveError": "The webhook could not be saved.",
+			"empty": "No webhooks",
+			"noDeliveries": "No deliveries",
+			"testQueued": "Test event queued.",
+			"testEvent": "Test event",
+			"pending": "Pending",
+			"succeeded": "Delivered",
+			"failed": "Failed",
+			"attempts_one": "{{count}} attempt",
+			"attempts_other": "{{count}} attempts",
+			"httpStatus": "HTTP {{status}}",
+			"errors": {
+				"network": "Connection failed",
+				"timeout": "Timed out",
+				"http": "HTTP error",
+				"destination": "Destination blocked",
+				"signing": "Signing failed",
+				"disabled": "Webhook disabled",
+				"interrupted": "Delivery interrupted",
+				"response": "Invalid response"
+			},
+			"save": "Save"
 		}
 	},
 	"navigation": {
