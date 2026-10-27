@@ -59,6 +59,16 @@ From the members list you can:
 
 The only owner can't be removed or given another role. Transfer ownership to someone else first.
 
+### Archive or restore a workspace
+
+Choose **Archive workspace** from the workspace's actions menu to pause it without deleting data. Archived workspaces stay visible in the administration directory with an **Archived** badge. Members cannot access them, and they disappear from the workspace switcher. Open boards close their realtime connections and show an archived state.
+
+Archiving also pauses integrations, notifications, reminders, public project links, calendar feeds, and access through API keys and MCP. Existing memberships, invitations, and data remain. Choose **Restore workspace** to make it available again.
+
+### Delete a workspace
+
+Choose **Delete** and type the workspace's exact name to confirm. This permanently removes its projects, tasks, members, invitations, and uploaded files; members' user accounts stay. You can delete active or archived workspaces without being a member. Workspaces with an active paid subscription must have it cancelled in billing settings first.
+
 ## Review the audit log
 
 Open **Settings → Administration → Audit log** to see what administrators changed, newest first. Each entry shows the action, the administrator who did it, the affected user or workspace, the time, and the IP address the request came from. Filter by users, sessions, API keys, workspaces, or email to narrow the list.
@@ -69,7 +79,7 @@ Kaneo records these actions when they succeed. Rejected or failed attempts aren'
 - **Email:** test email sent to the calling administrator.
 - **Sessions:** one session or all of a user's sessions revoked.
 - **API keys:** a user's API key revoked (its name, never its value).
-- **Workspaces:** member added, member removed, member role changed, and ownership transferred.
+- **Workspaces:** member added, member removed, member role changed, ownership transferred, archived, restored, and deleted.
 
 The first account becoming an administrator on a new instance isn't an administrative action and isn't recorded.
 

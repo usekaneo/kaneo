@@ -8,6 +8,8 @@ import { requireInstanceAdmin } from "../utils/require-instance-admin";
 import { requireUserSession } from "../utils/require-user-session";
 import { adminAuditRequest } from "./audit/admin-audit-request";
 import addWorkspaceMember from "./controllers/add-workspace-member";
+import archiveWorkspace from "./controllers/archive-workspace";
+import deleteWorkspace from "./controllers/delete-workspace";
 import listAuditLog from "./controllers/list-audit-log";
 import getSystemStatus from "./controllers/get-system-status";
 import listUsers from "./controllers/list-users";
@@ -16,12 +18,15 @@ import listWorkspaceRoles from "./controllers/list-workspace-roles";
 import listWorkspaces from "./controllers/list-workspaces";
 import removeWorkspaceMember from "./controllers/remove-workspace-member";
 import sendAdminTestEmail from "./controllers/send-test-email";
+import restoreWorkspace from "./controllers/restore-workspace";
 import transferWorkspaceOwnership from "./controllers/transfer-workspace-ownership";
 import updateWorkspaceMemberRole from "./controllers/update-workspace-member-role";
 import adminUserRoutes from "./user-routes";
 import {
   adminAuditLogSchema,
+  adminDeletedWorkspaceSchema,
   adminUserListSchema,
+  adminWorkspaceArchiveStateSchema,
   adminWorkspaceListSchema,
   adminWorkspaceMemberListSchema,
   adminWorkspaceRoleListSchema,
@@ -70,7 +75,7 @@ const listWorkspacesRoute = createRoute({
   tags: ["Admin"],
   summary: "List instance workspaces",
   description:
-    "Page through every workspace on this instance with its owners, member count and project count, optionally filtered by a case-insensitive name or slug search. Requires an instance administrator session; API keys are rejected.",
+    "Page through every workspace on this instance with its owners, member count, project count and archive state, optionally filtered by a case-insensitive name or slug search. Requires an instance administrator session; API keys are rejected.",
   middleware: [requireUserSession, requireInstanceAdmin] as const,
   request: { query: listAdminWorkspacesQuery },
   responses: {
@@ -225,6 +230,72 @@ const transferWorkspaceOwnershipRoute = createRoute({
   },
 });
 
+const archiveWorkspaceRoute = createRoute({
+  method: "post",
+  operationId: "archiveAdminWorkspace",
+  path: "/workspaces/{workspaceId}/archive",
+  tags: ["Admin"],
+  summary: "Archive a workspace",
+  description:
+    "Disable a workspace without deleting anything. Its members, API keys, MCP clients, public links, calendar feeds, notifications, and integrations stop working, and requests for it return 403 with the code WORKSPACE_ARCHIVED. Open realtime connections are closed. Restore it to undo. Requires an instance administrator session; API keys are rejected.",
+  middleware: [requireUserSession, requireInstanceAdmin] as const,
+  request: { params: adminWorkspaceParam },
+  responses: {
+    200: jsonResponse(
+      "The workspace's archive state",
+      adminWorkspaceArchiveStateSchema,
+    ),
+    403: forbidden,
+    404: errorResponse("Workspace not found"),
+    409: errorResponse(
+      "The workspace is already archived (code WORKSPACE_ALREADY_ARCHIVED)",
+    ),
+  },
+});
+
+const restoreWorkspaceRoute = createRoute({
+  method: "post",
+  operationId: "restoreAdminWorkspace",
+  path: "/workspaces/{workspaceId}/restore",
+  tags: ["Admin"],
+  summary: "Restore an archived workspace",
+  description:
+    "Make an archived workspace usable again, with all of its data, members, and integrations as they were. Requires an instance administrator session; API keys are rejected.",
+  middleware: [requireUserSession, requireInstanceAdmin] as const,
+  request: { params: adminWorkspaceParam },
+  responses: {
+    200: jsonResponse(
+      "The workspace's archive state",
+      adminWorkspaceArchiveStateSchema,
+    ),
+    403: forbidden,
+    404: errorResponse("Workspace not found"),
+    409: errorResponse(
+      "The workspace is not archived (code WORKSPACE_NOT_ARCHIVED)",
+    ),
+  },
+});
+
+const deleteWorkspaceRoute = createRoute({
+  method: "delete",
+  operationId: "deleteAdminWorkspace",
+  path: "/workspaces/{workspaceId}",
+  tags: ["Admin"],
+  summary: "Delete a workspace",
+  description:
+    "Permanently delete a workspace and everything in it, archived or not, the same way its owner can: projects, tasks, members, invitations and uploaded files go, and open realtime connections are closed. The administrator does not need to be a member. Requires an instance administrator session; API keys are rejected.",
+  middleware: [requireUserSession, requireInstanceAdmin] as const,
+  request: { params: adminWorkspaceParam },
+  responses: {
+    200: jsonResponse("The deleted workspace", adminDeletedWorkspaceSchema),
+    403: forbidden,
+    404: errorResponse("Workspace not found"),
+    409: errorResponse(
+      "The workspace still has an active subscription (code WORKSPACE_HAS_ACTIVE_SUBSCRIPTION)",
+    ),
+  },
+});
+
 const listAuditLogRoute = createRoute({
   method: "get",
   operationId: "listAdminAuditLog",
@@ -337,6 +408,33 @@ const admin = apiRouter()
           workspaceId: c.req.valid("param").workspaceId,
           userId: c.req.valid("json").userId,
         },
+        adminAuditRequest(c),
+      ),
+      200,
+    ),
+  )
+  .openapi(archiveWorkspaceRoute, async (c) =>
+    c.json(
+      await archiveWorkspace(
+        c.req.valid("param").workspaceId,
+        adminAuditRequest(c),
+      ),
+      200,
+    ),
+  )
+  .openapi(restoreWorkspaceRoute, async (c) =>
+    c.json(
+      await restoreWorkspace(
+        c.req.valid("param").workspaceId,
+        adminAuditRequest(c),
+      ),
+      200,
+    ),
+  )
+  .openapi(deleteWorkspaceRoute, async (c) =>
+    c.json(
+      await deleteWorkspace(
+        c.req.valid("param").workspaceId,
         adminAuditRequest(c),
       ),
       200,

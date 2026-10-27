@@ -9,6 +9,7 @@ import {
   projectTable,
   sessionTable,
   userTable,
+  workspaceTable,
   workspaceUserTable,
 } from "../database/schema";
 import { subscribeToEvent } from "../events";
@@ -584,7 +585,12 @@ export async function revokeApiKeyConnections(
 export async function revokeWorkspaceConnections(
   userId: string,
   workspaceId: string,
-  options: { force?: boolean; role?: string | null } = {},
+  options: {
+    force?: boolean;
+    role?: string | null;
+    /** Tells clients why, so they can explain it instead of redirecting. */
+    reason?: "archived";
+  } = {},
 ) {
   if (!options.force) {
     try {
@@ -600,9 +606,11 @@ export async function revokeWorkspaceConnections(
       console.error("Failed to read role after membership removal:", error);
     }
   }
+  const reason = options.reason ? { reason: options.reason } : {};
   deliverToLocalUserConnections(userId, {
     type: "WORKSPACE_ACCESS_REVOKED",
     workspaceId,
+    ...reason,
   });
   await revocationDelivery?.send(
     {
@@ -610,6 +618,7 @@ export async function revokeWorkspaceConnections(
       message: {
         type: "WORKSPACE_ACCESS_REVOKED",
         workspaceId,
+        ...reason,
         ...(options.force ? { force: true } : {}),
       },
       origin: INSTANCE_ID,
@@ -637,16 +646,29 @@ export async function revokeWorkspaceConnections(
   );
 }
 
-const workspaceLookups = new Map<string, Promise<string | null>>();
+const workspaceLookups = new Map<
+  string,
+  Promise<{ workspaceId: string | null; archived: boolean }>
+>();
 function currentProjectWorkspace(projectId: string) {
   let pending = workspaceLookups.get(projectId);
   if (!pending) {
     pending = db
-      .select({ workspaceId: projectTable.workspaceId })
+      .select({
+        workspaceId: projectTable.workspaceId,
+        archivedAt: workspaceTable.archivedAt,
+      })
       .from(projectTable)
+      .innerJoin(
+        workspaceTable,
+        eq(workspaceTable.id, projectTable.workspaceId),
+      )
       .where(eq(projectTable.id, projectId))
       .limit(1)
-      .then(([project]) => project?.workspaceId ?? null)
+      .then(([project]) => ({
+        workspaceId: project?.workspaceId ?? null,
+        archived: !!project?.archivedAt,
+      }))
       .finally(() => workspaceLookups.delete(projectId));
     workspaceLookups.set(projectId, pending);
   }
@@ -684,8 +706,9 @@ function currentBroadcastAccess(
   if (!pending) {
     pending = (async () => {
       let workspaceId: string | null;
+      let archived: boolean;
       try {
-        workspaceId = await currentProjectWorkspace(projectId);
+        ({ workspaceId, archived } = await currentProjectWorkspace(projectId));
       } catch (error) {
         console.error("Failed to validate project broadcast access:", error);
         return null;
@@ -694,7 +717,9 @@ function currentBroadcastAccess(
       let restricted = new Set<string>();
       let readers = new Set<string>();
       let apiKeys = new Map<string, string>();
-      if (workspaceId) {
+      // An archived workspace has no readers: leaving `members` empty closes
+      // any socket a missed revocation left open.
+      if (workspaceId && !archived) {
         try {
           const [rows, permitted] = await Promise.all([
             db

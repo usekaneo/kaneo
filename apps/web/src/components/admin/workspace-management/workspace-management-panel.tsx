@@ -18,8 +18,11 @@ import useAdminWorkspaces, {
   ADMIN_WORKSPACES_SEARCH_MAX_LENGTH,
   type AdminWorkspace,
 } from "@/hooks/queries/admin/use-admin-workspaces";
+import { DeleteWorkspaceDialog } from "./delete-workspace-dialog";
+import type { PendingWorkspaceAction } from "./pending-workspace-action";
 import { WorkspaceDirectoryHead } from "./workspace-directory-head";
 import { WorkspaceDirectoryRow } from "./workspace-directory-row";
+import { WorkspaceLifecycleConfirmDialog } from "./workspace-lifecycle-confirm-dialog";
 import WorkspaceMembersDialog from "./workspace-members-dialog";
 
 function WorkspaceManagementPanel() {
@@ -29,6 +32,8 @@ function WorkspaceManagementPanel() {
   const [selectedWorkspace, setSelectedWorkspace] =
     useState<AdminWorkspace | null>(null);
   const [isMembersOpen, setIsMembersOpen] = useState(false);
+  const [pendingAction, setPendingAction] =
+    useState<PendingWorkspaceAction | null>(null);
 
   const { data, isLoading, isFetching, isError, refetch } = useAdminWorkspaces(
     debouncedSearch,
@@ -121,6 +126,7 @@ function WorkspaceManagementPanel() {
                       setSelectedWorkspace(workspace);
                       setIsMembersOpen(true);
                     }}
+                    onAction={(type) => setPendingAction({ type, workspace })}
                   />
                 ))
               )}
@@ -147,6 +153,14 @@ function WorkspaceManagementPanel() {
         workspace={selectedWorkspace}
         open={isMembersOpen}
         onOpenChange={setIsMembersOpen}
+      />
+      <WorkspaceLifecycleConfirmDialog
+        action={pendingAction}
+        onClose={() => setPendingAction(null)}
+      />
+      <DeleteWorkspaceDialog
+        action={pendingAction}
+        onClose={() => setPendingAction(null)}
       />
     </SettingsPage>
   );

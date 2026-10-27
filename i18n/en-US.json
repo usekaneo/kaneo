@@ -868,6 +868,22 @@
 					"title": "Remove {{name}}?",
 					"description": "{{name}} loses access to {{workspace}} and its projects. Their account stays on this instance.",
 					"action": "Remove member"
+				},
+				"archive": {
+					"title": "Archive {{name}}?",
+					"description": "Members will lose access and integrations, public links, and calendar feeds will pause. All workspace data stays intact. You can restore it at any time.",
+					"action": "Archive workspace"
+				},
+				"restore": {
+					"title": "Restore {{name}}?",
+					"description": "Members will regain access to this workspace. Integrations, public links, and calendar feeds will work again.",
+					"action": "Restore workspace"
+				},
+				"delete": {
+					"title": "Delete {{name}}?",
+					"description": "Permanently delete this workspace, its {{projects}} projects, tasks, and uploaded files. Its {{members}} members will lose access. This cannot be undone.",
+					"typeName": "Type {{name}} to confirm",
+					"action": "Delete workspace"
 				}
 			},
 			"toast": {
@@ -878,7 +894,19 @@
 				"removed": "Member removed",
 				"removeError": "Failed to remove member",
 				"ownershipTransferred": "Ownership transferred",
-				"transferError": "Failed to transfer ownership"
+				"transferError": "Failed to transfer ownership",
+				"archived": "Workspace archived",
+				"restored": "Workspace restored",
+				"deleted": "Workspace deleted",
+				"archiveError": "Could not archive workspace",
+				"restoreError": "Could not restore workspace",
+				"deleteError": "Could not delete workspace"
+			},
+			"archived": "Archived",
+			"actions": {
+				"open": "Actions for {{name}}",
+				"archive": "Archive workspace",
+				"restore": "Restore workspace"
 			}
 		},
 		"adminAuditLog": {
@@ -935,7 +963,10 @@
 				"userEmailVerified": "Marked email as verified",
 				"userAvatarChanged": "Changed profile picture",
 				"userAvatarRemoved": "Removed profile picture",
-				"apiKeyRevoked": "Revoked an API key"
+				"apiKeyRevoked": "Revoked an API key",
+				"workspaceArchived": "Workspace archived",
+				"workspaceRestored": "Workspace restored",
+				"workspaceDeleted": "Workspace deleted"
 			},
 			"fields": {
 				"name": "name",
@@ -952,7 +983,8 @@
 				"memberChange": "{{member}}: {{from}} → {{to}}",
 				"createdWithRole": "Role: {{role}}",
 				"sessionCount_one": "{{count}} session",
-				"sessionCount_other": "{{count}} sessions"
+				"sessionCount_other": "{{count}} sessions",
+				"workspaceContents": "{{members}} members, {{projects}} projects"
 			}
 		},
 		"informationPage": {
@@ -3786,6 +3818,12 @@
 				"project": "Project"
 			},
 			"truncated": "Showing the first {{shown}} of {{total}} tasks."
+		},
+		"archived": {
+			"title": "Workspace archived",
+			"description": "An instance administrator archived this workspace. Your data is saved. Contact an administrator to restore access.",
+			"otherWorkspaces": "Go to workspaces",
+			"manage": "Manage workspaces"
 		}
 	},
 	"team": {

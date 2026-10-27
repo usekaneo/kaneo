@@ -1,4 +1,4 @@
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, isNull } from "drizzle-orm";
 import db from "../database";
 import { invitationTable, userTable, workspaceTable } from "../database/schema";
 
@@ -95,7 +95,11 @@ async function findValidInvitation(
     .from(invitationTable)
     .innerJoin(
       workspaceTable,
-      eq(invitationTable.workspaceId, workspaceTable.id),
+      and(
+        eq(invitationTable.workspaceId, workspaceTable.id),
+        // Invitations to archived workspaces cannot be used.
+        isNull(workspaceTable.archivedAt),
+      ),
     )
     .innerJoin(userTable, eq(invitationTable.inviterId, userTable.id))
     .where(and(...conditions))
@@ -142,7 +146,11 @@ export async function getInvitationDetails(
     .from(invitationTable)
     .innerJoin(
       workspaceTable,
-      eq(invitationTable.workspaceId, workspaceTable.id),
+      and(
+        eq(invitationTable.workspaceId, workspaceTable.id),
+        // Invitations to archived workspaces cannot be used.
+        isNull(workspaceTable.archivedAt),
+      ),
     )
     .innerJoin(userTable, eq(invitationTable.inviterId, userTable.id))
     .where(eq(invitationTable.id, invitationId))
@@ -231,7 +239,11 @@ export async function getUserPendingInvitations(userEmail: string) {
     .from(invitationTable)
     .innerJoin(
       workspaceTable,
-      eq(invitationTable.workspaceId, workspaceTable.id),
+      and(
+        eq(invitationTable.workspaceId, workspaceTable.id),
+        // Invitations to archived workspaces cannot be used.
+        isNull(workspaceTable.archivedAt),
+      ),
     )
     .innerJoin(userTable, eq(invitationTable.inviterId, userTable.id))
     .where(

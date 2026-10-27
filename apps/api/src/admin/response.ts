@@ -51,8 +51,27 @@ export const adminWorkspaceSchema = z
     memberCount: z.number().int(),
     projectCount: z.number().int(),
     owners: z.array(adminWorkspaceOwnerSchema),
+    archivedAt: isoTimestamp.nullable().openapi({
+      description:
+        "When an administrator archived the workspace, or null when it is active.",
+    }),
+    archivedBy: adminWorkspaceOwnerSchema.nullable().openapi({
+      description:
+        "The administrator who archived it. Null when active or when that account was deleted.",
+    }),
   })
   .openapi("AdminWorkspace");
+
+export const adminWorkspaceArchiveStateSchema = z
+  .object({
+    id: z.string(),
+    archivedAt: isoTimestamp.nullable(),
+  })
+  .openapi("AdminWorkspaceArchiveState");
+
+export const adminDeletedWorkspaceSchema = z
+  .object({ id: z.string() })
+  .openapi("AdminDeletedWorkspace");
 
 export const adminWorkspaceListSchema = z
   .object({

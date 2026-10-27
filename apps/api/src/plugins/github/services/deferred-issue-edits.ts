@@ -1,3 +1,4 @@
+import { integrationInActiveWorkspace } from "../../../workspace/archive/active-workspace-sql";
 import { canSyncTask } from "../../sync/eligibility";
 import { and, asc, gt, sql } from "drizzle-orm";
 import db from "../../../database";
@@ -121,6 +122,7 @@ async function replayClaimedIssueEdits() {
     const links = await db.query.externalLinkTable.findMany({
       where: and(
         sql`${externalLinkTable.resourceType} = 'issue' AND ${externalLinkTable.metadata} LIKE '%"deferredIssueEdit":%'`,
+        integrationInActiveWorkspace(externalLinkTable.integrationId),
         cursor ? gt(externalLinkTable.id, cursor) : undefined,
       ),
       with: { integration: true },

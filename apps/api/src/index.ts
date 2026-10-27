@@ -543,11 +543,16 @@ export function createApp() {
           workspaceId: schema.assetTable.workspaceId,
           projectId: schema.assetTable.projectId,
           isPublic: schema.projectTable.isPublic,
+          workspaceArchived: sql<boolean>`${schema.workspaceTable.archivedAt} is not null`,
         })
         .from(schema.assetTable)
         .innerJoin(
           schema.projectTable,
           eq(schema.assetTable.projectId, schema.projectTable.id),
+        )
+        .innerJoin(
+          schema.workspaceTable,
+          eq(schema.projectTable.workspaceId, schema.workspaceTable.id),
         )
         .where(eq(schema.assetTable.id, id))
         .limit(1);

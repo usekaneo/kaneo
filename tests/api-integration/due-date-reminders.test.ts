@@ -107,6 +107,13 @@ function remindersSentFor(taskId: string) {
     .where(eq(schema.taskReminderSentTable.taskId, taskId));
 }
 
+function archive(workspaceId: string) {
+  return db
+    .update(schema.workspaceTable)
+    .set({ archivedAt: new Date() })
+    .where(eq(schema.workspaceTable.id, workspaceId));
+}
+
 describe("due date reminders", () => {
   beforeEach(async () => {
     await resetTestDatabase();
@@ -170,6 +177,18 @@ describe("due date reminders", () => {
 
     expect(await notificationsFor(task.id)).toHaveLength(0);
   });
+
+  it("stays silent while the workspace is archived", async () => {
+    const scene = await seedScene();
+    const task = await seedTask(scene, { status: "to-do" });
+    await archive(scene.workspace.id);
+
+    await checkDueDateReminders();
+
+    expect(await notificationsFor(task.id)).toHaveLength(0);
+    // Not claimed either, so nothing is marked as sent while archived.
+    expect(await remindersSentFor(task.id)).toHaveLength(0);
+  });
 });
 
 describe("project webhook due date reminders", () => {
@@ -225,5 +244,16 @@ describe("project webhook due date reminders", () => {
         reminderType: `generic_webhook:${integration.id}`,
       }),
     ]);
+  });
+
+  it("stays silent while the workspace is archived", async () => {
+    const scene = await seedScene();
+    await seedWebhookIntegration(scene.project.id);
+    await seedTask(scene, { status: "to-do" });
+    await archive(scene.workspace.id);
+
+    await checkProjectWebhookReminders();
+
+    expect(remindedTaskIds()).toEqual([]);
   });
 });

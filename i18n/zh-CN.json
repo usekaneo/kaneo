@@ -2063,7 +2063,23 @@
 					"description": "{{name}} 将成为 {{workspace}} 唯一的所有者，当前的所有者将变为管理员。",
 					"title": "让 {{name}} 成为所有者？"
 				},
-				"working": "处理中…"
+				"working": "处理中…",
+				"archive": {
+					"action": "Archive workspace",
+					"description": "Members will lose access and integrations, public links, and calendar feeds will pause. All workspace data stays intact. You can restore it at any time.",
+					"title": "Archive {{name}}?"
+				},
+				"delete": {
+					"action": "Delete workspace",
+					"description": "Permanently delete this workspace, its {{projects}} projects, tasks, and uploaded files. Its {{members}} members will lose access. This cannot be undone.",
+					"title": "Delete {{name}}?",
+					"typeName": "Type {{name}} to confirm"
+				},
+				"restore": {
+					"action": "Restore workspace",
+					"description": "Members will regain access to this workspace. Integrations, public links, and calendar feeds will work again.",
+					"title": "Restore {{name}}?"
+				}
 			},
 			"directoryTitle": "所有工作区",
 			"emptyDescription": "换个名称或 slug 试试。",
@@ -2103,8 +2119,20 @@
 				"removeError": "移除成员失败",
 				"roleError": "更新角色失败",
 				"roleUpdated": "角色已更新",
-				"transferError": "转移所有权失败"
-			}
+				"transferError": "转移所有权失败",
+				"archived": "Workspace archived",
+				"archiveError": "Could not archive workspace",
+				"deleted": "Workspace deleted",
+				"deleteError": "Could not delete workspace",
+				"restored": "Workspace restored",
+				"restoreError": "Could not restore workspace"
+			},
+			"actions": {
+				"archive": "Archive workspace",
+				"open": "Actions for {{name}}",
+				"restore": "Restore workspace"
+			},
+			"archived": "Archived"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2444,7 +2472,10 @@
 				"userPasswordResetSent": "Sent password reset link",
 				"userVerificationSent": "Sent verification email",
 				"apiKeyRevoked": "Revoked an API key",
-				"emailTestSent": "Sent test email"
+				"emailTestSent": "Sent test email",
+				"workspaceArchived": "Workspace archived",
+				"workspaceDeleted": "Workspace deleted",
+				"workspaceRestored": "Workspace restored"
 			},
 			"categories": {
 				"all": "All actions",
@@ -2471,7 +2502,8 @@
 				"noRole": "No role",
 				"reason": "Reason: {{reason}}",
 				"createdWithRole": "Role: {{role}}",
-				"sessionCount_other": "{{count}} sessions"
+				"sessionCount_other": "{{count}} sessions",
+				"workspaceContents": "{{members}} members, {{projects}} projects"
 			},
 			"directoryTitle": "Recorded actions",
 			"emptyTitle": "No actions recorded",
@@ -3713,6 +3745,12 @@
 			},
 			"empty": "暂时没有指派给你的任务",
 			"loadError": "你的任务加载失败。"
+		},
+		"archived": {
+			"description": "An instance administrator archived this workspace. Your data is saved. Contact an administrator to restore access.",
+			"manage": "Manage workspaces",
+			"otherWorkspaces": "Go to workspaces",
+			"title": "Workspace archived"
 		}
 	},
 	"team": {

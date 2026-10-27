@@ -38,6 +38,9 @@ const ACTION_LABEL_KEYS = new Map([
     "workspace.owner_transferred",
     "settings:adminAuditLog.actions.workspaceOwnerTransferred",
   ],
+  ["workspace.archived", "settings:adminAuditLog.actions.workspaceArchived"],
+  ["workspace.restored", "settings:adminAuditLog.actions.workspaceRestored"],
+  ["workspace.deleted", "settings:adminAuditLog.actions.workspaceDeleted"],
 ]);
 
 /** Human wording for an action; actions this client doesn't know show as-is. */

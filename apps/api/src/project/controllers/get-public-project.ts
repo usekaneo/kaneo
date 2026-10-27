@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
+import { workspaceIsActive } from "../../workspace/archive/active-workspace-sql";
 import getTasks, {
   type GetTasksOptions,
 } from "../../task/controllers/get-tasks";
@@ -13,7 +14,13 @@ export async function getPublicProject(
   const [project] = await db
     .select({ isPublic: projectTable.isPublic })
     .from(projectTable)
-    .where(eq(projectTable.id, id))
+    .where(
+      and(
+        eq(projectTable.id, id),
+        // Public links of an archived workspace stop working until restored.
+        workspaceIsActive(projectTable.workspaceId),
+      ),
+    )
     .limit(1);
 
   if (!project) {

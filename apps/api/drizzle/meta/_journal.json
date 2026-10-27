@@ -484,6 +484,13 @@
       "when": 1793128120924,
       "tag": "0068_admin_audit_log",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1793128486906,
+      "tag": "0069_workspace_archive",
+      "breakpoints": true
     }
   ]
 }

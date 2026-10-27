@@ -92,6 +92,18 @@ const mocks = vi.hoisted(() => ({
   remove: vi.fn(),
   transfer: vi.fn(),
   add: vi.fn(),
+  archive: vi.fn(),
+  restore: vi.fn(),
+  deleteWorkspace: vi.fn(),
+}));
+vi.mock("@/hooks/mutations/admin/use-archive-admin-workspace", () => ({
+  default: () => ({ mutateAsync: mocks.archive, isPending: false }),
+}));
+vi.mock("@/hooks/mutations/admin/use-restore-admin-workspace", () => ({
+  default: () => ({ mutateAsync: mocks.restore, isPending: false }),
+}));
+vi.mock("@/hooks/mutations/admin/use-delete-admin-workspace", () => ({
+  default: () => ({ mutateAsync: mocks.deleteWorkspace, isPending: false }),
 }));
 vi.mock(
   "@/hooks/mutations/admin/use-update-admin-workspace-member-role",
@@ -127,6 +139,8 @@ const acme: AdminWorkspace = {
   memberCount: 2,
   projectCount: 4,
   owners: [{ id: "ada", name: "Ada Lovelace", email: "ada@example.com" }],
+  archivedAt: null,
+  archivedBy: null,
 };
 
 const orphan: AdminWorkspace = {
@@ -137,6 +151,8 @@ const orphan: AdminWorkspace = {
   memberCount: 1,
   projectCount: 0,
   owners: [],
+  archivedAt: "2026-02-01T00:00:00.000Z",
+  archivedBy: { id: "root", name: "Root", email: "root@example.com" },
 };
 
 function member(
@@ -192,6 +208,14 @@ function openAcme() {
   return screen.findByRole("dialog", {
     name: "settings:adminWorkspaces.members.title|Acme",
   });
+}
+
+function openWorkspaceMenu(name: string) {
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: `settings:adminWorkspaces.actions.open|${name}`,
+    }),
+  );
 }
 
 function openMemberMenu(name: string) {
@@ -453,5 +477,103 @@ describe("WorkspaceManagementPanel", () => {
         role: "member",
       }),
     );
+  });
+
+  it("marks archived workspaces and offers restore instead of archive", async () => {
+    render(<WorkspaceManagementPanel />);
+
+    const acmeRow = screen
+      .getByText("Acme")
+      .closest('[role="row"]') as HTMLElement;
+    const orphanRow = screen
+      .getByText("Orphaned")
+      .closest('[role="row"]') as HTMLElement;
+    expect(
+      within(acmeRow).queryByText("settings:adminWorkspaces.archived"),
+    ).toBeNull();
+    expect(
+      within(orphanRow).getByText("settings:adminWorkspaces.archived"),
+    ).toBeTruthy();
+
+    openWorkspaceMenu("Orphaned");
+    expect(
+      await screen.findByRole("menuitem", {
+        name: "settings:adminWorkspaces.actions.restore",
+      }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("menuitem", {
+        name: "settings:adminWorkspaces.actions.archive",
+      }),
+    ).toBeNull();
+  });
+
+  it("archives a workspace after confirmation", async () => {
+    render(<WorkspaceManagementPanel />);
+    openWorkspaceMenu("Acme");
+    fireEvent.click(
+      await screen.findByRole("menuitem", {
+        name: "settings:adminWorkspaces.actions.archive",
+      }),
+    );
+
+    const confirm = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(confirm).getByRole("button", {
+        name: "settings:adminWorkspaces.confirm.archive.action",
+      }),
+    );
+
+    await waitFor(() => expect(mocks.archive).toHaveBeenCalledWith("acme"));
+    expect(mocks.deleteWorkspace).not.toHaveBeenCalled();
+  });
+
+  it("restores an archived workspace after confirmation", async () => {
+    render(<WorkspaceManagementPanel />);
+    openWorkspaceMenu("Orphaned");
+    fireEvent.click(
+      await screen.findByRole("menuitem", {
+        name: "settings:adminWorkspaces.actions.restore",
+      }),
+    );
+
+    const confirm = await screen.findByRole("alertdialog");
+    fireEvent.click(
+      within(confirm).getByRole("button", {
+        name: "settings:adminWorkspaces.confirm.restore.action",
+      }),
+    );
+
+    await waitFor(() => expect(mocks.restore).toHaveBeenCalledWith("orphan"));
+  });
+
+  it("deletes a workspace only after its name is typed", async () => {
+    render(<WorkspaceManagementPanel />);
+    openWorkspaceMenu("Acme");
+    fireEvent.click(
+      await screen.findByRole("menuitem", { name: "common:actions.delete" }),
+    );
+
+    const confirm = await screen.findByRole("alertdialog");
+    const submit = within(confirm).getByRole("button", {
+      name: "settings:adminWorkspaces.confirm.delete.action",
+    }) as HTMLButtonElement;
+    const input = within(confirm).getByLabelText(
+      "settings:adminWorkspaces.confirm.delete.typeName|Acme",
+    );
+    expect(submit.disabled).toBe(true);
+
+    fireEvent.change(input, { target: { value: "acme" } });
+    expect(submit.disabled).toBe(true);
+    fireEvent.click(submit);
+    expect(mocks.deleteWorkspace).not.toHaveBeenCalled();
+
+    fireEvent.change(input, { target: { value: "Acme" } });
+    expect(submit.disabled).toBe(false);
+    fireEvent.click(submit);
+    await waitFor(() =>
+      expect(mocks.deleteWorkspace).toHaveBeenCalledWith("acme"),
+    );
+    expect(mocks.archive).not.toHaveBeenCalled();
   });
 });

@@ -112,6 +112,35 @@ describe("user WebSocket lifecycle", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
+  it("keeps an archived board open to show its archived state and refreshes on restore", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+          reason: "archived",
+        }),
+      }),
+    );
+    expect(navigate).not.toHaveBeenCalled();
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["workspace-status", "workspace"],
+    });
+    client.invalidateQueries.mockClear();
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_RESTORED",
+          workspaceId: "workspace",
+        }),
+      }),
+    );
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["workspace-status", "workspace"],
+    });
+    expect(auth.notify).toHaveBeenCalledWith("$listOrg");
+  });
   it.each([
     "/dashboard/settings/workspace/general",
     "/dashboard/settings/workspace/roles",

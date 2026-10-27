@@ -10,6 +10,7 @@ import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { extractTaskLinks } from "../utils/task-references";
 
 import type { IntegrationDatabase } from "./integration-task-scope";
+import { activeIntegrationCondition } from "../../active-integration-condition";
 
 export type TaskRow = InferSelectModel<typeof taskTable>;
 
@@ -164,7 +165,7 @@ export async function findAllIntegrationsByRepo(source: GitHubWebhookSource) {
   const integrations = await db.query.integrationTable.findMany({
     where: and(
       eq(integrationTable.type, "github"),
-      eq(integrationTable.isActive, true),
+      activeIntegrationCondition(),
     ),
     with: { project: true },
   });

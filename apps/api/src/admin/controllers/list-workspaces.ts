@@ -1,4 +1,5 @@
 import { and, count, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import db from "../../database";
 import {
   projectTable,
@@ -7,6 +8,8 @@ import {
   workspaceUserTable,
 } from "../../database/schema";
 import { escapeLikePattern } from "../../search/like-pattern";
+
+const archiver = alias(userTable, "archiver");
 
 type ListWorkspacesInput = {
   search?: string;
@@ -31,8 +34,13 @@ async function listWorkspaces({ search, page, limit }: ListWorkspacesInput) {
         name: workspaceTable.name,
         slug: workspaceTable.slug,
         createdAt: workspaceTable.createdAt,
+        archivedAt: workspaceTable.archivedAt,
+        archiverId: archiver.id,
+        archiverName: archiver.name,
+        archiverEmail: archiver.email,
       })
       .from(workspaceTable)
+      .leftJoin(archiver, eq(archiver.id, workspaceTable.archivedBy))
       .where(where)
       .orderBy(desc(workspaceTable.createdAt), desc(workspaceTable.id))
       .limit(limit)
@@ -84,15 +92,22 @@ async function listWorkspaces({ search, page, limit }: ListWorkspacesInput) {
   );
 
   return {
-    workspaces: rows.map((row) => ({
-      ...row,
-      createdAt: row.createdAt.toISOString(),
-      memberCount: members.get(row.id) ?? 0,
-      projectCount: projects.get(row.id) ?? 0,
-      owners: owners
-        .filter((owner) => owner.workspaceId === row.id)
-        .map(({ id, name, email }) => ({ id, name, email })),
-    })),
+    workspaces: rows.map(
+      ({ archiverId, archiverName, archiverEmail, ...row }) => ({
+        ...row,
+        createdAt: row.createdAt.toISOString(),
+        archivedAt: row.archivedAt?.toISOString() ?? null,
+        archivedBy:
+          archiverId && archiverName && archiverEmail
+            ? { id: archiverId, name: archiverName, email: archiverEmail }
+            : null,
+        memberCount: members.get(row.id) ?? 0,
+        projectCount: projects.get(row.id) ?? 0,
+        owners: owners
+          .filter((owner) => owner.workspaceId === row.id)
+          .map(({ id, name, email }) => ({ id, name, email })),
+      }),
+    ),
     total: totalRow?.value ?? 0,
   };
 }

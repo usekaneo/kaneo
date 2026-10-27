@@ -104,6 +104,14 @@ export function getAuditEntryDetail(
     case "workspace.member_removed":
     case "workspace.owner_transferred":
       return memberName(metadata);
+    case "workspace.deleted":
+      return typeof metadata.memberCount === "number" &&
+        typeof metadata.projectCount === "number"
+        ? t("settings:adminAuditLog.details.workspaceContents", {
+            members: metadata.memberCount,
+            projects: metadata.projectCount,
+          })
+        : null;
     default:
       return null;
   }

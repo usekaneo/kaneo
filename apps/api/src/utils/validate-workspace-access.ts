@@ -1,6 +1,7 @@
 import { and, eq, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../database";
+import { workspaceArchivedError } from "../workspace/archive/workspace-archived-error";
 import { hasInstanceAdminRole } from "./instance-admin-role";
 
 type ValidateWorkspaceAccessOptions = {
@@ -47,31 +48,33 @@ export async function validateWorkspaceAccess(
     .where(eq(schema.userTable.id, userId))
     .limit(1);
 
-  if (hasInstanceAdminRole(user?.role)) {
-    const [workspace] = await db
-      .select({ id: schema.workspaceTable.id })
-      .from(schema.workspaceTable)
-      .where(eq(schema.workspaceTable.id, workspaceId))
-      .limit(1);
+  const [workspace] = hasInstanceAdminRole(user?.role)
+    ? await db
+        .select({ archivedAt: schema.workspaceTable.archivedAt })
+        .from(schema.workspaceTable)
+        .where(eq(schema.workspaceTable.id, workspaceId))
+        .limit(1)
+    : await db
+        .select({ archivedAt: schema.workspaceTable.archivedAt })
+        .from(schema.workspaceUserTable)
+        .innerJoin(
+          schema.workspaceTable,
+          eq(schema.workspaceTable.id, schema.workspaceUserTable.workspaceId),
+        )
+        .where(
+          and(
+            eq(schema.workspaceUserTable.userId, userId),
+            eq(schema.workspaceUserTable.workspaceId, workspaceId),
+          ),
+        )
+        .limit(1);
 
-    if (!workspace) {
-      throw notFound();
-    }
-    return;
-  }
-
-  const membership = await db
-    .select()
-    .from(schema.workspaceUserTable)
-    .where(
-      and(
-        eq(schema.workspaceUserTable.userId, userId),
-        eq(schema.workspaceUserTable.workspaceId, workspaceId),
-      ),
-    )
-    .limit(1);
-
-  if (membership.length === 0) {
+  if (!workspace) {
     throw notFound();
+  }
+  // Checked after membership so outsiders cannot learn a workspace is archived.
+  // Instance administrators manage archived workspaces from the admin panel.
+  if (workspace.archivedAt) {
+    throw workspaceArchivedError();
   }
 }

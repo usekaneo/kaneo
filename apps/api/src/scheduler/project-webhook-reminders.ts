@@ -15,6 +15,7 @@ import {
   DUE_DATE_DURATION_MS,
   REMINDER_WINDOW_MINUTES,
 } from "./reminder-timing";
+import { activeIntegrationCondition } from "../plugins/active-integration-condition";
 
 const MINUTE_MS = 60 * 1000;
 
@@ -32,7 +33,7 @@ export async function checkProjectWebhookReminders(): Promise<{
     .where(
       and(
         eq(integrationTable.type, "generic-webhook"),
-        eq(integrationTable.isActive, true),
+        activeIntegrationCondition(),
       ),
     );
   let degraded = false;

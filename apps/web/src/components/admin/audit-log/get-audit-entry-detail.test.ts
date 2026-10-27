@@ -88,4 +88,24 @@ describe("getAuditEntryDetail", () => {
       ),
     ).toBe("CI deploys");
   });
+
+  it("summarises what a deleted workspace contained", () => {
+    expect(
+      getAuditEntryDetail(
+        {
+          action: "workspace.deleted",
+          metadata: { slug: "acme", memberCount: 3, projectCount: 2 },
+        },
+        t,
+      ),
+    ).toBe(
+      'settings:adminAuditLog.details.workspaceContents {"members":3,"projects":2}',
+    );
+    expect(
+      getAuditEntryDetail(
+        { action: "workspace.archived", metadata: { slug: "acme" } },
+        t,
+      ),
+    ).toBeNull();
+  });
 });

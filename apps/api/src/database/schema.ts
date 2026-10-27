@@ -205,6 +205,12 @@ export const workspaceTable = pgTable("workspace", {
   metadata: text("metadata"),
   description: text("description"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  // Set by an instance administrator. Archived workspaces keep their data but
+  // members, API keys, integrations, and public links can no longer use them.
+  archivedAt: timestamp("archived_at", { mode: "date" }),
+  archivedBy: text("archived_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
 });
 
 export const workspaceUserTable = pgTable(

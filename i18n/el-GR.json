@@ -2077,7 +2077,23 @@
 					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
 					"title": "Make {{name}} the owner?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"archive": {
+					"action": "Archive workspace",
+					"description": "Members will lose access and integrations, public links, and calendar feeds will pause. All workspace data stays intact. You can restore it at any time.",
+					"title": "Archive {{name}}?"
+				},
+				"delete": {
+					"action": "Delete workspace",
+					"description": "Permanently delete this workspace, its {{projects}} projects, tasks, and uploaded files. Its {{members}} members will lose access. This cannot be undone.",
+					"title": "Delete {{name}}?",
+					"typeName": "Type {{name}} to confirm"
+				},
+				"restore": {
+					"action": "Restore workspace",
+					"description": "Members will regain access to this workspace. Integrations, public links, and calendar feeds will work again.",
+					"title": "Restore {{name}}?"
+				}
 			},
 			"directoryTitle": "Όλοι οι χώροι εργασίας",
 			"emptyDescription": "Try another name or slug.",
@@ -2119,8 +2135,20 @@
 				"removeError": "Failed to remove member",
 				"roleError": "Failed to update role",
 				"roleUpdated": "Role updated",
-				"transferError": "Failed to transfer ownership"
-			}
+				"transferError": "Failed to transfer ownership",
+				"archived": "Workspace archived",
+				"archiveError": "Could not archive workspace",
+				"deleted": "Workspace deleted",
+				"deleteError": "Could not delete workspace",
+				"restored": "Workspace restored",
+				"restoreError": "Could not restore workspace"
+			},
+			"actions": {
+				"archive": "Archive workspace",
+				"open": "Actions for {{name}}",
+				"restore": "Restore workspace"
+			},
+			"archived": "Archived"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2486,7 +2514,10 @@
 				"userPasswordResetSent": "Sent password reset link",
 				"userVerificationSent": "Sent verification email",
 				"apiKeyRevoked": "Revoked an API key",
-				"emailTestSent": "Sent test email"
+				"emailTestSent": "Sent test email",
+				"workspaceArchived": "Workspace archived",
+				"workspaceDeleted": "Workspace deleted",
+				"workspaceRestored": "Workspace restored"
 			},
 			"categories": {
 				"all": "All actions",
@@ -2514,7 +2545,8 @@
 				"reason": "Reason: {{reason}}",
 				"createdWithRole": "Role: {{role}}",
 				"sessionCount_one": "{{count}} session",
-				"sessionCount_other": "{{count}} sessions"
+				"sessionCount_other": "{{count}} sessions",
+				"workspaceContents": "{{members}} members, {{projects}} projects"
 			},
 			"directoryTitle": "Recorded actions",
 			"emptyTitle": "No actions recorded",
@@ -3786,6 +3818,12 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"archived": {
+			"description": "An instance administrator archived this workspace. Your data is saved. Contact an administrator to restore access.",
+			"manage": "Manage workspaces",
+			"otherWorkspaces": "Go to workspaces",
+			"title": "Workspace archived"
 		}
 	},
 	"team": {

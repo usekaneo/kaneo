@@ -1,14 +1,22 @@
+import { ArchiveIcon, ArchiveRestoreIcon, Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import {
+  type RowAction,
+  RowActionsMenu,
+} from "@/components/settings/row-actions-menu";
 import { Button } from "@/components/ui/button";
 import type { AdminWorkspace } from "@/fetchers/admin/workspace-types";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
+import type { PendingWorkspaceAction } from "./pending-workspace-action";
+import { WorkspaceArchivedBadge } from "./workspace-archived-badge";
 import { WORKSPACE_DIRECTORY_COLUMNS } from "./workspace-directory-columns";
 import { WorkspaceOwners } from "./workspace-owners";
 
 type WorkspaceDirectoryRowProps = {
   workspace: AdminWorkspace;
   onManage: () => void;
+  onAction: (type: PendingWorkspaceAction["type"]) => void;
 };
 
 const CELL_CLASS =
@@ -17,15 +25,40 @@ const CELL_CLASS =
 export function WorkspaceDirectoryRow({
   workspace,
   onManage,
+  onAction,
 }: WorkspaceDirectoryRowProps) {
   const { t } = useTranslation();
+  const isArchived = workspace.archivedAt !== null;
+  const actions: RowAction[] = [
+    isArchived
+      ? {
+          id: "restore",
+          label: t("settings:adminWorkspaces.actions.restore"),
+          icon: ArchiveRestoreIcon,
+          onSelect: () => onAction("restore"),
+        }
+      : {
+          id: "archive",
+          label: t("settings:adminWorkspaces.actions.archive"),
+          icon: ArchiveIcon,
+          onSelect: () => onAction("archive"),
+        },
+    {
+      id: "delete",
+      label: t("common:actions.delete"),
+      icon: Trash2Icon,
+      destructive: true,
+      onSelect: () => onAction("delete"),
+    },
+  ];
 
   return (
     <div role="row" className="flex items-center gap-4 px-4 py-3">
       <div role="cell" className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium">
-          {workspace.name}
-        </span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate text-sm font-medium">{workspace.name}</span>
+          {isArchived ? <WorkspaceArchivedBadge /> : null}
+        </div>
         <span className="block truncate font-mono text-xs text-muted-foreground">
           {workspace.slug}
         </span>
@@ -68,7 +101,7 @@ export function WorkspaceDirectoryRow({
       <div
         role="cell"
         className={cn(
-          "flex shrink-0 justify-end",
+          "flex shrink-0 items-center justify-end gap-1",
           WORKSPACE_DIRECTORY_COLUMNS.actions,
         )}
       >
@@ -83,6 +116,12 @@ export function WorkspaceDirectoryRow({
         >
           {t("settings:adminWorkspaces.manage")}
         </Button>
+        <RowActionsMenu
+          label={t("settings:adminWorkspaces.actions.open", {
+            name: workspace.name,
+          })}
+          actions={actions}
+        />
       </div>
     </div>
   );
