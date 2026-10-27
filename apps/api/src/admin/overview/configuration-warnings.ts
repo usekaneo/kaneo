@@ -17,10 +17,8 @@ export function configurationWarnings(
   }
   if (services.storage.errorCode === "INCOMPLETE_CONFIG")
     warnings.push("storage_incomplete");
-  else if (
-    services.storage.status === "down" ||
-    services.storage.status === "warning"
-  ) {
+  // A 403 "warning" is expected for upload-only bucket policies.
+  else if (services.storage.status === "down") {
     warnings.push("storage_unreachable");
   }
   if (registration && !services.email.configured)
