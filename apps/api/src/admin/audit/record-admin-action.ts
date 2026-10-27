@@ -27,9 +27,6 @@ export async function recordAdminAction(
   input: AdminActionInput,
   database: DbOrTx = db,
 ): Promise<void> {
-  if (database === db) {
-    return db.transaction((tx) => recordAdminAction(input, tx));
-  }
   const actorId = input.actorUserId;
   const actor = (column: "id" | "name" | "email") =>
     actorId
@@ -56,7 +53,18 @@ export async function recordAdminAction(
       userAgent: input.userAgent?.slice(0, MAX_USER_AGENT_LENGTH) ?? null,
     })
     .returning({ id: schema.adminAuditLogTable.id });
-  if (entry) await enqueueAuditWebhooks(database, entry.id);
+  if (!entry) return;
+  if (database !== db) {
+    await enqueueAuditWebhooks(database, entry.id);
+  } else {
+    // The action already committed (for example better-auth's after hook).
+    // Queue failure must not erase its audit entry or fail its response.
+    try {
+      await enqueueAuditWebhooks(database, entry.id);
+    } catch {
+      console.error("Admin audit webhook delivery could not be queued");
+    }
+  }
 }
 
 export default recordAdminAction;

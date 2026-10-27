@@ -164,11 +164,11 @@ export async function assertPublicDestination(
 
   const addresses = await lookup(hostname, { all: true, verbatim: true }).catch(
     () => {
-      throw new DestinationLookupError();
+      throw new DestinationLookupError(label);
     },
   );
   if (addresses.length === 0) {
-    throw new DestinationLookupError();
+    throw new DestinationLookupError(label);
   }
 
   if (addresses.some((entry) => isDisallowedAddress(entry.address))) {

@@ -1,7 +1,7 @@
 import { lookup } from "node:dns/promises";
 import { createHmac } from "node:crypto";
 import { createServer, type Server, type IncomingHttpHeaders } from "node:http";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   afterEach,
   beforeEach,
@@ -15,6 +15,7 @@ import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { recordAdminAction } from "../../apps/api/src/admin/audit/record-admin-action";
 import { sendWebhookDelivery } from "../../apps/api/src/admin/webhooks/send-webhook-delivery";
+import * as claims from "../../apps/api/src/admin/webhooks/claim-webhook-delivery";
 import { claimWebhookDelivery } from "../../apps/api/src/admin/webhooks/claim-webhook-delivery";
 import {
   insertInstanceRole,
@@ -108,6 +109,19 @@ async function record(
   );
 }
 
+async function waitForWebhookLock() {
+  await expect
+    .poll(async () => {
+      const result = await db.execute<{ count: number }>(sql`
+      SELECT count(*)::int AS count FROM pg_stat_activity
+      WHERE datname = current_database() AND state = 'active'
+        AND wait_event_type = 'Lock' AND query LIKE '%instance_webhook%'
+    `);
+      return result.rows[0]?.count;
+    })
+    .toBe(1);
+}
+
 describe("instance webhook administration", () => {
   it("gates every endpoint by session and instance:settings, rejecting API keys", async () => {
     const { webhook } = await create();
@@ -197,6 +211,32 @@ describe("instance webhook administration", () => {
     }
     expect(lookup).toHaveBeenCalledTimes(2);
   });
+
+  it.each(["disable", "delete"] as const)(
+    "returns the normal error when a concurrent %s wins before a test enqueue",
+    async (action) => {
+      const { webhook } = await create();
+      const { pending } = await db.transaction(async (tx) => {
+        if (action === "delete") {
+          await tx
+            .delete(schema.instanceWebhookTable)
+            .where(eq(schema.instanceWebhookTable.id, webhook.id));
+        } else {
+          await tx
+            .update(schema.instanceWebhookTable)
+            .set({ enabled: false })
+            .where(eq(schema.instanceWebhookTable.id, webhook.id));
+        }
+        const pending = admin.api(`/webhooks/${webhook.id}/test`, {
+          method: "POST",
+        });
+        await waitForWebhookLock();
+        return { pending };
+      });
+      expect((await pending).status).toBe(action === "delete" ? 404 : 409);
+      expect(await db.select().from(table)).toEqual([]);
+    },
+  );
 
   it("shows secrets once, encrypts storage, and audits create/update/rotate/delete without secrets", async () => {
     const { webhook, secret } = await create();
@@ -321,6 +361,136 @@ describe("instance webhook administration", () => {
 });
 
 describe("instance webhook delivery", () => {
+  it("cancels an uncommitted enqueue even if it commits after disable and re-enable", async () => {
+    const { webhook } = await create();
+    await db.transaction(async (tx) => {
+      await record("user.updated", tx);
+      for (const enabled of [false, true]) {
+        const response = await admin.api(`/webhooks/${webhook.id}`, {
+          method: "PUT",
+          body: { url, categories: ["user"], enabled },
+        });
+        expect(response.status).toBe(200);
+      }
+    });
+    expect(await sendWebhookDelivery()).toBe(false);
+    expect(requests).toHaveLength(0);
+    expect(await db.select().from(table)).toEqual([
+      expect.objectContaining({
+        state: "failed",
+        errorCode: "disabled",
+        attempts: 0,
+      }),
+    ]);
+    await record();
+    expect(await sendWebhookDelivery()).toBe(true);
+    expect(requests).toHaveLength(1);
+  });
+
+  it("keeps events enqueued after re-enable within the enabling transaction", async () => {
+    const { webhook } = await create(["webhook"], false);
+    const response = await admin.api(`/webhooks/${webhook.id}`, {
+      method: "PUT",
+      body: { url, categories: ["webhook"], enabled: true },
+    });
+    expect(response.status).toBe(200);
+    expect(await sendWebhookDelivery()).toBe(true);
+    expect(JSON.parse(requests[0]!.body).action).toBe("webhook.updated");
+  });
+
+  it("rechecks cancellation after claiming and before sending", async () => {
+    const { webhook } = await create();
+    await record();
+    const claim = claims.claimWebhookDelivery;
+    vi.spyOn(claims, "claimWebhookDelivery").mockImplementationOnce(
+      async () => {
+        const job = await claim();
+        for (const enabled of [false, true]) {
+          expect(
+            (
+              await admin.api(`/webhooks/${webhook.id}`, {
+                method: "PUT",
+                body: { url, categories: ["user"], enabled },
+              })
+            ).status,
+          ).toBe(200);
+        }
+        return job;
+      },
+    );
+    expect(await sendWebhookDelivery()).toBe(true);
+    expect(requests).toHaveLength(0);
+  });
+
+  it("preserves a committed auth change and its audit row when enqueue fails, but rolls back transactional actions", async () => {
+    await create();
+    const target = await signInWithRole(app, "user");
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    await db.execute(sql`ALTER TABLE instance_webhook_delivery
+      ADD CONSTRAINT test_reject_queue CHECK (false) NOT VALID`);
+    try {
+      const response = await app.request("/api/auth/admin/update-user", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: "http://localhost:5173",
+          cookie: admin.cookies,
+        },
+        body: JSON.stringify({
+          userId: target.userId,
+          data: { name: "Committed" },
+        }),
+      });
+      expect(response.status).toBe(200);
+      expect(
+        await db.query.userTable.findFirst({
+          where: eq(schema.userTable.id, target.userId),
+        }),
+      ).toMatchObject({ name: "Committed" });
+      const audit = await readAuditLog();
+      expect(audit.filter((row) => row.action === "user.updated")).toEqual([
+        expect.objectContaining({ targetId: target.userId }),
+      ]);
+      expect(log).toHaveBeenCalledWith(
+        "Admin audit webhook delivery could not be queued",
+      );
+      const failed = await admin.api(`/users/${target.userId}`, {
+        method: "PATCH",
+        body: { name: "Rolled back" },
+      });
+      expect(failed.status).toBe(500);
+      expect(
+        await db.query.userTable.findFirst({
+          where: eq(schema.userTable.id, target.userId),
+        }),
+      ).toMatchObject({ name: "Committed" });
+      expect(await readAuditLog()).toEqual(audit);
+      expect(await db.select().from(table)).toEqual([]);
+    } finally {
+      await db.execute(
+        sql`ALTER TABLE instance_webhook_delivery DROP CONSTRAINT test_reject_queue`,
+      );
+    }
+  });
+
+  it("refuses redirect responses without retrying", async () => {
+    await create();
+    await record();
+    status = 307;
+    expect(await sendWebhookDelivery()).toBe(true);
+    expect(await db.select().from(table)).toEqual([
+      expect.objectContaining({
+        state: "failed",
+        statusCode: 307,
+        errorCode: "http",
+        attempts: 1,
+      }),
+    ]);
+    await due();
+    expect(await sendWebhookDelivery()).toBe(false);
+    expect(requests).toHaveLength(1);
+  });
+
   it("signs the exact sanitized payload, routes categories, and omits payloads from history", async () => {
     const { webhook, secret } = await create();
     await create(["email"]);

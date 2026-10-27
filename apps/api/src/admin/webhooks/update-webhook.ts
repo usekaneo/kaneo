@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
@@ -22,11 +22,19 @@ export async function updateWebhook(
   return db.transaction(async (tx) => {
     const [row] = await tx
       .update(schema.instanceWebhookTable)
-      .set({ ...input, url, categories: [...new Set(input.categories)] })
+      .set({
+        ...input,
+        url,
+        categories: [...new Set(input.categories)],
+        // Invalidate even uncommitted enqueues from the previous enabled period.
+        cancelPendingBefore: sql`CASE WHEN NOT ${input.enabled} OR NOT ${schema.instanceWebhookTable.enabled}
+          THEN (clock_timestamp() AT TIME ZONE 'utc')
+          ELSE ${schema.instanceWebhookTable.cancelPendingBefore} END`,
+      })
       .where(eq(schema.instanceWebhookTable.id, id))
       .returning();
     if (!row) throw new HTTPException(404, { message: "Webhook not found" });
-    if (!input.enabled) {
+    if (row.cancelPendingBefore) {
       await tx
         .update(schema.instanceWebhookDeliveryTable)
         .set({ state: "failed", errorCode: "disabled" })
@@ -34,10 +42,13 @@ export async function updateWebhook(
           and(
             eq(schema.instanceWebhookDeliveryTable.webhookId, id),
             eq(schema.instanceWebhookDeliveryTable.state, "pending"),
+            sql`${schema.instanceWebhookDeliveryTable.createdAt} <= (
+              SELECT cancel_pending_before FROM instance_webhook WHERE id = ${id}
+            )`,
           ),
         );
+      await pruneWebhookDeliveries(tx, id);
     }
-    if (!input.enabled) await pruneWebhookDeliveries(tx, id);
     await recordAdminAction(
       {
         ...audit,

@@ -192,6 +192,7 @@ export const instanceWebhookTable = pgTable("instance_webhook", {
     .notNull(),
   enabled: boolean("enabled").default(true).notNull(),
   signingSecret: text("signing_secret").notNull(),
+  cancelPendingBefore: timestamp("cancel_pending_before", { mode: "date" }),
   createdAt: timestamp("created_at", { mode: "date" })
     .default(utcNow)
     .notNull(),
@@ -217,8 +218,9 @@ export const instanceWebhookDeliveryTable = pgTable(
     nextAttemptAt: timestamp("next_attempt_at", { mode: "date" })
       .default(utcNow)
       .notNull(),
+    // Use the enqueue statement's snapshot time, even inside an older action transaction.
     createdAt: timestamp("created_at", { mode: "date" })
-      .default(utcNow)
+      .default(sql`(statement_timestamp() AT TIME ZONE 'utc')`)
       .notNull(),
   },
   (table) => [

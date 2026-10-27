@@ -1,0 +1,2 @@
+ALTER TABLE "instance_webhook_delivery" ALTER COLUMN "created_at" SET DEFAULT (statement_timestamp() AT TIME ZONE 'utc');--> statement-breakpoint
+ALTER TABLE "instance_webhook" ADD COLUMN "cancel_pending_before" timestamp;

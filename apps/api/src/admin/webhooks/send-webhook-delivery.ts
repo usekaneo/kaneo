@@ -16,6 +16,23 @@ export async function sendWebhookDelivery() {
   const job = await claimWebhookDelivery();
   if (!job) return false;
   const { delivery, url, signingSecret } = job;
+  const table = schema.instanceWebhookDeliveryTable;
+  const webhook = schema.instanceWebhookTable;
+  // A disable/re-enable may have committed since the claim.
+  const [current] = await db
+    .select({ id: table.id })
+    .from(table)
+    .innerJoin(webhook, eq(table.webhookId, webhook.id))
+    .where(
+      and(
+        eq(table.id, delivery.id),
+        eq(table.state, "pending"),
+        eq(table.attempts, delivery.attempts),
+        eq(webhook.enabled, true),
+        sql`${table.createdAt} > COALESCE(${webhook.cancelPendingBefore}, '-infinity'::timestamp)`,
+      ),
+    );
+  if (!current) return true;
   let statusCode: number | null = null;
   let errorCode: string | null = null;
   let retryable = false;
@@ -54,7 +71,6 @@ export async function sendWebhookDelivery() {
   }
   const retry =
     errorCode !== null && retryable && delivery.attempts < MAX_WEBHOOK_ATTEMPTS;
-  const table = schema.instanceWebhookDeliveryTable;
   await db
     .update(table)
     .set({

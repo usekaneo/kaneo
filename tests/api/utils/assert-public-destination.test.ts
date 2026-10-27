@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vite-plus/test";
-import { isDisallowedAddress } from "../../../apps/api/src/utils/assert-public-destination";
+import { lookup } from "node:dns/promises";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import {
+  assertPublicDestination,
+  isDisallowedAddress,
+} from "../../../apps/api/src/utils/assert-public-destination";
 
 describe("isDisallowedAddress", () => {
   it("blocks the ranges a webhook must never reach", () => {
@@ -59,4 +63,30 @@ describe("isDisallowedAddress", () => {
   ])("preserves public IPv6 and transition destinations: %s", (address) => {
     expect(isDisallowedAddress(address)).toBe(false);
   });
+});
+
+vi.mock("node:dns/promises", () => ({ lookup: vi.fn() }));
+afterEach(() => vi.unstubAllEnvs());
+
+describe("destination lookup errors", () => {
+  it.each(["Gitea", "GitLab", "Generic webhook"])(
+    "keeps the %s source label and an unreachable code without DNS details",
+    async (label) => {
+      vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "");
+      vi.mocked(lookup).mockRejectedValueOnce(new Error("private DNS details"));
+      await expect(
+        assertPublicDestination("https://missing.example.test", label),
+      ).rejects.toMatchObject({
+        message: `${label} destination could not be resolved`,
+        code: "ENOTFOUND",
+      });
+      vi.mocked(lookup).mockResolvedValueOnce([]);
+      await expect(
+        assertPublicDestination("https://missing.example.test", label),
+      ).rejects.toMatchObject({
+        message: `${label} destination could not be resolved`,
+        code: "ENOTFOUND",
+      });
+    },
+  );
 });

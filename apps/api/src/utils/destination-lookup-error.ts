@@ -1,5 +1,7 @@
 export class DestinationLookupError extends Error {
-  constructor() {
-    super("Destination could not be resolved");
+  readonly code = "ENOTFOUND";
+
+  constructor(label: string) {
+    super(`${label} destination could not be resolved`);
   }
 }

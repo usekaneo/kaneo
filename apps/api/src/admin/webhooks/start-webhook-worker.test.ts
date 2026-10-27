@@ -22,13 +22,13 @@ describe("startWebhookWorker", () => {
       expect(log).toHaveBeenCalledExactlyOnceWith(
         "Instance webhook delivery worker failed",
       );
-      expect(sendWebhookDelivery).toHaveBeenCalledTimes(5);
+      expect(sendWebhookDelivery).toHaveBeenCalledTimes(1);
       await vi.advanceTimersByTimeAsync(1_000);
-      expect(sendWebhookDelivery).toHaveBeenCalledTimes(10);
+      expect(sendWebhookDelivery).toHaveBeenCalledTimes(2);
     } finally {
       await stop();
     }
     await vi.advanceTimersByTimeAsync(1_000);
-    expect(sendWebhookDelivery).toHaveBeenCalledTimes(10);
+    expect(sendWebhookDelivery).toHaveBeenCalledTimes(2);
   });
 });

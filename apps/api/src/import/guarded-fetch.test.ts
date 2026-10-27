@@ -1,3 +1,5 @@
+import { lookup } from "node:dns/promises";
+import { describeImportError } from "./source/describe-import-error";
 import {
   afterEach,
   beforeEach,
@@ -8,6 +10,8 @@ import {
 } from "vite-plus/test";
 import { blockedDestinationError } from "./blocked-destination-error";
 import { createGuardedFetch, MAX_IMPORT_REDIRECTS } from "./guarded-fetch";
+
+vi.mock("node:dns/promises", () => ({ lookup: vi.fn() }));
 
 const PUBLIC = "http://93.184.216.34";
 const OTHER_PUBLIC = "http://93.184.216.35";
@@ -40,6 +44,34 @@ describe("createGuardedFetch", () => {
     );
     expect(guard.failure()).toBeNull();
     expect(guard.lastHost()).toBe("93.184.216.34");
+  });
+
+  it("reports preflight DNS failures as unreachable imports (502)", async () => {
+    vi.mocked(lookup).mockRejectedValueOnce(
+      Object.assign(new Error("private DNS details"), { code: "EAI_AGAIN" }),
+    );
+    const baseFetch = vi.fn();
+    const guard = createGuardedFetch("PLANKA", { baseFetch });
+    const error = await guard
+      .fetch("https://missing.example.test/api")
+      .catch((error: unknown) => error);
+    expect(baseFetch).not.toHaveBeenCalled();
+    expect(guard.failure()).toEqual({
+      kind: "unreachable",
+      host: "missing.example.test",
+    });
+    expect(
+      describeImportError(error, {
+        sourceName: "PLANKA",
+        credentialHint: "Check the API key.",
+        failure: guard.failure(),
+        lastHost: guard.lastHost(),
+        secrets: [],
+      }),
+    ).toEqual({
+      status: 502,
+      message: "Could not reach PLANKA at missing.example.test.",
+    });
   });
 
   it("refuses private destinations before sending anything", async () => {

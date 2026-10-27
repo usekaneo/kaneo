@@ -93,7 +93,7 @@ export async function sendOutboundRequest(
       send(url, {
         ...init,
         method: "POST",
-        redirect: "error",
+        redirect: "manual",
         signal: controller.signal,
       }),
     );
