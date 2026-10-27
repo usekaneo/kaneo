@@ -871,17 +871,16 @@
 				},
 				"archive": {
 					"title": "Archive {{name}}?",
-					"description": "Members will lose access and integrations, public links, and calendar feeds will pause. All workspace data stays intact. You can restore it at any time.",
+					"description": "Members will lose access until it's restored.",
 					"action": "Archive workspace"
 				},
 				"restore": {
 					"title": "Restore {{name}}?",
-					"description": "Members will regain access to this workspace. Integrations, public links, and calendar feeds will work again.",
 					"action": "Restore workspace"
 				},
 				"delete": {
 					"title": "Delete {{name}}?",
-					"description": "Permanently delete this workspace, its {{projects}} projects, tasks, and uploaded files. Its {{members}} members will lose access. This cannot be undone.",
+					"description": "Its projects, tasks, and files will be permanently deleted.",
 					"typeName": "Type {{name}} to confirm",
 					"action": "Delete workspace"
 				}
@@ -964,9 +963,9 @@
 				"userAvatarChanged": "Changed profile picture",
 				"userAvatarRemoved": "Removed profile picture",
 				"apiKeyRevoked": "Revoked an API key",
-				"workspaceArchived": "Workspace archived",
-				"workspaceRestored": "Workspace restored",
-				"workspaceDeleted": "Workspace deleted"
+				"workspaceArchived": "Archived workspace",
+				"workspaceRestored": "Restored workspace",
+				"workspaceDeleted": "Deleted workspace"
 			},
 			"fields": {
 				"name": "name",
@@ -3821,7 +3820,7 @@
 		},
 		"archived": {
 			"title": "Workspace archived",
-			"description": "An instance administrator archived this workspace. Your data is saved. Contact an administrator to restore access.",
+			"description": "Contact an administrator to restore access.",
 			"otherWorkspaces": "Go to workspaces",
 			"manage": "Manage workspaces"
 		}

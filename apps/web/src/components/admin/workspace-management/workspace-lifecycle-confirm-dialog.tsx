@@ -55,12 +55,11 @@ export function WorkspaceLifecycleConfirmDialog({
           : "settings:adminWorkspaces.confirm.archive.title",
         values,
       )}
-      description={t(
+      description={
         isRestore
-          ? "settings:adminWorkspaces.confirm.restore.description"
-          : "settings:adminWorkspaces.confirm.archive.description",
-        values,
-      )}
+          ? undefined
+          : t("settings:adminWorkspaces.confirm.archive.description")
+      }
       confirmLabel={t(
         isRestore
           ? "settings:adminWorkspaces.confirm.restore.action"

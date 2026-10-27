@@ -2080,18 +2080,17 @@
 				"working": "Wird ausgeführt…",
 				"archive": {
 					"action": "Archive workspace",
-					"description": "Members will lose access and integrations, public links, and calendar feeds will pause. All workspace data stays intact. You can restore it at any time.",
+					"description": "Members will lose access until it's restored.",
 					"title": "Archive {{name}}?"
 				},
 				"delete": {
 					"action": "Delete workspace",
-					"description": "Permanently delete this workspace, its {{projects}} projects, tasks, and uploaded files. Its {{members}} members will lose access. This cannot be undone.",
+					"description": "Its projects, tasks, and files will be permanently deleted.",
 					"title": "Delete {{name}}?",
 					"typeName": "Type {{name}} to confirm"
 				},
 				"restore": {
 					"action": "Restore workspace",
-					"description": "Members will regain access to this workspace. Integrations, public links, and calendar feeds will work again.",
 					"title": "Restore {{name}}?"
 				}
 			},
@@ -2515,9 +2514,9 @@
 				"userVerificationSent": "Sent verification email",
 				"apiKeyRevoked": "Revoked an API key",
 				"emailTestSent": "Sent test email",
-				"workspaceArchived": "Workspace archived",
-				"workspaceDeleted": "Workspace deleted",
-				"workspaceRestored": "Workspace restored"
+				"workspaceArchived": "Archived workspace",
+				"workspaceDeleted": "Deleted workspace",
+				"workspaceRestored": "Restored workspace"
 			},
 			"categories": {
 				"all": "All actions",
@@ -3820,7 +3819,7 @@
 			"loadError": "Deine Aufgaben konnten nicht geladen werden."
 		},
 		"archived": {
-			"description": "An instance administrator archived this workspace. Your data is saved. Contact an administrator to restore access.",
+			"description": "Contact an administrator to restore access.",
 			"manage": "Manage workspaces",
 			"otherWorkspaces": "Go to workspaces",
 			"title": "Workspace archived"

@@ -49,11 +49,7 @@ export function DeleteWorkspaceDialog({
         if (!open && !isPending) onClose();
       }}
       title={t("settings:adminWorkspaces.confirm.delete.title", { name })}
-      description={t("settings:adminWorkspaces.confirm.delete.description", {
-        name,
-        members: workspace?.memberCount ?? 0,
-        projects: workspace?.projectCount ?? 0,
-      })}
+      description={t("settings:adminWorkspaces.confirm.delete.description")}
       confirmLabel={t("settings:adminWorkspaces.confirm.delete.action")}
       pendingLabel={t("common:actions.deleting")}
       pending={isPending}
