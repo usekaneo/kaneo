@@ -2284,7 +2284,7 @@
 		"securityPage": {
 			"pageTitle": "Security",
 			"title": "Security",
-			"subtitle": "How you sign in to Kaneo, and where you're signed in.",
+			"subtitle": "How you sign in to Kaneo.",
 			"sectionTitle": "Sign-in",
 			"currentPassword": "Current password",
 			"newPassword": "New password",
