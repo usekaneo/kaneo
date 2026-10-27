@@ -9,6 +9,7 @@ export default function useAdminOverview() {
     queryFn: getAdminOverview,
     enabled: Boolean(user?.id),
     staleTime: 0,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
     retry: false,
   });
