@@ -26,7 +26,7 @@ export async function deleteWorkspaceData(
   const { audience, workspace } = await db.transaction(async (tx) => {
     const workspace = await lockWorkspaceRow(tx, workspaceId);
 
-    const billable = await findBillableWorkspaces([workspaceId]);
+    const billable = await findBillableWorkspaces([workspaceId], tx);
     if (billable.length > 0) {
       throw new ApiError(409, {
         code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
