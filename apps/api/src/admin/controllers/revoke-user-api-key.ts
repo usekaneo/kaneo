@@ -4,11 +4,12 @@ import db from "../../database";
 import { apikeyTable } from "../../database/schema";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
 import { recordAdminAction } from "../audit/record-admin-action";
+import { revokeApiKeyConnections } from "../../ws";
 import { findAdminTargetUser } from "../find-admin-target-user";
 
 /**
  * Delete a user's API key, as the owner's own settings do. Requests with it
- * fail at once; open sockets stop receiving events at the next delivery check.
+ * fail and its open sockets close at once.
  */
 async function revokeUserApiKey(
   { userId, apiKeyId }: { userId: string; apiKeyId: string },
@@ -35,6 +36,7 @@ async function revokeUserApiKey(
       tx,
     );
   });
+  await revokeApiKeyConnections(userId, [apiKeyId]);
   return { revoked: 1 };
 }
 

@@ -5,6 +5,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
 import {
+  apikeyTable,
   projectTable,
   sessionTable,
   userTable,
@@ -52,6 +53,7 @@ type ProjectConnection = {
 type UserConnection = {
   ws: WSContext;
   sessionId: string | null;
+  apiKeyId?: string;
 };
 
 // Only sockets of an ended session get this code, so the web rechecks its cookie.
@@ -67,11 +69,16 @@ export function addUserConnection(
   userId: string,
   ws: WSContext,
   sessionId: string | null = null,
+  apiKeyId?: string,
 ) {
   if (!userConnections.has(userId)) {
     userConnections.set(userId, new Set());
   }
-  const conn: UserConnection = { ws, sessionId };
+  const conn: UserConnection = {
+    ws,
+    sessionId,
+    ...(apiKeyId ? { apiKeyId } : {}),
+  };
   userConnections.get(userId)?.add(conn);
   return conn;
 }
@@ -100,42 +107,77 @@ export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
     });
 }
 
-function closeLocalSessionConnections(
+type Credential = { sessionId: string | null; apiKeyId?: string };
+
+function closeLocalCredentialConnections(
   userId: string,
-  sessionIds: ReadonlySet<string>,
+  ended: (conn: Credential) => boolean,
+  code: number,
+  reason: string,
 ) {
-  const ended = (sessionId: string | null) =>
-    sessionId !== null && sessionIds.has(sessionId);
   for (const [projectId, connections] of projectConnections)
     for (const conn of [...connections]) {
-      if (conn.userId !== userId || !ended(conn.sessionId)) continue;
+      if (conn.userId !== userId || !ended(conn)) continue;
       removeConnection(projectId, conn);
       try {
-        conn.ws.close(SESSION_ENDED_CLOSE_CODE, "Session ended");
+        conn.ws.close(code, reason);
       } catch {
         /* Already closed. */
       }
     }
   for (const conn of [...(userConnections.get(userId) ?? [])]) {
-    if (!ended(conn.sessionId)) continue;
+    if (!ended(conn)) continue;
     removeUserConnection(userId, conn);
     try {
-      conn.ws.close(SESSION_ENDED_CLOSE_CODE, "Session ended");
+      conn.ws.close(code, reason);
     } catch {
       /* Already closed. */
     }
   }
 }
 
+function closeLocalSessionConnections(
+  userId: string,
+  sessionIds: ReadonlySet<string>,
+) {
+  closeLocalCredentialConnections(
+    userId,
+    ({ sessionId }) => sessionId !== null && sessionIds.has(sessionId),
+    SESSION_ENDED_CLOSE_CODE,
+    "Session ended",
+  );
+}
+
+function closeLocalApiKeyConnections(
+  userId: string,
+  apiKeyIds: ReadonlySet<string>,
+) {
+  closeLocalCredentialConnections(
+    userId,
+    ({ apiKeyId }) => apiKeyId !== undefined && apiKeyIds.has(apiKeyId),
+    1008,
+    "API key revoked",
+  );
+}
+
+const stringIds = (ids: unknown) =>
+  Array.isArray(ids)
+    ? ids.filter((id): id is string => typeof id === "string")
+    : [];
+
 function deliverToLocalUserConnections(
   userId: string,
   message: UserBroadcastMessage,
 ) {
   if (message.type === "SESSIONS_ENDED") {
-    const sessionIds = Array.isArray(message.sessionIds)
-      ? message.sessionIds.filter((id): id is string => typeof id === "string")
-      : [];
-    closeLocalSessionConnections(userId, new Set(sessionIds));
+    closeLocalSessionConnections(
+      userId,
+      new Set(stringIds(message.sessionIds)),
+    );
+    return;
+  }
+  if (message.type === "API_KEYS_REVOKED") {
+    closeLocalApiKeyConnections(userId, new Set(stringIds(message.apiKeyIds)));
     return;
   }
   if (
@@ -268,6 +310,7 @@ export async function initializeWebSocketAdapter() {
           ),
           recheckLocalProjectAccess(),
           recheckLocalSessions(),
+          recheckLocalApiKeys(),
         ]);
       },
     );
@@ -454,6 +497,36 @@ async function recheckLocalSessions() {
   }
 }
 
+// Redis may have dropped a key revocation while this instance was disconnected.
+async function recheckLocalApiKeys() {
+  const keysByUser = new Map<string, Set<string>>();
+  const note = (userId: string, apiKeyId?: string) => {
+    if (!apiKeyId) return;
+    keysByUser.set(userId, (keysByUser.get(userId) ?? new Set()).add(apiKeyId));
+  };
+  for (const [userId, connections] of userConnections)
+    for (const conn of connections) note(userId, conn.apiKeyId);
+  for (const connections of projectConnections.values())
+    for (const conn of connections) note(conn.userId, conn.apiKeyId);
+  const ids = [...keysByUser.values()].flatMap((keyIds) => [...keyIds]);
+  if (ids.length === 0) return;
+  let existing: Set<string>;
+  try {
+    const rows = await db
+      .select({ id: apikeyTable.id })
+      .from(apikeyTable)
+      .where(inArray(apikeyTable.id, ids));
+    existing = new Set(rows.map((row) => row.id));
+  } catch (error) {
+    console.error("Failed to verify realtime API keys:", error);
+    return;
+  }
+  for (const [userId, keyIds] of keysByUser) {
+    const revoked = new Set([...keyIds].filter((id) => !existing.has(id)));
+    if (revoked.size > 0) closeLocalApiKeyConnections(userId, revoked);
+  }
+}
+
 export async function revokeUserConnections(userId: string) {
   const message = { type: "USER_ACCESS_REVOKED" };
   deliverToLocalUserConnections(userId, message);
@@ -466,6 +539,17 @@ export async function revokeSessionConnections(
 ) {
   if (sessionIds.length === 0) return;
   const message = { type: "SESSIONS_ENDED", sessionIds };
+  deliverToLocalUserConnections(userId, message);
+  await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
+}
+
+/** Close sockets opened with deleted API keys, on every API instance. */
+export async function revokeApiKeyConnections(
+  userId: string,
+  apiKeyIds: string[],
+) {
+  if (apiKeyIds.length === 0) return;
+  const message = { type: "API_KEYS_REVOKED", apiKeyIds };
   deliverToLocalUserConnections(userId, message);
   await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
 }

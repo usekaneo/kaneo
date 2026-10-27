@@ -1,4 +1,5 @@
 import {
+  revokeApiKeyConnections,
   revokeSessionConnections,
   revokeUserConnections,
   revokeWorkspaceConnections,
@@ -24,6 +25,7 @@ import {
   APIError,
   createAuthMiddleware,
   getSessionFromCtx,
+  isAPIError,
 } from "better-auth/api";
 import {
   admin as adminPlugin,
@@ -1073,6 +1075,13 @@ export const auth = betterAuth({
     }),
     after: createAuthMiddleware(async (ctx) => {
       await recordAuthAdminAudit(ctx);
+      if (ctx.path === "/api-key/delete" && !isAPIError(ctx.context.returned)) {
+        const keyId = (ctx.body as { keyId?: unknown } | undefined)?.keyId;
+        // better-auth only deletes the caller's own keys.
+        const viewer = await getSessionFromCtx(ctx);
+        if (viewer && typeof keyId === "string")
+          await revokeApiKeyConnections(viewer.user.id, [keyId]);
+      }
       if (
         (ctx.path === "/organization/list" ||
           ctx.path === "/organization/list-user-teams") &&

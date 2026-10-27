@@ -876,12 +876,13 @@ export function createApp() {
 
       const userId = c.get("userId");
       const sessionId = c.get("session")?.id ?? null;
+      const apiKeyId = c.get("apiKey")?.id;
       let conn: ReturnType<typeof addUserConnection> | null = null;
 
       return {
         onOpen(_evt, ws) {
           if (userId) {
-            conn = addUserConnection(userId, ws, sessionId);
+            conn = addUserConnection(userId, ws, sessionId, apiKeyId);
             void syncWorkspaceAccess(userId, ws);
           }
         },
