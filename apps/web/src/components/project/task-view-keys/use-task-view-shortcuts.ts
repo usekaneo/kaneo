@@ -8,6 +8,7 @@ import { prefetchTask } from "@/hooks/queries/task/prefetch-task";
 import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { toast } from "@/lib/toast";
 import { focusTaskElement } from "./focus-task-element";
+import { stepRowFocus } from "./step-row-focus";
 import {
   type FocusDirection,
   findTaskGroup,
@@ -23,6 +24,7 @@ type TaskViewShortcutsOptions = {
   layout: TaskLayout;
   selection: TaskSelectionStore;
   getGroups: () => TaskGroup[];
+  getMoveGroups?: () => TaskGroup[];
   project: { id: string; workspaceId: string } | null | undefined;
   enabled?: boolean;
   canMove?: boolean;
@@ -38,6 +40,7 @@ export function useTaskViewShortcuts({
   layout,
   selection,
   getGroups,
+  getMoveGroups = getGroups,
   project,
   enabled = true,
   canMove = false,
@@ -63,9 +66,9 @@ export function useTaskViewShortcuts({
         } as const)
       : null;
 
-  const focus = (taskId: string | null) => {
+  const focus = (taskId: string | null, rowId?: string) => {
     if (!taskId) return;
-    selection.getState().setFocusedTask(taskId);
+    selection.getState().setFocusedTask(taskId, rowId);
     void prefetchTask(queryClient, taskId);
     const route = taskRoute(taskId);
     if (route) void router.preloadRoute(route).catch(() => undefined);
@@ -73,26 +76,45 @@ export function useTaskViewShortcuts({
     if (peeked && peeked !== taskId) {
       navigate({ to: ".", search: { taskId }, replace: true });
     }
-    focusTaskElement(taskId, !peeked);
+    focusTaskElement(taskId, !peeked, rowId);
   };
 
-  const step = (direction: FocusDirection) =>
-    focus(
-      stepFocus(getGroups(), layout, focused() ?? peekedTaskId(), direction),
-    );
+  const step = (direction: FocusDirection) => {
+    const groups = getGroups();
+    const taskId = focused() ?? peekedTaskId();
+    if (layout === "list" && groups.some((group) => group.rows)) {
+      const next = stepRowFocus(
+        groups,
+        taskId,
+        selection.getState().focusedTaskRowId,
+        direction,
+      );
+      if (next) focus(next.taskId, next.rowId);
+      return;
+    }
+    focus(stepFocus(groups, layout, taskId, direction));
+  };
 
   const move = (direction: MoveDirection) => {
     const taskId = focused();
+    const rowId = selection.getState().focusedTaskRowId;
     if (!taskId || !onMove) return;
-    const overId = moveTarget(getGroups(), layout, taskId, direction);
+    const overId = moveTarget(getMoveGroups(), layout, taskId, direction);
     if (!overId) return;
     onMove(taskId, overId);
-    requestAnimationFrame(() => focusTaskElement(taskId, !peekedTaskId()));
+    requestAnimationFrame(() =>
+      focusTaskElement(taskId, !peekedTaskId(), rowId),
+    );
   };
 
   const withFocusedGroup = (run: (group: TaskGroup) => void) => {
-    const found = findTaskGroup(getGroups(), focused());
-    if (found) run(found.group);
+    const groups = getGroups().filter((group) => !group.collapsed);
+    const rowId = selection.getState().focusedTaskRowId;
+    const rowGroup =
+      rowId &&
+      groups.find((group) => group.rows?.some((row) => row.rowId === rowId));
+    const group = rowGroup || findTaskGroup(groups, focused())?.group;
+    if (group) run(group);
   };
 
   useEffect(() => {

@@ -2,7 +2,7 @@ import { useRestoreTaskFocus } from "@/components/project/task-view-keys/use-res
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
-import { Trash2Icon } from "lucide-react";
+import { ChevronRight, Trash2Icon } from "lucide-react";
 import { type CSSProperties, useMemo, useState, memo } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -35,11 +35,49 @@ import { EASE_OUT_CSS } from "@/lib/motion";
 type TaskRowProps = {
   task: Task;
   projectSlug: string;
+  // A subtask keeps its own top-level row and is repeated, indented, under
+  // each expanded parent.
+  /** Nesting level; 0 for a task shown in its own status group. */
+  depth?: number;
+  /**
+   * Identifies the row rather than the task. The task id is not unique when a
+   * subtask is repeated, so it cannot be used as a drag identity.
+   */
+  rowId?: string;
+  childCount?: number;
+  isExpanded?: boolean;
+  onToggleExpanded?: (rowId: string) => void;
+  /**
+   * Keeps the toggle column present on rows that have no toggle, so titles in
+   * a group containing subtasks stay on one vertical line.
+   */
+  reserveToggleSpace?: boolean;
+  /**
+   * True while this task is being dragged from another of its rows. Only the
+   * top-level row is the drag source, so the repeats would otherwise sit at
+   * full opacity beside it.
+   */
+  isTaskDragging?: boolean;
 };
 
-function TaskRow({ task, projectSlug }: TaskRowProps) {
+function TaskRow({
+  task,
+  projectSlug,
+  depth = 0,
+  rowId = task.id,
+  childCount = 0,
+  isExpanded = false,
+  onToggleExpanded,
+  reserveToggleSpace = false,
+  isTaskDragging = false,
+}: TaskRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const showToggleColumn = depth > 0 || childCount > 0 || reserveToggleSpace;
+  // Only the top-level row is a drag source. A nested repeat shares its task
+  // id with that row, so making it sortable would register the same id twice
+  // and move the wrong row.
+  const isNestedRepeat = depth > 0;
   const {
     attributes,
     listeners,
@@ -48,7 +86,8 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transition,
     isDragging,
   } = useSortable({
-    id: task.id,
+    id: rowId ?? task.id,
+    disabled: isNestedRepeat,
     transition: { duration: 200, easing: EASE_OUT_CSS },
   });
 
@@ -65,7 +104,7 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
   );
   const selectRange = useBulkSelectionStore((state) => state.selectRange);
   const setFocusedTask = useBulkSelectionStore((state) => state.setFocusedTask);
-  useRestoreTaskFocus(task.id, useBulkSelectionStore);
+  useRestoreTaskFocus(task.id, useBulkSelectionStore, rowId);
   const setSelectionAnchor = useBulkSelectionStore(
     (state) => state.setSelectionAnchor,
   );
@@ -73,7 +112,11 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     state.selectedTaskIds.has(task.id),
   );
   const isTaskFocused = useBulkSelectionStore(
-    (state) => state.focusedTaskId === task.id,
+    (state) =>
+      state.focusedTaskId === task.id &&
+      (state.focusedTaskRowId
+        ? state.focusedTaskRowId === rowId
+        : rowId === task.id),
   );
 
   const hoverPrefetch = useTaskHoverPrefetch(task.id);
@@ -93,6 +136,23 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     touchAction: isDragging ? "none" : "auto",
   };
 
+  const openTask = () => {
+    const currentParams = new URLSearchParams(window.location.search);
+    const currentTaskId = currentParams.get("taskId");
+
+    if (currentTaskId === task.id) {
+      navigate({
+        to: ".",
+        search: {},
+      });
+    } else {
+      navigate({
+        to: ".",
+        search: { taskId: task.id },
+      });
+    }
+  };
+
   const handleClick = (e: React.MouseEvent) => {
     if (!project || !task || !isOwnDomEvent(e)) return;
     if (e.defaultPrevented) return;
@@ -110,20 +170,8 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     }
 
     setSelectionAnchor(task.id);
-    const currentParams = new URLSearchParams(window.location.search);
-    const currentTaskId = currentParams.get("taskId");
-
-    if (currentTaskId === task.id) {
-      navigate({
-        to: ".",
-        search: {},
-      });
-    } else {
-      navigate({
-        to: ".",
-        search: { taskId: task.id },
-      });
-    }
+    setFocusedTask(null, rowId);
+    openTask();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -131,6 +179,14 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
       selectRange(task.id);
+      return;
+    }
+    // Space activates the non-sortable repeat. Top-level rows leave Space to
+    // the view's peekTask shortcut; this view has no keyboard drag sensor.
+    if (isNestedRepeat && e.key === " ") {
+      e.preventDefault();
+      setSelectionAnchor(task.id);
+      openTask();
     }
   };
 
@@ -149,15 +205,62 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     <div
       ref={setNodeRef}
       style={style}
-      data-kaneo-sortable
+      data-kaneo-sortable={isNestedRepeat ? undefined : true}
       className={cn(
-        "border-b border-border/50 transition-colors duration-150",
-        isDragging && "opacity-50",
+        // The indent and the toggle sit beside the draggable region rather
+        // than inside it: dnd-kit gives its activator role="button", and a
+        // button nested in one is an ambiguous control for assistive tech.
+        "group/row flex items-stretch border-b border-border/50 transition-colors duration-150",
+        (isDragging || isTaskDragging) && "opacity-50",
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
         isTaskFocused && "ring-1 ring-board-card-focus ring-inset",
       )}
     >
+      {showToggleColumn && (
+        <div
+          className={cn(
+            "flex shrink-0 items-center pl-3.5",
+            isTaskSelected ? "bg-accent/45" : "group-hover/row:bg-accent/60",
+          )}
+        >
+          {depth > 0 && (
+            <span
+              aria-hidden="true"
+              className="shrink-0"
+              // Capped so a deep chain cannot push the title off the row; the
+              // chevrons still convey the nesting.
+              style={{ width: `${Math.min(depth, 6) * 1.25}rem` }}
+            />
+          )}
+
+          {childCount > 0 ? (
+            <button
+              type="button"
+              onClick={() => onToggleExpanded?.(rowId ?? task.id)}
+              aria-expanded={isExpanded}
+              // Named with the task, not just the action: several identical
+              // "Show subtasks" buttons would be indistinguishable in a rotor.
+              aria-label={
+                isExpanded
+                  ? t("tasks:listView.collapseSubtasks", { title: task.title })
+                  : t("tasks:listView.expandSubtasks", { title: task.title })
+              }
+              className="touch-hitbox relative shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ChevronRight
+                className={cn(
+                  "size-3 transition-transform duration-150 ease-out",
+                  isExpanded && "rotate-90",
+                )}
+              />
+            </button>
+          ) : (
+            <span aria-hidden="true" className="w-5 shrink-0" />
+          )}
+        </div>
+      )}
+
       <ContextMenu
         onOpenChange={(open) => {
           if (open) setHasOpenedMenu(true);
@@ -168,20 +271,34 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
           <div
             onClick={handleClick}
             className={cn(
-              "group relative flex h-10 cursor-pointer items-center gap-3 px-3.5 outline-none transition-colors",
-              isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
+              "group relative flex h-10 min-w-0 flex-1 cursor-pointer items-center gap-3 pr-3.5 outline-none transition-colors",
+              showToggleColumn ? "pl-2" : "pl-3.5",
+              isTaskSelected ? "bg-accent/45" : "group-hover/row:bg-accent/60",
             )}
             data-task-id={task.id}
+            data-task-row-id={rowId}
             data-shortcut-surface
-            {...attributes}
-            {...listeners}
+            // A repeated row opens its task like any other, so it keeps the
+            // button semantics but takes none of dnd-kit's attributes: those
+            // carry aria-disabled for a disabled sortable, which would tell
+            // assistive technology the row cannot be used.
+            {...(isNestedRepeat
+              ? { role: "button" as const, tabIndex: 0 }
+              : { ...attributes, ...listeners })}
             {...hoverPrefetch}
             onKeyDown={handleKeyDown}
             onFocus={(event) => {
               if (event.target !== event.currentTarget) return;
-              setFocusedTask(isKeyboardFocus(event) ? task.id : null);
+              setFocusedTask(isKeyboardFocus(event) ? task.id : null, rowId);
             }}
           >
+            {depth > 0 && (
+              // The indent is decorative, so nesting is otherwise inaudible: a
+              // repeat and its top-level row expose identical content.
+              <span className="sr-only">
+                {t("tasks:listView.subtaskLevel", { level: depth })}
+              </span>
+            )}
             <TaskRowBody
               task={task}
               projectSlug={projectSlug}
