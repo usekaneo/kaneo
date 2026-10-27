@@ -994,15 +994,6 @@ export const auth = betterAuth({
           }
         }
 
-        if (
-          ctx.path === "/callback/:id" &&
-          ctx.params?.id === "custom" &&
-          (parseManagedProfileFields().length > 0 ||
-            resolveBackchannelLogoutConfig().enabled)
-        ) {
-          throw new APIError("NOT_FOUND");
-        }
-
         const isSignUpPath =
           ctx.path === "/sign-up/email" ||
           ctx.path.startsWith("/callback/") ||
