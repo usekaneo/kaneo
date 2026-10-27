@@ -245,11 +245,21 @@ export const sendTestEmail = async (
   const emailTemplate = await render(
     TestEmail({ email: to, instance: instanceHost(), ...data }),
   );
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM,
-    to,
-    subject,
-    html: emailTemplate,
+  const testTransport = nodemailer.createTransport({
+    ...getSmtpTransportOptions(),
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 10_000,
   });
-  return { success: true };
+  try {
+    await testTransport.sendMail({
+      from: process.env.SMTP_FROM,
+      to,
+      subject,
+      html: emailTemplate,
+    });
+    return { success: true };
+  } finally {
+    testTransport.close();
+  }
 };

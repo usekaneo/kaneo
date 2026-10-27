@@ -7,6 +7,14 @@ const githubStatus = () =>
 describe("describeAuth", () => {
   afterEach(() => vi.unstubAllEnvs());
 
+  it("disables password registration when the login form is disabled", () => {
+    vi.stubEnv("DISABLE_REGISTRATION", "false");
+    vi.stubEnv("DISABLE_PASSWORD_REGISTRATION", "false");
+    vi.stubEnv("DISABLE_LOGIN_FORM", "true");
+
+    expect(describeAuth().passwordRegistration).toBe(false);
+  });
+
   it("doesn't combine the OAuth and legacy GitHub credential pairs", () => {
     vi.stubEnv("GITHUB_OAUTH_CLIENT_ID", "oauth-id");
     vi.stubEnv("GITHUB_OAUTH_CLIENT_SECRET", "");

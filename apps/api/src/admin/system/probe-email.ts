@@ -14,7 +14,7 @@ export async function probeEmail(timeoutMs: number): Promise<EmailProbe> {
     // nodemailer bounds each phase itself; the outer limit covers DNS.
     const result = await withTimeout(
       () => verifySmtpConnection(timeoutMs),
-      timeoutMs + 500,
+      timeoutMs,
     );
     if (result.status === "not_configured") {
       return { status: "not_configured", configured: false, errorCode: null };

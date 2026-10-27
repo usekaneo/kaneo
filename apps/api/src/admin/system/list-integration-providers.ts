@@ -1,11 +1,10 @@
 import { count, eq } from "drizzle-orm";
-import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import { integrationPlugins } from "../../plugins";
 import { resolveGithubPrivateKey } from "../../plugins/github/utils/github-app";
 import { credentialSetStatus } from "./credential-set-status";
 import type { ServiceStatus } from "./service-status";
-import { withTimeout } from "./with-timeout";
+import { withDatabaseTimeout } from "./with-database-timeout";
 
 type IntegrationProvider = {
   type: string;
@@ -28,9 +27,9 @@ function instanceSetupStatus(type: string): ServiceStatus | null {
 
 async function countConnectedProjects(timeoutMs: number) {
   try {
-    const rows = await withTimeout(
-      () =>
-        db
+    const rows = await withDatabaseTimeout(
+      async (tx) =>
+        tx
           .select({ type: integrationTable.type, value: count() })
           .from(integrationTable)
           .where(eq(integrationTable.isActive, true))

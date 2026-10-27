@@ -1,4 +1,4 @@
-import getSettings from "../../utils/get-settings";
+import { isSmtpConfigured } from "@kaneo/email";
 import { resolveFileSecret } from "../../utils/file-secret";
 import { getGithubSsoOAuthCredentials } from "../../utils/github-sso-env";
 import { credentialSetStatus } from "./credential-set-status";
@@ -35,7 +35,10 @@ function customOAuthEndpoint() {
  * leave here: never client ids, secrets, or provider URLs.
  */
 export function describeAuth() {
-  const settings = getSettings();
+  const disableLoginForm = process.env.DISABLE_LOGIN_FORM === "true";
+  const disableRegistration = process.env.DISABLE_REGISTRATION === "true";
+  const disablePasswordRegistration =
+    process.env.DISABLE_PASSWORD_REGISTRATION === "true";
   const github = getGithubSsoOAuthCredentials();
   const providers: AuthProvider[] = [
     {
@@ -62,7 +65,7 @@ export function describeAuth() {
     },
     {
       id: "custom",
-      name: settings.customOAuthName ?? "OIDC",
+      name: env("CUSTOM_OAUTH_NAME") || "OIDC",
       status: credentialSetStatus([
         env("CUSTOM_OAUTH_CLIENT_ID"),
         customOAuthSecret(),
@@ -72,17 +75,21 @@ export function describeAuth() {
   ];
 
   return {
-    passwordSignIn: !settings.disableLoginForm,
+    passwordSignIn: !disableLoginForm,
     // Mirrors isEmailCodeSignInAvailable in auth.ts.
     emailOtpSignIn:
-      settings.hasSmtp &&
-      !settings.disableEmailOtpSignIn &&
-      !settings.disableLoginForm,
-    registration: !settings.disableRegistration,
+      isSmtpConfigured() &&
+      process.env.DISABLE_EMAIL_OTP_SIGN_IN !== "true" &&
+      !disableLoginForm,
+    registration: !disableRegistration,
     passwordRegistration:
-      !settings.disableRegistration && !settings.disablePasswordRegistration,
-    guestAccess: settings.hasGuestAccess,
-    workspaceCreation: !settings.disableWorkspaceCreation,
+      !disableRegistration && !disablePasswordRegistration && !disableLoginForm,
+    guestAccess:
+      process.env.DISABLE_GUEST_ACCESS !== "true" &&
+      !disableRegistration &&
+      !disablePasswordRegistration &&
+      !disableLoginForm,
+    workspaceCreation: process.env.DISABLE_WORKSPACE_CREATION !== "true",
     providers,
   };
 }

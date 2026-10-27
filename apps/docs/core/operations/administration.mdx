@@ -83,7 +83,7 @@ Only instance administrators signed in with a session can read the audit log, in
 
 Open **Settings → Administration → System** to check this instance and the services it relies on. The page checks again each time you open it or choose **Refresh**.
 
-- **Instance**: the Kaneo version, API uptime, PostgreSQL (version, applied migrations, response time), live updates (open WebSocket connections on this API instance), Redis, and S3-compatible file storage.
+- **Instance**: the Kaneo version, API uptime, PostgreSQL (version, applied migrations, response time), live updates (open WebSocket connections on this API instance), Redis publisher and subscriber connectivity, and S3-compatible file storage.
 - **Email**: whether SMTP is configured and whether Kaneo can connect and sign in to the mail server. Nothing is sent by this check.
 - **Sign-in**: which sign-in and registration options are on, and whether GitHub, Google, Discord, and your custom OAuth/OIDC provider are configured.
 - **Integrations**: every integration provider, how many projects are connected to it, and whether the GitHub App is set up. Other providers are connected per project and need no instance settings.
@@ -103,7 +103,7 @@ When you run more than one API instance behind a load balancer, the checks and c
 
 ### Send a test email
 
-Choose **Send test email** to send a short test message to your own account's address. Kaneo can't send it to anyone else. If the mail server rejects it, you see the error category (for example `EAUTH 535` for a wrong password), and the API logs the same. You can send 5 test emails every 10 minutes.
+Choose **Send test email** to send a short test message to your own account's address. Kaneo can't send it to anyone else. If the mail server rejects it, you see the error category (for example `EAUTH 535` for a wrong password), and the API logs the same. You can send 5 test emails every 10 minutes. Test email connections, greetings, and idle sockets time out after 10 seconds.
 
 The button is disabled until `SMTP_HOST` and `SMTP_FROM` are set. See [SMTP configuration](/core/installation/environment-variables#smtp-configuration) for the settings.
 

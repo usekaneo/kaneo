@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
+import * as adminAudit from "../../apps/api/src/admin/audit/record-admin-action";
 import db, { schema } from "../../apps/api/src/database";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { createInstanceAdmin } from "./helpers/admin/create-instance-admin";
@@ -30,6 +31,7 @@ vi.mock("@kaneo/email", async (importOriginal) => ({
 vi.mock("../../apps/api/src/redis", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   getRedisPub: () => ({ ping: redis.ping }),
+  getRedisSub: () => ({ status: "ready" }),
 }));
 
 beforeEach(async () => {
@@ -287,6 +289,27 @@ describe("admin system status", () => {
       body.integrations.find((provider) => provider.type === "github")?.status,
     ).toBe("ok");
   });
+  it("reports an unreadable OIDC secret as a warning without failing the page", async () => {
+    const admin = await createInstanceAdmin();
+    mockAuthenticatedSession(admin);
+
+    const response = await withEnv(
+      {
+        CUSTOM_OAUTH_CLIENT_ID: "oidc-client",
+        CUSTOM_OAUTH_CLIENT_SECRET: "",
+        CUSTOM_OAUTH_CLIENT_SECRET_FILE: "/missing-kaneo-oidc-secret",
+        CUSTOM_OAUTH_DISCOVERY_URL: "https://idp.example.test/discovery",
+      },
+      () => projectAccessApi()("/admin/system"),
+    );
+
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as SystemStatus;
+    expect(
+      body.auth.providers.find((provider) => provider.id === "custom")?.status,
+    ).toBe("warning");
+  });
+
   it("reports email sign-in codes only when the login form can use them", async () => {
     smtp.configured.mockReturnValue(true);
     const admin = await createInstanceAdmin();
@@ -359,6 +382,32 @@ describe("admin test email", () => {
     });
     expect(JSON.stringify(rows)).not.toContain("someone-else@");
     expect(JSON.stringify(rows)).not.toContain("victim@");
+  });
+
+  it("reports an accepted email as sent when its audit insert fails", async () => {
+    smtp.configured.mockReturnValue(true);
+    const admin = await createInstanceAdmin();
+    mockAuthenticatedSession(admin);
+    vi.spyOn(adminAudit, "recordAdminAction").mockRejectedValue(
+      new Error("query parameters contain private-audit-value"),
+    );
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await projectAccessApi()("/admin/system/test-email", {
+      method: "POST",
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ sent: true, to: admin.email });
+    expect(smtp.send).toHaveBeenCalledTimes(1);
+    expect(log).toHaveBeenCalledWith(
+      "Admin audit entry could not be recorded:",
+      {
+        action: "email.test_sent",
+        code: "UNKNOWN",
+      },
+    );
+    expect(JSON.stringify(log.mock.calls)).not.toContain("private-audit-value");
   });
 
   it("returns a safe error when the mail server rejects the message", async () => {

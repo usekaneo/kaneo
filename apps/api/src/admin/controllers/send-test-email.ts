@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { ApiError } from "../../errors/api-error";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
 import { recordAdminAction } from "../audit/record-admin-action";
+import { safeErrorCode } from "../system/safe-error-code";
 import { createAttemptLimiter } from "../system/attempt-limiter";
 
 const testEmailLimiter = createAttemptLimiter({
@@ -73,13 +74,21 @@ async function sendAdminTestEmail(
 
   if (!result.success) throw notConfigured();
 
-  await recordAdminAction({
-    ...audit,
-    action: "email.test_sent",
-    targetType: "user",
-    targetId: userId,
-    targetLabel: email,
-  });
+  try {
+    await recordAdminAction({
+      ...audit,
+      action: "email.test_sent",
+      targetType: "user",
+      targetId: userId,
+      targetLabel: email,
+    });
+  } catch (error) {
+    // SMTP already accepted the message; an audit failure cannot undo it.
+    console.error("Admin audit entry could not be recorded:", {
+      action: "email.test_sent",
+      code: safeErrorCode(error),
+    });
+  }
 
   return { sent: true as const, to: email };
 }
