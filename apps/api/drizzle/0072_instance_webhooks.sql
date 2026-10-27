@@ -7,7 +7,7 @@ CREATE TABLE "instance_webhook_delivery" (
 	"status_code" integer,
 	"error_code" text,
 	"next_attempt_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL,
-	"created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL
+	"created_at" timestamp DEFAULT (statement_timestamp() AT TIME ZONE 'utc') NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "instance_webhook" (
@@ -16,6 +16,7 @@ CREATE TABLE "instance_webhook" (
 	"categories" text[] NOT NULL,
 	"enabled" boolean DEFAULT true NOT NULL,
 	"signing_secret" text NOT NULL,
+	"cancel_pending_before" timestamp,
 	"created_at" timestamp DEFAULT (now() AT TIME ZONE 'utc') NOT NULL
 );
 --> statement-breakpoint

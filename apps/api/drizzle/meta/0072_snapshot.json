@@ -1,5 +1,5 @@
 {
-  "id": "da7ed7c3-b6eb-4652-90f2-6f900d417fa0",
+  "id": "0f7e9c13-a40c-4c0a-8719-c5e314b2ccde",
   "prevId": "7ab4105f-964e-425f-a551-43895baf6683",
   "version": "7",
   "dialect": "postgresql",
@@ -2488,7 +2488,7 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "default": "(now() AT TIME ZONE 'utc')"
+          "default": "(statement_timestamp() AT TIME ZONE 'utc')"
         }
       },
       "indexes": {
@@ -2596,6 +2596,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "cancel_pending_before": {
+          "name": "cancel_pending_before",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
