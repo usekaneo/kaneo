@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogPanel,
@@ -17,18 +16,12 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import useCreateAdminUser from "@/hooks/mutations/admin/use-create-admin-user";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import { getAccountSetupMode } from "./get-account-setup-mode";
 import {
   buildCreateUserRequest,
   EMPTY_CREATE_USER_VALUES,
 } from "./create-user-values";
-import { getAccountSetupMode } from "./get-account-setup-mode";
 import { InstanceRoleSelect } from "./instance-role-select";
-
-const SETUP_HINT_KEYS = {
-  email: "settings:adminUsers.create.hintEmail",
-  noEmail: "settings:adminUsers.create.hintNoEmail",
-  sso: "settings:adminUsers.create.hintSso",
-} as const;
 
 type CreateUserDialogProps = {
   open: boolean;
@@ -41,9 +34,9 @@ export function CreateUserDialog({
 }: CreateUserDialogProps) {
   const { t } = useTranslation();
   const { data: config } = useGetConfig();
+  const mode = getAccountSetupMode(config);
   const [values, setValues] = useState(EMPTY_CREATE_USER_VALUES);
   const { mutateAsync: createUser, isPending } = useCreateAdminUser();
-  const mode = getAccountSetupMode(config);
   const [nameError, setNameError] = useState(false);
 
   const close = () => {
@@ -79,9 +72,6 @@ export function CreateUserDialog({
         <form className="contents" onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{t("settings:adminUsers.create.title")}</DialogTitle>
-            <DialogDescription>
-              {t("settings:adminUsers.create.description")}
-            </DialogDescription>
           </DialogHeader>
           <DialogPanel>
             <div className="flex flex-col gap-4">
@@ -143,10 +133,14 @@ export function CreateUserDialog({
                   }
                 />
               </Field>
-              <Alert variant={mode === "noEmail" ? "warning" : "default"}>
-                <InfoIcon />
-                <AlertDescription>{t(SETUP_HINT_KEYS[mode])}</AlertDescription>
-              </Alert>
+              {mode === "noEmail" ? (
+                <Alert variant="warning">
+                  <InfoIcon />
+                  <AlertDescription>
+                    {t("settings:adminUsers.create.hintNoEmail")}
+                  </AlertDescription>
+                </Alert>
+              ) : null}
             </div>
           </DialogPanel>
           <DialogFooter>

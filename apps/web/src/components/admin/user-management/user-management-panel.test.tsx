@@ -589,9 +589,6 @@ describe("UserManagementPanel", () => {
       screen.getByRole("button", { name: "settings:adminUsers.create.open" }),
     );
     const dialog = await screen.findByRole("dialog");
-    expect(
-      within(dialog).getByText("settings:adminUsers.create.hintEmail"),
-    ).toBeTruthy();
     expect(dialog.querySelector('input[type="password"]')).toBeNull();
     fireEvent.change(
       within(dialog).getByLabelText("settings:adminUsers.edit.name"),
@@ -660,20 +657,5 @@ describe("UserManagementPanel", () => {
         role: "user",
       }),
     );
-  });
-
-  it("explains single sign-on accounts when password registration is off", async () => {
-    vi.useRealTimers();
-    configMock.data = { hasSmtp: true, disablePasswordRegistration: true };
-    useAdminUsersMock.mockReturnValue(success(1));
-    render(<UserManagementPanel />);
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "settings:adminUsers.create.open" }),
-    );
-    const dialog = await screen.findByRole("dialog");
-    expect(
-      within(dialog).getByText("settings:adminUsers.create.hintSso"),
-    ).toBeTruthy();
   });
 });

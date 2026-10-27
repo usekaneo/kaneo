@@ -1640,17 +1640,14 @@
 				"working": "Working…",
 				"markEmailVerified": {
 					"action": "Mark as verified",
-					"description": "Only do this if you know {{email}} belongs to {{name}}. Single sign-on accounts with a verified address can link to this account.",
 					"title": "Mark this email as verified?"
 				},
 				"sendPasswordReset": {
 					"action": "Send link",
-					"description": "{{name}} gets an email at {{email}} with a link to choose a new password. The link works once and expires in 1 hour. You won't see the link.",
 					"title": "Send a password reset link?"
 				},
 				"sendVerification": {
 					"action": "Send email",
-					"description": "{{name}} gets an email at {{email}} with a link to confirm the address. The link expires in 24 hours.",
 					"title": "Resend the verification email?"
 				}
 			},
@@ -1698,10 +1695,10 @@
 				"avatarChanged": "Profile picture updated",
 				"avatarError": "Failed to update the profile picture",
 				"avatarRemoved": "Profile picture removed",
-				"createdForSso": "User created. They can sign in with single sign-on as {{email}}.",
-				"createdLinkFailed": "User created, but the password link could not be emailed. Try “Send password reset link” later.",
-				"createdLinkSent": "User created. We emailed {{email}} a link to set their password.",
-				"createdNoSmtp": "User created, but email isn't configured, so no password link was sent.",
+				"createdForSso": "User created for single sign-on.",
+				"createdLinkFailed": "User created. Password email failed; retry “Send password reset link”.",
+				"createdLinkSent": "User created. Password link sent to {{email}}.",
+				"createdNoSmtp": "User created. Set SMTP_HOST to send a password link.",
 				"createError": "Failed to create user",
 				"emailError": "The email could not be sent",
 				"emailVerified": "Email marked as verified",
@@ -1711,18 +1708,13 @@
 			"you": "Você",
 			"create": {
 				"creating": "Creating…",
-				"description": "Add an account for someone. You never choose or see their password.",
-				"hintEmail": "They'll get an email with a link to set their own password. The link expires in 2 days.",
-				"hintNoEmail": "Email isn't configured on this instance, so no password link can be sent. Once SMTP is set up, use “Send password reset link”.",
-				"hintSso": "Password sign-in is turned off here, so no email is sent. They sign in with single sign-on using this email address.",
 				"open": "Create user",
 				"submit": "Create user",
 				"title": "Create user",
-				"nameRequired": "Enter a name"
+				"nameRequired": "Enter a name",
+				"hintNoEmail": "Set SMTP_HOST to send password links."
 			},
 			"details": {
-				"avatarHint": "PNG, JPEG, or WebP. Cropped to a square.",
-				"avatarManaged": "This picture comes from the identity provider.",
 				"emailStatus": "Email",
 				"methods": {
 					"password": "Password"

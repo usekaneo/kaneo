@@ -76,7 +76,7 @@ export function UserConfirmDialog({ action, onClose }: UserConfirmDialogProps) {
         if (!open && !isPending) onClose();
       }}
       title={t(copy.title)}
-      description={t(copy.description, values)}
+      description={copy.description ? t(copy.description, values) : undefined}
       confirmLabel={t(copy.action)}
       pendingLabel={t("settings:adminUsers.confirm.working")}
       pending={isPending}
