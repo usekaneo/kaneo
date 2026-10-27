@@ -103,13 +103,14 @@ const markEmailVerifiedRoute = createRoute({
   tags: ["Admin"],
   summary: "Mark an email as verified",
   description:
-    "Mark the user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account.",
+    "Mark a non-guest user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account.",
   middleware: [requireUserSession, requireInstanceAdmin] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("The email is verified", adminEmailVerifiedSchema),
     403: forbidden,
     404: notFound,
+    409: errorResponse("Guest accounts have no email address to verify"),
   },
 });
 

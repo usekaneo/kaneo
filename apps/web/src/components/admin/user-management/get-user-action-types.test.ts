@@ -6,10 +6,16 @@ const options = { isSelf: false, canSendPasswordReset: true };
 describe("getUserActionTypes", () => {
   it("offers verification actions only for unverified addresses", () => {
     expect(
-      getUserActionTypes({ emailVerified: true, banned: false }, options),
+      getUserActionTypes(
+        { isAnonymous: false, emailVerified: true, banned: false },
+        options,
+      ),
     ).toEqual(["sendPasswordReset", "deactivate", "delete"]);
     expect(
-      getUserActionTypes({ emailVerified: false, banned: true }, options),
+      getUserActionTypes(
+        { isAnonymous: false, emailVerified: false, banned: true },
+        options,
+      ),
     ).toEqual([
       "sendPasswordReset",
       "sendVerification",
@@ -19,10 +25,19 @@ describe("getUserActionTypes", () => {
     ]);
   });
 
+  it("omits every email action for guests", () => {
+    expect(
+      getUserActionTypes(
+        { isAnonymous: true, emailVerified: false, banned: false },
+        options,
+      ),
+    ).toEqual(["deactivate", "delete"]);
+  });
+
   it("never offers deactivating or deleting yourself", () => {
     expect(
       getUserActionTypes(
-        { emailVerified: true, banned: false },
+        { isAnonymous: false, emailVerified: true, banned: false },
         { ...options, isSelf: true },
       ),
     ).toEqual(["sendPasswordReset"]);
@@ -31,7 +46,7 @@ describe("getUserActionTypes", () => {
   it("hides reset links when password sign-in is off", () => {
     expect(
       getUserActionTypes(
-        { emailVerified: true, banned: false },
+        { isAnonymous: false, emailVerified: true, banned: false },
         { ...options, canSendPasswordReset: false },
       ),
     ).toEqual(["deactivate", "delete"]);

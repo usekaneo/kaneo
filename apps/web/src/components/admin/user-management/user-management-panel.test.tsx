@@ -105,6 +105,7 @@ function user(overrides: Partial<AdminUser> = {}): AdminUser {
     name: "Ada Lovelace",
     email: "ada@example.com",
     emailVerified: true,
+    isAnonymous: false,
     image: null,
     createdAt: "2026-01-01T00:00:00.000Z",
     updatedAt: "2026-01-01T00:00:00.000Z",
@@ -606,6 +607,52 @@ describe("UserManagementPanel", () => {
       }),
     );
 
+    await waitFor(() =>
+      expect(credentialMocks.createUser).toHaveBeenCalledWith({
+        name: "Nora New",
+        email: "nora@example.com",
+        role: "user",
+      }),
+    );
+  });
+
+  it("shows an inline error for a whitespace-only name and clears it on correction", async () => {
+    vi.useRealTimers();
+    useAdminUsersMock.mockReturnValue(success(1));
+    render(<UserManagementPanel />);
+    fireEvent.click(
+      screen.getByRole("button", { name: "settings:adminUsers.create.open" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    const name = within(dialog).getByLabelText("settings:adminUsers.edit.name");
+    fireEvent.change(name, { target: { value: "   " } });
+    fireEvent.change(
+      within(dialog).getByLabelText("settings:adminUsers.edit.email"),
+      {
+        target: { value: "nora@example.com" },
+      },
+    );
+    fireEvent.click(
+      within(dialog).getByRole("button", {
+        name: "settings:adminUsers.create.submit",
+      }),
+    );
+    expect(
+      await within(dialog).findByText(
+        "settings:adminUsers.create.nameRequired",
+      ),
+    ).toBeTruthy();
+    expect(name.getAttribute("aria-invalid")).toBe("true");
+    expect(credentialMocks.createUser).not.toHaveBeenCalled();
+    fireEvent.change(name, { target: { value: "Nora New" } });
+    expect(
+      within(dialog).queryByText("settings:adminUsers.create.nameRequired"),
+    ).toBeNull();
+    fireEvent.click(
+      within(dialog).getByRole("button", {
+        name: "settings:adminUsers.create.submit",
+      }),
+    );
     await waitFor(() =>
       expect(credentialMocks.createUser).toHaveBeenCalledWith({
         name: "Nora New",

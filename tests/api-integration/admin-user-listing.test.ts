@@ -231,6 +231,40 @@ describe("API integration: admin user listing", () => {
     expect((await listUsers(app, { emailVerified: "yes" })).status).toBe(400);
   });
 
+  it("treats expired timed bans as active in filtered results and totals", async () => {
+    const admin = await createUser({
+      name: "Admin",
+      email: "admin@example.com",
+      role: "admin",
+    });
+    const expired = await createUser({
+      name: "Expired",
+      email: "expired@example.com",
+      banned: true,
+      banExpires: new Date(Date.now() - 60_000),
+    });
+    const future = await createUser({
+      name: "Future",
+      email: "future@example.com",
+      banned: true,
+      banExpires: new Date(Date.now() + 60_000),
+    });
+    mockAuthenticatedSession(admin);
+    const { app } = createApp();
+    const active = (await (
+      await listUsers(app, { status: "active" })
+    ).json()) as AdminUserList;
+    expect(active.total).toBe(2);
+    expect(active.users.map((user) => user.id).sort()).toEqual(
+      [admin.id, expired.id].sort(),
+    );
+    const deactivated = (await (
+      await listUsers(app, { status: "deactivated" })
+    ).json()) as AdminUserList;
+    expect(deactivated.total).toBe(1);
+    expect(deactivated.users.map((user) => user.id)).toEqual([future.id]);
+  });
+
   it("reports last session activity and linked sign-in methods", async () => {
     const admin = await createUser({
       name: "Instance Admin",

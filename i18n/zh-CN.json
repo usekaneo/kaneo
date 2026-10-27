@@ -1697,7 +1697,8 @@
 				"hintSso": "Password sign-in is turned off here, so no email is sent. They sign in with single sign-on using this email address.",
 				"open": "Create user",
 				"submit": "Create user",
-				"title": "Create user"
+				"title": "Create user",
+				"nameRequired": "Enter a name"
 			},
 			"details": {
 				"avatarHint": "PNG, JPEG, or WebP. Cropped to a square.",

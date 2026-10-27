@@ -13,7 +13,7 @@ import {
   DialogPopup,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import useCreateAdminUser from "@/hooks/mutations/admin/use-create-admin-user";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
@@ -44,16 +44,21 @@ export function CreateUserDialog({
   const [values, setValues] = useState(EMPTY_CREATE_USER_VALUES);
   const { mutateAsync: createUser, isPending } = useCreateAdminUser();
   const mode = getAccountSetupMode(config);
+  const [nameError, setNameError] = useState(false);
 
   const close = () => {
     onOpenChange(false);
     setValues(EMPTY_CREATE_USER_VALUES);
+    setNameError(false);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const request = buildCreateUserRequest(values);
-    if (!request) return;
+    if (!request) {
+      setNameError(!values.name.trim());
+      return;
+    }
     try {
       await createUser(request);
       close();
@@ -80,7 +85,7 @@ export function CreateUserDialog({
           </DialogHeader>
           <DialogPanel>
             <div className="flex flex-col gap-4">
-              <Field>
+              <Field invalid={nameError}>
                 <FieldLabel htmlFor="admin-create-user-name">
                   {t("settings:adminUsers.edit.name")}
                 </FieldLabel>
@@ -92,13 +97,19 @@ export function CreateUserDialog({
                   required
                   maxLength={200}
                   value={values.name}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setValues((current) => ({
                       ...current,
                       name: event.target.value,
-                    }))
-                  }
+                    }));
+                    setNameError(false);
+                  }}
                 />
+                {nameError ? (
+                  <FieldError match>
+                    {t("settings:adminUsers.create.nameRequired")}
+                  </FieldError>
+                ) : null}
               </Field>
               <Field>
                 <FieldLabel htmlFor="admin-create-user-email">

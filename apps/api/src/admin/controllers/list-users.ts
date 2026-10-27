@@ -3,6 +3,7 @@ import db from "../../database";
 import { userTable } from "../../database/schema";
 import { escapeLikePattern } from "../../search/like-pattern";
 import { instanceAdminRoleSql } from "../../utils/instance-admin-role";
+import { notBannedCondition } from "../../utils/user-ban";
 import { adminUserColumns, toAdminUser } from "../users/admin-user-columns";
 
 type ListUsersInput = {
@@ -17,7 +18,7 @@ type ListUsersInput = {
 function filters({ search, status, role, emailVerified }: ListUsersInput) {
   const term = search?.trim() ?? "";
   const pattern = `%${escapeLikePattern(term)}%`;
-  const deactivated = sql`coalesce(${userTable.banned}, false)`;
+  const active = notBannedCondition();
   const isAdmin = sql`coalesce(${instanceAdminRoleSql(userTable.role)}, false)`;
   return and(
     term
@@ -26,8 +27,8 @@ function filters({ search, status, role, emailVerified }: ListUsersInput) {
     status === undefined
       ? undefined
       : status === "deactivated"
-        ? deactivated
-        : sql`NOT ${deactivated}`,
+        ? sql`NOT (${active})`
+        : active,
     role === undefined
       ? undefined
       : role === "admin"

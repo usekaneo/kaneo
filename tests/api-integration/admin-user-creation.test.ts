@@ -98,8 +98,14 @@ describe("POST /api/admin/users", () => {
     expect(JSON.stringify(audit)).not.toContain(token);
 
     // The emailed link goes through the regular reset flow.
-    const callback = await setup.app.request(`${link.pathname}${link.search}`);
+    const callback = await setup.app.request(data.passwordLink);
     expect(callback.status).toBe(302);
+    const redirect = new URL(callback.headers.get("location") as string);
+    expect(`${redirect.origin}${redirect.pathname}`).toBe(
+      "http://localhost:5173/auth/reset-password",
+    );
+    expect(redirect.searchParams.get("token")).toBe(token);
+    expect(redirect.searchParams.has("error")).toBe(false);
     const post = (path: string, body: unknown) =>
       setup.app.request(`/api/auth${path}`, {
         method: "POST",

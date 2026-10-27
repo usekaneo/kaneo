@@ -5356,6 +5356,9 @@
           "emailVerified": {
             "type": "boolean"
           },
+          "isAnonymous": {
+            "type": "boolean"
+          },
           "image": {
             "type": [
               "string",
@@ -5413,6 +5416,7 @@
           "name",
           "email",
           "emailVerified",
+          "isAnonymous",
           "image",
           "createdAt",
           "updatedAt",
@@ -25373,7 +25377,7 @@
           "Admin"
         ],
         "summary": "Mark an email as verified",
-        "description": "Mark the user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account.",
+        "description": "Mark a non-guest user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account.",
         "parameters": [
           {
             "schema": {
@@ -25418,6 +25422,16 @@
           },
           "404": {
             "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Guest accounts have no email address to verify",
             "content": {
               "application/json": {
                 "schema": {

@@ -763,6 +763,7 @@
 			"create": {
 				"open": "Create user",
 				"title": "Create user",
+				"nameRequired": "Enter a name",
 				"description": "Add an account for someone. You never choose or see their password.",
 				"hintEmail": "They'll get an email with a link to set their own password. The link expires in 2 days.",
 				"hintNoEmail": "Email isn't configured on this instance, so no password link can be sent. Once SMTP is set up, use “Send password reset link”.",

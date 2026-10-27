@@ -56,7 +56,8 @@ describe("POST /api/admin/users/{userId}/password-reset-email", () => {
     expect(to).toBe("target@example.com");
     expect(subject).toBe("Choose a new Kaneo password");
     expect(data.purpose).toBe("reset");
-    const token = new URL(data.passwordLink).pathname.split("/").at(-1);
+    const link = new URL(data.passwordLink);
+    const token = link.pathname.split("/").at(-1);
     expect(text).not.toContain(token);
 
     const [verification] = await db.select().from(schema.verificationTable);
@@ -74,6 +75,24 @@ describe("POST /api/admin/users/{userId}/password-reset-email", () => {
       metadata: null,
     });
     expect(JSON.stringify(rows)).not.toContain(token);
+
+    const visit = await setup.app.request(data.passwordLink);
+    expect(visit.status).toBe(302);
+    const redirect = new URL(visit.headers.get("location") as string);
+    expect(`${redirect.origin}${redirect.pathname}`).toBe(
+      "http://localhost:5173/auth/reset-password",
+    );
+    expect(redirect.searchParams.get("token")).toBe(token);
+    expect(redirect.searchParams.has("error")).toBe(false);
+    const reset = await setup.app.request("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        token,
+        newPassword: "a fresh reset password 123",
+      }),
+    });
+    expect(reset.status).toBe(200);
   });
 
   it("explains why nothing was sent and records nothing", async () => {
@@ -129,7 +148,7 @@ describe("POST /api/admin/users/{userId}/verification-email", () => {
     expect(await auditRows("user.verification_sent")).toHaveLength(1);
     expect(await readAuditLog()).toHaveLength(1);
 
-    const visit = await setup.app.request(`${link.pathname}${link.search}`);
+    const visit = await setup.app.request(data.verificationLink);
     expect(visit.status).toBe(302);
     expect(visit.headers.get("location")).toBe(
       "http://localhost:5173/auth/sign-in",
@@ -157,6 +176,38 @@ describe("POST /api/admin/users/{userId}/verification-email", () => {
 });
 
 describe("PUT /api/admin/users/{userId}/email-verified", () => {
+  it("rejects all guest email actions without changing or auditing the account", async () => {
+    await db
+      .update(schema.userTable)
+      .set({ isAnonymous: true })
+      .where(eq(schema.userTable.id, setup.target.userId));
+
+    for (const [path, method] of [
+      ["/password-reset-email", "POST"],
+      ["/verification-email", "POST"],
+      ["/email-verified", "PUT"],
+    ]) {
+      const response = await post(path, method);
+      expect(response.status, path).toBe(409);
+      expect((await readErrorBody(response)).code).toBe("GUEST_ACCOUNT");
+    }
+    expect(await targetVerified()).toBe(false);
+    expect(email.sendAccountPasswordEmail).not.toHaveBeenCalled();
+    expect(email.sendEmailVerificationEmail).not.toHaveBeenCalled();
+    expect(await readAuditLog()).toEqual([]);
+
+    const response = await setup.asAdmin("");
+    const body = (await response.json()) as {
+      users: { id: string; isAnonymous: boolean }[];
+    };
+    expect(
+      body.users.find((user) => user.id === setup.target.userId)?.isAnonymous,
+    ).toBe(true);
+    expect(
+      body.users.find((user) => user.id === setup.admin.userId)?.isAnonymous,
+    ).toBe(false);
+  });
+
   it("marks the email verified once", async () => {
     expect(await targetVerified()).toBe(false);
     const first = await post("/email-verified", "PUT");

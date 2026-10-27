@@ -19,6 +19,8 @@ From a user's menu you can:
 - **Mark email as verified.** Confirms the address without asking them. Only do this when you know the address is theirs: single sign-on identities with the same verified email can link to the account.
 - **Deactivate, reactivate, or delete** the account.
 
+Guest accounts have generated addresses, so password reset, verification email, and mark-verified actions are unavailable for them.
+
 Emails need [SMTP](/core/installation/environment-variables#smtp-configuration) to be configured. Without it, Kaneo tells you nothing was sent.
 
 If [the identity provider manages profile pictures](/core/social-providers/custom-oauth#managed-profile-fields), you can't replace a user's picture, and you can only remove one they uploaded in Kaneo.

@@ -8,6 +8,7 @@ export const adminUserSchema = z
     name: z.string(),
     email: z.string(),
     emailVerified: z.boolean(),
+    isAnonymous: z.boolean(),
     image: z.string().nullable(),
     createdAt: isoTimestamp,
     updatedAt: isoTimestamp,
