@@ -9,4 +9,5 @@ export type AuditUserSnapshot = {
   banExpires: Date | null;
   emailVerified: boolean;
   image: string | null;
+  locale: string | null;
 };

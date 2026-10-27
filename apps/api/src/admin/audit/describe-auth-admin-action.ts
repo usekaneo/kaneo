@@ -43,7 +43,10 @@ function describeUpdate(
 ) {
   const read = (source: object, key: string) =>
     (source as Record<string, unknown>)[key];
-  const changed = Object.keys(data).filter(
+  // Also compare fields hooks may change as a side effect, such as an email
+  // change clearing its verification.
+  const keys = new Set([...Object.keys(data), ...SHOWN_FIELDS]);
+  const changed = [...keys].filter(
     (key) =>
       key !== "updatedAt" && !same(read(target, key), read(updated, key)),
   );
@@ -144,7 +147,9 @@ export function describeAuthAdminAction({
         ? []
         : [about("user.role_changed", { from: target.role, to: user?.role })];
     case "/admin/ban-user":
-      return [about("user.deactivated", deactivation(user))];
+      return target.banned && same(deactivation(target), deactivation(user))
+        ? []
+        : [about("user.deactivated", deactivation(user))];
     case "/admin/unban-user":
       return target.banned ? [about("user.reactivated")] : [];
     case "/admin/remove-user":

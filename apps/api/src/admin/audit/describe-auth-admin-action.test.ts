@@ -12,6 +12,7 @@ const target: AuditUserSnapshot = {
   banExpires: null,
   emailVerified: true,
   image: null,
+  locale: "en-US",
 };
 
 const update = (data: Record<string, unknown>, returned: object) =>
@@ -59,6 +60,23 @@ describe("describeAuthAdminAction", () => {
     ]);
   });
 
+  it("shows a verification cleared by an email change", () => {
+    expect(
+      update(
+        { email: "tim@example.com" },
+        { email: "tim@example.com", emailVerified: false },
+      ).map((entry) => entry.metadata),
+    ).toEqual([
+      {
+        fields: ["email", "emailVerified"],
+        changes: {
+          email: { from: "tom@example.com", to: "tim@example.com" },
+          emailVerified: { from: true, to: false },
+        },
+      },
+    ]);
+  });
+
   it("treats a ban through update-user as a deactivation", () => {
     expect(
       update(
@@ -69,7 +87,15 @@ describe("describeAuthAdminAction", () => {
   });
 
   it("records nothing for unchanged updates, roles, or reactivations", () => {
-    expect(update({ name: "Tom" }, {})).toEqual([]);
+    expect(update({ name: "Tom", locale: "en-US" }, {})).toEqual([]);
+    expect(
+      describeAuthAdminAction({
+        path: "/admin/ban-user",
+        body: { userId: "u1", banReason: "Spam" },
+        target: { ...target, banned: true, banReason: "Spam" },
+        returned: { user: { ...target, banned: true, banReason: "Spam" } },
+      }),
+    ).toEqual([]);
     expect(
       describeAuthAdminAction({
         path: "/admin/unban-user",

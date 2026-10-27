@@ -26,7 +26,9 @@ export async function recordAuthAdminAudit(ctx: AuthContext) {
     // The change already committed; failing the response would not undo it.
     console.error("Admin audit entry could not be recorded:", {
       action: entries[0]?.action,
+      // Not the message: database errors embed the query's parameters.
       error: error instanceof Error ? error.name : typeof error,
+      code: (error as { cause?: { code?: unknown } })?.cause?.code,
     });
   }
 }

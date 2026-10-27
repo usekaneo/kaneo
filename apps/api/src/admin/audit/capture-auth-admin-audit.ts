@@ -47,6 +47,7 @@ const userColumns = {
   banExpires: schema.userTable.banExpires,
   emailVerified: schema.userTable.emailVerified,
   image: schema.userTable.image,
+  locale: schema.userTable.locale,
 };
 
 async function findUser(userId: unknown) {
