@@ -1,5 +1,6 @@
 import { destinationFetch } from "../import/destination-fetch";
 import { isBlockedDestinationError } from "../import/blocked-destination-error";
+import { DestinationLookupError } from "./destination-lookup-error";
 import { assertPublicDestination } from "./assert-public-destination";
 import { withoutOutboundTelemetry } from "./sensitive-outbound";
 
@@ -77,8 +78,10 @@ export async function sendOutboundRequest(
     if (options.publicDestination) {
       try {
         await assertPublicDestination(url, "Notification");
-      } catch {
-        throw new OutboundRequestError("destination");
+      } catch (error) {
+        throw new OutboundRequestError(
+          error instanceof DestinationLookupError ? "network" : "destination",
+        );
       }
     }
     // DNS validation may finish after the deadline. Never start a late request.

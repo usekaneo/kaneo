@@ -4,6 +4,7 @@ import db, { schema } from "../../database";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
 import { recordAdminAction } from "../audit/record-admin-action";
 import { pruneWebhookDeliveries } from "./prune-webhook-deliveries";
+import { requireWebhook } from "./require-webhook";
 import { publicWebhook } from "./public-webhook";
 import type { WebhookInput } from "./schema";
 import { validateWebhookUrl } from "./validate-webhook-url";
@@ -13,7 +14,11 @@ export async function updateWebhook(
   input: WebhookInput,
   audit: AdminAuditRequest,
 ) {
-  const url = await validateWebhookUrl(input.url);
+  const current = await requireWebhook(id);
+  const url =
+    !input.enabled && input.url === current.url
+      ? current.url
+      : await validateWebhookUrl(input.url);
   return db.transaction(async (tx) => {
     const [row] = await tx
       .update(schema.instanceWebhookTable)

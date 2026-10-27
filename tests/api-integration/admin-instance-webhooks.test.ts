@@ -1,3 +1,4 @@
+import { lookup } from "node:dns/promises";
 import { createHmac } from "node:crypto";
 import { createServer, type Server, type IncomingHttpHeaders } from "node:http";
 import { eq } from "drizzle-orm";
@@ -23,6 +24,11 @@ import {
 import { readAuditLog } from "./helpers/admin/read-audit-log";
 import { resetTestDatabase } from "./helpers/database";
 
+vi.mock("node:dns/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:dns/promises")>();
+  return { ...actual, lookup: vi.fn(actual.lookup) };
+});
+
 let server: Server;
 let url: string;
 let status: number;
@@ -32,6 +38,7 @@ let app: ReturnType<typeof createApp>["app"];
 const table = schema.instanceWebhookDeliveryTable;
 
 beforeEach(async () => {
+  vi.mocked(lookup).mockReset();
   await resetTestDatabase();
   vi.stubEnv(
     "NOTIFICATION_SECRET_ENCRYPTION_KEY",
@@ -148,6 +155,47 @@ describe("instance webhook administration", () => {
         })
       ).status,
     ).toBe(200);
+  });
+
+  it("disables an unchanged destination during DNS failure while still validating changed URLs and re-enabling", async () => {
+    const { webhook } = await create();
+    const brokenUrl = "https://gone.example.test/events";
+    await db
+      .update(schema.instanceWebhookTable)
+      .set({ url: brokenUrl })
+      .where(eq(schema.instanceWebhookTable.id, webhook.id));
+    await record();
+    vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "");
+    vi.mocked(lookup).mockRejectedValue(
+      Object.assign(new Error("DNS failure"), { code: "ENOTFOUND" }),
+    );
+    const disabled = await admin.api(`/webhooks/${webhook.id}`, {
+      method: "PUT",
+      body: { url: brokenUrl, categories: ["user"], enabled: false },
+    });
+    expect(disabled.status).toBe(200);
+    expect(lookup).not.toHaveBeenCalled();
+    expect(
+      await db.select().from(table).where(eq(table.state, "pending")),
+    ).toEqual([]);
+    for (const input of [
+      {
+        url: "https://other.example.test/events",
+        categories: ["user"],
+        enabled: false,
+      },
+      { url: brokenUrl, categories: ["user"], enabled: true },
+    ]) {
+      expect(
+        (
+          await admin.api(`/webhooks/${webhook.id}`, {
+            method: "PUT",
+            body: input,
+          })
+        ).status,
+      ).toBe(400);
+    }
+    expect(lookup).toHaveBeenCalledTimes(2);
   });
 
   it("shows secrets once, encrypts storage, and audits create/update/rotate/delete without secrets", async () => {
@@ -311,6 +359,40 @@ describe("instance webhook delivery", () => {
     ]);
     expect(JSON.stringify(entries)).not.toContain("payload");
     expect(JSON.stringify(entries)).not.toContain(admin.email);
+  });
+
+  it("retries temporary DNS lookup failures without sending or exposing their details", async () => {
+    const { webhook } = await create();
+    await db
+      .update(schema.instanceWebhookTable)
+      .set({ url: "https://receiver.example.test/events" })
+      .where(eq(schema.instanceWebhookTable.id, webhook.id));
+    await record();
+    vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "");
+    vi.mocked(lookup).mockRejectedValueOnce(
+      Object.assign(new Error("private lookup details"), { code: "EAI_AGAIN" }),
+    );
+    expect(await sendWebhookDelivery()).toBe(true);
+    expect(requests).toHaveLength(0);
+    expect(await db.select().from(table)).toEqual([
+      expect.objectContaining({
+        state: "pending",
+        errorCode: "network",
+        attempts: 1,
+      }),
+    ]);
+    expect(await sendWebhookDelivery()).toBe(false);
+    await db
+      .update(schema.instanceWebhookTable)
+      .set({ url })
+      .where(eq(schema.instanceWebhookTable.id, webhook.id));
+    vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "true");
+    await due();
+    expect(await sendWebhookDelivery()).toBe(true);
+    expect(requests).toHaveLength(1);
+    expect(await db.select().from(table)).toEqual([
+      expect.objectContaining({ state: "succeeded", attempts: 2 }),
+    ]);
   });
 
   it("checks saved destinations again before delivery", async () => {
