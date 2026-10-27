@@ -66,7 +66,7 @@ import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
 import oauth from "./oauth";
 import { createRoute, errorResponse, jsonResponse, z } from "./openapi";
-import { initializePlugins } from "./plugins";
+import { initializePlugins, integrationPlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { assertProjectAccess } from "./project-access/assert-project-access";
@@ -90,6 +90,7 @@ import getAvatar from "./user/controllers/get-avatar";
 import { apiKeyRejection } from "./utils/api-key-rejection";
 import { applyApiKeyHeaders } from "./utils/apply-api-key-headers";
 import { authenticateApiRequest } from "./utils/authenticate-api-request";
+import { requireIntegrationProviderEnabled } from "./instance-settings/require-integration-provider-enabled";
 import {
   authorizeAssetAccess,
   isPublicAsset,
@@ -826,6 +827,11 @@ export function createApp() {
   );
   const searchApi = api.route("/search", search);
   const integrationSyncApi = api.route("/integration-sync", integrationSync);
+  // Inbound provider webhooks are mounted earlier and answer on their own;
+  // their work is skipped through `activeIntegrationCondition`.
+  for (const { type } of integrationPlugins) {
+    api.use(`/${type}-integration/*`, requireIntegrationProviderEnabled(type));
+  }
   const githubIntegrationApi = api.route(
     "/github-integration",
     githubIntegration,

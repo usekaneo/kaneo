@@ -1,5 +1,6 @@
 import { and, count, desc, eq, exists, gte, sql } from "drizzle-orm";
 import db, { schema } from "../../database";
+import { getInstanceSettings } from "../../instance-settings/get-instance-settings";
 import { instanceAdminRoleSql } from "../../utils/instance-admin-role";
 import { notBannedCondition } from "../../utils/user-ban";
 import { configurationWarnings } from "../overview/configuration-warnings";
@@ -115,7 +116,7 @@ export default async function getOverview() {
     },
     warnings: configurationWarnings(
       services,
-      process.env.DISABLE_REGISTRATION !== "true",
+      (await getInstanceSettings()).registrationEnabled,
       users.enabledAdmins,
     ),
   };

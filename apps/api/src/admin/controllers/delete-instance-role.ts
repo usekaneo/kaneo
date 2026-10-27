@@ -1,6 +1,10 @@
 import { count, eq, sql } from "drizzle-orm";
 import db from "../../database";
-import { instanceRoleTable, userTable } from "../../database/schema";
+import {
+  instanceRoleTable,
+  instanceSettingsTable,
+  userTable,
+} from "../../database/schema";
 import { ApiError } from "../../errors/api-error";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
 import { recordAdminAction } from "../audit/record-admin-action";
@@ -19,6 +23,19 @@ async function deleteInstanceRole(roleId: string, audit: AdminAuditRequest) {
       throw new ApiError(409, {
         code: "ROLE_IN_USE",
         message: `This role is assigned to ${userCount} ${userCount === 1 ? "user" : "users"}. Give them another role first.`,
+      });
+    }
+
+    const [defaultFor] = await tx
+      .select({ id: instanceSettingsTable.id })
+      .from(instanceSettingsTable)
+      .where(eq(instanceSettingsTable.defaultRoleId, roleId))
+      .limit(1);
+    if (defaultFor) {
+      throw new ApiError(409, {
+        code: "ROLE_IS_DEFAULT",
+        message:
+          "New users get this role. Choose another default role in instance settings first.",
       });
     }
 

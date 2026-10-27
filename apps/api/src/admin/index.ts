@@ -24,6 +24,7 @@ import restoreWorkspace from "./controllers/restore-workspace";
 import transferWorkspaceOwnership from "./controllers/transfer-workspace-ownership";
 import updateWorkspaceMemberRole from "./controllers/update-workspace-member-role";
 import adminRoleRoutes from "./role-routes";
+import adminSettingsRoutes from "./settings-routes";
 import { getUserAccess } from "./roles/get-instance-access";
 import { instanceAccessSchema } from "./roles/schema";
 import adminUserAccountRoutes from "./user-account-routes";
@@ -541,6 +542,7 @@ const admin = apiRouter()
   .route("/users", adminUserRoutes)
   .route("/users", adminUserAccountRoutes)
   .route("/roles", adminRoleRoutes)
+  .route("/settings", adminSettingsRoutes)
   .route("/", adminUserSecurityRoutes);
 
 export default admin;

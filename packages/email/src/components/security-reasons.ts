@@ -15,6 +15,19 @@ export const signInReason: Record<EmailLocale, Reason> = {
     `因為有人要求登入 ${instance}，所以寄送至 ${email}。`,
 };
 
+export const signUpReason: Record<EmailLocale, Reason> = {
+  en: (email, instance = "Kaneo") =>
+    `Sent to ${email} because someone created an account on ${instance} with this address.`,
+  de: (email, instance = "Kaneo") =>
+    `Gesendet an ${email}, weil jemand mit dieser Adresse ein Konto bei ${instance} erstellt hat.`,
+  vi: (email, instance = "Kaneo") =>
+    `Đã gửi đến ${email} vì có người đã tạo tài khoản trên ${instance} bằng địa chỉ này.`,
+  ja: (email, instance = "Kaneo") =>
+    `このアドレスで ${instance} のアカウントが作成されたため、${email} に送信しました。`,
+  "zh-tw": (email, instance = "Kaneo") =>
+    `因為有人使用這個地址在 ${instance} 建立了帳號，所以寄送至 ${email}。`,
+};
+
 export const passwordResetReason: Record<EmailLocale, Reason> = {
   en: (email, instance = "Kaneo") =>
     `Sent to ${email} because someone asked to reset the password on ${instance}.`,

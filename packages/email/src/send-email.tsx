@@ -1,7 +1,8 @@
 import type { ReactElement } from "react";
-import { render } from "react-email";
+import { render as renderEmail } from "react-email";
 import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
+import { brandSubject, loadBrandName } from "./brand";
 import { instanceHost } from "./components/instance-host";
 import { getSmtpTransportOptions, isSmtpConfigured } from "./smtp-config";
 import { getSmtpErrorDetails } from "./smtp-error-details";
@@ -33,6 +34,11 @@ config();
 
 const transporter = nodemailer.createTransport(getSmtpTransportOptions());
 
+async function render(template: ReactElement) {
+  await loadBrandName();
+  return renderEmail(template);
+}
+
 export const sendMagicLinkEmail = async (
   to: string,
   subject: string,
@@ -45,7 +51,7 @@ export const sendMagicLinkEmail = async (
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html: emailTemplate,
     });
   } catch (error) {
@@ -65,7 +71,7 @@ export const sendOtpEmail = async (
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html: emailTemplate,
     });
   } catch (error) {
@@ -91,7 +97,7 @@ export const sendPasswordResetEmail = async (
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html: emailTemplate,
     });
   } catch (error) {
@@ -123,7 +129,7 @@ export const sendWorkspaceInvitationEmail = async (
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html: emailTemplate,
     });
     return { success: true };
@@ -147,7 +153,7 @@ export const sendNotificationEmail = async (
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html: emailTemplate,
     });
     return { success: true };
@@ -169,7 +175,7 @@ export const sendTrialReminderEmail = async (
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html: emailTemplate,
     });
   } catch (error) {
@@ -195,7 +201,7 @@ async function sendAdministratorEmail(
     await transporter.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html,
     });
     return { success: true };
@@ -255,7 +261,7 @@ export const sendTestEmail = async (
     await testTransport.sendMail({
       from: process.env.SMTP_FROM,
       to,
-      subject,
+      subject: brandSubject(subject),
       html: emailTemplate,
     });
     return { success: true };

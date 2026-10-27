@@ -1,5 +1,6 @@
 import { Column, Container, Head, Html, Img, Preview } from "react-email";
 import React from "react";
+import { brandName } from "../brand";
 import { Row } from "./row";
 import { emailAsset } from "./assets";
 import { themeCss } from "./theme";
@@ -56,7 +57,7 @@ export function EmailShell({
                 />
               </Column>
               <Column className="k-text" style={wordmark}>
-                Kaneo
+                {brandName()}
               </Column>
             </Row>
             {children}

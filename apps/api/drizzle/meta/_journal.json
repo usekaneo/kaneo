@@ -498,6 +498,13 @@
       "when": 1793128577982,
       "tag": "0070_instance_roles",
       "breakpoints": true
+    },
+    {
+      "idx": 71,
+      "version": "7",
+      "when": 1793128646236,
+      "tag": "0071_instance_settings",
+      "breakpoints": true
     }
   ]
 }

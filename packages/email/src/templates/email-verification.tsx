@@ -6,7 +6,10 @@ import { EmailNote } from "../components/email-note";
 import { EmailShell } from "../components/email-shell";
 import { FallbackLink } from "../components/fallback-link";
 import { footerLinks } from "../components/footer-links";
-import { administratorReason } from "../components/security-reasons";
+import {
+  administratorReason,
+  signUpReason,
+} from "../components/security-reasons";
 import { emailHtmlLang, resolveEmailLocale } from "./resolve-locale";
 
 void React;
@@ -17,6 +20,8 @@ export type EmailVerificationEmailProps = {
   locale?: string | null;
   email?: string;
   instance?: string;
+  /** Who asked for the email. Defaults to an administrator. */
+  requestedBy?: "administrator" | "sign-up";
 };
 
 const messages = {
@@ -85,6 +90,7 @@ const EmailVerificationEmail = ({
   locale,
   email,
   instance,
+  requestedBy = "administrator",
 }: EmailVerificationEmailProps) => {
   const emailLocale = resolveEmailLocale(locale);
   const copy = messages[emailLocale];
@@ -104,7 +110,11 @@ const EmailVerificationEmail = ({
       <EmailFooter
         title={copy.footer}
         reason={
-          email ? administratorReason[emailLocale](email, instance) : undefined
+          email
+            ? (requestedBy === "sign-up" ? signUpReason : administratorReason)[
+                emailLocale
+              ](email, instance)
+            : undefined
         }
         links={footerLinks(emailLocale)}
       />

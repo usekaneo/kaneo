@@ -96,7 +96,10 @@ export const createAdminUserBody = z.object({
     description:
       "The new user's email address. They sign in with it and receive their password link there.",
   }),
-  role: instanceRoleName.default("user"),
+  role: instanceRoleName.optional().openapi({
+    description:
+      "Instance role, as for updates. Defaults to the instance's default role for new users.",
+  }),
 });
 
 export const updateAdminUserBody = z

@@ -69,3 +69,7 @@ export async function verifySmtpConnection(
 ): Promise<SmtpVerification> {
   return { status: "not_configured" };
 }
+
+export function setBrandNameResolver(
+  _resolver: () => Promise<string | null | undefined>,
+): void {}

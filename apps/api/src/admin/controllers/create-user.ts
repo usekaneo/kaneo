@@ -2,6 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import db from "../../database";
 import { userTable } from "../../database/schema";
 import { ApiError } from "../../errors/api-error";
+import { readStoredSettings } from "../../instance-settings/read-stored-settings";
 import { isCloud } from "../../utils/is-cloud";
 import { isDisposableEmail } from "../../utils/is-disposable-email";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
@@ -15,7 +16,8 @@ import { createsPasswordAccounts } from "../users/password-sign-in";
 type CreateUserInput = {
   name: string;
   email: string;
-  role: string;
+  /** Defaults to the instance's default role. */
+  role?: string;
 };
 
 export type PasswordSetupEmail =
@@ -46,11 +48,12 @@ async function createUser(input: CreateUserInput, audit: AdminAuditRequest) {
         "Use a permanent email address. Disposable addresses cannot create accounts.",
     });
   }
-  const withPassword = createsPasswordAccounts();
+  const withPassword = await createsPasswordAccounts();
   const actor = await getUserAccess(audit.actorUserId ?? "");
 
   const userId = await db.transaction(async (tx) => {
-    await assertAssignableRole(input.role, actor, tx);
+    const role = input.role ?? (await readStoredSettings(tx)).defaultRole;
+    await assertAssignableRole(role, actor, tx);
     const [existing] = await tx
       .select({ id: userTable.id })
       .from(userTable)
@@ -60,7 +63,7 @@ async function createUser(input: CreateUserInput, audit: AdminAuditRequest) {
 
     const [created] = await tx
       .insert(userTable)
-      .values({ name, email, role: input.role, emailVerified: !withPassword })
+      .values({ name, email, role, emailVerified: !withPassword })
       .onConflictDoNothing({ target: userTable.email })
       .returning({ id: userTable.id });
     if (!created) throw emailTaken();
@@ -74,7 +77,7 @@ async function createUser(input: CreateUserInput, audit: AdminAuditRequest) {
         targetLabel: email,
         metadata: {
           name,
-          role: input.role,
+          role,
           signIn: withPassword ? "password_link" : "single_sign_on",
         },
       },

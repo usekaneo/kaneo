@@ -10,6 +10,7 @@ import { apiKey } from "@better-auth/api-key";
 import {
   isSmtpConfigured,
   OTP_EXPIRY_SECONDS,
+  setBrandNameResolver,
   sendMagicLinkEmail,
   sendOtpEmail,
   sendPasswordResetEmail,
@@ -55,6 +56,12 @@ import {
 } from "./backchannel-logout/sign-in-session-id";
 import db, { schema } from "./database";
 import { authDatabaseAdapter } from "./database/auth-adapter";
+import {
+  emailVerificationContext,
+  signUpNeedsVerification,
+} from "./instance-settings/email-verification-gate";
+import { getInstanceSettings } from "./instance-settings/get-instance-settings";
+import { readStoredSettings } from "./instance-settings/read-stored-settings";
 import { lockedSessionRevocation } from "./utils/locked-session-revocation";
 import { publishEvent } from "./events";
 import { applyInvitationProjectAccess } from "./project-access/apply-invitation-project-access";
@@ -134,16 +141,17 @@ import { authCaptchaPaths, verifyTurnstile } from "./utils/verify-turnstile";
 
 config();
 
+setBrandNameResolver(async () => (await getInstanceSettings()).instanceName);
+
 const githubSso = getGithubSsoOAuthCredentials();
 
-const isRegistrationDisabled = process.env.DISABLE_REGISTRATION === "true";
-const isPasswordRegistrationDisabled =
+// Only the environment can be read at startup. The database setting is
+// enforced when the user row is created (`assertUserRegistrationAllowed`).
+const isPasswordRegistrationDisabledByEnv =
   process.env.DISABLE_PASSWORD_REGISTRATION === "true";
 const isLoginFormDisabled = process.env.DISABLE_LOGIN_FORM === "true";
 const isEmailOtpSignInDisabled =
   process.env.DISABLE_EMAIL_OTP_SIGN_IN === "true";
-const isWorkspaceCreationDisabled =
-  process.env.DISABLE_WORKSPACE_CREATION === "true";
 
 const apiUrl = process.env.KANEO_API_URL || "http://localhost:1337";
 const clientUrl = process.env.KANEO_CLIENT_URL || "http://localhost:5173";
@@ -208,12 +216,13 @@ function isEmailCodeSignInAvailable() {
   );
 }
 
-// Reads env at call time (not module scope) so tests can stub it.
+// Reads settings at call time (not module scope) so tests can change them.
 async function shouldDeliverSignInEmail(email: string) {
-  if (process.env.DISABLE_PASSWORD_REGISTRATION === "true") {
+  const settings = await getInstanceSettings();
+  if (!settings.passwordRegistrationEnabled) {
     return userExistsByEmail(email);
   }
-  if (process.env.DISABLE_REGISTRATION === "true") {
+  if (!settings.registrationEnabled) {
     // Mirror `assertUserRegistrationAllowed`: the first non-guest user can
     // always complete initial instance setup.
     if (!(await hasRegisteredUsers())) {
@@ -314,6 +323,13 @@ export const auth = betterAuth({
         input: true,
         required: false,
       },
+      emailVerificationRequired: {
+        type: "boolean",
+        input: false,
+        required: false,
+        defaultValue: false,
+        returned: false,
+      },
     },
     deleteUser: {
       enabled: true,
@@ -394,7 +410,7 @@ export const auth = betterAuth({
       : []),
     lastLoginMethod(),
     magicLink({
-      disableSignUp: isPasswordRegistrationDisabled,
+      disableSignUp: isPasswordRegistrationDisabledByEnv,
       sendMagicLink: async ({ email, url }, ctx) => {
         const requestContext = getEmailRequestContext(
           ctx?.request?.headers ?? ctx?.headers,
@@ -418,7 +434,7 @@ export const auth = betterAuth({
       : [
           emailOTP({
             expiresIn: OTP_EXPIRY_SECONDS,
-            disableSignUp: isPasswordRegistrationDisabled,
+            disableSignUp: isPasswordRegistrationDisabledByEnv,
             async sendVerificationOTP({ email, otp, type }, ctx) {
               if (type === "sign-in") {
                 const requestContext = getEmailRequestContext(
@@ -515,7 +531,8 @@ export const auth = betterAuth({
           },
         },
       },
-      // When `DISABLE_WORKSPACE_CREATION` is set, only instance admins
+      // When workspace creation is restricted (instance setting or
+      // `DISABLE_WORKSPACE_CREATION`), only instance admins
       // (role list includes "admin") may create workspaces — mirrors the
       // implicit-exemption shape of `DISABLE_REGISTRATION` above. This
       // check runs before any workspace membership exists, so only the
@@ -525,15 +542,15 @@ export const auth = betterAuth({
       //
       // Read the current instance role rather than a session's user snapshot,
       // which can predate first-user promotion or an administrator's changes.
-      allowUserToCreateOrganization: isWorkspaceCreationDisabled
-        ? async (user) => {
-            const [freshUser] = await db
-              .select({ role: schema.userTable.role })
-              .from(schema.userTable)
-              .where(eq(schema.userTable.id, user.id));
-            return hasInstanceAdminRole(freshUser?.role);
-          }
-        : true,
+      allowUserToCreateOrganization: async (user) => {
+        if (!(await getInstanceSettings()).workspaceCreationRestricted)
+          return true;
+        const [freshUser] = await db
+          .select({ role: schema.userTable.role })
+          .from(schema.userTable)
+          .where(eq(schema.userTable.id, user.id));
+        return hasInstanceAdminRole(freshUser?.role);
+      },
       // Better Auth defaults this to `true`, which blocks any user whose email
       // is not verified from accepting/rejecting an invitation. Kaneo does not
       // verify emails on signup (and guest/anonymous users are unverified by
@@ -790,6 +807,18 @@ export const auth = betterAuth({
                 ctx?.headers?.get("x-invitation-id"),
             },
           );
+          if ((user as Partial<UserWithAnonymous>).isAnonymous) return;
+          // Every sign-up path (password, email code, OAuth/OIDC) gets the
+          // default role. better-auth's admin endpoint sets its own role.
+          if (ctx?.path === "/admin/create-user") return;
+          return {
+            data: {
+              role: (await readStoredSettings()).defaultRole,
+              ...((await signUpNeedsVerification(ctx?.path))
+                ? { emailVerificationRequired: true }
+                : {}),
+            },
+          };
         },
         after: async (user) => {
           // The anonymous() plugin creates ephemeral users for guest
@@ -838,7 +867,11 @@ export const auth = betterAuth({
     before: createAuthMiddleware(
       async (
         ctx,
-      ): Promise<void | Awaited<ReturnType<typeof deleteNativeWorkspace>>> => {
+      ): Promise<
+        | void
+        | Awaited<ReturnType<typeof deleteNativeWorkspace>>
+        | Awaited<ReturnType<typeof emailVerificationContext>>
+      > => {
         // Runs before provider hooks can turn a key into its owner's session.
         await assertNativeAuthApiKeyAllowed(ctx);
         let organizationViewer: {
@@ -996,19 +1029,22 @@ export const auth = betterAuth({
           }
         }
 
+        const verification = await emailVerificationContext(ctx);
+
         const isSignUpPath =
           ctx.path === "/sign-up/email" ||
           ctx.path.startsWith("/callback/") ||
           ctx.path.startsWith("/sign-in/social");
 
         if (!isSignUpPath) {
-          return;
+          return verification;
         }
 
         const isInstanceAdminSetup = !(await hasRegisteredUsers());
+        const settings = await getInstanceSettings();
 
         if (ctx.path === "/sign-up/email") {
-          if (isPasswordRegistrationDisabled && !isInstanceAdminSetup) {
+          if (!settings.passwordRegistrationEnabled && !isInstanceAdminSetup) {
             throw new APIError("FORBIDDEN", {
               code: "PASSWORD_REGISTRATION_DISABLED",
               message:
@@ -1028,8 +1064,8 @@ export const auth = betterAuth({
           }
         }
 
-        if (!isRegistrationDisabled || isInstanceAdminSetup) {
-          return;
+        if (settings.registrationEnabled || isInstanceAdminSetup) {
+          return verification;
         }
 
         const email =
@@ -1051,6 +1087,7 @@ export const auth = betterAuth({
             });
           }
         }
+        return verification;
       },
     ),
     after: createAuthMiddleware(async (ctx) => {

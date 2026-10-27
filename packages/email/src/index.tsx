@@ -1,3 +1,4 @@
+export { setBrandNameResolver } from "./brand";
 export { OTP_EXPIRY_SECONDS } from "./otp-expiry";
 export {
   type EmailResult,

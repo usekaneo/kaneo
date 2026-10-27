@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import db from "../../database";
 import { instanceRoleTable, userTable } from "../../database/schema";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
+import { invalidateInstanceSettings } from "../../instance-settings/get-instance-settings";
 import { recordAdminAction } from "../audit/record-admin-action";
 import { assertRoleNameAvailable } from "../roles/assert-role-name-available";
 import { findInstanceRole } from "../roles/find-instance-role";
@@ -22,7 +23,7 @@ async function updateInstanceRole(
   input: UpdateInstanceRoleInput,
   audit: AdminAuditRequest,
 ) {
-  return db.transaction(async (tx) => {
+  const updated = await db.transaction(async (tx) => {
     const current = await lockInstanceRole(roleId, tx);
     const renamed = input.name !== current.name;
     if (renamed) await assertRoleNameAvailable(input.name, tx, roleId);
@@ -67,6 +68,9 @@ async function updateInstanceRole(
     if (!role) throw new Error("Instance role disappeared during update");
     return role;
   });
+  // The cached default role is held by name.
+  invalidateInstanceSettings();
+  return updated;
 }
 
 export default updateInstanceRole;

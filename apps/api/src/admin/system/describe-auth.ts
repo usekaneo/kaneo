@@ -1,4 +1,9 @@
 import { isSmtpConfigured } from "@kaneo/email";
+import {
+  DEFAULT_STORED_SETTINGS,
+  type InstanceSettings,
+  resolveInstanceSettings,
+} from "../../instance-settings/resolve-instance-settings";
 import { resolveFileSecret } from "../../utils/file-secret";
 import { getGithubSsoOAuthCredentials } from "../../utils/github-sso-env";
 import { credentialSetStatus } from "./credential-set-status";
@@ -34,11 +39,15 @@ function customOAuthEndpoint() {
  * Which sign-in paths this instance offers. Only booleans and display names
  * leave here: never client ids, secrets, or provider URLs.
  */
-export function describeAuth() {
+export function describeAuth(
+  instance: InstanceSettings = resolveInstanceSettings(
+    DEFAULT_STORED_SETTINGS,
+    process.env,
+  ),
+) {
   const disableLoginForm = process.env.DISABLE_LOGIN_FORM === "true";
-  const disableRegistration = process.env.DISABLE_REGISTRATION === "true";
-  const disablePasswordRegistration =
-    process.env.DISABLE_PASSWORD_REGISTRATION === "true";
+  const disableRegistration = !instance.registrationEnabled;
+  const disablePasswordRegistration = !instance.passwordRegistrationEnabled;
   const github = getGithubSsoOAuthCredentials();
   const providers: AuthProvider[] = [
     {
@@ -89,7 +98,7 @@ export function describeAuth() {
       !disableRegistration &&
       !disablePasswordRegistration &&
       !disableLoginForm,
-    workspaceCreation: process.env.DISABLE_WORKSPACE_CREATION !== "true",
+    workspaceCreation: !instance.workspaceCreationRestricted,
     providers,
   };
 }

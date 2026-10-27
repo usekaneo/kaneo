@@ -51,6 +51,10 @@ export const userTable = pgTable("user", {
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires", { mode: "date" }),
+  // Set on password sign-ups while the instance requires email verification.
+  emailVerificationRequired: boolean("email_verification_required")
+    .default(false)
+    .notNull(),
 });
 
 export const sessionTable = pgTable(
@@ -189,6 +193,36 @@ export const instanceRoleTable = pgTable("instance_role", {
   createdAt: timestamp("created_at", { mode: "date" })
     .default(utcNow)
     .notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .default(utcNow)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// A single row (id "instance"). Without it, every setting has its default.
+export const instanceSettingsTable = pgTable("instance_settings", {
+  id: text("id").primaryKey().default("instance"),
+  instanceName: text("instance_name"),
+  registrationEnabled: boolean("registration_enabled").default(true).notNull(),
+  passwordRegistrationEnabled: boolean("password_registration_enabled")
+    .default(true)
+    .notNull(),
+  requireEmailVerification: boolean("require_email_verification")
+    .default(false)
+    .notNull(),
+  defaultRoleId: text("default_role_id").references(
+    () => instanceRoleTable.id,
+    {
+      onDelete: "restrict",
+    },
+  ),
+  workspaceCreationRestricted: boolean("workspace_creation_restricted")
+    .default(false)
+    .notNull(),
+  disabledIntegrations: text("disabled_integrations")
+    .array()
+    .notNull()
+    .default(sql`'{}'`),
   updatedAt: timestamp("updated_at", { mode: "date" })
     .default(utcNow)
     .$onUpdate(() => new Date())
