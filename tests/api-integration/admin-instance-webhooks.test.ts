@@ -62,6 +62,7 @@ beforeEach(async () => {
 afterEach(async () => {
   server.closeAllConnections();
   await new Promise<void>((resolve) => server.close(() => resolve()));
+  vi.useRealTimers();
   vi.unstubAllEnvs();
 });
 
@@ -310,6 +311,40 @@ describe("instance webhook delivery", () => {
     ]);
     expect(JSON.stringify(entries)).not.toContain("payload");
     expect(JSON.stringify(entries)).not.toContain(admin.email);
+  });
+
+  it("checks saved destinations again before delivery", async () => {
+    await create();
+    await record();
+    vi.stubEnv("KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS", "");
+    expect(await sendWebhookDelivery()).toBe(true);
+    expect(requests).toHaveLength(0);
+    expect(await db.select().from(table)).toEqual([
+      expect.objectContaining({
+        state: "failed",
+        errorCode: "destination",
+        attempts: 1,
+      }),
+    ]);
+    expect(await sendWebhookDelivery()).toBe(false);
+  });
+
+  it("uses the database clock for leases and backoff when an API clock is behind", async () => {
+    await create();
+    await record();
+    const realNow = Date.now();
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(realNow - 3_600_000);
+    expect(await claimWebhookDelivery()).not.toBeNull();
+    const [leased] = await db.select().from(table);
+    expect(leased!.nextAttemptAt.getTime()).toBeGreaterThan(realNow + 55_000);
+    expect(await claimWebhookDelivery()).toBeNull();
+    await due();
+    status = 503;
+    expect(await sendWebhookDelivery()).toBe(true);
+    const [retry] = await db.select().from(table);
+    expect(retry!.nextAttemptAt.getTime()).toBeGreaterThan(realNow + 25_000);
+    expect(await sendWebhookDelivery()).toBe(false);
   });
 
   it("enqueues after commit and discards rolled-back audit entries", async () => {

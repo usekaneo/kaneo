@@ -1,5 +1,5 @@
 import { createHmac } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { decryptSecret } from "../../notification-preferences/secrets";
 import {
@@ -61,9 +61,7 @@ export async function sendWebhookDelivery() {
       state: retry ? "pending" : errorCode ? "failed" : "succeeded",
       statusCode,
       errorCode,
-      nextAttemptAt: new Date(
-        Date.now() + (delivery.attempts === 1 ? 5_000 : 30_000),
-      ),
+      nextAttemptAt: sql`(clock_timestamp() AT TIME ZONE 'utc') + ${delivery.attempts === 1 ? 5 : 30} * interval '1 second'`,
     })
     .where(
       and(

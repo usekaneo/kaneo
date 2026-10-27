@@ -9,7 +9,6 @@ export const MAX_WEBHOOK_ATTEMPTS = 3;
 export async function claimWebhookDelivery() {
   const delivery = schema.instanceWebhookDeliveryTable;
   const webhook = schema.instanceWebhookTable;
-  const now = new Date();
   // A process may have stopped during its final attempt.
   const interrupted = await db
     .update(delivery)
@@ -55,7 +54,10 @@ export async function claimWebhookDelivery() {
     const attempts = job.delivery.attempts + 1;
     await tx
       .update(delivery)
-      .set({ attempts, nextAttemptAt: new Date(now.getTime() + 60_000) })
+      .set({
+        attempts,
+        nextAttemptAt: sql`(clock_timestamp() AT TIME ZONE 'utc') + interval '1 minute'`,
+      })
       .where(eq(delivery.id, job.delivery.id));
     return { ...job, delivery: { ...job.delivery, attempts } };
   });
