@@ -260,7 +260,8 @@
 			},
 			"invitation": {
 				"description": "Use the email that received the invitation. You'll join the workspace right after."
-			}
+			},
+			"verifyEmail": "Check your email to confirm your address, then sign in."
 		},
 		"verifyOtp": {
 			"pageTitle": "Verify Code",
@@ -287,7 +288,8 @@
 			"sendFailed": "Failed to send verification code"
 		},
 		"signInForm": {
-			"failedSignIn": "Failed to sign in"
+			"failedSignIn": "Failed to sign in",
+			"emailNotVerified": "Confirm your email address first. We sent you a new link."
 		},
 		"invitation": {
 			"pageTitleAccept": "Accept Invitation",
@@ -920,7 +922,8 @@
 				"session": "Sessions",
 				"workspace": "Workspaces",
 				"apiKey": "API keys",
-				"role": "Roles"
+				"role": "Roles",
+				"instance": "Instance settings"
 			},
 			"loadError": "The audit log could not be loaded.",
 			"retry": "Retry",
@@ -941,7 +944,8 @@
 			"targetTypes": {
 				"user": "User",
 				"workspace": "Workspace",
-				"role": "Role"
+				"role": "Role",
+				"instance": "Instance"
 			},
 			"actions": {
 				"emailTestSent": "Sent test email",
@@ -970,7 +974,8 @@
 				"workspaceDeleted": "Deleted workspace",
 				"roleCreated": "Role created",
 				"roleUpdated": "Role updated",
-				"roleDeleted": "Role deleted"
+				"roleDeleted": "Role deleted",
+				"instanceSettingsUpdated": "Updated instance settings"
 			},
 			"fields": {
 				"name": "name",
@@ -2762,6 +2767,29 @@
 				"auditRead": "View the audit log",
 				"systemRead": "View system status",
 				"instanceSettings": "Change instance settings"
+			}
+		},
+		"adminSettings": {
+			"title": "Settings",
+			"loadError": "Couldn't load instance settings.",
+			"general": "General",
+			"instanceName": "Instance name",
+			"instanceUrl": "Instance URL",
+			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
+			"registration": "Registration",
+			"signInProviders": "Sign-in providers",
+			"registrationEnabled": "Open registration",
+			"passwordRegistrationEnabled": "Email and password sign-up",
+			"requireEmailVerification": "Require email verification",
+			"requiresSmtp": "Requires SMTP",
+			"defaultRole": "Default role for new users",
+			"workspaces": "Workspaces",
+			"workspaceCreationRestricted": "Only administrators can create workspaces",
+			"integrations": "Integrations",
+			"lockedByEnv": "Set by {{name}}",
+			"toast": {
+				"saved": "Settings saved",
+				"error": "Couldn't save settings"
 			}
 		}
 	},

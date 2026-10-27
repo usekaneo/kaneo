@@ -10,6 +10,7 @@ import {
   ScrollText,
   Server,
   Settings,
+  Settings2,
   Shield,
   ShieldCheck,
   SlidersHorizontal,
@@ -75,6 +76,12 @@ const ADMIN_LINKS = [
     labelKey: "settings:adminSystem.title",
     to: "/dashboard/settings/admin/system",
     icon: Activity,
+  },
+  {
+    id: "admin-settings",
+    labelKey: "settings:adminSettings.title",
+    to: "/dashboard/settings/admin/settings",
+    icon: Settings2,
   },
 ] as const satisfies readonly {
   id: string;

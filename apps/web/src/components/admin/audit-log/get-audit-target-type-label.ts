@@ -2,6 +2,7 @@ const TARGET_TYPE_LABEL_KEYS = new Map([
   ["user", "settings:adminAuditLog.targetTypes.user"],
   ["workspace", "settings:adminAuditLog.targetTypes.workspace"],
   ["role", "settings:adminAuditLog.targetTypes.role"],
+  ["instance", "settings:adminAuditLog.targetTypes.instance"],
 ]);
 
 export function getAuditTargetTypeLabel(

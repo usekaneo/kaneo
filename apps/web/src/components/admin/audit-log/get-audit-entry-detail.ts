@@ -19,6 +19,25 @@ const FIELD_LABEL_KEYS = new Map([
   ["image", "settings:adminAuditLog.fields.image"],
 ]);
 
+const SETTING_LABEL_KEYS = new Map([
+  ["instanceName", "settings:adminSettings.instanceName"],
+  ["registrationEnabled", "settings:adminSettings.registrationEnabled"],
+  [
+    "passwordRegistrationEnabled",
+    "settings:adminSettings.passwordRegistrationEnabled",
+  ],
+  [
+    "requireEmailVerification",
+    "settings:adminSettings.requireEmailVerification",
+  ],
+  ["defaultRole", "settings:adminSettings.defaultRole"],
+  [
+    "workspaceCreationRestricted",
+    "settings:adminSettings.workspaceCreationRestricted",
+  ],
+  ["disabledIntegrations", "settings:adminSettings.integrations"],
+]);
+
 const text = (value: unknown) =>
   typeof value === "string" && value !== "" ? value : null;
 
@@ -131,6 +150,21 @@ export function getAuditEntryDetail(
         ? t("settings:adminAuditLog.details.permissionsChanged", {
             added: metadata.added.length,
             removed: metadata.removed.length,
+          })
+        : null;
+    }
+    case "instance.settings_updated": {
+      const changes = Array.isArray(metadata.changes) ? metadata.changes : [];
+      const names = changes
+        .map((change) => text((change as { setting?: unknown })?.setting))
+        .filter((setting): setting is string => setting !== null)
+        .map((setting) => {
+          const key = SETTING_LABEL_KEYS.get(setting);
+          return key ? t(key) : setting;
+        });
+      return names.length > 0
+        ? t("settings:adminAuditLog.details.fields", {
+            fields: names.join(", "),
           })
         : null;
     }

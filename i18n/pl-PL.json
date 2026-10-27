@@ -260,7 +260,8 @@
 			},
 			"invitation": {
 				"description": "Użyj adresu e-mail, na który przyszło zaproszenie. Zaraz potem dołączysz do obszaru roboczego."
-			}
+			},
+			"verifyEmail": "Check your email to confirm your address, then sign in."
 		},
 		"verifyOtp": {
 			"pageTitle": "Zweryfikuj kod",
@@ -287,7 +288,8 @@
 			"sendFailed": "Nie udało się wysłać kodu weryfikacyjnego"
 		},
 		"signInForm": {
-			"failedSignIn": "Nie udało się zalogować"
+			"failedSignIn": "Nie udało się zalogować",
+			"emailNotVerified": "Confirm your email address first. We sent you a new link."
 		},
 		"invitation": {
 			"pageTitleAccept": "Zaakceptuj zaproszenie",
@@ -3294,7 +3296,8 @@
 				"workspaceRestored": "Restored workspace",
 				"roleCreated": "Role created",
 				"roleDeleted": "Role deleted",
-				"roleUpdated": "Role updated"
+				"roleUpdated": "Role updated",
+				"instanceSettingsUpdated": "Updated instance settings"
 			},
 			"categories": {
 				"all": "All actions",
@@ -3303,7 +3306,8 @@
 				"workspace": "Workspaces",
 				"apiKey": "API keys",
 				"email": "Email",
-				"role": "Roles"
+				"role": "Roles",
+				"instance": "Instance settings"
 			},
 			"categoryLabel": "Filter by category",
 			"clearFilter": "Show all actions",
@@ -3347,7 +3351,8 @@
 			"targetTypes": {
 				"user": "User",
 				"workspace": "Workspace",
-				"role": "Role"
+				"role": "Role",
+				"instance": "Instance"
 			},
 			"title": "Audit log",
 			"unknownActor": "Unknown"
@@ -3550,6 +3555,29 @@
 			"userCount_one": "{{count}} user",
 			"userCount_other": "{{count}} users",
 			"viewUsers": "View users"
+		},
+		"adminSettings": {
+			"defaultRole": "Default role for new users",
+			"general": "General",
+			"instanceName": "Instance name",
+			"instanceUrl": "Instance URL",
+			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
+			"integrations": "Integrations",
+			"loadError": "Couldn't load instance settings.",
+			"lockedByEnv": "Set by {{name}}",
+			"passwordRegistrationEnabled": "Email and password sign-up",
+			"registration": "Registration",
+			"registrationEnabled": "Open registration",
+			"requireEmailVerification": "Require email verification",
+			"requiresSmtp": "Requires SMTP",
+			"signInProviders": "Sign-in providers",
+			"title": "Settings",
+			"toast": {
+				"error": "Couldn't save settings",
+				"saved": "Settings saved"
+			},
+			"workspaceCreationRestricted": "Only administrators can create workspaces",
+			"workspaces": "Workspaces"
 		}
 	},
 	"tasks": {

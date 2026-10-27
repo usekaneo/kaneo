@@ -12,6 +12,7 @@ export const ADMIN_PAGE_PERMISSIONS = {
   "/dashboard/settings/admin/workspaces": ["workspaces:read"],
   "/dashboard/settings/admin/audit-log": ["audit:read"],
   "/dashboard/settings/admin/system": ["system:read"],
+  "/dashboard/settings/admin/settings": ["instance:settings"],
 } as const satisfies Record<string, readonly InstancePermission[]>;
 
 export type AdminPage = keyof typeof ADMIN_PAGE_PERMISSIONS;

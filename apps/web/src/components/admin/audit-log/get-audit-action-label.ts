@@ -44,6 +44,10 @@ const ACTION_LABEL_KEYS = new Map([
   ["role.created", "settings:adminAuditLog.actions.roleCreated"],
   ["role.updated", "settings:adminAuditLog.actions.roleUpdated"],
   ["role.deleted", "settings:adminAuditLog.actions.roleDeleted"],
+  [
+    "instance.settings_updated",
+    "settings:adminAuditLog.actions.instanceSettingsUpdated",
+  ],
 ]);
 
 /** Human wording for an action; actions this client doesn't know show as-is. */

@@ -260,7 +260,8 @@
 			},
 			"invitation": {
 				"description": "請使用收到邀請的電子郵件。註冊後你會立即加入該工作區。"
-			}
+			},
+			"verifyEmail": "Check your email to confirm your address, then sign in."
 		},
 		"verifyOtp": {
 			"pageTitle": "確認驗證碼",
@@ -287,7 +288,8 @@
 			"sendFailed": "無法寄送驗證碼"
 		},
 		"signInForm": {
-			"failedSignIn": "登入失敗"
+			"failedSignIn": "登入失敗",
+			"emailNotVerified": "Confirm your email address first. We sent you a new link."
 		},
 		"invitation": {
 			"pageTitleAccept": "接受邀請",
@@ -2477,7 +2479,8 @@
 				"workspaceRestored": "Restored workspace",
 				"roleCreated": "Role created",
 				"roleDeleted": "Role deleted",
-				"roleUpdated": "Role updated"
+				"roleUpdated": "Role updated",
+				"instanceSettingsUpdated": "Updated instance settings"
 			},
 			"categories": {
 				"all": "All actions",
@@ -2486,7 +2489,8 @@
 				"workspace": "Workspaces",
 				"apiKey": "API keys",
 				"email": "Email",
-				"role": "Roles"
+				"role": "Roles",
+				"instance": "Instance settings"
 			},
 			"categoryLabel": "Filter by category",
 			"clearFilter": "Show all actions",
@@ -2527,7 +2531,8 @@
 			"targetTypes": {
 				"user": "User",
 				"workspace": "Workspace",
-				"role": "Role"
+				"role": "Role",
+				"instance": "Instance"
 			},
 			"title": "Audit log",
 			"unknownActor": "Unknown"
@@ -2715,6 +2720,29 @@
 			},
 			"userCount_other": "{{count}} users",
 			"viewUsers": "View users"
+		},
+		"adminSettings": {
+			"defaultRole": "Default role for new users",
+			"general": "General",
+			"instanceName": "Instance name",
+			"instanceUrl": "Instance URL",
+			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
+			"integrations": "Integrations",
+			"loadError": "Couldn't load instance settings.",
+			"lockedByEnv": "Set by {{name}}",
+			"passwordRegistrationEnabled": "Email and password sign-up",
+			"registration": "Registration",
+			"registrationEnabled": "Open registration",
+			"requireEmailVerification": "Require email verification",
+			"requiresSmtp": "Requires SMTP",
+			"signInProviders": "Sign-in providers",
+			"title": "Settings",
+			"toast": {
+				"error": "Couldn't save settings",
+				"saved": "Settings saved"
+			},
+			"workspaceCreationRestricted": "Only administrators can create workspaces",
+			"workspaces": "Workspaces"
 		}
 	},
 	"navigation": {
