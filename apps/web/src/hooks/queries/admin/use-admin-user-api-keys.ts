@@ -7,6 +7,7 @@ export function adminUserApiKeysQueryKey(userId: string) {
 
 function useAdminUserApiKeys(userId: string, enabled = true) {
   return useQuery({
+    refetchOnMount: "always",
     queryKey: adminUserApiKeysQueryKey(userId),
     queryFn: () => getAdminUserApiKeys(userId),
     enabled: enabled && userId !== "",

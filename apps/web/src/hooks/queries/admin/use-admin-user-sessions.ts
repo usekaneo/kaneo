@@ -7,6 +7,7 @@ export function adminUserSessionsQueryKey(userId: string) {
 
 function useAdminUserSessions(userId: string, enabled = true) {
   return useQuery({
+    refetchOnMount: "always",
     queryKey: adminUserSessionsQueryKey(userId),
     queryFn: () => getAdminUserSessions(userId),
     enabled: enabled && userId !== "",
