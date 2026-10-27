@@ -3783,7 +3783,8 @@
 			"checklistProgress": "Checklisten-Fortschritt",
 			"projectBackground": "Projekthintergrund",
 			"layout": "Layout",
-			"includeSubtasks": "Unteraufgaben einbeziehen"
+			"includeSubtasks": "Unteraufgaben einbeziehen",
+			"useProjectDefault": "Projektstandard verwenden"
 		},
 		"filterBar": {
 			"label": "Aktive Filter",
