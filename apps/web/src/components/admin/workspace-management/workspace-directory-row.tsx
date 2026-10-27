@@ -55,13 +55,15 @@ export function WorkspaceDirectoryRow({
   return (
     <div role="row" className="flex items-center gap-4 px-4 py-3">
       <div role="cell" className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium">
+          {workspace.name}
+        </span>
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate text-sm font-medium">{workspace.name}</span>
+          <span className="truncate font-mono text-xs text-muted-foreground">
+            {workspace.slug}
+          </span>
           {isArchived ? <WorkspaceArchivedBadge /> : null}
         </div>
-        <span className="block truncate font-mono text-xs text-muted-foreground">
-          {workspace.slug}
-        </span>
         <div className="mt-1.5 flex min-w-0 items-center gap-2 text-muted-foreground sm:hidden">
           <WorkspaceOwners owners={workspace.owners} />
           <span className="shrink-0 text-xs">
