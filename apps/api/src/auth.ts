@@ -888,7 +888,9 @@ export const auth = betterAuth({
         await assertNativeOrganizationReadAllowed(ctx, organizationViewer);
       }
       // Before removal prep deletes account data the entry needs to name.
-      await captureAuthAdminAudit(ctx);
+      await captureAuthAdminAudit(ctx, (headers) =>
+        auth.api.getSession({ headers, query: { disableRefresh: true } }),
+      );
       if (ctx.path === "/admin/remove-user") {
         await prepareAdminUserRemoval(ctx);
       }

@@ -138,6 +138,29 @@ describe("audit of better-auth admin endpoints", () => {
     expect(Date.parse(expiresAt)).toBeGreaterThan(Date.now() + 3_000_000);
   });
 
+  it("records administrators who authenticate with a bearer token", async () => {
+    const token = decodeURIComponent(
+      admin.cookies.match(/session_token=([^;]+)/)?.[1] ?? "",
+    );
+    expect(token).not.toBe("");
+
+    await expectOk(
+      await call(
+        "set-role",
+        { userId: target.userId, role: "admin" },
+        // The bearer token decides the session even next to another cookie.
+        { authorization: `Bearer ${token}`, cookie: target.cookies },
+      ),
+    );
+
+    const [row] = await readAuditLog();
+    expect(row).toMatchObject({
+      action: "user.role_changed",
+      actorUserId: admin.userId,
+      targetId: target.userId,
+    });
+  });
+
   it("keeps the label of a deleted user", async () => {
     await expectOk(await asAdmin("remove-user", { userId: target.userId }));
 

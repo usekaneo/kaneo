@@ -1,4 +1,4 @@
-import { getSessionFromCtx } from "better-auth/api";
+import type { getSessionFromCtx } from "better-auth/api";
 import { eq } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { readClientIp } from "../../utils/client-ip";
@@ -6,6 +6,11 @@ import type { AdminAuditRequest } from "./admin-audit-request";
 import type { AuditUserSnapshot } from "./audit-user-snapshot";
 
 type AuthContext = Parameters<typeof getSessionFromCtx>[0];
+
+/** Resolves the caller's session from request headers, bearer tokens included. */
+export type ResolveAuditSession = (
+  headers: Headers,
+) => Promise<{ user: { id: string } } | null>;
 
 /** better-auth admin endpoints that change something worth auditing. */
 export const AUDITED_AUTH_ADMIN_PATHS = new Set([
@@ -69,12 +74,14 @@ async function findSessionOwner(token: unknown) {
  * target looked like: deletions and updates change it before the after hook.
  * Calls without a session (server-side `auth.api.*` use) are not recorded here.
  */
-export async function captureAuthAdminAudit(ctx: AuthContext) {
+export async function captureAuthAdminAudit(
+  ctx: AuthContext,
+  resolveSession: ResolveAuditSession,
+) {
   if (!AUDITED_AUTH_ADMIN_PATHS.has(ctx.path)) return;
-  const session = await getSessionFromCtx(ctx, {
-    disableCookieCache: true,
-    disableRefresh: true,
-  });
+  // Hooks here run before the bearer plugin turns a token into a cookie, so
+  // the session is resolved through the full auth API to see bearer callers.
+  const session = await resolveSession(new Headers(ctx.headers));
   if (!session) return;
 
   const body = ctx.body as Record<string, unknown> | undefined;
