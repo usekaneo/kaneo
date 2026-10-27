@@ -281,6 +281,9 @@
           "projectId": {
             "type": "string"
           },
+          "isSubtask": {
+            "type": "boolean"
+          },
           "subtaskCounts": {
             "type": "object",
             "properties": {
@@ -531,6 +534,9 @@
               "boolean",
               "null"
             ]
+          },
+          "includeSubtasks": {
+            "type": "boolean"
           },
           "workspaceId": {
             "type": "string"
@@ -833,6 +839,9 @@
       "Project": {
         "type": "object",
         "properties": {
+          "includeSubtasks": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -1387,6 +1396,9 @@
                   "null"
                 ],
                 "description": "The referenced workflow column; null for virtual statuses and legacy tasks without a column reference."
+              },
+              "isSubtask": {
+                "type": "boolean"
               },
               "subtaskCounts": {
                 "type": "object",
@@ -9317,6 +9329,9 @@
                     "type": "string"
                   },
                   "isPublic": {
+                    "type": "boolean"
+                  },
+                  "includeSubtasks": {
                     "type": "boolean"
                   }
                 },
