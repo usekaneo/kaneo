@@ -18,7 +18,8 @@ import { LayoutSwitch } from "@/components/project/views/layout-switch";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { toScheduledTasks } from "@/lib/task-schedule";
+import { toCalendarTasks } from "@/lib/calendar-tasks";
+import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useUserPreferencesStore } from "@/store/user-preferences";
 
 type CalendarSearchParams = {
@@ -45,6 +46,11 @@ function RouteComponent() {
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: project, isLoading, isError } = useGetTasks(projectId);
+  const {
+    data: relations = [],
+    isLoading: relationsLoading,
+    isError: relationsError,
+  } = useGetProjectTaskRelations(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const isMobile = useIsMobile();
   const view = useProjectTaskView({
@@ -57,10 +63,13 @@ function RouteComponent() {
     startOfMonth(new Date()),
   );
 
-  const allScheduledTasks = useMemo(() => toScheduledTasks(project), [project]);
+  const allScheduledTasks = useMemo(
+    () => toCalendarTasks(project, relations),
+    [project, relations],
+  );
   const scheduledTasks = useMemo(
-    () => toScheduledTasks(view.filters.filteredProject),
-    [view.filters.filteredProject],
+    () => toCalendarTasks(project, relations, view.filters.filteredProject),
+    [project, view.filters.filteredProject, relations],
   );
 
   const weeks = useMemo(
@@ -142,13 +151,13 @@ function RouteComponent() {
           onToday={handleToday}
         />
 
-        {isLoading ? (
+        {isLoading || relationsLoading ? (
           <div className="border-b border-border/80 px-4 py-3 text-center">
             <p className="text-sm text-muted-foreground">
               {t("common:empty.loading")}
             </p>
           </div>
-        ) : isError ? (
+        ) : isError || relationsError ? (
           <div className="border-b border-border/80 px-4 py-3 text-center">
             <p className="text-sm font-semibold text-destructive">
               {t("tasks:calendar.loadError")}
@@ -171,25 +180,29 @@ function RouteComponent() {
           </div>
         ) : null}
 
-        {isMobile ? (
-          scheduledTasks.length > 0 && (
-            <MonthAgenda
+        {!isLoading &&
+          !relationsLoading &&
+          !isError &&
+          !relationsError &&
+          (isMobile ? (
+            scheduledTasks.length > 0 && (
+              <MonthAgenda
+                tasks={scheduledTasks}
+                visibleMonth={visibleMonth}
+                projectSlug={project?.slug}
+                onOpenTask={handleOpenTask}
+              />
+            )
+          ) : (
+            <MonthGrid
+              weeks={weeks}
               tasks={scheduledTasks}
               visibleMonth={visibleMonth}
+              maxLanes={MAX_LANES_DESKTOP}
               projectSlug={project?.slug}
               onOpenTask={handleOpenTask}
             />
-          )
-        ) : (
-          <MonthGrid
-            weeks={weeks}
-            tasks={scheduledTasks}
-            visibleMonth={visibleMonth}
-            maxLanes={MAX_LANES_DESKTOP}
-            projectSlug={project?.slug}
-            onOpenTask={handleOpenTask}
-          />
-        )}
+          ))}
 
         <TaskDetailsSheet
           taskId={taskId}
