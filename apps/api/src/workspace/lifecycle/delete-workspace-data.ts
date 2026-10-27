@@ -78,7 +78,9 @@ export async function deleteWorkspaceData(
   });
 
   await revokeWorkspaceAudience(audience, workspaceId);
-  await publishEvent("workspace.deleted", { workspaceId });
+  await publishEvent("workspace.deleted", { workspaceId }).catch((error) => {
+    console.error("Failed to publish workspace deleted event:", error);
+  });
 
   return workspace;
 }

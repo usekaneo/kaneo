@@ -1,5 +1,6 @@
 import { workspaceIsActive } from "../workspace/archive/active-workspace-sql";
-import { hasWorkspaceAccess, syncWorkspaceAccess } from "./workspace-access";
+import { syncWorkspaceAccess } from "./workspace-access";
+import { workspaceRevocationIsCurrent } from "./workspace-revocation-is-current";
 import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
@@ -292,7 +293,11 @@ export async function initializeWebSocketAdapter() {
   const retryReceived = createRevocationDelivery({
     async publishToUser(msg) {
       if (
-        await hasWorkspaceAccess(msg.userId, msg.message.workspaceId as string)
+        !(await workspaceRevocationIsCurrent(
+          msg.userId,
+          msg.message.workspaceId as string,
+          msg.message.reason,
+        ))
       )
         return;
       if (receivedRevocations !== retryReceived) return;
@@ -317,12 +322,17 @@ export async function initializeWebSocketAdapter() {
         if (
           msg.message.type === "WORKSPACE_ACCESS_REVOKED" &&
           typeof msg.message.workspaceId === "string" &&
-          !msg.message.force
+          (!msg.message.force || msg.message.reason === "archived")
         ) {
           try {
-            // Redis can deliver an offline-queued initial publish after this
-            // member has been re-added. Check the recipient's current access.
-            if (await hasWorkspaceAccess(msg.userId, msg.message.workspaceId))
+            // Queued revocations may arrive after access has been restored.
+            if (
+              !(await workspaceRevocationIsCurrent(
+                msg.userId,
+                msg.message.workspaceId,
+                msg.message.reason,
+              ))
+            )
               return;
           } catch (error) {
             console.error(
@@ -600,6 +610,11 @@ export async function revokeWorkspaceConnections(
     reason?: "archived";
   } = {},
 ) {
+  if (
+    options.reason === "archived" &&
+    !(await workspaceRevocationIsCurrent(userId, workspaceId, options.reason))
+  )
+    return;
   if (!options.force) {
     try {
       const [user] =
@@ -631,26 +646,28 @@ export async function revokeWorkspaceConnections(
       },
       origin: INSTANCE_ID,
     },
-    options.force
-      ? undefined
-      : async () => {
-          const [[user], members] = await Promise.all([
-            db
-              .select({ role: userTable.role })
-              .from(userTable)
-              .where(eq(userTable.id, userId)),
-            db
-              .select({ userId: workspaceUserTable.userId })
-              .from(workspaceUserTable)
-              .where(
-                and(
-                  eq(workspaceUserTable.userId, userId),
-                  eq(workspaceUserTable.workspaceId, workspaceId),
+    options.reason === "archived"
+      ? () => workspaceRevocationIsCurrent(userId, workspaceId, options.reason)
+      : options.force
+        ? undefined
+        : async () => {
+            const [[user], members] = await Promise.all([
+              db
+                .select({ role: userTable.role })
+                .from(userTable)
+                .where(eq(userTable.id, userId)),
+              db
+                .select({ userId: workspaceUserTable.userId })
+                .from(workspaceUserTable)
+                .where(
+                  and(
+                    eq(workspaceUserTable.userId, userId),
+                    eq(workspaceUserTable.workspaceId, workspaceId),
+                  ),
                 ),
-              ),
-          ]);
-          return !hasInstanceAdminRole(user?.role) && members.length === 0;
-        },
+            ]);
+            return !hasInstanceAdminRole(user?.role) && members.length === 0;
+          },
   );
 }
 

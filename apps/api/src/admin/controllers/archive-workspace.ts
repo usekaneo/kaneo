@@ -40,7 +40,9 @@ async function archiveWorkspace(workspaceId: string, audit: AdminAuditRequest) {
   // Open boards and the user socket learn the workspace is gone right away.
   await revokeWorkspaceAudience(userIds, workspaceId, "archived");
 
-  await publishEvent("workspace.archived", { workspaceId });
+  await publishEvent("workspace.archived", { workspaceId }).catch((error) => {
+    console.error("Failed to publish workspace archived event:", error);
+  });
   return { id: workspaceId, archivedAt: archivedAt.toISOString() };
 }
 

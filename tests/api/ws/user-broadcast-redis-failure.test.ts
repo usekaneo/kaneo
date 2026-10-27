@@ -24,6 +24,9 @@ const sessionRows = vi.hoisted(() =>
 const apiKeyRows = vi.hoisted(() =>
   vi.fn(async (): Promise<Array<{ id: string }>> => []),
 );
+const workspaceRows = vi.hoisted(() =>
+  vi.fn(async (): Promise<Array<{ archivedAt: Date | null }>> => []),
+);
 vi.mock("../../../apps/api/src/database", async () => {
   const schema = await import("../../../apps/api/src/database/schema");
   return {
@@ -35,7 +38,9 @@ vi.mock("../../../apps/api/src/database", async () => {
               ? sessionRows
               : table === schema.apikeyTable
                 ? apiKeyRows
-                : async () => [],
+                : table === schema.workspaceTable
+                  ? workspaceRows
+                  : async () => [],
         }),
       }),
     },
@@ -493,6 +498,65 @@ it.each([true, false])(
       removeConnection("project", projectConnection);
       await shutdownWebSocketAdapter();
       hasAccess.mockResolvedValue(false);
+      vi.useRealTimers();
+    }
+  },
+);
+
+it.each([true, false])(
+  "validates a delayed archive revocation against current state (archived=%s)",
+  async (archived) => {
+    vi.useFakeTimers();
+    await initializeWebSocketAdapter();
+    workspaceRows.mockRejectedValue(new Error("database unavailable"));
+    const ws = makeFakeWs();
+    const boardWs = makeFakeWs();
+    const userConnection = addUserConnection("user-1", ws);
+    const boardConnection = addConnection(
+      "project",
+      boardWs,
+      "user-1",
+      "window",
+      "workspace",
+    );
+    try {
+      const revocation = {
+        userId: "user-1",
+        origin: "other-instance",
+        message: {
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+          force: true,
+          reason: "archived",
+        },
+      };
+      emitUserBroadcast(revocation);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(sendMock(ws)).not.toHaveBeenCalled();
+      expect(closeMock(boardWs)).not.toHaveBeenCalled();
+
+      workspaceRows.mockResolvedValue([
+        { archivedAt: archived ? new Date() : null },
+      ]);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(sendMock(ws)).toHaveBeenCalledTimes(archived ? 1 : 0);
+      if (archived)
+        expect(closeMock(boardWs)).toHaveBeenCalledWith(
+          1008,
+          "Workspace archived",
+        );
+      else {
+        // An initial publish queued by Redis must also be ignored after restore.
+        emitUserBroadcast(revocation);
+        await vi.advanceTimersByTimeAsync(0);
+        expect(sendMock(ws)).not.toHaveBeenCalled();
+        expect(closeMock(boardWs)).not.toHaveBeenCalled();
+      }
+    } finally {
+      removeUserConnection("user-1", userConnection);
+      removeConnection("project", boardConnection);
+      await shutdownWebSocketAdapter();
+      workspaceRows.mockReset().mockResolvedValue([]);
       vi.useRealTimers();
     }
   },

@@ -1,3 +1,5 @@
+import * as realtime from "../../apps/api/src/ws";
+import * as events from "../../apps/api/src/events";
 import * as billing from "../../apps/api/src/billing/controllers/find-billable-workspaces";
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
@@ -267,6 +269,73 @@ describe("archiving and restoring a workspace", () => {
       "workspace.restored",
     ]);
   });
+});
+
+it("ignores an archive revocation after the workspace has been restored", async () => {
+  const { owner, workspace, project } = await workspaceFixture();
+  mockAuthenticatedSession(await createInstanceAdmin());
+  const request = projectAccessApi();
+  expect(
+    (
+      await request(`/admin/workspaces/${workspace.id}/archive`, {
+        method: "POST",
+      })
+    ).status,
+  ).toBe(200);
+  expect(
+    (
+      await request(`/admin/workspaces/${workspace.id}/restore`, {
+        method: "POST",
+      })
+    ).status,
+  ).toBe(200);
+  const socket = fakeSocket();
+  const connection = addConnection(
+    project.id,
+    socket as unknown as WSContext,
+    owner.id,
+    "restored",
+    workspace.id,
+  );
+  try {
+    await realtime.revokeWorkspaceConnections(owner.id, workspace.id, {
+      force: true,
+      reason: "archived",
+    });
+    expect(socket.close).not.toHaveBeenCalled();
+  } finally {
+    removeConnection(project.id, connection);
+  }
+});
+
+describe("committed workspace transitions", () => {
+  it.each(["archive", "delete"] as const)(
+    "returns success for %s even when realtime delivery fails",
+    async (action) => {
+      const { workspace } = await workspaceFixture();
+      mockAuthenticatedSession(await createInstanceAdmin());
+      const error = new Error("Realtime delivery unavailable");
+      vi.spyOn(realtime, "revokeWorkspaceConnections").mockRejectedValue(error);
+      const publish = vi.spyOn(events, "publishEvent").mockRejectedValue(error);
+      const log = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      const response = await projectAccessApi()(
+        `/admin/workspaces/${workspace.id}${action === "archive" ? "/archive" : ""}`,
+        { method: action === "archive" ? "POST" : "DELETE" },
+      );
+
+      expect(response.status).toBe(200);
+      const stored = await readWorkspace(workspace.id);
+      if (action === "archive") expect(stored?.archivedAt).toBeInstanceOf(Date);
+      else expect(stored).toBeUndefined();
+      expect(await readAuditLog()).toHaveLength(1);
+      expect(publish).toHaveBeenCalledWith(
+        `workspace.${action === "archive" ? "archived" : "deleted"}`,
+        { workspaceId: workspace.id },
+      );
+      expect(log).toHaveBeenCalled();
+    },
+  );
 });
 
 describe("deleting a workspace", () => {

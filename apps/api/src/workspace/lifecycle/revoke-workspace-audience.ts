@@ -8,7 +8,12 @@ export async function revokeWorkspaceAudience(
 ) {
   await Promise.all(
     userIds.map((userId) =>
-      revokeWorkspaceConnections(userId, workspaceId, { force: true, reason }),
+      revokeWorkspaceConnections(userId, workspaceId, {
+        force: true,
+        reason,
+      }).catch((error) => {
+        console.error("Failed to revoke workspace realtime access:", error);
+      }),
     ),
   );
 }
