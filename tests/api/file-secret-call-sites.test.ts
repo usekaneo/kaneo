@@ -10,14 +10,19 @@ import {
   decryptSecret,
   encryptSecret,
 } from "../../apps/api/src/notification-preferences/secrets";
-import { resolveGithubPrivateKey } from "../../apps/api/src/plugins/github/utils/github-app";
+import {
+  getGithubApp,
+  resolveGithubPrivateKey,
+} from "../../apps/api/src/plugins/github/utils/github-app";
 import { assertStorageConfigured } from "../../apps/api/src/storage/s3";
+import getSettings from "../../apps/api/src/utils/get-settings";
 import { getGithubSsoOAuthCredentials } from "../../apps/api/src/utils/github-sso-env";
 import { verifyTurnstile } from "../../apps/api/src/utils/verify-turnstile";
 
 const secretNames = [
   "GITHUB_PRIVATE_KEY",
   "GITHUB_PRIVATE_KEY_BASE64",
+  "GITHUB_WEBHOOK_SECRET",
   "GITHUB_OAUTH_CLIENT_SECRET",
   "GITHUB_CLIENT_SECRET",
   "TURNSTILE_SECRET_KEY",
@@ -34,6 +39,8 @@ const keys = [
   "GITHUB_CLIENT_ID",
   "S3_ENDPOINT",
   "S3_BUCKET",
+  "GITHUB_APP_ID",
+  "KANEO_CLOUD",
 ];
 
 describe("secrets read from _FILE variables", () => {
@@ -44,6 +51,12 @@ describe("secrets read from _FILE variables", () => {
     const file = path.join(directory, name);
     writeFileSync(file, `${value}\n`);
     process.env[`${name}_FILE`] = file;
+  }
+
+  function missingSecretFile(name: string) {
+    const file = path.join(directory, `missing-${name}`);
+    process.env[`${name}_FILE`] = file;
+    return file;
   }
 
   beforeEach(() => {
@@ -129,5 +142,49 @@ describe("secrets read from _FILE variables", () => {
     secretFile("CREEM_WEBHOOK_SECRET", "creem-webhook");
     expect(creemApiKey()).toBe("creem-key");
     expect(creemWebhookSecret()).toBe("creem-webhook");
+  });
+
+  it("skips GitHub App secret files when the app is not configured", () => {
+    missingSecretFile("GITHUB_PRIVATE_KEY");
+    missingSecretFile("GITHUB_WEBHOOK_SECRET");
+    expect(getGithubApp()).toBeNull();
+  });
+
+  it("skips a GitHub sign-in secret file whose client ID is unset", () => {
+    missingSecretFile("GITHUB_OAUTH_CLIENT_SECRET");
+    process.env.GITHUB_CLIENT_ID = "legacy-id";
+    secretFile("GITHUB_CLIENT_SECRET", "legacy-secret");
+    expect(getGithubSsoOAuthCredentials()).toEqual({
+      clientId: "legacy-id",
+      clientSecret: "legacy-secret",
+    });
+
+    delete process.env.GITHUB_CLIENT_ID;
+    missingSecretFile("GITHUB_CLIENT_SECRET");
+    expect(getGithubSsoOAuthCredentials()).toEqual({
+      clientId: "",
+      clientSecret: "",
+    });
+  });
+
+  it("keeps settings available when a billing secret file is broken", () => {
+    process.env.KANEO_CLOUD = "true";
+    missingSecretFile("CREEM_API_KEY");
+    expect(getSettings().billingEnabled).toBe(false);
+    expect(() => creemApiKey()).toThrow("CREEM_API_KEY_FILE could not be read");
+  });
+
+  it("keeps S3 secret file paths out of upload errors", () => {
+    process.env.S3_ENDPOINT = "https://s3.example.com";
+    process.env.S3_BUCKET = "kaneo";
+    const file = missingSecretFile("S3_ACCESS_KEY_ID");
+    let message = "";
+    try {
+      assertStorageConfigured();
+    } catch (error) {
+      message = (error as Error).message;
+    }
+    expect(message).toContain("S3_ACCESS_KEY_ID_FILE is invalid");
+    expect(message).not.toContain(file);
   });
 });

@@ -12,6 +12,17 @@ import { isCloud } from "./is-cloud";
 
 config();
 
+// A broken billing secret file must not take down the public settings
+// endpoint the login screen depends on; billing calls still surface it.
+// No log here: this endpoint is unauthenticated and called on every page load.
+function isBillingAvailable() {
+  try {
+    return isBillingEnabled();
+  } catch {
+    return false;
+  }
+}
+
 function getSettings() {
   return {
     isCloud: isCloud(),
@@ -45,7 +56,7 @@ function getSettings() {
     customOAuthLogoutUrl: process.env.CUSTOM_OAUTH_LOGOUT_URL || null,
     customOAuthManagedProfileFields: parseManagedProfileFields(),
     customOAuthAccountUrl: parseCustomOAuthAccountUrl(),
-    billingEnabled: isBillingEnabled(),
+    billingEnabled: isBillingAvailable(),
   };
 }
 

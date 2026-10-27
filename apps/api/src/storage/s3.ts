@@ -145,12 +145,21 @@ export function resolveS3Credentials(
   return undefined;
 }
 
+// Upload routes return this error to clients, so keep the file path out of it.
+function storageSecret(name: string) {
+  try {
+    return resolveFileSecret(name)?.trim() || "";
+  } catch (error) {
+    console.error(error);
+    throw new Error(`S3 uploads are not configured. ${name}_FILE is invalid.`);
+  }
+}
+
 function getStorageConfig(): StorageConfig {
   const endpoint = env("S3_ENDPOINT");
   const bucket = env("S3_BUCKET");
-  const accessKeyId = resolveFileSecret("S3_ACCESS_KEY_ID")?.trim() || "";
-  const secretAccessKey =
-    resolveFileSecret("S3_SECRET_ACCESS_KEY")?.trim() || "";
+  const accessKeyId = storageSecret("S3_ACCESS_KEY_ID");
+  const secretAccessKey = storageSecret("S3_SECRET_ACCESS_KEY");
 
   if (!endpoint || !bucket) {
     throw new Error(
