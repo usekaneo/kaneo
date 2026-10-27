@@ -5,6 +5,8 @@ import {
 } from "@kaneo/email";
 import { HTTPException } from "hono/http-exception";
 import { ApiError } from "../../errors/api-error";
+import type { AdminAuditRequest } from "../audit/admin-audit-request";
+import { recordAdminAction } from "../audit/record-admin-action";
 import { createAttemptLimiter } from "../system/attempt-limiter";
 
 const testEmailLimiter = createAttemptLimiter({
@@ -29,7 +31,10 @@ type SendTestEmailInput = {
  * Send an SMTP test to the calling administrator's own address. There is no
  * recipient parameter, so this can't be used to relay mail to anyone else.
  */
-async function sendAdminTestEmail({ userId, email }: SendTestEmailInput) {
+async function sendAdminTestEmail(
+  { userId, email }: SendTestEmailInput,
+  audit: AdminAuditRequest,
+) {
   if (!isSmtpConfigured()) throw notConfigured();
 
   const decision = testEmailLimiter.take(userId);
@@ -67,6 +72,14 @@ async function sendAdminTestEmail({ userId, email }: SendTestEmailInput) {
   }
 
   if (!result.success) throw notConfigured();
+
+  await recordAdminAction({
+    ...audit,
+    action: "email.test_sent",
+    targetType: "user",
+    targetId: userId,
+    targetLabel: email,
+  });
 
   return { sent: true as const, to: email };
 }

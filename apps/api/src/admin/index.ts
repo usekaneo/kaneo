@@ -323,10 +323,10 @@ const admin = apiRouter()
   )
   .openapi(sendTestEmailRoute, async (c) =>
     c.json(
-      await sendAdminTestEmail({
-        userId: c.get("userId"),
-        email: c.get("userEmail"),
-      }),
+      await sendAdminTestEmail(
+        { userId: c.get("userId"), email: c.get("userEmail") },
+        adminAuditRequest(c),
+      ),
       200,
     ),
   )

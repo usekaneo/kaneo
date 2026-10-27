@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { createInstanceAdmin } from "./helpers/admin/create-instance-admin";
+import { readAuditLog } from "./helpers/admin/read-audit-log";
 import { resetTestDatabase } from "./helpers/database";
 import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
 import { projectAccessApi } from "./helpers/project-access/project-access-api";
@@ -114,6 +115,7 @@ describe("admin system status", () => {
         .status,
     ).toBe(403);
     expect(smtp.send).not.toHaveBeenCalled();
+    expect(await readAuditLog()).toEqual([]);
   });
 
   it("rejects API keys even when they belong to an administrator", async () => {
@@ -128,6 +130,7 @@ describe("admin system status", () => {
       (await request("/admin/system/test-email", { method: "POST" })).status,
     ).toBe(403);
     expect(smtp.send).not.toHaveBeenCalled();
+    expect(await readAuditLog()).toEqual([]);
   });
 
   it("reports each service, treating optional ones as not configured", async () => {
@@ -318,14 +321,17 @@ describe("admin test email", () => {
       code: "SMTP_NOT_CONFIGURED",
     });
     expect(smtp.send).not.toHaveBeenCalled();
+    expect(await readAuditLog()).toEqual([]);
   });
 
-  it("only ever sends to the calling administrator", async () => {
+  it("only sends to the calling administrator and records exactly one audit entry", async () => {
     smtp.configured.mockReturnValue(true);
     const admin = await createInstanceAdmin();
     mockAuthenticatedSession(admin);
 
-    const response = await projectAccessApi()("/admin/system/test-email", {
+    const response = await projectAccessApi({
+      "user-agent": "email-audit-agent",
+    })("/admin/system/test-email", {
       method: "POST",
       body: { to: "someone-else@example.com", email: "victim@example.com" },
     });
@@ -337,6 +343,22 @@ describe("admin test email", () => {
     const calls = JSON.stringify(smtp.send.mock.calls);
     expect(calls).not.toContain("someone-else@");
     expect(calls).not.toContain("victim@");
+
+    const rows = await readAuditLog();
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      action: "email.test_sent",
+      actorUserId: admin.id,
+      actorName: admin.name,
+      actorEmail: admin.email,
+      targetType: "user",
+      targetId: admin.id,
+      targetLabel: admin.email,
+      metadata: null,
+      userAgent: "email-audit-agent",
+    });
+    expect(JSON.stringify(rows)).not.toContain("someone-else@");
+    expect(JSON.stringify(rows)).not.toContain("victim@");
   });
 
   it("returns a safe error when the mail server rejects the message", async () => {
@@ -364,6 +386,22 @@ describe("admin test email", () => {
     expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain(
       "smtp-password-value",
     );
+    expect(await readAuditLog()).toEqual([]);
+  });
+
+  it("does not record an audit entry when delivery reports no success", async () => {
+    smtp.configured.mockReturnValue(true);
+    smtp.send.mockResolvedValue({ success: false });
+    const admin = await createInstanceAdmin();
+    mockAuthenticatedSession(admin);
+
+    const response = await projectAccessApi()("/admin/system/test-email", {
+      method: "POST",
+    });
+
+    expect(response.status).toBe(409);
+    expect(smtp.send).toHaveBeenCalledTimes(1);
+    expect(await readAuditLog()).toEqual([]);
   });
 
   it("limits how often one administrator can send", async () => {
@@ -377,6 +415,11 @@ describe("admin test email", () => {
         (await request("/admin/system/test-email", { method: "POST" })).status,
       ).toBe(200);
     }
+    const rowsBeforeLimit = await readAuditLog();
+    expect(rowsBeforeLimit).toHaveLength(5);
+    expect(
+      rowsBeforeLimit.every((row) => row.action === "email.test_sent"),
+    ).toBe(true);
     const limited = await request("/admin/system/test-email", {
       method: "POST",
     });
@@ -385,5 +428,6 @@ describe("admin test email", () => {
     expect(Number(limited.headers.get("retry-after"))).toBeGreaterThan(0);
     expect(await limited.json()).toMatchObject({ code: "RATE_LIMITED" });
     expect(smtp.send).toHaveBeenCalledTimes(5);
+    expect(await readAuditLog()).toEqual(rowsBeforeLimit);
   });
 });

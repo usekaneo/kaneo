@@ -888,6 +888,7 @@
 			"categoryLabel": "Filter by category",
 			"categories": {
 				"all": "All actions",
+				"email": "Email",
 				"user": "Users",
 				"session": "Sessions",
 				"workspace": "Workspaces",
@@ -914,6 +915,7 @@
 				"workspace": "Workspace"
 			},
 			"actions": {
+				"emailTestSent": "Sent test email",
 				"userCreated": "Created user",
 				"userUpdated": "Updated user details",
 				"userRoleChanged": "Changed instance role",

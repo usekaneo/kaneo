@@ -2,6 +2,7 @@
 export const AUDIT_LOG_CATEGORIES = [
   { value: "", labelKey: "settings:adminAuditLog.categories.all" },
   { value: "user", labelKey: "settings:adminAuditLog.categories.user" },
+  { value: "email", labelKey: "settings:adminAuditLog.categories.email" },
   { value: "session", labelKey: "settings:adminAuditLog.categories.session" },
   { value: "api_key", labelKey: "settings:adminAuditLog.categories.apiKey" },
   {

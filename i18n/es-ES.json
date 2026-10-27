@@ -2527,14 +2527,16 @@
 				"userEmailVerified": "Marked email as verified",
 				"userPasswordResetSent": "Sent password reset link",
 				"userVerificationSent": "Sent verification email",
-				"apiKeyRevoked": "Revoked an API key"
+				"apiKeyRevoked": "Revoked an API key",
+				"emailTestSent": "Sent test email"
 			},
 			"categories": {
 				"all": "All actions",
 				"session": "Sessions",
 				"user": "Users",
 				"workspace": "Workspaces",
-				"apiKey": "API keys"
+				"apiKey": "API keys",
+				"email": "Email"
 			},
 			"categoryLabel": "Filter by category",
 			"clearFilter": "Show all actions",

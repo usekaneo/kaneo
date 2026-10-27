@@ -1,4 +1,5 @@
 const ACTION_LABEL_KEYS = new Map([
+  ["email.test_sent", "settings:adminAuditLog.actions.emailTestSent"],
   ["user.created", "settings:adminAuditLog.actions.userCreated"],
   ["user.updated", "settings:adminAuditLog.actions.userUpdated"],
   ["user.role_changed", "settings:adminAuditLog.actions.userRoleChanged"],
