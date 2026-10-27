@@ -41,6 +41,9 @@ const ACTION_LABEL_KEYS = new Map([
   ["workspace.archived", "settings:adminAuditLog.actions.workspaceArchived"],
   ["workspace.restored", "settings:adminAuditLog.actions.workspaceRestored"],
   ["workspace.deleted", "settings:adminAuditLog.actions.workspaceDeleted"],
+  ["role.created", "settings:adminAuditLog.actions.roleCreated"],
+  ["role.updated", "settings:adminAuditLog.actions.roleUpdated"],
+  ["role.deleted", "settings:adminAuditLog.actions.roleDeleted"],
 ]);
 
 /** Human wording for an action; actions this client doesn't know show as-is. */

@@ -20,6 +20,35 @@ import useAdminUsers, {
 } from "@/hooks/queries/admin/use-admin-users";
 import UserManagementPanel from "./user-management-panel";
 
+vi.mock("@/hooks/queries/admin/use-admin-access", () => {
+  const permissions = [
+    "users:read",
+    "users:create",
+    "users:update",
+    "users:disable",
+    "users:delete",
+    "users:credentials",
+    "users:sessions",
+    "users:api_keys",
+    "workspaces:read",
+    "workspaces:manage",
+    "workspaces:archive",
+    "workspaces:delete",
+    "audit:read",
+    "system:read",
+    "instance:settings",
+    "roles:manage",
+  ];
+  return {
+    default: () => ({
+      permissions,
+      can: (permission: string) => permissions.includes(permission),
+    }),
+  };
+});
+vi.mock("@/hooks/queries/admin/use-admin-roles", () => ({
+  default: () => ({ data: [] }),
+}));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
   initReactI18next: { type: "3rdParty", init: () => {} },
@@ -272,7 +301,7 @@ describe("UserManagementPanel", () => {
     expect(updateUserMock.mock.calls[0]?.[0]).not.toHaveProperty("role");
   });
 
-  it("strips only the admin token when a multi-role account is demoted", async () => {
+  it("gives a demoted multi-role admin the chosen role", async () => {
     vi.useRealTimers();
     useAdminUsersMock.mockReturnValue(
       success(1, [user({ role: "user,admin" })]),
@@ -292,7 +321,7 @@ describe("UserManagementPanel", () => {
     });
   });
 
-  it("appends the admin token when a plain user is promoted", async () => {
+  it("gives a promoted user the admin role", async () => {
     vi.useRealTimers();
     useAdminUsersMock.mockReturnValue(success(1, [user({ role: "user" })]));
     render(<UserManagementPanel />);
@@ -306,7 +335,7 @@ describe("UserManagementPanel", () => {
       userId: "user-1",
       name: "Ada Lovelace",
       email: "ada@example.com",
-      role: "user,admin",
+      role: "admin",
     });
   });
 

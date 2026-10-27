@@ -919,7 +919,8 @@
 				"user": "Users",
 				"session": "Sessions",
 				"workspace": "Workspaces",
-				"apiKey": "API keys"
+				"apiKey": "API keys",
+				"role": "Roles"
 			},
 			"loadError": "The audit log could not be loaded.",
 			"retry": "Retry",
@@ -939,7 +940,8 @@
 			},
 			"targetTypes": {
 				"user": "User",
-				"workspace": "Workspace"
+				"workspace": "Workspace",
+				"role": "Role"
 			},
 			"actions": {
 				"emailTestSent": "Sent test email",
@@ -965,7 +967,10 @@
 				"apiKeyRevoked": "Revoked an API key",
 				"workspaceArchived": "Archived workspace",
 				"workspaceRestored": "Restored workspace",
-				"workspaceDeleted": "Deleted workspace"
+				"workspaceDeleted": "Deleted workspace",
+				"roleCreated": "Role created",
+				"roleUpdated": "Role updated",
+				"roleDeleted": "Role deleted"
 			},
 			"fields": {
 				"name": "name",
@@ -983,7 +988,8 @@
 				"createdWithRole": "Role: {{role}}",
 				"sessionCount_one": "{{count}} session",
 				"sessionCount_other": "{{count}} sessions",
-				"workspaceContents": "{{members}} members, {{projects}} projects"
+				"workspaceContents": "{{members}} members, {{projects}} projects",
+				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
 			}
 		},
 		"informationPage": {
@@ -2703,6 +2709,59 @@
 				"storageUnreachable": "Storage needs attention. Check S3 access.",
 				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
 				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management."
+			}
+		},
+		"adminRoles": {
+			"title": "Roles",
+			"create": "New role",
+			"listTitle": "All roles",
+			"loadError": "Roles could not be loaded.",
+			"builtIn": "Built-in",
+			"viewUsers": "View users",
+			"userCount_one": "{{count}} user",
+			"userCount_other": "{{count}} users",
+			"allPermissions": "All permissions",
+			"noPermissions": "No permissions",
+			"permissionCount_one": "{{count}} permission",
+			"permissionCount_other": "{{count}} permissions",
+			"actions": "Actions for {{name}}",
+			"edit": "Edit",
+			"deleteTitle": "Delete {{name}}?",
+			"dialog": {
+				"createTitle": "New role",
+				"editTitle": "Edit role",
+				"name": "Name",
+				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
+				"create": "Create role",
+				"save": "Save"
+			},
+			"toast": {
+				"created": "Role created",
+				"updated": "Role updated",
+				"deleted": "Role deleted",
+				"error": "The role could not be saved."
+			},
+			"groups": {
+				"users": "Users",
+				"workspaces": "Workspaces",
+				"instance": "Instance"
+			},
+			"permissions": {
+				"usersRead": "View users",
+				"usersCreate": "Create users",
+				"usersUpdate": "Edit users and their roles",
+				"usersDisable": "Deactivate and reactivate users",
+				"usersDelete": "Delete users",
+				"usersCredentials": "Send password reset and verification emails",
+				"usersSessions": "View and end sessions",
+				"usersApiKeys": "View and revoke API keys",
+				"workspacesRead": "View workspaces and members",
+				"workspacesManage": "Manage workspace members",
+				"workspacesArchive": "Archive and restore workspaces",
+				"workspacesDelete": "Delete workspaces",
+				"auditRead": "View the audit log",
+				"systemRead": "View system status",
+				"instanceSettings": "Change instance settings"
 			}
 		}
 	},

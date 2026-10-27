@@ -22,7 +22,8 @@ import {
   formatDateTime,
   formatRelativeTime,
 } from "@/lib/format";
-import { hasInstanceAdminRole } from "@/lib/instance-admin";
+import type { InstancePermission } from "@kaneo/permissions";
+import { getPrimaryInstanceRole } from "./get-primary-instance-role";
 import { getUserActionTypes } from "./get-user-action-types";
 import type { UserActionType } from "./pending-user-action";
 import { USER_ACTION_COPY } from "./user-action-copy";
@@ -43,6 +44,10 @@ type UserDirectoryRowProps = {
   user: AdminUser;
   isSelf: boolean;
   canSendPasswordReset: boolean;
+  /** The viewer's instance permissions. */
+  permissions: readonly InstancePermission[];
+  /** False when the user holds permissions the viewer lacks. */
+  canManage: boolean;
   onEdit: () => void;
   onAction: (type: UserActionType) => void;
   onOpenSecurity: () => void;
@@ -54,36 +59,53 @@ export function UserDirectoryRow({
   user,
   isSelf,
   canSendPasswordReset,
+  permissions,
+  canManage,
   onEdit,
   onOpenSecurity,
   onAction,
 }: UserDirectoryRowProps) {
   const { t } = useTranslation();
-  const isAdmin = hasInstanceAdminRole(user.role);
+  const role = getPrimaryInstanceRole(user.role);
   const isDeactivated = user.banned === true;
+  const can = (permission: InstancePermission) =>
+    canManage && permissions.includes(permission);
 
   const actions: RowAction[] = [
-    {
-      id: "edit",
-      label: t("settings:adminUsers.actions.edit"),
-      icon: PencilIcon,
-      onSelect: onEdit,
-    },
-    {
-      id: "security",
-      label: t("settings:adminUsers.actions.security"),
-      icon: MonitorSmartphoneIcon,
-      onSelect: onOpenSecurity,
-    },
-    ...getUserActionTypes(user, { isSelf, canSendPasswordReset }).map(
-      (type) => ({
-        id: type,
-        label: t(USER_ACTION_COPY[type].menu),
-        icon: ACTION_ICONS[type],
-        destructive: type === "delete",
-        onSelect: () => onAction(type),
-      }),
-    ),
+    ...(can("users:update")
+      ? [
+          {
+            id: "edit",
+            label: t("settings:adminUsers.actions.edit"),
+            icon: PencilIcon,
+            onSelect: onEdit,
+          },
+        ]
+      : []),
+    ...(can("users:sessions") || can("users:api_keys")
+      ? [
+          {
+            id: "security",
+            label: t("settings:adminUsers.actions.security"),
+            icon: MonitorSmartphoneIcon,
+            onSelect: onOpenSecurity,
+          },
+        ]
+      : []),
+    ...(canManage
+      ? getUserActionTypes(user, {
+          isSelf,
+          canSendPasswordReset,
+          permissions,
+        })
+      : []
+    ).map((type) => ({
+      id: type,
+      label: t(USER_ACTION_COPY[type].menu),
+      icon: ACTION_ICONS[type],
+      destructive: type === "delete",
+      onSelect: () => onAction(type),
+    })),
   ];
 
   return (
@@ -108,13 +130,13 @@ export function UserDirectoryRow({
             )}
           </span>
           <div className="mt-1.5 flex items-center gap-2 sm:hidden">
-            <UserRoleBadge isAdmin={isAdmin} />
+            <UserRoleBadge role={role} />
             <UserStatus isDeactivated={isDeactivated} />
           </div>
         </div>
       </div>
       <div role="cell" className={cn(CELL_CLASS, USER_DIRECTORY_COLUMNS.role)}>
-        <UserRoleBadge isAdmin={isAdmin} />
+        <UserRoleBadge role={role} />
       </div>
       <div
         role="cell"
@@ -159,10 +181,12 @@ export function UserDirectoryRow({
           USER_DIRECTORY_COLUMNS.actions,
         )}
       >
-        <RowActionsMenu
-          label={t("settings:adminUsers.actions.open", { name: user.name })}
-          actions={actions}
-        />
+        {actions.length > 0 ? (
+          <RowActionsMenu
+            label={t("settings:adminUsers.actions.open", { name: user.name })}
+            actions={actions}
+          />
+        ) : null}
       </div>
     </div>
   );

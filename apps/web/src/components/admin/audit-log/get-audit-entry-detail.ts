@@ -112,6 +112,28 @@ export function getAuditEntryDetail(
             projects: metadata.projectCount,
           })
         : null;
+    case "role.created":
+    case "role.deleted":
+      return Array.isArray(metadata.permissions)
+        ? t("settings:adminRoles.permissionCount", {
+            count: metadata.permissions.length,
+          })
+        : null;
+    case "role.updated": {
+      const name = metadata.name as Record<string, unknown> | undefined;
+      if (name) {
+        return t("settings:adminAuditLog.details.change", {
+          from: text(name.from),
+          to: text(name.to),
+        });
+      }
+      return Array.isArray(metadata.added) && Array.isArray(metadata.removed)
+        ? t("settings:adminAuditLog.details.permissionsChanged", {
+            added: metadata.added.length,
+            removed: metadata.removed.length,
+          })
+        : null;
+    }
     default:
       return null;
   }

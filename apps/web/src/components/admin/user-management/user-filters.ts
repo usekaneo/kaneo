@@ -3,7 +3,8 @@ import type { AdminUserFilters } from "@/fetchers/admin/types";
 /** Select values for the directory filters; "" means any. */
 export type UserFilterValues = {
   status: "" | NonNullable<AdminUserFilters["status"]>;
-  role: "" | NonNullable<AdminUserFilters["role"]>;
+  /** A built-in or custom role name. */
+  role: string;
   emailVerified: "" | NonNullable<AdminUserFilters["emailVerified"]>;
 };
 
@@ -33,6 +34,14 @@ export const USER_FILTER_OPTIONS = {
     { value: "false", labelKey: "settings:adminUsers.filters.unverified" },
   ],
 } as const;
+
+/** Built-in roles first, then the custom roles by name. */
+export function getRoleFilterOptions(roles: readonly { name: string }[]) {
+  return [
+    ...USER_FILTER_OPTIONS.role,
+    ...roles.map((role) => ({ value: role.name, label: role.name })),
+  ];
+}
 
 export function toAdminUserFilters(values: UserFilterValues): AdminUserFilters {
   return Object.fromEntries(

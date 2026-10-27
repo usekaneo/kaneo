@@ -20,7 +20,10 @@ import useAdminUsers, {
   ADMIN_USERS_SEARCH_MAX_LENGTH,
   type AdminUser,
 } from "@/hooks/queries/admin/use-admin-users";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
+import useAdminRoles from "@/hooks/queries/admin/use-admin-roles";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
+import { canManageUser } from "./can-manage-user";
 import { CreateUserDialog } from "./create-user-dialog";
 import { EditUserDialog } from "./edit-user-dialog";
 import type { PendingUserAction } from "./pending-user-action";
@@ -35,13 +38,23 @@ import {
   type UserFilterValues,
 } from "./user-filters";
 
-function UserManagementPanel() {
+type UserManagementPanelProps = {
+  /** Opens the directory filtered to one role, e.g. from the roles page. */
+  initialRole?: string;
+};
+
+function UserManagementPanel({ initialRole }: UserManagementPanelProps) {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const { search, setSearch, debouncedSearch, page, setPage } =
     useDirectoryPaging();
   const { data: config } = useGetConfig();
-  const [filters, setFilters] = useState<UserFilterValues>(NO_USER_FILTERS);
+  const { permissions } = useAdminAccess();
+  const { data: roles = [] } = useAdminRoles();
+  const [filters, setFilters] = useState<UserFilterValues>({
+    ...NO_USER_FILTERS,
+    role: initialRole ?? "",
+  });
   const [isCreating, setIsCreating] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [securityUser, setSecurityUser] = useState<AdminUser | null>(null);
@@ -83,10 +96,12 @@ function UserManagementPanel() {
       title={t("settings:adminUsers.title")}
       description={t("settings:adminUsers.subtitle")}
       actions={
-        <Button type="button" size="sm" onClick={() => setIsCreating(true)}>
-          <UserPlusIcon aria-hidden="true" />
-          {t("settings:adminUsers.create.open")}
-        </Button>
+        permissions.includes("users:create") ? (
+          <Button type="button" size="sm" onClick={() => setIsCreating(true)}>
+            <UserPlusIcon aria-hidden="true" />
+            {t("settings:adminUsers.create.open")}
+          </Button>
+        ) : null
       }
     >
       <SettingsSection
@@ -111,7 +126,11 @@ function UserManagementPanel() {
           />
         }
       >
-        <UserDirectoryFilters values={filters} onChange={changeFilters} />
+        <UserDirectoryFilters
+          values={filters}
+          roles={roles}
+          onChange={changeFilters}
+        />
         <SettingsCard>
           {hasError ? (
             <DirectoryErrorRow
@@ -156,6 +175,8 @@ function UserManagementPanel() {
                     user={user}
                     isSelf={user.id === currentUser?.id}
                     canSendPasswordReset={config?.disableLoginForm !== true}
+                    permissions={permissions}
+                    canManage={canManageUser(user.role, roles, permissions)}
                     onEdit={() => setEditingUser(user)}
                     onOpenSecurity={() => {
                       setSecurityUser(user);

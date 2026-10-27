@@ -108,4 +108,39 @@ describe("getAuditEntryDetail", () => {
       ),
     ).toBeNull();
   });
+
+  it("summarises instance role changes", () => {
+    expect(
+      getAuditEntryDetail(
+        {
+          action: "role.updated",
+          metadata: {
+            name: { from: "support", to: "help" },
+            added: [],
+            removed: [],
+          },
+        },
+        t,
+      ),
+    ).toBe(
+      'settings:adminAuditLog.details.change {"from":"support","to":"help"}',
+    );
+    expect(
+      getAuditEntryDetail(
+        {
+          action: "role.updated",
+          metadata: { added: ["audit:read"], removed: [] },
+        },
+        t,
+      ),
+    ).toBe(
+      'settings:adminAuditLog.details.permissionsChanged {"added":1,"removed":0}',
+    );
+    expect(
+      getAuditEntryDetail(
+        { action: "role.created", metadata: { permissions: ["users:read"] } },
+        t,
+      ),
+    ).toBe('settings:adminRoles.permissionCount {"count":1}');
+  });
 });

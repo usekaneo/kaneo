@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserPlusIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { createAdminUser } from "@/fetchers/admin/create-admin-user";
+import { ADMIN_ROLES_QUERY_KEY } from "@/hooks/queries/admin/use-admin-roles";
 import { ADMIN_USERS_QUERY_KEY } from "@/hooks/queries/admin/use-admin-users";
 import { toast } from "@/lib/toast";
 
@@ -31,6 +32,7 @@ function useCreateAdminUser() {
         toast.warning(message);
       }
       queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ADMIN_ROLES_QUERY_KEY });
     },
     onError: (error) => {
       toast.error(

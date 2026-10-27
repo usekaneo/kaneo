@@ -1,5 +1,6 @@
 import { ArchiveIcon, ArchiveRestoreIcon, Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
 import {
   type RowAction,
   RowActionsMenu,
@@ -29,27 +30,36 @@ export function WorkspaceDirectoryRow({
 }: WorkspaceDirectoryRowProps) {
   const { t } = useTranslation();
   const isArchived = workspace.archivedAt !== null;
+  const { can } = useAdminAccess();
   const actions: RowAction[] = [
-    isArchived
-      ? {
-          id: "restore",
-          label: t("settings:adminWorkspaces.actions.restore"),
-          icon: ArchiveRestoreIcon,
-          onSelect: () => onAction("restore"),
-        }
-      : {
-          id: "archive",
-          label: t("settings:adminWorkspaces.actions.archive"),
-          icon: ArchiveIcon,
-          onSelect: () => onAction("archive"),
-        },
-    {
-      id: "delete",
-      label: t("common:actions.delete"),
-      icon: Trash2Icon,
-      destructive: true,
-      onSelect: () => onAction("delete"),
-    },
+    ...(can("workspaces:archive")
+      ? [
+          isArchived
+            ? {
+                id: "restore",
+                label: t("settings:adminWorkspaces.actions.restore"),
+                icon: ArchiveRestoreIcon,
+                onSelect: () => onAction("restore"),
+              }
+            : {
+                id: "archive",
+                label: t("settings:adminWorkspaces.actions.archive"),
+                icon: ArchiveIcon,
+                onSelect: () => onAction("archive"),
+              },
+        ]
+      : []),
+    ...(can("workspaces:delete")
+      ? [
+          {
+            id: "delete",
+            label: t("common:actions.delete"),
+            icon: Trash2Icon,
+            destructive: true,
+            onSelect: () => onAction("delete" as const),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -118,12 +128,14 @@ export function WorkspaceDirectoryRow({
         >
           {t("settings:adminWorkspaces.manage")}
         </Button>
-        <RowActionsMenu
-          label={t("settings:adminWorkspaces.actions.open", {
-            name: workspace.name,
-          })}
-          actions={actions}
-        />
+        {actions.length > 0 ? (
+          <RowActionsMenu
+            label={t("settings:adminWorkspaces.actions.open", {
+              name: workspace.name,
+            })}
+            actions={actions}
+          />
+        ) : null}
       </div>
     </div>
   );

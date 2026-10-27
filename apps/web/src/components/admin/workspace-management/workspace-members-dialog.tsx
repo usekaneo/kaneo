@@ -20,6 +20,7 @@ import type { AdminWorkspace } from "@/fetchers/admin/workspace-types";
 import useRemoveAdminWorkspaceMember from "@/hooks/mutations/admin/use-remove-admin-workspace-member";
 import useTransferAdminWorkspaceOwnership from "@/hooks/mutations/admin/use-transfer-admin-workspace-ownership";
 import useUpdateAdminWorkspaceMemberRole from "@/hooks/mutations/admin/use-update-admin-workspace-member-role";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
 import useAdminWorkspaceMembers from "@/hooks/queries/admin/use-admin-workspace-members";
 import useAdminWorkspaceRoles from "@/hooks/queries/admin/use-admin-workspace-roles";
 import useGetWorkspaceProjectAccess from "@/hooks/queries/workspace-users/use-get-workspace-project-access";
@@ -61,9 +62,12 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
     refetch,
   } = useAdminWorkspaceMembers(workspaceId, open);
   const { data: roles } = useAdminWorkspaceRoles(workspaceId, open);
+  const { can } = useAdminAccess();
+  const canManage = can("workspaces:manage");
+  // Project access goes through workspace routes only built-in admins bypass.
   const { data: accessEntries } = useGetWorkspaceProjectAccess(
     workspaceId,
-    open,
+    open && can("roles:manage"),
   );
   const updateRole = useUpdateAdminWorkspaceMemberRole();
   const removeMember = useRemoveAdminWorkspaceMember();
@@ -115,17 +119,19 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
                   })}
                 </p>
               ) : null}
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="ms-auto"
-                disabled={!members}
-                onClick={() => setIsAddOpen(true)}
-              >
-                <UserPlusIcon aria-hidden="true" />
-                {t("settings:adminWorkspaces.members.add")}
-              </Button>
+              {canManage ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="ms-auto"
+                  disabled={!members}
+                  onClick={() => setIsAddOpen(true)}
+                >
+                  <UserPlusIcon aria-hidden="true" />
+                  {t("settings:adminWorkspaces.members.add")}
+                </Button>
+              ) : null}
             </div>
 
             <WorkspaceMembersCard
@@ -147,6 +153,7 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
                     roleOptions={getAssignableRoleOptions(roles, member.role)}
                     access={access}
                     isOnlyOwner={isOwner && ownerCount === 1}
+                    canManage={canManage}
                     isUpdatingRole={
                       updateRole.isPending &&
                       updateRole.variables?.userId === member.userId

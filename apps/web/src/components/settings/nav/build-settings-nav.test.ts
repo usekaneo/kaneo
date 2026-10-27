@@ -11,7 +11,7 @@ function build(
     workspaceName: "Acme",
     billingEnabled: false,
     canImport: false,
-    hasAdminAccess: false,
+    adminPermissions: [],
     projects: [],
     ...overrides,
   });
@@ -51,17 +51,31 @@ describe("buildSettingsNav", () => {
     ]);
   });
 
-  it("only shows administration to instance admins", () => {
+  it("shows each administration page only with its permission", () => {
     expect(build().admin).toBeNull();
     expect(
-      build({ hasAdminAccess: true }).admin?.links.map((link) => link.to),
+      build({
+        adminPermissions: [
+          "users:read",
+          "roles:manage",
+          "workspaces:read",
+          "audit:read",
+          "system:read",
+        ],
+      }).admin?.links.map((link) => link.to),
     ).toEqual([
       "/dashboard/settings/admin/overview",
       "/dashboard/settings/admin/users",
+      "/dashboard/settings/admin/roles",
       "/dashboard/settings/admin/workspaces",
       "/dashboard/settings/admin/audit-log",
       "/dashboard/settings/admin/system",
     ]);
+    expect(
+      build({
+        adminPermissions: ["audit:read", "users:delete"],
+      }).admin?.links.map((link) => link.to),
+    ).toEqual(["/dashboard/settings/admin/audit-log"]);
   });
 
   it("gives every project its own settings pages", () => {

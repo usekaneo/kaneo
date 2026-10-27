@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { UserFilterSelect } from "./user-filter-select";
 import {
+  getRoleFilterOptions,
   hasUserFilters,
   NO_USER_FILTERS,
   USER_FILTER_OPTIONS,
@@ -10,11 +11,13 @@ import {
 
 type UserDirectoryFiltersProps = {
   values: UserFilterValues;
+  roles: readonly { name: string }[];
   onChange: (values: UserFilterValues) => void;
 };
 
 export function UserDirectoryFilters({
   values,
+  roles,
   onChange,
 }: UserDirectoryFiltersProps) {
   const { t } = useTranslation();
@@ -38,7 +41,7 @@ export function UserDirectoryFilters({
       <UserFilterSelect
         label={t("settings:adminUsers.filters.role")}
         value={values.role}
-        options={USER_FILTER_OPTIONS.role}
+        options={getRoleFilterOptions(roles)}
         onValueChange={set("role")}
       />
       <UserFilterSelect

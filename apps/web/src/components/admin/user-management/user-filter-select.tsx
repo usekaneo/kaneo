@@ -10,7 +10,11 @@ import {
 type UserFilterSelectProps<Value extends string> = {
   label: string;
   value: Value;
-  options: readonly { value: Value; labelKey: string }[];
+  /** Translated through `labelKey`, or shown as `label` (custom role names). */
+  options: readonly ({ value: Value } & (
+    | { labelKey: string; label?: never }
+    | { label: string; labelKey?: never }
+  ))[];
   onValueChange: (value: Value) => void;
 };
 
@@ -23,7 +27,7 @@ export function UserFilterSelect<Value extends string>({
   const { t } = useTranslation();
   const items = options.map((option) => ({
     value: option.value,
-    label: t(option.labelKey),
+    label: option.labelKey === undefined ? option.label : t(option.labelKey),
   }));
   const selected = items.find((item) => item.value === value) ?? items[0];
 

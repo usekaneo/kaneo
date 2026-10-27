@@ -9,4 +9,5 @@ export const AUDIT_LOG_CATEGORIES = [
     value: "workspace",
     labelKey: "settings:adminAuditLog.categories.workspace",
   },
+  { value: "role", labelKey: "settings:adminAuditLog.categories.role" },
 ] as const;

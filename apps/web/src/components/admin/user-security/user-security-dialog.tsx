@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { AdminUser } from "@/fetchers/admin/types";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
 import { UserApiKeysSection } from "./user-api-keys-section";
 import { UserSessionsSection } from "./user-sessions-section";
 
@@ -25,6 +26,7 @@ export function UserSecurityDialog({
   onOpenChange,
 }: Props) {
   const { t } = useTranslation();
+  const { can } = useAdminAccess();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -37,8 +39,12 @@ export function UserSecurityDialog({
         <DialogPanel>
           {user && open ? (
             <div className="flex flex-col gap-8">
-              <UserSessionsSection user={user} isSelf={isSelf} />
-              <UserApiKeysSection user={user} />
+              {can("users:sessions") ? (
+                <UserSessionsSection user={user} isSelf={isSelf} />
+              ) : null}
+              {can("users:api_keys") ? (
+                <UserApiKeysSection user={user} />
+              ) : null}
             </div>
           ) : null}
         </DialogPanel>

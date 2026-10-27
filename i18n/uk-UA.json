@@ -2600,7 +2600,10 @@
 				"emailTestSent": "Sent test email",
 				"workspaceArchived": "Archived workspace",
 				"workspaceDeleted": "Deleted workspace",
-				"workspaceRestored": "Restored workspace"
+				"workspaceRestored": "Restored workspace",
+				"roleCreated": "Role created",
+				"roleDeleted": "Role deleted",
+				"roleUpdated": "Role updated"
 			},
 			"categories": {
 				"all": "All actions",
@@ -2608,7 +2611,8 @@
 				"user": "Users",
 				"workspace": "Workspaces",
 				"apiKey": "API keys",
-				"email": "Email"
+				"email": "Email",
+				"role": "Roles"
 			},
 			"categoryLabel": "Filter by category",
 			"clearFilter": "Show all actions",
@@ -2631,7 +2635,8 @@
 				"sessionCount_many": "{{count}} sessions",
 				"sessionCount_one": "{{count}} session",
 				"sessionCount_other": "{{count}} sessions",
-				"workspaceContents": "{{members}} members, {{projects}} projects"
+				"workspaceContents": "{{members}} members, {{projects}} projects",
+				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
 			},
 			"directoryTitle": "Recorded actions",
 			"emptyTitle": "No actions recorded",
@@ -2650,7 +2655,8 @@
 			"retry": "Retry",
 			"targetTypes": {
 				"user": "User",
-				"workspace": "Workspace"
+				"workspace": "Workspace",
+				"role": "Role"
 			},
 			"title": "Audit log",
 			"unknownActor": "Unknown"
@@ -2796,6 +2802,63 @@
 				"storageUnreachable": "Storage needs attention. Check S3 access."
 			},
 			"workspaces": "Workspaces"
+		},
+		"adminRoles": {
+			"actions": "Actions for {{name}}",
+			"allPermissions": "All permissions",
+			"builtIn": "Built-in",
+			"create": "New role",
+			"deleteTitle": "Delete {{name}}?",
+			"dialog": {
+				"create": "Create role",
+				"createTitle": "New role",
+				"editTitle": "Edit role",
+				"name": "Name",
+				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
+				"save": "Save"
+			},
+			"edit": "Edit",
+			"groups": {
+				"instance": "Instance",
+				"users": "Users",
+				"workspaces": "Workspaces"
+			},
+			"listTitle": "All roles",
+			"loadError": "Roles could not be loaded.",
+			"noPermissions": "No permissions",
+			"permissionCount_few": "{{count}} permissions",
+			"permissionCount_many": "{{count}} permissions",
+			"permissionCount_one": "{{count}} permission",
+			"permissionCount_other": "{{count}} permissions",
+			"permissions": {
+				"auditRead": "View the audit log",
+				"instanceSettings": "Change instance settings",
+				"systemRead": "View system status",
+				"usersApiKeys": "View and revoke API keys",
+				"usersCreate": "Create users",
+				"usersCredentials": "Send password reset and verification emails",
+				"usersDelete": "Delete users",
+				"usersDisable": "Deactivate and reactivate users",
+				"usersRead": "View users",
+				"usersSessions": "View and end sessions",
+				"usersUpdate": "Edit users and their roles",
+				"workspacesArchive": "Archive and restore workspaces",
+				"workspacesDelete": "Delete workspaces",
+				"workspacesManage": "Manage workspace members",
+				"workspacesRead": "View workspaces and members"
+			},
+			"title": "Roles",
+			"toast": {
+				"created": "Role created",
+				"deleted": "Role deleted",
+				"error": "The role could not be saved.",
+				"updated": "Role updated"
+			},
+			"userCount_few": "{{count}} users",
+			"userCount_many": "{{count}} users",
+			"userCount_one": "{{count}} user",
+			"userCount_other": "{{count}} users",
+			"viewUsers": "View users"
 		}
 	},
 	"navigation": {

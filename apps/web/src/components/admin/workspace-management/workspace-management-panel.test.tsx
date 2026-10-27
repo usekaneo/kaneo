@@ -22,6 +22,35 @@ import useAdminWorkspaceMembers from "@/hooks/queries/admin/use-admin-workspace-
 import useAdminWorkspaces from "@/hooks/queries/admin/use-admin-workspaces";
 import WorkspaceManagementPanel from "./workspace-management-panel";
 
+vi.mock("@/hooks/queries/admin/use-admin-access", () => {
+  const permissions = [
+    "users:read",
+    "users:create",
+    "users:update",
+    "users:disable",
+    "users:delete",
+    "users:credentials",
+    "users:sessions",
+    "users:api_keys",
+    "workspaces:read",
+    "workspaces:manage",
+    "workspaces:archive",
+    "workspaces:delete",
+    "audit:read",
+    "system:read",
+    "instance:settings",
+    "roles:manage",
+  ];
+  return {
+    default: () => ({
+      permissions,
+      can: (permission: string) => permissions.includes(permission),
+    }),
+  };
+});
+vi.mock("@/hooks/queries/admin/use-admin-roles", () => ({
+  default: () => ({ data: [] }),
+}));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, options?: { name?: string }) =>

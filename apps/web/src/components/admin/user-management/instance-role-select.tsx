@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectItem,
@@ -6,14 +5,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-type InstanceRole = "admin" | "user";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
+import useAdminRoles from "@/hooks/queries/admin/use-admin-roles";
+import { getAssignableRoles } from "./get-assignable-roles";
+import { useInstanceRoleLabel } from "./use-instance-role-label";
 
 type InstanceRoleSelectProps = {
   id: string;
-  value: InstanceRole;
+  value: string;
   disabled?: boolean;
-  onValueChange: (role: InstanceRole) => void;
+  onValueChange: (role: string) => void;
 };
 
 export function InstanceRoleSelect({
@@ -22,36 +23,29 @@ export function InstanceRoleSelect({
   disabled,
   onValueChange,
 }: InstanceRoleSelectProps) {
-  const { t } = useTranslation();
+  const { permissions } = useAdminAccess();
+  const { data: roles = [] } = useAdminRoles();
+  const roleLabel = useInstanceRoleLabel();
+  const names = getAssignableRoles(roles, permissions, value);
 
   return (
     <Select
-      items={{
-        user: t("settings:adminUsers.roles.user"),
-        admin: t("settings:adminUsers.roles.admin"),
-      }}
+      items={Object.fromEntries(names.map((name) => [name, roleLabel(name)]))}
       value={value}
       disabled={disabled}
       onValueChange={(next) => {
-        if (next === "admin" || next === "user") onValueChange(next);
+        if (typeof next === "string") onValueChange(next);
       }}
     >
       <SelectTrigger id={id}>
-        <SelectValue>
-          {t(
-            value === "admin"
-              ? "settings:adminUsers.roles.admin"
-              : "settings:adminUsers.roles.user",
-          )}
-        </SelectValue>
+        <SelectValue>{roleLabel(value)}</SelectValue>
       </SelectTrigger>
       <SelectPopup>
-        <SelectItem value="user">
-          {t("settings:adminUsers.roles.user")}
-        </SelectItem>
-        <SelectItem value="admin">
-          {t("settings:adminUsers.roles.admin")}
-        </SelectItem>
+        {names.map((name) => (
+          <SelectItem key={name} value={name}>
+            {roleLabel(name)}
+          </SelectItem>
+        ))}
       </SelectPopup>
     </Select>
   );

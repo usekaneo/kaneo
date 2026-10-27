@@ -16,7 +16,7 @@ import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
 /** Shown in place of a workspace an instance administrator archived. */
 export default function WorkspaceArchived() {
   const { t } = useTranslation();
-  const { data: isInstanceAdmin } = useAdminAccess();
+  const { can } = useAdminAccess();
   const title = t("workspace:archived.title");
 
   return (
@@ -38,7 +38,7 @@ export default function WorkspaceArchived() {
           <Button variant="outline" render={<Link to="/dashboard" />}>
             {t("workspace:archived.otherWorkspaces")}
           </Button>
-          {isInstanceAdmin ? (
+          {can("workspaces:archive") ? (
             <Button render={<Link to="/dashboard/settings/admin/workspaces" />}>
               {t("workspace:archived.manage")}
             </Button>
