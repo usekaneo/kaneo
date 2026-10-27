@@ -258,11 +258,15 @@ describe("API integration: admin user listing", () => {
     expect(active.users.map((user) => user.id).sort()).toEqual(
       [admin.id, expired.id].sort(),
     );
+    expect(active.users.find((user) => user.id === expired.id)?.banned).toBe(
+      false,
+    );
     const deactivated = (await (
       await listUsers(app, { status: "deactivated" })
     ).json()) as AdminUserList;
     expect(deactivated.total).toBe(1);
     expect(deactivated.users.map((user) => user.id)).toEqual([future.id]);
+    expect(deactivated.users[0]?.banned).toBe(true);
   });
 
   it("reports last session activity and linked sign-in methods", async () => {

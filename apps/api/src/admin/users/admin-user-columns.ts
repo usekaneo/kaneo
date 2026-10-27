@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { userTable } from "../../database/schema";
+import { isBanActive } from "../../utils/user-ban";
 
 /**
  * Columns of an admin directory row. Last activity and sign-in methods are
@@ -47,7 +48,7 @@ export function toAdminUser(row: AdminUserRow) {
     ...row,
     createdAt: iso(row.createdAt),
     updatedAt: iso(row.updatedAt),
-    banned: row.banned ?? false,
+    banned: isBanActive(row),
     isAnonymous: row.isAnonymous ?? false,
     banExpires: row.banExpires ? iso(row.banExpires) : null,
     lastActiveAt: row.lastActiveAt ? iso(row.lastActiveAt) : null,
