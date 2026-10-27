@@ -8,7 +8,8 @@ type AuthContext = Parameters<typeof getSessionFromCtx>[0];
 /** After an audited admin endpoint, record it if it succeeded. */
 export async function recordAuthAdminAudit(ctx: AuthContext) {
   const capture = takeAuthAdminAuditCapture(ctx);
-  const returned = ctx.context.returned;
+  // Set by better-auth for after hooks; not part of the generic context type.
+  const returned = (ctx.context as { returned?: unknown }).returned;
   if (!capture || returned === undefined || isAPIError(returned)) return;
 
   const entries = describeAuthAdminAction({
