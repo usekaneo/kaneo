@@ -18,3 +18,4 @@
 ^apps/api/src/gitlab-integration/utils/normalize-input\.ts$
 ^apps/api/src/plugins/gitlab/webhooks/issue-opened\.ts$
 ^apps/api/src/plugins/gitlab/webhooks/issue-updated\.ts$
+^apps/web/src/components/project/gitlab-integration/gitlab-project-picker\.tsx$
