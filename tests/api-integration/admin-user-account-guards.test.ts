@@ -1,7 +1,15 @@
 import { eq, inArray } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vite-plus/test";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import deleteUser from "../../apps/api/src/admin/controllers/delete-user";
-import db, { schema } from "../../apps/api/src/database";
+import db, { getDatabasePool, schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { signInWithRole } from "./helpers/admin/instance-roles";
 import { readAuditLog } from "./helpers/admin/read-audit-log";
@@ -9,10 +17,17 @@ import { resetTestDatabase } from "./helpers/database";
 import { readErrorBody } from "./helpers/error-body";
 import { createWorkspaceMember } from "./helpers/fixtures";
 
+beforeAll(() => {
+  vi.stubEnv("DATABASE_POOL_MAX", "2");
+});
+afterAll(() => {
+  vi.unstubAllEnvs();
+});
 beforeEach(resetTestDatabase);
 
 describe("admin account guards", () => {
   it("keeps one administrator and their workspace during concurrent deletions", async () => {
+    expect(getDatabasePool().options.max).toBe(2);
     const first = await createWorkspaceMember({ role: "owner" });
     const second = await createWorkspaceMember({ role: "owner" });
     const ids = [first.user.id, second.user.id];

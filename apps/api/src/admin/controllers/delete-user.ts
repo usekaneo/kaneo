@@ -4,6 +4,7 @@ import type { ContentfulStatusCode } from "hono/utils/http-status";
 import db from "../../database";
 import { userTable } from "../../database/schema";
 import { ApiError } from "../../errors/api-error";
+import type { DbOrTx } from "../../project-access/db-or-tx";
 import { deleteUserSessions } from "../../sessions/delete-user-sessions";
 import deleteAccountData from "../../user/controllers/delete-account-data";
 import { hasOtherInstanceAdmin } from "../../utils/has-other-instance-admin";
@@ -15,9 +16,9 @@ import { lockAdminTargetUser } from "../users/lock-admin-target-user";
 import { rejectSelfAction } from "../users/reject-self-action";
 
 /** The same cleanup as self-service account deletion, with its conflicts. */
-async function removeAccountData(userId: string) {
+async function removeAccountData(userId: string, tx: DbOrTx) {
   try {
-    await deleteAccountData(userId);
+    await deleteAccountData(userId, tx);
   } catch (error) {
     if (!isAPIError(error)) throw error;
     throw new ApiError(error.statusCode as ContentfulStatusCode, {
@@ -49,7 +50,7 @@ async function deleteUser(
         message: "The instance must have at least one administrator.",
       });
     }
-    await removeAccountData(userId);
+    await removeAccountData(userId, tx);
     await deleteUserSessions(tx, userId, { exceptSessionId: null });
     await tx.delete(userTable).where(eq(userTable.id, userId));
     await recordAdminAction(
