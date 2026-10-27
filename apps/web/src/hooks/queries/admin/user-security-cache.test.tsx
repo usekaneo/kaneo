@@ -15,6 +15,7 @@ import useAdminUserApiKeys, {
 import useAdminUserSessions, {
   adminUserSessionsQueryKey,
 } from "./use-admin-user-sessions";
+import { ADMIN_USERS_QUERY_KEY } from "./use-admin-users";
 
 const mocks = vi.hoisted(() => ({
   sessions: vi.fn(),
@@ -132,6 +133,53 @@ describe("security credential caches", () => {
       });
 
       expect(client.getQueryData(auditKey)).toEqual(newLog);
+    },
+  );
+
+  it.each(["one", "all"] as const)(
+    "refreshes last activity in an inactive user directory after revoking %s",
+    async (kind) => {
+      const { client, wrapper } = setup();
+      const directoryKey = [...ADMIN_USERS_QUERY_KEY, "admin", "", 0, {}];
+      const oldDirectory = {
+        users: [{ id: "target", lastActiveAt: "2026-10-27T07:00:00Z" }],
+        total: 1,
+      };
+      const newDirectory = {
+        users: [
+          {
+            id: "target",
+            lastActiveAt: kind === "all" ? null : "2026-10-26T07:00:00Z",
+          },
+        ],
+        total: 1,
+      };
+      const fetchDirectory = vi.fn().mockResolvedValue(oldDirectory);
+      await client.fetchQuery({
+        queryKey: directoryKey,
+        queryFn: fetchDirectory,
+      });
+      fetchDirectory.mockResolvedValue(newDirectory);
+      mocks.revokeOne.mockResolvedValue({ revoked: 1 });
+      mocks.revokeAll.mockResolvedValue({ revoked: 2 });
+      const { result } = renderHook(
+        () => {
+          const one = useRevokeAdminUserSession();
+          const all = useRevokeAdminUserSessions();
+          return {
+            one: () =>
+              one.mutateAsync({ userId: "target", sessionId: "latest" }),
+            all: () => all.mutateAsync("target"),
+          };
+        },
+        { wrapper },
+      );
+
+      await act(async () => {
+        await result.current[kind]();
+      });
+
+      expect(client.getQueryData(directoryKey)).toEqual(newDirectory);
     },
   );
 });
