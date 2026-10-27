@@ -88,3 +88,17 @@ export {
   type WorkspaceCapability,
   workspaceCapabilities,
 } from "./capabilities.js";
+
+export {
+  BUILT_IN_INSTANCE_ROLES,
+  type BuiltInInstanceRole,
+  CUSTOM_ROLE_PERMISSIONS,
+  type CustomRolePermission,
+  INSTANCE_PERMISSIONS,
+  INSTANCE_ROLE_NAME_PATTERN,
+  type InstancePermission,
+  isBuiltInInstanceRole,
+  isCustomRolePermission,
+  isInstancePermission,
+  parseInstanceRoles,
+} from "./instance.js";
