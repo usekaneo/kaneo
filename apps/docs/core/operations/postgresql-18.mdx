@@ -1,0 +1,176 @@
+---
+title: "Upgrade PostgreSQL 16 to 18"
+description: "Move a Docker Compose database to PostgreSQL 18 using a backup and a new volume."
+---
+
+The published Kaneo Compose examples and Helm chart currently default to PostgreSQL 16.
+The PostgreSQL 18 pins used by CI and end-to-end tests use disposable databases and do not upgrade your installation.
+You do not need to upgrade PostgreSQL to update the Kaneo image.
+
+PostgreSQL 18 cannot use a PostgreSQL 16 data directory directly.
+Changing the image tag alone can prevent the database from starting or initialize a separate empty database.
+The official PostgreSQL 18 image changes its default data directory from `/var/lib/postgresql/data` to `/var/lib/postgresql/18/docker`.
+For PostgreSQL 18, mount the volume at `/var/lib/postgresql`.
+Keep the original volume and a tested backup throughout the migration.
+See the [PostgreSQL image documentation](https://hub.docker.com/_/postgres) for its data directory layout.
+
+## Before you start
+
+This procedure targets the single-database [Docker Compose installation](/core/installation/docker-compose), with the default database user owning the Kaneo database.
+For Helm, Coolify, managed PostgreSQL, additional databases, custom roles, extensions, or tablespaces, plan a separate migration for that deployment.
+A `pg_dump` archive contains one database, not cluster-wide roles or tablespaces.
+Inventory databases, roles, tablespaces, extensions, and their versions before migrating.
+Install compatible extension files on PostgreSQL 18 before restoring.
+The restore below assigns restored objects to the destination user and omits grants; deployments that need other owners or privileges need a different restore plan.
+See the [PostgreSQL upgrade documentation](https://www.postgresql.org/docs/18/upgrading.html) and your database provider's instructions.
+
+Prepare and validate the temporary Compose configuration in the next section before scheduling downtime.
+Then stop every Kaneo instance and other writer before taking the final backup.
+Follow [Backups and recovery](/core/operations/backups) for the database, uploaded files, configuration, and a restore rehearsal.
+For the final backup, omit the step that restarts Kaneo and keep all writers stopped until the new database has been checked.
+Record your original Compose file, PostgreSQL image tag, volume name, and backup location.
+PostgreSQL recommends using the newer version's `pg_dump` for a major upgrade; the backup guide uses the PostgreSQL 16 container's tool, so arrange a PostgreSQL 18 client with access to the old server if possible.
+Use PostgreSQL 18 `pg_restore` for the resulting archive and rehearse the restore before cutover.
+Do not run `docker compose down -v` or delete the original volume.
+
+## Create a PostgreSQL 18 database
+
+From the deployment directory, save the following as `compose.pg18.yml`.
+It reads the same `.env` values as the installation guide and creates a separate volume.
+Choose an unused volume name if `kaneo-postgres18-migration` already exists.
+Never reuse an existing volume for this step.
+
+```yaml
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kaneo}
+      POSTGRES_DB: ${POSTGRES_DB:-kaneo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres18_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+volumes:
+  postgres18_data:
+    name: kaneo-postgres18-migration
+```
+
+If your installation uses `POSTGRES_PASSWORD_FILE` and Docker secrets, replace the `POSTGRES_PASSWORD` line in the temporary configuration with the following environment value, and add the service and top-level secret declarations:
+
+```yaml
+services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_password
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
+```
+
+Keep the other service settings, including `POSTGRES_USER`, `POSTGRES_DB`, the volume, and the health check.
+Use the same secret file as the original deployment and leave `POSTGRES_PASSWORD` unset.
+Adjust the file path if your original Compose file uses another location.
+
+Before stopping writers, validate the temporary configuration without printing its resolved values:
+
+```bash
+docker compose -p kaneo-pg18 -f compose.pg18.yml config --quiet
+```
+
+After the final backup, start the temporary database without exposing a host port:
+
+```bash
+docker compose -p kaneo-pg18 -f compose.pg18.yml up -d --wait
+```
+
+Restore the final custom-format archive from the backup procedure into this new, empty database.
+Replace the path with the actual backup path:
+
+```bash
+docker compose -p kaneo-pg18 -f compose.pg18.yml exec -T postgres sh -c \
+  'pg_restore --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" --no-owner --no-privileges --exit-on-error' \
+  < /absolute/path/to/backup/database.dump
+```
+
+Stop if the restore reports an error.
+Do not retry into a partially restored database: investigate and start again with a different empty volume.
+Check the restored data, required extensions, ownership, grants, and sequences before proceeding.
+Run `ANALYZE` on the restored database to collect planner statistics:
+
+```bash
+docker compose -p kaneo-pg18 -f compose.pg18.yml exec -T postgres sh -c \
+  'psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c ANALYZE'
+```
+
+Changes to the operating system or ICU library can also affect collations.
+Investigate any collation-version warnings and rebuild affected objects before refreshing the recorded version; a refresh alone does not rebuild indexes.
+See [ALTER COLLATION](https://www.postgresql.org/docs/18/sql-altercollation.html).
+
+## Switch the application
+
+Stop the temporary PostgreSQL 18 container and the original PostgreSQL 16 container:
+
+```bash
+docker compose -p kaneo-pg18 -f compose.pg18.yml stop postgres
+docker compose stop postgres
+```
+
+In the original `compose.yml`, change the PostgreSQL service image to `postgres:18-alpine` and its volume mount to `postgres_data:/var/lib/postgresql`.
+Change the top-level `postgres_data` definition to refer to the volume used above:
+
+```yaml
+volumes:
+  postgres_data:
+    external: true
+    name: kaneo-postgres18-migration
+```
+
+Use your chosen volume name if you changed it.
+Keep the remaining service settings and credentials unchanged.
+Start PostgreSQL, check that it is healthy, then start Kaneo:
+
+```bash
+docker compose up -d --wait postgres
+docker compose up -d kaneo
+docker compose ps
+docker compose logs --tail=100 postgres kaneo
+```
+
+Sign in and check existing projects, tasks, and attachments as described in [Upgrade Kaneo](/core/operations/upgrades).
+Keep the old volume, backup, and original configuration until you have checked the new installation.
+
+## Ask an agent for help
+
+If you use a coding agent on the deployment host, give it the following prompt.
+Review its plan and commands before approving changes.
+Do not share passwords, connection strings, backup contents, or other secrets in the conversation.
+
+```text
+Help me plan a PostgreSQL 16-to-18 migration for my Kaneo deployment.
+First inspect the deployment configuration without changing it or displaying secrets.
+Identify the PostgreSQL version, deployment method, data volume, database connection,
+and any custom roles, databases, extensions, or storage settings that affect migration.
+Ask me about anything you cannot determine safely.
+
+Prepare a deployment-specific plan with a maintenance window, a tested database and
+file backup, a restore into a new PostgreSQL 18 volume, checks, and a rollback path.
+Keep the original data volume and configuration intact. Explain the PostgreSQL 18
+image's data-directory change. Do not assume that changing the image tag migrates data.
+Show me the commands and ask for approval before executing any changes. Never delete
+volumes or run destructive commands without my explicit approval.
+```
+
+## Roll back
+
+If the migration fails, stop Kaneo and PostgreSQL 18.
+Restore the original Compose configuration and use the untouched PostgreSQL 16 volume, or restore the matching database and files from the backup.
+Changes made after the migration will not be in the old volume or backup, so account for them before rolling back.
+Do not point PostgreSQL 16 at the PostgreSQL 18 volume.

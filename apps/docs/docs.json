@@ -130,6 +130,7 @@
 							"core/operations/administration",
 							"core/operations/backups",
 							"core/operations/upgrades",
+							"core/operations/postgresql-18",
 							"core/operations/troubleshooting"
 						]
 					},
