@@ -281,7 +281,7 @@ describe("an archived workspace's integrations", () => {
     expect(stored.metadata).toBe(metadata);
   });
 
-  it("leaves recurring tasks intact while archived", async () => {
+  it("continues a completed recurring task after its workspace is archived", async () => {
     const { workspace, project, task } = await seed();
     await db
       .update(schema.taskTable)
@@ -292,15 +292,21 @@ describe("an archived workspace's integrations", () => {
       })
       .where(eq(schema.taskTable.id, task.id));
     await setArchived(workspace.id, true);
-    expect(await createNextOccurrence(task.id, null)).toBeNull();
+    const next = await createNextOccurrence(task.id, null);
+    expect(next).toMatchObject({
+      projectId: project.id,
+      status: "to-do",
+      recurrence: { frequency: "weekly", interval: 1, timeZone: "UTC" },
+      dueDate: new Date("2026-11-02T12:00:00Z"),
+    });
     const tasks = await db
       .select()
       .from(schema.taskTable)
       .where(eq(schema.taskTable.projectId, project.id));
-    expect(tasks).toHaveLength(1);
-    expect(tasks[0].recurrence).not.toBeNull();
+    expect(tasks).toHaveLength(2);
+    expect(tasks.find((entry) => entry.id === task.id)?.recurrence).toBeNull();
     await setArchived(workspace.id, false);
-    expect(await createNextOccurrence(task.id, null)).not.toBeNull();
+    expect(await createNextOccurrence(task.id, null)).toBeNull();
   });
 
   it("are skipped by webhook and sync lookups", async () => {

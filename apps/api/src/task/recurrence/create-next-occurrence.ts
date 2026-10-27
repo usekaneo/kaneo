@@ -1,4 +1,3 @@
-import { projectInActiveWorkspace } from "../../workspace/archive/active-workspace-sql";
 import { and, asc, eq, isNotNull } from "drizzle-orm";
 import db from "../../database";
 import { columnTable, taskTable } from "../../database/schema";
@@ -22,7 +21,6 @@ async function createInCurrentProject(
       and(
         eq(taskTable.id, taskId),
         isNotNull(taskTable.recurrence),
-        projectInActiveWorkspace(taskTable.projectId),
         taskIsCompleted,
       ),
     )
