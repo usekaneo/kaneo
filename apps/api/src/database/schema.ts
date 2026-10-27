@@ -363,6 +363,7 @@ export const projectTable = pgTable(
       .default(utcNow)
       .notNull(),
     isPublic: boolean("is_public").default(false),
+    includeSubtasks: boolean("include_subtasks").notNull().default(true),
     archivedAt: timestamp("archived_at", { mode: "date" }),
     lastTaskNumber: integer("last_task_number").notNull().default(0),
     position: integer("position").notNull().default(0),

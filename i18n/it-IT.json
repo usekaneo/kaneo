@@ -3374,7 +3374,9 @@
 			"showOnRows": "Mostra nelle righe",
 			"checklistProgress": "Avanzamento checklist",
 			"projectBackground": "Sfondo del progetto",
-			"layout": "Layout"
+			"layout": "Layout",
+			"includeSubtasks": "Includi sottoattività",
+			"useProjectDefault": "Usa il valore predefinito del progetto"
 		},
 		"filterBar": {
 			"label": "Filtri attivi",

@@ -3250,7 +3250,9 @@
 			"showOnRows": "行に表示",
 			"checklistProgress": "チェックリストの進捗",
 			"projectBackground": "プロジェクトの背景",
-			"layout": "レイアウト"
+			"layout": "レイアウト",
+			"includeSubtasks": "サブタスクを含める",
+			"useProjectDefault": "プロジェクトの既定値を使用"
 		},
 		"filterBar": {
 			"label": "適用中のフィルター",

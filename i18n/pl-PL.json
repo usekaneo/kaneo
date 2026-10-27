@@ -3718,7 +3718,9 @@
 			"showOnRows": "Pokaż w wierszach",
 			"checklistProgress": "Postęp listy kontrolnej",
 			"projectBackground": "Tło projektu",
-			"layout": "Układ"
+			"layout": "Układ",
+			"includeSubtasks": "Uwzględnij podzadania",
+			"useProjectDefault": "Użyj domyślnego ustawienia projektu"
 		},
 		"filterBar": {
 			"label": "Aktywne filtry",

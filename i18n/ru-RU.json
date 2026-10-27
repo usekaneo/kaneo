@@ -3488,7 +3488,9 @@
 			"showOnRows": "Показывать в строках",
 			"checklistProgress": "Прогресс чек-листа",
 			"projectBackground": "Фон проекта",
-			"layout": "Макет"
+			"layout": "Макет",
+			"includeSubtasks": "Включать подзадачи",
+			"useProjectDefault": "Использовать настройку проекта по умолчанию"
 		},
 		"filterBar": {
 			"label": "Активные фильтры",

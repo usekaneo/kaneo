@@ -37,7 +37,13 @@ export function useProjectTaskView({
     ignore,
   );
   const options = useTaskFilterOptions(projectId, workspaceId);
-  const tasks = useMemo(() => scopeTasks(project, scope), [project, scope]);
+  const tasks = useMemo(
+    () =>
+      scopeTasks(project, scope).filter(
+        (task) => filters.includeSubtasks || !task.isSubtask,
+      ),
+    [project, scope, filters.includeSubtasks],
+  );
   const subjects = useFilterSubjects({
     controls: filters,
     options,

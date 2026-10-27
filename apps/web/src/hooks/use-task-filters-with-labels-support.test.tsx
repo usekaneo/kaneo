@@ -3,6 +3,9 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
+
 const IGNORE_STATUS = ["status"] as const;
 
 function createTestQueryClient() {
@@ -257,4 +260,85 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       expect.objectContaining({ status: ["done"], priority: null }),
     );
   });
+});
+
+it("uses the project subtask default, persists an override, and follows live membership changes", () => {
+  window.localStorage.clear();
+  const parent = { id: "parent", title: "Parent" } as Task;
+  const child = { id: "child", title: "Child", isSubtask: true } as Task;
+  const project = {
+    id: "subtask-project",
+    includeSubtasks: false,
+    columns: [{ id: "todo", tasks: [parent, child] }],
+    plannedTasks: [child],
+    archivedTasks: [child],
+  } as unknown as ProjectWithTasks;
+  const { result, rerender, unmount } = renderHook(
+    ({ project }) => useTaskFiltersWithLabelsSupport(project, project.id),
+    { initialProps: { project }, wrapper: createWrapper() },
+  );
+  expect(result.current.filteredProject?.columns[0].tasks).toEqual([parent]);
+  expect(result.current.filteredProject?.plannedTasks).toEqual([]);
+  expect(result.current.filteredProject?.archivedTasks).toEqual([]);
+  expect(result.current.filterTasks([parent, child])).toEqual([parent]);
+  act(() => result.current.setIncludeSubtasks(true));
+  expect(result.current.filterTasks([parent, child])).toEqual([parent, child]);
+  expect(
+    JSON.parse(
+      window.localStorage.getItem("kaneo:include-subtasks:subtask-project")!,
+    ),
+  ).toBe(true);
+  act(() => result.current.setIncludeSubtasks(false));
+  rerender({
+    project: {
+      ...project,
+      columns: [
+        {
+          ...project.columns[0],
+          tasks: [parent, { ...child, isSubtask: false }],
+        },
+      ],
+    },
+  });
+  expect(result.current.filteredProject?.columns[0].tasks).toHaveLength(2);
+  unmount();
+  window.localStorage.clear();
+});
+
+it("clears a legacy subtask override and follows changing project defaults after remount", () => {
+  window.localStorage.clear();
+  const key = "kaneo:include-subtasks:project-default";
+  window.localStorage.setItem(key, "true");
+  const project = {
+    id: "project-default",
+    includeSubtasks: false,
+    columns: [],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  const { result, rerender, unmount } = renderHook(
+    ({ project }) => useTaskFiltersWithLabelsSupport(project, project.id),
+    { initialProps: { project }, wrapper: createWrapper() },
+  );
+  expect(result.current.includeSubtasks).toBe(true);
+  expect(result.current.hasIncludeSubtasksOverride).toBe(true);
+  act(() => result.current.setIncludeSubtasks(null));
+  expect(result.current.includeSubtasks).toBe(false);
+  expect(result.current.hasIncludeSubtasksOverride).toBe(false);
+  expect(JSON.parse(window.localStorage.getItem(key)!)).toBeNull();
+  rerender({ project: { ...project, includeSubtasks: true } });
+  expect(result.current.includeSubtasks).toBe(true);
+  rerender({ project: { ...project, includeSubtasks: false } });
+  expect(result.current.includeSubtasks).toBe(false);
+  unmount();
+  const restored = renderHook(
+    () => useTaskFiltersWithLabelsSupport(project, project.id),
+    { wrapper: createWrapper() },
+  );
+  expect(restored.result.current.hasIncludeSubtasksOverride).toBe(false);
+  expect(restored.result.current.includeSubtasks).toBe(false);
+  act(() => restored.result.current.setIncludeSubtasks(true));
+  expect(restored.result.current.hasIncludeSubtasksOverride).toBe(true);
+  restored.unmount();
+  window.localStorage.clear();
 });

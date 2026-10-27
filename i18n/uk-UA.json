@@ -3436,7 +3436,9 @@
 			"showOnRows": "Показувати в рядках",
 			"checklistProgress": "Прогрес чек-листа",
 			"projectBackground": "Фон проєкту",
-			"layout": "Макет"
+			"layout": "Макет",
+			"includeSubtasks": "Включати підзавдання",
+			"useProjectDefault": "Використовувати типове налаштування проєкту"
 		},
 		"filterBar": {
 			"label": "Активні фільтри",

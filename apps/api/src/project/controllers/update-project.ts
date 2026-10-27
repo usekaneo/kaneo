@@ -17,6 +17,7 @@ async function updateProject(
   isPublic: boolean,
   workspaceId: string,
   canShare: boolean,
+  includeSubtasks?: boolean,
 ) {
   return db.transaction(async (tx) => {
     await tx.execute(
@@ -64,6 +65,7 @@ async function updateProject(
         slug,
         description,
         isPublic,
+        ...(includeSubtasks === undefined ? {} : { includeSubtasks }),
       })
       .where(eq(projectTable.id, id))
       .returning();

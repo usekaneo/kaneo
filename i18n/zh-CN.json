@@ -3250,7 +3250,9 @@
 			"showOnRows": "在行中显示",
 			"checklistProgress": "清单进度",
 			"projectBackground": "项目背景",
-			"layout": "布局"
+			"layout": "布局",
+			"includeSubtasks": "包含子任务",
+			"useProjectDefault": "使用项目默认设置"
 		},
 		"filterBar": {
 			"label": "已应用的筛选",
