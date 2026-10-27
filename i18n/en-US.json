@@ -681,7 +681,8 @@
 				"reactivate": "Reactivate",
 				"sendPasswordReset": "Send password reset link",
 				"sendVerification": "Resend verification email",
-				"markEmailVerified": "Mark email as verified"
+				"markEmailVerified": "Mark email as verified",
+				"security": "Sessions & API keys"
 			},
 			"edit": {
 				"title": "Edit user",
@@ -776,6 +777,31 @@
 				},
 				"uploadAvatar": "Upload",
 				"removeAvatar": "Remove"
+			},
+			"security": {
+				"title": "Sessions & API keys: {{name}}",
+				"description": "Sign this user out or revoke their API keys. Changes take effect immediately and are recorded in the audit log.",
+				"sessionsTitle": "Sessions",
+				"sessionsEmpty": "Not signed in anywhere.",
+				"revokeAll": "Sign out everywhere",
+				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
+				"revokeAllConfirmDescription": "Every session of this user ends right away. Their API keys keep working; revoke those separately.",
+				"revokeAllSelfDescription": "Every other session of yours ends right away. This one stays signed in.",
+				"toastRevokedAll": "Sessions signed out.",
+				"apiKeysTitle": "API keys",
+				"apiKeysDescription": "Only names and the first characters of keys are shown; the keys themselves are never visible.",
+				"apiKeysEmpty": "No API keys.",
+				"apiKeysLoadError": "Couldn't load API keys.",
+				"lastUsed": "Last used {{time}}",
+				"neverUsed": "Never used",
+				"disabled": "Disabled",
+				"revokeKey": "Revoke",
+				"revokingKey": "Revoking...",
+				"revokeKeyLabel": "Revoke {{name}}",
+				"revokeKeyConfirmTitle": "Revoke {{name}}?",
+				"revokeKeyConfirmDescription": "The key is deleted and requests using it fail right away. This can't be undone.",
+				"toastKeyRevoked": "API key revoked.",
+				"toastKeyRevokeError": "Couldn't revoke the API key."
 			}
 		},
 		"adminWorkspaces": {
@@ -866,7 +892,8 @@
 				"all": "All actions",
 				"user": "Users",
 				"session": "Sessions",
-				"workspace": "Workspaces"
+				"workspace": "Workspaces",
+				"apiKey": "API keys"
 			},
 			"loadError": "The audit log could not be loaded.",
 			"retry": "Retry",
@@ -907,7 +934,8 @@
 				"userVerificationSent": "Sent verification email",
 				"userEmailVerified": "Marked email as verified",
 				"userAvatarChanged": "Changed profile picture",
-				"userAvatarRemoved": "Removed profile picture"
+				"userAvatarRemoved": "Removed profile picture",
+				"apiKeyRevoked": "Revoked an API key"
 			},
 			"fields": {
 				"name": "name",
@@ -922,7 +950,9 @@
 				"noRole": "No role",
 				"memberWithRole": "{{member}} as {{role}}",
 				"memberChange": "{{member}}: {{from}} → {{to}}",
-				"createdWithRole": "Role: {{role}}"
+				"createdWithRole": "Role: {{role}}",
+				"sessionCount_one": "{{count}} session",
+				"sessionCount_other": "{{count}} sessions"
 			}
 		},
 		"informationPage": {
@@ -2256,7 +2286,7 @@
 		"securityPage": {
 			"pageTitle": "Security",
 			"title": "Security",
-			"subtitle": "How you sign in to Kaneo.",
+			"subtitle": "How you sign in to Kaneo, and where you're signed in.",
 			"sectionTitle": "Sign-in",
 			"currentPassword": "Current password",
 			"newPassword": "New password",
@@ -2283,7 +2313,15 @@
 			"passwordHint": "Use at least 8 characters you don't use anywhere else.",
 			"changePassword": "Change password",
 			"dialogTitle": "Change password",
-			"dialogDescription": "At least 8 characters, different from the current one."
+			"dialogDescription": "At least 8 characters, different from the current one.",
+			"sessions": {
+				"title": "Active sessions",
+				"description": "Browsers and devices signed in to your account. Sign out any you don't recognize.",
+				"revokeOthers": "Sign out other sessions",
+				"revokeOthersConfirmTitle": "Sign out all other sessions?",
+				"revokeOthersConfirmDescription": "Every other browser and device is signed out right away. This one stays signed in, and API keys keep working.",
+				"toastRevokedOthers": "Other sessions signed out."
+			}
 		},
 		"calendarFeeds": {
 			"title": "Calendar feeds",
@@ -2500,6 +2538,21 @@
 			"newField": "New field",
 			"fieldsTitle": "Fields",
 			"fieldsDescription": "Drag to change the order they appear in on a task."
+		},
+		"sessions": {
+			"device": "{{browser}} on {{os}}",
+			"unknownDevice": "Unknown device",
+			"thisDevice": "This device",
+			"lastActive": "Active {{time}}",
+			"signedIn": "Signed in {{date}}",
+			"revoke": "Sign out",
+			"revoking": "Signing out...",
+			"revokeLabel": "Sign out {{device}}",
+			"revokeConfirmTitle": "Sign out {{device}}?",
+			"revokeConfirmDescription": "That session ends right away and has to sign in again.",
+			"loadError": "Couldn't load sessions.",
+			"toastRevoked": "Session signed out.",
+			"toastRevokeError": "Couldn't sign out the session."
 		}
 	},
 	"navigation": {

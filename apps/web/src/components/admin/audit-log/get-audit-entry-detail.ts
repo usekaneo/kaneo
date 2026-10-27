@@ -82,6 +82,14 @@ export function getAuditEntryDetail(
     }
     case "user.deleted":
       return text(metadata.name);
+    case "session.revoked_all":
+      return typeof metadata.count === "number"
+        ? t("settings:adminAuditLog.details.sessionCount", {
+            count: metadata.count,
+          })
+        : null;
+    case "api_key.revoked":
+      return text(metadata.keyName);
     case "workspace.member_added":
       return t("settings:adminAuditLog.details.memberWithRole", {
         member: memberName(metadata),

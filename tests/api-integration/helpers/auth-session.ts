@@ -18,10 +18,14 @@ function collectCookies(response: Response) {
   return [...jar].map(([name, value]) => `${name}=${value}`).join("; ");
 }
 
-async function signIn(app: App, email: string) {
+export async function signIn(
+  app: App,
+  email: string,
+  headers: Record<string, string> = {},
+) {
   const response = await app.request("/api/auth/sign-in/email", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...headers },
     body: JSON.stringify({ email, password: PASSWORD }),
   });
   expect(response.status).toBe(200);

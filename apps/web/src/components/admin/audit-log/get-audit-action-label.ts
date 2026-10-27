@@ -20,6 +20,7 @@ const ACTION_LABEL_KEYS = new Map([
   ["user.avatar_removed", "settings:adminAuditLog.actions.userAvatarRemoved"],
   ["session.revoked", "settings:adminAuditLog.actions.sessionRevoked"],
   ["session.revoked_all", "settings:adminAuditLog.actions.sessionRevokedAll"],
+  ["api_key.revoked", "settings:adminAuditLog.actions.apiKeyRevoked"],
   [
     "workspace.member_added",
     "settings:adminAuditLog.actions.workspaceMemberAdded",

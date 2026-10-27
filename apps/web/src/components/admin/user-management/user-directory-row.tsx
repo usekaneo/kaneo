@@ -5,6 +5,7 @@ import {
   KeyRoundIcon,
   type LucideIcon,
   MailIcon,
+  MonitorSmartphoneIcon,
   PencilIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -44,6 +45,7 @@ type UserDirectoryRowProps = {
   canSendPasswordReset: boolean;
   onEdit: () => void;
   onAction: (type: UserActionType) => void;
+  onOpenSecurity: () => void;
 };
 
 const CELL_CLASS = "hidden shrink-0 sm:flex";
@@ -53,6 +55,7 @@ export function UserDirectoryRow({
   isSelf,
   canSendPasswordReset,
   onEdit,
+  onOpenSecurity,
   onAction,
 }: UserDirectoryRowProps) {
   const { t } = useTranslation();
@@ -65,6 +68,12 @@ export function UserDirectoryRow({
       label: t("settings:adminUsers.actions.edit"),
       icon: PencilIcon,
       onSelect: onEdit,
+    },
+    {
+      id: "security",
+      label: t("settings:adminUsers.actions.security"),
+      icon: MonitorSmartphoneIcon,
+      onSelect: onOpenSecurity,
     },
     ...getUserActionTypes(user, { isSelf, canSendPasswordReset }).map(
       (type) => ({

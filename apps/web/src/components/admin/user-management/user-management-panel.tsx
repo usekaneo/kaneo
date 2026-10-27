@@ -8,6 +8,7 @@ import { DirectorySearchInput } from "@/components/admin/directory/directory-sea
 import { DirectorySkeletonRows } from "@/components/admin/directory/directory-skeleton-rows";
 import { getPageCount } from "@/components/admin/directory/get-page-count";
 import { useDirectoryPaging } from "@/components/admin/directory/use-directory-paging";
+import { UserSecurityDialog } from "@/components/admin/user-security/user-security-dialog";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { SettingsEmpty } from "@/components/settings/settings-empty";
@@ -43,6 +44,8 @@ function UserManagementPanel() {
   const [filters, setFilters] = useState<UserFilterValues>(NO_USER_FILTERS);
   const [isCreating, setIsCreating] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [securityUser, setSecurityUser] = useState<AdminUser | null>(null);
+  const [isSecurityOpen, setIsSecurityOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingUserAction | null>(
     null,
   );
@@ -154,6 +157,10 @@ function UserManagementPanel() {
                     isSelf={user.id === currentUser?.id}
                     canSendPasswordReset={config?.disableLoginForm !== true}
                     onEdit={() => setEditingUser(user)}
+                    onOpenSecurity={() => {
+                      setSecurityUser(user);
+                      setIsSecurityOpen(true);
+                    }}
                     onAction={(type) => setPendingAction({ type, user })}
                   />
                 ))
@@ -183,6 +190,13 @@ function UserManagementPanel() {
         user={editingUser}
         currentUserId={currentUser?.id}
         onClose={() => setEditingUser(null)}
+      />
+
+      <UserSecurityDialog
+        user={securityUser}
+        isSelf={securityUser?.id === currentUser?.id}
+        open={isSecurityOpen}
+        onOpenChange={setIsSecurityOpen}
       />
 
       <UserConfirmDialog

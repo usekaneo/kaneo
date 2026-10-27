@@ -1619,7 +1619,8 @@
 				"reactivate": "Активувати знову",
 				"markEmailVerified": "Mark email as verified",
 				"sendPasswordReset": "Send password reset link",
-				"sendVerification": "Resend verification email"
+				"sendVerification": "Resend verification email",
+				"security": "Sessions & API keys"
 			},
 			"clearSearch": "Clear search",
 			"columns": {
@@ -1749,7 +1750,32 @@
 				"verified": "Verified email"
 			},
 			"never": "Never",
-			"unverified": "Unverified"
+			"unverified": "Unverified",
+			"security": {
+				"apiKeysDescription": "Only names and the first characters of keys are shown; the keys themselves are never visible.",
+				"apiKeysEmpty": "No API keys.",
+				"apiKeysLoadError": "Couldn't load API keys.",
+				"apiKeysTitle": "API keys",
+				"description": "Sign this user out or revoke their API keys. Changes take effect immediately and are recorded in the audit log.",
+				"disabled": "Disabled",
+				"lastUsed": "Last used {{time}}",
+				"neverUsed": "Never used",
+				"revokeAll": "Sign out everywhere",
+				"revokeAllConfirmDescription": "Every session of this user ends right away. Their API keys keep working; revoke those separately.",
+				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
+				"revokeAllSelfDescription": "Every other session of yours ends right away. This one stays signed in.",
+				"revokeKey": "Revoke",
+				"revokeKeyConfirmDescription": "The key is deleted and requests using it fail right away. This can't be undone.",
+				"revokeKeyConfirmTitle": "Revoke {{name}}?",
+				"revokeKeyLabel": "Revoke {{name}}",
+				"revokingKey": "Revoking...",
+				"sessionsEmpty": "Not signed in anywhere.",
+				"sessionsTitle": "Sessions",
+				"title": "Sessions & API keys: {{name}}",
+				"toastKeyRevoked": "API key revoked.",
+				"toastKeyRevokeError": "Couldn't revoke the API key.",
+				"toastRevokedAll": "Sessions signed out."
+			}
 		},
 		"security": "Security",
 		"securityPage": {
@@ -1782,7 +1808,15 @@
 			"dialogDescription": "Щонайменше 8 символів, відмінний від поточного.",
 			"dialogTitle": "Змінити пароль",
 			"passwordHint": "Використовуйте щонайменше 8 символів, які ви більше ніде не використовуєте.",
-			"passwordTitle": "Пароль"
+			"passwordTitle": "Пароль",
+			"sessions": {
+				"description": "Browsers and devices signed in to your account. Sign out any you don't recognize.",
+				"revokeOthers": "Sign out other sessions",
+				"revokeOthersConfirmDescription": "Every other browser and device is signed out right away. This one stays signed in, and API keys keep working.",
+				"revokeOthersConfirmTitle": "Sign out all other sessions?",
+				"title": "Active sessions",
+				"toastRevokedOthers": "Other sessions signed out."
+			}
 		},
 		"gitlabIntegration": {
 			"baseUrlLabel": "GitLab URL",
@@ -2537,13 +2571,15 @@
 				"userAvatarRemoved": "Removed profile picture",
 				"userEmailVerified": "Marked email as verified",
 				"userPasswordResetSent": "Sent password reset link",
-				"userVerificationSent": "Sent verification email"
+				"userVerificationSent": "Sent verification email",
+				"apiKeyRevoked": "Revoked an API key"
 			},
 			"categories": {
 				"all": "All actions",
 				"session": "Sessions",
 				"user": "Users",
-				"workspace": "Workspaces"
+				"workspace": "Workspaces",
+				"apiKey": "API keys"
 			},
 			"categoryLabel": "Filter by category",
 			"clearFilter": "Show all actions",
@@ -2561,7 +2597,11 @@
 				"memberWithRole": "{{member}} as {{role}}",
 				"noRole": "No role",
 				"reason": "Reason: {{reason}}",
-				"createdWithRole": "Role: {{role}}"
+				"createdWithRole": "Role: {{role}}",
+				"sessionCount_few": "{{count}} sessions",
+				"sessionCount_many": "{{count}} sessions",
+				"sessionCount_one": "{{count}} session",
+				"sessionCount_other": "{{count}} sessions"
 			},
 			"directoryTitle": "Recorded actions",
 			"emptyTitle": "No actions recorded",
@@ -2584,6 +2624,21 @@
 			},
 			"title": "Audit log",
 			"unknownActor": "Unknown"
+		},
+		"sessions": {
+			"device": "{{browser}} on {{os}}",
+			"lastActive": "Active {{time}}",
+			"loadError": "Couldn't load sessions.",
+			"revoke": "Sign out",
+			"revokeConfirmDescription": "That session ends right away and has to sign in again.",
+			"revokeConfirmTitle": "Sign out {{device}}?",
+			"revokeLabel": "Sign out {{device}}",
+			"revoking": "Signing out...",
+			"signedIn": "Signed in {{date}}",
+			"thisDevice": "This device",
+			"toastRevoked": "Session signed out.",
+			"toastRevokeError": "Couldn't sign out the session.",
+			"unknownDevice": "Unknown device"
 		}
 	},
 	"navigation": {

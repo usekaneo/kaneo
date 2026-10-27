@@ -34,6 +34,7 @@ import {
   transferAdminWorkspaceOwnershipBody,
   updateAdminWorkspaceMemberRoleBody,
 } from "./schema";
+import { adminUserSecurityRoutes } from "./user-security-routes";
 
 const forbidden = errorResponse(
   "The caller is not an instance administrator or is authenticated with an API key",
@@ -290,6 +291,7 @@ const admin = apiRouter()
   .openapi(listAuditLogRoute, async (c) =>
     c.json(await listAuditLog(c.req.valid("query")), 200),
   )
-  .route("/users", adminUserRoutes);
+  .route("/users", adminUserRoutes)
+  .route("/", adminUserSecurityRoutes);
 
 export default admin;

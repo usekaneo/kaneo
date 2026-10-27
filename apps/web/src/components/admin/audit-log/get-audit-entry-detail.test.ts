@@ -70,4 +70,22 @@ describe("getAuditEntryDetail", () => {
       getAuditEntryDetail({ action: "role.created", metadata: { a: 1 } }, t),
     ).toBeNull();
   });
+
+  it("counts revoked sessions and names revoked API keys", () => {
+    expect(
+      getAuditEntryDetail(
+        { action: "session.revoked_all", metadata: { count: 3 } },
+        t,
+      ),
+    ).toBe('settings:adminAuditLog.details.sessionCount {"count":3}');
+    expect(
+      getAuditEntryDetail(
+        {
+          action: "api_key.revoked",
+          metadata: { keyId: "k1", keyName: "CI deploys" },
+        },
+        t,
+      ),
+    ).toBe("CI deploys");
+  });
 });

@@ -25,6 +25,15 @@ Emails need [SMTP](/core/installation/environment-variables#smtp-configuration) 
 
 If [the identity provider manages profile pictures](/core/social-providers/custom-oauth#managed-profile-fields), you can't replace a user's picture, and you can only remove one they uploaded in Kaneo.
 
+### Sessions and API keys
+
+Choose **Sessions & API keys** from a user's menu to see where they're signed in and which API keys they have.
+
+- **Sessions** show the browser and device, IP address, sign-in time, and last activity. **Sign out** ends one session; **Sign out everywhere** ends all of them. Ended sessions stop working immediately, including open realtime connections. If you open your own account, your current session is marked **This device** and stays signed in; sign out normally to end it.
+- **API keys** show the name, the first characters, creation date, last use, expiry, and whether the key is enabled. The key itself is never shown. **Revoke** deletes the key, the same as when its owner deletes it, and requests with it fail right away. Signing a user out doesn't revoke their API keys, and deactivating a user blocks their keys as well.
+
+These actions are recorded in the audit log. The same operations are available to instance administrator sessions under `/api/admin/users/{userId}/sessions` and `/api/admin/users/{userId}/api-keys`; API keys are rejected, and session tokens are never returned.
+
 Deleting someone who is the only owner of a workspace that still has other members is blocked. Transfer that workspace's ownership first, as described below.
 
 ### Create a user
@@ -52,12 +61,13 @@ The only owner can't be removed or given another role. Transfer ownership to som
 
 ## Review the audit log
 
-Open **Settings → Administration → Audit log** to see what administrators changed, newest first. Each entry shows the action, the administrator who did it, the affected user or workspace, the time, and the IP address the request came from. Filter by users, sessions, or workspaces to narrow the list.
+Open **Settings → Administration → Audit log** to see what administrators changed, newest first. Each entry shows the action, the administrator who did it, the affected user or workspace, the time, and the IP address the request came from. Filter by users, sessions, API keys, or workspaces to narrow the list.
 
 Kaneo records these actions when they succeed. Rejected or failed attempts aren't recorded.
 
 - **Users:** created, details updated (which fields changed), instance role changed, deactivated, reactivated, deleted, password set by an administrator, password reset link sent, verification email sent, email marked verified, profile picture changed or removed, and signed in as the user (impersonation).
 - **Sessions:** one session or all of a user's sessions revoked.
+- **API keys:** a user's API key revoked (its name, never its value).
 - **Workspaces:** member added, member removed, member role changed, and ownership transferred.
 
 The first account becoming an administrator on a new instance isn't an administrative action and isn't recorded.

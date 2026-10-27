@@ -1,4 +1,8 @@
-import { revokeUserConnections, revokeWorkspaceConnections } from "./ws";
+import {
+  revokeSessionConnections,
+  revokeUserConnections,
+  revokeWorkspaceConnections,
+} from "./ws";
 import { apiKey } from "@better-auth/api-key";
 import {
   isSmtpConfigured,
@@ -862,6 +866,13 @@ export const auth = betterAuth({
         before: async (_session, ctx) => {
           const oidcSid = takeSignInSessionId(ctx);
           if (oidcSid) return { data: { oidcSid } };
+        },
+      },
+      delete: {
+        // Sign-out, revoking other sessions, password resets and deactivation
+        // all end sessions here; close their realtime connections right away.
+        after: async (session) => {
+          await revokeSessionConnections(session.userId, [session.id]);
         },
       },
     },
