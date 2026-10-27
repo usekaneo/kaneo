@@ -21,7 +21,6 @@ function SystemStatusPanel() {
   return (
     <SettingsPage
       title={t("settings:adminSystem.title")}
-      description={t("settings:adminSystem.subtitle")}
       actions={
         <div className="flex items-center gap-3">
           {data ? (

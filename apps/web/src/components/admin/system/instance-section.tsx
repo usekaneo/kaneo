@@ -25,15 +25,11 @@ export function InstanceSection({ system }: InstanceSectionProps) {
   const descriptions = useInstanceDescriptions(system);
 
   return (
-    <SettingsSection
-      title={t("settings:adminSystem.instance.title")}
-      description={t("settings:adminSystem.instance.description")}
-    >
+    <SettingsSection title={t("settings:adminSystem.instance.title")}>
       <SettingsCard>
         <SystemStatusRow
           icon={<TagIcon />}
           title={t("settings:adminSystem.instance.version")}
-          description={t("settings:adminSystem.instance.versionDescription")}
           status={
             <StatusBadge tone="neutral">
               {system.version

@@ -2599,14 +2599,12 @@
 		"adminSystem": {
 			"checkedAt": "Checked {{time}}",
 			"email": {
-				"description": "Kaneo emails sign-in codes, password resets, invitations and notifications.",
 				"down": "Can't connect to the mail server ({{code}})",
-				"notConfigured": "Email is off. Set SMTP_HOST and SMTP_FROM to send sign-in codes, resets and invitations.",
+				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
 				"ok": "Connected to the mail server",
 				"send": "Send test email",
 				"sending": "Sending…",
 				"sendTest": "Test email",
-				"sendTestDescription": "Sends a test message to your own address.",
 				"smtp": "SMTP",
 				"title": "Email"
 			},
@@ -2616,7 +2614,6 @@
 				"database": "Database",
 				"databaseDown": "Can't reach PostgreSQL ({{code}})",
 				"databaseVersion": "PostgreSQL {{version}}",
-				"description": "The API, its database, and the optional services it uses.",
 				"latency": "{{ms}} ms",
 				"migrations_many": "{{count}} migrations applied",
 				"migrations_one": "{{count}} migration applied",
@@ -2636,17 +2633,16 @@
 					"sentinel": "Sentinel",
 					"standalone": "Standalone"
 				},
-				"redisNotConfigured": "Not needed for a single API instance. Set REDIS_URL to share live updates across instances.",
+				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
 				"redisOk": "{{mode}}, reachable",
 				"storage": "File storage",
 				"storageDown": "Can't reach the bucket ({{code}})",
 				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
-				"storageNotConfigured": "Image uploads are off. Set S3_ENDPOINT and S3_BUCKET to turn them on.",
+				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
 				"storageOk": "Bucket reachable",
-				"storageWarning": "The bucket answered, but these credentials can't check it ({{code}}). Uploads may still work.",
+				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
 				"title": "Instance",
 				"version": "Kaneo version",
-				"versionDescription": "Release running on this API instance.",
 				"versionUnknown": "Unknown"
 			},
 			"integrations": {
@@ -2655,10 +2651,9 @@
 				"connectedProjects_one": "Connected in {{count}} project",
 				"connectedProjects_other": "Connected in {{count}} projects",
 				"connectedUnknown": "Project count unavailable",
-				"description": "Providers that projects can connect to. Each project connects with its own credentials.",
 				"instanceSetup": {
 					"down": "GitHub App unavailable",
-					"not_configured": "Needs the GitHub App settings on this instance",
+					"not_configured": "GitHub App not set up",
 					"ok": "GitHub App set up",
 					"warning": "Some GitHub App settings are missing"
 				},
@@ -2675,22 +2670,16 @@
 				"warning": "Incomplete"
 			},
 			"signIn": {
-				"description": "How people sign in and join this instance. These come from environment variables.",
 				"emailOtpSignIn": "Email sign-in codes",
 				"guestAccess": "Guest access",
 				"off": "Off",
 				"on": "On",
 				"passwordRegistration": "Sign-up with a password",
 				"passwordSignIn": "Email and password sign-in",
-				"providerDescriptions": {
-					"custom": "Custom OAuth or OpenID Connect provider",
-					"discord": "Sign in with Discord",
-					"github": "Sign in with GitHub",
-					"google": "Sign in with Google"
-				},
 				"registration": "Registration",
 				"title": "Sign-in",
-				"workspaceCreation": "Workspace creation"
+				"workspaceCreation": "Workspace creation",
+				"customProvider": "OAuth or OpenID Connect"
 			},
 			"status": {
 				"down": "Down",
@@ -2698,7 +2687,6 @@
 				"ok": "Operational",
 				"warning": "Warning"
 			},
-			"subtitle": "Check this Kaneo instance and the services it relies on. Checks run on the API instance that answers this page.",
 			"title": "System",
 			"toast": {
 				"testEmailError": "The test email could not be sent.",

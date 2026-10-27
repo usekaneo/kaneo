@@ -28,10 +28,7 @@ export function IntegrationsSection({
   const { t } = useTranslation();
 
   return (
-    <SettingsSection
-      title={t("settings:adminSystem.integrations.title")}
-      description={t("settings:adminSystem.integrations.description")}
-    >
+    <SettingsSection title={t("settings:adminSystem.integrations.title")}>
       <SettingsCard>
         {integrations.map((integration) => {
           const usage =

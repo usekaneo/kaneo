@@ -2555,7 +2555,6 @@
 		},
 		"adminSystem": {
 			"title": "System",
-			"subtitle": "Check this Kaneo instance and the services it relies on. Checks run on the API instance that answers this page.",
 			"refresh": "Refresh",
 			"refreshing": "Checking…",
 			"checkedAt": "Checked {{time}}",
@@ -2575,9 +2574,7 @@
 			},
 			"instance": {
 				"title": "Instance",
-				"description": "The API, its database, and the optional services it uses.",
 				"version": "Kaneo version",
-				"versionDescription": "Release running on this API instance.",
 				"versionUnknown": "Unknown",
 				"api": "API",
 				"apiDescription": "Up {{uptime}} · Node {{node}}",
@@ -2595,7 +2592,7 @@
 				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
 				"realtimeNotStarted": "WebSockets haven't started",
 				"redis": "Redis",
-				"redisNotConfigured": "Not needed for a single API instance. Set REDIS_URL to share live updates across instances.",
+				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
 				"redisOk": "{{mode}}, reachable",
 				"redisDown": "Can't reach Redis ({{code}})",
 				"redisModes": {
@@ -2604,27 +2601,24 @@
 					"cluster": "Cluster"
 				},
 				"storage": "File storage",
-				"storageNotConfigured": "Image uploads are off. Set S3_ENDPOINT and S3_BUCKET to turn them on.",
+				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
 				"storageOk": "Bucket reachable",
 				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
-				"storageWarning": "The bucket answered, but these credentials can't check it ({{code}}). Uploads may still work.",
+				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
 				"storageDown": "Can't reach the bucket ({{code}})"
 			},
 			"email": {
 				"title": "Email",
-				"description": "Kaneo emails sign-in codes, password resets, invitations and notifications.",
 				"smtp": "SMTP",
-				"notConfigured": "Email is off. Set SMTP_HOST and SMTP_FROM to send sign-in codes, resets and invitations.",
+				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
 				"ok": "Connected to the mail server",
 				"down": "Can't connect to the mail server ({{code}})",
 				"sendTest": "Test email",
-				"sendTestDescription": "Sends a test message to your own address.",
 				"send": "Send test email",
 				"sending": "Sending…"
 			},
 			"signIn": {
 				"title": "Sign-in",
-				"description": "How people sign in and join this instance. These come from environment variables.",
 				"on": "On",
 				"off": "Off",
 				"passwordSignIn": "Email and password sign-in",
@@ -2633,16 +2627,10 @@
 				"passwordRegistration": "Sign-up with a password",
 				"guestAccess": "Guest access",
 				"workspaceCreation": "Workspace creation",
-				"providerDescriptions": {
-					"github": "Sign in with GitHub",
-					"google": "Sign in with Google",
-					"discord": "Sign in with Discord",
-					"custom": "Custom OAuth or OpenID Connect provider"
-				}
+				"customProvider": "OAuth or OpenID Connect"
 			},
 			"integrations": {
 				"title": "Integrations",
-				"description": "Providers that projects can connect to. Each project connects with its own credentials.",
 				"available": "Available",
 				"connectedProjects_one": "Connected in {{count}} project",
 				"connectedProjects_other": "Connected in {{count}} projects",
@@ -2650,7 +2638,7 @@
 				"instanceSetup": {
 					"ok": "GitHub App set up",
 					"warning": "Some GitHub App settings are missing",
-					"not_configured": "Needs the GitHub App settings on this instance",
+					"not_configured": "GitHub App not set up",
 					"down": "GitHub App unavailable"
 				}
 			},

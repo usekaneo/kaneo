@@ -27,10 +27,7 @@ export function EmailSection({ email }: EmailSectionProps) {
           });
 
   return (
-    <SettingsSection
-      title={t("settings:adminSystem.email.title")}
-      description={t("settings:adminSystem.email.description")}
-    >
+    <SettingsSection title={t("settings:adminSystem.email.title")}>
       <SettingsCard>
         <SystemStatusRow
           icon={<MailIcon />}
@@ -41,7 +38,6 @@ export function EmailSection({ email }: EmailSectionProps) {
         <SystemStatusRow
           icon={<SendIcon />}
           title={t("settings:adminSystem.email.sendTest")}
-          description={t("settings:adminSystem.email.sendTestDescription")}
           status={
             <Button
               type="button"

@@ -32,21 +32,11 @@ const SWITCHES = [
   },
 ] as const;
 
-const PROVIDER_DESCRIPTIONS = {
-  github: "settings:adminSystem.signIn.providerDescriptions.github",
-  google: "settings:adminSystem.signIn.providerDescriptions.google",
-  discord: "settings:adminSystem.signIn.providerDescriptions.discord",
-  custom: "settings:adminSystem.signIn.providerDescriptions.custom",
-} as const;
-
 export function SignInSection({ auth }: SignInSectionProps) {
   const { t } = useTranslation();
 
   return (
-    <SettingsSection
-      title={t("settings:adminSystem.signIn.title")}
-      description={t("settings:adminSystem.signIn.description")}
-    >
+    <SettingsSection title={t("settings:adminSystem.signIn.title")}>
       <SettingsCard>
         {SWITCHES.map(({ key, label }) => (
           <SystemStatusRow
@@ -67,7 +57,11 @@ export function SignInSection({ auth }: SignInSectionProps) {
             key={provider.id}
             icon={<KeyRoundIcon />}
             title={provider.name}
-            description={t(PROVIDER_DESCRIPTIONS[provider.id])}
+            description={
+              provider.id === "custom"
+                ? t("settings:adminSystem.signIn.customProvider")
+                : undefined
+            }
             status={
               <ServiceStatusBadge status={provider.status} variant="setup" />
             }
