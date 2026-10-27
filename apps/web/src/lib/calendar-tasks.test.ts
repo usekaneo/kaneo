@@ -44,7 +44,7 @@ describe("toCalendarTasks", () => {
     expect(tasks[0].id).toBe(parent.id);
     expect(tasks[0].subtasks).toEqual([child, undated]);
     expect(tasks[0].scheduleStart.getDate()).toBe(10);
-    expect(tasks[0].scheduleEnd.getDate()).toBe(12);
+    expect(tasks[0].scheduleEnd.getDate()).toBe(21);
   });
 
   it("keeps the same group in lanes, overflow, and the agenda", () => {
@@ -59,13 +59,50 @@ describe("toCalendarTasks", () => {
     expect(overflow.hiddenCountByDay[0]).toBe(1);
     expect(overflow.tasksByDay[0]).toEqual(tasks);
     const agenda = buildMonthAgenda(new Date(2026, 7, 1), tasks);
-    expect(agenda).toHaveLength(3);
+    expect(agenda).toHaveLength(12);
     expect(
       agenda.every(
         (day) =>
           day.tasks.length === 1 && day.tasks[0].subtasks[0].id === child.id,
       ),
     ).toBe(true);
+  });
+
+  it("widens a dated parent's span in both directions for out-of-range children", () => {
+    const earlier = {
+      ...child,
+      id: "earlier",
+      startDate: "2026-08-05",
+      dueDate: "2026-08-06",
+    };
+    const tasks = toCalendarTasks(source([parent, earlier, child]), [
+      relation,
+      { ...relation, targetTaskId: "earlier" },
+    ]);
+    expect(tasks).toHaveLength(1);
+    expect(tasks[0].id).toBe(parent.id);
+    expect(tasks[0].scheduleStart.getDate()).toBe(5);
+    expect(tasks[0].scheduleEnd.getDate()).toBe(21);
+    const childWeek = buildMonthWeeks(new Date(2026, 7, 1), 1).find((week) =>
+      week.some((day) => day.getMonth() === 7 && day.getDate() === 20),
+    )!;
+    expect(packWeekLanes(childWeek, tasks, 1).segments[0].task.id).toBe(
+      parent.id,
+    );
+    expect(
+      buildMonthAgenda(new Date(2026, 7, 1), tasks).find(
+        ({ day }) => day.getDate() === 20,
+      )?.tasks[0].id,
+    ).toBe(parent.id);
+    const hidden = toCalendarTasks(
+      source([parent, earlier, child]),
+      [relation, { ...relation, targetTaskId: "earlier" }],
+      source([parent]),
+    );
+    expect(hidden[0].scheduleStart.getDate()).toBe(10);
+    expect(hidden[0].scheduleEnd.getDate()).toBe(12);
+    expect(parent.startDate).toBe("2026-08-10");
+    expect(parent.dueDate).toBe("2026-08-12");
   });
 
   it("does not attach children excluded by visibility or other filters", () => {
