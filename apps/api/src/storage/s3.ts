@@ -11,6 +11,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { createId } from "@paralleldrive/cuid2";
 import { config } from "dotenv-mono";
+import { resolveFileSecret } from "../utils/file-secret";
 import { describeStorageError } from "./describe-storage-error";
 import {
   headUploadedObject,
@@ -144,11 +145,21 @@ export function resolveS3Credentials(
   return undefined;
 }
 
+// Upload routes return this error to clients, so keep the file path out of it.
+function storageSecret(name: string) {
+  try {
+    return resolveFileSecret(name)?.trim() || "";
+  } catch (error) {
+    console.error(error);
+    throw new Error(`S3 uploads are not configured. ${name}_FILE is invalid.`);
+  }
+}
+
 function getStorageConfig(): StorageConfig {
   const endpoint = env("S3_ENDPOINT");
   const bucket = env("S3_BUCKET");
-  const accessKeyId = env("S3_ACCESS_KEY_ID");
-  const secretAccessKey = env("S3_SECRET_ACCESS_KEY");
+  const accessKeyId = storageSecret("S3_ACCESS_KEY_ID");
+  const secretAccessKey = storageSecret("S3_SECRET_ACCESS_KEY");
 
   if (!endpoint || !bucket) {
     throw new Error(

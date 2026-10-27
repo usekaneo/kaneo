@@ -154,7 +154,7 @@ secrets:
     file: ./secrets/auth_secret
 ```
 
-Keep the other keys of each service as they are. For [custom OAuth](/core/social-providers/custom-oauth), mount the client secret the same way and set `CUSTOM_OAUTH_CLIENT_SECRET_FILE`. A direct value in `.env` takes precedence over its `_FILE` variable, so leave the direct variable unset. See the [environment variable reference](/core/installation/environment-variables#authentication) for how files are read and what happens when one is missing.
+Keep the other keys of each service as they are. For [custom OAuth](/core/social-providers/custom-oauth), mount the client secret the same way and set `CUSTOM_OAUTH_CLIENT_SECRET_FILE`. SMTP, S3, GitHub, Turnstile, billing, and notification secrets work the same way. A direct value in `.env` takes precedence over its `_FILE` variable, so leave the direct variable unset. See the [environment variable reference](/core/installation/environment-variables#authentication) for the full list, how files are read, and what happens when one is missing.
 
 ## Optional features
 
