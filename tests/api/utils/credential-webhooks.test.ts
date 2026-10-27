@@ -28,7 +28,7 @@ describe.each(clients)(
         expect(isSensitiveOutboundRequest()).toBe(true);
         expect(init).toMatchObject({
           method: "POST",
-          redirect: "error",
+          redirect: "manual",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
