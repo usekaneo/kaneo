@@ -9,7 +9,11 @@ import {
   vi,
 } from "vite-plus/test";
 import { setBrandNameResolver } from "./brand";
-import { sendMagicLinkEmail, sendNotificationEmail } from "./send-email";
+import {
+  sendMagicLinkEmail,
+  sendNotificationEmail,
+  sendPasswordResetEmail,
+} from "./send-email";
 
 const smtp = vi.hoisted(() => ({ sendMail: vi.fn().mockResolvedValue({}) }));
 vi.mock("nodemailer", () => ({ createTransport: () => smtp }));
@@ -57,6 +61,31 @@ describe("email instance name", () => {
         html: expect.stringContaining("Acme $&amp;"),
       }),
     );
+  });
+
+  it("resolves the password reset subject to a string using one name per send", async () => {
+    const resolveName = vi
+      .fn()
+      .mockResolvedValueOnce("Acme $&")
+      .mockResolvedValueOnce("Other");
+    setBrandNameResolver(resolveName);
+    await sendPasswordResetEmail(
+      "member@example.test",
+      (name) => `${name}-Passwort zurücksetzen`,
+      {
+        resetLink: "https://example.test/reset",
+        userName: "Upgrade Kaneo",
+        locale: "de-DE",
+      },
+    );
+    expect(resolveName).toHaveBeenCalledTimes(1);
+    expect(smtp.sendMail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subject: "Acme $&-Passwort zurücksetzen",
+        html: expect.stringContaining("Acme $&amp;"),
+      }),
+    );
+    expect(smtp.sendMail.mock.calls[0]?.[0].html).toContain("Upgrade Kaneo");
   });
 
   it("uses the same name in the body and subject across concurrent sends", async () => {
