@@ -1,7 +1,7 @@
 # Disposable CI data only. Use a unique --project-name; never load the root .env.
 services:
   postgres:
-    image: postgres:16
+    image: postgres:18
     environment:
       POSTGRES_DB: kaneo_ci_test
       POSTGRES_USER: postgres

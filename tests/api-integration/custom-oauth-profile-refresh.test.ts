@@ -120,6 +120,32 @@ describe("API integration: custom OAuth profile refresh", () => {
   });
 
   describe("sign-up", () => {
+    it("accepts the shared social sign-in endpoint with the registered callback", async () => {
+      vi.stubEnv("CUSTOM_OAUTH_MANAGED_PROFILE_FIELDS", "name,image,locale");
+      const { app } = createApp();
+      const response = await signInWithCustomOAuth(
+        app,
+        claims({ picture: PICTURE, locale: "de" }),
+        "/api/auth/oauth2/callback/custom",
+        "/api/auth/sign-in/social",
+      );
+
+      expect(response.headers.get("location")).toBe(CUSTOM_OAUTH_CALLBACK_URL);
+      expect(await loadUser("jane@example.com")).toMatchObject({
+        image: PICTURE,
+        locale: "de-DE",
+      });
+    });
+
+    it("keeps the existing provider ID when both id and sub are present", async () => {
+      await signIn({ id: "legacy-provider-id", sub: "other-subject" });
+
+      const accounts = await db
+        .select({ accountId: schema.accountTable.accountId })
+        .from(schema.accountTable);
+      expect(accounts).toEqual([{ accountId: "legacy-provider-id" }]);
+    });
+
     it("stores the managed picture and the supported locale", async () => {
       vi.stubEnv("CUSTOM_OAUTH_MANAGED_PROFILE_FIELDS", "name,image,locale");
 

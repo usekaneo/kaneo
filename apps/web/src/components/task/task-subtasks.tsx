@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";

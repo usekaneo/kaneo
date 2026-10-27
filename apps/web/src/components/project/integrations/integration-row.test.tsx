@@ -32,7 +32,7 @@ describe("IntegrationRow", () => {
       const trigger = screen.getByRole("button", {
         name: "common:empty.loading",
       });
-      expect(trigger).toHaveAttribute("aria-disabled", "true");
+      expect(trigger).toBeDisabled();
       fireEvent.click(trigger);
       expect(
         screen.queryByRole("button", {

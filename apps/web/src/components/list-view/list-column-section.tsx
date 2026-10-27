@@ -3,7 +3,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Archive, ChevronRight, Plus } from "lucide-react";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";

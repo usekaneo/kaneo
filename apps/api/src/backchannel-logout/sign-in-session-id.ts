@@ -6,10 +6,7 @@ const signInSessionIds = new WeakMap<object, string>();
 function isCustomProviderCallback(
   ctx: GenericEndpointContext | null,
 ): ctx is GenericEndpointContext {
-  return (
-    ctx?.path === "/oauth2/callback/:providerId" &&
-    ctx.params?.providerId === "custom"
-  );
+  return ctx?.path === "/callback/:id" && ctx.params?.id === "custom";
 }
 
 export function rememberSignInSessionId(

@@ -6,7 +6,7 @@
     "test": "node --test *.test.mjs"
   },
   "dependencies": {
-    "@babel/parser": "8.0.7",
+    "@babel/parser": "8.0.8",
     "wink-eng-lite-web-model": "1.8.1",
     "wink-nlp": "2.4.0"
   }

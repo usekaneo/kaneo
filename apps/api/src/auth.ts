@@ -91,6 +91,7 @@ import {
 } from "./utils/custom-oauth-env";
 import { mapCustomOAuthProfileToUser } from "./utils/custom-oauth-profile";
 import {
+  isCustomOAuthCallback,
   rememberCustomOAuthProfile,
   takeCustomOAuthProfile,
 } from "./utils/custom-oauth-sign-in";
@@ -705,16 +706,23 @@ export const auth = betterAuth({
       config: [
         {
           providerId: "custom",
+          // Existing installations register this URL with their identity provider.
+          redirectURI: `${baseURLWithoutPath}/api/auth/oauth2/callback/custom`,
+          accountSubject: ({ profile }) =>
+            profile.id !== undefined && profile.id !== null && profile.id !== ""
+              ? profile.id
+              : (profile.sub ?? ""),
           clientId: process.env.CUSTOM_OAUTH_CLIENT_ID || "",
           clientSecret: resolveFileSecret("CUSTOM_OAUTH_CLIENT_SECRET"),
-          authorizationUrl: process.env.CUSTOM_OAUTH_AUTHORIZATION_URL || "",
-          tokenUrl: process.env.CUSTOM_OAUTH_TOKEN_URL || "",
-          userInfoUrl: process.env.CUSTOM_OAUTH_USER_INFO_URL || "",
+          authorizationUrl:
+            process.env.CUSTOM_OAUTH_AUTHORIZATION_URL || undefined,
+          tokenUrl: process.env.CUSTOM_OAUTH_TOKEN_URL || undefined,
+          userInfoUrl: process.env.CUSTOM_OAUTH_USER_INFO_URL || undefined,
           scopes: process.env.CUSTOM_OAUTH_SCOPES?.split(",")
             .map((s) => s.trim())
             .filter(Boolean) || ["profile", "email"],
           responseType: process.env.CUSTOM_OAUTH_RESPONSE_TYPE || "code",
-          discoveryUrl: process.env.CUSTOM_OAUTH_DISCOVERY_URL || "",
+          discoveryUrl: process.env.CUSTOM_OAUTH_DISCOVERY_URL || undefined,
           pkce: process.env.CUSTOM_AUTH_PKCE !== "false",
           mapProfileToUser: (profile) => {
             rememberCustomOAuthProfile(profile);
@@ -978,8 +986,12 @@ export const auth = betterAuth({
       }
 
       if (
-        ctx.path === "/callback/:id" &&
-        ctx.params?.id === "custom" &&
+        ((ctx.path === "/callback/:id" &&
+          ctx.params?.id === "custom" &&
+          !isCustomOAuthCallback()) ||
+          (ctx.path === "/sign-in/social" &&
+            ctx.body?.provider === "custom" &&
+            ctx.body?.idToken)) &&
         (parseManagedProfileFields().length > 0 ||
           resolveBackchannelLogoutConfig().enabled)
       ) {
@@ -1168,7 +1180,8 @@ export const auth = betterAuth({
       }
 
       if (
-        ctx.path === "/oauth2/callback/:providerId" &&
+        ctx.path === "/callback/:id" &&
+        ctx.params?.id === "custom" &&
         ctx.context.newSession
       ) {
         const profile = takeCustomOAuthProfile();

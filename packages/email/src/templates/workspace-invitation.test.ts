@@ -1,4 +1,4 @@
-import { render } from "@react-email/render";
+import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
 import enUS from "../../../../i18n/en-US.json";

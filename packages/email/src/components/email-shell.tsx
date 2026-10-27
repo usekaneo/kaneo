@@ -1,11 +1,4 @@
-import {
-  Column,
-  Container,
-  Head,
-  Html,
-  Img,
-  Preview,
-} from "@react-email/components";
+import { Column, Container, Head, Html, Img, Preview } from "react-email";
 import React from "react";
 import { Row } from "./row";
 import { emailAsset } from "./assets";

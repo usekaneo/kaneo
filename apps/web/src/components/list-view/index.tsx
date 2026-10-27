@@ -15,7 +15,7 @@ import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import { produce } from "immer";
 import { Flag, ArchiveIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";

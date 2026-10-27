@@ -13,6 +13,10 @@ export function rememberCustomOAuthProfile(profile: Record<string, unknown>) {
   if (store) store.profile = profile;
 }
 
+export function isCustomOAuthCallback() {
+  return customOAuthSignIn.getStore() !== undefined;
+}
+
 export function takeCustomOAuthProfile() {
   const store = customOAuthSignIn.getStore();
   const profile = store?.profile;

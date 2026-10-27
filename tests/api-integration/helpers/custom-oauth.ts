@@ -34,20 +34,26 @@ export async function signInWithCustomOAuth(
   app: App,
   claims: Record<string, unknown>,
   callbackPath = "/api/auth/oauth2/callback/custom",
+  signInPath = "/api/auth/sign-in/oauth2",
 ) {
-  const start = await app.request("/api/auth/sign-in/oauth2", {
+  const start = await app.request(signInPath, {
     method: "POST",
     headers: {
       "content-type": "application/json",
       Origin: "http://localhost:5173",
     },
     body: JSON.stringify({
-      providerId: "custom",
+      ...(signInPath === "/api/auth/sign-in/social"
+        ? { provider: "custom" }
+        : { providerId: "custom" }),
       callbackURL: CUSTOM_OAUTH_CALLBACK_URL,
     }),
   });
   expect(start.status).toBe(200);
   const { url } = (await start.json()) as { url: string };
+  expect(
+    new URL(new URL(url).searchParams.get("redirect_uri") ?? "").pathname,
+  ).toBe("/api/auth/oauth2/callback/custom");
   const state = new URL(url).searchParams.get("state");
   expect(state).toBeTruthy();
 

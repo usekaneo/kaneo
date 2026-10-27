@@ -2,7 +2,7 @@ FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS api-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.34.7 --activate
+  corepack prepare pnpm@12.15.0 --activate
 
 WORKDIR /app
 
@@ -58,7 +58,7 @@ COPY --from=api-builder /app/packages/mcp/package.json ./packages/mcp/
 
 RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
   corepack enable && \
-  corepack prepare pnpm@10.34.7 --activate && \
+  corepack prepare pnpm@12.15.0 --activate && \
   HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
 
 COPY --from=api-builder /app/apps/api/dist ./apps/api/dist
@@ -72,7 +72,7 @@ FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS web-builder
 
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.34.7 --activate
+  corepack prepare pnpm@12.15.0 --activate
 
 WORKDIR /app
 

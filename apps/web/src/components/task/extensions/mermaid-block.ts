@@ -77,6 +77,8 @@ async function renderMermaid(code: string, dark: boolean) {
       startOnLoad: false,
       securityLevel: "strict",
       theme,
+      layout: "dagre",
+      look: "classic",
       fontFamily: "inherit",
       htmlLabels: false,
       flowchart: { htmlLabels: false },
