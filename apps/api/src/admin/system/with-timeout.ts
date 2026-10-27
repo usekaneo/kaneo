@@ -16,7 +16,9 @@ export function withTimeout<T>(
 ): Promise<T> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const pending = work(controller.signal);
+  // Drizzle queries are lazy thenables that run again on every `.then()`;
+  // wrapping once makes the catch handler and the race share one execution.
+  const pending = Promise.resolve(work(controller.signal));
   pending.catch(() => {});
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {

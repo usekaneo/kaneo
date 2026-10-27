@@ -1,5 +1,6 @@
 import getSettings from "../../utils/get-settings";
 import { resolveFileSecret } from "../../utils/file-secret";
+import { getGithubSsoOAuthCredentials } from "../../utils/github-sso-env";
 import { credentialSetStatus } from "./credential-set-status";
 import type { ServiceStatus } from "./service-status";
 
@@ -35,14 +36,13 @@ function customOAuthEndpoint() {
  */
 export function describeAuth() {
   const settings = getSettings();
+  const github = getGithubSsoOAuthCredentials();
   const providers: AuthProvider[] = [
     {
       id: "github",
       name: "GitHub",
-      status: credentialSetStatus([
-        env("GITHUB_OAUTH_CLIENT_ID") || env("GITHUB_CLIENT_ID"),
-        env("GITHUB_OAUTH_CLIENT_SECRET") || env("GITHUB_CLIENT_SECRET"),
-      ]),
+      // Same resolution as sign-in, so a mixed pair isn't shown as usable.
+      status: credentialSetStatus([github.clientId, github.clientSecret]),
     },
     {
       id: "google",
