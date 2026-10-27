@@ -10,13 +10,16 @@ export function getGithubSsoOAuthCredentials(): {
   clientSecret: string;
 } {
   const oauthId = process.env.GITHUB_OAUTH_CLIENT_ID?.trim();
-  const oauthSecret = resolveFileSecret("GITHUB_OAUTH_CLIENT_SECRET")?.trim();
+  const oauthSecret =
+    oauthId && resolveFileSecret("GITHUB_OAUTH_CLIENT_SECRET")?.trim();
   if (oauthId && oauthSecret) {
     return { clientId: oauthId, clientSecret: oauthSecret };
   }
+  const clientId = process.env.GITHUB_CLIENT_ID?.trim() || "";
   return {
-    clientId: process.env.GITHUB_CLIENT_ID?.trim() || "",
-    clientSecret: resolveFileSecret("GITHUB_CLIENT_SECRET")?.trim() || "",
+    clientId,
+    clientSecret:
+      (clientId && resolveFileSecret("GITHUB_CLIENT_SECRET")?.trim()) || "",
   };
 }
 

@@ -38,9 +38,13 @@ export function getGithubApp(boundedImport = false): App | null {
     return existing;
   }
 
+  if (!process.env.GITHUB_APP_ID?.trim()) {
+    return null;
+  }
+
   const privateKey = resolveGithubPrivateKey();
   const webhookSecret = resolveFileSecret("GITHUB_WEBHOOK_SECRET");
-  if (!webhookSecret || !process.env.GITHUB_APP_ID || !privateKey) {
+  if (!webhookSecret || !privateKey) {
     return null;
   }
 
