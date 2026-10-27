@@ -119,7 +119,8 @@ function WorkspaceMembersDialog({ workspace, open, onOpenChange }: Props) {
                   })}
                 </p>
               ) : null}
-              {canManage ? (
+              {/* Picking a user reads the instance user directory. */}
+              {canManage && can("users:read") ? (
                 <Button
                   type="button"
                   variant="outline"

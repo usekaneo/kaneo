@@ -18,11 +18,11 @@ export const Route = createFileRoute(
       throw redirect({ to: "/dashboard/settings/account/information" });
     }
 
-    const hasAccess = await context.queryClient.ensureQueryData(
+    const permissions = await context.queryClient.ensureQueryData(
       adminAccessQueryOptions(userId),
     );
 
-    if (!hasAccess) {
+    if (permissions.length === 0) {
       throw redirect({ to: "/dashboard/settings/account/information" });
     }
   },
