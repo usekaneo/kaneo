@@ -1,5 +1,6 @@
 import { Effect, Schema } from "effect";
 import { KaneoApi } from "./kaneo-api.js";
+import type { TaskRecurrence } from "./schemas.js";
 
 const NullableString = Schema.NullOr(Schema.String);
 
@@ -99,6 +100,16 @@ export const updateTaskDueDate = Effect.fnUntraced(function* (
   const api = yield* KaneoApi;
   return yield* api.request("PUT", taskPath("due-date", id), UpdatedTask, {
     body: dueDate === null ? {} : { dueDate },
+  });
+});
+
+export const updateTaskRecurrence = Effect.fnUntraced(function* (
+  id: string,
+  recurrence: TaskRecurrence | null,
+) {
+  const api = yield* KaneoApi;
+  return yield* api.request("PUT", taskPath("recurrence", id), UpdatedTask, {
+    body: { recurrence },
   });
 });
 

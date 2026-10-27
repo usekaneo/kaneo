@@ -196,6 +196,30 @@ Changes a task's title, description, priority, dates or labels.
 | `--add-label` | Add a workspace label by name. Repeatable. |
 | `--remove-label` | Remove a label by name. Repeatable. |
 
+### `kaneo task repeat`
+
+```bash
+kaneo task repeat <task> [<frequency>] [flags]
+```
+
+Makes a task [repeat](/core/functional/plan-and-execute-tasks#repeat-a-task). The frequency is `daily`, `weekly`, `monthly` or `yearly`. When the task moves into a done column, Kaneo creates the next one, due one step after the completed task's due date. `kaneo task view` shows the rule under **Repeats**.
+
+| Flag | Description |
+| --- | --- |
+| `--every` | Repeat every this many days, weeks, months or years, from 1 to 99. Defaults to 1. |
+| `--on` | Weekly only: the days to repeat on, such as `mon,thu`. Repeatable. Defaults to the due date's weekday. |
+| `--time-zone` | IANA time zone, such as `Europe/Madrid`, that keeps the next due date on the same local day. Defaults to your computer's. |
+| `--stop` | Stop the task repeating |
+
+```bash
+kaneo task repeat KAN-12 weekly --every 2 --on mon,thu
+kaneo task repeat KAN-12 --stop
+```
+
+Run without a frequency in a terminal to pick one. Choosing the current frequency keeps the rule as it is.
+
+A done task cannot start repeating. Move it back to an open column first, or set the rule on its next task.
+
 ### `kaneo task open`
 
 ```bash

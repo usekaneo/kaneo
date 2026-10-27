@@ -26,6 +26,7 @@ const task: TaskViewJson = {
   assignee: { id: "user-1", name: "Ada Lovelace" },
   dueDate: new Date(2026, 9, 6, 12).toISOString(),
   startDate: new Date(2026, 9, 1, 12).toISOString(),
+  recurrence: null,
   createdAt: new Date(2026, 8, 30, 9).toISOString(),
   projectId: "project-1",
   projectKey: "KAN",
@@ -184,6 +185,40 @@ describe("renderTaskDetail rows", () => {
     expect(lines).toContain("    Labels     could not load");
     expect(lines).toContain("    Time       could not load");
     expect(rows({}).some((line) => line.includes("Time"))).toBe(false);
+  });
+
+  it("shows the repeat rule under the due date only when the task repeats", () => {
+    expect(
+      rows({
+        recurrence: {
+          frequency: "weekly",
+          interval: 2,
+          weekdays: [4, 1],
+          timeZone: "Europe/Madrid",
+        },
+      }).slice(4, 6),
+    ).toEqual([
+      "    Due        ◷ Yesterday",
+      "    Repeats    Every 2 weeks on Monday and Thursday",
+    ]);
+    expect(rows({}).some((line) => line.includes("Repeats"))).toBe(false);
+  });
+
+  it("cuts a long repeat rule to the terminal width", () => {
+    const lines = rows(
+      {
+        recurrence: {
+          frequency: "weekly",
+          interval: 12,
+          weekdays: [0, 1, 2, 3, 4, 5, 6],
+          timeZone: "UTC",
+        },
+      },
+      60,
+    );
+    const repeats = lines.find((line) => line.includes("Repeats")) ?? "";
+    expect(stringWidth(repeats)).toBeLessThanOrEqual(60);
+    expect(repeats.endsWith("…")).toBe(true);
   });
 
   it("cuts long label and parent rows to the terminal width", () => {

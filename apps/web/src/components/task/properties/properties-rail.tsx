@@ -12,6 +12,7 @@ import TaskDueDatePopover from "../task-due-date-popover";
 import TaskLabelsPopover from "../task-labels-popover";
 import TaskMovePopover from "../task-move-popover";
 import TaskPriorityPopover from "../task-priority-popover";
+import { TaskRecurrenceBadge } from "../task-recurrence-badge";
 import TaskStartDatePopover from "../task-start-date-popover";
 import TaskStatusPopover from "../task-status-popover";
 import { AssigneeAvatar } from "./assignee-avatar";
@@ -140,6 +141,7 @@ export function PropertiesRail({
                     ? formatDateShort(task.dueDate)
                     : t("tasks:dueDate.label")}
                 </span>
+                <TaskRecurrenceBadge task={task} asText />
               </PropertyValue>
             </TaskDueDatePopover>
           </div>

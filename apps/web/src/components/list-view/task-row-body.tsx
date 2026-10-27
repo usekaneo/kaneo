@@ -3,6 +3,7 @@ import { CardFieldList } from "@/components/custom-fields/card-field-list";
 import { useTaskCardFields } from "@/components/custom-fields/use-task-card-fields";
 import TaskPriorityPopover from "@/components/task/task-priority-popover";
 import { TaskPullRequests } from "@/components/task/task-pull-requests";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import { AssigneeButton } from "@/components/task-chips/assignee-button";
 import { ChecklistChip } from "@/components/task-chips/checklist-chip";
 import { DueDateChip } from "@/components/task-chips/due-date-chip";
@@ -87,6 +88,7 @@ export function TaskRowBody({
           {showTaskItemCounts && (
             <ChecklistChip task={task} className={inlineMetaClass} />
           )}
+          <TaskRecurrenceBadge task={task} />
           {showPullRequests && (
             <TaskPullRequests
               externalLinks={task.externalLinks}

@@ -4,13 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Ellipsis, Link2 } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Share,
-  TextInput,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, Share, TextInput, View } from "react-native";
 
 import { MarkdownText } from "@/components/markdown";
 import {
@@ -187,7 +181,7 @@ export default function TaskScreen() {
       </TopBar>
 
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior="padding"
         style={{ flex: 1 }}
         keyboardVerticalOffset={0}
       >

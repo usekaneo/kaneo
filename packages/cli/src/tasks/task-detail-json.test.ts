@@ -62,6 +62,7 @@ describe("toTaskDetailJson", () => {
       assignee: { id: "user-1", name: "Ada Lovelace" },
       dueDate: "2026-10-08T10:00:00.000Z",
       startDate: null,
+      recurrence: null,
       createdAt: "2026-10-01T10:00:00.000Z",
       projectId: "project-1",
       projectKey: "KAN",
@@ -69,6 +70,25 @@ describe("toTaskDetailJson", () => {
       workspaceId: "workspace-1",
       url: "https://kaneo.test/task-1",
     });
+  });
+
+  it("passes the repeat rule through", () => {
+    const recurrence = {
+      frequency: "weekly",
+      interval: 1,
+      weekdays: [1, 4],
+      timeZone: "Europe/Madrid",
+    } as const;
+    expect(
+      toTaskDetailJson({
+        task: { ...task, recurrence },
+        project,
+        columns: [column],
+        workspaceId: "workspace-1",
+        ticketId: "KAN-12",
+        url: "https://kaneo.test/task-1",
+      }).recurrence,
+    ).toEqual(recurrence);
   });
 
   it("falls back to the slug without a matching column and to null without an assignee", () => {
