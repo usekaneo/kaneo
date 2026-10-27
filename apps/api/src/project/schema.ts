@@ -24,6 +24,7 @@ export const updateProjectBody = z.object({
   slug: z.string(),
   description: z.string(),
   isPublic: z.boolean(),
+  includeSubtasks: z.boolean().optional(),
 });
 
 export const reorderProjectsBody = z.object({

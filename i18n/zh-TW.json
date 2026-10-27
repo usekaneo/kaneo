@@ -3250,7 +3250,8 @@
 			"showOnRows": "在列中顯示",
 			"checklistProgress": "檢查清單進度",
 			"projectBackground": "專案背景",
-			"layout": "版面配置"
+			"layout": "版面配置",
+			"includeSubtasks": "包含子任務"
 		},
 		"filterBar": {
 			"label": "已套用的篩選",

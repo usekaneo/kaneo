@@ -470,6 +470,13 @@
       "when": 1793038077476,
       "tag": "0066_task_recurrence",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1793097963224,
+      "tag": "0067_thick_talisman",
+      "breakpoints": true
     }
   ]
 }

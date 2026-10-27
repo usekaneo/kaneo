@@ -3250,7 +3250,8 @@
 			"showOnRows": "행에 표시",
 			"checklistProgress": "체크리스트 진행률",
 			"projectBackground": "프로젝트 배경",
-			"layout": "레이아웃"
+			"layout": "레이아웃",
+			"includeSubtasks": "하위 작업 포함"
 		},
 		"filterBar": {
 			"label": "적용된 필터",

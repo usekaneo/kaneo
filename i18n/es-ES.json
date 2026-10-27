@@ -3374,7 +3374,8 @@
 			"showOnRows": "Mostrar en filas",
 			"checklistProgress": "Progreso de la lista",
 			"projectBackground": "Fondo del proyecto",
-			"layout": "Diseño"
+			"layout": "Diseño",
+			"includeSubtasks": "Incluir subtareas"
 		},
 		"filterBar": {
 			"label": "Filtros activos",

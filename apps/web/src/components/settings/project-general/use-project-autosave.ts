@@ -44,6 +44,7 @@ export function useProjectAutosave({
       slug: project?.slug || "",
       description: project?.description || "",
       icon: project?.icon || "Layout",
+      includeSubtasks: project?.includeSubtasks ?? true,
     },
   });
 
@@ -55,6 +56,7 @@ export function useProjectAutosave({
       slug: project.slug || "",
       description: project.description || "",
       icon: project.icon || "Layout",
+      includeSubtasks: project.includeSubtasks ?? true,
     };
     lastSavedRef.current = normalizeProjectValues(nextValues);
 
@@ -101,6 +103,7 @@ export function useProjectAutosave({
               ? normalizedData.icon
               : (project.icon ?? "Layout"),
             isPublic: !!project.isPublic,
+            includeSubtasks: normalizedData.includeSubtasks,
           });
 
           form.reset(normalizedData, { keepDirty: false });

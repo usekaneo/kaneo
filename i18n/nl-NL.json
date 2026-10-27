@@ -3312,7 +3312,8 @@
 			"showOnRows": "Tonen in rijen",
 			"checklistProgress": "Voortgang checklist",
 			"projectBackground": "Projectachtergrond",
-			"layout": "Indeling"
+			"layout": "Indeling",
+			"includeSubtasks": "Subtaken opnemen"
 		},
 		"filterBar": {
 			"label": "Actieve filters",

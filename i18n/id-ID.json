@@ -3250,7 +3250,8 @@
 			"showOnRows": "Tampilkan di baris",
 			"checklistProgress": "Progres daftar periksa",
 			"projectBackground": "Latar belakang proyek",
-			"layout": "Tata letak"
+			"layout": "Tata letak",
+			"includeSubtasks": "Sertakan subtugas"
 		},
 		"filterBar": {
 			"label": "Filter aktif",

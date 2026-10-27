@@ -3,6 +3,9 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
 
+import type { ProjectWithTasks } from "@/types/project";
+import type Task from "@/types/task";
+
 const IGNORE_STATUS = ["status"] as const;
 
 function createTestQueryClient() {
@@ -257,4 +260,47 @@ describe("useTaskFiltersWithLabelsSupport", () => {
       expect.objectContaining({ status: ["done"], priority: null }),
     );
   });
+});
+
+it("uses the project subtask default, persists an override, and follows live membership changes", () => {
+  window.localStorage.clear();
+  const parent = { id: "parent", title: "Parent" } as Task;
+  const child = { id: "child", title: "Child", isSubtask: true } as Task;
+  const project = {
+    id: "subtask-project",
+    includeSubtasks: false,
+    columns: [{ id: "todo", tasks: [parent, child] }],
+    plannedTasks: [child],
+    archivedTasks: [child],
+  } as unknown as ProjectWithTasks;
+  const { result, rerender, unmount } = renderHook(
+    ({ project }) => useTaskFiltersWithLabelsSupport(project, project.id),
+    { initialProps: { project }, wrapper: createWrapper() },
+  );
+  expect(result.current.filteredProject?.columns[0].tasks).toEqual([parent]);
+  expect(result.current.filteredProject?.plannedTasks).toEqual([]);
+  expect(result.current.filteredProject?.archivedTasks).toEqual([]);
+  expect(result.current.filterTasks([parent, child])).toEqual([parent]);
+  act(() => result.current.setIncludeSubtasks(true));
+  expect(result.current.filterTasks([parent, child])).toEqual([parent, child]);
+  expect(
+    JSON.parse(
+      window.localStorage.getItem("kaneo:include-subtasks:subtask-project")!,
+    ),
+  ).toBe(true);
+  act(() => result.current.setIncludeSubtasks(false));
+  rerender({
+    project: {
+      ...project,
+      columns: [
+        {
+          ...project.columns[0],
+          tasks: [parent, { ...child, isSubtask: false }],
+        },
+      ],
+    },
+  });
+  expect(result.current.filteredProject?.columns[0].tasks).toHaveLength(2);
+  unmount();
+  window.localStorage.clear();
 });

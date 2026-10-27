@@ -3312,7 +3312,8 @@
 			"showOnRows": "Sətirlərdə göstər",
 			"checklistProgress": "Yoxlama siyahısının gedişatı",
 			"projectBackground": "Layihə fonu",
-			"layout": "Düzən"
+			"layout": "Düzən",
+			"includeSubtasks": "Alt tapşırıqları daxil et"
 		},
 		"filterBar": {
 			"label": "Aktiv süzgəclər",

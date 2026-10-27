@@ -3312,7 +3312,8 @@
 			"showOnRows": "In Zeilen anzeigen",
 			"checklistProgress": "Checklisten-Fortschritt",
 			"projectBackground": "Projekthintergrund",
-			"layout": "Layout"
+			"layout": "Layout",
+			"includeSubtasks": "Unteraufgaben einbeziehen"
 		},
 		"filterBar": {
 			"label": "Aktive Filter",

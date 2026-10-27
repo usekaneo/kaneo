@@ -3312,7 +3312,8 @@
 			"showOnRows": "पंक्तियों में दिखाएँ",
 			"checklistProgress": "चेकलिस्ट प्रगति",
 			"projectBackground": "प्रोजेक्ट पृष्ठभूमि",
-			"layout": "लेआउट"
+			"layout": "लेआउट",
+			"includeSubtasks": "उपकार्य शामिल करें"
 		},
 		"filterBar": {
 			"label": "सक्रिय फ़िल्टर",
