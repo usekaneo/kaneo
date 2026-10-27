@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { getAdminPageRedirect } from "@/components/admin/admin-page-access";
 import { adminAccessQueryOptions } from "@/hooks/queries/admin/use-admin-access";
 import { authClient } from "@/lib/auth-client";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/admin",
 )({
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async ({ context, location }) => {
     let userId = context.session?.user.id;
     if (!userId && context.sessionError) {
       const { data } = await authClient.getSession();
@@ -22,8 +23,9 @@ export const Route = createFileRoute(
       adminAccessQueryOptions(userId),
     );
 
-    if (permissions.length === 0) {
-      throw redirect({ to: "/dashboard/settings/account/information" });
+    const to = getAdminPageRedirect(location.pathname, permissions);
+    if (to) {
+      throw redirect({ to, replace: true });
     }
   },
   component: Outlet,

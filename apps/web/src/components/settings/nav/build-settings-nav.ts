@@ -17,6 +17,10 @@ import {
   User,
 } from "lucide-react";
 import type { InstancePermission } from "@kaneo/permissions";
+import {
+  canAccessAdminPage,
+  type AdminPage,
+} from "@/components/admin/admin-page-access";
 import projectIcons from "@/constants/project-icons";
 import type {
   SettingsNav,
@@ -41,49 +45,42 @@ const ADMIN_LINKS = [
     labelKey: "settings:adminOverview.title",
     to: "/dashboard/settings/admin/overview",
     icon: LayoutDashboard,
-    permission: "roles:manage",
   },
   {
     id: "admin-users",
     labelKey: "settings:adminUsers.title",
     to: "/dashboard/settings/admin/users",
     icon: Server,
-    permission: "users:read",
   },
   {
     id: "admin-roles",
     labelKey: "settings:adminRoles.title",
     to: "/dashboard/settings/admin/roles",
     icon: ShieldCheck,
-    permission: "roles:manage",
   },
   {
     id: "admin-workspaces",
     labelKey: "settings:adminWorkspaces.title",
     to: "/dashboard/settings/admin/workspaces",
     icon: Building2,
-    permission: "workspaces:read",
   },
   {
     id: "admin-audit-log",
     labelKey: "settings:adminAuditLog.title",
     to: "/dashboard/settings/admin/audit-log",
     icon: ScrollText,
-    permission: "audit:read",
   },
   {
     id: "admin-system",
     labelKey: "settings:adminSystem.title",
     to: "/dashboard/settings/admin/system",
     icon: Activity,
-    permission: "system:read",
   },
 ] as const satisfies readonly {
   id: string;
   labelKey: string;
-  to: string;
+  to: AdminPage;
   icon: unknown;
-  permission: InstancePermission;
 }[];
 
 const PROJECT_SECTIONS = [
@@ -124,8 +121,8 @@ export function buildSettingsNav({
   projects,
 }: BuildSettingsNavInput): SettingsNav {
   const adminLinks = ADMIN_LINKS.filter((link) =>
-    adminPermissions.includes(link.permission),
-  ).map(({ permission: _permission, labelKey, ...link }) => ({
+    canAccessAdminPage(link.to, adminPermissions),
+  ).map(({ labelKey, ...link }) => ({
     ...link,
     label: t(labelKey),
   }));

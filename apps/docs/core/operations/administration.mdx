@@ -5,7 +5,7 @@ description: "Manage accounts and workspaces, review administrative actions, and
 
 Instance administrators manage the whole Kaneo instance, not just the workspaces they belong to. The first account created on a new instance becomes an instance administrator, and an administrator can give the role to others from **User management**.
 
-These pages live under **Settings → Administration**. Administrators see all of them. Users with a [custom role](#custom-roles) see only the pages and actions their role allows.
+These pages live under **Settings → Administration**. Administrators see all of them. Users with a [custom role](#custom-roles) see only the pages and actions their role allows. The administration landing page opens the first permitted page, with Overview first. Opening a page outside your role redirects there too; accounts with no available page return to account settings.
 
 ## Overview
 
@@ -13,7 +13,7 @@ These pages live under **Settings → Administration**. Administrators see all o
 
 The page lists the five newest users and administrative actions, with links to their directories, and checks the same services as **System**. Configuration warnings point out missing email setup, unavailable configured services, incomplete storage settings, open registration without email, or fewer than two enabled instance administrators. Optional Redis and storage do not trigger warnings when switched off. Choose **Refresh** to update the counts and checks.
 
-The same read-only overview is available at `GET /api/admin/overview` to instance administrator sessions. API keys are rejected. It returns service statuses and warning codes without credentials, session tokens, or audit metadata.
+The page and `GET /api/admin/overview` require all four instance permissions: `users:read`, `workspaces:read`, `audit:read`, and `system:read`. API keys are rejected. It returns service statuses and warning codes without credentials, session tokens, or audit metadata.
 
 ## Manage users
 

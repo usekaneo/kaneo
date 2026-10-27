@@ -32,6 +32,7 @@ const CUSTOM_PERMISSIONS = [
 type Ids = { userId: string; workspaceId: string; roleId: string };
 type Route = {
   permission: string;
+  requiredPermissions?: string[];
   method: string;
   path: (ids: Ids) => string;
   body?: (ids: Ids) => unknown;
@@ -39,7 +40,20 @@ type Route = {
 
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47]).toString("base64");
 
+const overviewPermissions = [
+  "users:read",
+  "workspaces:read",
+  "audit:read",
+  "system:read",
+];
+
 const routes: Route[] = [
+  ...overviewPermissions.map((permission) => ({
+    permission,
+    requiredPermissions: overviewPermissions,
+    method: "GET",
+    path: () => "/overview",
+  })),
   { permission: "users:read", method: "GET", path: () => "/users" },
   { permission: "users:read", method: "GET", path: () => "/roles" },
   {
@@ -227,7 +241,7 @@ describe("instance permissions on admin routes", () => {
     routes.map(
       (route) =>
         [
-          `${route.method} ${route.path({ userId: ":userId", workspaceId: ":workspaceId", roleId: ":roleId" })}`,
+          `${route.permission}: ${route.method} ${route.path({ userId: ":userId", workspaceId: ":workspaceId", roleId: ":roleId" })}`,
           route,
         ] as const,
     ),
@@ -249,7 +263,10 @@ describe("instance permissions on admin routes", () => {
     // roles:manage is only granted by the built-in admin role.
     const holderRole = route.permission === "roles:manage" ? "admin" : "holds";
     if (holderRole === "holds") {
-      await insertInstanceRole("holds", [route.permission]);
+      await insertInstanceRole(
+        "holds",
+        route.requiredPermissions ?? [route.permission],
+      );
     }
     const holder = await signInWithRole(app, holderRole);
     const allowed = await holder.api(route.path(ids), {

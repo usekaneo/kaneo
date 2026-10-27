@@ -1,3 +1,4 @@
+import { INSTANCE_PERMISSIONS } from "@kaneo/permissions";
 import { describe, expect, it } from "vite-plus/test";
 import { buildSettingsNav } from "@/components/settings/nav/build-settings-nav";
 
@@ -76,6 +77,21 @@ describe("buildSettingsNav", () => {
         adminPermissions: ["audit:read", "users:delete"],
       }).admin?.links.map((link) => link.to),
     ).toEqual(["/dashboard/settings/admin/audit-log"]);
+  });
+
+  it.each([
+    "users:read",
+    "workspaces:read",
+    "audit:read",
+    "system:read",
+  ] as const)("hides Overview without %s", (missing) => {
+    expect(
+      build({
+        adminPermissions: INSTANCE_PERMISSIONS.filter(
+          (permission) => permission !== missing,
+        ),
+      }).admin?.links.map((link) => link.id),
+    ).not.toContain("admin-overview");
   });
 
   it("gives every project its own settings pages", () => {

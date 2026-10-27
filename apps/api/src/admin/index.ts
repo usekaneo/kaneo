@@ -5,7 +5,6 @@ import {
   jsonResponse,
 } from "../openapi";
 import { requireInstancePermission } from "./roles/require-instance-permission";
-import { requireInstanceAdmin } from "../utils/require-instance-admin";
 import { requireUserSession } from "../utils/require-user-session";
 import { adminAuditRequest } from "./audit/admin-audit-request";
 import addWorkspaceMember from "./controllers/add-workspace-member";
@@ -423,8 +422,16 @@ const getOverviewRoute = createRoute({
   tags: ["Admin"],
   summary: "Get the administration overview",
   description:
-    "User and workspace counts, the five newest users and administrative actions, compact service checks, and configuration warnings. Activity is based on session refreshes within 30 days and excludes deactivated accounts. Requires an instance administrator session; API keys are rejected. No credentials or audit metadata are returned.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "User and workspace counts, the five newest users and administrative actions, compact service checks, and configuration warnings. Activity is based on session refreshes within 30 days and excludes deactivated accounts. Requires all four instance permissions: `users:read`, `workspaces:read`, `audit:read`, and `system:read`; API keys are rejected. No credentials or audit metadata are returned.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission(
+      "users:read",
+      "workspaces:read",
+      "audit:read",
+      "system:read",
+    ),
+  ] as const,
   responses: {
     200: jsonResponse("Instance overview", adminOverviewSchema),
     401: errorResponse("Authentication required"),
