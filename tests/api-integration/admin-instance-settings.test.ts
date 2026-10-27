@@ -575,5 +575,41 @@ describe("integration providers", () => {
       },
     );
     expect(discord.status).not.toBe(403);
+
+    // Sync rules and paused-link resumes write through the provider too.
+    await admin.api("/settings", {
+      method: "PATCH",
+      body: { disabledIntegrations: ["slack", "github"] },
+    });
+    const sync = (method: string, suffix = "") =>
+      app.request(
+        `/api/integration-sync/project/${project.id}/github${suffix}`,
+        {
+          method,
+          headers: { ...json, cookie: admin.cookies },
+          body: method === "GET" ? undefined : JSON.stringify({}),
+        },
+      );
+    for (const [method, suffix] of [
+      ["PATCH", ""],
+      ["POST", "/preview"],
+      ["POST", "/links/link-1/resume"],
+    ] as const) {
+      const response = await sync(method, suffix);
+      expect(response.status, `${method} ${suffix}`).toBe(403);
+      expect(await readErrorBody(response)).toMatchObject({
+        code: "INTEGRATION_PROVIDER_DISABLED",
+      });
+    }
+    expect((await sync("GET")).status).not.toBe(403);
+    const gitea = await app.request(
+      `/api/integration-sync/project/${project.id}/gitea`,
+      {
+        method: "PATCH",
+        headers: { ...json, cookie: admin.cookies },
+        body: JSON.stringify({}),
+      },
+    );
+    expect(gitea.status).not.toBe(403);
   });
 });

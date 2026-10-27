@@ -826,12 +826,19 @@ export function createApp() {
     notificationPreferences,
   );
   const searchApi = api.route("/search", search);
-  const integrationSyncApi = api.route("/integration-sync", integrationSync);
+  // Turned-off providers: registered before their routes so they run first.
   // Inbound provider webhooks are mounted earlier and answer on their own;
   // their work is skipped through `activeIntegrationCondition`.
   for (const { type } of integrationPlugins) {
     api.use(`/${type}-integration/*`, requireIntegrationProviderEnabled(type));
   }
+  // Saving sync rules and resuming paused links write through the provider.
+  const syncProvider = requireIntegrationProviderEnabled((c) =>
+    c.req.param("provider"),
+  );
+  api.use("/integration-sync/project/:projectId/:provider", syncProvider);
+  api.use("/integration-sync/project/:projectId/:provider/*", syncProvider);
+  const integrationSyncApi = api.route("/integration-sync", integrationSync);
   const githubIntegrationApi = api.route(
     "/github-integration",
     githubIntegration,
