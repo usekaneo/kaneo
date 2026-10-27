@@ -151,6 +151,41 @@ describe("an archived workspace over HTTP", () => {
     await setArchived(workspace.id, false);
     expect(await count()).toBe(1);
   });
+
+  it("hides ticket-ID lookups from members and API keys until restore", async () => {
+    const { member, workspace, project, task } = await seed();
+    const { key } = await auth.api.createApiKey({
+      body: { userId: member.id },
+    });
+    mockAuthenticatedSession(member);
+    const { app } = createApp();
+    const path = `/api/task/by-ticket-id/${project.slug}-1`;
+    const headers = [
+      {},
+      { "x-api-key": key },
+      { authorization: `Bearer ${key}` },
+    ];
+    const selectors = [
+      "",
+      `?workspaceId=${workspace.id}`,
+      `?workspaceSlug=${workspace.slug}`,
+      `?projectId=${project.id}`,
+    ];
+    for (const archived of [false, true, false]) {
+      await setArchived(workspace.id, archived);
+      for (const credential of headers) {
+        for (const selector of selectors) {
+          const response = await app.request(`${path}${selector}`, {
+            headers: credential,
+          });
+          expect(response.status).toBe(archived ? 404 : 200);
+          expect(await response.json()).toMatchObject(
+            archived ? { message: "Task not found" } : { id: task.id },
+          );
+        }
+      }
+    }
+  });
 });
 
 describe("an archived workspace's public links", () => {
@@ -494,5 +529,76 @@ describe("an archived workspace through Better Auth organization endpoints", () 
       (await call(member.cookies, "/auth/organization/get-full-organization"))
         .status,
     ).toBe(200);
+  });
+
+  it("ignores unrelated fields when resolving an archived organization target", async () => {
+    const { member, invitee, workspace, invitation, call } =
+      await organizationFixture();
+    const [active] = await db
+      .insert(schema.workspaceTable)
+      .values({ name: "Active org", slug: randomUUID(), createdAt: new Date() })
+      .returning();
+    const [otherInvitation] = await db
+      .insert(schema.invitationTable)
+      .values({
+        workspaceId: active.id,
+        inviterId: member.userId,
+        email: "invitee@example.com",
+        role: "member",
+        status: "pending",
+        expiresAt: new Date(Date.now() + 86_400_000),
+      })
+      .returning();
+    expect(
+      (
+        await call(member.cookies, "/auth/organization/set-active", {
+          organizationId: workspace.id,
+        })
+      ).status,
+    ).toBe(200);
+    await setArchived(workspace.id, true);
+
+    const unrelated = {
+      invitationId: otherInvitation.id,
+      organizationSlug: active.slug,
+      teamId: "missing-team",
+    };
+    const query = new URLSearchParams({
+      ...unrelated,
+      organizationId: active.id,
+    });
+    for (const response of [
+      await call(member.cookies, `/auth/organization/update?${query}`, {
+        organizationId: workspace.id,
+        data: { name: "Should not change" },
+      }),
+      await call(member.cookies, "/auth/organization/update", {
+        ...unrelated,
+        data: { name: "Should not change" },
+      }),
+      await call(
+        member.cookies,
+        `/auth/organization/get-full-organization?organizationId=${workspace.id}&invitationId=missing`,
+      ),
+      await call(
+        invitee.cookies,
+        `/auth/organization/get-invitation?id=${invitation.id}&invitationId=${otherInvitation.id}`,
+      ),
+      await call(
+        member.cookies,
+        "/auth/organization/delete?invitationId=missing",
+        {
+          organizationId: workspace.id,
+        },
+      ),
+    ]) {
+      expect(response.status).toBe(403);
+      expect(await codeOf(response)).toBe("WORKSPACE_ARCHIVED");
+    }
+    const [stored] = await db
+      .select({ name: schema.workspaceTable.name })
+      .from(schema.workspaceTable)
+      .where(eq(schema.workspaceTable.id, workspace.id));
+    expect(stored?.name).toBe(workspace.name);
   });
 });

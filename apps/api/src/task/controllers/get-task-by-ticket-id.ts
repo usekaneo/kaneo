@@ -9,6 +9,7 @@ import {
 import { projectAccessCondition } from "../../project-access/project-access-condition";
 import type { PermissionMap } from "../../utils/role-permissions";
 import { workspacePermissionGrants } from "../../utils/workspace-permission-grants";
+import { workspaceIsActive } from "../../workspace/archive/active-workspace-sql";
 import { TICKET_ID_PATTERN } from "../ticket-id";
 import getTask from "./get-task";
 
@@ -75,6 +76,7 @@ export default async function getTaskByTicketId(
     .where(
       and(
         eq(taskTable.number, number),
+        workspaceIsActive(projectTable.workspaceId),
         mayMatchProjectKey(projectKey),
         workspaceId ? eq(projectTable.workspaceId, workspaceId) : undefined,
         slugWorkspaceIds

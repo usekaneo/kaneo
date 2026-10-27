@@ -17,6 +17,31 @@ const UNSCOPED_PATHS = new Set([
   "/organization/list-user-teams",
 ]);
 
+const QUERY_PATHS = new Set([
+  "/organization/get-full-organization",
+  "/organization/list-members",
+  "/organization/get-active-member-role",
+  "/organization/get-invitation",
+  "/organization/list-invitations",
+  "/organization/list-teams",
+  "/organization/list-team-members",
+  "/organization/list-roles",
+  "/organization/get-role",
+]);
+
+const INVITATION_PATHS = new Set([
+  "/organization/accept-invitation",
+  "/organization/reject-invitation",
+  "/organization/cancel-invitation",
+]);
+
+const SLUG_PATHS = new Set([
+  "/organization/get-full-organization",
+  "/organization/list-members",
+  "/organization/get-active-member-role",
+  "/organization/set-active",
+]);
+
 type OrganizationContext = {
   path?: string;
   body?: Record<string, unknown> | null;
@@ -25,7 +50,7 @@ type OrganizationContext = {
 
 type OrganizationViewer = {
   user: { id: string };
-  session: { activeOrganizationId?: unknown };
+  session: { activeOrganizationId?: unknown; activeTeamId?: unknown };
 } | null;
 
 type Target = { workspaceId: string; viaInvitation: boolean };
@@ -57,19 +82,33 @@ async function resolveTarget(
   ctx: OrganizationContext,
   viewer: NonNullable<OrganizationViewer>,
 ): Promise<Target | null> {
-  const input =
-    ctx.path === "/organization/get-active-member"
-      ? {}
-      : { ...ctx.query, ...ctx.body };
+  // Match the provider's actual input, including ignored fields. A query
+  // parameter must never redirect a body-based mutation's archive check.
+  const path = ctx.path ?? "";
+  let input = (QUERY_PATHS.has(path) ? ctx.query : ctx.body) ?? {};
+  if (path === "/organization/update-team") {
+    input =
+      ctx.body?.data && typeof ctx.body.data === "object"
+        ? (ctx.body.data as Record<string, unknown>)
+        : {};
+  }
+  if (path === "/organization/get-active-member") input = {};
+  if (path === "/organization/set-active-team") {
+    if (ctx.body?.teamId === null) return null;
+    // The provider always scopes this operation to the active organization.
+    input = {};
+  }
   const text = (key: string) =>
     typeof input[key] === "string" && input[key] ? input[key] : undefined;
 
   if (ctx.path === "/organization/set-active" && input.organizationId === null)
     return null;
 
-  const invitationId =
-    text("invitationId") ??
-    (ctx.path === "/organization/get-invitation" ? text("id") : undefined);
+  const invitationId = INVITATION_PATHS.has(path)
+    ? text("invitationId")
+    : path === "/organization/get-invitation"
+      ? text("id")
+      : undefined;
   if (invitationId) {
     const [invitation] = await db
       .select({ workspaceId: schema.invitationTable.workspaceId })
@@ -81,29 +120,31 @@ async function resolveTarget(
       : null;
   }
 
+  if (path === "/organization/list-team-members") {
+    const teamId = text("teamId") ?? viewer.session.activeTeamId;
+    const workspaceId =
+      typeof teamId === "string" ? await workspaceIdByTeam(teamId) : undefined;
+    return workspaceId ? { workspaceId, viaInvitation: false } : null;
+  }
+
   const slugWins =
-    [
-      "/organization/get-full-organization",
-      "/organization/list-members",
-      "/organization/get-active-member-role",
-    ].includes(ctx.path ?? "") && text("organizationSlug");
+    SLUG_PATHS.has(path) &&
+    path !== "/organization/set-active" &&
+    text("organizationSlug");
   const organizationId = slugWins ? undefined : text("organizationId");
-  const organizationSlug = text("organizationSlug");
-  const teamId = text("teamId");
-  const explicit = organizationId ?? organizationSlug ?? teamId;
+  const organizationSlug = SLUG_PATHS.has(path)
+    ? text("organizationSlug")
+    : undefined;
+  const explicit = organizationId ?? organizationSlug;
   const workspaceId = organizationId
     ? organizationId
     : organizationSlug
       ? await workspaceIdBySlug(organizationSlug)
-      : teamId
-        ? await workspaceIdByTeam(teamId)
-        : undefined;
+      : undefined;
   if (explicit) {
     return workspaceId ? { workspaceId, viaInvitation: false } : null;
   }
 
-  if (ctx.path === "/organization/set-active-team" && input.teamId === null)
-    return null;
   const active = viewer.session.activeOrganizationId;
   return typeof active === "string" && active
     ? { workspaceId: active, viaInvitation: false }
