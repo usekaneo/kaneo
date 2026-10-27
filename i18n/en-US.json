@@ -3313,7 +3313,8 @@
 			"checklistProgress": "Checklist progress",
 			"projectBackground": "Project background",
 			"layout": "Layout",
-			"includeSubtasks": "Include Sub Tasks"
+			"includeSubtasks": "Include Sub Tasks",
+			"useProjectDefault": "Use project default"
 		},
 		"filterBar": {
 			"label": "Active filters",

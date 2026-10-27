@@ -264,6 +264,7 @@ export function useTaskFiltersWithLabelsSupport(
 
   return {
     includeSubtasks,
+    hasIncludeSubtasksOverride: includeSubtasksOverride !== null,
     setIncludeSubtasks,
     customFieldValues: {
       ...customFieldValues,

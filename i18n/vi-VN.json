@@ -3251,7 +3251,8 @@
 			"checklistProgress": "Tiến độ danh sách kiểm tra",
 			"projectBackground": "Hình nền dự án",
 			"layout": "Bố cục",
-			"includeSubtasks": "Bao gồm nhiệm vụ phụ"
+			"includeSubtasks": "Bao gồm nhiệm vụ phụ",
+			"useProjectDefault": "Dùng thiết lập mặc định của dự án"
 		},
 		"filterBar": {
 			"label": "Bộ lọc đang áp dụng",

@@ -3375,7 +3375,8 @@
 			"checklistProgress": "Progression de la liste",
 			"projectBackground": "Arrière-plan du projet",
 			"layout": "Disposition",
-			"includeSubtasks": "Inclure les sous-tâches"
+			"includeSubtasks": "Inclure les sous-tâches",
+			"useProjectDefault": "Utiliser le réglage par défaut du projet"
 		},
 		"filterBar": {
 			"label": "Filtres actifs",

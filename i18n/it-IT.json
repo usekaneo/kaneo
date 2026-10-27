@@ -3375,7 +3375,8 @@
 			"checklistProgress": "Avanzamento checklist",
 			"projectBackground": "Sfondo del progetto",
 			"layout": "Layout",
-			"includeSubtasks": "Includi sottoattività"
+			"includeSubtasks": "Includi sottoattività",
+			"useProjectDefault": "Usa il valore predefinito del progetto"
 		},
 		"filterBar": {
 			"label": "Filtri attivi",

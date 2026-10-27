@@ -3489,7 +3489,8 @@
 			"checklistProgress": "Прогресс чек-листа",
 			"projectBackground": "Фон проекта",
 			"layout": "Макет",
-			"includeSubtasks": "Включать подзадачи"
+			"includeSubtasks": "Включать подзадачи",
+			"useProjectDefault": "Использовать настройку проекта по умолчанию"
 		},
 		"filterBar": {
 			"label": "Активные фильтры",

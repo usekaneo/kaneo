@@ -3313,7 +3313,8 @@
 			"checklistProgress": "Yoxlama siyahısının gedişatı",
 			"projectBackground": "Layihə fonu",
 			"layout": "Düzən",
-			"includeSubtasks": "Alt tapşırıqları daxil et"
+			"includeSubtasks": "Alt tapşırıqları daxil et",
+			"useProjectDefault": "Layihənin standart ayarından istifadə et"
 		},
 		"filterBar": {
 			"label": "Aktiv süzgəclər",

@@ -1,5 +1,6 @@
 import { type ReactNode, useId } from "react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { DisplaySection } from "@/components/project/display/display-section";
 import { DisplayMenu } from "@/components/project/display/display-menu";
@@ -48,6 +49,15 @@ export function ProjectToolbar({
               onCheckedChange={view.filters.setIncludeSubtasks}
             />
           </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            disabled={!view.filters.hasIncludeSubtasksOverride}
+            onClick={() => view.filters.setIncludeSubtasks(null)}
+          >
+            {t("tasks:display.useProjectDefault")}
+          </Button>
         </DisplaySection>
         {display}
       </DisplayMenu>

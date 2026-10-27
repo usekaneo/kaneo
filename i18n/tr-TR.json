@@ -3313,7 +3313,8 @@
 			"checklistProgress": "Kontrol listesi ilerlemesi",
 			"projectBackground": "Proje arka planı",
 			"layout": "Düzen",
-			"includeSubtasks": "Alt görevleri dahil et"
+			"includeSubtasks": "Alt görevleri dahil et",
+			"useProjectDefault": "Proje varsayılanını kullan"
 		},
 		"filterBar": {
 			"label": "Etkin filtreler",

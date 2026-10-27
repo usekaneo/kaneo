@@ -3375,7 +3375,8 @@
 			"checklistProgress": "Progreso de la lista",
 			"projectBackground": "Fondo del proyecto",
 			"layout": "Diseño",
-			"includeSubtasks": "Incluir subtareas"
+			"includeSubtasks": "Incluir subtareas",
+			"useProjectDefault": "Usar el valor predeterminado del proyecto"
 		},
 		"filterBar": {
 			"label": "Filtros activos",

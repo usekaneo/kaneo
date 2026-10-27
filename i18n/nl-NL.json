@@ -3313,7 +3313,8 @@
 			"checklistProgress": "Voortgang checklist",
 			"projectBackground": "Projectachtergrond",
 			"layout": "Indeling",
-			"includeSubtasks": "Subtaken opnemen"
+			"includeSubtasks": "Subtaken opnemen",
+			"useProjectDefault": "Projectstandaard gebruiken"
 		},
 		"filterBar": {
 			"label": "Actieve filters",

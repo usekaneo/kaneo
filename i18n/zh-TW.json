@@ -3251,7 +3251,8 @@
 			"checklistProgress": "檢查清單進度",
 			"projectBackground": "專案背景",
 			"layout": "版面配置",
-			"includeSubtasks": "包含子任務"
+			"includeSubtasks": "包含子任務",
+			"useProjectDefault": "使用專案預設設定"
 		},
 		"filterBar": {
 			"label": "已套用的篩選",

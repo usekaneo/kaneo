@@ -3313,7 +3313,8 @@
 			"checklistProgress": "Πρόοδος λίστας ελέγχου",
 			"projectBackground": "Φόντο έργου",
 			"layout": "Διάταξη",
-			"includeSubtasks": "Συμπερίληψη υποεργασιών"
+			"includeSubtasks": "Συμπερίληψη υποεργασιών",
+			"useProjectDefault": "Χρήση προεπιλογής έργου"
 		},
 		"filterBar": {
 			"label": "Ενεργά φίλτρα",

@@ -304,3 +304,41 @@ it("uses the project subtask default, persists an override, and follows live mem
   unmount();
   window.localStorage.clear();
 });
+
+it("clears a legacy subtask override and follows changing project defaults after remount", () => {
+  window.localStorage.clear();
+  const key = "kaneo:include-subtasks:project-default";
+  window.localStorage.setItem(key, "true");
+  const project = {
+    id: "project-default",
+    includeSubtasks: false,
+    columns: [],
+    plannedTasks: [],
+    archivedTasks: [],
+  } as unknown as ProjectWithTasks;
+  const { result, rerender, unmount } = renderHook(
+    ({ project }) => useTaskFiltersWithLabelsSupport(project, project.id),
+    { initialProps: { project }, wrapper: createWrapper() },
+  );
+  expect(result.current.includeSubtasks).toBe(true);
+  expect(result.current.hasIncludeSubtasksOverride).toBe(true);
+  act(() => result.current.setIncludeSubtasks(null));
+  expect(result.current.includeSubtasks).toBe(false);
+  expect(result.current.hasIncludeSubtasksOverride).toBe(false);
+  expect(JSON.parse(window.localStorage.getItem(key)!)).toBeNull();
+  rerender({ project: { ...project, includeSubtasks: true } });
+  expect(result.current.includeSubtasks).toBe(true);
+  rerender({ project: { ...project, includeSubtasks: false } });
+  expect(result.current.includeSubtasks).toBe(false);
+  unmount();
+  const restored = renderHook(
+    () => useTaskFiltersWithLabelsSupport(project, project.id),
+    { wrapper: createWrapper() },
+  );
+  expect(restored.result.current.hasIncludeSubtasksOverride).toBe(false);
+  expect(restored.result.current.includeSubtasks).toBe(false);
+  act(() => restored.result.current.setIncludeSubtasks(true));
+  expect(restored.result.current.hasIncludeSubtasksOverride).toBe(true);
+  restored.unmount();
+  window.localStorage.clear();
+});

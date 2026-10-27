@@ -3437,7 +3437,8 @@
 			"checklistProgress": "Прогрес чек-листа",
 			"projectBackground": "Фон проєкту",
 			"layout": "Макет",
-			"includeSubtasks": "Включати підзавдання"
+			"includeSubtasks": "Включати підзавдання",
+			"useProjectDefault": "Використовувати типове налаштування проєкту"
 		},
 		"filterBar": {
 			"label": "Активні фільтри",
