@@ -602,6 +602,10 @@
           "isCloud": {
             "type": "boolean"
           },
+          "instanceName": {
+            "type": "string",
+            "description": "Name shown in page titles and emails. Defaults to Kaneo."
+          },
           "disableRegistration": {
             "type": "boolean"
           },
@@ -613,6 +617,13 @@
           },
           "disableWorkspaceCreation": {
             "type": "boolean"
+          },
+          "disabledIntegrations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Integration provider types an administrator turned off, such as `slack`."
           },
           "isDemoMode": {
             "type": "boolean"
@@ -683,10 +694,12 @@
         },
         "required": [
           "isCloud",
+          "instanceName",
           "disableRegistration",
           "disablePasswordRegistration",
           "disableEmailOtpSignIn",
           "disableWorkspaceCreation",
+          "disabledIntegrations",
           "isDemoMode",
           "hasSmtp",
           "hasImageUploads",
@@ -6607,6 +6620,100 @@
           "id"
         ]
       },
+      "InstanceSettings": {
+        "type": "object",
+        "properties": {
+          "instanceName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The saved name, or null for the default Kaneo."
+          },
+          "instanceUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The web app URL from `KANEO_CLIENT_URL`. Read-only."
+          },
+          "registrationEnabled": {
+            "type": "boolean"
+          },
+          "passwordRegistrationEnabled": {
+            "type": "boolean"
+          },
+          "requireEmailVerification": {
+            "type": "boolean"
+          },
+          "defaultRole": {
+            "type": "string"
+          },
+          "workspaceCreationRestricted": {
+            "type": "boolean"
+          },
+          "disabledIntegrations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lockedByEnv": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "registrationEnabled",
+                "passwordRegistrationEnabled",
+                "workspaceCreationRestricted"
+              ]
+            },
+            "description": "Settings an environment variable forces. Their values here are the effective ones."
+          },
+          "emailDeliveryConfigured": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Custom instance roles that can be the default role."
+          },
+          "integrationProviders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "name"
+              ]
+            }
+          }
+        },
+        "required": [
+          "instanceName",
+          "instanceUrl",
+          "registrationEnabled",
+          "passwordRegistrationEnabled",
+          "requireEmailVerification",
+          "defaultRole",
+          "workspaceCreationRestricted",
+          "disabledIntegrations",
+          "lockedByEnv",
+          "emailDeliveryConfigured",
+          "roles",
+          "integrationProviders"
+        ]
+      },
       "AdminApiKeyList": {
         "type": "object",
         "properties": {
@@ -7260,7 +7367,7 @@
           "Config"
         ],
         "summary": "Get config",
-        "description": "Public instance settings: which sign-in methods, registration paths, and features are enabled.",
+        "description": "Public instance settings: the instance name, which sign-in methods, registration paths, integrations, and features are enabled.",
         "security": [],
         "responses": {
           "200": {
@@ -25515,8 +25622,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 64,
-                    "default": "user",
-                    "description": "Instance role: `admin` administers the instance, `user` has no instance permissions, or the name of a custom role. Only administrators can assign `admin`, and nobody can assign a role with permissions they don't have."
+                    "description": "Instance role, as for updates. Defaults to the instance's default role for new users."
                   }
                 },
                 "required": [
@@ -27834,6 +27940,164 @@
           },
           "409": {
             "description": "Users still have this role (code ROLE_IN_USE)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/settings": {
+      "get": {
+        "operationId": "getInstanceSettings",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get instance settings",
+        "description": "Read the instance-wide settings, which ones an environment variable locks, and the choices for the default role and integrations. Requires the `instance:settings` instance permission; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Instance settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceSettings"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateInstanceSettings",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update instance settings",
+        "description": "Change one or more instance-wide settings. Other API instances apply a change within a few seconds. Requires the `instance:settings` instance permission; API keys are rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "instanceName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 60,
+                    "description": "Shown in page titles and email headers and subjects. Empty or null restores Kaneo."
+                  },
+                  "registrationEnabled": {
+                    "type": "boolean",
+                    "description": "When false, only people with a valid invitation can create an account. Locked when `DISABLE_REGISTRATION=true`."
+                  },
+                  "passwordRegistrationEnabled": {
+                    "type": "boolean",
+                    "description": "When false, new accounts must use a social or OIDC provider. Locked when `DISABLE_PASSWORD_REGISTRATION=true`."
+                  },
+                  "requireEmailVerification": {
+                    "type": "boolean",
+                    "description": "New password sign-ups must confirm their email before they can sign in. Requires email delivery."
+                  },
+                  "defaultRole": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "description": "Instance role for new users: `user` or a custom role name, never `admin`. You can only choose a role whose permissions you have."
+                  },
+                  "workspaceCreationRestricted": {
+                    "type": "boolean",
+                    "description": "Only administrators can create workspaces. Locked when `DISABLE_WORKSPACE_CREATION=true`."
+                  },
+                  "disabledIntegrations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 32,
+                    "description": "Integration provider types to turn off. Their connections stop syncing and delivering, and projects can't connect them."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid value, `admin` as the default role, an unknown role or integration, or email verification without SMTP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission, used an API key, or chose a default role with permissions they lack",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An environment variable locks the setting (code SETTING_LOCKED_BY_ENV)",
             "content": {
               "application/json": {
                 "schema": {

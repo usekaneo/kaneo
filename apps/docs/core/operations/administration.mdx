@@ -51,9 +51,9 @@ Deleting someone who is the only owner of a workspace that still has other membe
 Choose **Create user** and enter their name, email, and instance role. You never choose or see their password:
 
 - **Password sign-in available:** Kaneo emails them a link to set their own password. The link works once and expires in 2 days. If it expires, or SMTP wasn't configured yet, send a new one with **Send password reset link**.
-- **`DISABLE_PASSWORD_REGISTRATION` or `DISABLE_LOGIN_FORM` set:** the account is created for single sign-on. No email is sent, and the email is marked verified so their first sign-in through GitHub, Google, Discord, or your OIDC provider with that address links to it.
+- **Password sign-up turned off (in [settings](#instance-settings) or with `DISABLE_PASSWORD_REGISTRATION`), or `DISABLE_LOGIN_FORM` set:** the account is created for single sign-on. No email is sent, and the email is marked verified so their first sign-in through GitHub, Google, Discord, or your OIDC provider with that address links to it.
 
-Administrators can create users even when `DISABLE_REGISTRATION` closes self-service sign-up. An email that already belongs to an account is rejected. On Kaneo Cloud, disposable email addresses are rejected as they are for sign-up.
+When no role is chosen, the account gets the [default role](#instance-settings). Administrators can create users even when registration is closed. An email that already belongs to an account is rejected. On Kaneo Cloud, disposable email addresses are rejected as they are for sign-up.
 
 ## Custom roles
 
@@ -83,7 +83,7 @@ Give someone a role from **Edit** in the user directory. Each person has one rol
 
 Creating or renaming a role to a name already stored on users is blocked. Change those users' roles first so they don't gain permissions without an assignment.
 
-Custom roles only grant these administration permissions. Built-in admins can also open every workspace, and some powers stay with them alone: managing roles, editing project access from the workspace page, and creating workspaces when `DISABLE_WORKSPACE_CREATION` is set.
+Custom roles only grant these administration permissions. Built-in admins can also open every workspace, and some powers stay with them alone: managing roles, editing project access from the workspace page, and creating workspaces when workspace creation is restricted.
 
 Kaneo keeps custom roles from being used to gain more power:
 
@@ -137,6 +137,21 @@ Entries never contain passwords, session tokens, password reset links, or API ke
 Kaneo keeps audit log entries until you remove them; there's no automatic retention. To prune old entries, delete rows from the `admin_audit_log` table in PostgreSQL, for example `DELETE FROM admin_audit_log WHERE created_at < (now() AT TIME ZONE 'utc') - interval '1 year';`.
 
 Reading the audit log, in the app or through `GET /api/admin/audit-log`, needs the `audit:read` permission and a signed-in session. API keys are rejected.
+
+## Instance settings
+
+Open **Settings → Administration → Settings** to change how the instance behaves. The page and `GET`/`PATCH /api/admin/settings` require the `instance:settings` permission; API keys are rejected. Changes apply right away on the API instance that saved them and within five seconds on the others, without Redis. Each change is recorded in the audit log as **Updated instance settings**, with the old and new value of every setting that changed.
+
+- **Instance name**: replaces "Kaneo" in page titles and in the header and subject of emails. Leave it empty for Kaneo.
+- **Instance URL**: shown read-only. It comes from `KANEO_CLIENT_URL`.
+- **Open registration**: when off, only people with a valid invitation can create an account, the same as `DISABLE_REGISTRATION=true`.
+- **Email and password sign-up**: when off, new accounts must use GitHub, Google, Discord, or your OIDC provider, the same as `DISABLE_PASSWORD_REGISTRATION=true`. Guest access is off while either registration setting is off.
+- **Require email verification**: new password sign-ups are emailed a confirmation link and can't sign in with their password until they confirm. Signing in before then sends a new link. Accounts that existed before you turned it on, administrator-created accounts, and accounts from email codes, magic links, or single sign-on are not affected. Needs SMTP.
+- **Default role for new users**: the instance role every new account gets, whether it signs up with a password, an email code, or single sign-on, or is created by an administrator without a role. It can be **User** or a custom role, never **Admin**, and you can only choose a role whose permissions you have. A role can't be deleted while it is the default. Guests and the first account on a new instance are not affected.
+- **Only administrators can create workspaces**: the same as `DISABLE_WORKSPACE_CREATION=true`.
+- **Integrations**: turning a provider off stops its connected projects from syncing, delivering, and handling webhooks, and stops projects from connecting, changing, or importing through it. Projects can still remove an existing connection. Turning it back on resumes the saved connections.
+
+Environment variables win. When `DISABLE_REGISTRATION`, `DISABLE_PASSWORD_REGISTRATION`, or `DISABLE_WORKSPACE_CREATION` is `true`, the matching setting is locked and shows which variable sets it. On a new instance, or one that never saved settings, everything behaves as before this page existed. Sign-in providers are listed on the [System](#check-system-status) page.
 
 ## Check system status
 
