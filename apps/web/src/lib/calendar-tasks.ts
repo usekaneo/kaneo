@@ -72,11 +72,10 @@ export function toCalendarTasks<T extends SchedulableTask & { id: string }>(
     )
     .map((task) => {
       const subtasks = children.get(task.id) ?? [];
-      if (toScheduledTask(task) || subtasks.length === 0) {
-        return { ...task, subtasks };
-      }
-      let start: Date | null = null;
-      let end: Date | null = null;
+      if (subtasks.length === 0) return { ...task, subtasks };
+      const scheduledParent = toScheduledTask(task);
+      let start = scheduledParent?.scheduleStart ?? null;
+      let end = scheduledParent?.scheduleEnd ?? null;
       for (const child of subtasks) {
         const scheduled = toScheduledTask(child);
         if (!scheduled) continue;
