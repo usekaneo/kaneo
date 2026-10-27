@@ -8,7 +8,8 @@ import {
   activeSessionListSchema,
   revokedSessionsSchema,
 } from "../sessions/response";
-import { requireInstanceAdmin } from "../utils/require-instance-admin";
+import { requireInstancePermission } from "./roles/require-instance-permission";
+import { requireManageableUser } from "./roles/require-manageable-user";
 import { requireUserSession } from "../utils/require-user-session";
 import { adminAuditRequest } from "./audit/admin-audit-request";
 import listUserApiKeys from "./controllers/list-user-api-keys";
@@ -25,7 +26,7 @@ import {
 } from "./user-security-schema";
 
 const forbidden = errorResponse(
-  "The caller is not an instance administrator or is authenticated with an API key",
+  "The caller lacks the instance permission or is authenticated with an API key",
 );
 
 const listSessionsRoute = createRoute({
@@ -35,8 +36,12 @@ const listSessionsRoute = createRoute({
   tags: ["Admin"],
   summary: "List a user's sessions",
   description:
-    "List a user's signed-in sessions with device, IP address, and activity. Tokens are never returned. `current` marks the administrator's own session. Requires an instance administrator session; API keys are rejected.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "List a user's signed-in sessions with device, IP address, and activity. Tokens are never returned. `current` marks the administrator's own session. Requires the `users:sessions` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:sessions"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("Active sessions", activeSessionListSchema),
@@ -52,8 +57,12 @@ const revokeSessionRoute = createRoute({
   tags: ["Admin"],
   summary: "Sign out one of a user's sessions",
   description:
-    "End one session immediately, including its realtime connections, and record it in the audit log. The administrator's own current session can't be ended here; sign out instead.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "End one session immediately, including its realtime connections, and record it in the audit log. The administrator's own current session can't be ended here; sign out instead. Requires the `users:sessions` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:sessions"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserSessionParam },
   responses: {
     200: jsonResponse("Session signed out", revokedSessionsSchema),
@@ -70,8 +79,12 @@ const revokeSessionsRoute = createRoute({
   tags: ["Admin"],
   summary: "Sign out all of a user's sessions",
   description:
-    "End every session of a user immediately, including realtime connections, and record it in the audit log. When administrators target themselves, their current session is kept. API keys keep working; revoke them separately.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "End every session of a user immediately, including realtime connections, and record it in the audit log. When administrators target themselves, their current session is kept. API keys keep working; revoke them separately. Requires the `users:sessions` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:sessions"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("Sessions signed out", revokedSessionsSchema),
@@ -87,8 +100,12 @@ const listApiKeysRoute = createRoute({
   tags: ["Admin"],
   summary: "List a user's API keys",
   description:
-    "List a user's API keys with their name, start, status, and dates. The key and its hash are never returned. Requires an instance administrator session; API keys are rejected.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "List a user's API keys with their name, start, status, and dates. The key and its hash are never returned. Requires the `users:api_keys` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:api_keys"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("API keys, newest first", adminApiKeyListSchema),
@@ -104,8 +121,12 @@ const revokeApiKeyRoute = createRoute({
   tags: ["Admin"],
   summary: "Revoke a user's API key",
   description:
-    "Delete a user's API key so it stops working immediately, and record it in the audit log.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "Delete a user's API key so it stops working immediately, and record it in the audit log. Requires the `users:api_keys` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:api_keys"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserApiKeyParam },
   responses: {
     200: jsonResponse("API key revoked", adminRevokedApiKeySchema),

@@ -7,8 +7,9 @@ export const listAdminUsersQuery = z.object({
   status: z.enum(["active", "deactivated"]).optional().openapi({
     description: "Only active or only deactivated accounts.",
   }),
-  role: z.enum(["admin", "user"]).optional().openapi({
-    description: "Only instance administrators, or only everyone else.",
+  role: z.string().min(1).max(64).optional().openapi({
+    description:
+      "Only users with this instance role: `admin`, a custom role name, or `user` for everyone without an administrator or custom role.",
   }),
   emailVerified: z
     .enum(["true", "false"])
@@ -84,13 +85,29 @@ export const listAdminAuditLogQuery = z.object({
 
 export const adminUserParam = z.object({ userId: z.string().min(1) });
 
+const instanceRoleName = z.string().min(1).max(64).openapi({
+  description:
+    "Instance role: `admin` administers the instance, `user` has no instance permissions, or the name of a custom role. Only administrators can assign `admin`, and nobody can assign a role with permissions they don't have.",
+});
+
 export const createAdminUserBody = z.object({
   name: z.string().trim().min(1).max(200),
   email: z.email().max(254).openapi({
     description:
       "The new user's email address. They sign in with it and receive their password link there.",
   }),
-  role: z.enum(["admin", "user"]).default("user").openapi({
-    description: "Instance role: `admin` administers the instance.",
-  }),
+  role: instanceRoleName.default("user"),
 });
+
+export const updateAdminUserBody = z
+  .object({
+    name: z.string().trim().min(1).max(200).optional(),
+    email: z.email().max(254).optional().openapi({
+      description:
+        "A new address must be verified again. It can't belong to another user.",
+    }),
+    role: instanceRoleName.optional(),
+  })
+  .refine((body) => Object.values(body).some((value) => value !== undefined), {
+    message: "Nothing to update",
+  });

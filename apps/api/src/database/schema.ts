@@ -175,6 +175,26 @@ export const adminAuditLogTable = pgTable(
   ],
 );
 
+// Custom instance roles. Users hold them by name in their comma-separated
+// `user.role`, next to the built-in `admin` and `user` roles.
+export const instanceRoleTable = pgTable("instance_role", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  name: text("name").notNull().unique(),
+  permissions: text("permissions")
+    .array()
+    .notNull()
+    .default(sql`'{}'`),
+  createdAt: timestamp("created_at", { mode: "date" })
+    .default(utcNow)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .default(utcNow)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 export const verificationTable = pgTable(
   "verification",
   {

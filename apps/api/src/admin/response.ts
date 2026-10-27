@@ -69,6 +69,10 @@ export const adminWorkspaceArchiveStateSchema = z
   })
   .openapi("AdminWorkspaceArchiveState");
 
+export const adminDeletedUserSchema = z
+  .object({ id: z.string() })
+  .openapi("AdminDeletedUser");
+
 export const adminDeletedWorkspaceSchema = z
   .object({ id: z.string() })
   .openapi("AdminDeletedWorkspace");

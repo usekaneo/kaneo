@@ -6,11 +6,9 @@ import {
   drizzleAdapter,
 } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
-import { asc, count, eq, inArray, sql } from "drizzle-orm";
-import {
-  hasInstanceAdminRole,
-  instanceAdminRoleSql,
-} from "../utils/instance-admin-role";
+import { asc, eq, inArray } from "drizzle-orm";
+import { hasOtherInstanceAdmin } from "../utils/has-other-instance-admin";
+import { hasInstanceAdminRole } from "../utils/instance-admin-role";
 import db, { schema } from ".";
 
 type OtherSessionRevocationAdapter = DBAdapter & {
@@ -151,26 +149,20 @@ export function authDatabaseAdapter(config: DrizzleAdapterConfig) {
         }
 
         return db.transaction(async (tx) => {
-          // Serialize role removals across API instances, keeping the count
-          // and write in the same transaction so cross-demotions cannot race.
-          await tx.execute(sql`SELECT pg_advisory_xact_lock(2026, 1732)`);
           const transactionAdapter = drizzleAdapter(tx, config)(options);
           const user = await transactionAdapter.findOne<{ role?: string }>({
             model: data.model,
             where: data.where,
           });
 
-          if (hasInstanceAdminRole(user?.role)) {
-            const [admins] = await tx
-              .select({ value: count() })
-              .from(schema.userTable)
-              .where(instanceAdminRoleSql(schema.userTable.role));
-            if ((admins?.value ?? 0) <= 1) {
-              throw new APIError("BAD_REQUEST", {
-                code: "CANNOT_REMOVE_LAST_ADMIN",
-                message: "The instance must have at least one administrator.",
-              });
-            }
+          if (
+            hasInstanceAdminRole(user?.role) &&
+            !(await hasOtherInstanceAdmin(tx))
+          ) {
+            throw new APIError("BAD_REQUEST", {
+              code: "CANNOT_REMOVE_LAST_ADMIN",
+              message: "The instance must have at least one administrator.",
+            });
           }
 
           return transactionAdapter.update<T>(data);

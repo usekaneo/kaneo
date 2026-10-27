@@ -6,6 +6,8 @@ import { isCloud } from "../../utils/is-cloud";
 import { isDisposableEmail } from "../../utils/is-disposable-email";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
 import { recordAdminAction } from "../audit/record-admin-action";
+import { assertAssignableRole } from "../roles/assert-assignable-role";
+import { getUserAccess } from "../roles/get-instance-access";
 import { emailPasswordLink } from "../users/account-email-links";
 import { adminUserColumns, toAdminUser } from "../users/admin-user-columns";
 import { createsPasswordAccounts } from "../users/password-sign-in";
@@ -13,7 +15,7 @@ import { createsPasswordAccounts } from "../users/password-sign-in";
 type CreateUserInput = {
   name: string;
   email: string;
-  role: "admin" | "user";
+  role: string;
 };
 
 export type PasswordSetupEmail =
@@ -45,8 +47,10 @@ async function createUser(input: CreateUserInput, audit: AdminAuditRequest) {
     });
   }
   const withPassword = createsPasswordAccounts();
+  const actor = await getUserAccess(audit.actorUserId ?? "");
 
   const userId = await db.transaction(async (tx) => {
+    await assertAssignableRole(input.role, actor, tx);
     const [existing] = await tx
       .select({ id: userTable.id })
       .from(userTable)

@@ -34,11 +34,7 @@ export async function signIn(
 
 export async function signUpWithSession(
   app: App,
-  {
-    email,
-    name,
-    role,
-  }: { email: string; name: string; role?: "admin" | "user" },
+  { email, name, role }: { email: string; name: string; role?: string },
 ) {
   const response = await app.request("/api/auth/sign-up/email", {
     method: "POST",

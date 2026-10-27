@@ -7,7 +7,8 @@ import {
 import { MAX_AVATAR_BYTES, MAX_AVATAR_REQUEST_BYTES } from "../user/avatar";
 import { uploadAvatarBody } from "../user/schema";
 import { boundedRequestBody } from "../utils/bounded-request-body";
-import { requireInstanceAdmin } from "../utils/require-instance-admin";
+import { requireInstancePermission } from "./roles/require-instance-permission";
+import { requireManageableUser } from "./roles/require-manageable-user";
 import { requireUserSession } from "../utils/require-user-session";
 import { adminAuditRequest } from "./audit/admin-audit-request";
 import createUser from "./controllers/create-user";
@@ -26,7 +27,7 @@ import {
 import { adminUserParam, createAdminUserBody } from "./schema";
 
 const forbidden = errorResponse(
-  "The caller is not an instance administrator or is authenticated with an API key",
+  "The caller lacks the instance permission or is authenticated with an API key",
 );
 const notFound = errorResponse("User not found");
 const emailErrors = {
@@ -44,8 +45,11 @@ const createUserRoute = createRoute({
   tags: ["Admin"],
   summary: "Create a user",
   description:
-    "Create an account with an instance role. No password is set or returned. When password sign-in is available, the user is emailed a single-use link, valid for 2 days, to choose their own password. When password registration or the login form is disabled, the account is created with a verified email so the user can sign in with single sign-on, and no email is sent. Registration restrictions do not apply to administrators.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "Create an account with an instance role. No password is set or returned. When password sign-in is available, the user is emailed a single-use link, valid for 2 days, to choose their own password. When password registration or the login form is disabled, the account is created with a verified email so the user can sign in with single sign-on, and no email is sent. Registration restrictions do not apply to administrators. Requires the `users:create` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:create"),
+  ] as const,
   request: {
     body: {
       required: true,
@@ -67,8 +71,12 @@ const sendPasswordResetRoute = createRoute({
   tags: ["Admin"],
   summary: "Email a password reset link",
   description:
-    "Email the user a single-use link to choose a new password, using the regular reset lifetime. The link is never returned to the administrator.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "Email the user a single-use link to choose a new password, using the regular reset lifetime. The link is never returned to the administrator. Requires the `users:credentials` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:credentials"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("The email was sent", adminEmailSentSchema),
@@ -85,8 +93,12 @@ const sendVerificationRoute = createRoute({
   tags: ["Admin"],
   summary: "Email a verification link",
   description:
-    "Email the user a link, valid for 24 hours, that confirms their email address. The link is never returned to the administrator.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "Email the user a link, valid for 24 hours, that confirms their email address. The link is never returned to the administrator. Requires the `users:credentials` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:credentials"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("The email was sent", adminEmailSentSchema),
@@ -103,8 +115,12 @@ const markEmailVerifiedRoute = createRoute({
   tags: ["Admin"],
   summary: "Mark an email as verified",
   description:
-    "Mark a non-guest user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "Mark a non-guest user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account. Requires the `users:credentials` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:credentials"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("The email is verified", adminEmailVerifiedSchema),
@@ -125,7 +141,8 @@ const setAvatarRoute = createRoute({
   )}KB) for the user and make it their profile picture. Not available when the identity provider manages the user's picture.`,
   middleware: [
     requireUserSession,
-    requireInstanceAdmin,
+    requireInstancePermission("users:update"),
+    requireManageableUser,
     boundedRequestBody(MAX_AVATAR_REQUEST_BYTES),
   ] as const,
   request: {
@@ -139,7 +156,7 @@ const setAvatarRoute = createRoute({
     200: jsonResponse("The new picture", adminUserAvatarSchema),
     400: errorResponse("Unsupported, invalid, or oversized image"),
     403: errorResponse(
-      "Not an instance administrator, an API key, or the picture is managed by the identity provider",
+      "Missing instance permission, an API key, or the picture is managed by the identity provider",
     ),
     404: notFound,
     413: errorResponse("Request body is too large"),
@@ -153,13 +170,17 @@ const removeAvatarRoute = createRoute({
   tags: ["Admin"],
   summary: "Remove a user's avatar",
   description:
-    "Remove the user's profile picture. A picture managed by the identity provider can't be removed, but an earlier Kaneo upload can.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "Remove the user's profile picture. A picture managed by the identity provider can't be removed, but an earlier Kaneo upload can. Requires the `users:update` instance permission; API keys are rejected.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("users:update"),
+    requireManageableUser,
+  ] as const,
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("Picture removed", adminUserAvatarRemovedSchema),
     403: errorResponse(
-      "Not an instance administrator, an API key, or the picture is managed by the identity provider",
+      "Missing instance permission, an API key, or the picture is managed by the identity provider",
     ),
     404: notFound,
   },

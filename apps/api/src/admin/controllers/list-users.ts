@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or, type SQL, sql } from "drizzle-orm";
 import db from "../../database";
 import { userTable } from "../../database/schema";
 import { escapeLikePattern } from "../../search/like-pattern";
@@ -9,11 +9,23 @@ import { adminUserColumns, toAdminUser } from "../users/admin-user-columns";
 type ListUsersInput = {
   search?: string;
   status?: "active" | "deactivated";
-  role?: "admin" | "user";
+  role?: string;
   emailVerified?: boolean;
   page: number;
   limit: number;
 };
+
+// Qualified by hand: Drizzle leaves columns bare in one-table selects.
+const userRoles = sql`string_to_array("user"."role", ',')`;
+
+/** `user` means no admin or custom role: the roles that grant nothing. */
+function roleCondition(role: string, isAdmin: SQL) {
+  if (role === "admin") return isAdmin;
+  if (role !== "user") return sql`${role} = ANY(${userRoles})`;
+  return sql`NOT ${isAdmin} AND NOT EXISTS (
+    SELECT 1 FROM "instance_role" r WHERE r."name" = ANY(${userRoles})
+  )`;
+}
 
 function filters({ search, status, role, emailVerified }: ListUsersInput) {
   const term = search?.trim() ?? "";
@@ -29,11 +41,7 @@ function filters({ search, status, role, emailVerified }: ListUsersInput) {
       : status === "deactivated"
         ? sql`NOT (${active})`
         : active,
-    role === undefined
-      ? undefined
-      : role === "admin"
-        ? isAdmin
-        : sql`NOT ${isAdmin}`,
+    role === undefined ? undefined : roleCondition(role, isAdmin),
     emailVerified === undefined
       ? undefined
       : eq(userTable.emailVerified, emailVerified),

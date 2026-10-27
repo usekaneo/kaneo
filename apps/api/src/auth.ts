@@ -82,6 +82,7 @@ import { dropArchivedInvitations } from "./workspace/archive/drop-archived-invit
 import { satisfies } from "./utils/role-permissions";
 import { captureAuthAdminAudit } from "./admin/audit/capture-auth-admin-audit";
 import { recordAuthAdminAudit } from "./admin/audit/record-auth-admin-audit";
+import { assertKnownInstanceRoles } from "./admin/roles/assert-known-instance-roles";
 import clearEmailVerificationOnAdminChange from "./user/controllers/clear-email-verification-on-admin-change";
 import deleteAccountData from "./user/controllers/delete-account-data";
 import prepareAdminUserRemoval from "./user/controllers/prepare-admin-user-removal";
@@ -878,6 +879,7 @@ export const auth = betterAuth({
             ),
           );
         }
+        await assertKnownInstanceRoles(ctx);
         // Before removal prep deletes account data the entry needs to name.
         await captureAuthAdminAudit(ctx, (headers) =>
           auth.api.getSession({ headers, query: { disableRefresh: true } }),
