@@ -2,7 +2,7 @@
   "name": "kaneo-browser-tests",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@10.34.7",
   "scripts": {
     "test": "playwright test",
     "test:browserstack": "browserstack-node-sdk playwright test",

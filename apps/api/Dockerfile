@@ -4,7 +4,7 @@ FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS builder
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.32.1 --activate
+  corepack prepare pnpm@10.34.7 --activate
 
 WORKDIR /app
 
@@ -54,7 +54,7 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
 # resulting node_modules is architecture-independent and safe to copy into the arm64 runtime.
 FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS prod-deps
 
-RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
+RUN corepack enable && corepack prepare pnpm@10.34.7 --activate
 
 WORKDIR /app
 
