@@ -191,6 +191,17 @@ const routes: Route[] = [
     path: () => "/system/test-email",
   },
   {
+    permission: "instance:settings",
+    method: "GET",
+    path: () => "/settings",
+  },
+  {
+    permission: "instance:settings",
+    method: "PATCH",
+    path: () => "/settings",
+    body: () => ({ instanceName: "Acme" }),
+  },
+  {
     permission: "roles:manage",
     method: "POST",
     path: () => "/roles",
@@ -232,7 +243,6 @@ describe("instance permissions on admin routes", () => {
   it("covers every custom role permission", () => {
     const covered = new Set(routes.map((route) => route.permission));
     for (const permission of CUSTOM_PERMISSIONS) {
-      if (permission === "instance:settings") continue; // No route uses it yet.
       expect(covered, permission).toContain(permission);
     }
   });
