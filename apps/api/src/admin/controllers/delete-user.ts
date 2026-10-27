@@ -12,7 +12,6 @@ import { hasInstanceAdminRole } from "../../utils/instance-admin-role";
 import { revokeUserConnections } from "../../ws";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
 import { recordAdminAction } from "../audit/record-admin-action";
-import { lockAdminTargetUser } from "../users/lock-admin-target-user";
 import { rejectSelfAction } from "../users/reject-self-action";
 
 /** The same cleanup as self-service account deletion, with its conflicts. */
@@ -41,9 +40,20 @@ async function deleteUser(
     "You cannot remove yourself.",
   );
   await db.transaction(async (tx) => {
-    // Match role demotion's lock order, before locking the target user.
+    // The advisory lock serializes role removals before account cleanup.
     const otherAdminRemains = await hasOtherInstanceAdmin(tx);
-    const target = await lockAdminTargetUser(userId, tx);
+    const [target] = await tx
+      .select({
+        name: userTable.name,
+        email: userTable.email,
+        role: userTable.role,
+      })
+      .from(userTable)
+      .where(eq(userTable.id, userId))
+      .limit(1);
+    if (!target) {
+      throw new ApiError(404, { code: "NOT_FOUND", message: "User not found" });
+    }
     if (hasInstanceAdminRole(target.role) && !otherAdminRemains) {
       throw new ApiError(400, {
         code: "CANNOT_REMOVE_LAST_ADMIN",
@@ -51,6 +61,7 @@ async function deleteUser(
       });
     }
     await removeAccountData(userId, tx);
+    // Lock the user only after workspaces: their deletion audit locks its actor.
     await deleteUserSessions(tx, userId, { exceptSessionId: null });
     await tx.delete(userTable).where(eq(userTable.id, userId));
     await recordAdminAction(
