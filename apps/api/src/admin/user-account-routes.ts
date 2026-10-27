@@ -89,6 +89,7 @@ const reactivateUserRoute = createRoute({
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("The reactivated user", adminUserSchema),
+    400: errorResponse("You can't reactivate yourself"),
     403: forbidden,
     404: notFound,
   },
@@ -110,7 +111,7 @@ const deleteUserRoute = createRoute({
   request: { params: adminUserParam },
   responses: {
     200: jsonResponse("The deleted user", adminDeletedUserSchema),
-    400: errorResponse("You can't delete yourself"),
+    400: errorResponse("You can't delete yourself or the last administrator"),
     403: forbidden,
     404: notFound,
     409: errorResponse(
@@ -145,7 +146,11 @@ const adminUserAccountRoutes = apiRouter()
   )
   .openapi(reactivateUserRoute, async (c) =>
     c.json(
-      await reactivateUser(c.req.valid("param").userId, adminAuditRequest(c)),
+      await reactivateUser(
+        c.req.valid("param").userId,
+        c.get("userId"),
+        adminAuditRequest(c),
+      ),
       200,
     ),
   )

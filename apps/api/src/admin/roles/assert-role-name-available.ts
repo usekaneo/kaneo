@@ -1,6 +1,6 @@
 import { isBuiltInInstanceRole } from "@kaneo/permissions";
 import { and, eq, ne, sql } from "drizzle-orm";
-import { instanceRoleTable } from "../../database/schema";
+import { instanceRoleTable, userTable } from "../../database/schema";
 import { ApiError } from "../../errors/api-error";
 import type { DbOrTx } from "../../project-access/db-or-tx";
 
@@ -34,6 +34,17 @@ export async function assertRoleNameAvailable(
     throw new ApiError(409, {
       code: "ROLE_NAME_TAKEN",
       message: "A role with this name already exists.",
+    });
+  }
+  const [assigned] = await tx
+    .select({ id: userTable.id })
+    .from(userTable)
+    .where(sql`${name} = ANY(string_to_array(${userTable.role}, ','))`)
+    .limit(1);
+  if (assigned) {
+    throw new ApiError(409, {
+      code: "ROLE_NAME_IN_USE",
+      message: "Users already have this role name. Change their role first.",
     });
   }
 }

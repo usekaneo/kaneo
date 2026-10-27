@@ -62,7 +62,7 @@ const createRoleRoute = createRoute({
     201: jsonResponse("The new role", instanceRoleSchema),
     400: errorResponse("Invalid name or permission"),
     403: forbidden,
-    409: errorResponse("The name is taken or reserved"),
+    409: errorResponse("The name is taken, reserved, or already held by users"),
   },
 });
 
@@ -84,7 +84,7 @@ const updateRoleRoute = createRoute({
     400: errorResponse("Invalid name or permission"),
     403: forbidden,
     404: errorResponse("Role not found"),
-    409: errorResponse("The name is taken or reserved"),
+    409: errorResponse("The name is taken, reserved, or already held by users"),
   },
 });
 

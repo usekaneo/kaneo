@@ -152,6 +152,36 @@ describe("custom instance roles", () => {
     expect(await ids("admin")).toEqual([admin.userId]);
   });
 
+  it.each(["create", "rename"])(
+    "rejects %s of a role name already held by users",
+    async (operation) => {
+      const { app } = createApp();
+      const admin = await signInWithRole(app, "admin");
+      const stale = await insertUser("user,legacy-support");
+      const role = await insertInstanceRole("support", []);
+      const assigned = await insertUser("support");
+
+      const response = await admin.api(
+        operation === "create" ? "/roles" : `/roles/${role.id}`,
+        {
+          method: operation === "create" ? "POST" : "PUT",
+          body: { name: "legacy-support", permissions: ["users:read"] },
+        },
+      );
+
+      expect(response.status).toBe(409);
+      expect(await readErrorBody(response)).toMatchObject({
+        code: "ROLE_NAME_IN_USE",
+        message: "Users already have this role name. Change their role first.",
+      });
+      expect(await roleOf(stale.id)).toBe("user,legacy-support");
+      expect(await roleOf(assigned.id)).toBe("support");
+      const roles = await db.select().from(schema.instanceRoleTable);
+      expect(roles).toMatchObject([{ name: "support", permissions: [] }]);
+      expect(await readAuditLog()).toEqual([]);
+    },
+  );
+
   it("grant only their permissions through the access endpoint", async () => {
     const { app } = createApp();
     await insertInstanceRole("auditor", ["audit:read", "system:read"]);

@@ -6,6 +6,8 @@ import { userTable } from "../../database/schema";
 import { ApiError } from "../../errors/api-error";
 import { deleteUserSessions } from "../../sessions/delete-user-sessions";
 import deleteAccountData from "../../user/controllers/delete-account-data";
+import { hasOtherInstanceAdmin } from "../../utils/has-other-instance-admin";
+import { hasInstanceAdminRole } from "../../utils/instance-admin-role";
 import { revokeUserConnections } from "../../ws";
 import type { AdminAuditRequest } from "../audit/admin-audit-request";
 import { recordAdminAction } from "../audit/record-admin-action";
@@ -37,11 +39,17 @@ async function deleteUser(
     "YOU_CANNOT_REMOVE_YOURSELF",
     "You cannot remove yourself.",
   );
-  await lockAdminTargetUser(userId, db);
-  await removeAccountData(userId);
-
   await db.transaction(async (tx) => {
+    // Match role demotion's lock order, before locking the target user.
+    const otherAdminRemains = await hasOtherInstanceAdmin(tx);
     const target = await lockAdminTargetUser(userId, tx);
+    if (hasInstanceAdminRole(target.role) && !otherAdminRemains) {
+      throw new ApiError(400, {
+        code: "CANNOT_REMOVE_LAST_ADMIN",
+        message: "The instance must have at least one administrator.",
+      });
+    }
+    await removeAccountData(userId);
     await deleteUserSessions(tx, userId, { exceptSessionId: null });
     await tx.delete(userTable).where(eq(userTable.id, userId));
     await recordAdminAction(

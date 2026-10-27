@@ -29,6 +29,8 @@ From a user's menu you can:
 
 Guest accounts have generated addresses, so password reset, verification email, and mark-verified actions are unavailable for them.
 
+You can't deactivate, reactivate, or delete yourself through user management. Deleting the last built-in administrator is blocked.
+
 Emails need [SMTP](/core/installation/environment-variables#smtp-configuration) to be configured. Without it, Kaneo tells you nothing was sent.
 
 If [the identity provider manages profile pictures](/core/social-providers/custom-oauth#managed-profile-fields), you can't replace a user's picture, and you can only remove one they uploaded in Kaneo.
@@ -78,6 +80,8 @@ Kaneo has two built-in roles: **Admin** has every permission and **User** has no
 | `instance:settings` | Changing instance settings |
 
 Give someone a role from **Edit** in the user directory. Each person has one role. Each row on the Roles page shows how many people have that role; select the count to see them. Renaming a role keeps it on everyone who has it, and permission changes apply to their next request. A role can only be deleted once nobody has it.
+
+Creating or renaming a role to a name already stored on users is blocked. Change those users' roles first so they don't gain permissions without an assignment.
 
 Custom roles only grant these administration permissions. Built-in admins can also open every workspace, and some powers stay with them alone: managing roles, editing project access from the workspace page, and creating workspaces when `DISABLE_WORKSPACE_CREATION` is set.
 
