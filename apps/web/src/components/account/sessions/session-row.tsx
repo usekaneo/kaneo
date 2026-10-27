@@ -21,8 +21,11 @@ export function SessionRow({ session, onRevoke, disabled }: SessionRowProps) {
   const device = getSessionDeviceLabel(session, t);
   const Icon =
     session.os && MOBILE_SYSTEMS.has(session.os) ? SmartphoneIcon : MonitorIcon;
+  const ipAddress = session.ipAddress?.trim();
   const details = [
-    session.ipAddress,
+    ipAddress && ipAddress !== "0.0.0.0" && !/^[0:]+$/.test(ipAddress)
+      ? ipAddress
+      : null,
     t("settings:sessions.lastActive", {
       time: formatRelativeTime(session.lastActiveAt),
     }),

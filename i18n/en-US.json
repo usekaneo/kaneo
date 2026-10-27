@@ -780,16 +780,14 @@
 			},
 			"security": {
 				"title": "Sessions & API keys: {{name}}",
-				"description": "Sign this user out or revoke their API keys. Changes take effect immediately and are recorded in the audit log.",
 				"sessionsTitle": "Sessions",
 				"sessionsEmpty": "Not signed in anywhere.",
 				"revokeAll": "Sign out everywhere",
 				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
-				"revokeAllConfirmDescription": "Every session of this user ends right away. Their API keys keep working; revoke those separately.",
-				"revokeAllSelfDescription": "Every other session of yours ends right away. This one stays signed in.",
+				"revokeAllConfirmDescription": "They'll be signed out everywhere right away.",
+				"revokeAllSelfDescription": "Your other sessions will be signed out right away.",
 				"toastRevokedAll": "Sessions signed out.",
 				"apiKeysTitle": "API keys",
-				"apiKeysDescription": "Only names and the first characters of keys are shown; the keys themselves are never visible.",
 				"apiKeysEmpty": "No API keys.",
 				"apiKeysLoadError": "Couldn't load API keys.",
 				"lastUsed": "Last used {{time}}",
@@ -799,7 +797,7 @@
 				"revokingKey": "Revoking...",
 				"revokeKeyLabel": "Revoke {{name}}",
 				"revokeKeyConfirmTitle": "Revoke {{name}}?",
-				"revokeKeyConfirmDescription": "The key is deleted and requests using it fail right away. This can't be undone.",
+				"revokeKeyConfirmDescription": "Requests using this key will fail right away.",
 				"toastKeyRevoked": "API key revoked.",
 				"toastKeyRevokeError": "Couldn't revoke the API key."
 			}
@@ -2316,10 +2314,9 @@
 			"dialogDescription": "At least 8 characters, different from the current one.",
 			"sessions": {
 				"title": "Active sessions",
-				"description": "Browsers and devices signed in to your account. Sign out any you don't recognize.",
 				"revokeOthers": "Sign out other sessions",
 				"revokeOthersConfirmTitle": "Sign out all other sessions?",
-				"revokeOthersConfirmDescription": "Every other browser and device is signed out right away. This one stays signed in, and API keys keep working.",
+				"revokeOthersConfirmDescription": "Your other sessions will be signed out right away.",
 				"toastRevokedOthers": "Other sessions signed out."
 			}
 		},
@@ -2549,7 +2546,7 @@
 			"revoking": "Signing out...",
 			"revokeLabel": "Sign out {{device}}",
 			"revokeConfirmTitle": "Sign out {{device}}?",
-			"revokeConfirmDescription": "That session ends right away and has to sign in again.",
+			"revokeConfirmDescription": "They'll be signed out right away.",
 			"loadError": "Couldn't load sessions.",
 			"toastRevoked": "Session signed out.",
 			"toastRevokeError": "Couldn't sign out the session."

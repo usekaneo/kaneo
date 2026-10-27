@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
-  DialogDescription,
   DialogHeader,
   DialogPanel,
   DialogPopup,
@@ -34,9 +33,6 @@ export function UserSecurityDialog({
           <DialogTitle>
             {t("settings:adminUsers.security.title", { name: user?.name })}
           </DialogTitle>
-          <DialogDescription>
-            {t("settings:adminUsers.security.description")}
-          </DialogDescription>
         </DialogHeader>
         <DialogPanel>
           {user && open ? (

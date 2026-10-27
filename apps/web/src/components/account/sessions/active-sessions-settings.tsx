@@ -50,7 +50,6 @@ export function ActiveSessionsSettings() {
   return (
     <SettingsSection
       title={t("settings:securityPage.sessions.title")}
-      description={t("settings:securityPage.sessions.description")}
       action={
         hasOthers ? (
           <Button

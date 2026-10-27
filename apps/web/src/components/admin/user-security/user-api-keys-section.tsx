@@ -70,10 +70,7 @@ export function UserApiKeysSection({ user }: { user: AdminUser }) {
   };
 
   return (
-    <SettingsSection
-      title={t("settings:adminUsers.security.apiKeysTitle")}
-      description={t("settings:adminUsers.security.apiKeysDescription")}
-    >
+    <SettingsSection title={t("settings:adminUsers.security.apiKeysTitle")}>
       <SettingsCard>{renderKeys()}</SettingsCard>
       <ConfirmDialog
         open={revoking !== null}
