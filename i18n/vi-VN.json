@@ -2370,7 +2370,6 @@
 				"reason": "Reason: {{reason}}"
 			},
 			"directoryTitle": "Recorded actions",
-			"emptyDescription": "Administrative actions appear here after they happen.",
 			"emptyTitle": "No actions recorded",
 			"fields": {
 				"email": "email",
@@ -2385,7 +2384,6 @@
 			"previous": "Previous",
 			"refreshing": "Refreshing audit log",
 			"retry": "Retry",
-			"subtitle": "Administrative actions on this Kaneo instance, newest first. Entries never include passwords, tokens, or reset links.",
 			"targetTypes": {
 				"user": "User",
 				"workspace": "Workspace"

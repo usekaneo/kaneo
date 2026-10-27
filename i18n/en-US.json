@@ -797,7 +797,6 @@
 		},
 		"adminAuditLog": {
 			"title": "Audit log",
-			"subtitle": "Administrative actions on this Kaneo instance, newest first. Entries never include passwords, tokens, or reset links.",
 			"directoryTitle": "Recorded actions",
 			"refreshing": "Refreshing audit log",
 			"categoryLabel": "Filter by category",
@@ -810,7 +809,6 @@
 			"loadError": "The audit log could not be loaded.",
 			"retry": "Retry",
 			"emptyTitle": "No actions recorded",
-			"emptyDescription": "Administrative actions appear here after they happen.",
 			"clearFilter": "Show all actions",
 			"previous": "Previous",
 			"next": "Next",

@@ -38,10 +38,7 @@ function AuditLogPanel() {
   }
 
   return (
-    <SettingsPage
-      title={t("settings:adminAuditLog.title")}
-      description={t("settings:adminAuditLog.subtitle")}
-    >
+    <SettingsPage title={t("settings:adminAuditLog.title")}>
       <SettingsSection
         title={
           <DirectoryHeading
@@ -75,7 +72,6 @@ function AuditLogPanel() {
             <SettingsEmpty
               icon={<ScrollTextIcon />}
               title={t("settings:adminAuditLog.emptyTitle")}
-              description={t("settings:adminAuditLog.emptyDescription")}
               action={
                 category ? (
                   <Button
