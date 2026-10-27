@@ -1200,7 +1200,8 @@
 			"statusPaused": "Dayandırılıb",
 			"connect": "Qoş",
 			"configure": "Tənzimlə",
-			"done": "Hazır"
+			"done": "Hazır",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Layihənin görünürlüğü",
@@ -3781,7 +3782,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} sizi Kaneo-da {{workspaceName}} iş sahəsinə qoşulmağa dəvət etdi",
+			"subject": "{{inviterName}} sizi {{instanceName}}-da {{workspaceName}} iş sahəsinə qoşulmağa dəvət etdi",
 			"preview": "Kaneo-da {{workspaceName}} iş sahəsinə dəvət almısınız",
 			"title": "{{workspaceName}} iş sahəsinə qoşul",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) sizi Kaneo-da əməkdaşlığa dəvət etdi.",

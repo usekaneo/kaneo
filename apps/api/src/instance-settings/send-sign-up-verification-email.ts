@@ -25,7 +25,7 @@ export async function sendSignUpVerificationEmail({
   try {
     await sendEmailVerificationEmail(
       user.email,
-      accountEmailSubject("verification", locale),
+      (name) => accountEmailSubject("verification", locale, name),
       {
         verificationLink: link.toString(),
         userName: user.name ?? undefined,

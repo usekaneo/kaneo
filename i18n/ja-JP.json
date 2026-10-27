@@ -1191,7 +1191,8 @@
 			"statusPaused": "一時停止中",
 			"connect": "接続",
 			"configure": "設定",
-			"done": "完了"
+			"done": "完了",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "プロジェクトの公開設定",
@@ -3710,7 +3711,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} さんが Kaneo の「{{workspaceName}}」にあなたを招待しました",
+			"subject": "{{inviterName}} さんが {{instanceName}} の「{{workspaceName}}」にあなたを招待しました",
 			"preview": "Kaneo の「{{workspaceName}}」に招待されました",
 			"title": "「{{workspaceName}}」に参加",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) さんが Kaneo でのコラボレーションにあなたを招待しました。",

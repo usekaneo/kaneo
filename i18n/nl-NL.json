@@ -833,7 +833,8 @@
 			"statusPaused": "Gepauzeerd",
 			"connect": "Verbinden",
 			"configure": "Configureren",
-			"done": "Klaar"
+			"done": "Klaar",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Projectzichtbaarheid",
@@ -3781,7 +3782,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} heeft je uitgenodigd voor {{workspaceName}} op Kaneo",
+			"subject": "{{inviterName}} heeft je uitgenodigd voor {{workspaceName}} op {{instanceName}}",
 			"preview": "Je bent uitgenodigd voor {{workspaceName}} op Kaneo",
 			"title": "Word lid van {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) heeft je uitgenodigd om samen te werken in Kaneo.",

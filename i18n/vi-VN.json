@@ -1191,7 +1191,8 @@
 			"statusPaused": "Đã tạm dừng",
 			"connect": "Kết nối",
 			"configure": "Cấu hình",
-			"done": "Xong"
+			"done": "Xong",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Chế độ hiển thị dự án",
@@ -3710,7 +3711,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} đã mời bạn tham gia {{workspaceName}} trên Kaneo",
+			"subject": "{{inviterName}} đã mời bạn tham gia {{workspaceName}} trên {{instanceName}}",
 			"preview": "Bạn được mời tham gia {{workspaceName}} trên Kaneo",
 			"title": "Tham gia {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) đã mời bạn cộng tác trên Kaneo.",

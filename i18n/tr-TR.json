@@ -955,7 +955,8 @@
 			"statusPaused": "Duraklatıldı",
 			"connect": "Bağla",
 			"configure": "Yapılandır",
-			"done": "Bitti"
+			"done": "Bitti",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Proje Görünürlüğü",
@@ -3799,7 +3800,7 @@
 			"rejectSuccess": "Davet reddedildi"
 		},
 		"email": {
-			"subject": "{{inviterName}}, sizi Kaneo'da {{workspaceName}} çalışma alanına davet etti",
+			"subject": "{{inviterName}}, sizi {{instanceName}}'da {{workspaceName}} çalışma alanına davet etti",
 			"preview": "Kaneo'da {{workspaceName}} çalışma alanına davet edildiniz",
 			"title": "{{workspaceName}} çalışma alanına katılın",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) sizi Kaneo'da birlikte çalışmaya davet etti.",

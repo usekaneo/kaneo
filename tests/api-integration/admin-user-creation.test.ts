@@ -1,3 +1,4 @@
+import type { EmailSubject } from "../../packages/email/src/brand";
 import * as email from "@kaneo/email";
 import { eq } from "drizzle-orm";
 import {
@@ -72,9 +73,15 @@ describe("POST /api/admin/users", () => {
 
     expect(email.sendAccountPasswordEmail).toHaveBeenCalledOnce();
     const [to, subject, data] = vi.mocked(email.sendAccountPasswordEmail).mock
-      .calls[0] as [string, string, { purpose: string; passwordLink: string }];
+      .calls[0] as [
+      string,
+      EmailSubject,
+      { purpose: string; passwordLink: string },
+    ];
     expect(to).toBe("nora@example.com");
-    expect(subject).toBe("Set up your Kaneo account");
+    expect(typeof subject === "function" ? subject("Kaneo") : subject).toBe(
+      "Set up your Kaneo account",
+    );
     expect(data.purpose).toBe("setup");
     const link = new URL(data.passwordLink);
     const token = link.pathname.split("/").at(-1) as string;

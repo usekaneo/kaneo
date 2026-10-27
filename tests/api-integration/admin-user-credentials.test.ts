@@ -1,3 +1,4 @@
+import type { EmailSubject } from "../../packages/email/src/brand";
 import * as email from "@kaneo/email";
 import { eq } from "drizzle-orm";
 import {
@@ -52,9 +53,15 @@ describe("POST /api/admin/users/{userId}/password-reset-email", () => {
     expect(JSON.parse(text)).toEqual({ sent: true });
 
     const [to, subject, data] = vi.mocked(email.sendAccountPasswordEmail).mock
-      .calls[0] as [string, string, { purpose: string; passwordLink: string }];
+      .calls[0] as [
+      string,
+      EmailSubject,
+      { purpose: string; passwordLink: string },
+    ];
     expect(to).toBe("target@example.com");
-    expect(subject).toBe("Choose a new Kaneo password");
+    expect(typeof subject === "function" ? subject("Kaneo") : subject).toBe(
+      "Choose a new Kaneo password",
+    );
     expect(data.purpose).toBe("reset");
     const link = new URL(data.passwordLink);
     const token = link.pathname.split("/").at(-1);
@@ -140,9 +147,11 @@ describe("POST /api/admin/users/{userId}/verification-email", () => {
     expect(response.status, text).toBe(200);
 
     const [to, subject, data] = vi.mocked(email.sendEmailVerificationEmail).mock
-      .calls[0] as [string, string, { verificationLink: string }];
+      .calls[0] as [string, EmailSubject, { verificationLink: string }];
     expect(to).toBe("target@example.com");
-    expect(subject).toBe("Confirm your email address for Kaneo");
+    expect(typeof subject === "function" ? subject("Kaneo") : subject).toBe(
+      "Confirm your email address for Kaneo",
+    );
     const link = new URL(data.verificationLink);
     expect(text).not.toContain(link.searchParams.get("token"));
     expect(await auditRows("user.verification_sent")).toHaveLength(1);

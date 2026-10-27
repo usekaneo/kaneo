@@ -971,7 +971,8 @@
 			"statusPaused": "Призупинено",
 			"connect": "Підключити",
 			"configure": "Налаштувати",
-			"done": "Готово"
+			"done": "Готово",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Видимість проєкту",
@@ -3923,7 +3924,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} запрошує вас приєднатися до {{workspaceName}} у Kaneo",
+			"subject": "{{inviterName}} запрошує вас приєднатися до {{workspaceName}} у {{instanceName}}",
 			"preview": "Вас запрошено до {{workspaceName}} у Kaneo",
 			"title": "Приєднуйтесь до {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) запрошує вас до співпраці в Kaneo.",

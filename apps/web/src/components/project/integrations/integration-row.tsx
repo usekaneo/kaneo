@@ -1,3 +1,4 @@
+import { DisabledIntegrationDisconnect } from "./disabled-integration-disconnect";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { IntegrationStatus } from "@/components/project/integrations/get-integration-status";
@@ -14,6 +15,7 @@ import {
 import { cn } from "@/lib/cn";
 
 type IntegrationRowProps = {
+  disabled?: boolean;
   onRetry: () => void;
   integration: IntegrationDefinition;
   projectId: string;
@@ -25,6 +27,7 @@ export function IntegrationRow({
   onRetry,
   projectId,
   status,
+  disabled = false,
 }: IntegrationRowProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -49,7 +52,11 @@ export function IntegrationRow({
             <p className="truncate text-sm font-medium">{name}</p>
             <IntegrationStatusBadge state={state} />
           </div>
-          {isSetUp && status?.detail ? (
+          {disabled ? (
+            <p className="text-xs text-muted-foreground">
+              {t("settings:projectIntegrations.turnedOffByAdmin")}
+            </p>
+          ) : isSetUp && status?.detail ? (
             <p className="truncate font-mono text-xs text-muted-foreground">
               {status.detail}
             </p>
@@ -59,7 +66,13 @@ export function IntegrationRow({
             </p>
           )}
         </div>
-        {state === "unavailable" && !open ? (
+        {disabled ? (
+          <DisabledIntegrationDisconnect
+            integrationId={integration.id}
+            projectId={projectId}
+            name={name}
+          />
+        ) : state === "unavailable" && !open ? (
           <Button
             className="w-24 shrink-0"
             onClick={onRetry}
@@ -82,11 +95,13 @@ export function IntegrationRow({
           </CollapsibleTrigger>
         )}
       </div>
-      <CollapsiblePanel>
-        <div className="border-t border-border bg-muted/30">
-          <integration.Settings projectId={projectId} />
-        </div>
-      </CollapsiblePanel>
+      {!disabled ? (
+        <CollapsiblePanel>
+          <div className="border-t border-border bg-muted/30">
+            <integration.Settings projectId={projectId} />
+          </div>
+        </CollapsiblePanel>
+      ) : null}
     </Collapsible>
   );
 }

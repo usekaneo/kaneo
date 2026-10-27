@@ -24,6 +24,7 @@ function RouteComponent() {
   const integrations = filterEnabledIntegrations(
     INTEGRATIONS,
     config?.disabledIntegrations ?? [],
+    statuses,
   );
   const groups = [
     {
@@ -51,6 +52,7 @@ function RouteComponent() {
               integrations={shown}
               projectId={projectId}
               statuses={statuses}
+              disabledProviders={config?.disabledIntegrations ?? []}
               onRetry={retry}
             />
           ) : null;

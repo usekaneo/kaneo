@@ -46,7 +46,8 @@ export type WorkspaceInvitationEmailCopy = {
 };
 
 const DEFAULT_COPY: WorkspaceInvitationEmailCopy = {
-  subject: "{{inviterName}} invited you to join {{workspaceName}} on Kaneo",
+  subject:
+    "{{inviterName}} invited you to join {{workspaceName}} on {{instanceName}}",
   preview: "You're invited to {{workspaceName}} on Kaneo",
   title: "Join {{workspaceName}}",
   subtitle:

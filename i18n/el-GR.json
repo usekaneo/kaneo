@@ -955,7 +955,8 @@
 			"statusPaused": "Σε παύση",
 			"connect": "Σύνδεση",
 			"configure": "Ρύθμιση",
-			"done": "Τέλος"
+			"done": "Τέλος",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Ορατότητα έργου",
@@ -3781,7 +3782,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "Ο/Η {{inviterName}} σας προσκάλεσε να συμμετάσχετε στο {{workspaceName}} στο Kaneo",
+			"subject": "Ο/Η {{inviterName}} σας προσκάλεσε να συμμετάσχετε στο {{workspaceName}} στο {{instanceName}}",
 			"preview": "Έχετε πρόσκληση για το {{workspaceName}} στο Kaneo",
 			"title": "Συμμετοχή στο {{workspaceName}}",
 			"subtitle": "Ο/Η {{inviterName}} ({{inviterEmail}}) σας προσκάλεσε να συνεργαστείτε στο Kaneo.",

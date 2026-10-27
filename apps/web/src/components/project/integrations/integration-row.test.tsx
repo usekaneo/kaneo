@@ -6,6 +6,13 @@ import { IntegrationRow } from "@/components/project/integrations/integration-ro
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
+const disconnect = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("@/hooks/mutations/use-disconnect-integration", () => ({
+  useDisconnectIntegration: () => ({
+    mutateAsync: disconnect,
+    isPending: false,
+  }),
+}));
 const integration: IntegrationDefinition = {
   id: "github",
   name: "GitHub",
@@ -18,6 +25,44 @@ const integration: IntegrationDefinition = {
 afterEach(cleanup);
 
 describe("IntegrationRow", () => {
+  it("keeps only disconnect available for a connected provider turned off by an administrator", async () => {
+    const props = {
+      integration,
+      projectId: "p1",
+      onRetry: vi.fn(),
+      status: { state: "connected" as const },
+    };
+    const { rerender } = render(<IntegrationRow {...props} />);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:projectIntegrations.configure",
+      }),
+    );
+    expect(screen.getByText("Integration settings")).toBeVisible();
+    rerender(<IntegrationRow {...props} disabled />);
+    expect(
+      screen.getByText("settings:projectIntegrations.turnedOffByAdmin"),
+    ).toBeVisible();
+    expect(screen.queryByText("Integration settings")).toBeNull();
+    expect(
+      screen.queryByRole("button", {
+        name: "settings:projectIntegrations.configure",
+      }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", {
+        name: "settings:projectIntegrations.connect",
+      }),
+    ).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:chatIntegrations.disconnect",
+      }),
+    );
+    const dialog = screen.getByRole("alertdialog");
+    fireEvent.click(dialog.querySelectorAll("button")[1]!);
+    expect(disconnect).toHaveBeenCalledWith("p1");
+  });
   it.each([undefined, { state: "loading" as const }])(
     "does not offer Connect before status is known",
     (status) => {

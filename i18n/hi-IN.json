@@ -1200,7 +1200,8 @@
 			"statusPaused": "रोका गया",
 			"connect": "कनेक्ट करें",
 			"configure": "कॉन्फ़िगर करें",
-			"done": "हो गया"
+			"done": "हो गया",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "प्रोजेक्ट दृश्यता",
@@ -3781,7 +3782,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} ने आपको Kaneo पर {{workspaceName}} में शामिल होने के लिए आमंत्रित किया है",
+			"subject": "{{inviterName}} ने आपको {{instanceName}} पर {{workspaceName}} में शामिल होने के लिए आमंत्रित किया है",
 			"preview": "आपको Kaneo पर {{workspaceName}} में आमंत्रित किया गया है",
 			"title": "{{workspaceName}} में शामिल हों",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) ने आपको Kaneo में सहयोग करने के लिए आमंत्रित किया है।",

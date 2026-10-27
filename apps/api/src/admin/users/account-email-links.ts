@@ -50,7 +50,7 @@ export async function emailPasswordLink(
   });
   return sendAccountPasswordEmail(
     user.email,
-    accountEmailSubject(purpose, user.locale),
+    (name) => accountEmailSubject(purpose, user.locale, name),
     {
       purpose,
       passwordLink: `${context.baseURL}/reset-password/${token}?callbackURL=${clientUrl("/auth/reset-password")}`,
@@ -77,7 +77,7 @@ export async function emailVerificationLink(
   );
   return sendEmailVerificationEmail(
     user.email,
-    accountEmailSubject("verification", user.locale),
+    (name) => accountEmailSubject("verification", user.locale, name),
     {
       verificationLink: `${context.baseURL}/verify-email?token=${token}&callbackURL=${clientUrl("/auth/sign-in")}`,
       userName: user.name,

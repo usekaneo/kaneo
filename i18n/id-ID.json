@@ -947,7 +947,8 @@
 			"statusPaused": "Dijeda",
 			"connect": "Hubungkan",
 			"configure": "Konfigurasi",
-			"done": "Selesai"
+			"done": "Selesai",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilitas Proyek",
@@ -3710,7 +3711,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} mengundang Anda bergabung ke {{workspaceName}} di Kaneo",
+			"subject": "{{inviterName}} mengundang Anda bergabung ke {{workspaceName}} di {{instanceName}}",
 			"preview": "Anda diundang ke {{workspaceName}} di Kaneo",
 			"title": "Bergabung ke {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) mengundang Anda untuk berkolaborasi di Kaneo.",

@@ -56,7 +56,7 @@ async function sendAdminTestEmail(
 
   let result: Awaited<ReturnType<typeof sendTestEmail>>;
   try {
-    result = await sendTestEmail(email, "Kaneo test email", {
+    result = await sendTestEmail(email, (name) => `${name} test email`, {
       requestedAt: new Date(),
     });
   } catch (error) {

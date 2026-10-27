@@ -947,7 +947,8 @@
 			"statusPaused": "일시 중지됨",
 			"connect": "연결",
 			"configure": "구성",
-			"done": "완료"
+			"done": "완료",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "프로젝트 공개 설정",
@@ -3710,7 +3711,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}}님이 Kaneo의 {{workspaceName}}에 초대했습니다",
+			"subject": "{{inviterName}}님이 {{instanceName}}의 {{workspaceName}}에 초대했습니다",
 			"preview": "Kaneo의 {{workspaceName}}에 초대되었습니다",
 			"title": "{{workspaceName}}에 참여하세요",
 			"subtitle": "{{inviterName}}님({{inviterEmail}})이 Kaneo에서 함께 협업하도록 초대했습니다.",

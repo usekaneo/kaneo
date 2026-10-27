@@ -1118,7 +1118,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} zaprosił Cię do {{workspaceName}} w Kaneo",
+			"subject": "{{inviterName}} zaprosił Cię do {{workspaceName}} w {{instanceName}}",
 			"preview": "Masz zaproszenie do {{workspaceName}} w Kaneo",
 			"title": "Dołącz do {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) zaprosił Cię do współpracy w Kaneo.",
@@ -1792,7 +1792,8 @@
 			"statusPaused": "Wstrzymano",
 			"connect": "Połącz",
 			"configure": "Konfiguruj",
-			"done": "Gotowe"
+			"done": "Gotowe",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectSwitcher": {
 			"noProjects": "Brak projektów",

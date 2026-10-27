@@ -1191,7 +1191,8 @@
 			"statusPaused": "已暂停",
 			"connect": "连接",
 			"configure": "配置",
-			"done": "完成"
+			"done": "完成",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "项目可见性",
@@ -3710,7 +3711,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} 邀请你加入 Kaneo 上的 {{workspaceName}}",
+			"subject": "{{inviterName}} 邀请你加入 {{instanceName}} 上的 {{workspaceName}}",
 			"preview": "你被邀请加入 Kaneo 上的 {{workspaceName}}",
 			"title": "加入 {{workspaceName}}",
 			"subtitle": "{{inviterName}}（{{inviterEmail}}）邀请你在 Kaneo 中协作。",

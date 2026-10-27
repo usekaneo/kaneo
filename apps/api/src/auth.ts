@@ -233,45 +233,47 @@ async function shouldDeliverSignInEmail(email: string) {
   return true;
 }
 
-function getAuthEmailCopy(locale?: string | null) {
+function getAuthEmailCopy(locale?: string | null, instanceName = "Kaneo") {
   const localeKey = getLocaleKey(locale);
 
   if (localeKey === "de") {
     return {
-      magicLinkSubject: "Anmeldelink für Kaneo",
-      otpSubject: (otp: string) => `${otp} ist dein Kaneo-Anmeldecode`,
-      passwordResetSubject: "Kaneo-Passwort zurücksetzen",
+      magicLinkSubject: `Anmeldelink für ${instanceName}`,
+      otpSubject: (otp: string) =>
+        `${otp} ist dein ${instanceName}-Anmeldecode`,
+      passwordResetSubject: `${instanceName}-Passwort zurücksetzen`,
     };
   }
 
   if (localeKey === "vi") {
     return {
-      magicLinkSubject: "Liên kết đăng nhập Kaneo",
-      otpSubject: (otp: string) => `${otp} là mã đăng nhập Kaneo của bạn`,
-      passwordResetSubject: "Đặt lại mật khẩu Kaneo",
+      magicLinkSubject: `Liên kết đăng nhập ${instanceName}`,
+      otpSubject: (otp: string) =>
+        `${otp} là mã đăng nhập ${instanceName} của bạn`,
+      passwordResetSubject: `Đặt lại mật khẩu ${instanceName}`,
     };
   }
 
   if (localeKey === "ja") {
     return {
-      magicLinkSubject: "Kaneo ログインリンク",
-      otpSubject: (otp: string) => `Kaneo のサインインコード: ${otp}`,
-      passwordResetSubject: "Kaneo のパスワードをリセット",
+      magicLinkSubject: `${instanceName} ログインリンク`,
+      otpSubject: (otp: string) => `${instanceName} のサインインコード: ${otp}`,
+      passwordResetSubject: `${instanceName} のパスワードをリセット`,
     };
   }
 
   if (localeKey === "zh-tw") {
     return {
-      magicLinkSubject: "Kaneo 登入連結",
-      otpSubject: (otp: string) => `你的 Kaneo 登入驗證碼：${otp}`,
-      passwordResetSubject: "重設 Kaneo 密碼",
+      magicLinkSubject: `${instanceName} 登入連結`,
+      otpSubject: (otp: string) => `你的 ${instanceName} 登入驗證碼：${otp}`,
+      passwordResetSubject: `重設 ${instanceName} 密碼`,
     };
   }
 
   return {
-    magicLinkSubject: "Login for Kaneo",
-    otpSubject: (otp: string) => `${otp} is your Kaneo sign-in code`,
-    passwordResetSubject: "Reset your Kaneo password",
+    magicLinkSubject: `Login for ${instanceName}`,
+    otpSubject: (otp: string) => `${otp} is your ${instanceName} sign-in code`,
+    passwordResetSubject: `Reset your ${instanceName} password`,
   };
 }
 
@@ -363,7 +365,7 @@ export const auth = betterAuth({
         getUserLocale(user.email).then((locale) =>
           sendPasswordResetEmail(
             user.email,
-            getAuthEmailCopy(locale).passwordResetSubject,
+            (name) => getAuthEmailCopy(locale, name).passwordResetSubject,
             {
               resetLink: url,
               userName: user.name,
@@ -420,12 +422,15 @@ export const auth = betterAuth({
             return;
           }
           const locale = await getUserLocale(email);
-          const copy = getAuthEmailCopy(locale);
-          await sendMagicLinkEmail(email, copy.magicLinkSubject, {
-            magicLink: url,
-            locale,
-            ...requestContext,
-          });
+          await sendMagicLinkEmail(
+            email,
+            (name) => getAuthEmailCopy(locale, name).magicLinkSubject,
+            {
+              magicLink: url,
+              locale,
+              ...requestContext,
+            },
+          );
         });
       },
     }),
@@ -445,12 +450,15 @@ export const auth = betterAuth({
                     return;
                   }
                   const locale = await getUserLocale(email);
-                  const copy = getAuthEmailCopy(locale);
-                  await sendOtpEmail(email, copy.otpSubject(otp), {
-                    otp,
-                    locale,
-                    ...requestContext,
-                  });
+                  await sendOtpEmail(
+                    email,
+                    (name) => getAuthEmailCopy(locale, name).otpSubject(otp),
+                    {
+                      otp,
+                      locale,
+                      ...requestContext,
+                    },
+                  );
                 });
               }
             },
@@ -653,11 +661,13 @@ export const auth = betterAuth({
 
         const result = await sendWorkspaceInvitationEmail(
           data.email,
-          getInvitationEmailSubject(
-            locale,
-            data.inviter.user.name,
-            data.organization.name,
-          ),
+          (name) =>
+            getInvitationEmailSubject(
+              locale,
+              data.inviter.user.name,
+              data.organization.name,
+              name,
+            ),
           {
             inviterEmail: data.inviter.user.email,
             inviterName: data.inviter.user.name,

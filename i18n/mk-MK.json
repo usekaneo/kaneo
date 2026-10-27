@@ -955,7 +955,8 @@
 			"statusPaused": "Паузирано",
 			"connect": "Поврзи",
 			"configure": "Конфигурирај",
-			"done": "Готово"
+			"done": "Готово",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Видливост на проект",
@@ -3781,7 +3782,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} те покани да се приклучиш на {{workspaceName}} на Kaneo",
+			"subject": "{{inviterName}} те покани да се приклучиш на {{workspaceName}} на {{instanceName}}",
 			"preview": "Поканет си во {{workspaceName}} на Kaneo",
 			"title": "Приклучи се на {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) те покани да соработувате во Kaneo.",

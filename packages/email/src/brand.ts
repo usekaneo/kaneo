@@ -1,7 +1,6 @@
 const DEFAULT_BRAND = "Kaneo";
 
 let resolveName: () => Promise<string | null | undefined> = async () => null;
-let current = DEFAULT_BRAND;
 
 /** Let the API supply the instance name shown in email headers and subjects. */
 export function setBrandNameResolver(
@@ -10,21 +9,13 @@ export function setBrandNameResolver(
   resolveName = resolver;
 }
 
-/** Refresh the instance name before an email is rendered. */
+/** Take one immutable branding snapshot for an outgoing email. */
 export async function loadBrandName() {
   try {
-    current = (await resolveName())?.trim() || DEFAULT_BRAND;
+    return (await resolveName())?.trim() || DEFAULT_BRAND;
   } catch {
-    // Keep the last known name when settings can't be read.
+    return DEFAULT_BRAND;
   }
 }
 
-export function brandName() {
-  return current;
-}
-
-export function brandSubject(subject: string) {
-  return current === DEFAULT_BRAND
-    ? subject
-    : subject.replaceAll(DEFAULT_BRAND, current);
-}
+export type EmailSubject = string | ((instanceName: string) => string);

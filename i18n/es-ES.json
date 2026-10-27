@@ -838,7 +838,8 @@
 			"statusPaused": "En pausa",
 			"connect": "Conectar",
 			"configure": "Configurar",
-			"done": "Listo"
+			"done": "Listo",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilidad del Proyecto",
@@ -3852,7 +3853,7 @@
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} te ha invitado a unirte a {{workspaceName}} en Kaneo",
+			"subject": "{{inviterName}} te ha invitado a unirte a {{workspaceName}} en {{instanceName}}",
 			"preview": "Te han invitado a {{workspaceName}} en Kaneo",
 			"title": "Únete a {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) te ha invitado a colaborar en Kaneo.",

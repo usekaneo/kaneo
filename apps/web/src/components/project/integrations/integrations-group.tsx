@@ -3,6 +3,7 @@ import type {
   IntegrationDefinition,
   IntegrationId,
 } from "@/components/project/integrations/integration-definitions";
+import { providerType } from "./filter-enabled-integrations";
 import { IntegrationRow } from "@/components/project/integrations/integration-row";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { SettingsSection } from "@/components/settings/settings-section";
@@ -12,6 +13,7 @@ type IntegrationsGroupProps = {
   title: string;
   integrations: IntegrationDefinition[];
   projectId: string;
+  disabledProviders: readonly string[];
   statuses: Partial<Record<IntegrationId, IntegrationStatus>>;
 };
 
@@ -21,6 +23,7 @@ export function IntegrationsGroup({
   integrations,
   projectId,
   statuses,
+  disabledProviders,
 }: IntegrationsGroupProps) {
   return (
     <SettingsSection title={title}>
@@ -31,6 +34,7 @@ export function IntegrationsGroup({
             integration={integration}
             projectId={projectId}
             status={statuses[integration.id]}
+            disabled={disabledProviders.includes(providerType(integration.id))}
             onRetry={() => onRetry(integration.id)}
           />
         ))}

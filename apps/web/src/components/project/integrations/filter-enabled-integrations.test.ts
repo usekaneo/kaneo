@@ -18,5 +18,12 @@ describe("filterEnabledIntegrations", () => {
       ),
     ).toEqual(["github"]);
     expect(filterEnabledIntegrations(all, [])).toEqual(all);
+    expect(
+      filterEnabledIntegrations(all, ["github", "slack", "generic-webhook"], {
+        github: { state: "connected" },
+        slack: { state: "disconnected" },
+        webhook: { state: "paused" },
+      }).map((integration) => integration.id),
+    ).toEqual(["github", "webhook"]);
   });
 });
