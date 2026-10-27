@@ -3,6 +3,7 @@ import { auth } from "../auth";
 import { withJsonNotFound } from "../errors/not-found-response";
 import { withJsonRateLimit } from "../errors/rate-limit-response";
 import { apiKeyRejection } from "./api-key-rejection";
+import { normalizeCustomOAuthRequest } from "./normalize-custom-oauth-request";
 import { apiKeyResponseHeaders } from "./rate-limit-headers";
 import { readApiKeyCheck, verifyApiKey } from "./verify-api-key";
 
@@ -32,7 +33,9 @@ export async function forwardAuthRequest(c: Context): Promise<Response> {
   }
   const response = await withJsonRateLimit(
     await withJsonNotFound(
-      await auth.handler(new Request(c.req.raw, { headers })),
+      await auth.handler(
+        await normalizeCustomOAuthRequest(new Request(c.req.raw, { headers })),
+      ),
     ),
   );
   if (bearerKey) {

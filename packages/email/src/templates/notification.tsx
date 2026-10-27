@@ -1,4 +1,4 @@
-import { Text } from "@react-email/components";
+import { Text } from "react-email";
 import React from "react";
 import { BoardColumn, type BoardColumnIcon } from "../components/board-column";
 import { EmailButton } from "../components/email-button";

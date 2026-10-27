@@ -49,7 +49,7 @@ describe("mapCustomOAuthProfileToUser", () => {
     expect(mapCustomOAuthProfileToUser({ email: "" })).toEqual({});
   });
 
-  it("leaves the picture and locale to Better Auth when they are not managed", () => {
+  it("leaves the picture to Better Auth and preserves an unmanaged locale", () => {
     expect(
       mapCustomOAuthProfileToUser(
         {
@@ -59,7 +59,7 @@ describe("mapCustomOAuthProfileToUser", () => {
         },
         ["name"],
       ),
-    ).toEqual({ name: "Jane Doe" });
+    ).toEqual({ name: "Jane Doe", locale: "de" });
   });
 
   it("maps a managed picture and locale", () => {
@@ -79,13 +79,13 @@ describe("mapCustomOAuthProfileToUser", () => {
     });
   });
 
-  it("maps an unusable managed picture and locale to null", () => {
+  it("clears an unusable managed picture and locale", () => {
     expect(
       mapCustomOAuthProfileToUser(
         { name: "Jane Doe", picture: "javascript:alert(1)", locale: "sv" },
         ["image", "locale"],
       ),
-    ).toEqual({ name: "Jane Doe", image: null, locale: null });
+    ).toEqual({ name: "Jane Doe", image: undefined, locale: null });
   });
 });
 

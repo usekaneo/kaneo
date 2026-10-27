@@ -27,7 +27,7 @@ env:
 jobs:
   check:
     name: Check and bundle
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     outputs:
@@ -55,7 +55,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
-          version: 10.34.7
+          version: 12.15.0
 
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
@@ -137,7 +137,7 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - runner: ubuntu-24.04
+          - runner: ubuntu-26.04
             platform: linux
             native: kaneo-linux-x64
             targets: >-
@@ -213,7 +213,7 @@ jobs:
     name: Create GitHub release
     needs: [check, binaries]
     if: needs.check.outputs.release_exists == 'false'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
 
@@ -270,7 +270,7 @@ jobs:
     name: Update Homebrew tap
     needs: [check, release]
     if: ${{ !cancelled() && needs.check.result == 'success' && needs.check.outputs.prerelease == 'false' && (needs.release.result == 'success' || needs.check.outputs.release_exists == 'true') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
 
@@ -315,7 +315,7 @@ jobs:
     name: Publish to npm
     needs: check
     if: vars.CLI_NPM_PUBLISH == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       id-token: write

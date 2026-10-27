@@ -13,7 +13,7 @@ ENV SENTRY_PROJECT=$SENTRY_PROJECT
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.34.7 --activate
+  corepack prepare pnpm@12.15.0 --activate
 
 WORKDIR /app
 

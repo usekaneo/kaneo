@@ -67,7 +67,7 @@ describe("assertManagedProfileUnchanged", () => {
     expect(getManagedProfile).not.toHaveBeenCalledWith("admin");
   });
 
-  it.each(["/oauth2/callback/:providerId", "/verify-email", undefined])(
+  it.each(["/callback/:id", "/verify-email", undefined])(
     "leaves user updates on %p alone",
     async (path) => {
       await expect(

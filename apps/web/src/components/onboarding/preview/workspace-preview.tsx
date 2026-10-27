@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { PanelLeft } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";

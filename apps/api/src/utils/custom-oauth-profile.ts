@@ -39,10 +39,12 @@ export function mapCustomOAuthProfileToUser(
   return {
     ...(fallbackName ? { name: fallbackName } : {}),
     ...(managedFields.includes("image")
-      ? { image: readCustomOAuthPicture(profile) }
+      ? { image: readCustomOAuthPicture(profile) ?? undefined }
       : {}),
     ...(managedFields.includes("locale")
       ? { locale: resolveSupportedLocale(profile.locale) }
-      : {}),
+      : typeof profile.locale === "string"
+        ? { locale: profile.locale }
+        : {}),
   };
 }

@@ -34,7 +34,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mocks.navigate,
 }));
-vi.mock("framer-motion", () => ({
+vi.mock("motion/react", () => ({
   AnimatePresence: ({ children }: { children: unknown }) => children,
 }));
 vi.mock("react-i18next", () => ({

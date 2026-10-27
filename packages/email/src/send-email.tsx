@@ -1,4 +1,4 @@
-import { render } from "@react-email/components";
+import { render } from "react-email";
 import { config } from "dotenv-mono";
 import * as nodemailer from "nodemailer";
 import { instanceHost } from "./components/instance-host";

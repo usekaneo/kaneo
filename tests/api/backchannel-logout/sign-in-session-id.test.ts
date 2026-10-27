@@ -5,7 +5,7 @@ import {
   takeSignInSessionId,
 } from "../../../apps/api/src/backchannel-logout/sign-in-session-id";
 
-const CALLBACK_PATH = "/oauth2/callback/:providerId";
+const CALLBACK_PATH = "/callback/:id";
 
 function endpointContext(
   context: object = {},
@@ -14,7 +14,7 @@ function endpointContext(
 ) {
   return {
     path,
-    params: { providerId },
+    params: { id: providerId },
     context,
   } as unknown as GenericEndpointContext;
 }
@@ -46,7 +46,11 @@ describe("sign-in session ID", () => {
 
   it.each([
     ["another provider", CALLBACK_PATH, "github"],
-    ["a social provider callback", "/callback/:id", "custom"],
+    [
+      "the old internal callback path",
+      "/oauth2/callback/:providerId",
+      "custom",
+    ],
     ["an email sign-in", "/sign-in/email", "custom"],
   ])("ignores %s", (_name, path, providerId) => {
     const context = {};

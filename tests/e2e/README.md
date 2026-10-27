@@ -9,7 +9,7 @@ PostgreSQL uses temporary storage; no existing database or root `.env` is used.
 
 ## Local run
 
-Requires Node 24, pnpm 10.34.7, and Docker Compose v2.
+Requires Node 24, pnpm 12.15.0, and Docker Compose v2.
 
 ```sh
 pnpm --dir tests/e2e install --frozen-lockfile --ignore-scripts

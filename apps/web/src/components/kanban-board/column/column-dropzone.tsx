@@ -3,7 +3,7 @@ import {
   type SortingStrategy,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { ProjectWithTasks } from "@/types/project";
 import TaskCard from "../task-card";
 

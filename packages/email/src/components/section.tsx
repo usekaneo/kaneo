@@ -1,4 +1,4 @@
-import { Section as EmailSection } from "@react-email/components";
+import { Section as EmailSection } from "react-email";
 import React from "react";
 
 void React;
