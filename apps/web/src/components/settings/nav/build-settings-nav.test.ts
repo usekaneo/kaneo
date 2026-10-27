@@ -56,6 +56,7 @@ describe("buildSettingsNav", () => {
     expect(
       build({ hasAdminAccess: true }).admin?.links.map((link) => link.to),
     ).toEqual([
+      "/dashboard/settings/admin/overview",
       "/dashboard/settings/admin/users",
       "/dashboard/settings/admin/workspaces",
       "/dashboard/settings/admin/audit-log",

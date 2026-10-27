@@ -10,6 +10,8 @@ import { adminAuditRequest } from "./audit/admin-audit-request";
 import addWorkspaceMember from "./controllers/add-workspace-member";
 import archiveWorkspace from "./controllers/archive-workspace";
 import deleteWorkspace from "./controllers/delete-workspace";
+import getOverview from "./controllers/get-overview";
+import { adminOverviewSchema } from "./overview/response";
 import listAuditLog from "./controllers/list-audit-log";
 import getSystemStatus from "./controllers/get-system-status";
 import listUsers from "./controllers/list-users";
@@ -349,7 +351,24 @@ const sendTestEmailRoute = createRoute({
   },
 });
 
+const getOverviewRoute = createRoute({
+  method: "get",
+  operationId: "getAdminOverview",
+  path: "/overview",
+  tags: ["Admin"],
+  summary: "Get the administration overview",
+  description:
+    "User and workspace counts, the five newest users and administrative actions, compact service checks, and configuration warnings. Activity is based on session refreshes within 30 days and excludes deactivated accounts. Requires an instance administrator session; API keys are rejected. No credentials or audit metadata are returned.",
+  middleware: [requireUserSession, requireInstanceAdmin] as const,
+  responses: {
+    200: jsonResponse("Instance overview", adminOverviewSchema),
+    401: errorResponse("Authentication required"),
+    403: forbidden,
+  },
+});
+
 const admin = apiRouter()
+  .openapi(getOverviewRoute, async (c) => c.json(await getOverview(), 200))
   .openapi(listUsersRoute, async (c) =>
     c.json(await listUsers(c.req.valid("query")), 200),
   )

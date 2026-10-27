@@ -6,6 +6,7 @@ import {
   CreditCard,
   Import,
   KeyRound,
+  LayoutDashboard,
   ScrollText,
   Server,
   Settings,
@@ -155,6 +156,12 @@ export function buildSettingsNav({
           id: "admin",
           label: t("settings:administration"),
           links: [
+            {
+              id: "admin-overview",
+              label: t("settings:adminOverview.title"),
+              to: "/dashboard/settings/admin/overview",
+              icon: LayoutDashboard,
+            },
             {
               id: "admin-users",
               label: t("settings:adminUsers.title"),

@@ -5404,6 +5404,256 @@
           "revoked"
         ]
       },
+      "AdminOverview": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "activeLast30Days": {
+                "type": "integer",
+                "description": "Non-deactivated users with a session refreshed in the last 30 days, counted once per user. Expired bans do not deactivate an account. Revoked or removed sessions do not contribute."
+              },
+              "deactivated": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total",
+              "activeLast30Days",
+              "deactivated"
+            ]
+          },
+          "workspaces": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "archived": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total",
+              "archived"
+            ]
+          },
+          "recentUsers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "image": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "email",
+                "image",
+                "createdAt"
+              ]
+            },
+            "maxItems": 5
+          },
+          "recentActions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "action": {
+                  "type": "string",
+                  "description": "Dotted action name, for example `user.role_changed`."
+                },
+                "actor": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null when the administrator's account was deleted."
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "email": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "email"
+                  ]
+                },
+                "targetType": {
+                  "type": "string"
+                },
+                "targetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "targetLabel": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The target's name or email when the action happened."
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "action",
+                "actor",
+                "targetType",
+                "targetId",
+                "targetLabel"
+              ]
+            },
+            "maxItems": 5
+          },
+          "services": {
+            "type": "object",
+            "properties": {
+              "checkedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "api": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "database": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "realtime": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "redis": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "email": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "storage": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              }
+            },
+            "required": [
+              "checkedAt",
+              "api",
+              "database",
+              "realtime",
+              "redis",
+              "email",
+              "storage"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "smtp_not_configured",
+                "smtp_unreachable",
+                "redis_unreachable",
+                "storage_incomplete",
+                "storage_unreachable",
+                "registration_without_email",
+                "no_second_admin"
+              ]
+            }
+          }
+        },
+        "required": [
+          "users",
+          "workspaces",
+          "recentUsers",
+          "recentActions",
+          "services",
+          "warnings"
+        ]
+      },
       "AdminUserList": {
         "type": "object",
         "properties": {
@@ -24881,6 +25131,51 @@
           },
           "409": {
             "description": "The session is the one making the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/overview": {
+      "get": {
+        "operationId": "getAdminOverview",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get the administration overview",
+        "description": "User and workspace counts, the five newest users and administrative actions, compact service checks, and configuration warnings. Activity is based on session refreshes within 30 days and excludes deactivated accounts. Requires an instance administrator session; API keys are rejected. No credentials or audit metadata are returned.",
+        "responses": {
+          "200": {
+            "description": "Instance overview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOverview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {

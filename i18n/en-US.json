@@ -2677,6 +2677,33 @@
 				"testEmailSent": "Test email sent to {{to}}",
 				"testEmailError": "The test email could not be sent."
 			}
+		},
+		"adminOverview": {
+			"title": "Overview",
+			"totalUsers": "Total users",
+			"activeUsers": "Active (30 days)",
+			"disabledUsers": "Disabled users",
+			"workspaces": "Workspaces",
+			"archivedWorkspaces": "Archived",
+			"recentUsers": "Recent users",
+			"recentActions": "Recent administrative actions",
+			"services": "Services",
+			"configurationWarnings": "Configuration warnings",
+			"viewUsers": "View users",
+			"viewAuditLog": "View audit log",
+			"viewSystem": "View system",
+			"noUsers": "No users",
+			"noActions": "No administrative actions",
+			"loadError": "Could not load the overview.",
+			"warnings": {
+				"smtpNotConfigured": "Email is not configured. Set SMTP_HOST and SMTP_FROM.",
+				"smtpUnreachable": "Email is unavailable. Check SMTP settings.",
+				"redisUnreachable": "Redis is unavailable. Check the connection.",
+				"storageIncomplete": "Storage setup is incomplete. Check S3 settings.",
+				"storageUnreachable": "Storage needs attention. Check S3 access.",
+				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
+				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management."
+			}
 		}
 	},
 	"navigation": {

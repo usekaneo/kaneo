@@ -7,6 +7,14 @@ Instance administrators manage the whole Kaneo instance, not just the workspaces
 
 These pages live under **Settings → Administration** and are only visible to instance administrators.
 
+## Overview
+
+**Settings → Administration → Overview** is the administration landing page. It shows total users, users active in the last 30 days, disabled users, and total and archived workspaces. Active users are counted once if one of their stored sessions was refreshed in the last 30 days; disabled accounts are excluded, and expired bans no longer disable an account. Session refreshes can lag by up to a day; removed or revoked sessions no longer contribute.
+
+The page lists the five newest users and administrative actions, with links to their directories, and checks the same services as **System**. Configuration warnings point out missing email setup, unavailable configured services, incomplete storage settings, open registration without email, or fewer than two enabled instance administrators. Optional Redis and storage do not trigger warnings when switched off. Choose **Refresh** to update the counts and checks.
+
+The same read-only overview is available at `GET /api/admin/overview` to instance administrator sessions. API keys are rejected. It returns service statuses and warning codes without credentials, session tokens, or audit metadata.
+
 ## Manage users
 
 Open **Settings → Administration → User management** to search every account on the instance. Filter by status (active or deactivated), role (admin or user), and email verification. Each row shows the user's role, status, when they were last active, and when they joined. **Last active** is the most recent activity of one of their current sessions, so it can lag by up to a day and is empty for someone who has never signed in or has no session left.
