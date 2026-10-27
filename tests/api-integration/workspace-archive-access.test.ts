@@ -1,3 +1,6 @@
+import { replayDeferredIssueEdits } from "../../apps/api/src/plugins/github/services/deferred-issue-edits";
+import { replayDeferredLabelFields } from "../../apps/api/src/plugins/sync/replay-deferred-label-fields";
+import { createNextOccurrence } from "../../apps/api/src/task/recurrence/create-next-occurrence";
 import { randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
@@ -47,6 +50,10 @@ async function seed() {
     .insert(schema.taskTable)
     .values({ projectId: project.id, title: "Task", number: 1 })
     .returning();
+  await db
+    .update(schema.projectTable)
+    .set({ lastTaskNumber: 1 })
+    .where(eq(schema.projectTable.id, project.id));
   return { member, workspace, project, task };
 }
 
@@ -201,6 +208,66 @@ describe("an archived workspace's public links", () => {
 });
 
 describe("an archived workspace's integrations", () => {
+  it("pauses deferred jobs without discarding their pending work", async () => {
+    const { workspace, project, task } = await seed();
+    const [integration] = await db
+      .insert(schema.integrationTable)
+      .values({
+        projectId: project.id,
+        type: "gitea",
+        isActive: true,
+        config: "{}",
+      })
+      .returning();
+    const metadata = JSON.stringify({
+      deferredIssueEdit: { id: "pending" },
+      syncLabelFieldsDeferred: "pending",
+    });
+    const [link] = await db
+      .insert(schema.externalLinkTable)
+      .values({
+        taskId: task.id,
+        integrationId: integration.id,
+        resourceType: "issue",
+        externalId: "1",
+        url: "https://gitea.example.com/acme/app/issues/1",
+        metadata,
+      })
+      .returning();
+    await setArchived(workspace.id, true);
+    expect(await replayDeferredIssueEdits()).toMatchObject({ degraded: false });
+    expect(await replayDeferredLabelFields()).toMatchObject({
+      degraded: false,
+    });
+    const [stored] = await db
+      .select()
+      .from(schema.externalLinkTable)
+      .where(eq(schema.externalLinkTable.id, link.id));
+    expect(stored.metadata).toBe(metadata);
+  });
+
+  it("leaves recurring tasks intact while archived", async () => {
+    const { workspace, project, task } = await seed();
+    await db
+      .update(schema.taskTable)
+      .set({
+        status: "done",
+        recurrence: { frequency: "weekly", interval: 1, timeZone: "UTC" },
+        dueDate: new Date("2026-10-26T12:00:00Z"),
+      })
+      .where(eq(schema.taskTable.id, task.id));
+    await setArchived(workspace.id, true);
+    expect(await createNextOccurrence(task.id, null)).toBeNull();
+    const tasks = await db
+      .select()
+      .from(schema.taskTable)
+      .where(eq(schema.taskTable.projectId, project.id));
+    expect(tasks).toHaveLength(1);
+    expect(tasks[0].recurrence).not.toBeNull();
+    await setArchived(workspace.id, false);
+    expect(await createNextOccurrence(task.id, null)).not.toBeNull();
+  });
+
   it("are skipped by webhook and sync lookups", async () => {
     const { workspace, project } = await seed();
     await db.insert(schema.integrationTable).values({
@@ -365,6 +432,14 @@ describe("an archived workspace through Better Auth organization endpoints", () 
       expect(response.status).toBe(403);
       expect(await codeOf(response)).toBe("WORKSPACE_ARCHIVED");
     }
+
+    const alternate = await createWorkspaceMember();
+    const mixed = await call(
+      member.cookies,
+      `/auth/organization/get-full-organization?organizationId=${alternate.workspace.id}&organizationSlug=${workspace.slug}`,
+    );
+    expect(mixed.status).toBe(403);
+    expect(await codeOf(mixed)).toBe("WORKSPACE_ARCHIVED");
 
     // Outsiders cannot tell an archived workspace from one they cannot read.
     const probe = await call(

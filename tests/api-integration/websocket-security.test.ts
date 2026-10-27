@@ -415,7 +415,9 @@ describe("archived workspaces", () => {
       projectId,
       taskId: "private-task",
     });
-    expect((await closed)[0]).toBe(1008);
+    const [code, reason] = await closed;
+    expect(code).toBe(1008);
+    expect(reason.toString()).toBe("Workspace archived");
     expect(leaked).not.toHaveBeenCalled();
   });
 });

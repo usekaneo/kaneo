@@ -1,7 +1,8 @@
+import { workspaceIsActive } from "../workspace/archive/active-workspace-sql";
 import { hasWorkspaceAccess, syncWorkspaceAccess } from "./workspace-access";
 import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
 import {
@@ -9,7 +10,6 @@ import {
   projectTable,
   sessionTable,
   userTable,
-  workspaceTable,
   workspaceUserTable,
 } from "../database/schema";
 import { subscribeToEvent } from "../events";
@@ -185,7 +185,11 @@ function deliverToLocalUserConnections(
     message.type === "WORKSPACE_ACCESS_REVOKED" &&
     typeof message.workspaceId === "string"
   ) {
-    revokeLocalWorkspaceConnections(userId, message.workspaceId);
+    revokeLocalWorkspaceConnections(
+      userId,
+      message.workspaceId,
+      message.reason === "archived" ? "Workspace archived" : undefined,
+    );
   }
   if (
     message.type === "PROJECT_ACCESS_CHANGED" &&
@@ -417,13 +421,17 @@ export async function closeProjectConnections(projectId: string) {
   }
 }
 
-function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
+function revokeLocalWorkspaceConnections(
+  userId: string,
+  workspaceId: string,
+  reason = "Workspace access revoked",
+) {
   for (const [projectId, connections] of projectConnections) {
     for (const conn of [...connections]) {
       if (conn.userId !== userId || conn.workspaceId !== workspaceId) continue;
       removeConnection(projectId, conn);
       try {
-        conn.ws.close(1008, "Workspace access revoked");
+        conn.ws.close(1008, reason);
       } catch {
         /* Already closed. */
       }
@@ -656,18 +664,14 @@ function currentProjectWorkspace(projectId: string) {
     pending = db
       .select({
         workspaceId: projectTable.workspaceId,
-        archivedAt: workspaceTable.archivedAt,
+        archived: sql<boolean>`not ${workspaceIsActive(projectTable.workspaceId)}`,
       })
       .from(projectTable)
-      .innerJoin(
-        workspaceTable,
-        eq(workspaceTable.id, projectTable.workspaceId),
-      )
       .where(eq(projectTable.id, projectId))
       .limit(1)
       .then(([project]) => ({
         workspaceId: project?.workspaceId ?? null,
-        archived: !!project?.archivedAt,
+        archived: !!project?.archived,
       }))
       .finally(() => workspaceLookups.delete(projectId));
     workspaceLookups.set(projectId, pending);
@@ -679,6 +683,7 @@ const authorizationLookups = new Map<
   string,
   Promise<{
     workspaceId: string | null;
+    archived: boolean;
     members: Set<string>;
     restricted: Set<string>;
     readers: Set<string>;
@@ -763,7 +768,7 @@ function currentBroadcastAccess(
           return null;
         }
       }
-      return { workspaceId, members, restricted, readers, apiKeys };
+      return { workspaceId, archived, members, restricted, readers, apiKeys };
     })().finally(() => authorizationLookups.delete(key));
     authorizationLookups.set(key, pending);
   }
@@ -789,7 +794,8 @@ async function deliverToLocalConnections(
     authorizationBatch,
   );
   if (!access) return;
-  const { workspaceId, members, restricted, readers, apiKeys } = access;
+  const { workspaceId, archived, members, restricted, readers, apiKeys } =
+    access;
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.
@@ -797,14 +803,16 @@ async function deliverToLocalConnections(
     const revoked =
       conn.workspaceId !== workspaceId
         ? "Project workspace changed"
-        : !members.has(conn.userId)
-          ? "Workspace access revoked"
-          : restricted.has(conn.userId)
-            ? "Project access revoked"
-            : !readers.has(conn.userId) ||
-                (conn.apiKeyId && apiKeys.get(conn.apiKeyId) !== conn.userId)
-              ? "Read permission revoked"
-              : null;
+        : archived
+          ? "Workspace archived"
+          : !members.has(conn.userId)
+            ? "Workspace access revoked"
+            : restricted.has(conn.userId)
+              ? "Project access revoked"
+              : !readers.has(conn.userId) ||
+                  (conn.apiKeyId && apiKeys.get(conn.apiKeyId) !== conn.userId)
+                ? "Read permission revoked"
+                : null;
     if (revoked) {
       removeConnection(projectId, conn);
       try {

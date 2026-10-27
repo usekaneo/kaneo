@@ -5572,6 +5572,37 @@
                 "email"
               ]
             }
+          },
+          "archivedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When an administrator archived the workspace, or null when it is active."
+          },
+          "archivedBy": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email"
+            ],
+            "description": "The administrator who archived it. Null when active or when that account was deleted."
           }
         },
         "required": [
@@ -5581,7 +5612,9 @@
           "createdAt",
           "memberCount",
           "projectCount",
-          "owners"
+          "owners",
+          "archivedAt",
+          "archivedBy"
         ]
       },
       "AdminWorkspaceMember": {
@@ -5986,6 +6019,36 @@
         "required": [
           "sent",
           "to"
+        ]
+      },
+      "AdminWorkspaceArchiveState": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "archivedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "archivedAt"
+        ]
+      },
+      "AdminDeletedWorkspace": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
         ]
       },
       "AdminAuditLog": {
@@ -22806,7 +22869,7 @@
           "Workspaces"
         ],
         "summary": "List workspaces",
-        "description": "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
+        "description": "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those. Archived workspaces are left out.",
         "responses": {
           "200": {
             "description": "The caller's workspaces",
@@ -22854,7 +22917,7 @@
           "Workspaces"
         ],
         "summary": "Get workspace",
-        "description": "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+        "description": "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member. An archived workspace returns 403 with the code WORKSPACE_ARCHIVED to anyone who could otherwise read it.",
         "parameters": [
           {
             "schema": {
@@ -22887,7 +22950,7 @@
             }
           },
           "403": {
-            "description": "The API key lacks workspace:read",
+            "description": "The API key lacks workspace:read, or the workspace is archived (code WORKSPACE_ARCHIVED)",
             "content": {
               "application/json": {
                 "schema": {
@@ -25070,7 +25133,7 @@
           "Admin"
         ],
         "summary": "List instance workspaces",
-        "description": "Page through every workspace on this instance with its owners, member count and project count, optionally filtered by a case-insensitive name or slug search. Requires an instance administrator session; API keys are rejected.",
+        "description": "Page through every workspace on this instance with its owners, member count, project count and archive state, optionally filtered by a case-insensitive name or slug search. Requires an instance administrator session; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -25806,6 +25869,231 @@
           },
           "404": {
             "description": "Workspace or member not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/workspaces/{workspaceId}/archive": {
+      "post": {
+        "operationId": "archiveAdminWorkspace",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Archive a workspace",
+        "description": "Disable a workspace without deleting anything. Its members, API keys, MCP clients, public links, calendar feeds, notifications, and integrations stop working, and requests for it return 403 with the code WORKSPACE_ARCHIVED. Open realtime connections are closed. Restore it to undo. Requires an instance administrator session; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workspace's archive state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminWorkspaceArchiveState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workspace is already archived (code WORKSPACE_ALREADY_ARCHIVED)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/workspaces/{workspaceId}/restore": {
+      "post": {
+        "operationId": "restoreAdminWorkspace",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Restore an archived workspace",
+        "description": "Make an archived workspace usable again, with all of its data, members, and integrations as they were. Requires an instance administrator session; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workspace's archive state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminWorkspaceArchiveState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workspace is not archived (code WORKSPACE_NOT_ARCHIVED)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/workspaces/{workspaceId}": {
+      "delete": {
+        "operationId": "deleteAdminWorkspace",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a workspace",
+        "description": "Permanently delete a workspace and everything in it, archived or not, the same way its owner can: projects, tasks, members, invitations and uploaded files go, and open realtime connections are closed. The administrator does not need to be a member. Requires an instance administrator session; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDeletedWorkspace"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workspace still has an active subscription (code WORKSPACE_HAS_ACTIVE_SUBSCRIPTION)",
             "content": {
               "application/json": {
                 "schema": {

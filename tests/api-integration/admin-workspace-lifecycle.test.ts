@@ -1,3 +1,4 @@
+import * as billing from "../../apps/api/src/billing/controllers/find-billable-workspaces";
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
@@ -145,7 +146,7 @@ describe("archiving and restoring a workspace", () => {
 
       expect(boardSocket.close).toHaveBeenCalledWith(
         1008,
-        "Workspace access revoked",
+        "Workspace archived",
       );
       expect(sentMessages(userSocket)).toContainEqual({
         type: "WORKSPACE_ACCESS_REVOKED",
@@ -374,6 +375,70 @@ describe("deleting a workspace", () => {
         wasArchived: false,
       },
     });
+  });
+
+  it("keeps subscribed workspaces and their audit history unchanged", async () => {
+    const { workspace } = await workspaceFixture();
+    mockAuthenticatedSession(await createInstanceAdmin());
+    vi.spyOn(billing, "findBillableWorkspaces").mockResolvedValue([
+      { workspaceId: workspace.id, name: workspace.name },
+    ]);
+    const response = await projectAccessApi()(
+      `/admin/workspaces/${workspace.id}`,
+      { method: "DELETE" },
+    );
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
+    });
+    expect(await readWorkspace(workspace.id)).toBeDefined();
+    expect(await readAuditLog()).toEqual([]);
+  });
+
+  it("preserves the native owner's key authentication and consumes its request quota", async () => {
+    const { owner, workspace } = await workspaceFixture();
+    const { key, id } = await auth.api.createApiKey({
+      body: { userId: owner.id, name: "Owner deletion" },
+    });
+    const { app } = createApp();
+    const response = await app.request("/api/auth/organization/delete", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": key },
+      body: JSON.stringify({ organizationId: workspace.id }),
+    });
+    expect(response.status).toBe(200);
+    expect(await readWorkspace(workspace.id)).toBeUndefined();
+    const [stored] = await db
+      .select()
+      .from(schema.apikeyTable)
+      .where(eq(schema.apikeyTable.id, id));
+    expect(stored.requestCount).toBe(1);
+  });
+
+  it("retains native deletion permissions and the subscription guard", async () => {
+    const { owner, workspace } = await workspaceFixture();
+    const outsider = await createWorkspaceMember();
+    const { app } = createApp();
+    const call = (key: string) =>
+      app.request("/api/auth/organization/delete", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": key },
+        body: JSON.stringify({ organizationId: workspace.id }),
+      });
+    const denied = await auth.api.createApiKey({
+      body: { userId: outsider.user.id },
+    });
+    expect((await call(denied.key)).status).toBe(403);
+    const allowed = await auth.api.createApiKey({ body: { userId: owner.id } });
+    vi.spyOn(billing, "findBillableWorkspaces").mockResolvedValue([
+      { workspaceId: workspace.id, name: workspace.name },
+    ]);
+    const response = await call(allowed.key);
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({
+      code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
+    });
+    expect(await readWorkspace(workspace.id)).toBeDefined();
   });
 
   it("deletes an archived workspace", async () => {

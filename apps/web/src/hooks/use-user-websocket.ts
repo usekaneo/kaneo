@@ -165,6 +165,9 @@ export function useUserWebSocket() {
           }
           if (message.type === "WORKSPACE_RESTORED" && message.workspaceId) {
             void queryClient.invalidateQueries({
+              queryKey: ["admin", "workspaces"],
+            });
+            void queryClient.invalidateQueries({
               queryKey: workspaceStatusQueryKey(message.workspaceId),
             });
             void queryClient.invalidateQueries({ queryKey: ["workspaces"] });
