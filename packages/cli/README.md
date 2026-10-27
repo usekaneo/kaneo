@@ -1,6 +1,6 @@
 # Kaneo CLI
 
-The official command-line client for [Kaneo](https://kaneo.app), the open source project manager. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and ships as a single `kaneo` binary for macOS, Linux and Windows.
+The official command-line client for [Kaneo](https://kaneo.app). It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and ships as a single `kaneo` binary for macOS, Linux and Windows.
 
 ```bash
 curl -fsSL https://kaneo.app/cli/install.sh | sh

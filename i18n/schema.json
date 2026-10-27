@@ -10380,9 +10380,6 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"projectsTitle": {
-							"type": "string"
-						},
 						"settingsTitle": {
 							"type": "string"
 						},
@@ -10394,7 +10391,6 @@
 						}
 					},
 					"required": [
-						"projectsTitle",
 						"settingsTitle",
 						"backToWorkspace",
 						"settingsWorkspaceTab"
@@ -15005,7 +15001,7 @@
 						"cloudCta": {
 							"type": "string"
 						},
-						"selfHostCta": {
+						"pricingCta": {
 							"type": "string"
 						},
 						"trialNote": {
@@ -15029,7 +15025,7 @@
 					},
 					"required": [
 						"cloudCta",
-						"selfHostCta",
+						"pricingCta",
 						"trialNote",
 						"github",
 						"productHunt",
@@ -15369,7 +15365,7 @@
 						"description": {
 							"type": "string"
 						},
-						"docker": {
+						"startups": {
 							"type": "object",
 							"additionalProperties": false,
 							"properties": {
@@ -15426,7 +15422,7 @@
 						"eyebrow",
 						"title",
 						"description",
-						"docker",
+						"startups",
 						"sso",
 						"mcp",
 						"linear"

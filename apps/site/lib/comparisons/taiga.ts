@@ -4,20 +4,21 @@ export const taiga: Comparison = {
   slug: "taiga",
   competitor: "Taiga",
   category: "open-source",
-  title: "Taiga alternative",
+  title: "Simpler Taiga alternative",
   description:
-    "Kaneo is an MIT-licensed Taiga alternative with a smaller install, single sign-on included, and no Scrum ceremony required.",
+    "Kaneo is a simpler Taiga alternative with a board and backlog and no Scrum ceremony. Kaneo Cloud runs it for you from $4 a month, with nothing to maintain.",
   summary: "A board and backlog without adopting Scrum first.",
   heading: "The simpler Taiga alternative",
   subheading:
     "Taiga is built around Scrum and Kanban done properly, sprints, story points, and all. Kaneo is for teams who want to plan and ship without adopting a methodology first.",
   verdict:
-    "Kaneo is a simpler, MIT-licensed alternative to Taiga. Both are open source and self-hostable. Taiga is MPL-2.0 and organised around agile ceremonies, with sprints, story points, and burndown charts. Kaneo keeps a board, a backlog, workflow columns, and time tracking, and leaves the methodology to you.",
+    "Kaneo is a simpler Taiga alternative for teams that want to plan and ship without adopting a methodology first, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. Taiga is MPL-2.0 and organised around agile ceremonies, with sprints, story points, and burndown charts, while Kaneo keeps a board, a backlog, workflow columns, and time tracking, and leaves the methodology to you. Both are open source, and Kaneo is MIT licensed, so you can self-host it any time.",
   facts: {
     license: "MIT, versus MPL-2.0 for Taiga",
-    hosting: "Both self-host. Kaneo is a single container plus PostgreSQL",
+    hosting:
+      "EU-hosted Kaneo Cloud. Both self-host, Kaneo as a single container plus PostgreSQL",
     sso: "Free on every Kaneo build",
-    pricing: "$0 self-hosted for both, Kaneo Cloud from $4 / month",
+    pricing: "Kaneo Cloud from $4 / month, or $0 self-hosted for both",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "MPL-2.0" },

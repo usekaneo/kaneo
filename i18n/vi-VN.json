@@ -2406,7 +2406,6 @@
 			"selectWorkspace": "Chọn không gian làm việc"
 		},
 		"page": {
-			"projectsTitle": "Dự án",
 			"settingsTitle": "Cài đặt",
 			"backToWorkspace": "Quay lại không gian làm việc",
 			"settingsWorkspaceTab": "Không gian làm việc"
@@ -3059,7 +3058,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Tìm phiếu đã lên lịch...",
-			"pageTitle": "{{name}} – Gantt",
+			"pageTitle": "{{name}} / Gantt",
 			"title": "Dòng thời gian Gantt",
 			"hideTasks": "Ẩn công việc",
 			"showTasks": "Hiện công việc",
@@ -3198,7 +3197,7 @@
 			"nextMonth": "Tháng sau",
 			"noTasks": "Không có công việc đã lên lịch",
 			"noTasksSubtitle": "Thêm ngày bắt đầu, ngày đến hạn hoặc cả hai cho công việc để hiển thị chúng trên lịch.",
-			"pageTitle": "{{name}} – Lịch",
+			"pageTitle": "{{name}} / Lịch",
 			"previousMonth": "Tháng trước",
 			"taskAriaLabel": "{{title}}, {{range}}: mở công việc",
 			"title": "Lịch",
@@ -3614,13 +3613,13 @@
 		},
 		"hero": {
 			"cloudCta": "Try Kaneo Cloud",
-			"selfHostCta": "Self-host Kaneo",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Product",
@@ -3710,10 +3709,6 @@
 			"eyebrow": "Make it your own",
 			"title": "A clear path from trying it to using it.",
 			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
-			"docker": {
-				"title": "Self-host with Docker",
-				"description": "Installation, backups, and updates for a setup you control."
-			},
 			"sso": {
 				"title": "Bring your own identity provider",
 				"description": "Configure OIDC single sign-on in the free self-hosted build."
@@ -3725,6 +3720,10 @@
 			"linear": {
 				"title": "Compare Kaneo and Linear",
 				"description": "See the differences in hosting, licensing, and workflow."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {

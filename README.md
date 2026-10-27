@@ -26,7 +26,7 @@
 </div>
 
 <p align="center">
-  Fast, simple, open-source project management.
+  Project management that doesn't become the project.
 </p>
 
 <p align="center">

@@ -84,6 +84,10 @@ export const projectManagementForSmallTeams: Guide = {
   ],
   related: [
     {
+      label: "Best project management tool for startups",
+      href: "/guides/project-management-tool-for-startups",
+    },
+    {
       label: "Best open-source project management software",
       href: "/guides/best-open-source-project-management-software",
     },

@@ -109,6 +109,10 @@ export const projectManagementForAgencies: Guide = {
     },
   ],
   related: [
+    {
+      label: "Best project management tool for startups",
+      href: "/guides/project-management-tool-for-startups",
+    },
     { label: "Scope of work (SOW) template", href: "/guides/scope-of-work" },
     { label: "What is project scope?", href: "/guides/what-is-project-scope" },
     {

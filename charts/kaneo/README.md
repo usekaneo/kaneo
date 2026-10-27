@@ -1,5 +1,5 @@
 # Kaneo Helm Chart
-This Helm chart deploys [Kaneo](https://kaneo.app) - open source project management that works for you, not against you.
+This Helm chart deploys [Kaneo](https://kaneo.app), project management that doesn't become the project.
 ## Introduction
 This chart bootstraps a Kaneo deployment on a Kubernetes cluster using the Helm package manager. It deploys both the API backend and Web frontend components, along with a PostgreSQL database, with optional ingress or Gateway API resources.
 ## Prerequisites

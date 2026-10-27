@@ -2448,7 +2448,6 @@
 			"selectWorkspace": "İş sahəsi seç"
 		},
 		"page": {
-			"projectsTitle": "Layihələr",
 			"settingsTitle": "Parametrlər",
 			"backToWorkspace": "İş sahəsinə qayıt",
 			"settingsWorkspaceTab": "İş sahəsi"
@@ -3054,7 +3053,7 @@
 			}
 		},
 		"backlog": {
-			"pageTitle": "{{name}} — gözləyən tapşırıqlar",
+			"pageTitle": "{{name}} / gözləyən tapşırıqlar",
 			"noTasksToMove": "Köçürüləcək planlaşdırılmış tapşırıq yoxdur",
 			"moveAllConfirm": "Bütün {{count}} planlaşdırılmış tapşırıq «Görüləcək» bölməsinə köçürülsün?",
 			"moveAllSuccess": "{{count}} tapşırıq «Görüləcək» bölməsinə köçürüldü",
@@ -3109,7 +3108,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
-			"pageTitle": "{{name}} – Təqvim",
+			"pageTitle": "{{name}} / Təqvim",
 			"title": "Təqvim",
 			"previousMonth": "Əvvəlki ay",
 			"nextMonth": "Növbəti ay",
@@ -3124,7 +3123,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Tarixi təyin edilmiş tapşırıqları axtar...",
-			"pageTitle": "{{name}} – Qant diaqramı",
+			"pageTitle": "{{name}} / Qant diaqramı",
 			"title": "Qant zaman xətti",
 			"jumpToToday": "Bu günə keç",
 			"hideTasks": "Tapşırıqları gizlət",
@@ -3684,13 +3683,13 @@
 		},
 		"hero": {
 			"cloudCta": "Try Kaneo Cloud",
-			"selfHostCta": "Self-host Kaneo",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Product",
@@ -3780,10 +3779,6 @@
 			"eyebrow": "Make it your own",
 			"title": "A clear path from trying it to using it.",
 			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
-			"docker": {
-				"title": "Self-host with Docker",
-				"description": "Installation, backups, and updates for a setup you control."
-			},
 			"sso": {
 				"title": "Bring your own identity provider",
 				"description": "Configure OIDC single sign-on in the free self-hosted build."
@@ -3795,6 +3790,10 @@
 			"linear": {
 				"title": "Compare Kaneo and Linear",
 				"description": "See the differences in hosting, licensing, and workflow."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {

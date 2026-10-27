@@ -4,21 +4,22 @@ export const notion: Comparison = {
   slug: "notion",
   competitor: "Notion",
   category: "saas",
-  title: "Open-source Notion alternative for managing projects",
+  title: "Notion alternative for managing projects",
   description:
-    "Kaneo is an open-source, self-hostable Notion alternative for project tracking: real boards, backlog, and workflows, not databases you build yourself.",
+    "Kaneo is a Notion alternative for project tracking: real boards, backlog, and workflows, not databases you build. Kaneo Cloud runs it from $4 a month.",
   summary:
     "A real tracker instead of a task database somebody has to maintain.",
-  heading: "The open-source Notion alternative for running projects",
+  heading: "The Notion alternative for running projects",
   subheading:
     "Notion is a wonderful place to write and a fiddly place to track work. Kaneo is a purpose-built tracker you can self-host, so nobody has to maintain the board that runs your team.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to Notion for project tracking specifically. Where Notion asks you to build a task database and keep it working, Kaneo ships boards, backlog, workflow columns, roles, and time tracking as product features. Kaneo is not a replacement for Notion's docs and wiki.",
+    "Kaneo is a Notion alternative for project tracking specifically, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. Where Notion asks you to build a task database and keep it working, Kaneo ships boards, backlog, workflow columns, roles, and time tracking as product features, though it is not a replacement for Notion's docs and wiki. Kaneo is also MIT-licensed open source, so you can self-host it for free any time.",
   facts: {
     license: "MIT, versus a proprietary licence for Notion",
-    hosting: "Self-host anywhere, or EU-hosted cloud. Notion is cloud only",
+    hosting:
+      "EU-hosted Kaneo Cloud, or self-host anywhere. Notion is cloud only",
     sso: "Free on every Kaneo build, Business tier on Notion",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

@@ -4,21 +4,21 @@ export const jira: Comparison = {
   slug: "jira",
   competitor: "Jira",
   category: "saas",
-  title: "Self-hosted Jira alternative: Kaneo vs Jira",
+  title: "Lighter Jira alternative: Kaneo vs Jira",
   description:
-    "Kaneo is a free, self-hosted Jira alternative under the MIT license, with boards, backlog, Gantt, and SSO but no admin console. Managed cloud from $4 a month.",
+    "Kaneo gives you Jira's boards, backlog, and Gantt views without the admin console. Kaneo Cloud runs it for you from $4 a month, with a 14-day free trial.",
   summary:
-    "Same planning, none of the admin console. MIT licensed and free to self-host.",
-  heading: "The self-hosted, open-source Jira alternative",
+    "Same planning, none of the admin console, and Kaneo Cloud runs it for you.",
+  heading: "The lighter Jira alternative for teams that just want to ship",
   subheading:
     "Jira can run a 500-person org, but most teams just want to plan and ship work without the weight. Kaneo is a simple, open-source project manager you can self-host or let us run for you.",
   verdict:
-    "Kaneo is an open-source Jira alternative under the MIT license. You can self-host it for free with Docker and PostgreSQL, with every feature included, or use Kaneo Cloud from $4 a month. It covers boards, backlog, workflows, roles, time tracking, and a public API, and it deliberately leaves out the configuration layer that makes Jira heavy.",
+    "Kaneo is a Jira alternative for teams that want to plan and ship without the weight, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with every feature included. It covers boards, backlog, workflows, roles, time tracking, and a public API, and it deliberately leaves out the configuration layer that makes Jira heavy. It is also MIT-licensed open source, so you can self-host it for free with Docker and PostgreSQL.",
   facts: {
     license: "MIT, versus a proprietary licence for Jira",
-    hosting: "Self-host anywhere, or EU-hosted cloud",
+    hosting: "EU-hosted Kaneo Cloud, or self-host anywhere",
     sso: "Free on every Kaneo build. Jira needs Atlassian Guard or Enterprise",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

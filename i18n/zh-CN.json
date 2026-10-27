@@ -2406,7 +2406,6 @@
 			"selectWorkspace": "选择工作区"
 		},
 		"page": {
-			"projectsTitle": "项目",
 			"settingsTitle": "设置",
 			"backToWorkspace": "返回工作区",
 			"settingsWorkspaceTab": "工作区"
@@ -3058,7 +3057,7 @@
 			"noValuesUsedYet": "还没有使用过任何值"
 		},
 		"calendar": {
-			"pageTitle": "{{name}} – 日历",
+			"pageTitle": "{{name}} / 日历",
 			"title": "日历",
 			"previousMonth": "上个月",
 			"nextMonth": "下个月",
@@ -3073,7 +3072,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "搜索已排期工单…",
-			"pageTitle": "{{name}} – 甘特图",
+			"pageTitle": "{{name}} / 甘特图",
 			"title": "甘特图时间线",
 			"jumpToToday": "回到今天",
 			"hideTasks": "隐藏任务",
@@ -3614,13 +3613,13 @@
 		},
 		"hero": {
 			"cloudCta": "试用 Kaneo Cloud",
-			"selfHostCta": "自托管 Kaneo",
 			"trialNote": "云端试用 14 天，无需信用卡。",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "项目管理",
 			"titleAccent": "不该变成另一个项目。",
-			"description": "开源项目管理工具，带看板、甘特图和 GitHub 集成。免费自托管，内置 SSO；也可以交给 Kaneo Cloud 托管。"
+			"description": "开源项目管理工具，带看板、甘特图和 GitHub 集成。免费自托管，内置 SSO；也可以交给 Kaneo Cloud 托管。",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "产品",
@@ -3710,10 +3709,6 @@
 			"eyebrow": "按你的方式来",
 			"title": "从试用到上手，路径清清楚楚。",
 			"description": "搭好服务器、接上你的工具，或者把 Kaneo 和现在用的工具做个对比。",
-			"docker": {
-				"title": "用 Docker 自托管",
-				"description": "部署、备份和更新，一切都在自己的掌控之中。"
-			},
 			"sso": {
 				"title": "接入你自己的身份提供商",
 				"description": "在免费的自托管版本里配置 OIDC 单点登录。"
@@ -3725,6 +3720,10 @@
 			"linear": {
 				"title": "Kaneo 与 Linear 对比",
 				"description": "看看在托管方式、授权许可和工作流上的差别。"
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {

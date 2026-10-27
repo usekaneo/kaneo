@@ -6,18 +6,19 @@ export const vikunja: Comparison = {
   category: "open-source",
   title: "Vikunja alternative for teams",
   description:
-    "Kaneo is an MIT-licensed Vikunja alternative built around team projects, with time tracking and workspace roles in the free self-hosted build.",
-  summary: "Built for teams, with time tracking and roles in the free build.",
+    "Kaneo is a team-first Vikunja alternative with time tracking and workspace roles on every plan. Kaneo Cloud runs it for you from $4 a month.",
+  summary: "Built for teams, with time tracking and roles on every plan.",
   heading: "The Vikunja alternative built for teams",
   subheading:
-    "Vikunja is a lovely self-hosted to-do app, and its Pro tier keeps some features for paying self-hosters. Kaneo is team-first, MIT licensed, and has no Pro tier at all.",
+    "Vikunja is a lovely self-hosted to-do app, and its Pro tier keeps some features for paying self-hosters. Kaneo is team-first, has no Pro tier at all, and Kaneo Cloud runs it for you.",
   verdict:
-    "Kaneo and Vikunja are both open source and self-hostable, but they aim at different users. Vikunja is a personal and small-team task manager under AGPLv3, with a paid Vikunja Pro add-on for self-hosters that includes features such as time tracking and audit logs. Kaneo is MIT licensed, team-oriented, and ships every feature in the free build.",
+    "Kaneo is a team-first Vikunja alternative, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with nothing to maintain. Vikunja is a personal and small-team task manager under AGPLv3, with a paid Vikunja Pro add-on for self-hosters that includes features such as time tracking and audit logs, while Kaneo ships every feature on every plan. Kaneo is also MIT licensed, and its free self-hosted build has no paid add-on.",
   facts: {
     license: "MIT, versus AGPLv3 for Vikunja",
-    hosting: "Both self-host. Kaneo is a single container plus PostgreSQL",
+    hosting:
+      "EU-hosted Kaneo Cloud. Both self-host, Kaneo as a single container plus PostgreSQL",
     sso: "Free on both, through OIDC",
-    pricing: "$0 self-hosted with no paid add-on, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted with no paid add-on",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "AGPLv3" },

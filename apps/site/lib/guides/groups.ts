@@ -16,6 +16,7 @@ const groups: { id: string; title: string; slugs: string[] }[] = [
       "self-hosted-trello-alternatives",
       "best-free-kanban-board-software",
       "project-management-tools-with-free-sso",
+      "project-management-tool-for-startups",
       "project-management-for-small-teams",
       "project-management-for-software-teams",
       "it-project-management",

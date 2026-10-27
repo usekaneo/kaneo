@@ -2448,7 +2448,6 @@
 			"selectWorkspace": "Select workspace"
 		},
 		"page": {
-			"projectsTitle": "Projects",
 			"settingsTitle": "Settings",
 			"backToWorkspace": "Back to Workspace",
 			"settingsWorkspaceTab": "Workspace"
@@ -3110,7 +3109,7 @@
 			}
 		},
 		"calendar": {
-			"pageTitle": "{{name}} – Calendar",
+			"pageTitle": "{{name}} / Calendar",
 			"title": "Calendar",
 			"previousMonth": "Previous month",
 			"nextMonth": "Next month",
@@ -3125,7 +3124,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Search scheduled tickets...",
-			"pageTitle": "{{name}} – Gantt",
+			"pageTitle": "{{name}} / Gantt",
 			"title": "Gantt Timeline",
 			"jumpToToday": "Jump to today",
 			"hideTasks": "Hide tasks",
@@ -3679,18 +3678,18 @@
 		"founder": {
 			"title": "Why Kaneo exists",
 			"intro": "I'm Andrej, and I created Kaneo because I was tired of project management tools that got in the way more than they helped. After years of using bloated, overcomplicated platforms that distracted from actual work, I knew there had to be a better way.",
-			"problem": "The problem wasn't that these tools lacked features - it was that they had too many. Every notification, every unnecessary button, every complex workflow was pulling my team away from what mattered: building great products.",
-			"principle": "I believe the best tools are invisible. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that less is more - every feature exists because it solves a real problem, not because it looks impressive in a demo."
+			"problem": "The problem wasn't that these tools lacked features. It was that they had too many. Every notification, every unnecessary button, every complex workflow was pulling my team away from what mattered: building great products.",
+			"principle": "I believe the best tools are invisible. They should amplify your team's natural workflow, not force you to adapt to theirs. Kaneo is built on the principle that less is more: every feature exists because it solves a real problem, not because it looks impressive in a demo."
 		},
 		"hero": {
 			"cloudCta": "Try Kaneo Cloud",
-			"selfHostCta": "Self-host Kaneo",
+			"pricingCta": "See pricing",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+			"description": "Boards, Gantt charts, and GitHub integration for teams that would rather ship than manage a tracker. Kaneo Cloud handles hosting, backups, and updates, so you can start in minutes."
 		},
 		"navigation": {
 			"product": "Product",
@@ -3730,9 +3729,9 @@
 				"link": "Set up GitHub"
 			},
 			"hosting": {
-				"title": "Run it on your own server.",
-				"description": "Deploy with Docker and keep your workspace on infrastructure you control.",
-				"link": "Self-host Kaneo"
+				"title": "We run it for you.",
+				"description": "Kaneo Cloud handles hosting, backups, and updates, so nobody on your team is on call for the tracker.",
+				"link": "See pricing"
 			},
 			"source": {
 				"title": "The code is open, too.",
@@ -3773,20 +3772,20 @@
 			}
 		},
 		"seo": {
-			"title": "Kaneo — Open-source, self-hosted project management",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or use Kaneo Cloud."
+			"title": "Kaneo: Project management that doesn't become the project",
+			"description": "Boards, Gantt charts, and GitHub integration, hosted for you on Kaneo Cloud. Start a 14-day free trial, no credit card required."
 		},
 		"resources": {
 			"eyebrow": "Make it your own",
 			"title": "A clear path from trying it to using it.",
-			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
-			"docker": {
-				"title": "Self-host with Docker",
-				"description": "Installation, backups, and updates for a setup you control."
+			"description": "See how teams use Kaneo, connect your tools, or compare it with your current tracker.",
+			"startups": {
+				"title": "Project management for startups",
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire."
 			},
 			"sso": {
 				"title": "Bring your own identity provider",
-				"description": "Configure OIDC single sign-on in the free self-hosted build."
+				"description": "Connect Google, GitHub, or any OIDC provider for single sign-on."
 			},
 			"mcp": {
 				"title": "Connect your AI tools",
@@ -3800,11 +3799,11 @@
 		"product": {
 			"title": "Before you get started",
 			"description": "The practical details about hosting, planning, and connecting your team.",
-			"overview": "Kaneo is an open-source, MIT-licensed project management platform with boards, backlog, Gantt and calendar views, custom fields, time tracking, and GitHub integration. Self-host it on your own infrastructure or use Kaneo Cloud.",
+			"overview": "Kaneo is a project management platform with boards, backlog, Gantt and calendar views, custom fields, time tracking, and GitHub integration. Kaneo Cloud runs it for you, and the open-source build can also be self-hosted.",
 			"hosting": {
-				"question": "Is Kaneo free to self-host?",
-				"answer": "Yes. Kaneo is MIT licensed and free to self-host, with single sign-on included. Run the application alongside PostgreSQL using Docker Compose, or deploy with the official Helm chart. You manage infrastructure, updates, and backups.",
-				"link": "Read the installation guide"
+				"question": "How much does Kaneo Cloud cost?",
+				"answer": "Kaneo Cloud is $5 per user a month, or $4 a month for a single user, with every feature included and two months free on yearly billing. Hosting, backups, and updates are handled for you. Every plan starts with a 14-day free trial, no credit card required.",
+				"link": "See pricing"
 			},
 			"planning": {
 				"question": "Does Kaneo have Gantt charts?",
@@ -3813,8 +3812,8 @@
 			},
 			"sso": {
 				"question": "Is single sign-on included?",
-				"answer": "Yes. The free self-hosted build supports Google, GitHub, Discord, and custom OAuth/OIDC providers. Configure your provider on your instance without purchasing a separate Kaneo edition.",
-				"link": "Configure OIDC"
+				"answer": "Yes, with no separate edition to buy. Kaneo supports Google, GitHub, Discord, and custom OAuth/OIDC providers. To connect your own identity provider without running servers, choose a managed instance, which includes your own domain and single sign-on.",
+				"link": "See managed instances"
 			},
 			"agents": {
 				"question": "Can AI clients work with Kaneo?",
@@ -3868,7 +3867,7 @@
 			"uploadFailed": "Upload failed ({{status}})"
 		},
 		"signIn": {
-			"tagline": "Simple project management. Connect to Kaneo Cloud or your own instance.",
+			"tagline": "Project management that doesn't become the project. Connect to Kaneo Cloud or your own instance.",
 			"cloud": "Kaneo Cloud",
 			"selfHosted": "Self-hosted",
 			"captcha": "This server requires a browser check for this step. Use “Continue in browser” instead.",

@@ -2448,7 +2448,6 @@
 			"selectWorkspace": "Workspace auswählen"
 		},
 		"page": {
-			"projectsTitle": "Projekte",
 			"settingsTitle": "Einstellungen",
 			"backToWorkspace": "Zurück zum Workspace",
 			"settingsWorkspaceTab": "Workspace"
@@ -3110,7 +3109,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Geplante Tickets suchen...",
-			"pageTitle": "{{name}} – Gantt",
+			"pageTitle": "{{name}} / Gantt",
 			"title": "Gantt-Zeitachse",
 			"hideTasks": "Aufgaben ausblenden",
 			"showTasks": "Aufgaben anzeigen",
@@ -3252,7 +3251,7 @@
 			"nextMonth": "Nächster Monat",
 			"noTasks": "Keine geplanten Aufgaben",
 			"noTasksSubtitle": "Füge Aufgaben ein Startdatum, ein Fälligkeitsdatum oder beides hinzu, um sie im Kalender anzuzeigen.",
-			"pageTitle": "{{name}} – Kalender",
+			"pageTitle": "{{name}} / Kalender",
 			"previousMonth": "Vorheriger Monat",
 			"taskAriaLabel": "{{title}}, {{range}}: Aufgabe öffnen",
 			"title": "Kalender",
@@ -3684,13 +3683,13 @@
 		},
 		"hero": {
 			"cloudCta": "Kaneo Cloud ausprobieren",
-			"selfHostCta": "Kaneo selbst hosten",
 			"trialNote": "14 Tage Cloud-Testzeitraum. Keine Kreditkarte erforderlich.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Projektmanagement,",
 			"titleAccent": "das nicht selbst zum Projekt wird.",
-			"description": "Open-Source-Projektmanagement mit Boards, Gantt-Diagrammen und GitHub-Integration. Hoste Kaneo kostenlos selbst, inklusive SSO, oder überlasse das Hosting Kaneo Cloud."
+			"description": "Open-Source-Projektmanagement mit Boards, Gantt-Diagrammen und GitHub-Integration. Hoste Kaneo kostenlos selbst, inklusive SSO, oder überlasse das Hosting Kaneo Cloud.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Produkt",
@@ -3780,10 +3779,6 @@
 			"eyebrow": "Mach es zu deinem",
 			"title": "Vom Ausprobieren direkt ins Arbeiten.",
 			"description": "Richte deinen Server ein, verbinde deine Tools oder vergleiche Kaneo mit deinem aktuellen Projektmanagement-Tool.",
-			"docker": {
-				"title": "Mit Docker selbst hosten",
-				"description": "Installation, Backups und Updates für eine Umgebung, die du kontrollierst."
-			},
 			"sso": {
 				"title": "Deinen eigenen Identitätsanbieter nutzen",
 				"description": "Richte OIDC-Single-Sign-on in der kostenlosen, selbst gehosteten Version ein."
@@ -3795,6 +3790,10 @@
 			"linear": {
 				"title": "Kaneo und Linear vergleichen",
 				"description": "Vergleiche die Unterschiede bei Hosting, Lizenzierung und Arbeitsablauf."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {

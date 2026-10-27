@@ -89,6 +89,10 @@ export const projectManagementForSoftwareTeams: Guide = {
   ],
   related: [
     {
+      label: "Best project management tool for startups",
+      href: "/guides/project-management-tool-for-startups",
+    },
+    {
       label: "Self-hosted kanban with two-way GitHub issue sync",
       href: "/guides/github-issues-kanban-board",
     },

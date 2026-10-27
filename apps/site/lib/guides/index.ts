@@ -21,6 +21,7 @@ import { projectManagementForAgencies } from "./project-management-for-agencies"
 import { projectManagementForSmallTeams } from "./project-management-for-small-teams";
 import { projectManagementForSoftwareTeams } from "./project-management-for-software-teams";
 import { projectManagementMcpAiAgents } from "./project-management-mcp-ai-agents";
+import { projectManagementToolForStartups } from "./project-management-tool-for-startups";
 import { projectManagementToolsWithFreeSso } from "./project-management-tools-with-free-sso";
 import { projectMilestones } from "./project-milestones";
 import { raciChart } from "./raci-chart";
@@ -46,6 +47,7 @@ const all: Guide[] = [
   bestFreeKanbanBoardSoftware,
   projectManagementToolsWithFreeSso,
   selfHostProjectManagementDocker,
+  projectManagementToolForStartups,
   projectManagementForSmallTeams,
   euHostedProjectManagementGdpr,
   projectManagementMcpAiAgents,

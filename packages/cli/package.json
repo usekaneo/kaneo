@@ -1,7 +1,7 @@
 {
 	"name": "@kaneo/cli",
 	"version": "0.1.1",
-	"description": "Official command-line client for Kaneo, the open source project manager: sign in, list and update tasks, and script your boards from the terminal",
+	"description": "Official command-line client for Kaneo: sign in, list and update tasks, and script your boards from the terminal",
 	"license": "MIT",
 	"author": "Kaneo (https://kaneo.app)",
 	"homepage": "https://kaneo.app/docs/cli",

@@ -42,9 +42,9 @@ export function Hero() {
                   variant="outline"
                   size="lg"
                   className="h-12 px-5 text-sm sm:h-12"
-                  render={<a href="/docs/core/installation" />}
+                  render={<a href="/pricing" />}
                 >
-                  {landing.hero.selfHostCta}
+                  {landing.hero.pricingCta}
                 </Button>
               </div>
               <p className="text-xs leading-relaxed text-muted-foreground">

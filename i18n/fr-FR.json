@@ -2490,7 +2490,6 @@
 			"selectWorkspace": "Sélectionner un espace de travail"
 		},
 		"page": {
-			"projectsTitle": "Projets",
 			"settingsTitle": "Paramètres",
 			"backToWorkspace": "Retour à l'espace de travail",
 			"settingsWorkspaceTab": "Espace de travail"
@@ -3161,7 +3160,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Rechercher des tâches planifiées...",
-			"pageTitle": "{{name}} – Gantt",
+			"pageTitle": "{{name}} / Gantt",
 			"title": "Chronologie de Gantt",
 			"hideTasks": "Masquer les tâches",
 			"showTasks": "Afficher les tâches",
@@ -3306,7 +3305,7 @@
 			"nextMonth": "Mois suivant",
 			"noTasks": "Aucune tâche planifiée",
 			"noTasksSubtitle": "Ajoutez une date de début, une date d’échéance ou les deux aux tâches pour les afficher dans le calendrier.",
-			"pageTitle": "{{name}} – Calendrier",
+			"pageTitle": "{{name}} / Calendrier",
 			"previousMonth": "Mois précédent",
 			"taskAriaLabel": "{{title}}, {{range}} : ouvrir la tâche",
 			"title": "Calendrier",
@@ -3754,13 +3753,13 @@
 		},
 		"hero": {
 			"cloudCta": "Essayer Kaneo Cloud",
-			"selfHostCta": "Auto-héberger Kaneo",
 			"trialNote": "Essai cloud de 14 jours. Aucune carte bancaire requise.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Une gestion de projet",
 			"titleAccent": "qui ne devient pas un projet en soi.",
-			"description": "Une gestion de projet open source avec des tableaux, des diagrammes de Gantt et une intégration GitHub. Auto-hébergez gratuitement avec le SSO inclus, ou laissez Kaneo Cloud s'occuper de l'hébergement."
+			"description": "Une gestion de projet open source avec des tableaux, des diagrammes de Gantt et une intégration GitHub. Auto-hébergez gratuitement avec le SSO inclus, ou laissez Kaneo Cloud s'occuper de l'hébergement.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Produit",
@@ -3850,10 +3849,6 @@
 			"eyebrow": "Adaptez-le à vos besoins",
 			"title": "De l'essai à l'utilisation, un parcours clair.",
 			"description": "Configurez votre serveur, connectez vos outils ou comparez Kaneo à votre outil de suivi actuel.",
-			"docker": {
-				"title": "Auto-héberger avec Docker",
-				"description": "Installation, sauvegardes et mises à jour pour une configuration que vous contrôlez."
-			},
 			"sso": {
 				"title": "Utilisez votre propre fournisseur d'identité",
 				"description": "Configurez l'authentification unique OIDC dans la version auto-hébergée gratuite."
@@ -3865,6 +3860,10 @@
 			"linear": {
 				"title": "Comparer Kaneo et Linear",
 				"description": "Découvrez les différences d'hébergement, de licence et de flux de travail."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {

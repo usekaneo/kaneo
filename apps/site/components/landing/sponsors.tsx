@@ -34,14 +34,10 @@ export function Sponsors() {
         </FadeIn>
         <FadeIn delay={80}>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            Kaneo is{" "}
-            <strong className="font-medium text-foreground">
-              free and open source
-            </strong>
-            , and it stays independent because the people who use it fund it.
-            Sponsorship pays for the development time behind every release, from
-            new features to the unglamorous fixes that keep self-hosted
-            instances running. If it saves your team time, you can{" "}
+            Kaneo stays independent because the people who use it fund it. Kaneo
+            Cloud subscriptions and sponsorships pay for the development time
+            behind every release, from new features to the unglamorous fixes. If
+            it saves your team time, you can{" "}
             <a
               className="font-medium text-foreground underline decoration-muted-foreground/50 underline-offset-4 transition-colors hover:decoration-foreground"
               href="https://github.com/sponsors/andrejsshell"

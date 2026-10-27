@@ -6,18 +6,19 @@ export const planka: Comparison = {
   category: "open-source",
   title: "PLANKA alternative with SSO included",
   description:
-    "Kaneo is an MIT-licensed PLANKA alternative with SSO on every self-hosted build, built-in export, and an importer that moves your PLANKA boards over.",
-  summary: "MIT licensed, with OIDC single sign-on free and a PLANKA importer.",
+    "Kaneo is a PLANKA alternative with an importer for your PLANKA boards and free SSO when self-hosted. Kaneo Cloud runs it for you from $4 a month.",
+  summary:
+    "A PLANKA importer, free OIDC SSO when self-hosted, or Kaneo Cloud from $4 a month.",
   heading: "The PLANKA alternative with SSO included",
   subheading:
-    "PLANKA 2.2 moved SSO into its paid Pro tier, and self-hosters who signed in with OIDC woke up to deactivated accounts. Kaneo is MIT-licensed, self-hostable, and ships SSO to everyone at no cost.",
+    "PLANKA 2.2 moved SSO into its paid Pro tier, and self-hosters who signed in with OIDC woke up to deactivated accounts. Kaneo Cloud runs Kaneo for you, and if you self-host, SSO ships to everyone at no cost.",
   verdict:
-    "Kaneo is an MIT-licensed alternative to PLANKA that keeps OIDC single sign-on free on the self-hosted build. It has an importer that reads boards, lists, cards, labels, assignees, checklists, and comments straight from the PLANKA API, since PLANKA has no export of its own.",
+    "Kaneo is a PLANKA alternative for teams moving their boards, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. Its importer reads boards, lists, cards, labels, assignees, checklists, and comments straight from the PLANKA API, since PLANKA has no export of its own. Kaneo is also MIT-licensed open source, and OIDC single sign-on stays free on every self-hosted build.",
   facts: {
     license: "MIT, versus PLANKA's source-available Fair Use licence",
-    hosting: "Both self-host. Kaneo also offers an EU-hosted cloud",
+    hosting: "EU-hosted Kaneo Cloud. Both self-host",
     sso: "Free on Kaneo, Pro tier on PLANKA since 2.2",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "Fair Use (source-available)" },

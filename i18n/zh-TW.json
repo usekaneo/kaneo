@@ -2406,7 +2406,6 @@
 			"selectWorkspace": "選擇工作區"
 		},
 		"page": {
-			"projectsTitle": "專案",
 			"settingsTitle": "設定",
 			"backToWorkspace": "返回工作區",
 			"settingsWorkspaceTab": "工作區"
@@ -3614,13 +3613,13 @@
 		},
 		"hero": {
 			"cloudCta": "試用 Kaneo Cloud",
-			"selfHostCta": "自行架設 Kaneo",
 			"trialNote": "14 天雲端試用，無需信用卡。",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "專案管理，",
 			"titleAccent": "別讓它變成另一個專案。",
-			"description": "開源專案管理工具，提供看板、甘特圖與 GitHub 整合。可免費自行架設且內建 SSO，或交給 Kaneo Cloud 代管。"
+			"description": "開源專案管理工具，提供看板、甘特圖與 GitHub 整合。可免費自行架設且內建 SSO，或交給 Kaneo Cloud 代管。",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "產品",
@@ -3710,10 +3709,6 @@
 			"eyebrow": "專屬於你的工具",
 			"title": "從試用到上手，一條清楚的路。",
 			"description": "架設你的伺服器、連接你的工具，或將 Kaneo 與你目前的追蹤工具比較。",
-			"docker": {
-				"title": "使用 Docker 自行架設",
-				"description": "在你掌控的環境中安裝、備份與更新。"
-			},
 			"sso": {
 				"title": "使用你自己的身分提供者",
 				"description": "在免費的自架版本中設定 OIDC 單一登入。"
@@ -3725,6 +3720,10 @@
 			"linear": {
 				"title": "比較 Kaneo 與 Linear",
 				"description": "看看在託管、授權與工作流程上的差異。"
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {

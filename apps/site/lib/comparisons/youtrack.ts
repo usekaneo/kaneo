@@ -4,21 +4,21 @@ export const youtrack: Comparison = {
   slug: "youtrack",
   competitor: "YouTrack",
   category: "saas",
-  title: "Open-source YouTrack alternative",
+  title: "YouTrack alternative: Kaneo vs YouTrack",
   description:
-    "Kaneo is an open-source, MIT-licensed YouTrack alternative you can self-host for free with no user cap and no annual server licence.",
+    "Kaneo is a YouTrack alternative with no ten-user ceiling and no annual server licence. Kaneo Cloud runs it for you from $4 a month, 14-day free trial.",
   summary: "No annual server licence and no ten-user ceiling.",
-  heading: "The open-source YouTrack alternative",
+  heading: "The YouTrack alternative without the server licence",
   subheading:
-    "YouTrack is free until your eleventh teammate, and self-hosting it means buying a JetBrains server licence. Kaneo is MIT licensed, so running it yourself is free at any size.",
+    "YouTrack is free until your eleventh teammate, and self-hosting it means buying a JetBrains server licence. Kaneo Cloud runs Kaneo for you, and self-hosting it is free at any size.",
   verdict:
-    "Kaneo is an open-source alternative to JetBrains YouTrack. YouTrack is proprietary: free for up to 10 users in cloud and server form, then per-user cloud pricing or a paid annual server licence. Kaneo is MIT licensed with no user cap when self-hosted, and its cloud starts at $4 a month.",
+    "Kaneo is a YouTrack alternative for teams that have outgrown a ten-user free tier, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. YouTrack is proprietary: free for up to 10 users in cloud and server form, then per-user cloud pricing or a paid annual server licence. Kaneo is also MIT-licensed open source, with no user cap when self-hosted.",
   facts: {
     license: "MIT, versus a proprietary JetBrains licence",
     hosting:
-      "Self-host free. YouTrack Server needs a paid licence past the free tier",
+      "EU-hosted Kaneo Cloud, or self-host free. YouTrack Server needs a paid licence past the free tier",
     sso: "Free on every Kaneo build",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },
