@@ -14,14 +14,18 @@ describe("admin page redirects", () => {
     );
   });
 
-  it.each(["overview", "workspaces", "roles", "audit-log", "system"])(
-    "redirects a support role away from %s",
-    (page) => {
-      expect(getAdminPageRedirect(`${root}/${page}`, ["users:read"])).toBe(
-        `${root}/users`,
-      );
-    },
-  );
+  it.each([
+    "overview",
+    "workspaces",
+    "roles",
+    "audit-log",
+    "system",
+    "settings",
+  ])("redirects a support role away from %s", (page) => {
+    expect(getAdminPageRedirect(`${root}/${page}`, ["users:read"])).toBe(
+      `${root}/users`,
+    );
+  });
 
   it("keeps allowed pages and sends accounts without a page to account settings", () => {
     expect(getAdminPageRedirect(`${root}/users`, ["users:read"])).toBeNull();
@@ -31,11 +35,10 @@ describe("admin page redirects", () => {
     expect(getAdminPageRedirect(`${root}/users`, ["system:read"])).toBe(
       `${root}/system`,
     );
-    for (const permissions of [
-      [],
-      ["users:create"],
-      ["instance:settings"],
-    ] as const) {
+    expect(getAdminPageRedirect(root, ["instance:settings"])).toBe(
+      `${root}/settings`,
+    );
+    for (const permissions of [[], ["users:create"]] as const) {
       expect(getAdminPageRedirect(root, permissions)).toBe(
         "/dashboard/settings/account/information",
       );

@@ -2838,7 +2838,8 @@
 				"saved": "Settings saved"
 			},
 			"workspaceCreationRestricted": "Only administrators can create workspaces",
-			"workspaces": "Workspaces"
+			"workspaces": "Workspaces",
+			"save": "Save"
 		}
 	},
 	"navigation": {

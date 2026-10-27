@@ -2774,6 +2774,7 @@
 			"loadError": "Couldn't load instance settings.",
 			"general": "General",
 			"instanceName": "Instance name",
+			"save": "Save",
 			"instanceUrl": "Instance URL",
 			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
 			"registration": "Registration",

@@ -49,7 +49,7 @@ export function InstanceNameRow({
           variant="outline"
           disabled={!changed || pending}
         >
-          {t("common:actions.save")}
+          {t("settings:adminSettings.save")}
         </Button>
       </form>
     </SettingsRow>
