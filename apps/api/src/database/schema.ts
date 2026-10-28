@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations, sql } from "drizzle-orm";
 import {
   boolean,
+  bigint,
   customType,
   foreignKey,
   index,
@@ -1996,4 +1997,133 @@ export const agentAutomationEventTable = pgTable(
       .on(table.automationId, table.createdAt)
       .where(sql`${table.consumedAt} is null`),
   ],
+);
+
+// Coding jobs started from an applied code.run proposal. Jobs run outside
+// Kaneo (repo-ci: the customer's GitHub Actions); Kaneo dispatches them, then
+// commits their changeset and opens the pull request with its own credential.
+export const agentJobTable = pgTable(
+  "agent_job",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    runId: text("run_id")
+      .notNull()
+      .references(() => agentRunTable.id, { onDelete: "cascade" }),
+    proposalId: text("proposal_id")
+      .unique()
+      .references(() => agentProposalTable.id, { onDelete: "set null" }),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projectTable.id, { onDelete: "cascade" }),
+    taskId: text("task_id").references(() => taskTable.id, {
+      onDelete: "set null",
+    }),
+    // The requester; jobs act for this user.
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    integrationId: text("integration_id").references(
+      () => integrationTable.id,
+      { onDelete: "set null" },
+    ),
+    requestId: text("request_id").notNull(),
+    backend: text("backend", { enum: ["repo-ci"] })
+      .notNull()
+      .default("repo-ci"),
+    status: text("status", {
+      enum: [
+        "queued",
+        "dispatched",
+        "running",
+        "committing",
+        "completed",
+        "failed",
+        "cancelled",
+      ],
+    })
+      .notNull()
+      .default("queued"),
+    outcome: text("outcome", { enum: ["pr_opened", "no_changes"] }),
+    phase: text("phase"),
+    progress: text("progress"),
+    instructions: text("instructions").notNull(),
+    model: text("model").notNull(),
+    workflowRef: text("workflow_ref"),
+    workflowSha: text("workflow_sha"),
+    // Repository identity is fixed when the job is created; claims and
+    // commits are checked against these values, not the current integration.
+    repositoryOwner: text("repository_owner").notNull(),
+    repositoryName: text("repository_name").notNull(),
+    // GitHub numeric IDs can exceed the int4 range.
+    repositoryId: bigint("repository_id", { mode: "number" }).notNull(),
+    baseRef: text("base_ref"),
+    baseSha: text("base_sha"),
+    branch: text("branch").notNull(),
+    externalRef: text("external_ref"),
+    externalUrl: text("external_url"),
+    // SHA-256 of the callback credential; the raw value is never stored.
+    credentialHash: text("credential_hash"),
+    commitSha: text("commit_sha"),
+    prNumber: integer("pr_number"),
+    prUrl: text("pr_url"),
+    summary: text("summary"),
+    error: text("error"),
+    attempts: integer("attempts").notNull().default(0),
+    leaseOwner: text("lease_owner"),
+    leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
+    heartbeatAt: timestamp("heartbeat_at", { mode: "date" }),
+    deadline: timestamp("deadline", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    dispatchedAt: timestamp("dispatched_at", { mode: "date" }),
+    startedAt: timestamp("started_at", { mode: "date" }),
+    finishedAt: timestamp("finished_at", { mode: "date" }),
+  },
+  (table) => [
+    unique("agent_job_request_unique").on(
+      table.workspaceId,
+      table.userId,
+      table.requestId,
+    ),
+    index("agent_job_queue_idx").on(table.status, table.createdAt),
+    index("agent_job_run_idx").on(table.runId, table.createdAt),
+    index("agent_job_owner_idx").on(
+      table.workspaceId,
+      table.userId,
+      table.createdAt,
+    ),
+  ],
+);
+
+// Uploaded job results (gzip JSON), kept out of agent_job so list and detail
+// queries never load them. Deleted when the job reaches a terminal state.
+export const agentJobChangesetTable = pgTable("agent_job_changeset", {
+  jobId: text("job_id")
+    .primaryKey()
+    .references(() => agentJobTable.id, { onDelete: "cascade" }),
+  data: bytea("data").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" })
+    .default(utcNow)
+    .notNull(),
+});
+
+export const agentJobEventTable = pgTable(
+  "agent_job_event",
+  {
+    sequence: serial("sequence").primaryKey(),
+    jobId: text("job_id")
+      .notNull()
+      .references(() => agentJobTable.id, { onDelete: "cascade" }),
+    phase: text("phase").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [index("agent_job_event_job_idx").on(table.jobId, table.sequence)],
 );

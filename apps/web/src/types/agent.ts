@@ -12,7 +12,7 @@ export type AgentConversationDetail = InferResponseType<
   200
 >;
 export type AgentConversationOwner = AgentConversationDetail["owner"];
-export type AgentRun = InferResponseType<
+export type AgentRunResponse = InferResponseType<
   AgentClient["runs"][":runId"]["$get"],
   200
 >;
@@ -25,7 +25,34 @@ export type RecentAgentRun = InferResponseType<
   200
 >[number];
 export type AgentStep = AgentRun["steps"][number];
-export type AgentProposal = AgentRun["proposals"][number];
+type RawProposal = AgentRunResponse["proposals"][number];
+export type AgentCodeProposal = Omit<RawProposal, "action"> & {
+  action: Extract<RawProposal["action"], { type: "code.run" }>;
+};
+export type AgentProposal = Omit<RawProposal, "action"> & {
+  action: Exclude<RawProposal["action"], { type: "code.run" }>;
+};
+// Keep existing task proposal renderers compatible until the coding UI lands.
+// Coding proposals remain available separately to the new review surface.
+export type AgentRun = Omit<AgentRunResponse, "proposals"> & {
+  proposals: AgentProposal[];
+  codeProposals: AgentCodeProposal[];
+};
+export type AgentCodeJob = InferResponseType<
+  AgentClient["jobs"][":jobId"]["$get"],
+  200
+>;
+export type AgentCodeRepository = InferResponseType<
+  AgentClient["code"]["repositories"]["$get"],
+  200
+>[number];
+export type AgentCodeStatus = InferResponseType<
+  AgentClient["code"]["status"]["$get"],
+  200
+>;
+export type StartAgentCodeJobInput = InferRequestType<
+  AgentClient["jobs"]["$post"]
+>["json"];
 export type AgentRunStatus = AgentRun["status"];
 export type AgentRunAttachment = AgentRunSummary["attachments"][number];
 export type AgentRunAttachmentInput = NonNullable<

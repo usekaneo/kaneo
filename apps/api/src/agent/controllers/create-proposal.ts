@@ -31,6 +31,10 @@ export async function createProposal(
       throw new HTTPException(409, { message: "Run is no longer active" });
     if (locked.trigger?.output === "digest")
       throw new HTTPException(403, { message: "Digest runs are read-only" });
+    if (locked.trigger && action.type === "code.run")
+      throw new HTTPException(403, {
+        message: "Automations cannot propose coding jobs",
+      });
     const [total] = await tx
       .select({ value: count() })
       .from(schema.agentProposalTable)

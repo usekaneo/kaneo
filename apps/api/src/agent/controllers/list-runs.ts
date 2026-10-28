@@ -1,4 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
+import { jobsForRuns } from "../code/read-jobs";
 import db, { schema } from "../../database";
 import { getVisibleConversation } from "../access";
 import { summarizeAttachments } from "../attachment-summary";
@@ -44,8 +45,13 @@ export async function listRuns(
     )
     .limit(paging.limit)
     .offset(paging.offset);
+  const jobs = await jobsForRuns(
+    runs.map((run) => run.id),
+    subject,
+  );
   return runs.map((run) => ({
     ...run,
+    jobs: jobs.filter((job) => job.runId === run.id),
     attachments: summarizeAttachments(run.attachments),
   }));
 }

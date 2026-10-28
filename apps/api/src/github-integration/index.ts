@@ -345,6 +345,8 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       throw new HTTPException(500, { message: "Invalid integration config" });
     }
 
+    if (body.codingAgentEnabled !== undefined)
+      config = { ...config, codingAgent: { enabled: body.codingAgentEnabled } };
     if (body.commentTaskLinkOnGitHubIssue !== undefined) {
       config = {
         ...config,

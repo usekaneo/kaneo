@@ -6,7 +6,8 @@ import db, { schema } from "../../database";
 import { assertAgentAccess } from "../access";
 import { createProposal } from "../controllers/create-proposal";
 import { recordTouchedProjects } from "../record-touched-projects";
-import { createProposalSchema } from "../schema";
+import { listCodeRepositories } from "../code/list-repositories";
+import { codeActionSchema, createTaskProposalSchema } from "../schema";
 import {
   projectsInTaskPage,
   splitWorkload,
@@ -29,6 +30,7 @@ export function createAgentTools(
   signal: AbortSignal,
   notify: () => void,
   readOnly = false,
+  allowCodeJobs = true,
 ) {
   let resultCharacters = 0;
   async function execute<T>(
@@ -194,13 +196,62 @@ export function createAgentTools(
           ),
         ),
     }),
+    ...(readOnly || !allowCodeJobs
+      ? {}
+      : {
+          list_code_repositories: tool({
+            description:
+              "List opted-in repositories available for coding proposals. Propose only ready repositories.",
+            inputSchema: z.object({}).strict(),
+            execute: (input, options) =>
+              execute(
+                "list_code_repositories",
+                options.toolCallId,
+                input,
+                async () => {
+                  const repositories = await listCodeRepositories(subject);
+                  return {
+                    result: repositories,
+                    projectIds: uniqueProjectIds(
+                      repositories.map((repository) => repository.projectId),
+                    ),
+                  };
+                },
+              ),
+          }),
+          propose_code_job: tool({
+            description:
+              "Propose a repository coding job for explicit human review. Never starts it. Use an integration ID from list_code_repositories and a task from get_task. The job opens a draft PR; it cannot merge.",
+            inputSchema: z
+              .object({
+                action: codeActionSchema,
+                reason: z.string().trim().min(1).max(2000),
+              })
+              .strict(),
+            execute: (input, options) =>
+              execute(
+                "propose_code_job",
+                options.toolCallId,
+                input,
+                async () => ({
+                  result: await createProposal(
+                    subject,
+                    runId,
+                    input,
+                    leaseOwner,
+                  ),
+                  projectIds: [],
+                }),
+              ),
+          }),
+        }),
     ...(readOnly
       ? {}
       : {
           propose_change: tool({
             description:
               'Save a concrete task creation, task update, or task comment for user review. This never applies a change or posts anything; the user reviews and applies it. Use actual IDs from read tools. Task updates support title, priority, assignee, and due date; task creation uses an existing project column slug. Propose a comment (comment.create) when the user asks to nudge, ask, or update teammates on a task; it is posted as the user, so write it in their voice. The body is Markdown; mention a member with <kaneo-mention id="USER_ID" label="Name"></kaneo-mention> using an ID from list_members, which notifies them.',
-            inputSchema: createProposalSchema,
+            inputSchema: createTaskProposalSchema,
             execute: (input, options) =>
               // createProposal records the task's project in its own transaction.
               execute(

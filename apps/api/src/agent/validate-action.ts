@@ -1,4 +1,5 @@
 import db from "../database";
+import { codeRepository } from "./code/repository";
 import { assertAssignableUser } from "../utils/assert-assignable-user";
 import { validateDateRange } from "../utils/validate-dates";
 import {
@@ -21,6 +22,15 @@ export async function validateAction(
   database: AgentDatabase = db,
 ) {
   await assertAgentAccess(subject, actionPermissions(action), database);
+  if (action.type === "code.run") {
+    const { task } = await codeRepository(
+      subject,
+      action.taskId,
+      action.integrationId,
+      database,
+    );
+    return taskSnapshot(task);
+  }
   if (action.type === "task.create") {
     await assertAgentProject(subject, action.projectId, database);
     await assertValidTaskStatus(action.status, action.projectId, database);

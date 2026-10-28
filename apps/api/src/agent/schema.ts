@@ -22,7 +22,23 @@ export const taskPatchSchema = z
     "At least one field is required",
   );
 
-export const agentActionSchema = z.discriminatedUnion("type", [
+export const codeActionSchema = z
+  .object({
+    type: z.literal("code.run"),
+    taskId: id,
+    integrationId: id,
+    instructions: z.string().trim().min(1).max(8000),
+    baseRef: z
+      .string()
+      .trim()
+      .min(1)
+      .max(200)
+      .regex(/^[a-zA-Z0-9_][a-zA-Z0-9_./-]*$/)
+      .optional(),
+  })
+  .strict();
+
+const taskActionSchema = z.discriminatedUnion("type", [
   z
     .object({
       type: z.literal("task.update"),
@@ -51,12 +67,21 @@ export const agentActionSchema = z.discriminatedUnion("type", [
     .strict(),
 ]);
 
+export const agentActionSchema = z.discriminatedUnion("type", [
+  codeActionSchema,
+  ...taskActionSchema.options,
+]);
+
 export const createProposalSchema = z
   .object({
     action: agentActionSchema,
     reason: z.string().trim().min(1).max(2000),
   })
   .strict();
+
+export const createTaskProposalSchema = createProposalSchema.extend({
+  action: taskActionSchema,
+});
 
 export const createConversationSchema = z
   .object({

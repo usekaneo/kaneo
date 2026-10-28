@@ -1,3 +1,4 @@
+import { invalidateAgentJobQueries } from "@/lib/invalidate-agent-job-queries";
 import { workspaceStatusQueryKey } from "@/hooks/queries/workspace/use-workspace-archived";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -194,10 +195,13 @@ export function useUserWebSocket() {
             reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
           }
           if (
-            message.type === "AGENT_RUN_UPDATED" &&
+            (message.type === "AGENT_RUN_UPDATED" ||
+              message.type === "AGENT_JOB_UPDATED") &&
             message.workspaceId &&
             message.runId
           ) {
+            if (message.type === "AGENT_JOB_UPDATED")
+              void invalidateAgentJobQueries(queryClient, message.workspaceId);
             void queryClient.invalidateQueries({
               queryKey: agentQueryKeys.run(message.workspaceId, message.runId),
             });

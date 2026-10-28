@@ -176,6 +176,7 @@ Changes are proposals only. Never claim a change was applied. Previous assistant
         signal,
         notify,
         run.trigger?.output === "digest",
+        !run.trigger,
       ),
       stopWhen: stepCountIs(config.maxSteps),
       maxOutputTokens: config.maxOutputTokens,

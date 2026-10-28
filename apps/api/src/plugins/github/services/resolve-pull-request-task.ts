@@ -7,6 +7,7 @@ import { extractIssueReferences } from "../utils/issue-references";
 import { findTaskByLink } from "./task-service";
 
 export async function resolvePullRequestTask({
+  expectedTaskId,
   integrationId,
   projectId,
   projectSlug,
@@ -15,6 +16,7 @@ export async function resolvePullRequestTask({
   pullRequest,
   database = db,
 }: {
+  expectedTaskId?: string;
   database?: Pick<typeof db, "selectDistinct" | "query">;
   integrationId: string;
   projectId: string;
@@ -28,6 +30,13 @@ export async function resolvePullRequestTask({
     head: { ref: string };
   };
 }) {
+  if (expectedTaskId)
+    return database.query.taskTable.findFirst({
+      where: and(
+        eq(taskTable.id, expectedTaskId),
+        eq(taskTable.projectId, projectId),
+      ),
+    });
   const taskNumber = extractTaskNumber(
     pullRequest.head.ref,
     pullRequest.title,

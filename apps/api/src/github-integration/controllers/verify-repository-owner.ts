@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { accountTable } from "../../database/schema";
 import { getGithubApp } from "../../plugins/github/utils/github-app";
+import { getLinkedGithubPermission } from "../github-collaborator-permission";
 
 /** Account IDs come from completed OAuth, never from submitted repository data. */
 export async function verifyRepositoryOwner(
@@ -24,17 +25,12 @@ export async function verifyRepositoryOwner(
         repo: repositoryName,
       });
     const octokit = await app.getInstallationOctokit(installation.id);
-    const { data: user } = await octokit.rest.users.getById({
-      account_id: accountId,
-    });
-    if (user.id !== accountId) throw new Error("GitHub identity mismatch");
-    const { data: permission } =
-      await octokit.rest.repos.getCollaboratorPermissionLevel({
-        owner: repositoryOwner,
-        repo: repositoryName,
-        username: user.login,
-      });
-    if (permission.permission !== "admin") {
+    const permission = await getLinkedGithubPermission(
+      octokit,
+      { owner: repositoryOwner, name: repositoryName },
+      accountId,
+    );
+    if (permission !== "admin") {
       throw new Error("GitHub repository admin permission is required");
     }
     const { data: repository } = await octokit.rest.repos.get({

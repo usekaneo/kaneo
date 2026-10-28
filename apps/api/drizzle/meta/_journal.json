@@ -547,6 +547,13 @@
       "when": 1793215342007,
       "tag": "0077_agent_automations",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1793217741471,
+      "tag": "0078_agent_coding_jobs",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "name": "@kaneo/agent-job",
+  "version": "0.1.0",
+  "description": "GitHub Actions wrapper for Kaneo repository coding jobs",
+  "type": "module",
+  "license": "MIT",
+  "bin": { "kaneo-agent-job": "dist/cli.js" },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vp test run --config vitest.config.ts"
+  },
+  "dependencies": { "opencode-ai": "1.19.5", "zod": "^4.6.7" },
+  "devDependencies": { "@types/node": "^26.6.5", "typescript": "^7.0.2", "vite-plus": "catalog:" },
+  "engines": { "node": ">=24" }
+}

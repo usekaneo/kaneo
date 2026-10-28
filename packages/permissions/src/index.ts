@@ -12,7 +12,7 @@ export const statement = {
   task: ["create", "read", "update", "delete", "assign"],
   label: ["create", "read", "update", "delete"],
   workspace: ["read", "update", "delete", "manage_settings"],
-  agent: ["manage_automations"],
+  agent: ["manage_automations", "run_code"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -35,7 +35,7 @@ export const member = ac.newRole({
 
 export const admin = ac.newRole({
   ...adminAc.statements,
-  agent: ["manage_automations"],
+  agent: ["manage_automations", "run_code"],
   project: ["create", "read", "update", "delete", "share"],
   task: ["create", "read", "update", "delete", "assign"],
   label: ["create", "read", "update", "delete"],
@@ -44,7 +44,7 @@ export const admin = ac.newRole({
 
 export const owner = ac.newRole({
   ...ownerAc.statements,
-  agent: ["manage_automations"],
+  agent: ["manage_automations", "run_code"],
   project: ["create", "read", "update", "delete", "share"],
   task: ["create", "read", "update", "delete", "assign"],
   label: ["create", "read", "update", "delete"],
