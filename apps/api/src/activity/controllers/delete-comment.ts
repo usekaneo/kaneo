@@ -5,30 +5,21 @@ import { activityTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { deleteOrphanedAssets } from "../../storage/cleanup-assets";
 
-async function deleteComment(userId: string, id: string) {
-  const [existing] = await db
-    .select({
-      id: activityTable.id,
-      content: activityTable.content,
-      taskId: activityTable.taskId,
-    })
-    .from(activityTable)
-    .where(
-      and(
-        eq(activityTable.id, id),
-        eq(activityTable.userId, userId),
-        eq(activityTable.type, "comment"),
-      ),
-    )
-    .limit(1);
+type Database = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+export type RemovedComment = {
+  comment: typeof activityTable.$inferSelect;
+  // Null when the task vanished; no event is published then.
+  projectId: string | null;
+};
 
-  if (!existing) {
-    throw new HTTPException(404, {
-      message: "Comment not found or you are not the author",
-    });
-  }
-
-  const [deletedComment] = await db
+// Deletes the author's comment. Pair with publishCommentDeleted after the
+// surrounding transaction commits.
+export async function removeComment(
+  database: Database,
+  userId: string,
+  id: string,
+): Promise<RemovedComment> {
+  const [comment] = await database
     .delete(activityTable)
     .where(
       and(
@@ -39,31 +30,38 @@ async function deleteComment(userId: string, id: string) {
     )
     .returning();
 
-  if (!deletedComment) {
+  if (!comment) {
     throw new HTTPException(404, {
       message: "Comment not found or you are not the author",
     });
   }
 
-  const [task] = await db
+  const [task] = await database
     .select({ projectId: taskTable.projectId })
     .from(taskTable)
-    .where(eq(taskTable.id, deletedComment.taskId))
+    .where(eq(taskTable.id, comment.taskId))
     .limit(1);
 
-  if (task) {
-    await publishEvent("comment.deleted", {
-      ...deletedComment,
-      projectId: task.projectId,
-      userId,
-    });
+  return { comment, projectId: task?.projectId ?? null };
+}
+
+export async function publishCommentDeleted(
+  { comment, projectId }: RemovedComment,
+  userId: string,
+) {
+  if (projectId) {
+    await publishEvent("comment.deleted", { ...comment, projectId, userId });
   }
 
-  deleteOrphanedAssets(existing.content, null, {
-    taskId: existing.taskId,
+  deleteOrphanedAssets(comment.content, null, {
+    taskId: comment.taskId,
   }).catch(() => {});
+}
 
-  return deletedComment;
+async function deleteComment(userId: string, id: string) {
+  const removed = await removeComment(db, userId, id);
+  await publishCommentDeleted(removed, userId);
+  return removed.comment;
 }
 
 export default deleteComment;
