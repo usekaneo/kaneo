@@ -213,3 +213,49 @@ export const reorderTasksBody = z.object({
     )
     .min(1),
 });
+
+// Comma-separated ids in a query string; duplicates and blanks are dropped.
+const idList = z
+  .string()
+  .max(4096)
+  .transform((value) => [
+    ...new Set(
+      value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    ),
+  ])
+  .pipe(z.array(z.string().min(1).max(128)).max(100))
+  .openapi({ type: "string" });
+
+export const UNASSIGNED_FILTER = "unassigned";
+
+export const workspaceBoardQuery = z.object({
+  workspaceId: z.string().min(1),
+  projectIds: idList.optional().openapi({
+    description:
+      "Comma-separated project ids. Omit for every accessible project.",
+  }),
+  assigneeIds: idList.optional().openapi({
+    description: `Comma-separated user ids. Use "${UNASSIGNED_FILTER}" for tasks without an assignee.`,
+  }),
+  status: idList.optional().openapi({
+    description: "Comma-separated column slugs.",
+  }),
+  priority: idList.optional().openapi({
+    description: "Comma-separated priorities.",
+  }),
+  labelIds: idList.optional().openapi({
+    description:
+      "Comma-separated label ids; a task matches when it carries a label of this workspace with the same name and color as any of them.",
+  }),
+  dueBefore: z.string().optional(),
+  dueAfter: z.string().optional(),
+  includeCompleted: z.enum(["true", "false"]).optional().openapi({
+    description:
+      "Include tasks sitting in a final column. Archived and planned tasks are never returned.",
+  }),
+  page: pagingNumber(1, 1_000_000).optional(),
+  limit: pagingNumber(1, 100).optional(),
+});

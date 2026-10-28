@@ -44,6 +44,7 @@ import getAssignedTasks from "./controllers/get-assigned-tasks";
 import getTaskByTicketId from "./controllers/get-task-by-ticket-id";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
+import getWorkspaceBoard from "./controllers/get-workspace-board";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
 import reorderTasks from "./controllers/reorder-tasks";
@@ -84,6 +85,7 @@ import {
   taskImportResultSchema,
   taskSchema,
   taskWithAssigneeSchema,
+  workspaceBoardSchema,
 } from "./response";
 import {
   assignedTasksQuery,
@@ -112,6 +114,7 @@ import {
   updateStatusBody,
   updateTaskBody,
   updateTitleBody,
+  workspaceBoardQuery,
 } from "./schema";
 
 const listAssignedTasksRoute = createRoute({
@@ -132,6 +135,28 @@ const listAssignedTasksRoute = createRoute({
     400: errorResponse("Invalid workspace ID or query parameters"),
     403: errorResponse("Missing project:read or task:read permission"),
     404: errorResponse("Workspace not found"),
+  },
+});
+
+const workspaceBoardRoute = createRoute({
+  method: "get",
+  operationId: "getWorkspaceBoard",
+  path: "/workspace-board",
+  tags: ["Tasks"],
+  summary: "Workspace board",
+  description:
+    "Get one board of the tasks across every active project the caller can access in a workspace. Columns from different projects are merged by slug. Open tasks only, unless includeCompleted=true; archived and planned tasks are never included. Filters apply before pagination. Ordered by due date (undated last), then priority, then position. Responses contain at most 100 tasks (50 by default); continue through pagination.totalPages for the whole board. Large descriptions are omitted with descriptionDeferred=true.",
+  middleware: [
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
+  request: { query: workspaceBoardQuery },
+  responses: {
+    200: jsonResponse("The merged workspace board", workspaceBoardSchema),
+    400: errorResponse("Invalid workspace ID or query parameters"),
+    403: errorResponse("Missing project:read or task:read permission"),
+    404: errorResponse("Workspace not found"),
+    503: errorResponse("Workspace board request timed out"),
   },
 });
 
@@ -863,6 +888,16 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
         c.get("userId"),
         countOnly === "true",
       ),
+      200,
+    );
+  })
+  .openapi(workspaceBoardRoute, async (c) => {
+    const { workspaceId, includeCompleted, ...filters } = c.req.valid("query");
+    return c.json(
+      await getWorkspaceBoard(workspaceId, c.get("userId"), {
+        ...filters,
+        includeCompleted: includeCompleted === "true",
+      }),
       200,
     );
   })
