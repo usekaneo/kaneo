@@ -13,6 +13,10 @@ const snapshot = z.object({
   priority: z.string(),
   userId: z.string().nullable(),
   dueDate: z.string().nullable(),
+  commentId: z
+    .string()
+    .optional()
+    .describe("Comment posted by an applied comment proposal"),
 });
 export const conversationResponse = z.object({
   id: z.string(),

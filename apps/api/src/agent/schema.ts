@@ -1,3 +1,4 @@
+import { COMMENT_MAX_LENGTH } from "../comment/schema";
 import { z, pagingNumber } from "../openapi";
 
 const id = z.string().trim().min(1).max(128);
@@ -34,6 +35,13 @@ export const agentActionSchema = z.discriminatedUnion("type", [
       priority: priority.default("no-priority"),
       userId: id.nullable().default(null),
       dueDate: dueDate.default(null),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("comment.create"),
+      taskId: id,
+      body: z.string().trim().min(1).max(COMMENT_MAX_LENGTH),
     })
     .strict(),
 ]);

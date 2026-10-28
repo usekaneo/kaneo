@@ -9,6 +9,7 @@ import { assertAgentAccess, getOwnedRun } from "../access";
 import { matchesSnapshot, taskSnapshot } from "../snapshot";
 import { actionPermissions } from "../action-permissions";
 import { getScopedTask } from "./get-scoped-task";
+import { undoComment } from "./undo-comment";
 import type { AgentSubject } from "../types";
 
 export async function undoProposal(subject: AgentSubject, proposalId: string) {
@@ -38,9 +39,9 @@ export async function undoProposal(subject: AgentSubject, proposalId: string) {
       return { id: proposalId, status: "undone" as const };
     if (proposal.status !== "applied")
       throw new HTTPException(409, {
-        message: "Only applied task updates can be undone",
+        message: "Only applied changes can be undone",
       });
-    if (proposal.action.type !== "task.update")
+    if (proposal.action.type === "task.create")
       throw new HTTPException(400, {
         message:
           "Created tasks must be deleted through the normal task workflow",
@@ -59,6 +60,20 @@ export async function undoProposal(subject: AgentSubject, proposalId: string) {
         ),
       )
       .for("update");
+    if (proposal.action.type === "comment.create") {
+      await undoComment(
+        tx,
+        scoped,
+        proposalId,
+        proposal.action,
+        proposal.after,
+      );
+      await tx
+        .update(schema.agentProposalTable)
+        .set({ status: "undone", undoneAt: new Date() })
+        .where(eq(schema.agentProposalTable.id, proposalId));
+      return { id: proposalId, status: "undone" as const };
+    }
     await tx
       .select({ id: schema.taskTable.id })
       .from(schema.taskTable)

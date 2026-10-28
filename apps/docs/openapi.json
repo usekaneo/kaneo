@@ -30758,6 +30758,33 @@
                                   "title"
                                 ],
                                 "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "comment.create"
+                                    ]
+                                  },
+                                  "taskId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128
+                                  },
+                                  "body": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 10000
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "taskId",
+                                  "body"
+                                ],
+                                "additionalProperties": false
                               }
                             ]
                           },
@@ -30793,6 +30820,10 @@
                                   "string",
                                   "null"
                                 ]
+                              },
+                              "commentId": {
+                                "type": "string",
+                                "description": "Comment posted by an applied comment proposal"
                               }
                             },
                             "required": [
@@ -30837,6 +30868,10 @@
                                   "string",
                                   "null"
                                 ]
+                              },
+                              "commentId": {
+                                "type": "string",
+                                "description": "Comment posted by an applied comment proposal"
                               }
                             },
                             "required": [
@@ -31274,7 +31309,7 @@
           "Agent"
         ],
         "summary": "Apply selected saved proposals",
-        "description": "Each proposal is applied atomically with its receipt. Checks current permissions and affected fields; retries cannot duplicate task creation. Independent proposals return individual conflicts. No model call is made.",
+        "description": "Each proposal is applied atomically with its receipt. Checks current permissions and affected fields; retries cannot duplicate task creation or comments. Independent proposals return individual conflicts. No model call is made.",
         "parameters": [
           {
             "schema": {
@@ -31624,8 +31659,8 @@
         "tags": [
           "Agent"
         ],
-        "summary": "Undo an applied task update",
-        "description": "Only restores affected fields that still match the agent's applied values. Rechecks current permissions and assignee membership. Task creation is not automatically undone; delete created tasks through the task API.",
+        "summary": "Undo an applied task update or comment",
+        "description": "Only restores affected fields that still match the agent's applied values, and only deletes a posted comment that has not been edited. Rechecks current permissions and assignee membership. Task creation is not automatically undone; delete created tasks through the task API.",
         "parameters": [
           {
             "schema": {

@@ -45,7 +45,7 @@ All paths below are relative to `/api/agent/{workspaceId}`. Use the existing ses
 | POST | `/runs/{runId}/cancel` | Cancel queued/running work |
 | POST | `/runs/{runId}/apply` | Apply selected `{proposalIds: [...]}` |
 | POST | `/runs/{runId}/discard` | Discard selected pending proposals |
-| POST | `/proposals/{proposalId}/undo` | Undo an applied task update |
+| POST | `/proposals/{proposalId}/undo` | Undo an applied task update or comment |
 | POST | `/attachments` | Upload `{name, mediaType, data}` (base64 image or PDF); returns `{id, name, mediaType, size}` with 201 |
 | GET | `/attachments/{attachmentId}/content` | Your attachment's bytes; images inline, PDFs as downloads |
 
@@ -59,25 +59,25 @@ SSE emits `run` events containing the same JSON as GET run details, then `done` 
 
 1. Create a conversation scoped to the board project, or to the workspace for the standalone Agent page.
 2. Queue a run with a new UUID and render response/progress from persisted snapshots. Render Markdown through Kaneo's existing sanitization path; model text and task descriptions are untrusted.
-3. At `awaiting_review`, render pending proposals as overlays. `action` is the proposed patch/creation, `reason` explains it, and `before` is the server's task snapshot. `after` remains null until applied. Never change board cache values just because a proposal exists.
+3. At `awaiting_review`, render pending proposals as overlays. `action` is the proposed patch, creation, or comment, `reason` explains it, and `before` is the server's task snapshot. `after` remains null until applied; for comments it then carries the posted `commentId`. Comment bodies are untrusted Markdown. Never change board cache values just because a proposal exists.
 4. Submit only checked proposal IDs to `/apply`. The response contains per-proposal `applied` or `failed` results; conflicts are HTTP 409 codes inside those results. Refetch run details to keep pending selections accurate. Apply is independent per proposal, so some can succeed while others conflict.
-5. Applied updates can be undone if their affected fields still equal the applied values. Unrelated teammate edits are preserved. Created tasks use the normal task deletion workflow rather than automatic undo.
+5. Applied updates can be undone if their affected fields still equal the applied values. Unrelated teammate edits are preserved. A posted comment can be undone, which deletes it, only while it is unedited; otherwise undo returns 409. Created tasks use the normal task deletion workflow rather than automatic undo.
 
-Actual task changes publish the existing task events, which produce normal board WebSocket messages and existing cache refreshes. The applying tab also receives these messages because the durable effect is delivered outside the original request's initiator context.
+Actual task changes and comments publish the existing task and comment events, which produce normal board WebSocket messages and existing cache refreshes. The applying tab also receives these messages because the durable effect is delivered outside the original request's initiator context.
 
 ## Web UI
 
-`apps/web/src/components/agent/` implements both surfaces. Project views get an **Agent** button (⌘/Ctrl+J) that opens a side panel scoped to the project; pending task updates from the latest run are previewed on matching board cards through `store/agent-panel.ts`. The sidebar's **Agent** page starts workspace-scoped conversations and lists recent runs. Both are hidden when `/config` reports the agent disabled or the user is anonymous. Run details refresh from `AGENT_RUN_UPDATED` on the user WebSocket, with slow polling only while a run is active; the UI does not use the SSE endpoint.
+`apps/web/src/components/agent/` implements both surfaces. Project views get an **Agent** button (⌘/Ctrl+J) that opens a side panel scoped to the project; pending task updates and comments from the latest run are previewed on matching board cards through `store/agent-panel.ts`. The sidebar's **Agent** page starts workspace-scoped conversations and lists recent runs. Both are hidden when `/config` reports the agent disabled or the user is anonymous. Run details refresh from `AGENT_RUN_UPDATED` on the user WebSocket, with slow polling only while a run is active; the UI does not use the SSE endpoint.
 
 ## Scope and guarantees
 
 Tools list projects, members, bounded task pages, task details with recent comments/stored links, and workload counts. Task pages deliberately have no text/status/assignee filters so smaller models do not accidentally exclude the task they need. Workspace-wide inspection uses pagination. Counts describe observed tasks, not a person's capacity or skills; stored links do not establish live PR reviews or CI state.
 
-Supported proposals are task creation and updates to title, priority, assignee, and due date. Validation uses current workspace permissions, member assignment rules, project columns, required custom fields, and date constraints. The API owns the before snapshot. Applying and undoing compare affected fields and project ownership under database locks. The mutation, receipt, and outbox insertion commit together; retries do not duplicate task creation or replay mutations.
+Supported proposals are task creation, updates to title, priority, assignee, and due date, and task comments. Validation uses current workspace permissions, member assignment rules, project columns, required custom fields, and date constraints. Comments need `task:update`, like the comment API, and are posted as the applying user through the normal comment domain, so mentions and assignee notifications behave like a user comment. Notifications are stored with the comment and delivered by the outbox. The API owns the before snapshot. Applying and undoing compare affected fields and project ownership under database locks. The mutation, receipt, and outbox insertion commit together; retries do not duplicate task creation or comments, or replay mutations.
 
 The outbox dispatches normal events after commit, in proposal order. A process crash can cause event redispatch; delivery is at least once, and downstream handlers retain their existing delivery semantics. It is not an exactly-once guarantee for notifications or integrations. Expired runs fail and discard pending proposals; model calls are not automatically retried after a crash. Cancellation aborts in-flight work when the worker observes it; provider work already performed can still be billed.
 
-Automation rules/schedules, task attachments, subtasks, labels, comments as writes, status changes, and live GitHub queries are follow-up features. The initial implementation has no arbitrary HTTP, SQL, shell, or integration-secret tool. Run history is durable without automatic retention pruning; there is currently no conversation deletion endpoint.
+Automation rules/schedules, task attachments, subtasks, labels, status changes, and live GitHub queries are follow-up features. The initial implementation has no arbitrary HTTP, SQL, shell, or integration-secret tool. Run history is durable without automatic retention pruning; there is currently no conversation deletion endpoint.
 
 ## Verification
 
@@ -87,6 +87,7 @@ Regular integration tests use fake keys and an injected model, and never call Op
 DATABASE_URL=postgresql://localhost:5432/kaneo_agent_backend_test \
   pnpm --filter @kaneo/api exec vp test run --config vitest.integration.config.ts \
   ../../tests/api-integration/agent-proposals.test.ts \
+  ../../tests/api-integration/agent-comment-proposals.test.ts \
   ../../tests/api-integration/agent-runner.test.ts \
   ../../tests/api-integration/agent-realtime.test.ts \
   ../../tests/api-integration/agent-attachments.test.ts
