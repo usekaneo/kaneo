@@ -3,7 +3,12 @@ import { describe, expect, it } from "vite-plus/test";
 import { enUS } from "./en-US.js";
 import { translations } from "./index.js";
 
-type AppCatalog = { tasks?: { gantt?: Record<string, string> } };
+type AppCatalog = {
+  tasks?: {
+    gantt?: Record<string, string>;
+    filterBar?: Record<string, string>;
+  };
+};
 
 const appCatalogs = Object.fromEntries(
   Object.entries(
@@ -77,6 +82,16 @@ describe("translations", () => {
         if (!(key in english) || text === englishGantt[key]) continue;
         expect(flat[key], key).not.toBe(english[key]);
       }
+    },
+  );
+
+  it.each(appLocales)(
+    "%s words an empty filtered timeline like Kaneo's filter bar",
+    (locale) => {
+      const flat = flatten(bundles[locale] ?? {});
+      expect(flat.noMatches).toBe(
+        appCatalogs[locale]?.tasks?.filterBar?.noMatches,
+      );
     },
   );
 });

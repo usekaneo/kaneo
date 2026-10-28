@@ -1,4 +1,4 @@
-import type { ButtonProps, InputProps } from "@kaneo/plugin-sdk/ui";
+import type { ButtonProps } from "@kaneo/plugin-sdk/ui";
 import type { PluginProject, PluginTask } from "@kaneo/plugin-sdk/web";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
@@ -12,25 +12,17 @@ import {
 import { GanttView } from "./gantt-view.js";
 import { enUS } from "./translations/en-US.js";
 
-vi.stubGlobal(
-  "ResizeObserver",
-  class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  },
-);
 const scrollIntoView = vi.fn();
 Element.prototype.scrollIntoView = scrollIntoView;
 
 const sdk = vi.hoisted(() => ({
-  useTasks: vi.fn(),
+  useProjectView: vi.fn(),
   useProject: vi.fn(),
   openTask: vi.fn(),
 }));
 
 vi.mock("@kaneo/plugin-sdk/web", () => ({
-  useTasks: (projectId: string) => sdk.useTasks(projectId),
+  useProjectView: () => sdk.useProjectView(),
   useProject: (projectId: string) => sdk.useProject(projectId),
   useUpdateTask: () => vi.fn(),
   useToast: () => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }),
@@ -59,7 +51,6 @@ vi.mock("@kaneo/plugin-sdk/ui", () => ({
   Button: ({ variant: _variant, size: _size, ...props }: ButtonProps) => (
     <button type="button" {...props} />
   ),
-  Input: (props: InputProps) => <input {...props} />,
 }));
 
 vi.mock("./use-is-mobile.js", () => ({
@@ -89,6 +80,15 @@ function makeTask(overrides: Partial<PluginTask>): PluginTask {
   };
 }
 
+function showTasks(tasks: PluginTask[], allTasks: PluginTask[]) {
+  sdk.useProjectView.mockReturnValue({
+    tasks,
+    allTasks,
+    isLoading: false,
+    error: null,
+  });
+}
+
 function mockProjectWithTasks(
   tasks: PluginTask[],
   overrides: { id?: string; name?: string } = {},
@@ -107,7 +107,7 @@ function mockProjectWithTasks(
       },
     ],
   };
-  sdk.useTasks.mockReturnValue({ data: tasks, isLoading: false, error: null });
+  showTasks(tasks, tasks);
   sdk.useProject.mockReturnValue({
     data: project,
     isLoading: false,
@@ -126,43 +126,59 @@ function view(projectId = "project-1") {
   return <GanttView workspaceId="workspace-1" projectId={projectId} />;
 }
 
+function preferReducedMotion() {
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: query === "(prefers-reduced-motion: reduce)",
+  }));
+}
+
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2026, 7, 31));
+  vi.stubGlobal(
+    "ResizeObserver",
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
 });
 
 afterEach(() => {
   cleanup();
   vi.useRealTimers();
+  vi.unstubAllGlobals();
   scrollIntoView.mockClear();
-  sdk.useTasks.mockReset();
+  sdk.useProjectView.mockReset();
   sdk.useProject.mockReset();
   sdk.openTask.mockReset();
 });
 
 describe("Gantt jump-to-today", () => {
-  it("centers a new project after a search stops hiding its timeline", () => {
-    mockProjectWithTask(
-      makeTask({
-        title: "First task",
-        startDate: "2026-08-28",
-        dueDate: "2026-09-02",
-      }),
-    );
+  it("centers a new project after the filters stop hiding its timeline", () => {
+    const first = makeTask({
+      title: "First task",
+      startDate: "2026-08-28",
+      dueDate: "2026-09-02",
+    });
+    mockProjectWithTask(first);
     const { rerender } = render(view());
-    const search = screen.getByPlaceholderText("Search scheduled tickets...");
-    fireEvent.change(search, { target: { value: "no match" } });
-    mockProjectWithTask(
-      makeTask({
-        title: "Second task",
-        startDate: "2026-08-28",
-        dueDate: "2026-09-02",
-      }),
-      { id: "project-2" },
-    );
-    rerender(view("project-2"));
+    showTasks([], [first]);
+    rerender(view());
 
-    fireEvent.change(search, { target: { value: "" } });
+    const second = makeTask({
+      title: "Second task",
+      startDate: "2026-08-28",
+      dueDate: "2026-09-02",
+    });
+    mockProjectWithTask(second, { id: "project-2" });
+    showTasks([], [second]);
+    rerender(view("project-2"));
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+
+    showTasks([second], [second]);
+    rerender(view("project-2"));
 
     expect(scrollIntoView).toHaveBeenCalledTimes(2);
     expect(scrollIntoView).toHaveBeenLastCalledWith(
@@ -250,7 +266,32 @@ describe("Gantt jump-to-today", () => {
     );
   });
 
-  it("disables the button once a search filters out every task, even with today in range", () => {
+  it("disables the button once the filters hide every task, even with today in range", () => {
+    const task = makeTask({
+      id: "current-task",
+      title: "Ongoing work",
+      startDate: "2026-08-28",
+      dueDate: "2026-09-02",
+    });
+    mockProjectWithTask(task);
+
+    const { rerender } = render(view());
+
+    const button = screen.getByRole("button", { name: "Jump to today" });
+    expect(button).toHaveProperty("disabled", false);
+
+    showTasks([], [task]);
+    rerender(view());
+
+    expect(screen.getByText("No tasks found")).toBeTruthy();
+    expect(
+      screen.getByText("No tasks match your search or filters."),
+    ).toBeTruthy();
+    expect(button).toHaveProperty("disabled", true);
+  });
+
+  it("jumps without smooth scrolling when the person prefers reduced motion", () => {
+    preferReducedMotion();
     mockProjectWithTask(
       makeTask({
         id: "current-task",
@@ -261,21 +302,12 @@ describe("Gantt jump-to-today", () => {
     );
 
     render(view());
+    fireEvent.click(screen.getByRole("button", { name: "Jump to today" }));
 
-    const button = screen.getByRole("button", { name: "Jump to today" });
-    expect(button).toHaveProperty("disabled", false);
-
-    fireEvent.change(
-      screen.getByPlaceholderText("Search scheduled tickets..."),
-      {
-        target: { value: "no such task" },
-      },
+    expect(scrollIntoView).toHaveBeenCalledTimes(2);
+    expect(scrollIntoView).toHaveBeenLastCalledWith(
+      expect.objectContaining({ behavior: "auto", inline: "center" }),
     );
-
-    expect(
-      screen.getByText('No scheduled tasks match "no such task"'),
-    ).toBeTruthy();
-    expect(button).toHaveProperty("disabled", true);
   });
 
   it("insets scroll-alignment by the task rail's width so a scrollIntoView center lands in the visible timeline", () => {
@@ -292,6 +324,44 @@ describe("Gantt jump-to-today", () => {
 
     const container = screen.getByTestId("gantt-scroll-container");
     expect(container.style.scrollPaddingLeft).toBe("20rem");
+  });
+});
+
+describe("Gantt filters", () => {
+  it("draws only the filtered tasks on the range of every scheduled task", () => {
+    const current = makeTask({
+      id: "current-task",
+      title: "Ongoing work",
+      startDate: "2026-08-28",
+      dueDate: "2026-09-02",
+    });
+    const early = makeTask({
+      id: "early-task",
+      title: "Kickoff",
+      startDate: "2026-03-01",
+      dueDate: "2026-03-02",
+    });
+    mockProjectWithTasks([early, current]);
+    showTasks([current], [early, current]);
+
+    render(view());
+
+    expect(screen.getAllByText("Ongoing work").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Kickoff")).toBeNull();
+    expect(screen.getByLabelText("Timeline start date")).toHaveProperty(
+      "min",
+      "2026-02-22",
+    );
+  });
+
+  it("explains how to schedule tasks when none in scope have dates", () => {
+    const undated = makeTask({ id: "undated", title: "Someday" });
+    mockProjectWithTasks([undated]);
+
+    render(view());
+
+    expect(screen.getByText("No scheduled tasks")).toBeTruthy();
+    expect(screen.queryByText("Someday")).toBeNull();
   });
 });
 

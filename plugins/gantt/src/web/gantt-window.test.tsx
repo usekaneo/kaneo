@@ -1,4 +1,4 @@
-import type { ButtonProps, InputProps } from "@kaneo/plugin-sdk/ui";
+import type { ButtonProps } from "@kaneo/plugin-sdk/ui";
 import type { PluginTask } from "@kaneo/plugin-sdk/web";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import {
@@ -14,7 +14,7 @@ import { GanttView } from "./gantt-view.js";
 const m = vi.hoisted(() => ({
   openTask: vi.fn(),
   update: vi.fn(),
-  tasks: [] as unknown[],
+  tasks: [] as PluginTask[],
   project: {
     id: "project",
     workspaceId: "workspace",
@@ -24,7 +24,12 @@ const m = vi.hoisted(() => ({
   },
 }));
 vi.mock("@kaneo/plugin-sdk/web", () => ({
-  useTasks: () => ({ data: m.tasks, isLoading: false, error: null }),
+  useProjectView: () => ({
+    tasks: m.tasks,
+    allTasks: m.tasks,
+    isLoading: false,
+    error: null,
+  }),
   useProject: () => ({ data: m.project, isLoading: false, error: null }),
   useUpdateTask: () => m.update,
   useToast: () => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }),
@@ -36,7 +41,6 @@ vi.mock("@kaneo/plugin-sdk/ui", () => ({
   Button: ({ variant: _variant, size: _size, ...props }: ButtonProps) => (
     <button type="button" {...props} />
   ),
-  Input: (props: InputProps) => <input {...props} />,
 }));
 vi.mock("./use-is-mobile.js", () => ({ useIsMobile: () => false }));
 

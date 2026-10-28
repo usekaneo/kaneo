@@ -3,8 +3,8 @@ import {
   useOpenTask,
   usePreferences,
   useProject,
+  useProjectView,
   useT,
-  useTasks,
 } from "@kaneo/plugin-sdk/web";
 import { isToday } from "date-fns";
 import {
@@ -15,7 +15,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { filterTasks } from "./filter-tasks.js";
 import { GanttChart } from "./gantt-chart.js";
 import { GanttMessage } from "./gantt-message.js";
 import { GanttToolbar } from "./gantt-toolbar.js";
@@ -25,11 +24,10 @@ import { useIsMobile } from "./use-is-mobile.js";
 
 export function GanttView({ projectId }: ProjectViewProps) {
   const t = useT();
-  const { data: tasks } = useTasks(projectId);
+  const { tasks, allTasks } = useProjectView();
   const { data: project } = useProject(projectId);
   const { weekStartsOn } = usePreferences();
   const openTask = useOpenTask();
-  const [searchQuery, setSearchQuery] = useState("");
   const [windowStart, setWindowStart] = useState<{
     projectId: string;
     date: Date;
@@ -59,13 +57,13 @@ export function GanttView({ projectId }: ProjectViewProps) {
 
   const columns = project?.columns;
   const parsedTasks = useMemo(
-    () => scheduleTasks(tasks ?? [], columns ?? []),
-    [tasks, columns],
+    () => scheduleTasks(allTasks, columns ?? []),
+    [allTasks, columns],
   );
 
   const scheduledTasks = useMemo(
-    () => filterTasks(parsedTasks, searchQuery, project?.slug ?? ""),
-    [parsedTasks, project?.slug, searchQuery],
+    () => scheduleTasks(tasks, columns ?? []),
+    [tasks, columns],
   );
 
   const timeline = useMemo(
@@ -85,8 +83,11 @@ export function GanttView({ projectId }: ProjectViewProps) {
   );
 
   const scrollToToday = useCallback((behavior: ScrollBehavior = "smooth") => {
+    const reduceMotion = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     todayCellRef.current?.scrollIntoView({
-      behavior,
+      behavior: reduceMotion ? "auto" : behavior,
       inline: "center",
       block: "nearest",
     });
@@ -107,8 +108,6 @@ export function GanttView({ projectId }: ProjectViewProps) {
   return (
     <div className="gantt:flex gantt:h-full gantt:min-h-0 gantt:flex-col gantt:bg-background">
       <GanttToolbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
         timeline={timeline}
         onShowDate={showDate}
         canJumpToToday={todayInRange && scheduledTasks.length > 0}
@@ -120,10 +119,7 @@ export function GanttView({ projectId }: ProjectViewProps) {
       {!timeline || parsedTasks.length === 0 ? (
         <GanttMessage title={t("noTasks")} description={t("noTasksSubtitle")} />
       ) : scheduledTasks.length === 0 ? (
-        <GanttMessage
-          title={t("noTasksFound")}
-          description={t("noTasksMatch", { query: searchQuery })}
-        />
+        <GanttMessage title={t("noTasksFound")} description={t("noMatches")} />
       ) : (
         <GanttChart
           timeline={timeline}

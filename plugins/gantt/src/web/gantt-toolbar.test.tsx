@@ -1,4 +1,4 @@
-import type { ButtonProps, InputProps } from "@kaneo/plugin-sdk/ui";
+import type { ButtonProps } from "@kaneo/plugin-sdk/ui";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { GanttToolbar } from "./gantt-toolbar.js";
@@ -11,7 +11,6 @@ vi.mock("@kaneo/plugin-sdk/ui", () => ({
   Button: ({ variant: _variant, size: _size, ...props }: ButtonProps) => (
     <button type="button" {...props} />
   ),
-  Input: (props: InputProps) => <input {...props} />,
 }));
 
 function renderToolbar(showTaskRail: boolean) {
@@ -19,8 +18,6 @@ function renderToolbar(showTaskRail: boolean) {
   const onToggleTaskRail = vi.fn();
   render(
     <GanttToolbar
-      searchQuery=""
-      onSearchChange={vi.fn()}
       timeline={null}
       onShowDate={vi.fn()}
       canJumpToToday
@@ -35,6 +32,16 @@ function renderToolbar(showTaskRail: boolean) {
 afterEach(cleanup);
 
 describe("GanttToolbar", () => {
+  it("leaves search to Kaneo's toolbar and names the view for screen readers", () => {
+    renderToolbar(true);
+
+    expect(screen.queryByRole("textbox")).toBeNull();
+    expect(screen.queryByRole("searchbox")).toBeNull();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "title" }).className,
+    ).toBe("gantt:sr-only");
+  });
+
   it("keeps the jump-to-today button labeled when its text is hidden on phones", () => {
     const { onJumpToToday } = renderToolbar(true);
 
