@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull, or } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import type { Context, Next } from "hono";
 import db, { schema } from "../database";
@@ -89,7 +89,27 @@ export async function requireAgentSession(c: Context, next: Next) {
   return next();
 }
 
-export async function getOwnedConversation(
+// Owners always see their conversations. Others see a conversation only while
+// it is shared and they can read its project; anything else is a 404 so private
+// conversations stay undiscoverable.
+function visibleTo(subject: AgentSubject) {
+  return and(
+    eq(schema.agentConversationTable.workspaceId, subject.workspaceId),
+    or(
+      eq(schema.agentConversationTable.userId, subject.userId),
+      isNotNull(schema.agentConversationTable.sharedAt),
+    ),
+  );
+}
+
+function assertOwner(subject: AgentSubject, ownerId: string) {
+  if (ownerId !== subject.userId)
+    throw new HTTPException(403, {
+      message: "Only the conversation owner can do this",
+    });
+}
+
+export async function getVisibleConversation(
   subject: AgentSubject,
   conversationId: string,
   database: AgentDatabase = db,
@@ -100,8 +120,7 @@ export async function getOwnedConversation(
     .where(
       and(
         eq(schema.agentConversationTable.id, conversationId),
-        eq(schema.agentConversationTable.userId, subject.userId),
-        eq(schema.agentConversationTable.workspaceId, subject.workspaceId),
+        visibleTo(subject),
       ),
     )
     .limit(1);
@@ -115,7 +134,21 @@ export async function getOwnedConversation(
   return conversation;
 }
 
-export async function getOwnedRun(
+export async function getOwnedConversation(
+  subject: AgentSubject,
+  conversationId: string,
+  database: AgentDatabase = db,
+) {
+  const conversation = await getVisibleConversation(
+    subject,
+    conversationId,
+    database,
+  );
+  assertOwner(subject, conversation.userId);
+  return conversation;
+}
+
+export async function getVisibleRun(
   subject: AgentSubject,
   runId: string,
   database: AgentDatabase = db,
@@ -127,16 +160,28 @@ export async function getOwnedRun(
       schema.agentConversationTable,
       eq(schema.agentRunTable.conversationId, schema.agentConversationTable.id),
     )
-    .where(
-      and(
-        eq(schema.agentRunTable.id, runId),
-        eq(schema.agentConversationTable.userId, subject.userId),
-        eq(schema.agentConversationTable.workspaceId, subject.workspaceId),
-      ),
-    )
+    .where(and(eq(schema.agentRunTable.id, runId), visibleTo(subject)))
     .limit(1);
   if (!run) throw new HTTPException(404, { message: "Run not found" });
   const scoped = { ...subject, projectId: run.agent_conversation.projectId };
   await assertAgentAccess(scoped, undefined, database);
-  return { run: run.agent_run, subject: scoped };
+  return {
+    run: run.agent_run,
+    ownerId: run.agent_conversation.userId,
+    subject: scoped,
+  };
+}
+
+export async function getOwnedRun(
+  subject: AgentSubject,
+  runId: string,
+  database: AgentDatabase = db,
+) {
+  const {
+    run,
+    ownerId,
+    subject: scoped,
+  } = await getVisibleRun(subject, runId, database);
+  assertOwner(subject, ownerId);
+  return { run, subject: scoped };
 }

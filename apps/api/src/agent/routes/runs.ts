@@ -61,7 +61,7 @@ const routes = apiRouter()
       path: "/{workspaceId}/conversations/{conversationId}/runs",
       operationId: "listAgentRuns",
       tags: ["Agent"],
-      summary: "List runs in your conversation",
+      summary: "List runs in a conversation you own or that is shared with you",
       middleware,
       request: { params: conversationParams, query: listQuery },
       responses: {
@@ -87,7 +87,9 @@ const routes = apiRouter()
       path: "/{workspaceId}/runs",
       operationId: "listRecentAgentRuns",
       tags: ["Agent"],
-      summary: "List your recent runs across conversations",
+      summary: "List your recent runs and runs shared with you",
+      description:
+        "Includes runs from conversations other members shared, when you can read their project. Each run names its conversation owner.",
       middleware,
       request: { params: workspaceParams, query: listQuery },
       responses: {
@@ -117,7 +119,9 @@ const routes = apiRouter()
       path: "/{workspaceId}/runs/{runId}",
       operationId: "getAgentRun",
       tags: ["Agent"],
-      summary: "Read your run, tool progress, and proposals",
+      summary: "Read a run, its tool progress, and proposals",
+      description:
+        "Owners and, for shared conversations, members who can read its project may read it. Only the owner can act on it.",
       middleware,
       request: { params: runParams },
       responses: {
@@ -142,7 +146,7 @@ const routes = apiRouter()
       path: "/{workspaceId}/runs/{runId}/events",
       operationId: "streamAgentRun",
       tags: ["Agent"],
-      summary: "Stream your persisted run state",
+      summary: "Stream a persisted run state",
       description:
         "Authenticated SSE. Sends a run event when persisted state changes, then a done event on a terminal state or awaiting_review. Reconnect through this endpoint or GET the run. Access is rechecked on each poll.",
       middleware,

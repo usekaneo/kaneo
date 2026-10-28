@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
 import db, { schema } from "../../database";
-import { getOwnedRun } from "../access";
+import { getVisibleRun } from "../access";
 import { summarizeAttachments } from "../attachment-summary";
 import type { AgentSubject } from "../types";
 
 export async function getRun(subject: AgentSubject, runId: string) {
-  const { run } = await getOwnedRun(subject, runId);
+  const { run } = await getVisibleRun(subject, runId);
   const {
     leaseOwner: _owner,
     leaseExpiresAt: _lease,

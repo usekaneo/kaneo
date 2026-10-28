@@ -30,32 +30,43 @@ The provider must support requested parameters; OpenRouter routing disallows pro
 
 ## HTTP contract
 
-All paths below are relative to `/api/agent/{workspaceId}`. Use the existing session authentication and the typed `client.agent` from `@kaneo/libs`. Agent endpoints do not accept API keys. Conversations and runs belong to their creator and remain private from other workspace members, including workspace admins. Current permissions and account bans are checked before model execution, before tools, and during review.
+All paths below are relative to `/api/agent/{workspaceId}`. Use the existing session authentication and the typed `client.agent` from `@kaneo/libs`. Agent endpoints do not accept API keys. Conversations and runs belong to their creator and are private by default, including from workspace admins; the creator can share a conversation with the workspace (see [Sharing](#sharing)). Current permissions and account bans are checked before model execution, before tools, and during review.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/config` | Availability, default `model`, allowed `models` (`{id, label}`), and limits |
 | POST | `/conversations` | Create with optional `projectId` and `title`; omitting the project scopes reads to the workspace |
-| GET | `/conversations?limit=20&offset=0&projectId=` | Your conversation history, optionally for one project |
+| GET | `/conversations?limit=20&offset=0&projectId=` | Your conversation history, optionally for one project; never includes others' shared conversations |
+| GET | `/conversations/{conversationId}` | A conversation you own or that is shared with you, with `sharedAt` and `owner` (`{id, name, image}`) |
+| POST | `/conversations/{conversationId}/share` | Owner only: share the whole conversation with the workspace; idempotent |
+| POST | `/conversations/{conversationId}/unshare` | Owner only: make it private again; revokes access immediately |
 | POST | `/conversations/{conversationId}/runs` | Queue `{requestId: UUID, prompt, attachments?, model?, mentions?}`; returns `{id, status}` with 202 |
-| GET | `/conversations/{conversationId}/runs` | Run history, same pagination |
-| GET | `/runs?limit=20&offset=0` | Your recent runs across conversations, with pending/applied proposal counts |
-| GET | `/runs/{runId}` | Response, status, tool progress, proposals, usage, cost |
-| GET | `/runs/{runId}/events` | Authenticated SSE snapshots |
-| POST | `/runs/{runId}/cancel` | Cancel queued/running work |
-| POST | `/runs/{runId}/apply` | Apply selected `{proposalIds: [...]}` |
-| POST | `/runs/{runId}/discard` | Discard selected pending proposals |
-| POST | `/proposals/{proposalId}/undo` | Undo an applied task update or comment |
+| GET | `/conversations/{conversationId}/runs` | Run history, same pagination; owner or shared viewer |
+| GET | `/runs?limit=20&offset=0` | Your recent runs plus runs shared with you, newest first, with pending/applied proposal counts, `shared`, and `owner` |
+| GET | `/runs/{runId}` | Response, status, tool progress, proposals, usage, cost; owner or shared viewer |
+| GET | `/runs/{runId}/events` | Authenticated SSE snapshots; owner or shared viewer |
+| POST | `/runs/{runId}/cancel` | Owner only: cancel queued/running work |
+| POST | `/runs/{runId}/apply` | Owner only: apply selected `{proposalIds: [...]}` |
+| POST | `/runs/{runId}/discard` | Owner only: discard selected pending proposals |
+| POST | `/proposals/{proposalId}/undo` | Owner only: undo an applied task update or comment |
 | POST | `/attachments` | Upload `{name, mediaType, data}` (base64 image or PDF); returns `{id, name, mediaType, size}` with 201 |
-| GET | `/attachments/{attachmentId}/content` | Your attachment's bytes; images inline, PDFs as downloads |
+| GET | `/attachments/{attachmentId}/content` | Attachment bytes for the uploader or a viewer of the shared run; images inline, PDFs as downloads |
 
-`attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can read or reference an upload, each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (OpenRouter parses PDFs for models without native file input); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
+`attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can reference an upload, and only the uploader or a viewer of the shared conversation it was sent in can read it. Each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (OpenRouter parses PDFs for models without native file input); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
 
 The composer's @-mentions are written into the prompt as `@[Launch v3](project:ID)` or `@[WEB-135 Fix login](task:ID)`, at most ten distinct items per prompt. `mentions` lists the same `{type, id}` references and must match the prompt's tokens; there is no separate column. When the run executes, the runner resolves each reference with the user's current project access and the conversation's project scope, and appends a `<mentioned_items>` block (title, key, status, project) to that turn as untrusted data. Items the user cannot access are dropped silently. Later turns keep only the prompt text.
 
 Repeating a run request with the same `requestId`, prompt, attachments, and model returns the existing run. Reusing it with a different prompt, attachments, or model returns 409. Each conversation has at most one active run; each user has at most two active runs and ten new runs per minute. Selected proposal IDs must be distinct, with at most twenty per request.
 
-SSE emits `run` events containing the same JSON as GET run details, then `done` when the run finishes or reaches `awaiting_review`. Connections close after two minutes; fetch the run and reconnect if it remains active. Use credentialed `fetch` for separately hosted API/web deployments or the existing API URL helper. Run updates also send private `AGENT_RUN_UPDATED` messages through the existing user WebSocket, containing only `workspaceId` and `runId`; refetch details after receiving them.
+SSE emits `run` events containing the same JSON as GET run details, then `done` when the run finishes or reaches `awaiting_review`. Connections close after two minutes; fetch the run and reconnect if it remains active. Use credentialed `fetch` for separately hosted API/web deployments or the existing API URL helper. Run updates also send private `AGENT_RUN_UPDATED` messages to the owner through the existing user WebSocket, containing only `workspaceId` and `runId`; refetch details after receiving them. Shared viewers do not receive these messages (see [Sharing](#sharing)).
+
+## Sharing
+
+Conversations are private by default. The owner can share a conversation with `POST /share`; sharing covers the whole thread, including runs started later, and `agent_conversation.shared_at` records it. `POST /unshare` clears it, and access ends on the next request.
+
+While a conversation is shared, any current workspace member with `project:read` and `task:read` can view it if they can read its project under the normal project access rules (instance admins included). A workspace-scoped conversation is visible to every such member, so tool results from any project the owner could read become visible to them; the owner decides this by sharing. Viewers can read runs, steps, proposals, responses, and attachments, but only the owner can queue runs, cancel, apply, discard, undo, or change sharing. Viewers get 403 for those actions. Anyone else gets 404 for every agent endpoint of a private conversation, so its existence stays hidden. Shared attachment responses are sent with `Cache-Control: private, no-store`, so unsharing is not bypassed by a browser cache.
+
+`AGENT_RUN_UPDATED` still goes only to the owner. Finding every eligible member would need a project access check per member on every throttled update, and fan-out would grow with workspace size while viewers are rare. Viewers instead rely on the web's existing polling: run details every 5 seconds while active, and the open conversation's run list every 30 seconds.
 
 ## UI handoff
 
@@ -69,7 +80,7 @@ Actual task changes and comments publish the existing task and comment events, w
 
 ## Web UI
 
-`apps/web/src/components/agent/` implements both surfaces. Project views get an **Agent** button (⌘/Ctrl+J) that opens a side panel scoped to the project; pending task updates and comments from the latest run are previewed on matching board cards through `store/agent-panel.ts`. The sidebar's **Agent** page starts workspace-scoped conversations and lists recent runs. Both are hidden when `/config` reports the agent disabled or the user is anonymous. The composer is a plain-text Tiptap editor: typing `@` searches tasks (by title or key) and projects through the search API, scoped to the board's project in the panel, and inserts a chip that is sent as a prompt mention. Run details refresh from `AGENT_RUN_UPDATED` on the user WebSocket, with slow polling only while a run is active; the UI does not use the SSE endpoint.
+`apps/web/src/components/agent/` implements both surfaces. Project views get an **Agent** button (⌘/Ctrl+J) that opens a side panel scoped to the project; pending task updates and comments from the latest run are previewed on matching board cards through `store/agent-panel.ts`. The sidebar's **Agent** page starts workspace-scoped conversations and lists recent runs, including shared ones, with each starter's avatar. The owner shares or stops sharing from the conversation header on the Agent page or in the panel. Shared viewers open a read-only thread without the composer or review controls, with the owner shown in the header. Panel history lists only your own conversations. Both are hidden when `/config` reports the agent disabled or the user is anonymous. The composer is a plain-text Tiptap editor: typing `@` searches tasks (by title or key) and projects through the search API, scoped to the board's project in the panel, and inserts a chip that is sent as a prompt mention. Run details refresh from `AGENT_RUN_UPDATED` on the user WebSocket, with slow polling only while a run is active; the UI does not use the SSE endpoint.
 
 ## Scope and guarantees
 
@@ -92,7 +103,9 @@ DATABASE_URL=postgresql://localhost:5432/kaneo_agent_backend_test \
   ../../tests/api-integration/agent-comment-proposals.test.ts \
   ../../tests/api-integration/agent-runner.test.ts \
   ../../tests/api-integration/agent-realtime.test.ts \
-  ../../tests/api-integration/agent-attachments.test.ts
+  ../../tests/api-integration/agent-attachments.test.ts \
+  ../../tests/api-integration/agent-mentions.test.ts \
+  ../../tests/api-integration/agent-sharing.test.ts
 ```
 
 The optional live smoke command calls Luna with synthetic tasks only. It migrates the local test database, creates its own workspace/user, verifies proposal → apply → undo, reports provider usage/cost, and removes its fixtures. It refuses remote databases and models other than Luna:

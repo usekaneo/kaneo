@@ -526,6 +526,13 @@
       "when": 1793191575878,
       "tag": "0074_agent_attachments",
       "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1793200116638,
+      "tag": "0075_agent_conversation_sharing",
+      "breakpoints": true
     }
   ]
 }

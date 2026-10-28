@@ -24,8 +24,17 @@ export const conversationResponse = z.object({
   userId: z.string(),
   projectId: z.string().nullable(),
   title: z.string(),
+  sharedAt: nullableResponseTimestamp.describe(
+    "When the owner shared it with the workspace; null while private",
+  ),
   createdAt: responseTimestamp,
   updatedAt: responseTimestamp,
+});
+const ownerResponse = z
+  .object({ id: z.string(), name: z.string(), image: z.string().nullable() })
+  .describe("Who started the conversation");
+export const conversationDetailResponse = conversationResponse.extend({
+  owner: ownerResponse,
 });
 export const attachmentResponse = z.object({
   id: z.string(),
@@ -65,6 +74,8 @@ export const recentRunResponse = z.object({
   status: runStatusSchema,
   pendingProposals: z.number(),
   appliedProposals: z.number(),
+  shared: z.boolean().describe("The conversation is shared with the workspace"),
+  owner: ownerResponse,
   createdAt: responseTimestamp,
   finishedAt: nullableResponseTimestamp,
 });

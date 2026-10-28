@@ -66,9 +66,9 @@ const routes = apiRouter()
       path: "/{workspaceId}/attachments/{attachmentId}/content",
       operationId: "getAgentAttachmentContent",
       tags: ["Agent"],
-      summary: "Download one of your run attachments",
+      summary: "Download a run attachment",
       description:
-        "Only the uploader can read it. Images are served inline, PDFs as downloads.",
+        "The uploader can read it, and so can members who can see the run's shared conversation. Images are served inline, PDFs as downloads.",
       middleware,
       request: { params: attachmentParams },
       responses: {
@@ -93,7 +93,10 @@ const routes = apiRouter()
       const inline = attachment.mediaType.startsWith("image/");
       return new Response(new Uint8Array(attachment.data), {
         headers: {
-          "Cache-Control": "private, max-age=3600",
+          // Shared copies are not cached so unsharing takes effect at once.
+          "Cache-Control": attachment.shared
+            ? "private, no-store"
+            : "private, max-age=3600",
           "Content-Disposition": buildContentDisposition(
             attachment.name,
             inline,

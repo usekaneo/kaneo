@@ -29301,7 +29301,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -29359,7 +29359,7 @@
         "tags": [
           "Agent"
         ],
-        "summary": "Create a private agent conversation",
+        "summary": "Create an agent conversation, private until shared",
         "parameters": [
           {
             "schema": {
@@ -29422,6 +29422,14 @@
                     "title": {
                       "type": "string"
                     },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time",
+                      "description": "When the owner shared it with the workspace; null while private"
+                    },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
@@ -29437,6 +29445,7 @@
                     "userId",
                     "projectId",
                     "title",
+                    "sharedAt",
                     "createdAt",
                     "updatedAt"
                   ]
@@ -29475,7 +29484,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -29531,7 +29540,7 @@
         "tags": [
           "Agent"
         ],
-        "summary": "List your private conversations",
+        "summary": "List your conversations",
         "description": "Pass projectId to list only conversations scoped to that project.",
         "parameters": [
           {
@@ -29605,6 +29614,14 @@
                       "title": {
                         "type": "string"
                       },
+                      "sharedAt": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time",
+                        "description": "When the owner shared it with the workspace; null while private"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -29620,6 +29637,7 @@
                       "userId",
                       "projectId",
                       "title",
+                      "sharedAt",
                       "createdAt",
                       "updatedAt"
                     ]
@@ -29659,7 +29677,540 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/conversations/{conversationId}": {
+      "get": {
+        "operationId": "getAgentConversation",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Read a conversation you own or that is shared with you",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "conversationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation with its owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "userId": {
+                      "type": "string"
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time",
+                      "description": "When the owner shared it with the workspace; null while private"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "image"
+                      ],
+                      "description": "Who started the conversation"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "userId",
+                    "projectId",
+                    "title",
+                    "sharedAt",
+                    "createdAt",
+                    "updatedAt",
+                    "owner"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/conversations/{conversationId}/share": {
+      "post": {
+        "operationId": "shareAgentConversation",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Share your conversation with the workspace",
+        "description": "Members who can read the conversation's project (any member for workspace-scoped conversations) can then view its runs, proposals, and attachments read-only. Only the owner can share. Repeating the request keeps the original sharedAt.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "conversationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "userId": {
+                      "type": "string"
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time",
+                      "description": "When the owner shared it with the workspace; null while private"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "userId",
+                    "projectId",
+                    "title",
+                    "sharedAt",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/conversations/{conversationId}/unshare": {
+      "post": {
+        "operationId": "unshareAgentConversation",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Make your shared conversation private again",
+        "description": "Revokes other members' access immediately. Only the owner can unshare.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "conversationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "userId": {
+                      "type": "string"
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time",
+                      "description": "When the owner shared it with the workspace; null while private"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "userId",
+                    "projectId",
+                    "title",
+                    "sharedAt",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -29908,7 +30459,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -29964,7 +30515,7 @@
         "tags": [
           "Agent"
         ],
-        "summary": "List runs in your conversation",
+        "summary": "List runs in a conversation you own or that is shared with you",
         "parameters": [
           {
             "schema": {
@@ -30191,7 +30742,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -30249,7 +30800,8 @@
         "tags": [
           "Agent"
         ],
-        "summary": "List your recent runs across conversations",
+        "summary": "List your recent runs and runs shared with you",
+        "description": "Includes runs from conversations other members shared, when you can read their project. Each run names its conversation owner.",
         "parameters": [
           {
             "schema": {
@@ -30326,6 +30878,33 @@
                       "appliedProposals": {
                         "type": "number"
                       },
+                      "shared": {
+                        "type": "boolean",
+                        "description": "The conversation is shared with the workspace"
+                      },
+                      "owner": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "image"
+                        ],
+                        "description": "Who started the conversation"
+                      },
                       "createdAt": {
                         "type": "string",
                         "format": "date-time"
@@ -30346,6 +30925,8 @@
                       "status",
                       "pendingProposals",
                       "appliedProposals",
+                      "shared",
+                      "owner",
                       "createdAt",
                       "finishedAt"
                     ]
@@ -30385,7 +30966,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -30443,7 +31024,8 @@
         "tags": [
           "Agent"
         ],
-        "summary": "Read your run, tool progress, and proposals",
+        "summary": "Read a run, its tool progress, and proposals",
+        "description": "Owners and, for shared conversations, members who can read its project may read it. Only the owner can act on it.",
         "parameters": [
           {
             "schema": {
@@ -31010,7 +31592,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -31068,7 +31650,7 @@
         "tags": [
           "Agent"
         ],
-        "summary": "Stream your persisted run state",
+        "summary": "Stream a persisted run state",
         "description": "Authenticated SSE. Sends a run event when persisted state changes, then a done event on a terminal state or awaiting_review. Reconnect through this endpoint or GET the run. Access is rechecked on each poll.",
         "parameters": [
           {
@@ -31134,7 +31716,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -31277,7 +31859,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -31468,7 +32050,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -31628,7 +32210,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -31767,7 +32349,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -31941,7 +32523,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {
@@ -32019,8 +32601,8 @@
         "tags": [
           "Agent"
         ],
-        "summary": "Download one of your run attachments",
-        "description": "Only the uploader can read it. Images are served inline, PDFs as downloads.",
+        "summary": "Download a run attachment",
+        "description": "The uploader can read it, and so can members who can see the run's shared conversation. Images are served inline, PDFs as downloads.",
         "parameters": [
           {
             "schema": {
@@ -32092,7 +32674,7 @@
             }
           },
           "403": {
-            "description": "Insufficient permissions or no user session",
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
             "content": {
               "application/json": {
                 "schema": {

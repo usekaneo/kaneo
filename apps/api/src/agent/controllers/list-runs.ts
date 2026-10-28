@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import db, { schema } from "../../database";
-import { getOwnedConversation } from "../access";
+import { getVisibleConversation } from "../access";
 import { summarizeAttachments } from "../attachment-summary";
 import type { AgentSubject } from "../types";
 
@@ -9,7 +9,7 @@ export async function listRuns(
   conversationId: string,
   paging: { limit: number; offset: number },
 ) {
-  await getOwnedConversation(subject, conversationId);
+  await getVisibleConversation(subject, conversationId);
   const runs = await db
     .select({
       id: schema.agentRunTable.id,

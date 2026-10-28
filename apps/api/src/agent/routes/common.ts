@@ -14,7 +14,9 @@ export const errors = {
   400: errorResponse("Invalid request"),
   401: errorResponse("Authentication required"),
   402: errorResponse("Workspace entitlement required"),
-  403: errorResponse("Insufficient permissions or no user session"),
+  403: errorResponse(
+    "Insufficient permissions, no user session, or not the conversation owner",
+  ),
   404: errorResponse("Resource not found in this user's agent scope"),
   409: errorResponse("State changed or request ID conflicts"),
   429: errorResponse("Agent run limit reached"),

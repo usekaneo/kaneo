@@ -1683,6 +1683,9 @@ export const agentConversationTable = pgTable(
       onDelete: "cascade",
     }),
     title: text("title").notNull(),
+    // Null keeps the conversation private to its owner. When set, workspace
+    // members who can read its project may view it read-only.
+    sharedAt: timestamp("shared_at", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)
       .notNull(),
@@ -1697,6 +1700,9 @@ export const agentConversationTable = pgTable(
       table.userId,
       table.updatedAt,
     ),
+    index("agent_conversation_shared_idx")
+      .on(table.workspaceId)
+      .where(sql`${table.sharedAt} is not null`),
   ],
 );
 
