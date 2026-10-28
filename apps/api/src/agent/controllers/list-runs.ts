@@ -1,7 +1,8 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { getVisibleConversation } from "../access";
 import { summarizeAttachments } from "../attachment-summary";
+import { touchedProjectsReadable } from "../run-visibility";
 import type { AgentSubject } from "../types";
 
 export async function listRuns(
@@ -9,7 +10,7 @@ export async function listRuns(
   conversationId: string,
   paging: { limit: number; offset: number },
 ) {
-  await getVisibleConversation(subject, conversationId);
+  const conversation = await getVisibleConversation(subject, conversationId);
   const runs = await db
     .select({
       id: schema.agentRunTable.id,
@@ -28,7 +29,14 @@ export async function listRuns(
       finishedAt: schema.agentRunTable.finishedAt,
     })
     .from(schema.agentRunTable)
-    .where(eq(schema.agentRunTable.conversationId, conversationId))
+    .where(
+      and(
+        eq(schema.agentRunTable.conversationId, conversationId),
+        conversation.userId === subject.userId
+          ? undefined
+          : touchedProjectsReadable(subject),
+      ),
+    )
     .orderBy(
       desc(schema.agentRunTable.createdAt),
       desc(schema.agentRunTable.id),

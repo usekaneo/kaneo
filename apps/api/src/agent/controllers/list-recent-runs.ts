@@ -2,6 +2,7 @@ import { and, desc, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { ownerColumns } from "../owner-columns";
+import { touchedProjectsReadable } from "../run-visibility";
 import type { AgentSubject } from "../types";
 
 function countProposals(status: "pending" | "applied") {
@@ -9,7 +10,8 @@ function countProposals(status: "pending" | "applied") {
 }
 
 // Your runs plus runs in conversations shared with you, matching the read
-// rule in access.ts: shared and, when project-scoped, a project you can read.
+// rule in access.ts: shared, a project you can read when project-scoped, and
+// every project the run touched readable. Filtered in SQL so pages stay full.
 export async function listRecentRuns(
   subject: AgentSubject,
   paging: { limit: number; offset: number },
@@ -46,6 +48,7 @@ export async function listRecentRuns(
               isNull(conversation.projectId),
               projectAccessCondition(subject.userId, conversation.projectId),
             ),
+            touchedProjectsReadable(subject),
           ),
         ),
       ),

@@ -52,7 +52,7 @@ All paths below are relative to `/api/agent/{workspaceId}`. Use the existing ses
 | POST | `/attachments` | Upload `{name, mediaType, data}` (base64 image or PDF); returns `{id, name, mediaType, size}` with 201 |
 | GET | `/attachments/{attachmentId}/content` | Attachment bytes for the uploader or a viewer of the shared run; images inline, PDFs as downloads |
 
-`attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can reference an upload, and only the uploader or a viewer of the shared conversation it was sent in can read it. Each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (OpenRouter parses PDFs for models without native file input); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
+`attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can reference an upload, and only the uploader or a viewer who can read the shared run it was sent in can read it. Each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (OpenRouter parses PDFs for models without native file input); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
 
 The composer's @-mentions are written into the prompt as `@[Launch v3](project:ID)` or `@[WEB-135 Fix login](task:ID)`, at most ten distinct items per prompt. `mentions` lists the same `{type, id}` references and must match the prompt's tokens; there is no separate column. When the run executes, the runner resolves each reference with the user's current project access and the conversation's project scope, and appends a `<mentioned_items>` block (title, key, status, project) to that turn as untrusted data. Items the user cannot access are dropped silently. Later turns keep only the prompt text.
 
@@ -64,7 +64,28 @@ SSE emits `run` events containing the same JSON as GET run details, then `done` 
 
 Conversations are private by default. The owner can share a conversation with `POST /share`; sharing covers the whole thread, including runs started later, and `agent_conversation.shared_at` records it. `POST /unshare` clears it, and access ends on the next request.
 
-While a conversation is shared, any current workspace member with `project:read` and `task:read` can view it if they can read its project under the normal project access rules (instance admins included). A workspace-scoped conversation is visible to every such member, so tool results from any project the owner could read become visible to them; the owner decides this by sharing. Viewers can read runs, steps, proposals, responses, and attachments, but only the owner can queue runs, cancel, apply, discard, undo, or change sharing. Viewers get 403 for those actions. Anyone else gets 404 for every agent endpoint of a private conversation, so its existence stays hidden. Shared attachment responses are sent with `Cache-Control: private, no-store`, so unsharing is not bypassed by a browser cache.
+Shared viewers need current workspace `project:read` and `task:read` permissions, access to the conversation's project when scoped, and access to **every project the run touched**. Project access uses the normal rules, including instance-admin and workspace-owner access. Owners retain access to their own runs under the existing workspace and project permission checks. Viewers can read responses, tool progress, proposals, and attachments; only the owner can queue, cancel, apply, discard, undo, or change sharing. Those actions return 403 for visible read-only viewers. Private conversations and hidden runs return 404.
+
+Each run stores a deduplicated `text[]` in `agent_run.touched_project_ids`, starting with the conversation's project when scoped:
+
+| Source | Projects recorded |
+| --- | --- |
+| `list_projects` | Every returned project |
+| `list_tasks` | Each returned task's project, plus the requested project even for an empty page |
+| `get_task` | The task's project |
+| `workload` | Every project whose tasks contributed to the returned assignee counts, plus the requested project |
+| `list_members` | None; it returns only workspace member data |
+| Task creation proposal | The new task's project |
+| Task update or comment proposal | The task snapshot's project |
+| Resolved @-mentions | Each mentioned task's project and each mentioned project |
+| Earlier turns sent as context | All projects recorded on those turns |
+| Attachments | None |
+
+Tool projects are merged atomically in SQL in the same transaction as their completed step, and proposal projects in the same transaction as the proposal snapshot. Mention and history projects are recorded before model execution. Parallel tools cannot overwrite one another's IDs, and a crash cannot leave persisted project data without its recorded scope. The IDs are internal and never returned by the API.
+
+Run detail, SSE snapshots, attachment downloads, conversation run lists, and recent runs enforce this rule against current project access. Lists filter in SQL before pagination; hidden runs are omitted. Detail snapshots read access, steps, and proposals in one database snapshot so a concurrent tool cannot leak a newly restricted proposal. A shared conversation's header returns 404 when it has runs but none are visible; an empty conversation remains visible. A recorded project that was deleted or belongs to another workspace also hides the run from viewers. Shared attachment responses use `Cache-Control: private, no-store`.
+
+The migration backfills project-scoped runs with their conversation's project. Earlier workspace-scoped runs cannot be reconstructed reliably, so they record the reserved `*` marker, which matches no project and keeps them owner-only even when shared, including from instance admins. Later turns that use those legacy answers as context inherit the marker.
 
 `AGENT_RUN_UPDATED` still goes only to the owner. Finding every eligible member would need a project access check per member on every throttled update, and fan-out would grow with workspace size while viewers are rare. Viewers instead rely on the web's existing polling: run details every 5 seconds while active, and the open conversation's run list every 30 seconds.
 
@@ -105,7 +126,10 @@ DATABASE_URL=postgresql://localhost:5432/kaneo_agent_backend_test \
   ../../tests/api-integration/agent-realtime.test.ts \
   ../../tests/api-integration/agent-attachments.test.ts \
   ../../tests/api-integration/agent-mentions.test.ts \
-  ../../tests/api-integration/agent-sharing.test.ts
+  ../../tests/api-integration/agent-sharing.test.ts \
+  ../../tests/api-integration/agent-sharing-touched-projects.test.ts \
+  ../../tests/api-integration/agent-sharing-legacy-runs.test.ts \
+  ../../tests/api-integration/agent-sharing-live-access.test.ts
 ```
 
 The optional live smoke command calls Luna with synthetic tasks only. It migrates the local test database, creates its own workspace/user, verifies proposal → apply → undo, reports provider usage/cost, and removes its fixtures. It refuses remote databases and models other than Luna:

@@ -245,7 +245,7 @@ describe("agent conversation sharing", () => {
     ).toBe(404);
   });
 
-  it("shares workspace-scoped conversations with every member", async () => {
+  it("shares workspace-scoped runs that read no project with every member", async () => {
     const ctx = await setup("workspace");
     await ctx.post(`/conversations/${ctx.conversation.id}/share`);
     ctx.as(ctx.outsider);

@@ -6,6 +6,7 @@ export type MentionedItem =
       key: string | null;
       status: string;
       project: string;
+      projectId: string;
     }
   | { type: "project"; id: string; name: string; key: string };
 

@@ -1739,6 +1739,13 @@ export const agentRunTable = pgTable(
     inputTokens: integer("input_tokens").notNull().default(0),
     outputTokens: integer("output_tokens").notNull().default(0),
     costUsd: text("cost_usd"),
+    // Projects whose data reached the model; shared viewers must be able to
+    // read all of them. Legacy workspace-scoped runs hold "*", which matches
+    // no project, so they stay owner-only.
+    touchedProjectIds: text("touched_project_ids")
+      .array()
+      .default(sql`'{}'::text[]`)
+      .notNull(),
     leaseOwner: text("lease_owner"),
     leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" })

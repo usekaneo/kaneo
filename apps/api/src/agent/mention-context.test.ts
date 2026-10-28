@@ -17,6 +17,7 @@ describe("withMentionContext", () => {
           key: "WEB-135",
           status: "in-progress",
           project: "Kaneo Web",
+          projectId: "p2",
         },
       ]),
     ).toBe(
@@ -33,6 +34,7 @@ describe("withMentionContext", () => {
         key: null,
         status: "to-do",
         project: "P",
+        projectId: "p",
       },
     ]);
     expect(text.match(/<\/mentioned_items>/g)).toHaveLength(1);

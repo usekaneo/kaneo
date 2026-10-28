@@ -26,7 +26,7 @@ export async function createRun(
     throw new HTTPException(400, {
       message: "Model is not available on this instance",
     });
-  await getOwnedConversation(subject, conversationId);
+  const conversation = await getOwnedConversation(subject, conversationId);
   return db.transaction(async (tx) => {
     // Serialize user-wide rate limits across conversations and API instances.
     await tx
@@ -134,6 +134,9 @@ export async function createRun(
         prompt: input.prompt,
         attachments,
         model,
+        touchedProjectIds: conversation.projectId
+          ? [conversation.projectId]
+          : [],
       })
       .returning();
     if (!run) throw new HTTPException(500, { message: "Could not queue run" });

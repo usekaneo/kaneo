@@ -469,7 +469,13 @@ describe("agent context reads", () => {
         to: "2026-10-06T00:00:00Z",
       }),
     ).toEqual([
-      { userId: null, openTasks: 1, dueInPeriod: 1, overdueTasks: 1 },
+      {
+        userId: null,
+        openTasks: 1,
+        dueInPeriod: 1,
+        overdueTasks: 1,
+        projectIds: [ctx.project.id],
+      },
     ]);
   });
 });

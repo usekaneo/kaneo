@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, or } from "drizzle-orm";
+import { and, eq, isNotNull, or, type SQL } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import type { Context, Next } from "hono";
 import db, { schema } from "../database";
@@ -9,6 +9,10 @@ import {
 } from "../utils/require-workspace-permission";
 import { isBanActive } from "../utils/user-ban";
 import { workspaceArchivedError } from "../workspace/archive/workspace-archived-error";
+import {
+  conversationReadable,
+  touchedProjectsReadable,
+} from "./run-visibility";
 import type { AgentSubject } from "./types";
 
 export type AgentDatabase =
@@ -90,14 +94,15 @@ export async function requireAgentSession(c: Context, next: Next) {
 }
 
 // Owners always see their conversations. Others see a conversation only while
-// it is shared and they can read its project; anything else is a 404 so private
-// conversations stay undiscoverable.
-function visibleTo(subject: AgentSubject) {
+// it is shared, they can read its project, and the shared-run rule in
+// run-visibility.ts holds; anything else is a 404 so hidden data stays
+// undiscoverable.
+function visibleTo(subject: AgentSubject, sharedRule: SQL) {
   return and(
     eq(schema.agentConversationTable.workspaceId, subject.workspaceId),
     or(
       eq(schema.agentConversationTable.userId, subject.userId),
-      isNotNull(schema.agentConversationTable.sharedAt),
+      and(isNotNull(schema.agentConversationTable.sharedAt), sharedRule),
     ),
   );
 }
@@ -120,7 +125,7 @@ export async function getVisibleConversation(
     .where(
       and(
         eq(schema.agentConversationTable.id, conversationId),
-        visibleTo(subject),
+        visibleTo(subject, conversationReadable(subject)),
       ),
     )
     .limit(1);
@@ -160,7 +165,12 @@ export async function getVisibleRun(
       schema.agentConversationTable,
       eq(schema.agentRunTable.conversationId, schema.agentConversationTable.id),
     )
-    .where(and(eq(schema.agentRunTable.id, runId), visibleTo(subject)))
+    .where(
+      and(
+        eq(schema.agentRunTable.id, runId),
+        visibleTo(subject, touchedProjectsReadable(subject)),
+      ),
+    )
     .limit(1);
   if (!run) throw new HTTPException(404, { message: "Run not found" });
   const scoped = { ...subject, projectId: run.agent_conversation.projectId };

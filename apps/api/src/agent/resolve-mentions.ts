@@ -35,6 +35,7 @@ export async function resolveMentions(
             >`case when ${schema.taskTable.number} is null then null else ${schema.projectTable.slug} || '-' || ${schema.taskTable.number} end`,
             status: schema.taskTable.status,
             project: schema.projectTable.name,
+            projectId: schema.projectTable.id,
           })
           .from(schema.taskTable)
           .innerJoin(

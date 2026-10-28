@@ -28,7 +28,7 @@ function sharingRoute(shared: boolean) {
       ? "Share your conversation with the workspace"
       : "Make your shared conversation private again",
     description: shared
-      ? "Members who can read the conversation's project (any member for workspace-scoped conversations) can then view its runs, proposals, and attachments read-only. Only the owner can share. Repeating the request keeps the original sharedAt."
+      ? "Members who can read the conversation's project and every project a run touched can view that run, its proposals, and attachments read-only. The conversation header is visible when it has no runs or at least one visible run. Only the owner can share. Repeating the request keeps the original sharedAt."
       : "Revokes other members' access immediately. Only the owner can unshare.",
     // Revoking must keep working without an entitlement.
     middleware: shared ? mutationMiddleware : middleware,

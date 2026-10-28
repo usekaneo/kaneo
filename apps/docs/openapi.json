@@ -29929,7 +29929,7 @@
           "Agent"
         ],
         "summary": "Share your conversation with the workspace",
-        "description": "Members who can read the conversation's project (any member for workspace-scoped conversations) can then view its runs, proposals, and attachments read-only. Only the owner can share. Repeating the request keeps the original sharedAt.",
+        "description": "Members who can read the conversation's project and every project a run touched can view that run, its proposals, and attachments read-only. The conversation header is visible when it has no runs or at least one visible run. Only the owner can share. Repeating the request keeps the original sharedAt.",
         "parameters": [
           {
             "schema": {
@@ -30801,7 +30801,7 @@
           "Agent"
         ],
         "summary": "List your recent runs and runs shared with you",
-        "description": "Includes runs from conversations other members shared, when you can read their project. Each run names its conversation owner.",
+        "description": "Includes runs from conversations other members shared, when you can read every project the run touched. Each run names its conversation owner.",
         "parameters": [
           {
             "schema": {
@@ -31025,7 +31025,7 @@
           "Agent"
         ],
         "summary": "Read a run, its tool progress, and proposals",
-        "description": "Owners and, for shared conversations, members who can read its project may read it. Only the owner can act on it.",
+        "description": "Owners and, for shared conversations, members who can read every project the run touched may read it. Only the owner can act on it.",
         "parameters": [
           {
             "schema": {
@@ -32602,7 +32602,7 @@
           "Agent"
         ],
         "summary": "Download a run attachment",
-        "description": "The uploader can read it, and so can members who can see the run's shared conversation. Images are served inline, PDFs as downloads.",
+        "description": "The uploader can read it, and so can members who can read every project the shared run touched. Images are served inline, PDFs as downloads.",
         "parameters": [
           {
             "schema": {
