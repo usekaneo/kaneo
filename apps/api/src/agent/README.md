@@ -46,10 +46,12 @@ All paths below are relative to `/api/agent/{workspaceId}`. Use the existing ses
 | POST | `/runs/{runId}/apply` | Apply selected `{proposalIds: [...]}` |
 | POST | `/runs/{runId}/discard` | Discard selected pending proposals |
 | POST | `/proposals/{proposalId}/undo` | Undo an applied task update |
+| POST | `/attachments` | Upload `{name, mediaType, data}` (base64 image or PDF); returns `{id, name, mediaType, size}` with 201 |
+| GET | `/attachments/{attachmentId}/content` | Your attachment's bytes; images inline, PDFs as downloads |
 
-`attachments` holds up to three text files as `{name, content}`, at most 50,000 characters each and 100,000 in total. The web client reads them in the browser, so no object storage is involved. Contents are stored on the run and sent to the model wrapped as untrusted `<attached_file>` data for that turn only; later turns see just the file names. Run responses return names and sizes, never contents.
+`attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can read or reference an upload, each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (OpenRouter parses PDFs for models without native file input); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
 
-Repeating a run request with the same `requestId`, prompt, and attachments returns the existing run. Reusing it with a different prompt or attachments returns 409. Each conversation has at most one active run; each user has at most two active runs and ten new runs per minute. Selected proposal IDs must be distinct, with at most twenty per request.
+Repeating a run request with the same `requestId`, prompt, attachments, and model returns the existing run. Reusing it with a different prompt, attachments, or model returns 409. Each conversation has at most one active run; each user has at most two active runs and ten new runs per minute. Selected proposal IDs must be distinct, with at most twenty per request.
 
 SSE emits `run` events containing the same JSON as GET run details, then `done` when the run finishes or reaches `awaiting_review`. Connections close after two minutes; fetch the run and reconnect if it remains active. Use credentialed `fetch` for separately hosted API/web deployments or the existing API URL helper. Run updates also send private `AGENT_RUN_UPDATED` messages through the existing user WebSocket, containing only `workspaceId` and `runId`; refetch details after receiving them.
 
@@ -75,7 +77,7 @@ Supported proposals are task creation and updates to title, priority, assignee, 
 
 The outbox dispatches normal events after commit, in proposal order. A process crash can cause event redispatch; delivery is at least once, and downstream handlers retain their existing delivery semantics. It is not an exactly-once guarantee for notifications or integrations. Expired runs fail and discard pending proposals; model calls are not automatically retried after a crash. Cancellation aborts in-flight work when the worker observes it; provider work already performed can still be billed.
 
-Automation rules/schedules, task attachments, binary files (images/PDF), subtasks, labels, comments as writes, status changes, and live GitHub queries are follow-up features. The initial implementation has no arbitrary HTTP, SQL, shell, or integration-secret tool. Run history is durable without automatic retention pruning; there is currently no conversation deletion endpoint.
+Automation rules/schedules, task attachments, subtasks, labels, comments as writes, status changes, and live GitHub queries are follow-up features. The initial implementation has no arbitrary HTTP, SQL, shell, or integration-secret tool. Run history is durable without automatic retention pruning; there is currently no conversation deletion endpoint.
 
 ## Verification
 
@@ -86,7 +88,8 @@ DATABASE_URL=postgresql://localhost:5432/kaneo_agent_backend_test \
   pnpm --filter @kaneo/api exec vp test run --config vitest.integration.config.ts \
   ../../tests/api-integration/agent-proposals.test.ts \
   ../../tests/api-integration/agent-runner.test.ts \
-  ../../tests/api-integration/agent-realtime.test.ts
+  ../../tests/api-integration/agent-realtime.test.ts \
+  ../../tests/api-integration/agent-attachments.test.ts
 ```
 
 The optional live smoke command calls Luna with synthetic tasks only. It migrates the local test database, creates its own workspace/user, verifies proposal → apply → undo, reports provider usage/cost, and removes its fixtures. It refuses remote databases and models other than Luna:

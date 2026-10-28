@@ -1,5 +1,6 @@
 import { retryStorageCleanup } from "../storage/cleanup-queue";
 import { cleanupDraftUploads } from "./draft-upload-cleanup";
+import { cleanupPendingAgentUploads } from "../agent/cleanup-pending-uploads";
 import { replayDeferredIssueEdits } from "../plugins/github/services/deferred-issue-edits";
 import { replayDeferredLabelFields } from "../plugins/sync/replay-deferred-label-fields";
 import * as Sentry from "@sentry/node";
@@ -74,6 +75,13 @@ export function initializeScheduler(): void {
       "31 * * * *",
       { protect: true },
       withCheckIn("draft-upload-cleanup", cleanupDraftUploads),
+    ),
+  );
+  jobs.push(
+    new Cron(
+      "41 * * * *",
+      { protect: true },
+      withCheckIn("agent-upload-cleanup", cleanupPendingAgentUploads),
     ),
   );
   jobs.push(

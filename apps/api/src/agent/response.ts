@@ -23,17 +23,26 @@ export const conversationResponse = z.object({
   createdAt: responseTimestamp,
   updatedAt: responseTimestamp,
 });
+export const attachmentResponse = z.object({
+  id: z.string(),
+  name: z.string(),
+  mediaType: z.string(),
+  size: z.number().describe("Bytes"),
+});
+const runAttachmentResponse = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("text"),
+    name: z.string(),
+    size: z.number().describe("Characters of text content"),
+  }),
+  attachmentResponse.extend({ type: z.literal("file") }),
+]);
 export const runResponse = z.object({
   id: z.string(),
   conversationId: z.string(),
   requestId: z.string(),
   prompt: z.string(),
-  attachments: z.array(
-    z.object({
-      name: z.string(),
-      size: z.number().describe("Characters of text content"),
-    }),
-  ),
+  attachments: z.array(runAttachmentResponse),
   response: z.string(),
   status: runStatusSchema,
   model: z.string(),

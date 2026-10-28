@@ -21443,14 +21443,40 @@
 								"tooLarge": {
 									"type": "string"
 								},
-								"notText": {
+								"fileTooLarge": {
+									"type": "string"
+								},
+								"unsupported": {
+									"type": "string"
+								},
+								"unreadable": {
 									"type": "string"
 								},
 								"empty": {
 									"type": "string"
+								},
+								"tooManyPending": {
+									"type": "string"
+								},
+								"uploadFailed": {
+									"type": "string"
 								}
 							},
-							"required": ["tooLarge", "notText", "empty"]
+							"required": [
+								"tooLarge",
+								"fileTooLarge",
+								"unsupported",
+								"unreadable",
+								"empty",
+								"tooManyPending",
+								"uploadFailed"
+							]
+						},
+						"previewAttachment": {
+							"type": "string"
+						},
+						"uploading": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -21464,7 +21490,9 @@
 						"reviewModeHint",
 						"attach",
 						"removeAttachment",
-						"attachmentErrors"
+						"attachmentErrors",
+						"previewAttachment",
+						"uploading"
 					]
 				},
 				"panel": {
@@ -22040,6 +22068,9 @@
 						},
 						"forbidden": {
 							"type": "string"
+						},
+						"unsupportedAttachments": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -22048,7 +22079,8 @@
 						"conflict",
 						"unavailable",
 						"entitlement",
-						"forbidden"
+						"forbidden",
+						"unsupportedAttachments"
 					]
 				}
 			},

@@ -265,13 +265,18 @@ describe("private agent API", () => {
         })
       ).status,
     ).toBe(400);
-    const created = await ctx.post(path, {
+    const request = {
       requestId: randomUUID(),
       prompt: "Plan",
       model: "anthropic/claude-opus-5",
-    });
+    };
+    const created = await ctx.post(path, request);
     expect(created.status).toBe(202);
     const { id } = await created.json();
+    expect((await (await ctx.post(path, request)).json()).id).toBe(id);
+    expect(
+      (await ctx.post(path, { ...request, model: undefined })).status,
+    ).toBe(409);
     expect(
       (await (await ctx.app.request(`${ctx.base}/runs/${id}`)).json()).model,
     ).toBe("anthropic/claude-opus-5");
@@ -319,7 +324,7 @@ describe("private agent API", () => {
       await ctx.app.request(`${ctx.base}/runs/${id}`)
     ).text();
     expect(JSON.parse(details).attachments).toEqual([
-      { name: "notes.md", size: 14 },
+      { type: "text", name: "notes.md", size: 14 },
     ]);
     expect(details).not.toContain("Ship the guide");
     const listed = await (await ctx.app.request(`${ctx.base}${path}`)).text();
@@ -345,7 +350,7 @@ describe("private agent API", () => {
         await ctx.post(path, {
           requestId: randomUUID(),
           prompt: "Too many",
-          attachments: Array.from({ length: 4 }, (_, index) => ({
+          attachments: Array.from({ length: 6 }, (_, index) => ({
             name: `${index}.md`,
             content: "x",
           })),

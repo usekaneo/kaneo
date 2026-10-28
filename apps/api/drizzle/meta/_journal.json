@@ -519,6 +519,13 @@
       "when": 1793188838398,
       "tag": "0073_agent_assistant",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1793191575878,
+      "tag": "0074_agent_attachments",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,6 @@
 import { ArrowUp, Paperclip, Square } from "lucide-react";
 import {
+  type ClipboardEvent,
   type DragEvent,
   type KeyboardEvent,
   type ReactNode,
@@ -11,19 +12,15 @@ import {
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
-import { AgentAttachmentChip } from "./agent-attachment-chip";
+import { AgentDraftAttachments } from "./agent-draft-attachments";
 import { AgentReviewBadge } from "./agent-review-badge";
-import {
-  type AgentAttachmentDraft,
-  agentAttachmentAccept,
-} from "./read-agent-attachments";
-import { useAddAgentAttachments } from "./use-add-agent-attachments";
+import { agentAttachmentAccept } from "./read-agent-attachments";
+import type { AgentAttachments } from "./use-agent-attachments";
 
 type AgentComposerProps = {
   value: string;
   onValueChange: (value: string) => void;
-  attachments: AgentAttachmentDraft[];
-  onAttachmentsChange: (attachments: AgentAttachmentDraft[]) => void;
+  attachments: AgentAttachments;
   onSubmit: (prompt: string) => void;
   onStop?: () => void;
   placeholder: string;
@@ -41,7 +38,6 @@ export function AgentComposer({
   value,
   onValueChange,
   attachments,
-  onAttachmentsChange,
   onSubmit,
   onStop,
   placeholder,
@@ -56,20 +52,29 @@ export function AgentComposer({
   const { t } = useTranslation();
   const inputId = useId();
   const prompt = value.trim();
-  const canSend = Boolean(prompt) && !running && !sending && !disabled;
+  const canSend =
+    Boolean(prompt) &&
+    !running &&
+    !sending &&
+    !disabled &&
+    !attachments.uploading;
   const hero = variant === "hero";
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
-  const addAttachments = useAddAgentAttachments(
-    attachments,
-    onAttachmentsChange,
-  );
+  const addAttachments = attachments.add;
 
   const handleDrop = (event: DragEvent<HTMLFormElement>) => {
     if (!event.dataTransfer.types.includes("Files")) return;
     event.preventDefault();
     setDragging(false);
     if (!disabled) void addAttachments(Array.from(event.dataTransfer.files));
+  };
+
+  const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const files = Array.from(event.clipboardData.files);
+    if (files.length === 0) return;
+    event.preventDefault();
+    void addAttachments(files);
   };
 
   const submit = () => {
@@ -109,6 +114,10 @@ export function AgentComposer({
         submit();
       }}
     >
+      <AgentDraftAttachments
+        items={attachments.items}
+        onRemove={attachments.remove}
+      />
       <label htmlFor={inputId} className="sr-only">
         {placeholder}
       </label>
@@ -118,6 +127,7 @@ export function AgentComposer({
         value={value}
         onChange={(event) => onValueChange(event.target.value)}
         onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
         placeholder={placeholder}
         maxLength={16000}
         disabled={disabled}
@@ -154,17 +164,6 @@ export function AgentComposer({
               void addAttachments(files);
             }}
           />
-          {attachments.map((file) => (
-            <AgentAttachmentChip
-              key={file.name}
-              name={file.name}
-              onRemove={() =>
-                onAttachmentsChange(
-                  attachments.filter((item) => item.name !== file.name),
-                )
-              }
-            />
-          ))}
           <AgentReviewBadge />
         </div>
         <div className="flex items-center gap-2.5">

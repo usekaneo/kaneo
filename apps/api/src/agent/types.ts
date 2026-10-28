@@ -2,8 +2,16 @@ import type { z } from "zod";
 import type { agentActionSchema } from "./schema";
 
 export type AgentAction = z.infer<typeof agentActionSchema>;
-// Text files attached to a run; content is untrusted user-provided data.
-export type AgentAttachment = { name: string; content: string };
+// Text files are stored inline; content is untrusted user-provided data.
+export type AgentTextAttachment = { name: string; content: string };
+// Images and PDFs are stored in agent_attachment; runs keep only a reference.
+export type AgentFileAttachment = {
+  id: string;
+  name: string;
+  mediaType: string;
+  size: number;
+};
+export type AgentAttachment = AgentTextAttachment | AgentFileAttachment;
 export type AgentSubject = {
   userId: string;
   workspaceId: string;

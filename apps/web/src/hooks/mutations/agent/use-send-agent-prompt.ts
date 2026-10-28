@@ -3,11 +3,12 @@ import createAgentConversation from "@/fetchers/agent/create-agent-conversation"
 import createAgentRun from "@/fetchers/agent/create-agent-run";
 import { agentQueryKeys } from "@/hooks/queries/agent/agent-query-keys";
 import { useAgentModel } from "@/hooks/use-agent-model";
+import type { AgentRunAttachmentInput } from "@/types/agent";
 
 type SendAgentPromptInput = {
   conversationId?: string;
   prompt: string;
-  attachments: Array<{ name: string; content: string }>;
+  attachments: AgentRunAttachmentInput[];
 };
 
 function useSendAgentPrompt(workspaceId: string, projectId?: string) {

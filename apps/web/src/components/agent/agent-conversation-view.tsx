@@ -11,7 +11,7 @@ import { AgentModelPicker } from "./agent-model-picker";
 import { AgentThread } from "./agent-thread";
 import { AgentUnavailable } from "./agent-unavailable";
 import { getAgentErrorKey } from "./get-agent-error-key";
-import type { AgentAttachmentDraft } from "./read-agent-attachments";
+import { useAgentAttachments } from "./use-agent-attachments";
 
 type AgentConversationViewProps = {
   workspaceId: string;
@@ -26,7 +26,7 @@ export function AgentConversationView({
 }: AgentConversationViewProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState("");
-  const [attachments, setAttachments] = useState<AgentAttachmentDraft[]>([]);
+  const attachments = useAgentAttachments(workspaceId);
   const runs = useAgentConversationRuns(workspaceId, conversationId);
   const latestId = runs.data?.at(-1)?.id;
   const { data: latestRun } = useAgentRun(workspaceId, latestId);
@@ -39,10 +39,10 @@ export function AgentConversationView({
       await send.mutateAsync({
         conversationId,
         prompt,
-        attachments,
+        attachments: attachments.toRunInput(),
       });
       setDraft("");
-      setAttachments([]);
+      attachments.clear();
     } catch (error) {
       toast.error(t(getAgentErrorKey(error)));
     }
@@ -62,7 +62,6 @@ export function AgentConversationView({
             value={draft}
             onValueChange={setDraft}
             attachments={attachments}
-            onAttachmentsChange={setAttachments}
             onSubmit={(prompt) => void handleSubmit(prompt)}
             onStop={() =>
               latestId &&

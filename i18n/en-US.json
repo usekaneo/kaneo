@@ -5156,15 +5156,21 @@
 			"model": "Model: {{model}}",
 			"reviewMode": "Ask before changes",
 			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",
-			"attach": "Attach text files",
+			"attach": "Attach files",
 			"removeAttachment": "Remove {{name}}",
 			"attachmentErrors": {
 				"tooMany_one": "You can attach up to {{count}} file.",
 				"tooMany_other": "You can attach up to {{count}} files.",
 				"tooLarge": "That file is too large. Attach up to 50,000 characters per file and 100,000 in total.",
-				"notText": "Only text files can be attached, like .md, .txt, .csv or .json.",
-				"empty": "That file is empty."
-			}
+				"fileTooLarge": "Images and PDFs can be up to {{size}} MB.",
+				"unsupported": "Attach images, PDFs, or text files like .md, .txt, .csv or .json.",
+				"unreadable": "{{name}} couldn't be read as that file type.",
+				"empty": "That file is empty.",
+				"tooManyPending": "Too many attachments are waiting to be sent. Send or remove some first.",
+				"uploadFailed": "{{name}} couldn't be uploaded. Try again."
+			},
+			"previewAttachment": "Preview {{name}}",
+			"uploading": "Uploading {{name}}"
 		},
 		"panel": {
 			"label": "Agent panel",
@@ -5298,7 +5304,8 @@
 			"conflict": "This conversation already has a run in progress.",
 			"unavailable": "The agent isn't available on this instance right now.",
 			"entitlement": "This workspace's plan doesn't include the agent.",
-			"forbidden": "You don't have access to this anymore."
+			"forbidden": "You don't have access to this anymore.",
+			"unsupportedAttachments": "This model can't read the attached images or files. Remove them and try again."
 		}
 	}
 }

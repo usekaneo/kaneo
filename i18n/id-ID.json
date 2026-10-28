@@ -5063,14 +5063,20 @@
 			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",
 			"send": "Send",
 			"stop": "Stop the agent",
-			"attach": "Attach text files",
+			"attach": "Attach files",
 			"attachmentErrors": {
 				"empty": "That file is empty.",
-				"notText": "Only text files can be attached, like .md, .txt, .csv or .json.",
 				"tooLarge": "That file is too large. Attach up to 50,000 characters per file and 100,000 in total.",
-				"tooMany_other": "You can attach up to {{count}} files."
+				"tooMany_other": "You can attach up to {{count}} files.",
+				"fileTooLarge": "Images and PDFs can be up to {{size}} MB.",
+				"tooManyPending": "Too many attachments are waiting to be sent. Send or remove some first.",
+				"unreadable": "{{name}} couldn't be read as that file type.",
+				"unsupported": "Attach images, PDFs, or text files like .md, .txt, .csv or .json.",
+				"uploadFailed": "{{name}} couldn't be uploaded. Try again."
 			},
-			"removeAttachment": "Remove {{name}}"
+			"removeAttachment": "Remove {{name}}",
+			"previewAttachment": "Preview {{name}}",
+			"uploading": "Uploading {{name}}"
 		},
 		"errors": {
 			"conflict": "This conversation already has a run in progress.",
@@ -5078,7 +5084,8 @@
 			"forbidden": "You don't have access to this anymore.",
 			"generic": "The agent couldn't do that. Try again.",
 			"rateLimited": "You've started a lot of runs. Wait a minute and try again.",
-			"unavailable": "The agent isn't available on this instance right now."
+			"unavailable": "The agent isn't available on this instance right now.",
+			"unsupportedAttachments": "This model can't read the attached images or files. Remove them and try again."
 		},
 		"home": {
 			"examples": {

@@ -29718,7 +29718,7 @@
           "Agent"
         ],
         "summary": "Queue a bounded agent run",
-        "description": "requestId is an idempotency key scoped to this conversation. Repeating it with the same prompt returns the existing run; a different prompt conflicts. Tools can read scoped data and save proposals, never apply changes.",
+        "description": "requestId is an idempotency key scoped to this conversation. Repeating it with the same prompt, attachments, and model returns the existing run; any difference conflicts. Tools can read scoped data and save proposals, never apply changes.",
         "parameters": [
           {
             "schema": {
@@ -29760,28 +29760,48 @@
                   "attachments": {
                     "type": "array",
                     "items": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 200
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            },
+                            "content": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 50000
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "content"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Text file read by the client"
                         },
-                        "content": {
-                          "type": "string",
-                          "minLength": 1,
-                          "maxLength": 50000
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 128
+                            }
+                          },
+                          "required": [
+                            "id"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Your pending upload from POST /attachments. Each upload can be sent with one run."
                         }
-                      },
-                      "required": [
-                        "name",
-                        "content"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
-                    "maxItems": 3,
+                    "maxItems": 5,
                     "default": [],
-                    "description": "Text files read by the client. Contents are given to the model as untrusted data and are not returned by run endpoints."
+                    "description": "Up to five text files or uploaded images and PDFs. Contents are given to the model as untrusted data and are not returned by run endpoints."
                   },
                   "model": {
                     "type": "string",
@@ -29987,19 +30007,61 @@
                       "attachments": {
                         "type": "array",
                         "items": {
-                          "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "text"
+                                  ]
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "size": {
+                                  "type": "number",
+                                  "description": "Characters of text content"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "name",
+                                "size"
+                              ]
                             },
-                            "size": {
-                              "type": "number",
-                              "description": "Characters of text content"
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "mediaType": {
+                                  "type": "string"
+                                },
+                                "size": {
+                                  "type": "number",
+                                  "description": "Bytes"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "file"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "mediaType",
+                                "size",
+                                "type"
+                              ]
                             }
-                          },
-                          "required": [
-                            "name",
-                            "size"
                           ]
                         }
                       },
@@ -30400,19 +30462,61 @@
                     "attachments": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "type": "string"
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "text"
+                                ]
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "number",
+                                "description": "Characters of text content"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "name",
+                              "size"
+                            ]
                           },
-                          "size": {
-                            "type": "number",
-                            "description": "Characters of text content"
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "mediaType": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "number",
+                                "description": "Bytes"
+                              },
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "file"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "mediaType",
+                              "size",
+                              "type"
+                            ]
                           }
-                        },
-                        "required": [
-                          "name",
-                          "size"
                         ]
                       }
                     },
@@ -31566,6 +31670,331 @@
                     "id",
                     "status"
                   ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions or no user session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/attachments": {
+      "post": {
+        "operationId": "uploadAgentAttachment",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Upload an image or PDF for a run",
+        "description": "Stores a PNG, JPEG, WebP, GIF, or PDF of up to 5 MB for you to reference in one run's attachments. Unsent uploads expire after a day; at most 20 can be pending per user.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "mediaType": {
+                    "type": "string",
+                    "enum": [
+                      "image/png",
+                      "image/jpeg",
+                      "image/webp",
+                      "image/gif",
+                      "application/pdf"
+                    ]
+                  },
+                  "data": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 6990508,
+                    "description": "Base64 file bytes, at most 5 MB decoded. Must match mediaType."
+                  }
+                },
+                "required": [
+                  "name",
+                  "mediaType",
+                  "data"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stored upload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "mediaType": {
+                      "type": "string"
+                    },
+                    "size": {
+                      "type": "number",
+                      "description": "Bytes"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "mediaType",
+                    "size"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file data or type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions or no user session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "408": {
+            "description": "Request body timed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body exceeds the upload limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many unsent uploads or agent run limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/attachments/{attachmentId}/content": {
+      "get": {
+        "operationId": "getAgentAttachmentContent",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Download one of your run attachments",
+        "description": "Only the uploader can read it. Images are served inline, PDFs as downloads.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "attachmentId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The attachment bytes",
+            "content": {
+              "image/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
