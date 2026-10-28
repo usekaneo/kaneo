@@ -73,6 +73,7 @@ export function AgentConversationView({
             running={running}
             sending={send.isPending}
             modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
+            mentionScope={{ workspaceId }}
           />
         ) : (
           <AgentUnavailable />

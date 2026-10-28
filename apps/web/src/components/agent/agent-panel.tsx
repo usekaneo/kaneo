@@ -144,12 +144,13 @@ export function AgentPanel({
           attachments={attachments}
           onSubmit={(prompt) => void handleSubmit(prompt)}
           onStop={handleStop}
-          placeholder={t("agent:composer.placeholder")}
+          placeholder={t("agent:composer.panelPlaceholder")}
           running={running}
           sending={send.isPending}
           autoFocus
           inputRef={inputRef}
           modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
+          mentionScope={{ workspaceId, projectId }}
         />
       </div>
     </aside>

@@ -21388,7 +21388,7 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"placeholder": {
+						"panelPlaceholder": {
 							"type": "string"
 						},
 						"followUp": {
@@ -21401,6 +21401,9 @@
 							"type": "string"
 						},
 						"model": {
+							"type": "string"
+						},
+						"mentionResults": {
 							"type": "string"
 						},
 						"reviewMode": {
@@ -21477,11 +21480,12 @@
 						}
 					},
 					"required": [
-						"placeholder",
+						"panelPlaceholder",
 						"followUp",
 						"send",
 						"stop",
 						"model",
+						"mentionResults",
 						"reviewMode",
 						"reviewModeHint",
 						"attach",

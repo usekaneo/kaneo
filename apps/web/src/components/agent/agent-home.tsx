@@ -59,6 +59,7 @@ export function AgentHome({
               autoFocus
               inputRef={inputRef}
               modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
+              mentionScope={{ workspaceId }}
             />
           ) : (
             <AgentUnavailable />

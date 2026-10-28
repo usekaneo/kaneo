@@ -5148,11 +5148,12 @@
 	"agent": {
 		"title": "Agent",
 		"composer": {
-			"placeholder": "Ask about this project…",
+			"panelPlaceholder": "Ask anything, or type @ to mention a task…",
 			"followUp": "Ask a follow-up…",
 			"send": "Send",
 			"stop": "Stop the agent",
 			"model": "Model: {{model}}",
+			"mentionResults": "Tasks and projects",
 			"reviewMode": "Ask before changes",
 			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",
 			"attach": "Attach files",

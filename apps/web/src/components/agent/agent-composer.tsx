@@ -1,11 +1,8 @@
 import { ArrowUp, Paperclip, Square } from "lucide-react";
 import {
-  type ClipboardEvent,
   type DragEvent,
-  type KeyboardEvent,
   type ReactNode,
   type Ref,
-  useId,
   useRef,
   useState,
 } from "react";
@@ -14,8 +11,16 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { AgentDraftAttachments } from "./agent-draft-attachments";
 import { AgentReviewBadge } from "./agent-review-badge";
+import {
+  AgentPromptEditor,
+  type AgentPromptEditorHandle,
+} from "./mention/agent-prompt-editor";
+import type { AgentMentionScope } from "./mention/use-agent-mention-search";
 import { agentAttachmentAccept } from "./read-agent-attachments";
 import type { AgentAttachments } from "./use-agent-attachments";
+
+// The API's prompt limit, mention tokens included.
+const MAX_PROMPT_LENGTH = 16000;
 
 type AgentComposerProps = {
   value: string;
@@ -30,8 +35,10 @@ type AgentComposerProps = {
   disabled?: boolean;
   variant?: "panel" | "hero";
   autoFocus?: boolean;
-  inputRef?: Ref<HTMLTextAreaElement>;
+  inputRef?: Ref<AgentPromptEditorHandle>;
   modelPicker?: ReactNode;
+  // Where @ searches tasks and projects.
+  mentionScope: AgentMentionScope;
 };
 
 export function AgentComposer({
@@ -48,12 +55,13 @@ export function AgentComposer({
   autoFocus,
   inputRef,
   modelPicker,
+  mentionScope,
 }: AgentComposerProps) {
   const { t } = useTranslation();
-  const inputId = useId();
   const prompt = value.trim();
   const canSend =
     Boolean(prompt) &&
+    prompt.length <= MAX_PROMPT_LENGTH &&
     !running &&
     !sending &&
     !disabled &&
@@ -70,26 +78,8 @@ export function AgentComposer({
     if (!disabled) void addAttachments(Array.from(event.dataTransfer.files));
   };
 
-  const handlePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
-    const files = Array.from(event.clipboardData.files);
-    if (files.length === 0) return;
-    event.preventDefault();
-    void addAttachments(files);
-  };
-
   const submit = () => {
     if (canSend) onSubmit(prompt);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (
-      event.key !== "Enter" ||
-      event.shiftKey ||
-      event.nativeEvent.isComposing
-    )
-      return;
-    event.preventDefault();
-    submit();
   };
 
   return (
@@ -118,25 +108,18 @@ export function AgentComposer({
         items={attachments.items}
         onRemove={attachments.remove}
       />
-      <label htmlFor={inputId} className="sr-only">
-        {placeholder}
-      </label>
-      <textarea
-        ref={inputRef}
-        id={inputId}
+      <AgentPromptEditor
+        editorRef={inputRef}
         value={value}
-        onChange={(event) => onValueChange(event.target.value)}
-        onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
+        onValueChange={onValueChange}
+        onSubmit={submit}
+        onPasteFiles={(files) => void addAttachments(files)}
         placeholder={placeholder}
-        maxLength={16000}
+        mentionScope={mentionScope}
+        menuPlacement={hero ? "below" : "above"}
         disabled={disabled}
         autoFocus={autoFocus}
-        rows={hero ? 2 : 1}
-        className={cn(
-          "field-sizing-content max-h-48 resize-none bg-transparent text-foreground outline-none placeholder:text-muted-foreground disabled:opacity-60",
-          hero ? "min-h-12 text-base" : "min-h-5 text-sm",
-        )}
+        className={hero ? "min-h-12 text-base" : "min-h-5 text-sm"}
       />
       <div className="flex items-end justify-between gap-2">
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">

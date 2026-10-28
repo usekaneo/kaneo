@@ -5055,9 +5055,10 @@
 	},
 	"agent": {
 		"composer": {
+			"panelPlaceholder": "Ask anything, or type @ to mention a task…",
 			"model": "Model: {{model}}",
+			"mentionResults": "Tasks and projects",
 			"followUp": "Ask a follow-up…",
-			"placeholder": "Ask about this project…",
 			"reviewMode": "Ask before changes",
 			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",
 			"send": "Send",

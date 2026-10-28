@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import type { RecentAgentRun } from "@/types/agent";
 import { AgentRunStatusIcon } from "./agent-run-status-icon";
+import { agentPromptToPlainText } from "./mention/agent-mention-token";
 
 type AgentRecentRunRowProps = {
   run: RecentAgentRun;
@@ -32,7 +33,7 @@ export function AgentRecentRunRow({ run, onOpen }: AgentRecentRunRowProps) {
           <AgentRunStatusIcon status={run.status} />
         </span>
         <span className="min-w-0 grow truncate text-foreground text-sm">
-          {run.prompt}
+          {agentPromptToPlainText(run.prompt)}
         </span>
         <span className="hidden w-40 shrink-0 text-muted-foreground text-xs sm:flex">
           {detail}

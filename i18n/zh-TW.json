@@ -5055,6 +5055,7 @@
 	},
 	"agent": {
 		"composer": {
+			"panelPlaceholder": "Ask anything, or type @ to mention a task…",
 			"attach": "Attach files",
 			"attachmentErrors": {
 				"empty": "That file is empty.",
@@ -5067,8 +5068,8 @@
 				"uploadFailed": "{{name}} couldn't be uploaded. Try again."
 			},
 			"model": "Model: {{model}}",
+			"mentionResults": "Tasks and projects",
 			"followUp": "Ask a follow-up…",
-			"placeholder": "Ask about this project…",
 			"removeAttachment": "Remove {{name}}",
 			"reviewMode": "Ask before changes",
 			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",

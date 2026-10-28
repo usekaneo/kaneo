@@ -51,6 +51,7 @@ function Harness({
       attachments={attachments}
       onSubmit={() => onSubmit(attachments.toRunInput())}
       placeholder="Ask"
+      mentionScope={{ workspaceId: "workspace" }}
     />
   );
 }
@@ -65,7 +66,7 @@ function setup() {
       <Harness onSubmit={onSubmit} />
     </QueryClientProvider>,
   );
-  return { ...view, onSubmit, textarea: screen.getByLabelText("Ask") };
+  return { ...view, onSubmit, input: screen.getByLabelText("Ask") };
 }
 
 const image = (name = "image.png") =>
@@ -97,9 +98,9 @@ describe("AgentComposer attachments", () => {
   it("uploads a pasted screenshot, shows its thumbnail, and sends its id", async () => {
     const upload = deferred<{ id: string }>();
     mocks.upload.mockReturnValue(upload.promise);
-    const { textarea, onSubmit } = setup();
+    const { input, onSubmit } = setup();
 
-    const pasted = fireEvent.paste(textarea, {
+    const pasted = fireEvent.paste(input, {
       clipboardData: { files: [image()] },
     });
     expect(pasted).toBe(false);
@@ -128,11 +129,13 @@ describe("AgentComposer attachments", () => {
     expect(onSubmit).toHaveBeenCalledWith([{ id: "upload-1" }]);
   });
 
-  it("leaves plain text pastes to the textarea", () => {
-    const { textarea } = setup();
-    expect(fireEvent.paste(textarea, { clipboardData: { files: [] } })).toBe(
-      true,
-    );
+  it("leaves plain text pastes to the editor", () => {
+    const { input } = setup();
+    expect(
+      fireEvent.paste(input, {
+        clipboardData: { files: [], getData: () => "", types: [] },
+      }),
+    ).toBe(true);
     expect(mocks.upload).not.toHaveBeenCalled();
   });
 
@@ -187,9 +190,9 @@ describe("AgentComposer attachments", () => {
 
   it("drops a failed upload and explains why", async () => {
     mocks.upload.mockRejectedValue(new HttpError(413, "too large"));
-    const { textarea } = setup();
+    const { input } = setup();
 
-    fireEvent.paste(textarea, { clipboardData: { files: [image()] } });
+    fireEvent.paste(input, { clipboardData: { files: [image()] } });
 
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
@@ -201,9 +204,9 @@ describe("AgentComposer attachments", () => {
   });
 
   it("rejects unsupported files without uploading them", async () => {
-    const { textarea } = setup();
+    const { input } = setup();
 
-    fireEvent.paste(textarea, {
+    fireEvent.paste(input, {
       clipboardData: {
         files: [new File(["x"], "a.zip", { type: "application/zip" })],
       },
