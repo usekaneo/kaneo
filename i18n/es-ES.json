@@ -2608,6 +2608,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Datos del complemento eliminados",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",

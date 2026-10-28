@@ -2650,6 +2650,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Дані плагіна видалено",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",

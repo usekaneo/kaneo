@@ -79,6 +79,17 @@ async function purgeAsAdmin(pluginId: string) {
   });
 }
 
+async function auditEntries() {
+  return db
+    .select({
+      action: schema.adminAuditLogTable.action,
+      targetType: schema.adminAuditLogTable.targetType,
+      targetId: schema.adminAuditLogTable.targetId,
+      metadata: schema.adminAuditLogTable.metadata,
+    })
+    .from(schema.adminAuditLogTable);
+}
+
 beforeEach(async () => {
   vi.stubEnv("KANEO_CONFIG", "");
   vi.stubEnv("DISABLE_PLUGINS", "");
@@ -105,6 +116,14 @@ describe("DELETE /api/plugins/{pluginId}/data", () => {
     expect(await response.json()).toEqual({ storage: 3, workspaces: 2 });
     expect(await rowsFor(REMOVED)).toEqual({ storage: 0, workspaces: 0 });
     expect(await rowsFor(KEPT)).toEqual({ storage: 1, workspaces: 1 });
+    expect(await auditEntries()).toEqual([
+      {
+        action: "instance.plugin_data_purged",
+        targetType: "plugin",
+        targetId: REMOVED,
+        metadata: { storage: 3, workspaces: 2 },
+      },
+    ]);
   });
 
   it("reports zero rows when the plugin has no data", async () => {
@@ -166,7 +185,7 @@ describe("DELETE /api/plugins/{pluginId}/data", () => {
     expect(await rowsFor(REMOVED)).toEqual({ storage: 3, workspaces: 2 });
   });
 
-  it("is limited to instance administrators", async () => {
+  it("needs the instance:settings permission", async () => {
     const member = await seed();
     mockAuthenticatedSession(member.user);
 
@@ -176,6 +195,7 @@ describe("DELETE /api/plugins/{pluginId}/data", () => {
 
     expect(response.status).toBe(403);
     expect(await rowsFor(REMOVED)).toEqual({ storage: 3, workspaces: 2 });
+    expect(await auditEntries()).toEqual([]);
   });
 
   it("rejects values that cannot be plugin ids", async () => {

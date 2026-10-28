@@ -3876,6 +3876,9 @@
 								"instanceSettingsUpdated": {
 									"type": "string"
 								},
+								"pluginDataPurged": {
+									"type": "string"
+								},
 								"webhookCreated": {
 									"type": "string"
 								},
@@ -3918,6 +3921,7 @@
 								"roleUpdated",
 								"roleDeleted",
 								"instanceSettingsUpdated",
+								"pluginDataPurged",
 								"webhookCreated",
 								"webhookUpdated",
 								"webhookDeleted",

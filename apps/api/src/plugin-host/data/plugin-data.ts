@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import db from "../../database";
+import type { DbOrTx } from "../../project-access/db-or-tx";
 import {
   pluginStorageTable,
   workspacePluginTable,
@@ -12,6 +13,7 @@ export type PluginDataCounts = {
 
 export async function deletePluginData(
   pluginId: string,
+  onDeleted: (tx: DbOrTx, counts: PluginDataCounts) => Promise<void>,
 ): Promise<PluginDataCounts> {
   return db.transaction(async (tx) => {
     const storage = await tx
@@ -20,9 +22,11 @@ export async function deletePluginData(
     const workspaces = await tx
       .delete(workspacePluginTable)
       .where(eq(workspacePluginTable.pluginId, pluginId));
-    return {
+    const counts = {
       storage: storage.rowCount ?? 0,
       workspaces: workspaces.rowCount ?? 0,
     };
+    await onDeleted(tx, counts);
+    return counts;
   });
 }

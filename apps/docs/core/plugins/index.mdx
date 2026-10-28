@@ -282,7 +282,7 @@ kaneo login --api-url https://kaneo.example.com
 kaneo plugin purge kaneo-plugin-task-progress
 ```
 
-It deletes the plugin's stored data and its settings in every workspace, then prints how many rows it deleted from each table. Kaneo refuses while the plugin is installed: remove it from `kaneo.config.ts` and restart Kaneo first. For a built-in plugin, turn it off with `official: { gantt: false }` instead. It also refuses while `DISABLE_PLUGINS=true`, because Kaneo cannot tell then which plugins are installed. Purging needs the `instance:settings` permission and a login, not an API key. The command asks you to confirm; without a terminal, pass `--yes`. Take a [backup](/core/operations/backups) first, because a purge cannot be undone.
+It deletes the plugin's stored data and its settings in every workspace, then prints how many rows it deleted from each table. Kaneo refuses while the plugin is installed: remove it from `kaneo.config.ts` and restart Kaneo first. For a built-in plugin, turn it off with `official: { gantt: false }` instead. It also refuses while `DISABLE_PLUGINS=true`, because Kaneo cannot tell then which plugins are installed. Purging needs the `instance:settings` permission and a login, not an API key. Each purge is recorded in the [audit log](/core/operations/administration#review-the-audit-log) as **Purged plugin data**, with the number of rows deleted. The command asks you to confirm; without a terminal, pass `--yes`. Take a [backup](/core/operations/backups) first, because a purge cannot be undone.
 
 ## Build a plugin
 

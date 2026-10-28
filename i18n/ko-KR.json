@@ -2524,6 +2524,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "플러그인 데이터 삭제됨",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",

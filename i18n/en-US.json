@@ -984,6 +984,7 @@
 				"roleUpdated": "Role updated",
 				"roleDeleted": "Role deleted",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Purged plugin data",
 				"webhookCreated": "Created webhook",
 				"webhookUpdated": "Updated webhook",
 				"webhookDeleted": "Deleted webhook",

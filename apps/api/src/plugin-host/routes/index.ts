@@ -1,4 +1,5 @@
 import type { MiddlewareHandler } from "hono";
+import { adminAuditRequest } from "../../admin/audit/admin-audit-request";
 import { requireInstancePermission } from "../../admin/roles/require-instance-permission";
 import {
   apiRouter,
@@ -128,7 +129,13 @@ const plugins = apiRouter()
     return c.json(result.state, 200);
   })
   .openapi(purgePluginDataRoute, async (c) =>
-    c.json(await purgePluginData(c.req.valid("param").pluginId), 200),
+    c.json(
+      await purgePluginData(
+        c.req.valid("param").pluginId,
+        adminAuditRequest(c),
+      ),
+      200,
+    ),
   );
 
 export default plugins;
