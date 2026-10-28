@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import type { activityTable } from "../database/schema";
 import type { agentActionSchema } from "./schema";
 
 export type AgentAction = z.infer<typeof agentActionSchema>;
@@ -25,7 +26,13 @@ export type AgentSnapshot = {
   priority: string;
   userId: string | null;
   dueDate: string | null;
+  // Set on applied comment proposals.
+  commentId?: string;
 };
+export type AgentComment = Omit<
+  typeof activityTable.$inferSelect,
+  "createdAt" | "updatedAt"
+> & { createdAt: string; updatedAt: string };
 export type AgentEffect =
   | {
       kind: "task.update";
@@ -43,4 +50,16 @@ export type AgentEffect =
         createdAt: string;
         updatedAt: string;
       };
+    }
+  | {
+      kind: "comment.create";
+      comment: AgentComment;
+      projectId: string | null;
+      summary: string;
+      notifications: Array<{ id: string; userId: string }>;
+    }
+  | {
+      kind: "comment.delete";
+      comment: AgentComment;
+      projectId: string | null;
     };

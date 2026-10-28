@@ -170,7 +170,7 @@ export function createAgentTools(
     }),
     propose_change: tool({
       description:
-        "Save a concrete task creation or task update for user review. This never applies a change. Use actual IDs from read tools. Task updates support title, priority, assignee, and due date; task creation uses an existing project column slug.",
+        'Save a concrete task creation, task update, or task comment for user review. This never applies a change or posts anything; the user reviews and applies it. Use actual IDs from read tools. Task updates support title, priority, assignee, and due date; task creation uses an existing project column slug. Propose a comment (comment.create) when the user asks to nudge, ask, or update teammates on a task; it is posted as the user, so write it in their voice. The body is Markdown; mention a member with <kaneo-mention id="USER_ID" label="Name"></kaneo-mention> using an ID from list_members, which notifies them.',
       inputSchema: createProposalSchema,
       execute: (input, options) =>
         execute("propose_change", options.toolCallId, input, () =>

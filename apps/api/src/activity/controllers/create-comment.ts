@@ -8,16 +8,32 @@ import {
   userTable,
 } from "../../database/schema";
 import { publishEvent } from "../../events";
-import createNotification from "../../notification/controllers/create-notification";
+import {
+  dispatchNotification,
+  persistNotification,
+} from "../../notification/controllers/create-notification";
 import { parseMentionIds } from "../../utils/parse-mentions";
 
-async function createComment(
+type Database = typeof db | Parameters<Parameters<typeof db.transaction>[0]>[0];
+type Activity = typeof activityTable.$inferSelect;
+export type RecordedComment = {
+  activity: Activity;
+  // Null when the task vanished; no event is published then.
+  projectId: string | null;
+  summary: string;
+  notifications: Array<{ id: string; userId: string }>;
+};
+
+// Writes the comment and its notifications. Pair with publishCommentCreated
+// after the surrounding transaction commits.
+export async function recordComment(
+  database: Database,
   taskId: string,
   userId: string,
   content: string,
   external?: { userName: string; source: string },
-) {
-  const [activity] = await db
+): Promise<RecordedComment> {
+  const [activity] = await database
     .insert(activityTable)
     .values({
       taskId,
@@ -39,12 +55,12 @@ async function createComment(
     });
   }
 
-  const [user] = await db
+  const [user] = await database
     .select({ name: userTable.name })
     .from(userTable)
     .where(eq(userTable.id, userId));
 
-  const [task] = await db
+  const [task] = await database
     .select({
       assigneeId: taskTable.userId,
       projectId: taskTable.projectId,
@@ -55,18 +71,20 @@ async function createComment(
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
     .where(eq(taskTable.id, taskId));
 
-  if (task) {
-    await publishEvent("comment.created", {
-      ...activity,
-      comment: `**${user?.name}** commented:\n> ${content}`,
-      projectId: task.projectId,
-    });
-  }
+  const notifications: RecordedComment["notifications"] = [];
+  const notify = async (data: Parameters<typeof persistNotification>[0]) => {
+    const notification = await persistNotification(data, database);
+    if (notification)
+      notifications.push({
+        id: notification.id,
+        userId: notification.userId,
+      });
+  };
 
   // Notify any workspace members @mentioned in the comment (not the author).
   const mentionedIds = parseMentionIds(content).filter((id) => id !== userId);
   for (const mentionedId of mentionedIds) {
-    await createNotification({
+    await notify({
       userId: mentionedId,
       type: "task_mention",
       eventData: {
@@ -85,7 +103,7 @@ async function createComment(
     task.assigneeId !== userId &&
     !mentionedIds.includes(task.assigneeId)
   ) {
-    await createNotification({
+    await notify({
       userId: task.assigneeId,
       type: "task_comment",
       eventData: {
@@ -100,7 +118,35 @@ async function createComment(
     });
   }
 
-  return activity;
+  return {
+    activity,
+    projectId: task?.projectId ?? null,
+    summary: `**${user?.name}** commented:\n> ${content}`,
+    notifications,
+  };
+}
+
+export async function publishCommentCreated(recorded: RecordedComment) {
+  if (recorded.projectId) {
+    await publishEvent("comment.created", {
+      ...recorded.activity,
+      comment: recorded.summary,
+      projectId: recorded.projectId,
+    });
+  }
+  for (const notification of recorded.notifications)
+    await dispatchNotification(notification);
+}
+
+async function createComment(
+  taskId: string,
+  userId: string,
+  content: string,
+  external?: { userName: string; source: string },
+) {
+  const recorded = await recordComment(db, taskId, userId, content, external);
+  await publishCommentCreated(recorded);
+  return recorded.activity;
 }
 
 export default createComment;

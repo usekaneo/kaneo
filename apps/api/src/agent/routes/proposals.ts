@@ -15,7 +15,7 @@ const routes = apiRouter()
       tags: ["Agent"],
       summary: "Apply selected saved proposals",
       description:
-        "Each proposal is applied atomically with its receipt. Checks current permissions and affected fields; retries cannot duplicate task creation. Independent proposals return individual conflicts. No model call is made.",
+        "Each proposal is applied atomically with its receipt. Checks current permissions and affected fields; retries cannot duplicate task creation or comments. Independent proposals return individual conflicts. No model call is made.",
       middleware: mutationMiddleware,
       request: {
         params: runParams,
@@ -82,9 +82,9 @@ const routes = apiRouter()
       path: "/{workspaceId}/proposals/{proposalId}/undo",
       operationId: "undoAgentProposal",
       tags: ["Agent"],
-      summary: "Undo an applied task update",
+      summary: "Undo an applied task update or comment",
       description:
-        "Only restores affected fields that still match the agent's applied values. Rechecks current permissions and assignee membership. Task creation is not automatically undone; delete created tasks through the task API.",
+        "Only restores affected fields that still match the agent's applied values, and only deletes a posted comment that has not been edited. Rechecks current permissions and assignee membership. Task creation is not automatically undone; delete created tasks through the task API.",
       middleware: mutationMiddleware,
       request: { params: proposalParams },
       responses: {

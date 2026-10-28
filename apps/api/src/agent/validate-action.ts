@@ -35,6 +35,7 @@ export async function validateAction(
     return null;
   }
   const task = await getScopedTask(subject, action.taskId, database);
+  if (action.type === "comment.create") return taskSnapshot(task);
   if (action.patch.userId)
     await assertAssignableUser(
       action.patch.userId,

@@ -2,8 +2,8 @@ import { randomUUID } from "node:crypto";
 import { and, eq, isNull, lt, or, notExists } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import db, { schema } from "../database";
-import { publishEvent, eventContext } from "../events";
-import { publishTaskMutation } from "../task/controllers/task-mutation-effects";
+import { eventContext } from "../events";
+import { publishAgentEffect } from "./publish-effect";
 
 export async function deliverAgentEffects() {
   for (let index = 0; index < 20; index++) {
@@ -49,42 +49,9 @@ export async function deliverAgentEffects() {
     });
     if (!effect) return;
     try {
-      const payload = effect.payload;
-      await eventContext.exit(async () => {
-        if (payload.kind === "task.update") {
-          const dates = (task: typeof payload.before) => ({
-            ...task,
-            dueDate: task.dueDate ? new Date(task.dueDate) : null,
-          });
-          await publishTaskMutation(
-            dates(payload.before),
-            dates(payload.after),
-            effect.userId,
-          );
-          await publishEvent("task.updated", {
-            taskId: payload.after.id,
-            projectId: payload.after.projectId,
-            userId: effect.userId,
-          });
-        } else {
-          await publishEvent("task.created", {
-            ...payload.task,
-            dueDate: payload.task.dueDate
-              ? new Date(payload.task.dueDate)
-              : null,
-            startDate: payload.task.startDate
-              ? new Date(payload.task.startDate)
-              : null,
-            createdAt: new Date(payload.task.createdAt),
-            updatedAt: new Date(payload.task.updatedAt),
-            taskId: payload.task.id,
-            userId: payload.task.userId ?? "",
-            currentUserId: effect.userId,
-            type: "created",
-            content: null,
-          });
-        }
-      });
+      await eventContext.exit(() =>
+        publishAgentEffect(effect.payload, effect.userId),
+      );
       await db
         .update(schema.agentEffectTable)
         .set({

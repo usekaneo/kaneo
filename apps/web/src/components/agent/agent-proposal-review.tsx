@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import useReviewAgentProposals from "@/hooks/mutations/agent/use-review-agent-proposals";
 import { HttpError } from "@/lib/http-error";
 import { toast } from "@/lib/toast";
-import type { AgentRun } from "@/types/agent";
+import type { AgentProposal, AgentRun } from "@/types/agent";
 import { AgentProposalRow } from "./agent-proposal-row";
 import { getAgentErrorKey } from "./get-agent-error-key";
 
@@ -63,15 +63,17 @@ export function AgentProposalReview({
     }
   };
 
-  const handleUndo = async (proposalId: string) => {
+  const handleUndo = async (proposal: AgentProposal) => {
     try {
-      await undo.mutateAsync(proposalId);
+      await undo.mutateAsync(proposal.id);
       toast.success(t("agent:review.undoneToast"));
     } catch (error) {
       toast.error(
         t(
           error instanceof HttpError && error.status === 409
-            ? "agent:review.undoConflict"
+            ? proposal.action.type === "comment.create"
+              ? "agent:review.undoCommentConflict"
+              : "agent:review.undoConflict"
             : getAgentErrorKey(error),
         ),
       );
@@ -107,9 +109,9 @@ export function AgentProposalReview({
             key={proposal.id}
             proposal={proposal}
             taskKey={
-              proposal.action.type === "task.update"
-                ? getTaskKey?.(proposal.action.taskId)
-                : undefined
+              proposal.action.type === "task.create"
+                ? undefined
+                : getTaskKey?.(proposal.action.taskId)
             }
             selected={!deselected.has(proposal.id)}
             disabled={busy || !canReview}
@@ -121,7 +123,7 @@ export function AgentProposalReview({
                 return next;
               })
             }
-            onUndo={() => void handleUndo(proposal.id)}
+            onUndo={() => void handleUndo(proposal)}
           />
         ))}
       </ul>

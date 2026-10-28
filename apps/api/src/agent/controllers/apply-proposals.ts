@@ -9,6 +9,7 @@ import { assertAgentAccess, getOwnedRun } from "../access";
 import { agentActionSchema } from "../schema";
 import { matchesSnapshot, taskSnapshot } from "../snapshot";
 import { actionPermissions } from "../action-permissions";
+import { applyComment } from "./apply-comment";
 import { getScopedTask } from "./get-scoped-task";
 import { validateAction } from "../validate-action";
 import type { AgentEffect, AgentSubject } from "../types";
@@ -113,6 +114,8 @@ export async function applyProposals(
               updatedAt: task.updatedAt.toISOString(),
             },
           };
+        } else if (action.type === "comment.create") {
+          effect = await applyComment(tx, scoped, proposalId, action);
         } else {
           await tx
             .select({ id: schema.taskTable.id })

@@ -5216,7 +5216,8 @@
 			"failedToast_other": "{{count}} changes couldn't be applied",
 			"failedDescription": "The task changed or you no longer have access. Ask the agent again for a fresh proposal.",
 			"undoneToast": "Change undone",
-			"undoConflict": "Someone edited this task since, so it can't be undone automatically."
+			"undoConflict": "Someone edited this task since, so it can't be undone automatically.",
+			"undoCommentConflict": "This comment was edited or deleted, so it can't be undone automatically."
 		},
 		"proposal": {
 			"action": {
@@ -5229,7 +5230,8 @@
 				"moveDueDate": "Move due date",
 				"clearDueDate": "Clear due date",
 				"priority": "Change priority",
-				"rename": "Rename"
+				"rename": "Rename",
+				"comment": "Post comment"
 			},
 			"status": {
 				"pending": "Pending",
@@ -5248,7 +5250,8 @@
 			"dueDate": "due {{value}}",
 			"priority": "priority {{value}}",
 			"rename": "rename",
-			"update": "update task"
+			"update": "update task",
+			"comment": "comment"
 		},
 		"home": {
 			"title": "What can I take off your plate?",
