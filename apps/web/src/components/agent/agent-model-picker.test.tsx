@@ -76,6 +76,27 @@ describe("AgentModelPicker", () => {
     expect(localStorage.getItem("agent-model")).toContain(opus.id);
   });
 
+  it("shows each model's provider logo in the trigger and the menu", async () => {
+    const gemini = { id: "google/gemini-3-pro", label: "Google: Gemini 3 Pro" };
+    const llama = { id: "meta-llama/llama-4", label: "Meta: Llama 4" };
+    m.config = { model: luna.id, models: [luna, opus, gemini, llama] };
+    render(<AgentModelPicker workspaceId="ws" />);
+    const trigger = screen.getByRole("button", {
+      name: `agent:composer.model|${luna.label}`,
+    });
+    const logo = (element: Element) =>
+      element.querySelector("svg[data-provider]");
+    expect(logo(trigger)).toHaveAttribute("data-provider", "openai");
+    expect(logo(trigger)).toHaveAttribute("aria-hidden", "true");
+
+    fireEvent.click(trigger);
+    const items = await screen.findAllByRole("menuitemradio");
+    expect(
+      items.map((item) => logo(item)?.getAttribute("data-provider")),
+    ).toEqual(["openai", "anthropic", "google", "other"]);
+    expect(items[1]).toHaveAccessibleName(opus.label);
+  });
+
   it("falls back to the default when the stored model is no longer allowed", () => {
     useAgentModelStore.setState({
       modelByWorkspace: { ws: "google/gemini-3-pro" },

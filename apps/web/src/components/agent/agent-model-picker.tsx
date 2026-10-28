@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/menu";
 import { useAgentModel } from "@/hooks/use-agent-model";
+import { AgentModelLogo } from "./agent-model-logo";
 
 export function AgentModelPicker({ workspaceId }: { workspaceId: string }) {
   const { t } = useTranslation();
@@ -24,11 +25,12 @@ export function AgentModelPicker({ workspaceId }: { workspaceId: string }) {
             type="button"
             variant="ghost"
             size="xs"
-            className="h-7 min-w-0 max-w-44 gap-1 px-2 text-muted-foreground"
+            className="h-7 min-w-0 max-w-48 gap-1.5 px-2 text-muted-foreground"
             aria-label={t("agent:composer.model", { model: label })}
           />
         }
       >
+        {model && <AgentModelLogo modelId={model} />}
         <span className="truncate">{label}</span>
         <ChevronDown aria-hidden="true" className="size-3.5 shrink-0" />
       </DropdownMenuTrigger>
@@ -36,7 +38,10 @@ export function AgentModelPicker({ workspaceId }: { workspaceId: string }) {
         <DropdownMenuRadioGroup value={model} onValueChange={setModel}>
           {models.map((item) => (
             <DropdownMenuRadioItem key={item.id} value={item.id} closeOnClick>
-              {item.label}
+              <span className="flex min-w-0 items-center gap-2">
+                <AgentModelLogo modelId={item.id} />
+                <span className="truncate">{item.label}</span>
+              </span>
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>

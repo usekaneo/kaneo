@@ -8,6 +8,7 @@ import { AgentProposalReview } from "./agent-proposal-review";
 import { AgentRunAttachments } from "./agent-run-attachments";
 import { AgentRunSteps } from "./agent-run-steps";
 import { getAgentRunErrorKey } from "./get-agent-run-error-key";
+import { AgentPromptText } from "./mention/agent-prompt-text";
 
 type AgentRunItemProps = {
   workspaceId: string;
@@ -32,7 +33,7 @@ export function AgentRunItem({
     <article className="flex flex-col gap-4">
       <div className="flex flex-col items-end gap-1.5">
         <p className="max-w-[85%] whitespace-pre-wrap break-words rounded-xl rounded-br-sm bg-muted px-3 py-2.5 text-foreground text-sm">
-          {summary.prompt}
+          <AgentPromptText prompt={summary.prompt} />
         </p>
         <AgentRunAttachments
           workspaceId={workspaceId}

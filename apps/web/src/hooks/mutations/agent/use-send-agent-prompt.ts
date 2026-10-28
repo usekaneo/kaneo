@@ -1,4 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  agentPromptToPlainText,
+  getAgentMentionRefs,
+} from "@/components/agent/mention/agent-mention-token";
 import createAgentConversation from "@/fetchers/agent/create-agent-conversation";
 import createAgentRun from "@/fetchers/agent/create-agent-run";
 import { agentQueryKeys } from "@/hooks/queries/agent/agent-query-keys";
@@ -25,7 +29,7 @@ function useSendAgentPrompt(workspaceId: string, projectId?: string) {
         conversationId ??
         (
           await createAgentConversation(workspaceId, {
-            title: prompt.slice(0, 120),
+            title: agentPromptToPlainText(prompt).slice(0, 120),
             ...(projectId ? { projectId } : {}),
           })
         ).id;
@@ -33,6 +37,7 @@ function useSendAgentPrompt(workspaceId: string, projectId?: string) {
         requestId: crypto.randomUUID(),
         prompt,
         attachments,
+        mentions: getAgentMentionRefs(prompt),
         ...(model ? { model } : {}),
       });
       return { conversationId: targetId, runId: run.id };

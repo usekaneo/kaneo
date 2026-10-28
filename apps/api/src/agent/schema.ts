@@ -1,4 +1,9 @@
 import { z, pagingNumber } from "../openapi";
+import {
+  AGENT_MENTION_LIMIT,
+  parseMentionRefs,
+  sameMentionRefs,
+} from "./mention-token";
 
 const id = z.string().trim().min(1).max(128);
 const priority = z.enum(["no-priority", "low", "medium", "high", "urgent"]);
@@ -123,8 +128,35 @@ export const createRunSchema = z
       description:
         "OpenRouter model ID from the config endpoint's models. Omit to use the instance default; other models are rejected.",
     }),
+    mentions: z
+      .array(z.object({ type: z.enum(["task", "project"]), id }).strict())
+      .max(AGENT_MENTION_LIMIT)
+      .refine((refs) => {
+        const keys = refs.map((ref) => `${ref.type}:${ref.id}`);
+        return new Set(keys).size === keys.length;
+      }, "Duplicate mentions")
+      .optional()
+      .openapi({
+        description:
+          "Tasks and projects the prompt mentions as `@[label](task:ID)` or `@[label](project:ID)`, without duplicates. Must list exactly the prompt's mention tokens. The runner gives the model each item's current title, key, status, and project, and skips items you cannot access.",
+      }),
   })
-  .strict();
+  .strict()
+  .superRefine((value, ctx) => {
+    const refs = parseMentionRefs(value.prompt);
+    if (refs.length > AGENT_MENTION_LIMIT)
+      ctx.addIssue({
+        code: "custom",
+        path: ["prompt"],
+        message: `Mention at most ${AGENT_MENTION_LIMIT} tasks or projects`,
+      });
+    else if (value.mentions && !sameMentionRefs(refs, value.mentions))
+      ctx.addIssue({
+        code: "custom",
+        path: ["mentions"],
+        message: "Mentions must match the prompt's mention tokens",
+      });
+  });
 export const workspaceParams = z.object({ workspaceId: id });
 export const conversationParams = workspaceParams.extend({
   conversationId: id,

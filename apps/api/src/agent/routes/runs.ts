@@ -29,7 +29,7 @@ const routes = apiRouter()
       tags: ["Agent"],
       summary: "Queue a bounded agent run",
       description:
-        "requestId is an idempotency key scoped to this conversation. Repeating it with the same prompt, attachments, and model returns the existing run; any difference conflicts. Tools can read scoped data and save proposals, never apply changes.",
+        "requestId is an idempotency key scoped to this conversation. Repeating it with the same prompt (including its mentions), attachments, and model returns the existing run; any difference conflicts. Tools can read scoped data and save proposals, never apply changes.",
       middleware: mutationMiddleware,
       request: {
         params: conversationParams,

@@ -37,7 +37,7 @@ All paths below are relative to `/api/agent/{workspaceId}`. Use the existing ses
 | GET | `/config` | Availability, default `model`, allowed `models` (`{id, label}`), and limits |
 | POST | `/conversations` | Create with optional `projectId` and `title`; omitting the project scopes reads to the workspace |
 | GET | `/conversations?limit=20&offset=0&projectId=` | Your conversation history, optionally for one project |
-| POST | `/conversations/{conversationId}/runs` | Queue `{requestId: UUID, prompt, attachments?, model?}`; returns `{id, status}` with 202 |
+| POST | `/conversations/{conversationId}/runs` | Queue `{requestId: UUID, prompt, attachments?, model?, mentions?}`; returns `{id, status}` with 202 |
 | GET | `/conversations/{conversationId}/runs` | Run history, same pagination |
 | GET | `/runs?limit=20&offset=0` | Your recent runs across conversations, with pending/applied proposal counts |
 | GET | `/runs/{runId}` | Response, status, tool progress, proposals, usage, cost |
@@ -50,6 +50,8 @@ All paths below are relative to `/api/agent/{workspaceId}`. Use the existing ses
 | GET | `/attachments/{attachmentId}/content` | Your attachment's bytes; images inline, PDFs as downloads |
 
 `attachments` holds up to five items in total. Text files are sent inline as `{name, content}`, at most 50,000 characters each and 100,000 in total; the web client reads them in the browser. Images (PNG, JPEG, WebP, GIF) and PDFs up to 5 MB are first uploaded to `/attachments` and then referenced as `{id}`. Uploads are stored in PostgreSQL in `agent_attachment`, so no object storage is needed; the run itself keeps only `{id, name, mediaType, size}`. Only the uploader can read or reference an upload, each upload can be sent with one run, and at most 20 unsent uploads per user are kept for a day. The runner loads the bytes for the current turn only and sends images and PDFs as AI SDK file parts (OpenRouter parses PDFs for models without native file input); later turns see just the file names. If no provider for the model accepts image input, the run fails with a stable error the client translates. Run responses return attachment metadata, never contents.
+
+The composer's @-mentions are written into the prompt as `@[Launch v3](project:ID)` or `@[WEB-135 Fix login](task:ID)`, at most ten distinct items per prompt. `mentions` lists the same `{type, id}` references and must match the prompt's tokens; there is no separate column. When the run executes, the runner resolves each reference with the user's current project access and the conversation's project scope, and appends a `<mentioned_items>` block (title, key, status, project) to that turn as untrusted data. Items the user cannot access are dropped silently. Later turns keep only the prompt text.
 
 Repeating a run request with the same `requestId`, prompt, attachments, and model returns the existing run. Reusing it with a different prompt, attachments, or model returns 409. Each conversation has at most one active run; each user has at most two active runs and ten new runs per minute. Selected proposal IDs must be distinct, with at most twenty per request.
 
@@ -67,7 +69,7 @@ Actual task changes publish the existing task events, which produce normal board
 
 ## Web UI
 
-`apps/web/src/components/agent/` implements both surfaces. Project views get an **Agent** button (⌘/Ctrl+J) that opens a side panel scoped to the project; pending task updates from the latest run are previewed on matching board cards through `store/agent-panel.ts`. The sidebar's **Agent** page starts workspace-scoped conversations and lists recent runs. Both are hidden when `/config` reports the agent disabled or the user is anonymous. Run details refresh from `AGENT_RUN_UPDATED` on the user WebSocket, with slow polling only while a run is active; the UI does not use the SSE endpoint.
+`apps/web/src/components/agent/` implements both surfaces. Project views get an **Agent** button (⌘/Ctrl+J) that opens a side panel scoped to the project; pending task updates from the latest run are previewed on matching board cards through `store/agent-panel.ts`. The sidebar's **Agent** page starts workspace-scoped conversations and lists recent runs. Both are hidden when `/config` reports the agent disabled or the user is anonymous. The composer is a plain-text Tiptap editor: typing `@` searches tasks (by title or key) and projects through the search API, scoped to the board's project in the panel, and inserts a chip that is sent as a prompt mention. Run details refresh from `AGENT_RUN_UPDATED` on the user WebSocket, with slow polling only while a run is active; the UI does not use the SSE endpoint.
 
 ## Scope and guarantees
 

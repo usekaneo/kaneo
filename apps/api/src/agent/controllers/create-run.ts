@@ -45,6 +45,8 @@ export async function createRun(
       )
       .limit(1);
     if (existing) {
+      // Mentions must match the prompt's tokens, so comparing prompts also
+      // compares mentions.
       if (
         existing.prompt !== input.prompt ||
         existing.model !== model ||

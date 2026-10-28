@@ -31,3 +31,8 @@ export type AgentRunAttachmentInput = NonNullable<
 export type AgentUploadMediaType = InferRequestType<
   AgentClient["attachments"]["$post"]
 >["json"]["mediaType"];
+export type AgentRunMentionInput = NonNullable<
+  InferRequestType<
+    AgentClient["conversations"][":conversationId"]["runs"]["$post"]
+  >["json"]["mentions"]
+>[number];
