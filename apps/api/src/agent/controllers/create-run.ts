@@ -12,9 +12,15 @@ export async function createRun(
     requestId: string;
     prompt: string;
     attachments: AgentAttachment[];
+    model?: string;
   },
 ) {
   const config = requireAgentConfig();
+  const model = input.model ?? config.model;
+  if (!config.models.includes(model))
+    throw new HTTPException(400, {
+      message: "Model is not available on this instance",
+    });
   await getOwnedConversation(subject, conversationId);
   return db.transaction(async (tx) => {
     // Serialize user-wide rate limits across conversations and API instances.
@@ -91,7 +97,7 @@ export async function createRun(
         requestId: input.requestId,
         prompt: input.prompt,
         attachments: input.attachments,
-        model: config.model,
+        model,
       })
       .returning();
     if (!run) throw new HTTPException(500, { message: "Could not queue run" });

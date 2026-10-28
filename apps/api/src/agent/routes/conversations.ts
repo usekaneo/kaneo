@@ -1,6 +1,7 @@
 import { apiRouter, createRoute, jsonResponse, z } from "../../openapi";
 import { middleware, mutationMiddleware, errors } from "./common";
 import { getAgentConfig } from "../config";
+import { getModelLabel } from "../model-label";
 import { createConversation } from "../controllers/create-conversation";
 import { listConversations } from "../controllers/list-conversations";
 import { configResponse, conversationResponse } from "../response";
@@ -34,6 +35,10 @@ const routes = apiRouter()
         {
           enabled: Boolean(config),
           model: config?.model ?? null,
+          models: (config?.models ?? []).map((id) => ({
+            id,
+            label: getModelLabel(id),
+          })),
           maxSteps: config?.maxSteps ?? null,
           maxOutputTokens: config?.maxOutputTokens ?? null,
         },

@@ -98,7 +98,12 @@ export const applyResponse = z.object({
 });
 export const configResponse = z.object({
   enabled: z.boolean(),
-  model: z.string().nullable(),
+  model: z.string().nullable().describe("Default model for new runs"),
+  models: z
+    .array(z.object({ id: z.string(), label: z.string() }))
+    .describe(
+      "Models a run may request, including the default; empty when disabled",
+    ),
   maxSteps: z.number().nullable(),
   maxOutputTokens: z.number().nullable(),
 });

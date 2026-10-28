@@ -2,6 +2,7 @@ import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import { config } from "dotenv-mono";
 import { resolveFileSecret } from "../utils/file-secret";
+import { parseAgentModels } from "./model-list";
 
 // Vite's .env.local must not hide server-only keys in the root .env.
 config({ priorities: { ".env": 100 } });
@@ -32,8 +33,14 @@ export function getAgentConfig() {
     concurrency: process.env.KANEO_AGENT_CONCURRENCY,
   });
   if (!result.success) return null;
+  const models = parseAgentModels(
+    result.data.model,
+    process.env.OPENROUTER_MODELS,
+  );
+  if (!models) return null;
   return {
     ...result.data,
+    models,
     apiKey,
     zeroDataRetention: process.env.OPENROUTER_ZDR === "true",
   };

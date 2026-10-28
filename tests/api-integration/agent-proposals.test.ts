@@ -240,7 +240,48 @@ describe("private agent API", () => {
     expect((await ctx.post("/conversations", {})).status).toBe(503);
     expect(
       await (await ctx.app.request(`${ctx.base}/config`)).json(),
-    ).toMatchObject({ enabled: false, model: null });
+    ).toMatchObject({ enabled: false, model: null, models: [] });
+  });
+  it("runs only allowed models and stores the chosen one", async () => {
+    vi.stubEnv("OPENROUTER_MODELS", "anthropic/claude-opus-5");
+    const ctx = await setup();
+    expect(
+      await (await ctx.app.request(`${ctx.base}/config`)).json(),
+    ).toMatchObject({
+      model: "openai/gpt-6-luna",
+      models: [
+        { id: "openai/gpt-6-luna", label: "OpenAI: GPT-6 Luna" },
+        { id: "anthropic/claude-opus-5", label: "Anthropic: Claude Opus 5" },
+      ],
+    });
+    await ctx.post(`/runs/${ctx.run.id}/cancel`);
+    const path = `/conversations/${ctx.conversation.id}/runs`;
+    expect(
+      (
+        await ctx.post(path, {
+          requestId: randomUUID(),
+          prompt: "Plan",
+          model: "openai/gpt-6-ultra",
+        })
+      ).status,
+    ).toBe(400);
+    const created = await ctx.post(path, {
+      requestId: randomUUID(),
+      prompt: "Plan",
+      model: "anthropic/claude-opus-5",
+    });
+    expect(created.status).toBe(202);
+    const { id } = await created.json();
+    expect(
+      (await (await ctx.app.request(`${ctx.base}/runs/${id}`)).json()).model,
+    ).toBe("anthropic/claude-opus-5");
+    expect(
+      (
+        await db.query.agentRunTable.findFirst({
+          where: eq(schema.agentRunTable.id, ctx.run.id),
+        })
+      )?.model,
+    ).toBe("openai/gpt-6-luna");
   });
   it("deduplicates run requests and rejects changed prompts or concurrent conversation turns", async () => {
     const ctx = await setup();

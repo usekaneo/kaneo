@@ -2,6 +2,7 @@ import { ArrowUp, Paperclip, Square } from "lucide-react";
 import {
   type DragEvent,
   type KeyboardEvent,
+  type ReactNode,
   type Ref,
   useId,
   useRef,
@@ -33,6 +34,7 @@ type AgentComposerProps = {
   variant?: "panel" | "hero";
   autoFocus?: boolean;
   inputRef?: Ref<HTMLTextAreaElement>;
+  modelPicker?: ReactNode;
 };
 
 export function AgentComposer({
@@ -49,6 +51,7 @@ export function AgentComposer({
   variant = "panel",
   autoFocus,
   inputRef,
+  modelPicker,
 }: AgentComposerProps) {
   const { t } = useTranslation();
   const inputId = useId();
@@ -165,6 +168,7 @@ export function AgentComposer({
           <AgentReviewBadge />
         </div>
         <div className="flex items-center gap-2.5">
+          {modelPicker}
           {hero && (
             <span className="font-mono text-[11px] text-muted-foreground">
               {t("agent:composer.enterToSend")}

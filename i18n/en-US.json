@@ -5153,6 +5153,7 @@
 			"send": "Send",
 			"stop": "Stop the agent",
 			"enterToSend": "↵ to send",
+			"model": "Model: {{model}}",
 			"reviewMode": "Ask before changes",
 			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",
 			"attach": "Attach text files",
@@ -5244,7 +5245,6 @@
 			"update": "update task"
 		},
 		"home": {
-			"scope": "Works across {{workspace}} with your permissions",
 			"title": "What can I take off your plate?",
 			"placeholder": "Describe what you need, like turning meeting notes into tasks…",
 			"examplesTitle": "Try asking",

@@ -5148,6 +5148,7 @@
 	"agent": {
 		"composer": {
 			"enterToSend": "↵ to send",
+			"model": "Model: {{model}}",
 			"followUp": "Ask a follow-up…",
 			"placeholder": "Ask about this project…",
 			"reviewMode": "Ask before changes",
@@ -5196,7 +5197,6 @@
 			"examplesHint": "Click an example to start",
 			"examplesTitle": "Try asking",
 			"placeholder": "Describe what you need, like turning meeting notes into tasks…",
-			"scope": "Works across {{workspace}} with your permissions",
 			"title": "What can I take off your plate?"
 		},
 		"overlay": {
