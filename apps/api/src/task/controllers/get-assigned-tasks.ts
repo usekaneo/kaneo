@@ -17,18 +17,11 @@ import {
   taskTable,
 } from "../../database/schema";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
-import { taskIsCompleted } from "../task-is-completed";
+import { priorityRank } from "../priority-rank";
+import { taskInFinalColumn } from "../task-in-final-column";
 
 // Home and My tasks render this list whole, so it stays one bounded page.
 export const ASSIGNED_TASKS_LIMIT = 100;
-
-const priorityRank = sql<number>`CASE
-  WHEN ${taskTable.priority} = 'urgent' THEN 4
-  WHEN ${taskTable.priority} = 'high' THEN 3
-  WHEN ${taskTable.priority} = 'medium' THEN 2
-  WHEN ${taskTable.priority} = 'low' THEN 1
-  ELSE 0
-END`;
 
 async function getAssignedTasks(
   workspaceId: string,
@@ -40,11 +33,7 @@ async function getAssignedTasks(
     isNull(projectTable.archivedAt),
     eq(taskTable.userId, userId),
     ne(taskTable.status, "archived"),
-    sql`not coalesce((
-      select ${columnTable.isFinal} from ${columnTable}
-      where ${columnTable.id} = ${taskTable.columnId}
-        and ${columnTable.projectId} = ${taskTable.projectId}
-    ), ${taskIsCompleted})`,
+    sql`not ${taskInFinalColumn}`,
     projectAccessCondition(userId, projectTable.id),
   );
 

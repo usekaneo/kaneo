@@ -30,6 +30,8 @@ import {
   descriptionDeferred,
   projectDescriptionDeferred,
 } from "../description-pages";
+import { parseLinkMetadata } from "../parse-link-metadata";
+import { priorityRank } from "../priority-rank";
 import { taskIsCompleted } from "../task-is-completed";
 import { isSubtask } from "../is-subtask";
 import { getSubtaskCounts } from "../get-subtask-counts";
@@ -54,20 +56,12 @@ export type GetTasksOptions = {
   status?: string;
 };
 
-const priorityCaseExpr = sql<number>`CASE
-  WHEN ${taskTable.priority} = 'urgent' THEN 4
-  WHEN ${taskTable.priority} = 'high' THEN 3
-  WHEN ${taskTable.priority} = 'medium' THEN 2
-  WHEN ${taskTable.priority} = 'low' THEN 1
-  ELSE 0
-END`;
-
 function sortValue(sortBy: GetTasksOptions["sortBy"]): SQLWrapper {
   switch (sortBy) {
     case "createdAt":
       return taskTable.createdAt;
     case "priority":
-      return priorityCaseExpr;
+      return priorityRank;
     case "dueDate":
       return taskTable.dueDate;
     case "title":
@@ -284,7 +278,7 @@ async function getTasksPage(
     }
     const link = {
       ...externalLink,
-      metadata: parseMetadata(externalLink.metadata),
+      metadata: parseLinkMetadata(externalLink.metadata),
     };
     taskExternalLinksMap
       .get(externalLink.taskId)
@@ -497,18 +491,6 @@ async function getTasksPage(
       ),
     },
   };
-}
-
-function parseMetadata(raw: string | null): Record<string, unknown> | null {
-  if (!raw) return null;
-  try {
-    const value: unknown = JSON.parse(raw);
-    return value !== null && typeof value === "object" && !Array.isArray(value)
-      ? (value as Record<string, unknown>)
-      : null;
-  } catch {
-    return null;
-  }
 }
 
 export default function getTasks(
