@@ -56,27 +56,27 @@
 			"tryAgain": "Intentar de nuevo",
 			"viewDeploymentGuide": "Ver el manual del despliegue",
 			"refreshPage": "Actualizar página",
-			"description": "The page crashed unexpectedly. Refreshing usually fixes it.",
+			"description": "La página falló inesperadamente. Recargar suele solucionarlo.",
 			"messages": {
-				"auth": "Authentication failed. Please sign in again.",
-				"cors": "Unable to connect to the server. This might be due to CORS configuration issues.",
-				"network": "Network error. Please check your internet connection and try again.",
-				"server": "Server error. Please try again later.",
-				"unknown": "An unexpected error occurred."
+				"auth": "La autenticación falló. Inicia sesión de nuevo.",
+				"cors": "No se pudo conectar con el servidor. Puede deberse a un problema de configuración de CORS.",
+				"network": "Error de red. Revisa tu conexión a internet e inténtalo de nuevo.",
+				"server": "Error del servidor. Inténtalo más tarde.",
+				"unknown": "Ocurrió un error inesperado."
 			},
 			"troubleshootingSteps": {
 				"cors": {
-					"checkAccessibility": "Check that your API server is accessible from your browser",
-					"checkApiRunning": "Make sure your API server is running",
-					"checkApiUrl": "Check that VITE_API_URL in your frontend .env matches your API server URL",
-					"checkProtocol": "Ensure both frontend and API are using the same protocol (http/https)",
-					"verifyCorsOrigins": "Verify CORS_ORIGINS in your API .env includes your frontend URL"
+					"checkAccessibility": "Comprueba que el servidor de la API sea accesible desde tu navegador",
+					"checkApiRunning": "Verifica que el servidor de la API esté en ejecución",
+					"checkApiUrl": "Comprueba que VITE_API_URL en el .env de tu frontend coincida con la URL de la API",
+					"checkProtocol": "Asegúrate de que el frontend y la API usen el mismo protocolo (http/https)",
+					"verifyCorsOrigins": "Verifica que CORS_ORIGINS en el .env de tu API incluya la URL del frontend"
 				},
 				"network": {
-					"checkConnection": "Check your internet connection",
-					"checkFirewall": "Check if there are any firewall or proxy issues",
-					"tryRefresh": "Try refreshing the page",
-					"verifyApiRunning": "Verify the API server is running and accessible"
+					"checkConnection": "Revisa tu conexión a internet",
+					"checkFirewall": "Comprueba si hay problemas de firewall o proxy",
+					"tryRefresh": "Intenta recargar la página",
+					"verifyApiRunning": "Verifica que el servidor de la API esté en ejecución y accesible"
 				}
 			}
 		},
@@ -84,7 +84,7 @@
 			"createProject": {
 				"title": "Crear un nuevo proyecto",
 				"breadcrumbNew": "Crear un nuevo proyecto",
-				"workspaceFallback": "WORKSPACE",
+				"workspaceFallback": "ESPACIO",
 				"description": "Crea un nuevo proyecto en tu espacio de trabajo, eligiendo nombre, identificador y seleccionando un icono.",
 				"pickIcon": "Elegir icono",
 				"searchIcons": "Buscar iconos...",
@@ -106,7 +106,7 @@
 				"errorToast": "Hubo un error al crear el espacio de trabajo"
 			},
 			"createTask": {
-				"breadcrumbTask": "TASK",
+				"breadcrumbTask": "TAREA",
 				"selectProject": "Seleccionar proyecto",
 				"title": "Nueva tarea",
 				"description": "Crear una nueva tarea con título, descripción y otra información.",
@@ -153,7 +153,7 @@
 					"orchid": "Orquídea",
 					"sky": "Cielo"
 				},
-				"statusLoadError": "Project statuses couldn’t be loaded."
+				"statusLoadError": "No se pudieron cargar los estados del proyecto."
 			}
 		},
 		"editor": {
@@ -2919,10 +2919,10 @@
 			"invitations": "Invitaciones",
 			"more": "Más",
 			"backToBoard": "Volver al tablero",
-			"home": "Home",
-			"inbox": "Inbox",
-			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"home": "Inicio",
+			"inbox": "Bandeja de entrada",
+			"invitePeople": "Invitar personas",
+			"myTasks": "Mis tareas"
 		},
 		"projectList": {
 			"viewProject": "Ver Proyecto",
@@ -3153,24 +3153,24 @@
 		},
 		"newCount_many": "{{count}} nuevas",
 		"inbox": {
-			"back": "Inbox",
-			"earlier": "Earlier",
-			"emptyFilter": "Nothing here",
+			"back": "Bandeja de entrada",
+			"earlier": "Anteriores",
+			"emptyFilter": "No hay nada aquí",
 			"filters": {
 				"all": "All",
-				"label": "Filter notifications",
-				"mentions": "Mentions",
-				"unread": "Unread"
+				"label": "Filtrar notificaciones",
+				"mentions": "Menciones",
+				"unread": "No leídas"
 			},
-			"openTask": "Open task",
-			"pageTitle": "Inbox",
-			"recentActivity": "Recent activity",
-			"selectPrompt": "Select a notification to read it",
-			"taskUnavailable": "This task is no longer available.",
-			"today": "Today",
-			"unread": "Unread",
-			"loadError": "Notifications couldn't be loaded.",
-			"taskLoadError": "This task couldn’t be loaded.",
+			"openTask": "Abrir tarea",
+			"pageTitle": "Bandeja de entrada",
+			"recentActivity": "Actividad reciente",
+			"selectPrompt": "Selecciona una notificación para leerla",
+			"taskUnavailable": "Esta tarea ya no está disponible.",
+			"today": "Hoy",
+			"unread": "No leídas",
+			"loadError": "No se pudieron cargar las notificaciones.",
+			"taskLoadError": "No se pudo cargar esta tarea.",
 			"actionError": "No se pudo actualizar tu bandeja de entrada. Inténtalo de nuevo.",
 			"readCleared": "Notificaciones leídas eliminadas"
 		}
@@ -3283,11 +3283,11 @@
 					"renderFailed": "No se pudo renderizar el diagrama de Mermaid"
 				}
 			},
-			"importedFrom": "Imported from {{source}}",
-			"importedBy": "Imported by {{name}}",
+			"importedFrom": "Importado desde {{source}}",
+			"importedBy": "Importado por {{name}}",
 			"commentedOnForge": "comentado en {{forge}}"
 		},
-		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
+		"movedFromOtherProject": "movió la tarea desde otro proyecto a \"{{to}}\""
 	},
 	"tasks": {
 		"title": "Tareas",
@@ -4000,39 +4000,39 @@
 		},
 		"home": {
 			"activity": {
-				"commented": "commented",
-				"empty": "Nothing has happened in the last 30 days.",
-				"loadError": "Activity couldn't be loaded.",
-				"title": "Activity",
-				"updated": "updated the task"
+				"commented": "comentó",
+				"empty": "No ha pasado nada en los últimos 30 días.",
+				"loadError": "No se pudo cargar la actividad.",
+				"title": "Actividad",
+				"updated": "actualizó la tarea"
 			},
 			"greeting": {
-				"afternoon": "Good afternoon",
-				"evening": "Good evening",
-				"morning": "Good morning"
+				"afternoon": "Buenas tardes",
+				"evening": "Buenas noches",
+				"morning": "Buenos días"
 			},
-			"newTask": "New task",
-			"pageTitle": "Home",
+			"newTask": "Nueva tarea",
+			"pageTitle": "Inicio",
 			"projects": {
-				"all": "All projects",
+				"all": "Todos los proyectos",
 				"tasks_many": "{{count}} tasks",
-				"tasks_one": "{{count}} task",
-				"tasks_other": "{{count}} tasks",
-				"title": "Your projects",
-				"loadError": "Projects couldn't be loaded."
+				"tasks_one": "{{count}} tarea",
+				"tasks_other": "{{count}} tareas",
+				"title": "Tus proyectos",
+				"loadError": "No se pudieron cargar los proyectos."
 			},
 			"upNext": {
 				"assigned_many": "{{count}} assigned to you",
-				"assigned_one": "{{count}} assigned to you",
-				"assigned_other": "{{count}} assigned to you",
-				"title": "Up next",
-				"viewAll": "View all"
+				"assigned_one": "{{count}} asignada a ti",
+				"assigned_other": "{{count}} asignadas a ti",
+				"title": "A continuación",
+				"viewAll": "Ver todas"
 			},
 			"week": {
 				"more_many": "+{{count}} more",
-				"more_one": "+{{count}} more",
-				"more_other": "+{{count}} more",
-				"truncated": "The week preview includes only the first {{shown}} of {{total}} assigned tasks."
+				"more_one": "+{{count}} más",
+				"more_other": "+{{count}} más",
+				"truncated": "La vista semanal solo incluye las primeras {{shown}} de {{total}} tareas asignadas."
 			}
 		},
 		"myTasks": {
@@ -4047,15 +4047,15 @@
 		},
 		"myWork": {
 			"due": {
-				"later": "Later",
-				"noDueDate": "No due date",
-				"overdue": "Overdue",
-				"thisWeek": "This week",
-				"today": "Today",
-				"tomorrow": "Tomorrow"
+				"later": "Más adelante",
+				"noDueDate": "Sin fecha límite",
+				"overdue": "Vencidas",
+				"thisWeek": "Esta semana",
+				"today": "Hoy",
+				"tomorrow": "Mañana"
 			},
-			"empty": "Nothing assigned to you",
-			"loadError": "Your tasks couldn't be loaded."
+			"empty": "No tienes nada asignado",
+			"loadError": "No se pudieron cargar tus tareas."
 		},
 		"archived": {
 			"description": "Contact an administrator to restore access.",
