@@ -5316,6 +5316,192 @@
 			"entitlement": "This workspace's plan doesn't include the agent.",
 			"forbidden": "You don't have access to this anymore.",
 			"unsupportedAttachments": "This model can't read the attached images or files. Remove them and try again."
+		},
+		"automations": {
+			"title": "Automations",
+			"new": "New automation",
+			"newShort": "New",
+			"newTitle": "New automation",
+			"editTitle": "Edit automation",
+			"viewAll": "View all",
+			"empty": "No automations yet",
+			"noMatches": "No automations match these filters",
+			"loadError": "Couldn't load automations.",
+			"notFound": "This automation couldn't be loaded.",
+			"backToList": "All automations",
+			"you": "You",
+			"ownedBy": "Owned by {{name}}",
+			"runsAsName": "Runs as {{name}}",
+			"enabledLabel": "Run {{name}}",
+			"onEvent": "On event",
+			"toReview_one": "{{count}} to review",
+			"toReview_other": "{{count}} to review",
+			"failedOn": "Failed · {{date}}",
+			"monthCost": "{{cost}} this month",
+			"runNow": "Run now",
+			"runNowToast": "Run started",
+			"openRun": "Open run",
+			"edit": "Edit",
+			"moreActions": "More actions",
+			"createdToast": "Automation created",
+			"savedToast": "Automation saved",
+			"kinds": {
+				"label": "Automation type",
+				"all": "All",
+				"agent": "Agent",
+				"rules": "Rules"
+			},
+			"columns": {
+				"name": "Name",
+				"scope": "Scope",
+				"output": "Output",
+				"owner": "Owner",
+				"lastRun": "Last run",
+				"nextRun": "Next run"
+			},
+			"scope": {
+				"workspace": "Workspace",
+				"wholeWorkspace": "Whole workspace"
+			},
+			"output": {
+				"proposals": "Proposals",
+				"digest": "Inbox digest",
+				"proposalsLong": "Proposals for review",
+				"digestLong": "Inbox digest"
+			},
+			"events": {
+				"task_created": "Task created",
+				"task_moved": "Task moved to a column",
+				"due_date_passed": "Due date passed",
+				"pr_opened": "Pull request opened",
+				"pr_merged": "Pull request merged",
+				"comment_added": "Comment added"
+			},
+			"trigger": {
+				"dailyAt": "Daily at {{time}}",
+				"weeklyAt": "{{days}} at {{time}}",
+				"everyHours_one": "Every hour",
+				"everyHours_other": "Every {{count}} hours"
+			},
+			"filters": {
+				"onlyIf": "Only if",
+				"add": "Filter",
+				"label": "Label",
+				"column": "Column",
+				"project": "Project",
+				"owner": "Owner",
+				"none": "Nothing to choose",
+				"labelIs": "Label is {{name}}",
+				"columnIs": "Column is {{name}}",
+				"projectIs": "Project is {{name}}",
+				"remove": "Remove {{name}}",
+				"clear": "Clear {{name}} filter"
+			},
+			"status": {
+				"pausedAccess": "Paused · owner lost access",
+				"pausedFailures": "Paused after repeated failures",
+				"off": "Off",
+				"budget": "Budget reached",
+				"dailyLimit": "Daily limit reached",
+				"unavailable": "Model unavailable",
+				"overlap": "Skipped · previous run still working"
+			},
+			"errors": {
+				"budget": "This workspace's monthly automation budget is used up.",
+				"dailyLimit": "This automation reached its daily run limit.",
+				"overlap": "A run is already in progress.",
+				"unavailable": "This automation can't run right now.",
+				"limit": "You've reached the automation limit for this workspace.",
+				"disabled": "Turn the automation on before running it.",
+				"ownerChanged": "This automation has a new owner. Reload to see it.",
+				"model": "That model isn't available anymore. Pick another one.",
+				"invalid": "Check the automation's settings and try again."
+			},
+			"form": {
+				"name": "Name",
+				"namePlaceholder": "Untitled automation",
+				"prompt": "Prompt",
+				"promptPlaceholder": "Describe what the agent should do each time. Type @ to mention tasks or projects…",
+				"mention": "Mention a task or project",
+				"trigger": "Trigger",
+				"schedule": "Schedule",
+				"eventTab": "Event",
+				"event": "Event",
+				"frequency": "Frequency",
+				"frequencies": {
+					"daily": "Daily",
+					"weekly": "Weekly",
+					"interval": "Every few hours"
+				},
+				"interval": "Interval",
+				"time": "Time",
+				"timezone": "Time zone",
+				"noTimezones": "No matching time zones",
+				"scope": "Scope",
+				"output": "Output",
+				"dailyLimit": "Runs per day",
+				"runsAs": "Runs as",
+				"create": "Create automation",
+				"save": "Save changes",
+				"errors": {
+					"nameRequired": "Give the automation a name.",
+					"nameTooLong": "Use 200 characters or fewer.",
+					"promptRequired": "Write what the agent should do.",
+					"promptTooLong": "Prompts can be up to 16,000 characters.",
+					"tooManyMentions": "Mention at most 10 tasks or projects.",
+					"time": "Pick a time.",
+					"weekdays": "Pick at least one day.",
+					"intervalHours": "Pick 1 to 24 hours.",
+					"dailyRunLimit": "Use a whole number from 1 to 100."
+				}
+			},
+			"pagination": {
+				"label": "Automation pages",
+				"range": "{{from}}–{{to}} of {{total}}",
+				"previous": "Previous page",
+				"next": "Next page"
+			},
+			"rule": {
+				"badge": "Rule",
+				"moveTo": "Move to {{column}}",
+				"when": {
+					"branch_push": "Move to {{column}} when a branch is pushed",
+					"pr_opened": "Move to {{column}} when a pull request opens",
+					"pr_merged": "Move to {{column}} when a pull request merges",
+					"issue_opened": "Move to {{column}} when an issue opens",
+					"issue_closed": "Move to {{column}} when an issue closes"
+				}
+			},
+			"runs": {
+				"title": "Runs",
+				"empty": "No runs yet",
+				"loadError": "Couldn't load runs.",
+				"manual": "Manual run",
+				"scheduled": "Scheduled run",
+				"event": "Event",
+				"andMore_one": "{{label}} and {{count}} more",
+				"andMore_other": "{{label}} and {{count}} more",
+				"moreEvents_one": "{{count}} more event",
+				"moreEvents_other": "{{count}} more events",
+				"scheduledFor": "Scheduled for {{time}}",
+				"startedManually": "Started with Run now",
+				"openTask": "Open task",
+				"tokens": "{{value}} tokens",
+				"newer": "Newer",
+				"older": "Older"
+			},
+			"delete": {
+				"action": "Delete",
+				"title": "Delete {{name}}?",
+				"confirm": "Delete automation",
+				"toast": "Automation deleted"
+			},
+			"takeOver": {
+				"action": "Take over",
+				"title": "Take over {{name}}?",
+				"confirm": "Take over",
+				"toast": "You own this automation now. Turn it on when you're ready."
+			}
 		}
 	}
 }

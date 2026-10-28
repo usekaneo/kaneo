@@ -7,6 +7,7 @@ import { AgentModelPicker } from "./agent-model-picker";
 import { AgentExamples } from "./agent-examples";
 import { AgentRecentRuns } from "./agent-recent-runs";
 import { AgentUnavailable } from "./agent-unavailable";
+import { AutomationsHomeSection } from "./automation/automations-home-section";
 import { getAgentErrorKey } from "./get-agent-error-key";
 import { useAgentAttachments } from "./use-agent-attachments";
 import { usePickPrompt } from "./use-pick-prompt";
@@ -66,10 +67,16 @@ export function AgentHome({
           )}
         </section>
         {enabled && <AgentExamples onPick={pick} />}
-        <AgentRecentRuns
-          workspaceId={workspaceId}
-          onOpen={onOpenConversation}
-        />
+        <div className="grid gap-11 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-10">
+          <AgentRecentRuns
+            workspaceId={workspaceId}
+            onOpen={onOpenConversation}
+          />
+          <AutomationsHomeSection
+            workspaceId={workspaceId}
+            canCreate={enabled}
+          />
+        </div>
       </div>
     </div>
   );

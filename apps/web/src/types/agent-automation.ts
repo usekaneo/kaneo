@@ -22,3 +22,20 @@ export type AutomationRuns = InferResponseType<
 >;
 export type AutomationTrigger = AutomationInput["trigger"];
 export type AutomationOutput = AutomationInput["output"];
+export type AutomationScheduleTrigger = Extract<
+  Automation["trigger"],
+  { type: "schedule" }
+>;
+export type AutomationEventTrigger = Extract<
+  Automation["trigger"],
+  { type: "event" }
+>;
+export type AutomationEventName = AutomationEventTrigger["event"];
+export type AutomationRuleListItem = Extract<
+  AutomationListItem,
+  { kind: "rule" }
+>;
+export type AutomationRun = AutomationRuns[number];
+export type AutomationRunTrigger = NonNullable<AutomationRun["trigger"]>;
+export type AutomationPauseReason = NonNullable<Automation["pausedReason"]>;
+export type AutomationSkipReason = NonNullable<Automation["lastSkipReason"]>;

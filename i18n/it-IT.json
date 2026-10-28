@@ -5417,6 +5417,196 @@
 			"startedBy": "Started by {{name}}",
 			"stop": "Stop sharing",
 			"stoppedToast": "Conversation is private again"
+		},
+		"automations": {
+			"backToList": "All automations",
+			"columns": {
+				"lastRun": "Last run",
+				"name": "Name",
+				"nextRun": "Next run",
+				"output": "Output",
+				"owner": "Owner",
+				"scope": "Scope"
+			},
+			"createdToast": "Automation created",
+			"delete": {
+				"action": "Delete",
+				"confirm": "Delete automation",
+				"title": "Delete {{name}}?",
+				"toast": "Automation deleted"
+			},
+			"edit": "Edit",
+			"editTitle": "Edit automation",
+			"empty": "No automations yet",
+			"enabledLabel": "Run {{name}}",
+			"errors": {
+				"budget": "This workspace's monthly automation budget is used up.",
+				"dailyLimit": "This automation reached its daily run limit.",
+				"disabled": "Turn the automation on before running it.",
+				"invalid": "Check the automation's settings and try again.",
+				"limit": "You've reached the automation limit for this workspace.",
+				"model": "That model isn't available anymore. Pick another one.",
+				"overlap": "A run is already in progress.",
+				"ownerChanged": "This automation has a new owner. Reload to see it.",
+				"unavailable": "This automation can't run right now."
+			},
+			"events": {
+				"comment_added": "Comment added",
+				"due_date_passed": "Due date passed",
+				"pr_merged": "Pull request merged",
+				"pr_opened": "Pull request opened",
+				"task_created": "Task created",
+				"task_moved": "Task moved to a column"
+			},
+			"failedOn": "Failed · {{date}}",
+			"filters": {
+				"add": "Filter",
+				"clear": "Clear {{name}} filter",
+				"column": "Column",
+				"columnIs": "Column is {{name}}",
+				"label": "Label",
+				"labelIs": "Label is {{name}}",
+				"none": "Nothing to choose",
+				"onlyIf": "Only if",
+				"owner": "Owner",
+				"project": "Project",
+				"projectIs": "Project is {{name}}",
+				"remove": "Remove {{name}}"
+			},
+			"form": {
+				"create": "Create automation",
+				"dailyLimit": "Runs per day",
+				"errors": {
+					"dailyRunLimit": "Use a whole number from 1 to 100.",
+					"intervalHours": "Pick 1 to 24 hours.",
+					"nameRequired": "Give the automation a name.",
+					"nameTooLong": "Use 200 characters or fewer.",
+					"promptRequired": "Write what the agent should do.",
+					"promptTooLong": "Prompts can be up to 16,000 characters.",
+					"time": "Pick a time.",
+					"tooManyMentions": "Mention at most 10 tasks or projects.",
+					"weekdays": "Pick at least one day."
+				},
+				"event": "Event",
+				"eventTab": "Event",
+				"frequencies": {
+					"daily": "Daily",
+					"interval": "Every few hours",
+					"weekly": "Weekly"
+				},
+				"frequency": "Frequency",
+				"interval": "Interval",
+				"mention": "Mention a task or project",
+				"name": "Name",
+				"namePlaceholder": "Untitled automation",
+				"noTimezones": "No matching time zones",
+				"output": "Output",
+				"prompt": "Prompt",
+				"promptPlaceholder": "Describe what the agent should do each time. Type @ to mention tasks or projects…",
+				"runsAs": "Runs as",
+				"save": "Save changes",
+				"schedule": "Schedule",
+				"scope": "Scope",
+				"time": "Time",
+				"timezone": "Time zone",
+				"trigger": "Trigger"
+			},
+			"kinds": {
+				"agent": "Agent",
+				"all": "All",
+				"label": "Automation type",
+				"rules": "Rules"
+			},
+			"loadError": "Couldn't load automations.",
+			"monthCost": "{{cost}} this month",
+			"moreActions": "More actions",
+			"new": "New automation",
+			"newShort": "New",
+			"newTitle": "New automation",
+			"noMatches": "No automations match these filters",
+			"notFound": "This automation couldn't be loaded.",
+			"onEvent": "On event",
+			"output": {
+				"digest": "Inbox digest",
+				"digestLong": "Inbox digest",
+				"proposals": "Proposals",
+				"proposalsLong": "Proposals for review"
+			},
+			"ownedBy": "Owned by {{name}}",
+			"pagination": {
+				"label": "Automation pages",
+				"next": "Next page",
+				"previous": "Previous page",
+				"range": "{{from}}–{{to}} of {{total}}"
+			},
+			"rule": {
+				"badge": "Rule",
+				"moveTo": "Move to {{column}}",
+				"when": {
+					"branch_push": "Move to {{column}} when a branch is pushed",
+					"issue_closed": "Move to {{column}} when an issue closes",
+					"issue_opened": "Move to {{column}} when an issue opens",
+					"pr_merged": "Move to {{column}} when a pull request merges",
+					"pr_opened": "Move to {{column}} when a pull request opens"
+				}
+			},
+			"runNow": "Run now",
+			"runNowToast": "Run started",
+			"runs": {
+				"andMore_many": "{{label}} and {{count}} more",
+				"andMore_one": "{{label}} and {{count}} more",
+				"andMore_other": "{{label}} and {{count}} more",
+				"empty": "No runs yet",
+				"event": "Event",
+				"loadError": "Couldn't load runs.",
+				"manual": "Manual run",
+				"moreEvents_many": "{{count}} more events",
+				"moreEvents_one": "{{count}} more event",
+				"moreEvents_other": "{{count}} more events",
+				"newer": "Newer",
+				"older": "Older",
+				"openTask": "Open task",
+				"scheduled": "Scheduled run",
+				"scheduledFor": "Scheduled for {{time}}",
+				"startedManually": "Started with Run now",
+				"title": "Runs",
+				"tokens": "{{value}} tokens"
+			},
+			"runsAsName": "Runs as {{name}}",
+			"savedToast": "Automation saved",
+			"scope": {
+				"wholeWorkspace": "Whole workspace",
+				"workspace": "Workspace"
+			},
+			"status": {
+				"budget": "Budget reached",
+				"dailyLimit": "Daily limit reached",
+				"off": "Off",
+				"overlap": "Skipped · previous run still working",
+				"pausedAccess": "Paused · owner lost access",
+				"pausedFailures": "Paused after repeated failures",
+				"unavailable": "Model unavailable"
+			},
+			"takeOver": {
+				"action": "Take over",
+				"confirm": "Take over",
+				"title": "Take over {{name}}?",
+				"toast": "You own this automation now. Turn it on when you're ready."
+			},
+			"title": "Automations",
+			"toReview_many": "{{count}} to review",
+			"toReview_one": "{{count}} to review",
+			"toReview_other": "{{count}} to review",
+			"trigger": {
+				"dailyAt": "Daily at {{time}}",
+				"everyHours_many": "Every {{count}} hours",
+				"everyHours_one": "Every hour",
+				"everyHours_other": "Every {{count}} hours",
+				"weeklyAt": "{{days}} at {{time}}"
+			},
+			"viewAll": "View all",
+			"you": "You",
+			"openRun": "Open run"
 		}
 	}
 }

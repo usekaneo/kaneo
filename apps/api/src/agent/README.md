@@ -152,13 +152,22 @@ Use existing `/conversations/{conversationId}/share` and `/unshare`, `/runs/{run
 
 ### Automation UI handoff
 
-This change supplies the web data layer; visual screens, composer integration, notification click handling, and translated UI strings are separate work. Fetchers live in `apps/web/src/fetchers/agent-automation/`; one file each exports `getAutomations`, `getAutomation`, `createAutomation`, `updateAutomation`, `deleteAutomation`, `setAutomationEnabled`, `takeOverAutomation`, `runAutomation`, and `getAutomationRuns` through `@kaneo/libs`.
+Fetchers live in `apps/web/src/fetchers/agent-automation/`; one file each exports `getAutomations`, `getAutomation`, `createAutomation`, `updateAutomation`, `deleteAutomation`, `setAutomationEnabled`, `takeOverAutomation`, `runAutomation`, and `getAutomationRuns` through `@kaneo/libs`.
 
 Query hooks are `useAutomations(workspaceId, query?, enabled?)`, `useAutomation(workspaceId, automationId, enabled?)`, and `useAutomationRuns(workspaceId, automationId, paging?, enabled?)`. They poll every 30 seconds; owner run WebSocket updates also invalidate automation queries. Keys come from `automationQueryKeys`. Query paging uses string `limit`/`offset` parameters. List items discriminate `kind: agent | rule`; rule items include project/integration/event/column details.
 
 Mutation hooks are `useCreateAutomation(workspaceId)`, `useUpdateAutomation(workspaceId)`, `useDeleteAutomation(workspaceId)`, `useTakeOverAutomation(workspaceId)`, `useRunAutomation(workspaceId)`, and `useSetAutomationEnabled(workspaceId, automationId)`. Create takes `AutomationInput`; update takes `{automationId, input}`; delete/takeover/run take an automation ID; toggle takes a boolean and optimistically updates detail plus every filtered list with rollback. Disable the toggle while its mutation is pending. All mutation hooks expose standard TanStack loading/error states and invalidate affected data.
 
-Types in `apps/web/src/types/agent-automation.ts` are inferred from the typed API client: `AutomationInput`, `AutomationTrigger`, `AutomationOutput`, `AutomationListQuery`, `AutomationList`, `AutomationListItem`, `AgentAutomationListItem`, `Automation`, and `AutomationRuns`. Use `viewer.isOwner` and `viewer.canTakeOver`; a redacted admin response has `prompt` and `conversationId` null. Sharing uses the existing conversation-sharing mutation, which invalidates automation data too. Inbox notifications use types `agent_automation_digest`/`agent_automation_failed`, resource type `agent_run`, and `eventData.{workspaceId, projectId, automationId, conversationId, runId, url}`. Resolve clicks to the existing conversation route and select the referenced run when the UI supports it.
+Types in `apps/web/src/types/agent-automation.ts` are inferred from the typed API client: `AutomationInput`, `AutomationTrigger`, `AutomationOutput`, `AutomationListQuery`, `AutomationList`, `AutomationListItem`, `AgentAutomationListItem`, `Automation`, and `AutomationRuns`. Use `viewer.isOwner` and `viewer.canTakeOver`; a redacted admin response has `prompt` and `conversationId` null. Sharing uses the existing conversation-sharing mutation, which invalidates automation data too. Inbox notifications use types `agent_automation_digest`/`agent_automation_failed`, resource type `agent_run`, and `eventData.{workspaceId, projectId, automationId, conversationId, runId, url}`. The inbox detail links these to the automation's run page.
+
+### Automation screens
+
+`apps/web/src/components/agent/automation/` implements the pages under the Agent route; there is no separate sidebar item:
+
+- The Agent home lists a few automations with **New** and **View all**.
+- `/agent/automations` lists agent automations and read-only project workflow rules (All, Agent, Rules), filterable by project and owner. Rule rows open the project's workflow settings.
+- `/agent/automations/new` and `/agent/automations/{id}/edit` hold the form: Schedule or Event trigger, event filters (label, column, and project unless the scope is one project), the mention-aware prompt editor, model, scope, output, and daily run limit. Only the owner reaches the edit page.
+- `/agent/automations/{id}?runId=` shows settings, paused or skipped status, run history, and the selected run with the normal proposal review. Owners can toggle, run now, edit, share, and delete. Shared viewers are read-only. Admins with `agent:manage_automations` can take over an automation paused because its owner lost access.
 
 ## Verification
 
