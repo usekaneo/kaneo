@@ -160,7 +160,8 @@
 			"commandFailed": "El comando del complemento ha fallado",
 			"failedToLoad": "No se ha podido cargar este complemento",
 			"openTaskFailed": "No se ha podido abrir la tarea",
-			"unavailable": "Esta vista del complemento no está disponible"
+			"unavailable": "Esta vista del complemento no está disponible",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

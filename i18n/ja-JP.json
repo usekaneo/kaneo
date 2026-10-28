@@ -160,7 +160,8 @@
 			"commandFailed": "プラグインのコマンドが失敗しました",
 			"failedToLoad": "このプラグインを読み込めませんでした",
 			"openTaskFailed": "タスクを開けませんでした",
-			"unavailable": "このプラグインのビューは利用できません"
+			"unavailable": "このプラグインのビューは利用できません",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

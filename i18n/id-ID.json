@@ -160,7 +160,8 @@
 			"commandFailed": "Perintah plugin gagal",
 			"failedToLoad": "Plugin ini gagal dimuat",
 			"openTaskFailed": "Tidak dapat membuka tugas",
-			"unavailable": "Tampilan plugin ini tidak tersedia"
+			"unavailable": "Tampilan plugin ini tidak tersedia",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

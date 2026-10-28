@@ -160,7 +160,8 @@
 			"commandFailed": "Polecenie wtyczki nie powiodło się",
 			"failedToLoad": "Nie udało się załadować tej wtyczki",
 			"openTaskFailed": "Nie udało się otworzyć zadania",
-			"unavailable": "Ten widok wtyczki jest niedostępny"
+			"unavailable": "Ten widok wtyczki jest niedostępny",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

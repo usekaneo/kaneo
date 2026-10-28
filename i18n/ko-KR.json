@@ -160,7 +160,8 @@
 			"commandFailed": "플러그인 명령이 실패했습니다",
 			"failedToLoad": "이 플러그인을 불러오지 못했습니다",
 			"openTaskFailed": "작업을 열 수 없습니다",
-			"unavailable": "이 플러그인 보기를 사용할 수 없습니다"
+			"unavailable": "이 플러그인 보기를 사용할 수 없습니다",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

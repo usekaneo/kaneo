@@ -160,7 +160,8 @@
 			"commandFailed": "Не вдалося виконати команду плагіна",
 			"failedToLoad": "Не вдалося завантажити цей плагін",
 			"openTaskFailed": "Не вдалося відкрити завдання",
-			"unavailable": "Це подання плагіна недоступне"
+			"unavailable": "Це подання плагіна недоступне",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

@@ -160,7 +160,8 @@
 			"commandFailed": "La commande de l'extension a échoué",
 			"failedToLoad": "Cette extension n'a pas pu être chargée",
 			"openTaskFailed": "Impossible d'ouvrir la tâche",
-			"unavailable": "Cette vue de l'extension n'est pas disponible"
+			"unavailable": "Cette vue de l'extension n'est pas disponible",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

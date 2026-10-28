@@ -160,7 +160,8 @@
 			"commandFailed": "Lệnh của plugin không thành công",
 			"failedToLoad": "Không thể tải plugin này",
 			"openTaskFailed": "Không thể mở công việc",
-			"unavailable": "Chế độ xem của plugin này không khả dụng"
+			"unavailable": "Chế độ xem của plugin này không khả dụng",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

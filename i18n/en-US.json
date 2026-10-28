@@ -160,7 +160,8 @@
 			"failedToLoad": "This plugin failed to load",
 			"unavailable": "This plugin view is not available",
 			"commandFailed": "The plugin command failed",
-			"openTaskFailed": "Could not open the task"
+			"openTaskFailed": "Could not open the task",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

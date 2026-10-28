@@ -160,7 +160,8 @@
 			"commandFailed": "Il comando del plugin non è riuscito",
 			"failedToLoad": "Impossibile caricare questo plugin",
 			"openTaskFailed": "Impossibile aprire l'attività",
-			"unavailable": "Questa vista del plugin non è disponibile"
+			"unavailable": "Questa vista del plugin non è disponibile",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

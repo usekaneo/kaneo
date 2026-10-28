@@ -160,7 +160,8 @@
 			"commandFailed": "Plagin əmri uğursuz oldu",
 			"failedToLoad": "Bu plagin yüklənə bilmədi",
 			"openTaskFailed": "Tapşırığı açmaq alınmadı",
-			"unavailable": "Bu plagin görünüşü əlçatan deyil"
+			"unavailable": "Bu plagin görünüşü əlçatan deyil",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

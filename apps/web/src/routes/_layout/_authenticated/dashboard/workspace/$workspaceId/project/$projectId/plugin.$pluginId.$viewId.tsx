@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback } from "react";
 import ProjectLayout from "@/components/common/project-layout";
@@ -46,6 +47,7 @@ function RouteComponent() {
     workspaceId,
   });
   const label = usePluginLabel();
+  const { t } = useTranslation();
   const lookup = findContribution(
     pluginsForWorkspace(plugins, workspaceId, projectInfo?.workspaceId),
     "projectViews",
@@ -106,7 +108,16 @@ function RouteComponent() {
     >
       {lookup.status === "ready" ? (
         <>
-          <PageTitle title={label(pluginId, lookup.contribution.item.title)} />
+          <PageTitle
+            title={
+              projectInfo
+                ? t("common:plugins.layoutPageTitle", {
+                    name: projectInfo.name,
+                    view: label(pluginId, lookup.contribution.item.title),
+                  })
+                : undefined
+            }
+          />
           <div className="h-full min-h-0 overflow-auto">
             <PluginBoundary
               scope={lookup.contribution.scope}

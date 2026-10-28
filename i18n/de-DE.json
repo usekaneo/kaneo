@@ -160,7 +160,8 @@
 			"commandFailed": "Der Plug-in-Befehl ist fehlgeschlagen",
 			"failedToLoad": "Dieses Plug-in konnte nicht geladen werden",
 			"openTaskFailed": "Die Aufgabe konnte nicht geöffnet werden",
-			"unavailable": "Diese Plug-in-Ansicht ist nicht verfügbar"
+			"unavailable": "Diese Plug-in-Ansicht ist nicht verfügbar",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

@@ -160,7 +160,8 @@
 			"commandFailed": "外掛程式指令執行失敗",
 			"failedToLoad": "此外掛程式載入失敗",
 			"openTaskFailed": "無法開啟任務",
-			"unavailable": "此外掛程式檢視無法使用"
+			"unavailable": "此外掛程式檢視無法使用",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

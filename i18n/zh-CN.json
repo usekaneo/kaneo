@@ -160,7 +160,8 @@
 			"commandFailed": "插件命令执行失败",
 			"failedToLoad": "此插件加载失败",
 			"openTaskFailed": "无法打开任务",
-			"unavailable": "此插件视图不可用"
+			"unavailable": "此插件视图不可用",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

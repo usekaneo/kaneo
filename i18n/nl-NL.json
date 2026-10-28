@@ -160,7 +160,8 @@
 			"commandFailed": "Het commando van de plug-in is mislukt",
 			"failedToLoad": "Deze plug-in kon niet worden geladen",
 			"openTaskFailed": "Kan de taak niet openen",
-			"unavailable": "Deze weergave van de plug-in is niet beschikbaar"
+			"unavailable": "Deze weergave van de plug-in is niet beschikbaar",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

@@ -160,7 +160,8 @@
 			"commandFailed": "प्लगइन कमांड विफल रहा",
 			"failedToLoad": "यह प्लगइन लोड नहीं हो सका",
 			"openTaskFailed": "कार्य नहीं खोला जा सका",
-			"unavailable": "यह प्लगइन व्यू उपलब्ध नहीं है"
+			"unavailable": "यह प्लगइन व्यू उपलब्ध नहीं है",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

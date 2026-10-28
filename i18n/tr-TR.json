@@ -160,7 +160,8 @@
 			"commandFailed": "Eklenti komutu başarısız oldu",
 			"failedToLoad": "Bu eklenti yüklenemedi",
 			"openTaskFailed": "Talep açılamadı",
-			"unavailable": "Bu eklenti görünümü kullanılamıyor"
+			"unavailable": "Bu eklenti görünümü kullanılamıyor",
+			"layoutPageTitle": "{{name}} / {{view}}"
 		},
 		"editor": {
 			"link": {

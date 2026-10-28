@@ -629,13 +629,17 @@
 						},
 						"openTaskFailed": {
 							"type": "string"
+						},
+						"layoutPageTitle": {
+							"type": "string"
 						}
 					},
 					"required": [
 						"failedToLoad",
 						"unavailable",
 						"commandFailed",
-						"openTaskFailed"
+						"openTaskFailed",
+						"layoutPageTitle"
 					]
 				},
 				"editor": {
