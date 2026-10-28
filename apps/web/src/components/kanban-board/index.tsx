@@ -18,7 +18,17 @@ import {
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
+import type { SortField } from "@/lib/sort-tasks";
 import { toast } from "@/lib/toast";
+import {
+  type BoardColumn,
+  type BoardTask,
+  boardTaskProject,
+  findBoardTask,
+} from "@/lib/board-task";
+import { useBulkSelectionEnabled } from "@/hooks/use-bulk-selection-enabled";
+import { WORKSPACE_BOARD_KEY } from "@/lib/workspace-board/update-active-workspace-boards";
+import { useSortFieldLabels } from "@/components/project/display/use-sort-field-labels";
 import { useTranslation } from "react-i18next";
 import { rollbackBoardReorder } from "./apply-reorder";
 import { boardCollisionDetection } from "./board-collision-detection";
@@ -45,18 +55,27 @@ type KanbanBoardProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
   disableCollectionActions?: boolean;
-  sortedByNumber?: boolean;
-  sortedByPriority?: boolean;
+  disableTaskCreation?: boolean;
+  disableBulkActions?: boolean;
+  /** Columns keep the server order; a drop only changes the column. */
+  automaticSort?: SortField;
+  /**
+   * Cross-project boards cannot reorder, so a drop or keyboard move only
+   * changes the task's status. When set, moves never reach the reorder request.
+   */
+  onTaskStatusChange?: (task: BoardTask, column: BoardColumn) => void;
 };
 
 function KanbanBoard({
   project,
   disableDragDrop = false,
   disableCollectionActions = false,
-  sortedByNumber = false,
-  sortedByPriority = false,
+  disableTaskCreation = false,
+  disableBulkActions = false,
+  automaticSort,
+  onTaskStatusChange,
 }: KanbanBoardProps) {
-  const isAutomaticallySorted = sortedByNumber || sortedByPriority;
+  const isAutomaticallySorted = automaticSort !== undefined;
   const queryClient = useQueryClient();
   const isFetching =
     useIsFetching({ queryKey: ["tasks", project.id], exact: true }) > 0;
@@ -71,6 +90,7 @@ function KanbanBoard({
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [sortHintColumnId, setSortHintColumnId] = useState<string | null>(null);
   const { t } = useTranslation();
+  const sortFieldLabels = useSortFieldLabels();
   const { mutate: reorder, isPending: isReordering } = useMutation({
     mutationFn: ({
       previousBoard: _previousBoard,
@@ -82,6 +102,7 @@ function KanbanBoard({
       if (variables.tasks.some((task) => task.status !== undefined)) {
         invalidateMyWork(queryClient);
         void queryClient.invalidateQueries({ queryKey: ["projects"] });
+        void queryClient.invalidateQueries({ queryKey: WORKSPACE_BOARD_KEY });
       }
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
@@ -136,6 +157,8 @@ function KanbanBoard({
   useEffect(() => {
     clearFocus();
   }, [clearFocus]);
+
+  useBulkSelectionEnabled(!disableBulkActions);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -196,6 +219,16 @@ function KanbanBoard({
     insertAfterTarget?: boolean,
   ) => {
     if (!project?.columns || disableDragDrop) {
+      onSettled();
+      return;
+    }
+    if (onTaskStatusChange) {
+      const task = findBoardTask(project, String(activeId));
+      const target = findTaskColumn(project, overId);
+      if (task && target && target.slug !== task.status)
+        onTaskStatusChange(task, target);
+      // The status change keeps its own optimistic state and rollback, so the
+      // queue does not need to hold the move until the server answers.
       onSettled();
       return;
     }
@@ -271,6 +304,7 @@ function KanbanBoard({
         taskIds: column.tasks.map((task) => task.id),
       })),
     project,
+    resolveTaskProject: (taskId) => boardTaskProject(project, taskId),
     enabled: activeId === null,
     canMove: !disableDragDrop,
     onMove: (activeId, overId) => queueMove({ activeId, overId }),
@@ -366,13 +400,9 @@ function KanbanBoard({
                       : null
                   }
                   sortHint={
-                    column.id === sortHintColumnId
+                    column.id === sortHintColumnId && automaticSort
                       ? t("tasks:kanban.automaticallySortedHint", {
-                          sort: t(
-                            sortedByNumber
-                              ? "tasks:sort.fields.number"
-                              : "tasks:sort.fields.priority",
-                          ),
+                          sort: sortFieldLabels[automaticSort],
                         })
                       : undefined
                   }
@@ -380,6 +410,7 @@ function KanbanBoard({
                   disableSorting={isAutomaticallySorted}
                   disableCollectionActions={disableCollectionActions}
                   animateEntries={!isLoadingPages}
+                  disableTaskCreation={disableTaskCreation}
                 />
               </div>
             ))}
@@ -401,7 +432,7 @@ function KanbanBoard({
         ) : null}
       </DragOverlay>
 
-      <BulkToolbar />
+      {!disableBulkActions && <BulkToolbar />}
     </DndContext>
   );
 }

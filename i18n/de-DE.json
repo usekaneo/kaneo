@@ -2870,7 +2870,8 @@
 			"home": "Startseite",
 			"inbox": "Posteingang",
 			"invitePeople": "Personen einladen",
-			"myTasks": "Meine Aufgaben"
+			"myTasks": "Meine Aufgaben",
+			"tasks": "Aufgaben"
 		},
 		"projectList": {
 			"viewProject": "Projekt ansehen",
@@ -2948,6 +2949,7 @@
 				"goToHome": "Zur Startseite",
 				"goToInbox": "Zum Posteingang",
 				"goToMyTasks": "Zu meinen Aufgaben",
+				"goToWorkspaceTasks": "Zu den Workspace-Aufgaben",
 				"goToProjects": "Zu den Projekten",
 				"goToSettings": "Zu den Einstellungen",
 				"goToTasks": "Zu den Aufgaben",
@@ -3573,8 +3575,13 @@
 				"priority": "Priorität",
 				"assignee": "Zugewiesen",
 				"dueDate": "Fälligkeitsdatum",
-				"labels": "Labels"
+				"labels": "Labels",
+				"project": "Projekt"
 			},
+			"unassigned": "Nicht zugewiesen",
+			"quickFilterLabel": "Nach Zuständigkeit filtern",
+			"moreMembers_one": "{{count}} weitere Person",
+			"moreMembers_other": "{{count}} weitere Personen",
 			"operators": {
 				"isAnyOf": "ist einer von",
 				"includeAnyOf": "enthält einen von",
@@ -4000,6 +4007,18 @@
 			},
 			"pageTitle": "Meine Aufgaben",
 			"truncated": "Die ersten {{shown}} von {{total}} Aufgaben werden angezeigt."
+		},
+		"tasks": {
+			"pageTitle": "Aufgaben",
+			"showCompleted": "Erledigte Aufgaben anzeigen",
+			"empty": "Keine offenen Aufgaben",
+			"emptyDescription": "Hier erscheinen die Aufgaben aller Projekte, die du in diesem Workspace sehen kannst.",
+			"emptyFiltered": "Keine Aufgaben passen zu den aktuellen Filtern.",
+			"loadError": "Die Aufgaben konnten nicht geladen werden.",
+			"retry": "Erneut versuchen",
+			"moveNotAvailable": "{{project}} hat keine Spalte \"{{column}}\". Öffne die Aufgabe, um den Status zu ändern.",
+			"moveFailed": "Die Aufgabe konnte nicht verschoben werden.",
+			"truncated": "{{shown}} von {{total}} Aufgaben werden angezeigt. Grenze die Filter ein, um den Rest zu sehen."
 		},
 		"myWork": {
 			"due": {

@@ -1,6 +1,9 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vite-plus/test";
+import { renderHook } from "@testing-library/react";
 import { LayoutSwitch } from "./layout-switch";
+import { PROJECT_VIEWS } from "./project-views";
+import { useGoToProjectView } from "./use-go-to-project-view";
 
 const m = vi.hoisted(() => ({
   navigate: vi.fn(),
@@ -23,15 +26,29 @@ afterEach(() => {
 });
 
 function renderSwitch() {
+  const { result } = renderHook(() =>
+    useGoToProjectView({
+      workspaceId: "w",
+      projectId: "p",
+      currentRoute: "board",
+    }),
+  );
+  render(<LayoutSwitch currentView="board" onSelect={result.current} />);
+}
+
+it("offers only the layouts it is given", () => {
+  const onSelect = vi.fn();
   render(
     <LayoutSwitch
-      workspaceId="w"
-      projectId="p"
-      currentRoute="board"
-      currentView="board"
+      layouts={PROJECT_VIEWS.filter((view) => view.id !== "gantt")}
+      currentView="list"
+      onSelect={onSelect}
     />,
   );
-}
+  expect(screen.queryByRole("button", { name: "tasks:view.gantt" })).toBeNull();
+  fireEvent.click(screen.getByRole("button", { name: "tasks:view.board" }));
+  expect(onSelect).toHaveBeenCalledWith("board");
+});
 
 it("marks the current layout as pressed", () => {
   renderSwitch();

@@ -14,11 +14,13 @@ import { ArchiveTasksModal } from "../../shared/modals/archive-tasks-modal";
 type ColumnHeaderProps = {
   column: ProjectWithTasks["columns"][number];
   disableCollectionActions?: boolean;
+  disableTaskCreation?: boolean;
 };
 
 export function ColumnHeader({
   column,
   disableCollectionActions = false,
+  disableTaskCreation = false,
 }: ColumnHeaderProps) {
   const { t } = useTranslation();
   const { project, setProject } = useProjectStore();
@@ -83,7 +85,7 @@ export function ColumnHeader({
             <Archive className="size-3.5" />
           </button>
         )}
-        {canCreate && (
+        {canCreate && !disableTaskCreation && (
           <button
             type="button"
             onClick={() => setIsTaskModalOpen(true)}

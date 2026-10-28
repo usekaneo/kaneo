@@ -1,5 +1,6 @@
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
+import { boundBoardDescription } from "./bound-board-description";
 
 /** Preserve board-only metadata while applying a bounded task refresh. */
 export function patchBoardTask(
@@ -7,16 +8,7 @@ export function patchBoardTask(
   taskId: string,
   update?: Partial<Task>,
 ) {
-  let patch = update;
-  if (patch && "description" in patch) {
-    const deferred =
-      new TextEncoder().encode(patch.description ?? "").byteLength > 64 * 1024;
-    patch = {
-      ...patch,
-      description: deferred ? null : patch.description,
-      descriptionDeferred: patch.descriptionDeferred ?? deferred,
-    };
-  }
+  const patch = boundBoardDescription(update);
   const existing = [
     ...board.columns.flatMap((column) => column.tasks),
     ...board.plannedTasks,

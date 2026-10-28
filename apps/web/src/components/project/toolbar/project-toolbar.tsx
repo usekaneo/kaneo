@@ -9,16 +9,34 @@ import { useFilterShortcuts } from "@/components/project/task-filters/use-filter
 import { ProjectSearch } from "./project-search";
 import type { ProjectTaskView } from "./use-project-task-view";
 
+/** What the toolbar needs from a task view; workspace views provide the same. */
+export type ToolbarView = Pick<
+  ProjectTaskView,
+  "search" | "setSearch" | "subjects"
+> & {
+  filters: Pick<
+    ProjectTaskView["filters"],
+    | "clearFilters"
+    | "activeFilterCount"
+    | "includeSubtasks"
+    | "setIncludeSubtasks"
+    | "hasIncludeSubtasksOverride"
+  >;
+};
+
 type ProjectToolbarProps = {
-  view: ProjectTaskView;
+  view: ToolbarView;
   display: ReactNode;
   actions?: ReactNode;
+  /** The workspace view has no project default to fall back to. */
+  hideSubtaskToggle?: boolean;
 };
 
 export function ProjectToolbar({
   view,
   display,
   actions,
+  hideSubtaskToggle = false,
 }: ProjectToolbarProps) {
   const { t } = useTranslation();
   const includeSubtasksId = useId();
@@ -38,27 +56,29 @@ export function ProjectToolbar({
         activeCount={view.filters.activeFilterCount}
       />
       <DisplayMenu>
-        <DisplaySection>
-          <div className="flex items-center justify-between gap-3">
-            <label htmlFor={includeSubtasksId} className="text-sm">
-              {t("tasks:display.includeSubtasks")}
-            </label>
-            <Switch
-              id={includeSubtasksId}
-              checked={view.filters.includeSubtasks}
-              onCheckedChange={view.filters.setIncludeSubtasks}
-            />
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="xs"
-            disabled={!view.filters.hasIncludeSubtasksOverride}
-            onClick={() => view.filters.setIncludeSubtasks(null)}
-          >
-            {t("tasks:display.useProjectDefault")}
-          </Button>
-        </DisplaySection>
+        {!hideSubtaskToggle && (
+          <DisplaySection>
+            <div className="flex items-center justify-between gap-3">
+              <label htmlFor={includeSubtasksId} className="text-sm">
+                {t("tasks:display.includeSubtasks")}
+              </label>
+              <Switch
+                id={includeSubtasksId}
+                checked={view.filters.includeSubtasks}
+                onCheckedChange={view.filters.setIncludeSubtasks}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              disabled={!view.filters.hasIncludeSubtasksOverride}
+              onClick={() => view.filters.setIncludeSubtasks(null)}
+            >
+              {t("tasks:display.useProjectDefault")}
+            </Button>
+          </DisplaySection>
+        )}
         {display}
       </DisplayMenu>
     </>

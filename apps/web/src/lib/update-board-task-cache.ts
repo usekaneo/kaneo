@@ -6,6 +6,7 @@ import {
   markBoardCacheChanged,
 } from "./board-cache-version";
 import { patchBoardTask } from "./patch-board-task";
+import { syncWorkspaceBoardTask } from "./workspace-board/sync-workspace-board-task";
 
 export function updateBoardTaskCache(
   queryClient: QueryClient,
@@ -16,6 +17,9 @@ export function updateBoardTaskCache(
 ) {
   if (expectedVersion === undefined)
     markBoardCacheChanged(queryClient, projectId, taskId);
+  syncWorkspaceBoardTask(queryClient, { id: taskId, projectId }, fields, {
+    refresh: false,
+  });
   const version =
     expectedVersion ?? getBoardCacheVersion(queryClient, projectId, taskId);
   const queryKey = ["tasks", projectId];

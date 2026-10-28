@@ -2976,7 +2976,8 @@
 			"home": "Home",
 			"inbox": "Inbox",
 			"invitePeople": "Invite people",
-			"myTasks": "My tasks"
+			"myTasks": "My tasks",
+			"tasks": "Tasks"
 		},
 		"projectList": {
 			"viewProject": "Открыть проект",
@@ -3134,7 +3135,8 @@
 				"editorNumberedList": "Нумерованный список",
 				"editorCodeBlock": "Блок кода",
 				"editorUndo": "Отменить",
-				"editorRedo": "Повторить"
+				"editorRedo": "Повторить",
+				"goToWorkspaceTasks": "Go to workspace tasks"
 			},
 			"title": "Сочетания клавиш",
 			"searchPlaceholder": "Поиск по действию или клавише",
@@ -3704,7 +3706,8 @@
 				"priority": "Приоритет",
 				"assignee": "Исполнитель",
 				"dueDate": "Срок выполнения",
-				"labels": "Метки"
+				"labels": "Метки",
+				"project": "Project"
 			},
 			"operators": {
 				"isAnyOf": "любой из",
@@ -3718,7 +3721,13 @@
 			"selectedCount": "{{count}} выбрано",
 			"allCustomFieldValues": "All values",
 			"noCustomFieldValues": "No custom field values",
-			"noValuesUsedYet": "No values used yet"
+			"noValuesUsedYet": "No values used yet",
+			"moreMembers_few": "{{count}} more people",
+			"moreMembers_many": "{{count}} more people",
+			"moreMembers_one": "{{count}} more person",
+			"moreMembers_other": "{{count}} more people",
+			"quickFilterLabel": "Filter by assignee",
+			"unassigned": "Unassigned"
 		},
 		"gantt": {
 			"searchPlaceholder": "Поиск запланированных задач...",
@@ -4222,6 +4231,18 @@
 			"manage": "Manage workspaces",
 			"otherWorkspaces": "Go to workspaces",
 			"title": "Workspace archived"
+		},
+		"tasks": {
+			"empty": "No open tasks",
+			"emptyDescription": "Tasks from every project you can see in this workspace show up here.",
+			"emptyFiltered": "No tasks match the current filters.",
+			"loadError": "Tasks couldn't be loaded.",
+			"moveFailed": "The task could not be moved.",
+			"moveNotAvailable": "{{project}} has no \"{{column}}\" column. Open the task to change its status.",
+			"pageTitle": "Tasks",
+			"retry": "Retry",
+			"showCompleted": "Show completed tasks",
+			"truncated": "Showing {{shown}} of {{total}} tasks. Narrow the filters to see the rest."
 		}
 	},
 	"team": {

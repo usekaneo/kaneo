@@ -6,6 +6,7 @@ import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
 import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
 import Layout from "@/components/common/layout";
+import { ViewToolbarRow } from "@/components/common/view-toolbar-row";
 import { ProjectScopeToggle } from "@/components/project/views/project-scope-toggle";
 import {
   PROJECT_ROUTE_PATHS,
@@ -144,30 +145,22 @@ export default function ProjectLayout({
       </Layout.Header>
 
       {unavailableReason ? null : (
-        <TooltipProvider>
-          <div
-            className={cn(
-              "flex h-11 shrink-0 items-center gap-2.5 border-border/80 border-b px-2 sm:px-3",
-              { "bg-card/80 backdrop-blur": !!background },
-            )}
-          >
-            {showViewSwitcher && (
+        <ViewToolbarRow
+          className={cn({ "bg-card/80 backdrop-blur": !!background })}
+          leading={
+            showViewSwitcher && (
               <ProjectScopeToggle
                 workspaceId={workspaceId}
                 projectId={projectId}
                 currentView={currentView}
                 onSelect={goToView}
               />
-            )}
-            {summary}
-            <div className="ml-auto flex shrink-0 items-center gap-1">
-              {toolbar}
-            </div>
-          </div>
-          <div className={cn({ "bg-card/80 backdrop-blur": !!background })}>
-            {filterBar}
-          </div>
-        </TooltipProvider>
+            )
+          }
+          summary={summary}
+          toolbar={toolbar}
+          filterBar={filterBar}
+        />
       )}
 
       <Layout.Content>

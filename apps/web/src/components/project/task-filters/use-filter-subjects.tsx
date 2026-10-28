@@ -1,7 +1,15 @@
 import { parseDateCondition } from "@/lib/task-filters/date-condition";
 import { formatDateCondition } from "./format-date-condition";
-import { CalendarDays, CircleDot, Tag, UserRound } from "lucide-react";
+import {
+  CalendarDays,
+  CircleDot,
+  FolderKanban,
+  Tag,
+  UserRound,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { UnassignedAvatar } from "@/components/common/unassigned-avatar";
+import { UNASSIGNED_ASSIGNEE_FILTER } from "@/hooks/use-task-filters";
 import { getColumnIcon } from "@/lib/column";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
@@ -33,6 +41,8 @@ type UseFilterSubjectsInput = {
   columns?: ProjectWithTasks["columns"];
   tasks: Task[];
   showStatus: boolean;
+  /** Cross-project boards offer a project subject; project boards omit it. */
+  projects?: Array<{ id: string; name: string }>;
 };
 
 export function useFilterSubjects({
@@ -41,6 +51,7 @@ export function useFilterSubjects({
   columns = [],
   tasks,
   showStatus,
+  projects,
 }: UseFilterSubjectsInput): FilterSubject[] {
   const { t } = useTranslation();
   const { filters, toggleFilter, updateFilter, setNegated } = controls;
@@ -65,7 +76,7 @@ export function useFilterSubjects({
   });
 
   const listSubject = (
-    key: "status" | "priority" | "assignee" | "dueDate",
+    key: "status" | "priority" | "assignee" | "dueDate" | "project",
     fields: Pick<FilterSubject, "label" | "icon" | "options">,
   ) =>
     subject(key, {
@@ -112,7 +123,10 @@ export function useFilterSubjects({
   );
   const counts = {
     status: countValues(tasks, (task) => [task.status]),
-    assignee: countValues(tasks, (task) => [task.userId]),
+    assignee: countValues(tasks, (task) => [
+      task.userId ?? UNASSIGNED_ASSIGNEE_FILTER,
+    ]),
+    project: countValues(tasks, (task) => [task.projectId]),
     priority: countValues(tasks, (task) => [task.priority]),
     labels: countValues(tasks, (task) =>
       (task.labels ?? []).map((label) =>
@@ -136,20 +150,41 @@ export function useFilterSubjects({
           }),
         ]
       : []),
+    ...(projects
+      ? [
+          listSubject("project", {
+            label: t("tasks:boardFilters.subjects.project"),
+            icon: <FolderKanban />,
+            options: projects.map((project) => ({
+              value: project.id,
+              label: project.name,
+              count: counts.project[project.id],
+            })),
+          }),
+        ]
+      : []),
     listSubject("assignee", {
       label: t("tasks:boardFilters.subjects.assignee"),
       icon: <UserRound />,
-      options: options.members.map((member) => ({
-        value: member.userId,
-        label: member.user?.name || t("common:people.unknown"),
-        count: counts.assignee[member.userId],
-        icon: (
-          <MemberFilterAvatar
-            name={member.user?.name}
-            image={member.user?.image}
-          />
-        ),
-      })),
+      options: [
+        ...options.members.map((member) => ({
+          value: member.userId,
+          label: member.user?.name || t("common:people.unknown"),
+          count: counts.assignee[member.userId],
+          icon: (
+            <MemberFilterAvatar
+              name={member.user?.name}
+              image={member.user?.image}
+            />
+          ),
+        })),
+        {
+          value: UNASSIGNED_ASSIGNEE_FILTER,
+          label: t("tasks:boardFilters.unassigned"),
+          count: counts.assignee[UNASSIGNED_ASSIGNEE_FILTER],
+          icon: <UnassignedAvatar className="size-4" />,
+        },
+      ],
     }),
     listSubject("priority", {
       label: t("tasks:boardFilters.subjects.priority"),

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { invalidateMyWork } from "@/lib/invalidate-my-work";
+import { removeWorkspaceBoardTask } from "@/lib/workspace-board/sync-workspace-board-task";
 import deleteTask from "@/fetchers/task/delete-task";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
@@ -13,6 +14,7 @@ export function useDeleteTask() {
     mutationFn: deleteTask,
     onSuccess: (deletedTask) => {
       invalidateMyWork(queryClient);
+      removeWorkspaceBoardTask(queryClient, deletedTask.id);
       void queryClient.invalidateQueries({ queryKey: ["projects"] });
       queryClient.setQueryData<ProjectWithTasks | undefined>(
         ["tasks", deletedTask.projectId],

@@ -25,6 +25,7 @@ import { ProjectToolbar } from "@/components/project/toolbar/project-toolbar";
 import { TaskCount } from "@/components/project/toolbar/task-count";
 import { useProjectTaskView } from "@/components/project/toolbar/use-project-task-view";
 import { LayoutSwitch } from "@/components/project/views/layout-switch";
+import { useGoToProjectView } from "@/components/project/views/use-go-to-project-view";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
 import { Button } from "@/components/ui/button";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
@@ -49,6 +50,11 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { t } = useTranslation();
   const { projectId, workspaceId } = Route.useParams();
+  const goToView = useGoToProjectView({
+    workspaceId,
+    projectId,
+    currentRoute: "gantt",
+  });
   const { taskId } = Route.useSearch();
   const navigate = useNavigate();
   const { data: project } = useGetTasks(projectId);
@@ -245,12 +251,7 @@ function RouteComponent() {
           display={
             <>
               <DisplaySection>
-                <LayoutSwitch
-                  workspaceId={workspaceId}
-                  projectId={projectId}
-                  currentRoute="gantt"
-                  currentView="gantt"
-                />
+                <LayoutSwitch currentView="gantt" onSelect={goToView} />
               </DisplaySection>
               <DisplaySection>
                 <WeekStartControl />

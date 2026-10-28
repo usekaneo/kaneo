@@ -52,6 +52,7 @@ export const SHORTCUTS = {
   goToHome: { keys: ["g h"], category: "navigation" },
   goToInbox: { keys: ["g i"], category: "navigation" },
   goToMyTasks: { keys: ["g m"], category: "navigation" },
+  goToWorkspaceTasks: { keys: ["g t"], category: "navigation" },
   goToProjects: { keys: ["g p"], category: "navigation" },
   goToSettings: { keys: ["g s"], category: "navigation" },
   goToTasks: { keys: ["g a"], category: "navigation", scope: "view" },

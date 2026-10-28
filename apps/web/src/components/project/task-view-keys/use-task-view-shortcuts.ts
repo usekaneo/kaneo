@@ -26,6 +26,10 @@ type TaskViewShortcutsOptions = {
   getGroups: () => TaskGroup[];
   getMoveGroups?: () => TaskGroup[];
   project: { id: string; workspaceId: string } | null | undefined;
+  /** Cross-project views route each task to its own project. */
+  resolveTaskProject?: (
+    taskId: string,
+  ) => { id: string; workspaceId: string } | null | undefined;
   enabled?: boolean;
   canMove?: boolean;
   onMove?: (taskId: string, overId: string) => void;
@@ -42,6 +46,7 @@ export function useTaskViewShortcuts({
   getGroups,
   getMoveGroups = getGroups,
   project,
+  resolveTaskProject,
   enabled = true,
   canMove = false,
   onMove,
@@ -54,17 +59,19 @@ export function useTaskViewShortcuts({
   const queryClient = useQueryClient();
   const focused = () => selection.getState().focusedTaskId;
 
-  const taskRoute = (taskId: string) =>
-    project
+  const taskRoute = (taskId: string) => {
+    const owner = resolveTaskProject?.(taskId) ?? project;
+    return owner
       ? ({
           to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
           params: {
-            workspaceId: project.workspaceId,
-            projectId: project.id,
+            workspaceId: owner.workspaceId,
+            projectId: owner.id,
             taskId,
           },
         } as const)
       : null;
+  };
 
   const focus = (taskId: string | null, rowId?: string) => {
     if (!taskId) return;
