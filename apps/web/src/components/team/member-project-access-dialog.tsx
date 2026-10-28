@@ -1,3 +1,4 @@
+import { FolderLockIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import useUpdateMemberProjectAccess from "@/hooks/mutations/workspace-user/use-update-member-project-access";
@@ -68,7 +69,9 @@ function MemberProjectAccessDialog({
     }
     try {
       await mutateAsync({ workspaceId, userId: member.userId, ...request });
-      toast.success(t("team:projectAccess.updateSuccess"));
+      toast.success(t("team:projectAccess.updateSuccess"), {
+        icon: FolderLockIcon,
+      });
       onOpenChange(false);
     } catch (error) {
       toast.error(

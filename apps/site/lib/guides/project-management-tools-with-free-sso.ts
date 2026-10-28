@@ -5,7 +5,7 @@ export const projectManagementToolsWithFreeSso: Guide = {
   question: "Which project management tools include SSO for free?",
   title: "Project management tools that include SSO for free",
   description:
-    "Single sign-on is the most commonly paywalled feature in project management. Here is where SSO is free, where it costs, and what the SSO tax actually looks like.",
+    "Single sign-on is the most commonly paywalled feature in project management. Where SSO is free, where it costs, and what the SSO tax looks like.",
   summary:
     "Where single sign-on is included, where it costs extra, and why it keeps moving behind paywalls.",
   answer:

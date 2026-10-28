@@ -25,16 +25,17 @@ export function PluginTaskPanels({
     pluginsForWorkspace(plugins, workspaceId, taskWorkspaceId),
     "taskPanels",
   ).map(({ scope, item }) => (
-    <div key={`${scope.id}:${item.id}`} className="mt-2">
-      <PluginTaskPanelSection title={label(scope.id, item.title)}>
-        <PluginBoundary scope={scope} resetKey={`${item.id}:${taskId}`}>
-          <item.component
-            workspaceId={workspaceId}
-            projectId={projectId}
-            taskId={taskId}
-          />
-        </PluginBoundary>
-      </PluginTaskPanelSection>
-    </div>
+    <PluginTaskPanelSection
+      key={`${scope.id}:${item.id}`}
+      title={label(scope.id, item.title)}
+    >
+      <PluginBoundary scope={scope} resetKey={`${item.id}:${taskId}`}>
+        <item.component
+          workspaceId={workspaceId}
+          projectId={projectId}
+          taskId={taskId}
+        />
+      </PluginBoundary>
+    </PluginTaskPanelSection>
   ));
 }

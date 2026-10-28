@@ -15,7 +15,10 @@ const features = [
 
 export function ManagedInstance() {
   return (
-    <div className="mt-6 rounded-xl border bg-background p-6 lg:p-8">
+    <div
+      id="managed-instance"
+      className="mt-6 scroll-mt-24 rounded-xl border bg-background p-6 lg:p-8"
+    >
       <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-12">
         <div className="min-w-0 max-w-2xl">
           <h2 className="font-medium text-base">Managed instance</h2>

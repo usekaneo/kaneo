@@ -71,7 +71,7 @@ const listRepositoriesRoute = createRoute({
   tags: ["GitHub"],
   summary: "List GitHub repositories",
   description:
-    "List the repositories reachable through the installed GitHub App, for picking one to link.",
+    "List the repositories reachable through the installed GitHub App that the caller administers, for picking one to link. Without `search`, each request reads one page of one installation. With `search`, the server filters by name and description before checking access and keeps scanning later pages and installations within a fixed budget. Follow `nextPage` until it is null to see every repository.",
   middleware: [requireUserSession, ...manageAccess],
   request: { params: projectIdParam, query: repositoryPageQuery },
   responses: {
@@ -123,14 +123,19 @@ const getIntegrationRoute = createRoute({
   summary: "Get GitHub integration",
   description:
     "Get the GitHub integration for a project, or null when none is configured.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
       "GitHub integration details, or null",
       githubIntegrationSchema.nullable(),
     ),
-    403: errorResponse("No access to the project"),
+    403: errorResponse(
+      "No access to the project, or missing project:read permission",
+    ),
     404: errorResponse("Project not found"),
   },
 });
@@ -272,9 +277,11 @@ const githubIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     );
   })
   .openapi(listRepositoriesRoute, async (c) => {
+    const { search, ...page } = c.req.valid("query");
     const repositories = await listUserRepositories(
       c.get("userId"),
-      c.req.valid("query"),
+      page,
+      search || undefined,
     );
     return c.json(repositories, 200);
   })

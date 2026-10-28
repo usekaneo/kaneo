@@ -1,3 +1,4 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
@@ -8,7 +9,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { KbdSequence } from "@/components/ui/kbd";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -16,7 +16,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 
@@ -50,12 +49,7 @@ export default function WorkspaceLayout({
                 <TooltipContent>
                   <p className="flex items-center gap-2 text-[10px]">
                     {t("navigation:settingsLayout.toggleSidebar")}
-                    <KbdSequence
-                      keys={[
-                        shortcuts.sidebar.prefix,
-                        shortcuts.sidebar.toggle,
-                      ]}
-                    />
+                    <ShortcutKeys id="toggleSidebar" />
                   </p>
                 </TooltipContent>
               </Tooltip>

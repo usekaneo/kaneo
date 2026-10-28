@@ -79,6 +79,7 @@ export const REQUIRED_OPERATIONS: ReadonlyArray<RequiredOperation> = [
   { method: "POST", path: "/api/task/import/{projectId}" },
   { method: "PUT", path: "/api/task/move/{taskId}" },
   { method: "PUT", path: "/api/task/priority/{id}" },
+  { method: "PUT", path: "/api/task/recurrence/{id}" },
   { method: "PUT", path: "/api/task/status/{taskId}" },
   { method: "GET", path: "/api/task/tasks/{projectId}" },
   { method: "PUT", path: "/api/task/title/{id}" },

@@ -8,6 +8,10 @@ export function isWeekStartDay(value: number): value is WeekStartDay {
   return WEEK_START_DAYS.some((day) => day === value);
 }
 
+export type TaskLayout = "board" | "list" | "calendar";
+
+export type PriorityIconStyle = "marks" | "classic";
+
 type UserPreferencesStore = {
   theme: "light" | "dark" | "system";
   setTheme: (
@@ -17,6 +21,9 @@ type UserPreferencesStore = {
 
   viewMode: "board" | "list";
   setViewMode: (mode: "board" | "list") => void;
+
+  taskLayout: TaskLayout;
+  setTaskLayout: (layout: TaskLayout) => void;
 
   compactMode: boolean;
   setCompactMode: (compact: boolean) => void;
@@ -44,6 +51,8 @@ type UserPreferencesStore = {
   showTaskItemCounts: boolean;
   setShowTaskItemCounts: (show: boolean) => void;
   toggleTaskItemCounts: () => void;
+  hiddenCardFieldIds: string[];
+  toggleCardFieldHidden: (fieldId: string) => void;
   resetDisplayPreferences: () => void;
 
   sidebarDefaultOpen: boolean;
@@ -51,6 +60,9 @@ type UserPreferencesStore = {
 
   weekStartsOn: WeekStartDay;
   setWeekStartsOn: (weekStartsOn: WeekStartDay) => void;
+
+  priorityIconStyle: PriorityIconStyle;
+  setPriorityIconStyle: (style: PriorityIconStyle) => void;
 };
 
 export const useUserPreferencesStore = create<UserPreferencesStore>()(
@@ -87,6 +99,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       viewMode: "board",
       setViewMode: (mode) => set({ viewMode: mode }),
 
+      taskLayout: "board",
+      setTaskLayout: (layout) => set({ taskLayout: layout }),
+
       compactMode: false,
       setCompactMode: (compact) => set({ compactMode: compact }),
 
@@ -119,8 +134,16 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
       setShowTaskItemCounts: (show) => set({ showTaskItemCounts: show }),
       toggleTaskItemCounts: () =>
         set((state) => ({ showTaskItemCounts: !state.showTaskItemCounts })),
+      hiddenCardFieldIds: [],
+      toggleCardFieldHidden: (fieldId) =>
+        set((state) => ({
+          hiddenCardFieldIds: state.hiddenCardFieldIds.includes(fieldId)
+            ? state.hiddenCardFieldIds.filter((id) => id !== fieldId)
+            : [...state.hiddenCardFieldIds, fieldId],
+        })),
       resetDisplayPreferences: () =>
         set({
+          hiddenCardFieldIds: [],
           showAssignees: true,
           showDueDates: true,
           showLabels: true,
@@ -134,6 +157,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
 
       weekStartsOn: 0,
       setWeekStartsOn: (weekStartsOn) => set({ weekStartsOn }),
+
+      priorityIconStyle: "marks",
+      setPriorityIconStyle: (priorityIconStyle) => set({ priorityIconStyle }),
     }),
     {
       name: "user-preferences",

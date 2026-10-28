@@ -19,9 +19,19 @@
 			"id": 115077240,
 			"login": "MonsPropre",
 			"reason": "Approved by maintainer request."
+		},
+		{
+			"id": 651050,
+			"login": "tiran133",
+			"reason": "Approved by maintainer request."
 		}
 	],
 	"exemptBots": [
+		{
+			"id": 29139614,
+			"login": "renovate[bot]",
+			"reason": "Repository-managed dependency updates."
+		},
 		{
 			"id": 49699333,
 			"login": "dependabot[bot]",

@@ -79,6 +79,10 @@ export function BlogIndex({
           </div>
         </FadeIn>
 
+        {featured || posts.length > 0 ? (
+          <h2 className="sr-only">Posts</h2>
+        ) : null}
+
         {featured ? (
           <div className="mt-10">
             <BlogPostCard featured post={featured} />

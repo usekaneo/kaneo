@@ -18,52 +18,60 @@ import {
 } from "vite-plus/test";
 import { OnboardingFlow } from "./onboarding-flow";
 
-const navigate = vi.fn();
-const createWorkspace = vi.fn();
-const config = vi.fn();
-const authUser = vi.fn();
-const getSession = vi.fn();
-const getBilling = vi.fn();
-const inviteMember = vi.fn();
+const m = vi.hoisted(() => ({
+  navigate: vi.fn(),
+  createWorkspace: vi.fn(),
+  createStarterProject: vi.fn(),
+  config: vi.fn(),
+  authUser: vi.fn(),
+  getSession: vi.fn(),
+  getBilling: vi.fn(),
+  inviteMember: vi.fn(),
+  checkout: vi.fn(),
+  signOut: vi.fn(),
+  useSignOut: vi.fn(),
+  toastError: vi.fn(),
+}));
 
 vi.mock("@tanstack/react-router", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@tanstack/react-router")>()),
-  useNavigate: () => navigate,
+  useNavigate: () => m.navigate,
 }));
-
-// Renders a router Link, which needs a router context this test has no reason
-// to build.
-vi.mock("@/components/common/logo", () => ({
-  Logo: () => null,
-}));
-
 vi.mock("@/hooks/queries/config/use-get-config", () => ({
-  default: () => config(),
+  default: () => m.config(),
 }));
-
+vi.mock("@/hooks/mutations/use-sign-out", () => ({
+  default: (logoutUrl?: string | null) => m.useSignOut(logoutUrl),
+}));
+vi.mock("@/lib/toast", () => ({
+  toast: { error: m.toastError, success: vi.fn() },
+}));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
     organization: { setActive: vi.fn() },
-    getSession: (options: unknown) => getSession(options),
+    getSession: (options: unknown) => m.getSession(options),
+    signOut: () => m.signOut(),
   },
 }));
-
 vi.mock("@/fetchers/billing/get-billing", () => ({
-  getBilling: (workspaceId: string) => getBilling(workspaceId),
+  getBilling: (workspaceId: string) => m.getBilling(workspaceId),
 }));
-
+vi.mock("@/hooks/mutations/billing/use-billing-actions", () => ({
+  useCreateCheckout: () => ({ mutate: m.checkout, isPending: false }),
+}));
 vi.mock("@/hooks/mutations/workspace-user/use-invite-workspace-user", () => ({
-  default: () => ({ mutateAsync: inviteMember }),
+  default: () => ({ mutateAsync: m.inviteMember }),
 }));
-
 vi.mock("@/hooks/queries/workspace/use-create-workspace", () => ({
-  default: () => ({ mutateAsync: createWorkspace, isPending: false }),
+  default: () => ({ mutateAsync: m.createWorkspace, isPending: false }),
 }));
-
+vi.mock("@/lib/onboarding/create-starter-project", () => ({
+  FALLBACK_PROJECT_SLUG: "PRJ",
+  createStarterProject: (input: unknown) => m.createStarterProject(input),
+}));
 vi.mock("@/components/providers/auth-provider/hooks/use-auth", () => ({
-  default: () => ({ user: authUser(), refetchUser: vi.fn() }),
+  default: () => ({ user: m.authUser(), refetchUser: vi.fn() }),
 }));
-
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
   Trans: ({ i18nKey }: { i18nKey: string }) => i18nKey,
@@ -71,31 +79,34 @@ vi.mock("react-i18next", () => ({
 }));
 
 beforeEach(() => {
-  createWorkspace.mockResolvedValue({ id: "workspace-1" });
-  authUser.mockReturnValue({ id: "u1", name: "Sam", role: "user" });
-  // Better Auth resolves with `{ data, error }` and does not reject, which is
-  // the whole reason the hook reads `error` rather than catching.
-  getSession.mockResolvedValue({
+  m.createWorkspace.mockResolvedValue({ id: "workspace-1" });
+  m.createStarterProject.mockResolvedValue("project-1");
+  m.authUser.mockReturnValue({
+    id: "u1",
+    name: "Sam Lee",
+    email: "sam@example.com",
+    role: "user",
+  });
+  m.getSession.mockResolvedValue({
     data: { user: { id: "u1", role: "user" } },
     error: null,
   });
-  config.mockReturnValue({
+  m.config.mockReturnValue({
     data: { disableWorkspaceCreation: false },
     isPending: false,
   });
-  getBilling.mockResolvedValue({ billingEnabled: false });
-  inviteMember.mockResolvedValue({ id: "invite-1" });
+  m.getBilling.mockResolvedValue({ billingEnabled: false });
+  m.inviteMember.mockResolvedValue({ id: "invite-1" });
+  m.signOut.mockResolvedValue({});
+  m.useSignOut.mockReturnValue({ mutateAsync: m.signOut });
 });
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
-  vi.useRealTimers();
   localStorage.clear();
 });
 
-// A real client rather than a mocked one: the component reaches react-query
-// through hooks this test does not stub.
 function render(ui: ReactNode) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -103,23 +114,22 @@ function render(ui: ReactNode) {
   const wrap = (node: ReactNode) =>
     createElement(QueryClientProvider, { client }, node) as never;
   const result = rtlRender(wrap(ui));
-  // RTL's own rerender drops the wrapper, which the component needs.
   return {
     ...result,
     rerender: (next: ReactNode) => result.rerender(wrap(next)),
   };
 }
 
+const settled = () => act(async () => {});
+const continueButton = () =>
+  screen.getByRole("button", { name: "auth:onboarding.continue" });
 const creationForm = () =>
-  screen.queryByText("auth:onboarding.createWorkspaceTitle");
+  screen.queryByText("auth:onboarding.workspace.title");
 const restricted = () => screen.queryByText("auth:onboarding.restrictedTitle");
 
-// Nothing decides until the one-shot role refresh settles.
-const settled = () => act(async () => {});
-
-const toWorkspace = {
-  to: "/dashboard/workspace/$workspaceId",
-  params: { workspaceId: "workspace-1" },
+const toBoard = {
+  to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
+  params: { workspaceId: "workspace-1", projectId: "project-1" },
   replace: true,
 };
 
@@ -131,73 +141,186 @@ const trialBilling = {
   trialEndsAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
 };
 
-const submitWorkspace = () =>
-  fireEvent.click(
-    screen.getByRole("button", { name: "auth:onboarding.createWorkspace" }),
-  );
-
-async function createCloudWorkspace(usage: "solo" | "team" = "team") {
-  config.mockReturnValue({ data: { isCloud: true }, isPending: false });
+async function walkToProject({
+  cloud = false,
+  smtp = false,
+  usage = "team",
+}: { cloud?: boolean; smtp?: boolean; usage?: "solo" | "team" } = {}) {
+  m.config.mockReturnValue({
+    data: { isCloud: cloud, billingEnabled: cloud, hasSmtp: smtp },
+    isPending: false,
+  });
   render(<OnboardingFlow />);
   await settled();
   fireEvent.change(screen.getByLabelText("auth:onboarding.workspaceName"), {
-    target: { value: "My team" },
+    target: { value: "Acme" },
   });
+  fireEvent.click(continueButton());
+  await screen.findByText("auth:onboarding.usage.title");
   if (usage === "solo") {
     fireEvent.click(screen.getByLabelText(/auth:onboarding.cloud.usageSolo/));
   }
-  submitWorkspace();
+  fireEvent.click(continueButton());
+  await screen.findByText("auth:onboarding.project.title");
+}
+
+async function createWorkspace(options?: Parameters<typeof walkToProject>[0]) {
+  await walkToProject(options);
+  fireEvent.click(continueButton());
   await settled();
 }
 
-describe("OnboardingFlow", () => {
-  it("previews the cloud workspace name and asks a team to invite", async () => {
-    config.mockReturnValue({ data: { isCloud: true }, isPending: false });
+describe("OnboardingFlow steps", () => {
+  it("builds the preview from the answers before anything is created", async () => {
+    await walkToProject();
+    fireEvent.change(screen.getByLabelText("auth:onboarding.project.label"), {
+      target: { value: "Website relaunch" },
+    });
+
+    expect(screen.getAllByText("Acme").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Website relaunch").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("WR-1").length).toBeGreaterThan(0);
+    expect(m.createWorkspace).not.toHaveBeenCalled();
+  });
+
+  it("asks for a workspace name before moving on", async () => {
     render(<OnboardingFlow />);
     await settled();
-    fireEvent.change(screen.getByLabelText("auth:onboarding.workspaceName"), {
-      target: { value: "My team" },
-    });
-    expect(screen.getAllByText("My team")).toHaveLength(2);
-    submitWorkspace();
+    fireEvent.click(continueButton());
 
     expect(
-      await screen.findByText("auth:onboarding.cloud.invite.title"),
+      screen.getByText("auth:onboarding.validation.workspaceNameRequired"),
     ).toBeInTheDocument();
-    expect(navigate).not.toHaveBeenCalled();
-    expect(
-      screen.queryByText("auth:onboarding.workspaceCreatedTitle"),
-    ).not.toBeInTheDocument();
-    expect(createWorkspace).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText("auth:onboarding.usage.title")).toBeNull();
   });
 
-  it("skips invites and the plan step when billing is off", async () => {
-    await createCloudWorkspace();
-    fireEvent.click(
-      await screen.findByRole("button", {
-        name: "auth:onboarding.cloud.invite.skip",
+  it("creates the workspace and starter project once, then opens it from Ready", async () => {
+    await createWorkspace();
+
+    expect(
+      await screen.findByText("auth:onboarding.ready.title"),
+    ).toBeInTheDocument();
+    expect(m.createWorkspace).toHaveBeenCalledTimes(1);
+    expect(m.createWorkspace).toHaveBeenCalledWith({
+      name: "Acme",
+      description: "",
+      userId: "u1",
+    });
+    expect(m.createStarterProject).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workspaceId: "workspace-1",
+        name: "auth:onboarding.projectNameDefault",
       }),
     );
+    expect(m.navigate).not.toHaveBeenCalled();
 
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith(toWorkspace));
-    expect(inviteMember).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.ready.open" }),
+    );
+    await waitFor(() => expect(m.navigate).toHaveBeenCalledWith(toBoard));
   });
 
-  it("keeps only failed addresses on the invite step for a retry", async () => {
-    inviteMember.mockImplementation(({ email }: { email: string }) =>
+  it("skips invites on a self-hosted instance that cannot send email", async () => {
+    await createWorkspace({ smtp: false });
+
+    expect(
+      await screen.findByText("auth:onboarding.ready.title"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("auth:onboarding.invite.title")).toBeNull();
+  });
+
+  it("stays on the project step and keeps the answers when creation fails", async () => {
+    m.createWorkspace.mockRejectedValueOnce(new Error("slug taken"));
+    await createWorkspace();
+
+    expect(
+      screen.getByText("auth:onboarding.project.title"),
+    ).toBeInTheDocument();
+    expect(m.createStarterProject).not.toHaveBeenCalled();
+  });
+
+  it("signs out from the footer", async () => {
+    render(<OnboardingFlow />);
+    await settled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.signOut" }),
+    );
+
+    await waitFor(() => expect(m.signOut).toHaveBeenCalledTimes(1));
+    expect(m.navigate).not.toHaveBeenCalled();
+  });
+
+  it("uses the configured provider logout without a competing sign-in navigation", async () => {
+    m.config.mockReturnValue({
+      data: { customOAuthLogoutUrl: "https://idp.example.test/end-session" },
+      isPending: false,
+    });
+    render(<OnboardingFlow />);
+    await settled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.signOut" }),
+    );
+
+    await waitFor(() => expect(m.signOut).toHaveBeenCalledTimes(1));
+    expect(m.useSignOut).toHaveBeenCalledWith(
+      "https://idp.example.test/end-session",
+    );
+    expect(m.navigate).not.toHaveBeenCalled();
+  });
+
+  it("stays on onboarding and reports a failed sign-out", async () => {
+    m.signOut.mockRejectedValueOnce(new Error("Could not sign out"));
+    render(<OnboardingFlow />);
+    await settled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "auth:onboarding.signOut" }),
+    );
+
+    await waitFor(() =>
+      expect(m.toastError).toHaveBeenCalledWith("Could not sign out"),
+    );
+    expect(m.navigate).not.toHaveBeenCalled();
+    expect(creationForm()).toBeInTheDocument();
+  });
+});
+
+describe("OnboardingFlow invites", () => {
+  const sendButton = () =>
+    screen.getByRole("button", { name: "auth:onboarding.invite.send" });
+
+  it("invites each filled address once and moves on", async () => {
+    await createWorkspace({ smtp: true });
+    const [first, second] = await screen.findAllByPlaceholderText(
+      "auth:onboarding.cloud.invite.emailPlaceholder",
+    );
+    fireEvent.change(first, { target: { value: "a@example.com" } });
+    fireEvent.change(second, { target: { value: "A@example.com" } });
+    fireEvent.click(sendButton());
+
+    expect(
+      await screen.findByText("auth:onboarding.ready.title"),
+    ).toBeInTheDocument();
+    expect(m.inviteMember).toHaveBeenCalledTimes(1);
+    expect(m.inviteMember).toHaveBeenCalledWith({
+      email: "a@example.com",
+      workspaceId: "workspace-1",
+      role: "member",
+    });
+  });
+
+  it("keeps only failed addresses for a retry", async () => {
+    m.inviteMember.mockImplementation(({ email }: { email: string }) =>
       email === "b@example.com"
         ? Promise.reject(new Error("already a member"))
         : Promise.resolve({ id: "invite-1" }),
     );
-    await createCloudWorkspace();
+    await createWorkspace({ smtp: true });
     const [first, second] = await screen.findAllByPlaceholderText(
       "auth:onboarding.cloud.invite.emailPlaceholder",
     );
     fireEvent.change(first, { target: { value: "a@example.com" } });
     fireEvent.change(second, { target: { value: "b@example.com" } });
-    fireEvent.click(
-      screen.getByRole("button", { name: "auth:onboarding.cloud.invite.send" }),
-    );
+    fireEvent.click(sendButton());
 
     await waitFor(() =>
       expect(
@@ -207,16 +330,15 @@ describe("OnboardingFlow", () => {
       ).toHaveLength(1),
     );
     expect(screen.getByDisplayValue("b@example.com")).toBeInTheDocument();
-    expect(navigate).not.toHaveBeenCalled();
 
-    inviteMember.mockClear();
-    inviteMember.mockResolvedValue({ id: "invite-2" });
-    fireEvent.click(
-      screen.getByRole("button", { name: "auth:onboarding.cloud.invite.send" }),
-    );
+    m.inviteMember.mockReset();
+    m.inviteMember.mockResolvedValue({ id: "invite-2" });
+    fireEvent.click(sendButton());
 
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith(toWorkspace));
-    expect(inviteMember).toHaveBeenCalledWith({
+    expect(
+      await screen.findByText("auth:onboarding.ready.title"),
+    ).toBeInTheDocument();
+    expect(m.inviteMember).toHaveBeenCalledWith({
       email: "b@example.com",
       workspaceId: "workspace-1",
       role: "member",
@@ -224,114 +346,134 @@ describe("OnboardingFlow", () => {
     });
   });
 
-  it("invites each filled address once and moves on", async () => {
-    await createCloudWorkspace();
-    const [first, second] = await screen.findAllByPlaceholderText(
-      "auth:onboarding.cloud.invite.emailPlaceholder",
-    );
-    fireEvent.change(first, { target: { value: "a@example.com" } });
-    fireEvent.change(second, { target: { value: "A@example.com" } });
-    fireEvent.click(
-      screen.getByRole("button", { name: "auth:onboarding.cloud.invite.send" }),
-    );
-
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith(toWorkspace));
-    expect(inviteMember).toHaveBeenCalledTimes(1);
-    expect(inviteMember).toHaveBeenCalledWith({
-      email: "a@example.com",
-      workspaceId: "workspace-1",
-      role: "member",
-    });
-  });
-
   it("holds the invite step on a malformed address", async () => {
-    await createCloudWorkspace();
+    await createWorkspace({ smtp: true });
     const [first] = await screen.findAllByPlaceholderText(
       "auth:onboarding.cloud.invite.emailPlaceholder",
     );
     fireEvent.change(first, { target: { value: "not-an-email" } });
-    fireEvent.click(
-      screen.getByRole("button", { name: "auth:onboarding.cloud.invite.send" }),
-    );
+    fireEvent.click(sendButton());
 
     expect(
       await screen.findByText("auth:onboarding.cloud.invite.invalidEmail"),
     ).toBeInTheDocument();
     expect(first).toHaveFocus();
-    expect(first).toHaveAccessibleDescription(
-      "auth:onboarding.cloud.invite.invalidEmail",
-    );
-    expect(inviteMember).not.toHaveBeenCalled();
-    expect(navigate).not.toHaveBeenCalled();
+    expect(m.inviteMember).not.toHaveBeenCalled();
   });
 
-  it("offers a plan to a solo user on a trial", async () => {
-    getBilling.mockResolvedValue(trialBilling);
-    await createCloudWorkspace("solo");
+  it("can skip invites", async () => {
+    await createWorkspace({ smtp: true });
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "auth:onboarding.cloud.invite.skip",
+      }),
+    );
 
     expect(
-      await screen.findByText("auth:onboarding.cloud.plan.title"),
+      await screen.findByText("auth:onboarding.ready.title"),
     ).toBeInTheDocument();
+    expect(m.inviteMember).not.toHaveBeenCalled();
+  });
+});
+
+describe("OnboardingFlow plan step", () => {
+  it("offers the trial or a plan on cloud, and the trial opens the workspace", async () => {
+    m.getBilling.mockResolvedValue(trialBilling);
+    await createWorkspace({ cloud: true, usage: "solo" });
+
     expect(
-      screen.queryByText("auth:onboarding.cloud.invite.title"),
-    ).not.toBeInTheDocument();
+      await screen.findByText("auth:onboarding.plan.title"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("auth:onboarding.invite.title")).toBeNull();
     fireEvent.click(
       screen.getByRole("button", {
         name: "auth:onboarding.cloud.plan.continueTrial",
       }),
     );
-    expect(navigate).toHaveBeenCalledWith(toWorkspace);
+
+    await waitFor(() => expect(m.navigate).toHaveBeenCalledWith(toBoard));
+    expect(m.checkout).not.toHaveBeenCalled();
   });
 
-  it("leaves a pricing-page plan choice to the checkout redirect", async () => {
-    getBilling.mockResolvedValue(trialBilling);
-    localStorage.setItem("kaneo:pending-checkout", "team-annual");
-    await createCloudWorkspace("solo");
-
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith(toWorkspace));
-    expect(
-      screen.queryByText("auth:onboarding.cloud.plan.title"),
-    ).not.toBeInTheDocument();
-  });
-
-  it("goes to the workspace when billing cannot be read", async () => {
-    getBilling.mockRejectedValue(new Error("offline"));
-    await createCloudWorkspace("solo");
-
-    await waitFor(() => expect(navigate).toHaveBeenCalledWith(toWorkspace));
-  });
-
-  it("keeps the self-hosted success step and delayed navigation", async () => {
-    vi.useFakeTimers();
-    const { rerender } = render(<OnboardingFlow />);
-    await settled();
-    fireEvent.change(screen.getByLabelText("auth:onboarding.workspaceName"), {
-      target: { value: "My team" },
-    });
+  it("subscribes to the recommended plan right away", async () => {
+    m.getBilling.mockResolvedValue(trialBilling);
+    await createWorkspace({ cloud: true, usage: "solo" });
     fireEvent.click(
-      screen.getByRole("button", { name: "auth:onboarding.createWorkspace" }),
+      await screen.findByRole("button", {
+        name: "auth:onboarding.plan.subscribe",
+      }),
     );
-    await settled();
-    expect(navigate).not.toHaveBeenCalled();
-    // A config recovery must not reveal the form again after creation.
-    config.mockReturnValue({ data: { isCloud: true }, isPending: false });
-    rerender(<OnboardingFlow />);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(500);
+
+    expect(m.checkout).toHaveBeenCalledWith({
+      plan: "personal",
+      interval: "annual",
     });
+    expect(m.navigate).not.toHaveBeenCalled();
+  });
+
+  it("puts a plan picked on the pricing page first and clears it", async () => {
+    m.getBilling.mockResolvedValue(trialBilling);
+    localStorage.setItem("kaneo:pending-checkout", "team-monthly");
+    await createWorkspace({ cloud: true, usage: "solo" });
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "auth:onboarding.plan.checkout",
+      }),
+    );
+
+    expect(m.checkout).toHaveBeenCalledWith({
+      plan: "team",
+      interval: "monthly",
+    });
+    expect(localStorage.getItem("kaneo:pending-checkout")).toBeNull();
+  });
+
+  it("drops a pricing-page plan when the person chooses the trial", async () => {
+    m.getBilling.mockResolvedValue(trialBilling);
+    localStorage.setItem("kaneo:pending-checkout", "team-annual");
+    await createWorkspace({ cloud: true, usage: "solo" });
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "auth:onboarding.cloud.plan.continueTrial",
+      }),
+    );
+
+    await waitFor(() => expect(m.navigate).toHaveBeenCalledWith(toBoard));
+    expect(localStorage.getItem("kaneo:pending-checkout")).toBeNull();
+    expect(m.checkout).not.toHaveBeenCalled();
+  });
+
+  it("only offers subscribing once the trial is used", async () => {
+    m.getBilling.mockResolvedValue({
+      ...trialBilling,
+      trialEndsAt: new Date(Date.now() - 1000).toISOString(),
+    });
+    await createWorkspace({ cloud: true, usage: "solo" });
+
     expect(
-      screen.getByText("auth:onboarding.workspaceCreatedTitle"),
+      await screen.findByRole("button", {
+        name: "auth:onboarding.plan.subscribe",
+      }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "auth:onboarding.createWorkspace" }),
-    ).not.toBeInTheDocument();
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(1000);
-    });
-    expect(navigate).toHaveBeenCalledTimes(1);
+      screen.queryByRole("button", {
+        name: "auth:onboarding.cloud.plan.continueTrial",
+      }),
+    ).toBeNull();
   });
 
-  it("offers the creation form when anyone may create a workspace", async () => {
+  it("ends on Ready when billing cannot be read", async () => {
+    m.getBilling.mockRejectedValue(new Error("offline"));
+    await createWorkspace({ cloud: true, usage: "solo" });
+
+    expect(
+      await screen.findByText("auth:onboarding.ready.title"),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("OnboardingFlow access", () => {
+  it("offers the flow when anyone may create a workspace", async () => {
     render(<OnboardingFlow />);
     await settled();
 
@@ -339,93 +481,31 @@ describe("OnboardingFlow", () => {
     expect(restricted()).not.toBeInTheDocument();
   });
 
-  it("explains the restriction instead of offering a form that would fail", async () => {
-    config.mockReturnValue({
+  it("explains the restriction instead of offering a flow that would fail", async () => {
+    m.config.mockReturnValue({
       data: { disableWorkspaceCreation: true },
       isPending: false,
     });
-
     render(<OnboardingFlow />);
     await settled();
 
-    // The API refuses creation for non-admins, so offering the form here only
-    // produces an error at submit time.
     expect(restricted()).toBeInTheDocument();
     expect(creationForm()).not.toBeInTheDocument();
-    // Reaching this screen with an invitation waiting is possible, so it has
-    // to offer a route back to it.
     expect(
       screen.getByText("auth:onboarding.restrictedCheckInvitations"),
     ).toBeInTheDocument();
   });
 
-  it("still offers the form to an instance admin when creation is restricted", async () => {
-    config.mockReturnValue({
+  it("still offers the flow to an instance admin when creation is restricted", async () => {
+    m.config.mockReturnValue({
       data: { disableWorkspaceCreation: true },
       isPending: false,
     });
-    getSession.mockResolvedValue({
+    m.getSession.mockResolvedValue({
       data: { user: { id: "u1", role: "admin" } },
       error: null,
     });
-
     render(<OnboardingFlow />);
-    await settled();
-
-    expect(creationForm()).toBeInTheDocument();
-    expect(restricted()).not.toBeInTheDocument();
-  });
-
-  it("waits for config before choosing the layout for an instance admin", async () => {
-    // Cloud mode determines the layout even when creation is unrestricted.
-    config.mockReturnValue({ data: undefined, isPending: true });
-    getSession.mockResolvedValue({
-      data: { user: { id: "u1", role: "admin" } },
-      error: null,
-    });
-
-    render(<OnboardingFlow />);
-    await settled();
-
-    expect(creationForm()).not.toBeInTheDocument();
-    expect(screen.getByRole("status")).toBeInTheDocument();
-    expect(restricted()).not.toBeInTheDocument();
-  });
-
-  it("still decides when the role refresh fails", async () => {
-    const unhandled = vi.fn();
-    process.on("unhandledRejection", unhandled);
-    getSession.mockResolvedValue({ data: null, error: { status: 500 } });
-
-    render(<OnboardingFlow />);
-    await settled();
-    await settled();
-
-    // The cached role stands, the screen resolves, and the failure does not
-    // escape as a global error.
-    expect(creationForm()).toBeInTheDocument();
-    expect(unhandled).not.toHaveBeenCalled();
-    process.off("unhandledRejection", unhandled);
-  });
-
-  it("offers the form when the role refresh fails under a restriction", async () => {
-    // The cached role cannot be trusted to take the form away: the one user
-    // whose role is most likely wrong here is the freshly promoted first
-    // administrator, who is entitled to it. The API still refuses the
-    // creation if the role really is `user`.
-    config.mockReturnValue({
-      data: { disableWorkspaceCreation: true },
-      isPending: false,
-    });
-    // The request failed; the session store would keep the stale role and
-    // report it alongside the error rather than rejecting.
-    getSession.mockResolvedValue({
-      data: null,
-      error: { status: 500, message: "network" },
-    });
-
-    render(<OnboardingFlow />);
-    await settled();
     await settled();
 
     expect(creationForm()).toBeInTheDocument();
@@ -433,33 +513,17 @@ describe("OnboardingFlow", () => {
   });
 
   it("shows progress while the decision is pending", async () => {
-    config.mockReturnValue({ data: undefined, isPending: true });
-
+    m.config.mockReturnValue({ data: undefined, isPending: true });
     render(<OnboardingFlow />);
     await settled();
 
-    // Neither branch renders yet, and an empty page is not an answer.
     expect(screen.getByRole("status")).toBeInTheDocument();
-  });
-
-  it("claims nothing while the config is still loading", async () => {
-    // `undefined` is the pending state. Showing the restriction here would
-    // flash a false statement before a working form resolves, and showing the
-    // form would invite a submit that fails.
-    config.mockReturnValue({ data: undefined, isPending: true });
-
-    render(<OnboardingFlow />);
-    await settled();
-
     expect(creationForm()).not.toBeInTheDocument();
     expect(restricted()).not.toBeInTheDocument();
   });
 
-  it("falls back to the form when the config request fails", async () => {
-    // Settled with no data is an error, not a restriction. Claiming a
-    // restriction here would be untrue, and the API still has the final say.
-    config.mockReturnValue({ data: undefined, isPending: false });
-
+  it("falls back to the flow when the config request fails", async () => {
+    m.config.mockReturnValue({ data: undefined, isPending: false });
     render(<OnboardingFlow />);
     await settled();
 
@@ -467,45 +531,44 @@ describe("OnboardingFlow", () => {
     expect(restricted()).not.toBeInTheDocument();
   });
 
-  it("re-reads the role past the cookie cache", async () => {
-    render(<OnboardingFlow />);
-    await settled();
-
-    // The first admin of an instance is promoted after the session is cached,
-    // so the cached copy is exactly the one that cannot be trusted here.
-    expect(getSession).toHaveBeenCalledWith({
-      query: { disableCookieCache: true },
-    });
-  });
-
-  it("prefers the re-read role over the cached one", async () => {
-    // The promotion the cached session has not caught up with yet.
-    config.mockReturnValue({
+  it("offers the flow when the role refresh fails under a restriction", async () => {
+    m.config.mockReturnValue({
       data: { disableWorkspaceCreation: true },
       isPending: false,
     });
-    getSession.mockResolvedValue({
-      data: { user: { id: "u1", role: "admin" } },
-      error: null,
+    m.getSession.mockResolvedValue({
+      data: null,
+      error: { status: 500, message: "network" },
     });
-
     render(<OnboardingFlow />);
+    await settled();
     await settled();
 
     expect(creationForm()).toBeInTheDocument();
-    expect(restricted()).not.toBeInTheDocument();
   });
 
-  it("re-reads the role only once, however often it rerenders", async () => {
+  it("re-reads the role past the cookie cache, once", async () => {
     const { rerender } = render(<OnboardingFlow />);
     await settled();
+    expect(m.getSession).toHaveBeenCalledWith({
+      query: { disableCookieCache: true },
+    });
 
-    getSession.mockClear();
+    m.getSession.mockClear();
     rerender(<OnboardingFlow />);
     await settled();
-    rerender(<OnboardingFlow />);
-    await settled();
+    expect(m.getSession).not.toHaveBeenCalled();
+  });
 
-    expect(getSession).not.toHaveBeenCalled();
+  it("does not bring the first step back if config recovers after creation", async () => {
+    await createWorkspace();
+    m.config.mockReturnValue({
+      data: { isCloud: false, disableWorkspaceCreation: true },
+      isPending: false,
+    });
+    expect(
+      await screen.findByText("auth:onboarding.ready.title"),
+    ).toBeInTheDocument();
+    expect(creationForm()).toBeNull();
   });
 });

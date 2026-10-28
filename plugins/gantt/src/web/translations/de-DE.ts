@@ -8,7 +8,7 @@ export const deDE = {
     planned: "Geplant",
   },
   title: "Gantt-Zeitachse",
-  jumpToToday: "Jump to today",
+  jumpToToday: "Zu heute springen",
   searchPlaceholder: "Geplante Tickets suchen...",
   hideTasks: "Aufgaben ausblenden",
   showTasks: "Aufgaben anzeigen",

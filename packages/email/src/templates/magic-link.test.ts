@@ -1,4 +1,4 @@
-import { render } from "@react-email/render";
+import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
 import MagicLinkEmail from "./magic-link";
@@ -22,7 +22,7 @@ describe("MagicLinkEmail", () => {
         locale: "zh-TW",
       }),
     );
-    expect(html).toContain("你的安全登入連結");
+    expect(html).toContain("登入 Kaneo");
     expect(html).toContain("Kaneo 安全性通知");
   });
 });

@@ -41,3 +41,5 @@ export const taskRelationWithTasksSchema = taskRelationSchema
 export const taskRelationWithTasksListSchema = z.array(
   taskRelationWithTasksSchema,
 );
+
+export const taskRelationListSchema = z.array(taskRelationSchema);

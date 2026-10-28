@@ -9,15 +9,13 @@ import {
   type DragStartEvent,
   type DropAnimation,
   defaultDropAnimationSideEffects,
-  KeyboardSensor,
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 import reorderTasks, { type TaskReorder } from "@/fetchers/task/reorder-tasks";
 import { toast } from "@/lib/toast";
@@ -27,17 +25,21 @@ import { boardCollisionDetection } from "./board-collision-detection";
 import { findTaskColumn } from "./drag-preview/find-task-column";
 import { moveBoardTask } from "./move-task";
 import { useDragPreview } from "./drag-preview/use-drag-preview";
-import { useEffect, useState } from "react";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useReducedMotion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
 import { useProjectBackground } from "@/hooks/use-project-background";
 import { cn } from "@/lib/cn";
+import { EASE_OUT_CSS } from "@/lib/motion";
 import { useBackgroundStore } from "@/store/background";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
 import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import Column from "./column";
-import TaskCard from "./task-card";
+import TaskCardContent from "./task-card/task-card-content";
+import { useBoardMoveQueue } from "./use-board-move-queue";
+import { previewBoardMoves } from "./preview-board-moves";
 
 type KanbanBoardProps = {
   project: ProjectWithTasks;
@@ -56,18 +58,16 @@ function KanbanBoard({
 }: KanbanBoardProps) {
   const isAutomaticallySorted = sortedByNumber || sortedByPriority;
   const queryClient = useQueryClient();
+  const isFetching =
+    useIsFetching({ queryKey: ["tasks", project.id], exact: true }) > 0;
   const { project: storedProject, setProject } = useProjectStore();
   const setAvailableTasks = useBulkSelectionStore(
     (state) => state.setAvailableTasks,
   );
-  const focusNext = useBulkSelectionStore((state) => state.focusNext);
-  const focusPrevious = useBulkSelectionStore((state) => state.focusPrevious);
-  const focusedTaskId = useBulkSelectionStore((state) => state.focusedTaskId);
   const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const [activeIsFinal, setActiveIsFinal] = useState<boolean | undefined>();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [sortHintColumnId, setSortHintColumnId] = useState<string | null>(null);
-  const dragPreview = useDragPreview(project);
   const { t } = useTranslation();
   const { mutate: reorder, isPending: isReordering } = useMutation({
     mutationFn: ({
@@ -113,7 +113,6 @@ function KanbanBoard({
     viewMode: "board",
   });
   const { setBackground } = useBackgroundStore();
-  const navigate = useNavigate();
 
   useEffect(() => {
     setBackground(background);
@@ -136,37 +135,6 @@ function KanbanBoard({
     clearFocus();
   }, [clearFocus]);
 
-  useRegisterShortcuts({
-    shortcuts: {
-      j: () => {
-        focusNext();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      k: () => {
-        focusPrevious();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      Enter: () => {
-        if (focusedTaskId && project) {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-            params: {
-              workspaceId: project.workspaceId,
-              projectId: project.id,
-              taskId: focusedTaskId,
-            },
-          });
-        }
-      },
-    },
-  });
-
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: { distance: disableDragDrop ? 999999 : 8 },
@@ -177,9 +145,9 @@ function KanbanBoard({
         tolerance: 10,
       },
     }),
-    useSensor(KeyboardSensor),
   );
 
+  const reduceMotion = useReducedMotion();
   const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
       styles: {
@@ -188,8 +156,8 @@ function KanbanBoard({
         },
       },
     }),
-    duration: 300,
-    easing: "cubic-bezier(0.23, 1, 0.32, 1)",
+    duration: 250,
+    easing: EASE_OUT_CSS,
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -204,14 +172,8 @@ function KanbanBoard({
     dragPreview.clear();
   };
 
-  const isDropBlocked = () =>
-    disableDragDrop ||
-    isReordering ||
-    queryClient.getQueryState(["tasks", project.id])?.fetchStatus ===
-      "fetching";
-
   const handleDragOver = ({ active, over }: DragOverEvent) => {
-    if (!over || isDropBlocked()) {
+    if (!over || disableDragDrop) {
       setSortHintColumnId(null);
       dragPreview.clear();
       return;
@@ -221,49 +183,96 @@ function KanbanBoard({
       return;
     }
     setSortHintColumnId(
-      findTaskColumn(project, over.id.toString())?.id ?? null,
+      findTaskColumn(queuedProject, over.id.toString())?.id ?? null,
     );
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    const activeId = active.id.toString();
-    const overId = over?.id.toString();
-    const placement = overId
-      ? dragPreview.getDropPlacement(activeId, overId)
-      : null;
-    resetDrag();
-
-    if (!overId || !project?.columns || isDropBlocked()) return;
+  const commitMove = (
+    activeId: string,
+    overId: string,
+    onSettled: (failed?: boolean) => void,
+    insertAfterTarget?: boolean,
+  ) => {
+    if (!project?.columns || disableDragDrop) {
+      onSettled();
+      return;
+    }
     const canonical = selectReorderBoard(
       project.id,
       activeId,
       queryClient.getQueryData<ProjectWithTasks>(["tasks", project.id]),
       storedProject,
     );
-    if (!canonical) return;
+    if (!canonical) {
+      onSettled();
+      return;
+    }
 
-    const moved = placement
-      ? moveBoardTask(
-          canonical,
-          activeId,
-          placement.overId,
-          false,
-          placement.insertAfterTarget,
-        )
-      : moveBoardTask(canonical, activeId, overId, isAutomaticallySorted);
-    if (!moved || !moved.tasks.length) return;
+    const moved =
+      insertAfterTarget === undefined
+        ? moveBoardTask(canonical, activeId, overId, isAutomaticallySorted)
+        : moveBoardTask(canonical, activeId, overId, false, insertAfterTarget);
+    if (!moved || !moved.tasks.length) {
+      onSettled();
+      return;
+    }
     for (const task of moved.tasks)
       markBoardCacheChanged(queryClient, project.id, task.id);
     setProject(moved.project);
     queryClient.setQueryData(["tasks", project.id], moved.project);
-    reorder({
-      projectId: project.id,
-      tasks: moved.tasks,
-      expectedTasks: moved.expectedTasks,
-      previousBoard: canonical,
+    reorder(
+      {
+        projectId: project.id,
+        tasks: moved.tasks,
+        expectedTasks: moved.expectedTasks,
+        previousBoard: canonical,
+      },
+      { onSettled: (_result, error) => onSettled(Boolean(error)) },
+    );
+  };
+
+  const { queueMove, pendingMoves } = useBoardMoveQueue({
+    projectId: project.id,
+    waiting: isReordering || isFetching,
+    disabled: disableDragDrop,
+    onMove: ({ activeId, overId, insertAfterTarget }, onSettled) =>
+      commitMove(activeId, overId, onSettled, insertAfterTarget),
+    onCancel: () => toast.error(t("tasks:board.reorderFailed")),
+  });
+  const queuedProject = useMemo(
+    () => previewBoardMoves(project, pendingMoves, isAutomaticallySorted),
+    [project, pendingMoves, isAutomaticallySorted],
+  );
+  const dragPreview = useDragPreview(queuedProject);
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    const activeId = active.id.toString();
+    const overId = over?.id.toString();
+    const placement = overId
+      ? dragPreview.getDropPlacement(activeId, overId)
+      : null;
+    resetDrag();
+    if (!overId) return;
+    queueMove({
+      activeId,
+      overId: placement?.overId ?? overId,
+      insertAfterTarget: placement?.insertAfterTarget,
     });
   };
+
+  useTaskViewShortcuts({
+    layout: "board",
+    selection: useBulkSelectionStore,
+    getGroups: () =>
+      queuedProject.columns.map((column) => ({
+        id: column.id,
+        taskIds: column.tasks.map((task) => task.id),
+      })),
+    project,
+    enabled: activeId === null,
+    canMove: !disableDragDrop,
+    onMove: (activeId, overId) => queueMove({ activeId, overId }),
+  });
 
   if (!project?.columns) {
     return (
@@ -308,7 +317,7 @@ function KanbanBoard({
   }
 
   const activeTask = activeId
-    ? project.columns
+    ? queuedProject.columns
         .flatMap((col) => col.tasks)
         .find((task) => task.id === activeId)
     : null;
@@ -316,6 +325,11 @@ function KanbanBoard({
   return (
     <DndContext
       sensors={sensors}
+      accessibility={{
+        screenReaderInstructions: {
+          draggable: t("tasks:board.keyboardInstructions"),
+        },
+      }}
       collisionDetection={boardCollisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
@@ -336,15 +350,10 @@ function KanbanBoard({
           )}
         >
           <div className="flex h-full min-w-max gap-4 px-4 py-4 md:px-5">
-            {(dragPreview.preview ?? project).columns.map((column) => (
+            {(dragPreview.preview ?? queuedProject).columns.map((column) => (
               <div
                 key={column.id}
-                className={cn(
-                  "h-full max-w-96 min-w-[min(20rem,calc(100vw-4.5rem))] shrink-0 flex-1 snap-start",
-                  {
-                    "h-fit": !!background,
-                  },
-                )}
+                className="h-full max-w-96 min-w-[min(20rem,calc(100vw-4.5rem))] shrink-0 flex-1 snap-start"
               >
                 <Column
                   column={column}
@@ -369,11 +378,16 @@ function KanbanBoard({
           </div>
         </div>
       </div>
-      <DragOverlay dropAnimation={dropAnimation}>
+      <DragOverlay dropAnimation={reduceMotion ? null : dropAnimation}>
         {activeTask ? (
-          <div className="transform rotate-1 scale-[1.03] shadow-lg">
+          <div className="rotate-1 scale-[1.03] shadow-lg transition-[rotate,scale] duration-150 ease-out starting:rotate-0 starting:scale-100 motion-reduce:transition-none">
             <div className="ring-2 ring-ring/35 rounded-lg">
-              <TaskCard task={activeTask} isFinalColumn={activeIsFinal} />
+              <TaskCardContent
+                task={activeTask}
+                isFinalColumn={activeIsFinal}
+                disableDragDrop
+                isDragging
+              />
             </div>
           </div>
         ) : null}

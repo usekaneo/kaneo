@@ -1,5 +1,6 @@
 import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
-import { useEffect, useMemo } from "react";
+import { Trash2Icon } from "lucide-react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
@@ -11,9 +12,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { shortcuts } from "@/constants/shortcuts";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
 
@@ -35,20 +35,9 @@ export default function TaskDeleteDialog({
   const { mutateAsync: deleteTask, isPending } = useDeleteTask();
   const canDelete = !isCheckingPermissions && canDeleteTasks();
 
-  const deleteShortcuts = useMemo(
-    () =>
-      canDelete && shortcutEnabled
-        ? {
-            modifierShortcuts: {
-              [shortcuts.deleteTask.prefix]: {
-                [shortcuts.deleteTask.key]: () => handle.open(null),
-              },
-            },
-          }
-        : {},
-    [canDelete, shortcutEnabled, handle],
-  );
-  useRegisterShortcuts(deleteShortcuts);
+  useShortcut("deleteTask", () => handle.open(null), {
+    enabled: canDelete && shortcutEnabled,
+  });
 
   useEffect(() => {
     return () => handle.close();
@@ -61,7 +50,7 @@ export default function TaskDeleteDialog({
   const handleDelete = async () => {
     try {
       await deleteTask(taskId);
-      toast.success(t("tasks:delete.success"));
+      toast.success(t("tasks:delete.success"), { icon: Trash2Icon });
       handle.close();
       onDeleted();
     } catch (error) {

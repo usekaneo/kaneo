@@ -4,8 +4,8 @@ import { productAnswers } from "@/lib/product";
 
 const resources = [
   {
-    ...landing.resources.docker,
-    href: "/guides/self-host-project-management-docker",
+    ...landing.resources.startups,
+    href: "/guides/project-management-tool-for-startups",
   },
   {
     ...landing.resources.sso,

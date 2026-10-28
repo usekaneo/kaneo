@@ -18,7 +18,8 @@ vi.mock("@/hooks/use-mobile", () => ({ useIsMobile: () => false }));
 const [project] = buildSettingsNav({
   t: (key) => key,
   billingEnabled: false,
-  hasAdminAccess: false,
+  canImport: false,
+  adminPermissions: [],
   projects: [{ id: "p1", name: "Kaneo Web" }],
 }).projects;
 

@@ -1,15 +1,6 @@
-import type { LucideIcon } from "lucide-react";
-import {
-  CalendarRange,
-  Check,
-  ChevronsUpDown,
-  Plus,
-  SquareKanban,
-  SquircleDashed,
-} from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { PluginIcon } from "@/components/plugins/plugin-icon";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -19,22 +10,16 @@ import {
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
-import {
-  isSamePluginView,
-  type PluginViewRef,
-  type ProjectPluginView,
+import type {
+  PluginViewRef,
+  ProjectPluginView,
 } from "@/lib/plugins/runtime/use-project-plugin-views";
-
-type ProjectView = "backlog" | "board" | "calendar";
+import { MobilePluginViews } from "./mobile-plugin-views";
 
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
   projectName?: string;
-  activeView: ProjectView | null;
-  onSelectBoard: () => void;
-  onSelectBacklog: () => void;
-  onSelectCalendar: () => void;
   pluginViews: ProjectPluginView[];
   activePluginView: PluginViewRef | undefined;
   onSelectPluginView: (view: PluginViewRef) => void;
@@ -46,10 +31,6 @@ export default function MobileProjectNav({
   workspaceId,
   projectId,
   projectName,
-  activeView,
-  onSelectBoard,
-  onSelectBacklog,
-  onSelectCalendar,
   pluginViews,
   activePluginView,
   onSelectPluginView,
@@ -62,32 +43,6 @@ export default function MobileProjectNav({
   const currentProject = projects?.find((project) => project.id === projectId);
   const CurrentIcon =
     icons[currentProject?.icon as keyof typeof icons] || icons.Layout;
-
-  const views: {
-    id: ProjectView;
-    label: string;
-    icon: LucideIcon;
-    onSelect: () => void;
-  }[] = [
-    {
-      id: "backlog",
-      label: t("tasks:view.backlog"),
-      icon: SquircleDashed,
-      onSelect: onSelectBacklog,
-    },
-    {
-      id: "board",
-      label: t("tasks:title"),
-      icon: SquareKanban,
-      onSelect: onSelectBoard,
-    },
-    {
-      id: "calendar",
-      label: t("tasks:calendar.title"),
-      icon: CalendarRange,
-      onSelect: onSelectCalendar,
-    },
-  ];
 
   const select = (action: () => void) => () => {
     setOpen(false);
@@ -114,50 +69,14 @@ export default function MobileProjectNav({
       </PopoverTrigger>
       <PopoverContent align="start" className="w-72 p-2">
         <div className="space-y-3">
-          <div className="space-y-1">
-            <p className="px-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
-              {t("tasks:view.heading")}
-            </p>
-            <div className="grid grid-cols-2 gap-1">
-              {views.map(({ id, label, icon: Icon, onSelect }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={select(onSelect)}
-                  aria-pressed={activeView === id}
-                  className={cn(
-                    "flex h-10 w-full items-center gap-2 rounded-md border px-2.5 text-sm font-medium transition-colors",
-                    activeView === id
-                      ? "border-border bg-secondary text-foreground"
-                      : "border-transparent text-muted-foreground hover:bg-accent",
-                  )}
-                >
-                  <Icon className="size-4 shrink-0" />
-                  <span className="truncate">{label}</span>
-                </button>
-              ))}
-              {pluginViews.map((view) => {
-                const isActive = isSamePluginView(activePluginView, view);
-                return (
-                  <button
-                    key={`${view.pluginId}:${view.viewId}`}
-                    type="button"
-                    onClick={select(() => onSelectPluginView(view))}
-                    aria-pressed={isActive}
-                    className={cn(
-                      "flex h-10 w-full items-center gap-2 rounded-md border px-2.5 text-sm font-medium transition-colors",
-                      isActive
-                        ? "border-border bg-secondary text-foreground"
-                        : "border-transparent text-muted-foreground hover:bg-accent",
-                    )}
-                  >
-                    <PluginIcon icon={view.icon} className="size-4 shrink-0" />
-                    <span className="truncate">{view.title}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <MobilePluginViews
+            views={pluginViews}
+            activeView={activePluginView}
+            onSelect={(view) => {
+              setOpen(false);
+              onSelectPluginView(view);
+            }}
+          />
 
           <div className="space-y-1">
             <p className="px-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">

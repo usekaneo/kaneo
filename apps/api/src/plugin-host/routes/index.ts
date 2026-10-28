@@ -1,4 +1,5 @@
 import type { MiddlewareHandler } from "hono";
+import { requireInstancePermission } from "../../admin/roles/require-instance-permission";
 import {
   apiRouter,
   createRoute,
@@ -6,7 +7,6 @@ import {
   jsonResponse,
   z,
 } from "../../openapi";
-import { requireInstanceAdmin } from "../../utils/require-instance-admin";
 import { requireUserSession } from "../../utils/require-user-session";
 import { requireWorkspacePermission } from "../../utils/require-workspace-permission";
 import { workspaceAccess } from "../../utils/workspace-access-middleware";
@@ -93,14 +93,17 @@ const purgePluginDataRoute = createRoute({
   tags: ["Plugins"],
   summary: "Delete a plugin's data",
   description:
-    "Delete everything a plugin stored and its settings in every workspace. Only works for a plugin that is no longer installed: remove it from kaneo.config.ts, or turn a built-in plugin off there, and restart Kaneo first. Requires an instance administrator session; API keys are rejected. This cannot be undone.",
-  middleware: [requireUserSession, requireInstanceAdmin] as const,
+    "Delete everything a plugin stored and its settings in every workspace. Only works for a plugin that is no longer installed: remove it from kaneo.config.ts, or turn a built-in plugin off there, and restart Kaneo first. Requires a signed-in session with the instance:settings permission; API keys are rejected. This cannot be undone.",
+  middleware: [
+    requireUserSession,
+    requireInstancePermission("instance:settings"),
+  ] as const,
   request: { params: pluginDataParams },
   responses: {
     200: jsonResponse("Rows deleted from each table", pluginDataPurgeSchema),
     400: errorResponse("Invalid plugin ID"),
     403: errorResponse(
-      "The caller is not an instance administrator or is authenticated with an API key",
+      "The caller lacks the instance:settings permission or is authenticated with an API key",
     ),
     409: errorResponse(
       "The plugin is still installed, or plugins are turned off with DISABLE_PLUGINS",

@@ -8,7 +8,12 @@ const { state } = vi.hoisted(() => ({
     validateCalls: [] as { userId: string; workspaceId: string }[],
     caller: "anonymous" as "anonymous" | "member" | "outsider",
     restrictedProjects: new Set<string>(),
+    canRead: true,
   },
+}));
+
+vi.mock("../../../apps/api/src/utils/workspace-permission-grants", () => ({
+  workspacePermissionGrants: async () => ({ allows: () => state.canRead }),
 }));
 
 vi.mock("../../../apps/api/src/project-access/assert-project-access", () => ({
@@ -69,6 +74,7 @@ describe("authorizeAssetAccess", () => {
     state.validateCalls = [];
     state.caller = "anonymous";
     state.restrictedProjects = new Set();
+    state.canRead = true;
   });
 
   it("allows an anonymous caller to read an asset of a public project", async () => {
@@ -131,6 +137,20 @@ describe("authorizeAssetAccess", () => {
     expect(state.validateCalls).toEqual([
       { userId: "user-member", workspaceId: "workspace-1" },
     ]);
+  });
+  it("rejects a member whose current read grant has been removed", async () => {
+    state.caller = "member";
+    state.canRead = false;
+    expect(
+      await statusOf(
+        authorizeAssetAccess(context, {
+          workspaceId: "workspace-1",
+          projectId: "project-1",
+          surface: "comment",
+          isPublic: false,
+        }),
+      ),
+    ).toBe(403);
   });
   it.each(["comment", "unknown"])(
     "keeps %s assets private even in a public project",

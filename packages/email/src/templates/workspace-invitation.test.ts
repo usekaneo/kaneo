@@ -1,4 +1,4 @@
-import { render } from "@react-email/render";
+import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
 import enUS from "../../../../i18n/en-US.json";
@@ -97,5 +97,25 @@ describe("WorkspaceInvitationEmail default copy", () => {
     );
 
     expect(html).toBe(withEnUs);
+  });
+
+  it("renders the role and expiry with translated labels", async () => {
+    const html = await render(
+      createElement(WorkspaceInvitationEmail, {
+        workspaceName: "Équipe Produit",
+        inviterName: "Camille",
+        inviterEmail: "camille@example.com",
+        invitationLink: "https://kaneo.example/invite/abc",
+        to: "invite@example.com",
+        locale: "fr-FR",
+        role: "Membre",
+        expiresAt: new Date("2026-10-13T12:00:00Z"),
+        copy: frFR.invitations.email,
+      }),
+    );
+
+    expect(html).toContain("Détails de l’invitation");
+    expect(html).toContain("Membre");
+    expect(html).toContain("13 oct. 2026");
   });
 });

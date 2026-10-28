@@ -1,4 +1,4 @@
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, LinkIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,9 @@ export function CopyUrlButton() {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      toast.success(t("publicProject:copyUrl.successToast"));
+      toast.success(t("publicProject:copyUrl.successToast"), {
+        icon: LinkIcon,
+      });
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error("Failed to copy URL:", error);

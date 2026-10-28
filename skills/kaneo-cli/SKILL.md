@@ -11,7 +11,7 @@ description: Work with Kaneo tasks, projects, comments and time tracking through
 
 Run `kaneo context`. It prints the server, user, workspace and project in use, and where each value came from.
 
-- `kaneo: command not found`: ask the user to install it in their own terminal, where they can read the script first: `curl -fsSL https://kaneo.app/cli/install.sh | sh` (Windows: `irm https://kaneo.app/cli/install.ps1 | iex`). The binary lands in `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`). Your shell may not have that folder on its `PATH` yet, so call it by that full path until it does.
+- `kaneo: command not found`: ask the user to install it in their own terminal, where they can read the script first: `curl -fsSL https://kaneo.app/cli/install.sh | sh` (Windows: `irm https://kaneo.app/cli/install.ps1 | iex`), `brew install usekaneo/tap/kaneo` with Homebrew, or `npm install -g @kaneo/cli` with Node.js 20 or newer. The script's binary lands in `~/.local/bin/kaneo` (Windows: `%LOCALAPPDATA%\Programs\kaneo\kaneo.exe`). Your shell may not have that folder on its `PATH` yet, so call it by that full path until it does.
 - No user: `kaneo login` is a browser approval only a person can finish. Ask the user to run it in their own terminal. Headless and CI runs use an API key in `KANEO_API_KEY` instead (created in Kaneo under Settings, Account, API Keys).
 - No workspace: list them with `kaneo workspace list --jq '.[] | "\(.id) \(.name)"'` and pass `-w <id>`, or ask the user to pick a default with `kaneo workspace use`.
 - Server or compatibility errors: `kaneo doctor` explains what is wrong.
@@ -33,6 +33,7 @@ You are ready when `kaneo context` shows a user and the workspace you mean to ac
 - Statuses are the slugs of a project's columns, such as `to-do`, `in-progress` or `done`. Projects can have custom columns, so list them with `kaneo column list -p KAN` before moving a task somewhere unfamiliar.
 - The workspace comes from `-w`, then `KANEO_WORKSPACE`, then a `.kaneo.json` in the current folder or any parent, then the default from `kaneo workspace use`. The project comes from `-p`, then `KANEO_PROJECT`, then `.kaneo.json`. A `.kaneo.json` further up the tree can select a different workspace than expected; `kaneo context` shows which source won.
 - Dates take `YYYY-MM-DD`, `today`, `tomorrow` or `+3d`.
+- `kaneo task repeat` matches weekdays and month ends in the time zone of the machine it runs on. When that may not be the user's, such as in CI or on a remote host, pass their zone with `--time-zone`. `--stop` ends a series.
 - Descriptions and comments are Markdown. Pass long text with `-F <file>`, or `-F -` to read stdin.
 
 ## Common commands
@@ -47,6 +48,7 @@ kaneo task create "Fix flaky login test" -p KAN --priority high --due tomorrow -
 kaneo task status KAN-12 in-progress
 kaneo task edit KAN-12 --priority urgent --add-label Bug
 kaneo task assign KAN-12 me
+kaneo task repeat KAN-12 weekly --on mon,thu --time-zone Europe/Madrid
 kaneo comment add KAN-12 "Fixed in #123"
 kaneo time log KAN-12 1h30m -m "Pairing on the fix"
 kaneo search "login redirect" --type tasks

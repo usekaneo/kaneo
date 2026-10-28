@@ -1,6 +1,8 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
+import { useShortcutsPanelStore } from "@/components/shortcuts/shortcuts-panel-store";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ArrowDownIcon, ArrowUpIcon, CornerDownLeftIcon } from "lucide-react";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SearchCommandMenu from "@/components/search-command-menu";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
@@ -22,11 +24,11 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
-import { shortcuts } from "@/constants/shortcuts";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
+import type { ShortcutId } from "@/lib/shortcuts/catalog";
 import { authClient } from "@/lib/auth-client";
 import { hasInstanceAdminRole } from "@/lib/instance-admin";
 import { usePlugins } from "@/lib/plugins/runtime/plugins-context";
@@ -39,7 +41,7 @@ import CreateProjectModal from "../shared/modals/create-project-modal";
 type PaletteActionItem = {
   value: string;
   label: string;
-  shortcut?: string;
+  shortcutId?: ShortcutId;
   onRun: () => void;
 };
 
@@ -79,41 +81,11 @@ function CommandPalette() {
       ? routeProject.id
       : null;
 
-  useRegisterShortcuts({
-    shortcuts: {
-      [shortcuts.help.key]: () => {
-        document.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-      },
-    },
-    modifierShortcuts: {
-      [shortcuts.palette.prefix]: {
-        [shortcuts.palette.open]: () => {
-          setOpen((prev) => !prev);
-        },
-      },
-    },
-    sequentialShortcuts: {
-      [shortcuts.project.prefix]: {
-        [shortcuts.project.list]: () => {
-          if (!workspace?.id) return;
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/projects",
-            params: { workspaceId: workspace.id },
-          });
-        },
-        [shortcuts.project.create]: () => setIsCreateProjectOpen(true),
-      },
-      [shortcuts.task.prefix]: {
-        [shortcuts.task.create]: () => setIsCreateTaskOpen(true),
-      },
-      [shortcuts.workspace.prefix]: {
-        [shortcuts.workspace.create]: () => {
-          if (!canCreateWorkspace) return;
-          setIsCreateWorkspaceOpen(true);
-        },
-      },
-    },
-  });
+  const openShortcutsPanel = useShortcutsPanelStore((state) => state.setOpen);
+
+  useShortcut("openCommandMenu", () => setOpen((prev) => !prev));
+  useShortcut("createTask", () => setIsCreateTaskOpen(true));
+  useShortcut("createProject", () => setIsCreateProjectOpen(true));
 
   const runCommand = useCallback((command: () => void) => {
     command();
@@ -160,7 +132,7 @@ function CommandPalette() {
           {
             value: "projects",
             label: t("navigation:commandPalette.projects"),
-            shortcut: `${shortcuts.project.prefix} ${shortcuts.project.list}`,
+            shortcutId: "goToProjects",
             onRun: () => {
               if (!workspace?.id) return;
               navigate({
@@ -172,7 +144,7 @@ function CommandPalette() {
           {
             value: "search",
             label: t("navigation:commandPalette.search"),
-            shortcut: shortcuts.search.prefix,
+            shortcutId: "openSearch",
             onRun: () => setIsSearchOpen(true),
           },
           {
@@ -181,19 +153,23 @@ function CommandPalette() {
               defaultValue: "Members",
             }),
             onRun: () => {
-              navigate({ to: "/dashboard/settings/workspace/members" });
+              if (!workspace?.id) return;
+              navigate({
+                to: "/dashboard/workspace/$workspaceId/members",
+                params: { workspaceId: workspace.id },
+              });
             },
           },
           {
             value: "create-task",
             label: t("navigation:commandPalette.createTask"),
-            shortcut: `${shortcuts.task.prefix} ${shortcuts.task.create}`,
+            shortcutId: "createTask",
             onRun: () => setIsCreateTaskOpen(true),
           },
           {
             value: "create-project",
             label: t("navigation:commandPalette.createProject"),
-            shortcut: `${shortcuts.project.prefix} ${shortcuts.project.create}`,
+            shortcutId: "createProject",
             onRun: () => setIsCreateProjectOpen(true),
           },
         ],
@@ -207,7 +183,6 @@ function CommandPalette() {
                 {
                   value: "create-workspace",
                   label: t("navigation:commandPalette.createWorkspace"),
-                  shortcut: `${shortcuts.workspace.prefix} ${shortcuts.workspace.create}`,
                   onRun: () => setIsCreateWorkspaceOpen(true),
                 },
               ]
@@ -230,82 +205,28 @@ function CommandPalette() {
           {
             value: "keyboard-shortcuts",
             label: t("navigation:commandPalette.keyboardShortcuts"),
-            shortcut: "?",
-            onRun: () => {
-              setTimeout(() => {
-                document.dispatchEvent(
-                  new KeyboardEvent("keydown", { key: "?" }),
-                );
-              }, 100);
-            },
+            shortcutId: "openShortcuts",
+            onRun: () => openShortcutsPanel(true),
           },
         ],
       },
       ...pluginGroups,
     ],
-    [navigate, setTheme, t, workspace?.id, canCreateWorkspace, pluginGroups],
+    [
+      navigate,
+      setTheme,
+      t,
+      workspace?.id,
+      canCreateWorkspace,
+      openShortcutsPanel,
+      pluginGroups,
+    ],
   );
-
-  const shortcutHandlers = useMemo(() => {
-    const handlers = new Map<string, () => void>();
-    for (const group of groupedItems) {
-      for (const item of group.items) {
-        if (!item.shortcut) continue;
-        handlers.set(
-          item.shortcut.replace(/\s+/g, "").toLowerCase(),
-          item.onRun,
-        );
-      }
-    }
-    return handlers;
-  }, [groupedItems]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    let sequence = "";
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.metaKey ||
-        event.ctrlKey ||
-        event.altKey ||
-        event.key === "Shift"
-      ) {
-        return;
-      }
-
-      if (event.key.length !== 1 && event.key !== "?") {
-        return;
-      }
-
-      sequence = `${sequence}${event.key.toLowerCase()}`.slice(-3);
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        sequence = "";
-      }, 700);
-
-      const handler = shortcutHandlers.get(sequence);
-      if (!handler) return;
-
-      event.preventDefault();
-      runCommand(handler);
-      sequence = "";
-      clearTimeout(timeout);
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      clearTimeout(timeout);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open, shortcutHandlers, runCommand]);
 
   return (
     <>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandDialogPopup instant>
+        <CommandDialogPopup instant finalFocus={false}>
           <Command items={groupedItems}>
             <CommandInput
               placeholder={t("navigation:commandPalette.inputPlaceholder")}
@@ -329,9 +250,12 @@ function CommandPalette() {
                               className="px-3"
                             >
                               <span className="flex-1">{item.label}</span>
-                              {item.shortcut && (
+                              {item.shortcutId && (
                                 <CommandShortcut>
-                                  {item.shortcut}
+                                  <ShortcutKeys
+                                    id={item.shortcutId}
+                                    tone="muted"
+                                  />
                                 </CommandShortcut>
                               )}
                             </CommandItem>
@@ -381,6 +305,7 @@ function CommandPalette() {
         projectId={projectIdFromRoute}
         status={isBacklogView ? "planned" : undefined}
         onClose={() => setIsCreateTaskOpen(false)}
+        instant
       />
       <CreateWorkspaceModal
         open={isCreateWorkspaceOpen}

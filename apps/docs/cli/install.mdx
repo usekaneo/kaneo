@@ -29,6 +29,26 @@ Then [sign in](/cli/sign-in) and run `kaneo` on its own to see your account, you
 Both scripts are plain text. Read them before running them: [install.sh](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.sh) and [install.ps1](https://github.com/usekaneo/kaneo/blob/main/apps/site/public/cli/install.ps1), or print one with `curl -fsSL https://kaneo.app/cli/install.sh | less`.
 </Tip>
 
+## Install with Homebrew
+
+On macOS and Linux with [Homebrew](https://brew.sh):
+
+```bash
+brew install usekaneo/tap/kaneo
+```
+
+Update it with `brew upgrade kaneo` and remove it with `brew uninstall kaneo`. Homebrew installs the same binary as the install script, from the CLI release, and checks it against the release checksums.
+
+## Install with npm
+
+With Node.js 20 or newer, you can install the same CLI from npm instead:
+
+```bash
+npm install -g @kaneo/cli
+```
+
+Update it with `npm install -g @kaneo/cli@latest` and remove it with `npm uninstall -g @kaneo/cli`. Every install method shares your logins and settings. Keep one of them per machine: with more than one installed, whichever comes first on your `PATH` runs, and the install script warns about the other copy.
+
 ## Install options
 
 Set these environment variables to change what the script does:

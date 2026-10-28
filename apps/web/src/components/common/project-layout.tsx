@@ -1,15 +1,22 @@
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { CalendarRange, SquareKanban, SquircleDashed } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
 import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
 import Layout from "@/components/common/layout";
-import { PluginIcon } from "@/components/plugins/plugin-icon";
+import { PluginViewLink } from "@/components/project/views/plugin-view-link";
+import { PLUGIN_VIEW_PATH } from "@/components/project/views/plugin-view-path";
+import { ProjectScopeToggle } from "@/components/project/views/project-scope-toggle";
+import {
+  PROJECT_ROUTE_PATHS,
+  type ProjectRoute,
+  resolveProjectView,
+} from "@/components/project/views/project-views";
+import { useGoToProjectView } from "@/components/project/views/use-go-to-project-view";
+import { useProjectViewShortcuts } from "@/components/project/views/use-project-view-shortcuts";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
-import { Button } from "@/components/ui/button";
-import { KbdSequence } from "@/components/ui/kbd";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -17,10 +24,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { shortcuts } from "@/constants/shortcuts";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 import { cn } from "@/lib/cn";
+import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
 import {
   isSamePluginView,
   type PluginViewRef,
@@ -28,22 +35,27 @@ import {
 } from "@/lib/plugins/runtime/use-project-plugin-views";
 import { getProjectUnavailableReason } from "@/lib/project-unavailable-reason";
 import { useBackgroundStore } from "@/store/background";
+import { useUserPreferencesStore } from "@/store/user-preferences";
 import ProjectUnavailable from "./project-unavailable";
 
 type ProjectLayoutProps = {
   projectId: string;
   workspaceId: string;
-  headerActions?: ReactNode;
+  toolbar?: ReactNode;
+  summary?: ReactNode;
+  filterBar?: ReactNode;
   children: ReactNode;
   showViewSwitcher?: boolean;
-  activeView?: "backlog" | "board" | "calendar";
+  activeView?: ProjectRoute;
   activePluginView?: PluginViewRef;
 };
 
 export default function ProjectLayout({
   projectId,
   workspaceId,
-  headerActions,
+  toolbar,
+  summary,
+  filterBar,
   children,
   showViewSwitcher = true,
   activeView,
@@ -60,73 +72,47 @@ export default function ProjectLayout({
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] =
     useState(false);
   const { background } = useBackgroundStore();
+  const viewMode = useUserPreferencesStore((state) => state.viewMode);
   const pluginViews = useProjectPluginViews(workspaceId, projectId);
 
   useProjectWebSocket(unavailableReason ? "" : projectId);
 
-  const resolvedView = activePluginView
-    ? null
-    : (activeView ??
-      (location.pathname.includes("/backlog")
-        ? "backlog"
-        : location.pathname.includes("/calendar")
-          ? "calendar"
-          : "board"));
+  const resolvedRoute: ProjectRoute =
+    activeView ??
+    (location.pathname.includes("/backlog")
+      ? "backlog"
+      : location.pathname.includes("/calendar")
+        ? "calendar"
+        : "board");
+  const currentRoute = activePluginView ? null : resolvedRoute;
+  const currentView = currentRoute
+    ? resolveProjectView(currentRoute, viewMode)
+    : null;
+  const showViews = showViewSwitcher && !unavailableReason;
 
-  const handleNavigateToPluginView = (view: PluginViewRef) => {
+  const goToView = useGoToProjectView({ workspaceId, projectId, currentRoute });
+  const goToPluginView = (view: PluginViewRef, targetProjectId = projectId) => {
     navigate({
-      to: "/dashboard/workspace/$workspaceId/project/$projectId/plugin/$pluginId/$viewId",
+      to: PLUGIN_VIEW_PATH,
       params: {
         workspaceId,
-        projectId,
+        projectId: targetProjectId,
         pluginId: view.pluginId,
         viewId: view.viewId,
       },
     });
   };
-
-  const handleNavigateToBacklog = () => {
-    navigate({
-      to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
-      params: { workspaceId, projectId },
-    });
-  };
-
-  const handleNavigateToBoard = () => {
-    navigate({
-      to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
-      params: { workspaceId, projectId },
-    });
-  };
-
-  const handleNavigateToCalendar = () => {
-    navigate({
-      to: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
-      params: { workspaceId, projectId },
-    });
-  };
+  useProjectViewShortcuts(goToView, currentView, showViews);
+  usePluginViewShortcuts(pluginViews, goToPluginView, showViews);
 
   const handleProjectSwitch = (nextProjectId: string) => {
     if (activePluginView) {
-      navigate({
-        to: "/dashboard/workspace/$workspaceId/project/$projectId/plugin/$pluginId/$viewId",
-        params: {
-          workspaceId,
-          projectId: nextProjectId,
-          pluginId: activePluginView.pluginId,
-          viewId: activePluginView.viewId,
-        },
-      });
+      goToPluginView(activePluginView, nextProjectId);
       return;
     }
 
     navigate({
-      to:
-        resolvedView === "backlog"
-          ? "/dashboard/workspace/$workspaceId/project/$projectId/backlog"
-          : resolvedView === "calendar"
-            ? "/dashboard/workspace/$workspaceId/project/$projectId/calendar"
-            : "/dashboard/workspace/$workspaceId/project/$projectId/board",
+      to: PROJECT_ROUTE_PATHS[resolvedRoute],
       params: {
         workspaceId,
         projectId: nextProjectId,
@@ -141,125 +127,91 @@ export default function ProjectLayout({
           "bg-card/90 backdrop-blur": !!background,
         })}
       >
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <SidebarTrigger className="-ml-1 h-7 w-7 cursor-pointer text-foreground/85 hover:text-foreground" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="flex items-center gap-2 text-[10px]">
-                    {t("navigation:settingsLayout.toggleSidebar")}
-                    <KbdSequence
-                      keys={[
-                        shortcuts.sidebar.prefix,
-                        shortcuts.sidebar.toggle,
-                      ]}
-                    />
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        <div className="flex w-full min-w-0 items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SidebarTrigger className="-ml-1 h-7 w-7 shrink-0 cursor-pointer text-foreground/85 hover:text-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="flex items-center gap-2 text-[10px]">
+                  {t("navigation:settingsLayout.toggleSidebar")}
+                  <ShortcutKeys id="toggleSidebar" />
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
-            <div className="h-4 w-px shrink-0 bg-border/80" />
+          <div className="h-4 w-px shrink-0 bg-border/80" />
 
-            <div className="hidden min-w-0 items-center gap-1 md:flex">
-              <WorkspaceCrumbSelect />
-              <span className="text-foreground/30 text-xs">/</span>
-              <ProjectCrumbSelect
-                workspaceId={workspaceId}
-                projectId={projectId}
-                projectName={project?.name}
-                onSelectProject={handleProjectSwitch}
-                onAddProject={() => setIsCreateProjectModalOpen(true)}
-              />
-            </div>
-
-            <div className="min-w-0 md:hidden">
-              <MobileProjectNav
-                workspaceId={workspaceId}
-                projectId={projectId}
-                projectName={project?.name}
-                activeView={resolvedView}
-                onSelectBacklog={handleNavigateToBacklog}
-                onSelectBoard={handleNavigateToBoard}
-                onSelectCalendar={handleNavigateToCalendar}
-                pluginViews={pluginViews}
-                activePluginView={activePluginView}
-                onSelectPluginView={handleNavigateToPluginView}
-                onSelectProject={handleProjectSwitch}
-                onAddProject={() => setIsCreateProjectModalOpen(true)}
-              />
-            </div>
-
-            {showViewSwitcher && !unavailableReason && (
-              <div className="hidden h-8 items-center gap-0.5 rounded-lg border border-border/80 bg-background p-0.5 sm:inline-flex">
-                <Button
-                  variant={resolvedView === "backlog" ? "secondary" : "ghost"}
-                  size="xs"
-                  onClick={handleNavigateToBacklog}
-                  className={cn(
-                    "h-6 gap-1.5 rounded-md px-2 text-xs",
-                    resolvedView !== "backlog" && "text-muted-foreground",
-                  )}
-                >
-                  <SquircleDashed className="size-3.5" />
-                  {t("tasks:view.backlog")}
-                </Button>
-                <Button
-                  variant={resolvedView === "board" ? "secondary" : "ghost"}
-                  size="xs"
-                  onClick={handleNavigateToBoard}
-                  className={cn(
-                    "h-6 gap-1.5 rounded-md px-2 text-xs",
-                    resolvedView !== "board" && "text-muted-foreground",
-                  )}
-                >
-                  <SquareKanban className="size-3.5" />
-                  {t("tasks:title")}
-                </Button>
-                <Button
-                  variant={resolvedView === "calendar" ? "secondary" : "ghost"}
-                  size="xs"
-                  onClick={handleNavigateToCalendar}
-                  className={cn(
-                    "h-6 gap-1.5 rounded-md px-2 text-xs",
-                    resolvedView !== "calendar" && "text-muted-foreground",
-                  )}
-                >
-                  <CalendarRange className="size-3.5" />
-                  {t("tasks:calendar.title")}
-                </Button>
-                {pluginViews.map((view) => (
-                  <Button
-                    key={`${view.pluginId}:${view.viewId}`}
-                    variant={
-                      isSamePluginView(activePluginView, view)
-                        ? "secondary"
-                        : "ghost"
-                    }
-                    size="xs"
-                    onClick={() => handleNavigateToPluginView(view)}
-                    className={cn(
-                      "h-6 gap-1.5 rounded-md px-2 text-xs",
-                      !isSamePluginView(activePluginView, view) &&
-                        "text-muted-foreground",
-                    )}
-                  >
-                    <PluginIcon icon={view.icon} />
-                    {view.title}
-                  </Button>
-                ))}
-              </div>
-            )}
+          <div className="hidden min-w-0 items-center gap-1 md:flex">
+            <WorkspaceCrumbSelect />
+            <span className="text-foreground/30 text-xs">/</span>
+            <ProjectCrumbSelect
+              workspaceId={workspaceId}
+              projectId={projectId}
+              projectName={project?.name}
+              onSelectProject={handleProjectSwitch}
+              onAddProject={() => setIsCreateProjectModalOpen(true)}
+            />
           </div>
 
-          <div className="flex shrink-0 items-center gap-1.5">
-            {unavailableReason ? null : headerActions}
+          <div className="min-w-0 md:hidden">
+            <MobileProjectNav
+              workspaceId={workspaceId}
+              projectId={projectId}
+              projectName={project?.name}
+              pluginViews={pluginViews}
+              activePluginView={activePluginView}
+              onSelectPluginView={goToPluginView}
+              onSelectProject={handleProjectSwitch}
+              onAddProject={() => setIsCreateProjectModalOpen(true)}
+            />
           </div>
         </div>
       </Layout.Header>
+
+      {unavailableReason ? null : (
+        <TooltipProvider>
+          <div
+            className={cn(
+              "flex h-11 shrink-0 items-center gap-2.5 border-border/80 border-b px-2 sm:px-3",
+              { "bg-card/80 backdrop-blur": !!background },
+            )}
+          >
+            {showViewSwitcher && (
+              <ProjectScopeToggle
+                workspaceId={workspaceId}
+                projectId={projectId}
+                currentView={currentView}
+                onSelect={goToView}
+              >
+                {pluginViews.length > 0 && (
+                  <span className="hidden sm:contents">
+                    {pluginViews.map((view) => (
+                      <PluginViewLink
+                        key={`${view.pluginId}:${view.viewId}`}
+                        view={view}
+                        workspaceId={workspaceId}
+                        projectId={projectId}
+                        active={isSamePluginView(activePluginView, view)}
+                        onSelect={goToPluginView}
+                      />
+                    ))}
+                  </span>
+                )}
+              </ProjectScopeToggle>
+            )}
+            {summary}
+            <div className="ml-auto flex shrink-0 items-center gap-1">
+              {toolbar}
+            </div>
+          </div>
+          <div className={cn({ "bg-card/80 backdrop-blur": !!background })}>
+            {filterBar}
+          </div>
+        </TooltipProvider>
+      )}
 
       <Layout.Content>
         {unavailableReason ? (

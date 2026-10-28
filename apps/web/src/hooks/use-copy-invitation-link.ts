@@ -1,3 +1,4 @@
+import { LinkIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { copyToClipboard } from "@/lib/copy-to-clipboard";
@@ -36,7 +37,7 @@ export function useCopyInvitationLink() {
       }
 
       setCopied(true);
-      toast.success(t("team:invitations.linkCopied"));
+      toast.success(t("team:invitations.linkCopied"), { icon: LinkIcon });
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setCopied(false), COPIED_RESET_MS);
     },

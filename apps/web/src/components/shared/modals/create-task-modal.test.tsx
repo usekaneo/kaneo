@@ -1,3 +1,4 @@
+import enUS from "@i18n/en-US.json";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
@@ -53,6 +54,7 @@ let projectColumns:
 let storedProject: { id: string; columns: unknown[] } | null = null;
 let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
+let customFieldDefs: unknown[] | undefined;
 vi.mock("@/lib/upload-draft-asset", () => ({
   uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
 }));
@@ -64,6 +66,7 @@ beforeEach(() => {
     { id: "project-2", name: "Beta", slug: "bet" },
   ];
   storedProject = null;
+  customFieldDefs = undefined;
   columnsError = false;
   columnsFetching = false;
   refetchColumns.mockImplementation(async () => ({
@@ -169,6 +172,13 @@ vi.mock("@/hooks/queries/column/use-get-columns", () => ({
   }),
 }));
 
+vi.mock(
+  "@/hooks/queries/custom-field/use-get-custom-fields-by-project",
+  () => ({
+    default: () => ({ data: customFieldDefs }),
+  }),
+);
+
 vi.mock("@/hooks/queries/project/use-get-projects", () => ({
   default: () => ({ data: projects }),
 }));
@@ -182,11 +192,72 @@ vi.mock("@/lib/toast", () => ({
 }));
 
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => {
+      if (key === "tasks:popover.dueDate.clear")
+        return enUS.tasks.popover.dueDate.clear;
+      // Keep the real source bundle involved so a deleted clear label fails.
+      if (key === "common:modals.createTask.clearDueDate") {
+        const source: Record<string, unknown> = enUS.common.modals.createTask;
+        return typeof source.clearDueDate === "string"
+          ? source.clearDueDate
+          : key;
+      }
+      return key;
+    },
+    i18n: { language: "en-US" },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
 describe("CreateTaskModal", () => {
+  it("stops offering recurrence when the target changes to a final column", async () => {
+    projectColumns = [
+      { id: "todo", slug: "to-do", name: "To Do", isFinal: false },
+      { id: "done", slug: "done", name: "Done", isFinal: true },
+    ];
+    const onClose = vi.fn();
+    const { rerender } = render(<CreateTaskModal open onClose={onClose} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    fireEvent.click(screen.getByText("common:modals.createTask.dueDate"));
+    fireEvent.click(await screen.findByText("tasks:popover.recurrence.toggle"));
+    rerender(<CreateTaskModal open status="done" onClose={onClose} />);
+    expect(
+      screen.queryByText("tasks:popover.recurrence.toggle"),
+    ).not.toBeInTheDocument();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ status: "done", recurrence: undefined }),
+      ),
+    );
+  });
+
+  it("shows a translated clear-date action and clears the selected due date", async () => {
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    const trigger = screen
+      .getByText("common:modals.createTask.dueDate")
+      .closest("button")!;
+    fireEvent.click(trigger);
+    fireEvent.click(await screen.findByText("tasks:due.today"));
+    fireEvent.click(trigger);
+    fireEvent.click(await screen.findByText("Clear date"));
+    expect(trigger).toHaveTextContent("common:modals.createTask.dueDate");
+    enterTitle();
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({ dueDate: undefined }),
+      ),
+    );
+  });
+
   it("keeps unsaved input while discard confirmation is open", async () => {
     useLocation.mockReturnValue({
       pathname: "/dashboard/workspace/workspace-1/project/project-1/board",
@@ -327,6 +398,31 @@ describe("CreateTaskModal", () => {
       expect(createTask).toHaveBeenCalledWith(
         expect.objectContaining({ status: "ready-for-work" }),
       ),
+    );
+  });
+
+  it("creates a repeating task from the due date picker", async () => {
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+    await chooseBeta();
+    enterTitle();
+    fireEvent.click(screen.getByText("common:modals.createTask.dueDate"));
+    fireEvent.click(await screen.findByText("tasks:popover.recurrence.toggle"));
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recurrence: expect.objectContaining({
+            frequency: "weekly",
+            interval: 1,
+          }),
+        }),
+      ),
+    );
+    // The rule follows the due date's weekday until the user picks days.
+    expect(createTask.mock.calls.at(-1)?.[0].recurrence).not.toHaveProperty(
+      "weekdays",
     );
   });
 
@@ -668,5 +764,69 @@ describe("CreateTaskModal context isolation", () => {
     expect(createTask).not.toHaveBeenCalled();
     expect(deleteTask).not.toHaveBeenCalled();
     expect(setProject).not.toHaveBeenCalled();
+  });
+});
+
+const customField = (
+  id: string,
+  type: string,
+  required: boolean,
+  defaultValue: string | null = null,
+) => ({
+  id,
+  projectId: "project-2",
+  name: id,
+  type,
+  required,
+  defaultValue,
+  options: null,
+  position: 0,
+  createdAt: "",
+  updatedAt: "",
+});
+
+describe("CreateTaskModal custom fields", () => {
+  it("flags empty required fields instead of creating, then sends the filled values", async () => {
+    customFieldDefs = [
+      customField("customer", "text", true),
+      customField("billable", "boolean", true, "false"),
+      customField("points", "number", false),
+    ];
+    render(<CreateTaskModal open onClose={vi.fn()} projectId="project-2" />, {
+      wrapper: createWrapper(),
+    });
+    enterTitle();
+    submit();
+
+    expect(
+      await screen.findByText("tasks:customFields.missingRequired"),
+    ).toBeInTheDocument();
+    expect(createTask).not.toHaveBeenCalled();
+    const customerChip = document.querySelector(
+      '[data-custom-field="customer"]',
+    ) as HTMLElement;
+    expect(document.activeElement).toBe(customerChip);
+
+    fireEvent.click(customerChip);
+    const input = await screen.findByLabelText("customer");
+    fireEvent.change(input, { target: { value: "Acme Corp" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    await vi.waitFor(() =>
+      expect(
+        screen.queryByText("tasks:customFields.missingRequired"),
+      ).not.toBeInTheDocument(),
+    );
+    submit();
+    await vi.waitFor(() =>
+      expect(createTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customFields: [
+            { fieldId: "customer", value: "Acme Corp" },
+            { fieldId: "billable", value: "false" },
+          ],
+        }),
+      ),
+    );
   });
 });

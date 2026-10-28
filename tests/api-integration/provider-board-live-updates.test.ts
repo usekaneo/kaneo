@@ -13,6 +13,7 @@ import {
 } from "./helpers/fixtures";
 const m = vi.hoisted(() => ({
   integrations: [] as unknown[],
+  labels: [] as string[],
   publish: vi.fn(
     async (
       _name: string,
@@ -21,6 +22,9 @@ const m = vi.hoisted(() => ({
   ),
 }));
 vi.mock("../../apps/api/src/events", () => ({ publishEvent: m.publish }));
+vi.mock("../../apps/api/src/plugins/sync/provider-issue", () => ({
+  providerIssue: async () => ({ read: async () => ({ labels: m.labels }) }),
+}));
 vi.mock(
   "../../apps/api/src/plugins/github/services/task-service",
   async (original) => ({
@@ -51,6 +55,7 @@ vi.mock(
 beforeEach(async () => {
   await resetTestDatabase();
   m.publish.mockReset();
+  m.labels = [];
 });
 it.each([
   ["github", "text"],
@@ -103,7 +108,8 @@ it.each([
       resourceType: "issue",
       externalId: "1",
       url: "https://provider.example/issues/1",
-      metadata: "{}",
+      // Links record the field labels they start with.
+      metadata: JSON.stringify({ syncFieldLabels: [] }),
     });
     if (kind === "label-delete")
       await db.insert(schema.labelTable).values({
@@ -163,6 +169,7 @@ it.each([
           label,
           repository,
         };
+        m.labels = payload.issue.labels.map(({ name }) => name);
         if (provider === "github") await handleIssueLabeled(payload);
         else await handleGiteaIssueLabeled(payload);
       }

@@ -10,7 +10,6 @@ import { usePlugins } from "@/lib/plugins/runtime/plugins-context";
 import { pluginsForWorkspace } from "@/lib/plugins/runtime/plugins-for-workspace";
 import { findContribution } from "@/lib/plugins/runtime/select-contributions";
 import { usePluginLabel } from "@/lib/plugins/runtime/use-plugin-label";
-import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
 
 type PluginViewSearchParams = {
   taskId?: string;
@@ -48,8 +47,6 @@ function RouteComponent() {
   const handleCloseTaskSheet = useCallback(() => {
     navigate({ to: ".", search: {}, replace: true });
   }, [navigate]);
-
-  usePluginViewShortcuts(workspaceId, projectId);
 
   return (
     <ProjectLayout

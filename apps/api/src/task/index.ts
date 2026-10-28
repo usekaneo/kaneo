@@ -55,18 +55,21 @@ import {
   requireBulkTaskEntitlement,
   requireBulkTaskPermission,
   requireTaskAssigneePermission,
+  requireTaskRecurrencePermission,
 } from "./controllers/require-task-permission";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
+import updateTaskRecurrence from "./controllers/update-task-recurrence";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
 import {
   getDeferredDescriptionMatches,
   getDescriptionPage,
 } from "./description-pages";
+import "./recurrence/subscribe";
 import {
   assignedTasksSchema,
   boardSchema,
@@ -105,6 +108,7 @@ import {
   updateDescriptionBody,
   updateDueDateBody,
   updatePriorityBody,
+  updateRecurrenceBody,
   updateStatusBody,
   updateTaskBody,
   updateTitleBody,
@@ -139,12 +143,15 @@ const listTasksRoute = createRoute({
   summary: "List tasks",
   description:
     "Get a project's board: its columns, each with the tasks in it, plus the archived and planned buckets. Responses always contain at most 100 tasks (50 by default). Continue through pagination.totalPages for the whole board, and for each task page follow relatedPage through pagination.relatedTotalPages for all labels, links and column metadata. Filters and sorting apply before pagination. Descriptions larger than 64 KiB are omitted with descriptionDeferred=true; read the task detail or description pages for full text.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam, query: listTasksQuery },
   responses: {
     200: jsonResponse("The project board", boardSchema),
     503: errorResponse("Task list request timed out"),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Project not found"),
   },
 });
@@ -297,7 +304,7 @@ const createTaskRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created task", taskSchema),
-    400: errorResponse("Invalid body"),
+    400: errorResponse("Invalid body, or a repeating task in a final column"),
     403: errorResponse(
       "No access to the project, or missing task:create permission",
     ),
@@ -346,14 +353,17 @@ const getTaskRoute = createRoute({
   summary: "Get task",
   description:
     "Get a single task by ID, with its assignee name. The board view omits descriptions above 64 KiB and includes task and same-project parent subtask progress.",
-  middleware: [workspaceAccess.fromTask()] as const,
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: {
     params: taskParam,
     query: z.object({ view: z.enum(["detail", "board"]).optional() }),
   },
   responses: {
     200: jsonResponse("Task details", taskWithAssigneeSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
   },
 });
@@ -365,7 +375,7 @@ const getTaskByTicketIdRoute = createRoute({
   tags: ["Tasks"],
   summary: "Get task by ticket ID",
   description:
-    "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
+    "Get a single task by its project key and number, such as KAN-12. Only tasks with current task:read permission and API key scope are considered. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
     200: jsonResponse("Task details", taskByTicketIdSchema),
@@ -448,11 +458,14 @@ const exportTasksRoute = createRoute({
   summary: "Export tasks",
   description:
     "Export a project's tasks, with their labels, as a JSON document.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The exported project and tasks", taskExportSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Project not found"),
   },
 });
@@ -629,6 +642,39 @@ const updateTaskDueDateRoute = createRoute({
   },
 });
 
+const updateTaskRecurrenceRoute = createRoute({
+  method: "put",
+  operationId: "updateTaskRecurrence",
+  path: "/recurrence/{id}",
+  tags: ["Tasks"],
+  summary: "Update task recurrence",
+  description:
+    "Make a task repeat, or stop it repeating. Setting a rule requires task:update and task:create; clearing it requires task:update. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireTaskRecurrencePermission,
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateRecurrenceBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    400: errorResponse("Invalid recurrence rule"),
+    403: errorResponse(
+      "No access to the project, missing task:update, or missing task:create when setting a rule",
+    ),
+    404: errorResponse("Task not found"),
+    409: errorResponse(
+      "The task is completed and no longer holds a rule; reopen it first",
+    ),
+  },
+});
+
 const updateTaskTitleRoute = createRoute({
   method: "put",
   operationId: "updateTaskTitle",
@@ -756,12 +802,15 @@ const descriptionPageRoute = createRoute({
   path: "/{id}/description",
   tags: ["Tasks"],
   summary: "Read a description page",
-  middleware: [workspaceAccess.fromTaskId("id")] as const,
+  middleware: [
+    workspaceAccess.fromTaskId("id"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskParam, query: descriptionPageQuery },
   responses: {
     200: jsonResponse("Description page", descriptionPageSchema),
     400: errorResponse("Invalid offset or version"),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
     409: errorResponse("Description changed; reload from offset zero"),
     503: errorResponse("Description request timed out"),
@@ -773,12 +822,15 @@ const descriptionMatchesRoute = createRoute({
   path: "/description-matches/{projectId}",
   tags: ["Tasks"],
   summary: "Search descriptions omitted from task lists",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam, query: descriptionMatchesQuery },
   responses: {
     200: jsonResponse("Matching task IDs", descriptionMatchesSchema),
     400: errorResponse("Invalid search query or cursor"),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     503: errorResponse("Description search timed out"),
     404: errorResponse("Project not found"),
   },
@@ -887,6 +939,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       userId,
+      recurrence,
       customFields,
       draftAssetIds,
     } = c.req.valid("json");
@@ -912,6 +965,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: parsedDueDate,
       priority,
       status,
+      recurrence,
       customFields,
       draftAssetIds,
     });
@@ -934,7 +988,12 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskByTicketIdRoute, async (c) => {
     const { ticketId } = c.req.valid("param");
     return c.json(
-      await getTaskByTicketId(ticketId, c.get("userId"), c.req.valid("query")),
+      await getTaskByTicketId(
+        ticketId,
+        c.get("userId"),
+        c.req.valid("query"),
+        c.get("apiKey")?.permissions,
+      ),
       200,
     );
   })
@@ -1067,6 +1126,15 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
       currentUserId,
     });
+
+    return c.json(task, 200);
+  })
+  .openapi(updateTaskRecurrenceRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { recurrence } = c.req.valid("json");
+    const currentUserId = c.get("userId");
+
+    const task = await updateTaskRecurrence({ id, recurrence, currentUserId });
 
     return c.json(task, 200);
   })

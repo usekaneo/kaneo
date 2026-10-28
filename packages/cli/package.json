@@ -1,7 +1,7 @@
 {
 	"name": "@kaneo/cli",
-	"version": "0.1.0",
-	"description": "Official command-line client for Kaneo, the open source project manager: sign in, list and update tasks, and script your boards from the terminal",
+	"version": "0.1.1",
+	"description": "Official command-line client for Kaneo: sign in, list and update tasks, and script your boards from the terminal",
 	"license": "MIT",
 	"author": "Kaneo (https://kaneo.app)",
 	"homepage": "https://kaneo.app/docs/cli",
@@ -43,15 +43,15 @@
 		"typecheck": "vp run check:types"
 	},
 	"devDependencies": {
-		"@effect/platform-node": "4.0.2",
+		"@effect/platform-node": "4.0.6",
 		"@gabrielbryk/jq-ts": "1.7.0",
 		"@kaneo/mcp": "workspace:*",
 		"@kaneo/plugin-loader": "workspace:*",
 		"@kaneo/plugin-sdk": "workspace:*",
 		"@kaneo/typescript-config": "workspace:*",
-		"@types/node": "^26.6.2",
+		"@types/node": "^26.6.5",
 		"@types/semver": "^7.8.0",
-		"effect": "4.0.2",
+		"effect": "4.0.6",
 		"jpeg-js": "0.4.4",
 		"pngjs": "7.0.0",
 		"semver": "^7.8.5",

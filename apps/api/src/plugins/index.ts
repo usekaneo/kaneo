@@ -8,17 +8,23 @@ import { initializeEventSubscriptions, registerPlugin } from "./registry";
 import { slackPlugin } from "./slack";
 import { telegramPlugin } from "./telegram";
 
+export const integrationPlugins = [
+  githubPlugin,
+  giteaPlugin,
+  gitlabPlugin,
+  slackPlugin,
+  mattermostPlugin,
+  discordPlugin,
+  genericWebhookPlugin,
+  telegramPlugin,
+];
+
 export function initializePlugins() {
   console.log("Initializing plugins...");
 
-  registerPlugin(githubPlugin);
-  registerPlugin(giteaPlugin);
-  registerPlugin(gitlabPlugin);
-  registerPlugin(slackPlugin);
-  registerPlugin(mattermostPlugin);
-  registerPlugin(discordPlugin);
-  registerPlugin(genericWebhookPlugin);
-  registerPlugin(telegramPlugin);
+  for (const plugin of integrationPlugins) {
+    registerPlugin(plugin);
+  }
   initializeGitHubPlugin();
   initializeEventSubscriptions();
 

@@ -3,11 +3,14 @@ import { HTTPException } from "hono/http-exception";
 import { assertProjectAccess } from "../project-access/assert-project-access";
 import { resolveAssetBearerOrCookie } from "./authenticate-api-request";
 import { validateWorkspaceAccess } from "./validate-workspace-access";
+import { workspacePermissionGrants } from "./workspace-permission-grants";
 
 type AssetAccessTarget = {
   workspaceId: string;
   projectId: string;
   isPublic: boolean | null;
+  /** Archived workspaces keep members out and stop sharing public assets. */
+  workspaceArchived?: boolean;
   surface: string;
   createdBy?: string | null;
 };
@@ -22,10 +25,12 @@ export async function authorizeAssetAccess(
   asset: AssetAccessTarget,
 ): Promise<void> {
   if (isPublicAsset(asset)) {
-    return;
+    if (!asset.workspaceArchived) return;
+    throw new HTTPException(404, { message: "Asset not found" });
   }
 
-  const { userId, apiKeyId } = await resolveAssetBearerOrCookie(c);
+  const { userId, apiKeyId, apiKeyPermissions } =
+    await resolveAssetBearerOrCookie(c);
   await validateWorkspaceAccess(userId, asset.workspaceId, apiKeyId, {
     notFoundMessage: "Asset not found",
   });
@@ -34,4 +39,15 @@ export async function authorizeAssetAccess(
       message: "Staged uploads are private to their owner",
     });
   await assertProjectAccess(userId, asset.projectId);
+  const grants = await workspacePermissionGrants(userId, {
+    apiKeyPermissions,
+    workspaceIds: [asset.workspaceId],
+  });
+  // Drafts are the uploader's task-creation preview, before a task exists.
+  const permissions = {
+    task: [asset.surface.startsWith("draft") ? "create" : "read"],
+  };
+  if (!grants.allows(asset.workspaceId, permissions)) {
+    throw new HTTPException(403, { message: "Insufficient asset permissions" });
+  }
 }

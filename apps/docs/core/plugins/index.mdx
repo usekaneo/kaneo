@@ -275,14 +275,14 @@ Plugin data is stored in Kaneo's PostgreSQL database, so your regular [backups](
 - Removing a plugin from `kaneo.config.ts` keeps its data. Adding the same plugin back restores it.
 - Deleting a workspace deletes the data plugins stored for it.
 
-To delete a removed plugin's data for good, [install the CLI](/cli/install), [sign in](/cli/sign-in) to your instance with an instance admin account, and run `kaneo plugin purge` with the plugin's ID:
+To delete a removed plugin's data for good, [install the CLI](/cli/install), [sign in](/cli/sign-in) to your instance with an account that has the `instance:settings` permission (admins have it), and run `kaneo plugin purge` with the plugin's ID:
 
 ```bash
 kaneo login --api-url https://kaneo.example.com
 kaneo plugin purge kaneo-plugin-task-progress
 ```
 
-It deletes the plugin's stored data and its settings in every workspace, then prints how many rows it deleted from each table. Kaneo refuses while the plugin is installed: remove it from `kaneo.config.ts` and restart Kaneo first. For a built-in plugin, turn it off with `official: { gantt: false }` instead. It also refuses while `DISABLE_PLUGINS=true`, because Kaneo cannot tell then which plugins are installed. Only instance admins can purge, and only with a login, not an API key. The command asks you to confirm; without a terminal, pass `--yes`. Take a [backup](/core/operations/backups) first, because a purge cannot be undone.
+It deletes the plugin's stored data and its settings in every workspace, then prints how many rows it deleted from each table. Kaneo refuses while the plugin is installed: remove it from `kaneo.config.ts` and restart Kaneo first. For a built-in plugin, turn it off with `official: { gantt: false }` instead. It also refuses while `DISABLE_PLUGINS=true`, because Kaneo cannot tell then which plugins are installed. Purging needs the `instance:settings` permission and a login, not an API key. The command asks you to confirm; without a terminal, pass `--yes`. Take a [backup](/core/operations/backups) first, because a purge cannot be undone.
 
 ## Build a plugin
 

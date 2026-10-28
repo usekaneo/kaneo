@@ -38,6 +38,11 @@ async function updateColumn(
   }
 
   if (existing.isFinal !== updated.isFinal) {
+    await publishEvent("column.finality_changed", {
+      projectId: updated.projectId,
+      status: updated.slug,
+      isFinal: updated.isFinal,
+    });
     const parents = await getProjectSubtaskParentProjects(
       updated.projectId,
       updated.slug,

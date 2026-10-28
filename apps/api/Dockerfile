@@ -1,19 +1,21 @@
 # Build stage
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS builder
 
 # Install build dependencies in a single layer
 RUN apk add --no-cache python3 make g++ && \
   corepack enable && \
-  corepack prepare pnpm@10.32.1 --activate
+  corepack prepare pnpm@12.15.0 --activate
 
 WORKDIR /app
 
 # Copy only package files first for better caching
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
+COPY patches ./patches
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/email/package.json ./packages/email/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/permissions/package.json ./packages/permissions/
+COPY packages/importers/package.json ./packages/importers/
 COPY packages/mcp/package.json ./packages/mcp/
 COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
 COPY packages/plugin-sdk/bin ./packages/plugin-sdk/bin
@@ -30,6 +32,7 @@ COPY packages/typescript-config ./packages/typescript-config
 COPY packages/email ./packages/email
 COPY packages/libs ./packages/libs
 COPY packages/permissions ./packages/permissions
+COPY packages/importers ./packages/importers
 COPY packages/mcp ./packages/mcp
 COPY packages/plugin-sdk ./packages/plugin-sdk
 COPY packages/plugin-loader ./packages/plugin-loader
@@ -44,6 +47,10 @@ RUN pnpm run build
 
 # Build permissions package
 WORKDIR /app/packages/permissions
+RUN pnpm run build
+
+# Build importers package
+WORKDIR /app/packages/importers
 RUN pnpm run build
 
 WORKDIR /app/packages/plugin-sdk
@@ -63,17 +70,19 @@ RUN sed -i 's/"extends": "@kaneo\/typescript-config\/base.json"/"extends": "..\/
 # Production dependencies stage - runs on the BUILD platform (native, no QEMU emulation).
 # All API runtime deps are pure JavaScript (bcrypt was replaced with bcryptjs), so the
 # resulting node_modules is architecture-independent and safe to copy into the arm64 runtime.
-FROM --platform=$BUILDPLATFORM node:24.19.0-alpine AS prod-deps
+FROM --platform=$BUILDPLATFORM node:24.22.1-alpine AS prod-deps
 
-RUN corepack enable && corepack prepare pnpm@10.32.1 --activate
+RUN corepack enable && corepack prepare pnpm@12.15.0 --activate
 
 WORKDIR /app
 
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml vite.config.ts ./
+COPY patches ./patches
 COPY packages/typescript-config/package.json ./packages/typescript-config/
 COPY packages/libs/package.json ./packages/libs/
 COPY packages/email/package.json ./packages/email/
 COPY packages/permissions/package.json ./packages/permissions/
+COPY packages/importers/package.json ./packages/importers/
 COPY packages/mcp/package.json ./packages/mcp/
 COPY packages/plugin-sdk/package.json ./packages/plugin-sdk/
 COPY packages/plugin-loader/package.json ./packages/plugin-loader/
@@ -84,7 +93,7 @@ RUN sed -i 's/"prepare": "husky"/"prepare": ""/g' package.json && \
   HUSKY=0 NODE_ENV=production pnpm install --prod --frozen-lockfile --no-optional
 
 # Production stage - use specific version tag without SHA256
-FROM node:24.19.0-alpine AS runtime
+FROM node:24.22.1-alpine AS runtime
 
 # Set up user in a single layer
 RUN addgroup -g 1001 appuser && \
@@ -103,6 +112,7 @@ COPY --from=builder --chown=appuser:appuser /app/apps/api/dist ./apps/api/dist
 COPY --from=builder --chown=appuser:appuser /app/apps/api/drizzle ./apps/api/drizzle
 COPY --from=builder --chown=appuser:appuser /app/packages/email ./packages/email
 COPY --from=builder --chown=appuser:appuser /app/packages/permissions ./packages/permissions
+COPY --from=builder --chown=appuser:appuser /app/packages/importers/dist ./packages/importers/dist
 COPY --from=builder --chown=appuser:appuser /app/packages/mcp/dist ./packages/mcp/dist
 COPY --from=builder --chown=appuser:appuser /app/packages/plugin-sdk/dist ./packages/plugin-sdk/dist
 COPY --from=builder --chown=appuser:appuser /app/plugins/gantt/dist ./plugins/gantt/dist
@@ -110,7 +120,7 @@ COPY --from=builder --chown=appuser:appuser /app/packages/plugin-loader/dist ./p
 COPY --from=builder --chown=appuser:appuser /app/packages/cli/dist ./packages/cli/dist
 
 # Fail the build early if the runtime dependency layout is broken on the target architecture
-RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions','plugin-sdk','plugin-loader','gantt']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}fs.accessSync('node_modules/@kaneo/gantt/dist/web/index.js');fs.accessSync('/app/packages/cli/dist/kaneo.mjs')" && \
+RUN cd /app/apps/api && node -e "const fs=require('fs');for(const m of ['bcryptjs','hono','pg','drizzle-orm','better-auth','ioredis','valibot','octokit','@modelcontextprotocol/sdk']){fs.accessSync('node_modules/'+m+'/package.json')}for(const m of ['email','permissions','importers','plugin-sdk','plugin-loader','gantt']){fs.accessSync('node_modules/@kaneo/'+m+'/dist/index.js')}fs.accessSync('node_modules/@kaneo/gantt/dist/web/index.js');fs.accessSync('/app/packages/cli/dist/kaneo.mjs')" && \
   node -e "require.resolve('semver')" && \
   node --input-type=module -e "import { registerTools } from '@kaneo/mcp/tools'; if (typeof registerTools !== 'function') process.exit(1)"
 

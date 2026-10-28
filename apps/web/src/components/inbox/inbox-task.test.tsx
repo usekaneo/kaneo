@@ -9,11 +9,14 @@ import {
   vi,
 } from "vite-plus/test";
 import { HttpError } from "@/lib/http-error";
+import { shortcutRegistry } from "@/lib/shortcuts/registry";
+import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
 import { InboxTask } from "./inbox-task";
 
 const queries = vi.hoisted(() => ({
   activity: vi.fn(),
   task: vi.fn(),
+  navigate: vi.fn(),
 }));
 beforeEach(() => {
   queries.task.mockReturnValue({
@@ -29,6 +32,7 @@ beforeEach(() => {
   queries.activity.mockReturnValue({ data: [] });
 });
 vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => queries.navigate,
   Link: ({
     params,
     children,
@@ -81,6 +85,26 @@ vi.mock("react-i18next", () => ({
 
 afterEach(cleanup);
 describe("Inbox task preview", () => {
+  it("opens the task with Enter", () => {
+    render(
+      <ShortcutTestWrapper>
+        <InboxTask taskId="task" />
+      </ShortcutTestWrapper>,
+    );
+
+    fireEvent.keyDown(document.body, { key: "Enter", code: "Enter" });
+
+    expect(queries.navigate).toHaveBeenCalledWith({
+      to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
+      params: {
+        workspaceId: "workspace",
+        projectId: "project",
+        taskId: "task",
+      },
+    });
+    shortcutRegistry.reset();
+  });
+
   it("uses the configured column name and icon and requests six activities", () => {
     render(<InboxTask taskId="task" />);
     expect(screen.getByText("Awaiting approval")).toBeInTheDocument();

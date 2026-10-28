@@ -3,11 +3,12 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { ChevronRight, type Clock, Plus } from "lucide-react";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
+import { EASE_OUT } from "@/lib/motion";
 import type Task from "@/types/task";
 import BacklogTaskRow from "./backlog-task-row";
 
@@ -31,6 +32,7 @@ const BacklogSection = memo(function BacklogSection({
   onAddTask?: () => void;
 }) {
   const { t } = useTranslation();
+  const [animateExpand, setAnimateExpand] = useState(false);
   const { setNodeRef } = useDroppable({
     id: sectionId,
     data: {
@@ -49,13 +51,16 @@ const BacklogSection = memo(function BacklogSection({
       <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
         <button
           type="button"
-          onClick={() => onToggle(sectionId)}
+          onClick={() => {
+            setAnimateExpand(true);
+            onToggle(sectionId);
+          }}
           aria-expanded={isExpanded}
           className="touch-hitbox relative flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
         >
           <ChevronRight
             className={cn(
-              "w-3 h-3 transition-transform",
+              "w-3 h-3 transition-transform duration-150 ease-out",
               isExpanded && "rotate-90",
             )}
           />
@@ -92,7 +97,11 @@ const BacklogSection = memo(function BacklogSection({
       {isExpanded && (
         <div
           ref={setNodeRef}
-          className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
+          className={cn(
+            "bg-card",
+            animateExpand &&
+              "transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0",
+          )}
         >
           <SortableContext items={tasks} strategy={verticalListSortingStrategy}>
             <AnimatePresence initial={false} mode="popLayout">
@@ -102,7 +111,7 @@ const BacklogSection = memo(function BacklogSection({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                  transition={{ duration: 0.15, ease: EASE_OUT }}
                 >
                   <BacklogTaskRow task={task} />
                 </motion.div>

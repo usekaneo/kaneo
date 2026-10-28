@@ -1,3 +1,4 @@
+import type { TaskRecurrence } from "../api/schemas.js";
 import type { ResolvedTask } from "./resolve-task.js";
 
 export type TaskDetailJson = {
@@ -15,6 +16,7 @@ export type TaskDetailJson = {
   } | null;
   readonly dueDate: string | null;
   readonly startDate: string | null;
+  readonly recurrence: TaskRecurrence | null;
   readonly createdAt: string;
   readonly projectId: string;
   readonly projectKey: string;
@@ -42,6 +44,7 @@ export function toTaskDetailJson(resolved: ResolvedTask): TaskDetailJson {
       : null,
     dueDate: task.dueDate,
     startDate: task.startDate,
+    recurrence: task.recurrence ?? null,
     createdAt: task.createdAt,
     projectId: task.projectId,
     projectKey: project.slug.toUpperCase(),

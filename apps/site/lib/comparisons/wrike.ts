@@ -4,20 +4,20 @@ export const wrike: Comparison = {
   slug: "wrike",
   competitor: "Wrike",
   category: "saas",
-  title: "Open-source Wrike alternative",
+  title: "Simpler Wrike alternative",
   description:
-    "Kaneo is an open-source, self-hostable Wrike alternative with no user bands, SSO included, and free self-hosting under the MIT license.",
+    "Kaneo is a simpler Wrike alternative with no user bands and every feature on every plan. Kaneo Cloud runs it for you from $4 a month, 14-day free trial.",
   summary: "One feature set instead of user bands and tier maths.",
-  heading: "The open-source Wrike alternative",
+  heading: "The simpler Wrike alternative",
   subheading:
-    "Wrike prices in user bands and sells the good parts by tier. Kaneo is one product, free to self-host, with every feature in every build.",
+    "Wrike prices in user bands and sells the good parts by tier. Kaneo is one product with every feature on every plan, and Kaneo Cloud runs it for you.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to Wrike that runs on your own infrastructure at no cost. Wrike is cloud-first, priced per user from $10 a month with plan-specific user ranges, and aimed at larger operations teams. Kaneo trades Wrike's resource management and proofing for a simpler tracker you own.",
+    "Kaneo is a simpler Wrike alternative, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with every feature on every plan. Wrike is cloud-first, priced per user from $10 a month with plan-specific user ranges, and aimed at larger operations teams, while Kaneo trades Wrike's resource management and proofing for a simpler tracker. Kaneo is also MIT-licensed open source, so you can run it on your own infrastructure at no cost.",
   facts: {
     license: "MIT, versus a proprietary licence for Wrike",
-    hosting: "Self-host anywhere, or EU-hosted cloud",
+    hosting: "EU-hosted Kaneo Cloud, or self-host anywhere",
     sso: "Free on every Kaneo build, higher tiers on Wrike",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

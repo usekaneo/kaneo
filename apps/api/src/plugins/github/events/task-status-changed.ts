@@ -1,7 +1,7 @@
 import { syncTaskFieldLabels } from "../../sync/sync-task-field-labels";
 import { canSyncTask } from "../../sync/eligibility";
 import { syncLatestTaskValue } from "../services/sync-latest-task-value";
-import { isTaskInFinalState } from "../services/task-service";
+import { resolveIssueStateChange } from "../../sync/issue-state-change";
 import type { PluginContext, TaskStatusChangedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinksByTask } from "../services/link-manager";
@@ -77,19 +77,13 @@ export async function handleTaskStatusChanged(
       },
     );
     if (currentValue === undefined) return;
-    const closing = await isTaskInFinalState({
-      projectId: event.projectId,
-      status: currentValue,
-      columnId: null,
-    });
-    const reopening =
-      !closing &&
-      (await isTaskInFinalState({
-        projectId: event.projectId,
-        status: event.oldStatus,
-        columnId: null,
-      }));
-    if (closing || reopening) {
+    const change = await resolveIssueStateChange(
+      event.projectId,
+      event.oldStatus,
+      currentValue,
+    );
+    if (change) {
+      const closing = change === "close";
       await syncLatestTaskValue(
         event.taskId,
         event.projectId,

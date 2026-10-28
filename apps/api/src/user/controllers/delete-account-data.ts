@@ -12,6 +12,7 @@ import {
   workspaceTable,
   workspaceUserTable,
 } from "../../database/schema";
+import type { DbOrTx } from "../../project-access/db-or-tx";
 import { instanceAdminRoleSql } from "../../utils/instance-admin-role";
 import {
   formatBlockedWorkspacesMessage,
@@ -22,8 +23,9 @@ import {
 
 async function collectMemberships(
   userId: string,
+  database: DbOrTx,
 ): Promise<WorkspaceMembershipSummary[]> {
-  const memberships = await db
+  const memberships = await database
     .select({
       workspaceId: workspaceUserTable.workspaceId,
       role: workspaceUserTable.role,
@@ -37,7 +39,7 @@ async function collectMemberships(
 
   const workspaceIds = memberships.map((membership) => membership.workspaceId);
 
-  const members = await db
+  const members = await database
     .select({
       workspaceId: workspaceUserTable.workspaceId,
       workspaceName: workspaceTable.name,
@@ -66,8 +68,8 @@ async function collectMemberships(
   });
 }
 
-export async function deleteAccountData(userId: string) {
-  const plan = planAccountDeletion(await collectMemberships(userId));
+export async function deleteAccountData(userId: string, database: DbOrTx = db) {
+  const plan = planAccountDeletion(await collectMemberships(userId, database));
 
   if (plan.blockedWorkspaceNames.length > 0) {
     throw new APIError("CONFLICT", {
@@ -76,7 +78,10 @@ export async function deleteAccountData(userId: string) {
     });
   }
 
-  const billable = await findBillableWorkspaces(plan.workspaceIdsToDelete);
+  const billable = await findBillableWorkspaces(
+    plan.workspaceIdsToDelete,
+    database,
+  );
   if (billable.length > 0) {
     throw new APIError("CONFLICT", {
       code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
@@ -87,7 +92,7 @@ export async function deleteAccountData(userId: string) {
   }
 
   if (plan.workspaceIdsToDelete.length > 0) {
-    const admins = await db
+    const admins = await database
       .select({ userId: userTable.id })
       .from(userTable)
       .where(instanceAdminRoleSql(userTable.role));
@@ -95,7 +100,7 @@ export async function deleteAccountData(userId: string) {
       userId,
       ...admins.map((admin) => admin.userId),
     ]);
-    await db
+    await database
       .delete(workspaceTable)
       .where(inArray(workspaceTable.id, plan.workspaceIdsToDelete));
     for (const workspaceId of plan.workspaceIdsToDelete) {
@@ -108,7 +113,7 @@ export async function deleteAccountData(userId: string) {
   }
 
   if (plan.workspaceIdsToLeave.length > 0) {
-    await db
+    await database
       .delete(workspaceUserTable)
       .where(
         and(
@@ -118,7 +123,7 @@ export async function deleteAccountData(userId: string) {
       );
 
     for (const workspaceId of plan.workspaceIdsToLeave) {
-      await syncWorkspaceSeats(workspaceId).catch((error) => {
+      await syncWorkspaceSeats(workspaceId, database).catch((error) => {
         console.error(
           "Seat sync after account deletion failed:",
           workspaceId,

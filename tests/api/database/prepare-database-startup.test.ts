@@ -13,12 +13,14 @@ describe("prepare-database-startup", () => {
         port: 5432,
         database: "kaneo",
         username: "kaneo",
+        poolMax: 10,
         logConfig: {
           source: "POSTGRES_ENV",
           host: "postgres",
           port: 5432,
           database: "kaneo",
           username: "kaneo",
+          poolMax: 10,
         },
       }),
       waitForDatabase: async () => {
@@ -49,12 +51,14 @@ describe("prepare-database-startup", () => {
           port: 5432,
           database: "kaneo",
           username: "kaneo",
+          poolMax: 10,
           logConfig: {
             source: "POSTGRES_ENV",
             host: "postgres",
             port: 5432,
             database: "kaneo",
             username: "kaneo",
+            poolMax: 10,
           },
         }),
         waitForDatabase: async () => {
@@ -94,12 +98,14 @@ describe("prepare-database-startup", () => {
           port: 5432,
           database: "kaneo",
           username: "kaneo",
+          poolMax: 10,
           logConfig: {
             source: "POSTGRES_ENV",
             host: "postgres",
             port: 5432,
             database: "kaneo",
             username: "kaneo",
+            poolMax: 10,
           },
         }),
         waitForDatabase: async () => undefined,
@@ -146,5 +152,36 @@ describe("prepare-database-startup", () => {
       "❌ Database configuration failed",
       configError,
     );
+  });
+
+  it("rejects an invalid DATABASE_POOL_MAX before waiting for the database", async () => {
+    const original = {
+      DATABASE_URL: process.env.DATABASE_URL,
+      DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX,
+    };
+    process.env.DATABASE_URL =
+      "postgresql://kaneo:password@postgres:5432/kaneo";
+    process.env.DATABASE_POOL_MAX = "not-a-number";
+    const waitForDatabase = vi.fn(async () => undefined);
+
+    try {
+      await expect(
+        prepareDatabaseStartup({
+          waitForDatabase,
+          runStartupMigrations: async () => undefined,
+          logError: () => undefined,
+        }),
+      ).rejects.toThrow("Database configuration failed during startup.");
+
+      expect(waitForDatabase).not.toHaveBeenCalled();
+    } finally {
+      for (const [key, value] of Object.entries(original)) {
+        if (value === undefined) {
+          delete process.env[key];
+        } else {
+          process.env[key] = value;
+        }
+      }
+    }
   });
 });

@@ -14,6 +14,7 @@ import getCustomFieldValuesByTask from "./controllers/get-custom-field-values-by
 import getCustomFieldsByProject from "./controllers/get-custom-fields-by-project";
 import reorderCustomFields from "./controllers/reorder-custom-field";
 import setCustomFieldValue from "./controllers/set-custom-field-value";
+import updateCustomField from "./controllers/update-custom-field";
 import {
   customFieldDefinitionListSchema,
   customFieldDefinitionSchema,
@@ -29,6 +30,7 @@ import {
   reorderCustomFieldsBody,
   setCustomFieldValueBody,
   taskIdParam,
+  updateCustomFieldBody,
 } from "./schema";
 
 const getCustomFieldsRoute = createRoute({
@@ -231,6 +233,37 @@ const deleteCustomFieldRoute = createRoute({
   },
 });
 
+const updateCustomFieldRoute = createRoute({
+  method: "put",
+  operationId: "updateCustomField",
+  path: "/{id}",
+  tags: ["Custom Fields"],
+  summary: "Update custom field",
+  description:
+    "Update a custom field's name, required flag, default, or options. The type can't change, except between dropdown and multiselect. Options that tasks still use can't be removed or renamed; the request is rejected instead of changing task values.",
+  middleware: [
+    workspaceAccess.fromCustomField("id"),
+    requireWorkspacePermission({ project: ["update"] }),
+  ] as const,
+  request: {
+    params: customFieldIdParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateCustomFieldBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated custom field", customFieldDefinitionSchema),
+    400: errorResponse(
+      "Invalid body, a type change, or removing an option that tasks still use",
+    ),
+    403: errorResponse(
+      "No access to the project, or missing project:update permission",
+    ),
+    404: errorResponse("Custom field not found"),
+  },
+});
+
 const customField = apiRouter()
   .openapi(getCustomFieldsRoute, async (c) =>
     c.json(await getCustomFieldsByProject(c.req.valid("param").projectId), 200),
@@ -279,6 +312,12 @@ const customField = apiRouter()
   })
   .openapi(deleteCustomFieldRoute, async (c) =>
     c.json(await deleteCustomField(c.req.valid("param").id), 200),
+  )
+  .openapi(updateCustomFieldRoute, async (c) =>
+    c.json(
+      await updateCustomField(c.req.valid("param").id, c.req.valid("json")),
+      200,
+    ),
   );
 
 export default customField;

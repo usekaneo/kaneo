@@ -1,18 +1,19 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import TaskCardContextMenuContent from "@/components/kanban-board/task-card-context-menu/task-card-context-menu-content";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
-import { getInitials } from "@/lib/get-initials";
+import { EASE_OUT } from "@/lib/motion";
 import type Task from "@/types/task";
-import SubtaskAssigneePopover from "./subtask-assignee-popover";
-import SubtaskStatusPopover from "./subtask-status-popover";
+import { ReferenceAssigneeButton } from "./sections/reference-assignee-button";
+import { ReferenceStatusButton } from "./sections/reference-status-button";
+import { TaskReferenceRow } from "./sections/task-reference-row";
 
 type SubtaskRowProps = {
   task: Task;
   tasks: Task[];
+  displayId: string | null;
   projectId: string;
   workspaceId: string;
   workspaceSlug?: string | null;
@@ -32,6 +33,7 @@ type SubtaskRowProps = {
 export default function SubtaskRow({
   task,
   tasks,
+  displayId,
   projectId,
   workspaceId,
   workspaceSlug,
@@ -50,82 +52,43 @@ export default function SubtaskRow({
 
   return (
     <motion.div
-      layout
-      initial={
-        reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, scale: 0.98 }
-      }
-      animate={
-        reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto", scale: 1 }
-      }
-      exit={
-        reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0, scale: 0.98 }
-      }
-      transition={{ type: "spring", duration: 0.4, bounce: 0.15 }}
+      layout={!reduceMotion}
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: "auto" }}
+      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
+      transition={{ duration: 0.2, ease: EASE_OUT }}
     >
       <ContextMenu>
         <ContextMenuTrigger asChild>
-          <div
-            className={`group flex items-center gap-2 py-1 px-2 ${selectionRadius} transition-colors cursor-default ${isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-accent/50"} ${isFocused ? "ring-1 ring-inset ring-ring/50" : ""}`}
-          >
-            {/* Completion checkbox: toggles the subtask done/undone and persists it. */}
-            <Checkbox
-              checked={isCompleted}
-              onCheckedChange={onToggleComplete}
-              disabled={!canEdit}
-              aria-label={t("tasks:subtasks.completeAria", {
-                defaultValue: "Mark subtask complete",
-              })}
-            />
-
-            <SubtaskStatusPopover tasks={tasks} projectId={projectId}>
-              <button
-                type="button"
-                className="shrink-0 flex items-center justify-center rounded p-0.5 transition-colors outline-none [&_svg]:text-muted-foreground hover:[&_svg]:text-foreground"
+          <TaskReferenceRow
+            className={cn(
+              selectionRadius,
+              isSelected && "bg-primary/10 hover:bg-primary/15",
+              isFocused && !isSelected && "bg-accent",
+            )}
+            status={
+              <ReferenceStatusButton
+                aria-pressed={isCompleted}
+                aria-label={t("tasks:subtasks.completeAria")}
+                disabled={!canEdit}
+                onClick={onToggleComplete}
               >
-                {getColumnIcon(task.status, false)}
-              </button>
-            </SubtaskStatusPopover>
-
-            <button
-              type="button"
-              className="flex-1 min-w-0 text-left outline-none"
-              onClick={onNavigate}
-            >
-              <span
-                className={`text-sm truncate block ${isCompleted ? "line-through text-muted-foreground" : "text-foreground/90"}`}
-              >
-                {task.title}
-              </span>
-            </button>
-
-            <SubtaskAssigneePopover tasks={tasks} workspaceId={workspaceId}>
-              <button
-                type="button"
-                className="shrink-0 flex items-center justify-center rounded p-0.5 transition-colors outline-none"
-              >
-                {task.userId && assignee ? (
-                  <Avatar className="h-5 w-5">
-                    <AvatarImage
-                      src={assignee?.user?.image ?? ""}
-                      alt={assignee?.user?.name || ""}
-                    />
-                    <AvatarFallback className="text-[9px] font-medium border border-border/30">
-                      {getInitials(assignee?.user?.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <div
-                    className="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-border/70"
-                    title={t("tasks:popover.assignee.unassigned")}
-                  >
-                    <span className="text-[9px] font-medium text-muted-foreground">
-                      ?
-                    </span>
-                  </div>
-                )}
-              </button>
-            </SubtaskAssigneePopover>
-          </div>
+                {getColumnIcon(task.status, isCompleted)}
+              </ReferenceStatusButton>
+            }
+            displayId={displayId}
+            title={task.title}
+            done={isCompleted}
+            onOpen={onNavigate}
+            assignee={
+              <ReferenceAssigneeButton
+                tasks={tasks}
+                workspaceId={workspaceId}
+                name={assignee?.user?.name ?? task.assigneeName}
+                image={assignee?.user?.image}
+              />
+            }
+          />
         </ContextMenuTrigger>
 
         <TaskCardContextMenuContent

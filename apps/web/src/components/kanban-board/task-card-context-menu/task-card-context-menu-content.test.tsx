@@ -129,6 +129,7 @@ vi.mock("react-i18next", () => ({
     t: (key: string, options?: { title?: string }) =>
       options?.title ? `${key}|${options.title}` : key,
   }),
+  initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
 const task = {

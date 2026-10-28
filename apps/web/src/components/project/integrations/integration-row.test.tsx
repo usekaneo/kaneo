@@ -3,12 +3,15 @@ import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import type { IntegrationDefinition } from "@/components/project/integrations/integration-definitions";
 import { IntegrationRow } from "@/components/project/integrations/integration-row";
 
-vi.mock("@/components/project/sync-rules/sync-rules-section", () => ({
-  SyncRulesSection: () => <p>Sync rules</p>,
-}));
-
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
+}));
+const disconnect = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("@/hooks/mutations/use-disconnect-integration", () => ({
+  useDisconnectIntegration: () => ({
+    mutateAsync: disconnect,
+    isPending: false,
+  }),
 }));
 const integration: IntegrationDefinition = {
   id: "github",
@@ -22,6 +25,44 @@ const integration: IntegrationDefinition = {
 afterEach(cleanup);
 
 describe("IntegrationRow", () => {
+  it("keeps only disconnect available for a connected provider turned off by an administrator", async () => {
+    const props = {
+      integration,
+      projectId: "p1",
+      onRetry: vi.fn(),
+      status: { state: "connected" as const },
+    };
+    const { rerender } = render(<IntegrationRow {...props} />);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:projectIntegrations.configure",
+      }),
+    );
+    expect(screen.getByText("Integration settings")).toBeVisible();
+    rerender(<IntegrationRow {...props} disabled />);
+    expect(
+      screen.getByText("settings:projectIntegrations.turnedOffByAdmin"),
+    ).toBeVisible();
+    expect(screen.queryByText("Integration settings")).toBeNull();
+    expect(
+      screen.queryByRole("button", {
+        name: "settings:projectIntegrations.configure",
+      }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", {
+        name: "settings:projectIntegrations.connect",
+      }),
+    ).toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "settings:chatIntegrations.disconnect",
+      }),
+    );
+    const dialog = screen.getByRole("alertdialog");
+    fireEvent.click(dialog.querySelectorAll("button")[1]!);
+    expect(disconnect).toHaveBeenCalledWith("p1");
+  });
   it.each([undefined, { state: "loading" as const }])(
     "does not offer Connect before status is known",
     (status) => {
@@ -36,7 +77,7 @@ describe("IntegrationRow", () => {
       const trigger = screen.getByRole("button", {
         name: "common:empty.loading",
       });
-      expect(trigger).toHaveAttribute("aria-disabled", "true");
+      expect(trigger).toBeDisabled();
       fireEvent.click(trigger);
       expect(
         screen.queryByRole("button", {
@@ -99,6 +140,14 @@ describe("IntegrationRow", () => {
       }),
     );
     expect(screen.getByText("Integration settings")).toBeVisible();
+    fireEvent.click(
+      screen.getByRole("button", { name: "common:actions.cancel" }),
+    );
+    expect(
+      screen.getByRole("button", {
+        name: "settings:projectIntegrations.connect",
+      }),
+    ).toBeVisible();
   });
   it.each(["connected", "paused"] as const)(
     "shows configuration for a %s integration",

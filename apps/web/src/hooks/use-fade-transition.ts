@@ -1,4 +1,4 @@
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "motion/react";
 
 export function useFadeTransition() {
   const reduceMotion = useReducedMotion();

@@ -1,20 +1,20 @@
-import { authClient } from "@/lib/auth-client";
+import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 import type { ToggleAdminUserStatusRequest } from "./types";
 
 export async function toggleAdminUserStatus({
   userId,
   deactivate,
 }: ToggleAdminUserStatusRequest) {
-  const result = deactivate
-    ? await authClient.admin.banUser({
-        userId,
-        banReason: "Deactivated by an instance administrator",
-      })
-    : await authClient.admin.unbanUser({ userId });
+  const user = client.admin.users[":userId"];
+  const param = { param: { userId } };
+  const response = deactivate
+    ? await user.deactivate.$post(param)
+    : await user.reactivate.$post(param);
 
-  if (result.error) {
-    throw new Error(result.error.message ?? "");
+  if (!response.ok) {
+    throw await HttpError.fromResponse(response);
   }
 
-  return result.data;
+  return response.json();
 }

@@ -3,15 +3,20 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { workspaceUserTable } from "../../database/schema";
 import { isOwnerRole } from "../../project-access/is-owner-role";
+import type { AdminAuditRequest } from "../audit/admin-audit-request";
+import { recordWorkspaceMemberAction } from "../audit/record-workspace-member-action";
 import { isAssignableWorkspaceRole } from "../is-assignable-workspace-role";
 import { lockWorkspace } from "../lock-workspace";
 import listWorkspaceMembers from "./list-workspace-members";
 
-async function updateWorkspaceMemberRole(request: {
-  workspaceId: string;
-  userId: string;
-  role: string;
-}) {
+async function updateWorkspaceMemberRole(
+  request: {
+    workspaceId: string;
+    userId: string;
+    role: string;
+  },
+  audit: AdminAuditRequest,
+) {
   const { workspaceId, userId, role } = request;
 
   await db.transaction(async (tx) => {
@@ -43,6 +48,14 @@ async function updateWorkspaceMemberRole(request: {
           eq(workspaceUserTable.userId, userId),
         ),
       );
+    if (member.role !== role) {
+      await recordWorkspaceMemberAction(tx, audit, {
+        action: "workspace.member_role_changed",
+        workspaceId,
+        userId,
+        metadata: { previousRole: member.role, role },
+      });
+    }
   });
 
   return listWorkspaceMembers(workspaceId);

@@ -23,6 +23,8 @@ import { githubPlugin } from "../../apps/api/src/plugins/github";
 import { handleIssueOpened } from "../../apps/api/src/plugins/github/webhooks/issue-opened";
 import { gitlabPlugin } from "../../apps/api/src/plugins/gitlab";
 import { handleGitlabIssueOpened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-opened";
+import { handleGitlabIssueClosed } from "../../apps/api/src/plugins/gitlab/webhooks/issue-closed";
+import { handleGitlabIssueReopened } from "../../apps/api/src/plugins/gitlab/webhooks/issue-reopened";
 import { registerPlugin } from "../../apps/api/src/plugins/registry";
 import {
   reconcileProjectSync,
@@ -511,6 +513,295 @@ describe.each(["github", "gitea", "gitlab"] as const)(
       expect(mocks.update).toHaveBeenCalledTimes(2);
       expect(mocks.update.mock.calls[1]!.at(-1)).toMatchObject(
         type === "gitlab" ? { state_event: "close" } : { state: "closed" },
+      );
+    });
+
+    describe("archiving", () => {
+      const closed =
+        type === "gitlab" ? { state_event: "close" } : { state: "closed" };
+      const reopened =
+        type === "gitlab" ? { state_event: "reopen" } : { state: "open" };
+      async function exported() {
+        const f = await setup(type);
+        await f.assign();
+        await reconcileProjectSync(f.project.id, f.integration.id);
+        const context = {
+          integrationId: f.integration.id,
+          projectId: f.project.id,
+          config: f.config,
+        };
+        const changeStatus = async (
+          oldStatus: string,
+          newStatus: string,
+          columnId: string | null,
+        ) => {
+          await db
+            .update(schema.taskTable)
+            .set({ status: newStatus, columnId })
+            .where(eq(schema.taskTable.id, f.task.id));
+          await plugin.onTaskStatusChanged!(
+            {
+              taskId: f.task.id,
+              projectId: f.project.id,
+              userId: null,
+              title: f.task.title,
+              oldStatus,
+              newStatus,
+            },
+            context,
+          );
+        };
+        mocks.update.mockClear();
+        return { ...f, changeStatus };
+      }
+
+      it("keeps a completed issue closed and reopens it when unarchived", async () => {
+        const f = await exported();
+        const { done, todo } = f.columns;
+        await f.changeStatus(todo.slug, done.slug, done.id);
+        expect(mocks.update).toHaveBeenCalledOnce();
+        expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(closed);
+
+        await f.changeStatus(done.slug, "archived", null);
+        expect(mocks.update).toHaveBeenCalledOnce();
+
+        await f.changeStatus("archived", todo.slug, todo.id);
+        expect(mocks.update).toHaveBeenCalledTimes(2);
+        expect(mocks.update.mock.calls[1]!.at(-1)).toMatchObject(reopened);
+      });
+
+      it("leaves an open issue alone when archiving unfinished work", async () => {
+        const f = await exported();
+        await f.changeStatus(f.columns.todo.slug, "archived", null);
+        expect(mocks.update).not.toHaveBeenCalled();
+
+        await f.changeStatus(
+          "archived",
+          f.columns.done.slug,
+          f.columns.done.id,
+        );
+        expect(mocks.update).toHaveBeenCalledOnce();
+        expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(closed);
+      });
+
+      it.skipIf(type === "gitlab")(
+        "does not reopen an issue archived while its close is in flight",
+        async () => {
+          const f = await exported();
+          mocks.update.mockImplementationOnce(async () => {
+            await db
+              .update(schema.taskTable)
+              .set({ status: "archived", columnId: null })
+              .where(eq(schema.taskTable.id, f.task.id));
+          });
+          await f.changeStatus(
+            f.columns.todo.slug,
+            f.columns.done.slug,
+            f.columns.done.id,
+          );
+          expect(mocks.update).toHaveBeenCalledOnce();
+          expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(closed);
+        },
+      );
+
+      it("ignores planned and repeated archive transitions", async () => {
+        const f = await exported();
+        await f.changeStatus(f.columns.todo.slug, "planned", null);
+        await f.changeStatus("planned", "archived", null);
+        await f.changeStatus("archived", "archived", null);
+        expect(mocks.update).not.toHaveBeenCalled();
+
+        await f.changeStatus("archived", "planned", null);
+        expect(mocks.update).toHaveBeenCalledOnce();
+        expect(mocks.update.mock.calls[0]!.at(-1)).toMatchObject(reopened);
+      });
+
+      it.each(["kaneo", "provider"] as const)(
+        "keeps a closed issue and the archive when resuming with %s",
+        async (source) => {
+          const f = await exported();
+          const link = (await db.query.externalLinkTable.findMany())[0]!;
+          await db
+            .update(schema.taskTable)
+            .set({ status: "archived", columnId: null })
+            .where(eq(schema.taskTable.id, f.task.id));
+          await updateExternalLink(link.id, {
+            metadata: { syncFilterPaused: true },
+          });
+          mocks.read.mockResolvedValue({
+            title: "Repository title",
+            description: "Repository body",
+            state: "closed",
+            updatedAt: "remote-time",
+            labels: [],
+          });
+          const review = await reviewSyncResume(
+            f.project.id,
+            type,
+            link.id,
+            f.workspace.id,
+          );
+          expect(review.local.state).toBe("closed");
+          await resumeSync(
+            f.project.id,
+            type,
+            link.id,
+            review.token,
+            source,
+            f.workspace.id,
+          );
+          if (source === "kaneo")
+            expect(mocks.write).toHaveBeenCalledWith(
+              expect.objectContaining({ title: f.task.title, state: "closed" }),
+            );
+          else expect(mocks.write).not.toHaveBeenCalled();
+          expect(
+            await db.query.taskTable.findFirst({
+              where: eq(schema.taskTable.id, f.task.id),
+            }),
+          ).toMatchObject({ status: "archived", columnId: null });
+        },
+      );
+
+      it("does not reopen the issue when initialization retries after archiving", async () => {
+        const f = await setup(type);
+        await f.assign();
+        await db
+          .update(schema.taskTable)
+          .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+          .where(eq(schema.taskTable.id, f.task.id));
+        let remoteState = "open";
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        mocks.update.mockImplementationOnce(async () => {
+          remoteState = "closed";
+          throw new Error("provider timeout");
+        });
+        await reconcileTaskSync(f.project.id, f.task.id);
+        await db
+          .update(schema.taskTable)
+          .set({ status: "archived", columnId: null })
+          .where(eq(schema.taskTable.id, f.task.id));
+        mocks.update.mockImplementation(async (...args: unknown[]) => {
+          const patch = args.at(-1) as { state?: string; state_event?: string };
+          remoteState =
+            patch.state ??
+            (patch.state_event === "close"
+              ? "closed"
+              : patch.state_event
+                ? "open"
+                : remoteState);
+        });
+        await reconcileProjectSync(f.project.id, f.integration.id);
+        expect(remoteState).toBe("closed");
+        expect(
+          JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+        ).toMatchObject({
+          syncInitializedState: true,
+          syncInitializationPending: false,
+        });
+      });
+
+      it("completes initialization when the task is archived before the state write", async () => {
+        const f = await setup(type);
+        await f.assign();
+        await db
+          .update(schema.integrationTable)
+          .set({
+            config: JSON.stringify({
+              ...f.config,
+              commentTaskLinkOnGitHubIssue: true,
+              commentTaskLinkOnGiteaIssue: true,
+              commentTaskLinkOnGitlabIssue: true,
+            }),
+          })
+          .where(eq(schema.integrationTable.id, f.integration.id));
+        await db
+          .update(schema.taskTable)
+          .set({ status: f.columns.done.slug, columnId: f.columns.done.id })
+          .where(eq(schema.taskTable.id, f.task.id));
+        const canSyncTask = eligibility.canSyncTask;
+        let archived = false;
+        // Archive once the state intent is pending, before its dispatch.
+        const guard = vi
+          .spyOn(eligibility, "canSyncTask")
+          .mockImplementation(async (...args) => {
+            const link = await db.query.externalLinkTable.findFirst();
+            if (
+              !archived &&
+              args[2] === undefined &&
+              JSON.parse(
+                link?.metadata ?? "{}",
+              ).lastSync?.state?.outbound?.some(
+                (entry: { pending?: boolean }) => entry.pending,
+              )
+            ) {
+              archived = true;
+              await db
+                .update(schema.taskTable)
+                .set({ status: "archived", columnId: null })
+                .where(eq(schema.taskTable.id, f.task.id));
+            }
+            return canSyncTask(...args);
+          });
+
+        await reconcileTaskSync(f.project.id, f.task.id);
+        guard.mockRestore();
+
+        expect(archived).toBe(true);
+        for (const call of mocks.update.mock.calls)
+          expect(call.at(-1)).not.toMatchObject(closed);
+        expect(mocks.labels).toHaveBeenCalled();
+        // Only GitHub initialization posts a task-link comment.
+        if (type === "github") expect(mocks.comment).toHaveBeenCalled();
+        expect(
+          JSON.parse((await db.query.externalLinkTable.findFirst())!.metadata!),
+        ).toMatchObject({
+          syncInitializedState: true,
+          syncInitializedLabels: true,
+          ...(type === "github" ? { syncInitializedComment: true } : {}),
+          syncInitializationPending: false,
+        });
+        expect(
+          (
+            await db.query.taskTable.findFirst({
+              where: eq(schema.taskTable.id, f.task.id),
+            })
+          )?.status,
+        ).toBe("archived");
+      });
+
+      it.runIf(type === "gitlab")(
+        "ignores live close and reopen webhooks for an archived task",
+        async () => {
+          const f = await exported();
+          await f.changeStatus(f.columns.todo.slug, "archived", null);
+          for (const [handle, state, action] of [
+            [handleGitlabIssueClosed, "closed", "close"],
+            [handleGitlabIssueReopened, "opened", "reopen"],
+          ] as const)
+            await handle(
+              {
+                object_attributes: {
+                  iid: 12,
+                  title: f.task.title,
+                  url: "https://gitlab.example/team/repo/-/issues/12",
+                  state,
+                  action,
+                  updated_at: new Date().toISOString(),
+                },
+                project: {
+                  path_with_namespace: "team/repo",
+                  web_url: "https://gitlab.example/team/repo",
+                },
+              },
+              f.integration.id,
+            );
+          expect(
+            await db.query.taskTable.findFirst({
+              where: eq(schema.taskTable.id, f.task.id),
+            }),
+          ).toMatchObject({ status: "archived", columnId: null });
+        },
       );
     });
 
@@ -1241,6 +1532,11 @@ describe.each(["github", "gitea", "gitlab"] as const)(
           previous: string[],
           added = "new-remote",
         ) {
+          // Label webhooks resolve fields from the issue's current labels.
+          mocks.read.mockResolvedValue({
+            ...(await mocks.read()),
+            labels: names,
+          });
           if (type === "github")
             await handleIssueLabeled({
               action: "labeled",

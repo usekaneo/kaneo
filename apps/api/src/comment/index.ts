@@ -31,11 +31,14 @@ const getTaskCommentsRoute = createRoute({
   summary: "Get task comments",
   description:
     "Get every comment on a task, oldest first, each with its author's name and avatar.",
-  middleware: [workspaceAccess.fromTaskId()] as const,
+  middleware: [
+    workspaceAccess.fromTaskId(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskIdParam },
   responses: {
     200: jsonResponse("List of comments for the task", commentListSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
   },
 });

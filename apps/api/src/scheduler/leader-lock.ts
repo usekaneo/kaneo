@@ -29,14 +29,14 @@ export async function withJobLease<T>(
   whenHeldElsewhere: () => T,
   leaseMs: number = DEFAULT_LEASE_MS,
 ): Promise<T> {
-  const expiresAt = new Date(Date.now() + leaseMs);
-
+  // expires_at has no time zone and holds UTC. Computing it in the database
+  // keeps the lease independent of the Node process and session time zones.
   const claimed = await db.execute(sql`
     INSERT INTO job_lease ("name", "owner", "expires_at")
-    VALUES (${name}, ${INSTANCE_ID}, ${expiresAt})
+    VALUES (${name}, ${INSTANCE_ID}, timezone('UTC', clock_timestamp()) + ${leaseMs} * interval '1 millisecond')
     ON CONFLICT ("name") DO UPDATE
       SET "owner" = EXCLUDED."owner", "expires_at" = EXCLUDED."expires_at"
-      WHERE job_lease."expires_at" < now()
+      WHERE job_lease."expires_at" < timezone('UTC', clock_timestamp())
     RETURNING "name";
   `);
 

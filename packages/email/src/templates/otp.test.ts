@@ -1,4 +1,4 @@
-import { render } from "@react-email/render";
+import { render } from "react-email";
 import { createElement } from "react";
 import { describe, expect, it } from "vite-plus/test";
 import { OTP_EXPIRY_SECONDS } from "../otp-expiry";
@@ -9,6 +9,12 @@ describe("OtpEmail", () => {
     const html = await render(createElement(OtpEmail, { otp: "123456" }));
     expect(html).toContain("123456");
     expect(html).toContain("verification code");
+  });
+
+  it("keeps the code in one piece so it copies cleanly", async () => {
+    const html = await render(createElement(OtpEmail, { otp: "482913" }));
+    expect(html).toMatch(/>482913</);
+    expect(html).not.toMatch(/>4</);
   });
 
   it.each([
@@ -31,5 +37,30 @@ describe("OtpEmail", () => {
     );
     expect(html).toContain("確認コード");
     expect(html).toContain("Kaneo セキュリティメール");
+  });
+
+  it("renders the request details in the recipient's language", async () => {
+    const context = {
+      otp: "482913",
+      email: "maya@example.com",
+      instance: "kaneo.example",
+      requestedAt: new Date("2026-10-11T14:12:00Z"),
+      device: { browser: "Safari", os: "iPhone" },
+    };
+    const english = await render(createElement(OtpEmail, context));
+    expect(english).toContain("Request details");
+    expect(english).toContain("Safari on iPhone");
+    expect(english).toContain("Oct 11, 2026");
+    expect(english).toContain("kaneo.example");
+
+    const german = await render(
+      createElement(OtpEmail, { ...context, locale: "de-DE" }),
+    );
+    expect(german).toContain("Safari auf iPhone");
+  });
+
+  it("hides the request details when nothing is known", async () => {
+    const html = await render(createElement(OtpEmail, { otp: "482913" }));
+    expect(html).not.toContain("Request details");
   });
 });

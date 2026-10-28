@@ -92,14 +92,19 @@ const getDiscordIntegrationRoute = createRoute({
   summary: "Get Discord integration",
   description:
     "Get the Discord integration for a project, or null when none is configured.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
       "Discord integration details, or null",
       discordIntegrationSchema.nullable(),
     ),
-    403: errorResponse("No access to the project"),
+    403: errorResponse(
+      "No access to the project, or missing project:read permission",
+    ),
     404: errorResponse("Project not found"),
   },
 });

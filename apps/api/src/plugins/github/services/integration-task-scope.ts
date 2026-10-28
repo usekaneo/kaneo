@@ -6,6 +6,7 @@ import {
   projectTable,
   taskTable,
 } from "../../../database/schema";
+import { activeIntegrationCondition } from "../../active-integration-condition";
 
 export type IntegrationDatabase =
   | typeof db
@@ -40,7 +41,7 @@ export async function withIntegrationTask<T>(
         .where(
           and(
             eq(integrationTable.id, integration.id),
-            eq(integrationTable.isActive, true),
+            activeIntegrationCondition(),
           ),
         )
         .for("no key update");
@@ -80,7 +81,7 @@ export async function withIntegrationTask<T>(
             expectedBinding.type === undefined
               ? undefined
               : eq(integrationTable.type, expectedBinding.type),
-            eq(integrationTable.isActive, true),
+            activeIntegrationCondition(),
           ),
         )
         .for("share");

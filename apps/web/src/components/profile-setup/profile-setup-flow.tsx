@@ -1,7 +1,7 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2, User } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";

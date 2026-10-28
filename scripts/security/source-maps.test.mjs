@@ -51,9 +51,11 @@ for (const config of ["nginx.conf", "nginx.kaneo.conf"]) {
           "--user=1001:1001",
           "--mount",
           `type=bind,source=${fixture},target=/usr/share/nginx/html`,
+          "--mount",
+          `type=bind,source=${fixture},target=/var/lib/kaneo/html`,
           "--entrypoint",
           "sh",
-          "nginx:1.29.5-alpine",
+          "nginx:1.30.6-alpine",
           "-eu",
           "-c",
           `

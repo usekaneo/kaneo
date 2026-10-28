@@ -1,5 +1,6 @@
 import { pagingNumber, z } from "../openapi";
 import { MAX_TASK_POSITION } from "./controllers/next-task-position";
+import { taskRecurrenceSchema } from "./recurrence/schema";
 import { TICKET_ID_PATTERN } from "./ticket-id";
 import { VALID_PRIORITIES } from "./validate-task-fields";
 
@@ -81,6 +82,9 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  recurrence: taskRecurrenceSchema
+    .optional()
+    .openapi({ description: "Omit to create a task that does not repeat." }),
   draftAssetIds: z.array(z.string()).max(100).optional(),
   customFields: z
     .array(z.object({ fieldId: z.string(), value: z.string() }))
@@ -114,11 +118,17 @@ export const importTasksBody = z.object({
     z.object({
       title: z.string(),
       description: z.string().optional(),
-      status: z.string(),
+      status: z.string().openapi({
+        description:
+          "Column slug, current column name, or slugified current name. Unknown values map to planned with a warning; ambiguous names fail the task import.",
+      }),
       priority: z.string().optional(),
       startDate: z.string().nullable().optional(),
       dueDate: z.string().nullable().optional(),
-      userId: z.string().nullable().optional(),
+      userId: z.string().nullable().optional().openapi({
+        description:
+          "Assignable user's ID or email address. Emails match case-insensitively. Null, empty, or omitted leaves the task unassigned.",
+      }),
     }),
   ),
 });
@@ -129,6 +139,11 @@ export const updateAssigneeBody = z.object({
   userId: z.string().nullable().openapi({ description: "Null unassigns." }),
 });
 export const updateDueDateBody = z.object({ dueDate: z.string().optional() });
+export const updateRecurrenceBody = z.object({
+  recurrence: z
+    .union([taskRecurrenceSchema, z.null()])
+    .openapi({ description: "Null stops the task from repeating." }),
+});
 export const updateTitleBody = z.object({ title: z.string() });
 export const updateDescriptionBody = z.object({ description: z.string() });
 

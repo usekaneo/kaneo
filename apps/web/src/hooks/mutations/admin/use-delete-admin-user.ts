@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { deleteAdminUser } from "@/fetchers/admin/delete-admin-user";
+import { ADMIN_ROLES_QUERY_KEY } from "@/hooks/queries/admin/use-admin-roles";
 import { ADMIN_USERS_QUERY_KEY } from "@/hooks/queries/admin/use-admin-users";
 import { toast } from "@/lib/toast";
 
@@ -11,8 +13,11 @@ function useDeleteAdminUser() {
   return useMutation({
     mutationFn: deleteAdminUser,
     onSuccess: () => {
-      toast.success(t("settings:adminUsers.toast.deleted"));
+      toast.success(t("settings:adminUsers.toast.deleted"), {
+        icon: Trash2Icon,
+      });
       queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ADMIN_ROLES_QUERY_KEY });
     },
     onError: (error) => {
       toast.error(

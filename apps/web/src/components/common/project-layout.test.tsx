@@ -2,6 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { HttpError } from "@/lib/http-error";
+import type { ProjectPluginView } from "@/lib/plugins/runtime/use-project-plugin-views";
 import ProjectLayout from "./project-layout";
 
 const project = vi.hoisted(() => ({
@@ -14,9 +15,28 @@ const project = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: "/board" }),
+  useRouter: () => ({
+    buildLocation: ({ to }: { to: string }) => ({ href: to }),
+  }),
   Link: ({ children, to }: { children: ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
+}));
+const plugin = vi.hoisted(() => ({
+  views: [] as ProjectPluginView[],
+}));
+
+vi.mock(
+  "@/lib/plugins/runtime/use-project-plugin-views",
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import("@/lib/plugins/runtime/use-project-plugin-views")
+    >()),
+    useProjectPluginViews: () => plugin.views,
+  }),
+);
+vi.mock("@/components/project/views/use-project-view-shortcuts", () => ({
+  useProjectViewShortcuts: () => undefined,
 }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -50,11 +70,20 @@ vi.mock("@/components/shared/modals/create-project-modal", () => ({
 }));
 vi.mock("@/components/page-title", () => ({ default: () => null }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  plugin.views = [];
+});
 
 function renderLayout() {
   render(
-    <ProjectLayout projectId="project-1" workspaceId="workspace-1">
+    <ProjectLayout
+      projectId="project-1"
+      workspaceId="workspace-1"
+      activeView="board"
+      toolbar={<button type="button">Toolbar action</button>}
+      summary={<span>5 tasks</span>}
+    >
       <p>Board content</p>
     </ProjectLayout>,
   );
@@ -76,6 +105,7 @@ describe("ProjectLayout access states", () => {
       }),
     ).toBeVisible();
     expect(screen.queryByText("Board content")).toBeNull();
+    expect(screen.queryByText("Toolbar action")).toBeNull();
   });
 
   it("shows a not-found state on 404", () => {
@@ -94,5 +124,56 @@ describe("ProjectLayout access states", () => {
     renderLayout();
 
     expect(screen.getByText("Board content")).toBeVisible();
+    expect(screen.getByText("Toolbar action")).toBeVisible();
+    expect(screen.getByText("5 tasks")).toBeVisible();
+  });
+
+  it("marks tasks as current and links the backlog", () => {
+    project.current = { data: { name: "Alpha" }, error: null };
+    renderLayout();
+
+    expect(
+      screen
+        .getByRole("link", { name: "tasks:title" })
+        .getAttribute("aria-current"),
+    ).toBe("page");
+    const backlog = screen.getByRole("link", { name: "tasks:view.backlog" });
+    expect(backlog.getAttribute("aria-current")).toBeNull();
+    expect(backlog.getAttribute("href")).toBe(
+      "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
+    );
+  });
+
+  it("links plugin views and marks the open one instead of tasks", () => {
+    project.current = { data: { name: "Alpha" }, error: null };
+    plugin.views = [
+      {
+        pluginId: "gantt",
+        viewId: "timeline",
+        title: "Timeline",
+        icon: undefined,
+        shortcut: "g",
+      },
+    ];
+    render(
+      <ProjectLayout
+        projectId="project-1"
+        workspaceId="workspace-1"
+        activePluginView={{ pluginId: "gantt", viewId: "timeline" }}
+      >
+        <p>Timeline content</p>
+      </ProjectLayout>,
+    );
+
+    const timeline = screen.getByRole("link", { name: "Timeline" });
+    expect(timeline.getAttribute("aria-current")).toBe("page");
+    expect(timeline.getAttribute("href")).toBe(
+      "/dashboard/workspace/$workspaceId/project/$projectId/plugin/$pluginId/$viewId",
+    );
+    expect(
+      screen
+        .getByRole("link", { name: "tasks:title" })
+        .getAttribute("aria-current"),
+    ).toBeNull();
   });
 });

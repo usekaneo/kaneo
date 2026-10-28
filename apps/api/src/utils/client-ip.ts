@@ -73,3 +73,8 @@ export function clientIpMiddleware(config?: string): MiddlewareHandler {
     await next();
   };
 }
+
+/** The client address resolved by `clientIpMiddleware`, if any. */
+export function readClientIp(headers: Headers | undefined) {
+  return headers?.get(CLIENT_IP_HEADER) || null;
+}
