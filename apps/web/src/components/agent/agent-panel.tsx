@@ -12,6 +12,7 @@ import { useAgentPanelStore } from "@/store/agent-panel";
 import { AgentComposer } from "./agent-composer";
 import { AgentModelPicker } from "./agent-model-picker";
 import { AgentHistoryMenu } from "./agent-history-menu";
+import { AgentShareButton } from "./agent-share-button";
 import { AgentSuggestions } from "./agent-suggestions";
 import { AgentThread } from "./agent-thread";
 import { getAgentErrorKey } from "./get-agent-error-key";
@@ -89,6 +90,12 @@ export function AgentPanel({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-0.5">
+          {conversationId && (
+            <AgentShareButton
+              workspaceId={workspaceId}
+              conversationId={conversationId}
+            />
+          )}
           <AgentHistoryMenu
             workspaceId={workspaceId}
             projectId={projectId}

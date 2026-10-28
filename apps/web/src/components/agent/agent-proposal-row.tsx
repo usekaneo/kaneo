@@ -13,8 +13,9 @@ type AgentProposalRowProps = {
   taskKey?: string;
   selected: boolean;
   disabled: boolean;
-  onSelectedChange: (selected: boolean) => void;
-  onUndo: () => void;
+  // Omitted for read-only viewers of a shared conversation.
+  onSelectedChange?: (selected: boolean) => void;
+  onUndo?: () => void;
 };
 
 export function AgentProposalRow({
@@ -29,13 +30,15 @@ export function AgentProposalRow({
   const summary = describeAgentProposal(proposal);
   const isPending = proposal.status === "pending";
   const canUndo =
-    proposal.status === "applied" && proposal.action.type !== "task.create";
+    Boolean(onUndo) &&
+    proposal.status === "applied" &&
+    proposal.action.type !== "task.create";
   const headingId = `agent-proposal-${proposal.id}`;
 
   return (
     <li className="flex gap-2.5 border-border/60 border-b p-3 last:border-b-0">
       <div className="flex size-4 shrink-0 items-center justify-center pt-0.5">
-        {isPending ? (
+        {isPending && onSelectedChange ? (
           <Checkbox
             checked={selected}
             disabled={disabled}

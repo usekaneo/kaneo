@@ -21966,9 +21966,6 @@
 						"title": {
 							"type": "string"
 						},
-						"private": {
-							"type": "string"
-						},
 						"empty": {
 							"type": "string"
 						},
@@ -22044,7 +22041,39 @@
 							]
 						}
 					},
-					"required": ["title", "private", "empty", "loadError", "status"]
+					"required": ["title", "empty", "loadError", "status"]
+				},
+				"sharing": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"share": {
+							"type": "string"
+						},
+						"stop": {
+							"type": "string"
+						},
+						"shared": {
+							"type": "string"
+						},
+						"sharedToast": {
+							"type": "string"
+						},
+						"stoppedToast": {
+							"type": "string"
+						},
+						"startedBy": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"share",
+						"stop",
+						"shared",
+						"sharedToast",
+						"stoppedToast",
+						"startedBy"
+					]
 				},
 				"unavailable": {
 					"type": "object",
@@ -22108,6 +22137,7 @@
 				"overlay",
 				"home",
 				"recent",
+				"sharing",
 				"unavailable",
 				"errors"
 			]

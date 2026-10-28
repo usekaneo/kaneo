@@ -14,12 +14,14 @@ type AgentRunItemProps = {
   workspaceId: string;
   summary: AgentRunSummary;
   getTaskKey?: (taskId: string) => string | undefined;
+  readOnly?: boolean;
 };
 
 export function AgentRunItem({
   workspaceId,
   summary,
   getTaskKey,
+  readOnly,
 }: AgentRunItemProps) {
   const { t } = useTranslation();
   const { data: run, isError } = useAgentRun(workspaceId, summary.id);
@@ -81,6 +83,7 @@ export function AgentRunItem({
           workspaceId={workspaceId}
           run={run}
           getTaskKey={getTaskKey}
+          readOnly={readOnly}
         />
       )}
     </article>

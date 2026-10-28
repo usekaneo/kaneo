@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import type { RecentAgentRun } from "@/types/agent";
+import { AgentOwnerAvatar } from "./agent-owner-avatar";
 import { AgentRunStatusIcon } from "./agent-run-status-icon";
+import { AgentSharedIndicator } from "./agent-shared-indicator";
 import { agentPromptToPlainText } from "./mention/agent-mention-token";
 
 type AgentRecentRunRowProps = {
@@ -32,12 +34,19 @@ export function AgentRecentRunRow({ run, onOpen }: AgentRecentRunRowProps) {
         <span className="flex size-4 shrink-0 items-center justify-center">
           <AgentRunStatusIcon status={run.status} />
         </span>
-        <span className="min-w-0 grow truncate text-foreground text-sm">
-          {agentPromptToPlainText(run.prompt)}
+        <span className="flex min-w-0 grow items-center gap-1.5">
+          <span className="truncate text-foreground text-sm">
+            {agentPromptToPlainText(run.prompt)}
+          </span>
+          {run.shared && <AgentSharedIndicator />}
         </span>
         <span className="hidden w-40 shrink-0 text-muted-foreground text-xs sm:flex">
           {detail}
         </span>
+        <AgentOwnerAvatar
+          owner={run.owner}
+          label={t("agent:sharing.startedBy", { name: run.owner.name })}
+        />
         <time
           dateTime={run.createdAt}
           title={formatDateTime(run.createdAt)}

@@ -5495,7 +5495,6 @@
 			"applied_other": "Applied {{count}} changes",
 			"empty": "Nothing yet. Ask something above to get started.",
 			"loadError": "Couldn't load recent runs.",
-			"private": "Only you can see these",
 			"status": {
 				"awaiting_review": "Ready to review",
 				"cancelled": "Stopped",
@@ -5563,6 +5562,14 @@
 		"unavailable": {
 			"description": "An instance admin can enable it with KANEO_AGENT_ENABLED and an OpenRouter API key. Your past runs stay available below.",
 			"title": "The agent isn't set up on this instance"
+		},
+		"sharing": {
+			"share": "Share with workspace",
+			"shared": "Shared with workspace",
+			"sharedToast": "Conversation shared with your workspace",
+			"startedBy": "Started by {{name}}",
+			"stop": "Stop sharing",
+			"stoppedToast": "Conversation is private again"
 		}
 	}
 }

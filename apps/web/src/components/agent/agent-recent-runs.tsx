@@ -14,13 +14,10 @@ export function AgentRecentRuns({ workspaceId, onOpen }: AgentRecentRunsProps) {
 
   return (
     <section className="flex flex-col">
-      <div className="flex items-baseline gap-2 border-border/80 border-b pb-2.5">
+      <div className="border-border/80 border-b pb-2.5">
         <h2 className="font-semibold text-[15px] text-foreground">
           {t("agent:recent.title")}
         </h2>
-        <p className="text-[13px] text-muted-foreground">
-          {t("agent:recent.private")}
-        </p>
       </div>
       {isPending ? (
         <p role="status" className="py-4 text-muted-foreground text-sm">

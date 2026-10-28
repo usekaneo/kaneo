@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { AgentConversationHeader } from "@/components/agent/agent-conversation-header";
 import { AgentConversationView } from "@/components/agent/agent-conversation-view";
 import { AgentHome } from "@/components/agent/agent-home";
 import WorkspaceLayout from "@/components/common/workspace-layout";
@@ -39,15 +40,21 @@ function RouteComponent() {
         title={t("agent:title")}
         headerActions={
           conversationId ? (
-            <Button
-              variant="ghost"
-              size="xs"
-              className="h-7 gap-1.5 text-xs"
-              onClick={() => void navigate({ search: {} })}
-            >
-              <Plus aria-hidden="true" className="size-3.5" />
-              {t("agent:panel.newConversation")}
-            </Button>
+            <div className="flex min-w-0 items-center gap-2">
+              <AgentConversationHeader
+                workspaceId={workspaceId}
+                conversationId={conversationId}
+              />
+              <Button
+                variant="ghost"
+                size="xs"
+                className="h-7 gap-1.5 text-xs"
+                onClick={() => void navigate({ search: {} })}
+              >
+                <Plus aria-hidden="true" className="size-3.5" />
+                {t("agent:panel.newConversation")}
+              </Button>
+            </div>
           ) : null
         }
       >

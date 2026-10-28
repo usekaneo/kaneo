@@ -7,6 +7,11 @@ export type AgentConversation = InferResponseType<
   AgentClient["conversations"]["$get"],
   200
 >[number];
+export type AgentConversationDetail = InferResponseType<
+  AgentClient["conversations"][":conversationId"]["$get"],
+  200
+>;
+export type AgentConversationOwner = AgentConversationDetail["owner"];
 export type AgentRun = InferResponseType<
   AgentClient["runs"][":runId"]["$get"],
   200

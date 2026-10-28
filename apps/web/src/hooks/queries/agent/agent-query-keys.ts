@@ -3,6 +3,8 @@ export const agentQueryKeys = {
   config: (workspaceId: string) => ["agent", workspaceId, "config"] as const,
   conversations: (workspaceId: string, projectId?: string) =>
     ["agent", workspaceId, "conversations", projectId ?? "all"] as const,
+  conversation: (workspaceId: string, conversationId: string) =>
+    ["agent", workspaceId, "conversation", conversationId] as const,
   conversationRuns: (workspaceId: string, conversationId: string) =>
     ["agent", workspaceId, "conversation-runs", conversationId] as const,
   recentRuns: (workspaceId: string) =>

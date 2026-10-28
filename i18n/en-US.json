@@ -5281,7 +5281,6 @@
 		},
 		"recent": {
 			"title": "Recent runs",
-			"private": "Only you can see these",
 			"empty": "Nothing yet. Ask something above to get started.",
 			"loadError": "Couldn't load recent runs.",
 			"toReview_one": "{{count}} change to review",
@@ -5296,6 +5295,14 @@
 				"failed": "Failed",
 				"cancelled": "Stopped"
 			}
+		},
+		"sharing": {
+			"share": "Share with workspace",
+			"stop": "Stop sharing",
+			"shared": "Shared with workspace",
+			"sharedToast": "Conversation shared with your workspace",
+			"stoppedToast": "Conversation is private again",
+			"startedBy": "Started by {{name}}"
 		},
 		"unavailable": {
 			"title": "The agent isn't set up on this instance",

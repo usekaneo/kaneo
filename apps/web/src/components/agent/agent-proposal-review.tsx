@@ -13,12 +13,14 @@ type AgentProposalReviewProps = {
   workspaceId: string;
   run: AgentRun;
   getTaskKey?: (taskId: string) => string | undefined;
+  readOnly?: boolean;
 };
 
 export function AgentProposalReview({
   workspaceId,
   run,
   getTaskKey,
+  readOnly = false,
 }: AgentProposalReviewProps) {
   const { t } = useTranslation();
   const { apply, discard, undo } = useReviewAgentProposals(workspaceId, run.id);
@@ -35,7 +37,8 @@ export function AgentProposalReview({
     (proposal) => proposal.status === "applied",
   ).length;
   const busy = apply.isPending || discard.isPending || undo.isPending;
-  const canReview = run.status === "awaiting_review" && pending.length > 0;
+  const canReview =
+    !readOnly && run.status === "awaiting_review" && pending.length > 0;
 
   if (proposals.length === 0) return null;
 
@@ -115,15 +118,18 @@ export function AgentProposalReview({
             }
             selected={!deselected.has(proposal.id)}
             disabled={busy || !canReview}
-            onSelectedChange={(selected) =>
-              setDeselected((current) => {
-                const next = new Set(current);
-                if (selected) next.delete(proposal.id);
-                else next.add(proposal.id);
-                return next;
-              })
+            onSelectedChange={
+              readOnly
+                ? undefined
+                : (selected) =>
+                    setDeselected((current) => {
+                      const next = new Set(current);
+                      if (selected) next.delete(proposal.id);
+                      else next.add(proposal.id);
+                      return next;
+                    })
             }
-            onUndo={() => void handleUndo(proposal)}
+            onUndo={readOnly ? undefined : () => void handleUndo(proposal)}
           />
         ))}
       </ul>

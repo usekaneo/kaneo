@@ -12,6 +12,7 @@ import { AgentThread } from "./agent-thread";
 import { AgentUnavailable } from "./agent-unavailable";
 import { getAgentErrorKey } from "./get-agent-error-key";
 import { useAgentAttachments } from "./use-agent-attachments";
+import { useAgentConversationAccess } from "./use-agent-conversation-access";
 
 type AgentConversationViewProps = {
   workspaceId: string;
@@ -27,7 +28,16 @@ export function AgentConversationView({
   const { t } = useTranslation();
   const [draft, setDraft] = useState("");
   const attachments = useAgentAttachments(workspaceId);
-  const runs = useAgentConversationRuns(workspaceId, conversationId);
+  const { conversation, isOwner } = useAgentConversationAccess(
+    workspaceId,
+    conversationId,
+  );
+  const readOnly = !isOwner;
+  const runs = useAgentConversationRuns(
+    workspaceId,
+    conversationId,
+    Boolean(conversation) && readOnly,
+  );
   const latestId = runs.data?.at(-1)?.id;
   const { data: latestRun } = useAgentRun(workspaceId, latestId);
   const running = latestRun ? isAgentRunActive(latestRun.status) : false;
@@ -55,30 +65,33 @@ export function AgentConversationView({
         runs={runs.data ?? []}
         isLoading={runs.isPending}
         isError={runs.isError}
+        readOnly={readOnly}
       />
-      <div className="shrink-0 px-4 pb-4">
-        {enabled ? (
-          <AgentComposer
-            value={draft}
-            onValueChange={setDraft}
-            attachments={attachments}
-            onSubmit={(prompt) => void handleSubmit(prompt)}
-            onStop={() =>
-              latestId &&
-              cancel.mutate(latestId, {
-                onError: (error) => toast.error(t(getAgentErrorKey(error))),
-              })
-            }
-            placeholder={t("agent:composer.followUp")}
-            running={running}
-            sending={send.isPending}
-            modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
-            mentionScope={{ workspaceId }}
-          />
-        ) : (
-          <AgentUnavailable />
-        )}
-      </div>
+      {!readOnly && (
+        <div className="shrink-0 px-4 pb-4">
+          {enabled ? (
+            <AgentComposer
+              value={draft}
+              onValueChange={setDraft}
+              attachments={attachments}
+              onSubmit={(prompt) => void handleSubmit(prompt)}
+              onStop={() =>
+                latestId &&
+                cancel.mutate(latestId, {
+                  onError: (error) => toast.error(t(getAgentErrorKey(error))),
+                })
+              }
+              placeholder={t("agent:composer.followUp")}
+              running={running}
+              sending={send.isPending}
+              modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
+              mentionScope={{ workspaceId }}
+            />
+          ) : (
+            <AgentUnavailable />
+          )}
+        </div>
+      )}
     </div>
   );
 }

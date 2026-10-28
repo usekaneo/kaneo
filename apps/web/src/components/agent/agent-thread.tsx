@@ -10,6 +10,7 @@ type AgentThreadProps = {
   isLoading: boolean;
   isError: boolean;
   getTaskKey?: (taskId: string) => string | undefined;
+  readOnly?: boolean;
 };
 
 export function AgentThread({
@@ -18,6 +19,7 @@ export function AgentThread({
   isLoading,
   isError,
   getTaskKey,
+  readOnly,
 }: AgentThreadProps) {
   const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -63,6 +65,7 @@ export function AgentThread({
             workspaceId={workspaceId}
             summary={run}
             getTaskKey={getTaskKey}
+            readOnly={readOnly}
           />
         ))}
       </div>
