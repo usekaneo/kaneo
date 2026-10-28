@@ -29718,7 +29718,7 @@
           "Agent"
         ],
         "summary": "Queue a bounded agent run",
-        "description": "requestId is an idempotency key scoped to this conversation. Repeating it with the same prompt, attachments, and model returns the existing run; any difference conflicts. Tools can read scoped data and save proposals, never apply changes.",
+        "description": "requestId is an idempotency key scoped to this conversation. Repeating it with the same prompt (including its mentions), attachments, and model returns the existing run; any difference conflicts. Tools can read scoped data and save proposals, never apply changes.",
         "parameters": [
           {
             "schema": {
@@ -29808,6 +29808,33 @@
                     "minLength": 1,
                     "maxLength": 200,
                     "description": "OpenRouter model ID from the config endpoint's models. Omit to use the instance default; other models are rejected."
+                  },
+                  "mentions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "task",
+                            "project"
+                          ]
+                        },
+                        "id": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 128
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "id"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 10,
+                    "description": "Tasks and projects the prompt mentions as `@[label](task:ID)` or `@[label](project:ID)`, without duplicates. Must list exactly the prompt's mention tokens. The runner gives the model each item's current title, key, status, and project, and skips items you cannot access."
                   }
                 },
                 "required": [
