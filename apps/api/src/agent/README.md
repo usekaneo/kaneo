@@ -90,7 +90,52 @@ Supported proposals are task creation, updates to title, priority, assignee, and
 
 The outbox dispatches normal events after commit, in proposal order. A process crash can cause event redispatch; delivery is at least once, and downstream handlers retain their existing delivery semantics. It is not an exactly-once guarantee for notifications or integrations. Expired runs fail and discard pending proposals; model calls are not automatically retried after a crash. Cancellation aborts in-flight work when the worker observes it; provider work already performed can still be billed.
 
-Automation rules/schedules, task attachments, subtasks, labels, status changes, and live GitHub queries are follow-up features. The initial implementation has no arbitrary HTTP, SQL, shell, or integration-secret tool. Run history is durable without automatic retention pruning; there is currently no conversation deletion endpoint.
+Task attachments, subtasks, labels, status changes, and live GitHub queries remain follow-up agent tools. The initial implementation has no arbitrary HTTP, SQL, shell, or integration-secret tool. Run history is durable without automatic retention pruning; there is currently no conversation deletion endpoint.
+
+## Automations
+
+Automations run a saved prompt as its owner, with current membership, account status, project access, permissions, and workspace entitlement. They work in one API process with PostgreSQL; Redis is optional. A minute scheduler uses the existing job lease plus transactional automation row locks. Schedule slots have deterministic request IDs, so overlapping replicas and repeated ticks create at most one run per slot. Downtime does not replay missed slots: one overdue slot runs, then the schedule advances into the future.
+
+Schedules support daily local times, weekly ISO weekdays (Monday = 1), and intervals of 1–24 hours. Persisted IANA time zones default to UTC because user/workspace profiles have no time-zone setting. Wall-clock schedules follow DST: a skipped time runs at the spring clock jump, and a repeated time runs once. Intervals use elapsed hours.
+
+Event triggers are task creation, column moves, passed due dates, comments, PR opening, and PR merging. GitHub, GitLab, and Gitea publish PR events after their domain transaction commits, even when no column transition happens. Project, column-name, and label-name filters combine with AND; names ignore case and surrounding whitespace. A project scope overrides the project filter. Events outside the owner's current project access are discarded. Passed due dates use a persisted cursor starting at creation/re-enable; old overdue tasks are not replayed.
+
+Each automation batches events for five minutes from its first pending match; the minute tick may dispatch up to a minute later. At most 200 pending events are retained and the prompt lists 20, with an additional-event count. Further matches are dropped while the batch is full. Consumed rows retain only their dedupe key and timestamps. Creation IDs, comment IDs, PR integration/number identities, and task move revisions suppress redelivery. These receipts currently have no automatic retention pruning. Event subscription uses the existing in-process event bus: once matched, a batch is durable, but a crash between a domain commit and event delivery can lose that event, just as with other current subscribers.
+
+A run is a normal `agent_run`, with a trigger snapshot, in one conversation per automation/owner/scope. Mentions and triggering tasks resolve again at execution; event text is enclosed in an explicitly untrusted context block. `proposals` uses the existing review/apply/undo path, always owner-only. `digest` exposes read tools only, also rejects proposal persistence server-side, and stores the final response as one private inbox notification linked to the conversation/run. Digests and failure notices stay in the Kaneo inbox and are not forwarded to third-party notification channels. Current notification access checks hide them when membership, permissions, or scope access is revoked.
+
+Defaults and limits:
+
+- 50 automations per owner in a workspace; 24 runs per rolling 24 hours per automation, configurable from 1 to the server maximum of 100. Takeover preserves the automation's run count.
+- Existing per-user limits still apply: two active runs and ten new runs per minute. One automation conversation has at most one queued/running run. An overlapping event batch waits; an overlapping schedule slot is skipped.
+- `KANEO_AGENT_WORKSPACE_MONTHLY_USD` optionally caps automation spending against all recorded agent costs in that workspace's current UTC month, including interactive runs. Unset/empty means no cap; zero or an invalid value blocks automation spending. Both scheduled/event runs and **Run now** respect this cap. Interactive conversations remain usable. Queueing and worker execution check the cap; unknown provider costs and already-running model calls mean this is a recorded-cost guard, not a hard billing ceiling.
+- Budget/daily-limit skips set visible `lastSkipReason` and `lastSkippedAt`. A model removed from the allowlist skips as `unavailable`; it never silently switches models. No model failure is automatically retried. Each failure creates one inbox notification; three consecutive failures pause the automation. Successful runs reset the counter, and expired worker leases count as failures.
+- Lost membership, a ban, scope access, required read permissions, or entitlement pauses with `owner_access`. Archived workspaces skip until restored. Admins/owners have `agent:manage_automations`; existing seeded admin roles receive it through the migration. Permission-edited/custom roles use their stored grants.
+
+Only the owner can edit, toggle, delete, or run an automation. Shared viewers can read its prompt and current owner's run history under normal conversation sharing rules. An authorized admin can inspect settings with the prompt/history redacted and explicitly take over. Takeover revokes previous sharing, cancels active old-owner runs, keeps their history private to them, starts with a private conversation for the new owner, and leaves the automation disabled until enabled. Scope changes cancel active runs, revoke prior sharing, and select a private conversation for the new scope; earlier history keeps its original project access boundary and still counts toward caps. Deleting an automation cancels active runs and removes its pending events, while retaining owned conversation history and recorded costs.
+
+All automation paths are relative to `/api/agent/{workspaceId}` and require a user session, not an API key:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/automations?kind=all&projectId=&ownerId=&limit=20&offset=0` | Paginated union of visible agent automations and readable project workflow rules, plus kind counts |
+| POST | `/automations` | Create with `name`, `prompt`, `trigger`, `projectId`, `output`, optional `model`, `enabled`, `dailyRunLimit` |
+| GET / PUT / DELETE | `/automations/{automationId}` | Read, replace settings, or delete the automation |
+| PATCH | `/automations/{automationId}/enabled` | `{enabled: boolean}`; re-enabling clears pause/failure state and computes a new future slot |
+| POST | `/automations/{automationId}/take-over` | Explicit admin takeover; no automatic reassignment |
+| POST / GET | `/automations/{automationId}/runs` | Run now (202) or paginated current-owner run history |
+
+Use existing `/conversations/{conversationId}/share` and `/unshare`, `/runs/{runId}`, `/apply`, `/discard`, `/cancel`, and proposal `/undo` endpoints. Ordinary conversation run creation rejects automation conversations, so it cannot bypass automation limits. Workflow rules are read-only in this API; edit them through the project's existing workflow-rule endpoints.
+
+### Automation UI handoff
+
+This change supplies the web data layer; visual screens, composer integration, notification click handling, and translated UI strings are separate work. Fetchers live in `apps/web/src/fetchers/agent-automation/`; one file each exports `getAutomations`, `getAutomation`, `createAutomation`, `updateAutomation`, `deleteAutomation`, `setAutomationEnabled`, `takeOverAutomation`, `runAutomation`, and `getAutomationRuns` through `@kaneo/libs`.
+
+Query hooks are `useAutomations(workspaceId, query?, enabled?)`, `useAutomation(workspaceId, automationId, enabled?)`, and `useAutomationRuns(workspaceId, automationId, paging?, enabled?)`. They poll every 30 seconds; owner run WebSocket updates also invalidate automation queries. Keys come from `automationQueryKeys`. Query paging uses string `limit`/`offset` parameters. List items discriminate `kind: agent | rule`; rule items include project/integration/event/column details.
+
+Mutation hooks are `useCreateAutomation(workspaceId)`, `useUpdateAutomation(workspaceId)`, `useDeleteAutomation(workspaceId)`, `useTakeOverAutomation(workspaceId)`, `useRunAutomation(workspaceId)`, and `useSetAutomationEnabled(workspaceId, automationId)`. Create takes `AutomationInput`; update takes `{automationId, input}`; delete/takeover/run take an automation ID; toggle takes a boolean and optimistically updates detail plus every filtered list with rollback. Disable the toggle while its mutation is pending. All mutation hooks expose standard TanStack loading/error states and invalidate affected data.
+
+Types in `apps/web/src/types/agent-automation.ts` are inferred from the typed API client: `AutomationInput`, `AutomationTrigger`, `AutomationOutput`, `AutomationListQuery`, `AutomationList`, `AutomationListItem`, `AgentAutomationListItem`, `Automation`, and `AutomationRuns`. Use `viewer.isOwner` and `viewer.canTakeOver`; a redacted admin response has `prompt` and `conversationId` null. Sharing uses the existing conversation-sharing mutation, which invalidates automation data too. Inbox notifications use types `agent_automation_digest`/`agent_automation_failed`, resource type `agent_run`, and `eventData.{workspaceId, projectId, automationId, conversationId, runId, url}`. Resolve clicks to the existing conversation route and select the referenced run when the UI supports it.
 
 ## Verification
 
@@ -105,7 +150,8 @@ DATABASE_URL=postgresql://localhost:5432/kaneo_agent_backend_test \
   ../../tests/api-integration/agent-realtime.test.ts \
   ../../tests/api-integration/agent-attachments.test.ts \
   ../../tests/api-integration/agent-mentions.test.ts \
-  ../../tests/api-integration/agent-sharing.test.ts
+  ../../tests/api-integration/agent-sharing.test.ts \
+  ../../tests/api-integration/agent-automations.test.ts
 ```
 
 The optional live smoke command calls Luna with synthetic tasks only. It migrates the local test database, creates its own workspace/user, verifies proposal → apply → undo, reports provider usage/cost, and removes its fixtures. It refuses remote databases and models other than Luna:

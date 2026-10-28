@@ -19,6 +19,7 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
 import agent from "./agent";
+import { initializeAutomationEvents } from "./agent/automation/subscribe";
 import { initializeAgentWorker, shutdownAgentWorker } from "./agent/worker";
 import admin from "./admin";
 import { auth } from "./auth";
@@ -1033,6 +1034,7 @@ export async function runStartupTasks() {
   await migrateColumns();
   await seedDefaultWorkspaceRoles();
 
+  await initializeAutomationEvents();
   initializePlugins();
   initializeScheduler();
   await initializeWebSocketAdapter();

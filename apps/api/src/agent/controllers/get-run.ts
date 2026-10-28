@@ -7,6 +7,7 @@ import type { AgentSubject } from "../types";
 export async function getRun(subject: AgentSubject, runId: string) {
   const { run } = await getVisibleRun(subject, runId);
   const {
+    automationHandledAt: _handled,
     leaseOwner: _owner,
     leaseExpiresAt: _lease,
     attachments,

@@ -15,6 +15,7 @@ export async function listRuns(
       id: schema.agentRunTable.id,
       conversationId: schema.agentRunTable.conversationId,
       requestId: schema.agentRunTable.requestId,
+      trigger: schema.agentRunTable.trigger,
       prompt: schema.agentRunTable.prompt,
       attachments: schema.agentRunTable.attachments,
       response: schema.agentRunTable.response,

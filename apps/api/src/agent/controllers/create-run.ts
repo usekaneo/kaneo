@@ -26,7 +26,11 @@ export async function createRun(
     throw new HTTPException(400, {
       message: "Model is not available on this instance",
     });
-  await getOwnedConversation(subject, conversationId);
+  const conversation = await getOwnedConversation(subject, conversationId);
+  if (conversation.automationId)
+    throw new HTTPException(409, {
+      message: "Use the automation run endpoint",
+    });
   return db.transaction(async (tx) => {
     // Serialize user-wide rate limits across conversations and API instances.
     await tx

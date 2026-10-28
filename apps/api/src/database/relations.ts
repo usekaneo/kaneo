@@ -1,6 +1,8 @@
 import { relations } from "drizzle-orm";
 import {
   agentConversationTable,
+  agentAutomationTable,
+  agentAutomationEventTable,
   agentRunTable,
   agentStepTable,
   agentProposalTable,
@@ -52,6 +54,10 @@ export const agentConversationTableRelations = relations(
     project: one(projectTable, {
       fields: [agentConversationTable.projectId],
       references: [projectTable.id],
+    }),
+    automation: one(agentAutomationTable, {
+      fields: [agentConversationTable.automationId],
+      references: [agentAutomationTable.id],
     }),
     runs: many(agentRunTable),
   }),
@@ -480,6 +486,35 @@ export const customFieldValueTableRelations = relations(
     task: one(taskTable, {
       fields: [customFieldValueTable.taskId],
       references: [taskTable.id],
+    }),
+  }),
+);
+
+export const agentAutomationTableRelations = relations(
+  agentAutomationTable,
+  ({ one, many }) => ({
+    workspace: one(workspaceTable, {
+      fields: [agentAutomationTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
+    owner: one(userTable, {
+      fields: [agentAutomationTable.ownerId],
+      references: [userTable.id],
+    }),
+    project: one(projectTable, {
+      fields: [agentAutomationTable.projectId],
+      references: [projectTable.id],
+    }),
+    conversations: many(agentConversationTable),
+    events: many(agentAutomationEventTable),
+  }),
+);
+export const agentAutomationEventTableRelations = relations(
+  agentAutomationEventTable,
+  ({ one }) => ({
+    automation: one(agentAutomationTable, {
+      fields: [agentAutomationEventTable.automationId],
+      references: [agentAutomationTable.id],
     }),
   }),
 );

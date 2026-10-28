@@ -163,6 +163,19 @@ export async function handleGitlabMergeRequestOpened(
       }
 
       afterCommit(() =>
+        publishEvent("integration.pr_opened", {
+          taskId: task.id,
+          projectId: integration.projectId,
+          eventId: `${integration.id}:pr_opened:${mergeRequest.iid}`,
+          pullRequest: {
+            number: mergeRequest.iid,
+            title: mergeRequest.title,
+            url: mergeRequest.url,
+          },
+        }),
+      );
+
+      afterCommit(() =>
         publishEvent("task.updated", {
           projectId: integration.projectId,
           taskId: task.id,

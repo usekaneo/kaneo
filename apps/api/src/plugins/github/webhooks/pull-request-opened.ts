@@ -110,6 +110,19 @@ export async function handlePullRequestOpened(payload: PROpenedPayload) {
       );
 
       afterCommit(() =>
+        publishEvent("integration.pr_opened", {
+          taskId: task.id,
+          projectId: integration.projectId,
+          eventId: `${integration.id}:pr_opened:${pull_request.number}`,
+          pullRequest: {
+            number: pull_request.number,
+            title: pull_request.title,
+            url: pull_request.html_url,
+          },
+        }),
+      );
+
+      afterCommit(() =>
         publishEvent("task.updated", {
           projectId: integration.projectId,
           taskId: task.id,

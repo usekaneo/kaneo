@@ -23,6 +23,11 @@ import type {
   AgentSnapshot,
   AgentEffect,
 } from "../agent/types";
+import type {
+  AgentRunTrigger,
+  AutomationEventRef,
+  AutomationTrigger,
+} from "../agent/automation/types";
 import type { ImportRunProject } from "../import/import-run-project";
 import type { TaskRecurrence } from "../task/recurrence/schema";
 
@@ -1686,6 +1691,12 @@ export const agentConversationTable = pgTable(
     // Null keeps the conversation private to its owner. When set, workspace
     // members who can read its project may view it read-only.
     sharedAt: timestamp("shared_at", { mode: "date" }),
+    // Set for the conversation that holds an automation's runs for one owner.
+    // A takeover starts a new conversation, so earlier runs stay private.
+    automationId: text("automation_id").references(
+      () => agentAutomationTable.id,
+      { onDelete: "set null" },
+    ),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)
       .notNull(),
@@ -1703,6 +1714,13 @@ export const agentConversationTable = pgTable(
     index("agent_conversation_shared_idx")
       .on(table.workspaceId)
       .where(sql`${table.sharedAt} is not null`),
+    uniqueIndex("agent_conversation_automation_owner_scope_uidx")
+      .on(
+        table.automationId,
+        table.userId,
+        sql`coalesce(${table.projectId}, '')`,
+      )
+      .where(sql`${table.automationId} is not null`),
   ],
 );
 
@@ -1739,6 +1757,9 @@ export const agentRunTable = pgTable(
     inputTokens: integer("input_tokens").notNull().default(0),
     outputTokens: integer("output_tokens").notNull().default(0),
     costUsd: text("cost_usd"),
+    // Set when an automation queued the run; null for runs typed by a user.
+    trigger: jsonb("trigger").$type<AgentRunTrigger>(),
+    automationHandledAt: timestamp("automation_handled_at", { mode: "date" }),
     leaseOwner: text("lease_owner"),
     leaseExpiresAt: timestamp("lease_expires_at", { mode: "date" }),
     createdAt: timestamp("created_at", { mode: "date" })
@@ -1752,6 +1773,11 @@ export const agentRunTable = pgTable(
       table.requestId,
     ),
     index("agent_run_queue_idx").on(table.status, table.createdAt),
+    index("agent_run_automation_completion_idx")
+      .on(table.finishedAt, table.id)
+      .where(
+        sql`${table.trigger} is not null and ${table.automationHandledAt} is null and ${table.status} in ('completed', 'awaiting_review', 'failed', 'cancelled')`,
+      ),
     index("agent_run_conversation_idx").on(
       table.conversationId,
       table.createdAt,
@@ -1874,5 +1900,93 @@ export const agentAttachmentTable = pgTable(
     index("agent_attachment_pending_idx")
       .on(table.createdAt)
       .where(sql`${table.runId} is null`),
+  ],
+);
+
+// Scheduled or event-triggered agent prompts. Runs execute as the owner with
+// their current permissions inside the owner's automation conversation.
+export const agentAutomationTable = pgTable(
+  "agent_automation",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    ownerId: text("owner_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    projectId: text("project_id").references(() => projectTable.id, {
+      onDelete: "cascade",
+    }),
+    name: text("name").notNull(),
+    prompt: text("prompt").notNull(),
+    model: text("model").notNull(),
+    output: text("output", { enum: ["proposals", "digest"] }).notNull(),
+    trigger: jsonb("trigger").$type<AutomationTrigger>().notNull(),
+    // Copy of the trigger's event for indexed matching; null for schedules.
+    eventType: text("event_type"),
+    // Next schedule slot; null for event triggers and while disabled.
+    nextRunAt: timestamp("next_run_at", { mode: "date" }),
+    // Due dates that passed up to this time were already turned into events.
+    eventCursorAt: timestamp("event_cursor_at", { mode: "date" }),
+    enabled: boolean("enabled").notNull().default(true),
+    pausedReason: text("paused_reason", {
+      enum: ["owner_access", "failures"],
+    }),
+    consecutiveFailures: integer("consecutive_failures").notNull().default(0),
+    dailyRunLimit: integer("daily_run_limit").notNull().default(24),
+    lastSkipReason: text("last_skip_reason", {
+      enum: ["budget", "daily_limit", "overlap", "unavailable"],
+    }),
+    lastSkippedAt: timestamp("last_skipped_at", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("agent_automation_workspace_idx").on(
+      table.workspaceId,
+      table.createdAt,
+    ),
+    index("agent_automation_due_idx")
+      .on(table.nextRunAt)
+      .where(sql`${table.enabled} and ${table.nextRunAt} is not null`),
+    index("agent_automation_event_idx")
+      .on(table.workspaceId, table.eventType)
+      .where(sql`${table.enabled} and ${table.eventType} is not null`),
+  ],
+);
+
+// Matched events waiting for an automation's batch window to close.
+export const agentAutomationEventTable = pgTable(
+  "agent_automation_event",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    automationId: text("automation_id")
+      .notNull()
+      .references(() => agentAutomationTable.id, { onDelete: "cascade" }),
+    dedupeKey: text("dedupe_key").notNull(),
+    consumedAt: timestamp("consumed_at", { mode: "date" }),
+    payload: jsonb("payload").$type<AutomationEventRef>(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    unique("agent_automation_event_dedupe_unique").on(
+      table.automationId,
+      table.dedupeKey,
+    ),
+    index("agent_automation_event_pending_idx")
+      .on(table.automationId, table.createdAt)
+      .where(sql`${table.consumedAt} is null`),
   ],
 );
