@@ -7,6 +7,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { formatDateTime, formatRelativeTime } from "@/lib/format";
 import type { Notification } from "@/types/notification";
+import { getAutomationRunTarget } from "./get-automation-run-target";
+import { InboxAutomationRunLink } from "./inbox-automation-run-link";
 import { InboxTask } from "./inbox-task";
 import { NotificationIcon } from "./notification-icon";
 
@@ -25,6 +27,7 @@ export function InboxDetail({
   const taskId =
     notification.resourceType === "task" ? notification.resourceId : null;
   const content = getNotificationContent(notification, t);
+  const automationRun = getAutomationRunTarget(notification);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -65,6 +68,7 @@ export function InboxDetail({
           {taskId && (
             <InboxTask key={taskId} taskId={taskId} workspaceId={workspaceId} />
           )}
+          {automationRun && <InboxAutomationRunLink {...automationRun} />}
         </div>
       </div>
     </div>

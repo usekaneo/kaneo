@@ -3,12 +3,14 @@ import {
   Bell,
   CalendarClock,
   CalendarX,
+  CircleAlert,
   History,
   type LucideIcon,
   MessageSquare,
   SquarePlus,
   Timer,
   UserRound,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -21,6 +23,8 @@ const icons: Record<string, LucideIcon> = {
   due_date_reminder: CalendarClock,
   task_overdue: CalendarX,
   time_entry_created: Timer,
+  agent_automation_digest: Zap,
+  agent_automation_failed: CircleAlert,
 };
 
 export function NotificationIcon({ type }: { type: string }) {
@@ -30,7 +34,7 @@ export function NotificationIcon({ type }: { type: string }) {
     <span
       className={cn(
         "flex size-7 shrink-0 items-center justify-center rounded-full",
-        type === "task_overdue"
+        type === "task_overdue" || type === "agent_automation_failed"
           ? "bg-destructive/10 text-destructive-foreground"
           : "bg-muted text-muted-foreground",
       )}
