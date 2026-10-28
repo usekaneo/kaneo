@@ -42,7 +42,7 @@ export function GET() {
   <channel>
     <title>Kaneo blog</title>
     <link>${SITE}/blog</link>
-    <description>Writing from the Kaneo team on open source project management, self-hosting, and engineering.</description>
+    <description>Writing from the Kaneo team on project management, product, and engineering.</description>
     <language>en</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
     <atom:link href="${SITE}/blog/rss.xml" rel="self" type="application/rss+xml" />

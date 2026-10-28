@@ -1,3 +1,5 @@
+import { dispatchIssueWrite } from "../../sync/dispatch-issue-write";
+import { canSyncTask } from "../../sync/eligibility";
 import type { PluginContext, TaskCommentCreatedEvent } from "../../types";
 import { type GitHubConfig, hasVerifiedGitHubBinding } from "../config";
 import { findExternalLinkByTaskAndType } from "../services/link-manager";
@@ -10,6 +12,16 @@ export async function handleTaskCommentCreated(
   event: TaskCommentCreatedEvent,
   context: PluginContext,
 ): Promise<void> {
+  if (
+    !(await canSyncTask(
+      event.taskId,
+      context.integrationId,
+      undefined,
+      JSON.stringify(context.config),
+    ))
+  )
+    return;
+
   const githubApp = getGithubApp();
   if (!githubApp) {
     return;
@@ -34,12 +46,14 @@ export async function handleTaskCommentCreated(
 
     const issueNumber = Number.parseInt(existingLink.externalId, 10);
 
-    await octokit.rest.issues.createComment({
-      owner: repositoryOwner,
-      repo: repositoryName,
-      issue_number: issueNumber,
-      body: event.comment,
-    });
+    await dispatchIssueWrite(existingLink, JSON.stringify(context.config), () =>
+      octokit.rest.issues.createComment({
+        owner: repositoryOwner,
+        repo: repositoryName,
+        issue_number: issueNumber,
+        body: event.comment,
+      }),
+    );
   } catch (error) {
     console.error("Failed to create GitHub comment:", error);
   }

@@ -6,18 +6,19 @@ export const focalboard: Comparison = {
   category: "open-source",
   title: "Maintained Focalboard alternative",
   description:
-    "Kaneo is an actively maintained, MIT-licensed Focalboard alternative for teams that need a self-hosted board with a future.",
+    "Kaneo is an actively maintained Focalboard alternative with regular releases and a documented API. Kaneo Cloud runs it for you, with nothing to maintain.",
   summary: "An actively maintained board, independent of Mattermost.",
   heading: "The maintained Focalboard alternative",
   subheading:
     "Standalone Focalboard has been looking for maintainers since Mattermost unbundled it. If you are self-hosting it today, you are running software nobody is on the hook for.",
   verdict:
-    "Kaneo is an actively maintained, MIT-licensed alternative to Focalboard. Mattermost stopped bundling the Focalboard plugin in 2023 and the standalone project moved to community maintenance, with the plugin continuing separately as Mattermost Boards. Kaneo offers a comparable self-hosted board with regular releases, SSO, and a documented API.",
+    "Kaneo is an actively maintained Focalboard alternative, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, so there is nothing to maintain. Mattermost stopped bundling the Focalboard plugin in 2023 and the standalone project moved to community maintenance, with the plugin continuing separately as Mattermost Boards, while Kaneo ships regular releases and a documented API. Kaneo is also MIT licensed, so you can self-host it with single sign-on if you prefer.",
   facts: {
     license: "MIT, versus Focalboard's mixed Mattermost licensing",
-    hosting: "Both self-host. Kaneo is Docker plus PostgreSQL",
+    hosting:
+      "EU-hosted Kaneo Cloud. Both self-host, Kaneo as Docker plus PostgreSQL",
     sso: "Free on Kaneo through Google, GitHub, Discord, or any OIDC provider",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     {

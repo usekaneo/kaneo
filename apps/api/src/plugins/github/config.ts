@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { type SyncRules, syncRulesSchema } from "../sync/rules";
 
 export const branchPatterns = [
   "{slug}-{number}",
@@ -20,6 +21,9 @@ export const githubConfigSchema = v.object({
   repositoryId: v.optional(v.number()),
   verifiedGithubAccountId: v.optional(v.string()),
   verifiedByUserId: v.optional(v.string()),
+  syncRules: v.optional(
+    v.custom<SyncRules>((value) => syncRulesSchema.safeParse(value).success),
+  ),
   branchPattern: v.optional(v.string()),
   customBranchRegex: v.optional(v.string()),
   commentTaskLinkOnGitHubIssue: v.optional(v.boolean()),

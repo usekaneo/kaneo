@@ -203,7 +203,7 @@ describe("removing manual resources", () => {
         "settings:externalLinks.removeError",
       ),
     );
-    expect(screen.getByRole("link", { name: "Design" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /^Design/ })).toHaveAttribute(
       "href",
       manualLink.url,
     );

@@ -4,21 +4,22 @@ export const clickup: Comparison = {
   slug: "clickup",
   competitor: "ClickUp",
   category: "saas",
-  title: "Open-source ClickUp alternative",
+  title: "Focused ClickUp alternative",
   description:
-    "Kaneo is an open-source, self-hostable ClickUp alternative. All the planning you need, none of the feature sprawl, free to run yourself under the MIT license.",
+    "Kaneo is a ClickUp alternative with all the planning you need and none of the feature sprawl. Kaneo Cloud runs it for you from $4 a month.",
   summary:
     "The planning part, without the docs, whiteboards, and chat you turn off anyway.",
-  heading: "The open-source ClickUp alternative",
+  heading: "The focused ClickUp alternative",
   subheading:
     "ClickUp's pitch is that it does everything. That is also the complaint. Kaneo does the part your team actually opens every morning, and you can run it on your own server.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to ClickUp that you can self-host for free with unlimited users. ClickUp is cloud-only, with paid tiers from $7 per user a month and SAML single sign-on on its higher tiers. Kaneo covers boards, backlog, workflows, labels, roles, and time tracking, and stops there on purpose.",
+    "Kaneo is a ClickUp alternative for teams that only want the planning part, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. ClickUp is cloud-only, with paid tiers from $7 per user a month and SAML single sign-on on its higher tiers, while Kaneo covers boards, backlog, workflows, labels, roles, and time tracking, and stops there on purpose. Kaneo is also MIT-licensed open source, so you can self-host it for free any time.",
   facts: {
     license: "MIT, versus a proprietary licence for ClickUp",
-    hosting: "Self-host anywhere, or EU-hosted cloud. ClickUp is cloud only",
+    hosting:
+      "EU-hosted Kaneo Cloud, or self-host anywhere. ClickUp is cloud only",
     sso: "Free on every Kaneo build, Business tier and above on ClickUp",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

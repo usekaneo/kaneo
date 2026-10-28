@@ -3,9 +3,9 @@ import type { Guide } from "./types";
 export const openSourceJiraAlternatives: Guide = {
   slug: "open-source-jira-alternatives",
   question: "What are the best free, open-source Jira alternatives?",
-  title: "Free, open-source Jira alternatives compared (2026)",
+  title: "5 Free, Open-Source Jira Alternatives (2026)",
   description:
-    "Jira is not open source and costs money to self-host. Five free, open-source alternatives you can run yourself, compared on licence, single sign-on, and fit.",
+    "Jira is not open source, and self-hosting it costs money. Kaneo, Plane, OpenProject, Redmine, and Taiga compared on licence, single sign-on, and fit.",
   summary:
     "Five self-hostable trackers that replace Jira, and the Jira features none of them have.",
   answer:

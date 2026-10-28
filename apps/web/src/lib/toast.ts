@@ -1,4 +1,7 @@
+import type { ComponentType } from "react";
 import { toastManager } from "@/components/ui/toast";
+
+export type ToastIcon = ComponentType<{ className?: string }>;
 
 type ToastVariant = "success" | "error" | "info" | "warning";
 
@@ -9,21 +12,26 @@ type ToastAction = {
 
 type ToastOptions = {
   description?: string;
+  icon?: ToastIcon;
   action?: ToastAction;
   cancel?: ToastAction;
 };
+
+let repeat = 0;
 
 function addToast(
   title: string,
   variant?: ToastVariant,
   options?: ToastOptions,
 ) {
-  let id = "";
-
+  const id = `${variant ?? "message"}:${title}:${options?.description ?? ""}`;
   const action = options?.action ?? options?.cancel;
+  repeat += 1;
 
-  id = toastManager.add({
+  return toastManager.add({
+    id,
     title,
+    data: { repeat, icon: options?.icon },
     description: options?.description,
     type: variant,
     actionProps: action
@@ -36,8 +44,6 @@ function addToast(
         }
       : undefined,
   });
-
-  return id;
 }
 
 type ToastFn = (title: string, options?: ToastOptions) => string;

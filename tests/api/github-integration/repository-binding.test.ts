@@ -259,6 +259,58 @@ describe("authorized bounded repository listing", () => {
     expect(page.nextPage).toBeNull();
     expect(m.listRepos).not.toHaveBeenCalled();
   });
+  it("searches before checking access and keeps scanning installations", async () => {
+    m.listInstallations
+      .mockResolvedValueOnce({
+        data: [{ id: 10, account: { login: "owner" } }],
+      })
+      .mockResolvedValueOnce({ data: [{ id: 11, account: { login: "org" } }] })
+      .mockResolvedValueOnce({ data: [] });
+    m.listRepos
+      .mockResolvedValueOnce({
+        data: {
+          repositories: [
+            { ...candidate(20), full_name: "owner/website" },
+            { ...candidate(21), description: null },
+          ],
+        },
+      })
+      .mockResolvedValueOnce({
+        data: { repositories: [{ ...candidate(30), full_name: "org/web" }] },
+      });
+    const page = await listUserRepositories(
+      "user",
+      { installationPage: 1, repositoryPage: 1 },
+      "WEB",
+    );
+    expect(page.repositories.map((repo) => repo.id)).toEqual([20, 30]);
+    expect(page.installations.map((item) => item.id)).toEqual([10, 11]);
+    expect(page.nextPage).toBeNull();
+    expect(m.listRepos).toHaveBeenCalledWith(
+      expect.objectContaining({ per_page: 100, page: 1 }),
+    );
+    expect(m.user).toHaveBeenCalledTimes(2);
+    expect(m.permission).toHaveBeenCalledTimes(2);
+    expect(m.permission).not.toHaveBeenCalledWith(
+      expect.objectContaining({ repo: "repo-21" }),
+    );
+  });
+  it("does not return search matches the caller cannot administer", async () => {
+    m.listInstallations
+      .mockResolvedValueOnce({
+        data: [{ id: 10, account: { login: "owner" } }],
+      })
+      .mockResolvedValueOnce({ data: [] });
+    m.permission.mockResolvedValue({ data: { permission: "write" } });
+    const page = await listUserRepositories(
+      "user",
+      { installationPage: 1, repositoryPage: 1 },
+      "private",
+    );
+    expect(page.repositories).toEqual([]);
+    expect(page.installations).toEqual([]);
+    expect(JSON.stringify(page)).not.toContain("owner");
+  });
   it("rejects unlinked callers before any provider enumeration", async () => {
     m.account.mockResolvedValue(null);
     await expect(

@@ -1,0 +1,2 @@
+export const barButtonClass =
+  "inline-flex h-7 shrink-0 items-center gap-1.5 rounded-[7px] px-2 font-medium text-[13px] text-foreground/85 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring data-popup-open:bg-accent max-lg:w-7 max-lg:justify-center max-lg:px-0 max-sm:size-9 [&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-sidebar-foreground max-sm:[&_svg]:size-4";

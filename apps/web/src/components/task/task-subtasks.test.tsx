@@ -34,7 +34,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mocks.navigate,
 }));
-vi.mock("framer-motion", () => ({
+vi.mock("motion/react", () => ({
   AnimatePresence: ({ children }: { children: unknown }) => children,
 }));
 vi.mock("react-i18next", () => ({
@@ -67,6 +67,9 @@ vi.mock(
     useGetActiveWorkspaceUsers: () => ({ data: { members: [] } }),
   }),
 );
+vi.mock("@/hooks/queries/project/use-get-projects", () => ({
+  default: () => ({ data: [] }),
+}));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: mocks.canCreateTasks,

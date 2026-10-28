@@ -3,9 +3,9 @@ import type { Guide } from "./types";
 export const giteaProjectManagement: Guide = {
   slug: "gitea-project-management",
   question: "What is the best project management tool for Gitea?",
-  title: "Project management for Gitea: built-in boards or a synced tracker",
+  title: "Gitea project management: boards or a synced tracker",
   description:
-    "Gitea's built-in project boards versus a self-hosted tracker with two-way Gitea issue sync: what each covers, how pull requests move tasks, and how to connect them.",
+    "Gitea's built-in project boards versus a self-hosted tracker with two-way issue sync: what each covers, how pull requests move tasks, and how to connect them.",
   summary:
     "When Gitea's own boards are enough, and what a synced tracker adds on top.",
   answer:

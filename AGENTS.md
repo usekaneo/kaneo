@@ -18,6 +18,7 @@ Treat this guide as a set of defaults. The developer's request takes precedence.
 
 - `apps/api` — Hono routes, controllers, database, events, integrations, and WebSockets.
 - `apps/web` — React UI, fetchers, TanStack Query hooks, and realtime cache updates.
+- `apps/mobile` — Expo/React Native app for Android and iOS with its own HTTP client; see `apps/mobile/AGENTS.md`.
 - `packages/libs` — typed Hono client and URL helpers; `packages/permissions` — permission vocabulary and built-in roles.
 - `packages/mcp` — published stdio MCP package.
 - `apps/docs` — product and API docs; `apps/site` — public site and docs host.
@@ -33,7 +34,7 @@ The common mistake is finishing one path while leaving another stale. Check the 
 - Data: Put schema and relations in `apps/api/src/database/`. Generate a migration with `pnpm --filter @kaneo/api db:generate`, inspect its SQL, and account for existing installations.
 - Public contracts: Keep Zod validation and OpenAPI descriptions accurate. After route or schema changes, run `pnpm openapi:check:fix`; `apps/docs/openapi.json` is committed.
 - UI: Put user-facing copy in static i18n keys, with `i18n/en-US.json` as the source. Check accessibility and the reverse action: assign/unassign, connect/disconnect, enable/disable.
-- Other entry points: Consider MCP, API keys, webhooks, Docker, Helm, and docs when the behavior reaches them.
+- Other entry points: Consider the mobile app, MCP, API keys, webhooks, Docker, Helm, and docs when the behavior reaches them.
 
 ## Working safely
 

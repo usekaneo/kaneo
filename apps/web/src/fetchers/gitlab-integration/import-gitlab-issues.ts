@@ -1,4 +1,5 @@
 import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 
 async function importGitlabIssues(projectId: string) {
   const response = await client["gitlab-integration"]["import-issues"].$post({
@@ -6,8 +7,7 @@ async function importGitlabIssues(projectId: string) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw await HttpError.fromResponse(response);
   }
 
   return response.json();

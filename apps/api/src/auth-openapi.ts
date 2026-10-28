@@ -10,6 +10,17 @@ import { z } from "./openapi";
 // generator plus ~200 lines of spec rewriting (operationId/summary/tag
 // normalization, ref pruning, and a 3.1-to-3.0 downgrade). Regenerate and diff
 // this file when upgrading Better Auth.
+const invitationProjectAccess = {
+  projectAccess: z.enum(["all", "selected"]).openapi({
+    description:
+      '"all" gives access to every project once accepted; "selected" limits the member to projectIds.',
+  }),
+  projectIds: z.array(z.string()).openapi({
+    description:
+      'Projects the invitation grants when projectAccess is "selected". Only projects the viewer can access are listed.',
+  }),
+};
+
 export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
   registry.registerPath({
     method: "post",
@@ -431,6 +442,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
               organizationName: z.string(),
               organizationSlug: z.string(),
               inviterEmail: z.string(),
+              ...invitationProjectAccess,
             }),
           },
         },
@@ -519,6 +531,14 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
                   "Resend the invitation email, if the user is already invited. Eg: true",
               }),
               teamId: z.union([z.string(), z.array(z.string())]).optional(),
+              projectAccess: z.enum(["all", "selected"]).optional().openapi({
+                description:
+                  '"all" (the default) gives access to every project. "selected" limits the new member to projectIds once they accept.',
+              }),
+              projectIds: z.array(z.string()).optional().openapi({
+                description:
+                  'Projects the new member can access when projectAccess is "selected". They must belong to the workspace, and an inviter whose own access is limited can only choose projects they can access.',
+              }),
             }),
           },
         },
@@ -549,6 +569,7 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
               status: z.string(),
               expiresAt: z.string(),
               createdAt: z.string(),
+              ...invitationProjectAccess,
             }),
           },
         },
@@ -605,8 +626,32 @@ export function organizationRoutes(registry: OpenAPIHono["openAPIRegistry"]) {
     operationId: "listOrganizationInvitations",
     summary: "List Organization Invitations",
     description: "List Organization Invitations",
+    request: {
+      query: z.object({
+        organizationId: z.string().optional(),
+      }),
+    },
     responses: {
-      200: { description: "Success" },
+      200: {
+        description: "Success",
+        content: {
+          "application/json": {
+            schema: z.array(
+              z.object({
+                id: z.string(),
+                email: z.string(),
+                role: z.string(),
+                organizationId: z.string(),
+                inviterId: z.string(),
+                status: z.string(),
+                expiresAt: z.string(),
+                createdAt: z.string(),
+                ...invitationProjectAccess,
+              }),
+            ),
+          },
+        },
+      },
     },
   });
 

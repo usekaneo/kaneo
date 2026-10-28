@@ -28,11 +28,6 @@ function runBlock(file, step) {
   return result.join("\n");
 }
 
-const mergeScript = runBlock(
-  "auto-merge.yml",
-  "Merge eligible npm updates after required checks pass",
-);
-
 test("issue notifications preserve untrusted text without Discord mentions", () => {
   const dir = mkdtempSync(path.join(tmpdir(), "kaneo-notification-test-"));
   try {
@@ -72,99 +67,6 @@ test("issue notifications preserve untrusted text without Discord mentions", () 
     rmSync(dir, { recursive: true, force: true });
   }
 });
-const ghMock = `#!/bin/sh
-set -eu
-case "$1 $2" in
-   'api --paginate')
-    case "$3" in
-      */events) printf '%s' "$MOCK_EVENTS" ;;
-      *) printf '%s' "$MOCK_FILES" ;;
-    esac ;;
-  'pr checks')
-    case "$*" in
-      *--watch*) exit "$MOCK_WATCH_STATUS" ;;
-      *) printf '%s' "$MOCK_CHECKS" ;;
-    esac ;;
-  'pr view') printf '{"headRefOid":"%s"}' "$MOCK_HEAD" ;;
-  'pr merge') printf '%s' "$*" > "$MOCK_MERGED" ;;
-  *) exit 99 ;;
-esac
-`;
-const success = [{ name: "unit", bucket: "pass" }];
-const manifest = [
-  { filename: "packages/mcp/package.json", status: "modified" },
-];
-for (const [name, overrides, allowed] of [
-  ["passing required checks permit the verified head", {}, true],
-  [
-    "a previously closed PR rejects even after a bot update",
-    { events: [{ event: "closed" }, { event: "reopened" }] },
-    false,
-  ],
-  ["missing required checks reject", { checks: [] }, false],
-  ["failing checks reject", { checks: [{ bucket: "fail" }] }, false],
-  ["pending checks reject", { checks: [{ bucket: "pending" }] }, false],
-  ["skipped checks reject", { checks: [{ bucket: "skipping" }] }, false],
-  ["cancelled checks reject", { checks: [{ bucket: "cancel" }] }, false],
-  ["watch failure rejects", { watch: 1 }, false],
-  ["updated PR head rejects", { head: "different-head" }, false],
-  [
-    "workflow edits reject",
-    { files: [{ filename: ".github/workflows/ci.yml", status: "modified" }] },
-    false,
-  ],
-  [
-    "arbitrary source edits reject",
-    { files: [{ filename: "apps/api/src/auth.ts", status: "modified" }] },
-    false,
-  ],
-  [
-    "renamed manifests reject",
-    { files: [{ filename: "package.json", status: "renamed" }] },
-    false,
-  ],
-  ["empty files reject", { files: [] }, false],
-  ["malformed checks reject", { checks: null }, false],
-]) {
-  test(`Dependabot: ${name}`, () => {
-    const dir = mkdtempSync(path.join(tmpdir(), "kaneo-merge-test-"));
-    try {
-      const marker = path.join(dir, "merged");
-      writeFileSync(path.join(dir, "gh"), ghMock, { mode: 0o700 });
-      const result = spawnSync("bash", ["-c", mergeScript], {
-        env: {
-          PATH: `${dir}:/usr/bin:/bin:/opt/homebrew/bin`,
-          GITHUB_REPOSITORY: "test/repo",
-          PR_URL: "https://example.invalid/pull/1",
-          PR_NUMBER: "1",
-          EXPECTED_HEAD: "reviewed-head",
-          MOCK_FILES: JSON.stringify(overrides.files ?? manifest),
-          MOCK_EVENTS: JSON.stringify(overrides.events ?? []),
-          MOCK_CHECKS: JSON.stringify(
-            "checks" in overrides ? overrides.checks : success,
-          ),
-          MOCK_WATCH_STATUS: String(overrides.watch ?? 0),
-          MOCK_HEAD: overrides.head ?? "reviewed-head",
-          MOCK_MERGED: marker,
-        },
-        encoding: "utf8",
-      });
-      if (allowed) {
-        assert.equal(result.status, 0, result.stderr);
-        assert.match(
-          readFileSync(marker, "utf8"),
-          /--match-head-commit reviewed-head/,
-        );
-      } else {
-        assert.notEqual(result.status, 0, result.stdout);
-        assert.throws(() => readFileSync(marker), { code: "ENOENT" });
-      }
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-}
-
 for (const version of ["1.2.3", "0.0.1-rc.1", "2.3.4+build.1"]) {
   test(`release version accepts ${version}`, () => {
     const result = spawnSync(
@@ -273,19 +175,6 @@ test("release packages reject a tag outside reviewed main history", () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-});
-
-test("Dependabot automation excludes human reopens and ready events", () => {
-  const source = readFileSync(
-    path.join(root, ".github/workflows/auto-merge.yml"),
-    "utf8",
-  );
-  assert.match(source, /types: \[opened, synchronize\]/);
-  assert.match(source, /github\.event\.sender\.login == 'dependabot\[bot\]'/);
-  assert.match(
-    source,
-    /github\.event\.pull_request\.user\.login == 'dependabot\[bot\]'/,
-  );
 });
 
 test("Blacksmith actions use immutable commits with no scanner exemption", () => {

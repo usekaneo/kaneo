@@ -1,0 +1,1 @@
+CREATE INDEX "task_project_scheduled_id_idx" ON "task" USING btree ("project_id","id") WHERE "task"."start_date" is not null or "task"."due_date" is not null;

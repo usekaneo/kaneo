@@ -4,7 +4,7 @@ export const githubIssuesKanbanBoard: Guide = {
   slug: "github-issues-kanban-board",
   question:
     "Is there a self-hosted kanban board that syncs with GitHub issues?",
-  title: "A self-hosted kanban board with two-way GitHub issue sync",
+  title: "Self-hosted kanban with two-way GitHub issue sync",
   description:
     "How to keep GitHub issues and a self-hosted board in sync both ways: what syncs, how branches and pull requests move tasks, and when GitHub Projects is enough.",
   summary:

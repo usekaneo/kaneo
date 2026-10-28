@@ -8,6 +8,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 describe("API integration: project creation", () => {
   beforeEach(async () => {
@@ -32,7 +33,10 @@ describe("API integration: project creation", () => {
     });
 
     expect(response.status).toBe(401);
-    await expect(response.text()).resolves.toBe("Unauthorized");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Unauthorized",
+      code: "UNAUTHORIZED",
+    });
   });
 
   it("creates a project for a workspace member and seeds default columns", async () => {
@@ -125,10 +129,11 @@ describe("API integration: project creation", () => {
       }),
     });
 
-    expect(response.status).toBe(403);
-    await expect(response.text()).resolves.toBe(
-      "You don't have access to this workspace",
-    );
+    expect(response.status).toBe(404);
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Workspace not found",
+      code: "NOT_FOUND",
+    });
   });
 
   it("rejects a project key already used in the workspace", async () => {
@@ -155,7 +160,9 @@ describe("API integration: project creation", () => {
 
     const duplicate = await create(member.workspace.id, "kan");
     expect(duplicate.status).toBe(409);
-    await expect(duplicate.text()).resolves.toContain('"kan" (Kanban)');
+    const duplicateError = await readErrorBody(duplicate);
+    expect(duplicateError.code).toBe("CONFLICT");
+    expect(duplicateError.message).toContain('"kan" (Kanban)');
     expect((await create(member.workspace.id, "ＫＡＮ")).status).toBe(409);
 
     mockAuthenticatedSession(other.user);

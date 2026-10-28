@@ -13,6 +13,7 @@ export async function prepareAdminUserRemoval(ctx: RemovalContext) {
 
   if (!caller || !hasInstanceAdminRole(caller.role)) {
     throw new APIError("FORBIDDEN", {
+      code: "INSTANCE_ADMIN_REQUIRED",
       message: "Only instance administrators can remove users.",
     });
   }
@@ -24,6 +25,7 @@ export async function prepareAdminUserRemoval(ctx: RemovalContext) {
 
   if (userId === caller.id) {
     throw new APIError("BAD_REQUEST", {
+      code: "CANNOT_REMOVE_YOURSELF",
       message: "You cannot remove yourself.",
     });
   }

@@ -10,11 +10,15 @@ async function getGiteaIntegration(projectId: string) {
   );
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();
   return data;
 }
+
+export type GiteaIntegration = NonNullable<
+  Awaited<ReturnType<typeof getGiteaIntegration>>
+>;
 
 export default getGiteaIntegration;

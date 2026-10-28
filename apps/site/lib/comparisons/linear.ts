@@ -4,20 +4,21 @@ export const linear: Comparison = {
   slug: "linear",
   competitor: "Linear",
   category: "saas",
-  title: "Self-hosted, open-source Linear alternative",
+  title: "Linear alternative: Kaneo vs Linear",
   description:
-    "Linear cannot be self-hosted. Kaneo is a fast, focused, open-source Linear alternative you can run on your own server for free under the MIT license.",
-  summary: "A fast, focused tracker you can actually host yourself.",
-  heading: "The self-hosted, open-source Linear alternative",
+    "Kaneo is a fast, focused Linear alternative with boards, backlog, and workflows. Kaneo Cloud runs it for you from $4 a month, and you can self-host it too.",
+  summary: "A fast, focused tracker that Kaneo Cloud runs for you.",
+  heading: "The fast, focused Linear alternative",
   subheading:
-    "Linear is fast and beautifully focused, but it's closed-source, cloud-only, and you can't run it yourself. Kaneo gives you a clean, focused workflow that's open source and self-hostable.",
+    "Linear is fast and beautifully focused, but it's closed-source and cloud-only. Kaneo gives you a clean, focused workflow on Kaneo Cloud, and you can run it yourself whenever you want.",
   verdict:
-    "Kaneo is the closest open-source, self-hostable answer to Linear. It is MIT licensed, runs on your own Docker host, and keeps the same idea of a fast, uncluttered tracker with keyboard-friendly boards, backlog, and workflows. It does not try to reproduce Linear's cycles, triage, or insights.",
+    "Kaneo is a fast, uncluttered Linear alternative, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. It keeps keyboard-friendly boards, backlog, and workflows, and it does not try to reproduce Linear's cycles, triage, or insights. Unlike Linear, it is MIT-licensed open source, so you can also run it on your own Docker host.",
   facts: {
     license: "MIT, versus a proprietary licence for Linear",
-    hosting: "Self-host anywhere, or EU-hosted cloud. Linear is cloud only",
+    hosting:
+      "EU-hosted Kaneo Cloud, or self-host anywhere. Linear is cloud only",
     sso: "Free on every Kaneo build, paid plans on Linear",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },
@@ -42,6 +43,11 @@ export const linear: Comparison = {
       body: "Free forever to self-host with every feature, including SSO. Managed cloud from $4/month, with no seats-gated features.",
     },
   ],
+  migration: {
+    body: "Kaneo imports Linear teams from the app with a personal API key: workflow states, issues with their numbers, priorities, labels, assignees, comments, and relations. Linear is only read, never changed.",
+    href: "https://kaneo.app/docs/core/migrations/from-linear",
+    linkText: "Read the import guide",
+  },
   honestNote:
     "Linear sets the bar for polish, speed, and deep product-team features like cycles and triage. If you're committed to cloud SaaS and want that specific, highly-refined workflow, it's excellent. Kaneo is for teams who want a clean experience they can actually own.",
   faq: [

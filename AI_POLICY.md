@@ -31,4 +31,9 @@ Our aim is ensuring quality and maintaining the joy of collaborating and communi
 - Contributions must be fully understood and explainable by the contributor
 - Contribution guidelines must still be followed
 
+Pull requests may receive an automatic `slop` label when a code-comment detector
+flags added or changed comments. This is an advisory review hint and can be wrong.
+If you wrote the comments yourself, ignore the message and label; no explanation
+or changes are needed. The detector does not block or close pull requests.
+
 Read more about this and other AI contribution policies on [ai-policy.dev](https://ai-policy.dev/)

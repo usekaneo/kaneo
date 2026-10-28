@@ -1,15 +1,18 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { columnTable, projectTable, taskTable } from "../../database/schema";
 import { publishEvent } from "../../events";
-import { filterAssignableUsers } from "../../utils/assert-assignable-user";
+import { filterUsersWithProjectAccess } from "../../project-access/filter-users-with-project-access";
 import {
-  coercePriority,
-  coerceStatus,
-  getValidTaskStatuses,
-} from "../validate-task-fields";
+  NO_PROJECT_ACCESS,
+  NOT_ASSIGNABLE,
+} from "../../utils/assert-assignable-user";
+import { coercePriority, VIRTUAL_STATUSES } from "../validate-task-fields";
+import { resolveImportTaskStatus } from "../resolve-import-task-status";
 import { claimTaskNumber } from "./claim-task-numbers";
+import { nextTaskPosition } from "./next-task-position";
+import { resolveImportAssignees } from "../resolve-import-assignees";
 
 export type ImportTask = {
   title: string;
@@ -44,52 +47,83 @@ async function importTasks(
     ),
   ];
 
-  const assignableIds = await filterAssignableUsers(
+  const assignees = await resolveImportAssignees(
     assigneeIds,
     project.workspaceId,
   );
+  const assignableIds = await filterUsersWithProjectAccess(
+    assignees.values(),
+    projectId,
+  );
 
-  const validStatuses = await getValidTaskStatuses(projectId);
+  const columns = await db.query.columnTable.findMany({
+    where: eq(columnTable.projectId, projectId),
+    orderBy: asc(columnTable.position),
+  });
 
   const results = [];
 
   for (const taskData of tasksToImport) {
-    const assigneeId = taskData.userId?.trim() || null;
+    const reference = taskData.userId?.trim() || null;
+    const assigneeId = reference ? assignees.get(reference) : null;
 
-    if (assigneeId && !assignableIds.has(assigneeId)) {
+    if (reference && (!assigneeId || !assignableIds.has(assigneeId))) {
       results.push({
         success: false,
-        error: "Assignee is not a member of this workspace",
+        error: assigneeId ? NO_PROJECT_ACCESS : NOT_ASSIGNABLE,
         task: taskData,
       });
       continue;
     }
 
     try {
-      const { status, warning: statusWarning } = coerceStatus(
-        taskData.status,
-        validStatuses,
-      );
+      const resolved = resolveImportTaskStatus(taskData.status, columns);
+      if ("error" in resolved) {
+        results.push({ success: false, error: resolved.error, task: taskData });
+        continue;
+      }
+      const { status: resolvedStatus, warning: statusWarning } = resolved;
       const { priority, warning: priorityWarning } = coercePriority(
         taskData.priority || "low",
       );
       const warnings = [statusWarning, priorityWarning].filter(Boolean);
 
-      const column = await db.query.columnTable.findFirst({
-        where: and(
-          eq(columnTable.projectId, projectId),
-          eq(columnTable.slug, status),
-        ),
-      });
-
       const createdTask = await db.transaction(async (tx) => {
         const taskNumber = await claimTaskNumber(projectId, tx);
+        // Recheck the snapshot's column and retain it until the insert commits.
+        const [column] = await tx
+          .select({ id: columnTable.id })
+          .from(columnTable)
+          .where(
+            and(
+              eq(columnTable.projectId, projectId),
+              eq(columnTable.slug, resolvedStatus),
+            ),
+          )
+          .limit(1)
+          .for("key share");
+        const status =
+          column ||
+          VIRTUAL_STATUSES.some((virtual) => virtual === resolvedStatus)
+            ? resolvedStatus
+            : "planned";
+        if (status !== resolvedStatus) {
+          warnings.push(
+            `Status "${resolvedStatus}" no longer has a column. Mapped to "planned".`,
+          );
+        }
+        const position = await nextTaskPosition(
+          tx,
+          projectId,
+          status,
+          column?.id ?? null,
+        );
 
         const [task] = await tx
           .insert(taskTable)
           .values({
             projectId,
-            userId: assigneeId,
+            userId: assigneeId ?? null,
             title: taskData.title,
             status,
             columnId: column?.id ?? null,
@@ -98,6 +132,7 @@ async function importTasks(
             description: taskData.description || "",
             priority,
             number: taskNumber,
+            position,
           })
           .returning();
 

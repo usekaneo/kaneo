@@ -1,0 +1,2 @@
+export const taskChipClass =
+  "inline-flex h-5.5 min-w-0 shrink-0 cursor-pointer items-center gap-1.25 rounded-md border border-chip-border px-1.5 text-chip-foreground text-xs outline-none transition-colors hover:border-chip-border-hover hover:bg-chip-hover focus-visible:border-board-card-focus focus-visible:ring-[3px] focus-visible:ring-board-card-ring data-popup-open:border-chip-border-open data-popup-open:bg-chip-open [&_svg]:size-3 [&_svg]:shrink-0";

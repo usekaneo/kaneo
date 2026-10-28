@@ -42,6 +42,10 @@ secured = render(*args, '--set', 'podSecurityContext.runAsNonRoot=true', '--set'
 deployment = secured.find { |d| d['kind'] == 'Deployment' && !d['metadata']['name'].end_with?('-postgresql') }
 context = deployment['spec']['template']['spec']['securityContext']
 verify(context['runAsNonRoot'] && context.dig('seccompProfile', 'type') == 'RuntimeDefault', 'Documented pod security settings are not applied')
+runtime_mount = deployment['spec']['template']['spec']['containers'].first.fetch('volumeMounts').find { |mount| mount['mountPath'] == '/var/lib/kaneo' }
+verify(runtime_mount && !runtime_mount['readOnly'], 'Kaneo runtime storage must be writable')
+runtime_volume = deployment['spec']['template']['spec'].fetch('volumes').find { |volume| volume['name'] == runtime_mount['name'] }
+verify(runtime_volume && runtime_volume['emptyDir'] == {}, 'Kaneo runtime storage must use emptyDir')
 puts 'Helm secret, upgrade, external-secret validation and pod security checks passed'
 
 ['', '   ', 'ftp://example.com', 'https://user:secret@example.com', 'https://example.com/path', 'https://example.com?x=1', 'https://example.com#fragment'].each do |url|

@@ -1,6 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CheckCircle, Loader2, Mail, X } from "lucide-react";
+import {
+  CheckCircle,
+  Loader2,
+  Mail,
+  X,
+  UserXIcon,
+  UserCheckIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Layout from "@/components/common/layout";
@@ -56,7 +63,9 @@ function InvitationsPage() {
         organizationId: data?.invitation.organizationId || organizationId,
       });
 
-      toast.success(t("invitations:toast.acceptSuccess"));
+      toast.success(t("invitations:toast.acceptSuccess"), {
+        icon: UserCheckIcon,
+      });
 
       await queryClient.invalidateQueries({
         queryKey: ["invitations", "pending"],
@@ -91,7 +100,7 @@ function InvitationsPage() {
         return;
       }
 
-      toast.success(t("invitations:toast.rejectSuccess"));
+      toast.success(t("invitations:toast.rejectSuccess"), { icon: UserXIcon });
 
       await queryClient.invalidateQueries({
         queryKey: ["invitations", "pending"],

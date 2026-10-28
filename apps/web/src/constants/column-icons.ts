@@ -4,6 +4,7 @@ import {
   Circle,
   CircleDashed,
   CircleDot,
+  Clock,
   Search,
 } from "lucide-react";
 import projectIcons from "./project-icons";
@@ -14,7 +15,7 @@ export const DEFAULT_COLUMN_ICON_NAMES = {
   "in-review": "Search",
   done: "CheckCircle2",
   archived: "Archive",
-  planned: "CircleDashed",
+  planned: "Clock",
 } as const;
 
 const columnIcons = {
@@ -24,6 +25,7 @@ const columnIcons = {
   Search,
   CheckCircle2,
   CircleDashed,
+  Clock,
   Archive,
 };
 

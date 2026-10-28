@@ -35,7 +35,7 @@ describe("Markdown paste and edit round trips", () => {
     "# Heading\n\n**Bold** and [link](https://example.com)",
   ])("preserves formatting in %s", (markdown) => {
     setup();
-    expect(pasteMarkdown(editor, clipboard(markdown))).toBe(true);
+    expect(pasteMarkdown(editor.view, clipboard(markdown))).toBe(true);
     const saved = editor.getMarkdown();
     expect(saved).not.toContain("\\*");
     expect(editor.getHTML()).toContain("<strong>");
@@ -46,7 +46,7 @@ describe("Markdown paste and edit round trips", () => {
   it("inserts inline formatting inside the existing paragraph", () => {
     setup("Hello world");
     editor.commands.setTextSelection(7);
-    expect(pasteMarkdown(editor, clipboard("**bold** "))).toBe(true);
+    expect(pasteMarkdown(editor.view, clipboard("**bold** "))).toBe(true);
     expect(editor.getHTML()).toBe("<p>Hello <strong>bold</strong> world</p>");
   });
   it.each([
@@ -56,27 +56,33 @@ describe("Markdown paste and edit round trips", () => {
   ])("leaves %s to URL handlers", (url) => {
     setup();
     const event = clipboard(url);
-    expect(pasteMarkdown(editor, event)).toBe(false);
+    expect(pasteMarkdown(editor.view, event)).toBe(false);
     expect(event.preventDefault).not.toHaveBeenCalled();
   });
   it("leaves rich text, plain text and code-block pastes alone", () => {
     setup();
     expect(
-      pasteMarkdown(editor, clipboard("**literal**", "<p>**literal**</p>")),
+      pasteMarkdown(
+        editor.view,
+        clipboard("**literal**", "<p>**literal**</p>"),
+      ),
     ).toBe(false);
-    expect(pasteMarkdown(editor, clipboard("plain text"))).toBe(false);
+    expect(pasteMarkdown(editor.view, clipboard("plain text"))).toBe(false);
     expect(
-      pasteMarkdown(editor, clipboard("https://youtube.com/watch?v=video")),
+      pasteMarkdown(
+        editor.view,
+        clipboard("https://youtube.com/watch?v=video"),
+      ),
     ).toBe(false);
     editor.commands.setCodeBlock();
-    expect(pasteMarkdown(editor, clipboard("**literal**"))).toBe(false);
+    expect(pasteMarkdown(editor.view, clipboard("**literal**"))).toBe(false);
   });
   it("leaves formatted text literal inside inline code", () => {
     setup("`literal`");
     editor.commands.setTextSelection(4);
     expect(editor.isActive("code")).toBe(true);
     const event = clipboard("**bold**");
-    expect(pasteMarkdown(editor, event)).toBe(false);
+    expect(pasteMarkdown(editor.view, event)).toBe(false);
     expect(event.preventDefault).not.toHaveBeenCalled();
     expect(editor.getHTML()).toBe("<p><code>literal</code></p>");
   });
@@ -84,7 +90,7 @@ describe("Markdown paste and edit round trips", () => {
     "preserves explicit hard breaks in %s",
     (markdown) => {
       setup();
-      expect(pasteMarkdown(editor, clipboard(markdown))).toBe(true);
+      expect(pasteMarkdown(editor.view, clipboard(markdown))).toBe(true);
       expect(editor.getHTML()).toBe("<p>line<br>break</p>");
     },
   );

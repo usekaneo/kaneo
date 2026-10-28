@@ -26,7 +26,9 @@ export default function TaskCrumbSelect({
   onSelectTask,
 }: TaskCrumbSelectProps) {
   const { t } = useTranslation();
-  const { data: project } = useGetTasks(projectId);
+  const { data: project } = useGetTasks(projectId, {
+    refetchOnMount: false,
+  });
   const tasks = [
     ...(project?.columns?.flatMap((column) => column.tasks) ?? []),
     ...(project?.plannedTasks ?? []),

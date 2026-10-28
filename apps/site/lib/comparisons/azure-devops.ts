@@ -4,20 +4,21 @@ export const azureDevops: Comparison = {
   slug: "azure-devops",
   competitor: "Azure DevOps Boards",
   category: "saas",
-  title: "Open-source Azure DevOps Boards alternative",
+  title: "Standalone Azure DevOps Boards alternative",
   description:
-    "Kaneo is an open-source, self-hostable alternative to Azure DevOps Boards. Free under the MIT license, with no Microsoft account or Azure tenant required.",
-  summary: "Work tracking without a Microsoft tenant or an Azure DevOps org.",
-  heading: "The open-source alternative to Azure DevOps Boards",
+    "Kaneo is a standalone Azure DevOps Boards alternative with no Microsoft account or Azure tenant required. Kaneo Cloud runs it for you from $4 a month.",
+  summary:
+    "Work tracking without a Microsoft tenant, run for you on Kaneo Cloud.",
+  heading: "The standalone alternative to Azure DevOps Boards",
   subheading:
     "Azure Boards is free for five people and then priced per user, and it only makes sense if the rest of your stack is Microsoft. Kaneo is a standalone tracker you can host anywhere.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to Azure DevOps Boards. Azure DevOps is free for the first 5 users and then $6 per user a month, tied to a Microsoft Entra tenant and the wider Azure DevOps suite. Kaneo is a standalone tracker with no tenant requirement, free to self-host for any number of people.",
+    "Kaneo is a standalone alternative to Azure DevOps Boards for teams outside the Microsoft stack, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. Azure DevOps is free for the first 5 users and then $6 per user a month, tied to a Microsoft Entra tenant and the wider Azure DevOps suite, while Kaneo has no tenant requirement. Kaneo is also MIT-licensed open source, so you can self-host it for free for any number of people.",
   facts: {
     license: "MIT, versus a proprietary Microsoft licence",
-    hosting: "Self-host anywhere, or EU-hosted cloud",
+    hosting: "EU-hosted Kaneo Cloud, or self-host anywhere",
     sso: "Any OIDC provider, free on every Kaneo build",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

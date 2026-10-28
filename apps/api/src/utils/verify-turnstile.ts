@@ -5,6 +5,7 @@ const TURNSTILE_VERIFY_URL =
 export type TurnstileResult = { ok: true } | { ok: false; reason: string };
 
 export const authCaptchaPaths = new Set([
+  "/sign-in/email",
   "/sign-up/email",
   "/sign-in/social",
   "/sign-in/oauth2",

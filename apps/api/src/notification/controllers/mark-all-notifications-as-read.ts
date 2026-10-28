@@ -2,13 +2,22 @@ import { and, eq } from "drizzle-orm";
 import db from "../../database";
 import { notificationTable } from "../../database/schema";
 
-import { notificationResourceAccess } from "../resource-access";
+import type { PermissionMap } from "../../utils/role-permissions";
+import { notificationReadAccess } from "../resource-access";
 import { notificationWorkspaceFilter } from "../workspace-filter";
 
 async function markAllNotificationsAsRead(
   userId: string,
   workspaceId?: string,
+  apiKeyPermissions?: PermissionMap | null,
 ) {
+  const access = await notificationReadAccess(
+    userId,
+    notificationTable.resourceId,
+    notificationTable.resourceType,
+    apiKeyPermissions,
+    workspaceId,
+  );
   await db
     .update(notificationTable)
     .set({ isRead: true })
@@ -16,13 +25,7 @@ async function markAllNotificationsAsRead(
       and(
         eq(notificationTable.userId, userId),
         notificationWorkspaceFilter(workspaceId),
-        workspaceId
-          ? notificationResourceAccess(
-              userId,
-              notificationTable.resourceId,
-              notificationTable.resourceType,
-            )
-          : undefined,
+        access,
       ),
     );
 

@@ -35,7 +35,9 @@ vi.mock("@/store/project", () => ({
   default: () => ({ project: m.project, setProject: vi.fn() }),
 }));
 vi.mock("@/store/user-preferences", () => ({
-  useUserPreferencesStore: () => ({ viewMode: "board", setViewMode: vi.fn() }),
+  useUserPreferencesStore: (
+    selector: (state: { viewMode: "board" | "list" }) => unknown,
+  ) => selector({ viewMode: "board" }),
 }));
 vi.mock("@/store/background", () => ({
   useBackgroundStore: () => ({ background: null }),
@@ -43,35 +45,15 @@ vi.mock("@/store/background", () => ({
 vi.mock("@/hooks/use-board-sort", () => ({
   useBoardSort: () => ({ sort: { field: "position" }, setSort: vi.fn() }),
 }));
-vi.mock("@/hooks/use-keyboard-shortcuts", () => ({
-  useRegisterShortcuts: vi.fn(),
-  getModifierKeyText: () => "Ctrl",
-}));
-vi.mock("@/hooks/queries/task/use-description-matches", () => ({
-  useDescriptionMatches: () => ({ ids: [], isLoading: false, isError: false }),
-}));
-vi.mock("@/hooks/use-task-filters-with-labels-support", () => ({
-  useTaskFiltersWithLabelsSupport: () => ({
-    filteredProject: m.project,
-    filters: {},
-    hasActiveFilters: false,
+vi.mock("@/components/project/toolbar/use-project-task-view", () => ({
+  useProjectTaskView: () => ({
+    search: "",
+    setSearch: vi.fn(),
+    descriptionSearch: { isLoading: false, isError: false, retry: vi.fn() },
+    filters: { filteredProject: m.project, clearFilters: vi.fn() },
+    subjects: [],
   }),
 }));
-vi.mock(
-  "@/hooks/queries/custom-field/use-get-custom-fields-by-project",
-  () => ({ default: () => ({ data: [] }) }),
-);
-vi.mock(
-  "@/hooks/queries/custom-field/use-get-custom-field-filter-values",
-  () => ({ default: () => ({ data: [] }) }),
-);
-vi.mock("@/hooks/queries/label/use-get-labels-by-workspace", () => ({
-  default: () => ({ data: [] }),
-}));
-vi.mock(
-  "@/hooks/queries/workspace-users/use-get-active-workspace-users",
-  () => ({ useGetActiveWorkspaceUsers: () => ({ data: [] }) }),
-);
 vi.mock("@/components/common/project-layout", () => ({
   default: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
@@ -82,7 +64,6 @@ vi.mock("@/components/kanban-board", () => ({
     </div>
   ),
 }));
-vi.mock("@/components/board/board-toolbar", () => ({ default: () => null }));
 vi.mock("@/components/list-view", () => ({ default: () => null }));
 vi.mock("@/components/page-title", () => ({ default: () => null }));
 vi.mock("@/components/shared/modals/create-task-modal", () => ({

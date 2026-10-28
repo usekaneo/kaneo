@@ -18,8 +18,7 @@ async function importGithubIssues(data: ImportGithubIssuesRequest) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       continue;
     }
-    if (!response.ok)
-      throw new HttpError(response.status, await response.text());
+    if (!response.ok) throw await HttpError.fromResponse(response);
     const result = await response.json();
     if (response.status !== 202) return result;
     runId = result.runId;

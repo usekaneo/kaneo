@@ -1,10 +1,13 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { projectTable } from "../../database/schema";
+import { assertProjectAccess } from "../../project-access/assert-project-access";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 
 async function reorderProjects(
   workspaceId: string,
+  userId: string,
   projects: Array<{ id: string; position: number }>,
 ) {
   const ids = projects.map((project) => project.id);
@@ -15,6 +18,8 @@ async function reorderProjects(
       message: "Duplicate project ids in reorder payload",
     });
   }
+
+  await assertProjectAccess(userId, ids);
 
   return db.transaction(async (tx) => {
     // Serialize ordering writes per workspace so a concurrent create (which
@@ -85,7 +90,10 @@ async function reorderProjects(
     }
 
     return tx.query.projectTable.findMany({
-      where: eq(projectTable.workspaceId, workspaceId),
+      where: and(
+        eq(projectTable.workspaceId, workspaceId),
+        projectAccessCondition(userId, projectTable.id),
+      ),
       orderBy: [
         asc(projectTable.position),
         asc(projectTable.createdAt),

@@ -9,6 +9,10 @@ export const customFieldDefinitionSchema = z
     required: z.boolean(),
     defaultValue: z.string().nullable(),
     options: z.unknown().nullable(),
+    hiddenOptions: z.array(z.string()).openapi({
+      description:
+        "Options no longer offered for new selections. Tasks that already use them keep them.",
+    }),
     position: z.number(),
     createdAt: responseTimestamp,
     updatedAt: responseTimestamp,

@@ -85,7 +85,3 @@ export const gitlabImportResultSchema = z
 export const gitlabDeleteResultSchema = z
   .object({ success: z.boolean(), message: z.string() })
   .openapi("GitlabDeleteResult");
-
-export const integrationNotFoundSchema = z
-  .object({ error: z.string() })
-  .openapi("GitlabIntegrationNotFound");

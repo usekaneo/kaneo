@@ -22,6 +22,7 @@ import {
   type InboxFilter,
 } from "./group-notifications";
 import { InboxListItem } from "./inbox-list-item";
+import { useInboxShortcuts } from "./use-inbox-shortcuts";
 
 type InboxListProps = {
   workspaceId: string;
@@ -70,6 +71,14 @@ export function InboxList({
     { id: "today", title: t("notifications:inbox.today"), items: today },
     { id: "earlier", title: t("notifications:inbox.earlier"), items: earlier },
   ].filter((group) => group.items.length > 0);
+
+  useInboxShortcuts({
+    workspaceId,
+    notifications,
+    order: [...today, ...earlier],
+    selectedId,
+    onSelect,
+  });
 
   return (
     <div className="flex h-full min-h-0 flex-col">

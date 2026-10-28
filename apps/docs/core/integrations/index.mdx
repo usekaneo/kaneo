@@ -21,6 +21,27 @@ Connect the tools your team already uses. Repository connections and shared noti
 
 GitHub, Gitea, and GitLab have connection forms under **Settings → Projects → your project → Integrations**. Follow the provider guide to connect a repository and configure its webhook.
 
+## Limit repository sync by label
+
+Enable **Advanced settings** in **Account → Preferences** or **Workspace → General**, then open a connected GitHub, Gitea, or GitLab integration. Workspace settings managers can edit its **Sync scope**. The saved rules apply to everyone in the project; turning advanced mode off only hides the editor.
+
+- **Kaneo → repository** selects workspace labels by stable ID. Match any selected label or require all of them. The preview shows matching tasks, new exports, and affected links before you apply the rule.
+- **Repository → Kaneo** selects exact repository label names for new tasks and imports. Existing linked tasks follow the Kaneo rule. Adding a qualifying repository label can admit an issue that was previously excluded.
+
+When a linked task loses its qualifying labels, synchronization pauses in both directions. Both records and their link remain. Reapplying the label does not overwrite either side: choose **Review and resume**, compare the current title, description, and open/closed state, then keep the Kaneo or repository values. Historical comments are not replayed. Missing or deleted workspace labels keep the filter closed until you repair the rule.
+
+Resuming leaves priority, detailed status, and custom labels unchanged. Later repository label events apply changes made after the comparison, so an unrelated label event does not restore stale values from the pause. Issue filters do not prevent branch or pull request linking and their configured status transitions.
+
+Kaneo rereads the issue when you resume and rejects a changed comparison. Local edits remain available while the repository responds; a task, rule, label, or link change during a resume write keeps synchronization paused for another review. When adopting a different open/closed state, resume uses the project's configured issue close or reopen workflow target. Gitea's content version, when available, also protects the body write from concurrent edits. Provider APIs do not offer an atomic version check for every issue field, so an edit made after the final read can still conflict with a resume write. Avoid editing the repository issue while resuming it. A rejected provider write leaves synchronization paused for another review.
+
+Kaneo checks the repository again after either resume choice, verifying the selected title, description, and open/closed state along with the original labels. A mismatch or failed verification pauses the link for another review, leaving priority and custom labels unchanged. Adopted values remain visible in the next comparison if verification fails.
+
+An issue creation request already sent to a repository may finish after its task stops matching. Kaneo keeps the returned issue link paused and stops further updates. Local edits remain available while the repository responds.
+
+If creating an issue succeeds but its initial state, labels, or linking comment fails, **Export matching tasks** retries the unfinished steps using the existing issue link.
+
+Newly matching tasks without an issue link are exported in the background when rules or task labels change. Use **Export matching tasks** to retry tasks that still have no issue link after a failed export. An inactive integration does not export or resume tasks. Existing installations retain unrestricted sync until a rule is saved.
+
 ## Team notifications
 
 Send selected project events to a shared channel. Open **Settings → Projects → your project → Integrations** to connect these services.

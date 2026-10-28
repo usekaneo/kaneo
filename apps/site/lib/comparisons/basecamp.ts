@@ -4,21 +4,22 @@ export const basecamp: Comparison = {
   slug: "basecamp",
   competitor: "Basecamp",
   category: "saas",
-  title: "Open-source Basecamp alternative",
+  title: "Basecamp alternative for software teams",
   description:
-    "Kaneo is an open-source, self-hostable Basecamp alternative with real boards and a backlog, free to run yourself under the MIT license.",
+    "Kaneo is a Basecamp alternative with real kanban boards and a backlog for shipping software. Kaneo Cloud runs it for you from $4 a month.",
   summary:
-    "Boards and a backlog for shipping software, hosted by you rather than 37signals.",
-  heading: "The open-source Basecamp alternative",
+    "Boards and a backlog for shipping software, run for you on Kaneo Cloud.",
+  heading: "The Basecamp alternative for shipping software",
   subheading:
-    "Basecamp is calm, opinionated, and hosted by Basecamp. Kaneo is calm, opinionated, and hosted by you, with a board and backlog built for shipping software.",
+    "Basecamp is calm, opinionated, and organised around message boards and to-do lists. Kaneo is calm and opinionated too, with a board and backlog built for shipping software.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to Basecamp that you can run on your own server for free. Basecamp charges a flat monthly fee with no per-user pricing, which is a genuinely good deal for larger teams, but it is cloud-only and organised around message boards and to-do lists rather than a kanban board and backlog.",
+    "Kaneo is a Basecamp alternative for teams that ship software from a kanban board and backlog, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. Basecamp charges a flat monthly fee with no per-user pricing, which is a genuinely good deal for larger teams, but it is cloud-only and organised around message boards and to-do lists. Kaneo is also MIT-licensed open source, so you can run it on your own server for free.",
   facts: {
     license: "MIT, versus a proprietary licence for Basecamp",
-    hosting: "Self-host anywhere, or EU-hosted cloud. Basecamp is cloud only",
+    hosting:
+      "EU-hosted Kaneo Cloud, or self-host anywhere. Basecamp is cloud only",
     sso: "Google, GitHub, Discord, or any OIDC provider, free on Kaneo",
-    pricing: "$0 self-hosted, cloud from $4 / month. Basecamp is flat-rate",
+    pricing: "Cloud from $4 / month, or $0 self-hosted. Basecamp is flat-rate",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

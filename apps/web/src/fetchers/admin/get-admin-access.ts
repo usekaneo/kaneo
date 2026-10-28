@@ -1,16 +1,13 @@
-import { authClient } from "@/lib/auth-client";
+import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 
+/** The signed-in user's instance permissions; empty for regular users. */
 export async function getAdminAccess() {
-  const { data, error } = await authClient.admin.hasPermission({
-    permissions: { user: ["list"] },
-  });
+  const response = await client.admin.access.$get();
 
-  if (error) {
-    if (error.status === 401 || error.status === 403) {
-      return false;
-    }
-    throw new Error(error.message ?? "");
+  if (!response.ok) {
+    throw await HttpError.fromResponse(response);
   }
 
-  return data?.success === true;
+  return (await response.json()).permissions;
 }

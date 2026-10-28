@@ -1,15 +1,19 @@
 import { eq, inArray } from "drizzle-orm";
 import db from "../../database";
 import { workspaceBillingTable, workspaceTable } from "../../database/schema";
+import type { DbOrTx } from "../../project-access/db-or-tx";
 import { isBillingEnabled } from "../config";
 import { hasBillableSubscription } from "../subscription-state";
 
-export async function findBillableWorkspaces(workspaceIds: string[]) {
+export async function findBillableWorkspaces(
+  workspaceIds: string[],
+  database: DbOrTx = db,
+) {
   if (!isBillingEnabled() || workspaceIds.length === 0) {
     return [];
   }
 
-  const rows = await db
+  const rows = await database
     .select({
       workspaceId: workspaceBillingTable.workspaceId,
       name: workspaceTable.name,

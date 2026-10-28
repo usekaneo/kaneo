@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import db from "../database";
+import { publishEvent } from "../events";
 import { integrationTable } from "../database/schema";
 import { scopeToProjectFromBody } from "../integrations/middleware";
 import { projectIdBody, projectIdParam } from "../integrations/schema";
@@ -35,7 +36,6 @@ import {
   gitlabIntegrationSchema,
   gitlabProjectListSchema,
   gitlabVerificationResultSchema,
-  integrationNotFoundSchema,
 } from "./response";
 import {
   createGitlabBody,
@@ -66,13 +66,14 @@ const listProjectsRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Accessible projects", gitlabProjectListSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     401: errorResponse(
       "GitLab rejected the token, or the instance is unreachable",
     ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -93,11 +94,12 @@ const verifyRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Verification result", gitlabVerificationResultSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     401: errorResponse("GitLab rejected the token"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -109,17 +111,20 @@ const getIntegrationRoute = createRoute({
   summary: "Get GitLab integration",
   description:
     "Get the GitLab integration for a project, or null when none is configured. The masked access token and the webhook secret are included only for callers with workspace:manage_settings.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
       "GitLab integration details, or null",
       gitlabIntegrationSchema.nullable(),
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
+    403: errorResponse(
+      "No access to the project, or missing project:read permission",
     ),
-    403: errorResponse("No access to the project's workspace"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -141,13 +146,14 @@ const createIntegrationRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The stored integration", gitlabIntegrationSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
     409: errorResponse(
       "That GitLab project is already linked to another Kaneo project",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -171,9 +177,10 @@ const updateIntegrationRoute = createRoute({
     200: jsonResponse("The updated integration", gitlabIntegrationSchema),
     400: errorResponse("The resulting config failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: jsonResponse("Integration not found", integrationNotFoundSchema),
+    404: errorResponse("Project or integration not found"),
+    409: errorResponse("Integration changed; refresh before updating settings"),
   },
 });
 
@@ -188,13 +195,10 @@ const deleteIntegrationRoute = createRoute({
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The integration was removed", gitlabDeleteResultSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("GitLab integration not found"),
+    404: errorResponse("Project or GitLab integration not found"),
   },
 });
 
@@ -220,7 +224,7 @@ const importIssuesRoute = createRoute({
     200: jsonResponse("Import summary", gitlabImportResultSchema),
     400: errorResponse("projectId is required"),
     403: errorResponse(
-      "No workspace access, or missing task:create or task:update permission",
+      "No access to the project, or missing task:create or task:update permission",
     ),
     404: errorResponse("Project not found"),
   },
@@ -269,6 +273,11 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     if (!integration) {
       throw new HTTPException(500, { message: "Failed to load integration" });
     }
+    if (integration)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: integration.id,
+      });
     return c.json(integration, 200);
   })
   .openapi(updateIntegrationRoute, async (c) => {
@@ -283,7 +292,7 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
     });
 
     if (!row) {
-      return c.json({ error: "Integration not found" }, 404);
+      throw new HTTPException(404, { message: "Integration not found" });
     }
 
     let config: GitlabConfig;
@@ -307,7 +316,7 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       });
     }
 
-    await db
+    const [saved] = await db
       .update(integrationTable)
       .set({
         config: JSON.stringify(config),
@@ -317,15 +326,26 @@ const gitlabIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
       })
       .where(
         and(
-          eq(integrationTable.projectId, projectId),
-          eq(integrationTable.type, "gitlab"),
+          eq(integrationTable.id, row.id),
+          eq(integrationTable.config, row.config),
         ),
-      );
+      )
+      .returning({ id: integrationTable.id });
+    if (!saved)
+      throw new HTTPException(409, {
+        message: "Integration changed; refresh before updating settings",
+      });
 
     const updated = await getGitlabIntegration(projectId, true);
     if (!updated) {
       throw new HTTPException(500, { message: "Failed to load integration" });
     }
+    if (body.isActive === true && !row.isActive)
+      await publishEvent("integration.sync_rules_changed", {
+        projectId,
+        integrationId: row.id,
+      });
+    await publishEvent("project.updated", { projectId, linksChanged: true });
     return c.json(updated, 200);
   })
   .openapi(deleteIntegrationRoute, async (c) => {

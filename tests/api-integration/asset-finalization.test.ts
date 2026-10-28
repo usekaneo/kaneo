@@ -19,6 +19,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 async function fixture() {
   const member = await createWorkspaceMember();
@@ -83,7 +84,10 @@ describe("asset finalization proof", () => {
     const { finalize } = await fixture();
     const response = await finalize();
     expect(response.status).toBe(400);
-    expect(await response.text()).toBe("Uploaded object was not found.");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Uploaded object was not found.",
+      code: "BAD_REQUEST",
+    });
     expect(await db.select().from(schema.assetTable)).toHaveLength(0);
     expect(send).toHaveBeenCalledOnce();
     expect(send.mock.calls[0][0]).toBeInstanceOf(HeadObjectCommand);
@@ -140,7 +144,10 @@ describe("asset finalization proof", () => {
       const { finalize } = await fixture();
       const response = await finalize();
       expect(response.status).toBe(503);
-      expect(await response.text()).toBe("Unable to verify uploaded object.");
+      expect(await readErrorBody(response)).toMatchObject({
+        message: "Unable to verify uploaded object.",
+        code: "SERVICE_UNAVAILABLE",
+      });
       expect(await db.select().from(schema.assetTable)).toHaveLength(0);
     },
   );

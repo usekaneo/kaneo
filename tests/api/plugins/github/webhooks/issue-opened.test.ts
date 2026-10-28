@@ -68,6 +68,10 @@ const mocks = vi.hoisted(() => {
   };
 });
 
+vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));
+
 vi.mock("../../../../../apps/api/src/database", () => ({
   default: mocks.mockDb,
 }));
@@ -130,7 +134,7 @@ const integration = {
       onPRMerge: "done",
     },
   }),
-  project: null,
+  project: { workspaceId: "workspace-1" },
 };
 
 function issueOpenedPayload(labels: Array<string | { name?: string }>) {
@@ -191,3 +195,7 @@ describe("handleIssueOpened", () => {
     expect(mocks.insertedValues[0].priority).toBe("high");
   });
 });
+
+vi.mock("../../../../../apps/api/src/plugins/sync/issue-labels", () => ({
+  importIssueLabels: async () => undefined,
+}));

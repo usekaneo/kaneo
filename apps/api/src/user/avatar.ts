@@ -101,3 +101,10 @@ export function decodeAvatarUpload(input: {
 export function buildAvatarUrl(avatarId: string) {
   return `/api/user/avatar/${avatarId}`;
 }
+
+export function isUploadedAvatarUrl(image: string | null | undefined) {
+  const prefix = buildAvatarUrl("");
+  if (!image?.startsWith(prefix)) return false;
+  const avatarId = image.slice(prefix.length);
+  return avatarId.length > 0 && !/[/?#]/.test(avatarId);
+}

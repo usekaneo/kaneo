@@ -1,17 +1,28 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { GlobalShortcuts } from "@/components/shortcuts/global-shortcuts";
 import { useTrackSignup } from "@/hooks/use-track-signup";
 import { useUserWebSocket } from "@/hooks/use-user-websocket";
 import { authClient } from "@/lib/auth-client";
+import { getCachedSession } from "@/lib/cached-session";
 
 // protects all child routes, must be logged in
 export const Route = createFileRoute("/_layout/_authenticated")({
   component: AuthenticatedLayout,
   beforeLoad: async ({ location }) => {
+    const cached = getCachedSession();
+    if (cached) return { session: cached, sessionError: false };
+
     let session = null;
     let sessionError = false;
     try {
-      const { data } = await authClient.getSession();
+      // better-auth reports failures (429, 5xx, network) in `error` rather
+      // than throwing; a missing session is `data: null` with no error.
+      const { data, error } = await authClient.getSession();
       session = data;
+      if (error) {
+        sessionError = true;
+        if (import.meta.env.DEV) console.warn("getSession failed", error);
+      }
     } catch (error) {
       sessionError = true;
       if (import.meta.env.DEV) console.warn("getSession failed", error);
@@ -38,5 +49,10 @@ function AuthenticatedLayout() {
   const { session } = Route.useRouteContext();
   useUserWebSocket();
   useTrackSignup(session?.user);
-  return <Outlet />;
+  return (
+    <>
+      <GlobalShortcuts />
+      <Outlet />
+    </>
+  );
 }

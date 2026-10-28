@@ -4,7 +4,7 @@ import type { Guide } from "./types";
 export const selfHostProjectManagementDocker: Guide = {
   slug: "self-host-project-management-docker",
   question: "How do I self-host a project management tool with Docker?",
-  title: "How to self-host a project management tool with Docker",
+  title: "How to self-host project management with Docker",
   description:
     "A practical guide to self-hosting a project manager with Docker Compose: what you need, how to run Kaneo, and what to get right on backups, TLS, and updates.",
   summary: landing.selfHostingGuide.summary,

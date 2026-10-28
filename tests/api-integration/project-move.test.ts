@@ -82,7 +82,8 @@ describe("API integration: moving a project between workspaces", () => {
       moveRequest(target.id),
     );
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
+    expect(await response.text()).toContain("Destination workspace not found");
 
     const [unchanged] = await db
       .select()

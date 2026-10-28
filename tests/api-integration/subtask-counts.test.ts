@@ -128,7 +128,11 @@ describe("API integration: subtask counters", () => {
       completed: 1,
       total: 4,
     });
-    const relations = await getTaskRelations(parent.id, member.workspace.id);
+    const relations = await getTaskRelations(
+      parent.id,
+      member.workspace.id,
+      member.user.id,
+    );
     expect(
       relations.filter((relation) => relation.targetTask?.isCompleted),
     ).toHaveLength(1);

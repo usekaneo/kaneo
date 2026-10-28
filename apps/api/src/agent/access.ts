@@ -2,11 +2,13 @@ import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import type { Context, Next } from "hono";
 import db, { schema } from "../database";
+import { projectAccessCondition } from "../project-access/project-access-condition";
 import {
   hasUserWorkspacePermission,
   type PermissionMap,
 } from "../utils/require-workspace-permission";
 import { isBanActive } from "../utils/user-ban";
+import { workspaceArchivedError } from "../workspace/archive/workspace-archived-error";
 import type { AgentSubject } from "./types";
 
 export type AgentDatabase =
@@ -19,7 +21,7 @@ export async function assertAgentAccess(
   database: AgentDatabase = db,
 ) {
   const [workspace] = await database
-    .select({ id: schema.workspaceTable.id })
+    .select({ archivedAt: schema.workspaceTable.archivedAt })
     .from(schema.workspaceTable)
     .where(eq(schema.workspaceTable.id, subject.workspaceId))
     .limit(1);
@@ -47,6 +49,8 @@ export async function assertAgentAccess(
   ) {
     throw new HTTPException(403, { message: "Insufficient agent permissions" });
   }
+  // Checked after membership so outsiders cannot learn a workspace is archived.
+  if (workspace.archivedAt) throw workspaceArchivedError();
   if (subject.projectId)
     await assertAgentProject(subject, subject.projectId, database);
 }
@@ -63,6 +67,7 @@ export async function assertAgentProject(
       and(
         eq(schema.projectTable.id, projectId),
         eq(schema.projectTable.workspaceId, subject.workspaceId),
+        projectAccessCondition(subject.userId, schema.projectTable.id),
       ),
     )
     .limit(1);

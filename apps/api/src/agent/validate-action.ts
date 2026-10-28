@@ -26,7 +26,12 @@ export async function validateAction(
     await assertValidTaskStatus(action.status, action.projectId, database);
     await assertRequiredCustomFields(action.projectId, [], database);
     if (action.userId)
-      await assertAssignableUser(action.userId, subject.workspaceId, database);
+      await assertAssignableUser(
+        action.userId,
+        subject.workspaceId,
+        action.projectId,
+        database,
+      );
     return null;
   }
   const task = await getScopedTask(subject, action.taskId, database);
@@ -34,6 +39,7 @@ export async function validateAction(
     await assertAssignableUser(
       action.patch.userId,
       subject.workspaceId,
+      task.projectId,
       database,
     );
   if (action.patch.dueDate !== undefined)

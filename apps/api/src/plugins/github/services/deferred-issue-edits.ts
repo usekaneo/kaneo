@@ -1,3 +1,5 @@
+import { integrationInActiveWorkspace } from "../../../workspace/archive/active-workspace-sql";
+import { canSyncTask } from "../../sync/eligibility";
 import { and, asc, gt, sql } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -28,6 +30,7 @@ import { writeInboundTaskField } from "./apply-observed-task-value";
 import { updateExternalLink } from "./link-manager";
 import { syncLatestTaskValue } from "./sync-latest-task-value";
 import { isTaskInFinalState } from "./task-service";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 import {
   linkedTaskScope,
   integrationTaskRevision,
@@ -119,6 +122,7 @@ async function replayClaimedIssueEdits() {
     const links = await db.query.externalLinkTable.findMany({
       where: and(
         sql`${externalLinkTable.resourceType} = 'issue' AND ${externalLinkTable.metadata} LIKE '%"deferredIssueEdit":%'`,
+        integrationInActiveWorkspace(externalLinkTable.integrationId),
         cursor ? gt(externalLinkTable.id, cursor) : undefined,
       ),
       with: { integration: true },
@@ -144,6 +148,15 @@ async function replayClaimedIssueEdits() {
           await updateExternalLink(link.id, { completeDeferredEdit: job.id });
           continue;
         }
+        if (
+          !(await canSyncTask(
+            link.taskId,
+            integration.id,
+            undefined,
+            integration.config,
+          ))
+        )
+          continue;
         const fields = [
           ...new Set([...job.fields, ...(job.repairFields ?? [])]),
         ];
@@ -249,7 +262,12 @@ async function replayClaimedIssueEdits() {
             const taskIsClosed = fields.includes("state")
               ? await isTaskInFinalState(task, tx)
               : false;
+            // Skip state for archived tasks and settle what still waits on it.
+            const statePaused =
+              fields.includes("state") && isStateSyncPaused(task.status);
+            if (statePaused) current.state = values.state;
             for (const field of fields) {
+              if (field === "state" && statePaused) continue;
               const stamp = current.lastSync?.[field];
               const uncertain = uncertainOutboundIntents(stamp, values[field]);
               const intentIds = uncertain.flatMap((entry) =>
@@ -298,6 +316,7 @@ async function replayClaimedIssueEdits() {
             const accepted = job.fields.filter(
               (field) =>
                 !repairs.some((repair) => repair.field === field) &&
+                !(field === "state" && statePaused) &&
                 !(
                   field === "state" &&
                   integration.type === "github" &&
@@ -347,6 +366,9 @@ async function replayClaimedIssueEdits() {
               {
                 metadata: current,
                 ...(accepted.includes("title") ? { title: values.title } : {}),
+                ...(statePaused
+                  ? { retireUncertainOutbound: "state" as const }
+                  : {}),
                 ...(repairs.length ? {} : { completeDeferredEdit: job.id }),
               },
               tx,

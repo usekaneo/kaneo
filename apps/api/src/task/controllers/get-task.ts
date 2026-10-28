@@ -12,7 +12,7 @@ import {
   taskRelationTable,
 } from "../../database/schema";
 
-async function getTask(taskId: string, board = false) {
+async function getTask(taskId: string, board = false, userId?: string) {
   const task = await db
     .select({
       id: taskTable.id,
@@ -29,6 +29,7 @@ async function getTask(taskId: string, board = false) {
       priority: taskTable.priority,
       startDate: taskTable.startDate,
       dueDate: taskTable.dueDate,
+      recurrence: taskTable.recurrence,
       position: taskTable.position,
       createdAt: taskTable.createdAt,
       userId: taskTable.userId,
@@ -69,6 +70,7 @@ async function getTask(taskId: string, board = false) {
       [taskId, ...parents.map((task) => task.id)],
       workspaceId,
       false,
+      userId,
     ),
   );
   return {

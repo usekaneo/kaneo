@@ -9,7 +9,7 @@ export const workflowRuleSchema = z
     }),
     eventType: z.string().openapi({
       description:
-        "The provider event that triggers the move, e.g. `pull_request.opened`.",
+        "The Kaneo event that triggers the move: `branch_push`, `pr_opened`, `pr_merged`, `issue_opened`, `issue_closed` or `issue_reopened`.",
     }),
     columnId: z.string().openapi({
       description: "The column tasks are moved to when the event fires.",

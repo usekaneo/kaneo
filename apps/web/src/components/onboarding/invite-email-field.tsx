@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { authMessageClassName } from "@/components/auth/auth-form-styles";
 import { Label } from "@/components/ui/label";
 
 type InviteEmailFieldProps = {
@@ -31,13 +32,14 @@ export function InviteEmailField({
   const errorId = `${id}-error`;
 
   return (
-    <div className="space-y-1">
+    <div className="flex flex-col gap-1.5">
       <Label htmlFor={id} className="sr-only">
         {t("auth:onboarding.cloud.invite.emailLabel", { index: position })}
       </Label>
       <div className="flex items-center gap-2">
         <Input
           id={id}
+          size="lg"
           type="email"
           autoComplete="off"
           autoFocus={autoFocus}
@@ -65,7 +67,7 @@ export function InviteEmailField({
         ) : null}
       </div>
       {invalid ? (
-        <p id={errorId} className="text-xs text-destructive">
+        <p id={errorId} className={authMessageClassName}>
           {t("auth:onboarding.cloud.invite.invalidEmail")}
         </p>
       ) : null}

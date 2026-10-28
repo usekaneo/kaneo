@@ -164,16 +164,21 @@ it("stops correction when a disconnect races the post-response task read", async
       url: "https://provider.example/1",
     })
     .returning();
+  let responseReceived = false;
   const findTask = db.query.taskTable.findFirst.bind(db.query.taskTable);
   const read = vi
     .spyOn(db.query.taskTable, "findFirst")
     .mockImplementation(async (options) => {
-      await db
-        .delete(schema.externalLinkTable)
-        .where(eq(schema.externalLinkTable.id, link.id));
+      if (responseReceived)
+        await db
+          .delete(schema.externalLinkTable)
+          .where(eq(schema.externalLinkTable.id, link.id));
       return findTask(options);
     });
-  const write = vi.fn(async () => "2026-09-30T00:00:01Z");
+  const write = vi.fn(async () => {
+    responseReceived = true;
+    return "2026-09-30T00:00:01Z";
+  });
   try {
     await syncLatestTaskValue(task.id, project.id, link, "title", "A", write);
     expect(write).toHaveBeenCalledTimes(1);

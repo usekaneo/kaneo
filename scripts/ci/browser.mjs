@@ -113,7 +113,7 @@ try {
         new URL(response.url()).pathname === `/api/task/status/${task.id}` &&
         response.request().method() === "PUT",
     ),
-    page.getByRole("button", { name: /^In Progress/ }).click(),
+    page.getByRole("option", { name: /^In Progress/ }).click(),
   ]);
   assert.ok(changedStatus.ok());
   // The other tab must update through WebSocket-driven query invalidation, without a reload.

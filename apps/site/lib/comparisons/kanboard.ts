@@ -4,21 +4,21 @@ export const kanboard: Comparison = {
   slug: "kanboard",
   competitor: "Kanboard",
   category: "open-source",
-  title: "Kanboard alternative",
+  title: "Modern Kanboard alternative",
   description:
-    "Kaneo is an MIT-licensed Kanboard alternative with a modern interface, realtime boards, and team features included, still simple enough to self-host in minutes.",
+    "Kaneo is a Kanboard alternative with a modern interface, realtime boards, and team features. Kaneo Cloud runs it for you from $4 a month, or self-host it.",
   summary: "The same small footprint, with an interface people will open.",
   heading: "The Kanboard alternative with a modern interface",
   subheading:
     "Kanboard is admirably small and famously plain. Kaneo keeps the small footprint and gives your team something they will want to look at every day.",
   verdict:
-    "Kaneo and Kanboard are both MIT-licensed and simple to self-host. Kanboard is a minimal PHP application that runs almost anywhere, including on SQLite. Kaneo is a modern React and PostgreSQL app with realtime boards, workspace roles, time tracking, integrations, and an optional managed cloud.",
+    "Kaneo is a Kanboard alternative for teams that want a modern interface, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. Kanboard is a minimal PHP application that runs almost anywhere, including on SQLite, while Kaneo is a modern React and PostgreSQL app with realtime boards, workspace roles, time tracking, and integrations. Both are MIT licensed, so you can still self-host Kaneo in minutes.",
   facts: {
     license: "MIT for both",
     hosting:
-      "Kanboard is PHP with SQLite or MySQL. Kaneo is Docker plus PostgreSQL",
+      "EU-hosted Kaneo Cloud, or Docker plus PostgreSQL. Kanboard is PHP with SQLite or MySQL",
     sso: "Built into Kaneo, plugin-based on Kanboard",
-    pricing: "$0 self-hosted for both, Kaneo Cloud from $4 / month",
+    pricing: "Kaneo Cloud from $4 / month, or $0 self-hosted for both",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "MIT" },

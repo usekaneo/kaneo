@@ -9,22 +9,27 @@ import {
 } from "vite-plus/test";
 import { useUserWebSocket } from "./use-user-websocket";
 
-const { client, auth, navigate } = vi.hoisted(() => ({
+const { client, auth, navigate, evictProject } = vi.hoisted(() => ({
   client: {
     invalidateQueries: vi.fn(),
     cancelQueries: vi.fn(),
     clear: vi.fn(),
     getQueryCache: () => ({ getAll: () => [] }),
+    getQueryData: vi.fn(),
+    fetchQuery: vi.fn(),
     removeQueries: vi.fn(),
     resetQueries: vi.fn(),
   },
   navigate: vi.fn(),
+  evictProject: vi.fn(),
   auth: {
     userId: "user-a" as string | null,
+    sessionId: "session-a",
     workspaceId: "workspace",
     pathname: "",
     notify: vi.fn(),
     signOut: vi.fn().mockResolvedValue(undefined),
+    getSession: vi.fn().mockResolvedValue({ data: null }),
   },
 }));
 vi.mock("@tanstack/react-router", () => ({
@@ -37,23 +42,45 @@ vi.mock("@/lib/auth-client", () => ({
   authClient: {
     $store: { notify: auth.notify },
     signOut: auth.signOut,
+    getSession: auth.getSession,
     useSession: () => ({
       data: auth.userId
         ? {
             user: { id: auth.userId },
-            session: { activeOrganizationId: auth.workspaceId },
+            session: {
+              id: auth.sessionId,
+              activeOrganizationId: auth.workspaceId,
+            },
           }
         : null,
     }),
   },
 }));
 vi.mock("@kaneo/libs", () => ({ windowId: "local-test" }));
+vi.mock("@/lib/evict-project-cache", () => ({
+  evictProjectCache: evictProject,
+}));
+const cachedProjects = vi.fn(
+  (_client: unknown, _workspaceId: string): { id: string }[] => [],
+);
+vi.mock("@/lib/collect-cached-projects", () => ({
+  collectCachedProjects: (client: unknown, workspaceId: string) =>
+    cachedProjects(client, workspaceId),
+}));
+function projectAccessChanged(socket: TestSocket) {
+  socket.onmessage?.({
+    data: JSON.stringify({
+      type: "PROJECT_ACCESS_CHANGED",
+      workspaceId: "workspace",
+    }),
+  });
+}
 class TestSocket {
   static OPEN = 1;
   static instances: TestSocket[] = [];
   readyState = 0;
   onopen: (() => void) | null = null;
-  onclose: (() => void) | null = null;
+  onclose: ((event?: { code: number }) => void) | null = null;
   onmessage: ((event: { data: string }) => void) | null = null;
   send = vi.fn();
   close = vi.fn(() => {
@@ -74,6 +101,7 @@ describe("user WebSocket lifecycle", () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:1337");
     TestSocket.instances = [];
     auth.userId = "user-a";
+    auth.sessionId = "session-a";
     auth.workspaceId = "workspace";
     auth.pathname = "";
     vi.clearAllMocks();
@@ -83,6 +111,35 @@ describe("user WebSocket lifecycle", () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+  });
+  it("keeps an archived board open to show its archived state and refreshes on restore", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+          reason: "archived",
+        }),
+      }),
+    );
+    expect(navigate).not.toHaveBeenCalled();
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["workspace-status", "workspace"],
+    });
+    client.invalidateQueries.mockClear();
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_RESTORED",
+          workspaceId: "workspace",
+        }),
+      }),
+    );
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["workspace-status", "workspace"],
+    });
+    expect(auth.notify).toHaveBeenCalledWith("$listOrg");
   });
   it.each([
     "/dashboard/settings/workspace/general",
@@ -203,6 +260,84 @@ describe("user WebSocket lifecycle", () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it.each([
+    ["no session", { data: null }],
+    ["an expired session", { data: null, error: { status: 401 } }],
+    [
+      "another account's session",
+      { data: { session: { id: "session-c" }, user: { id: "user-c" } } },
+    ],
+  ])(
+    "goes to sign-in without signing out when the provider ends its session and the cookie holds %s",
+    async (_, result) => {
+      auth.getSession.mockResolvedValueOnce(result);
+      renderHook(useUserWebSocket);
+      const socket = TestSocket.instances[0];
+      act(() => socket.open());
+      await act(async () => socket.onclose?.({ code: 4001 }));
+      act(() => vi.advanceTimersByTime(60_000));
+      expect(client.clear).toHaveBeenCalledOnce();
+      expect(auth.signOut).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+      expect(TestSocket.instances).toHaveLength(1);
+    },
+  );
+
+  it("reconnects when another tab already signed in again", async () => {
+    auth.getSession.mockResolvedValueOnce({
+      data: { session: { id: "session-b" }, user: { id: "user-a" } },
+    });
+    renderHook(useUserWebSocket);
+    const socket = TestSocket.instances[0];
+    act(() => socket.open());
+    await act(async () => socket.onclose?.({ code: 4001 }));
+    expect(auth.signOut).not.toHaveBeenCalled();
+    expect(client.clear).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(TestSocket.instances).toHaveLength(2);
+  });
+
+  it.each([
+    [
+      "fails",
+      () => auth.getSession.mockRejectedValueOnce(new Error("offline")),
+    ],
+    [
+      "reports a server error",
+      () =>
+        auth.getSession.mockResolvedValueOnce({
+          data: null,
+          error: { status: 503 },
+        }),
+    ],
+  ])(
+    "checks the session again before leaving when the check %s",
+    async (_, failCheck) => {
+      failCheck();
+      renderHook(useUserWebSocket);
+      const socket = TestSocket.instances[0];
+      act(() => socket.open());
+      await act(async () => socket.onclose?.({ code: 4001 }));
+      expect(client.clear).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+      await act(() => vi.advanceTimersByTimeAsync(1000));
+      expect(auth.getSession).toHaveBeenCalledTimes(2);
+      expect(client.clear).toHaveBeenCalledOnce();
+      expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+      expect(TestSocket.instances).toHaveLength(1);
+    },
+  );
+
+  it("reconnects when the session changes but not on a plain rerender", () => {
+    const { rerender } = renderHook(useUserWebSocket);
+    rerender();
+    expect(TestSocket.instances).toHaveLength(1);
+    auth.sessionId = "session-b";
+    rerender();
+    expect(TestSocket.instances).toHaveLength(2);
+    expect(TestSocket.instances[0].close).toHaveBeenCalledOnce();
+  });
+
   it("keeps users in their current workspace when an inactive membership is revoked", () => {
     auth.workspaceId = "other-workspace";
     renderHook(() => useUserWebSocket());
@@ -218,6 +353,83 @@ describe("user WebSocket lifecycle", () => {
     expect(auth.notify).toHaveBeenCalledWith("$listOrg");
     expect(auth.notify).toHaveBeenCalledWith("$activeOrgSignal");
     expect(auth.notify).toHaveBeenCalledWith("$sessionSignal");
+  });
+
+  it("refreshes project lists in every tab after a project access change", () => {
+    renderHook(useUserWebSocket);
+    act(() => projectAccessChanged(TestSocket.instances[0]));
+    for (const queryKey of [
+      ["projects", "workspace"],
+      ["assigned-tasks", "workspace"],
+      ["search", { workspaceId: "workspace" }],
+      ["workspace-activity", "workspace"],
+      ["notifications"],
+    ])
+      expect(client.invalidateQueries).toHaveBeenCalledWith({ queryKey });
+    expect(client.fetchQuery).not.toHaveBeenCalled();
+    expect(evictProject).not.toHaveBeenCalled();
+    expect(client.removeQueries).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("evicts cached data for projects that left the refreshed list", async () => {
+    cachedProjects.mockReturnValueOnce([{ id: "kept" }, { id: "removed" }]);
+    client.fetchQuery.mockResolvedValueOnce([{ id: "kept" }, { id: "added" }]);
+    renderHook(useUserWebSocket);
+    await act(async () => projectAccessChanged(TestSocket.instances[0]));
+    expect(cachedProjects).toHaveBeenCalledWith(client, "workspace");
+    expect(client.fetchQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: ["projects", "workspace", "including-archived"],
+      }),
+    );
+    expect(evictProject).toHaveBeenCalledOnce();
+    expect(evictProject).toHaveBeenCalledWith(client, "removed");
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["notifications"],
+    });
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("keeps project caches when the project list refresh fails", async () => {
+    cachedProjects.mockReturnValueOnce([{ id: "project" }]);
+    client.fetchQuery.mockRejectedValueOnce(new Error("Network unavailable"));
+    renderHook(useUserWebSocket);
+    await act(async () => projectAccessChanged(TestSocket.instances[0]));
+    expect(client.fetchQuery).toHaveBeenCalledOnce();
+    expect(evictProject).not.toHaveBeenCalled();
+  });
+
+  it("ignores a project list refresh that finishes after the session ends", async () => {
+    let finish!: (projects: { id: string }[]) => void;
+    cachedProjects.mockReturnValueOnce([{ id: "project" }]);
+    client.fetchQuery.mockReturnValueOnce(
+      new Promise((resolve) => {
+        finish = resolve;
+      }),
+    );
+    const { unmount } = renderHook(useUserWebSocket);
+    act(() => projectAccessChanged(TestSocket.instances[0]));
+    unmount();
+    await act(async () => finish([]));
+    expect(evictProject).not.toHaveBeenCalled();
+  });
+
+  it("reconciles cached projects when a reconnect snapshot arrives", async () => {
+    cachedProjects.mockReturnValueOnce([{ id: "kept" }, { id: "revoked" }]);
+    client.fetchQuery.mockResolvedValueOnce([{ id: "kept" }]);
+    renderHook(useUserWebSocket);
+    await act(async () =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_SYNC",
+          workspaceIds: ["workspace"],
+        }),
+      }),
+    );
+    expect(cachedProjects).toHaveBeenCalledWith(client, "workspace");
+    expect(evictProject).toHaveBeenCalledWith(client, "revoked");
+    expect(evictProject).toHaveBeenCalledOnce();
   });
 
   it("redirects after a reconnect snapshot reveals a missed workspace revocation", () => {
@@ -237,7 +449,7 @@ describe("user WebSocket lifecycle", () => {
   });
 });
 
-it("clears all private caches and signs out after account-wide revocation", async () => {
+it("clears all private caches without signing out after account-wide revocation", async () => {
   vi.stubGlobal("WebSocket", TestSocket);
   auth.userId = "user-a";
   renderHook(useUserWebSocket);
@@ -246,7 +458,7 @@ it("clears all private caches and signs out after account-wide revocation", asyn
   socket.onclose?.();
   await Promise.resolve();
   expect(client.clear).toHaveBeenCalled();
-  expect(auth.signOut).toHaveBeenCalled();
+  expect(auth.signOut).not.toHaveBeenCalled();
   expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
   cleanup();
   vi.unstubAllGlobals();

@@ -13,3 +13,9 @@
 ^\.cursor/rules/deployment-devops\.mdc$
 ^CONTRIBUTORS\.svg$
 ^scripts/security/file-secrets\.test\.mjs$
+^apps/api/src/gitlab-integration/index\.ts$
+^apps/api/src/gitlab-integration/controllers/create-gitlab-integration\.ts$
+^apps/api/src/gitlab-integration/utils/normalize-input\.ts$
+^apps/api/src/plugins/gitlab/webhooks/issue-opened\.ts$
+^apps/api/src/plugins/gitlab/webhooks/issue-updated\.ts$
+^apps/web/src/components/project/gitlab-integration/gitlab-project-picker\.tsx$

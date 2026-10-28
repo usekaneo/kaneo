@@ -4,6 +4,7 @@ import { getIdToken } from "@/fetchers/oauth/get-id-token";
 import { descriptionSaveQueue } from "@/lib/description-save-queue";
 import { i18n } from "@/lib/i18n";
 import { authClient } from "@/lib/auth-client";
+import { signOutState } from "@/lib/sign-out-state";
 
 function useSignOut(idpLogoutUrl?: string | null) {
   const navigate = useNavigate();
@@ -15,39 +16,35 @@ function useSignOut(idpLogoutUrl?: string | null) {
       try {
         if (!(await descriptionSaveQueue.drain(session?.user.id ?? "")))
           throw new Error(i18n.t("tasks:detail.editor.saveFailed"));
-        let idToken: string | null = null;
-
-        if (idpLogoutUrl) {
+        const url = idpLogoutUrl ? new URL(idpLogoutUrl) : null;
+        if (url) {
+          url.searchParams.set(
+            "post_logout_redirect_uri",
+            `${window.location.origin}/auth/sign-in`,
+          );
+          signOutState.isRedirecting = true;
           try {
-            const data = await getIdToken();
-            idToken = data.idToken;
+            const { idToken } = await getIdToken();
+            if (idToken) url.searchParams.set("id_token_hint", idToken);
           } catch {
-            // If we can't get the id_token, proceed without it
+            // If we can't get the id_token, proceed without it.
           }
         }
 
-        const result = await authClient.signOut({
-          fetchOptions: {
-            onSuccess: () => {
-              descriptionSaveQueue.clear();
-              if (idpLogoutUrl) {
-                const redirectUri = `${window.location.origin}/auth/sign-in`;
-                const url = new URL(idpLogoutUrl);
-                url.searchParams.set("post_logout_redirect_uri", redirectUri);
-                if (idToken) {
-                  url.searchParams.set("id_token_hint", idToken);
-                }
-                window.location.href = url.toString();
-              } else {
-                navigate({ to: "/auth/sign-in" });
-              }
-            },
-          },
-        });
+        const result = await authClient.signOut();
         if (result.error) {
           throw new Error(result.error.message);
         }
+        descriptionSaveQueue.clear();
+        if (url) {
+          window.location.href = url.toString();
+        } else {
+          await navigate({ to: "/auth/sign-in" });
+        }
         return result.data;
+      } catch (error) {
+        signOutState.isRedirecting = false;
+        throw error;
       } finally {
         resume();
       }

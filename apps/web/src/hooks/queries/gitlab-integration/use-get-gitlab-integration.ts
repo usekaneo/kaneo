@@ -1,11 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import getGitlabIntegration from "@/fetchers/gitlab-integration/get-gitlab-integration";
 
-function useGetGitlabIntegration(projectId: string) {
+function useGetGitlabIntegration(
+  projectId: string,
+  { enabled = true }: { enabled?: boolean } = {},
+) {
   return useQuery({
     queryKey: ["gitlab-integration", projectId],
     queryFn: () => getGitlabIntegration(projectId),
-    enabled: !!projectId,
+    enabled: enabled && Boolean(projectId),
   });
 }
 

@@ -11,11 +11,13 @@ import { useProjectWebSocket } from "./use-project-websocket";
 
 const { client, auth } = vi.hoisted(() => ({
   client: {
-    getQueryCache: () => ({ subscribe: () => () => {} }),
+    getQueryCache: () => ({ subscribe: () => () => {}, findAll: () => [] }),
     getQueryState: vi.fn(),
     cancelQueries: vi.fn().mockResolvedValue(undefined),
     invalidateQueries: vi.fn(),
     setQueryData: vi.fn(),
+    setQueriesData: vi.fn(),
+    getQueriesData: vi.fn().mockReturnValue([]),
     getQueryData: vi.fn(),
   },
   auth: { userId: "user-a" as string | null },

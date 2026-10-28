@@ -1,0 +1,279 @@
+diff --git a/src/v3/types.ts b/src/v3/types.ts
+--- a/src/v3/types.ts
++++ b/src/v3/types.ts
+@@ -2263,6 +2263,7 @@
+           exact: true,
+           message: def.exactLength.message,
+         });
++        if (tooBig) return INVALID;
+         status.dirty();
+       }
+     }
+@@ -2291,7 +2292,7 @@
+           exact: false,
+           message: def.maxLength.message,
+         });
+-        status.dirty();
++        return INVALID;
+       }
+     }
+ 
+@@ -3723,7 +3724,7 @@
+           exact: false,
+           message: def.maxSize.message,
+         });
+-        status.dirty();
++        return INVALID;
+       }
+     }
+ 
+diff --git a/v3/types.js b/v3/types.js
+--- a/v3/types.js
++++ b/v3/types.js
+@@ -1769,6 +1769,7 @@
+                     exact: true,
+                     message: def.exactLength.message,
+                 });
++                if (tooBig) return INVALID;
+                 status.dirty();
+             }
+         }
+@@ -1795,7 +1796,7 @@
+                     exact: false,
+                     message: def.maxLength.message,
+                 });
+-                status.dirty();
++                return INVALID;
+             }
+         }
+         if (ctx.common.async) {
+@@ -2814,7 +2815,7 @@
+                     exact: false,
+                     message: def.maxSize.message,
+                 });
+-                status.dirty();
++                return INVALID;
+             }
+         }
+         const valueType = this._def.valueType;
+diff --git a/v3/types.cjs b/v3/types.cjs
+--- a/v3/types.cjs
++++ b/v3/types.cjs
+@@ -1790,6 +1790,7 @@
+                     exact: true,
+                     message: def.exactLength.message,
+                 });
++                if (tooBig) return parseUtil_js_1.INVALID;
+                 status.dirty();
+             }
+         }
+@@ -1816,7 +1817,7 @@
+                     exact: false,
+                     message: def.maxLength.message,
+                 });
+-                status.dirty();
++                return parseUtil_js_1.INVALID;
+             }
+         }
+         if (ctx.common.async) {
+@@ -2843,7 +2844,7 @@
+                     exact: false,
+                     message: def.maxSize.message,
+                 });
+-                status.dirty();
++                return parseUtil_js_1.INVALID;
+             }
+         }
+         const valueType = this._def.valueType;
+diff --git a/src/v4/core/schemas.ts b/src/v4/core/schemas.ts
+--- a/src/v4/core/schemas.ts
++++ b/src/v4/core/schemas.ts
+@@ -1507,6 +1507,36 @@
+ 
+ export interface $ZodArray<T extends SomeType = $ZodType> extends $ZodType<any, any, $ZodArrayInternals<T>> {}
+ 
++// Reject oversized bounded containers before parsing elements, including v4 embedded in zod 3.
++function capSize(inst: $ZodType, size: (input: any) => number): void {
++  const caps: [number, checks.$ZodCheck<never>][] = [];
++  for (const ch of inst._zod.def.checks ?? []) {
++    const d = ch._zod.def as any;
++    // A preceding check can rewrite the container, so later bounds cannot gate its raw size.
++    if (!/_(length|size)$|_equals$/.test(d.check)) break;
++    const max = d.maximum ?? d.length ?? d.size;
++    if (max >= 0) caps.push([max, ch]);
++  }
++  if (!caps.length) return;
++  // Classic and Mini initialize their base again; install after all initializers.
++  inst._zod.deferred ??= [];
++  inst._zod.deferred.push(() => {
++    const run = inst._zod.run;
++    inst._zod.run = (payload, ctx) => {
++      const n = size(payload.value);
++      for (const [max, ch] of caps) {
++        if (n > max && ch._zod.def.when!(payload)) {
++          const start = payload.issues.length;
++          ch._zod.check(payload as ParsePayload<never>);
++          (payload.issues[start] as { continue?: boolean }).continue = false;
++          return payload;
++        }
++      }
++      return run(payload, ctx);
++    };
++  });
++}
++
+ function handleArrayResult(result: ParsePayload<any>, final: ParsePayload<any[]>, index: number) {
+   if (result.issues.length) {
+     final.issues.push(...util.prefixIssues(index, result.issues));
+@@ -1555,6 +1585,7 @@
+ 
+     return payload; //handleArrayResultsAsync(parseResults, final);
+   };
++  capSize(inst, (input) => Array.isArray(input) ? input.length : -1);
+ });
+ 
+ //////////////////////////////////////////
+@@ -2599,6 +2630,7 @@
+     if (proms.length) return Promise.all(proms).then(() => payload);
+     return payload;
+   };
++  capSize(inst, (input) => input instanceof Map ? input.size : -1);
+ });
+ 
+ function handleMapResult(
+@@ -2691,6 +2723,7 @@
+     if (proms.length) return Promise.all(proms).then(() => payload);
+     return payload;
+   };
++  capSize(inst, (input) => input instanceof Set ? input.size : -1);
+ });
+ 
+ function handleSetResult(result: ParsePayload, final: ParsePayload<Set<any>>) {
+diff --git a/v4/core/schemas.js b/v4/core/schemas.js
+--- a/v4/core/schemas.js
++++ b/v4/core/schemas.js
+@@ -613,6 +613,36 @@
+         return payload;
+     };
+ });
++// Reject oversized bounded containers before parsing elements, including v4 embedded in zod 3.
++function capSize(inst, size) {
++    const caps = [];
++    for (const ch of inst._zod.def.checks ?? []) {
++        const d = ch._zod.def;
++        // A preceding check can rewrite the container, so later bounds cannot gate its raw size.
++        if (!/_(length|size)$|_equals$/.test(d.check)) break;
++        const max = d.maximum ?? d.length ?? d.size;
++        if (max >= 0) caps.push([max, ch]);
++    }
++    if (!caps.length) return;
++    // Classic and Mini initialize their base again; install after all initializers.
++    inst._zod.deferred ??= [];
++    inst._zod.deferred.push(() => {
++        const run = inst._zod.run;
++        inst._zod.run = (payload, ctx) => {
++            const n = size(payload.value);
++            for (const [max, ch] of caps) {
++                if (n > max && ch._zod.def.when(payload)) {
++                    const start = payload.issues.length;
++                    ch._zod.check(payload);
++                    payload.issues[start].continue = false;
++                    return payload;
++                }
++            }
++            return run(payload, ctx);
++        };
++    });
++}
++
+ function handleArrayResult(result, final, index) {
+     if (result.issues.length) {
+         final.issues.push(...util.prefixIssues(index, result.issues));
+@@ -652,6 +682,7 @@
+         }
+         return payload; //handleArrayResultsAsync(parseResults, final);
+     };
++    capSize(inst, (input) => Array.isArray(input) ? input.length : -1);
+ });
+ function handleObjectResult(result, final, key) {
+     // if(isOptional)
+@@ -1273,6 +1304,7 @@
+             return Promise.all(proms).then(() => payload);
+         return payload;
+     };
++    capSize(inst, (input) => input instanceof Map ? input.size : -1);
+ });
+ function handleMapResult(keyResult, valueResult, final, key, input, inst, ctx) {
+     if (keyResult.issues.length) {
+@@ -1333,6 +1365,7 @@
+             return Promise.all(proms).then(() => payload);
+         return payload;
+     };
++    capSize(inst, (input) => input instanceof Set ? input.size : -1);
+ });
+ function handleSetResult(result, final) {
+     if (result.issues.length) {
+diff --git a/v4/core/schemas.cjs b/v4/core/schemas.cjs
+--- a/v4/core/schemas.cjs
++++ b/v4/core/schemas.cjs
+@@ -644,6 +644,36 @@
+         return payload;
+     };
+ });
++// Reject oversized bounded containers before parsing elements, including v4 embedded in zod 3.
++function capSize(inst, size) {
++    const caps = [];
++    for (const ch of inst._zod.def.checks ?? []) {
++        const d = ch._zod.def;
++        // A preceding check can rewrite the container, so later bounds cannot gate its raw size.
++        if (!/_(length|size)$|_equals$/.test(d.check)) break;
++        const max = d.maximum ?? d.length ?? d.size;
++        if (max >= 0) caps.push([max, ch]);
++    }
++    if (!caps.length) return;
++    // Classic and Mini initialize their base again; install after all initializers.
++    inst._zod.deferred ??= [];
++    inst._zod.deferred.push(() => {
++        const run = inst._zod.run;
++        inst._zod.run = (payload, ctx) => {
++            const n = size(payload.value);
++            for (const [max, ch] of caps) {
++                if (n > max && ch._zod.def.when(payload)) {
++                    const start = payload.issues.length;
++                    ch._zod.check(payload);
++                    payload.issues[start].continue = false;
++                    return payload;
++                }
++            }
++            return run(payload, ctx);
++        };
++    });
++}
++
+ function handleArrayResult(result, final, index) {
+     if (result.issues.length) {
+         final.issues.push(...util.prefixIssues(index, result.issues));
+@@ -683,6 +713,7 @@
+         }
+         return payload; //handleArrayResultsAsync(parseResults, final);
+     };
++    capSize(inst, (input) => Array.isArray(input) ? input.length : -1);
+ });
+ function handleObjectResult(result, final, key) {
+     // if(isOptional)
+@@ -1304,6 +1335,7 @@
+             return Promise.all(proms).then(() => payload);
+         return payload;
+     };
++    capSize(inst, (input) => input instanceof Map ? input.size : -1);
+ });
+ function handleMapResult(keyResult, valueResult, final, key, input, inst, ctx) {
+     if (keyResult.issues.length) {
+@@ -1364,6 +1396,7 @@
+             return Promise.all(proms).then(() => payload);
+         return payload;
+     };
++    capSize(inst, (input) => input instanceof Set ? input.size : -1);
+ });
+ function handleSetResult(result, final) {
+     if (result.issues.length) {

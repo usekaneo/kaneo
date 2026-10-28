@@ -4,20 +4,21 @@ export const shortcut: Comparison = {
   slug: "shortcut",
   competitor: "Shortcut",
   category: "saas",
-  title: "Open-source Shortcut alternative",
+  title: "Shortcut alternative: Kaneo vs Shortcut",
   description:
-    "Kaneo is an open-source, self-hostable Shortcut alternative for software teams, free under the MIT license with SSO on every build.",
-  summary: "The same lightness for software teams, free past ten people.",
-  heading: "The open-source Shortcut alternative",
+    "Kaneo is a Shortcut alternative for software teams: a board, a backlog, and little ceremony. Kaneo Cloud runs it for you from $4 a month, or self-host it.",
+  summary: "The same lightness for software teams, run for you on Kaneo Cloud.",
+  heading: "The Shortcut alternative for software teams",
   subheading:
-    "Shortcut is a good tracker for software teams, and it only runs on Shortcut's servers. Kaneo gives you the same shape of workflow on infrastructure you control.",
+    "Shortcut is a good tracker for software teams, and it only runs on Shortcut's servers. Kaneo gives you the same shape of workflow on Kaneo Cloud, or on infrastructure you control.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to Shortcut. Both are built for software teams that want a board, a backlog, and not much ceremony. The difference is that Kaneo can be self-hosted for free with unlimited users, while Shortcut is cloud-only and free only up to 10 users.",
+    "Kaneo is a Shortcut alternative for software teams that want a board, a backlog, and not much ceremony, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. Shortcut is cloud-only and free only up to 10 users. Kaneo is also MIT-licensed open source, so you can self-host it for free with unlimited users.",
   facts: {
     license: "MIT, versus a proprietary licence for Shortcut",
-    hosting: "Self-host anywhere, or EU-hosted cloud. Shortcut is cloud only",
+    hosting:
+      "EU-hosted Kaneo Cloud, or self-host anywhere. Shortcut is cloud only",
     sso: "Free on every Kaneo build, Enterprise tier on Shortcut",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

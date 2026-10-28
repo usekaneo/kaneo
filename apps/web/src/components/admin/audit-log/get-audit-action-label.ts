@@ -1,0 +1,68 @@
+const ACTION_LABEL_KEYS = new Map([
+  ["webhook.created", "settings:adminAuditLog.actions.webhookCreated"],
+  ["webhook.updated", "settings:adminAuditLog.actions.webhookUpdated"],
+  ["webhook.deleted", "settings:adminAuditLog.actions.webhookDeleted"],
+  [
+    "webhook.secret_rotated",
+    "settings:adminAuditLog.actions.webhookSecretRotated",
+  ],
+  ["webhook.test", "settings:adminWebhooks.testEvent"],
+  ["email.test_sent", "settings:adminAuditLog.actions.emailTestSent"],
+  ["user.created", "settings:adminAuditLog.actions.userCreated"],
+  ["user.updated", "settings:adminAuditLog.actions.userUpdated"],
+  ["user.role_changed", "settings:adminAuditLog.actions.userRoleChanged"],
+  ["user.deactivated", "settings:adminAuditLog.actions.userDeactivated"],
+  ["user.reactivated", "settings:adminAuditLog.actions.userReactivated"],
+  ["user.deleted", "settings:adminAuditLog.actions.userDeleted"],
+  ["user.password_set", "settings:adminAuditLog.actions.userPasswordSet"],
+  ["user.impersonated", "settings:adminAuditLog.actions.userImpersonated"],
+  [
+    "user.password_reset_sent",
+    "settings:adminAuditLog.actions.userPasswordResetSent",
+  ],
+  [
+    "user.verification_sent",
+    "settings:adminAuditLog.actions.userVerificationSent",
+  ],
+  ["user.email_verified", "settings:adminAuditLog.actions.userEmailVerified"],
+  ["user.avatar_changed", "settings:adminAuditLog.actions.userAvatarChanged"],
+  ["user.avatar_removed", "settings:adminAuditLog.actions.userAvatarRemoved"],
+  ["session.revoked", "settings:adminAuditLog.actions.sessionRevoked"],
+  ["session.revoked_all", "settings:adminAuditLog.actions.sessionRevokedAll"],
+  ["api_key.revoked", "settings:adminAuditLog.actions.apiKeyRevoked"],
+  [
+    "workspace.member_added",
+    "settings:adminAuditLog.actions.workspaceMemberAdded",
+  ],
+  [
+    "workspace.member_removed",
+    "settings:adminAuditLog.actions.workspaceMemberRemoved",
+  ],
+  [
+    "workspace.member_role_changed",
+    "settings:adminAuditLog.actions.workspaceMemberRoleChanged",
+  ],
+  [
+    "workspace.owner_transferred",
+    "settings:adminAuditLog.actions.workspaceOwnerTransferred",
+  ],
+  ["workspace.archived", "settings:adminAuditLog.actions.workspaceArchived"],
+  ["workspace.restored", "settings:adminAuditLog.actions.workspaceRestored"],
+  ["workspace.deleted", "settings:adminAuditLog.actions.workspaceDeleted"],
+  ["role.created", "settings:adminAuditLog.actions.roleCreated"],
+  ["role.updated", "settings:adminAuditLog.actions.roleUpdated"],
+  ["role.deleted", "settings:adminAuditLog.actions.roleDeleted"],
+  [
+    "instance.settings_updated",
+    "settings:adminAuditLog.actions.instanceSettingsUpdated",
+  ],
+]);
+
+/** Human wording for an action; actions this client doesn't know show as-is. */
+export function getAuditActionLabel(
+  action: string,
+  t: (key: string) => string,
+) {
+  const key = ACTION_LABEL_KEYS.get(action);
+  return key ? t(key) : action;
+}

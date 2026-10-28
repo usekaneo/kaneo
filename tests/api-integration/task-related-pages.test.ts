@@ -143,7 +143,7 @@ describe("bounded board related pages", () => {
     mockAuthenticatedSession(other.user);
     expect(
       (await app.request(`/api/task/tasks/${project.id}?relatedPage=2`)).status,
-    ).toBe(403);
+    ).toBe(404);
     mockAnonymousSession();
     await db
       .update(schema.projectTable)

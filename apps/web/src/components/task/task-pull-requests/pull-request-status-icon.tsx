@@ -1,11 +1,12 @@
-import { GitMerge, GitPullRequest } from "lucide-react";
+import { GitMerge, GitPullRequest, GitPullRequestClosed } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { PullRequestStatus } from "@/lib/pull-request";
 
 const statusClassName: Record<PullRequestStatus, string> = {
-  merged: "text-info-foreground",
+  merged: "text-violet-600 dark:text-violet-400",
   draft: "text-muted-foreground",
   open: "text-success-foreground",
+  closed: "text-destructive-foreground",
 };
 
 type PullRequestStatusIconProps = {
@@ -17,7 +18,12 @@ export function PullRequestStatusIcon({
   status,
   className,
 }: PullRequestStatusIconProps) {
-  const Icon = status === "merged" ? GitMerge : GitPullRequest;
+  const Icon =
+    status === "merged"
+      ? GitMerge
+      : status === "closed"
+        ? GitPullRequestClosed
+        : GitPullRequest;
   return (
     <Icon
       aria-hidden

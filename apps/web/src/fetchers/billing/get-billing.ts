@@ -13,7 +13,7 @@ export async function getBilling(workspaceId: string) {
   });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   return response.json();

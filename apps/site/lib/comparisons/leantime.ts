@@ -4,21 +4,21 @@ export const leantime: Comparison = {
   slug: "leantime",
   competitor: "Leantime",
   category: "open-source",
-  title: "Leantime alternative",
+  title: "Focused Leantime alternative",
   description:
-    "Kaneo is an MIT-licensed Leantime alternative focused on shipping work: boards, backlog, workflows, and time tracking, self-hosted for free.",
+    "Kaneo is a focused Leantime alternative: boards, backlog, workflows, and time tracking. Kaneo Cloud runs it for you from $4 a month, nothing to maintain.",
   summary: "The tracker underneath, without the goals and strategy layer.",
-  heading: "The MIT-licensed Leantime alternative",
+  heading: "The focused Leantime alternative",
   subheading:
-    "Leantime wraps goals, research boards, and strategy around your tasks. Kaneo is the tracker underneath, without the strategy layer, and it is MIT licensed.",
+    "Leantime wraps goals, research boards, and strategy around your tasks. Kaneo is the tracker underneath, without the strategy layer, and Kaneo Cloud runs it for you.",
   verdict:
-    "Kaneo and Leantime are both open-source and self-hostable. Leantime is AGPLv3, aimed at non-project-managers, and layers goals, ideas, and retrospectives on top of task management. Kaneo is MIT licensed and stays a focused tracker with boards, backlog, workflow rules, roles, and time tracking.",
+    "Kaneo is a focused Leantime alternative for teams that want a tracker without the strategy layer, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with nothing to maintain. Leantime is AGPLv3, aimed at non-project-managers, and layers goals, ideas, and retrospectives on top of task management, while Kaneo stays a focused tracker with boards, backlog, workflow rules, roles, and time tracking. Both are open source, and Kaneo is MIT licensed, so you can self-host it any time.",
   facts: {
     license: "MIT, versus AGPLv3 for the Leantime community edition",
     hosting:
-      "Both self-host. Kaneo is Docker plus PostgreSQL, Leantime is PHP plus MySQL",
+      "EU-hosted Kaneo Cloud. Both self-host, Kaneo on Docker plus PostgreSQL, Leantime on PHP plus MySQL",
     sso: "Free on every Kaneo build",
-    pricing: "$0 self-hosted for both, Kaneo Cloud from $4 / month",
+    pricing: "Kaneo Cloud from $4 / month, or $0 self-hosted for both",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "AGPLv3" },

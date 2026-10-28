@@ -17,6 +17,7 @@ import {
 import { withIntegrationLink } from "./with-integration-link";
 import { updateExternalLink } from "./link-manager";
 import { updateTaskStatus } from "./task-service";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 
 // The observed matching value is durable even if the inbound HTTP request
 // times out waiting for our response. Apply it only after version correlation.
@@ -88,6 +89,7 @@ export async function applyObservedTaskValue(
         publishEvent("task.updated", {
           taskId: link.taskId,
           projectId: integration.projectId,
+          ...(field === "title" ? { titleChanged: true } : {}),
         }),
       );
       return true;
@@ -105,6 +107,12 @@ export async function writeInboundTaskField(
   value: string,
 ) {
   if (field === "state") {
+    // Covers observed-value adoption and deferred replay in the same lock.
+    const task = await tx.query.taskTable.findFirst({
+      where: linkedTaskScope(link.taskId, integration.projectId),
+      columns: { status: true },
+    });
+    if (!task || isStateSyncPaused(task.status)) return;
     const resolveStatus =
       integration.type === "gitea" ? resolveGiteaStatus : resolveGithubStatus;
     const status = await resolveStatus(

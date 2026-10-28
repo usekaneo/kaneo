@@ -10,8 +10,10 @@ import { HomeProjects } from "@/components/home/home-projects";
 import { UpNext } from "@/components/home/up-next";
 import { WeekStrip } from "@/components/home/week-strip";
 import PageTitle from "@/components/page-title";
+import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import { Button } from "@/components/ui/button";
+import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
 import { useLocalDay } from "@/hooks/use-local-day";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
@@ -32,8 +34,14 @@ function RouteComponent() {
     isLoading,
     isError,
   } = useGetAssignedTasks(workspaceId);
-  const { canCreateTasks } = useWorkspacePermission();
+  const { data: projects } = useGetProjects({ workspaceId }, true);
+  const { canCreateTasks, canCreateProjects } = useWorkspacePermission();
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false);
+  const [isCreateProjectOpen, setIsCreateProjectOpen] = useState(false);
+  const needsProjectFirst = projects?.length === 0 && canCreateProjects();
+  const openCreateProject = canCreateProjects()
+    ? () => setIsCreateProjectOpen(true)
+    : undefined;
 
   const greetings = {
     morning: t("workspace:home.greeting.morning"),
@@ -47,7 +55,7 @@ function RouteComponent() {
       <WorkspaceLayout title={t("workspace:home.pageTitle")}>
         <div className="h-full overflow-y-auto">
           <TrialExpiredCallout workspaceId={workspaceId} className="m-4" />
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-9 px-6 py-10 lg:px-10">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-9 px-4 py-6 sm:px-6 sm:py-10 lg:px-10">
             <header className="flex items-end justify-between gap-4">
               <div className="flex flex-col gap-1.5">
                 <p className="font-medium text-[13px] text-muted-foreground">
@@ -62,7 +70,14 @@ function RouteComponent() {
                 </h1>
               </div>
               {canCreateTasks() && (
-                <Button size="sm" onClick={() => setIsCreateTaskOpen(true)}>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    needsProjectFirst
+                      ? setIsCreateProjectOpen(true)
+                      : setIsCreateTaskOpen(true)
+                  }
+                >
                   <Plus />
                   {t("workspace:home.newTask")}
                 </Button>
@@ -83,7 +98,7 @@ function RouteComponent() {
               </p>
             )}
 
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
               <div className="flex min-w-0 flex-col gap-9">
                 <UpNext
                   tasks={assigned?.tasks}
@@ -92,7 +107,10 @@ function RouteComponent() {
                   isError={isError}
                   workspaceId={workspaceId}
                 />
-                <HomeProjects workspaceId={workspaceId} />
+                <HomeProjects
+                  workspaceId={workspaceId}
+                  onCreateProject={openCreateProject}
+                />
               </div>
               <ActivityFeed workspaceId={workspaceId} />
             </div>
@@ -103,6 +121,10 @@ function RouteComponent() {
       <CreateTaskModal
         open={isCreateTaskOpen}
         onClose={() => setIsCreateTaskOpen(false)}
+      />
+      <CreateProjectModal
+        open={isCreateProjectOpen}
+        onClose={() => setIsCreateProjectOpen(false)}
       />
     </>
   );

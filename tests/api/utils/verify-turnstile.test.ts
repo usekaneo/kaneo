@@ -55,7 +55,7 @@ describe("Turnstile verification contract", () => {
     expect(fetchMock).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        redirect: "error",
+        redirect: "manual",
         signal: expect.any(AbortSignal),
       }),
     );

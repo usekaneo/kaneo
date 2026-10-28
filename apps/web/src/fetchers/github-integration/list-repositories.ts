@@ -7,15 +7,24 @@ export type ListRepositoriesResponse = InferResponseType<
   200
 >;
 
+export type GithubRepository = ListRepositoriesResponse["repositories"][number];
+
 export type RepositoryPage = {
   installationPage: number;
   repositoryPage: number;
 };
 
+export const FIRST_REPOSITORY_PAGE: RepositoryPage = {
+  installationPage: 1,
+  repositoryPage: 1,
+};
+
 async function listRepositories(
   projectId: string,
-  page: RepositoryPage = { installationPage: 1, repositoryPage: 1 },
+  page: RepositoryPage = FIRST_REPOSITORY_PAGE,
+  search?: string,
 ): Promise<ListRepositoriesResponse> {
+  const term = search?.trim();
   const response = await client["github-integration"].repositories[
     ":projectId"
   ].$get({
@@ -23,15 +32,15 @@ async function listRepositories(
     query: {
       installationPage: String(page.installationPage),
       repositoryPage: String(page.repositoryPage),
+      ...(term ? { search: term } : {}),
     },
   });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
-  const result = await response.json();
-  return result;
+  return response.json();
 }
 
 export default listRepositories;

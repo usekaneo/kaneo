@@ -10,6 +10,10 @@ import {
 import { createGitlabClient } from "../../../../../apps/api/src/plugins/gitlab/utils/gitlab-api";
 import { updateIssueLabelsGitlab } from "../../../../../apps/api/src/plugins/gitlab/utils/labels";
 
+vi.mock("../../../../../apps/api/src/import/destination-fetch", () => ({
+  destinationFetch: (input: string, init?: RequestInit) => fetch(input, init),
+}));
+
 vi.mock("node:timers/promises", () => ({ setTimeout: vi.fn(async () => {}) }));
 vi.mock("../../../../../apps/api/src/utils/assert-public-destination", () => ({
   assertPublicDestination: vi.fn(async () => {}),

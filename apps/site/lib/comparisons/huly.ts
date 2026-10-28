@@ -4,21 +4,21 @@ export const huly: Comparison = {
   slug: "huly",
   competitor: "Huly",
   category: "open-source",
-  title: "Huly alternative",
+  title: "Focused Huly alternative",
   description:
-    "Kaneo is an MIT-licensed Huly alternative that does project tracking and nothing else, with a much smaller self-hosted footprint.",
-  summary: "Project tracking only, in one container, under MIT.",
+    "Kaneo is a focused Huly alternative that does project tracking and nothing else. Kaneo Cloud runs it for you from $4 a month, with nothing to maintain.",
+  summary: "Project tracking only, run for you on Kaneo Cloud.",
   heading: "The focused Huly alternative",
   subheading:
-    "Huly puts tracking, chat, documents, HR, and CRM in one workspace. Kaneo does the tracking part, in one container, under the MIT license.",
+    "Huly puts tracking, chat, documents, HR, and CRM in one workspace. Kaneo does the tracking part, and Kaneo Cloud runs it for you.",
   verdict:
-    "Kaneo and Huly are both open source and self-hostable, but they differ in ambition. Huly is an all-in-one workspace under EPL-2.0 covering project tracking, chat, documents, HR, and CRM, with a correspondingly large deployment. Kaneo is MIT licensed and does project tracking only, as a single container plus PostgreSQL.",
+    "Kaneo is a focused Huly alternative for teams that only need project tracking, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with nothing to maintain. Huly is an all-in-one workspace under EPL-2.0 covering project tracking, chat, documents, HR, and CRM, with a correspondingly large deployment, while Kaneo does project tracking only. Kaneo is also MIT licensed, so you can self-host it as a single container plus PostgreSQL.",
   facts: {
     license: "MIT, versus EPL-2.0 for Huly",
     hosting:
-      "Both self-host. Kaneo is one container, Huly is a multi-service platform",
+      "EU-hosted Kaneo Cloud, or self-host one container. Huly is a multi-service platform",
     sso: "Free on every Kaneo build",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "EPL-2.0" },

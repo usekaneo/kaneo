@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { userTable } from "../../database/schema";
+import getManagedProfile from "./get-managed-profile";
 
 export async function getCurrentUser(userId: string) {
   const [user] = await db
@@ -20,7 +21,8 @@ export async function getCurrentUser(userId: string) {
     throw new HTTPException(404, { message: "User not found" });
   }
 
-  return user;
+  const managed = await getManagedProfile(userId);
+  return { ...user, managedProfileFields: managed?.fields ?? [] };
 }
 
 export default getCurrentUser;

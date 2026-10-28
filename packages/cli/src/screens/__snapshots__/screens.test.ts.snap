@@ -1,0 +1,566 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`screens > error at 80 columns, no color 1`] = `
+"
+✗ You are not signed in to cloud.kaneo.app.
+  → Run kaneo login, or set KANEO_API_KEY.
+"
+`;
+
+exports[`screens > error at 80 columns, truecolor 1`] = `
+"
+[38;2;239;68;68m✗[39m You are not signed in to cloud.kaneo.app.
+  [38;2;115;115;115m→ Run kaneo login, or set KANEO_API_KEY.[39m
+"
+`;
+
+exports[`screens > error at 120 columns, no color 1`] = `
+"
+✗ You are not signed in to cloud.kaneo.app.
+  → Run kaneo login, or set KANEO_API_KEY.
+"
+`;
+
+exports[`screens > error at 120 columns, truecolor 1`] = `
+"
+[38;2;239;68;68m✗[39m You are not signed in to cloud.kaneo.app.
+  [38;2;115;115;115m→ Run kaneo login, or set KANEO_API_KEY.[39m
+"
+`;
+
+exports[`screens > home at 80 columns, no color 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  Ada Lovelace · Acme Studio · cloud.kaneo.app
+
+  Your open tasks
+    KAN-1  Fix login redirect after device approval  ▲ Urgent  ◷ Oct 5
+    KAN-2  Board performance with 5000 tasks         ▆ High    ◷ Today
+    KAN-6  Review API error shape                    ▆ High
+
+  Commands
+    kaneo task list  List tasks in a project
+    kaneo whoami     Show your account and server
+    kaneo login      Sign in with your browser
+    kaneo --help     See every command
+
+"
+`;
+
+exports[`screens > home at 80 columns, truecolor 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  [1mAda Lovelace[22m [38;2;115;115;115m· Acme Studio · cloud.kaneo.app[39m
+
+  [1mYour open tasks[22m
+    [38;2;115;115;115mKAN-1[39m  Fix login redirect after device approval  [38;2;239;68;68m▲ [39m[38;2;239;68;68mUrgent[39m  [38;2;239;68;68m◷ Oct 5[39m
+    [38;2;115;115;115mKAN-2[39m  Board performance with 5000 tasks         [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m    [38;2;217;119;6m◷ Today[39m
+    [38;2;115;115;115mKAN-6[39m  Review API error shape                    [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m
+
+  [1mCommands[22m
+    kaneo task list  [38;2;115;115;115mList tasks in a project[39m
+    kaneo whoami     [38;2;115;115;115mShow your account and server[39m
+    kaneo login      [38;2;115;115;115mSign in with your browser[39m
+    kaneo --help     [38;2;115;115;115mSee every command[39m
+
+"
+`;
+
+exports[`screens > home at 120 columns, no color 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  Ada Lovelace · Acme Studio · cloud.kaneo.app
+
+  Your open tasks
+    KAN-1  Fix login redirect after device approval  ▲ Urgent  ◷ Oct 5
+    KAN-2  Board performance with 5000 tasks         ▆ High    ◷ Today
+    KAN-6  Review API error shape                    ▆ High
+
+  Commands
+    kaneo task list  List tasks in a project
+    kaneo whoami     Show your account and server
+    kaneo login      Sign in with your browser
+    kaneo --help     See every command
+
+"
+`;
+
+exports[`screens > home at 120 columns, truecolor 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  [1mAda Lovelace[22m [38;2;115;115;115m· Acme Studio · cloud.kaneo.app[39m
+
+  [1mYour open tasks[22m
+    [38;2;115;115;115mKAN-1[39m  Fix login redirect after device approval  [38;2;239;68;68m▲ [39m[38;2;239;68;68mUrgent[39m  [38;2;239;68;68m◷ Oct 5[39m
+    [38;2;115;115;115mKAN-2[39m  Board performance with 5000 tasks         [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m    [38;2;217;119;6m◷ Today[39m
+    [38;2;115;115;115mKAN-6[39m  Review API error shape                    [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m
+
+  [1mCommands[22m
+    kaneo task list  [38;2;115;115;115mList tasks in a project[39m
+    kaneo whoami     [38;2;115;115;115mShow your account and server[39m
+    kaneo login      [38;2;115;115;115mSign in with your browser[39m
+    kaneo --help     [38;2;115;115;115mSee every command[39m
+
+"
+`;
+
+exports[`screens > home signed out at 80 columns, no color 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  ● Not signed in to cloud.kaneo.app
+
+  Run kaneo login to get started.
+
+"
+`;
+
+exports[`screens > home signed out at 80 columns, truecolor 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  [38;2;115;115;115m●[39m Not signed in to cloud.kaneo.app
+
+  [38;2;115;115;115mRun[39m [1mkaneo login[22m [38;2;115;115;115mto get started.[39m
+
+"
+`;
+
+exports[`screens > home signed out at 120 columns, no color 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  ● Not signed in to cloud.kaneo.app
+
+  Run kaneo login to get started.
+
+"
+`;
+
+exports[`screens > home signed out at 120 columns, truecolor 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  [38;2;115;115;115m●[39m Not signed in to cloud.kaneo.app
+
+  [38;2;115;115;115mRun[39m [1mkaneo login[22m [38;2;115;115;115mto get started.[39m
+
+"
+`;
+
+exports[`screens > login code at 80 columns, no color 1`] = `
+"
+
+  ╭─ Sign in to cloud.kaneo.app ───────────╮
+  │                                        │
+  │  Enter this code in your browser       │
+  │                                        │
+  │        W D J B - M J H T               │
+  │                                        │
+  │  ✓ Copied to your clipboard            │
+  │                                        │
+  ╰────────────────────────────────────────╯
+
+  → Opened https://cloud.kaneo.app/device?user_code=WDJBMJHT
+
+"
+`;
+
+exports[`screens > login code at 80 columns, truecolor 1`] = `
+"
+
+  [38;2;115;115;115m╭─[39m[1m Sign in to cloud.kaneo.app [22m[38;2;115;115;115m───────────╮[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m  [38;2;115;115;115mEnter this code in your browser[39m       [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m        [1mW D J B - M J H T[22m               [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m  [38;2;5;150;105m✓[39m [38;2;115;115;115mCopied to your clipboard[39m            [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m╰────────────────────────────────────────╯[39m
+
+  [38;2;115;115;115m→[39m Opened [38;2;59;130;246mhttps://cloud.kaneo.app/device?user_code=WDJBMJHT[39m
+
+"
+`;
+
+exports[`screens > login code at 120 columns, no color 1`] = `
+"
+
+  ╭─ Sign in to cloud.kaneo.app ───────────╮
+  │                                        │
+  │  Enter this code in your browser       │
+  │                                        │
+  │        W D J B - M J H T               │
+  │                                        │
+  │  ✓ Copied to your clipboard            │
+  │                                        │
+  ╰────────────────────────────────────────╯
+
+  → Opened https://cloud.kaneo.app/device?user_code=WDJBMJHT
+
+"
+`;
+
+exports[`screens > login code at 120 columns, truecolor 1`] = `
+"
+
+  [38;2;115;115;115m╭─[39m[1m Sign in to cloud.kaneo.app [22m[38;2;115;115;115m───────────╮[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m  [38;2;115;115;115mEnter this code in your browser[39m       [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m        [1mW D J B - M J H T[22m               [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m  [38;2;5;150;105m✓[39m [38;2;115;115;115mCopied to your clipboard[39m            [38;2;115;115;115m│[39m
+  [38;2;115;115;115m│[39m                                        [38;2;115;115;115m│[39m
+  [38;2;115;115;115m╰────────────────────────────────────────╯[39m
+
+  [38;2;115;115;115m→[39m Opened [38;2;59;130;246mhttps://cloud.kaneo.app/device?user_code=WDJBMJHT[39m
+
+"
+`;
+
+exports[`screens > login welcome at 80 columns, no color 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  ✓ Signed in as Ada Lovelace · ada@example.com
+
+    Server     cloud.kaneo.app
+    Workspace  Acme Studio
+
+  Try kaneo task list or just kaneo
+
+"
+`;
+
+exports[`screens > login welcome at 80 columns, truecolor 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  [38;2;5;150;105m✓[39m Signed in as [1mAda Lovelace[22m [38;2;115;115;115m·[39m ada@example.com
+
+    [38;2;115;115;115mServer    [39m cloud.kaneo.app
+    [38;2;115;115;115mWorkspace [39m Acme Studio
+
+  [38;2;115;115;115mTry[39m [1mkaneo task list[22m [38;2;115;115;115mor just[39m [1mkaneo[22m
+
+"
+`;
+
+exports[`screens > login welcome at 120 columns, no color 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  ✓ Signed in as Ada Lovelace · ada@example.com
+
+    Server     cloud.kaneo.app
+    Workspace  Acme Studio
+
+  Try kaneo task list or just kaneo
+
+"
+`;
+
+exports[`screens > login welcome at 120 columns, truecolor 1`] = `
+"
+
+      ▄▄▄ ███      ▐█ ▗▟█▀
+  ███ ███ █▛▘      ▐█▄█▛  ▗▄██▙▟█ ▟█▟██▙  ▄███▄▖ ▄▟██▙▄
+  ███ ███ █▖       ▐█▜█▄  ██   ▜█ ██  ▝█▌▟█▄▄▄██▐█▌  ▝█▌
+  ███ ███ ██▙      ▐█ ▀█▙▖▜█▄ ▄▟█ ██   █▌▐█▙ ▗▄▖▝█▙▖▗▟█▘
+  ███ ███ ▀▀▀      ▝▀   ▀▀ ▝▀▀▀▝▀ ▀▀   ▀▘ ▝▀▀▀▀   ▀▀▀▀
+  ▀▀▀
+
+  [38;2;5;150;105m✓[39m Signed in as [1mAda Lovelace[22m [38;2;115;115;115m·[39m ada@example.com
+
+    [38;2;115;115;115mServer    [39m cloud.kaneo.app
+    [38;2;115;115;115mWorkspace [39m Acme Studio
+
+  [38;2;115;115;115mTry[39m [1mkaneo task list[22m [38;2;115;115;115mor just[39m [1mkaneo[22m
+
+"
+`;
+
+exports[`screens > task list at 80 columns in ascii 1`] = `
+"
+
+  Kaneo Web - KAN
+
+  * To Do 3
+    KAN-3  Add keyboard shortcuts for moving...   = Medium                Sun
+    KAN-4  Dark mode polish                       _ Low     Ada Lovelace
+    KAN-5  Write CLI docs                                                 Oct 27
+
+  * In Progress 2
+    KAN-1  Fix login redirect after device ap...  ! Urgent  Ada Lovelace  Oct 5
+    KAN-2  Board performance with 5000 tasks      # High    Grace Hopper  Today
+
+  * In Review 1
+    KAN-6  Review API error shape                 # High    Ada Lovelace
+
+  * Done 1
+    KAN-7  Ship v2.35                             = Medium                Oct 2
+
+  Showing 7 of 12 tasks. Pass --limit to see more.
+
+"
+`;
+
+exports[`screens > task list at 80 columns, no color 1`] = `
+"
+
+  Kaneo Web · KAN
+
+  ● To Do 3
+    KAN-3  Add keyboard shortcuts for moving…   ▄ Medium                ◷ Sun
+    KAN-4  Dark mode polish                     ▂ Low     Ada Lovelace
+    KAN-5  Write CLI docs                                               ◷ Oct 27
+
+  ● In Progress 2
+    KAN-1  Fix login redirect after device ap…  ▲ Urgent  Ada Lovelace  ◷ Oct 5
+    KAN-2  Board performance with 5000 tasks    ▆ High    Grace Hopper  ◷ Today
+
+  ● In Review 1
+    KAN-6  Review API error shape               ▆ High    Ada Lovelace
+
+  ● Done 1
+    KAN-7  Ship v2.35                           ▄ Medium                ◷ Oct 2
+
+  Showing 7 of 12 tasks. Pass --limit to see more.
+
+"
+`;
+
+exports[`screens > task list at 80 columns, truecolor 1`] = `
+"
+
+  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/board\\[1mKaneo Web[22m]8;;\\ [38;2;115;115;115m· KAN[39m
+
+  [38;2;100;116;139m●[39m [1mTo Do[22m [38;2;115;115;115m3[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t3\\[38;2;115;115;115mKAN-3[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t3\\Add keyboard shortcuts for moving…]8;;\\   [38;2;217;119;6m▄ [39m[38;2;217;119;6mMedium[39m                ◷ Sun
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t4\\[38;2;115;115;115mKAN-4[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t4\\Dark mode polish]8;;\\                     [38;2;59;130;246m▂ [39m[38;2;59;130;246mLow[39m     Ada Lovelace
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t5\\[38;2;115;115;115mKAN-5[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t5\\Write CLI docs]8;;\\                                               ◷ Oct 27
+
+  [38;2;59;130;246m●[39m [1mIn Progress[22m [38;2;115;115;115m2[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t1\\[38;2;115;115;115mKAN-1[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t1\\Fix login redirect after device ap…]8;;\\  [38;2;239;68;68m▲ [39m[38;2;239;68;68mUrgent[39m  Ada Lovelace  [38;2;239;68;68m◷ Oct 5[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t2\\[38;2;115;115;115mKAN-2[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t2\\Board performance with 5000 tasks]8;;\\    [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m    Grace Hopper  [38;2;217;119;6m◷ Today[39m
+
+  [38;2;217;119;6m●[39m [1mIn Review[22m [38;2;115;115;115m1[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t6\\[38;2;115;115;115mKAN-6[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t6\\Review API error shape]8;;\\               [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m    Ada Lovelace
+
+  [38;2;5;150;105m●[39m [1mDone[22m [38;2;115;115;115m1[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t7\\[38;2;115;115;115mKAN-7[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t7\\Ship v2.35]8;;\\                           [38;2;217;119;6m▄ [39m[38;2;217;119;6mMedium[39m                [38;2;115;115;115m◷ Oct 2[39m
+
+  [38;2;115;115;115mShowing 7 of 12 tasks. Pass --limit to see more.[39m
+
+"
+`;
+
+exports[`screens > task list at 120 columns, no color 1`] = `
+"
+
+  Kaneo Web · KAN
+
+  ● To Do 3
+    KAN-3  Add keyboard shortcuts for moving cards between columns on the board view  ▄ Medium                ◷ Sun
+    KAN-4  Dark mode polish                                                           ▂ Low     Ada Lovelace
+    KAN-5  Write CLI docs                                                                                     ◷ Oct 27
+
+  ● In Progress 2
+    KAN-1  Fix login redirect after device approval                                   ▲ Urgent  Ada Lovelace  ◷ Oct 5
+    KAN-2  Board performance with 5000 tasks                                          ▆ High    Grace Hopper  ◷ Today
+
+  ● In Review 1
+    KAN-6  Review API error shape                                                     ▆ High    Ada Lovelace
+
+  ● Done 1
+    KAN-7  Ship v2.35                                                                 ▄ Medium                ◷ Oct 2
+
+  Showing 7 of 12 tasks. Pass --limit to see more.
+
+"
+`;
+
+exports[`screens > task list at 120 columns, truecolor 1`] = `
+"
+
+  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/board\\[1mKaneo Web[22m]8;;\\ [38;2;115;115;115m· KAN[39m
+
+  [38;2;100;116;139m●[39m [1mTo Do[22m [38;2;115;115;115m3[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t3\\[38;2;115;115;115mKAN-3[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t3\\Add keyboard shortcuts for moving cards between columns on the board view]8;;\\  [38;2;217;119;6m▄ [39m[38;2;217;119;6mMedium[39m                ◷ Sun
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t4\\[38;2;115;115;115mKAN-4[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t4\\Dark mode polish]8;;\\                                                           [38;2;59;130;246m▂ [39m[38;2;59;130;246mLow[39m     Ada Lovelace
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t5\\[38;2;115;115;115mKAN-5[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t5\\Write CLI docs]8;;\\                                                                                     ◷ Oct 27
+
+  [38;2;59;130;246m●[39m [1mIn Progress[22m [38;2;115;115;115m2[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t1\\[38;2;115;115;115mKAN-1[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t1\\Fix login redirect after device approval]8;;\\                                   [38;2;239;68;68m▲ [39m[38;2;239;68;68mUrgent[39m  Ada Lovelace  [38;2;239;68;68m◷ Oct 5[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t2\\[38;2;115;115;115mKAN-2[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t2\\Board performance with 5000 tasks]8;;\\                                          [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m    Grace Hopper  [38;2;217;119;6m◷ Today[39m
+
+  [38;2;217;119;6m●[39m [1mIn Review[22m [38;2;115;115;115m1[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t6\\[38;2;115;115;115mKAN-6[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t6\\Review API error shape]8;;\\                                                     [38;2;217;119;6m▆ [39m[38;2;217;119;6mHigh[39m    Ada Lovelace
+
+  [38;2;5;150;105m●[39m [1mDone[22m [38;2;115;115;115m1[39m
+    ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t7\\[38;2;115;115;115mKAN-7[39m]8;;\\  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/task/t7\\Ship v2.35]8;;\\                                                                 [38;2;217;119;6m▄ [39m[38;2;217;119;6mMedium[39m                [38;2;115;115;115m◷ Oct 2[39m
+
+  [38;2;115;115;115mShowing 7 of 12 tasks. Pass --limit to see more.[39m
+
+"
+`;
+
+exports[`screens > task list empty at 80 columns, no color 1`] = `
+"
+
+  Kaneo Web · KAN
+
+  No tasks match.
+
+"
+`;
+
+exports[`screens > task list empty at 80 columns, truecolor 1`] = `
+"
+
+  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/board\\[1mKaneo Web[22m]8;;\\ [38;2;115;115;115m· KAN[39m
+
+  [38;2;115;115;115mNo tasks match.[39m
+
+"
+`;
+
+exports[`screens > task list empty at 120 columns, no color 1`] = `
+"
+
+  Kaneo Web · KAN
+
+  No tasks match.
+
+"
+`;
+
+exports[`screens > task list empty at 120 columns, truecolor 1`] = `
+"
+
+  ]8;;https://cloud.kaneo.app/dashboard/workspace/ws_1/project/p1/board\\[1mKaneo Web[22m]8;;\\ [38;2;115;115;115m· KAN[39m
+
+  [38;2;115;115;115mNo tasks match.[39m
+
+"
+`;
+
+exports[`screens > whoami at 80 columns, no color 1`] = `
+"
+
+  ✓ Ada Lovelace · ada@example.com
+
+    Server     cloud.kaneo.app
+    Auth       login (default)
+    Workspace  Acme Studio ws_1
+
+"
+`;
+
+exports[`screens > whoami at 80 columns, truecolor 1`] = `
+"
+
+  [38;2;5;150;105m✓[39m [1mAda Lovelace[22m [38;2;115;115;115m·[39m ada@example.com
+
+    [38;2;115;115;115mServer    [39m cloud.kaneo.app
+    [38;2;115;115;115mAuth      [39m login (default)
+    [38;2;115;115;115mWorkspace [39m Acme Studio [38;2;115;115;115mws_1[39m
+
+"
+`;
+
+exports[`screens > whoami at 120 columns, no color 1`] = `
+"
+
+  ✓ Ada Lovelace · ada@example.com
+
+    Server     cloud.kaneo.app
+    Auth       login (default)
+    Workspace  Acme Studio ws_1
+
+"
+`;
+
+exports[`screens > whoami at 120 columns, truecolor 1`] = `
+"
+
+  [38;2;5;150;105m✓[39m [1mAda Lovelace[22m [38;2;115;115;115m·[39m ada@example.com
+
+    [38;2;115;115;115mServer    [39m cloud.kaneo.app
+    [38;2;115;115;115mAuth      [39m login (default)
+    [38;2;115;115;115mWorkspace [39m Acme Studio [38;2;115;115;115mws_1[39m
+
+"
+`;

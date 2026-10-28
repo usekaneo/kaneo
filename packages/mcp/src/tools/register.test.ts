@@ -56,6 +56,9 @@ describe("registerTools", () => {
       json: vi.fn().mockResolvedValue({
         id: "user-1",
         name: "Mohiuddin",
+        email: "user@example.com",
+        role: "user",
+        token: "unexpected-user-secret",
       }),
     };
 
@@ -70,39 +73,86 @@ describe("registerTools", () => {
     expect(result?.content).toEqual([
       {
         type: "text",
-        text: JSON.stringify({ id: "user-1", name: "Mohiuddin" }, null, 2),
+        text: JSON.stringify(
+          {
+            id: "user-1",
+            name: "Mohiuddin",
+            email: "user@example.com",
+            role: "user",
+          },
+          null,
+          2,
+        ),
       },
     ]);
   });
 
-  it("uses the session endpoint for whoami with device authentication", async () => {
+  it.each(["user", null, undefined])(
+    "returns only safe user fields for whoami with session authentication and role %s",
+    async (role) => {
+      const { server, tools } = createServerMock();
+      const client = {
+        usingApiKey: false,
+        json: vi.fn().mockResolvedValue({
+          user: {
+            id: "user-1",
+            name: "Mohiuddin",
+            email: "user@example.com",
+            role,
+            token: "unexpected-user-secret",
+          },
+          session: {
+            id: "session-1",
+            token: "live-session-secret",
+            expiresAt: "2026-11-08T00:00:00.000Z",
+            ipAddress: "192.0.2.1",
+            userAgent: "MCP client",
+          },
+          token: "unexpected-response-secret",
+        }),
+      };
+
+      registerTools(server as never, { client: client as never });
+
+      const result = await tools.get("whoami")?.handler({});
+
+      expect(client.json).toHaveBeenCalledWith("/api/auth/get-session", {
+        method: "GET",
+      });
+      expect(result?.isError).toBe(false);
+      expect(result?.content).toEqual([
+        {
+          type: "text",
+          text: JSON.stringify(
+            {
+              id: "user-1",
+              name: "Mohiuddin",
+              email: "user@example.com",
+              role,
+            },
+            null,
+            2,
+          ),
+        },
+      ]);
+    },
+  );
+
+  it("returns null for whoami when there is no session", async () => {
     const { server, tools } = createServerMock();
     const client = {
       usingApiKey: false,
-      json: vi.fn().mockResolvedValue({
-        user: { id: "user-1" },
-        session: { id: "session-1" },
-      }),
+      json: vi.fn().mockResolvedValue(null),
     };
 
     registerTools(server as never, { client: client as never });
 
     const result = await tools.get("whoami")?.handler({});
 
-    expect(client.json).toHaveBeenCalledWith("/api/auth/get-session", {
-      method: "GET",
+    expect(result).toEqual({
+      content: [{ type: "text", text: "null" }],
+      isError: false,
     });
-    expect(result?.isError).toBe(false);
-    expect(result?.content).toEqual([
-      {
-        type: "text",
-        text: JSON.stringify(
-          { user: { id: "user-1" }, session: { id: "session-1" } },
-          null,
-          2,
-        ),
-      },
-    ]);
   });
 
   it("builds the expected query string for list_tasks", async () => {
@@ -299,6 +349,80 @@ describe("registerTools", () => {
         dueBefore: "2026-04-04",
       }),
     ).toThrow();
+  });
+
+  it("lists a project's custom field definitions", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue([]) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("list_project_custom_fields")
+      ?.handler({ projectId: "project 1" });
+
+    expect(client.json).toHaveBeenCalledWith(
+      "/api/custom-field/project/project%201",
+    );
+  });
+
+  it("reads a task's custom field values", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue([]) };
+
+    registerTools(server as never, { client: client as never });
+
+    await tools
+      .get("get_task_custom_field_values")
+      ?.handler({ taskId: "task 1" });
+
+    expect(client.json).toHaveBeenCalledWith("/api/custom-field/task/task%201");
+  });
+
+  it.each([
+    [["Frontend", "API"], '["Frontend","API"]'],
+    [5, "5"],
+    [true, "true"],
+    ["2026-10-17", "2026-10-17"],
+    [null, ""],
+  ])("sets custom field value %j as %j", async (value, encoded) => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ id: "value-1" }) };
+
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools
+      .get("set_task_custom_field_value")
+      ?.handler({ taskId: "task-1", fieldId: "field-1", value });
+
+    expect(client.json).toHaveBeenCalledWith("/api/custom-field/value", {
+      method: "PUT",
+      body: JSON.stringify({
+        taskId: "task-1",
+        fieldId: "field-1",
+        value: encoded,
+      }),
+    });
+    expect(result?.isError).toBe(false);
+  });
+
+  it("rejects a custom field value that is missing or an object", async () => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn() };
+
+    registerTools(server as never, { client: client as never });
+
+    const tool = tools.get("set_task_custom_field_value");
+    const missing = await tool?.handler({ taskId: "task-1", fieldId: "f" });
+    const object = await tool?.handler({
+      taskId: "task-1",
+      fieldId: "f",
+      value: { option: "a" },
+    });
+
+    expect(missing?.isError).toBe(true);
+    expect(object?.isError).toBe(true);
+    expect(client.json).not.toHaveBeenCalled();
   });
 
   it("creates a task relation with the expected body", async () => {

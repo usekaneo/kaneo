@@ -1,9 +1,16 @@
-import type { Editor } from "@tiptap/core";
+import type { TiptapEditorHTMLElement } from "@tiptap/core";
+import type { EditorView } from "@tiptap/pm/view";
 
-export function pasteMarkdown(editor: Editor, event: ClipboardEvent): boolean {
+export function pasteMarkdown(
+  view: EditorView,
+  event: ClipboardEvent,
+): boolean {
+  // useEditor callbacks can retain a destroyed instance after recreation.
+  const editor = (view.dom as TiptapEditorHTMLElement).editor;
   const clipboard = event.clipboardData;
   // Rich clipboard content and code retain their native paste behavior.
   if (
+    !editor ||
     !editor.isEditable ||
     !clipboard ||
     clipboard.getData("text/html") ||

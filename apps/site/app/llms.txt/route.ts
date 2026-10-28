@@ -35,17 +35,17 @@ ${productMarkdown()}
 
 Key facts:
 
+- Cloud: $4 / month for one user, $5 / user / month for teams, 14-day trial, no credit card, hosted in the EU. Hosting, backups, and updates are handled, and every feature is included on every plan.
+- Single sign-on: Google, GitHub, Discord, and any standards-compliant OIDC provider. Your own identity provider is available on managed instances and self-hosted installs.
 - License: MIT, with no paid edition and no source-available carve-outs.
 - Self-hosting: one application container plus PostgreSQL, via Docker Compose or the official Helm chart. Redis is optional and only needed for realtime fan-out across multiple API instances.
-- Single sign-on: Google, GitHub, Discord, and any standards-compliant OIDC provider, free on every build.
-- Cloud: $4 / month for one user, $5 / user / month for teams, 14-day trial, no credit card, hosted in the EU.
 - Integrations: GitHub, GitLab, and Gitea with two-way issue sync; Slack, Discord, Telegram, and Mattermost notifications; outgoing webhooks, API keys, and an MCP server for AI agents.
 - Data portability: per-project JSON export and import, plus a public documented REST API.
 
 ## Product
 
 - [Kaneo](${SITE}): product overview.
-- [Pricing](${SITE}/pricing): self-hosted and cloud plans.
+- [Pricing](${SITE}/pricing): Kaneo Cloud plans and self-hosting.
 - [Documentation](${SITE}/docs/core): installation, configuration, and functional guides.
 - [Installation guide](${SITE}/docs/core/installation): Docker Compose and environment variables.
 - [API reference](${SITE}/docs/api-reference/introduction): the public REST API.

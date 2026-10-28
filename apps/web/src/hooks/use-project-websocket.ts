@@ -9,11 +9,18 @@ import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
 import { authClient } from "@/lib/auth-client";
+import { evictProjectCache } from "@/lib/evict-project-cache";
 import getTask from "@/fetchers/task/get-task";
 import getLabelsByTask from "@/fetchers/label/get-labels-by-task";
 import getExternalLinks from "@/fetchers/external-link/get-external-links";
+import type { ResumePreview } from "@/fetchers/integration-sync/types";
 import { patchBoardTask } from "@/lib/patch-board-task";
+import { isPerTaskRelationQuery } from "@/lib/relation-query-keys";
 import type { ProjectWithTasks } from "@/types/project";
+import {
+  hasSyncTaskSample,
+  patchSyncTaskTitles,
+} from "@/lib/patch-sync-task-titles";
 
 export function getWsUrl(projectId: string) {
   const base = getApiUrl("ws");
@@ -35,6 +42,7 @@ export function useProjectWebSocket(projectId: string) {
 
   useEffect(() => {
     if (!projectId || !session?.user?.id) return;
+    const userId = session.user.id;
 
     // Each effect owns its sockets and timers. Late events from an old project
     // or session must not alter the next effect's connection or reconnect it.
@@ -42,6 +50,7 @@ export function useProjectWebSocket(projectId: string) {
     let needsReconcile = false;
     let flushQueued = false;
     const taskVersions = new Map<string, number>();
+    const titleVersions = new Map<string, number>();
     const refreshingTasks = new Set<string>();
     let burstReconcileTimer: ReturnType<typeof setTimeout> | null = null;
     function reconcileBurst() {
@@ -69,10 +78,22 @@ export function useProjectWebSocket(projectId: string) {
       taskId?: string;
       sourceTaskId?: string;
       targetTaskId?: string;
+      linksChanged?: boolean;
     }) {
+      if (["PROJECT_UPDATED", "TASK_LABEL_UPDATED"].includes(message.type)) {
+        queryClient.invalidateQueries({
+          queryKey: ["integration-sync", projectId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["integration-sync-preview", projectId],
+        });
+      }
       if (message.type === "PROJECT_UPDATED") {
         queryClient.invalidateQueries({ queryKey: ["projects"] });
         queryClient.invalidateQueries({ queryKey: ["labels"] });
+        queryClient.invalidateQueries({ queryKey: ["columns", projectId] });
+        if (message.linksChanged)
+          queryClient.invalidateQueries({ queryKey: ["external-links"] });
         return;
       }
 
@@ -94,8 +115,12 @@ export function useProjectWebSocket(projectId: string) {
           });
         }
         if (!message.sourceTaskId && !message.targetTaskId) {
+          // Every per-task relation query, but not the project one: those
+          // responses embed each linked task's status, so a status change
+          // stales them, while the project query returns edges alone and a
+          // prefix match would refetch it needlessly.
           queryClient.invalidateQueries({
-            queryKey: ["task-relations"],
+            predicate: isPerTaskRelationQuery,
           });
         }
       } else {
@@ -170,6 +195,79 @@ export function useProjectWebSocket(projectId: string) {
         if (disposed || activeSocket !== ws) return;
         try {
           const message = JSON.parse(event.data);
+          if (message.type === "PROJECT_MEMBERS_UPDATED") {
+            void queryClient.invalidateQueries({
+              predicate: (query) =>
+                query.queryKey[0] === "workspace-users" &&
+                query.queryKey[2] === "project" &&
+                query.queryKey[3] === projectId,
+            });
+            return;
+          }
+          if (
+            message.taskId &&
+            [
+              "TASK_UPDATED",
+              "TASK_LABEL_UPDATED",
+              "TASK_MOVED",
+              "TASK_DELETED",
+            ].includes(message.type)
+          )
+            // An open comparison needs a fresh token; other tasks and closed
+            // dialogs must not cause provider reads during routine edits.
+            for (const query of queryClient.getQueryCache().findAll({
+              queryKey: ["integration-sync-review", projectId],
+              type: "active",
+            })) {
+              const review = query.state.data as ResumePreview | undefined;
+              if ((review?.task.id ?? query.meta?.taskId) !== message.taskId)
+                continue;
+              const filters = { queryKey: query.queryKey, exact: true };
+              // Invalidation reuses an initial fetch with no data. Reset it so
+              // a pre-edit snapshot cannot become the first displayed token.
+              if (!review) void queryClient.resetQueries(filters);
+              else void queryClient.invalidateQueries(filters);
+            }
+          let titleTaskRequest: ReturnType<typeof getTask> | undefined;
+          if (
+            message.taskId &&
+            message.taskTitleChanged &&
+            hasSyncTaskSample(queryClient, projectId, message.taskId)
+          ) {
+            const taskId = message.taskId as string;
+            const version = (titleVersions.get(taskId) ?? 0) + 1;
+            titleVersions.set(taskId, version);
+            // Read titles through the task API, which enforces task-read permission.
+            titleTaskRequest = getTask(taskId, "board");
+            void titleTaskRequest
+              .then((task) => {
+                if (
+                  !disposed &&
+                  activeSocket === ws &&
+                  titleVersions.get(taskId) === version &&
+                  task.projectId === projectId
+                )
+                  patchSyncTaskTitles(
+                    queryClient,
+                    projectId,
+                    taskId,
+                    task.title,
+                  );
+              })
+              .catch(() => {});
+          }
+          if (
+            ["TASK_CREATED", "TASK_DELETED", "TASK_MOVED"].includes(
+              message.type,
+            )
+          ) {
+            queryClient.invalidateQueries({
+              queryKey: ["integration-sync", projectId],
+            });
+            queryClient.invalidateQueries({
+              queryKey: ["integration-sync-preview", projectId],
+            });
+          }
           if (message.type === "PROJECT_MOVED") {
             markBoardCacheChanged(queryClient, projectId);
             for (const queryKey of [
@@ -184,6 +282,32 @@ export function useProjectWebSocket(projectId: string) {
             }
             return;
           }
+
+          // The list view reads relations per project, and no per-task key
+          // reaches that query. Only the events that can change which edges
+          // belong to the project qualify: an edit, a label or a comment
+          // leaves the edge set alone and would cost every mounted list a
+          // refetch. Creating a task inserts no relation - a subtask is a
+          // create followed by a separate relation mutation, which emits its
+          // own event. TASK_RELATION_UPDATED also carries
+          // `task-relation.refresh`, which the API publishes on every status
+          // change with no endpoint ids; that changes the per-task responses,
+          // which embed task status, but not the project response, which is
+          // edges only.
+          //
+          // This sits ahead of the branching below because several of those
+          // paths return before reaching invalidateDetails.
+          if (
+            (message.type === "TASK_RELATION_UPDATED" &&
+              (message.sourceTaskId || message.targetTaskId)) ||
+            message.type === "TASK_DELETED" ||
+            message.type === "TASK_MOVED"
+          ) {
+            queryClient.invalidateQueries({
+              queryKey: ["task-relations", "project", message.projectId],
+            });
+          }
+
           const boardIsLoading =
             queryClient.getQueryState(["tasks", projectId])?.fetchStatus ===
             "fetching";
@@ -326,7 +450,7 @@ export function useProjectWebSocket(projectId: string) {
               } else {
                 refreshingTasks.add(taskId);
                 void Promise.all([
-                  getTask(taskId, "board"),
+                  titleTaskRequest ?? getTask(taskId, "board"),
                   getLabelsByTask({ taskId }),
                   getExternalLinks(taskId),
                 ])
@@ -348,6 +472,13 @@ export function useProjectWebSocket(projectId: string) {
                     }
                     const staleOwnCounts =
                       (parentCountVersions.get(taskId) ?? 0) > sequence;
+                    if (task.projectId === projectId)
+                      patchSyncTaskTitles(
+                        queryClient,
+                        projectId,
+                        taskId,
+                        task.title,
+                      );
                     const { subtaskCounts, ...taskFields } = task;
                     if (staleOwnCounts)
                       void queryClient.invalidateQueries({
@@ -430,6 +561,31 @@ export function useProjectWebSocket(projectId: string) {
         }
         activeSocket = null;
 
+        // The provider ended this socket's session. Reconnect if another tab signed in again.
+        if (event?.code === 4001) {
+          void authClient
+            .getSession()
+            .then(({ data, error }) => {
+              if (disposed) return;
+              if (error && error.status !== 401) throw error;
+              if (data?.user.id === userId) connect();
+              else disposed = true;
+            })
+            .catch(() => {
+              if (!disposed) scheduleReconnect();
+            });
+          return;
+        }
+
+        if (event?.code === 1008 && event.reason === "Workspace archived") {
+          disposed = true;
+          evictProjectCache(queryClient, projectId);
+          void queryClient.invalidateQueries({
+            queryKey: ["workspace-status"],
+          });
+          return;
+        }
+
         if (
           event?.code === 1008 &&
           event.reason === "Workspace access revoked"
@@ -441,20 +597,46 @@ export function useProjectWebSocket(projectId: string) {
           return;
         }
 
-        if (retries < MAX_RETRIES) {
-          const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
-          retries += 1;
-          retryTimeout = setTimeout(connect, delay);
-        } else if (fallbackInterval === null) {
-          // Refresh only when realtime delivery could not reconnect.
-          fallbackInterval = setInterval(() => {
-            void queryClient.invalidateQueries({
-              queryKey: ["tasks", projectId],
-            });
-          }, 30_000);
-          flushPending();
+        if (event?.code === 1008 && event.reason === "Project access revoked") {
+          disposed = true;
+          const workspaceId = queryClient
+            .getQueryCache()
+            .findAll({ queryKey: ["projects"] })
+            .find((query) => query.queryKey[2] === projectId)?.queryKey[1];
+          void Promise.resolve(
+            typeof workspaceId === "string"
+              ? navigate({
+                  to: "/dashboard/workspace/$workspaceId",
+                  params: { workspaceId },
+                })
+              : navigate({ to: "/dashboard" }),
+          ).finally(() => {
+            evictProjectCache(queryClient, projectId);
+            void queryClient.invalidateQueries({ queryKey: ["projects"] });
+          });
+          return;
         }
+
+        scheduleReconnect();
       };
+    }
+    function scheduleReconnect() {
+      if (retries < MAX_RETRIES) {
+        const delay = BASE_DELAY * 2 ** retries; // 1s, 2s, 4s, 8s, 16s
+        retries += 1;
+        retryTimeout = setTimeout(connect, delay);
+      } else if (fallbackInterval === null) {
+        // Refresh only when realtime delivery could not reconnect.
+        fallbackInterval = setInterval(() => {
+          void queryClient.invalidateQueries({
+            queryKey: ["tasks", projectId],
+          });
+          void queryClient.invalidateQueries({
+            queryKey: ["task-relations", "project", projectId],
+          });
+        }, 30_000);
+        flushPending();
+      }
     }
     connect();
     function flushPending() {
@@ -480,6 +662,11 @@ export function useProjectWebSocket(projectId: string) {
           markBoardCacheChanged(queryClient, projectId);
           void queryClient.invalidateQueries({
             queryKey: ["tasks", projectId],
+          });
+          // A relation change missed while the socket was down reaches the
+          // list's hierarchy through no message, so it is refetched too.
+          void queryClient.invalidateQueries({
+            queryKey: ["task-relations", "project", projectId],
           });
         }
         const messages = Array.from(pendingMessages.values());
@@ -521,5 +708,11 @@ export function useProjectWebSocket(projectId: string) {
       }
       activeSocket?.close();
     };
-  }, [projectId, session?.user?.id, queryClient, navigate]);
+  }, [
+    projectId,
+    session?.user?.id,
+    session?.session?.id,
+    queryClient,
+    navigate,
+  ]);
 }

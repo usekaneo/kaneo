@@ -2,6 +2,7 @@ import { defineConfig } from "vite-plus";
 
 // Preserve the previous check scope; generated files have their own validators.
 const ignorePatterns = [
+  "scripts/slop-labeler/vendor/**",
   "**/node_modules/**",
   "**/coverage/**",
   "**/dist/**",
@@ -94,6 +95,7 @@ export default defineConfig({
     projects: [
       "apps/api/vitest.config.ts",
       "apps/web/vitest.config.ts",
+      "apps/mobile/vitest.config.ts",
       "packages/*/vitest.config.ts",
     ],
   },

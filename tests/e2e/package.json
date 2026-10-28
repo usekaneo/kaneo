@@ -2,13 +2,14 @@
   "name": "kaneo-browser-tests",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@12.15.0",
   "scripts": {
     "test": "playwright test",
-    "test:browserstack": "browserstack-node-sdk playwright test"
+    "test:browserstack": "browserstack-node-sdk playwright test",
+    "test:security": "node --test --test-concurrency=1 security/*.test.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1",
-    "browserstack-node-sdk": "1.71.0"
+    "@playwright/test": "1.64.1",
+    "browserstack-node-sdk": "1.75.1"
   }
 }

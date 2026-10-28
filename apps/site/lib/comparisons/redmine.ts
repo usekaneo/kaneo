@@ -6,18 +6,20 @@ export const redmine: Comparison = {
   category: "open-source",
   title: "Modern Redmine alternative",
   description:
-    "Kaneo is a modern, MIT-licensed Redmine alternative: the same self-hosted freedom with a current interface, SSO out of the box, and no plugin archaeology.",
-  summary: "The same self-hosted freedom with an interface from this decade.",
+    "Kaneo is a modern Redmine alternative with boards, workflows, and time tracking built in, no plugins needed. Kaneo Cloud runs it for you from $4 a month.",
+  summary:
+    "Redmine's ideas with an interface from this decade, run for you on Kaneo Cloud.",
   heading: "The modern Redmine alternative",
   subheading:
-    "Redmine has been quietly running teams for two decades, and it looks it. Kaneo is the same idea, self-hosted and free, with an interface from this decade.",
+    "Redmine has been quietly running teams for two decades, and it looks it. Kaneo is the same idea with an interface from this decade, and Kaneo Cloud runs it for you.",
   verdict:
-    "Kaneo is a modern, MIT-licensed alternative to Redmine. Both are free and self-hostable, but Redmine is a Rails application from 2006 whose kanban boards, single sign-on, and modern conveniences generally come from third-party plugins. Kaneo ships boards, workflows, SSO, time tracking, and realtime updates as core features.",
+    "Kaneo is a modern Redmine alternative, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with nothing to maintain. Redmine is a Rails application from 2006 whose kanban boards, single sign-on, and modern conveniences generally come from third-party plugins, while Kaneo ships boards, workflows, time tracking, and realtime updates as core features. Both are free and self-hostable, and Kaneo's self-hosted build includes single sign-on.",
   facts: {
     license: "MIT, versus GPLv2 for Redmine",
-    hosting: "Both self-host. Kaneo is Docker plus PostgreSQL",
+    hosting:
+      "EU-hosted Kaneo Cloud. Both self-host, Kaneo as Docker plus PostgreSQL",
     sso: "Built in on Kaneo, LDAP or plugins on Redmine",
-    pricing: "$0 self-hosted for both, Kaneo Cloud from $4 / month",
+    pricing: "Kaneo Cloud from $4 / month, or $0 self-hosted for both",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "GPLv2" },

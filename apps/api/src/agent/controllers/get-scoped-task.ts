@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import type { AgentDatabase } from "../access";
 import type { AgentSubject } from "../types";
 
@@ -20,6 +21,7 @@ export async function getScopedTask(
       and(
         eq(schema.taskTable.id, taskId),
         eq(schema.projectTable.workspaceId, subject.workspaceId),
+        projectAccessCondition(subject.userId, schema.projectTable.id),
         subject.projectId
           ? eq(schema.taskTable.projectId, subject.projectId)
           : undefined,

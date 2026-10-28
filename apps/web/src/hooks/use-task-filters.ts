@@ -11,6 +11,7 @@ export type BoardFilters = {
   dueDate: string[] | null;
   labels: string[] | null;
   customFields: Record<string, string[]> | null;
+  negated?: string[] | null;
 };
 
 export const DUE_DATE_FILTER_VALUES = {

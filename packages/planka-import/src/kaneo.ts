@@ -1,9 +1,21 @@
+import { formatWait, retryAfterMs } from "./retry-after.js";
+
 export type KaneoWorkspace = { id: string; name: string; slug?: string };
 export type KaneoProject = { id: string; name: string; slug: string };
 export type KaneoColumn = { id: string; name: string; slug: string };
 export type KaneoTask = { id: string; title: string; number: number };
 export type KaneoLabel = { id: string; name: string; color: string };
 export type KaneoMember = { id: string; name: string; email: string };
+
+// Kaneo denies a rate-limited key with 429 and a Retry-After that already
+// covers its silence window, so one wait is enough. Longer waits are usage
+// quotas (hours or days); failing beats an import that looks hung.
+const MAX_RATE_LIMIT_WAIT_MS = 5 * 60_000;
+const MAX_RATE_LIMIT_RETRIES = 3;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export function normalizeBaseUrl(raw: string): string {
   const trimmed = raw.trim().replace(/\/+$/, "");
@@ -22,10 +34,16 @@ export function normalizeBaseUrl(raw: string): string {
 export class KaneoClient {
   readonly baseUrl: string;
   private readonly apiKey: string;
+  private readonly onRateLimit: (waitMs: number) => void;
 
-  constructor(options: { baseUrl: string; apiKey: string }) {
+  constructor(options: {
+    baseUrl: string;
+    apiKey: string;
+    onRateLimit?: (waitMs: number) => void;
+  }) {
     this.baseUrl = normalizeBaseUrl(options.baseUrl);
     this.apiKey = options.apiKey;
+    this.onRateLimit = options.onRateLimit ?? (() => {});
   }
 
   listWorkspaces(): Promise<KaneoWorkspace[]> {
@@ -137,6 +155,27 @@ export class KaneoClient {
   }
 
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
+    for (let attempt = 0; ; attempt++) {
+      const res = await this.send(path, init);
+      if (res.status !== 429) return this.parse<T>(path, res);
+      await res.body?.cancel();
+      const waitMs = retryAfterMs(res.headers.get("Retry-After"));
+      if (waitMs === null || attempt >= MAX_RATE_LIMIT_RETRIES) {
+        throw new Error(
+          `Kaneo ${path}: rate limited (HTTP 429), Kaneo throttled this API key; run again later`,
+        );
+      }
+      if (waitMs > MAX_RATE_LIMIT_WAIT_MS) {
+        throw new Error(
+          `Kaneo ${path}: API key usage limit reached (HTTP 429); retry in about ${formatWait(waitMs)} or raise the key's limits`,
+        );
+      }
+      this.onRateLimit(waitMs);
+      await sleep(waitMs);
+    }
+  }
+
+  private async send(path: string, init?: RequestInit): Promise<Response> {
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Bearer ${this.apiKey}`);
     headers.set("Accept", "application/json");
@@ -144,9 +183,8 @@ export class KaneoClient {
       headers.set("Content-Type", "application/json");
     }
 
-    let res: Response;
     try {
-      res = await fetch(`${this.baseUrl}${path}`, {
+      return await fetch(`${this.baseUrl}${path}`, {
         ...init,
         headers,
         signal: AbortSignal.timeout(30_000),
@@ -155,7 +193,9 @@ export class KaneoClient {
       const reason = error instanceof Error ? error.message : String(error);
       throw new Error(`Kaneo ${path}: ${reason}`);
     }
+  }
 
+  private async parse<T>(path: string, res: Response): Promise<T> {
     const text = await res.text();
     let body: unknown = null;
     if (text) {

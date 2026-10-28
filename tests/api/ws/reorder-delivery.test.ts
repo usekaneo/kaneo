@@ -7,6 +7,13 @@ import {
   removeConnection,
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws";
+vi.mock(
+  "../../../apps/api/src/project-access/filter-users-with-project-access",
+  () => ({
+    filterUsersWithProjectAccess: async (userIds: Iterable<string>) =>
+      new Set(userIds),
+  }),
+);
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: (fields: Record<string, unknown>) => ({
@@ -63,3 +70,17 @@ it.each([1, 2])(
     }
   },
 );
+
+vi.mock("../../../apps/api/src/ws/project-read-access", () => ({
+  getProjectReadAccess: async (
+    _workspaceId: string,
+    recipients: Array<{ userId: string; apiKeyId?: string }>,
+  ) => ({
+    readers: new Set(recipients.map((conn) => conn.userId)),
+    apiKeys: new Map(
+      recipients.flatMap((conn) =>
+        conn.apiKeyId ? [[conn.apiKeyId, conn.userId] as const] : [],
+      ),
+    ),
+  }),
+}));

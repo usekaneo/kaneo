@@ -19,10 +19,7 @@ async function listGiteaRepositories(
   });
 
   if (!response.ok) {
-    throw new HttpError(
-      response.status,
-      (await response.text()) || "Request failed",
-    );
+    throw await HttpError.fromResponse(response);
   }
 
   return response.json();

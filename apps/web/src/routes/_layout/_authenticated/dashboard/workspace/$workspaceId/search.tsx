@@ -70,15 +70,21 @@ function SearchComponent() {
       <WorkspaceLayout
         title={t("workspace:search.pageTitle")}
         headerActions={
-          <Link to="/dashboard/workspace/$workspaceId" params={{ workspaceId }}>
-            <Button variant="ghost" size="sm" className="gap-2">
+          <Link
+            to="/dashboard/workspace/$workspaceId"
+            params={{ workspaceId }}
+            aria-label={t("workspace:search.backToDashboard")}
+          >
+            <Button variant="ghost" size="sm" className="gap-2" tabIndex={-1}>
               <ArrowLeft className="w-4 h-4" />
-              {t("workspace:search.backToDashboard")}
+              <span className="hidden sm:inline">
+                {t("workspace:search.backToDashboard")}
+              </span>
             </Button>
           </Link>
         }
       >
-        <div className="space-y-6">
+        <div className="mx-auto w-full max-w-3xl space-y-6 p-4 sm:p-6">
           <div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -86,7 +92,7 @@ function SearchComponent() {
                 placeholder={t("workspace:search.placeholder")}
                 value={searchInput}
                 onChange={(e) => handleInputChange(e.target.value)}
-                className="pl-10 h-12 text-lg"
+                className="h-12 text-base sm:text-lg [&_[data-slot=input]]:pl-10"
                 autoFocus
               />
               {showLoading && (
@@ -132,7 +138,7 @@ function SearchComponent() {
                           });
                         }
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-border bg-background hover:bg-accent/60 transition-colors text-left"
+                      className="w-full flex items-center gap-2.5 px-3 py-3 sm:gap-3 sm:px-4 rounded-lg border border-border bg-background hover:bg-accent/60 transition-colors text-left"
                     >
                       <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
                         {getPriorityIcon(result.priority ?? "")}
@@ -151,7 +157,7 @@ function SearchComponent() {
                       </div>
 
                       {result.projectName && (
-                        <span className="text-xs text-muted-foreground flex-shrink-0">
+                        <span className="hidden text-xs text-muted-foreground flex-shrink-0 sm:inline">
                           {result.projectName}
                         </span>
                       )}

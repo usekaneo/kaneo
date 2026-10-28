@@ -1,3 +1,13 @@
 # Keep cloud-testing dependencies out of Kaneo's production build graph.
 packages:
   - .
+
+# get-uri still requests basic-ftp 5.x; 6.2.3 fixes its listing parser DoS.
+minimumReleaseAgeExclude:
+  - browserstack-node-sdk@1.75.1
+overrides:
+  "get-uri>basic-ftp": 6.2.3
+allowBuilds:
+  protobufjs: false
+patchedDependencies:
+  http-cache-semantics@4.3.0: patches/http-cache-semantics@4.3.0.patch

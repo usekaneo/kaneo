@@ -1,6 +1,14 @@
 import { DEFAULT_ROLE_NAMES, statement } from "@kaneo/permissions";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Shield, Trash2, X } from "lucide-react";
+import {
+  Plus,
+  Shield,
+  Trash2,
+  X,
+  Trash2Icon,
+  ShieldCheckIcon,
+  ShieldPlusIcon,
+} from "lucide-react";
 import { useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import PageTitle from "@/components/page-title";
@@ -39,6 +47,10 @@ import useWorkspaceRoles, {
 } from "@/hooks/queries/workspace/use-workspace-roles";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { toast } from "@/lib/toast";
+import { SettingsCard } from "@/components/settings/settings-card";
+import { SettingsIconTile } from "@/components/settings/settings-icon-tile";
+import { SettingsPage } from "@/components/settings/settings-page";
+import { SettingsSection } from "@/components/settings/settings-section";
 
 export const Route = createFileRoute(
   "/_layout/_authenticated/dashboard/settings/workspace/roles",
@@ -273,16 +285,10 @@ function RouteComponent() {
     return (
       <>
         <PageTitle title={t("settings:workspaceRoles.pageTitle")} />
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold">
-              {t("settings:workspaceRoles.title")}
-            </h1>
-            <p className="text-muted-foreground">
-              {t("settings:workspaceRoles.noAccess")}
-            </p>
-          </div>
-        </div>
+        <SettingsPage
+          title={t("settings:workspaceRoles.title")}
+          description={t("settings:workspaceRoles.noAccess")}
+        />
       </>
     );
   }
@@ -290,32 +296,21 @@ function RouteComponent() {
   return (
     <>
       <PageTitle title={t("settings:workspaceRoles.pageTitle")} />
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold">
-            {t("settings:workspaceRoles.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("settings:workspaceRoles.subtitle", {
-              workspaceName:
-                workspace?.name ?? t("settings:workspaceRoles.thisWorkspace"),
-            })}
-          </p>
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <h2 className="text-md font-medium">
-                {t("settings:workspaceRoles.sectionTitle")}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {t("settings:workspaceRoles.sectionSubtitle")}
-              </p>
-            </div>
+      <SettingsPage
+        title={t("settings:workspaceRoles.title")}
+        description={t("settings:workspaceRoles.subtitle", {
+          workspaceName:
+            workspace?.name ?? t("settings:workspaceRoles.thisWorkspace"),
+        })}
+      >
+        <SettingsSection
+          title={t("settings:workspaceRoles.sectionTitle")}
+          description={t("settings:workspaceRoles.sectionSubtitle")}
+          action={
             <Button
+              type="button"
+              variant="outline"
               size="sm"
-              className="gap-1.5"
               onClick={() => {
                 setDraftActive(true);
                 setOpenCustom((prev) =>
@@ -324,11 +319,12 @@ function RouteComponent() {
               }}
               disabled={draftActive}
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus aria-hidden="true" />
               {t("settings:workspaceRoles.newRole")}
             </Button>
-          </div>
-          <div className="border border-border rounded-md bg-sidebar">
+          }
+        >
+          <SettingsCard>
             {isLoading && !draftActive ? (
               <p className="text-xs text-muted-foreground px-4 py-6">
                 {t("settings:workspaceRoles.loading")}
@@ -367,8 +363,10 @@ function RouteComponent() {
                     className="border-b border-border last:border-b-0"
                   >
                     <AccordionTrigger className="px-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <SettingsIconTile>
+                          <Shield />
+                        </SettingsIconTile>
                         <p className="text-sm font-medium italic">
                           {t("settings:workspaceRoles.newRole")}
                         </p>
@@ -422,8 +420,10 @@ function RouteComponent() {
                     >
                       <AccordionTrigger className="px-4">
                         <div className="flex items-center justify-between gap-4 flex-1 min-w-0">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                          <div className="flex items-center gap-3.5 min-w-0">
+                            <SettingsIconTile>
+                              <Shield />
+                            </SettingsIconTile>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
                                 <p
@@ -446,7 +446,7 @@ function RouteComponent() {
                               )}
                             </div>
                           </div>
-                          <p className="text-xs font-normal text-muted-foreground shrink-0">
+                          <p className="hidden text-xs font-normal text-muted-foreground shrink-0 sm:block">
                             {t("settings:workspaceRoles.permissionCount", {
                               count: permissionCount(role.permission),
                             })}
@@ -467,9 +467,9 @@ function RouteComponent() {
                 })}
               </Accordion>
             )}
-          </div>
-        </div>
-      </div>
+          </SettingsCard>
+        </SettingsSection>
+      </SettingsPage>
 
       <AlertDialog
         open={!!roleToDelete}
@@ -657,7 +657,9 @@ function DraftEditor({
     }
     try {
       await createRole({ workspaceId, role: trimmed, permission });
-      toast.success(t("settings:workspaceRoles.toast.created"));
+      toast.success(t("settings:workspaceRoles.toast.created"), {
+        icon: ShieldPlusIcon,
+      });
       onCreated(trimmed);
     } catch (error) {
       toast.error(
@@ -768,7 +770,9 @@ export function CustomRoleEditor({
         roleName: role.role,
         permission: currentPermissions,
       });
-      toast.success(t("settings:workspaceRoles.toast.updated"));
+      toast.success(t("settings:workspaceRoles.toast.updated"), {
+        icon: ShieldCheckIcon,
+      });
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -875,7 +879,9 @@ function DeleteRoleConfirm({
             if (!role) return;
             try {
               await deleteRole({ workspaceId, roleName: role.role });
-              toast.success(t("settings:workspaceRoles.toast.deleted"));
+              toast.success(t("settings:workspaceRoles.toast.deleted"), {
+                icon: Trash2Icon,
+              });
               // Caller closes the dialog after the mutation succeeds so a
               // failed delete leaves the confirmation visible.
               onDeleted();

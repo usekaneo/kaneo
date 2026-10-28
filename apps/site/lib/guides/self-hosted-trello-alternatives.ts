@@ -3,7 +3,7 @@ import type { Guide } from "./types";
 export const selfHostedTrelloAlternatives: Guide = {
   slug: "self-hosted-trello-alternatives",
   question: "What is the best self-hosted or on-premise Trello alternative?",
-  title: "Self-hosted, on-premise Trello alternatives (2026)",
+  title: "6 Self-Hosted, On-Premise Trello Alternatives (2026)",
   description:
     "Trello is cloud only, with no on-premise edition. Six open-source kanban boards you can self-host instead, compared on licence, single sign-on, and upkeep.",
   summary:

@@ -6,6 +6,7 @@ import {
   projectTable,
   taskTable,
 } from "../../../database/schema";
+import { activeIntegrationCondition } from "../../active-integration-condition";
 
 export type IntegrationDatabase =
   | typeof db
@@ -33,6 +34,19 @@ export async function withIntegrationTask<T>(
 ): Promise<T | undefined> {
   const effects: Array<() => Promise<void>> = [];
   const result = await db.transaction(async (tx) => {
+    if (taskId === null) {
+      const [binding] = await tx
+        .select({ id: integrationTable.id })
+        .from(integrationTable)
+        .where(
+          and(
+            eq(integrationTable.id, integration.id),
+            activeIntegrationCondition(),
+          ),
+        )
+        .for("no key update");
+      if (!binding) return undefined;
+    }
     const [project] = await tx
       .select({ id: projectTable.id })
       .from(projectTable)
@@ -67,7 +81,7 @@ export async function withIntegrationTask<T>(
             expectedBinding.type === undefined
               ? undefined
               : eq(integrationTable.type, expectedBinding.type),
-            eq(integrationTable.isActive, true),
+            activeIntegrationCondition(),
           ),
         )
         .for("share");

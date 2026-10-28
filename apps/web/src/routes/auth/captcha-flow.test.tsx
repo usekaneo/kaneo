@@ -20,31 +20,29 @@ import {
 const m = vi.hoisted(() => ({
   anonymous: vi.fn(),
   social: vi.fn(),
-  oauth2: vi.fn(),
+  email: vi.fn(),
   navigate: vi.fn(),
-  isCloud: false,
   getConfig: vi.fn(),
+  config: {} as Record<string, unknown>,
 }));
 vi.mock("@/fetchers/config/get-config", () => ({ getConfig: m.getConfig }));
 vi.mock("@/lib/auth-client", () => ({
-  authClient: { signIn: m, getLastUsedLoginMethod: () => null },
+  authClient: {
+    signIn: m,
+    signUp: { email: vi.fn() },
+    emailOtp: { sendVerificationOtp: vi.fn() },
+    getLastUsedLoginMethod: () => null,
+  },
 }));
 vi.mock("@tanstack/react-router", () => ({
   createFileRoute: () => (options: unknown) => ({ options }),
   useSearch: () => ({}),
   useNavigate: () => m.navigate,
+  useRouter: () => ({ history: { push: vi.fn() } }),
+  Link: ({ children }: { children: ReactNode }) => <a href="/">{children}</a>,
 }));
 vi.mock("@/hooks/queries/config/use-get-config", () => ({
-  default: () => ({
-    data: {
-      isCloud: m.isCloud,
-      hasGuestAccess: true,
-      hasGithubSignIn: true,
-      hasCustomOAuth: true,
-      customOAuthAutoLogin: true,
-    },
-    isLoading: false,
-  }),
+  default: () => ({ data: m.config, isLoading: false }),
 }));
 vi.mock("@/hooks/queries/instance/use-instance-status", () => ({
   default: () => ({
@@ -52,19 +50,6 @@ vi.mock("@/hooks/queries/instance/use-instance-status", () => ({
     isLoading: false,
   }),
 }));
-vi.mock("@/components/auth/layout", () => ({
-  AuthLayout: ({ children }: { children: ReactNode }) => (
-    <div data-testid="self-hosted-sign-up">{children}</div>
-  ),
-}));
-vi.mock("@/components/auth/cloud-auth-layout", () => ({
-  CloudAuthLayout: ({ children }: { children: ReactNode }) => (
-    <div data-testid="cloud-sign-up">{children}</div>
-  ),
-}));
-vi.mock("@/components/auth/sign-up-form", () => ({ SignUpForm: () => null }));
-vi.mock("@/components/auth/sign-in-form", () => ({ SignInForm: () => null }));
-vi.mock("@/components/auth/toggle", () => ({ AuthToggle: () => null }));
 vi.mock("@/components/page-title", () => ({ default: () => null }));
 vi.mock("@/components/auth/turnstile", () => ({
   Turnstile: ({ onVerify }: { onVerify: (token: string) => void }) => (
@@ -85,11 +70,18 @@ afterAll(() => vi.unstubAllEnvs());
 afterEach(() => cleanup());
 beforeEach(() => {
   vi.clearAllMocks();
-  m.isCloud = false;
-  for (const mock of [m.anonymous, m.social, m.oauth2])
+  m.config = {
+    hasSmtp: false,
+    hasGuestAccess: true,
+    hasGithubSignIn: true,
+    hasCustomOAuth: true,
+    customOAuthAutoLogin: true,
+  };
+  for (const mock of [m.anonymous, m.social, m.email])
     mock.mockResolvedValue({ error: { message: "Retry" } });
 });
-describe("sign-up layout", () => {
+
+describe("sign-up route", () => {
   it("still renders the route when config preloading fails", async () => {
     m.getConfig.mockRejectedValueOnce(new Error("offline"));
     const queryClient = new QueryClient({
@@ -102,33 +94,30 @@ describe("sign-up layout", () => {
     expect(queryClient.getQueryState(["config"])?.status).toBe("error");
   });
 
-  const Page = signup.options.component as ComponentType;
-
-  it("uses the existing layout for a self-hosted instance", () => {
+  it("asks for a name and email, without a password, when email codes are on", () => {
+    m.config = { ...m.config, hasSmtp: true };
+    const Page = signup.options.component as ComponentType;
     render(<Page />);
-    expect(screen.getByTestId("self-hosted-sign-up")).toBeInTheDocument();
-  });
-
-  it("uses the cloud layout only when the instance reports cloud mode", () => {
-    m.isCloud = true;
-    render(<Page />);
-    expect(screen.getByTestId("cloud-sign-up")).toBeInTheDocument();
+    expect(screen.getByLabelText("auth:forms.name")).toBeInTheDocument();
+    expect(screen.getByLabelText("auth:forms.email")).toBeInTheDocument();
+    expect(screen.queryByLabelText("auth:forms.password")).toBeNull();
   });
 });
+
 describe.each([
   ["sign-in", signin],
   ["sign-up", signup],
 ] as const)("%s CAPTCHA submission", (_name, route) => {
   it.each([
     ["auth:signUp.continueAsGuest", "anonymous"],
-    ["auth:signIn.continueWithGithub", "social"],
-    ["auth:signIn.continueWithOidc", "oauth2"],
+    ["auth:providers.github", "social"],
+    ["auth:providers.sso", "social"],
   ] as const)(
     "sends the token and requires a fresh one after %s fails",
     async (label, method) => {
       const Page = route.options.component as ComponentType;
       render(<Page />);
-      expect(m.oauth2).not.toHaveBeenCalled(); // Auto-login cannot bypass CAPTCHA.
+      expect(m.social).not.toHaveBeenCalled(); // Auto-login cannot bypass CAPTCHA.
       const button = screen.getByRole("button", { name: label });
       expect(button).toBeDisabled();
       fireEvent.click(screen.getByRole("button", { name: "Solve CAPTCHA" }));
@@ -143,4 +132,28 @@ describe.each([
       ).toBeInTheDocument();
     },
   );
+});
+
+describe("sign-in password form", () => {
+  it("sends the CAPTCHA token with a password sign-in", async () => {
+    const Page = signin.options.component as ComponentType;
+    render(<Page />);
+    fireEvent.change(screen.getByLabelText("auth:forms.email"), {
+      target: { value: "person@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText("auth:forms.password"), {
+      target: { value: "long-test-password" },
+    });
+    const submit = screen.getByRole("button", {
+      name: "auth:signIn.submitPassword",
+    });
+    expect(submit).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Solve CAPTCHA" }));
+    fireEvent.click(submit);
+    await waitFor(() => expect(m.email).toHaveBeenCalledTimes(1));
+    expect(m.email).toHaveBeenCalledWith(
+      { email: "person@example.com", password: "long-test-password" },
+      { headers: { "x-turnstile-token": "fresh-token" } },
+    );
+  });
 });

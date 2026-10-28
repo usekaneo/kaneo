@@ -7,6 +7,7 @@ import {
   replayDeferredIssueEdits,
 } from "../../apps/api/src/plugins/github/services/deferred-issue-edits";
 import { deferTaskSync } from "../../apps/api/src/plugins/github/services/defer-issue-edit";
+import * as eligibility from "../../apps/api/src/plugins/sync/eligibility";
 import { syncLatestTaskValue } from "../../apps/api/src/plugins/github/services/sync-latest-task-value";
 import { updateExternalLink } from "../../apps/api/src/plugins/github/services/link-manager";
 import { handleGiteaIssueEdited } from "../../apps/api/src/plugins/gitea/webhooks/issue-edited";
@@ -1689,6 +1690,340 @@ it("durably queues an uncertain standalone writer and later settles it", async (
   );
   expect((await current(task.id))?.title).toBe("A");
 });
+
+it.each(["github", "gitea"])(
+  "keeps a timed-out %s close when the task is archived before replay",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    await expect(
+      syncLatestTaskValue(
+        task.id,
+        integration.projectId,
+        link,
+        "state",
+        "closed",
+        async () => {
+          throw new Error("provider timeout");
+        },
+      ),
+    ).rejects.toThrow("provider timeout");
+    expect((await metadata(link.id)).deferredIssueEdit.repairFields).toEqual([
+      "state",
+    ]);
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+
+    await replayDeferredIssueEdits();
+
+    expect(m.write).not.toHaveBeenCalled();
+    const after = await metadata(link.id);
+    expect(after.deferredIssueEdit).toBeUndefined();
+    expect(after.state).toBe("closed");
+    expect(
+      after.lastSync.state.outbound.filter(
+        (entry: { uncertain?: boolean; cancelled?: boolean }) =>
+          entry.uncertain && !entry.cancelled,
+      ),
+    ).toEqual([]);
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
+
+it.each(["github", "gitea"])(
+  "settles a delayed %s close echo for an archived task and applies text edits",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    await expect(
+      syncLatestTaskValue(
+        task.id,
+        integration.projectId,
+        link,
+        "state",
+        "closed",
+        async () => {
+          throw new Error("provider timeout");
+        },
+      ),
+    ).rejects.toThrow("provider timeout");
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+    await deferIssueEdit(link, integration, ["state", "title", "description"]);
+    expect((await metadata(link.id)).deferredIssueEdit.fields).toEqual([
+      "state",
+      "title",
+      "description",
+    ]);
+
+    await replayDeferredIssueEdits();
+
+    expect(m.write).not.toHaveBeenCalled();
+    const after = await metadata(link.id);
+    expect(after.deferredIssueEdit).toBeUndefined();
+    expect(after.state).toBe("closed");
+    expect(
+      after.lastSync.state.outbound.filter(
+        (entry: { uncertain?: boolean; cancelled?: boolean }) =>
+          entry.uncertain && !entry.cancelled,
+      ),
+    ).toEqual([]);
+    expect(await current(task.id)).toMatchObject({
+      status: "archived",
+      title: "A",
+      description: "recovered body",
+    });
+  },
+);
+
+it.each(["github", "gitea"])(
+  "keeps a %s task archived when a settled echo's job retries a failed repair",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    for (const [field, value] of [
+      ["state", "closed"],
+      ["title", "B"],
+    ] as const)
+      await expect(
+        syncLatestTaskValue(
+          task.id,
+          integration.projectId,
+          link,
+          field,
+          value,
+          async () => {
+            throw new Error("provider timeout");
+          },
+        ),
+      ).rejects.toThrow("provider timeout");
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+    await deferIssueEdit(link, integration, ["state"]);
+    m.write.mockRejectedValueOnce(new Error("provider timeout"));
+
+    await replayDeferredIssueEdits();
+    expect((await metadata(link.id)).deferredIssueEdit).toBeDefined();
+    await replayDeferredIssueEdits();
+
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(m.write).toHaveBeenCalledTimes(2);
+    for (const [params] of m.write.mock.calls) {
+      expect(params).toMatchObject({ title: "B" });
+      expect(params).not.toHaveProperty("state");
+    }
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
+
+it.each(["github", "gitea"])(
+  "settles a %s close for an archived task after an accepted close observation",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    await expect(
+      syncLatestTaskValue(
+        task.id,
+        integration.projectId,
+        link,
+        "state",
+        "closed",
+        async () => {
+          throw new Error("provider timeout");
+        },
+      ),
+    ).rejects.toThrow("provider timeout");
+    // The completed task accepts a provider close; the uncertain close remains.
+    const observed = await metadata(link.id);
+    observed.lastSync.state = inboundStamp(
+      observed.lastSync.state,
+      "closed",
+      type,
+      "2026-09-30T00:00:02Z",
+    );
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: JSON.stringify(observed) })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+    await deferIssueEdit(link, integration, ["state", "title", "description"]);
+
+    await replayDeferredIssueEdits();
+
+    expect(m.write).not.toHaveBeenCalled();
+    const after = await metadata(link.id);
+    expect(after.deferredIssueEdit).toBeUndefined();
+    expect(
+      after.lastSync.state.outbound.filter(
+        (entry: { uncertain?: boolean; cancelled?: boolean }) =>
+          entry.uncertain && !entry.cancelled,
+      ),
+    ).toEqual([]);
+    expect(await current(task.id)).toMatchObject({
+      status: "archived",
+      title: "A",
+      description: "recovered body",
+    });
+  },
+);
+
+it.each(["github", "gitea"])(
+  "ignores live %s close and reopen webhooks for an archived task",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "archived", columnId: null })
+      .where(eq(schema.taskTable.id, task.id));
+
+    await deliverField(
+      type,
+      "state",
+      "closed",
+      "2026-09-30T00:00:05Z",
+      integration.id,
+    );
+    await deliverField(
+      type,
+      "state",
+      "open",
+      "2026-09-30T00:00:06Z",
+      integration.id,
+    );
+
+    expect((await current(task.id))?.status).toBe("archived");
+    expect((await metadata(link.id)).deferredIssueEdit).toBeUndefined();
+    expect(m.write).not.toHaveBeenCalled();
+  },
+);
+
+it.each(["github", "gitea"])(
+  "does not adopt an observed %s close for a task archived mid-flight",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    await db
+      .update(schema.taskTable)
+      .set({ status: "done" })
+      .where(eq(schema.taskTable.id, task.id));
+    const write = vi.fn(async () => {
+      // A newer close webhook is observed, then the task is archived.
+      const pending = (await metadata(link.id)).lastSync.state.outbound.find(
+        (entry: { pending?: boolean }) => entry.pending,
+      );
+      await updateExternalLink(link.id, {
+        observedOutbound: {
+          field: "state",
+          intentId: pending.intentId,
+          updatedAt: "2026-09-30T00:00:10Z",
+        },
+      });
+      await db
+        .update(schema.taskTable)
+        .set({ status: "archived", columnId: null })
+        .where(eq(schema.taskTable.id, task.id));
+      return "2026-09-30T00:00:05Z";
+    });
+
+    expect(
+      await syncLatestTaskValue(
+        task.id,
+        integration.projectId,
+        link,
+        "state",
+        "closed",
+        write,
+        async () => "closed",
+      ),
+    ).toBe(true);
+
+    expect(write).toHaveBeenCalledOnce();
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
+
+it.each(["github", "gitea"])(
+  "does not send a %s reopen for a task archived just before dispatch",
+  async (type) => {
+    const { task, integration, link } = await seed(type);
+    await db
+      .update(schema.externalLinkTable)
+      .set({ metadata: "{}" })
+      .where(eq(schema.externalLinkTable.id, link.id));
+    const canSyncTask = eligibility.canSyncTask;
+    let calls = 0;
+    // The second eligibility check runs after the archive check, before dispatch.
+    const guard = vi
+      .spyOn(eligibility, "canSyncTask")
+      .mockImplementation(async (...args) => {
+        if (++calls === 2)
+          await db
+            .update(schema.taskTable)
+            .set({ status: "archived", columnId: null })
+            .where(eq(schema.taskTable.id, task.id));
+        return canSyncTask(...args);
+      });
+    const write = vi.fn(async () => "2026-09-30T00:00:05Z");
+
+    await syncLatestTaskValue(
+      task.id,
+      integration.projectId,
+      link,
+      "state",
+      "open",
+      write,
+    );
+    guard.mockRestore();
+
+    expect(calls).toBeGreaterThan(2);
+    expect(write).not.toHaveBeenCalled();
+    expect((await current(task.id))?.status).toBe("archived");
+  },
+);
 
 it("skips provider reads and writes while another replica holds the worker lease", async () => {
   const { link, integration } = await seed();

@@ -23,7 +23,7 @@ export function PublicKanbanView({
               key={column.id}
               className="h-full flex-1 min-w-80 max-w-96 flex-shrink-0"
             >
-              <div className="flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50 transition-[background-color,box-shadow] duration-150 ease hover:bg-accent/20 hover:shadow-sm">
+              <div className="flex flex-col h-full w-full min-h-0 backdrop-blur-xs rounded-lg bg-sidebar border border-border/50">
                 <div className="p-2 shrink-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">

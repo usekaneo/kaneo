@@ -1,5 +1,6 @@
 import { setTimeout as delay } from "node:timers/promises";
 import * as Sentry from "@sentry/node";
+import { destinationFetch } from "../../../import/destination-fetch";
 import { assertPublicDestination } from "../../../utils/assert-public-destination";
 import type { GitlabConfig, GitlabTokenType } from "../config";
 import {
@@ -145,7 +146,7 @@ export async function gitlabFetch<T>(
       level: "info",
       data: { integration: "gitlab" },
     });
-    const res = await fetch(url, {
+    const res = await destinationFetch(url, {
       ...init,
       signal: controller.signal,
       // A redirect could lead past the destination check to an internal host.
@@ -157,6 +158,7 @@ export async function gitlabFetch<T>(
     });
 
     if (res.status >= 300 && res.status < 400) {
+      void res.body?.cancel().catch(() => {});
       throw new GitlabApiError(
         `GitLab request was redirected (HTTP ${res.status})`,
         res.status,

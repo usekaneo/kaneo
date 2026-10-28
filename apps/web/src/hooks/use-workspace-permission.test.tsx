@@ -1,11 +1,17 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { workspaceCapabilities } from "@kaneo/permissions";
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import { useWorkspacePermission } from "./use-workspace-permission";
 
-const { hasPermission } = vi.hoisted(() => ({
+const { getMyCapabilities, hasPermission } = vi.hoisted(() => ({
+  getMyCapabilities: vi.fn(),
   hasPermission: vi.fn(),
+}));
+
+vi.mock("@/fetchers/workspace/get-my-capabilities", () => ({
+  default: getMyCapabilities,
 }));
 
 vi.mock("@/hooks/queries/workspace/use-active-workspace", () => ({
@@ -36,6 +42,7 @@ function createWrapper() {
 
 describe("useWorkspacePermission", () => {
   beforeEach(() => {
+    getMyCapabilities.mockReset();
     hasPermission.mockReset();
   });
 
@@ -45,14 +52,17 @@ describe("useWorkspacePermission", () => {
       label: new Set(["create", "read", "update"]),
     } as Record<string, Set<string>>;
 
-    hasPermission.mockImplementation(
-      async ({ permissions }: { permissions: Record<string, string[]> }) => ({
-        data: {
-          success: Object.entries(permissions).every(([resource, actions]) =>
+    getMyCapabilities.mockResolvedValue(
+      Object.fromEntries(
+        Object.entries(workspaceCapabilities).map(([name, permissions]) => [
+          name,
+          Object.entries(
+            permissions as Record<string, readonly string[]>,
+          ).every(([resource, actions]) =>
             actions.every((action) => granted[resource]?.has(action)),
           ),
-        },
-      }),
+        ]),
+      ),
     );
 
     const { result } = renderHook(() => useWorkspacePermission(), {
@@ -69,5 +79,36 @@ describe("useWorkspacePermission", () => {
     expect(result.current.canCreateLabels()).toBe(true);
     expect(result.current.canUpdateLabels()).toBe(true);
     expect(result.current.canDeleteLabels()).toBe(false);
+  });
+
+  it("loads every capability in a single request", async () => {
+    getMyCapabilities.mockResolvedValue({});
+
+    const { result } = renderHook(() => useWorkspacePermission(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isCheckingPermissions).toBe(false);
+    });
+
+    expect(getMyCapabilities).toHaveBeenCalledTimes(1);
+    expect(getMyCapabilities).toHaveBeenCalledWith("workspace-1");
+    expect(hasPermission).not.toHaveBeenCalled();
+  });
+
+  it("stops checking and denies everything when the request fails", async () => {
+    getMyCapabilities.mockRejectedValue(new Error("Too many requests"));
+
+    const { result } = renderHook(() => useWorkspacePermission(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isCheckingPermissions).toBe(false);
+    });
+
+    expect(result.current.canCreateTasks()).toBe(false);
+    expect(result.current.canManageWorkspace()).toBe(false);
   });
 });

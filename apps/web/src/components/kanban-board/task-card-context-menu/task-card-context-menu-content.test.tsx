@@ -70,6 +70,10 @@ vi.mock(
   }),
 );
 
+vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
+  default: () => ({ data: [] }),
+}));
+
 vi.mock("@tanstack/react-query", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@tanstack/react-query")>()),
   useQueryClient: () => ({ getQueryData: () => [] }),
@@ -125,6 +129,7 @@ vi.mock("react-i18next", () => ({
     t: (key: string, options?: { title?: string }) =>
       options?.title ? `${key}|${options.title}` : key,
   }),
+  initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
 const task = {

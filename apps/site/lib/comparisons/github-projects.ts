@@ -4,20 +4,20 @@ export const githubProjects: Comparison = {
   slug: "github-projects",
   competitor: "GitHub Projects",
   category: "saas",
-  title: "Open-source GitHub Projects alternative",
+  title: "Standalone GitHub Projects alternative",
   description:
-    "Kaneo is an open-source, self-hostable alternative to GitHub Projects for teams that need a tracker outside a single repository host.",
+    "Kaneo is a standalone GitHub Projects alternative with time tracking and roles, for work beyond your repos. Kaneo Cloud runs it for you from $4 a month.",
   summary: "A tracker for the work that does not belong in a repository.",
-  heading: "The self-hostable alternative to GitHub Projects",
+  heading: "The standalone alternative to GitHub Projects",
   subheading:
     "GitHub Projects is free and fine, right up until you need non-engineering work, time tracking, or a tracker that outlives your GitHub plan. Kaneo is a standalone board you own.",
   verdict:
-    "Kaneo is an open-source, MIT-licensed alternative to GitHub Projects for teams whose work does not all live in GitHub issues. GitHub Projects is included with GitHub and excellent for repository-bound work, but it has no time tracking, no workspace roles outside GitHub's own, and it ties your planning history to your GitHub account.",
+    "Kaneo is a GitHub Projects alternative for teams whose work does not all live in GitHub issues, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. GitHub Projects is included with GitHub and excellent for repository-bound work, but it has no time tracking, no workspace roles outside GitHub's own, and it ties your planning history to your GitHub account. Kaneo is also MIT-licensed open source, so you can self-host it for free any time.",
   facts: {
     license: "MIT, and independent of any repository host",
-    hosting: "Self-host anywhere, or EU-hosted cloud",
+    hosting: "EU-hosted Kaneo Cloud, or self-host anywhere",
     sso: "Any OIDC provider on every Kaneo build, SAML on GitHub Enterprise",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

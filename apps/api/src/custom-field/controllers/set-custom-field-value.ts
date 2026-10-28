@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 
 import db from "../../database";
@@ -7,6 +7,12 @@ import {
   customFieldValueTable,
   taskTable,
 } from "../../database/schema";
+import {
+  findNewHiddenPicks,
+  isChoiceType,
+  readHiddenOptions,
+  readOptions,
+} from "../choice-options";
 
 function isMultiselectEmpty(value: string): boolean {
   if (!value || value.trim().length === 0) return true;
@@ -121,6 +127,35 @@ async function setCustomFieldValue(
           message: "Invalid option(s) for this custom field",
         });
       }
+    }
+  }
+
+  const hidden = readHiddenOptions(
+    field.hiddenOptions,
+    readOptions(field.options),
+  );
+  if (isChoiceType(field.type) && hidden.length > 0) {
+    const [current] = await db
+      .select({ value: customFieldValueTable.value })
+      .from(customFieldValueTable)
+      .where(
+        and(
+          eq(customFieldValueTable.taskId, taskId),
+          eq(customFieldValueTable.fieldId, fieldId),
+        ),
+      )
+      .limit(1);
+    if (
+      findNewHiddenPicks(
+        normalizedValue,
+        current?.value ?? null,
+        field.type,
+        hidden,
+      ).length > 0
+    ) {
+      throw new HTTPException(400, {
+        message: "Hidden options can't be selected",
+      });
     }
   }
 

@@ -6,6 +6,10 @@ const mocks = vi.hoisted(() => ({
   insertValues: vi.fn(),
 }));
 
+vi.mock("../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: vi.fn(async () => true),
+}));
+
 vi.mock("../../../apps/api/src/database", () => ({
   default: {
     select: () => ({

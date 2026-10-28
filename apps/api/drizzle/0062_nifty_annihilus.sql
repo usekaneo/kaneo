@@ -1,1 +1,0 @@
-ALTER TABLE "agent_run" ADD COLUMN "attachments" jsonb DEFAULT '[]'::jsonb NOT NULL;

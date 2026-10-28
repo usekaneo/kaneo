@@ -1,24 +1,12 @@
-import { useEffect } from "react";
+import { useInstanceNameStore } from "@/store/instance-name";
 
-type PageTitleProps = {
-  title: string;
-  suffix?: string;
-  hideAppName?: boolean;
-};
+export default function PageTitle({ title }: { title?: string }) {
+  const instanceName = useInstanceNameStore((state) => state.instanceName);
+  if (!title) return null;
 
-export default function PageTitle({
-  title,
-  suffix = "Kaneo",
-  hideAppName = false,
-}: PageTitleProps) {
-  useEffect(() => {
-    const formattedTitle = hideAppName
-      ? title
-      : suffix
-        ? `${title} · ${suffix}`
-        : title;
-    document.title = formattedTitle;
-  }, [title, suffix, hideAppName]);
-
-  return null;
+  return (
+    <title>
+      {instanceName === "Kaneo" ? title : `${title} | ${instanceName}`}
+    </title>
+  );
 }

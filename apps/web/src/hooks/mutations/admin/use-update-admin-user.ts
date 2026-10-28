@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { updateAdminUser } from "@/fetchers/admin/update-admin-user";
+import { ADMIN_ROLES_QUERY_KEY } from "@/hooks/queries/admin/use-admin-roles";
 import { ADMIN_USERS_QUERY_KEY } from "@/hooks/queries/admin/use-admin-users";
 import { toast } from "@/lib/toast";
 
@@ -13,6 +14,7 @@ function useUpdateAdminUser() {
     onSuccess: () => {
       toast.success(t("settings:adminUsers.toast.updated"));
       queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ADMIN_ROLES_QUERY_KEY });
     },
     onError: (error) => {
       toast.error(

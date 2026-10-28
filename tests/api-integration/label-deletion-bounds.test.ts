@@ -308,7 +308,7 @@ describe("bounded, resumable label deletion", () => {
     mockAuthenticatedSession(other.user);
     expect(
       (await app.request(`/api/label/${root.id}`, { method: "DELETE" })).status,
-    ).toBe(403);
+    ).toBe(404);
     expect(await labelsFor(member.workspace.id)).toHaveLength(2);
     expect(github).toHaveBeenCalledTimes(LABEL_DELETE_BATCH_SIZE);
     mockAuthenticatedSession(member.user);

@@ -1,3 +1,6 @@
+import { destinationFetch } from "../../import/destination-fetch";
+import { assertPublicWebhookDestination } from "../generic-webhook/config";
+
 export type MattermostAttachment = {
   color?: string;
   title?: string;
@@ -23,7 +26,7 @@ export async function postToMattermost(
   const timeoutId = setTimeout(() => controller.abort(), MATTERMOST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(webhookUrl, {
+    const response = await destinationFetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,5 +54,3 @@ export async function postToMattermost(
     clearTimeout(timeoutId);
   }
 }
-
-import { assertPublicWebhookDestination } from "../generic-webhook/config";

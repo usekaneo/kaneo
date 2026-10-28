@@ -1,6 +1,6 @@
 # Kaneo MCP server
 
-[`@kaneo/mcp`](https://www.npmjs.com/package/@kaneo/mcp) is the official MCP (Model Context Protocol) server for [Kaneo](https://kaneo.app), the open source project management platform. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and published to npm by the Kaneo team.
+[`@kaneo/mcp`](https://www.npmjs.com/package/@kaneo/mcp) is the official MCP (Model Context Protocol) server for [Kaneo](https://kaneo.app). It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and published to npm by the Kaneo team.
 
 It runs over stdio, signs in with Kaneo's device flow, and then calls the Kaneo API with a bearer token. The package lives in `packages/mcp` in this monorepo and exposes the `kaneo-mcp` CLI.
 
@@ -118,7 +118,8 @@ For headless or sandboxed environments where opening a browser is impractical, s
 - Session: `whoami`, `list_workspaces`, `list_workspace_members`, `list_notifications`
 - Search: `search`
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
-- Tasks: `list_tasks`, `get_task`, `get_task_by_ticket_id`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
+- Tasks: `list_tasks`, `get_task`, `get_task_by_ticket_id`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `update_task_recurrence`, `list_task_activity`
+- Custom fields: `list_project_custom_fields`, `get_task_custom_field_values`, `set_task_custom_field_value`
 - Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
 - Comments: `list_task_comments`, `create_task_comment`, `update_task_comment`, `delete_task_comment`
 - Labels: `list_workspace_labels`, `create_label`, `attach_label_to_task`, `detach_label_from_task`, `delete_label`
@@ -132,6 +133,9 @@ pass `workspaceId` or `projectId` to select one.
 `list_workspace_members` resolves the user IDs the assignee tools expect.
 Time entries have no delete endpoint on the API, so there is no
 `delete_time_entry` tool.
+Call `list_project_custom_fields` for the field IDs and options
+`set_task_custom_field_value` expects. Pass multiselect values as an array of
+options, dates as `YYYY-MM-DD`, and `null` to clear a value.
 
 ## Releasing
 

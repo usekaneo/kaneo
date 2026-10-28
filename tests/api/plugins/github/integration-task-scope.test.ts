@@ -111,3 +111,8 @@ describe("integration task ownership", () => {
     expect(effect).not.toHaveBeenCalled();
   });
 });
+
+// Policy enforcement is covered by the PostgreSQL sync-rules integration tests.
+vi.mock("../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));

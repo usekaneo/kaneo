@@ -1,8 +1,8 @@
 import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ShortcutKeys } from "@/components/shortcuts/shortcut-keys";
 import { Button } from "@/components/ui/button";
-import { shortcuts } from "@/constants/shortcuts";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { useAgentPanelStore } from "@/store/agent-panel";
 
 export function AgentButton() {
@@ -10,13 +10,7 @@ export function AgentButton() {
   const open = useAgentPanelStore((state) => state.open);
   const toggle = useAgentPanelStore((state) => state.toggle);
 
-  useRegisterShortcuts({
-    modifierShortcuts: {
-      [shortcuts.agent.prefix]: {
-        [shortcuts.agent.toggle]: toggle,
-      },
-    },
-  });
+  useShortcut("toggleAgent", toggle);
 
   return (
     <Button
@@ -28,10 +22,10 @@ export function AgentButton() {
     >
       <Sparkles aria-hidden="true" className="size-3.5" />
       {t("agent:title")}
-      <kbd className="hidden font-mono text-[10px] opacity-60 sm:inline">
-        {shortcuts.agent.prefix}
-        {shortcuts.agent.toggle.toUpperCase()}
-      </kbd>
+      <ShortcutKeys
+        id="toggleAgent"
+        className="hidden opacity-60 sm:inline-flex"
+      />
     </Button>
   );
 }

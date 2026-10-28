@@ -28,12 +28,13 @@ For Kubernetes, pass the same values through a Secret using your deployment's ex
 
 ## Connect the project
 
-1. Open **Settings → Projects**, select the project, then open **Integrations**.
-2. In GitHub, browse the repositories available to your installed app, or enter the owner and repository name.
-3. Verify the installation and connect the repository.
-4. Create a test task and check that its GitHub issue appears.
+1. Open **Settings → Projects**, select the project, then open **Integrations** and select **Connect** next to GitHub.
+2. Link your GitHub account if Kaneo asks for it. Kaneo uses it to confirm that you administer the repository.
+3. Type the repository as `owner/name`, or select **Browse** and search the repositories your installed app can reach. Kaneo checks the installation as soon as you pick one.
+4. Select **Connect repository**.
+5. Create a test task and check that its GitHub issue appears.
 
-Use a test repository for the first check, since synchronization creates real issues and comments. Review the event-to-column mappings under **Workflow → Automation Rules**.
+Use a test repository for the first check, since synchronization creates real issues and comments. Review the event-to-column mappings under **Workflow → Automations**.
 
 ### Changing the connected repository
 
@@ -144,7 +145,7 @@ Customize when tasks automatically change status:
 | PR Opened | `in-review` | ✅ |
 | PR Merged | `done` | ✅ |
 
-Configure these in your project's GitHub integration settings to match your workflow.
+Configure these under **Workflow → Automations** to match your workflow.
 
 <Warning>
 A completed task moves again only when new work starts on it: the first push to a branch that is not yet linked to the task, or a pull request that is not yet linked to it. More pushes to a linked branch, or reopening a pull request, leave a completed task where it is.
@@ -175,7 +176,7 @@ If you need to connect repositories from multiple GitHub organizations:
 
 ## Import existing issues
 
-Select **Import Issues** in the project's GitHub integration settings to import open issues and their labels and comments. Existing linked tasks are updated; matching open pull requests are linked to their tasks. Bot comments are excluded.
+Select **Import issues** in the project's GitHub integration settings to import open issues and their labels and comments. Existing linked tasks are updated; matching open pull requests are linked to their tasks. Bot comments are excluded.
 
 Large imports run in small, sequential steps. Keep the page open until the completion message appears. If the connection fails or you close the page, the saved progress remains available: return to these settings and select **Resume import**. The completion message lists created, updated and skipped issues. A skipped issue may have lost its source or linked task during the import, or have a legacy link to another project.
 

@@ -44,7 +44,7 @@ export function Features() {
           <div>
             <h3>{copy.hosting.title}</h3>
             <p>{copy.hosting.description}</p>
-            <a href="/docs/core" className={styles.link}>
+            <a href="/pricing" className={styles.link}>
               {copy.hosting.link}
               <ArrowUpRight size={14} aria-hidden="true" />
             </a>

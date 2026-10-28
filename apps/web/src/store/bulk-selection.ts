@@ -6,6 +6,7 @@ interface BulkSelectionState {
   availableTaskIds: string[];
   selectionAnchorId: string | null;
   focusedTaskId: string | null;
+  focusedTaskRowId: string | null;
 
   selectTask: (taskId: string) => void;
   deselectTask: (taskId: string) => void;
@@ -14,14 +15,12 @@ interface BulkSelectionState {
   selectRange: (taskId: string) => void;
   clearSelection: () => void;
   selectAll: () => void;
+  selectTasks: (taskIds: string[]) => void;
   setAvailableTasks: (taskIds: string[]) => void;
   getSelectedCount: () => number;
   isSelected: (taskId: string) => boolean;
-  setFocusedTask: (taskId: string | null) => void;
+  setFocusedTask: (taskId: string | null, rowId?: string | null) => void;
   clearFocus: () => void;
-  isFocused: (taskId: string) => boolean;
-  focusNext: () => void;
-  focusPrevious: () => void;
 }
 
 const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
@@ -30,6 +29,7 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
   availableTaskIds: [],
   selectionAnchorId: null,
   focusedTaskId: null,
+  focusedTaskRowId: null,
 
   selectTask: (taskId: string) =>
     set((state) => ({
@@ -95,6 +95,12 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
       selectionAnchorId: null,
     })),
 
+  selectTasks: (taskIds: string[]) =>
+    set((state) => ({
+      selectedTaskIds: new Set([...state.selectedTaskIds, ...taskIds]),
+      isSelectMode: true,
+    })),
+
   setAvailableTasks: (taskIds: string[]) =>
     set((state) => ({
       availableTaskIds: taskIds,
@@ -113,51 +119,17 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
     return selectedTaskIds.has(taskId);
   },
 
-  setFocusedTask: (taskId: string | null) =>
+  setFocusedTask: (taskId, rowId = null) =>
     set(() => ({
       focusedTaskId: taskId,
+      focusedTaskRowId: rowId,
     })),
 
   clearFocus: () =>
     set(() => ({
       focusedTaskId: null,
+      focusedTaskRowId: null,
     })),
-
-  isFocused: (taskId: string) => {
-    const { focusedTaskId } = get();
-    return focusedTaskId === taskId;
-  },
-
-  focusNext: () => {
-    const { availableTaskIds, focusedTaskId } = get();
-
-    if (availableTaskIds.length === 0) return;
-
-    if (!focusedTaskId) {
-      get().setFocusedTask(availableTaskIds[0]);
-      return;
-    }
-
-    const currentIndex = availableTaskIds.indexOf(focusedTaskId);
-    const nextIndex = (currentIndex + 1) % availableTaskIds.length;
-    get().setFocusedTask(availableTaskIds[nextIndex]);
-  },
-
-  focusPrevious: () => {
-    const { availableTaskIds, focusedTaskId } = get();
-
-    if (availableTaskIds.length === 0) return;
-
-    if (!focusedTaskId) {
-      get().setFocusedTask(availableTaskIds[availableTaskIds.length - 1]);
-      return;
-    }
-
-    const currentIndex = availableTaskIds.indexOf(focusedTaskId);
-    const previousIndex =
-      currentIndex === 0 ? availableTaskIds.length - 1 : currentIndex - 1;
-    get().setFocusedTask(availableTaskIds[previousIndex]);
-  },
 }));
 
 export default useBulkSelectionStore;

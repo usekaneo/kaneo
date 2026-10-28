@@ -1,0 +1,102 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+	"enabledManagers": ["npm", "github-actions"],
+	"ignorePaths": [
+		"**/node_modules/**",
+		"**/bower_components/**",
+		"**/vendor/**"
+	],
+	"automerge": false,
+	"timezone": "Etc/UTC",
+	"schedule": ["before 6am on Monday"],
+	"prConcurrentLimit": 3,
+	"vulnerabilityAlerts": {
+		"enabled": true,
+		"labels": ["security"],
+		"automerge": false
+	},
+	"npm": {
+		"commitMessagePrefix": "chore(deps):",
+		"minimumReleaseAge": "7 days",
+		"separateMinorPatch": true
+	},
+	"github-actions": {
+		"commitMessagePrefix": "ci(deps):"
+	},
+	"packageRules": [
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["@aws-sdk/*"],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "AWS SDK"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["@sentry/*"],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "Sentry"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": [
+				"@tanstack/react-query",
+				"@tanstack/react-query-devtools"
+			],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "TanStack Query"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": [
+				"@tanstack/react-router",
+				"@tanstack/router-plugin",
+				"@tanstack/router-devtools"
+			],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "TanStack Router"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["@tiptap/*"],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "Tiptap"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["react", "react-dom"],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "React"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["expo", "expo-*", "@expo/*"],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "Expo"
+		},
+		{
+			"matchManagers": ["npm"],
+			"matchPackageNames": ["better-auth", "@better-auth/*"],
+			"matchUpdateTypes": ["minor", "patch"],
+			"groupName": "Better Auth"
+		},
+		{
+			"matchManagers": ["github-actions"],
+			"matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"],
+			"groupName": "GitHub Actions non-major updates"
+		},
+		{
+			"matchUpdateTypes": ["major", "replacement"],
+			"dependencyDashboardApproval": true,
+			"groupName": null
+		},
+		{
+			"matchJsonata": ["isVulnerabilityAlert = true"],
+			"dependencyDashboardApproval": false,
+			"minimumReleaseAge": null,
+			"schedule": [],
+			"prConcurrentLimit": 0,
+			"groupName": null
+		}
+	]
+}

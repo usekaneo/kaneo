@@ -12,7 +12,7 @@ Kaneo runs database migrations when the API starts. An upgrade can change your d
 3. Create a [database and file backup](/core/operations/backups), and check that you can restore it.
 4. Choose a short maintenance window. Try the new release against a restored copy first when the change is substantial.
 
-Do not change the PostgreSQL major version as part of an ordinary Kaneo image update. A database major upgrade needs its own migration procedure.
+Do not change the PostgreSQL major version as part of an ordinary Kaneo image update. A database major upgrade needs its own migration procedure. See [Upgrade PostgreSQL 16 to 18](/core/operations/postgresql-18) if you plan to make that change.
 
 ## Docker Compose
 

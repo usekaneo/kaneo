@@ -1,0 +1,74 @@
+---
+title: Import from Trello
+description: Move Trello boards into Kaneo, including lists, cards, checklists, dates, labels, members, comments, and archived cards.
+---
+
+Each Trello board becomes a Kaneo project. Read [Import from other tools](/core/migrations) first for the rules that apply to every import.
+
+## Before you start
+
+You need:
+
+- To be an admin of the Kaneo workspace you are importing into.
+- A Trello account that can see the boards you want to move.
+
+Trello never shares other people's email addresses, so Kaneo matches card members by full name instead, ignoring case. A card is assigned only when exactly one workspace member has the same full name as the Trello member. Invite your team first and make sure their names in Kaneo match their names in Trello.
+
+## Connect
+
+1. In Kaneo, open **Settings → Workspace → Import** and choose **Trello**.
+2. Click **Authorize on Trello**. Trello opens in a new tab and asks for access.
+3. Click **Allow**. Trello shows a token.
+4. Copy the token and paste it into Kaneo.
+5. Select the boards to import. Leave comments on, or turn them off.
+6. Start the import. You can leave the page while it runs and check **Recent imports** later.
+
+The token is read-only and expires after a day.
+
+If the form asks for a Trello API key as well, your instance has no Trello app configured. Ask the operator to set it up (see below), or paste your own key: create a Power-Up at [trello.com/power-ups/admin](https://trello.com/power-ups/admin), open **Authorization**, then **Trello Auth**, and click **Generate a new API key**. Paste the key into the form before you click **Authorize on Trello**.
+
+## What carries over
+
+| Trello | Kaneo |
+| --- | --- |
+| Board | Project. Trello boards have no key, so Kaneo makes one from the board name |
+| Open lists | Columns. If the last list is named like a done list (for example **Done**), it becomes the final column |
+| Card | Task |
+| Card number, shown in the card's link | Task number |
+| Description | Task description |
+| Checklists | Markdown checkboxes in the description |
+| Start and due dates | Start and due dates |
+| Labels | Labels, with Trello's colors |
+| Members | Assignee: the first member, matched by full name |
+| Comments | Comments, with the original author's name and date |
+| Archived cards, and cards in archived lists | Archived tasks |
+
+## What doesn't
+
+- **Attachments.** Download anything you need from Trello before you stop using it.
+- **Custom fields.**
+- **Power-Up data.**
+- **Stickers.**
+- **Priorities.** Trello has none, so imported tasks have no priority.
+- **Extra members.** Kaneo has one assignee per task. Only the first member is kept, and the report says how many cards had more than one.
+
+## Set up Trello on a self-hosted instance
+
+The **Authorize on Trello** button needs a Trello API key on the Kaneo API. Without it, each user has to paste their own key in the form. To set it up once for everyone:
+
+1. Sign in to Trello and open [trello.com/power-ups/admin](https://trello.com/power-ups/admin).
+2. Create a new Power-Up for your Kaneo instance.
+3. In the app's sidebar, under **Authorization**, open **Trello Auth** and click **Generate a new API key**. You don't need the **OAuth 2.0** tab, its scopes, or the client ID.
+4. Set `TRELLO_API_KEY` to that key in the API environment, for example in your `.env`, then recreate the container.
+
+Kaneo only sends the authorize link that contains this key to workspace admins who start a Trello import. The key identifies the app and grants no access by itself; each user approves access with their own token. Kaneo does not need the Power-Up's secret, so never set it. See [environment variables](/core/installation/environment-variables#imports).
+
+## Troubleshooting
+
+**The token is rejected**: tokens expire after a day. Click **Authorize on Trello** again and paste the new token.
+
+**A board is missing from the list**: only open boards are listed. Reopen a closed board in Trello to import it.
+
+**The form asks for a Trello API key**: `TRELLO_API_KEY` is not set on the API. Paste your own key, or ask the operator to set it. See [Set up Trello on a self-hosted instance](#set-up-trello-on-a-self-hosted-instance).
+
+**Tasks are unassigned**: the member's full name in Trello must match exactly one member's name in the Kaneo workspace. Fix the name or invite the person, delete the imported project, and import it again. You can also assign the tasks by hand.

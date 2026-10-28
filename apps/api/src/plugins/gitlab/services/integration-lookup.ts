@@ -3,6 +3,7 @@ import db from "../../../database";
 import { integrationTable } from "../../../database/schema";
 import type { GitlabConfig } from "../config";
 import { normalizeGitlabBaseUrl, normalizeProjectPath } from "../config";
+import { activeIntegrationCondition } from "../../active-integration-condition";
 
 export async function findAllIntegrationsByGitlabProject(
   baseUrl: string,
@@ -13,7 +14,7 @@ export async function findAllIntegrationsByGitlabProject(
   const normalizedPath = normalizeProjectPath(projectPath);
   const conditions = [
     eq(integrationTable.type, "gitlab"),
-    eq(integrationTable.isActive, true),
+    activeIntegrationCondition(),
   ];
   if (integrationId) {
     conditions.push(eq(integrationTable.id, integrationId));

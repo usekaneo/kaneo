@@ -16,11 +16,14 @@ import {
 } from "../../apps/api/src/agent/runner";
 import { requireAgentConfig } from "../../apps/api/src/agent/config";
 import { createAgentTools } from "../../apps/api/src/agent/tools";
+import { assertAgentAccess } from "../../apps/api/src/agent/access";
 import {
+  readProjects,
   readTask,
   readTasks,
   readWorkload,
 } from "../../apps/api/src/agent/tools/read-tools";
+import { validateAction } from "../../apps/api/src/agent/validate-action";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
@@ -28,6 +31,7 @@ import {
   createProjectFixture,
   createWorkspaceMember,
 } from "./helpers/fixtures";
+import { createRestrictedWorkspace } from "./helpers/project-access/create-restricted-workspace";
 
 beforeEach(async () => {
   await resetTestDatabase();
@@ -330,6 +334,45 @@ describe("bounded agent runner", () => {
 });
 
 describe("agent context reads", () => {
+  it("only reads and changes projects the member can access", async () => {
+    const ctx = await createRestrictedWorkspace();
+    const subject = {
+      userId: ctx.restricted.id,
+      workspaceId: ctx.workspace.id,
+      projectId: null,
+    };
+    expect(await readProjects(subject)).toEqual([
+      expect.objectContaining({ id: ctx.alpha.id }),
+    ]);
+    expect(
+      (await readTasks(subject, { limit: 10, offset: 0 })).tasks.map(
+        (task) => task.id,
+      ),
+    ).toEqual([ctx.alphaTask.id]);
+    await expect(readTask(subject, ctx.betaTask.id)).rejects.toMatchObject({
+      status: 404,
+    });
+    await expect(
+      readTasks(subject, { projectId: ctx.beta.id, limit: 10, offset: 0 }),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(
+      validateAction(subject, {
+        type: "task.update",
+        taskId: ctx.betaTask.id,
+        patch: { priority: "high" },
+      }),
+    ).rejects.toMatchObject({ status: 404 });
+  });
+  it("refuses archived workspaces", async () => {
+    const ctx = await setup();
+    await db
+      .update(schema.workspaceTable)
+      .set({ archivedAt: new Date() })
+      .where(eq(schema.workspaceTable.id, ctx.workspace.id));
+    await expect(assertAgentAccess(ctx.subject)).rejects.toMatchObject({
+      status: 403,
+    });
+  });
   it("does not send oversized database content into the model context", async () => {
     const ctx = await setup();
     await db

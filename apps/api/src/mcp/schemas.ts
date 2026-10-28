@@ -55,7 +55,10 @@ export const authorizationQuerySchema = z.object({
       description: "PKCE challenge; only S256 is accepted.",
     }),
   code_challenge_method: z.literal("S256"),
-  state: z.string().max(1024).optional(),
+  state: z.string().optional().openapi({
+    description:
+      "Opaque client state, returned unchanged. The complete authorization URL is limited to 8 KiB.",
+  }),
 });
 
 export const authorizationRequestParamSchema = z.object({

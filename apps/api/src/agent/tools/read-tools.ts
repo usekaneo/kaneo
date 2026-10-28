@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, gte, ilike, lt, sql } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { HTTPException } from "hono/http-exception";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { escapeLikePattern } from "../../search/like-pattern";
 import { boundedTaskRead } from "../../task/bounded-read";
 import { assertAgentProject } from "../access";
@@ -17,6 +18,7 @@ export async function readProjects(subject: AgentSubject) {
     .where(
       and(
         eq(schema.projectTable.workspaceId, subject.workspaceId),
+        projectAccessCondition(subject.userId, schema.projectTable.id),
         subject.projectId
           ? eq(schema.projectTable.id, subject.projectId)
           : undefined,
@@ -84,6 +86,7 @@ export async function readTasks(
       .where(
         and(
           eq(schema.projectTable.workspaceId, subject.workspaceId),
+          projectAccessCondition(subject.userId, schema.projectTable.id),
           projectId ? eq(schema.taskTable.projectId, projectId) : undefined,
           input.query
             ? ilike(
@@ -132,6 +135,7 @@ export async function readTask(subject: AgentSubject, taskId: string) {
       and(
         eq(schema.taskTable.id, taskId),
         eq(schema.projectTable.workspaceId, subject.workspaceId),
+        projectAccessCondition(subject.userId, schema.projectTable.id),
         subject.projectId
           ? eq(schema.taskTable.projectId, subject.projectId)
           : undefined,
@@ -214,6 +218,7 @@ export async function readWorkload(
         .where(
           and(
             eq(schema.projectTable.workspaceId, subject.workspaceId),
+            projectAccessCondition(subject.userId, schema.projectTable.id),
             projectId ? eq(schema.taskTable.projectId, projectId) : undefined,
             sql`${schema.taskTable.status} <> 'archived' and not coalesce(${schema.columnTable.isFinal}, ${schema.taskTable.status} = 'done')`,
           ),

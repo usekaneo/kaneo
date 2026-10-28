@@ -1,39 +1,33 @@
 import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
-
-const { hasPermission } = vi.hoisted(() => ({ hasPermission: vi.fn() }));
-
-vi.mock("@/lib/auth-client", () => ({
-  authClient: { admin: { hasPermission } },
-}));
-
 import { getAdminAccess } from "./get-admin-access";
+
+const mocks = vi.hoisted(() => ({ get: vi.fn() }));
+
+vi.mock("@kaneo/libs", () => ({
+  client: { admin: { access: { $get: mocks.get } } },
+}));
 
 describe("getAdminAccess", () => {
   beforeEach(() => {
-    hasPermission.mockReset();
+    mocks.get.mockReset();
   });
 
-  it.each([401, 403])("resolves to false on %d", async (status) => {
-    hasPermission.mockResolvedValue({
-      data: null,
-      error: { status, message: "nope" },
+  it("returns the server's permissions", async () => {
+    mocks.get.mockResolvedValue({
+      ok: true,
+      json: async () => ({ permissions: ["users:read"] }),
     });
 
-    await expect(getAdminAccess()).resolves.toBe(false);
+    await expect(getAdminAccess()).resolves.toEqual(["users:read"]);
   });
 
-  it("rethrows other failures so a blip is not treated as denial", async () => {
-    hasPermission.mockResolvedValue({
-      data: null,
-      error: { status: 502, message: "bad gateway" },
+  it("rethrows failures so a blip is not treated as having no access", async () => {
+    mocks.get.mockResolvedValue({
+      ok: false,
+      status: 502,
+      text: async () => JSON.stringify({ message: "bad gateway" }),
     });
 
     await expect(getAdminAccess()).rejects.toThrow("bad gateway");
-  });
-
-  it.each([true, false])("returns the server's answer %s", async (success) => {
-    hasPermission.mockResolvedValue({ data: { success }, error: null });
-
-    await expect(getAdminAccess()).resolves.toBe(success);
   });
 });

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vite-plus/test";
 import db from "../../apps/api/src/database";
 import { withJobLease } from "../../apps/api/src/scheduler/leader-lock";
 import { ensureTestDatabaseMigrated } from "./helpers/database";
@@ -111,7 +111,7 @@ describe("withJobLease", () => {
 
     await db.execute(sql`
       INSERT INTO job_lease ("name", "owner", "expires_at")
-      VALUES (${LEASE}, 'dead-replica', now() - interval '1 minute');
+      VALUES (${LEASE}, 'dead-replica', timezone('UTC', now()) - interval '1 minute');
     `);
 
     const result = await withJobLease(
@@ -128,7 +128,7 @@ describe("withJobLease", () => {
 
     await db.execute(sql`
       INSERT INTO job_lease ("name", "owner", "expires_at")
-      VALUES (${LEASE}, 'other-replica', now() + interval '10 minutes');
+      VALUES (${LEASE}, 'other-replica', timezone('UTC', now()) + interval '10 minutes');
     `);
 
     const result = await withJobLease(
@@ -180,3 +180,41 @@ describe("withJobLease", () => {
     }
   });
 });
+
+describe.each(["America/New_York", "Asia/Tokyo"])(
+  "withJobLease when the process runs in %s",
+  (timeZone) => {
+    const originalTimeZone = process.env.TZ;
+
+    beforeAll(() => {
+      // Node applies TZ changes to Date immediately, so this stands in for a
+      // server whose local time is not UTC.
+      process.env.TZ = timeZone;
+    });
+
+    afterAll(() => {
+      if (originalTimeZone === undefined) delete process.env.TZ;
+      else process.env.TZ = originalTimeZone;
+    });
+
+    it("stores the expiry one lease window from now in UTC", async () => {
+      await clearLease();
+
+      const remaining = await withJobLease(
+        LEASE,
+        async () => {
+          const rows = await db.execute(sql`
+            SELECT extract(epoch FROM "expires_at" - timezone('UTC', now())) AS "seconds"
+            FROM job_lease WHERE "name" = ${LEASE};
+          `);
+          return Number(rows.rows[0]?.seconds);
+        },
+        () => Number.NaN,
+        60_000,
+      );
+
+      expect(remaining).toBeGreaterThan(50);
+      expect(remaining).toBeLessThanOrEqual(60);
+    });
+  },
+);

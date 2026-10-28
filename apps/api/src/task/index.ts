@@ -55,18 +55,21 @@ import {
   requireBulkTaskEntitlement,
   requireBulkTaskPermission,
   requireTaskAssigneePermission,
+  requireTaskRecurrencePermission,
 } from "./controllers/require-task-permission";
 import updateTask from "./controllers/update-task";
 import updateTaskAssignee from "./controllers/update-task-assignee";
 import updateTaskDescription from "./controllers/update-task-description";
 import updateTaskDueDate from "./controllers/update-task-due-date";
 import updateTaskPriority from "./controllers/update-task-priority";
+import updateTaskRecurrence from "./controllers/update-task-recurrence";
 import updateTaskStatus from "./controllers/update-task-status";
 import updateTaskTitle from "./controllers/update-task-title";
 import {
   getDeferredDescriptionMatches,
   getDescriptionPage,
 } from "./description-pages";
+import "./recurrence/subscribe";
 import {
   assignedTasksSchema,
   boardSchema,
@@ -105,6 +108,7 @@ import {
   updateDescriptionBody,
   updateDueDateBody,
   updatePriorityBody,
+  updateRecurrenceBody,
   updateStatusBody,
   updateTaskBody,
   updateTitleBody,
@@ -126,9 +130,8 @@ const listAssignedTasksRoute = createRoute({
   responses: {
     200: jsonResponse("Open tasks assigned to the caller", assignedTasksSchema),
     400: errorResponse("Invalid workspace ID or query parameters"),
-    403: errorResponse(
-      "No workspace access, or missing project:read or task:read permission",
-    ),
+    403: errorResponse("Missing project:read or task:read permission"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -140,15 +143,16 @@ const listTasksRoute = createRoute({
   summary: "List tasks",
   description:
     "Get a project's board: its columns, each with the tasks in it, plus the archived and planned buckets. Responses always contain at most 100 tasks (50 by default). Continue through pagination.totalPages for the whole board, and for each task page follow relatedPage through pagination.relatedTotalPages for all labels, links and column metadata. Filters and sorting apply before pagination. Descriptions larger than 64 KiB are omitted with descriptionDeferred=true; read the task detail or description pages for full text.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam, query: listTasksQuery },
   responses: {
     200: jsonResponse("The project board", boardSchema),
     503: errorResponse("Task list request timed out"),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -177,7 +181,7 @@ const bulkUpdateTasksRoute = createRoute({
       "Invalid body, or the tasks span more than one workspace",
     ),
     403: errorResponse(
-      "No workspace access, or missing the permission the operation needs",
+      "No access to the project, or missing the permission the operation needs",
     ),
     404: errorResponse("No tasks found"),
     409: errorResponse("Tasks changed projects; retry the operation"),
@@ -270,7 +274,9 @@ const reorderTasksRoute = createRoute({
     ),
     400: errorResponse("Invalid positions or column"),
     403: errorResponse("Missing task:update permission"),
-    404: errorResponse("Tasks do not belong to the project"),
+    404: errorResponse(
+      "Project not found, or tasks do not belong to the project",
+    ),
     409: errorResponse(
       "Board changed or task moved; refresh before reordering",
     ),
@@ -298,10 +304,11 @@ const createTaskRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The created task", taskSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body, or a repeating task in a final column"),
     403: errorResponse(
-      "No workspace access, or missing task:create permission",
+      "No access to the project, or missing task:create permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -330,7 +337,7 @@ const duplicateTaskRoute = createRoute({
     400: errorResponse("Invalid task fields or request"),
     401: errorResponse("Unauthorized"),
     403: errorResponse(
-      "No workspace access, missing task:create, or missing task:update when copying parent links",
+      "No access to the project, missing task:create, or missing task:update when copying parent links",
     ),
     404: errorResponse("Task or project not found"),
     409: errorResponse("Task column has reached its capacity"),
@@ -346,17 +353,18 @@ const getTaskRoute = createRoute({
   summary: "Get task",
   description:
     "Get a single task by ID, with its assignee name. The board view omits descriptions above 64 KiB and includes task and same-project parent subtask progress.",
-  middleware: [workspaceAccess.fromTask()] as const,
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: {
     params: taskParam,
     query: z.object({ view: z.enum(["detail", "board"]).optional() }),
   },
   responses: {
     200: jsonResponse("Task details", taskWithAssigneeSchema),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the task's workspace"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -367,7 +375,7 @@ const getTaskByTicketIdRoute = createRoute({
   tags: ["Tasks"],
   summary: "Get task by ticket ID",
   description:
-    "Get a single task by its project key and number, such as KAN-12. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
+    "Get a single task by its project key and number, such as KAN-12. Only tasks with current task:read permission and API key scope are considered. A match in an active project takes precedence, then the most recently archived project. If the ticket ID still matches multiple accessible tasks, narrow the lookup to a workspace with workspaceId or workspaceSlug, or to a single project with projectId.",
   request: { params: ticketIdParam, query: ticketIdQuery },
   responses: {
     200: jsonResponse("Task details", taskByTicketIdSchema),
@@ -402,9 +410,9 @@ const moveTaskRoute = createRoute({
       "The moved task, with both project ids",
       moveTaskResultSchema,
     ),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
     404: errorResponse("Task or destination project not found"),
     409: errorResponse("Task or project moved concurrently; retry the move"),
@@ -434,10 +442,11 @@ const updateTaskRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:update or task:assign permission",
+      "No access to the project, or missing task:update or task:assign permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -449,14 +458,15 @@ const exportTasksRoute = createRoute({
   summary: "Export tasks",
   description:
     "Export a project's tasks, with their labels, as a JSON document.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"], task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The exported project and tasks", taskExportSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -482,10 +492,11 @@ const importTasksRoute = createRoute({
   },
   responses: {
     200: jsonResponse("Per-task import outcome", taskImportResultSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:create permission",
+      "No access to the project, or missing task:create permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -504,13 +515,11 @@ const deleteTaskRoute = createRoute({
   request: { params: taskParam },
   responses: {
     200: jsonResponse("The deleted task", taskSchema),
-    400: errorResponse(
-      "Unknown task, or its workspace could not be determined",
-    ),
     409: errorResponse("Task changed projects; retry the operation"),
     403: errorResponse(
-      "No workspace access, or missing task:delete permission",
+      "No access to the project, or missing task:delete permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -535,10 +544,11 @@ const updateTaskStatusRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -563,10 +573,11 @@ const updateTaskPriorityRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Invalid priority, or unknown task"),
+    400: errorResponse("Invalid priority"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -592,11 +603,13 @@ const updateTaskAssigneeRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:assign permission",
+      "No access to the project, or missing task:assign permission",
     ),
-    404: errorResponse("Assignee is not a member of the workspace"),
+    404: errorResponse(
+      "Task not found, or assignee is not a member of the workspace",
+    ),
   },
 });
 
@@ -621,9 +634,43 @@ const updateTaskDueDateRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Invalid date, or unknown task"),
+    400: errorResponse("Invalid date"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
+    ),
+    404: errorResponse("Task not found"),
+  },
+});
+
+const updateTaskRecurrenceRoute = createRoute({
+  method: "put",
+  operationId: "updateTaskRecurrence",
+  path: "/recurrence/{id}",
+  tags: ["Tasks"],
+  summary: "Update task recurrence",
+  description:
+    "Make a task repeat, or stop it repeating. Setting a rule requires task:update and task:create; clearing it requires task:update. When a repeating task moves into a final column, the next task is created in the project's first open column with its dates moved forward one interval from the completed task's due date, and the rule moves to that new task. A completed task cannot start repeating: reopen it, or set the rule on its next task.",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireTaskRecurrencePermission,
+    requireEntitlement,
+  ] as const,
+  request: {
+    params: taskParam,
+    body: {
+      required: true,
+      content: { "application/json": { schema: updateRecurrenceBody } },
+    },
+  },
+  responses: {
+    200: jsonResponse("The updated task", taskSchema),
+    400: errorResponse("Invalid recurrence rule"),
+    403: errorResponse(
+      "No access to the project, missing task:update, or missing task:create when setting a rule",
+    ),
+    404: errorResponse("Task not found"),
+    409: errorResponse(
+      "The task is completed and no longer holds a rule; reopen it first",
     ),
   },
 });
@@ -649,10 +696,11 @@ const updateTaskTitleRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -680,7 +728,7 @@ const createTaskImageUploadRoute = createRoute({
     200: jsonResponse("The presigned upload", imageUploadSchema),
     400: errorResponse("Unsupported content type, or the file is too large"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
     404: errorResponse("Task not found"),
     503: errorResponse("Image uploads are not configured on this instance"),
@@ -713,7 +761,7 @@ const finalizeTaskImageUploadRoute = createRoute({
       "Invalid upload, or the key does not belong to this task",
     ),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
     404: errorResponse("Task not found"),
   },
@@ -740,10 +788,11 @@ const updateTaskDescriptionRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated task", taskSchema),
-    400: errorResponse("Invalid body, or unknown task"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, or missing task:update permission",
+      "No access to the project, or missing task:update permission",
     ),
+    404: errorResponse("Task not found"),
   },
 });
 
@@ -753,12 +802,15 @@ const descriptionPageRoute = createRoute({
   path: "/{id}/description",
   tags: ["Tasks"],
   summary: "Read a description page",
-  middleware: [workspaceAccess.fromTaskId("id")] as const,
+  middleware: [
+    workspaceAccess.fromTaskId("id"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: taskParam, query: descriptionPageQuery },
   responses: {
     200: jsonResponse("Description page", descriptionPageSchema),
     400: errorResponse("Invalid offset or version"),
-    403: errorResponse("No workspace access"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Task not found"),
     409: errorResponse("Description changed; reload from offset zero"),
     503: errorResponse("Description request timed out"),
@@ -770,13 +822,17 @@ const descriptionMatchesRoute = createRoute({
   path: "/description-matches/{projectId}",
   tags: ["Tasks"],
   summary: "Search descriptions omitted from task lists",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
   request: { params: projectIdParam, query: descriptionMatchesQuery },
   responses: {
     200: jsonResponse("Matching task IDs", descriptionMatchesSchema),
     400: errorResponse("Invalid search query or cursor"),
-    403: errorResponse("No workspace access"),
+    403: errorResponse("No access to the project, or missing read permission"),
     503: errorResponse("Description search timed out"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -814,7 +870,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
     const { projectId } = c.req.valid("param");
     const filters = c.req.valid("query") || {};
 
-    const tasks = await getTasks(projectId, filters);
+    const tasks = await getTasks(projectId, filters, c.get("userId"));
 
     return c.json(tasks, 200);
   })
@@ -883,6 +939,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       priority,
       status,
       userId,
+      recurrence,
       customFields,
       draftAssetIds,
     } = c.req.valid("json");
@@ -908,6 +965,7 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: parsedDueDate,
       priority,
       status,
+      recurrence,
       customFields,
       draftAssetIds,
     });
@@ -930,14 +988,23 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(getTaskByTicketIdRoute, async (c) => {
     const { ticketId } = c.req.valid("param");
     return c.json(
-      await getTaskByTicketId(ticketId, c.get("userId"), c.req.valid("query")),
+      await getTaskByTicketId(
+        ticketId,
+        c.get("userId"),
+        c.req.valid("query"),
+        c.get("apiKey")?.permissions,
+      ),
       200,
     );
   })
   .openapi(getTaskRoute, async (c) => {
     const { id } = c.req.valid("param");
 
-    const task = await getTask(id, c.req.valid("query").view === "board");
+    const task = await getTask(
+      id,
+      c.req.valid("query").view === "board",
+      c.get("userId"),
+    );
 
     return c.json(task, 200);
   })
@@ -1059,6 +1126,15 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
       dueDate: dueDate ? validateAndParseDate(dueDate, "dueDate") : null,
       currentUserId,
     });
+
+    return c.json(task, 200);
+  })
+  .openapi(updateTaskRecurrenceRoute, async (c) => {
+    const { id } = c.req.valid("param");
+    const { recurrence } = c.req.valid("json");
+    const currentUserId = c.get("userId");
+
+    const task = await updateTaskRecurrence({ id, recurrence, currentUserId });
 
     return c.json(task, 200);
   })

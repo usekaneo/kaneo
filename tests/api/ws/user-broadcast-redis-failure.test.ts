@@ -18,6 +18,35 @@ vi.mock("../../../apps/api/src/ws/workspace-access", () => ({
   syncWorkspaceAccess: accessSync,
   hasWorkspaceAccess: hasAccess,
 }));
+const sessionRows = vi.hoisted(() =>
+  vi.fn(async (): Promise<Array<{ id: string }>> => []),
+);
+const apiKeyRows = vi.hoisted(() =>
+  vi.fn(async (): Promise<Array<{ id: string }>> => []),
+);
+const workspaceRows = vi.hoisted(() =>
+  vi.fn(async (): Promise<Array<{ archivedAt: Date | null }>> => []),
+);
+vi.mock("../../../apps/api/src/database", async () => {
+  const schema = await import("../../../apps/api/src/database/schema");
+  return {
+    default: {
+      select: () => ({
+        from: (table: unknown) => ({
+          where:
+            table === schema.sessionTable
+              ? sessionRows
+              : table === schema.apikeyTable
+                ? apiKeyRows
+                : table === schema.workspaceTable
+                  ? workspaceRows
+                  : async () => [],
+        }),
+      }),
+    },
+    schema,
+  };
+});
 const publish = vi.fn();
 const listeners: Array<(p: string, c: string, d: string) => void> = [];
 const subscriber = {
@@ -48,6 +77,9 @@ import {
   broadcastToUser,
   initializeWebSocketAdapter,
   removeUserConnection,
+  revokeApiKeyConnections,
+  revokeSessionConnections,
+  SESSION_ENDED_CLOSE_CODE,
   shutdownWebSocketAdapter,
 } from "../../../apps/api/src/ws/index";
 
@@ -66,6 +98,10 @@ function makeFakeWs() {
 
 function sendMock(ws: unknown) {
   return (ws as { send: ReturnType<typeof vi.fn> }).send;
+}
+
+function closeMock(ws: unknown) {
+  return (ws as { close: ReturnType<typeof vi.fn> }).close;
 }
 
 function emitUserBroadcast(payload: unknown, channelUserId = "user-1") {
@@ -162,6 +198,205 @@ describe("broadcastToUser with the redis adapter", () => {
     expect(sendMock(ws)).not.toHaveBeenCalled();
 
     removeUserConnection("user-1", conn);
+  });
+});
+
+describe("ended sessions with the redis adapter", () => {
+  beforeEach(async () => {
+    publish.mockReset().mockResolvedValue(1);
+    listeners.length = 0;
+    await initializeWebSocketAdapter();
+  });
+
+  afterEach(async () => {
+    await shutdownWebSocketAdapter();
+    sessionRows.mockReset().mockResolvedValue([]);
+  });
+
+  it("publishes the ended session IDs to the other instances", async () => {
+    await revokeSessionConnections("user-1", ["session-a"]);
+
+    await vi.waitFor(() => expect(publish).toHaveBeenCalledOnce());
+    expect(JSON.parse(publish.mock.calls[0][1])).toMatchObject({
+      userId: "user-1",
+      message: { type: "SESSIONS_ENDED", sessionIds: ["session-a"] },
+    });
+  });
+
+  it("closes only the ended session's sockets when another instance ends it", () => {
+    const ended = makeFakeWs();
+    const kept = makeFakeWs();
+    const endedBoard = makeFakeWs();
+    const connections = [
+      addUserConnection("user-1", ended, "session-a"),
+      addUserConnection("user-1", kept, "session-b"),
+    ];
+    const board = addConnection(
+      "project",
+      endedBoard,
+      "user-1",
+      "window",
+      "workspace",
+      undefined,
+      "session-a",
+    );
+    try {
+      emitUserBroadcast({
+        userId: "user-1",
+        origin: "other-instance",
+        message: { type: "SESSIONS_ENDED", sessionIds: ["session-a"] },
+      });
+
+      for (const ws of [ended, endedBoard])
+        expect(closeMock(ws)).toHaveBeenCalledWith(
+          SESSION_ENDED_CLOSE_CODE,
+          "Session ended",
+        );
+      expect(closeMock(kept)).not.toHaveBeenCalled();
+      expect(sendMock(kept)).not.toHaveBeenCalled();
+    } finally {
+      for (const conn of connections) removeUserConnection("user-1", conn);
+      removeConnection("project", board);
+    }
+  });
+
+  it("closes the sockets of sessions that ended while the subscriber was away", async () => {
+    sessionRows.mockResolvedValue([{ id: "session-b" }]);
+    const ended = makeFakeWs();
+    const kept = makeFakeWs();
+    const apiKey = makeFakeWs();
+    const endedBoard = makeFakeWs();
+    const connections = [
+      addUserConnection("user-1", ended, "session-a"),
+      addUserConnection("user-1", kept, "session-b"),
+      addUserConnection("user-1", apiKey),
+    ];
+    const board = addConnection(
+      "project",
+      endedBoard,
+      "user-1",
+      "window",
+      "workspace",
+      undefined,
+      "session-c",
+    );
+    try {
+      const ready = subscriber.on.mock.calls
+        .filter(([event]) => event === "ready")
+        .at(-1)?.[1];
+      ready?.("", "", "");
+
+      await vi.waitFor(() =>
+        expect(closeMock(ended)).toHaveBeenCalledWith(
+          SESSION_ENDED_CLOSE_CODE,
+          "Session ended",
+        ),
+      );
+      expect(closeMock(endedBoard)).toHaveBeenCalledWith(
+        SESSION_ENDED_CLOSE_CODE,
+        "Session ended",
+      );
+      expect(closeMock(kept)).not.toHaveBeenCalled();
+      expect(closeMock(apiKey)).not.toHaveBeenCalled();
+      expect(sessionRows).toHaveBeenCalledOnce();
+    } finally {
+      for (const conn of connections) removeUserConnection("user-1", conn);
+      removeConnection("project", board);
+    }
+  });
+});
+
+describe("revoked API keys with the redis adapter", () => {
+  beforeEach(async () => {
+    publish.mockReset().mockResolvedValue(1);
+    listeners.length = 0;
+    await initializeWebSocketAdapter();
+  });
+
+  afterEach(async () => {
+    await shutdownWebSocketAdapter();
+    apiKeyRows.mockReset().mockResolvedValue([]);
+    sessionRows.mockReset().mockResolvedValue([]);
+  });
+
+  function connectKeySockets() {
+    const revoked = makeFakeWs();
+    const kept = makeFakeWs();
+    const session = makeFakeWs();
+    const revokedBoard = makeFakeWs();
+    const connections = [
+      addUserConnection("user-1", revoked, null, "key-a"),
+      addUserConnection("user-1", kept, null, "key-b"),
+      addUserConnection("user-1", session, "session-a"),
+    ];
+    const board = addConnection(
+      "project",
+      revokedBoard,
+      "user-1",
+      "window",
+      "workspace",
+      "key-a",
+    );
+    return {
+      closed: [revoked, revokedBoard],
+      open: [kept, session],
+      disconnect() {
+        for (const conn of connections) removeUserConnection("user-1", conn);
+        removeConnection("project", board);
+      },
+    };
+  }
+
+  it("publishes the revoked key IDs to the other instances", async () => {
+    await revokeApiKeyConnections("user-1", ["key-a"]);
+
+    await vi.waitFor(() => expect(publish).toHaveBeenCalledOnce());
+    expect(JSON.parse(publish.mock.calls[0][1])).toMatchObject({
+      userId: "user-1",
+      message: { type: "API_KEYS_REVOKED", apiKeyIds: ["key-a"] },
+    });
+  });
+
+  it("closes only the key's sockets when another instance revokes it", () => {
+    const sockets = connectKeySockets();
+    try {
+      emitUserBroadcast({
+        userId: "user-1",
+        origin: "other-instance",
+        message: { type: "API_KEYS_REVOKED", apiKeyIds: ["key-a"] },
+      });
+
+      for (const ws of sockets.closed)
+        expect(closeMock(ws)).toHaveBeenCalledWith(1008, "API key revoked");
+      for (const ws of sockets.open) {
+        expect(closeMock(ws)).not.toHaveBeenCalled();
+        expect(sendMock(ws)).not.toHaveBeenCalled();
+      }
+    } finally {
+      sockets.disconnect();
+    }
+  });
+
+  it("closes the sockets of keys revoked while the subscriber was away", async () => {
+    apiKeyRows.mockResolvedValue([{ id: "key-b" }]);
+    sessionRows.mockResolvedValue([{ id: "session-a" }]);
+    const sockets = connectKeySockets();
+    try {
+      const ready = subscriber.on.mock.calls
+        .filter(([event]) => event === "ready")
+        .at(-1)?.[1];
+      ready?.("", "", "");
+
+      await vi.waitFor(() => {
+        for (const ws of sockets.closed)
+          expect(closeMock(ws)).toHaveBeenCalledWith(1008, "API key revoked");
+      });
+      for (const ws of sockets.open)
+        expect(closeMock(ws)).not.toHaveBeenCalled();
+      expect(apiKeyRows).toHaveBeenCalledOnce();
+    } finally {
+      sockets.disconnect();
+    }
   });
 });
 
@@ -263,6 +498,65 @@ it.each([true, false])(
       removeConnection("project", projectConnection);
       await shutdownWebSocketAdapter();
       hasAccess.mockResolvedValue(false);
+      vi.useRealTimers();
+    }
+  },
+);
+
+it.each([true, false])(
+  "validates a delayed archive revocation against current state (archived=%s)",
+  async (archived) => {
+    vi.useFakeTimers();
+    await initializeWebSocketAdapter();
+    workspaceRows.mockRejectedValue(new Error("database unavailable"));
+    const ws = makeFakeWs();
+    const boardWs = makeFakeWs();
+    const userConnection = addUserConnection("user-1", ws);
+    const boardConnection = addConnection(
+      "project",
+      boardWs,
+      "user-1",
+      "window",
+      "workspace",
+    );
+    try {
+      const revocation = {
+        userId: "user-1",
+        origin: "other-instance",
+        message: {
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+          force: true,
+          reason: "archived",
+        },
+      };
+      emitUserBroadcast(revocation);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(sendMock(ws)).not.toHaveBeenCalled();
+      expect(closeMock(boardWs)).not.toHaveBeenCalled();
+
+      workspaceRows.mockResolvedValue([
+        { archivedAt: archived ? new Date() : null },
+      ]);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(sendMock(ws)).toHaveBeenCalledTimes(archived ? 1 : 0);
+      if (archived)
+        expect(closeMock(boardWs)).toHaveBeenCalledWith(
+          1008,
+          "Workspace archived",
+        );
+      else {
+        // An initial publish queued by Redis must also be ignored after restore.
+        emitUserBroadcast(revocation);
+        await vi.advanceTimersByTimeAsync(0);
+        expect(sendMock(ws)).not.toHaveBeenCalled();
+        expect(closeMock(boardWs)).not.toHaveBeenCalled();
+      }
+    } finally {
+      removeUserConnection("user-1", userConnection);
+      removeConnection("project", boardConnection);
+      await shutdownWebSocketAdapter();
+      workspaceRows.mockReset().mockResolvedValue([]);
       vi.useRealTimers();
     }
   },

@@ -30,6 +30,8 @@ import {
   Plus,
   Settings,
   Trash2,
+  Trash2Icon,
+  LinkIcon,
 } from "lucide-react";
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
@@ -63,6 +65,7 @@ import useReorderProjects from "@/hooks/mutations/project/use-reorder-projects";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
+import { EASE_OUT_CSS } from "@/lib/motion";
 import { toast } from "@/lib/toast";
 import type { ProjectWithTasks } from "@/types/project";
 import CreateProjectModal from "./shared/modals/create-project-modal";
@@ -94,7 +97,7 @@ function SortableProjectItem({
       // replays the same move from a stale offset.
       animateLayoutChanges: () => false,
       // dnd-kit defaults to `ease`; this is the app's curve.
-      transition: { duration: 200, easing: "var(--ease-out)" },
+      transition: { duration: 200, easing: EASE_OUT_CSS },
     });
 
   const style: CSSProperties = {
@@ -287,7 +290,7 @@ export function NavProjects() {
                               percentage={
                                 project.statistics.completionPercentage
                               }
-                              className="text-muted-foreground max-md:hidden group-focus-within/menu-item:opacity-0 group-hover/menu-item:opacity-0 group-has-data-[state=open]/menu-item:opacity-0"
+                              className="text-muted-foreground max-md:hidden group-focus-within/menu-item:opacity-0 group-hover/menu-item:opacity-0 group-has-data-popup-open/menu-item:opacity-0"
                             />
                           </SidebarMenuButton>
 
@@ -301,7 +304,7 @@ export function NavProjects() {
                                   onPointerDown={(event) =>
                                     event.stopPropagation()
                                   }
-                                  className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
+                                  className="absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-lg p-0 text-sidebar-foreground outline-hidden ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground after:-inset-2 after:absolute md:after:hidden peer-data-[size=sm]/menu-button:top-1 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 group-data-[collapsible=icon]:hidden group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-popup-open:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0"
                                 />
                               }
                             >
@@ -332,6 +335,7 @@ export function NavProjects() {
                                   );
                                   toast.success(
                                     t("navigation:projectList.linkCopied"),
+                                    { icon: LinkIcon },
                                   );
                                 }}
                               >
@@ -429,7 +433,9 @@ export function NavProjects() {
                     await deleteProject({
                       id: projectToDeleteId || "",
                     });
-                    toast.success(t("navigation:projectList.deletedToast"));
+                    toast.success(t("navigation:projectList.deletedToast"), {
+                      icon: Trash2Icon,
+                    });
                     queryClient.invalidateQueries({
                       queryKey: ["projects"],
                     });

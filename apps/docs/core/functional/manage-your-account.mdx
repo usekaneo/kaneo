@@ -1,22 +1,24 @@
 ---
 title: Your account
-description: Manage your profile, password, API keys, and account deletion
+description: Manage your profile, password, signed-in sessions, API keys, and account deletion
 ---
 
-Your profile picture and your account itself are both managed from **Settings -> Account -> Information**.
+Your profile picture and your account itself are both managed from **Settings → Account → Profile**.
 
 ## Change your profile picture
 
 1. Go to **Settings**.
-2. Open **Account -> Information**.
-3. Click your picture and choose **Change avatar**.
+2. Open **Account → Profile**.
+3. Next to **Profile picture**, select **Upload**.
 4. Pick any image. It is cropped to a square and resized to 256x256 before it is uploaded.
 
-Choose **Remove avatar** to go back to your initials. Pictures are stored in your Kaneo database, so self-hosted instances need no object storage for this and a normal database backup includes them.
+Select **Remove** to go back to your initials. Pictures are stored in your Kaneo database, so self-hosted instances need no object storage for this and a normal database backup includes them.
+
+If your organization manages profile pictures through single sign-on, the row says **Managed by your organization.** and has no **Upload** button. Change the picture with your sign-in provider, through the **Edit in** link when it is shown. **Remove** still works for a picture you uploaded in Kaneo earlier.
 
 ## Change your password
 
-Open **Settings → Account → Security**. If your account has a password, enter the current password, choose a new one, and confirm it. The new password must be between 8 and 128 characters.
+Open **Settings → Account → Security** and select **Change password**. Enter the current password, choose a new one, and confirm it. The new password must be between 8 and 128 characters.
 
 Accounts that sign in only through a provider or passwordless email do not have a current password to change here. If you forgot an existing password, use **Forgot password?** on the password sign-in form. Reset emails require SMTP and local sign-in to be enabled by your instance operator. Reset links expire after one hour; completing a reset revokes existing sessions.
 
@@ -25,14 +27,20 @@ Accounts that sign in only through a provider or passwordless email do not have 
   <img className="hidden dark:block" src="/images/product/security-dark.png" alt="Accounts with a password can change it under Account → Security." />
 </Frame>
 
+## Review where you're signed in
+
+**Settings → Account → Security** also lists your active sessions: the browser and device, IP address, when you signed in, and when the session was last active. The session you're using is marked **This device**. Sessions refresh about once a day while in use, so "last active" is approximate.
+
+Select **Sign out** on a session you don't recognize to end it, or **Sign out other sessions** to end every session except this one. Ended sessions stop working at once, including open boards that update live. To end the current session, sign out. API keys aren't sessions; delete them under **Settings → Account → API keys**.
+
 ## API keys
 
-Open **Settings → Account → API Keys** to create or revoke credentials for scripts and integrations. Follow [API authentication](/api-reference/authentication) before using a key.
+Open **Settings → Account → API keys** to create or delete credentials for scripts and integrations. Follow [API authentication](/api-reference/authentication) before using a key.
 
 ## Delete your account
 
 1. Go to **Settings**.
-2. Open **Account -> Information**.
+2. Open **Account → Profile**.
 3. Under **Danger zone**, select **Delete account**.
 4. Type your email address to confirm, then select **Delete account**.
 
@@ -47,8 +55,8 @@ Deleting your account cannot be undone.
 
 ### When deletion is refused
 
-- **You are the only owner of a shared workspace.** Transfer ownership from **Settings -> Workspace -> General**, or delete the workspace first.
-- **A workspace still has an active subscription.** Cancel it under **Settings -> Workspace -> Billing** first, so you are not charged for a workspace you can no longer reach.
+- **You are the only owner of a shared workspace.** Transfer ownership from **Settings → Workspace → General**, or delete the workspace first.
+- **A workspace still has an active subscription.** Cancel it under **Settings → Workspace → Billing** first, so you are not charged for a workspace you can no longer reach.
 - **You signed in a while ago.** For security, sign out and sign back in, then try again.
 
 <Note>

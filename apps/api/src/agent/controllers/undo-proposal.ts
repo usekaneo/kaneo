@@ -84,6 +84,7 @@ export async function undoProposal(subject: AgentSubject, proposalId: string) {
         await assertAssignableUser(
           proposal.before.userId,
           scoped.workspaceId,
+          task.projectId,
           tx,
         );
       changes.userId = proposal.before.userId;

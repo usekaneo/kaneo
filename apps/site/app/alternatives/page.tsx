@@ -15,7 +15,7 @@ import { withSocialMetadata } from "@/lib/metadata";
 export const metadata: Metadata = withSocialMetadata({
   title: "Kaneo alternatives and comparisons",
   description:
-    "How Kaneo compares to Jira, Trello, Linear, Asana, ClickUp, monday.com, PLANKA, Plane, OpenProject, Redmine, and other project management tools. Open source, self-hostable, MIT licensed.",
+    "How Kaneo compares to Jira, Trello, Asana, ClickUp, monday.com, Plane, OpenProject, Redmine, and other project management tools, with Kaneo Cloud from $4 a month.",
   alternates: { canonical: "/alternatives" },
 });
 

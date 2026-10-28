@@ -18,15 +18,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Spinner } from "@/components/ui/spinner";
 import { UserAvatar } from "@/components/user-avatar";
-import { shortcuts } from "@/constants/shortcuts";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import useGetWorkspaces from "@/hooks/queries/workspace/use-get-workspaces";
-import {
-  getModifierKeyText,
-  useRegisterShortcuts,
-} from "@/hooks/use-keyboard-shortcuts";
+import { Kbd } from "@/components/ui/kbd";
+import { getModifierKeyText } from "@/lib/shortcuts/platform";
+import { useShortcut } from "@/lib/shortcuts/use-shortcut";
 import { authClient } from "@/lib/auth-client";
 import { hasInstanceAdminRole } from "@/lib/instance-admin";
 import type { Workspace } from "@/types/workspace";
@@ -97,20 +96,7 @@ export function WorkspaceSwitcher() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, workspaces, handleWorkspaceChange]);
 
-  useRegisterShortcuts({
-    sequentialShortcuts: {
-      [shortcuts.workspace.prefix]: {
-        [shortcuts.workspace.switch]: () => {
-          setIsOpen(true);
-        },
-        [shortcuts.workspace.create]: () => {
-          if (canCreateWorkspace) {
-            setIsCreateWorkspaceModalOpen(true);
-          }
-        },
-      },
-    },
-  });
+  useShortcut("switchWorkspace", () => setIsOpen(true));
 
   if (!workspace) {
     return null;
@@ -137,10 +123,14 @@ export function WorkspaceSwitcher() {
                     {workspace.name}
                   </span>
                 </div>
-                <ChevronDown
-                  className={`ml-1 size-3.5 text-foreground/70 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-[rotate,opacity] duration-200 ease-out ${isSwitching ? "animate-spin" : ""}`}
-                  data-state={isOpen ? "open" : "closed"}
-                />
+                {isSwitching ? (
+                  <Spinner className="ml-1 size-3.5 text-foreground/70" />
+                ) : (
+                  <ChevronDown
+                    className="ml-1 size-3.5 text-foreground/70 opacity-90 group-hover:opacity-100 data-[state=open]:opacity-100 data-[state=open]:rotate-180 transition-[rotate,opacity] duration-200 ease-out"
+                    data-state={isOpen ? "open" : "closed"}
+                  />
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="min-w-(--anchor-width) text-sidebar-foreground"
@@ -172,8 +162,9 @@ export function WorkspaceSwitcher() {
                         ? t("navigation:workspaceSwitcher.switching")
                         : ws.name}
                     </span>
-                    <DropdownMenuShortcut>
-                      {getModifierKeyText()} {index > 8 ? "0" : index + 1}
+                    <DropdownMenuShortcut className="gap-0.5">
+                      <Kbd tone="muted">{getModifierKeyText()}</Kbd>
+                      <Kbd tone="muted">{index > 8 ? "0" : index + 1}</Kbd>
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
                 ))}

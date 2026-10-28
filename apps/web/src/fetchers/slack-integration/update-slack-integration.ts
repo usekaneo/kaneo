@@ -33,7 +33,7 @@ async function updateSlackIntegration(
   );
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   return (await response.json()) as SlackIntegration;

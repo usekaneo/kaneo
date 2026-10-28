@@ -1,17 +1,17 @@
+import { resumeLabelChanges } from "../../sync/resume-label-changes";
+import {
+  labelReadDeadline,
+  syncLabelFieldsFromIssue,
+} from "../../sync/sync-label-fields-from-issue";
+import { acceptsIssue, readSyncRules } from "../../sync/rules";
+import { handleIssueOpened } from "./issue-opened";
 import { withIntegrationLink } from "../services/with-integration-link";
 import { linkedTaskScope } from "../services/integration-task-scope";
 import { eq } from "drizzle-orm";
-import { labelTable, taskTable } from "../../../database/schema";
+import { labelTable } from "../../../database/schema";
 import { publishEvent } from "../../../events";
-import { findExternalLink } from "../services/link-manager";
-import {
-  findAllIntegrationsByRepo,
-  updateTaskStatus,
-} from "../services/task-service";
-import {
-  extractIssuePriority,
-  extractIssueStatus,
-} from "../utils/extract-priority";
+import { findExternalLink, updateExternalLink } from "../services/link-manager";
+import { findAllIntegrationsByRepo } from "../services/task-service";
 
 type IssueLabeledPayload = {
   action: string;
@@ -35,6 +35,7 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
   const { issue, label: addedLabel } = payload;
 
   const integrations = await findAllIntegrationsByRepo(payload);
+  const deadline = labelReadDeadline();
 
   for (const integration of integrations) {
     const existingLink = await findExternalLink(
@@ -44,73 +45,53 @@ export async function handleIssueLabeled(payload: IssueLabeledPayload) {
     );
 
     if (!existingLink) {
+      const fullIssue = issue as typeof issue &
+        Partial<Parameters<typeof handleIssueOpened>[0]["issue"]>;
+      if (
+        payload.action === "labeled" &&
+        readSyncRules(integration.config)?.incoming.mode === "labels" &&
+        acceptsIssue(integration.config, issue.labels) &&
+        fullIssue.title &&
+        fullIssue.html_url
+      ) {
+        await handleIssueOpened(
+          payload as Parameters<typeof handleIssueOpened>[0],
+          integration.id,
+        );
+      }
       continue;
     }
+
+    const fieldEvent =
+      !addedLabel ||
+      addedLabel.name.startsWith("priority:") ||
+      addedLabel.name.startsWith("status:");
+    // Other label events skip the provider read; status and priority come
+    // only from the issue's current labels, never from this snapshot.
+    if (fieldEvent)
+      await syncLabelFieldsFromIssue(
+        integration,
+        existingLink,
+        payload.action === "labeled" ? addedLabel?.name : null,
+        deadline,
+      );
 
     await withIntegrationLink(
       existingLink,
       integration,
       async (db, afterCommit, existingLink) => {
-        const priority = extractIssuePriority(issue.labels);
-        const status = extractIssueStatus(issue.labels);
-
-        if (priority) {
-          await db
-            .update(taskTable)
-            .set({ priority })
-            .where(linkedTaskScope(existingLink.taskId, integration.projectId));
-        }
-
-        if (status) {
-          const statusResult = await updateTaskStatus(
-            existingLink.taskId,
-            status,
+        const names = (issue.labels ?? []).flatMap((label) => {
+          const name = typeof label === "string" ? label : label.name;
+          return name ? [name] : [];
+        });
+        const changes = resumeLabelChanges(existingLink, names);
+        if (changes.baseline && issue.labels !== undefined)
+          await updateExternalLink(
+            existingLink.id,
+            { metadata: { syncResumeLabelBaseline: names } },
             db,
           );
-          if (
-            statusResult.applied &&
-            statusResult.before.status !== statusResult.after.status
-          ) {
-            afterCommit(() =>
-              publishEvent("task.status_changed", {
-                taskId: statusResult.after.id,
-                projectId: statusResult.after.projectId,
-                userId: null,
-                oldStatus: statusResult.before.status,
-                newStatus: statusResult.after.status,
-                title: statusResult.after.title,
-                assigneeId: statusResult.after.userId,
-                type: "status_changed",
-              }),
-            );
-          }
-        }
-
-        if (!addedLabel) {
-          if (priority)
-            afterCommit(() =>
-              publishEvent("task.updated", {
-                projectId: integration.projectId,
-                taskId: existingLink.taskId,
-              }),
-            );
-          return;
-        }
-
-        const isSystemLabel =
-          addedLabel.name.startsWith("priority:") ||
-          addedLabel.name.startsWith("status:");
-
-        if (isSystemLabel) {
-          if (priority)
-            afterCommit(() =>
-              publishEvent("task.updated", {
-                projectId: integration.projectId,
-                taskId: existingLink.taskId,
-              }),
-            );
-          return;
-        }
+        if (!addedLabel || fieldEvent) return;
 
         if (payload.action === "labeled") {
           const task = await db.query.taskTable.findFirst({

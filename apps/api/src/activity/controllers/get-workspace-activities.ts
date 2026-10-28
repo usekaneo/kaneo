@@ -1,5 +1,6 @@
 import { and, desc, eq, gte, inArray, isNull, sql } from "drizzle-orm";
 import db from "../../database";
+import { redactInaccessibleMoves } from "../redact-inaccessible-moves";
 import {
   activityTable,
   columnTable,
@@ -7,6 +8,7 @@ import {
   taskTable,
   userTable,
 } from "../../database/schema";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 import { commentExcerpt } from "../comment-excerpt";
 
 export const WORKSPACE_ACTIVITY_LIMIT = 20;
@@ -15,7 +17,7 @@ export const WORKSPACE_ACTIVITY_LIMIT = 20;
 // in workspaces with years of history.
 const WINDOW_DAYS = 30;
 
-async function getWorkspaceActivities(workspaceId: string) {
+async function getWorkspaceActivities(workspaceId: string, userId: string) {
   const since = new Date(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
 
   // Concrete project IDs let PostgreSQL estimate task selectivity before it
@@ -28,6 +30,7 @@ async function getWorkspaceActivities(workspaceId: string) {
       and(
         eq(projectTable.workspaceId, workspaceId),
         isNull(projectTable.archivedAt),
+        projectAccessCondition(userId, projectTable.id),
       ),
     );
   if (!projects.length) return [];
@@ -96,7 +99,7 @@ async function getWorkspaceActivities(workspaceId: string) {
         )
     : [];
 
-  return rows.map(({ content, ...row }) => {
+  const activities = rows.map(({ content, ...row }) => {
     const data =
       row.type === "status_changed" ? statusData(row.eventData) : null;
     const nameOf = (slug: unknown) => {
@@ -118,6 +121,7 @@ async function getWorkspaceActivities(workspaceId: string) {
       excerpt: commentExcerpt(content),
     };
   });
+  return redactInaccessibleMoves(userId, activities);
 }
 
 function statusData(value: unknown): Record<string, unknown> | null {

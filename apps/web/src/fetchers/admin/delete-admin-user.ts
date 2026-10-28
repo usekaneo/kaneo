@@ -1,11 +1,14 @@
-import { authClient } from "@/lib/auth-client";
+import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 
 export async function deleteAdminUser(userId: string) {
-  const { data, error } = await authClient.admin.removeUser({ userId });
+  const response = await client.admin.users[":userId"].$delete({
+    param: { userId },
+  });
 
-  if (error) {
-    throw new Error(error.message ?? "");
+  if (!response.ok) {
+    throw await HttpError.fromResponse(response);
   }
 
-  return data;
+  return response.json();
 }

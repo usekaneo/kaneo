@@ -11,7 +11,7 @@ export async function getConfig() {
   const response = await client.config.$get();
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();

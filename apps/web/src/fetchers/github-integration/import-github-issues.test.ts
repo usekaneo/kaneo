@@ -82,25 +82,38 @@ describe("resumable GitHub import client", () => {
   });
   it("backs off for busy imports and stops after five retries", async () => {
     vi.useFakeTimers();
-    request.mockImplementation(
-      async () => new Response("busy", { status: 429 }),
+    request.mockImplementation(async () =>
+      Response.json(
+        {
+          message: "GitHub import is busy; retry this request",
+          code: "RATE_LIMITED",
+        },
+        { status: 429, headers: { "Retry-After": "1" } },
+      ),
     );
     const pending = importGithubIssues({ projectId: "project" });
-    const rejection = expect(pending).rejects.toMatchObject({ status: 429 });
+    const rejection = expect(pending).rejects.toMatchObject({
+      status: 429,
+      code: "RATE_LIMITED",
+      message: "GitHub import is busy; retry this request",
+    });
     await vi.advanceTimersByTimeAsync(999);
     expect(request).toHaveBeenCalledTimes(1);
     await vi.advanceTimersByTimeAsync(4001);
     await rejection;
     expect(request).toHaveBeenCalledTimes(6);
   });
-  it.each([403, 409, 502])(
-    "does not automatically restart on HTTP %i",
-    async (status) => {
-      request.mockResolvedValueOnce(new Response("paused", { status }));
-      await expect(
-        importGithubIssues({ projectId: "project", runId: "run-1" }),
-      ).rejects.toMatchObject({ status });
-      expect(request).toHaveBeenCalledTimes(1);
-    },
-  );
+  it.each([
+    [403, "FORBIDDEN"],
+    [409, "CONFLICT"],
+    [502, "BAD_GATEWAY"],
+  ])("does not automatically restart on HTTP %i", async (status, code) => {
+    request.mockResolvedValueOnce(
+      Response.json({ message: "paused", code }, { status }),
+    );
+    await expect(
+      importGithubIssues({ projectId: "project", runId: "run-1" }),
+    ).rejects.toMatchObject({ status, message: "paused", code });
+    expect(request).toHaveBeenCalledTimes(1);
+  });
 });

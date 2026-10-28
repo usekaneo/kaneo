@@ -1,4 +1,5 @@
 import { withIntegrationLink } from "../../github/services/with-integration-link";
+import { isStateSyncPaused } from "../../sync/state-sync-paused";
 import { linkedTaskScope } from "../../github/services/integration-task-scope";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
@@ -74,6 +75,8 @@ export async function handleGitlabIssueReopened(
         if (!task) {
           return;
         }
+
+        if (isStateSyncPaused(task.status)) return;
 
         let existingMetadata: Record<string, unknown> = {};
         if (externalLink.metadata) {

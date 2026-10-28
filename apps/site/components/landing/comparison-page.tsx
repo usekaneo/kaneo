@@ -100,9 +100,9 @@ export function ComparisonPage({ data }: { data: Comparison }) {
                     variant="outline"
                     size="lg"
                     className="h-12 px-5 text-sm sm:h-12"
-                    render={<a href="/docs/core/installation" />}
+                    render={<a href="/pricing" />}
                   >
-                    Self-host for free
+                    See pricing
                   </Button>
                 </div>
               </FadeIn>

@@ -1,0 +1,144 @@
+export type TaskRelationEdge = {
+  sourceTaskId: string;
+  targetTaskId: string;
+  relationType: string;
+};
+
+export type SubtaskRow<T> = {
+  task: T;
+  /** Nesting level; 0 for a task in its own status group. */
+  depth: number;
+  /**
+   * Unique per rendered row rather than per task. A child keeps its own
+   * top-level row and is repeated under each parent, so `task.id` appears more
+   * than once and cannot key a row or identify a drag target.
+   */
+  rowId: string;
+  childCount: number;
+  /**
+   * Whether this row's children are actually rendered beneath it. Not the same
+   * as the stored preference: a drag collapses every row, and the budget stops
+   * deep ones expanding. The chevron and its aria-expanded must follow this,
+   * or the control describes a subtree that is not on screen.
+   */
+  isExpanded: boolean;
+};
+
+/**
+ * Maps each parent to its children, in the order the relations were returned.
+ *
+ * Hierarchy is a graph edge rather than a column on the task, so a task may
+ * have several parents and the edges may form a cycle. Neither the schema nor
+ * the create endpoint prevents it, so consumers must not assume a tree.
+ */
+export function buildSubtaskChildren(
+  relations: readonly TaskRelationEdge[],
+): Map<string, string[]> {
+  // A Set rather than scanning the accumulated array: this runs on every
+  // relation response, and `includes` per edge is quadratic in one parent's
+  // children. Insertion order is preserved, so the rendered order is the order
+  // the relations arrived in.
+  const children = new Map<string, Set<string>>();
+
+  for (const relation of relations) {
+    if (relation.relationType !== "subtask") continue;
+    if (relation.sourceTaskId === relation.targetTaskId) continue;
+
+    const existing = children.get(relation.sourceTaskId);
+    if (existing) {
+      existing.add(relation.targetTaskId);
+    } else {
+      children.set(relation.sourceTaskId, new Set([relation.targetTaskId]));
+    }
+  }
+
+  return new Map(
+    [...children].map(([parentId, childIds]) => [parentId, [...childIds]]),
+  );
+}
+
+/**
+ * A task may have several parents, so expanding every occurrence enumerates
+ * simple paths rather than tasks and can grow exponentially: twelve layers of
+ * two tasks each, 24 tasks and 44 edges, reach 16,356 rows. Reaching that
+ * needs a viewer to expand exponentially many rows by hand, since every row
+ * starts collapsed and nested rows carry their own path ids rather than
+ * inheriting their task's state. The cap is a backstop for the shapes that
+ * would otherwise freeze the tab, not the mechanism that keeps the common
+ * case small.
+ */
+const MAX_NESTED_ROWS = 1000;
+
+/**
+ * Expands a column's tasks into rows, repeating each subtask beneath its
+ * parent when that parent is expanded.
+ *
+ * A child is not moved out of its own status group: it keeps its top-level row
+ * and also appears, indented, under the parent. That leaves grouping, the
+ * per-column counts and the existing drag targets untouched.
+ */
+export function flattenSubtaskRows<T extends { id: string }>({
+  tasks,
+  children,
+  tasksById,
+  isExpanded,
+  maxNestedRows = MAX_NESTED_ROWS,
+}: {
+  tasks: readonly T[];
+  children: Map<string, string[]>;
+  tasksById: Map<string, T>;
+  isExpanded: (rowId: string) => boolean;
+  maxNestedRows?: number;
+}): SubtaskRow<T>[] {
+  const rows: SubtaskRow<T>[] = [];
+  let nested = 0;
+
+  const walk = (
+    task: T,
+    depth: number,
+    ancestors: Set<string>,
+    path: string,
+  ) => {
+    const rowId = path ? `${path}/${task.id}` : task.id;
+
+    // Only children the view can actually render count; a subtask in another
+    // project is not returned by the endpoint and must not show a chevron.
+    const childTasks: T[] = [];
+    for (const childId of children.get(task.id) ?? []) {
+      const child = tasksById.get(childId);
+      if (child && !ancestors.has(childId) && childId !== task.id) {
+        childTasks.push(child);
+      }
+    }
+
+    if (depth > 0) nested += 1;
+
+    // Past the budget the row reports no children, so it renders no chevron
+    // rather than an expanded one with nothing beneath it.
+    const childCount = nested >= maxNestedRows ? 0 : childTasks.length;
+
+    const expanded = childCount > 0 && isExpanded(rowId);
+
+    rows.push({ task, depth, rowId, childCount, isExpanded: expanded });
+
+    if (!expanded) return;
+
+    const nextAncestors = new Set(ancestors);
+    nextAncestors.add(task.id);
+    for (const child of childTasks) {
+      // Checked per child, not once per parent: a single parent with more
+      // children than the budget would otherwise emit all of them.
+      if (nested >= maxNestedRows) return;
+      walk(child, depth + 1, nextAncestors, rowId);
+    }
+  };
+
+  // Top-level rows are always emitted; the cap governs nesting only, because
+  // the status grouping and the per-column counts depend on every task in the
+  // column having a row.
+  for (const task of tasks) {
+    walk(task, 0, new Set(), "");
+  }
+
+  return rows;
+}

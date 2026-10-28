@@ -15,7 +15,8 @@ import {
   it,
   vi,
 } from "vite-plus/test";
-import { SignInForm } from "@/components/auth/sign-in-form";
+import { PasswordSignInForm } from "@/components/auth/password-sign-in-form";
+import type { AuthCaptcha } from "@/components/auth/use-auth-captcha";
 
 const mocks = vi.hoisted(() => ({
   request: vi.fn(),
@@ -44,8 +45,19 @@ vi.mock("@/hooks/queries/config/use-get-config", () => ({
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
-vi.mock("@/components/auth/layout", () => ({
-  AuthLayout: ({ children }: { children: ReactNode }) => children,
+vi.mock("@/components/auth/auth-page", () => ({
+  AuthPage: ({
+    description,
+    children,
+  }: {
+    description?: ReactNode;
+    children?: ReactNode;
+  }) => (
+    <>
+      {description}
+      {children}
+    </>
+  ),
 }));
 vi.mock("@/components/auth/turnstile", () => ({
   Turnstile: ({ onVerify }: { onVerify: (token: string) => void }) => (
@@ -100,11 +112,28 @@ function submitEmail() {
 
 describe("password recovery", () => {
   it("shows the login link only when password reset is available", () => {
-    const { rerender } = render(<SignInForm />);
+    const captcha = {
+      siteKey: undefined,
+      key: 0,
+      pending: false,
+      headers: undefined,
+      onVerify: vi.fn(),
+      onExpire: vi.fn(),
+      reset: vi.fn(),
+    } satisfies AuthCaptcha;
+    const { rerender } = render(
+      <PasswordSignInForm captcha={captcha} onSuccess={vi.fn()} />,
+    );
     expect(
       screen.queryByRole("link", { name: "auth:passwordReset.forgotPassword" }),
     ).toBeNull();
-    rerender(<SignInForm canResetPassword />);
+    rerender(
+      <PasswordSignInForm
+        captcha={captcha}
+        onSuccess={vi.fn()}
+        canResetPassword
+      />,
+    );
     expect(
       screen.getByRole("link", { name: "auth:passwordReset.forgotPassword" }),
     ).toHaveAttribute("href", "/auth/forgot-password");
@@ -118,7 +147,7 @@ describe("password recovery", () => {
     submitEmail();
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent(
-        "auth:passwordReset.sent",
+        "auth:passwordReset.sentDescription",
       ),
     );
     expect(mocks.request).toHaveBeenCalledWith(
@@ -145,7 +174,7 @@ describe("password recovery", () => {
     submitEmail();
     await waitFor(() =>
       expect(screen.getByRole("status")).toHaveTextContent(
-        "auth:passwordReset.sent",
+        "auth:passwordReset.sentDescription",
       ),
     );
   });

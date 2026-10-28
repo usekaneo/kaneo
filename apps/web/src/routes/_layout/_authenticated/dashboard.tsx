@@ -1,7 +1,4 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { useTranslation } from "react-i18next";
-import PageTitle from "@/components/page-title";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { usePendingCheckout } from "@/hooks/use-pending-checkout";
 
 export const Route = createFileRoute("/_layout/_authenticated/dashboard")({
@@ -9,17 +6,7 @@ export const Route = createFileRoute("/_layout/_authenticated/dashboard")({
 });
 
 function DashboardLayoutComponent() {
-  const { t } = useTranslation();
-  const { data: workspace } = useActiveWorkspace();
   usePendingCheckout();
 
-  return (
-    <>
-      <PageTitle
-        title={t("navigation:page.projectsTitle")}
-        hideAppName={!workspace?.name}
-      />
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 }

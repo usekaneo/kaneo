@@ -246,7 +246,11 @@ async function bulkUpdateTasks({
       const assigneeId = value?.trim() || null;
 
       if (assigneeId) {
-        await assertAssignableUser(assigneeId, workspaceId);
+        await assertAssignableUser(
+          assigneeId,
+          workspaceId,
+          tasks.map((task) => task.projectId),
+        );
       }
 
       const assignee = assigneeId
