@@ -278,7 +278,7 @@ describe("private agent API", () => {
       await ctx.app.request(`${ctx.base}/runs/${id}`)
     ).text();
     expect(JSON.parse(details).attachments).toEqual([
-      { name: "notes.md", size: 14 },
+      { type: "text", name: "notes.md", size: 14 },
     ]);
     expect(details).not.toContain("Ship the guide");
     const listed = await (await ctx.app.request(`${ctx.base}${path}`)).text();
@@ -304,7 +304,7 @@ describe("private agent API", () => {
         await ctx.post(path, {
           requestId: randomUUID(),
           prompt: "Too many",
-          attachments: Array.from({ length: 4 }, (_, index) => ({
+          attachments: Array.from({ length: 6 }, (_, index) => ({
             name: `${index}.md`,
             content: "x",
           })),

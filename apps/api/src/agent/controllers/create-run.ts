@@ -1,8 +1,13 @@
-import { and, eq, inArray, count, gte } from "drizzle-orm";
+import { and, eq, inArray, count, gte, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import { getOwnedConversation } from "../access";
 import { requireAgentConfig } from "../config";
+import {
+  type AgentRunAttachmentInput,
+  toRunAttachmentInput,
+  uploadIds,
+} from "../run-request-attachments";
 import type { AgentAttachment, AgentSubject } from "../types";
 
 export async function createRun(
@@ -11,7 +16,7 @@ export async function createRun(
   input: {
     requestId: string;
     prompt: string;
-    attachments: AgentAttachment[];
+    attachments: AgentRunAttachmentInput[];
   },
 ) {
   const config = requireAgentConfig();
@@ -36,7 +41,7 @@ export async function createRun(
     if (existing) {
       if (
         existing.prompt !== input.prompt ||
-        JSON.stringify(existing.attachments) !==
+        JSON.stringify(toRunAttachmentInput(existing.attachments)) !==
           JSON.stringify(input.attachments)
       )
         throw new HTTPException(409, {
@@ -84,17 +89,50 @@ export async function createRun(
       throw new HTTPException(429, {
         message: "Agent run limit reached; try again later",
       });
+    const ids = uploadIds(input.attachments);
+    // Only your own unsent uploads in this workspace can be referenced; any
+    // other ID looks missing so upload IDs cannot be probed.
+    const uploads = ids.length
+      ? await tx
+          .select({
+            id: schema.agentAttachmentTable.id,
+            name: schema.agentAttachmentTable.name,
+            mediaType: schema.agentAttachmentTable.mediaType,
+            size: schema.agentAttachmentTable.size,
+          })
+          .from(schema.agentAttachmentTable)
+          .where(
+            and(
+              inArray(schema.agentAttachmentTable.id, ids),
+              eq(schema.agentAttachmentTable.userId, subject.userId),
+              eq(schema.agentAttachmentTable.workspaceId, subject.workspaceId),
+              isNull(schema.agentAttachmentTable.runId),
+            ),
+          )
+          .for("update")
+      : [];
+    if (uploads.length !== ids.length)
+      throw new HTTPException(404, { message: "Attachment not found" });
+    const byId = new Map(uploads.map((upload) => [upload.id, upload]));
+    const attachments: AgentAttachment[] = input.attachments.map((file) =>
+      "id" in file ? (byId.get(file.id) as AgentAttachment) : file,
+    );
     const [run] = await tx
       .insert(schema.agentRunTable)
       .values({
         conversationId,
         requestId: input.requestId,
         prompt: input.prompt,
-        attachments: input.attachments,
+        attachments,
         model: config.model,
       })
       .returning();
     if (!run) throw new HTTPException(500, { message: "Could not queue run" });
+    if (ids.length)
+      await tx
+        .update(schema.agentAttachmentTable)
+        .set({ runId: run.id })
+        .where(inArray(schema.agentAttachmentTable.id, ids));
     await tx
       .update(schema.agentConversationTable)
       .set({ updatedAt: new Date() })

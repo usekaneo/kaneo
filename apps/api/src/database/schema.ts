@@ -1831,3 +1831,42 @@ export const agentEffectTable = pgTable(
     index("agent_effect_pending_idx").on(table.deliveredAt, table.createdAt),
   ],
 );
+
+// Images and PDFs attached to assistant runs. Bytes live here, not on
+// agent_run, so run lists, SSE snapshots and WebSocket refetches never load them.
+// Rows without a run are pending uploads and expire after a day.
+export const agentAttachmentTable = pgTable(
+  "agent_attachment",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => userTable.id, { onDelete: "cascade" }),
+    runId: text("run_id").references(() => agentRunTable.id, {
+      onDelete: "cascade",
+    }),
+    name: text("name").notNull(),
+    mediaType: text("media_type").notNull(),
+    size: integer("size").notNull(),
+    data: bytea("data").notNull(),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    index("agent_attachment_owner_idx").on(
+      table.userId,
+      table.workspaceId,
+      table.runId,
+    ),
+    index("agent_attachment_run_idx").on(table.runId),
+    index("agent_attachment_pending_idx")
+      .on(table.createdAt)
+      .where(sql`${table.runId} is null`),
+  ],
+);

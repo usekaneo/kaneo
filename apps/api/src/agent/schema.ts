@@ -52,33 +52,72 @@ export const createConversationSchema = z
   })
   .strict();
 export const AGENT_ATTACHMENT_LIMITS = {
-  files: 3,
+  // Text files and uploads together.
+  files: 5,
   charactersPerFile: 50000,
   totalCharacters: 100000,
+  bytesPerUpload: 5 * 1024 * 1024,
+  // Uploads not yet sent with a run, per user.
+  pendingUploads: 20,
 } as const;
-const attachmentSchema = z
+export const AGENT_UPLOAD_MEDIA_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/gif",
+  "application/pdf",
+] as const;
+export const AGENT_UPLOAD_BASE64_CHARS =
+  Math.ceil(AGENT_ATTACHMENT_LIMITS.bytesPerUpload / 3) * 4;
+export const AGENT_UPLOAD_REQUEST_BYTES = AGENT_UPLOAD_BASE64_CHARS + 4096;
+export const uploadAttachmentSchema = z
+  .object({
+    name: z.string().trim().min(1).max(200),
+    mediaType: z.enum(AGENT_UPLOAD_MEDIA_TYPES),
+    data: z
+      .string()
+      .min(1)
+      .max(AGENT_UPLOAD_BASE64_CHARS)
+      .openapi({
+        description: `Base64 file bytes, at most ${AGENT_ATTACHMENT_LIMITS.bytesPerUpload / (1024 * 1024)} MB decoded. Must match mediaType.`,
+      }),
+  })
+  .strict();
+const textAttachmentSchema = z
   .object({
     name: z.string().trim().min(1).max(200),
     content: z.string().min(1).max(AGENT_ATTACHMENT_LIMITS.charactersPerFile),
   })
-  .strict();
+  .strict()
+  .openapi({ description: "Text file read by the client" });
+const fileAttachmentSchema = z.object({ id }).strict().openapi({
+  description:
+    "Your pending upload from POST /attachments. Each upload can be sent with one run.",
+});
 export const createRunSchema = z
   .object({
     requestId: z.string().uuid(),
     prompt: z.string().trim().min(1).max(16000),
     attachments: z
-      .array(attachmentSchema)
+      .array(z.union([textAttachmentSchema, fileAttachmentSchema]))
       .max(AGENT_ATTACHMENT_LIMITS.files)
       .refine(
         (files) =>
-          files.reduce((total, file) => total + file.content.length, 0) <=
-          AGENT_ATTACHMENT_LIMITS.totalCharacters,
+          files.reduce(
+            (total, file) =>
+              total + ("content" in file ? file.content.length : 0),
+            0,
+          ) <= AGENT_ATTACHMENT_LIMITS.totalCharacters,
         "Attachments are too large",
       )
+      .refine((files) => {
+        const ids = files.flatMap((file) => ("id" in file ? [file.id] : []));
+        return new Set(ids).size === ids.length;
+      }, "Duplicate attachment IDs")
       .default([])
       .openapi({
         description:
-          "Text files read by the client. Contents are given to the model as untrusted data and are not returned by run endpoints.",
+          "Up to five text files or uploaded images and PDFs. Contents are given to the model as untrusted data and are not returned by run endpoints.",
       }),
   })
   .strict();
@@ -87,6 +126,7 @@ export const conversationParams = workspaceParams.extend({
   conversationId: id,
 });
 export const runParams = workspaceParams.extend({ runId: id });
+export const attachmentParams = workspaceParams.extend({ attachmentId: id });
 export const proposalParams = workspaceParams.extend({ proposalId: id });
 export const listQuery = z.object({
   limit: pagingNumber(1, 50, 20),
