@@ -11,6 +11,12 @@ describe("OtpEmail", () => {
     expect(html).toContain("verification code");
   });
 
+  it("keeps the code in one piece so it copies cleanly", async () => {
+    const html = await render(createElement(OtpEmail, { otp: "482913" }));
+    expect(html).toMatch(/>482913</);
+    expect(html).not.toMatch(/>4</);
+  });
+
   it.each([
     ["en-US", "This code expires in 5 minutes."],
     ["de-DE", "Dieser Code läuft in 5 Minuten ab."],
