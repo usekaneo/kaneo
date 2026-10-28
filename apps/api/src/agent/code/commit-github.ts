@@ -195,7 +195,7 @@ export async function commitGithubChangeset(
       state: pr.state,
       draft: pr.draft ?? true,
       merged: false,
-      head: { ref: job.branch },
+      head: { ref: job.branch, sha: commitSha },
       user: pr.user ? { login: pr.user.login } : null,
     },
   });

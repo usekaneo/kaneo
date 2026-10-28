@@ -128,6 +128,7 @@ async function executeJob(job: CodeJob, owner: string, signal: AbortSignal) {
           .set({
             leaseOwner: null,
             leaseExpiresAt: new Date(Date.now() + 60000),
+            attempts: 0,
           })
           .where(and(eq(jobs.id, job.id), eq(jobs.leaseOwner, owner)));
       }
@@ -143,7 +144,9 @@ async function executeJob(job: CodeJob, owner: string, signal: AbortSignal) {
           ? "access_revoked"
           : job.status === "queued"
             ? "dispatch_failed"
-            : "commit_failed";
+            : job.status === "committing"
+              ? "commit_failed"
+              : "ci_run_failed";
     if (job.attempts >= 3 || error instanceof HTTPException)
       await fail(job, code, owner);
     else

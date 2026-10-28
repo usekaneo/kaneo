@@ -30,6 +30,7 @@ let calls: { method: string; path: string; body: Record<string, unknown> }[] =
   [];
 let dispatches = 0;
 let rejectPrOnce = false;
+let ciCompleted = false;
 const json = (data: unknown, status = 200) => Response.json(data, { status });
 
 beforeEach(async () => {
@@ -47,6 +48,7 @@ beforeEach(async () => {
   calls = [];
   dispatches = 0;
   rejectPrOnce = false;
+  ciCompleted = false;
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
@@ -117,7 +119,7 @@ beforeEach(async () => {
       if (path.endsWith("/actions/runs/123/cancel"))
         return new Response(null, { status: 202 });
       if (path.endsWith("/actions/runs/123"))
-        return json({ status: "in_progress" });
+        return json({ status: ciCompleted ? "completed" : "in_progress" });
       if (path.endsWith(`/git/commits/${baseSha}`))
         return json({ tree: { sha: "tree-base" } });
       if (path.endsWith("/git/blobs")) return json({ sha: "blob" }, 201);
@@ -412,6 +414,57 @@ describe("repo-ci coding jobs", () => {
     ]);
     expect(dispatches).toBe(1);
   });
+  it.each([false, true])(
+    "links only the approved task across ambiguous repositories (unnumbered: %s)",
+    async (unnumbered) => {
+      const ctx = await setup();
+      const other = await setup();
+      await db
+        .update(schema.projectTable)
+        .set({ slug: ctx.project.slug })
+        .where(eq(schema.projectTable.id, other.project.id));
+      if (unnumbered) {
+        await db
+          .update(schema.taskTable)
+          .set({ number: null })
+          .where(eq(schema.taskTable.id, ctx.task.id));
+        await db.insert(schema.taskTable).values({
+          projectId: ctx.project.id,
+          number: 135,
+          title: "A different task",
+        });
+      }
+      mockAuthenticatedSession(ctx.user);
+      const job = await (await ctx.start()).json();
+      await processCodeJobs();
+      const claim = await (
+        await ctx.post(
+          "/api/agent-jobs/claim",
+          { jobId: job.id },
+          await ctx.oidc(),
+        )
+      ).json();
+      await ctx.post(
+        `/api/agent-jobs/${job.id}/changeset`,
+        { ...changes, title: `${ctx.project.slug.toUpperCase()}-135: Fix` },
+        claim.credential,
+      );
+      await processCodeJobs();
+      expect(await db.select().from(schema.externalLinkTable)).toEqual([
+        expect.objectContaining({
+          taskId: ctx.task.id,
+          integrationId: ctx.integration.id,
+        }),
+      ]);
+      expect(
+        (
+          await db.query.agentJobTable.findFirst({
+            where: eq(schema.agentJobTable.id, job.id),
+          })
+        )?.status,
+      ).toBe("completed");
+    },
+  );
   it("rejects wrong repository/run claims, workflow edits, and cross-job credentials; cancellation revokes callbacks", async () => {
     const ctx = await setup();
     const job = await (await ctx.start()).json();
@@ -634,6 +687,43 @@ describe("repo-ci coding jobs", () => {
         })
       )?.status,
     ).toBe("completed");
+  });
+  it("resets retries after healthy CI observations and reconciles a lost runner", async () => {
+    const ctx = await setup();
+    const job = await (await ctx.start()).json();
+    await processCodeJobs();
+    await ctx.post(
+      "/api/agent-jobs/claim",
+      { jobId: job.id },
+      await ctx.oidc(),
+    );
+    await db
+      .update(schema.agentJobTable)
+      .set({ attempts: 100, leaseExpiresAt: new Date(0) })
+      .where(eq(schema.agentJobTable.id, job.id));
+    await processCodeJobs();
+    expect(
+      (
+        await db.query.agentJobTable.findFirst({
+          where: eq(schema.agentJobTable.id, job.id),
+        })
+      )?.attempts,
+    ).toBe(0);
+    ciCompleted = true;
+    await db
+      .update(schema.agentJobTable)
+      .set({ leaseExpiresAt: new Date(0) })
+      .where(eq(schema.agentJobTable.id, job.id));
+    await processCodeJobs();
+    expect(
+      await db.query.agentJobTable.findFirst({
+        where: eq(schema.agentJobTable.id, job.id),
+      }),
+    ).toMatchObject({
+      status: "failed",
+      error: "ci_run_failed",
+      credentialHash: null,
+    });
   });
   it("expires stale jobs and keeps private jobs hidden from other workspace admins", async () => {
     const ctx = await setup();
