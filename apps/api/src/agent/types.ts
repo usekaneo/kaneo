@@ -28,6 +28,7 @@ export type AgentSnapshot = {
   dueDate: string | null;
   // Set on applied comment proposals.
   commentId?: string;
+  jobId?: string;
 };
 export type AgentComment = Omit<
   typeof activityTable.$inferSelect,

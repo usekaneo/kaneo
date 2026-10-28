@@ -1,3 +1,5 @@
+import { insertCodeJob } from "../code/create-job";
+import { notifyJob } from "../code/notify";
 import { and, eq, inArray } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
@@ -87,6 +89,32 @@ export async function applyProposals(
           .for("update");
         if (!project)
           throw new HTTPException(404, { message: "Project not found" });
+        if (action.type === "code.run") {
+          await insertCodeJob(
+            tx,
+            scoped,
+            runId,
+            proposalId,
+            proposalId,
+            action,
+          );
+          const [pending] = await tx
+            .select({ id: schema.agentProposalTable.id })
+            .from(schema.agentProposalTable)
+            .where(
+              and(
+                eq(schema.agentProposalTable.runId, runId),
+                eq(schema.agentProposalTable.status, "pending"),
+              ),
+            )
+            .limit(1);
+          if (!pending)
+            await tx
+              .update(schema.agentRunTable)
+              .set({ status: "completed" })
+              .where(eq(schema.agentRunTable.id, runId));
+          return;
+        }
         let effect: AgentEffect;
         if (action.type === "task.create") {
           const task = await createTask({
@@ -180,6 +208,10 @@ export async function applyProposals(
             .set({ status: "completed" })
             .where(eq(schema.agentRunTable.id, runId));
       });
+      const job = await db.query.agentJobTable.findFirst({
+        where: eq(schema.agentJobTable.proposalId, proposalId),
+      });
+      if (job) await notifyJob(job);
       results.push({
         id: proposalId,
         status: "applied",

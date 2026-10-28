@@ -41,6 +41,11 @@ export async function undoProposal(subject: AgentSubject, proposalId: string) {
       throw new HTTPException(409, {
         message: "Only applied changes can be undone",
       });
+    if (proposal.action.type === "code.run")
+      throw new HTTPException(400, {
+        message:
+          "Cancel the coding job or close its pull request through the normal workflow",
+      });
     if (proposal.action.type === "task.create")
       throw new HTTPException(400, {
         message:

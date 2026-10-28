@@ -1,3 +1,4 @@
+import { jobsForRuns } from "../code/read-jobs";
 import { and, desc, eq, isNotNull, isNull, or, sql } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { projectAccessCondition } from "../../project-access/project-access-condition";
@@ -15,7 +16,7 @@ export async function listRecentRuns(
   paging: { limit: number; offset: number },
 ) {
   const conversation = schema.agentConversationTable;
-  return db
+  const runs = await db
     .select({
       id: schema.agentRunTable.id,
       conversationId: schema.agentRunTable.conversationId,
@@ -56,4 +57,12 @@ export async function listRecentRuns(
     )
     .limit(paging.limit)
     .offset(paging.offset);
+  const jobs = await jobsForRuns(
+    runs.map((run) => run.id),
+    subject,
+  );
+  return runs.map((run) => ({
+    ...run,
+    jobs: jobs.filter((job) => job.runId === run.id),
+  }));
 }

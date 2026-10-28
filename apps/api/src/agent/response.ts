@@ -1,3 +1,4 @@
+import { jobResponse } from "./code/job-response";
 import { z, responseTimestamp, nullableResponseTimestamp } from "../openapi";
 import {
   agentActionSchema,
@@ -13,6 +14,7 @@ const snapshot = z.object({
   priority: z.string(),
   userId: z.string().nullable(),
   dueDate: z.string().nullable(),
+  jobId: z.string().optional(),
   commentId: z
     .string()
     .optional()
@@ -51,6 +53,7 @@ const runAttachmentResponse = z.discriminatedUnion("type", [
   attachmentResponse.extend({ type: z.literal("file") }),
 ]);
 export const runResponse = z.object({
+  jobs: z.array(jobResponse),
   id: z.string(),
   conversationId: z.string(),
   requestId: z.string(),
@@ -67,6 +70,7 @@ export const runResponse = z.object({
   finishedAt: nullableResponseTimestamp,
 });
 export const recentRunResponse = z.object({
+  jobs: z.array(jobResponse),
   id: z.string(),
   conversationId: z.string(),
   projectId: z.string().nullable(),

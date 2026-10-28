@@ -369,6 +369,9 @@ importers:
       ioredis:
         specifier: ^6.0.0
         version: 6.0.0(supports-color@8.1.1)
+      jose:
+        specifier: ^6.2.8
+        version: 6.2.8
       octokit:
         specifier: ^5.0.5
         version: 5.0.5

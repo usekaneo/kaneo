@@ -85,6 +85,14 @@ describe("built-in role privileges", () => {
     );
   });
 
+  it("grants agent:run_code to admin and owner only", () => {
+    expect(statement.agent).toEqual(["run_code"]);
+    expect(admin.statements.agent).toEqual(["run_code"]);
+    expect(owner.statements.agent).toEqual(["run_code"]);
+    expect(member.statements).not.toHaveProperty("agent");
+    expect(viewer.statements).not.toHaveProperty("agent");
+  });
+
   it("groups all four roles under builtInRoles by name", () => {
     expect(Object.keys(builtInRoles).sort()).toEqual([
       "admin",

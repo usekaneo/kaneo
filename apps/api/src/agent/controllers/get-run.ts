@@ -1,3 +1,4 @@
+import { jobsForRuns } from "../code/read-jobs";
 import { eq } from "drizzle-orm";
 import db, { schema } from "../../database";
 import { getVisibleRun } from "../access";
@@ -31,6 +32,7 @@ export async function getRun(subject: AgentSubject, runId: string) {
   ]);
   return {
     ...publicRun,
+    jobs: await jobsForRuns([runId], subject),
     attachments: summarizeAttachments(attachments),
     steps,
     proposals,

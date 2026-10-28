@@ -12,6 +12,8 @@ export const statement = {
   task: ["create", "read", "update", "delete", "assign"],
   label: ["create", "read", "update", "delete"],
   workspace: ["read", "update", "delete", "manage_settings"],
+  // Start coding jobs that open pull requests through the Kaneo Agent App.
+  agent: ["run_code"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -38,6 +40,7 @@ export const admin = ac.newRole({
   task: ["create", "read", "update", "delete", "assign"],
   label: ["create", "read", "update", "delete"],
   workspace: ["read", "update", "manage_settings"],
+  agent: ["run_code"],
 });
 
 export const owner = ac.newRole({
@@ -46,6 +49,7 @@ export const owner = ac.newRole({
   task: ["create", "read", "update", "delete", "assign"],
   label: ["create", "read", "update", "delete"],
   workspace: ["read", "update", "delete", "manage_settings"],
+  agent: ["run_code"],
 });
 
 export const builtInRoles = { viewer, member, admin, owner } as const;

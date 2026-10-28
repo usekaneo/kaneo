@@ -533,6 +533,13 @@
       "when": 1793200116638,
       "tag": "0075_agent_conversation_sharing",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1793214467792,
+      "tag": "0076_agent_coding_jobs",
+      "breakpoints": true
     }
   ]
 }

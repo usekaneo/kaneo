@@ -11,6 +11,7 @@ import {
   initializeWebSocketAdapter,
   shutdownWebSocketAdapter,
 } from "../../apps/api/src/ws";
+import { notifyJob } from "../../apps/api/src/agent/code/notify";
 import { deliverAgentEffects } from "../../apps/api/src/agent/effects";
 import { createProposal } from "../../apps/api/src/agent/controllers/create-proposal";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -160,4 +161,45 @@ it("delivers reviewed changes and undo to the applying tab through the normal bo
         !("apiKey" in message),
     ),
   ).toBe(true);
+});
+
+it("delivers coding job IDs only to the owner's user socket without Redis", async () => {
+  await resetTestDatabase();
+  for (const name of [
+    "REDIS_URL",
+    "REDIS_HOST",
+    "REDIS_SENTINELS",
+    "REDIS_CLUSTER_NODES",
+  ])
+    vi.stubEnv(name, "");
+  const { user, workspace } = await createWorkspaceMember({ role: "admin" });
+  mockAuthenticatedSession(user);
+  const created = createApp();
+  await initializeWebSocketAdapter();
+  server = serve({ fetch: created.app.fetch, hostname: "127.0.0.1", port: 0 });
+  created.injectWebSocket(server);
+  if (!server.listening) await once(server, "listening");
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("No test port");
+  socket = new WebSocket(
+    `ws://127.0.0.1:${address.port}/api/ws/user?windowId=code-test`,
+    { headers: { Authorization: "Bearer test-session" } },
+  );
+  await once(socket, "open");
+  const messages: Record<string, unknown>[] = [];
+  socket.on("message", (data) => messages.push(JSON.parse(data.toString())));
+  await notifyJob({
+    userId: user.id,
+    workspaceId: workspace.id,
+    runId: "run-id",
+    id: "job-id",
+  });
+  await vi.waitFor(() =>
+    expect(messages).toContainEqual({
+      type: "AGENT_JOB_UPDATED",
+      workspaceId: workspace.id,
+      runId: "run-id",
+      jobId: "job-id",
+    }),
+  );
 });

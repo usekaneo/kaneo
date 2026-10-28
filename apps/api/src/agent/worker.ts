@@ -1,3 +1,4 @@
+import { processCodeJobs } from "./code/process-code-jobs";
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import db, { schema } from "../database";
@@ -8,9 +9,16 @@ import { executeAgentRun, failExpiredRuns } from "./runner";
 let timer: ReturnType<typeof setInterval> | undefined;
 let shutdown = new AbortController();
 let polling = false;
+let codePoll: Promise<void> | undefined;
 const active = new Set<Promise<void>>();
 
 export async function processAgentQueue(signal: AbortSignal = shutdown.signal) {
+  if (!codePoll)
+    codePoll = processCodeJobs(signal)
+      .catch(() => console.error("Coding worker poll failed"))
+      .finally(() => {
+        codePoll = undefined;
+      });
   await failExpiredRuns();
   await deliverAgentEffects();
   const config = getAgentConfig();
@@ -81,7 +89,7 @@ export async function shutdownAgentWorker() {
   timer = undefined;
   shutdown.abort();
   await Promise.race([
-    Promise.allSettled([...active]),
+    Promise.allSettled([...active, ...(codePoll ? [codePoll] : [])]),
     new Promise((resolve) => {
       const deadline = setTimeout(resolve, 5000);
       deadline.unref();

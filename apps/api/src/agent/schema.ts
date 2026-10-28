@@ -22,7 +22,24 @@ export const taskPatchSchema = z
     "At least one field is required",
   );
 
+export const codeActionSchema = z
+  .object({
+    type: z.literal("code.run"),
+    taskId: id,
+    integrationId: id,
+    instructions: z.string().trim().min(1).max(8000),
+    baseRef: z
+      .string()
+      .trim()
+      .min(1)
+      .max(200)
+      .regex(/^[a-zA-Z0-9_][a-zA-Z0-9_./-]*$/)
+      .optional(),
+  })
+  .strict();
+
 export const agentActionSchema = z.discriminatedUnion("type", [
+  codeActionSchema,
   z
     .object({
       type: z.literal("task.update"),

@@ -1,3 +1,4 @@
+import { listCodeRepositories } from "../code/list-repositories";
 import { tool } from "ai";
 import { and, count, eq, gt } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -5,7 +6,7 @@ import { z } from "zod";
 import db, { schema } from "../../database";
 import { assertAgentAccess } from "../access";
 import { createProposal } from "../controllers/create-proposal";
-import { createProposalSchema } from "../schema";
+import { codeActionSchema, createProposalSchema } from "../schema";
 import type { AgentSubject } from "../types";
 import { summarizeToolResult } from "./summarize-result";
 import {
@@ -166,6 +167,29 @@ export function createAgentTools(
       execute: (input, options) =>
         execute("workload", options.toolCallId, input, () =>
           readWorkload(subject, input),
+        ),
+    }),
+    list_code_repositories: tool({
+      description:
+        "List opted-in repositories available for coding proposals. Propose only ready repositories.",
+      inputSchema: z.object({}).strict(),
+      execute: (input, options) =>
+        execute("list_code_repositories", options.toolCallId, input, () =>
+          listCodeRepositories(subject),
+        ),
+    }),
+    propose_code_job: tool({
+      description:
+        "Propose a repository coding job for explicit human review. Never starts it. Use an integration ID from list_code_repositories and a task from get_task. The job opens a draft PR; it cannot merge.",
+      inputSchema: z
+        .object({
+          action: codeActionSchema,
+          reason: z.string().trim().min(1).max(2000),
+        })
+        .strict(),
+      execute: (input, options) =>
+        execute("propose_code_job", options.toolCallId, input, () =>
+          createProposal(subject, runId, input, leaseOwner),
         ),
     }),
     propose_change: tool({

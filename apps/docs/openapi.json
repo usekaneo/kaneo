@@ -4622,6 +4622,9 @@
           },
           "removeMembers": {
             "type": "boolean"
+          },
+          "runCodeAgent": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -4643,7 +4646,8 @@
           "inviteUsers",
           "manageTeam",
           "updateMembers",
-          "removeMembers"
+          "removeMembers",
+          "runCodeAgent"
         ],
         "description": "Whether the caller's roles (and API key scope, if any) allow each named action in the workspace. Mirrors the checks the API enforces."
       },
@@ -7363,6 +7367,698 @@
           },
           "404": {
             "description": "Calendar feed not found or revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-jobs/claim": {
+      "post": {
+        "operationId": "claimAgentCodeJob",
+        "tags": [
+          "Agent jobs"
+        ],
+        "security": [],
+        "summary": "Exchange a GitHub Actions OIDC bearer token for a single-job callback credential",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "jobId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "jobId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Single-use claim and bounded job spec",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "credential": {
+                      "type": "string"
+                    },
+                    "spec": {
+                      "type": "object",
+                      "properties": {
+                        "jobId": {
+                          "type": "string"
+                        },
+                        "instructions": {
+                          "type": "string"
+                        },
+                        "context": {
+                          "type": "string",
+                          "maxLength": 32000
+                        },
+                        "baseSha": {
+                          "type": "string"
+                        },
+                        "baseRef": {
+                          "type": "string"
+                        },
+                        "branch": {
+                          "type": "string"
+                        },
+                        "repository": {
+                          "type": "string"
+                        },
+                        "model": {
+                          "type": "string"
+                        },
+                        "deadline": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "jobId",
+                        "instructions",
+                        "context",
+                        "baseSha",
+                        "baseRef",
+                        "branch",
+                        "repository",
+                        "model",
+                        "deadline"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "credential",
+                    "spec"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid callback or changeset policy violation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid job identity or credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Dispatch is still being recorded; retry claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Job is inactive or claim/upload already consumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Callback rate limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Coding jobs unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-jobs/{jobId}/heartbeat": {
+      "post": {
+        "operationId": "heartbeatAgentCodeJob",
+        "tags": [
+          "Agent jobs"
+        ],
+        "security": [],
+        "summary": "Report a coarse job phase with a job bearer credential",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phase": {
+                    "type": "string",
+                    "enum": [
+                      "working",
+                      "testing",
+                      "collecting"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Heartbeat accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "cancelRequested": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "cancelRequested"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid callback or changeset policy violation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid job identity or credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Dispatch is still being recorded; retry claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Job is inactive or claim/upload already consumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Callback rate limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Coding jobs unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-jobs/{jobId}/changeset": {
+      "post": {
+        "operationId": "uploadAgentCodeChangeset",
+        "tags": [
+          "Agent jobs"
+        ],
+        "security": [],
+        "summary": "Upload a single bounded changeset; Kaneo creates the branch, commit, and draft PR",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "changes"
+                        ]
+                      },
+                      "baseSha": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{40}$"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "body": {
+                        "type": "string",
+                        "maxLength": 20000,
+                        "default": ""
+                      },
+                      "commitMessage": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 5000
+                      },
+                      "summary": {
+                        "type": "string",
+                        "maxLength": 4000
+                      },
+                      "files": {
+                        "type": "array",
+                        "items": {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "type": "string",
+                                  "enum": [
+                                    "upsert"
+                                  ]
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                },
+                                "mode": {
+                                  "type": "string",
+                                  "enum": [
+                                    "100644",
+                                    "100755",
+                                    "120000"
+                                  ],
+                                  "description": "Git file mode; phase 1 policy rejects all new symlinks, including replacements"
+                                },
+                                "content": {
+                                  "type": "string",
+                                  "description": "Base64 file bytes"
+                                }
+                              },
+                              "required": [
+                                "action",
+                                "path",
+                                "mode",
+                                "content"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "action": {
+                                  "type": "string",
+                                  "enum": [
+                                    "delete"
+                                  ]
+                                },
+                                "path": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 1024
+                                }
+                              },
+                              "required": [
+                                "action",
+                                "path"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "minItems": 1,
+                        "maxItems": 300
+                      }
+                    },
+                    "required": [
+                      "outcome",
+                      "baseSha",
+                      "title",
+                      "commitMessage",
+                      "files"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "no_changes"
+                        ]
+                      },
+                      "summary": {
+                        "type": "string",
+                        "maxLength": 4000
+                      }
+                    },
+                    "required": [
+                      "outcome",
+                      "summary"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Changeset accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accepted": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "accepted"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid callback or changeset policy violation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid job identity or credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Dispatch is still being recorded; retry claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Job is inactive or claim/upload already consumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Callback rate limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Coding jobs unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent-jobs/{jobId}/fail": {
+      "post": {
+        "operationId": "failAgentCodeJob",
+        "tags": [
+          "Agent jobs"
+        ],
+        "security": [],
+        "summary": "Report a stable failure code with a job bearer credential",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "enum": [
+                      "agent_failed",
+                      "setup_failed",
+                      "no_model_key",
+                      "timed_out"
+                    ]
+                  }
+                },
+                "required": [
+                  "code"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Failure recorded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accepted": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    }
+                  },
+                  "required": [
+                    "accepted"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid callback or changeset policy violation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Invalid job identity or credential",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Dispatch is still being recorded; retry claim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Job is inactive or claim/upload already consumed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Body too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Callback rate limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Coding jobs unavailable",
             "content": {
               "application/json": {
                 "schema": {
@@ -19130,6 +19826,10 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "codingAgentEnabled": {
+                    "type": "boolean",
+                    "description": "Opt this project repository into coding jobs through the separate Kaneo Agent App"
+                  },
                   "isActive": {
                     "type": "boolean"
                   },
@@ -30570,6 +31270,182 @@
                   "items": {
                     "type": "object",
                     "properties": {
+                      "jobs": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "runId": {
+                              "type": "string"
+                            },
+                            "taskId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "integrationId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "queued",
+                                "dispatched",
+                                "running",
+                                "committing",
+                                "completed",
+                                "failed",
+                                "cancelled"
+                              ]
+                            },
+                            "outcome": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "pr_opened",
+                                "no_changes",
+                                null
+                              ]
+                            },
+                            "backend": {
+                              "type": "string",
+                              "enum": [
+                                "repo-ci"
+                              ]
+                            },
+                            "phase": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "progress": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "repositoryOwner": {
+                              "type": "string"
+                            },
+                            "repositoryName": {
+                              "type": "string"
+                            },
+                            "baseRef": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "baseSha": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "branch": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "externalUrl": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "prNumber": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "prUrl": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "commitSha": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "summary": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "error": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "startedAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "finishedAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "deadline": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "runId",
+                            "taskId",
+                            "integrationId",
+                            "status",
+                            "outcome",
+                            "backend",
+                            "phase",
+                            "progress",
+                            "repositoryOwner",
+                            "repositoryName",
+                            "baseRef",
+                            "baseSha",
+                            "branch",
+                            "model",
+                            "externalUrl",
+                            "prNumber",
+                            "prUrl",
+                            "commitSha",
+                            "summary",
+                            "error",
+                            "createdAt",
+                            "startedAt",
+                            "finishedAt",
+                            "deadline"
+                          ]
+                        }
+                      },
                       "id": {
                         "type": "string"
                       },
@@ -30691,6 +31567,7 @@
                       }
                     },
                     "required": [
+                      "jobs",
                       "id",
                       "conversationId",
                       "requestId",
@@ -30846,6 +31723,182 @@
                   "items": {
                     "type": "object",
                     "properties": {
+                      "jobs": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "runId": {
+                              "type": "string"
+                            },
+                            "taskId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "integrationId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "queued",
+                                "dispatched",
+                                "running",
+                                "committing",
+                                "completed",
+                                "failed",
+                                "cancelled"
+                              ]
+                            },
+                            "outcome": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "pr_opened",
+                                "no_changes",
+                                null
+                              ]
+                            },
+                            "backend": {
+                              "type": "string",
+                              "enum": [
+                                "repo-ci"
+                              ]
+                            },
+                            "phase": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "progress": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "repositoryOwner": {
+                              "type": "string"
+                            },
+                            "repositoryName": {
+                              "type": "string"
+                            },
+                            "baseRef": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "baseSha": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "branch": {
+                              "type": "string"
+                            },
+                            "model": {
+                              "type": "string"
+                            },
+                            "externalUrl": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "prNumber": {
+                              "type": [
+                                "number",
+                                "null"
+                              ]
+                            },
+                            "prUrl": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "commitSha": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "summary": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "error": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "startedAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "finishedAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time"
+                            },
+                            "deadline": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "runId",
+                            "taskId",
+                            "integrationId",
+                            "status",
+                            "outcome",
+                            "backend",
+                            "phase",
+                            "progress",
+                            "repositoryOwner",
+                            "repositoryName",
+                            "baseRef",
+                            "baseSha",
+                            "branch",
+                            "model",
+                            "externalUrl",
+                            "prNumber",
+                            "prUrl",
+                            "commitSha",
+                            "summary",
+                            "error",
+                            "createdAt",
+                            "startedAt",
+                            "finishedAt",
+                            "deadline"
+                          ]
+                        }
+                      },
                       "id": {
                         "type": "string"
                       },
@@ -30918,6 +31971,7 @@
                       }
                     },
                     "required": [
+                      "jobs",
                       "id",
                       "conversationId",
                       "projectId",
@@ -31056,6 +32110,182 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "jobs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "runId": {
+                            "type": "string"
+                          },
+                          "taskId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "integrationId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "queued",
+                              "dispatched",
+                              "running",
+                              "committing",
+                              "completed",
+                              "failed",
+                              "cancelled"
+                            ]
+                          },
+                          "outcome": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "enum": [
+                              "pr_opened",
+                              "no_changes",
+                              null
+                            ]
+                          },
+                          "backend": {
+                            "type": "string",
+                            "enum": [
+                              "repo-ci"
+                            ]
+                          },
+                          "phase": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "progress": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "repositoryOwner": {
+                            "type": "string"
+                          },
+                          "repositoryName": {
+                            "type": "string"
+                          },
+                          "baseRef": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "baseSha": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "branch": {
+                            "type": "string"
+                          },
+                          "model": {
+                            "type": "string"
+                          },
+                          "externalUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "prNumber": {
+                            "type": [
+                              "number",
+                              "null"
+                            ]
+                          },
+                          "prUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "commitSha": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "summary": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "error": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "startedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "finishedAt": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "format": "date-time"
+                          },
+                          "deadline": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "runId",
+                          "taskId",
+                          "integrationId",
+                          "status",
+                          "outcome",
+                          "backend",
+                          "phase",
+                          "progress",
+                          "repositoryOwner",
+                          "repositoryName",
+                          "baseRef",
+                          "baseSha",
+                          "branch",
+                          "model",
+                          "externalUrl",
+                          "prNumber",
+                          "prUrl",
+                          "commitSha",
+                          "summary",
+                          "error",
+                          "createdAt",
+                          "startedAt",
+                          "finishedAt",
+                          "deadline"
+                        ]
+                      }
+                    },
                     "id": {
                       "type": "string"
                     },
@@ -31250,6 +32480,45 @@
                                   "type": {
                                     "type": "string",
                                     "enum": [
+                                      "code.run"
+                                    ]
+                                  },
+                                  "taskId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128
+                                  },
+                                  "integrationId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 128
+                                  },
+                                  "instructions": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 8000
+                                  },
+                                  "baseRef": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 200,
+                                    "pattern": "^[a-zA-Z0-9_][a-zA-Z0-9_./-]*$"
+                                  }
+                                },
+                                "required": [
+                                  "type",
+                                  "taskId",
+                                  "integrationId",
+                                  "instructions"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
                                       "task.update"
                                     ]
                                   },
@@ -31430,6 +32699,9 @@
                                   "null"
                                 ]
                               },
+                              "jobId": {
+                                "type": "string"
+                              },
                               "commentId": {
                                 "type": "string",
                                 "description": "Comment posted by an applied comment proposal"
@@ -31477,6 +32749,9 @@
                                   "string",
                                   "null"
                                 ]
+                              },
+                              "jobId": {
+                                "type": "string"
                               },
                               "commentId": {
                                 "type": "string",
@@ -31540,6 +32815,7 @@
                     }
                   },
                   "required": [
+                    "jobs",
                     "id",
                     "conversationId",
                     "requestId",
@@ -32639,6 +33915,1363 @@
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/code/status": {
+      "get": {
+        "operationId": "getAgentCodeStatus",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Read coding-agent configuration and permission availability",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coding availability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "canRunCode": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "enabled",
+                    "canRunCode"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/code/repositories": {
+      "get": {
+        "operationId": "listAgentCodeRepositories",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "List opted-in project repositories available to your linked GitHub account",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coding repositories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "integrationId": {
+                        "type": "string"
+                      },
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "host": {
+                        "type": "string",
+                        "enum": [
+                          "github"
+                        ]
+                      },
+                      "fullName": {
+                        "type": "string"
+                      },
+                      "defaultBranch": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "backend": {
+                        "type": "string",
+                        "enum": [
+                          "repo-ci"
+                        ]
+                      },
+                      "state": {
+                        "type": "string",
+                        "enum": [
+                          "ready",
+                          "unavailable"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "integrationId",
+                      "projectId",
+                      "host",
+                      "fullName",
+                      "defaultBranch",
+                      "backend",
+                      "state"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/jobs": {
+      "post": {
+        "operationId": "startAgentCodeJob",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Start a coding job directly from a task with an applied proposal audit record",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "taskId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "integrationId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "instructions": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8000
+                  },
+                  "baseRef": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "pattern": "^[a-zA-Z0-9_][a-zA-Z0-9_./-]*$"
+                  },
+                  "requestId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "taskId",
+                  "integrationId",
+                  "instructions",
+                  "requestId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Queued or existing coding job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "runId": {
+                      "type": "string"
+                    },
+                    "taskId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "integrationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "dispatched",
+                        "running",
+                        "committing",
+                        "completed",
+                        "failed",
+                        "cancelled"
+                      ]
+                    },
+                    "outcome": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "pr_opened",
+                        "no_changes",
+                        null
+                      ]
+                    },
+                    "backend": {
+                      "type": "string",
+                      "enum": [
+                        "repo-ci"
+                      ]
+                    },
+                    "phase": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "progress": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "repositoryOwner": {
+                      "type": "string"
+                    },
+                    "repositoryName": {
+                      "type": "string"
+                    },
+                    "baseRef": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "baseSha": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "branch": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "externalUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "prNumber": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "prUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "commitSha": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "summary": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "error": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "startedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "finishedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "deadline": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "runId",
+                    "taskId",
+                    "integrationId",
+                    "status",
+                    "outcome",
+                    "backend",
+                    "phase",
+                    "progress",
+                    "repositoryOwner",
+                    "repositoryName",
+                    "baseRef",
+                    "baseSha",
+                    "branch",
+                    "model",
+                    "externalUrl",
+                    "prNumber",
+                    "prUrl",
+                    "commitSha",
+                    "summary",
+                    "error",
+                    "createdAt",
+                    "startedAt",
+                    "finishedAt",
+                    "deadline"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/jobs/{jobId}": {
+      "get": {
+        "operationId": "getAgentCodeJob",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Read a coding job under its conversation sharing rules",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coding job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "runId": {
+                      "type": "string"
+                    },
+                    "taskId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "integrationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "dispatched",
+                        "running",
+                        "committing",
+                        "completed",
+                        "failed",
+                        "cancelled"
+                      ]
+                    },
+                    "outcome": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "pr_opened",
+                        "no_changes",
+                        null
+                      ]
+                    },
+                    "backend": {
+                      "type": "string",
+                      "enum": [
+                        "repo-ci"
+                      ]
+                    },
+                    "phase": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "progress": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "repositoryOwner": {
+                      "type": "string"
+                    },
+                    "repositoryName": {
+                      "type": "string"
+                    },
+                    "baseRef": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "baseSha": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "branch": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "externalUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "prNumber": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "prUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "commitSha": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "summary": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "error": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "startedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "finishedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "deadline": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "runId",
+                    "taskId",
+                    "integrationId",
+                    "status",
+                    "outcome",
+                    "backend",
+                    "phase",
+                    "progress",
+                    "repositoryOwner",
+                    "repositoryName",
+                    "baseRef",
+                    "baseSha",
+                    "branch",
+                    "model",
+                    "externalUrl",
+                    "prNumber",
+                    "prUrl",
+                    "commitSha",
+                    "summary",
+                    "error",
+                    "createdAt",
+                    "startedAt",
+                    "finishedAt",
+                    "deadline"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/jobs/{jobId}/events": {
+      "get": {
+        "operationId": "getAgentCodeJobEvents",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Read bounded coding job state events",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647,
+              "default": 0
+            },
+            "required": false,
+            "name": "after",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job state events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "sequence": {
+                        "type": "number"
+                      },
+                      "jobId": {
+                        "type": "string"
+                      },
+                      "phase": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "sequence",
+                      "jobId",
+                      "phase",
+                      "createdAt"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/jobs/{jobId}/cancel": {
+      "post": {
+        "operationId": "cancelAgentCodeJob",
+        "tags": [
+          "Agent"
+        ],
+        "summary": "Cancel your job before PR creation starts and revoke its credential",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "jobId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current coding job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "runId": {
+                      "type": "string"
+                    },
+                    "taskId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "integrationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "dispatched",
+                        "running",
+                        "committing",
+                        "completed",
+                        "failed",
+                        "cancelled"
+                      ]
+                    },
+                    "outcome": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "pr_opened",
+                        "no_changes",
+                        null
+                      ]
+                    },
+                    "backend": {
+                      "type": "string",
+                      "enum": [
+                        "repo-ci"
+                      ]
+                    },
+                    "phase": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "progress": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "repositoryOwner": {
+                      "type": "string"
+                    },
+                    "repositoryName": {
+                      "type": "string"
+                    },
+                    "baseRef": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "baseSha": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "branch": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "externalUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "prNumber": {
+                      "type": [
+                        "number",
+                        "null"
+                      ]
+                    },
+                    "prUrl": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "commitSha": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "summary": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "error": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "startedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "finishedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "deadline": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "runId",
+                    "taskId",
+                    "integrationId",
+                    "status",
+                    "outcome",
+                    "backend",
+                    "phase",
+                    "progress",
+                    "repositoryOwner",
+                    "repositoryName",
+                    "baseRef",
+                    "baseSha",
+                    "branch",
+                    "model",
+                    "externalUrl",
+                    "prNumber",
+                    "prUrl",
+                    "commitSha",
+                    "summary",
+                    "error",
+                    "createdAt",
+                    "startedAt",
+                    "finishedAt",
+                    "deadline"
+                  ]
                 }
               }
             }
