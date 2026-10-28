@@ -29224,7 +29224,27 @@
                       "type": [
                         "string",
                         "null"
-                      ]
+                      ],
+                      "description": "Default model for new runs"
+                    },
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "label"
+                        ]
+                      },
+                      "description": "Models a run may request, including the default; empty when disabled"
                     },
                     "maxSteps": {
                       "type": [
@@ -29242,6 +29262,7 @@
                   "required": [
                     "enabled",
                     "model",
+                    "models",
                     "maxSteps",
                     "maxOutputTokens"
                   ]
@@ -29761,6 +29782,12 @@
                     "maxItems": 3,
                     "default": [],
                     "description": "Text files read by the client. Contents are given to the model as untrusted data and are not returned by run endpoints."
+                  },
+                  "model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "OpenRouter model ID from the config endpoint's models. Omit to use the instance default; other models are rejected."
                   }
                 },
                 "required": [

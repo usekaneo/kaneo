@@ -5240,6 +5240,7 @@
 	"agent": {
 		"composer": {
 			"enterToSend": "↵ to send",
+			"model": "Model: {{model}}",
 			"followUp": "Ask a follow-up…",
 			"placeholder": "Ask about this project…",
 			"reviewMode": "Ask before changes",

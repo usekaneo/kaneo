@@ -80,6 +80,10 @@ export const createRunSchema = z
         description:
           "Text files read by the client. Contents are given to the model as untrusted data and are not returned by run endpoints.",
       }),
+    model: z.string().trim().min(1).max(200).optional().openapi({
+      description:
+        "OpenRouter model ID from the config endpoint's models. Omit to use the instance default; other models are rejected.",
+    }),
   })
   .strict();
 export const workspaceParams = z.object({ workspaceId: id });

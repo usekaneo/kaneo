@@ -10,6 +10,7 @@ import { isAgentRunActive } from "@/lib/agent-run-status";
 import { toast } from "@/lib/toast";
 import { useAgentPanelStore } from "@/store/agent-panel";
 import { AgentComposer } from "./agent-composer";
+import { AgentModelPicker } from "./agent-model-picker";
 import { AgentHistoryMenu } from "./agent-history-menu";
 import { AgentSuggestions } from "./agent-suggestions";
 import { AgentThread } from "./agent-thread";
@@ -149,6 +150,7 @@ export function AgentPanel({
           sending={send.isPending}
           autoFocus
           inputRef={inputRef}
+          modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
         />
       </div>
     </aside>

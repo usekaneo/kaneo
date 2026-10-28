@@ -9,6 +9,7 @@ async function createAgentRun(
     requestId: string;
     prompt: string;
     attachments: Array<{ name: string; content: string }>;
+    model?: string;
   },
 ) {
   const response = await client.agent[":workspaceId"].conversations[

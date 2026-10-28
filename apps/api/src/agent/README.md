@@ -17,11 +17,14 @@ The key also supports `OPENROUTER_API_KEY_FILE`. Credentials are never returned 
 | Setting | Default | Allowed values |
 | --- | --- | --- |
 | `OPENROUTER_MODEL` | `openai/gpt-6-luna` | OpenRouter model ID with tool support |
+| `OPENROUTER_MODELS` | unset | Comma-separated model IDs users may pick per run, up to 20 including the default |
 | `KANEO_AGENT_MAX_STEPS` | 8 | 1–12 model steps |
 | `KANEO_AGENT_MAX_OUTPUT_TOKENS` | 2048 | 256–4096 per step |
 | `KANEO_AGENT_TIMEOUT_MS` | 120000 | 10000–300000 |
 | `KANEO_AGENT_CONCURRENCY` | 1 | 1–4 runs per API process |
 | `OPENROUTER_ZDR` | false | `true` restricts inference to ZDR endpoints |
+
+`OPENROUTER_MODEL` is the default and is always allowed. When `OPENROUTER_MODELS` lists other models, the composer shows a model picker and runs may request any listed model; the API rejects others with 400. Invalid entries disable the agent, like other invalid settings.
 
 The provider must support requested parameters; OpenRouter routing disallows provider data collection. Workspace context is still sent to OpenRouter. Runs record token usage and the provider-reported `costUsd`, which can be null if unavailable. These limits bound work, but do not constitute a dollar budget. Enforce account spending limits in OpenRouter, especially when selecting a more expensive model.
 
@@ -31,10 +34,10 @@ All paths below are relative to `/api/agent/{workspaceId}`. Use the existing ses
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| GET | `/config` | Availability and public model limits |
+| GET | `/config` | Availability, default `model`, allowed `models` (`{id, label}`), and limits |
 | POST | `/conversations` | Create with optional `projectId` and `title`; omitting the project scopes reads to the workspace |
 | GET | `/conversations?limit=20&offset=0&projectId=` | Your conversation history, optionally for one project |
-| POST | `/conversations/{conversationId}/runs` | Queue `{requestId: UUID, prompt, attachments?}`; returns `{id, status}` with 202 |
+| POST | `/conversations/{conversationId}/runs` | Queue `{requestId: UUID, prompt, attachments?, model?}`; returns `{id, status}` with 202 |
 | GET | `/conversations/{conversationId}/runs` | Run history, same pagination |
 | GET | `/runs?limit=20&offset=0` | Your recent runs across conversations, with pending/applied proposal counts |
 | GET | `/runs/{runId}` | Response, status, tool progress, proposals, usage, cost |

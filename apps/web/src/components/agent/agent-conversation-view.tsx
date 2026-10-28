@@ -7,6 +7,7 @@ import useAgentRun from "@/hooks/queries/agent/use-agent-run";
 import { isAgentRunActive } from "@/lib/agent-run-status";
 import { toast } from "@/lib/toast";
 import { AgentComposer } from "./agent-composer";
+import { AgentModelPicker } from "./agent-model-picker";
 import { AgentThread } from "./agent-thread";
 import { AgentUnavailable } from "./agent-unavailable";
 import { getAgentErrorKey } from "./get-agent-error-key";
@@ -72,6 +73,7 @@ export function AgentConversationView({
             placeholder={t("agent:composer.followUp")}
             running={running}
             sending={send.isPending}
+            modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
           />
         ) : (
           <AgentUnavailable />

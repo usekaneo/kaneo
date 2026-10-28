@@ -13,6 +13,7 @@ beforeEach(() => {
   vi.stubEnv("OPENROUTER_API_KEY", "test-key");
   for (const name of [
     "OPENROUTER_MODEL",
+    "OPENROUTER_MODELS",
     "KANEO_AGENT_MAX_STEPS",
     "KANEO_AGENT_MAX_OUTPUT_TOKENS",
     "KANEO_AGENT_TIMEOUT_MS",
@@ -26,11 +27,19 @@ describe("agent configuration", () => {
   it("defaults to a bounded Luna run", () => {
     expect(getAgentConfig()).toMatchObject({
       model: "openai/gpt-6-luna",
+      models: ["openai/gpt-6-luna"],
       maxSteps: 8,
       maxOutputTokens: 2048,
       timeoutMs: 120000,
       concurrency: 1,
     });
+  });
+  it("allows listed models alongside the default", () => {
+    vi.stubEnv("OPENROUTER_MODELS", "anthropic/claude-opus-5");
+    expect(getAgentConfig()?.models).toEqual([
+      "openai/gpt-6-luna",
+      "anthropic/claude-opus-5",
+    ]);
   });
   it("requires explicit enablement", () => {
     vi.stubEnv("KANEO_AGENT_ENABLED", "false");
@@ -48,6 +57,7 @@ describe("agent configuration", () => {
     ["KANEO_AGENT_TIMEOUT_MS", "0"],
     ["KANEO_AGENT_CONCURRENCY", "10"],
     ["OPENROUTER_MODEL", ""],
+    ["OPENROUTER_MODELS", "openai/gpt-6-luna, bad model"],
   ])("fails closed for invalid %s", (name, value) => {
     vi.stubEnv(name, value);
     expect(getAgentConfig()).toBeNull();

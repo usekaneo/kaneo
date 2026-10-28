@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import useSendAgentPrompt from "@/hooks/mutations/agent/use-send-agent-prompt";
 import { toast } from "@/lib/toast";
 import { AgentComposer } from "./agent-composer";
+import { AgentModelPicker } from "./agent-model-picker";
 import { AgentExamples } from "./agent-examples";
 import { AgentRecentRuns } from "./agent-recent-runs";
 import { AgentUnavailable } from "./agent-unavailable";
@@ -58,6 +59,7 @@ export function AgentHome({
               sending={send.isPending}
               autoFocus
               inputRef={inputRef}
+              modelPicker={<AgentModelPicker workspaceId={workspaceId} />}
             />
           ) : (
             <AgentUnavailable />

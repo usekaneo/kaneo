@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import createAgentConversation from "@/fetchers/agent/create-agent-conversation";
 import createAgentRun from "@/fetchers/agent/create-agent-run";
 import { agentQueryKeys } from "@/hooks/queries/agent/agent-query-keys";
+import { useAgentModel } from "@/hooks/use-agent-model";
 
 type SendAgentPromptInput = {
   conversationId?: string;
@@ -11,6 +12,7 @@ type SendAgentPromptInput = {
 
 function useSendAgentPrompt(workspaceId: string, projectId?: string) {
   const queryClient = useQueryClient();
+  const { model } = useAgentModel(workspaceId);
 
   return useMutation({
     mutationFn: async ({
@@ -30,6 +32,7 @@ function useSendAgentPrompt(workspaceId: string, projectId?: string) {
         requestId: crypto.randomUUID(),
         prompt,
         attachments,
+        ...(model ? { model } : {}),
       });
       return { conversationId: targetId, runId: run.id };
     },
