@@ -155,6 +155,7 @@
 						"pages": [
 							"core/integrations/github/setup",
 							"core/integrations/github/configuration",
+							"core/integrations/github/coding-agent",
 							"core/integrations/github/troubleshooting",
 							"core/integrations/gitea/setup",
 							"core/integrations/gitlab/setup"
