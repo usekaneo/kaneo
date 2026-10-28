@@ -205,6 +205,10 @@ export async function readWorkload(
           openTasks: sql<number>`count(*)::integer`,
           dueInPeriod: sql<number>`count(*) filter (where ${gte(schema.taskTable.dueDate, new Date(input.from))} and ${lt(schema.taskTable.dueDate, new Date(input.to))})::integer`,
           overdueTasks: sql<number>`count(*) filter (where ${schema.taskTable.dueDate} < now())::integer`,
+          // Recorded as touched projects; not sent to the model.
+          projectIds: sql<
+            string[]
+          >`array_agg(distinct ${schema.taskTable.projectId})`,
         })
         .from(schema.taskTable)
         .innerJoin(

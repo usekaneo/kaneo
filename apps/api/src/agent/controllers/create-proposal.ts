@@ -2,6 +2,7 @@ import { eq, count } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import db, { schema } from "../../database";
 import { getOwnedRun } from "../access";
+import { recordTouchedProjects } from "../record-touched-projects";
 import { createProposalSchema } from "../schema";
 import { validateAction } from "../validate-action";
 import type { AgentSubject } from "../types";
@@ -35,6 +36,11 @@ export async function createProposal(
     if ((total?.value ?? 0) >= 20)
       throw new HTTPException(400, { message: "Run proposal limit reached" });
     const before = await validateAction(scoped, action, tx);
+    await recordTouchedProjects(
+      runId,
+      [action.type === "task.create" ? action.projectId : before?.projectId],
+      tx,
+    );
     const [proposal] = await tx
       .insert(schema.agentProposalTable)
       .values({ runId, action, reason, before })

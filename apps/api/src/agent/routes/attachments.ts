@@ -68,7 +68,7 @@ const routes = apiRouter()
       tags: ["Agent"],
       summary: "Download a run attachment",
       description:
-        "The uploader can read it, and so can members who can see the run's shared conversation. Images are served inline, PDFs as downloads.",
+        "The uploader can read it, and so can members who can read every project the shared run touched. Images are served inline, PDFs as downloads.",
       middleware,
       request: { params: attachmentParams },
       responses: {

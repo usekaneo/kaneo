@@ -533,6 +533,13 @@
       "when": 1793200116638,
       "tag": "0075_agent_conversation_sharing",
       "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1793205563409,
+      "tag": "0076_agent_run_touched_projects",
+      "breakpoints": true
     }
   ]
 }

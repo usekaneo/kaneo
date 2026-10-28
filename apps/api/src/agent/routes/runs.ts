@@ -89,7 +89,7 @@ const routes = apiRouter()
       tags: ["Agent"],
       summary: "List your recent runs and runs shared with you",
       description:
-        "Includes runs from conversations other members shared, when you can read their project. Each run names its conversation owner.",
+        "Includes runs from conversations other members shared, when you can read every project the run touched. Each run names its conversation owner.",
       middleware,
       request: { params: workspaceParams, query: listQuery },
       responses: {
@@ -121,7 +121,7 @@ const routes = apiRouter()
       tags: ["Agent"],
       summary: "Read a run, its tool progress, and proposals",
       description:
-        "Owners and, for shared conversations, members who can read its project may read it. Only the owner can act on it.",
+        "Owners and, for shared conversations, members who can read every project the run touched may read it. Only the owner can act on it.",
       middleware,
       request: { params: runParams },
       responses: {

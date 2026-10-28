@@ -16,8 +16,10 @@ import { isTextAttachment } from "./is-text-attachment";
 import { loadRunUploads } from "./load-run-uploads";
 import { withMentionContext } from "./mention-context";
 import { parseMentionRefs } from "./mention-token";
+import { recordTouchedProjects } from "./record-touched-projects";
 import { resolveMentions } from "./resolve-mentions";
 import { createAgentTools } from "./tools";
+import { projectsInMentions } from "./touched-project-ids";
 import {
   isUnsupportedInputError,
   UNSUPPORTED_ATTACHMENTS_ERROR,
@@ -89,6 +91,7 @@ export async function executeAgentRun(
         prompt: schema.agentRunTable.prompt,
         attachments: schema.agentRunTable.attachments,
         response: schema.agentRunTable.response,
+        touchedProjectIds: schema.agentRunTable.touchedProjectIds,
       })
       .from(schema.agentRunTable)
       .where(
@@ -117,13 +120,21 @@ export async function executeAgentRun(
       },
       { role: "assistant" as const, content: item.response.slice(0, 4000) },
     ]);
+    const mentioned = await resolveMentions(
+      subject,
+      parseMentionRefs(run.prompt),
+    );
+    // Earlier answers and mentioned items reach the model too, so this run
+    // inherits their projects before anything is generated.
+    await recordTouchedProjects(run.id, [
+      subject.projectId,
+      ...previous.flatMap((item) => item.touchedProjectIds),
+      ...projectsInMentions(mentioned),
+    ]);
     messages.push({
       role: "user",
       content: buildUserContent(
-        withMentionContext(
-          run.prompt,
-          await resolveMentions(subject, parseMentionRefs(run.prompt)),
-        ),
+        withMentionContext(run.prompt, mentioned),
         run.attachments,
         await loadRunUploads(run.id, run.attachments),
       ),
