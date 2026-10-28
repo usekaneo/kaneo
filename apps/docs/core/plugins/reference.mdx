@@ -251,7 +251,7 @@ Contributions only appear in workspaces where the plugin is on. Each one renders
 
 | Key | Item fields | Appears as |
 | --- | --- | --- |
-| `projectViews` | `id`, `title`, `icon?`, `shortcut?`, `component` | A tab in the project's top navigation, next to Kaneo's own views. `shortcut` is a single key pressed after `v`, like Kaneo's own view shortcuts; a key Kaneo already uses is ignored. |
+| `projectViews` | `id`, `title`, `icon?`, `shortcut?`, `scope?`, `display?`, `countsTask?`, `component` | A layout in the project's **Display** menu, next to Board, List, and Calendar. See [Project views](#project-views). |
 | `taskPanels` | `id`, `title`, `component` | A section in the task detail sheet and on the full task page |
 | `pages` | `id`, `title`, `icon?`, `component` | A sidebar entry and its page |
 | `commands` | `id`, `title`, `run` | An item in the command palette |
@@ -259,6 +259,28 @@ Contributions only appear in workspaces where the plugin is on. Each one renders
 | `translations` | `{ [locale]: { [key]: string } }` | Strings for `useT`, for example under `en-US` and `de-DE` |
 
 `id` must be unique within its list. `icon` is any React component that accepts `className`.
+
+### Project views
+
+A project view is a layout like Board, List, and Calendar. It appears in the layout switch of the project's **Display** menu, and Kaneo renders its search, filters, task count, and active filters above it, as it does for its own layouts. Kaneo remembers the layout each person picked last, so **Tasks** returns to it while the plugin is on in the workspace and falls back to Board otherwise.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `scope` | `"board"` or `"schedule"` | Which tasks the layout shows. `board`, the default, holds the tasks on the board. `schedule` adds the backlog's planned tasks, like Calendar. |
+| `display` | A component | Controls rendered in the **Display** menu below the layout switch. It receives the same props as the view and can use the UI components and `useProjectView()`. |
+| `countsTask` | `(task) => boolean` | Which tasks the toolbar's task count includes, for layouts that cannot show every task, such as a timeline that skips tasks without dates. Kaneo counts every task in scope when it is missing. |
+| `shortcut` | A single letter or digit | Opens the layout when pressed after `v`. Kaneo lists it in the shortcuts panel. A key Kaneo already uses after `v` is ignored, and the first plugin to claim a key keeps it. |
+
+Inside the view and its `display` component, `useProjectView()` returns:
+
+| Field | Type |
+| --- | --- |
+| `tasks` | The tasks in scope after the person's search and filters |
+| `allTasks` | Every task in scope, before search and filters. `allTasks.length` is the unfiltered count. |
+| `isLoading` | `boolean` |
+| `error` | `Error` or `null` |
+
+Both lists use the task fields below and keep the board's order, with planned tasks last.
 
 ### Component props
 
@@ -291,6 +313,7 @@ All hooks come from `@kaneo/plugin-sdk/web` and only work inside Kaneo's web app
 | `useTask(taskId)` | `{ data, isLoading, error }` with one task |
 | `useTasks(projectId)` | `{ data, isLoading, error }` with the project's tasks |
 | `useProject(projectId)` | `{ data, isLoading, error }` with `{ id, workspaceId, name, slug, columns }`. `columns` lists `{ id, name, slug, isFinal }` in board order. |
+| `useProjectView()` | `{ tasks, allTasks, isLoading, error }` for the open project view, with Kaneo's search and filters applied to `tasks`. Only works inside a project view and its `display` component. |
 | `useUpdateTask()` | `updateTask(taskId, changes)`, which updates a task and keeps Kaneo's views in sync. `changes` can hold `title`, `description`, `status`, `priority`, `assigneeId`, `startDate`, and `dueDate` (ISO strings or `null` for dates). |
 | `useToast()` | `{ success, error, info }`, each taking a message |
 | `usePreferences()` | `{ weekStartsOn }`, the user's first day of the week (`0` is Sunday) |
@@ -301,7 +324,7 @@ All hooks come from `@kaneo/plugin-sdk/web` and only work inside Kaneo's web app
 
 The API clients have `get<T>(path)`, `delete<T>(path)`, `post<T>(path, body?)`, `put<T>(path, body?)`, and `patch<T>(path, body?)`. Each returns a promise for the response body. Bodies are sent as JSON.
 
-`useTask` and `useTasks` return tasks with these fields:
+`useTask`, `useTasks`, and `useProjectView` return tasks with these fields:
 
 | Field | Type |
 | --- | --- |
@@ -334,6 +357,7 @@ All components come from `@kaneo/plugin-sdk/ui` and render Kaneo's own implement
 | `Spinner` | `className` |
 | `Skeleton` | Native `div` props |
 | `Separator` | `orientation` (`horizontal` or `vertical`), `className` |
+| `WeekStartControl` | None. Kaneo's first day of the week picker, which changes the person's preference. Place it in a project view's `display` controls. |
 
 ### Theme tokens
 

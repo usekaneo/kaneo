@@ -61,6 +61,8 @@ export type SeparatorProps = {
   orientation?: "horizontal" | "vertical";
 };
 
+export type WeekStartControlProps = Record<string, never>;
+
 export type HostComponents = {
   Button: ComponentType<ButtonProps>;
   Badge: ComponentType<BadgeProps>;
@@ -71,4 +73,5 @@ export type HostComponents = {
   Spinner: ComponentType<SpinnerProps>;
   Skeleton: ComponentType<SkeletonProps>;
   Separator: ComponentType<SeparatorProps>;
+  WeekStartControl: ComponentType<WeekStartControlProps>;
 };

@@ -1,6 +1,6 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { Search, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -9,13 +9,19 @@ import {
   SHORTCUTS,
   type ShortcutId,
 } from "@/lib/shortcuts/catalog";
+import {
+  type ListedShortcut,
+  shortcutRegistry,
+} from "@/lib/shortcuts/registry";
 import { useShortcut } from "@/lib/shortcuts/use-shortcut";
+import { bindingCaps } from "./binding-keys";
 import { capMatcher, matchesShortcut } from "./match-shortcut";
-import { shortcutCaps } from "./shortcut-keys";
+import { shortcutBindings } from "./shortcut-keys";
 import { ShortcutRow } from "./shortcut-row";
 import { useShortcutsPanelStore } from "./shortcuts-panel-store";
 
 const SHORTCUT_IDS = Object.keys(SHORTCUTS) as ShortcutId[];
+const NO_LISTED: ListedShortcut[] = [];
 
 export function ShortcutsPanel() {
   const { t } = useTranslation();
@@ -24,6 +30,11 @@ export function ShortcutsPanel() {
   const [query, setQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const listed = useSyncExternalStore(
+    shortcutRegistry.subscribe,
+    shortcutRegistry.getListed,
+    () => NO_LISTED,
+  );
 
   useShortcut("openShortcuts", () =>
     setOpen(!useShortcutsPanelStore.getState().open),
@@ -32,11 +43,20 @@ export function ShortcutsPanel() {
   const isHighlighted = capMatcher(query);
   const sections = SHORTCUT_CATEGORIES.map((category) => ({
     category,
-    items: SHORTCUT_IDS.filter((id) => SHORTCUTS[id].category === category)
-      .map((id) => ({ id, label: t(`navigation:shortcuts.items.${id}`) }))
-      .filter((item) =>
-        matchesShortcut(item.label, shortcutCaps(item.id), query),
+    items: [
+      ...SHORTCUT_IDS.filter((id) => SHORTCUTS[id].category === category).map(
+        (id) => ({
+          id,
+          label: t(`navigation:shortcuts.items.${id}`),
+          bindings: shortcutBindings(id),
+        }),
       ),
+      ...listed
+        .filter((item) => item.category === category)
+        .map(({ id, label, keys }) => ({ id, label, bindings: keys })),
+    ].filter((item) =>
+      matchesShortcut(item.label, bindingCaps(item.bindings), query),
+    ),
   })).filter((section) => section.items.length > 0);
   const resultCount = sections.reduce(
     (total, section) => total + section.items.length,
@@ -128,7 +148,7 @@ export function ShortcutsPanel() {
                     {section.items.map((item) => (
                       <ShortcutRow
                         key={item.id}
-                        id={item.id}
+                        bindings={item.bindings}
                         label={item.label}
                         query={query}
                         isHighlighted={isHighlighted}

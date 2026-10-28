@@ -1,3 +1,4 @@
+import type { ShortcutCategory } from "./catalog";
 import { type Binding, type KeyCombo, matchesCombo } from "./key-combo";
 import { isMacPlatform } from "./platform";
 
@@ -19,12 +20,21 @@ const CONTROL_KEYS = new Set(["enter", "space"]);
 const POPUP =
   "[role='dialog'], [role='alertdialog'], [role='menu'], [role='listbox']";
 
+export type ShortcutListing = {
+  label: string;
+  keys: readonly string[];
+  category: ShortcutCategory;
+};
+
+export type ListedShortcut = ShortcutListing & { id: string };
+
 export type ShortcutRegistration = {
   id?: string;
   bindings: Binding[];
   scope: ShortcutScope;
   allowInInput?: boolean;
   allowInPopup?: boolean;
+  listing?: ShortcutListing;
   handler: (event: KeyboardEvent) => void;
 };
 
@@ -60,13 +70,28 @@ export function createShortcutRegistry(isMac: boolean, sequenceTimeout = 2000) {
   let nextToken = 0;
   let pending: PendingKey | null = null;
   let pendingTimer: ReturnType<typeof setTimeout> | undefined;
+  let listed: ListedShortcut[] = [];
+
+  const notify = () => {
+    for (const listener of listeners) listener();
+  };
 
   const setPending = (value: PendingKey | null) => {
     pending = value;
     clearTimeout(pendingTimer);
     if (value)
       pendingTimer = setTimeout(() => setPending(null), sequenceTimeout);
-    for (const listener of listeners) listener();
+    notify();
+  };
+
+  const refreshListed = () => {
+    const found = new Map<string, ListedShortcut>();
+    for (const entry of entries.values()) {
+      if (!entry.id || !entry.listing || found.has(entry.id)) continue;
+      found.set(entry.id, { id: entry.id, ...entry.listing });
+    }
+    listed = [...found.values()];
+    notify();
   };
 
   const best = (candidates: Entry[]) =>
@@ -168,8 +193,10 @@ export function createShortcutRegistry(isMac: boolean, sequenceTimeout = 2000) {
     register(registration: ShortcutRegistration) {
       const token = nextToken++;
       entries.set(token, { ...registration, token });
+      if (registration.listing) refreshListed();
       return () => {
         entries.delete(token);
+        if (registration.listing) refreshListed();
       };
     },
     handleKeyDown,
@@ -177,17 +204,23 @@ export function createShortcutRegistry(isMac: boolean, sequenceTimeout = 2000) {
     getContinuations() {
       const first = pending;
       if (!first) return [];
-      const found = new Map<string, KeyCombo>();
+      const found = new Map<string, { next: KeyCombo; label?: string }>();
       for (const entry of entries.values()) {
         if (!entry.id || found.has(entry.id)) continue;
         const binding = entry.bindings.find(
           (candidate) =>
             candidate.length === 2 && matchesCombo(candidate[0], first, isMac),
         );
-        if (binding) found.set(entry.id, binding[1]);
+        if (binding) {
+          found.set(entry.id, {
+            next: binding[1],
+            label: entry.listing?.label,
+          });
+        }
       }
-      return [...found].map(([id, next]) => ({ id, next }));
+      return [...found].map(([id, continuation]) => ({ id, ...continuation }));
     },
+    getListed: () => listed,
     subscribe(listener: () => void) {
       listeners.add(listener);
       return () => {
@@ -196,6 +229,7 @@ export function createShortcutRegistry(isMac: boolean, sequenceTimeout = 2000) {
     },
     reset() {
       entries.clear();
+      listed = [];
       setPending(null);
     },
   };

@@ -1,4 +1,5 @@
 import type { HostComponents } from "@kaneo/plugin-sdk/ui";
+import { WeekStartControl } from "@/components/project/display/week-start-control";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,4 +20,5 @@ export const hostComponents = {
   Spinner,
   Skeleton,
   Separator,
+  WeekStartControl,
 } satisfies HostComponents;

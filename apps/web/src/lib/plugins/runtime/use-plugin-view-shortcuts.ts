@@ -1,15 +1,13 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { parseBinding } from "@/lib/shortcuts/key-combo";
 import { shortcutRegistry } from "@/lib/shortcuts/registry";
+import { type PluginViewRef, pluginLayoutId } from "../plugin-layout-id";
 import { PLUGIN_VIEW_PREFIX, takenViewKeys } from "./plugin-view-keys";
 import {
   type PluginViewShortcut,
   selectViewShortcuts,
 } from "./select-view-shortcuts";
-import type {
-  PluginViewRef,
-  ProjectPluginView,
-} from "./use-project-plugin-views";
+import type { ProjectPluginView } from "./use-project-plugin-views";
 
 const TAKEN_KEYS = takenViewKeys();
 
@@ -28,13 +26,16 @@ export function usePluginViewShortcuts(
   useEffect(() => {
     if (!enabled) return;
     const selected = JSON.parse(signature) as PluginViewShortcut[];
-    const unregister = selected.map(({ key, pluginId, viewId }) =>
-      shortcutRegistry.register({
-        bindings: [parseBinding(`${PLUGIN_VIEW_PREFIX} ${key}`)],
+    const unregister = selected.map(({ key, title, pluginId, viewId }) => {
+      const keys = `${PLUGIN_VIEW_PREFIX} ${key}`;
+      return shortcutRegistry.register({
+        id: pluginLayoutId({ pluginId, viewId }),
+        bindings: [parseBinding(keys)],
         scope: "view",
+        listing: { label: title, keys: [keys], category: "views" },
         handler: () => goToViewRef.current({ pluginId, viewId }),
-      }),
-    );
+      });
+    });
     return () => {
       for (const release of unregister) release();
     };

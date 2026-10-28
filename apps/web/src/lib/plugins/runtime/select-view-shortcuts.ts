@@ -1,11 +1,13 @@
-import type { PluginViewRef } from "./use-project-plugin-views";
+import type { PluginViewRef } from "../plugin-layout-id";
 
-export type PluginViewShortcut = PluginViewRef & { key: string };
+type ShortcutCandidate = PluginViewRef & { title: string; shortcut?: unknown };
+
+export type PluginViewShortcut = PluginViewRef & { title: string; key: string };
 
 const SHORTCUT_KEY = /^[a-z0-9]$/;
 
 export function selectViewShortcuts(
-  views: readonly (PluginViewRef & { shortcut?: unknown })[],
+  views: readonly ShortcutCandidate[],
   reservedKeys: readonly string[],
 ): PluginViewShortcut[] {
   const taken = new Set(reservedKeys.map((key) => key.toLowerCase()));
@@ -15,7 +17,12 @@ export function selectViewShortcuts(
     const key = view.shortcut.trim().toLowerCase();
     if (!SHORTCUT_KEY.test(key) || taken.has(key)) continue;
     taken.add(key);
-    selected.push({ pluginId: view.pluginId, viewId: view.viewId, key });
+    selected.push({
+      pluginId: view.pluginId,
+      viewId: view.viewId,
+      title: view.title,
+      key,
+    });
   }
   return selected;
 }

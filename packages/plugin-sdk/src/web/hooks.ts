@@ -5,6 +5,7 @@ import type {
   PluginProject,
   PluginTask,
   PluginUser,
+  ProjectViewState,
   QueryState,
   TaskChanges,
   ToastApi,
@@ -36,6 +37,10 @@ export function useTasks(projectId: string): QueryState<PluginTask[]> {
 
 export function useProject(projectId: string): QueryState<PluginProject> {
   return getPluginHost().useProject(projectId);
+}
+
+export function useProjectView(): ProjectViewState {
+  return getPluginHost().useProjectView();
 }
 
 export function useUpdateTask(): (

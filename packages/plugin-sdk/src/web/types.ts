@@ -21,11 +21,16 @@ export type SettingsPanelProps = {
   workspaceId: string;
 };
 
+export type ProjectViewScope = "board" | "schedule";
+
 export type ProjectView = {
   id: string;
   title: string;
   icon?: IconComponent;
   shortcut?: string;
+  scope?: ProjectViewScope;
+  display?: ComponentType<ProjectViewProps>;
+  countsTask?: (task: PluginTask) => boolean;
   component: ComponentType<ProjectViewProps>;
 };
 
@@ -88,6 +93,13 @@ export type PluginTask = {
   assigneeName: string | null;
   startDate: string | null;
   dueDate: string | null;
+};
+
+export type ProjectViewState = {
+  tasks: PluginTask[];
+  allTasks: PluginTask[];
+  isLoading: boolean;
+  error: Error | null;
 };
 
 export type PluginProjectColumn = {

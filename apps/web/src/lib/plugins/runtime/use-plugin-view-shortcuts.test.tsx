@@ -2,10 +2,8 @@ import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { shortcutRegistry } from "@/lib/shortcuts/registry";
 import { ShortcutTestWrapper } from "@/lib/shortcuts/shortcut-test-wrapper";
-import type {
-  PluginViewRef,
-  ProjectPluginView,
-} from "./use-project-plugin-views";
+import type { PluginViewRef } from "../plugin-layout-id";
+import type { ProjectPluginView } from "./use-project-plugin-views";
 import { usePluginViewShortcuts } from "./use-plugin-view-shortcuts";
 
 const view = (
@@ -60,6 +58,26 @@ describe("usePluginViewShortcuts", () => {
       pluginId: "gantt",
       viewId: "timeline",
     });
+  });
+
+  it("lists each plugin layout shortcut with its title", () => {
+    render(
+      <ShortcutTestWrapper>
+        <Harness
+          views={[view("gantt", "timeline", "g"), view("notes", "list")]}
+          goToView={vi.fn()}
+        />
+      </ShortcutTestWrapper>,
+    );
+
+    expect(shortcutRegistry.getListed()).toEqual([
+      {
+        id: "plugin:gantt:timeline",
+        label: "timeline",
+        keys: ["v g"],
+        category: "views",
+      },
+    ]);
   });
 
   it("registers nothing while disabled", () => {

@@ -1,22 +1,17 @@
 import { useShortcut } from "@/lib/shortcuts/use-shortcut";
-import { useUserPreferencesStore } from "@/store/user-preferences";
-import { type ProjectView, tasksViewFor } from "./project-views";
+import type { ProjectView } from "./project-views";
 
 export function useProjectViewShortcuts(
   goToView: (view: ProjectView) => void,
-  currentView: ProjectView | null,
+  currentView: ProjectView,
+  tasksView: ProjectView,
   enabled: boolean,
 ) {
-  const taskLayout = useUserPreferencesStore((state) => state.taskLayout);
-  const viewMode = useUserPreferencesStore((state) => state.viewMode);
-
   useShortcut(
     "toggleLayout",
     () => goToView(currentView === "list" ? "board" : "list"),
     { enabled },
   );
-  useShortcut("goToTasks", () => goToView(tasksViewFor(taskLayout, viewMode)), {
-    enabled,
-  });
+  useShortcut("goToTasks", () => goToView(tasksView), { enabled });
   useShortcut("goToBacklog", () => goToView("backlog"), { enabled });
 }

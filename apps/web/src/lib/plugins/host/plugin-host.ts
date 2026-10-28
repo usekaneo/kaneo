@@ -14,6 +14,7 @@ import { hostComponents } from "./host-components";
 import { usePluginScope } from "./plugin-scope-context";
 import { useKaneoApi, usePluginApi } from "./use-plugin-api";
 import { usePluginOpenTask } from "./use-plugin-open-task";
+import { usePluginProjectView } from "./plugin-project-view-context";
 import { usePluginProject } from "./use-plugin-project";
 import { usePluginTask, usePluginTasks } from "./use-plugin-tasks";
 import { usePluginTranslation } from "./use-plugin-translation";
@@ -58,6 +59,7 @@ export const pluginHost: PluginHost = {
   useTask: usePluginTask,
   useTasks: usePluginTasks,
   useProject: usePluginProject,
+  useProjectView: usePluginProjectView,
   useUpdateTask: usePluginUpdateTask,
   useToast: () => pluginToast,
   usePreferences,

@@ -48,4 +48,8 @@ export function Separator(props: SeparatorProps) {
   return createElement(getPluginHost().ui.Separator, props);
 }
 
+export function WeekStartControl() {
+  return createElement(getPluginHost().ui.WeekStartControl);
+}
+
 export type * from "./types.js";

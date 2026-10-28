@@ -340,7 +340,7 @@ export default defineWeb({
 
 | Key | Where it appears | Component props |
 | --- | --- | --- |
-| `projectViews` | A tab in the project's top navigation, next to Kaneo's own views | `workspaceId`, `projectId` |
+| `projectViews` | A layout in the project's **Display** menu, next to Board, List, and Calendar | `workspaceId`, `projectId` |
 | `taskPanels` | A section in the task detail sheet and on the full task page | `workspaceId`, `projectId`, `taskId` |
 | `pages` | A sidebar entry and its page | `workspaceId` |
 | `commands` | An item in the command palette | `run` receives `workspaceId`, `projectId`, and `navigate` |
@@ -348,6 +348,54 @@ export default defineWeb({
 | `translations` | Strings for `useT`, keyed by locale such as `en-US` | |
 
 Views and pages also accept an `icon`, any React component that takes a `className`. Kaneo renders each contribution inside its own error boundary and suspense boundary, and only in workspaces that turned the plugin on.
+
+### Project views
+
+A project view is a layout, like Board, List, and Calendar. Kaneo puts it in the layout switch, keeps its own search, filters, and task count above it, and hands your component the tasks that match through `useProjectView()`:
+
+```tsx
+import { WeekStartControl } from "@kaneo/plugin-sdk/ui";
+import {
+  defineWeb,
+  type ProjectViewProps,
+  useOpenTask,
+  useProjectView,
+} from "@kaneo/plugin-sdk/web";
+
+function Agenda(_props: ProjectViewProps) {
+  const { tasks, isLoading } = useProjectView();
+  const openTask = useOpenTask();
+  if (isLoading) return null;
+
+  return (
+    <ul>
+      {tasks.map((task) => (
+        <li key={task.id}>
+          <button type="button" onClick={() => openTask(task.id)}>
+            {task.title}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default defineWeb({
+  projectViews: [
+    {
+      id: "agenda",
+      title: "Agenda",
+      shortcut: "a",
+      scope: "schedule",
+      display: () => <WeekStartControl />,
+      countsTask: (task) => task.dueDate !== null,
+      component: Agenda,
+    },
+  ],
+});
+```
+
+`scope: "schedule"` adds the backlog's planned tasks to the board's tasks, as Calendar does. `display` renders controls in the **Display** menu below the layout switch, and `countsTask` decides which tasks the task count includes. With `shortcut: "a"`, pressing `v` then `a` opens the layout, and the shortcuts panel lists it. The [project views reference](/core/plugins/reference#project-views) covers every field.
 
 ### Hooks
 
@@ -406,6 +454,7 @@ export function ProgressPanel({ taskId }: TaskPanelProps) {
 | `useKaneoApi()` | The same client for Kaneo's own API, acting as the signed-in user |
 | `useTask(taskId)` | One task as `{ data, isLoading, error }` |
 | `useTasks(projectId)` | A project's tasks as `{ data, isLoading, error }` |
+| `useProjectView()` | Inside a project view, the tasks after Kaneo's search and filters, plus every task in scope |
 | `useCurrentUser()` | The signed-in user, or `null` |
 | `useT()` | A translate function for your `translations` |
 | `useNavigate()` | A function that navigates within Kaneo |
@@ -419,7 +468,7 @@ Kaneo provides `react`, `react-dom`, and `@tanstack/react-query` to your web ent
 
 ### UI components
 
-`@kaneo/plugin-sdk/ui` exports Kaneo's own `Button`, `Badge`, `Input`, `Textarea`, `Label`, `Switch`, `Spinner`, `Skeleton`, and `Separator`. They render with Kaneo's styles in light and dark mode. See the [component props](/core/plugins/reference#ui-components).
+`@kaneo/plugin-sdk/ui` exports Kaneo's own `Button`, `Badge`, `Input`, `Textarea`, `Label`, `Switch`, `Spinner`, `Skeleton`, and `Separator`, plus `WeekStartControl` for a project view's display controls. They render with Kaneo's styles in light and dark mode. See the [component props](/core/plugins/reference#ui-components).
 
 ### Styling
 

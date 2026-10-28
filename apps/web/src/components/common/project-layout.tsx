@@ -6,16 +6,15 @@ import MobileProjectNav from "@/components/common/header/mobile-project-nav";
 import ProjectCrumbSelect from "@/components/common/header/project-crumb-select";
 import WorkspaceCrumbSelect from "@/components/common/header/workspace-crumb-select";
 import Layout from "@/components/common/layout";
-import { PluginViewLink } from "@/components/project/views/plugin-view-link";
-import { PLUGIN_VIEW_PATH } from "@/components/project/views/plugin-view-path";
 import { ProjectScopeToggle } from "@/components/project/views/project-scope-toggle";
 import {
-  PROJECT_ROUTE_PATHS,
   type ProjectRoute,
   resolveProjectView,
 } from "@/components/project/views/project-views";
 import { useGoToProjectView } from "@/components/project/views/use-go-to-project-view";
 import { useProjectViewShortcuts } from "@/components/project/views/use-project-view-shortcuts";
+import { useTasksView } from "@/components/project/views/use-tasks-view";
+import { viewLocation } from "@/components/project/views/view-location";
 import CreateProjectModal from "@/components/shared/modals/create-project-modal";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
@@ -27,12 +26,9 @@ import {
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import { useProjectWebSocket } from "@/hooks/use-project-websocket";
 import { cn } from "@/lib/cn";
+import { pluginLayoutId } from "@/lib/plugins/plugin-layout-id";
 import { usePluginViewShortcuts } from "@/lib/plugins/runtime/use-plugin-view-shortcuts";
-import {
-  isSamePluginView,
-  type PluginViewRef,
-  useProjectPluginViews,
-} from "@/lib/plugins/runtime/use-project-plugin-views";
+import { useProjectPluginViews } from "@/lib/plugins/runtime/use-project-plugin-views";
 import { getProjectUnavailableReason } from "@/lib/project-unavailable-reason";
 import { useBackgroundStore } from "@/store/background";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -47,7 +43,6 @@ type ProjectLayoutProps = {
   children: ReactNode;
   showViewSwitcher?: boolean;
   activeView?: ProjectRoute;
-  activePluginView?: PluginViewRef;
 };
 
 export default function ProjectLayout({
@@ -59,7 +54,6 @@ export default function ProjectLayout({
   children,
   showViewSwitcher = true,
   activeView,
-  activePluginView,
 }: ProjectLayoutProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -74,6 +68,7 @@ export default function ProjectLayout({
   const { background } = useBackgroundStore();
   const viewMode = useUserPreferencesStore((state) => state.viewMode);
   const pluginViews = useProjectPluginViews(workspaceId, projectId);
+  const tasksView = useTasksView(pluginViews);
 
   useProjectWebSocket(unavailableReason ? "" : projectId);
 
@@ -84,40 +79,23 @@ export default function ProjectLayout({
       : location.pathname.includes("/calendar")
         ? "calendar"
         : "board");
-  const currentRoute = activePluginView ? null : resolvedRoute;
-  const currentView = currentRoute
-    ? resolveProjectView(currentRoute, viewMode)
-    : null;
+  const currentView = resolveProjectView(resolvedRoute, viewMode);
   const showViews = showViewSwitcher && !unavailableReason;
 
-  const goToView = useGoToProjectView({ workspaceId, projectId, currentRoute });
-  const goToPluginView = (view: PluginViewRef, targetProjectId = projectId) => {
-    navigate({
-      to: PLUGIN_VIEW_PATH,
-      params: {
-        workspaceId,
-        projectId: targetProjectId,
-        pluginId: view.pluginId,
-        viewId: view.viewId,
-      },
-    });
-  };
-  useProjectViewShortcuts(goToView, currentView, showViews);
-  usePluginViewShortcuts(pluginViews, goToPluginView, showViews);
+  const goToView = useGoToProjectView({
+    workspaceId,
+    projectId,
+    currentRoute: resolvedRoute,
+  });
+  useProjectViewShortcuts(goToView, currentView, tasksView, showViews);
+  usePluginViewShortcuts(
+    pluginViews,
+    (view) => goToView(pluginLayoutId(view)),
+    showViews,
+  );
 
   const handleProjectSwitch = (nextProjectId: string) => {
-    if (activePluginView) {
-      goToPluginView(activePluginView, nextProjectId);
-      return;
-    }
-
-    navigate({
-      to: PROJECT_ROUTE_PATHS[resolvedRoute],
-      params: {
-        workspaceId,
-        projectId: nextProjectId,
-      },
-    });
+    navigate(viewLocation(resolvedRoute, workspaceId, nextProjectId));
   };
 
   return (
@@ -161,9 +139,6 @@ export default function ProjectLayout({
               workspaceId={workspaceId}
               projectId={projectId}
               projectName={project?.name}
-              pluginViews={pluginViews}
-              activePluginView={activePluginView}
-              onSelectPluginView={goToPluginView}
               onSelectProject={handleProjectSwitch}
               onAddProject={() => setIsCreateProjectModalOpen(true)}
             />
@@ -184,23 +159,9 @@ export default function ProjectLayout({
                 workspaceId={workspaceId}
                 projectId={projectId}
                 currentView={currentView}
+                tasksView={tasksView}
                 onSelect={goToView}
-              >
-                {pluginViews.length > 0 && (
-                  <span className="hidden sm:contents">
-                    {pluginViews.map((view) => (
-                      <PluginViewLink
-                        key={`${view.pluginId}:${view.viewId}`}
-                        view={view}
-                        workspaceId={workspaceId}
-                        projectId={projectId}
-                        active={isSamePluginView(activePluginView, view)}
-                        onSelect={goToPluginView}
-                      />
-                    ))}
-                  </span>
-                )}
-              </ProjectScopeToggle>
+              />
             )}
             {summary}
             <div className="ml-auto flex shrink-0 items-center gap-1">

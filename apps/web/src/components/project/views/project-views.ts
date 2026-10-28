@@ -5,17 +5,29 @@ import {
   SquareKanban,
   SquircleDashed,
 } from "lucide-react";
+import {
+  isPluginLayoutId,
+  type PluginLayoutId,
+} from "@/lib/plugins/plugin-layout-id";
 import type { TaskLayout } from "@/store/user-preferences";
 
-export type ProjectView = "board" | "list" | "backlog" | "calendar";
+export type ProjectView =
+  | "board"
+  | "list"
+  | "backlog"
+  | "calendar"
+  | PluginLayoutId;
 
-export type ProjectRoute = "board" | "backlog" | "calendar";
+export type ProjectRoute = "board" | "backlog" | "calendar" | PluginLayoutId;
 
 export const PROJECT_ROUTE_PATHS = {
   board: "/dashboard/workspace/$workspaceId/project/$projectId/board",
   backlog: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
   calendar: "/dashboard/workspace/$workspaceId/project/$projectId/calendar",
 } as const;
+
+export const PLUGIN_VIEW_PATH =
+  "/dashboard/workspace/$workspaceId/project/$projectId/plugin/$pluginId/$viewId";
 
 export const PROJECT_VIEWS: ReadonlyArray<{
   id: ProjectView;
@@ -62,6 +74,11 @@ export const TASK_LAYOUTS = PROJECT_VIEWS.filter(
 export function tasksViewFor(
   taskLayout: TaskLayout,
   viewMode: "board" | "list",
+  pluginLayouts: readonly PluginLayoutId[],
 ): ProjectView {
-  return taskLayout === "calendar" ? taskLayout : viewMode;
+  if (taskLayout === "calendar") return taskLayout;
+  if (isPluginLayoutId(taskLayout) && pluginLayouts.includes(taskLayout)) {
+    return taskLayout;
+  }
+  return viewMode;
 }

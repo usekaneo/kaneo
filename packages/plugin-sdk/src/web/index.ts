@@ -8,6 +8,7 @@ export {
   usePluginApi,
   usePreferences,
   useProject,
+  useProjectView,
   useT,
   useTask,
   useTasks,

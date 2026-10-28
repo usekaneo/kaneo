@@ -10,19 +10,11 @@ import {
 import icons from "@/constants/project-icons";
 import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import { cn } from "@/lib/cn";
-import type {
-  PluginViewRef,
-  ProjectPluginView,
-} from "@/lib/plugins/runtime/use-project-plugin-views";
-import { MobilePluginViews } from "./mobile-plugin-views";
 
 type MobileProjectNavProps = {
   workspaceId: string;
   projectId: string;
   projectName?: string;
-  pluginViews: ProjectPluginView[];
-  activePluginView: PluginViewRef | undefined;
-  onSelectPluginView: (view: PluginViewRef) => void;
   onSelectProject: (projectId: string) => void;
   onAddProject: () => void;
 };
@@ -31,9 +23,6 @@ export default function MobileProjectNav({
   workspaceId,
   projectId,
   projectName,
-  pluginViews,
-  activePluginView,
-  onSelectPluginView,
   onSelectProject,
   onAddProject,
 }: MobileProjectNavProps) {
@@ -69,15 +58,6 @@ export default function MobileProjectNav({
       </PopoverTrigger>
       <PopoverContent align="start" className="w-72 p-2">
         <div className="space-y-3">
-          <MobilePluginViews
-            views={pluginViews}
-            activeView={activePluginView}
-            onSelect={(view) => {
-              setOpen(false);
-              onSelectPluginView(view);
-            }}
-          />
-
           <div className="space-y-1">
             <p className="px-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
               {t("navigation:sidebar.projects")}

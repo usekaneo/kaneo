@@ -6,6 +6,7 @@ import type {
   PluginProject,
   PluginTask,
   PluginUser,
+  ProjectViewState,
   QueryState,
   TaskChanges,
   ToastApi,
@@ -20,6 +21,7 @@ export type PluginHost = {
   useTask(taskId: string): QueryState<PluginTask>;
   useTasks(projectId: string): QueryState<PluginTask[]>;
   useProject(projectId: string): QueryState<PluginProject>;
+  useProjectView(): ProjectViewState;
   useUpdateTask(): (taskId: string, changes: TaskChanges) => Promise<void>;
   useToast(): ToastApi;
   usePreferences(): UserPreferences;

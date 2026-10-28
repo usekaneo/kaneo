@@ -42,12 +42,25 @@ function normalizeItems(kind: ContributionKind, value: unknown): unknown[] {
   });
 }
 
+function normalizeProjectView(value: unknown) {
+  const item = value as Record<string, unknown>;
+  return {
+    ...item,
+    scope: item.scope === "schedule" ? "schedule" : "board",
+    display: isComponent(item.display) ? item.display : undefined,
+    countsTask:
+      typeof item.countsTask === "function" ? item.countsTask : undefined,
+  };
+}
+
 export function normalizeWebDefinition(
   definition: WebPluginDefinition,
 ): WebPluginDefinition {
   const normalized: Record<string, unknown> = { ...definition };
   for (const kind of CONTRIBUTION_KINDS) {
-    normalized[kind] = normalizeItems(kind, definition[kind]);
+    const items = normalizeItems(kind, definition[kind]);
+    normalized[kind] =
+      kind === "projectViews" ? items.map(normalizeProjectView) : items;
   }
   if (!isComponent(definition.settingsPanel)) {
     normalized.settingsPanel = undefined;

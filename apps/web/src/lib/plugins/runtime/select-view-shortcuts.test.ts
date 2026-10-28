@@ -4,6 +4,7 @@ import { selectViewShortcuts } from "./select-view-shortcuts";
 const view = (pluginId: string, viewId: string, shortcut?: unknown) => ({
   pluginId,
   viewId,
+  title: viewId,
   shortcut,
 });
 
@@ -15,8 +16,8 @@ describe("selectViewShortcuts", () => {
         ["b"],
       ),
     ).toEqual([
-      { pluginId: "gantt", viewId: "timeline", key: "g" },
-      { pluginId: "reports", viewId: "chart", key: "r" },
+      { pluginId: "gantt", viewId: "timeline", title: "timeline", key: "g" },
+      { pluginId: "reports", viewId: "chart", title: "chart", key: "r" },
     ]);
   });
 
@@ -30,7 +31,9 @@ describe("selectViewShortcuts", () => {
         ],
         ["b", "C", "l", "k"],
       ),
-    ).toEqual([{ pluginId: "gantt", viewId: "timeline", key: "g" }]);
+    ).toEqual([
+      { pluginId: "gantt", viewId: "timeline", title: "timeline", key: "g" },
+    ]);
   });
 
   it("ignores missing and unusable shortcuts", () => {

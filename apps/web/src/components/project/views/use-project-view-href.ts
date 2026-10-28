@@ -1,9 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
-import {
-  PROJECT_ROUTE_PATHS,
-  type ProjectView,
-  routeForView,
-} from "./project-views";
+import { type ProjectView, routeForView } from "./project-views";
+import { viewLocation } from "./view-location";
 
 export function useProjectViewHref(
   view: ProjectView,
@@ -11,8 +8,7 @@ export function useProjectViewHref(
   projectId: string,
 ) {
   const router = useRouter();
-  return router.buildLocation({
-    to: PROJECT_ROUTE_PATHS[routeForView(view)],
-    params: { workspaceId, projectId },
-  }).href;
+  return router.buildLocation(
+    viewLocation(routeForView(view), workspaceId, projectId),
+  ).href;
 }

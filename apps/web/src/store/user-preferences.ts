@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import type { PluginLayoutId } from "@/lib/plugins/plugin-layout-id";
+import { migratePreferences, PREFERENCES_VERSION } from "./migrate-preferences";
 
 export const WEEK_START_DAYS = [0, 1, 6] as const;
 export type WeekStartDay = (typeof WEEK_START_DAYS)[number];
@@ -8,7 +10,7 @@ export function isWeekStartDay(value: number): value is WeekStartDay {
   return WEEK_START_DAYS.some((day) => day === value);
 }
 
-export type TaskLayout = "board" | "list" | "calendar";
+export type TaskLayout = "board" | "list" | "calendar" | PluginLayoutId;
 
 export type PriorityIconStyle = "marks" | "classic";
 
@@ -164,6 +166,9 @@ export const useUserPreferencesStore = create<UserPreferencesStore>()(
     {
       name: "user-preferences",
       storage: createJSONStorage(() => localStorage),
+      version: PREFERENCES_VERSION,
+      migrate: (persisted, version) =>
+        migratePreferences(persisted, version) as UserPreferencesStore,
       onRehydrateStorage: () => (state) => {
         if (state && !isWeekStartDay(state.weekStartsOn)) {
           state.setWeekStartsOn(0);
