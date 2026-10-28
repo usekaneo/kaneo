@@ -4,9 +4,10 @@ import { MarkdownRenderer } from "@/components/public-project/markdown-renderer"
 import useAgentRun from "@/hooks/queries/agent/use-agent-run";
 import { isAgentRunActive } from "@/lib/agent-run-status";
 import type { AgentRunSummary } from "@/types/agent";
-import { AgentAttachmentChip } from "./agent-attachment-chip";
 import { AgentProposalReview } from "./agent-proposal-review";
+import { AgentRunAttachments } from "./agent-run-attachments";
 import { AgentRunSteps } from "./agent-run-steps";
+import { getAgentRunErrorKey } from "./get-agent-run-error-key";
 
 type AgentRunItemProps = {
   workspaceId: string;
@@ -24,6 +25,8 @@ export function AgentRunItem({
   const status = run?.status ?? summary.status;
   const active = isAgentRunActive(status);
   const response = run?.response ?? summary.response;
+  const error = run?.error ?? summary.error;
+  const errorKey = getAgentRunErrorKey(error);
 
   return (
     <article className="flex flex-col gap-4">
@@ -31,13 +34,10 @@ export function AgentRunItem({
         <p className="max-w-[85%] whitespace-pre-wrap break-words rounded-xl rounded-br-sm bg-muted px-3 py-2.5 text-foreground text-sm">
           {summary.prompt}
         </p>
-        {summary.attachments.length > 0 && (
-          <div className="flex max-w-[85%] flex-wrap justify-end gap-1.5">
-            {summary.attachments.map((file) => (
-              <AgentAttachmentChip key={file.name} name={file.name} />
-            ))}
-          </div>
-        )}
+        <AgentRunAttachments
+          workspaceId={workspaceId}
+          attachments={summary.attachments}
+        />
       </div>
 
       <AgentRunSteps steps={run?.steps ?? []} active={active} />
@@ -61,7 +61,7 @@ export function AgentRunItem({
           className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-destructive-foreground text-xs"
         >
           <CircleAlert aria-hidden="true" className="mt-px size-3.5 shrink-0" />
-          {run?.error ?? summary.error ?? t("agent:errors.generic")}
+          {errorKey ? t(errorKey) : (error ?? t("agent:errors.generic"))}
         </p>
       )}
       {status === "cancelled" && (

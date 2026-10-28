@@ -1,6 +1,7 @@
 import { client } from "@kaneo/libs";
 
 import { HttpError } from "@/lib/http-error";
+import type { AgentRunAttachmentInput } from "@/types/agent";
 
 async function createAgentRun(
   workspaceId: string,
@@ -8,7 +9,7 @@ async function createAgentRun(
   input: {
     requestId: string;
     prompt: string;
-    attachments: Array<{ name: string; content: string }>;
+    attachments: AgentRunAttachmentInput[];
   },
 ) {
   const response = await client.agent[":workspaceId"].conversations[

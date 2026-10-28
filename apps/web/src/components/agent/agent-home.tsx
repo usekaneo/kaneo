@@ -7,8 +7,8 @@ import { AgentExamples } from "./agent-examples";
 import { AgentRecentRuns } from "./agent-recent-runs";
 import { AgentUnavailable } from "./agent-unavailable";
 import { getAgentErrorKey } from "./get-agent-error-key";
+import { useAgentAttachments } from "./use-agent-attachments";
 import { usePickPrompt } from "./use-pick-prompt";
-import type { AgentAttachmentDraft } from "./read-agent-attachments";
 
 type AgentHomeProps = {
   workspaceId: string;
@@ -25,7 +25,7 @@ export function AgentHome({
 }: AgentHomeProps) {
   const { t } = useTranslation();
   const [draft, setDraft] = useState("");
-  const [attachments, setAttachments] = useState<AgentAttachmentDraft[]>([]);
+  const attachments = useAgentAttachments(workspaceId);
   const { inputRef, pick } = usePickPrompt(setDraft);
   const send = useSendAgentPrompt(workspaceId);
 
@@ -33,7 +33,7 @@ export function AgentHome({
     try {
       const { conversationId } = await send.mutateAsync({
         prompt,
-        attachments,
+        attachments: attachments.toRunInput(),
       });
       onOpenConversation(conversationId);
     } catch (error) {
@@ -59,7 +59,6 @@ export function AgentHome({
               value={draft}
               onValueChange={setDraft}
               attachments={attachments}
-              onAttachmentsChange={setAttachments}
               onSubmit={(prompt) => void handleSubmit(prompt)}
               placeholder={t("agent:home.placeholder")}
               sending={send.isPending}
