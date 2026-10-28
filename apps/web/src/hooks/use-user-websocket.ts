@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { getApiUrl } from "@/fetchers/get-api-url";
+import { automationQueryKeys } from "@/hooks/queries/agent-automation/automation-query-keys";
 import { agentQueryKeys } from "@/hooks/queries/agent/agent-query-keys";
 import {
   evictInaccessibleWorkspaceCache,
@@ -202,6 +203,9 @@ export function useUserWebSocket() {
             });
             void queryClient.invalidateQueries({
               queryKey: agentQueryKeys.recentRuns(message.workspaceId),
+            });
+            void queryClient.invalidateQueries({
+              queryKey: automationQueryKeys.all(message.workspaceId),
             });
           }
           if (message.type === "NOTIFICATION_CREATED") {

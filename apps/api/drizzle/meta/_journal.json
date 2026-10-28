@@ -540,6 +540,13 @@
       "when": 1793205563409,
       "tag": "0076_agent_run_touched_projects",
       "breakpoints": true
+    },
+    {
+      "idx": 77,
+      "version": "7",
+      "when": 1793215342007,
+      "tag": "0077_agent_automations",
+      "breakpoints": true
     }
   ]
 }

@@ -2083,7 +2083,7 @@
           },
           "type": {
             "type": "string",
-            "description": "One of: info, task_created, workspace_created, task_status_changed, task_assignee_changed, time_entry_created, due_date_reminder, task_overdue, task_mention, task_comment."
+            "description": "One of: info, task_created, workspace_created, task_status_changed, task_assignee_changed, time_entry_created, due_date_reminder, task_overdue, task_mention, task_comment, agent_automation_digest, agent_automation_failed."
           },
           "eventData": {
             "description": "Type-specific payload, e.g. { taskTitle, oldStatus, newStatus, projectId, workspaceId }."
@@ -2099,14 +2099,14 @@
               "string",
               "null"
             ],
-            "description": "The id of the task or workspace the notification points at."
+            "description": "The id of the task, workspace, or agent run the notification points at."
           },
           "resourceType": {
             "type": [
               "string",
               "null"
             ],
-            "description": "`task` or `workspace`."
+            "description": "`task`, `workspace`, or `agent_run`."
           },
           "createdAt": {
             "type": "string",
@@ -30579,6 +30579,128 @@
                       "requestId": {
                         "type": "string"
                       },
+                      "trigger": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "automationId": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "schedule",
+                              "event",
+                              "manual"
+                            ]
+                          },
+                          "output": {
+                            "type": "string",
+                            "enum": [
+                              "proposals",
+                              "digest"
+                            ]
+                          },
+                          "scheduledFor": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "events": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "event": {
+                                  "type": "string",
+                                  "enum": [
+                                    "task_created",
+                                    "task_moved",
+                                    "due_date_passed",
+                                    "pr_opened",
+                                    "pr_merged",
+                                    "comment_added"
+                                  ]
+                                },
+                                "taskId": {
+                                  "type": "string"
+                                },
+                                "projectId": {
+                                  "type": "string"
+                                },
+                                "occurredAt": {
+                                  "type": "string"
+                                },
+                                "actorName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "columnName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "pullRequest": {
+                                  "type": [
+                                    "object",
+                                    "null"
+                                  ],
+                                  "properties": {
+                                    "number": {
+                                      "type": "number"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "url": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "number",
+                                    "title",
+                                    "url"
+                                  ]
+                                },
+                                "commentPreview": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "event",
+                                "taskId",
+                                "projectId",
+                                "occurredAt",
+                                "actorName",
+                                "columnName",
+                                "pullRequest",
+                                "commentPreview"
+                              ]
+                            }
+                          },
+                          "moreEvents": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "automationId",
+                          "source",
+                          "output",
+                          "scheduledFor",
+                          "events",
+                          "moreEvents"
+                        ],
+                        "description": "What started an automation run; null for runs typed by a user. Event text is untrusted workspace content."
+                      },
                       "prompt": {
                         "type": "string"
                       },
@@ -30694,6 +30816,7 @@
                       "id",
                       "conversationId",
                       "requestId",
+                      "trigger",
                       "prompt",
                       "attachments",
                       "response",
@@ -31064,6 +31187,128 @@
                     },
                     "requestId": {
                       "type": "string"
+                    },
+                    "trigger": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "automationId": {
+                          "type": "string"
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "schedule",
+                            "event",
+                            "manual"
+                          ]
+                        },
+                        "output": {
+                          "type": "string",
+                          "enum": [
+                            "proposals",
+                            "digest"
+                          ]
+                        },
+                        "scheduledFor": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "events": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "event": {
+                                "type": "string",
+                                "enum": [
+                                  "task_created",
+                                  "task_moved",
+                                  "due_date_passed",
+                                  "pr_opened",
+                                  "pr_merged",
+                                  "comment_added"
+                                ]
+                              },
+                              "taskId": {
+                                "type": "string"
+                              },
+                              "projectId": {
+                                "type": "string"
+                              },
+                              "occurredAt": {
+                                "type": "string"
+                              },
+                              "actorName": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "columnName": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "pullRequest": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "number": {
+                                    "type": "number"
+                                  },
+                                  "title": {
+                                    "type": "string"
+                                  },
+                                  "url": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "number",
+                                  "title",
+                                  "url"
+                                ]
+                              },
+                              "commentPreview": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "event",
+                              "taskId",
+                              "projectId",
+                              "occurredAt",
+                              "actorName",
+                              "columnName",
+                              "pullRequest",
+                              "commentPreview"
+                            ]
+                          }
+                        },
+                        "moreEvents": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "automationId",
+                        "source",
+                        "output",
+                        "scheduledFor",
+                        "events",
+                        "moreEvents"
+                      ],
+                      "description": "What started an automation run; null for runs typed by a user. Event text is untrusted workspace content."
                     },
                     "prompt": {
                       "type": "string"
@@ -31543,6 +31788,7 @@
                     "id",
                     "conversationId",
                     "requestId",
+                    "trigger",
                     "prompt",
                     "attachments",
                     "response",
@@ -32639,6 +32885,3796 @@
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/automations": {
+      "get": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "listAgentAutomations",
+        "summary": "List automations and read-only workflow rules",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "agent",
+                "rules"
+              ],
+              "default": "all",
+              "description": "`agent` for agent automations, `rules` for project workflow rules"
+            },
+            "required": false,
+            "description": "`agent` for agent automations, `rules` for project workflow rules",
+            "name": "kind",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": false,
+            "name": "projectId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Agent automations owned by this user; excludes rules"
+            },
+            "required": false,
+            "description": "Agent automations owned by this user; excludes rules",
+            "name": "ownerId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "required": false,
+            "name": "offset",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Automations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "agent"
+                                ]
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "trigger": {
+                                "oneOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "schedule"
+                                        ]
+                                      },
+                                      "frequency": {
+                                        "type": "string",
+                                        "enum": [
+                                          "daily",
+                                          "weekly",
+                                          "interval"
+                                        ]
+                                      },
+                                      "time": {
+                                        "type": "string",
+                                        "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                                        "default": "09:00",
+                                        "description": "Local time HH:MM in `timezone`"
+                                      },
+                                      "weekdays": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "integer",
+                                          "minimum": 1,
+                                          "maximum": 7
+                                        },
+                                        "maxItems": 7,
+                                        "default": [],
+                                        "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                                      },
+                                      "intervalHours": {
+                                        "type": [
+                                          "integer",
+                                          "null"
+                                        ],
+                                        "minimum": 1,
+                                        "maximum": 24,
+                                        "default": null,
+                                        "description": "Hours between runs; required for intervals"
+                                      },
+                                      "timezone": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 100,
+                                        "default": "UTC",
+                                        "description": "IANA time zone, e.g. Europe/Berlin"
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "frequency"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "enum": [
+                                          "event"
+                                        ]
+                                      },
+                                      "event": {
+                                        "type": "string",
+                                        "enum": [
+                                          "task_created",
+                                          "task_moved",
+                                          "due_date_passed",
+                                          "pr_opened",
+                                          "pr_merged",
+                                          "comment_added"
+                                        ]
+                                      },
+                                      "filters": {
+                                        "type": "object",
+                                        "properties": {
+                                          "labelName": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "minLength": 1,
+                                            "maxLength": 100,
+                                            "default": null,
+                                            "description": "Only tasks with a label of this name"
+                                          },
+                                          "columnName": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "minLength": 1,
+                                            "maxLength": 100,
+                                            "default": null,
+                                            "description": "Only tasks in a column of this name (the target column for task_moved)"
+                                          },
+                                          "projectId": {
+                                            "type": [
+                                              "string",
+                                              "null"
+                                            ],
+                                            "minLength": 1,
+                                            "maxLength": 128,
+                                            "default": null,
+                                            "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                                          }
+                                        },
+                                        "default": {
+                                          "labelName": null,
+                                          "columnName": null,
+                                          "projectId": null
+                                        },
+                                        "additionalProperties": false
+                                      }
+                                    },
+                                    "required": [
+                                      "type",
+                                      "event"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "project": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ]
+                              },
+                              "output": {
+                                "type": "string",
+                                "enum": [
+                                  "proposals",
+                                  "digest"
+                                ]
+                              },
+                              "model": {
+                                "type": "string"
+                              },
+                              "enabled": {
+                                "type": "boolean"
+                              },
+                              "pausedReason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "owner_access",
+                                  "failures",
+                                  null
+                                ]
+                              },
+                              "lastSkipReason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "budget",
+                                  "daily_limit",
+                                  "overlap",
+                                  "unavailable",
+                                  null
+                                ]
+                              },
+                              "lastSkippedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time"
+                              },
+                              "owner": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "image": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name",
+                                  "image"
+                                ]
+                              },
+                              "nextRunAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time"
+                              },
+                              "lastRun": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "queued",
+                                      "running",
+                                      "awaiting_review",
+                                      "completed",
+                                      "failed",
+                                      "cancelled"
+                                    ]
+                                  },
+                                  "pendingProposals": {
+                                    "type": "number"
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "status",
+                                  "pendingProposals",
+                                  "createdAt"
+                                ],
+                                "description": "Latest run you can see"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id",
+                              "name",
+                              "trigger",
+                              "project",
+                              "output",
+                              "model",
+                              "enabled",
+                              "pausedReason",
+                              "lastSkipReason",
+                              "lastSkippedAt",
+                              "owner",
+                              "nextRunAt",
+                              "lastRun",
+                              "createdAt"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "rule"
+                                ]
+                              },
+                              "id": {
+                                "type": "string"
+                              },
+                              "project": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "name": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "name"
+                                ]
+                              },
+                              "integrationType": {
+                                "type": "string"
+                              },
+                              "eventType": {
+                                "type": "string"
+                              },
+                              "columnName": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "kind",
+                              "id",
+                              "project",
+                              "integrationType",
+                              "eventType",
+                              "columnName",
+                              "createdAt"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "total": {
+                      "type": "number",
+                      "description": "Items matching the selected kind and filters"
+                    },
+                    "counts": {
+                      "type": "object",
+                      "properties": {
+                        "all": {
+                          "type": "number"
+                        },
+                        "agent": {
+                          "type": "number"
+                        },
+                        "rules": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "all",
+                        "agent",
+                        "rules"
+                      ],
+                      "description": "Totals per kind for the same project and owner filters"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "total",
+                    "counts"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "createAgentAutomation",
+        "summary": "Create an automation",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16000,
+                    "description": "Instructions for each run. May contain `@[label](task:ID)` or `@[label](project:ID)` mentions, resolved with the owner's access when the run starts."
+                  },
+                  "projectId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "default": null,
+                    "description": "Scope runs to one project; null for the whole workspace"
+                  },
+                  "output": {
+                    "type": "string",
+                    "enum": [
+                      "proposals",
+                      "digest"
+                    ],
+                    "description": "`proposals`: changes wait for the owner's review. `digest`: read-only run whose response is sent to the owner's inbox."
+                  },
+                  "model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Model from the config endpoint's models; omit for the instance default"
+                  },
+                  "trigger": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "schedule"
+                            ]
+                          },
+                          "frequency": {
+                            "type": "string",
+                            "enum": [
+                              "daily",
+                              "weekly",
+                              "interval"
+                            ]
+                          },
+                          "time": {
+                            "type": "string",
+                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                            "default": "09:00",
+                            "description": "Local time HH:MM in `timezone`"
+                          },
+                          "weekdays": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 7
+                            },
+                            "maxItems": 7,
+                            "default": [],
+                            "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                          },
+                          "intervalHours": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 24,
+                            "default": null,
+                            "description": "Hours between runs; required for intervals"
+                          },
+                          "timezone": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100,
+                            "default": "UTC",
+                            "description": "IANA time zone, e.g. Europe/Berlin"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "frequency"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "event"
+                            ]
+                          },
+                          "event": {
+                            "type": "string",
+                            "enum": [
+                              "task_created",
+                              "task_moved",
+                              "due_date_passed",
+                              "pr_opened",
+                              "pr_merged",
+                              "comment_added"
+                            ]
+                          },
+                          "filters": {
+                            "type": "object",
+                            "properties": {
+                              "labelName": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "minLength": 1,
+                                "maxLength": 100,
+                                "default": null,
+                                "description": "Only tasks with a label of this name"
+                              },
+                              "columnName": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "minLength": 1,
+                                "maxLength": 100,
+                                "default": null,
+                                "description": "Only tasks in a column of this name (the target column for task_moved)"
+                              },
+                              "projectId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "default": null,
+                                "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                              }
+                            },
+                            "default": {
+                              "labelName": null,
+                              "columnName": null,
+                              "projectId": null
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "event"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "dailyRunLimit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 24,
+                    "description": "Runs allowed in any 24 hours"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "prompt",
+                  "output",
+                  "trigger"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created automation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null for workspace admins who can see the automation only to take it over"
+                    },
+                    "trigger": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "schedule"
+                              ]
+                            },
+                            "frequency": {
+                              "type": "string",
+                              "enum": [
+                                "daily",
+                                "weekly",
+                                "interval"
+                              ]
+                            },
+                            "time": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                              "default": "09:00",
+                              "description": "Local time HH:MM in `timezone`"
+                            },
+                            "weekdays": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 7
+                              },
+                              "maxItems": 7,
+                              "default": [],
+                              "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                            },
+                            "intervalHours": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 1,
+                              "maximum": 24,
+                              "default": null,
+                              "description": "Hours between runs; required for intervals"
+                            },
+                            "timezone": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "default": "UTC",
+                              "description": "IANA time zone, e.g. Europe/Berlin"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "frequency"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "event"
+                              ]
+                            },
+                            "event": {
+                              "type": "string",
+                              "enum": [
+                                "task_created",
+                                "task_moved",
+                                "due_date_passed",
+                                "pr_opened",
+                                "pr_merged",
+                                "comment_added"
+                              ]
+                            },
+                            "filters": {
+                              "type": "object",
+                              "properties": {
+                                "labelName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks with a label of this name"
+                                },
+                                "columnName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks in a column of this name (the target column for task_moved)"
+                                },
+                                "projectId": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 128,
+                                  "default": null,
+                                  "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                                }
+                              },
+                              "default": {
+                                "labelName": null,
+                                "columnName": null,
+                                "projectId": null
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "event"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "project": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    "output": {
+                      "type": "string",
+                      "enum": [
+                        "proposals",
+                        "digest"
+                      ]
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "pausedReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "owner_access",
+                        "failures",
+                        null
+                      ]
+                    },
+                    "consecutiveFailures": {
+                      "type": "number"
+                    },
+                    "dailyRunLimit": {
+                      "type": "number"
+                    },
+                    "lastSkipReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "budget",
+                        "daily_limit",
+                        "overlap",
+                        "unavailable",
+                        null
+                      ]
+                    },
+                    "lastSkippedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "nextRunAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "image"
+                      ]
+                    },
+                    "conversationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "The owner's automation conversation; share or unshare it with the conversation endpoints"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "monthCostUsd": {
+                      "type": "string",
+                      "description": "Provider cost of visible runs in the current automation conversation this UTC month"
+                    },
+                    "viewer": {
+                      "type": "object",
+                      "properties": {
+                        "isOwner": {
+                          "type": "boolean"
+                        },
+                        "canTakeOver": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "isOwner",
+                        "canTakeOver"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "name",
+                    "prompt",
+                    "trigger",
+                    "projectId",
+                    "project",
+                    "output",
+                    "model",
+                    "enabled",
+                    "pausedReason",
+                    "consecutiveFailures",
+                    "dailyRunLimit",
+                    "lastSkipReason",
+                    "lastSkippedAt",
+                    "nextRunAt",
+                    "owner",
+                    "conversationId",
+                    "sharedAt",
+                    "monthCostUsd",
+                    "viewer",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/automations/{automationId}": {
+      "get": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "getAgentAutomation",
+        "summary": "Get an automation",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "automationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Automation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null for workspace admins who can see the automation only to take it over"
+                    },
+                    "trigger": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "schedule"
+                              ]
+                            },
+                            "frequency": {
+                              "type": "string",
+                              "enum": [
+                                "daily",
+                                "weekly",
+                                "interval"
+                              ]
+                            },
+                            "time": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                              "default": "09:00",
+                              "description": "Local time HH:MM in `timezone`"
+                            },
+                            "weekdays": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 7
+                              },
+                              "maxItems": 7,
+                              "default": [],
+                              "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                            },
+                            "intervalHours": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 1,
+                              "maximum": 24,
+                              "default": null,
+                              "description": "Hours between runs; required for intervals"
+                            },
+                            "timezone": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "default": "UTC",
+                              "description": "IANA time zone, e.g. Europe/Berlin"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "frequency"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "event"
+                              ]
+                            },
+                            "event": {
+                              "type": "string",
+                              "enum": [
+                                "task_created",
+                                "task_moved",
+                                "due_date_passed",
+                                "pr_opened",
+                                "pr_merged",
+                                "comment_added"
+                              ]
+                            },
+                            "filters": {
+                              "type": "object",
+                              "properties": {
+                                "labelName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks with a label of this name"
+                                },
+                                "columnName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks in a column of this name (the target column for task_moved)"
+                                },
+                                "projectId": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 128,
+                                  "default": null,
+                                  "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                                }
+                              },
+                              "default": {
+                                "labelName": null,
+                                "columnName": null,
+                                "projectId": null
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "event"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "project": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    "output": {
+                      "type": "string",
+                      "enum": [
+                        "proposals",
+                        "digest"
+                      ]
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "pausedReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "owner_access",
+                        "failures",
+                        null
+                      ]
+                    },
+                    "consecutiveFailures": {
+                      "type": "number"
+                    },
+                    "dailyRunLimit": {
+                      "type": "number"
+                    },
+                    "lastSkipReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "budget",
+                        "daily_limit",
+                        "overlap",
+                        "unavailable",
+                        null
+                      ]
+                    },
+                    "lastSkippedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "nextRunAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "image"
+                      ]
+                    },
+                    "conversationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "The owner's automation conversation; share or unshare it with the conversation endpoints"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "monthCostUsd": {
+                      "type": "string",
+                      "description": "Provider cost of visible runs in the current automation conversation this UTC month"
+                    },
+                    "viewer": {
+                      "type": "object",
+                      "properties": {
+                        "isOwner": {
+                          "type": "boolean"
+                        },
+                        "canTakeOver": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "isOwner",
+                        "canTakeOver"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "name",
+                    "prompt",
+                    "trigger",
+                    "projectId",
+                    "project",
+                    "output",
+                    "model",
+                    "enabled",
+                    "pausedReason",
+                    "consecutiveFailures",
+                    "dailyRunLimit",
+                    "lastSkipReason",
+                    "lastSkippedAt",
+                    "nextRunAt",
+                    "owner",
+                    "conversationId",
+                    "sharedAt",
+                    "monthCostUsd",
+                    "viewer",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "updateAgentAutomation",
+        "summary": "Replace automation settings; scope changes use a private conversation",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "automationId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "prompt": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16000,
+                    "description": "Instructions for each run. May contain `@[label](task:ID)` or `@[label](project:ID)` mentions, resolved with the owner's access when the run starts."
+                  },
+                  "projectId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "default": null,
+                    "description": "Scope runs to one project; null for the whole workspace"
+                  },
+                  "output": {
+                    "type": "string",
+                    "enum": [
+                      "proposals",
+                      "digest"
+                    ],
+                    "description": "`proposals`: changes wait for the owner's review. `digest`: read-only run whose response is sent to the owner's inbox."
+                  },
+                  "model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Model from the config endpoint's models; omit for the instance default"
+                  },
+                  "trigger": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "schedule"
+                            ]
+                          },
+                          "frequency": {
+                            "type": "string",
+                            "enum": [
+                              "daily",
+                              "weekly",
+                              "interval"
+                            ]
+                          },
+                          "time": {
+                            "type": "string",
+                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                            "default": "09:00",
+                            "description": "Local time HH:MM in `timezone`"
+                          },
+                          "weekdays": {
+                            "type": "array",
+                            "items": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 7
+                            },
+                            "maxItems": 7,
+                            "default": [],
+                            "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                          },
+                          "intervalHours": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "minimum": 1,
+                            "maximum": 24,
+                            "default": null,
+                            "description": "Hours between runs; required for intervals"
+                          },
+                          "timezone": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100,
+                            "default": "UTC",
+                            "description": "IANA time zone, e.g. Europe/Berlin"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "frequency"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "event"
+                            ]
+                          },
+                          "event": {
+                            "type": "string",
+                            "enum": [
+                              "task_created",
+                              "task_moved",
+                              "due_date_passed",
+                              "pr_opened",
+                              "pr_merged",
+                              "comment_added"
+                            ]
+                          },
+                          "filters": {
+                            "type": "object",
+                            "properties": {
+                              "labelName": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "minLength": 1,
+                                "maxLength": 100,
+                                "default": null,
+                                "description": "Only tasks with a label of this name"
+                              },
+                              "columnName": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "minLength": 1,
+                                "maxLength": 100,
+                                "default": null,
+                                "description": "Only tasks in a column of this name (the target column for task_moved)"
+                              },
+                              "projectId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "minLength": 1,
+                                "maxLength": 128,
+                                "default": null,
+                                "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                              }
+                            },
+                            "default": {
+                              "labelName": null,
+                              "columnName": null,
+                              "projectId": null
+                            },
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "event"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  "dailyRunLimit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 24,
+                    "description": "Runs allowed in any 24 hours"
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "prompt",
+                  "output",
+                  "trigger"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated automation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null for workspace admins who can see the automation only to take it over"
+                    },
+                    "trigger": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "schedule"
+                              ]
+                            },
+                            "frequency": {
+                              "type": "string",
+                              "enum": [
+                                "daily",
+                                "weekly",
+                                "interval"
+                              ]
+                            },
+                            "time": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                              "default": "09:00",
+                              "description": "Local time HH:MM in `timezone`"
+                            },
+                            "weekdays": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 7
+                              },
+                              "maxItems": 7,
+                              "default": [],
+                              "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                            },
+                            "intervalHours": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 1,
+                              "maximum": 24,
+                              "default": null,
+                              "description": "Hours between runs; required for intervals"
+                            },
+                            "timezone": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "default": "UTC",
+                              "description": "IANA time zone, e.g. Europe/Berlin"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "frequency"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "event"
+                              ]
+                            },
+                            "event": {
+                              "type": "string",
+                              "enum": [
+                                "task_created",
+                                "task_moved",
+                                "due_date_passed",
+                                "pr_opened",
+                                "pr_merged",
+                                "comment_added"
+                              ]
+                            },
+                            "filters": {
+                              "type": "object",
+                              "properties": {
+                                "labelName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks with a label of this name"
+                                },
+                                "columnName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks in a column of this name (the target column for task_moved)"
+                                },
+                                "projectId": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 128,
+                                  "default": null,
+                                  "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                                }
+                              },
+                              "default": {
+                                "labelName": null,
+                                "columnName": null,
+                                "projectId": null
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "event"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "project": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    "output": {
+                      "type": "string",
+                      "enum": [
+                        "proposals",
+                        "digest"
+                      ]
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "pausedReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "owner_access",
+                        "failures",
+                        null
+                      ]
+                    },
+                    "consecutiveFailures": {
+                      "type": "number"
+                    },
+                    "dailyRunLimit": {
+                      "type": "number"
+                    },
+                    "lastSkipReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "budget",
+                        "daily_limit",
+                        "overlap",
+                        "unavailable",
+                        null
+                      ]
+                    },
+                    "lastSkippedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "nextRunAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "image"
+                      ]
+                    },
+                    "conversationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "The owner's automation conversation; share or unshare it with the conversation endpoints"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "monthCostUsd": {
+                      "type": "string",
+                      "description": "Provider cost of visible runs in the current automation conversation this UTC month"
+                    },
+                    "viewer": {
+                      "type": "object",
+                      "properties": {
+                        "isOwner": {
+                          "type": "boolean"
+                        },
+                        "canTakeOver": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "isOwner",
+                        "canTakeOver"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "name",
+                    "prompt",
+                    "trigger",
+                    "projectId",
+                    "project",
+                    "output",
+                    "model",
+                    "enabled",
+                    "pausedReason",
+                    "consecutiveFailures",
+                    "dailyRunLimit",
+                    "lastSkipReason",
+                    "lastSkippedAt",
+                    "nextRunAt",
+                    "owner",
+                    "conversationId",
+                    "sharedAt",
+                    "monthCostUsd",
+                    "viewer",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "deleteAgentAutomation",
+        "summary": "Delete an automation; retain owned conversation history and cost records",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "automationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted automation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/automations/{automationId}/enabled": {
+      "patch": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "setAgentAutomationEnabled",
+        "summary": "Enable or disable an automation",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "automationId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "enabled"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated automation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null for workspace admins who can see the automation only to take it over"
+                    },
+                    "trigger": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "schedule"
+                              ]
+                            },
+                            "frequency": {
+                              "type": "string",
+                              "enum": [
+                                "daily",
+                                "weekly",
+                                "interval"
+                              ]
+                            },
+                            "time": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                              "default": "09:00",
+                              "description": "Local time HH:MM in `timezone`"
+                            },
+                            "weekdays": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 7
+                              },
+                              "maxItems": 7,
+                              "default": [],
+                              "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                            },
+                            "intervalHours": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 1,
+                              "maximum": 24,
+                              "default": null,
+                              "description": "Hours between runs; required for intervals"
+                            },
+                            "timezone": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "default": "UTC",
+                              "description": "IANA time zone, e.g. Europe/Berlin"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "frequency"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "event"
+                              ]
+                            },
+                            "event": {
+                              "type": "string",
+                              "enum": [
+                                "task_created",
+                                "task_moved",
+                                "due_date_passed",
+                                "pr_opened",
+                                "pr_merged",
+                                "comment_added"
+                              ]
+                            },
+                            "filters": {
+                              "type": "object",
+                              "properties": {
+                                "labelName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks with a label of this name"
+                                },
+                                "columnName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks in a column of this name (the target column for task_moved)"
+                                },
+                                "projectId": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 128,
+                                  "default": null,
+                                  "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                                }
+                              },
+                              "default": {
+                                "labelName": null,
+                                "columnName": null,
+                                "projectId": null
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "event"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "project": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    "output": {
+                      "type": "string",
+                      "enum": [
+                        "proposals",
+                        "digest"
+                      ]
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "pausedReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "owner_access",
+                        "failures",
+                        null
+                      ]
+                    },
+                    "consecutiveFailures": {
+                      "type": "number"
+                    },
+                    "dailyRunLimit": {
+                      "type": "number"
+                    },
+                    "lastSkipReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "budget",
+                        "daily_limit",
+                        "overlap",
+                        "unavailable",
+                        null
+                      ]
+                    },
+                    "lastSkippedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "nextRunAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "image"
+                      ]
+                    },
+                    "conversationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "The owner's automation conversation; share or unshare it with the conversation endpoints"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "monthCostUsd": {
+                      "type": "string",
+                      "description": "Provider cost of visible runs in the current automation conversation this UTC month"
+                    },
+                    "viewer": {
+                      "type": "object",
+                      "properties": {
+                        "isOwner": {
+                          "type": "boolean"
+                        },
+                        "canTakeOver": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "isOwner",
+                        "canTakeOver"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "name",
+                    "prompt",
+                    "trigger",
+                    "projectId",
+                    "project",
+                    "output",
+                    "model",
+                    "enabled",
+                    "pausedReason",
+                    "consecutiveFailures",
+                    "dailyRunLimit",
+                    "lastSkipReason",
+                    "lastSkippedAt",
+                    "nextRunAt",
+                    "owner",
+                    "conversationId",
+                    "sharedAt",
+                    "monthCostUsd",
+                    "viewer",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/automations/{automationId}/take-over": {
+      "post": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "takeOverAgentAutomation",
+        "summary": "Take ownership, starting with a private conversation and disabled trigger",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "automationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Automation taken over",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "workspaceId": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "prompt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null for workspace admins who can see the automation only to take it over"
+                    },
+                    "trigger": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "schedule"
+                              ]
+                            },
+                            "frequency": {
+                              "type": "string",
+                              "enum": [
+                                "daily",
+                                "weekly",
+                                "interval"
+                              ]
+                            },
+                            "time": {
+                              "type": "string",
+                              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                              "default": "09:00",
+                              "description": "Local time HH:MM in `timezone`"
+                            },
+                            "weekdays": {
+                              "type": "array",
+                              "items": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 7
+                              },
+                              "maxItems": 7,
+                              "default": [],
+                              "description": "ISO weekdays (1 = Monday … 7 = Sunday); required for weekly schedules"
+                            },
+                            "intervalHours": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 1,
+                              "maximum": 24,
+                              "default": null,
+                              "description": "Hours between runs; required for intervals"
+                            },
+                            "timezone": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 100,
+                              "default": "UTC",
+                              "description": "IANA time zone, e.g. Europe/Berlin"
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "frequency"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "event"
+                              ]
+                            },
+                            "event": {
+                              "type": "string",
+                              "enum": [
+                                "task_created",
+                                "task_moved",
+                                "due_date_passed",
+                                "pr_opened",
+                                "pr_merged",
+                                "comment_added"
+                              ]
+                            },
+                            "filters": {
+                              "type": "object",
+                              "properties": {
+                                "labelName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks with a label of this name"
+                                },
+                                "columnName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 100,
+                                  "default": null,
+                                  "description": "Only tasks in a column of this name (the target column for task_moved)"
+                                },
+                                "projectId": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "minLength": 1,
+                                  "maxLength": 128,
+                                  "default": null,
+                                  "description": "Only tasks in this project; ignored when the automation is scoped to a project"
+                                }
+                              },
+                              "default": {
+                                "labelName": null,
+                                "columnName": null,
+                                "projectId": null
+                              },
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "event"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "projectId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "project": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name"
+                      ]
+                    },
+                    "output": {
+                      "type": "string",
+                      "enum": [
+                        "proposals",
+                        "digest"
+                      ]
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "pausedReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "owner_access",
+                        "failures",
+                        null
+                      ]
+                    },
+                    "consecutiveFailures": {
+                      "type": "number"
+                    },
+                    "dailyRunLimit": {
+                      "type": "number"
+                    },
+                    "lastSkipReason": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "budget",
+                        "daily_limit",
+                        "overlap",
+                        "unavailable",
+                        null
+                      ]
+                    },
+                    "lastSkippedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "nextRunAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "image": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "image"
+                      ]
+                    },
+                    "conversationId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "The owner's automation conversation; share or unshare it with the conversation endpoints"
+                    },
+                    "sharedAt": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "format": "date-time"
+                    },
+                    "monthCostUsd": {
+                      "type": "string",
+                      "description": "Provider cost of visible runs in the current automation conversation this UTC month"
+                    },
+                    "viewer": {
+                      "type": "object",
+                      "properties": {
+                        "isOwner": {
+                          "type": "boolean"
+                        },
+                        "canTakeOver": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "isOwner",
+                        "canTakeOver"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "workspaceId",
+                    "name",
+                    "prompt",
+                    "trigger",
+                    "projectId",
+                    "project",
+                    "output",
+                    "model",
+                    "enabled",
+                    "pausedReason",
+                    "consecutiveFailures",
+                    "dailyRunLimit",
+                    "lastSkipReason",
+                    "lastSkippedAt",
+                    "nextRunAt",
+                    "owner",
+                    "conversationId",
+                    "sharedAt",
+                    "monthCostUsd",
+                    "viewer",
+                    "createdAt",
+                    "updatedAt"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/agent/{workspaceId}/automations/{automationId}/runs": {
+      "post": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "runAgentAutomation",
+        "summary": "Run now, respecting daily and workspace budget caps",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "automationId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Queued run",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "queued",
+                        "running",
+                        "awaiting_review",
+                        "completed",
+                        "failed",
+                        "cancelled"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "status"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Workspace entitlement required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions, no user session, or not the conversation owner",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found in this user's agent scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State changed or request ID conflicts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Agent run limit reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Agent not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Agent Automations"
+        ],
+        "operationId": "listAgentAutomationRuns",
+        "summary": "Run history visible to the current owner or shared viewer",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "required": true,
+            "name": "automationId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000,
+              "default": 0
+            },
+            "required": false,
+            "name": "offset",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Runs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "conversationId": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "queued",
+                          "running",
+                          "awaiting_review",
+                          "completed",
+                          "failed",
+                          "cancelled"
+                        ]
+                      },
+                      "error": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "pendingProposals": {
+                        "type": "number"
+                      },
+                      "appliedProposals": {
+                        "type": "number"
+                      },
+                      "costUsd": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "inputTokens": {
+                        "type": "number"
+                      },
+                      "outputTokens": {
+                        "type": "number"
+                      },
+                      "trigger": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "automationId": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "schedule",
+                              "event",
+                              "manual"
+                            ]
+                          },
+                          "output": {
+                            "type": "string",
+                            "enum": [
+                              "proposals",
+                              "digest"
+                            ]
+                          },
+                          "scheduledFor": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "events": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "event": {
+                                  "type": "string",
+                                  "enum": [
+                                    "task_created",
+                                    "task_moved",
+                                    "due_date_passed",
+                                    "pr_opened",
+                                    "pr_merged",
+                                    "comment_added"
+                                  ]
+                                },
+                                "taskId": {
+                                  "type": "string"
+                                },
+                                "projectId": {
+                                  "type": "string"
+                                },
+                                "occurredAt": {
+                                  "type": "string"
+                                },
+                                "actorName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "columnName": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "pullRequest": {
+                                  "type": [
+                                    "object",
+                                    "null"
+                                  ],
+                                  "properties": {
+                                    "number": {
+                                      "type": "number"
+                                    },
+                                    "title": {
+                                      "type": "string"
+                                    },
+                                    "url": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "number",
+                                    "title",
+                                    "url"
+                                  ]
+                                },
+                                "commentPreview": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "event",
+                                "taskId",
+                                "projectId",
+                                "occurredAt",
+                                "actorName",
+                                "columnName",
+                                "pullRequest",
+                                "commentPreview"
+                              ]
+                            }
+                          },
+                          "moreEvents": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "automationId",
+                          "source",
+                          "output",
+                          "scheduledFor",
+                          "events",
+                          "moreEvents"
+                        ],
+                        "description": "What started an automation run; null for runs typed by a user. Event text is untrusted workspace content."
+                      },
+                      "owner": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "image": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "image"
+                        ]
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "finishedAt": {
+                        "type": [
+                          "string",
+                          "null"
+                        ],
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "conversationId",
+                      "status",
+                      "error",
+                      "model",
+                      "pendingProposals",
+                      "appliedProposals",
+                      "costUsd",
+                      "inputTokens",
+                      "outputTokens",
+                      "trigger",
+                      "owner",
+                      "createdAt",
+                      "finishedAt"
+                    ]
+                  }
                 }
               }
             }

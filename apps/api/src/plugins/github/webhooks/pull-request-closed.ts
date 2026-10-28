@@ -82,6 +82,20 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
           database,
         );
 
+        if (pull_request.merged)
+          afterCommit(() =>
+            publishEvent("integration.pr_merged", {
+              taskId: task.id,
+              projectId: integration.projectId,
+              eventId: `${integration.id}:pr_merged:${pull_request.number}`,
+              pullRequest: {
+                number: pull_request.number,
+                title: pull_request.title,
+                url: pull_request.html_url,
+              },
+            }),
+          );
+
         afterCommit(() =>
           publishEvent("task.updated", {
             projectId: integration.projectId,

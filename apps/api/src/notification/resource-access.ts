@@ -20,7 +20,11 @@ export function notificationResourceAccess(
   userId: string,
   resourceId: string | null | SQLWrapper,
   resourceType: string | null | SQLWrapper,
-  readGrants?: { taskWorkspaceIds: string[]; workspaceIds: string[] },
+  readGrants?: {
+    taskWorkspaceIds: string[];
+    workspaceIds: string[];
+    agentWorkspaceIds: string[];
+  },
 ) {
   const taskRead = readGrants
     ? inArray(
@@ -30,6 +34,12 @@ export function notificationResourceAccess(
     : sql`true`;
   const workspaceRead = readGrants
     ? inArray(sql`notification_member.workspace_id`, readGrants.workspaceIds)
+    : sql`true`;
+  const agentRead = readGrants
+    ? inArray(
+        sql`notification_conversation.workspace_id`,
+        readGrants.agentWorkspaceIds,
+      )
     : sql`true`;
   return sql<boolean>`(
     (${resourceId}::text IS NULL AND ${resourceType}::text IS NULL)
@@ -42,6 +52,17 @@ export function notificationResourceAccess(
         AND notification_workspace.archived_at IS NULL
         AND ${projectAccessCondition(userId, sql`notification_project.id`)}
         AND ${taskRead}
+    ))
+    OR (${resourceType}::text = 'agent_run' AND EXISTS (
+      SELECT 1 FROM agent_run AS notification_run
+      JOIN agent_conversation AS notification_conversation ON notification_conversation.id = notification_run.conversation_id
+      JOIN workspace_member AS notification_member ON notification_member.workspace_id = notification_conversation.workspace_id
+      JOIN workspace AS notification_workspace ON notification_workspace.id = notification_conversation.workspace_id
+      WHERE notification_run.id = ${resourceId} AND notification_member.user_id = ${userId}
+        AND notification_conversation.user_id = ${userId}
+        AND notification_workspace.archived_at IS NULL
+        AND (notification_conversation.project_id IS NULL OR ${projectAccessCondition(userId, sql`notification_conversation.project_id`)})
+        AND ${agentRead}
     ))
     OR (${resourceType}::text = 'workspace' AND EXISTS (
       SELECT 1 FROM workspace_member AS notification_member
@@ -67,6 +88,9 @@ export async function notificationReadAccess(
     workspaceIds: workspaceId ? [workspaceId] : undefined,
   });
   return notificationResourceAccess(userId, resourceId, resourceType, {
+    agentWorkspaceIds: grants.workspaceIds.filter((id) =>
+      grants.allows(id, { project: ["read"], task: ["read"] }),
+    ),
     taskWorkspaceIds: grants.workspaceIds.filter((id) =>
       grants.allows(id, { task: ["read"] }),
     ),
@@ -87,6 +111,9 @@ export async function canReceiveResourceNotification(
   // avoids adding grant lookups for every recipient or scheduled reminder.
   const workspaceId = sql<string>`CASE
     WHEN ${resourceType ?? null}::text = 'workspace' THEN ${resourceId ?? null}::text
+    WHEN ${resourceType ?? null}::text = 'agent_run' THEN (
+      SELECT c.workspace_id FROM agent_run r JOIN agent_conversation c ON c.id = r.conversation_id WHERE r.id = ${resourceId ?? null}
+    )
     WHEN ${resourceType ?? null}::text = 'task' THEN (
       SELECT recipient_project.workspace_id FROM task AS recipient_task
       JOIN project AS recipient_project ON recipient_project.id = recipient_task.project_id
@@ -128,7 +155,11 @@ export async function canReceiveResourceNotification(
   if (!resourceId && !resourceType) return true;
   if (hasInstanceAdminRole(rows[0]?.instanceRole)) return true;
   const required: PermissionMap =
-    resourceType === "task" ? { task: ["read"] } : { workspace: ["read"] };
+    resourceType === "agent_run"
+      ? { project: ["read"], task: ["read"] }
+      : resourceType === "task"
+        ? { task: ["read"] }
+        : { workspace: ["read"] };
   return rolesAllow(
     splitRoles(rows[0]?.memberRole),
     rows.flatMap((row) =>

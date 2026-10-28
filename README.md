@@ -42,6 +42,10 @@
 - **Stay informed:** in-app notifications, email, ntfy, Gotify, and personal webhooks.
 - **Connect other tools:** GitHub and Gitea, chat integrations, project webhooks, a [REST API](https://kaneo.app/docs/api-reference/introduction), a [command-line client](https://kaneo.app/docs/cli), and [MCP](https://kaneo.app/docs/core/integrations/mcp) for AI assistants.
 
+## Automations
+
+The AI assistant can run saved prompts on a schedule or batch task, comment, due-date, and repository events. Runs execute with their owner's current access and produce proposals for review or a private inbox digest. PostgreSQL handles scheduling and queueing without requiring Redis. See the [automation API, configuration, limits, and web data hooks](apps/api/src/agent/README.md#automations).
+
 ## Installation
 
 - **Cloud:** [Get started with Kaneo Cloud](https://cloud.kaneo.app).

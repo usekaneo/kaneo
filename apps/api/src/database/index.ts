@@ -3,6 +3,8 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import {
   agentConversationTableRelations,
+  agentAutomationTableRelations,
+  agentAutomationEventTableRelations,
   agentRunTableRelations,
   agentStepTableRelations,
   agentProposalTableRelations,
@@ -47,6 +49,8 @@ import {
   agentProposalTable,
   agentEffectTable,
   agentAttachmentTable,
+  agentAutomationTable,
+  agentAutomationEventTable,
   dataMigrationTable,
   storageCleanupTable,
   accountTable,
@@ -104,6 +108,8 @@ config();
 
 export const schema = {
   agentConversationTableRelations,
+  agentAutomationTableRelations,
+  agentAutomationEventTableRelations,
   agentRunTableRelations,
   agentStepTableRelations,
   agentProposalTableRelations,
@@ -114,6 +120,8 @@ export const schema = {
   agentProposalTable,
   agentEffectTable,
   agentAttachmentTable,
+  agentAutomationTable,
+  agentAutomationEventTable,
   dataMigrationTable,
   storageCleanupTable,
   accountTable,

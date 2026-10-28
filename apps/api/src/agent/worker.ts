@@ -1,3 +1,4 @@
+import { completeAutomationRuns } from "./automation/complete-runs";
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import db, { schema } from "../database";
@@ -12,6 +13,7 @@ const active = new Set<Promise<void>>();
 
 export async function processAgentQueue(signal: AbortSignal = shutdown.signal) {
   await failExpiredRuns();
+  await completeAutomationRuns();
   await deliverAgentEffects();
   const config = getAgentConfig();
   if (!config || signal.aborted) return;

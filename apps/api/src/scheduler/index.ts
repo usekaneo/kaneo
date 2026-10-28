@@ -1,3 +1,4 @@
+import { tickAutomations } from "../agent/automation/tick";
 import { retryStorageCleanup } from "../storage/cleanup-queue";
 import { cleanupDraftUploads } from "./draft-upload-cleanup";
 import { cleanupPendingAgentUploads } from "../agent/cleanup-pending-uploads";
@@ -50,6 +51,13 @@ function withCheckIn<T>(name: string, fn: () => Promise<T>) {
 }
 
 export function initializeScheduler(): void {
+  jobs.push(
+    new Cron(
+      "* * * * *",
+      { protect: true },
+      withCheckIn("agent-automations", tickAutomations),
+    ),
+  );
   jobs.push(
     new Cron(
       "* * * * *",

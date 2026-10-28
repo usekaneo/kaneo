@@ -11,7 +11,7 @@ export const notificationSchema = z
     }),
     type: z.string().openapi({
       description:
-        "One of: info, task_created, workspace_created, task_status_changed, task_assignee_changed, time_entry_created, due_date_reminder, task_overdue, task_mention, task_comment.",
+        "One of: info, task_created, workspace_created, task_status_changed, task_assignee_changed, time_entry_created, due_date_reminder, task_overdue, task_mention, task_comment, agent_automation_digest, agent_automation_failed.",
     }),
     eventData: z.unknown().openapi({
       description:
@@ -20,10 +20,10 @@ export const notificationSchema = z
     isRead: z.boolean().nullable(),
     resourceId: z.string().nullable().openapi({
       description:
-        "The id of the task or workspace the notification points at.",
+        "The id of the task, workspace, or agent run the notification points at.",
     }),
     resourceType: z.string().nullable().openapi({
-      description: "`task` or `workspace`.",
+      description: "`task`, `workspace`, or `agent_run`.",
     }),
     createdAt: responseTimestamp,
     updatedAt: responseTimestamp,

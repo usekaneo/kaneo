@@ -5,6 +5,8 @@ import {
   runStatusSchema,
 } from "./schema";
 
+import { runTriggerResponse } from "./automation/response";
+
 const snapshot = z.object({
   id: z.string(),
   projectId: z.string(),
@@ -54,6 +56,7 @@ export const runResponse = z.object({
   id: z.string(),
   conversationId: z.string(),
   requestId: z.string(),
+  trigger: runTriggerResponse,
   prompt: z.string(),
   attachments: z.array(runAttachmentResponse),
   response: z.string(),

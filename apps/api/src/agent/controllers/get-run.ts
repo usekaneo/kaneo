@@ -11,6 +11,7 @@ export async function getRun(subject: AgentSubject, runId: string) {
     async (tx) => {
       const { run } = await getVisibleRun(subject, runId, tx);
       const {
+        automationHandledAt: _handled,
         leaseOwner: _owner,
         leaseExpiresAt: _lease,
         attachments,
