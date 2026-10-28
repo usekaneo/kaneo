@@ -1,3 +1,4 @@
+import { splitAgentProposals } from "./split-agent-proposals";
 import { client } from "@kaneo/libs";
 
 import { HttpError } from "@/lib/http-error";
@@ -11,7 +12,7 @@ async function getAgentRun(workspaceId: string, runId: string) {
     throw new HttpError(response.status, await response.text());
   }
 
-  return response.json();
+  return splitAgentProposals(await response.json());
 }
 
 export default getAgentRun;

@@ -1,3 +1,4 @@
+import { isAgentCodeJobActive } from "@/lib/agent-code-job-status";
 import { useQuery } from "@tanstack/react-query";
 import getAgentRun from "@/fetchers/agent/get-agent-run";
 import { isAgentRunActive } from "@/lib/agent-run-status";
@@ -11,7 +12,9 @@ function useAgentRun(workspaceId: string, runId: string | undefined) {
     // AGENT_RUN_UPDATED on the user socket drives updates; polling only
     // covers a dropped socket while the run is still working.
     refetchInterval: (query) =>
-      query.state.data && isAgentRunActive(query.state.data.status)
+      query.state.data &&
+      (isAgentRunActive(query.state.data.status) ||
+        query.state.data.jobs.some((job) => isAgentCodeJobActive(job.status)))
         ? 5_000
         : false,
   });
