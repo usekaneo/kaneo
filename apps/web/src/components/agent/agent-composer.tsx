@@ -168,11 +168,6 @@ export function AgentComposer({
         </div>
         <div className="flex items-center gap-2.5">
           {modelPicker}
-          {hero && (
-            <span className="font-mono text-[11px] text-muted-foreground">
-              {t("agent:composer.enterToSend")}
-            </span>
-          )}
           {running && onStop ? (
             <Button
               type="button"

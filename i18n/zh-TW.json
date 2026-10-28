@@ -5066,7 +5066,6 @@
 				"unsupported": "Attach images, PDFs, or text files like .md, .txt, .csv or .json.",
 				"uploadFailed": "{{name}} couldn't be uploaded. Try again."
 			},
-			"enterToSend": "↵ to send",
 			"model": "Model: {{model}}",
 			"followUp": "Ask a follow-up…",
 			"placeholder": "Ask about this project…",

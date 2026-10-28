@@ -5152,7 +5152,6 @@
 			"followUp": "Ask a follow-up…",
 			"send": "Send",
 			"stop": "Stop the agent",
-			"enterToSend": "↵ to send",
 			"model": "Model: {{model}}",
 			"reviewMode": "Ask before changes",
 			"reviewModeHint": "The agent only proposes changes. Nothing changes until you review and apply it.",

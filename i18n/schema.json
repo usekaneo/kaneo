@@ -21400,9 +21400,6 @@
 						"stop": {
 							"type": "string"
 						},
-						"enterToSend": {
-							"type": "string"
-						},
 						"model": {
 							"type": "string"
 						},
@@ -21484,7 +21481,6 @@
 						"followUp",
 						"send",
 						"stop",
-						"enterToSend",
 						"model",
 						"reviewMode",
 						"reviewModeHint",
