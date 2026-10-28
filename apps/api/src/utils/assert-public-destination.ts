@@ -1,5 +1,6 @@
 import { lookup } from "node:dns/promises";
 import net from "node:net";
+import { DestinationLookupError } from "./destination-lookup-error";
 
 function isDisallowedIpv4(ip: string): boolean {
   const parts = ip.split(".").map((part) => Number.parseInt(part, 10));
@@ -161,9 +162,13 @@ export async function assertPublicDestination(
   // them here, and avoid looking up bracketed IPv6 literals as hostnames.
   if (net.isIP(hostname)) return;
 
-  const addresses = await lookup(hostname, { all: true, verbatim: true });
+  const addresses = await lookup(hostname, { all: true, verbatim: true }).catch(
+    () => {
+      throw new DestinationLookupError(label);
+    },
+  );
   if (addresses.length === 0) {
-    throw new Error(`${label} destination could not be resolved`);
+    throw new DestinationLookupError(label);
   }
 
   if (addresses.some((entry) => isDisallowedAddress(entry.address))) {

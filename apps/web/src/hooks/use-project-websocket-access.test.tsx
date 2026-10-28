@@ -106,6 +106,26 @@ describe("project WebSocket access", () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it("keeps the archived workspace route and refreshes its state without reconnecting", () => {
+    renderHook(() => useProjectWebSocket("project-a"));
+    act(() => {
+      TestSocket.instances[0].open();
+      TestSocket.instances[0].onclose?.({
+        code: 1008,
+        reason: "Workspace archived",
+      });
+      vi.advanceTimersByTime(60_000);
+    });
+    expect(evictProjectCache).toHaveBeenCalledWith(client, "project-a");
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["workspace-status"],
+    });
+    expect(navigate).not.toHaveBeenCalled();
+    expect(client.clear).not.toHaveBeenCalled();
+    expect(TestSocket.instances).toHaveLength(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("evicts only the revoked project and returns to its workspace dashboard", async () => {
     cached.queries = [
       { queryKey: ["projects", "workspace-a"] },

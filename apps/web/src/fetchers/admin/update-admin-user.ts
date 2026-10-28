@@ -1,20 +1,19 @@
-import { authClient } from "@/lib/auth-client";
+import { client } from "@kaneo/libs";
+import { HttpError } from "@/lib/http-error";
 import type { UpdateAdminUserRequest } from "./types";
 
 export async function updateAdminUser({
   userId,
-  name,
-  email,
-  role,
+  ...json
 }: UpdateAdminUserRequest) {
-  const { data, error } = await authClient.admin.updateUser({
-    userId,
-    data: { name, email, ...(role === undefined ? {} : { role }) },
+  const response = await client.admin.users[":userId"].$patch({
+    param: { userId },
+    json,
   });
 
-  if (error) {
-    throw new Error(error.message ?? "");
+  if (!response.ok) {
+    throw await HttpError.fromResponse(response);
   }
 
-  return data;
+  return response.json();
 }

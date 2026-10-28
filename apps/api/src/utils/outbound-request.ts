@@ -1,5 +1,6 @@
 import { destinationFetch } from "../import/destination-fetch";
 import { isBlockedDestinationError } from "../import/blocked-destination-error";
+import { DestinationLookupError } from "./destination-lookup-error";
 import { assertPublicDestination } from "./assert-public-destination";
 import { withoutOutboundTelemetry } from "./sensitive-outbound";
 
@@ -60,6 +61,7 @@ export async function sendOutboundRequest(
   init: Pick<RequestInit, "headers" | "body">,
   options: {
     readJson?: boolean;
+    readStatus?: boolean;
     publicDestination?: boolean;
     timeoutMs?: number;
   } = {},
@@ -76,8 +78,10 @@ export async function sendOutboundRequest(
     if (options.publicDestination) {
       try {
         await assertPublicDestination(url, "Notification");
-      } catch {
-        throw new OutboundRequestError("destination");
+      } catch (error) {
+        throw new OutboundRequestError(
+          error instanceof DestinationLookupError ? "network" : "destination",
+        );
       }
     }
     // DNS validation may finish after the deadline. Never start a late request.
@@ -89,14 +93,14 @@ export async function sendOutboundRequest(
       send(url, {
         ...init,
         method: "POST",
-        redirect: "error",
+        redirect: "manual",
         signal: controller.signal,
       }),
     );
     if (!response.ok || !options.readJson) {
       void response.body?.cancel().catch(() => {});
       if (!response.ok) throw new OutboundRequestError("http", response.status);
-      return undefined;
+      return options.readStatus ? response.status : undefined;
     }
     return readSmallJson(response);
   };

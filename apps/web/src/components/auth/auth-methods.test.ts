@@ -12,10 +12,12 @@ import {
 function config(overrides: Partial<GetConfigResponse> = {}) {
   return {
     isCloud: false,
+    instanceName: "Kaneo",
     disableRegistration: false,
     disablePasswordRegistration: false,
     disableEmailOtpSignIn: false,
     disableWorkspaceCreation: false,
+    disabledIntegrations: [],
     isDemoMode: false,
     hasSmtp: true,
     hasImageUploads: false,

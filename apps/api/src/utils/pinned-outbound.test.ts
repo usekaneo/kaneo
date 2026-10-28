@@ -134,7 +134,7 @@ describe("outbound connection destination validation", () => {
         { body: "Message", headers: { Authorization: "Bearer token" } },
         { publicDestination: true },
       ),
-    ).rejects.toMatchObject({ reason: "network" });
+    ).rejects.toMatchObject({ reason: "http", status: 307 });
     expect(requestedPaths).toEqual(["/redirect"]);
   });
 });

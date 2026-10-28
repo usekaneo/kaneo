@@ -9,6 +9,8 @@ type AssetAccessTarget = {
   workspaceId: string;
   projectId: string;
   isPublic: boolean | null;
+  /** Archived workspaces keep members out and stop sharing public assets. */
+  workspaceArchived?: boolean;
   surface: string;
   createdBy?: string | null;
 };
@@ -23,7 +25,8 @@ export async function authorizeAssetAccess(
   asset: AssetAccessTarget,
 ): Promise<void> {
   if (isPublicAsset(asset)) {
-    return;
+    if (!asset.workspaceArchived) return;
+    throw new HTTPException(404, { message: "Asset not found" });
   }
 
   const { userId, apiKeyId, apiKeyPermissions } =

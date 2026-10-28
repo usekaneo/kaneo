@@ -4,15 +4,19 @@ import {
   workspaceBillingTable,
   workspaceUserTable,
 } from "../../database/schema";
+import type { DbOrTx } from "../../project-access/db-or-tx";
 import { isBillingEnabled } from "../config";
 import { updateSubscriptionSeats } from "../creem-client";
 
-export async function syncWorkspaceSeats(workspaceId: string) {
+export async function syncWorkspaceSeats(
+  workspaceId: string,
+  database: DbOrTx = db,
+) {
   if (!isBillingEnabled()) {
     return;
   }
 
-  const [billing] = await db
+  const [billing] = await database
     .select()
     .from(workspaceBillingTable)
     .where(eq(workspaceBillingTable.workspaceId, workspaceId));
@@ -26,7 +30,7 @@ export async function syncWorkspaceSeats(workspaceId: string) {
     return;
   }
 
-  const [members] = await db
+  const [members] = await database
     .select({ value: count() })
     .from(workspaceUserTable)
     .where(eq(workspaceUserTable.workspaceId, workspaceId));
@@ -42,7 +46,7 @@ export async function syncWorkspaceSeats(workspaceId: string) {
     units: seats,
   });
 
-  await db
+  await database
     .update(workspaceBillingTable)
     .set({ seats })
     .where(eq(workspaceBillingTable.workspaceId, workspaceId));

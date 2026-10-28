@@ -13,6 +13,8 @@ import {
   unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { WEBHOOK_CATEGORIES } from "../admin/webhooks/categories";
+import type { AuditWebhookPayload } from "../admin/webhooks/audit-webhook-payload";
 import type { GitHubImportState } from "../github-integration/import-state";
 import type { ImportRunProject } from "../import/import-run-project";
 import type { TaskRecurrence } from "../task/recurrence/schema";
@@ -51,6 +53,10 @@ export const userTable = pgTable("user", {
   banned: boolean("banned").default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires", { mode: "date" }),
+  // Set on password sign-ups while the instance requires email verification.
+  emailVerificationRequired: boolean("email_verification_required")
+    .default(false)
+    .notNull(),
 });
 
 export const sessionTable = pgTable(
@@ -140,6 +146,146 @@ export const userAvatarTable = pgTable(
   (table) => [index("user_avatar_userId_idx").on(table.userId)],
 );
 
+// Instance administration history. Actor and target details are snapshots so
+// entries stay readable after the people or records involved are deleted.
+export const adminAuditLogTable = pgTable(
+  "admin_audit_log",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    actorUserId: text("actor_user_id").references(() => userTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
+    actorName: text("actor_name"),
+    actorEmail: text("actor_email"),
+    action: text("action").notNull(),
+    targetType: text("target_type").notNull(),
+    targetId: text("target_id"),
+    targetLabel: text("target_label"),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+  },
+  (table) => [
+    index("admin_audit_log_createdAt_idx").on(
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
+    index("admin_audit_log_actorUserId_idx").on(table.actorUserId),
+    index("admin_audit_log_target_idx").on(table.targetType, table.targetId),
+  ],
+);
+
+export const instanceWebhookTable = pgTable("instance_webhook", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  url: text("url").notNull(),
+  categories: text("categories")
+    .array()
+    .$type<(typeof WEBHOOK_CATEGORIES)[number][]>()
+    .notNull(),
+  enabled: boolean("enabled").default(true).notNull(),
+  signingSecret: text("signing_secret").notNull(),
+  cancelPendingBefore: timestamp("cancel_pending_before", { mode: "date" }),
+  createdAt: timestamp("created_at", { mode: "date" })
+    .default(utcNow)
+    .notNull(),
+});
+
+export const instanceWebhookDeliveryTable = pgTable(
+  "instance_webhook_delivery",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    webhookId: text("webhook_id")
+      .notNull()
+      .references(() => instanceWebhookTable.id, { onDelete: "cascade" }),
+    payload: jsonb("payload").$type<AuditWebhookPayload>().notNull(),
+    state: text("state")
+      .$type<"pending" | "succeeded" | "failed">()
+      .default("pending")
+      .notNull(),
+    attempts: integer("attempts").default(0).notNull(),
+    statusCode: integer("status_code"),
+    errorCode: text("error_code"),
+    nextAttemptAt: timestamp("next_attempt_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    // Use the enqueue statement's snapshot time, even inside an older action transaction.
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(sql`(statement_timestamp() AT TIME ZONE 'utc')`)
+      .notNull(),
+  },
+  (table) => [
+    index("instance_webhook_delivery_due_idx").on(
+      table.state,
+      table.nextAttemptAt,
+    ),
+    index("instance_webhook_delivery_history_idx").on(
+      table.webhookId,
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
+  ],
+);
+
+// Custom instance roles. Users hold them by name in their comma-separated
+// `user.role`, next to the built-in `admin` and `user` roles.
+export const instanceRoleTable = pgTable("instance_role", {
+  id: text("id")
+    .$defaultFn(() => createId())
+    .primaryKey(),
+  name: text("name").notNull().unique(),
+  permissions: text("permissions")
+    .array()
+    .notNull()
+    .default(sql`'{}'`),
+  createdAt: timestamp("created_at", { mode: "date" })
+    .default(utcNow)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .default(utcNow)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// A single row (id "instance"). Without it, every setting has its default.
+export const instanceSettingsTable = pgTable("instance_settings", {
+  id: text("id").primaryKey().default("instance"),
+  instanceName: text("instance_name"),
+  registrationEnabled: boolean("registration_enabled").default(true).notNull(),
+  passwordRegistrationEnabled: boolean("password_registration_enabled")
+    .default(true)
+    .notNull(),
+  requireEmailVerification: boolean("require_email_verification")
+    .default(false)
+    .notNull(),
+  defaultRoleId: text("default_role_id").references(
+    () => instanceRoleTable.id,
+    {
+      onDelete: "restrict",
+    },
+  ),
+  workspaceCreationRestricted: boolean("workspace_creation_restricted")
+    .default(false)
+    .notNull(),
+  disabledIntegrations: text("disabled_integrations")
+    .array()
+    .notNull()
+    .default(sql`'{}'`),
+  updatedAt: timestamp("updated_at", { mode: "date" })
+    .default(utcNow)
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 export const verificationTable = pgTable(
   "verification",
   {
@@ -170,6 +316,12 @@ export const workspaceTable = pgTable("workspace", {
   metadata: text("metadata"),
   description: text("description"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+  // Set by an instance administrator. Archived workspaces keep their data but
+  // members, API keys, integrations, and public links can no longer use them.
+  archivedAt: timestamp("archived_at", { mode: "date" }),
+  archivedBy: text("archived_by").references(() => userTable.id, {
+    onDelete: "set null",
+  }),
 });
 
 export const workspaceUserTable = pgTable(

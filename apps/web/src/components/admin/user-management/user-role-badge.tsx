@@ -1,20 +1,20 @@
-import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
+import { useInstanceRoleLabel } from "./use-instance-role-label";
 
 type UserRoleBadgeProps = {
-  isAdmin: boolean;
+  role: string;
 };
 
-export function UserRoleBadge({ isAdmin }: UserRoleBadgeProps) {
-  const { t } = useTranslation();
+export function UserRoleBadge({ role }: UserRoleBadgeProps) {
+  const roleLabel = useInstanceRoleLabel();
 
-  return isAdmin ? (
-    <Badge variant="outline" className="px-1.5">
-      {t("settings:adminUsers.roles.admin")}
+  return role === "user" ? (
+    <Badge variant="secondary" className="px-1.5 text-muted-foreground">
+      {roleLabel(role)}
     </Badge>
   ) : (
-    <Badge variant="secondary" className="px-1.5 text-muted-foreground">
-      {t("settings:adminUsers.roles.user")}
+    <Badge variant="outline" className="max-w-full truncate px-1.5">
+      {roleLabel(role)}
     </Badge>
   );
 }

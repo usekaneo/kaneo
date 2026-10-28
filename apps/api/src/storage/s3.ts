@@ -3,6 +3,7 @@ import {
   CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
+  HeadBucketCommand,
   type HeadObjectCommandOutput,
   PutObjectCommand,
   S3Client,
@@ -493,6 +494,17 @@ export function isStorageConfigured() {
   } catch {
     return false;
   }
+}
+
+/** Check that the bucket answers with the configured credentials. */
+export async function headStorageBucket(abortSignal: AbortSignal) {
+  const config = getStorageConfig();
+  await getClient(config).send(
+    new HeadBucketCommand({ Bucket: config.bucket }),
+    {
+      abortSignal,
+    },
+  );
 }
 
 export function assertTaskImageKeyMatchesContext(

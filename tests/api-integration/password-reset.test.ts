@@ -75,9 +75,14 @@ async function requestReset() {
   const link = new URL((props as { resetLink: string }).resetLink);
   expect(link.origin).toBe("http://localhost:1337");
   expect(link.searchParams.get("callbackURL")).toBe(redirectTo);
-  expect(vi.mocked(email.sendPasswordResetEmail).mock.calls.at(-1)?.[1]).toBe(
-    "Kaneo-Passwort zurücksetzen",
-  );
+  const subject = vi
+    .mocked(email.sendPasswordResetEmail)
+    .mock.calls.at(-1)?.[1];
+  expect(typeof subject).toBe("function");
+  if (typeof subject !== "function")
+    throw new Error("Missing subject resolver");
+  expect(subject("Kaneo")).toBe("Kaneo-Passwort zurücksetzen");
+  expect(subject("Acme $&")).toBe("Acme $&-Passwort zurücksetzen");
   return { link, token: link.pathname.split("/").at(-1) };
 }
 

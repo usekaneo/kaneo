@@ -577,6 +577,15 @@ export function useProjectWebSocket(projectId: string) {
           return;
         }
 
+        if (event?.code === 1008 && event.reason === "Workspace archived") {
+          disposed = true;
+          evictProjectCache(queryClient, projectId);
+          void queryClient.invalidateQueries({
+            queryKey: ["workspace-status"],
+          });
+          return;
+        }
+
         if (
           event?.code === 1008 &&
           event.reason === "Workspace access revoked"

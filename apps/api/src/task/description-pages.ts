@@ -1,6 +1,7 @@
 import { and, asc, eq, gt, sql } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
 import { projectTable, taskTable } from "../database/schema";
+import { workspaceIsActive } from "../workspace/archive/active-workspace-sql";
 import { boundedTaskRead } from "./bounded-read";
 
 export const BOARD_DESCRIPTION_MAX_BYTES = 64 * 1024;
@@ -25,6 +26,7 @@ export async function getDescriptionPage(
       conditions.push(
         eq(taskTable.projectId, options.publicProjectId),
         eq(projectTable.isPublic, true),
+        workspaceIsActive(projectTable.workspaceId),
       );
     if (options.version)
       conditions.push(sql`${taskTable}.xmin::text = ${options.version}`);
@@ -100,6 +102,7 @@ export async function getPublicProjectDescriptionPage(
         and(
           eq(projectTable.id, projectId),
           eq(projectTable.isPublic, true),
+          workspaceIsActive(projectTable.workspaceId),
           options.version
             ? sql`${projectTable}.xmin::text = ${options.version}`
             : undefined,

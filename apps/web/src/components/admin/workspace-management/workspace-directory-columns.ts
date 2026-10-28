@@ -3,5 +3,5 @@ export const WORKSPACE_DIRECTORY_COLUMNS = {
   members: "w-16",
   projects: "w-16",
   created: "w-22",
-  actions: "w-18",
+  actions: "w-26",
 } as const;

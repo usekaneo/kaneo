@@ -252,7 +252,8 @@ describe("auth registration and bootstrap boundaries", () => {
     expect(sendMagicLink.mock.lastCall?.[0]).toBe(member.user.email);
     const data = send.mock.lastCall?.[2] as { otp: string } | undefined;
     expect(data?.otp).toBeTruthy();
-    expect(send.mock.lastCall?.[1]).toBe(
+    const subject = send.mock.lastCall?.[1];
+    expect(typeof subject === "function" ? subject("Kaneo") : subject).toBe(
       `${data?.otp} is your Kaneo sign-in code`,
     );
     const requestContext = expect.objectContaining({

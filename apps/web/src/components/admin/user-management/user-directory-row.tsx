@@ -1,6 +1,11 @@
 import {
+  BadgeCheckIcon,
   BanIcon,
   CheckCircle2Icon,
+  KeyRoundIcon,
+  type LucideIcon,
+  MailIcon,
+  MonitorSmartphoneIcon,
   PencilIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -12,18 +17,40 @@ import {
 } from "@/components/settings/row-actions-menu";
 import type { AdminUser } from "@/hooks/queries/admin/use-admin-users";
 import { cn } from "@/lib/cn";
-import { formatDateMedium } from "@/lib/format";
-import { hasInstanceAdminRole } from "@/lib/instance-admin";
-import type { PendingUserAction } from "./pending-user-action";
+import {
+  formatDateMedium,
+  formatDateTime,
+  formatRelativeTime,
+} from "@/lib/format";
+import type { InstancePermission } from "@kaneo/permissions";
+import { getPrimaryInstanceRole } from "./get-primary-instance-role";
+import { getUserActionTypes } from "./get-user-action-types";
+import type { UserActionType } from "./pending-user-action";
+import { USER_ACTION_COPY } from "./user-action-copy";
 import { USER_DIRECTORY_COLUMNS } from "./user-directory-columns";
 import { UserRoleBadge } from "./user-role-badge";
 import { UserStatus } from "./user-status";
 
+const ACTION_ICONS: Record<UserActionType, LucideIcon> = {
+  sendPasswordReset: KeyRoundIcon,
+  sendVerification: MailIcon,
+  markEmailVerified: BadgeCheckIcon,
+  deactivate: BanIcon,
+  reactivate: CheckCircle2Icon,
+  delete: Trash2Icon,
+};
+
 type UserDirectoryRowProps = {
   user: AdminUser;
   isSelf: boolean;
+  canSendPasswordReset: boolean;
+  /** The viewer's instance permissions. */
+  permissions: readonly InstancePermission[];
+  /** False when the user holds permissions the viewer lacks. */
+  canManage: boolean;
   onEdit: () => void;
-  onAction: (type: PendingUserAction["type"]) => void;
+  onAction: (type: UserActionType) => void;
+  onOpenSecurity: () => void;
 };
 
 const CELL_CLASS = "hidden shrink-0 sm:flex";
@@ -31,45 +58,55 @@ const CELL_CLASS = "hidden shrink-0 sm:flex";
 export function UserDirectoryRow({
   user,
   isSelf,
+  canSendPasswordReset,
+  permissions,
+  canManage,
   onEdit,
+  onOpenSecurity,
   onAction,
 }: UserDirectoryRowProps) {
   const { t } = useTranslation();
-  const isAdmin = hasInstanceAdminRole(user.role);
+  const role = getPrimaryInstanceRole(user.role);
   const isDeactivated = user.banned === true;
+  const can = (permission: InstancePermission) =>
+    canManage && permissions.includes(permission);
 
   const actions: RowAction[] = [
-    {
-      id: "edit",
-      label: t("settings:adminUsers.actions.edit"),
-      icon: PencilIcon,
-      onSelect: onEdit,
-    },
-  ];
-  if (!isSelf) {
-    actions.push(
-      isDeactivated
-        ? {
-            id: "reactivate",
-            label: t("settings:adminUsers.actions.reactivate"),
-            icon: CheckCircle2Icon,
-            onSelect: () => onAction("reactivate"),
-          }
-        : {
-            id: "deactivate",
-            label: t("settings:adminUsers.actions.deactivate"),
-            icon: BanIcon,
-            onSelect: () => onAction("deactivate"),
+    ...(can("users:update")
+      ? [
+          {
+            id: "edit",
+            label: t("settings:adminUsers.actions.edit"),
+            icon: PencilIcon,
+            onSelect: onEdit,
           },
-      {
-        id: "delete",
-        label: t("common:actions.delete"),
-        icon: Trash2Icon,
-        destructive: true,
-        onSelect: () => onAction("delete"),
-      },
-    );
-  }
+        ]
+      : []),
+    ...(can("users:sessions") || can("users:api_keys")
+      ? [
+          {
+            id: "security",
+            label: t("settings:adminUsers.actions.security"),
+            icon: MonitorSmartphoneIcon,
+            onSelect: onOpenSecurity,
+          },
+        ]
+      : []),
+    ...(canManage
+      ? getUserActionTypes(user, {
+          isSelf,
+          canSendPasswordReset,
+          permissions,
+        })
+      : []
+    ).map((type) => ({
+      id: type,
+      label: t(USER_ACTION_COPY[type].menu),
+      icon: ACTION_ICONS[type],
+      destructive: type === "delete",
+      onSelect: () => onAction(type),
+    })),
+  ];
 
   return (
     <div role="row" className="flex items-center gap-4 px-4 py-3">
@@ -84,23 +121,48 @@ export function UserDirectoryRow({
               </span>
             ) : null}
           </div>
-          <span className="block truncate text-xs text-muted-foreground">
-            {user.email}
+          <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="truncate">{user.email}</span>
+            {user.emailVerified ? null : (
+              <span className="shrink-0 text-warning-foreground">
+                {t("settings:adminUsers.unverified")}
+              </span>
+            )}
           </span>
           <div className="mt-1.5 flex items-center gap-2 sm:hidden">
-            <UserRoleBadge isAdmin={isAdmin} />
+            <UserRoleBadge role={role} />
             <UserStatus isDeactivated={isDeactivated} />
           </div>
         </div>
       </div>
       <div role="cell" className={cn(CELL_CLASS, USER_DIRECTORY_COLUMNS.role)}>
-        <UserRoleBadge isAdmin={isAdmin} />
+        <UserRoleBadge role={role} />
       </div>
       <div
         role="cell"
         className={cn(CELL_CLASS, USER_DIRECTORY_COLUMNS.status)}
       >
         <UserStatus isDeactivated={isDeactivated} />
+      </div>
+      <div
+        role="cell"
+        className={cn(
+          CELL_CLASS,
+          USER_DIRECTORY_COLUMNS.lastActive,
+          "text-[13px] text-muted-foreground tabular-nums",
+        )}
+      >
+        {user.lastActiveAt ? (
+          <time
+            dateTime={user.lastActiveAt}
+            title={formatDateTime(user.lastActiveAt)}
+            className="truncate"
+          >
+            {formatRelativeTime(user.lastActiveAt)}
+          </time>
+        ) : (
+          t("settings:adminUsers.never")
+        )}
       </div>
       <div
         role="cell"
@@ -119,10 +181,12 @@ export function UserDirectoryRow({
           USER_DIRECTORY_COLUMNS.actions,
         )}
       >
-        <RowActionsMenu
-          label={t("settings:adminUsers.actions.open", { name: user.name })}
-          actions={actions}
-        />
+        {actions.length > 0 ? (
+          <RowActionsMenu
+            label={t("settings:adminUsers.actions.open", { name: user.name })}
+            actions={actions}
+          />
+        ) : null}
       </div>
     </div>
   );

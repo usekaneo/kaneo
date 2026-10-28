@@ -1,5 +1,6 @@
 import { Column, Container, Head, Html, Img, Preview } from "react-email";
-import React from "react";
+import React, { useContext } from "react";
+import { BrandNameContext } from "./brand-name-context";
 import { Row } from "./row";
 import { emailAsset } from "./assets";
 import { themeCss } from "./theme";
@@ -20,6 +21,7 @@ export function EmailShell({
   lang,
   children,
 }: EmailShellProps) {
+  const instanceName = useContext(BrandNameContext);
   return (
     <Html lang={lang} dir="ltr">
       <Head>
@@ -56,7 +58,7 @@ export function EmailShell({
                 />
               </Column>
               <Column className="k-text" style={wordmark}>
-                Kaneo
+                {instanceName}
               </Column>
             </Row>
             {children}

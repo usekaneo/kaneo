@@ -92,7 +92,7 @@ describe("outbound notification transport", () => {
         body: "private",
         headers: { Authorization: "Bearer secret" },
       }),
-    ).rejects.toMatchObject({ reason: "network" });
+    ).rejects.toMatchObject({ reason: "http", status: 307 });
     expect(redirected).toBe(0);
   });
   it("rejects private destinations by default before fetching", async () => {

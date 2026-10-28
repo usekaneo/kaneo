@@ -1,3 +1,4 @@
+import { INSTANCE_PERMISSIONS } from "@kaneo/permissions";
 import { describe, expect, it } from "vite-plus/test";
 import { buildSettingsNav } from "@/components/settings/nav/build-settings-nav";
 
@@ -11,7 +12,7 @@ function build(
     workspaceName: "Acme",
     billingEnabled: false,
     canImport: false,
-    hasAdminAccess: false,
+    adminPermissions: [],
     projects: [],
     ...overrides,
   });
@@ -51,14 +52,57 @@ describe("buildSettingsNav", () => {
     ]);
   });
 
-  it("only shows administration to instance admins", () => {
+  it("shows each administration page only with its permission", () => {
     expect(build().admin).toBeNull();
     expect(
-      build({ hasAdminAccess: true }).admin?.links.map((link) => link.to),
+      build({
+        adminPermissions: [
+          "users:read",
+          "roles:manage",
+          "workspaces:read",
+          "audit:read",
+          "system:read",
+        ],
+      }).admin?.links.map((link) => link.to),
     ).toEqual([
+      "/dashboard/settings/admin/overview",
       "/dashboard/settings/admin/users",
+      "/dashboard/settings/admin/roles",
       "/dashboard/settings/admin/workspaces",
+      "/dashboard/settings/admin/audit-log",
+      "/dashboard/settings/admin/system",
     ]);
+    expect(
+      build({
+        adminPermissions: ["audit:read", "users:delete"],
+      }).admin?.links.map((link) => link.to),
+    ).toEqual(["/dashboard/settings/admin/audit-log"]);
+  });
+
+  it("shows webhooks alongside instance settings", () => {
+    expect(
+      build({ adminPermissions: ["instance:settings"] }).admin?.links.map(
+        (link) => link.to,
+      ),
+    ).toEqual([
+      "/dashboard/settings/admin/settings",
+      "/dashboard/settings/admin/webhooks",
+    ]);
+  });
+
+  it.each([
+    "users:read",
+    "workspaces:read",
+    "audit:read",
+    "system:read",
+  ] as const)("hides Overview without %s", (missing) => {
+    expect(
+      build({
+        adminPermissions: INSTANCE_PERMISSIONS.filter(
+          (permission) => permission !== missing,
+        ),
+      }).admin?.links.map((link) => link.id),
+    ).not.toContain("admin-overview");
   });
 
   it("gives every project its own settings pages", () => {

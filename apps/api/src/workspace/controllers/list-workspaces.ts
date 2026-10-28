@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import db from "../../database";
 import {
   userTable,
@@ -29,6 +29,7 @@ async function listWorkspaces(userId: string) {
       ),
     )
     .innerJoin(userTable, eq(userTable.id, workspaceUserTable.userId))
+    .where(isNull(workspaceTable.archivedAt))
     .orderBy(
       sortName,
       workspaceTable.id,

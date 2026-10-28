@@ -380,3 +380,44 @@ describe("project WebSocket read authorization", () => {
     expect(leaked).not.toHaveBeenCalled();
   });
 });
+
+describe("archived workspaces", () => {
+  const archive = () =>
+    db
+      .update(schema.workspaceTable)
+      .set({ archivedAt: new Date() })
+      .where(eq(schema.workspaceTable.id, workspaceId));
+
+  it("refuses project upgrades", async () => {
+    const headers = { authorization: "Bearer valid-test-session" };
+    const before = await connect(projectId, headers);
+    expect(before.status).toBe(101);
+    before.socket.terminate();
+
+    await archive();
+    expect((await connect(projectId, headers)).status).toBe(403);
+  });
+
+  it("closes project sockets a missed revocation left open", async () => {
+    await initializeWebSocketAdapter();
+    const { socket, status } = await connect(projectId, {
+      authorization: "Bearer valid-test-session",
+    });
+    expect(status).toBe(101);
+    const leaked = vi.fn();
+    socket.on("message", leaked);
+
+    // Archived without the admin route, so no revocation is sent.
+    await archive();
+    const closed = once(socket, "close");
+    broadcastToProject(projectId, {
+      type: "TASK_UPDATED",
+      projectId,
+      taskId: "private-task",
+    });
+    const [code, reason] = await closed;
+    expect(code).toBe(1008);
+    expect(reason.toString()).toBe("Workspace archived");
+    expect(leaked).not.toHaveBeenCalled();
+  });
+});

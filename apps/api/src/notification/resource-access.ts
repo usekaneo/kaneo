@@ -13,7 +13,8 @@ import { notBannedCondition } from "../utils/user-ban";
 import { workspacePermissionGrants } from "../utils/workspace-permission-grants";
 
 // Membership, rather than public visibility or global admin privileges, defines
-// who may be subscribed to private task activity. Use the same predicate when
+// who may be subscribed to private task activity. Archived workspaces hide
+// their notifications until restored. Use the same predicate when
 // creating, reading and delivering notifications, including historical rows.
 export function notificationResourceAccess(
   userId: string,
@@ -36,13 +37,17 @@ export function notificationResourceAccess(
       SELECT 1 FROM task AS notification_task
       JOIN project AS notification_project ON notification_project.id = notification_task.project_id
       JOIN workspace_member AS notification_member ON notification_member.workspace_id = notification_project.workspace_id
+      JOIN workspace AS notification_workspace ON notification_workspace.id = notification_project.workspace_id
       WHERE notification_task.id = ${resourceId} AND notification_member.user_id = ${userId}
+        AND notification_workspace.archived_at IS NULL
         AND ${projectAccessCondition(userId, sql`notification_project.id`)}
         AND ${taskRead}
     ))
     OR (${resourceType}::text = 'workspace' AND EXISTS (
       SELECT 1 FROM workspace_member AS notification_member
+      JOIN workspace AS notification_workspace ON notification_workspace.id = notification_member.workspace_id
       WHERE notification_member.workspace_id = ${resourceId} AND notification_member.user_id = ${userId}
+        AND notification_workspace.archived_at IS NULL
         AND ${workspaceRead}
     ))
   )`;

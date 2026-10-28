@@ -1,6 +1,6 @@
 ---
 title: Your account
-description: Manage your profile, password, API keys, and account deletion
+description: Manage your profile, password, signed-in sessions, API keys, and account deletion
 ---
 
 Your profile picture and your account itself are both managed from **Settings → Account → Profile**.
@@ -26,6 +26,12 @@ Accounts that sign in only through a provider or passwordless email do not have 
   <img className="block dark:hidden" src="/images/product/security-light.png" alt="Accounts with a password can change it under Account → Security." />
   <img className="hidden dark:block" src="/images/product/security-dark.png" alt="Accounts with a password can change it under Account → Security." />
 </Frame>
+
+## Review where you're signed in
+
+**Settings → Account → Security** also lists your active sessions: the browser and device, IP address, when you signed in, and when the session was last active. The session you're using is marked **This device**. Sessions refresh about once a day while in use, so "last active" is approximate.
+
+Select **Sign out** on a session you don't recognize to end it, or **Sign out other sessions** to end every session except this one. Ended sessions stop working at once, including open boards that update live. To end the current session, sign out. API keys aren't sessions; delete them under **Settings → Account → API keys**.
 
 ## API keys
 

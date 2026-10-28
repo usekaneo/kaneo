@@ -1,4 +1,5 @@
 import { APIError } from "better-auth/api";
+import { getInstanceSettings } from "../instance-settings/get-instance-settings";
 import {
   checkRegistrationAllowed,
   userExistsByEmail,
@@ -37,14 +38,19 @@ export async function assertEmailCodeRecipientAllowed(
   throw disposableEmailError();
 }
 
-export async function assertGuestRegistrationAllowed(): Promise<void> {
+/** Guests are self-registered accounts, so any registration limit hides them. */
+export async function isGuestAccessAvailable(): Promise<boolean> {
   if (
     process.env.DISABLE_GUEST_ACCESS === "true" ||
-    process.env.DISABLE_REGISTRATION === "true" ||
-    process.env.DISABLE_PASSWORD_REGISTRATION === "true" ||
-    process.env.DISABLE_LOGIN_FORM === "true" ||
-    !(await hasRegisteredUsers())
-  ) {
+    process.env.DISABLE_LOGIN_FORM === "true"
+  )
+    return false;
+  const settings = await getInstanceSettings();
+  return settings.registrationEnabled && settings.passwordRegistrationEnabled;
+}
+
+export async function assertGuestRegistrationAllowed(): Promise<void> {
+  if (!(await isGuestAccessAvailable()) || !(await hasRegisteredUsers())) {
     throw new APIError("FORBIDDEN", {
       code: "GUEST_ACCESS_DISABLED",
       message: "Guest access is unavailable on this instance.",
@@ -67,7 +73,7 @@ export async function assertUserRegistrationAllowed(
   if (!(await hasRegisteredUsers())) return;
   if (isCloud() && isDisposableEmail(user.email)) throw disposableEmailError();
   if (
-    process.env.DISABLE_PASSWORD_REGISTRATION === "true" &&
+    !(await getInstanceSettings()).passwordRegistrationEnabled &&
     !isOAuthCallbackPath(context?.path)
   ) {
     throw new APIError("FORBIDDEN", {

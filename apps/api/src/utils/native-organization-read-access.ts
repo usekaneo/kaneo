@@ -1,5 +1,5 @@
 import { APIError, getSessionFromCtx } from "better-auth/api";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import db, { schema } from "../database";
 import { rolesAllow, type StoredRolePermission } from "./role-permissions";
 import { splitRoles } from "./split-roles";
@@ -18,10 +18,16 @@ export async function readableNativeOrganizations(
       role: schema.workspaceUserTable.role,
     })
     .from(schema.workspaceUserTable)
+    .innerJoin(
+      schema.workspaceTable,
+      eq(schema.workspaceTable.id, schema.workspaceUserTable.workspaceId),
+    )
     .where(
       and(
         eq(schema.workspaceUserTable.userId, userId),
         inArray(schema.workspaceUserTable.workspaceId, ids),
+        // Archived workspaces drop out of organization lists.
+        isNull(schema.workspaceTable.archivedAt),
       ),
     );
   if (members.length === 0) return new Set<string>();

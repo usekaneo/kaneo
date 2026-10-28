@@ -1,3 +1,4 @@
+import { workspaceStatusQueryKey } from "@/hooks/queries/workspace/use-workspace-archived";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
@@ -115,6 +116,7 @@ export function useUserWebSocket() {
             type?: string;
             workspaceId?: string;
             workspaceIds?: string[] | null;
+            reason?: string;
           };
           if (message.type === "USER_ACCESS_REVOKED") {
             leaveSession();
@@ -126,6 +128,9 @@ export function useUserWebSocket() {
             message.workspaceIds.every((id) => typeof id === "string")
           ) {
             evictInaccessibleWorkspaceCache(queryClient, message.workspaceIds);
+            void queryClient.invalidateQueries({
+              queryKey: ["workspace-status"],
+            });
             for (const workspaceId of message.workspaceIds)
               reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
             refreshOrganizationState();
@@ -148,8 +153,25 @@ export function useUserWebSocket() {
               /^\/dashboard\/settings\/(workspace|projects)(\/|$)/.test(path)
                 ? activeWorkspaceRef.current
                 : path.match(/^\/dashboard\/workspace\/([^/]+)/)?.[1];
-            if (current === message.workspaceId)
+            void queryClient.invalidateQueries({
+              queryKey: workspaceStatusQueryKey(message.workspaceId),
+            });
+            if (
+              current === message.workspaceId &&
+              (message.reason !== "archived" ||
+                !path.startsWith("/dashboard/workspace/"))
+            )
               void navigate({ to: "/dashboard" });
+          }
+          if (message.type === "WORKSPACE_RESTORED" && message.workspaceId) {
+            void queryClient.invalidateQueries({
+              queryKey: ["admin", "workspaces"],
+            });
+            void queryClient.invalidateQueries({
+              queryKey: workspaceStatusQueryKey(message.workspaceId),
+            });
+            void queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+            refreshOrganizationState();
           }
           if (
             message.type === "PROJECT_ACCESS_CHANGED" &&

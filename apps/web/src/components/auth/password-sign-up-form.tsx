@@ -1,4 +1,5 @@
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
+import { useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -42,6 +43,7 @@ export function PasswordSignUpForm({
   onSuccess,
 }: PasswordSignUpFormProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
   const schema = useMemo(
     () =>
@@ -78,6 +80,12 @@ export function PasswordSignUpForm({
         }
         setIsPending(false);
         captcha.reset();
+        return;
+      }
+      // The instance requires a confirmed email: no session until then.
+      if (!result.data?.token) {
+        toast.success(t("auth:signUp.verifyEmail"));
+        await navigate({ to: "/auth/sign-in" });
         return;
       }
       onSuccess();

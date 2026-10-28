@@ -602,6 +602,10 @@
           "isCloud": {
             "type": "boolean"
           },
+          "instanceName": {
+            "type": "string",
+            "description": "Name shown in page titles and emails. Defaults to Kaneo."
+          },
           "disableRegistration": {
             "type": "boolean"
           },
@@ -613,6 +617,13 @@
           },
           "disableWorkspaceCreation": {
             "type": "boolean"
+          },
+          "disabledIntegrations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Integration provider types an administrator turned off, such as `slack`."
           },
           "isDemoMode": {
             "type": "boolean"
@@ -683,10 +694,12 @@
         },
         "required": [
           "isCloud",
+          "instanceName",
           "disableRegistration",
           "disablePasswordRegistration",
           "disableEmailOtpSignIn",
           "disableWorkspaceCreation",
+          "disabledIntegrations",
           "isDemoMode",
           "hasSmtp",
           "hasImageUploads",
@@ -5322,6 +5335,370 @@
           "deleted"
         ]
       },
+      "ActiveSessionList": {
+        "type": "object",
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActiveSession"
+            }
+          }
+        },
+        "required": [
+          "sessions"
+        ]
+      },
+      "ActiveSession": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Session id. Session tokens are never returned."
+          },
+          "browser": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Browser read from the session's user agent, if known."
+          },
+          "os": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Operating system or device read from the user agent."
+          },
+          "ipAddress": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastActiveAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the session was last refreshed. Sessions refresh about once a day while in use."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current": {
+            "type": "boolean",
+            "description": "True for the session making this request."
+          }
+        },
+        "required": [
+          "id",
+          "browser",
+          "os",
+          "ipAddress",
+          "createdAt",
+          "lastActiveAt",
+          "expiresAt",
+          "current"
+        ]
+      },
+      "RevokedSessions": {
+        "type": "object",
+        "properties": {
+          "revoked": {
+            "type": "integer",
+            "description": "Number of sessions that were signed out."
+          }
+        },
+        "required": [
+          "revoked"
+        ]
+      },
+      "AdminOverview": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "activeLast30Days": {
+                "type": "integer",
+                "description": "Non-deactivated users with a session refreshed in the last 30 days, counted once per user. Expired bans do not deactivate an account. Revoked or removed sessions do not contribute."
+              },
+              "deactivated": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total",
+              "activeLast30Days",
+              "deactivated"
+            ]
+          },
+          "workspaces": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer"
+              },
+              "archived": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "total",
+              "archived"
+            ]
+          },
+          "recentUsers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "image": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "email",
+                "image",
+                "createdAt"
+              ]
+            },
+            "maxItems": 5
+          },
+          "recentActions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "action": {
+                  "type": "string",
+                  "description": "Dotted action name, for example `user.role_changed`."
+                },
+                "actor": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null when the administrator's account was deleted."
+                    },
+                    "name": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "email": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "email"
+                  ]
+                },
+                "targetType": {
+                  "type": "string"
+                },
+                "targetId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "targetLabel": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "The target's name or email when the action happened."
+                }
+              },
+              "required": [
+                "id",
+                "createdAt",
+                "action",
+                "actor",
+                "targetType",
+                "targetId",
+                "targetLabel"
+              ]
+            },
+            "maxItems": 5
+          },
+          "services": {
+            "type": "object",
+            "properties": {
+              "checkedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "api": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "database": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "realtime": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "redis": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "email": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "storage": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              }
+            },
+            "required": [
+              "checkedAt",
+              "api",
+              "database",
+              "realtime",
+              "redis",
+              "email",
+              "storage"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "smtp_not_configured",
+                "smtp_unreachable",
+                "redis_unreachable",
+                "storage_incomplete",
+                "storage_unreachable",
+                "registration_without_email",
+                "no_second_admin"
+              ]
+            }
+          }
+        },
+        "required": [
+          "users",
+          "workspaces",
+          "recentUsers",
+          "recentActions",
+          "services",
+          "warnings"
+        ]
+      },
+      "InstanceAccess": {
+        "type": "object",
+        "properties": {
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "users:read",
+                "users:create",
+                "users:update",
+                "users:disable",
+                "users:delete",
+                "users:credentials",
+                "users:sessions",
+                "users:api_keys",
+                "workspaces:read",
+                "workspaces:manage",
+                "workspaces:archive",
+                "workspaces:delete",
+                "audit:read",
+                "system:read",
+                "instance:settings",
+                "roles:manage"
+              ]
+            }
+          }
+        },
+        "required": [
+          "permissions"
+        ]
+      },
       "AdminUserList": {
         "type": "object",
         "properties": {
@@ -5354,6 +5731,9 @@
             "type": "string"
           },
           "emailVerified": {
+            "type": "boolean"
+          },
+          "isAnonymous": {
             "type": "boolean"
           },
           "image": {
@@ -5391,6 +5771,21 @@
               "null"
             ],
             "format": "date-time"
+          },
+          "lastActiveAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When one of the user's current sessions was last refreshed; null without a session."
+          },
+          "signInMethods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Linked sign-in methods: `credential` (password), `github`, `google`, `discord`, or `custom` (OIDC)."
           }
         },
         "required": [
@@ -5398,13 +5793,16 @@
           "name",
           "email",
           "emailVerified",
+          "isAnonymous",
           "image",
           "createdAt",
           "updatedAt",
           "role",
           "banned",
           "banReason",
-          "banExpires"
+          "banExpires",
+          "lastActiveAt",
+          "signInMethods"
         ]
       },
       "AdminWorkspaceList": {
@@ -5469,6 +5867,37 @@
                 "email"
               ]
             }
+          },
+          "archivedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "When an administrator archived the workspace, or null when it is active."
+          },
+          "archivedBy": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email"
+            ],
+            "description": "The administrator who archived it. Null when active or when that account was deleted."
           }
         },
         "required": [
@@ -5478,7 +5907,9 @@
           "createdAt",
           "memberCount",
           "projectCount",
-          "owners"
+          "owners",
+          "archivedAt",
+          "archivedBy"
         ]
       },
       "AdminWorkspaceMember": {
@@ -5514,6 +5945,989 @@
           "image",
           "role",
           "joinedAt"
+        ]
+      },
+      "AdminSystemStatus": {
+        "type": "object",
+        "properties": {
+          "checkedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Kaneo release version of this API instance."
+          },
+          "api": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "uptimeSeconds": {
+                "type": "integer"
+              },
+              "nodeVersion": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "status",
+              "uptimeSeconds",
+              "nodeVersion"
+            ]
+          },
+          "database": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "serverVersion": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "latencyMs": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "migrationsApplied": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "serverVersion",
+              "latencyMs",
+              "migrationsApplied",
+              "errorCode"
+            ]
+          },
+          "realtime": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "adapter": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "in-memory",
+                  "redis",
+                  null
+                ],
+                "description": "How events reach WebSocket clients: in-memory for a single instance, redis to fan out across instances. Null before WebSockets start."
+              },
+              "connections": {
+                "type": "integer",
+                "description": "Open WebSocket connections on this API instance."
+              },
+              "connectedUsers": {
+                "type": "integer",
+                "description": "Distinct people with an open connection to this instance."
+              }
+            },
+            "required": [
+              "status",
+              "adapter",
+              "connections",
+              "connectedUsers"
+            ]
+          },
+          "redis": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "mode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "standalone",
+                  "sentinel",
+                  "cluster",
+                  null
+                ]
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "mode",
+              "errorCode"
+            ]
+          },
+          "email": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "configured": {
+                "type": "boolean"
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "configured",
+              "errorCode"
+            ]
+          },
+          "storage": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "ok",
+                  "warning",
+                  "not_configured",
+                  "down"
+                ],
+                "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+              },
+              "configured": {
+                "type": "boolean"
+              },
+              "errorCode": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Short failure category such as TIMEOUT, ECONNREFUSED or HTTP_403. Never contains hosts, credentials or server messages."
+              }
+            },
+            "required": [
+              "status",
+              "configured",
+              "errorCode"
+            ]
+          },
+          "auth": {
+            "type": "object",
+            "properties": {
+              "passwordSignIn": {
+                "type": "boolean"
+              },
+              "emailOtpSignIn": {
+                "type": "boolean"
+              },
+              "registration": {
+                "type": "boolean"
+              },
+              "passwordRegistration": {
+                "type": "boolean"
+              },
+              "guestAccess": {
+                "type": "boolean"
+              },
+              "workspaceCreation": {
+                "type": "boolean"
+              },
+              "providers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "enum": [
+                        "github",
+                        "google",
+                        "discord",
+                        "custom"
+                      ]
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "warning",
+                        "not_configured",
+                        "down"
+                      ],
+                      "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "status"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "passwordSignIn",
+              "emailOtpSignIn",
+              "registration",
+              "passwordRegistration",
+              "guestAccess",
+              "workspaceCreation",
+              "providers"
+            ]
+          },
+          "integrations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "warning",
+                    "not_configured",
+                    "down"
+                  ],
+                  "description": "ok: working. warning: works with a problem, or is only partly configured. not_configured: optional and switched off, which is a healthy state. down: configured but not reachable."
+                },
+                "requiresInstanceSetup": {
+                  "type": "boolean",
+                  "description": "Whether the provider needs instance settings. Others are connected per project."
+                },
+                "connectedProjects": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "Projects with an active connection to this provider. Null when the database could not be read."
+                }
+              },
+              "required": [
+                "type",
+                "name",
+                "status",
+                "requiresInstanceSetup",
+                "connectedProjects"
+              ]
+            }
+          }
+        },
+        "required": [
+          "checkedAt",
+          "version",
+          "api",
+          "database",
+          "realtime",
+          "redis",
+          "email",
+          "storage",
+          "auth",
+          "integrations"
+        ]
+      },
+      "AdminTestEmailResult": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "to": {
+            "type": "string",
+            "description": "The administrator's own address, the only recipient."
+          }
+        },
+        "required": [
+          "sent",
+          "to"
+        ]
+      },
+      "AdminWorkspaceArchiveState": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "archivedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "archivedAt"
+        ]
+      },
+      "AdminDeletedWorkspace": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AdminAuditLog": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminAuditLogEntry"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "Number of entries matching the filters, across all pages."
+          }
+        },
+        "required": [
+          "entries",
+          "total"
+        ]
+      },
+      "AdminAuditLogEntry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "action": {
+            "type": "string",
+            "description": "Dotted action name, for example `user.role_changed`."
+          },
+          "actor": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Null when the administrator's account was deleted."
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "email": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email"
+            ]
+          },
+          "targetType": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "targetLabel": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The target's name or email when the action happened."
+          },
+          "metadata": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "additionalProperties": {}
+          },
+          "ipAddress": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "userAgent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "action",
+          "actor",
+          "targetType",
+          "targetId",
+          "targetLabel",
+          "metadata",
+          "ipAddress",
+          "userAgent"
+        ]
+      },
+      "CreatedAdminUser": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AdminUser"
+          },
+          "passwordSetupEmail": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "failed",
+              "not_configured",
+              "not_needed"
+            ],
+            "description": "Whether the link to choose a password was emailed: `not_configured` without SMTP, `not_needed` when the account is for single sign-on. The link itself is never returned."
+          }
+        },
+        "required": [
+          "user",
+          "passwordSetupEmail"
+        ]
+      },
+      "AdminEmailSent": {
+        "type": "object",
+        "properties": {
+          "sent": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "sent"
+        ]
+      },
+      "AdminEmailVerified": {
+        "type": "object",
+        "properties": {
+          "emailVerified": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "emailVerified"
+        ]
+      },
+      "AdminUserAvatar": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "image"
+        ]
+      },
+      "AdminUserAvatarRemoved": {
+        "type": "object",
+        "properties": {
+          "removed": {
+            "type": "boolean",
+            "description": "False when the user had no picture to remove."
+          }
+        },
+        "required": [
+          "removed"
+        ]
+      },
+      "AdminDeletedUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "InstanceRoleList": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstanceRole"
+            }
+          }
+        },
+        "required": [
+          "roles"
+        ]
+      },
+      "InstanceRole": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "users:read",
+                "users:create",
+                "users:update",
+                "users:disable",
+                "users:delete",
+                "users:credentials",
+                "users:sessions",
+                "users:api_keys",
+                "workspaces:read",
+                "workspaces:manage",
+                "workspaces:archive",
+                "workspaces:delete",
+                "audit:read",
+                "system:read",
+                "instance:settings"
+              ]
+            }
+          },
+          "userCount": {
+            "type": "integer",
+            "description": "Users who currently have this role."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "permissions",
+          "userCount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "DeletedInstanceRole": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "InstanceSettings": {
+        "type": "object",
+        "properties": {
+          "instanceName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The saved name, or null for the default Kaneo."
+          },
+          "instanceUrl": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The web app URL from `KANEO_CLIENT_URL`. Read-only."
+          },
+          "registrationEnabled": {
+            "type": "boolean"
+          },
+          "passwordRegistrationEnabled": {
+            "type": "boolean"
+          },
+          "requireEmailVerification": {
+            "type": "boolean"
+          },
+          "defaultRole": {
+            "type": "string"
+          },
+          "workspaceCreationRestricted": {
+            "type": "boolean"
+          },
+          "disabledIntegrations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lockedByEnv": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "registrationEnabled",
+                "passwordRegistrationEnabled",
+                "workspaceCreationRestricted"
+              ]
+            },
+            "description": "Settings an environment variable forces. Their values here are the effective ones."
+          },
+          "emailDeliveryConfigured": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Custom instance roles that can be the default role."
+          },
+          "integrationProviders": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "type",
+                "name"
+              ]
+            }
+          }
+        },
+        "required": [
+          "instanceName",
+          "instanceUrl",
+          "registrationEnabled",
+          "passwordRegistrationEnabled",
+          "requireEmailVerification",
+          "defaultRole",
+          "workspaceCreationRestricted",
+          "disabledIntegrations",
+          "lockedByEnv",
+          "emailDeliveryConfigured",
+          "roles",
+          "integrationProviders"
+        ]
+      },
+      "InstanceWebhookList": {
+        "type": "object",
+        "properties": {
+          "webhooks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstanceWebhook"
+            }
+          },
+          "signingConfigured": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "webhooks",
+          "signingConfigured"
+        ]
+      },
+      "InstanceWebhook": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "format": "uri"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "user",
+                "session",
+                "api_key",
+                "workspace",
+                "role",
+                "instance",
+                "email",
+                "webhook"
+              ]
+            },
+            "minItems": 1,
+            "maxItems": 8
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "url",
+          "categories",
+          "enabled",
+          "id",
+          "createdAt"
+        ]
+      },
+      "InstanceWebhookSecret": {
+        "type": "object",
+        "properties": {
+          "webhook": {
+            "$ref": "#/components/schemas/InstanceWebhook"
+          },
+          "secret": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "webhook",
+          "secret"
+        ]
+      },
+      "InstanceWebhookQueued": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "InstanceWebhookDelivery": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "succeeded",
+              "failed"
+            ]
+          },
+          "attempts": {
+            "type": "integer"
+          },
+          "statusCode": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "errorCode": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "eventId",
+          "state",
+          "attempts",
+          "statusCode",
+          "errorCode",
+          "createdAt"
+        ]
+      },
+      "AdminApiKeyList": {
+        "type": "object",
+        "properties": {
+          "apiKeys": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminApiKey"
+            }
+          }
+        },
+        "required": [
+          "apiKeys"
+        ]
+      },
+      "AdminApiKey": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "start": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The first characters of the key, kept for recognizing it. The key itself and its hash are never returned."
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUsedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "start",
+          "enabled",
+          "createdAt",
+          "lastUsedAt",
+          "expiresAt"
+        ]
+      },
+      "AdminRevokedApiKey": {
+        "type": "object",
+        "properties": {
+          "revoked": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revoked"
         ]
       }
     },
@@ -6093,7 +7507,7 @@
           "Config"
         ],
         "summary": "Get config",
-        "description": "Public instance settings: which sign-in methods, registration paths, and features are enabled.",
+        "description": "Public instance settings: the instance name, which sign-in methods, registration paths, integrations, and features are enabled.",
         "security": [],
         "responses": {
           "200": {
@@ -22074,7 +23488,7 @@
           "Workspaces"
         ],
         "summary": "List workspaces",
-        "description": "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
+        "description": "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those. Archived workspaces are left out.",
         "responses": {
           "200": {
             "description": "The caller's workspaces",
@@ -22122,7 +23536,7 @@
           "Workspaces"
         ],
         "summary": "Get workspace",
-        "description": "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+        "description": "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member. An archived workspace returns 403 with the code WORKSPACE_ARCHIVED to anyone who could otherwise read it.",
         "parameters": [
           {
             "schema": {
@@ -22155,7 +23569,7 @@
             }
           },
           "403": {
-            "description": "The API key lacks workspace:read",
+            "description": "The API key lacks workspace:read, or the workspace is archived (code WORKSPACE_ARCHIVED)",
             "content": {
               "application/json": {
                 "schema": {
@@ -23978,6 +25392,218 @@
         }
       }
     },
+    "/user/sessions": {
+      "get": {
+        "operationId": "listOwnSessions",
+        "tags": [
+          "User"
+        ],
+        "summary": "List your active sessions",
+        "description": "List the current user's signed-in sessions with device, IP address, and activity, marking the one making the request. Tokens are never returned. Requires a user session; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Active sessions, current first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveSessionList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/user/sessions/{sessionId}": {
+      "delete": {
+        "operationId": "revokeOwnSession",
+        "tags": [
+          "User"
+        ],
+        "summary": "Sign out one of your sessions",
+        "description": "End another of the current user's sessions by id and close its realtime connections. To end every other session use better-auth's `POST /api/auth/revoke-other-sessions`; to end the current one, sign out.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "sessionId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session signed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokedSessions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such session for this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The session is the one making the request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/overview": {
+      "get": {
+        "operationId": "getAdminOverview",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get the administration overview",
+        "description": "User and workspace counts, the five newest users and administrative actions, compact service checks, and configuration warnings. Activity is based on session refreshes within 30 days and excludes deactivated accounts. Requires all four instance permissions: `users:read`, `workspaces:read`, `audit:read`, and `system:read`; API keys are rejected. No credentials or audit metadata are returned.",
+        "responses": {
+          "200": {
+            "description": "Instance overview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOverview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/access": {
+      "get": {
+        "operationId": "getAdminAccess",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get your instance permissions",
+        "description": "List the instance permissions the signed-in user's roles grant. Empty for users without an administrator or custom role. API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "The caller's instance permissions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceAccess"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The request used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
     "/admin/users": {
       "get": {
         "operationId": "listAdminUsers",
@@ -23985,7 +25611,7 @@
           "Admin"
         ],
         "summary": "List instance users",
-        "description": "Page through every user account on this instance, optionally filtered by a case-insensitive name or email search. Requires an instance administrator session; API keys are rejected.",
+        "description": "Page through every user account on this instance, newest first, optionally filtered by a case-insensitive name or email search, status, instance role, and email verification. Each user lists their linked sign-in methods and last session activity. Requires the `users:read` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -23996,6 +25622,46 @@
             "required": false,
             "description": "Case-insensitive match against user name or email.",
             "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "deactivated"
+              ],
+              "description": "Only active or only deactivated accounts."
+            },
+            "required": false,
+            "description": "Only active or only deactivated accounts.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "Only users with this instance role: `admin`, a custom role name, or `user` for everyone without an administrator or custom role."
+            },
+            "required": false,
+            "description": "Only users with this instance role: `admin`, a custom role name, or `user` for everyone without an administrator or custom role.",
+            "name": "role",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Only users whose email is verified, or is not."
+            },
+            "required": false,
+            "description": "Only users whose email is verified, or is not.",
+            "name": "emailVerified",
             "in": "query"
           },
           {
@@ -24053,7 +25719,103 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createAdminUser",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a user",
+        "description": "Create an account with an instance role. No password is set or returned. When password sign-in is available, the user is emailed a single-use link, valid for 2 days, to choose their own password. When password registration or the login form is disabled, the account is created with a verified email so the user can sign in with single sign-on, and no email is sent. Registration restrictions do not apply to administrators. Requires the `users:create` instance permission; API keys are rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "email": {
+                    "type": "string",
+                    "maxLength": 254,
+                    "format": "email",
+                    "description": "The new user's email address. They sign in with it and receive their password link there."
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "description": "Instance role, as for updates. Defaults to the instance's default role for new users."
+                  }
+                },
+                "required": [
+                  "name",
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedAdminUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name, email, or role, or a disposable address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A user with this email already exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -24075,7 +25837,7 @@
           "Admin"
         ],
         "summary": "List instance workspaces",
-        "description": "Page through every workspace on this instance with its owners, member count and project count, optionally filtered by a case-insensitive name or slug search. Requires an instance administrator session; API keys are rejected.",
+        "description": "Page through every workspace on this instance with its owners, member count, project count and archive state, optionally filtered by a case-insensitive name or slug search. Requires the `workspaces:read` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24143,7 +25905,7 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -24165,7 +25927,7 @@
           "Admin"
         ],
         "summary": "List workspace members",
-        "description": "List every member of a workspace with their role, whether or not the administrator belongs to it.",
+        "description": "List every member of a workspace with their role, whether or not the administrator belongs to it. Requires the `workspaces:read` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24201,7 +25963,7 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -24231,7 +25993,7 @@
           "Admin"
         ],
         "summary": "Add a user to a workspace",
-        "description": "Add an existing user to a workspace with a role. They start with access to every project. Returns the updated member list.",
+        "description": "Add an existing user to a workspace with a role. They start with access to every project. Returns the updated member list. Requires the `workspaces:manage` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24303,7 +26065,7 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -24345,7 +26107,7 @@
           "Admin"
         ],
         "summary": "List assignable workspace roles",
-        "description": "List the roles an administrator can give members of a workspace: the built-in viewer, member and admin roles plus the workspace's custom roles. Ownership is changed with the ownership transfer instead.",
+        "description": "List the roles an administrator can give members of a workspace: the built-in viewer, member and admin roles plus the workspace's custom roles. Ownership is changed with the ownership transfer instead. Requires the `workspaces:read` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24382,7 +26144,7 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -24414,7 +26176,7 @@
           "Admin"
         ],
         "summary": "Change a workspace member's role",
-        "description": "Change a member's role. Use the ownership transfer to make someone the owner; the only owner's role can't be changed. Returns the updated member list.",
+        "description": "Change a member's role. Use the ownership transfer to make someone the owner; the only owner's role can't be changed. Returns the updated member list. Requires the `workspaces:manage` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24489,7 +26251,7 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -24531,7 +26293,7 @@
           "Admin"
         ],
         "summary": "Remove a workspace member",
-        "description": "Remove a member from a workspace. Their account stays. The only owner can't be removed. Returns the updated member list.",
+        "description": "Remove a member from a workspace. Their account stays. The only owner can't be removed. Returns the updated member list. Requires the `workspaces:manage` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24575,7 +26337,7 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -24610,6 +26372,123 @@
         }
       }
     },
+    "/admin/system": {
+      "get": {
+        "operationId": "getAdminSystemStatus",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get system status",
+        "description": "Check this API instance and the services it uses: version, uptime, database, WebSockets, Redis fan-out, SMTP, object storage, sign-in providers and integration providers. Each check gives up after a few seconds, so one unreachable service can't block the response. Only statuses, counts and short error categories are returned, never hosts, credentials or secrets. Requires the `system:read` instance permission; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Status of this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminSystemStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/system/test-email": {
+      "post": {
+        "operationId": "sendAdminTestEmail",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Send a test email",
+        "description": "Send a test email to the calling administrator's own address to check the SMTP settings. There is no recipient parameter. Limited to 5 per administrator every 10 minutes on each API instance. Requires the `system:read` instance permission; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "The mail server accepted the test email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminTestEmailResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "SMTP is not configured on this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many test emails; retry after Retry-After seconds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The mail server did not accept the test email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/workspaces/{workspaceId}/owner": {
       "put": {
         "operationId": "transferAdminWorkspaceOwnership",
@@ -24617,7 +26496,7 @@
           "Admin"
         ],
         "summary": "Transfer workspace ownership",
-        "description": "Make an existing member the only owner of a workspace, for example when the previous owner has left. Previous owners become admins. Returns the updated member list.",
+        "description": "Make an existing member the only owner of a workspace, for example when the previous owner has left. Previous owners become admins. Returns the updated member list. Requires the `workspaces:manage` instance permission; API keys are rejected.",
         "parameters": [
           {
             "schema": {
@@ -24683,7 +26562,7 @@
             }
           },
           "403": {
-            "description": "The caller is not an instance administrator or is authenticated with an API key",
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
             "content": {
               "application/json": {
                 "schema": {
@@ -24694,6 +26573,2609 @@
           },
           "404": {
             "description": "Workspace or member not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/workspaces/{workspaceId}/archive": {
+      "post": {
+        "operationId": "archiveAdminWorkspace",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Archive a workspace",
+        "description": "Disable a workspace without deleting anything. Its members, API keys, MCP clients, public links, calendar feeds, notifications, and integrations stop working, and requests for it return 403 with the code WORKSPACE_ARCHIVED. Open realtime connections are closed. Restore it to undo. Requires the `workspaces:archive` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workspace's archive state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminWorkspaceArchiveState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workspace is already archived (code WORKSPACE_ALREADY_ARCHIVED)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/workspaces/{workspaceId}/restore": {
+      "post": {
+        "operationId": "restoreAdminWorkspace",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Restore an archived workspace",
+        "description": "Make an archived workspace usable again, with all of its data, members, and integrations as they were. Requires the `workspaces:archive` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The workspace's archive state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminWorkspaceArchiveState"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workspace is not archived (code WORKSPACE_NOT_ARCHIVED)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/workspaces/{workspaceId}": {
+      "delete": {
+        "operationId": "deleteAdminWorkspace",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a workspace",
+        "description": "Permanently delete a workspace and everything in it, archived or not, the same way its owner can: projects, tasks, members, invitations and uploaded files go, and open realtime connections are closed. The administrator does not need to be a member. Requires the `workspaces:delete` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDeletedWorkspace"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The workspace still has an active subscription (code WORKSPACE_HAS_ACTIVE_SUBSCRIPTION)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/audit-log": {
+      "get": {
+        "operationId": "listAdminAuditLog",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List the admin audit log",
+        "description": "Page through recorded administrative actions, newest first, optionally filtered by action or category, actor, or target. Entries never contain passwords, tokens, reset links, or API key values. Requires the `audit:read` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "pattern": "^[a-z_]+(\\.[a-z_]+)?$",
+              "description": "An exact action such as `user.deleted`, or a category such as `user` to match every `user.*` action."
+            },
+            "required": false,
+            "description": "An exact action such as `user.deleted`, or a category such as `user` to match every `user.*` action.",
+            "name": "action",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Only entries performed by this user id."
+            },
+            "required": false,
+            "description": "Only entries performed by this user id.",
+            "name": "actorId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Only entries about this kind of target, such as `user`."
+            },
+            "required": false,
+            "description": "Only entries about this kind of target, such as `user`.",
+            "name": "targetType",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Only entries about this target id."
+            },
+            "required": false,
+            "description": "Only entries about this target id.",
+            "name": "targetId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit log entries, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAuditLog"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid filter, page, or limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/password-reset-email": {
+      "post": {
+        "operationId": "sendAdminUserPasswordReset",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Email a password reset link",
+        "description": "Email the user a single-use link to choose a new password, using the regular reset lifetime. The link is never returned to the administrator. Requires the `users:credentials` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The email was sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEmailSent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nothing to send: a guest account, an already verified address, or password sign-in is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "The SMTP server did not accept the email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Email delivery is not configured on this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/verification-email": {
+      "post": {
+        "operationId": "sendAdminUserVerificationEmail",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Email a verification link",
+        "description": "Email the user a link, valid for 24 hours, that confirms their email address. The link is never returned to the administrator. Requires the `users:credentials` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The email was sent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEmailSent"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Nothing to send: a guest account, an already verified address, or password sign-in is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          },
+          "502": {
+            "description": "The SMTP server did not accept the email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Email delivery is not configured on this instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/email-verified": {
+      "put": {
+        "operationId": "markAdminUserEmailVerified",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Mark an email as verified",
+        "description": "Mark a non-guest user's email address as verified without asking them, for example so a single sign-on identity with the same address can link to the account. Requires the `users:credentials` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The email is verified",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminEmailVerified"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Guest accounts have no email address to verify",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/avatar": {
+      "put": {
+        "operationId": "setAdminUserAvatar",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Set a user's avatar",
+        "description": "Store a base64 encoded avatar (PNG, JPEG, or WebP, up to 512KB) for the user and make it their profile picture. Not available when the identity provider manages the user's picture.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contentType": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "One of image/png, image/jpeg, or image/webp.",
+                    "example": "image/png"
+                  },
+                  "data": {
+                    "type": "string",
+                    "maxLength": 700076,
+                    "description": "Base64 encoded image bytes."
+                  }
+                },
+                "required": [
+                  "contentType",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The new picture",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserAvatar"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported, invalid, or oversized image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing instance permission, an API key, or the picture is managed by the identity provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request body is too large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeAdminUserAvatar",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Remove a user's avatar",
+        "description": "Remove the user's profile picture. A picture managed by the identity provider can't be removed, but an earlier Kaneo upload can. Requires the `users:update` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Picture removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserAvatarRemoved"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing instance permission, an API key, or the picture is managed by the identity provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}": {
+      "patch": {
+        "operationId": "updateAdminUser",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a user",
+        "description": "Change a user's name, email, or instance role. A new email must be verified again. You can't change your own role or remove the last administrator. Requires the `users:update` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "email": {
+                    "type": "string",
+                    "maxLength": 254,
+                    "format": "email",
+                    "description": "A new address must be verified again. It can't belong to another user."
+                  },
+                  "role": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "description": "Instance role: `admin` administers the instance, `user` has no instance permissions, or the name of a custom role. Only administrators can assign `admin`, and nobody can assign a role with permissions they don't have."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid fields, an unknown role, your own role, or the last administrator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission, the user has permissions the caller lacks, or the request used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Another user has this email address",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteAdminUser",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a user",
+        "description": "Permanently delete a user's account, the same way they could themselves: workspaces where they are the only member are deleted, and they leave the others. Fails while they are the only owner of a workspace with other members. Requires the `users:delete` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDeletedUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "You can't delete yourself or the last administrator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission, the user has permissions the caller lacks, or the request used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The user is the only owner of a shared workspace, or one of their workspaces has an active subscription",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/deactivate": {
+      "post": {
+        "operationId": "deactivateAdminUser",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Deactivate a user",
+        "description": "Block a user from signing in and end all of their sessions. Their data stays. Requires the `users:disable` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deactivated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "You can't deactivate yourself",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission, the user has permissions the caller lacks, or the request used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/reactivate": {
+      "post": {
+        "operationId": "reactivateAdminUser",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Reactivate a user",
+        "description": "Let a deactivated user sign in again. Requires the `users:disable` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The reactivated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "You can't reactivate yourself",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission, the user has permissions the caller lacks, or the request used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/roles": {
+      "get": {
+        "operationId": "listInstanceRoles",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List custom instance roles",
+        "description": "List the custom instance roles with their permissions and how many users have each. The built-in `admin` (every permission) and `user` (none) roles are not listed. Requires the `users:read` instance permission; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Custom instance roles by name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceRoleList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createInstanceRole",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a custom instance role",
+        "description": "Create a role that grants a set of instance permissions. Assign it to users by name. Requires the `roles:manage` permission, which only the built-in `admin` role has; API keys are rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{1,31}$",
+                    "description": "Lowercase letters, digits and hyphens, starting with a letter. `admin` and `user` are reserved.",
+                    "example": "support"
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "users:read",
+                        "users:create",
+                        "users:update",
+                        "users:disable",
+                        "users:delete",
+                        "users:credentials",
+                        "users:sessions",
+                        "users:api_keys",
+                        "workspaces:read",
+                        "workspaces:manage",
+                        "workspaces:archive",
+                        "workspaces:delete",
+                        "audit:read",
+                        "system:read",
+                        "instance:settings"
+                      ]
+                    },
+                    "maxItems": 30,
+                    "description": "Instance permissions the role grants. `roles:manage` belongs to the built-in admin role only."
+                  }
+                },
+                "required": [
+                  "name",
+                  "permissions"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The new role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceRole"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name or permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The name is taken, reserved, or already held by users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/roles/{roleId}": {
+      "put": {
+        "operationId": "updateInstanceRole",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a custom instance role",
+        "description": "Rename a role or replace its permissions. Users who have it keep it under the new name, and permission changes apply to their next request. Requires the `roles:manage` permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "roleId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{1,31}$",
+                    "description": "Lowercase letters, digits and hyphens, starting with a letter. `admin` and `user` are reserved.",
+                    "example": "support"
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "users:read",
+                        "users:create",
+                        "users:update",
+                        "users:disable",
+                        "users:delete",
+                        "users:credentials",
+                        "users:sessions",
+                        "users:api_keys",
+                        "workspaces:read",
+                        "workspaces:manage",
+                        "workspaces:archive",
+                        "workspaces:delete",
+                        "audit:read",
+                        "system:read",
+                        "instance:settings"
+                      ]
+                    },
+                    "maxItems": 30,
+                    "description": "Instance permissions the role grants. `roles:manage` belongs to the built-in admin role only."
+                  }
+                },
+                "required": [
+                  "name",
+                  "permissions"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceRole"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid name or permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The name is taken, reserved, or already held by users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteInstanceRole",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a custom instance role",
+        "description": "Delete a role that no user has. Requires the `roles:manage` permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "roleId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The deleted role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedInstanceRole"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Role not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Users still have this role (code ROLE_IN_USE)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/settings": {
+      "get": {
+        "operationId": "getInstanceSettings",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Get instance settings",
+        "description": "Read the instance-wide settings, which ones an environment variable locks, and the choices for the default role and integrations. Requires the `instance:settings` instance permission; API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Instance settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceSettings"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateInstanceSettings",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update instance settings",
+        "description": "Change one or more instance-wide settings. Other API instances apply a change within a few seconds. Requires the `instance:settings` instance permission; API keys are rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "instanceName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 60,
+                    "description": "Shown in page titles and email headers and subjects. Empty or null restores Kaneo."
+                  },
+                  "registrationEnabled": {
+                    "type": "boolean",
+                    "description": "When false, only people with a valid invitation can create an account. Locked when `DISABLE_REGISTRATION=true`."
+                  },
+                  "passwordRegistrationEnabled": {
+                    "type": "boolean",
+                    "description": "When false, new accounts must use a social or OIDC provider. Locked when `DISABLE_PASSWORD_REGISTRATION=true`."
+                  },
+                  "requireEmailVerification": {
+                    "type": "boolean",
+                    "description": "New password sign-ups must confirm their email before they can sign in. Requires email delivery."
+                  },
+                  "defaultRole": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "description": "Instance role for new users: `user` or a custom role name, never `admin`. You can only choose a role whose permissions you have."
+                  },
+                  "workspaceCreationRestricted": {
+                    "type": "boolean",
+                    "description": "Only administrators can create workspaces. Locked when `DISABLE_WORKSPACE_CREATION=true`."
+                  },
+                  "disabledIntegrations": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 32,
+                    "description": "Integration provider types to turn off. Their connections stop syncing and delivering, and projects can't connect them."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceSettings"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid value, `admin` as the default role, an unknown role or integration, or email verification without SMTP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission, used an API key, or chose a default role with permissions they lack",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An environment variable locks the setting (code SETTING_LOCKED_BY_ENV)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "listInstanceWebhooks",
+        "summary": "List instance webhooks",
+        "description": "Returns configuration without signing secrets. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "responses": {
+          "200": {
+            "description": "Instance webhooks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "createInstanceWebhook",
+        "summary": "Create an instance webhook",
+        "description": "The signing secret is returned once. URLs must resolve to public addresses (HTTPS in production). Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "format": "uri"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "user",
+                        "session",
+                        "api_key",
+                        "workspace",
+                        "role",
+                        "instance",
+                        "email",
+                        "webhook"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 8
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "url",
+                  "categories",
+                  "enabled"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created webhook and one-time secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookSecret"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid URL or categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "updateInstanceWebhook",
+        "summary": "Update an instance webhook",
+        "description": "Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2048,
+                    "format": "uri"
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "user",
+                        "session",
+                        "api_key",
+                        "workspace",
+                        "role",
+                        "instance",
+                        "email",
+                        "webhook"
+                      ]
+                    },
+                    "minItems": 1,
+                    "maxItems": 8
+                  },
+                  "enabled": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "url",
+                  "categories",
+                  "enabled"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated webhook",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhook"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid URL or categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "deleteInstanceWebhook",
+        "summary": "Delete an instance webhook",
+        "description": "Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted webhook id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookQueued"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}/rotate-secret": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "rotateInstanceWebhookSecret",
+        "summary": "Rotate a webhook signing secret",
+        "description": "Returns the new secret once. Queued deliveries use the new secret. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook and one-time secret",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookSecret"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}/test": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "testInstanceWebhook",
+        "summary": "Queue a test webhook delivery",
+        "description": "Queues a webhook.test event regardless of selected categories. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Queued delivery id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstanceWebhookQueued"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Webhook is disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/webhooks/{webhookId}/deliveries": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "operationId": "listInstanceWebhookDeliveries",
+        "summary": "List recent webhook deliveries",
+        "description": "The latest 20 deliveries, without payloads, URLs, secrets or response bodies. Requires the instance:settings instance permission and a user session. API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "webhookId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent deliveries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InstanceWebhookDelivery"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks instance:settings or used an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Webhook not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/sessions": {
+      "get": {
+        "operationId": "listAdminUserSessions",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List a user's sessions",
+        "description": "List a user's signed-in sessions with device, IP address, and activity. Tokens are never returned. `current` marks the administrator's own session. Requires the `users:sessions` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active sessions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveSessionList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "revokeAdminUserSessions",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Sign out all of a user's sessions",
+        "description": "End every session of a user immediately, including realtime connections, and record it in the audit log. When administrators target themselves, their current session is kept. API keys keep working; revoke them separately. Requires the `users:sessions` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessions signed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokedSessions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/sessions/{sessionId}": {
+      "delete": {
+        "operationId": "revokeAdminUserSession",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Sign out one of a user's sessions",
+        "description": "End one session immediately, including its realtime connections, and record it in the audit log. The administrator's own current session can't be ended here; sign out instead. Requires the `users:sessions` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "sessionId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session signed out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevokedSessions"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User or session not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The session is the administrator's current session",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/api-keys": {
+      "get": {
+        "operationId": "listAdminUserApiKeys",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List a user's API keys",
+        "description": "List a user's API keys with their name, start, status, and dates. The key and its hash are never returned. Requires the `users:api_keys` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API keys, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminApiKeyList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/admin/users/{userId}/api-keys/{apiKeyId}": {
+      "delete": {
+        "operationId": "revokeAdminUserApiKey",
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Revoke a user's API key",
+        "description": "Delete a user's API key so it stops working immediately, and record it in the audit log. Requires the `users:api_keys` instance permission; API keys are rejected.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "required": true,
+            "name": "apiKeyId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API key revoked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRevokedApiKey"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The caller lacks the instance permission or is authenticated with an API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User or API key not found",
             "content": {
               "application/json": {
                 "schema": {

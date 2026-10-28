@@ -1,20 +1,24 @@
 import { createId } from "@paralleldrive/cuid2";
 import db from "../../database";
 import { userAvatarTable } from "../../database/schema";
+import type { DbOrTx } from "../../project-access/db-or-tx";
 import { buildAvatarUrl, decodeAvatarUpload } from "../avatar";
 
-export async function saveAvatar({
-  userId,
-  contentType,
-  data,
-}: {
-  userId: string;
-  contentType: string;
-  data: string;
-}) {
+export async function saveAvatar(
+  {
+    userId,
+    contentType,
+    data,
+  }: {
+    userId: string;
+    contentType: string;
+    data: string;
+  },
+  database: DbOrTx = db,
+) {
   const { mimeType, bytes } = decodeAvatarUpload({ contentType, data });
 
-  const [saved] = await db
+  const [saved] = await database
     .insert(userAvatarTable)
     .values({
       userId,

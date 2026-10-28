@@ -40,7 +40,7 @@ const listWorkspacesRoute = createRoute({
   tags: ["Workspaces"],
   summary: "List workspaces",
   description:
-    "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those.",
+    "List the workspaces where one of the caller's roles grants workspace:read, with the caller's role, sorted by name. Instance admins get every workspace they are a member of, and only those. Archived workspaces are left out.",
   middleware: [requireApiKeyScope({ workspace: ["read"] })] as const,
   responses: {
     200: jsonResponse("The caller's workspaces", workspaceListSchema),
@@ -55,12 +55,14 @@ const getWorkspaceRoute = createRoute({
   tags: ["Workspaces"],
   summary: "Get workspace",
   description:
-    "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member.",
+    "Get a workspace where one of the caller's roles grants workspace:read, with the caller's role. Instance admins can get any workspace, with a null role when they are not a member. An archived workspace returns 403 with the code WORKSPACE_ARCHIVED to anyone who could otherwise read it.",
   middleware: [requireApiKeyScope({ workspace: ["read"] })] as const,
   request: { params: workspaceIdParam },
   responses: {
     200: jsonResponse("The workspace", workspaceSchema),
-    403: errorResponse("The API key lacks workspace:read"),
+    403: errorResponse(
+      "The API key lacks workspace:read, or the workspace is archived (code WORKSPACE_ARCHIVED)",
+    ),
     404: errorResponse(
       "Workspace not found, the caller is not a member of it, or none of their roles grants workspace:read",
     ),

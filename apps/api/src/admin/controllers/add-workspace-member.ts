@@ -3,16 +3,21 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import { userTable, workspaceUserTable } from "../../database/schema";
 import { clearMemberProjectAccess } from "../../project-access/clear-member-project-access";
+import type { AdminAuditRequest } from "../audit/admin-audit-request";
+import { recordWorkspaceMemberAction } from "../audit/record-workspace-member-action";
 import { handleMemberAdded } from "../../workspace-members/handle-member-added";
 import { isAssignableWorkspaceRole } from "../is-assignable-workspace-role";
 import { lockWorkspace } from "../lock-workspace";
 import listWorkspaceMembers from "./list-workspace-members";
 
-async function addWorkspaceMember(request: {
-  workspaceId: string;
-  userId: string;
-  role: string;
-}) {
+async function addWorkspaceMember(
+  request: {
+    workspaceId: string;
+    userId: string;
+    role: string;
+  },
+  audit: AdminAuditRequest,
+) {
   const { workspaceId, userId, role } = request;
 
   await db.transaction(async (tx) => {
@@ -41,6 +46,12 @@ async function addWorkspaceMember(request: {
     await tx
       .insert(workspaceUserTable)
       .values({ workspaceId, userId, role, joinedAt: new Date() });
+    await recordWorkspaceMemberAction(tx, audit, {
+      action: "workspace.member_added",
+      workspaceId,
+      userId,
+      metadata: { role },
+    });
   });
 
   await handleMemberAdded(workspaceId, userId);

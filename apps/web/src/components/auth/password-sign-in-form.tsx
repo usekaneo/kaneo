@@ -66,7 +66,11 @@ export function PasswordSignInForm({
         { headers: captcha.headers },
       );
       if (result.error) {
-        toast.error(result.error.message || t("auth:signInForm.failedSignIn"));
+        toast.error(
+          result.error.code === "EMAIL_NOT_VERIFIED"
+            ? t("auth:signInForm.emailNotVerified")
+            : result.error.message || t("auth:signInForm.failedSignIn"),
+        );
         setIsPending(false);
         captcha.reset();
         return;
