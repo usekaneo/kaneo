@@ -29,6 +29,8 @@ type NavItem = {
   url: string;
   count?: number;
   emphasizeCount?: boolean;
+  // Also active on pages below this URL.
+  nested?: boolean;
 };
 
 export function NavMain() {
@@ -58,6 +60,7 @@ export function NavMain() {
             title: t("navigation:sidebar.agent"),
             icon: Sparkles,
             url: `${homeUrl}/agent`,
+            nested: true,
           },
         ]
       : []),
@@ -100,7 +103,10 @@ export function NavMain() {
             <SidebarMenuItem key={item.url}>
               <SidebarMenuButton
                 tooltip={item.title}
-                isActive={pathname === item.url}
+                isActive={
+                  pathname === item.url ||
+                  (item.nested === true && pathname.startsWith(`${item.url}/`))
+                }
                 size="default"
                 className="h-8 text-sm"
                 onClick={() => navigate({ to: item.url })}

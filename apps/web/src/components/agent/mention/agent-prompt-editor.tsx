@@ -25,7 +25,11 @@ import {
   useAgentMentionSearch,
 } from "./use-agent-mention-search";
 
-export type AgentPromptEditorHandle = { focus: () => void };
+export type AgentPromptEditorHandle = {
+  focus: () => void;
+  // Types "@" at the cursor, which opens the mention search.
+  startMention: () => void;
+};
 
 type AgentPromptEditorProps = {
   value: string;
@@ -39,6 +43,9 @@ type AgentPromptEditorProps = {
   autoFocus?: boolean;
   className?: string;
   editorRef?: Ref<AgentPromptEditorHandle>;
+  // Enter starts a new paragraph instead of submitting.
+  multiline?: boolean;
+  labelledBy?: string;
 };
 
 // Matches the API's per-prompt limit.
@@ -58,6 +65,8 @@ export function AgentPromptEditor({
   autoFocus,
   className,
   editorRef,
+  multiline = false,
+  labelledBy,
 }: AgentPromptEditorProps) {
   const { t } = useTranslation();
   const menuId = useId();
@@ -77,7 +86,9 @@ export function AgentPromptEditor({
     () => ({
       role: "textbox",
       "aria-multiline": "true",
-      "aria-label": placeholder,
+      ...(labelledBy
+        ? { "aria-labelledby": labelledBy }
+        : { "aria-label": placeholder }),
       "aria-autocomplete": "list",
       ...(open
         ? {
@@ -91,7 +102,7 @@ export function AgentPromptEditor({
         className,
       ),
     }),
-    [placeholder, open, menuId, activeIndex, disabled, className],
+    [placeholder, labelledBy, open, menuId, activeIndex, disabled, className],
   );
 
   // ProseMirror keeps the callbacks it was created with; route them through a
@@ -110,6 +121,7 @@ export function AgentPromptEditor({
       onMentionChange: setMention,
       onMentionKeyDown: (event) => latest.current.onMenuKey(event),
       onSubmit: () => latest.current.onSubmit(),
+      submitOnEnter: !multiline,
     }),
     content: agentPromptToDoc(value),
     editable: !disabled,
@@ -177,7 +189,22 @@ export function AgentPromptEditor({
 
   useImperativeHandle(
     editorRef,
-    () => ({ focus: () => editor?.commands.focus("end") }),
+    () => ({
+      focus: () => editor?.commands.focus("end"),
+      startMention: () => {
+        if (!editor) return;
+        // Mention search only starts after whitespace or at a line start.
+        const { from } = editor.state.selection;
+        const before = editor.state.doc.textBetween(
+          Math.max(0, from - 1),
+          from,
+          "\n",
+          " ",
+        );
+        const text = before && !/\s/.test(before) ? " @" : "@";
+        editor.chain().focus().insertContent(text).run();
+      },
+    }),
     [editor],
   );
 

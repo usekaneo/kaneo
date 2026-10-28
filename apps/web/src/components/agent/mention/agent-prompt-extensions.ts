@@ -12,6 +12,8 @@ type AgentPromptExtensionOptions = {
   onMentionChange: (query: AgentMentionQuery | null) => void;
   onMentionKeyDown: (event: KeyboardEvent) => boolean;
   onSubmit: () => void;
+  // Off for multi-paragraph prompts, where Enter starts a new paragraph.
+  submitOnEnter?: boolean;
 };
 
 // A plain-text prompt: paragraphs, Shift+Enter line breaks, undo, and mention
@@ -21,6 +23,7 @@ export function createAgentPromptExtensions({
   onMentionChange,
   onMentionKeyDown,
   onSubmit,
+  submitOnEnter = true,
 }: AgentPromptExtensionOptions) {
   return [
     StarterKit.configure({
@@ -48,6 +51,6 @@ export function createAgentPromptExtensions({
       onChange: onMentionChange,
       onKeyDown: onMentionKeyDown,
     }),
-    AgentSubmitKeymap.configure({ onSubmit }),
+    ...(submitOnEnter ? [AgentSubmitKeymap.configure({ onSubmit })] : []),
   ];
 }
