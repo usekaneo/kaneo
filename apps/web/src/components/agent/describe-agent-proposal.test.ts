@@ -69,4 +69,32 @@ describe("describeAgentProposal", () => {
       ],
     });
   });
+
+  it("carries a comment's body and task title", () => {
+    const summary = describeAgentProposal({
+      ...base,
+      action: {
+        type: "comment.create",
+        taskId: "task-1",
+        body: "Could you review **today**?",
+      },
+      before: {
+        id: "task-1",
+        projectId: "project",
+        title: "Fix reconnect",
+        status: "to-do",
+        priority: "low",
+        userId: null,
+        dueDate: null,
+      },
+    } as AgentProposal);
+
+    expect(summary).toEqual({
+      kind: "comment",
+      taskId: "task-1",
+      taskTitle: "Fix reconnect",
+      body: "Could you review **today**?",
+      changes: [],
+    });
+  });
 });

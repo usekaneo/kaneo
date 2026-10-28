@@ -21721,6 +21721,9 @@
 						},
 						"undoConflict": {
 							"type": "string"
+						},
+						"undoCommentConflict": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -21730,7 +21733,8 @@
 						"discard",
 						"failedDescription",
 						"undoneToast",
-						"undoConflict"
+						"undoConflict",
+						"undoCommentConflict"
 					]
 				},
 				"proposal": {
@@ -21770,6 +21774,9 @@
 								},
 								"rename": {
 									"type": "string"
+								},
+								"comment": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -21782,7 +21789,8 @@
 								"moveDueDate",
 								"clearDueDate",
 								"priority",
-								"rename"
+								"rename",
+								"comment"
 							]
 						},
 						"status": {
@@ -21847,6 +21855,9 @@
 						},
 						"update": {
 							"type": "string"
+						},
+						"comment": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -21855,7 +21866,8 @@
 						"dueDate",
 						"priority",
 						"rename",
-						"update"
+						"update",
+						"comment"
 					]
 				},
 				"home": {

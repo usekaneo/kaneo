@@ -8,12 +8,21 @@ export type AgentProposalChange = {
   to: string | null;
 };
 
-export type AgentProposalSummary = {
-  kind: "create" | "update";
-  taskId: string | null;
-  taskTitle: string;
-  changes: AgentProposalChange[];
-};
+export type AgentProposalSummary =
+  | {
+      kind: "create" | "update";
+      taskId: string | null;
+      taskTitle: string;
+      changes: AgentProposalChange[];
+    }
+  | {
+      kind: "comment";
+      taskId: string;
+      taskTitle: string;
+      // Untrusted Markdown; render through the sanitizing comment renderer.
+      body: string;
+      changes: AgentProposalChange[];
+    };
 
 // Raw values only (user IDs, ISO dates, priority keys); the row component
 // resolves names and formats them for display.
@@ -33,6 +42,14 @@ export function describeAgentProposal(
   }
 
   const before = proposal.before;
+  if (action.type === "comment.create")
+    return {
+      kind: "comment",
+      taskId: action.taskId,
+      taskTitle: before?.title ?? "",
+      body: action.body,
+      changes: [],
+    };
   const { patch } = action;
   const changes: AgentProposalChange[] = [];
   if (patch.title !== undefined)

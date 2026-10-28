@@ -5119,7 +5119,8 @@
 			"priority": "priority {{value}}",
 			"proposed": "Proposed: {{change}}",
 			"rename": "rename",
-			"update": "update task"
+			"update": "update task",
+			"comment": "comment"
 		},
 		"panel": {
 			"close": "Close agent",
@@ -5142,7 +5143,8 @@
 				"rename": "Rename",
 				"setDueDate": "Set due date",
 				"unassign": "Unassign",
-				"update": "Update task"
+				"update": "Update task",
+				"comment": "Post comment"
 			},
 			"noDueDate": "No due date",
 			"status": {
@@ -5183,7 +5185,8 @@
 			"title_other": "{{count}} proposed changes",
 			"undoConflict": "Someone edited this task since, so it can't be undone automatically.",
 			"undoHint": "Undo anytime",
-			"undoneToast": "Change undone"
+			"undoneToast": "Change undone",
+			"undoCommentConflict": "This comment was edited or deleted, so it can't be undone automatically."
 		},
 		"run": {
 			"cancelled": "Stopped before finishing.",

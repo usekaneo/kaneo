@@ -5,7 +5,7 @@ import { useAgentPanelStore } from "@/store/agent-panel";
 import { describeAgentProposal } from "./describe-agent-proposal";
 import { useAgentValueFormatter } from "./use-agent-value-formatter";
 
-// Publishes short labels for the run's pending task updates so board cards
+// Publishes short labels for the run's pending task changes so board cards
 // can preview them. Never touches the board cache itself.
 export function useAgentProposalOverlay(
   workspaceId: string,
@@ -24,13 +24,15 @@ export function useAgentProposalOverlay(
       if (!summary.taskId) continue;
       const [change, ...rest] = summary.changes;
       labels[summary.taskId] =
-        !change || rest.length > 0
-          ? t("agent:overlay.update")
-          : change.field === "title"
-            ? t("agent:overlay.rename")
-            : t(`agent:overlay.${change.field}`, {
-                value: format(change.field, change.to),
-              });
+        summary.kind === "comment"
+          ? t("agent:overlay.comment")
+          : !change || rest.length > 0
+            ? t("agent:overlay.update")
+            : change.field === "title"
+              ? t("agent:overlay.rename")
+              : t(`agent:overlay.${change.field}`, {
+                  value: format(change.field, change.to),
+                });
     }
     setProposed(labels);
   }, [run, t, format, setProposed]);

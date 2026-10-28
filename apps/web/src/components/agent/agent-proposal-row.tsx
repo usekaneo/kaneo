@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { AgentProposal } from "@/types/agent";
 import { AgentProposalChange } from "./agent-proposal-change";
+import { AgentProposalComment } from "./agent-proposal-comment";
 import { describeAgentProposal } from "./describe-agent-proposal";
 import { getProposalActionKey } from "./get-proposal-action-key";
 
@@ -28,7 +29,7 @@ export function AgentProposalRow({
   const summary = describeAgentProposal(proposal);
   const isPending = proposal.status === "pending";
   const canUndo =
-    proposal.status === "applied" && proposal.action.type === "task.update";
+    proposal.status === "applied" && proposal.action.type !== "task.create";
   const headingId = `agent-proposal-${proposal.id}`;
 
   return (
@@ -61,6 +62,9 @@ export function AgentProposalRow({
             </span>
           )}
         </div>
+        {summary.kind === "comment" && (
+          <AgentProposalComment body={summary.body} />
+        )}
         {summary.kind === "create"
           ? summary.changes.length > 0 && (
               <div className="flex flex-wrap items-center gap-1.5">
