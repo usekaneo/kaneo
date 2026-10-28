@@ -21830,9 +21830,6 @@
 					"type": "object",
 					"additionalProperties": false,
 					"properties": {
-						"scope": {
-							"type": "string"
-						},
 						"title": {
 							"type": "string"
 						},
@@ -21911,7 +21908,6 @@
 						}
 					},
 					"required": [
-						"scope",
 						"title",
 						"placeholder",
 						"examplesTitle",

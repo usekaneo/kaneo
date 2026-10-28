@@ -5244,7 +5244,6 @@
 			"update": "update task"
 		},
 		"home": {
-			"scope": "Works across {{workspace}} with your permissions",
 			"title": "What can I take off your plate?",
 			"placeholder": "Describe what you need, like turning meeting notes into tasks…",
 			"examplesTitle": "Try asking",

@@ -7,7 +7,6 @@ import WorkspaceLayout from "@/components/common/workspace-layout";
 import PageTitle from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 import useAgentConfig from "@/hooks/queries/agent/use-agent-config";
-import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 
 type AgentSearchParams = {
   conversationId?: string;
@@ -30,7 +29,6 @@ function RouteComponent() {
   const { workspaceId } = Route.useParams();
   const { conversationId } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const { data: workspace } = useActiveWorkspace();
   const { data: config } = useAgentConfig(workspaceId);
   const enabled = config?.enabled === true;
 
@@ -64,7 +62,6 @@ function RouteComponent() {
           <div className="h-full overflow-y-auto">
             <AgentHome
               workspaceId={workspaceId}
-              workspaceName={workspace?.name}
               enabled={enabled}
               onOpenConversation={(id) =>
                 void navigate({ search: { conversationId: id } })
