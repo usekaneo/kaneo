@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Flag descriptions for review
-        uses: randoneering/mellon@f1bd38cb6f6a7dddabe2d7904921b95fe63dec11
+        uses: randoneering/mellon@9052b46ab67f5eb53ceb561122cb03937c4e08b1 # v0.1.1
         with:
           token: ${{ github.token }}
           mode: observe
