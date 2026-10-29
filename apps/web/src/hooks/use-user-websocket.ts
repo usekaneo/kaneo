@@ -1,3 +1,4 @@
+import { workspaceStatusQueryKey } from "@/hooks/queries/workspace/use-workspace-archived";
 import { windowId } from "@kaneo/libs";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
@@ -36,6 +37,7 @@ export function useUserWebSocket() {
   activeWorkspaceRef.current = session?.session?.activeOrganizationId;
   useEffect(() => {
     if (!session?.user?.id) return;
+    const userId = session.user.id;
 
     // A previous session's delayed socket events must not control this session.
     let disposed = false;
@@ -62,16 +64,31 @@ export function useUserWebSocket() {
         authClient.$store.notify(signal);
     }
 
-    function revokeUserAccess() {
+    // The cookie may hold another tab's newer session, so never sign it out.
+    function leaveSession() {
       if (userRevoked) return;
       userRevoked = true;
       clearPing();
       queryClient.clear();
       refreshOrganizationState();
+      void navigate({ to: "/auth/sign-in" });
+    }
+
+    function checkEndedSession() {
       void authClient
-        .signOut()
-        .finally(() => navigate({ to: "/auth/sign-in" }))
-        .catch(() => {});
+        .getSession()
+        .then(({ data, error }) => {
+          if (disposed) return;
+          if (error && error.status !== 401) throw error;
+          if (data?.user.id === userId) connect();
+          else leaveSession();
+        })
+        .catch(() => {
+          if (disposed) return;
+          const delay = retryDelay;
+          retryDelay = Math.min(retryDelay * 2, MAX_RETRY_DELAY);
+          retryTimeout = setTimeout(checkEndedSession, delay);
+        });
     }
 
     function connect() {
@@ -99,9 +116,10 @@ export function useUserWebSocket() {
             type?: string;
             workspaceId?: string;
             workspaceIds?: string[] | null;
+            reason?: string;
           };
           if (message.type === "USER_ACCESS_REVOKED") {
-            revokeUserAccess();
+            leaveSession();
             return;
           }
           if (
@@ -110,6 +128,9 @@ export function useUserWebSocket() {
             message.workspaceIds.every((id) => typeof id === "string")
           ) {
             evictInaccessibleWorkspaceCache(queryClient, message.workspaceIds);
+            void queryClient.invalidateQueries({
+              queryKey: ["workspace-status"],
+            });
             for (const workspaceId of message.workspaceIds)
               reconcileProjectAccess(queryClient, workspaceId, () => !disposed);
             refreshOrganizationState();
@@ -132,8 +153,25 @@ export function useUserWebSocket() {
               /^\/dashboard\/settings\/(workspace|projects)(\/|$)/.test(path)
                 ? activeWorkspaceRef.current
                 : path.match(/^\/dashboard\/workspace\/([^/]+)/)?.[1];
-            if (current === message.workspaceId)
+            void queryClient.invalidateQueries({
+              queryKey: workspaceStatusQueryKey(message.workspaceId),
+            });
+            if (
+              current === message.workspaceId &&
+              (message.reason !== "archived" ||
+                !path.startsWith("/dashboard/workspace/"))
+            )
               void navigate({ to: "/dashboard" });
+          }
+          if (message.type === "WORKSPACE_RESTORED" && message.workspaceId) {
+            void queryClient.invalidateQueries({
+              queryKey: ["admin", "workspaces"],
+            });
+            void queryClient.invalidateQueries({
+              queryKey: workspaceStatusQueryKey(message.workspaceId),
+            });
+            void queryClient.invalidateQueries({ queryKey: ["workspaces"] });
+            refreshOrganizationState();
           }
           if (
             message.type === "PROJECT_ACCESS_CHANGED" &&
@@ -164,7 +202,12 @@ export function useUserWebSocket() {
         if (disposed || activeSocket !== ws) return;
         clearPing();
         activeSocket = null;
-        if (event?.code === 1008) revokeUserAccess();
+        // 4001 reaches only the sockets of a session the provider ended.
+        if (event?.code === 4001) {
+          checkEndedSession();
+          return;
+        }
+        if (event?.code === 1008) leaveSession();
         if (userRevoked) return;
 
         const delay = retryDelay;
@@ -183,5 +226,5 @@ export function useUserWebSocket() {
       }
       activeSocket?.close();
     };
-  }, [session?.user?.id, queryClient, navigate]);
+  }, [session?.user?.id, session?.session?.id, queryClient, navigate]);
 }

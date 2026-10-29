@@ -1,4 +1,4 @@
-import { UsersRoundIcon } from "lucide-react";
+import { UserPlusIcon, UsersRoundIcon } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DirectoryErrorRow } from "@/components/admin/directory/directory-error-row";
@@ -8,6 +8,7 @@ import { DirectorySearchInput } from "@/components/admin/directory/directory-sea
 import { DirectorySkeletonRows } from "@/components/admin/directory/directory-skeleton-rows";
 import { getPageCount } from "@/components/admin/directory/get-page-count";
 import { useDirectoryPaging } from "@/components/admin/directory/use-directory-paging";
+import { UserSecurityDialog } from "@/components/admin/user-security/user-security-dialog";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { SettingsCard } from "@/components/settings/settings-card";
 import { SettingsEmpty } from "@/components/settings/settings-empty";
@@ -19,18 +20,45 @@ import useAdminUsers, {
   ADMIN_USERS_SEARCH_MAX_LENGTH,
   type AdminUser,
 } from "@/hooks/queries/admin/use-admin-users";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
+import useAdminRoles from "@/hooks/queries/admin/use-admin-roles";
+import useGetConfig from "@/hooks/queries/config/use-get-config";
+import { canManageUser } from "./can-manage-user";
+import { CreateUserDialog } from "./create-user-dialog";
 import { EditUserDialog } from "./edit-user-dialog";
 import type { PendingUserAction } from "./pending-user-action";
 import { UserConfirmDialog } from "./user-confirm-dialog";
 import { UserDirectoryHead } from "./user-directory-head";
+import { UserDirectoryFilters } from "./user-directory-filters";
 import { UserDirectoryRow } from "./user-directory-row";
+import {
+  hasUserFilters,
+  NO_USER_FILTERS,
+  toAdminUserFilters,
+  type UserFilterValues,
+} from "./user-filters";
 
-function UserManagementPanel() {
+type UserManagementPanelProps = {
+  /** Opens the directory filtered to one role, e.g. from the roles page. */
+  initialRole?: string;
+};
+
+function UserManagementPanel({ initialRole }: UserManagementPanelProps) {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const { search, setSearch, debouncedSearch, page, setPage } =
     useDirectoryPaging();
+  const { data: config } = useGetConfig();
+  const { permissions } = useAdminAccess();
+  const { data: roles = [] } = useAdminRoles();
+  const [filters, setFilters] = useState<UserFilterValues>({
+    ...NO_USER_FILTERS,
+    role: initialRole ?? "",
+  });
+  const [isCreating, setIsCreating] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [securityUser, setSecurityUser] = useState<AdminUser | null>(null);
+  const [isSecurityOpen, setIsSecurityOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingUserAction | null>(
     null,
   );
@@ -38,12 +66,14 @@ function UserManagementPanel() {
   const { data, isLoading, isFetching, isError, refetch } = useAdminUsers(
     debouncedSearch,
     page,
+    toAdminUserFilters(filters),
   );
 
   const total = data?.total ?? 0;
   const pageCount = getPageCount(total, ADMIN_USERS_PAGE_SIZE);
   const users = data?.users ?? [];
-  const isSearchActive = debouncedSearch.trim().length > 0;
+  const isSearchActive =
+    debouncedSearch.trim().length > 0 || hasUserFilters(filters);
   const hasError = !isLoading && isError;
   const isEmpty = !isLoading && !isError && users.length === 0;
   const countLabel = !data
@@ -56,10 +86,23 @@ function UserManagementPanel() {
     setPage(pageCount - 1);
   }
 
+  const changeFilters = (next: UserFilterValues) => {
+    setFilters(next);
+    setPage(0);
+  };
+
   return (
     <SettingsPage
       title={t("settings:adminUsers.title")}
       description={t("settings:adminUsers.subtitle")}
+      actions={
+        permissions.includes("users:create") ? (
+          <Button type="button" size="sm" onClick={() => setIsCreating(true)}>
+            <UserPlusIcon aria-hidden="true" />
+            {t("settings:adminUsers.create.open")}
+          </Button>
+        ) : null
+      }
     >
       <SettingsSection
         title={
@@ -83,6 +126,11 @@ function UserManagementPanel() {
           />
         }
       >
+        <UserDirectoryFilters
+          values={filters}
+          roles={roles}
+          onChange={changeFilters}
+        />
         <SettingsCard>
           {hasError ? (
             <DirectoryErrorRow
@@ -96,12 +144,15 @@ function UserManagementPanel() {
               title={t("settings:adminUsers.emptyTitle")}
               description={t("settings:adminUsers.emptyDescription")}
               action={
-                search ? (
+                search || hasUserFilters(filters) ? (
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => setSearch("")}
+                    onClick={() => {
+                      setSearch("");
+                      changeFilters(NO_USER_FILTERS);
+                    }}
                   >
                     {t("settings:adminUsers.clearSearch")}
                   </Button>
@@ -123,7 +174,14 @@ function UserManagementPanel() {
                     key={user.id}
                     user={user}
                     isSelf={user.id === currentUser?.id}
+                    canSendPasswordReset={config?.disableLoginForm !== true}
+                    permissions={permissions}
+                    canManage={canManageUser(user.role, roles, permissions)}
                     onEdit={() => setEditingUser(user)}
+                    onOpenSecurity={() => {
+                      setSecurityUser(user);
+                      setIsSecurityOpen(true);
+                    }}
                     onAction={(type) => setPendingAction({ type, user })}
                   />
                 ))
@@ -147,10 +205,19 @@ function UserManagementPanel() {
         </SettingsCard>
       </SettingsSection>
 
+      <CreateUserDialog open={isCreating} onOpenChange={setIsCreating} />
+
       <EditUserDialog
         user={editingUser}
         currentUserId={currentUser?.id}
         onClose={() => setEditingUser(null)}
+      />
+
+      <UserSecurityDialog
+        user={securityUser}
+        isSelf={securityUser?.id === currentUser?.id}
+        open={isSecurityOpen}
+        onOpenChange={setIsSecurityOpen}
       />
 
       <UserConfirmDialog

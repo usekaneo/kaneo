@@ -1,15 +1,11 @@
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { fixture, installFixtures } from "./fixtures.mjs";
+import { api, fulfillJSON, origin, root, startWebApp } from "./web-app.mjs";
 
 // Real frontend, fictional data. The fixture layer blocks all live API traffic.
-const root = fileURLToPath(new URL("../../", import.meta.url));
 const output = `${root}apps/docs/images/product`;
-const origin = "http://127.0.0.1:5188";
-const api = "http://127.0.0.1:4799";
 const workspaceId = "ui-review-workspace";
 const projectId = "ui-review-project";
 const date = "2026-09-23T10:00:00.000Z";
@@ -90,50 +86,9 @@ const views = [
   ["security", "/dashboard/settings/account/security", "Current password"],
 ];
 await mkdir(output, { recursive: true });
-const server = spawn(
-  process.execPath,
-  [
-    "node_modules/vite-plus/bin/vp",
-    "dev",
-    "--host",
-    "127.0.0.1",
-    "--port",
-    "5188",
-    "--strictPort",
-  ],
-  {
-    cwd: `${root}apps/web`,
-    stdio: ["ignore", "pipe", "pipe"],
-    env: {
-      PATH: process.env.PATH,
-      HOME: process.env.HOME,
-      NODE_ENV: "development",
-      VITE_API_URL: api,
-      VITE_APP_URL: origin,
-      BROWSER: "none",
-    },
-  },
-);
-let log = "";
-server.stdout.on("data", (chunk) => {
-  log += chunk;
-});
-server.stderr.on("data", (chunk) => {
-  log += chunk;
-});
+const server = await startWebApp();
 let browser;
 try {
-  for (let attempt = 0; ; attempt++) {
-    if (server.exitCode !== null || attempt > 60) throw new Error(log);
-    if (
-      await fetch(origin).then(
-        (r) => r.ok,
-        () => false,
-      )
-    )
-      break;
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
   browser = await chromium.launch();
   for (const theme of ["light", "dark"]) {
     for (const [view, path, readyText] of views) {
@@ -241,15 +196,7 @@ try {
         else if (p === `/api/label/workspace/${workspaceId}`) data = labels;
         if (data === undefined || request.method() === "OPTIONS")
           return route.fallback();
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          headers: {
-            "access-control-allow-origin": origin,
-            "access-control-allow-credentials": "true",
-          },
-          body: JSON.stringify(data),
-        });
+        await fulfillJSON(route, data);
       });
       const page = await context.newPage();
       const errors = [];

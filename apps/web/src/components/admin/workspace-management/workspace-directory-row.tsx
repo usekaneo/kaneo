@@ -1,14 +1,23 @@
+import { ArchiveIcon, ArchiveRestoreIcon, Trash2Icon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import useAdminAccess from "@/hooks/queries/admin/use-admin-access";
+import {
+  type RowAction,
+  RowActionsMenu,
+} from "@/components/settings/row-actions-menu";
 import { Button } from "@/components/ui/button";
 import type { AdminWorkspace } from "@/fetchers/admin/workspace-types";
 import { cn } from "@/lib/cn";
 import { formatDateMedium } from "@/lib/format";
+import type { PendingWorkspaceAction } from "./pending-workspace-action";
+import { WorkspaceArchivedBadge } from "./workspace-archived-badge";
 import { WORKSPACE_DIRECTORY_COLUMNS } from "./workspace-directory-columns";
 import { WorkspaceOwners } from "./workspace-owners";
 
 type WorkspaceDirectoryRowProps = {
   workspace: AdminWorkspace;
   onManage: () => void;
+  onAction: (type: PendingWorkspaceAction["type"]) => void;
 };
 
 const CELL_CLASS =
@@ -17,8 +26,41 @@ const CELL_CLASS =
 export function WorkspaceDirectoryRow({
   workspace,
   onManage,
+  onAction,
 }: WorkspaceDirectoryRowProps) {
   const { t } = useTranslation();
+  const isArchived = workspace.archivedAt !== null;
+  const { can } = useAdminAccess();
+  const actions: RowAction[] = [
+    ...(can("workspaces:archive")
+      ? [
+          isArchived
+            ? {
+                id: "restore",
+                label: t("settings:adminWorkspaces.actions.restore"),
+                icon: ArchiveRestoreIcon,
+                onSelect: () => onAction("restore"),
+              }
+            : {
+                id: "archive",
+                label: t("settings:adminWorkspaces.actions.archive"),
+                icon: ArchiveIcon,
+                onSelect: () => onAction("archive"),
+              },
+        ]
+      : []),
+    ...(can("workspaces:delete")
+      ? [
+          {
+            id: "delete",
+            label: t("common:actions.delete"),
+            icon: Trash2Icon,
+            destructive: true,
+            onSelect: () => onAction("delete" as const),
+          },
+        ]
+      : []),
+  ];
 
   return (
     <div role="row" className="flex items-center gap-4 px-4 py-3">
@@ -26,9 +68,12 @@ export function WorkspaceDirectoryRow({
         <span className="block truncate text-sm font-medium">
           {workspace.name}
         </span>
-        <span className="block truncate font-mono text-xs text-muted-foreground">
-          {workspace.slug}
-        </span>
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="truncate font-mono text-xs text-muted-foreground">
+            {workspace.slug}
+          </span>
+          {isArchived ? <WorkspaceArchivedBadge /> : null}
+        </div>
         <div className="mt-1.5 flex min-w-0 items-center gap-2 text-muted-foreground sm:hidden">
           <WorkspaceOwners owners={workspace.owners} />
           <span className="shrink-0 text-xs">
@@ -68,7 +113,7 @@ export function WorkspaceDirectoryRow({
       <div
         role="cell"
         className={cn(
-          "flex shrink-0 justify-end",
+          "flex shrink-0 items-center justify-end gap-1",
           WORKSPACE_DIRECTORY_COLUMNS.actions,
         )}
       >
@@ -83,6 +128,14 @@ export function WorkspaceDirectoryRow({
         >
           {t("settings:adminWorkspaces.manage")}
         </Button>
+        {actions.length > 0 ? (
+          <RowActionsMenu
+            label={t("settings:adminWorkspaces.actions.open", {
+              name: workspace.name,
+            })}
+            actions={actions}
+          />
+        ) : null}
       </div>
     </div>
   );

@@ -4,20 +4,21 @@ export const wekan: Comparison = {
   slug: "wekan",
   competitor: "WeKan",
   category: "open-source",
-  title: "WeKan alternative",
+  title: "WeKan alternative on a modern stack",
   description:
-    "Kaneo is an MIT-licensed WeKan alternative: the same open kanban freedom on a modern stack, with backlog planning, roles, and time tracking built in.",
-  summary: "The same MIT freedom on PostgreSQL, with a backlog and roles.",
+    "Kaneo is a WeKan alternative on a modern stack, with backlog planning, roles, and time tracking built in. Kaneo Cloud runs it for you from $4 a month.",
+  summary: "A backlog and roles on a modern stack, run for you on Kaneo Cloud.",
   heading: "The WeKan alternative on a modern stack",
   subheading:
-    "WeKan has kept open-source kanban alive for years, on Meteor and MongoDB. Kaneo is the same freedom on PostgreSQL, with a backlog, roles, and time tracking.",
+    "WeKan has kept open-source kanban alive for years, on Meteor and MongoDB. Kaneo runs on PostgreSQL with a backlog, roles, and time tracking, and Kaneo Cloud hosts it for you.",
   verdict:
-    "Kaneo and WeKan are both MIT-licensed, self-hostable kanban tools. WeKan is the long-standing Trello-style board built on Meteor and MongoDB. Kaneo is newer, built on PostgreSQL with a React front end, and adds backlog planning, workspace roles, time tracking, and an official managed cloud.",
+    "Kaneo is a WeKan alternative on a modern stack, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, so there is nothing to maintain. WeKan is the long-standing Trello-style board built on Meteor and MongoDB, while Kaneo is newer, built on PostgreSQL with a React front end, and adds backlog planning, workspace roles, and time tracking. Both are MIT licensed and self-hostable, so you can always run Kaneo yourself.",
   facts: {
     license: "MIT for both",
-    hosting: "Both self-host. Kaneo uses PostgreSQL, WeKan uses MongoDB",
+    hosting:
+      "EU-hosted Kaneo Cloud. Both self-host, Kaneo on PostgreSQL, WeKan on MongoDB",
     sso: "Free on both, through OIDC",
-    pricing: "$0 self-hosted, Kaneo Cloud from $4 / month",
+    pricing: "Kaneo Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "License", kaneo: "MIT", them: "MIT" },

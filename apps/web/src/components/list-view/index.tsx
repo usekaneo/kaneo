@@ -14,13 +14,21 @@ import {
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import { produce } from "immer";
 import { Flag, ArchiveIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
+import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
 import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
+import { useCollapsedSections } from "@/hooks/use-collapsed-sections";
 import { cn } from "@/lib/cn";
+import {
+  readExpandedRows,
+  writeExpandedRows,
+} from "@/lib/expanded-rows-storage";
+import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -51,17 +59,10 @@ function ListView({
   const { mutate: updateTask } = useUpdateTask();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >(() => {
-    const sections: Record<string, boolean> = {};
-    if (project?.columns) {
-      for (const col of project.columns) {
-        sections[col.id] = true;
-      }
-    }
-    return sections;
-  });
+  const { isExpanded, toggleSection, toggleAllSections } = useCollapsedSections(
+    project.id,
+    "list",
+  );
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
@@ -70,14 +71,101 @@ function ListView({
     (column) => column.id === columnToArchive,
   );
 
+  // isLoading rather than isPending: a disabled query is also pending, and an
+  // empty project should not look like it is still fetching.
+  const {
+    data: relations,
+    isLoading: relationsLoading,
+    isError: relationsFailed,
+    refetch: refetchRelations,
+  } = useGetProjectTaskRelations(project?.id ?? "");
+
+  const subtaskChildren = useMemo(
+    () => buildSubtaskChildren(relations ?? []),
+    [relations],
+  );
+
+  const tasksById = useMemo(() => {
+    const index = new Map<
+      string,
+      ProjectWithTasks["columns"][number]["tasks"][number]
+    >();
+    for (const column of project?.columns ?? []) {
+      for (const task of column.tasks) {
+        index.set(task.id, task);
+      }
+    }
+    return index;
+  }, [project?.columns]);
+
+  // Per browser and per project, and only a convenience: a row that cannot be
+  // restored simply starts collapsed.
+  const projectId = project?.id ?? "";
+  const [expanded, setExpanded] = useState(() => ({
+    projectId,
+    rows: readExpandedRows(projectId),
+  }));
+
+  // The board route swaps this component's project rather than remounting it,
+  // so a lazy initializer would keep the previous project's map and then save
+  // it under the new project's key.
+  if (expanded.projectId !== projectId) {
+    setExpanded({ projectId, rows: readExpandedRows(projectId) });
+  }
+
+  const expandedTasks = expanded.rows;
+
+  useEffect(() => {
+    writeExpandedRows(projectId, expandedTasks);
+  }, [projectId, expandedTasks]);
+
+  // Collapsing removes the row rather than recording false, so the stored map
+  // holds only expanded rows and does not grow with every row ever touched.
+  const toggleTaskExpanded = useCallback((rowId: string) => {
+    setExpanded((previous) => {
+      const rows = { ...previous.rows };
+      if (rows[rowId]) delete rows[rowId];
+      else rows[rowId] = true;
+      return { ...previous, rows };
+    });
+  }, []);
+
+  // Each section's rows, in the order they are shown, expanded subtasks
+  // included. Built once per change and shared with the sections, so their
+  // memoization holds. Nothing stays expanded while a drag is in flight.
+  const rowsByColumn = useMemo(
+    () =>
+      new Map(
+        (project?.columns ?? []).map((column) => [
+          column.id,
+          flattenSubtaskRows({
+            tasks: column.tasks,
+            children: subtaskChildren,
+            tasksById,
+            isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
+          }),
+        ]),
+      ),
+    [project?.columns, subtaskChildren, tasksById, expandedTasks, activeId],
+  );
+
+  // Bulk actions stay per task, even when the list renders several rows for
+  // it. Shift-click ranges use the first appearance in display order.
+  const shownTaskIds = useCallback(
+    (column: ProjectWithTasks["columns"][number]) => [
+      ...new Set((rowsByColumn.get(column.id) ?? []).map((row) => row.task.id)),
+    ],
+    [rowsByColumn],
+  );
+
   useEffect(() => {
     if (project?.columns) {
       const visibleTaskIds = project.columns
-        .filter((column) => expandedSections[column.id])
-        .flatMap((column) => column.tasks.map((task) => task.id));
-      setAvailableTasks(visibleTaskIds);
+        .filter((column) => isExpanded(column.id))
+        .flatMap(shownTaskIds);
+      setAvailableTasks([...new Set(visibleTaskIds)]);
     }
-  }, [project, expandedSections, setAvailableTasks]);
+  }, [project, isExpanded, setAvailableTasks, shownTaskIds]);
 
   useEffect(() => {
     clearFocus();
@@ -201,21 +289,12 @@ function ListView({
     if (over) moveTask(active.id.toString(), over.id.toString());
   };
 
-  const toggleSection = useCallback((sectionId: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionId]: !prev[sectionId],
-    }));
-  }, []);
-
-  const toggleAllSections = useCallback(() => {
-    setExpandedSections((prev) => {
-      const expand = !project.columns.some((column) => prev[column.id]);
-      return Object.fromEntries(
-        project.columns.map((column) => [column.id, expand]),
-      );
-    });
-  }, [project.columns]);
+  // Escape ends a drag without onDragEnd, so without this the dragged row
+  // stays active: its children remain collapsed and the overlay lingers.
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setOverColumnId(null);
+  };
 
   useTaskViewShortcuts({
     layout: "list",
@@ -223,15 +302,27 @@ function ListView({
     getGroups: () =>
       project.columns.map((column) => ({
         id: column.id,
+        taskIds: shownTaskIds(column),
+        rows: (rowsByColumn.get(column.id) ?? []).map((row) => ({
+          taskId: row.task.id,
+          rowId: row.rowId,
+        })),
+        collapsed: !isExpanded(column.id),
+      })),
+    // Repeated children follow their parent for navigation, but reordering
+    // must use their actual status and position rather than their nested row.
+    getMoveGroups: () =>
+      project.columns.map((column) => ({
+        id: column.id,
         taskIds: column.tasks.map((task) => task.id),
-        collapsed: !expandedSections[column.id],
       })),
     project,
     enabled: activeId === null,
     canMove: !disableDragDrop,
     onMove: moveTask,
     onToggleGroup: toggleSection,
-    onToggleAllGroups: toggleAllSections,
+    onToggleAllGroups: () =>
+      toggleAllSections(project.columns.map((column) => column.id)),
   });
 
   const handleAddTask = useCallback((columnId: string) => {
@@ -304,16 +395,34 @@ function ListView({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
+        {relationsFailed && (
+          // Without relations every task renders as a top-level row, which
+          // reads exactly like a project with no subtasks; this says it isn't.
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-2 text-sm text-muted-foreground"
+          >
+            <span>{t("tasks:listView.subtasksLoadError")}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void refetchRelations()}
+            >
+              {t("common:error.tryAgain")}
+            </Button>
+          </div>
+        )}
+        <div aria-busy={relationsLoading} className="divide-y divide-border/50">
           {project.columns.map((column) => (
             <ListColumnSection
               key={column.id}
               column={column}
               projectSlug={project.slug ?? ""}
-              isExpanded={Boolean(expandedSections[column.id])}
+              isExpanded={isExpanded(column.id)}
               showDropIndicator={
                 Boolean(activeId) && overColumnId === column.id
               }
@@ -321,6 +430,10 @@ function ListView({
               onToggle={toggleSection}
               onAddTask={handleAddTask}
               onArchive={handleArchiveClick}
+              rows={rowsByColumn.get(column.id) ?? []}
+              onToggleTaskExpanded={toggleTaskExpanded}
+              relationsLoading={relationsLoading}
+              draggingTaskId={activeId === null ? null : String(activeId)}
             />
           ))}
         </div>

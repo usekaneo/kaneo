@@ -1,4 +1,4 @@
-import { Button, Img } from "@react-email/components";
+import { Button, Img } from "react-email";
 import React from "react";
 import { emailAsset } from "./assets";
 import { colors, fontFamily } from "./tokens";

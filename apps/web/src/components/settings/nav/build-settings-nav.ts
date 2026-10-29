@@ -1,17 +1,28 @@
 import {
+  Activity,
   Bell,
   Building2,
   Code,
   CreditCard,
   Import,
   KeyRound,
+  LayoutDashboard,
+  ScrollText,
   Server,
   Settings,
+  Settings2,
   Shield,
+  ShieldCheck,
   SlidersHorizontal,
   Tag,
   User,
+  Webhook,
 } from "lucide-react";
+import type { InstancePermission } from "@kaneo/permissions";
+import {
+  canAccessAdminPage,
+  type AdminPage,
+} from "@/components/admin/admin-page-access";
 import projectIcons from "@/constants/project-icons";
 import type {
   SettingsNav,
@@ -25,9 +36,66 @@ type BuildSettingsNavInput = {
   workspaceName?: string;
   billingEnabled: boolean;
   canImport: boolean;
-  hasAdminAccess: boolean;
+  /** The signed-in user's instance permissions. */
+  adminPermissions: readonly InstancePermission[];
   projects: { id: string; name: string; icon?: string | null }[];
 };
+
+const ADMIN_LINKS = [
+  {
+    id: "admin-overview",
+    labelKey: "settings:adminOverview.title",
+    to: "/dashboard/settings/admin/overview",
+    icon: LayoutDashboard,
+  },
+  {
+    id: "admin-users",
+    labelKey: "settings:adminUsers.title",
+    to: "/dashboard/settings/admin/users",
+    icon: Server,
+  },
+  {
+    id: "admin-roles",
+    labelKey: "settings:adminRoles.title",
+    to: "/dashboard/settings/admin/roles",
+    icon: ShieldCheck,
+  },
+  {
+    id: "admin-workspaces",
+    labelKey: "settings:adminWorkspaces.title",
+    to: "/dashboard/settings/admin/workspaces",
+    icon: Building2,
+  },
+  {
+    id: "admin-audit-log",
+    labelKey: "settings:adminAuditLog.title",
+    to: "/dashboard/settings/admin/audit-log",
+    icon: ScrollText,
+  },
+  {
+    id: "admin-system",
+    labelKey: "settings:adminSystem.title",
+    to: "/dashboard/settings/admin/system",
+    icon: Activity,
+  },
+  {
+    id: "admin-settings",
+    labelKey: "settings:adminSettings.title",
+    to: "/dashboard/settings/admin/settings",
+    icon: Settings2,
+  },
+  {
+    id: "admin-webhooks",
+    labelKey: "settings:adminWebhooks.title",
+    to: "/dashboard/settings/admin/webhooks",
+    icon: Webhook,
+  },
+] as const satisfies readonly {
+  id: string;
+  labelKey: string;
+  to: AdminPage;
+  icon: unknown;
+}[];
 
 const PROJECT_SECTIONS = [
   { id: "general", labelKey: "settings:projectGeneral.title" },
@@ -63,9 +131,16 @@ export function buildSettingsNav({
   workspaceName,
   billingEnabled,
   canImport,
-  hasAdminAccess,
+  adminPermissions,
   projects,
 }: BuildSettingsNavInput): SettingsNav {
+  const adminLinks = ADMIN_LINKS.filter((link) =>
+    canAccessAdminPage(link.to, adminPermissions),
+  ).map(({ labelKey, ...link }) => ({
+    ...link,
+    label: t(labelKey),
+  }));
+
   return {
     account: {
       id: "account",
@@ -148,25 +223,13 @@ export function buildSettingsNav({
       ],
     },
     projects: projects.map((project) => buildProject(t, project)),
-    admin: hasAdminAccess
-      ? {
-          id: "admin",
-          label: t("settings:administration"),
-          links: [
-            {
-              id: "admin-users",
-              label: t("settings:adminUsers.title"),
-              to: "/dashboard/settings/admin/users",
-              icon: Server,
-            },
-            {
-              id: "admin-workspaces",
-              label: t("settings:adminWorkspaces.title"),
-              to: "/dashboard/settings/admin/workspaces",
-              icon: Building2,
-            },
-          ],
-        }
-      : null,
+    admin:
+      adminLinks.length > 0
+        ? {
+            id: "admin",
+            label: t("settings:administration"),
+            links: adminLinks,
+          }
+        : null,
   };
 }

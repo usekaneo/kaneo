@@ -22,6 +22,8 @@ import {
 } from "@/components/custom-fields/missing-required-fields";
 import type { CustomFieldDefinition } from "@/components/project/custom-fields/types";
 import TaskDescriptionEditor from "@/components/task/task-description-editor";
+import TaskDueDatePicker from "@/components/task/task-due-date-picker";
+import { TaskRecurrenceBadge } from "@/components/task/task-recurrence-badge";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -39,8 +41,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { DatePickerMenu } from "@/components/common/date-picker/date-picker-menu";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -77,6 +79,7 @@ import { useAutoGrowTextarea } from "@/hooks/use-auto-grow-textarea";
 import { stripLineBreaks } from "@/lib/strip-line-breaks";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import type { TaskRecurrence } from "@/types/task/recurrence";
 import { getInitialTaskColumn } from "./initial-task-column";
 
 type CreateTaskModalProps = {
@@ -98,7 +101,11 @@ type LabelColor =
   | "yellow"
   | "orange"
   | "pink"
-  | "red";
+  | "red"
+  | "blue"
+  | "sky"
+  | "cyan"
+  | "fuchsia";
 
 type Label = {
   id: string;
@@ -190,6 +197,26 @@ function CreateTaskModalContent({
           labelKey: "crimson" as const,
           color: "var(--color-red-600)",
         },
+        {
+          value: "blue" as LabelColor,
+          labelKey: "ocean" as const,
+          color: "var(--color-blue-600)",
+        },
+        {
+          value: "sky" as LabelColor,
+          labelKey: "sky" as const,
+          color: "var(--color-sky-500)",
+        },
+        {
+          value: "cyan" as LabelColor,
+          labelKey: "lagoon" as const,
+          color: "var(--color-cyan-600)",
+        },
+        {
+          value: "fuchsia" as LabelColor,
+          labelKey: "orchid" as const,
+          color: "var(--color-fuchsia-600)",
+        },
       ].map(({ labelKey, ...rest }) => ({
         ...rest,
         label: t(`common:modals.createTask.labelColors.${labelKey}`),
@@ -216,6 +243,9 @@ function CreateTaskModalContent({
   const [assigneeId, setAssigneeId] = useState("");
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [recurrence, setRecurrence] = useState<TaskRecurrence | null>(null);
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [dueDateOpen, setDueDateOpen] = useState(false);
   const [createMore, setCreateMore] = useState(false);
   const [labels, setLabels] = useState<Label[]>([]);
   const [discardConfirmationOpen, setDiscardConfirmationOpen] = useState(false);
@@ -279,6 +309,10 @@ function CreateTaskModalContent({
   } = useGetColumns(open ? resolvedProjectId : "", { refreshOnMount: true });
   const initialColumn = getInitialTaskColumn(projectColumns, status);
   const taskStatus = status ?? initialColumn?.slug ?? "planned";
+  const canSetRecurrence = !initialColumn?.isFinal;
+  useEffect(() => {
+    if (!canSetRecurrence) setRecurrence(null);
+  }, [canSetRecurrence]);
   const awaitingColumns =
     !status &&
     Boolean(resolvedProjectId) &&
@@ -374,6 +408,7 @@ function CreateTaskModalContent({
     assigneeId ||
     startDate ||
     dueDate ||
+    recurrence ||
     selectedProjectId ||
     labels.length > 0 ||
     stagedAssetsRef.current.length > 0 ||
@@ -532,6 +567,7 @@ function CreateTaskModalContent({
           projectId: resolvedProjectId,
           startDate: startDate ? startDate.toISOString() : undefined,
           dueDate: dueDate ? dueDate.toISOString() : undefined,
+          recurrence: canSetRecurrence ? (recurrence ?? undefined) : undefined,
           status: submitStatus,
           draftAssetIds: stagedAssetsRef.current.filter((id) =>
             description.includes(`/asset/${id}`),
@@ -578,6 +614,7 @@ function CreateTaskModalContent({
         setAssigneeId("");
         setStartDate(undefined);
         setDueDate(undefined);
+        setRecurrence(null);
         setLabels([]);
         setLabelsStep("select");
         setSearchValue("");
@@ -884,7 +921,7 @@ function CreateTaskModalContent({
                 {statusLabel}
               </div>
 
-              <Popover>
+              <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -903,26 +940,19 @@ function CreateTaskModalContent({
                     </span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    className="w-full bg-popover"
+                <PopoverContent className="w-65 p-0" align="start">
+                  <DatePickerMenu
+                    label={t("common:modals.createTask.startDate")}
+                    placeholder={t("tasks:datePicker.startDatePlaceholder")}
+                    clearLabel={t("common:modals.createTask.clearStartDate")}
+                    value={startDate ?? null}
+                    onChange={(date) => {
+                      setStartDate(date ?? undefined);
+                      setStartDateOpen(false);
+                    }}
+                    bounds={dueDate ? { after: dueDate } : undefined}
+                    formatLimit={(date) => t("tasks:due.fullDate", { date })}
                   />
-                  {startDate && (
-                    <div className="p-2 border-t border-border">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs"
-                        onClick={() => setStartDate(undefined)}
-                      >
-                        {t("common:modals.createTask.clearStartDate")}
-                      </Button>
-                    </div>
-                  )}
                 </PopoverContent>
               </Popover>
 
@@ -1045,13 +1075,13 @@ function CreateTaskModalContent({
                 </PopoverContent>
               </Popover>
 
-              <Popover>
+              <Popover open={dueDateOpen} onOpenChange={setDueDateOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
                     className={cn(
                       "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors border border-border hover:bg-accent/50",
-                      dueDate
+                      dueDate || recurrence
                         ? "bg-accent/30 text-foreground"
                         : "text-muted-foreground",
                     )}
@@ -1062,28 +1092,24 @@ function CreateTaskModalContent({
                         ? formatDateMedium(dueDate)
                         : t("common:modals.createTask.dueDate")}
                     </span>
+                    <TaskRecurrenceBadge task={{ recurrence }} asText />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dueDate}
-                    onSelect={setDueDate}
-                    className="w-full bg-popover"
+                <PopoverContent className="w-65 p-0" align="start">
+                  <TaskDueDatePicker
+                    label={t("common:modals.createTask.dueDate")}
+                    clearLabel={t("tasks:popover.dueDate.clear")}
+                    dueDate={dueDate ?? null}
+                    startDate={startDate}
+                    recurrence={recurrence}
+                    onDateChange={(date) => {
+                      setDueDate(date ?? undefined);
+                      // Keep a repeating task's picker open to show its upcoming dates.
+                      if (!recurrence || !date) setDueDateOpen(false);
+                    }}
+                    onRecurrenceChange={setRecurrence}
+                    canSetRecurrence={canSetRecurrence}
                   />
-                  {dueDate && (
-                    <div className="p-2 border-t border-border">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs"
-                        onClick={() => setDueDate(undefined)}
-                      >
-                        {t("common:modals.createTask.clearDueDate")}
-                      </Button>
-                    </div>
-                  )}
                 </PopoverContent>
               </Popover>
 

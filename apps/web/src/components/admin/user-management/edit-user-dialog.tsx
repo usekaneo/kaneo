@@ -13,13 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectItem,
-  SelectPopup,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import useUpdateAdminUser from "@/hooks/mutations/admin/use-update-admin-user";
 import type { AdminUser } from "@/hooks/queries/admin/use-admin-users";
 import {
@@ -27,6 +20,9 @@ import {
   EMPTY_EDIT_USER_VALUES,
   getEditUserValues,
 } from "./edit-user-values";
+import { InstanceRoleSelect } from "./instance-role-select";
+import { UserAccountFacts } from "./user-account-facts";
+import { UserAvatarField } from "./user-avatar-field";
 
 type EditUserDialogProps = {
   user: AdminUser | null;
@@ -56,11 +52,6 @@ export function EditUserDialog({
   }
 
   const isSelf = editedUser !== null && editedUser.id === currentUserId;
-  const roleLabel = t(
-    values.role === "admin"
-      ? "settings:adminUsers.roles.admin"
-      : "settings:adminUsers.roles.user",
-  );
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -94,6 +85,9 @@ export function EditUserDialog({
           </DialogHeader>
           <DialogPanel>
             <div className="flex flex-col gap-4">
+              {editedUser ? (
+                <UserAvatarField key={editedUser.id} user={editedUser} />
+              ) : null}
               <Field>
                 <FieldLabel htmlFor="admin-user-name">
                   {t("settings:adminUsers.edit.name")}
@@ -134,37 +128,21 @@ export function EditUserDialog({
                 <FieldLabel htmlFor="admin-user-role">
                   {t("settings:adminUsers.edit.role")}
                 </FieldLabel>
-                <Select
-                  items={{
-                    user: t("settings:adminUsers.roles.user"),
-                    admin: t("settings:adminUsers.roles.admin"),
-                  }}
+                <InstanceRoleSelect
+                  id="admin-user-role"
                   value={values.role}
                   disabled={isSelf}
-                  onValueChange={(value) => {
-                    if (value === "admin" || value === "user") {
-                      setValues((current) => ({ ...current, role: value }));
-                    }
-                  }}
-                >
-                  <SelectTrigger id="admin-user-role">
-                    <SelectValue>{roleLabel}</SelectValue>
-                  </SelectTrigger>
-                  <SelectPopup>
-                    <SelectItem value="user">
-                      {t("settings:adminUsers.roles.user")}
-                    </SelectItem>
-                    <SelectItem value="admin">
-                      {t("settings:adminUsers.roles.admin")}
-                    </SelectItem>
-                  </SelectPopup>
-                </Select>
+                  onValueChange={(role) =>
+                    setValues((current) => ({ ...current, role }))
+                  }
+                />
                 {isSelf ? (
                   <p className="text-xs text-muted-foreground">
                     {t("settings:adminUsers.edit.selfRoleHint")}
                   </p>
                 ) : null}
               </Field>
+              {editedUser ? <UserAccountFacts user={editedUser} /> : null}
             </div>
           </DialogPanel>
           <DialogFooter>

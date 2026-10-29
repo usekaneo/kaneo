@@ -3,17 +3,19 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Archive, ChevronRight, Plus } from "lucide-react";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 import { getColumnIcon } from "@/lib/column";
 import { EASE_OUT } from "@/lib/motion";
+import type { SubtaskRow } from "@/lib/subtask-tree";
 import type { ProjectWithTasks } from "@/types/project";
 import TaskRow from "./task-row";
 
 type Column = ProjectWithTasks["columns"][number];
+type ColumnTask = Column["tasks"][number];
 
 type ListColumnSectionProps = {
   column: Column;
@@ -24,6 +26,14 @@ type ListColumnSectionProps = {
   onToggle: (columnId: string) => void;
   onAddTask: (columnId: string) => void;
   onArchive: (column: Column) => void;
+  /**
+   * The section's rows in display order. A subtask keeps its own row and is
+   * repeated, indented, beneath each expanded parent.
+   */
+  rows: SubtaskRow<ColumnTask>[];
+  onToggleTaskExpanded: (rowId: string) => void;
+  relationsLoading: boolean;
+  draggingTaskId: string | null;
 };
 
 const ListColumnSection = memo(function ListColumnSection({
@@ -35,6 +45,10 @@ const ListColumnSection = memo(function ListColumnSection({
   onToggle,
   onAddTask,
   onArchive,
+  rows,
+  onToggleTaskExpanded,
+  relationsLoading,
+  draggingTaskId,
 }: ListColumnSectionProps) {
   const { t } = useTranslation();
   const [animateExpand, setAnimateExpand] = useState(false);
@@ -42,6 +56,13 @@ const ListColumnSection = memo(function ListColumnSection({
     id: column.id,
     data: { type: "column", column },
   });
+
+  // Reserving the toggle column on every row keeps the titles aligned, but
+  // only where the group actually has subtasks. Until the relations arrive,
+  // every task looks childless; holding the column open means the chevrons
+  // appear in place instead of shifting every title sideways.
+  const groupHasSubtasks =
+    relationsLoading || rows.some((row) => row.childCount > 0 || row.depth > 0);
 
   return (
     <div
@@ -112,20 +133,32 @@ const ListColumnSection = memo(function ListColumnSection({
               "transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0",
           )}
         >
+          {/* Only the top-level rows are sortable; the nested repeats share
+              their task id with one of them. */}
           <SortableContext
             items={column.tasks}
             strategy={verticalListSortingStrategy}
           >
             <AnimatePresence initial={false} mode="popLayout">
-              {column.tasks.map((task) => (
+              {rows.map((row) => (
                 <motion.div
-                  key={task.id}
+                  key={row.rowId}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.15, ease: EASE_OUT }}
                 >
-                  <TaskRow task={task} projectSlug={projectSlug} />
+                  <TaskRow
+                    task={row.task}
+                    projectSlug={projectSlug}
+                    depth={row.depth}
+                    rowId={row.rowId}
+                    childCount={row.childCount}
+                    isExpanded={row.isExpanded}
+                    onToggleExpanded={onToggleTaskExpanded}
+                    reserveToggleSpace={groupHasSubtasks}
+                    isTaskDragging={draggingTaskId === row.task.id}
+                  />
                 </motion.div>
               ))}
             </AnimatePresence>

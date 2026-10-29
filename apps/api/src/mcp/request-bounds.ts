@@ -3,6 +3,11 @@ import { HTTPException } from "hono/http-exception";
 
 import { boundedRequestBody } from "../utils/bounded-request-body";
 
+export const MCP_BODY_BYTES = 1024 * 1024;
+// Keep large multiselects usable while bounding recursive SDK validation.
+export const MCP_MAX_TOOL_INPUT_ELEMENTS = 10_000;
+export const mcpRequestBounds = boundedRequestBody(MCP_BODY_BYTES);
+
 export const OAUTH_BODY_BYTES = 32 * 1024;
 export const OAUTH_URL_BYTES = 8 * 1024;
 const checkBody = boundedRequestBody(OAUTH_BODY_BYTES);

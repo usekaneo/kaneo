@@ -122,7 +122,6 @@
 				"startDate": "開始日",
 				"dueDate": "期限",
 				"clearStartDate": "開始日をクリア",
-				"clearDueDate": "期限をクリア",
 				"assign": "担当者を割り当て",
 				"assignUnassigned": "未割り当て",
 				"assignUnassignedTitle": "未割り当て",
@@ -148,7 +147,11 @@
 					"amber": "アンバー",
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
-					"crimson": "クリムゾン"
+					"crimson": "クリムゾン",
+					"lagoon": "ラグーン",
+					"ocean": "オーシャン",
+					"orchid": "オーキッド",
+					"sky": "スカイ"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -257,7 +260,8 @@
 			},
 			"invitation": {
 				"description": "招待を受け取ったメールアドレスを使用してください。登録後すぐにワークスペースに参加できます。"
-			}
+			},
+			"verifyEmail": "Check your email to confirm your address, then sign in."
 		},
 		"verifyOtp": {
 			"pageTitle": "認証コードの確認",
@@ -284,7 +288,8 @@
 			"sendFailed": "認証コードの送信に失敗しました"
 		},
 		"signInForm": {
-			"failedSignIn": "サインインに失敗しました"
+			"failedSignIn": "サインインに失敗しました",
+			"emailNotVerified": "Confirm your email address first. We sent you a new link."
 		},
 		"invitation": {
 			"pageTitleAccept": "招待を承諾",
@@ -530,7 +535,8 @@
 				"title": "サインインしてデバイスを接続",
 				"description": "サインイン後すぐにこのページに戻り、承認できます。",
 				"submit": "サインイン"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -741,6 +747,10 @@
 			"board": "ボード",
 			"list": "リスト",
 			"gantt": "ガント",
+			"priorityIcons": "優先度アイコン",
+			"priorityIconsDescription": "カード、行、メニューでのタスク優先度の表示方法。",
+			"priorityIconsMarks": "マーク",
+			"priorityIconsClassic": "クラシック",
 			"sidebarDefault": "サイドバーを開いたままにする",
 			"sidebarDefaultDescription": "サイドバーを展開した状態で開始します。",
 			"displayOptions": "タスクの詳細",
@@ -753,6 +763,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "プロジェクトがボードの背景に設定した画像を表示します。",
 			"advancedTitle": "詳細設定"
+		},
+		"managedProfile": {
+			"note": "組織によって管理されています。",
+			"edit": "{{provider}} で編集"
 		},
 		"developerPage": {
 			"pageTitle": "APIキー",
@@ -1177,7 +1191,8 @@
 			"statusPaused": "一時停止中",
 			"connect": "接続",
 			"configure": "設定",
-			"done": "完了"
+			"done": "完了",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "プロジェクトの公開設定",
@@ -1559,6 +1574,8 @@
 			"noDefault": "デフォルトなし",
 			"optionsLabel": "選択肢",
 			"removeOptionAria": "{{option}} を削除",
+			"hideOptionAria": "{{option}} を新しい選択肢から非表示",
+			"showOptionAria": "{{option}} を新しい選択肢に再表示",
 			"renameOptionAria": "{{option}} の名前を変更",
 			"requiredDescription": "すべてのタスクに常に値が設定されます。",
 			"save": "保存",
@@ -1580,7 +1597,11 @@
 				"deactivate": "無効化",
 				"edit": "編集",
 				"open": "Actions for {{name}}",
-				"reactivate": "再有効化"
+				"reactivate": "再有効化",
+				"markEmailVerified": "Mark email as verified",
+				"sendPasswordReset": "Send password reset link",
+				"sendVerification": "Resend verification email",
+				"security": "Sessions & API keys"
 			},
 			"clearSearch": "Clear search",
 			"columns": {
@@ -1588,7 +1609,8 @@
 				"joined": "Joined",
 				"role": "ロール",
 				"status": "Status",
-				"user": "User"
+				"user": "User",
+				"lastActive": "Last active"
 			},
 			"confirm": {
 				"deactivate": {
@@ -1606,7 +1628,19 @@
 					"description": "{{name}} will be able to sign in and access their workspaces again.",
 					"title": "Reactivate this account?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"markEmailVerified": {
+					"action": "Mark as verified",
+					"title": "Mark this email as verified?"
+				},
+				"sendPasswordReset": {
+					"action": "Send link",
+					"title": "Send a password reset link?"
+				},
+				"sendVerification": {
+					"action": "Send email",
+					"title": "Resend the verification email?"
+				}
 			},
 			"directoryTitle": "すべてのユーザー",
 			"edit": {
@@ -1646,9 +1680,78 @@
 				"deleted": "User deleted",
 				"reactivated": "User reactivated",
 				"updated": "User updated",
-				"updateError": "Failed to update user"
+				"updateError": "Failed to update user",
+				"avatarChanged": "Profile picture updated",
+				"avatarError": "Failed to update the profile picture",
+				"avatarRemoved": "Profile picture removed",
+				"createdForSso": "User created for single sign-on.",
+				"createdLinkFailed": "User created. Password email failed; retry “Send password reset link”.",
+				"createdLinkSent": "User created. Password link sent to {{email}}.",
+				"createdNoSmtp": "User created. Set SMTP_HOST to send a password link.",
+				"createError": "Failed to create user",
+				"emailError": "The email could not be sent",
+				"emailVerified": "Email marked as verified",
+				"passwordResetSent": "Password reset link sent to {{email}}",
+				"verificationSent": "Verification email sent to {{email}}"
 			},
-			"you": "あなた"
+			"you": "あなた",
+			"create": {
+				"creating": "Creating…",
+				"open": "Create user",
+				"submit": "Create user",
+				"title": "Create user",
+				"nameRequired": "Enter a name",
+				"hintNoEmail": "Set SMTP_HOST to send password links."
+			},
+			"details": {
+				"emailStatus": "Email",
+				"methods": {
+					"password": "Password"
+				},
+				"noSignInMethods": "No password or linked account yet",
+				"notVerified": "Not verified",
+				"removeAvatar": "Remove",
+				"signInMethods": "Sign-in methods",
+				"uploadAvatar": "Upload",
+				"verified": "Verified"
+			},
+			"filters": {
+				"anyEmail": "Any email",
+				"anyRole": "Any role",
+				"anyStatus": "Any status",
+				"clear": "Clear filters",
+				"email": "Email verification",
+				"label": "Filter users",
+				"role": "Role",
+				"status": "Status",
+				"unverified": "Unverified email",
+				"verified": "Verified email"
+			},
+			"never": "Never",
+			"unverified": "Unverified",
+			"security": {
+				"apiKeysEmpty": "No API keys.",
+				"apiKeysLoadError": "Couldn't load API keys.",
+				"apiKeysTitle": "API keys",
+				"disabled": "Disabled",
+				"lastUsed": "Last used {{time}}",
+				"neverUsed": "Never used",
+				"revokeAll": "Sign out everywhere",
+				"revokeAllConfirmDescription": "They'll be signed out everywhere right away.",
+				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
+				"revokeAllSelfDescription": "Your other sessions will be signed out right away.",
+				"revokeKey": "Revoke",
+				"revokeKeyConfirmDescription": "Requests using this key will fail right away.",
+				"revokeKeyConfirmTitle": "Revoke {{name}}?",
+				"revokeKeyLabel": "Revoke {{name}}",
+				"revokingKey": "Revoking...",
+				"sessionsEmpty": "Not signed in anywhere.",
+				"sessionsTitle": "Sessions",
+				"title": "Sessions & API keys: {{name}}",
+				"toastKeyRevoked": "API key revoked.",
+				"toastKeyRevokeError": "Couldn't revoke the API key.",
+				"toastRevokedAll": "Sessions signed out."
+			}
 		},
 		"security": "Security",
 		"securityPage": {
@@ -1681,7 +1784,14 @@
 			"dialogDescription": "8 文字以上で、現在のパスワードとは異なるものにしてください。",
 			"dialogTitle": "パスワードを変更",
 			"passwordHint": "ほかで使っていない 8 文字以上のパスワードを使用してください。",
-			"passwordTitle": "パスワード"
+			"passwordTitle": "パスワード",
+			"sessions": {
+				"revokeOthers": "Sign out other sessions",
+				"revokeOthersConfirmDescription": "Your other sessions will be signed out right away.",
+				"revokeOthersConfirmTitle": "Sign out all other sessions?",
+				"title": "Active sessions",
+				"toastRevokedOthers": "Other sessions signed out."
+			}
 		},
 		"gitlabIntegration": {
 			"baseUrlLabel": "GitLab URL",
@@ -1961,7 +2071,22 @@
 					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
 					"title": "Make {{name}} the owner?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"archive": {
+					"action": "Archive workspace",
+					"description": "Members will lose access until it's restored.",
+					"title": "Archive {{name}}?"
+				},
+				"delete": {
+					"action": "Delete workspace",
+					"description": "Its projects, tasks, and files will be permanently deleted.",
+					"title": "Delete {{name}}?",
+					"typeName": "Type {{name}} to confirm"
+				},
+				"restore": {
+					"action": "Restore workspace",
+					"title": "Restore {{name}}?"
+				}
 			},
 			"directoryTitle": "すべてのワークスペース",
 			"emptyDescription": "Try another name or slug.",
@@ -2001,8 +2126,20 @@
 				"removeError": "Failed to remove member",
 				"roleError": "Failed to update role",
 				"roleUpdated": "Role updated",
-				"transferError": "Failed to transfer ownership"
-			}
+				"transferError": "Failed to transfer ownership",
+				"archived": "Workspace archived",
+				"archiveError": "Could not archive workspace",
+				"deleted": "Workspace deleted",
+				"deleteError": "Could not delete workspace",
+				"restored": "Workspace restored",
+				"restoreError": "Could not restore workspace"
+			},
+			"actions": {
+				"archive": "Archive workspace",
+				"open": "Actions for {{name}}",
+				"restore": "Restore workspace"
+			},
+			"archived": "Archived"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2319,6 +2456,346 @@
 		},
 		"shared": {
 			"autosave": "変更は自動的に保存されます"
+		},
+		"adminAuditLog": {
+			"actions": {
+				"sessionRevoked": "Revoked a session",
+				"sessionRevokedAll": "Revoked all sessions",
+				"userCreated": "Created user",
+				"userDeactivated": "Deactivated user",
+				"userDeleted": "Deleted user",
+				"userImpersonated": "Signed in as user",
+				"userPasswordSet": "Set user password",
+				"userReactivated": "Reactivated user",
+				"userRoleChanged": "Changed instance role",
+				"userUpdated": "Updated user details",
+				"workspaceMemberAdded": "Added workspace member",
+				"workspaceMemberRemoved": "Removed workspace member",
+				"workspaceMemberRoleChanged": "Changed workspace member role",
+				"workspaceOwnerTransferred": "Transferred workspace ownership",
+				"userAvatarChanged": "Changed profile picture",
+				"userAvatarRemoved": "Removed profile picture",
+				"userEmailVerified": "Marked email as verified",
+				"userPasswordResetSent": "Sent password reset link",
+				"userVerificationSent": "Sent verification email",
+				"apiKeyRevoked": "Revoked an API key",
+				"emailTestSent": "Sent test email",
+				"workspaceArchived": "Archived workspace",
+				"workspaceDeleted": "Deleted workspace",
+				"workspaceRestored": "Restored workspace",
+				"roleCreated": "Role created",
+				"roleDeleted": "Role deleted",
+				"roleUpdated": "Role updated",
+				"instanceSettingsUpdated": "Updated instance settings",
+				"webhookCreated": "Created webhook",
+				"webhookDeleted": "Deleted webhook",
+				"webhookSecretRotated": "Rotated webhook secret",
+				"webhookUpdated": "Updated webhook"
+			},
+			"categories": {
+				"all": "All actions",
+				"session": "Sessions",
+				"user": "Users",
+				"workspace": "Workspaces",
+				"apiKey": "API keys",
+				"email": "Email",
+				"role": "Roles",
+				"instance": "Instance settings",
+				"webhook": "Webhooks"
+			},
+			"categoryLabel": "Filter by category",
+			"clearFilter": "Show all actions",
+			"columns": {
+				"action": "Action",
+				"actor": "Administrator",
+				"target": "Target",
+				"time": "Time and IP"
+			},
+			"deletedActor": "Account deleted",
+			"details": {
+				"change": "{{from}} → {{to}}",
+				"fields": "Changed {{fields}}",
+				"memberChange": "{{member}}: {{from}} → {{to}}",
+				"memberWithRole": "{{member}} as {{role}}",
+				"noRole": "No role",
+				"reason": "Reason: {{reason}}",
+				"createdWithRole": "Role: {{role}}",
+				"sessionCount_other": "{{count}} sessions",
+				"workspaceContents": "{{members}} members, {{projects}} projects",
+				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
+			},
+			"directoryTitle": "Recorded actions",
+			"emptyTitle": "No actions recorded",
+			"fields": {
+				"email": "email",
+				"emailVerified": "email verification",
+				"image": "avatar",
+				"name": "name"
+			},
+			"loadError": "The audit log could not be loaded.",
+			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing audit log",
+			"retry": "Retry",
+			"targetTypes": {
+				"user": "User",
+				"workspace": "Workspace",
+				"role": "Role",
+				"instance": "Instance",
+				"webhook": "Webhook"
+			},
+			"title": "Audit log",
+			"unknownActor": "Unknown"
+		},
+		"sessions": {
+			"device": "{{browser}} on {{os}}",
+			"lastActive": "Active {{time}}",
+			"loadError": "Couldn't load sessions.",
+			"revoke": "Sign out",
+			"revokeConfirmDescription": "They'll be signed out right away.",
+			"revokeConfirmTitle": "Sign out {{device}}?",
+			"revokeLabel": "Sign out {{device}}",
+			"revoking": "Signing out...",
+			"signedIn": "Signed in {{date}}",
+			"thisDevice": "This device",
+			"toastRevoked": "Session signed out.",
+			"toastRevokeError": "Couldn't sign out the session.",
+			"unknownDevice": "Unknown device"
+		},
+		"adminSystem": {
+			"checkedAt": "Checked {{time}}",
+			"email": {
+				"down": "Can't connect to the mail server ({{code}})",
+				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
+				"ok": "Connected to the mail server",
+				"send": "Send test email",
+				"sending": "Sending…",
+				"sendTest": "Test email",
+				"smtp": "SMTP",
+				"title": "Email"
+			},
+			"instance": {
+				"api": "API",
+				"apiDescription": "Up {{uptime}} · Node {{node}}",
+				"database": "Database",
+				"databaseDown": "Can't reach PostgreSQL ({{code}})",
+				"databaseVersion": "PostgreSQL {{version}}",
+				"latency": "{{ms}} ms",
+				"migrations_other": "{{count}} migrations applied",
+				"realtime": "Live updates",
+				"realtimeConnections_other": "{{count}} open connections on this instance",
+				"realtimeInMemory": "delivered in memory",
+				"realtimeNotStarted": "WebSockets haven't started",
+				"realtimeRedis": "shared with other instances through Redis",
+				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
+				"redis": "Redis",
+				"redisDown": "Can't reach Redis ({{code}})",
+				"redisModes": {
+					"cluster": "Cluster",
+					"sentinel": "Sentinel",
+					"standalone": "Standalone"
+				},
+				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
+				"redisOk": "{{mode}}, reachable",
+				"storage": "File storage",
+				"storageDown": "Can't reach the bucket ({{code}})",
+				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
+				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
+				"storageOk": "Bucket reachable",
+				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
+				"title": "Instance",
+				"version": "Kaneo version",
+				"versionUnknown": "Unknown"
+			},
+			"integrations": {
+				"available": "Available",
+				"connectedProjects_other": "Connected in {{count}} projects",
+				"connectedUnknown": "Project count unavailable",
+				"instanceSetup": {
+					"down": "GitHub App unavailable",
+					"not_configured": "GitHub App not set up",
+					"ok": "GitHub App set up",
+					"warning": "Some GitHub App settings are missing"
+				},
+				"title": "Integrations"
+			},
+			"loadError": "System status could not be loaded.",
+			"refresh": "Refresh",
+			"refreshing": "Checking…",
+			"retry": "Retry",
+			"setupStatus": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Configured",
+				"warning": "Incomplete"
+			},
+			"signIn": {
+				"emailOtpSignIn": "Email sign-in codes",
+				"guestAccess": "Guest access",
+				"off": "Off",
+				"on": "On",
+				"passwordRegistration": "Sign-up with a password",
+				"passwordSignIn": "Email and password sign-in",
+				"registration": "Registration",
+				"title": "Sign-in",
+				"workspaceCreation": "Workspace creation",
+				"customProvider": "OAuth or OpenID Connect"
+			},
+			"status": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Operational",
+				"warning": "Warning"
+			},
+			"title": "System",
+			"toast": {
+				"testEmailError": "The test email could not be sent.",
+				"testEmailSent": "Test email sent to {{to}}"
+			}
+		},
+		"adminOverview": {
+			"activeUsers": "Active (30 days)",
+			"archivedWorkspaces": "Archived",
+			"configurationWarnings": "Configuration warnings",
+			"disabledUsers": "Disabled users",
+			"loadError": "Could not load the overview.",
+			"noActions": "No administrative actions",
+			"noUsers": "No users",
+			"recentActions": "Recent administrative actions",
+			"recentUsers": "Recent users",
+			"services": "Services",
+			"title": "Overview",
+			"totalUsers": "Total users",
+			"viewAuditLog": "View audit log",
+			"viewSystem": "View system",
+			"viewUsers": "View users",
+			"warnings": {
+				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management.",
+				"redisUnreachable": "Redis is unavailable. Check the connection.",
+				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
+				"smtpNotConfigured": "Email is not configured. Set SMTP_HOST and SMTP_FROM.",
+				"smtpUnreachable": "Email is unavailable. Check SMTP settings.",
+				"storageIncomplete": "Storage setup is incomplete. Check S3 settings.",
+				"storageUnreachable": "Storage needs attention. Check S3 access."
+			},
+			"workspaces": "Workspaces"
+		},
+		"adminRoles": {
+			"actions": "Actions for {{name}}",
+			"allPermissions": "All permissions",
+			"builtIn": "Built-in",
+			"create": "New role",
+			"deleteTitle": "Delete {{name}}?",
+			"dialog": {
+				"create": "Create role",
+				"createTitle": "New role",
+				"editTitle": "Edit role",
+				"name": "Name",
+				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
+				"save": "Save"
+			},
+			"edit": "Edit",
+			"groups": {
+				"instance": "Instance",
+				"users": "Users",
+				"workspaces": "Workspaces"
+			},
+			"listTitle": "All roles",
+			"loadError": "Roles could not be loaded.",
+			"noPermissions": "No permissions",
+			"permissionCount_other": "{{count}} permissions",
+			"permissions": {
+				"auditRead": "View the audit log",
+				"instanceSettings": "Change instance settings",
+				"systemRead": "View system status",
+				"usersApiKeys": "View and revoke API keys",
+				"usersCreate": "Create users",
+				"usersCredentials": "Send password reset and verification emails",
+				"usersDelete": "Delete users",
+				"usersDisable": "Deactivate and reactivate users",
+				"usersRead": "View users",
+				"usersSessions": "View and end sessions",
+				"usersUpdate": "Edit users and their roles",
+				"workspacesArchive": "Archive and restore workspaces",
+				"workspacesDelete": "Delete workspaces",
+				"workspacesManage": "Manage workspace members",
+				"workspacesRead": "View workspaces and members"
+			},
+			"title": "Roles",
+			"toast": {
+				"created": "Role created",
+				"deleted": "Role deleted",
+				"error": "The role could not be saved.",
+				"updated": "Role updated"
+			},
+			"userCount_other": "{{count}} users",
+			"viewUsers": "View users"
+		},
+		"adminSettings": {
+			"defaultRole": "Default role for new users",
+			"general": "General",
+			"instanceName": "Instance name",
+			"instanceUrl": "Instance URL",
+			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
+			"integrations": "Integrations",
+			"loadError": "Couldn't load instance settings.",
+			"lockedByEnv": "Set by {{name}}",
+			"passwordRegistrationEnabled": "Email and password sign-up",
+			"registration": "Registration",
+			"registrationEnabled": "Open registration",
+			"requireEmailVerification": "Require email verification",
+			"requiresSmtp": "Requires SMTP",
+			"signInProviders": "Sign-in providers",
+			"title": "Settings",
+			"toast": {
+				"error": "Couldn't save settings",
+				"saved": "Settings saved"
+			},
+			"workspaceCreationRestricted": "Only administrators can create workspaces",
+			"workspaces": "Workspaces",
+			"save": "Save"
+		},
+		"adminWebhooks": {
+			"actions": "Actions for {{url}}",
+			"add": "Add webhook",
+			"attempts_other": "{{count}} attempts",
+			"categories": "Events",
+			"deleteTitle": "Delete webhook?",
+			"deliveries": "Recent deliveries",
+			"disabled": "Disabled",
+			"edit": "Edit webhook",
+			"empty": "No webhooks",
+			"enabled": "Enabled",
+			"errors": {
+				"destination": "Destination blocked",
+				"disabled": "Webhook disabled",
+				"http": "HTTP error",
+				"interrupted": "Delivery interrupted",
+				"network": "Connection failed",
+				"response": "Invalid response",
+				"signing": "Signing failed",
+				"timeout": "Timed out"
+			},
+			"failed": "Failed",
+			"httpStatus": "HTTP {{status}}",
+			"loadError": "Webhooks could not be loaded.",
+			"noDeliveries": "No deliveries",
+			"pending": "Pending",
+			"rotate": "Rotate secret",
+			"rotateTitle": "Rotate signing secret?",
+			"saveError": "The webhook could not be saved.",
+			"secretTitle": "Signing secret — save it now",
+			"sendTest": "Send test",
+			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
+			"signingSecret": "Signing secret",
+			"succeeded": "Delivered",
+			"testEvent": "Test event",
+			"testQueued": "Test event queued.",
+			"title": "Webhooks",
+			"url": "URL",
+			"save": "Save"
 		}
 	},
 	"navigation": {
@@ -2397,7 +2874,6 @@
 			"selectWorkspace": "ワークスペースを選択"
 		},
 		"page": {
-			"projectsTitle": "プロジェクト",
 			"settingsTitle": "設定",
 			"backToWorkspace": "ワークスペースに戻る",
 			"settingsWorkspaceTab": "ワークスペース"
@@ -2961,9 +3437,36 @@
 					"amber": "アンバー",
 					"terracotta": "テラコッタ",
 					"rose": "ローズ",
-					"crimson": "クリムゾン"
+					"crimson": "クリムゾン",
+					"lagoon": "ラグーン",
+					"ocean": "オーシャン",
+					"orchid": "オーキッド",
+					"sky": "スカイ"
 				},
 				"editLabels": "ラベルを編集"
+			},
+			"recurrence": {
+				"updateError": "繰り返しの更新に失敗しました",
+				"every": "間隔",
+				"hint": "このタスクが完了すると、次のタスクが作成されます。",
+				"interval": "間隔",
+				"onDays": "曜日",
+				"pattern": {
+					"daily": "毎日",
+					"monthly": "毎月",
+					"periodically": "定期的",
+					"weekly": "毎週",
+					"yearly": "毎年"
+				},
+				"repeats": "繰り返し",
+				"toggle": "繰り返し",
+				"unit": {
+					"days_other": "日ごと",
+					"label": "単位",
+					"months_other": "か月ごと",
+					"weeks_other": "週間ごと",
+					"years_other": "年ごと"
+				}
 			}
 		},
 		"backlog": {
@@ -3022,7 +3525,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
-			"pageTitle": "{{name}} – カレンダー",
+			"pageTitle": "{{name}} / カレンダー",
 			"title": "カレンダー",
 			"previousMonth": "前月",
 			"nextMonth": "翌月",
@@ -3037,7 +3540,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "スケジュール済みのチケットを検索...",
-			"pageTitle": "{{name}} – ガントチャート",
+			"pageTitle": "{{name}} / ガントチャート",
 			"title": "ガントタイムライン",
 			"hideTasks": "タスクを非表示",
 			"showTasks": "タスクを表示",
@@ -3070,7 +3573,11 @@
 		"listView": {
 			"addTask": "タスクを追加",
 			"archiveAllTooltip": "完了したタスクをすべてアーカイブ",
-			"noTasks": "タスクはありません"
+			"noTasks": "タスクはありません",
+			"collapseSubtasks": "{{title}} のサブタスクを非表示",
+			"expandSubtasks": "{{title}} のサブタスクを表示",
+			"subtaskLevel": "サブタスク、レベル {{level}}",
+			"subtasksLoadError": "サブタスクを読み込めなかったため、タスクを階層なしで表示しています。"
 		},
 		"kanban": {
 			"addTask": "タスクを追加",
@@ -3081,7 +3588,8 @@
 			"draft": "下書き",
 			"open": "オープン",
 			"label": "Pull Request",
-			"count_other": "{{count}} 件の PR"
+			"count_other": "{{count}} 件の PR",
+			"closed": "クローズ"
 		},
 		"assignee": {
 			"label": "担当者",
@@ -3177,7 +3685,6 @@
 			"required": "必須",
 			"enterKey": "Enter",
 			"toSave": "で保存",
-			"today": "今日",
 			"clear": "クリア",
 			"setValue": "{{field}}を設定…",
 			"noMatches": "一致するオプションがありません",
@@ -3189,6 +3696,13 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Space でプレビュー、Enter でこのタスクを開きます。Alt または Option と矢印キーで移動できます。"
+		},
+		"recurrence": {
+			"daily_other": "{{count}}日ごと",
+			"monthly_other": "{{count}}か月ごと",
+			"weekly_other": "{{count}}週間ごと",
+			"yearly_other": "{{count}}年ごと",
+			"onDays": "{{rule}}（{{days}}）"
 		},
 		"toolbar": {
 			"search": "タスクを検索",
@@ -3208,7 +3722,10 @@
 		"filterBar": {
 			"label": "適用中のフィルター",
 			"removeFilter": "{{name}} フィルターを削除",
-			"noMatches": "検索またはフィルターに一致するタスクはありません。"
+			"noMatches": "検索またはフィルターに一致するタスクはありません。",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "フィルターを追加…",
@@ -3222,11 +3739,30 @@
 			"markdownCopied": "Markdown としてコピーしました",
 			"copyFailed": "クリップボードにコピーできませんでした。",
 			"pageUrlCopied": "ページの URL をコピーしました"
+		},
+		"due": {
+			"overdueDays_other": "{{count}}日超過",
+			"overdueWeeks_other": "{{count}}週超過",
+			"today": "今日",
+			"tomorrow": "明日",
+			"inDays_other": "{{count}}日後",
+			"fullDate": "期限 {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "期日を設定…",
+			"startDatePlaceholder": "開始日を設定…",
+			"datePlaceholder": "日付を設定…",
+			"thisWeekend": "今週末",
+			"nextWeek": "来週",
+			"pickDate": "日付を選択",
+			"startsOn": "開始: {{date}}",
+			"beforeStart": "{{date}} は開始日より前です",
+			"afterDue": "{{date}} は期日より後です"
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} さんが Kaneo の「{{workspaceName}}」にあなたを招待しました",
+			"subject": "{{inviterName}} さんが {{instanceName}} の「{{workspaceName}}」にあなたを招待しました",
 			"preview": "Kaneo の「{{workspaceName}}」に招待されました",
 			"title": "「{{workspaceName}}」に参加",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) さんが Kaneo でのコラボレーションにあなたを招待しました。",
@@ -3373,6 +3909,12 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"archived": {
+			"description": "Contact an administrator to restore access.",
+			"manage": "Manage workspaces",
+			"otherWorkspaces": "Go to workspaces",
+			"title": "Workspace archived"
 		}
 	},
 	"team": {
@@ -3545,13 +4087,13 @@
 		},
 		"hero": {
 			"cloudCta": "Try Kaneo Cloud",
-			"selfHostCta": "Self-host Kaneo",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Product",
@@ -3641,10 +4183,6 @@
 			"eyebrow": "Make it your own",
 			"title": "A clear path from trying it to using it.",
 			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
-			"docker": {
-				"title": "Self-host with Docker",
-				"description": "Installation, backups, and updates for a setup you control."
-			},
 			"sso": {
 				"title": "Bring your own identity provider",
 				"description": "Configure OIDC single sign-on in the free self-hosted build."
@@ -3656,6 +4194,10 @@
 			"linear": {
 				"title": "Compare Kaneo and Linear",
 				"description": "See the differences in hosting, licensing, and workflow."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {
@@ -3700,6 +4242,818 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"mobile": {
+		"account": {
+			"connection": {
+				"apiKey": "API キー",
+				"appVersion": "アプリのバージョン",
+				"server": "サーバー",
+				"sessionToken": "セッショントークン",
+				"signedInWith": "サインイン方法",
+				"title": "接続"
+			},
+			"description": "すべてのワークスペースでチームメンバーに表示される情報です。",
+			"notifications": {
+				"delivery": "配信方法とイベント",
+				"deliveryHint": "メール、ntfy、Gotify、Webhook",
+				"invitations": "招待",
+				"permissionDenied": "まずシステム設定で Kaneo の通知を許可してください。",
+				"phone": "スマートフォンの通知",
+				"phoneHint": "約15分ごとに確認",
+				"title": "通知"
+			},
+			"password": {
+				"confirm": "新しいパスワードを確認",
+				"confirmPlaceholder": "もう一度入力",
+				"current": "現在のパスワード",
+				"mismatch": "パスワードが一致しません",
+				"new": "新しいパスワード",
+				"signOutOthers": "他のデバイスからサインアウト",
+				"title": "パスワードを変更"
+			},
+			"photoMenu": {
+				"choose": "写真を選択",
+				"remove": "写真を削除"
+			},
+			"profile": {
+				"change": "変更",
+				"changePassword": "パスワードを変更",
+				"name": "名前",
+				"photo": "プロフィール写真",
+				"photoFormats": "PNG、JPG、WebP",
+				"title": "プロフィール"
+			},
+			"signOut": {
+				"button": "サインアウト",
+				"message": "いつでも再度サインインできます。",
+				"title": "サインアウトしますか？"
+			},
+			"title": "アカウント",
+			"toast": {
+				"nameUpdated": "名前を更新しました",
+				"passwordChanged": "パスワードを変更しました",
+				"photoRemoved": "写真を削除しました",
+				"photoUpdated": "写真を更新しました"
+			}
+		},
+		"activity": {
+			"commentedOn": "が {{target}} にコメントしました",
+			"empty": "最近のアクティビティはありません",
+			"someone": "ユーザー",
+			"subtitle": "{{workspace}} でのすべての活動",
+			"title": "アクティビティ"
+		},
+		"background": {
+			"channelDescription": "ワークスペースからの割り当て、コメント、メンション",
+			"channelName": "Kaneo のアクティビティ",
+			"summary_other": "他に{{count}}件の新しい通知"
+		},
+		"board": {
+			"addTask": "タスクを追加",
+			"archived": "アーカイブ済み",
+			"assignee": "担当者",
+			"assignToMe": "自分に割り当て",
+			"back": "戻る",
+			"board": "ボード",
+			"boardView": "ボード表示",
+			"dueDateOverdue_other": "{{date}}、{{count}}日超過",
+			"filters": "フィルター",
+			"filterTasks": "タスクを絞り込み…",
+			"filterTasksActive": "タスクを絞り込み…（{{count}}件適用中）",
+			"hideArchived": "アーカイブ済みを非表示",
+			"hidePlanned": "計画中を非表示",
+			"labels": "ラベル",
+			"listView": "リスト表示",
+			"me": "自分",
+			"memberYou": "{{name}}（自分）",
+			"more": "その他",
+			"movedTask": "{{ticket}} を {{status}} に移動しました",
+			"moveTo": "移動先",
+			"newTask": "新しいタスク",
+			"noTasksHere": "ここにはタスクがありません",
+			"noTasksMatch": "一致するタスクはありません",
+			"noTasksMatchTheFilters": "フィルターに一致するタスクはありません",
+			"noTasksYet": "タスクはまだありません",
+			"nothingPlannedYet": "計画中のタスクはまだありません",
+			"openTask": "タスクを開く",
+			"overdueOnly": "期限超過のみ",
+			"planned": "計画中",
+			"priority": "優先度",
+			"projects": "プロジェクト",
+			"projectSettings": "プロジェクト設定",
+			"refresh": "更新",
+			"reset": "リセット",
+			"searchPeople": "メンバーを検索",
+			"sendToBottomOfColumn": "カラムの末尾へ移動",
+			"sendToTopOfColumn": "カラムの先頭へ移動",
+			"showArchived": "アーカイブ済みを表示",
+			"showPlanned": "計画中を表示",
+			"showTasks_other": "{{count}}件のタスクを表示",
+			"switchProject": "プロジェクトを切り替え",
+			"tasksNotOnTheBoardYet": "まだボードにないタスク",
+			"unassigned": "未割り当て"
+		},
+		"common": {
+			"cancel": "キャンセル",
+			"close": "閉じる",
+			"delete": "削除",
+			"retry": "もう一度試す",
+			"save": "保存",
+			"somethingWrong": "問題が発生しました"
+		},
+		"composer": {
+			"attachImage": "画像を添付",
+			"mention": "メンション",
+			"mentionSomeone": "メンションする",
+			"placeholder": "コメントを追加…",
+			"reply": "{{name}} さんに返信…",
+			"searchPeople": "メンバーを検索",
+			"sendComment": "コメントを送信"
+		},
+		"editor": {
+			"attachment": "添付ファイル",
+			"bold": "太字",
+			"boldPlaceholder": "太字",
+			"code": "コード",
+			"codePlaceholder": "コード",
+			"description": "説明",
+			"heading": "見出し",
+			"insertImage": "画像を挿入",
+			"italic": "斜体",
+			"italicPlaceholder": "斜体",
+			"link": "リンク",
+			"linkPlaceholder": "リンク",
+			"list": "リスト",
+			"nothingToPreview": "プレビューする内容がありません",
+			"placeholder": "説明を追加… Markdown を使えます。",
+			"preview": "プレビュー",
+			"write": "入力"
+		},
+		"errors": {
+			"apiKeyRejected": "この API キーは拒否されました。",
+			"deviceFailed": "デバイスでのサインインに失敗しました（HTTP {{status}}）。",
+			"forbidden": "この操作を行う権限がありません。",
+			"noInstance": "{{url}} に Kaneo インスタンスが見つかりません（HTTP {{status}}）。",
+			"noSession": "サーバーからセッションが返されませんでした。ブラウザーでサインインしてみてください。",
+			"notFound": "見つかりません。",
+			"notKaneo": "{{url}} は Kaneo サーバーではないようです。",
+			"notSignedIn": "サインインしていません",
+			"requestFailed": "リクエストに失敗しました（{{status}}）。",
+			"serverProblem": "サーバーで問題が発生しました（{{status}}）。",
+			"sessionExpired": "セッションの有効期限が切れました。再度サインインしてください。",
+			"signInRejected": "サーバーがサインインを拒否しました。",
+			"tooManyRequests": "リクエストが多すぎます。しばらくお待ちください。",
+			"unreachable": "サーバーに接続できません。接続状況とサーバーアドレスを確認してください。",
+			"uploadFailed": "アップロードに失敗しました（{{status}}）"
+		},
+		"home": {
+			"account": "アカウント",
+			"archived": "アーカイブ済み",
+			"due": "期限 {{date}}",
+			"empty": {
+				"message": "プロジェクトにはボードやタスクをまとめられます。",
+				"title": "プロジェクトがまだありません"
+			},
+			"hideArchived": "アーカイブ済みプロジェクトを非表示",
+			"newProject": "新しいプロジェクト",
+			"noTasks": "タスクはありません",
+			"noWorkspace": {
+				"body": "ワークスペースにはプロジェクトやチームをまとめられます。作成するか、招待を承諾してください。",
+				"create": "ワークスペースを作成",
+				"joinWithLink": "招待リンクで参加",
+				"signedInAs": "{{email}} でサインイン中",
+				"title": "ワークスペースはまだありません",
+				"viewInvitations_other": "{{count}}件の招待を表示"
+			},
+			"progress": "{{total}}件中{{done}}件",
+			"projects": "プロジェクト",
+			"search": "検索",
+			"showArchived": "アーカイブ済みプロジェクトを表示",
+			"switchWorkspace": "ワークスペースを切り替え",
+			"upNext": "次の予定",
+			"viewAll": "すべて表示"
+		},
+		"inbox": {
+			"allCaughtUpToast": "すべて確認しました",
+			"clearAll": "すべての通知を消去",
+			"confirmClear": {
+				"confirm": "すべてクリア",
+				"message": "このワークスペース内のすべての通知が削除されます。",
+				"title": "すべての通知を消去しますか？"
+			},
+			"earlier": "以前",
+			"empty": {
+				"message": "割り当て、コメント、メンションがここに表示されます。",
+				"title": "すべて確認済みです"
+			},
+			"markAllRead": "すべて既読にする",
+			"more": "その他",
+			"recent": "最近",
+			"title": "受信トレイ",
+			"today": "今日"
+		},
+		"invitations": {
+			"accept": "承諾",
+			"accepted": "招待を承諾しました",
+			"decline": "辞退",
+			"declined": "招待を辞退しました",
+			"description": "参加の招待を受けたワークスペースです。",
+			"emptyMessage": "メールアドレスの確認後に招待が表示されます。メール内のリンクからもいつでも参加できます。",
+			"emptyTitle": "保留中の招待はありません",
+			"invitedYou": "{{name}} さんからの招待",
+			"join": "参加",
+			"joinWithLink": "招待リンクで参加",
+			"linkPlaceholder": "メール内のリンクを貼り付け",
+			"title": "招待"
+		},
+		"labels": {
+			"actions": "{{name}} の操作",
+			"delete": "ラベルを削除",
+			"deleteMessage": "このワークスペースのすべてのタスクからラベルが削除されます。",
+			"deleteTitle": "「{{name}}」を削除しますか？",
+			"description": "ラベルを使うとタスクの分類や絞り込みができます。",
+			"edit": "ラベルを編集",
+			"empty": {
+				"message": "ラベルを作成して、プロジェクトをまたいでタスクを分類したり絞り込んだりできます。",
+				"title": "ラベルはありません"
+			},
+			"fallbackTitle": "ラベル",
+			"form": {
+				"color": "カラー",
+				"name": "名前"
+			},
+			"new": "新しいラベル",
+			"title": "ラベル",
+			"toast": {
+				"deleted": "ラベルを削除しました"
+			}
+		},
+		"members": {
+			"description_other": "{{name}} に{{count}}人",
+			"invite": "招待",
+			"inviteForm": {
+				"email": "メールアドレス",
+				"intro": "{{workspace}} に参加するためのリンクがメールで届きます。",
+				"role": "ロール",
+				"send": "招待を送信",
+				"title": "メンバーを招待"
+			},
+			"inviteMenu": {
+				"cancel": "招待をキャンセル",
+				"fallbackTitle": "招待",
+				"resend": "招待を再送信"
+			},
+			"memberMenu": {
+				"changeRole": "ロールを変更",
+				"fallbackTitle": "メンバー",
+				"remove": "ワークスペースから削除"
+			},
+			"pending": {
+				"expires": "{{role}}、{{date}}まで有効",
+				"manage": "管理",
+				"title": "保留中の招待"
+			},
+			"people": {
+				"title": "メンバー",
+				"unknown": "不明なユーザー",
+				"you": "（自分）"
+			},
+			"remove": {
+				"confirm": "削除",
+				"message": "{{name}} は {{workspace}} にアクセスできなくなります。",
+				"they": "このメンバー",
+				"title": "メンバーを削除しますか？"
+			},
+			"rolePicker": {
+				"title": "ロール"
+			},
+			"thisWorkspace": "このワークスペース",
+			"title": "メンバー",
+			"toast": {
+				"canceled": "招待をキャンセルしました",
+				"removed": "メンバーを削除しました",
+				"resent": "招待を再送信しました",
+				"roleUpdated": "ロールを更新しました",
+				"sent": "{{email}} に招待を送信しました"
+			}
+		},
+		"meta": {
+			"labelColor": {
+				"amber": "アンバー",
+				"crimson": "クリムゾン",
+				"forest": "フォレスト",
+				"lagoon": "ラグーン",
+				"lavender": "ラベンダー",
+				"ocean": "オーシャン",
+				"orchid": "オーキッド",
+				"rose": "ローズ",
+				"sage": "セージ",
+				"sky": "スカイ",
+				"slate": "スレート",
+				"stone": "ストーン",
+				"terracotta": "テラコッタ"
+			},
+			"priority": {
+				"high": "高",
+				"low": "低",
+				"medium": "中",
+				"noPriority": "優先度なし",
+				"urgent": "緊急"
+			},
+			"role": {
+				"admin": "管理者",
+				"member": "メンバー",
+				"owner": "オーナー",
+				"viewer": "閲覧者"
+			},
+			"roleHint": {
+				"admin": "メンバーや設定の管理も可能",
+				"member": "タスクの作成と編集が可能",
+				"owner": "ワークスペースの削除を含むすべての操作が可能",
+				"viewer": "プロジェクトとタスクの閲覧が可能"
+			}
+		},
+		"myTasks": {
+			"assigned_other": "{{count}}件割り当て済み",
+			"by": {
+				"due": "期限",
+				"project": "プロジェクト",
+				"status": "ステータス"
+			},
+			"due": {
+				"later": "今後",
+				"none": "期限なし",
+				"overdue": "期限超過",
+				"thisWeek": "今週",
+				"today": "今日"
+			},
+			"empty": {
+				"message": "このワークスペースで自分に割り当てられたタスクが表示されます。",
+				"title": "割り当てられたタスクはありません"
+			},
+			"showing": "{{total}}件中{{shown}}件のタスクを表示",
+			"title": "自分のタスク"
+		},
+		"nav": {
+			"activity": "アクティビティ",
+			"home": "ホーム",
+			"inbox": "受信トレイ",
+			"inboxUnread": "受信トレイ、未読{{count}}件",
+			"tasks": "自分のタスク"
+		},
+		"notificationSettings": {
+			"channel": {
+				"accessToken": "アクセストークン",
+				"appToken": "アプリトークン",
+				"enabled": "ここに通知を送信",
+				"secretOptional": "任意",
+				"secretSaved": "保存済みです。変更するには新しい値を入力してください",
+				"serverUrl": "サーバーURL",
+				"signingSecret": "署名シークレット",
+				"topic": "トピック",
+				"webhookUrl": "Webhook URL"
+			},
+			"delivery": {
+				"email": "メールアドレス",
+				"emailHint": "アカウントのメールアドレスに送信",
+				"gotifyHint": "Gotify サーバーに通知を送信",
+				"ntfyHint": "ntfy のトピックに通知を送信",
+				"title": "配信方法",
+				"webhook": "Webhook",
+				"webhookHint": "URL に POST で通知を送信"
+			},
+			"description": "Kaneo からの通知方法と通知する内容を設定します。",
+			"events": {
+				"assignments": "割り当て",
+				"assignmentsHint": "タスクが自分に割り当てられたとき",
+				"comments": "コメント",
+				"commentsHint": "自分のタスクに新しいコメントが付いたとき",
+				"dueDate": "期限リマインダー",
+				"dueDateHint": "自分に割り当てられたタスクの期限前",
+				"remindBefore": "{{time}}前",
+				"remindMe": "通知する",
+				"remindPickerTitle": "期限前に通知",
+				"statusChanges": "ステータスの変更",
+				"statusChangesHint": "自分のタスクがカラム間で移動したとき",
+				"title": "通知を受け取るイベント"
+			},
+			"leadTime": {
+				"day1": "1日",
+				"days2": "2日",
+				"hour1": "1時間",
+				"hours3": "3時間",
+				"minutes_other": "{{count}} 分",
+				"minutes15": "15分",
+				"week1": "1週間"
+			},
+			"notSet": "未設定",
+			"off": "オフ",
+			"on": "オン",
+			"title": "通知"
+		},
+		"notificationText": {
+			"activity": {
+				"assignedTo": "が {{assignee}} に割り当てました",
+				"assigneeChanged": "が担当者を変更しました",
+				"commented": "がコメントしました：{{text}}",
+				"created": "がタスクを作成しました",
+				"descriptionChanged": "が説明を更新しました",
+				"dueDateRemoved": "が期限を削除しました",
+				"dueDateSet": "が期限を {{date}} に設定しました",
+				"priorityChanged": "が優先度を {{from}} から {{to}} に変更しました",
+				"renamed": "が名前を「{{title}}」に変更しました",
+				"selfAssigned": "が自分に割り当てました",
+				"statusChanged": "が {{from}} から {{to}} に移動しました",
+				"taskUpdated": "がタスクを更新しました",
+				"titleChanged": "がタイトルを変更しました",
+				"unassigned": "が担当者の割り当てを解除しました"
+			},
+			"assignedByActor": "{{actor}} さんがタスクを割り当てました",
+			"assignedToTask": "「{{title}}」が割り当てられました",
+			"assignedToUntitled": "タスクが割り当てられました",
+			"commentedByActor": "{{actor}} さんがコメントしました",
+			"mentioned": "メンションされました",
+			"mentionedByActor": "{{actor}} さんがあなたをメンションしました",
+			"newComment": "新しいコメント",
+			"statusChangedOnTask": "「{{title}}」のステータスが変更されました",
+			"statusChangedOnUntitled": "タスクのステータスが変更されました",
+			"statusTransition": "{{from}} から {{to}}",
+			"taskCreated": "新しいタスクが割り当てられました",
+			"timeLoggedOnTask": "「{{title}}」の作業時間が記録されました",
+			"timeLoggedOnUntitled": "タスクの作業時間が記録されました",
+			"workspaceCreated": "ワークスペース「{{name}}」を作成しました"
+		},
+		"picker": {
+			"clear": "クリア",
+			"nextMonth": "翌月",
+			"nextWeek": "来週",
+			"previousMonth": "前月"
+		},
+		"projectNew": {
+			"createProject": "プロジェクトを作成",
+			"customerPortal": "カスタマーポータル",
+			"key": "キー",
+			"name": "名前",
+			"newProject": "新しいプロジェクト",
+			"usedInTaskIDs": "タスク ID に使用"
+		},
+		"projectSettings": {
+			"addColumn": "カラムを追加",
+			"addField": "フィールドを追加",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "このプロジェクト内のすべてのタスク、コメント、時間記録が完全に削除されます。",
+			"androidIOSWeb": "Android、iOS、ウェブ",
+			"anyoneWithTheLinkCanViewTheBoard": "リンクを知っている人は誰でもボードを閲覧できます",
+			"archive": "アーカイブ",
+			"archiveProject": "プロジェクトをアーカイブ",
+			"archiveProjectTitle": "プロジェクトをアーカイブしますか？",
+			"blocked": "ブロック中",
+			"changesFutureAndExistingTaskIDs": "今後のタスクと既存タスクの ID が変更されます",
+			"checkbox": "チェックボックス",
+			"column": "カラム",
+			"columnDeleted": "カラムを削除しました",
+			"columns": "カラム",
+			"customFields": "カスタムフィールド",
+			"date": "日付",
+			"deleteColumn": "カラムを削除",
+			"deleteField": "フィールドを削除",
+			"deleteNamedTitle": "「{{name}}」を削除しますか？",
+			"deleteProject": "プロジェクトを削除",
+			"deleteProjectTitle": "プロジェクトを削除しますか？",
+			"doneColumn": "完了カラム",
+			"dropdown": "ドロップダウン",
+			"field": "フィールド",
+			"fieldDeleted": "フィールドを削除しました",
+			"general": "一般",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "プロジェクト一覧から非表示になります。後で復元できます。",
+			"key": "キー",
+			"markAsDoneColumn": "完了カラムに指定",
+			"moveDown": "下へ移動",
+			"moveToAnotherWorkspace": "別のワークスペースに移動",
+			"moveToWorkspace": "ワークスペースに移動",
+			"moveUp": "上へ移動",
+			"multiSelect": "複数選択",
+			"name": "名前",
+			"newColumn": "新しいカラム",
+			"newCustomField": "新しいカスタムフィールド",
+			"noCustomFields": "カスタムフィールドはありません",
+			"number": "数値",
+			"ok": "OK",
+			"options": "選択肢",
+			"platform": "プラットフォーム",
+			"project": "プロジェクト",
+			"projectArchived": "プロジェクトをアーカイブしました",
+			"projectDeleted": "プロジェクトを削除しました",
+			"projectMoved": "プロジェクトを移動しました",
+			"projectRestored": "プロジェクトを復元しました",
+			"projectSettings": "プロジェクト設定",
+			"projectUpdated": "プロジェクトを更新しました",
+			"publicBoard": "公開ボード",
+			"rename": "名前を変更",
+			"renameColumn": "カラム名を変更",
+			"required": "必須",
+			"restoreProject": "プロジェクトを復元",
+			"saveChanges": "変更を保存",
+			"separateWithCommas": "カンマで区切ってください",
+			"tasksHereCountAsFinished": "このカラム内のタスクは完了として扱われます",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "先にこのカラム内のタスクを移動する必要がある場合があります。",
+			"text": "テキスト",
+			"type": "種類",
+			"unmarkAsDoneColumn": "完了カラムの指定を解除",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "すべてのタスクからこのフィールドの値が削除されます。",
+			"checked": "チェックあり",
+			"chooseDefault": "デフォルト値を選択",
+			"defaultValue": "デフォルト値",
+			"multiselectOptionsRequired": "異なる選択肢を2つ以上追加してください。",
+			"unchecked": "チェックなし",
+			"validDefaultRequired": "この必須フィールドに有効なデフォルト値を入力してください。"
+		},
+		"search": {
+			"clear": "クリア",
+			"commentMeta": "{{name}}、{{when}}",
+			"empty": {
+				"message": "タイトルや番号でタスクを検索したり、プロジェクトやコメントを検索できます。",
+				"title": "このワークスペースを検索"
+			},
+			"failed": "検索に失敗しました",
+			"kinds": {
+				"all": "すべて",
+				"comments": "コメント",
+				"projects": "プロジェクト",
+				"tasks": "タスク",
+				"activity": "アクティビティ"
+			},
+			"noResults": "「{{query}}」の検索結果はありません",
+			"placeholder": "タスク、プロジェクト、コメントを検索"
+		},
+		"signIn": {
+			"apiKey": {
+				"label": "API キー",
+				"message": "ウェブ版の「設定」→「API キー」で作成できます。他のサインイン方法が無効でも利用できます。"
+			},
+			"browserHint": "GitHub、Google、Discord、SSO",
+			"captcha": "この手順にはブラウザーでの確認が必要です。「ブラウザーで続ける」を使用してください。",
+			"change": "変更",
+			"cloud": "Kaneo Cloud",
+			"code": {
+				"checkEmail": "メールを確認してください",
+				"didntGet": "届きませんか？",
+				"message": "6桁のコードをメールでお送りします。パスワードは不要です。",
+				"resend": "コードを再送信",
+				"send": "コードを送信",
+				"sent": "{{email}} に6桁のコードを送信しました",
+				"title": "コードでサインイン",
+				"verify": "確認"
+			},
+			"connect": "接続",
+			"continueInBrowser": "ブラウザーで続ける",
+			"createAccount": "アカウントを作成",
+			"device": {
+				"codeCopied": "コードをコピーしました",
+				"copyCode": "コードをコピー",
+				"copyLink": "リンクをコピー",
+				"denied": "ブラウザーでサインインが拒否されました。",
+				"expired": "サインインコードの有効期限が切れました。最初からやり直して新しいコードを取得してください。",
+				"gettingCode": "コードを取得中…",
+				"linkCopied": "リンクをコピーしました",
+				"message": "Kaneo のウェブサイトでこのデバイスを承認してください。GitHub、Google、Discord、SSO を利用できます。",
+				"openBrowser": "ブラウザーを開く",
+				"openFailed": "ブラウザーを開けませんでした。リンクをコピーしてください。",
+				"tryAgain": "もう一度試す",
+				"waiting": "承認を待っています…",
+				"yourCode": "確認コード"
+			},
+			"email": "メールアドレス",
+			"emailCode": "サインインコードをメールで受け取る",
+			"invalidClient": "このサーバーではデバイスでのサインインが許可されていません。管理者に DEVICE_AUTH_CLIENT_IDS への「kaneo-cli」の追加を依頼するか、パスワードまたは API キーでサインインしてください。",
+			"newToKaneo": "Kaneo は初めてですか？",
+			"noPassword": "パスワードは不要です",
+			"or": "または",
+			"password": "パスワード",
+			"recent": "最近",
+			"selfHosted": "セルフホスト",
+			"sendTo": "{{email}} に送信",
+			"serverAddress": "サーバーアドレス",
+			"serverAddressHint": "Kaneo にアクセスするアドレスです。TLS のないサーバーには http:// を使用してください。API が別のホストで動作している場合は、API のアドレスを入力してください。",
+			"signIn": "サインイン",
+			"signUp": {
+				"name": "名前",
+				"passwordHint": "8文字以上"
+			},
+			"tagline": "シンプルなプロジェクト管理。Kaneo Cloud または自分のインスタンスに接続できます。",
+			"togglePassword": "パスワードの表示を切り替え",
+			"useApiKey": "API キーを使用"
+		},
+		"taskDetail": {
+			"activity": {
+				"comment": "コメント",
+				"deleteMessage": "この操作は取り消せません。",
+				"deleteTitle": "コメントを削除しますか？",
+				"edit": "編集",
+				"editComment": "コメントを編集",
+				"edited": "{{time}}、編集済み",
+				"entry": "{{name}} {{action}}",
+				"title": "アクティビティ"
+			},
+			"fields": {
+				"empty": "未設定",
+				"none": "なし",
+				"title": "フィールド"
+			},
+			"links": {
+				"add": "リンクを追加",
+				"empty": "リンクはありません",
+				"optional": "任意",
+				"remove": "リンクを削除",
+				"synced": "同期済み",
+				"title": "リンク",
+				"titleLabel": "タイトル",
+				"url": "URL"
+			},
+			"menu": {
+				"delete": "タスクを削除",
+				"deleted": "タスクを削除しました",
+				"deleteMessage": "「{{title}}」とそのコメントが完全に削除されます。",
+				"deleteTitle": "タスクを削除しますか？",
+				"duplicate": "複製",
+				"duplicated": "タスクを複製しました",
+				"move": "プロジェクトに移動…",
+				"moved": "タスクを移動しました",
+				"moveTitle": "プロジェクトに移動",
+				"refresh": "更新",
+				"share": "共有"
+			},
+			"relations": {
+				"blockedBy": "ブロック元",
+				"blocks": "ブロック中",
+				"empty": "関連タスクはありません",
+				"link": "タスクを関連付け",
+				"related": "関連",
+				"relatedTo": "関連先",
+				"remove": "関連付けを解除",
+				"removeConfirm": "削除",
+				"removeMessage": "タスクは残り、タスク間の関連付けのみ解除されます。",
+				"removeTitle": "関連付けを解除しますか？",
+				"searchPlaceholder": "タイトルや番号でタスクを検索",
+				"title": "関連"
+			},
+			"screen": {
+				"addDescription": "説明を追加…",
+				"copyLink": "リンクをコピー",
+				"editDescription": "説明を編集",
+				"editTitle": "タイトルを編集",
+				"linkCopied": "リンクをコピーしました",
+				"more": "その他"
+			},
+			"section": {
+				"addTo": "{{title}} に追加"
+			},
+			"someone": "ユーザー",
+			"status": {
+				"archived": "アーカイブ済み",
+				"planned": "計画中"
+			},
+			"subtasks": {
+				"add": "サブタスクを追加",
+				"empty": "サブタスクはありません",
+				"parent": "親タスク",
+				"title": "サブタスク"
+			},
+			"time": {
+				"chipHours": "{{count}}時間",
+				"chipMinutes": "{{count}}分",
+				"date": "日付",
+				"durationHoursMinutes": "{{hours}}時間 {{minutes}}分",
+				"durationMinutes": "{{minutes}}分",
+				"editEntry": "時間記録を編集",
+				"hoursUnit": "時間",
+				"log": "作業時間を記録",
+				"logDuration": "{{duration}} を記録",
+				"logged": "作業時間を記録しました",
+				"minutesUnit": "分",
+				"notePlaceholder": "どんな作業をしましたか？",
+				"running": "{{time}}（計測中）",
+				"start": "タイマーを開始",
+				"stop": "停止",
+				"title": "時間",
+				"total": "合計 {{duration}}"
+			}
+		},
+		"taskFields": {
+			"addNumber": "数値を追加",
+			"archived": "アーカイブ済み",
+			"assignee": "担当者",
+			"createLabel": "ラベル「{{name}}」を作成",
+			"done": "完了",
+			"doneColumn": "完了カラム",
+			"dueDate": "期限",
+			"empty": "未設定",
+			"labelColor": "新しいラベルの色",
+			"labels": "ラベル",
+			"noLabels": "ラベルはまだありません。名前を入力して作成してください。",
+			"none": "なし",
+			"overdue_other": "{{date}}、{{count}}日超過",
+			"planned": "計画中",
+			"priority": "優先度",
+			"searchOrCreate": "検索または作成",
+			"searchPeople": "メンバーを検索",
+			"startDate": "開始日",
+			"starts": "開始: {{date}}",
+			"status": "ステータス",
+			"unassigned": "未割り当て",
+			"you": "{{name}}（自分）"
+		},
+		"taskNew": {
+			"create": "作成",
+			"newSubtask": "新しいサブタスク",
+			"noLabels": "このワークスペースにはまだラベルがありません。",
+			"project": "プロジェクト",
+			"taskTitle": "タスク名",
+			"labelsAndParentFailed": "タスクを作成しましたが、一部のラベルと親タスクへのリンクを保存できませんでした。",
+			"labelsFailed": "タスクを作成しましたが、一部のラベルを追加できませんでした。",
+			"parentFailed": "タスクを作成しましたが、親タスクにリンクできませんでした。"
+		},
+		"time": {
+			"durationHoursMinutes": "{{hours}}時間 {{minutes}}分",
+			"goodAfternoon": "こんにちは",
+			"goodEvening": "こんばんは",
+			"goodMorning": "おはようございます",
+			"hours_other": "{{count}}時間",
+			"hoursAgo_other": "{{count}}時間前",
+			"hoursShort_other": "{{count}}時間",
+			"justNow": "たった今",
+			"minutes_other": "{{count}}分",
+			"minutesAgo_other": "{{count}}分前",
+			"minutesShort_other": "{{count}}分",
+			"now": "今",
+			"secondsShort_other": "{{count}}秒",
+			"today": "今日",
+			"tomorrow": "明日",
+			"yesterday": "昨日"
+		},
+		"ui": {
+			"back": "戻る",
+			"loadFailed": "読み込めませんでした",
+			"nothingMatches": "「{{query}}」に一致するものはありません",
+			"search": "検索"
+		},
+		"workspaceNew": {
+			"create": "ワークスペースを作成",
+			"description": "チームのプロジェクトをまとめる場所です。作成後にメンバーを招待できます。",
+			"descriptionLabel": "説明",
+			"descriptionPlaceholder": "このワークスペースの用途は？",
+			"name": "名前",
+			"namePlaceholder": "デザインスタジオ",
+			"optional": "任意",
+			"title": "新しいワークスペース"
+		},
+		"workspaceSettings": {
+			"confirm": {
+				"deleteMessage": "{{name}} 内のすべてのプロジェクト、タスク、コメントが完全に削除されます。",
+				"deleteTitle": "ワークスペースを削除しますか？",
+				"leaveMessage": "再度招待されるまでアクセスできなくなります。",
+				"leaveTitle": "ワークスペースを退出しますか？"
+			},
+			"danger": {
+				"delete": "ワークスペースを削除",
+				"deleteHint": "すべてのプロジェクトとタスクを削除します",
+				"leave": "ワークスペースを退出",
+				"leaveButton": "退出",
+				"leaveHint": "新しい招待で再参加できます",
+				"title": "危険な操作"
+			},
+			"description": "{{name}} の全員に適用される設定です。",
+			"general": {
+				"description": "説明",
+				"name": "名前",
+				"save": "変更を保存",
+				"slug": "スラッグ：<mono>{{slug}}</mono>",
+				"title": "一般"
+			},
+			"manage": {
+				"labels": "ラベル",
+				"members": "メンバー",
+				"title": "管理"
+			},
+			"thisWorkspace": "このワークスペース",
+			"title": "ワークスペース",
+			"toast": {
+				"deleted": "ワークスペースを削除しました",
+				"left": "ワークスペースを退出しました",
+				"updated": "ワークスペースを更新しました"
+			}
+		},
+		"workspaceSwitcher": {
+			"create": "ワークスペースを作成",
+			"invitations": "招待",
+			"labels": "ラベル",
+			"members": "メンバー",
+			"settings": "ワークスペース設定",
+			"title": "ワークスペース"
+		},
+		"permissions": {
+			"photos": "Kaneo は、タスクやコメントへの画像の添付と、プロフィール写真のために写真を使用します。"
 		}
 	}
 }

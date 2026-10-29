@@ -12,10 +12,12 @@ import {
 function config(overrides: Partial<GetConfigResponse> = {}) {
   return {
     isCloud: false,
+    instanceName: "Kaneo",
     disableRegistration: false,
     disablePasswordRegistration: false,
     disableEmailOtpSignIn: false,
     disableWorkspaceCreation: false,
+    disabledIntegrations: [],
     isDemoMode: false,
     hasSmtp: true,
     hasImageUploads: false,
@@ -28,6 +30,8 @@ function config(overrides: Partial<GetConfigResponse> = {}) {
     customOAuthName: null,
     customOAuthAutoLogin: false,
     customOAuthLogoutUrl: null,
+    customOAuthManagedProfileFields: [],
+    customOAuthAccountUrl: null,
     billingEnabled: false,
     ...overrides,
   } satisfies GetConfigResponse;

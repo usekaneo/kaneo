@@ -2,14 +2,14 @@ import {
   Archive,
   ArrowDownToLine,
   ArrowUpToLine,
-  CircleDashed,
-  SignalHigh,
+  CircleDot,
   Tag,
   Trash2,
   UserRound,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
 import { cn } from "@/lib/cn";
 import { Toolbar } from "../ui/toolbar";
 import { barButtonClass } from "./bar-button-class";
@@ -64,7 +64,11 @@ export function BulkBar({
   const options = useBulkOptions(actions);
   const { mounted, hidden, displayCount } = useToolbarPresence(actions.count);
   const [commandOpen, setCommandOpen] = useState(false);
-  useBulkSelectionKeys({ selectAll, clearSelection });
+  useBulkSelectionKeys({
+    hasSelection: actions.count > 0,
+    selectAll,
+    clearSelection,
+  });
   const request = useBulkRequestStore((state) => state.request);
 
   useEffect(() => {
@@ -192,7 +196,7 @@ export function BulkBar({
         <div className="ms-1.5 flex items-center gap-0.5">
           {variant === "board" && can.edit && (
             <BulkOptionPopover
-              icon={<CircleDashed />}
+              icon={<CircleDot />}
               label={t("tasks:status.label")}
               placeholder={t("tasks:bulk.statusPlaceholder")}
               options={options.columnOptions}
@@ -204,7 +208,7 @@ export function BulkBar({
           )}
           {can.edit && (
             <BulkOptionPopover
-              icon={<SignalHigh />}
+              icon={<PriorityGlyph priority="high" />}
               label={t("tasks:priority.label")}
               placeholder={t("tasks:bulk.priorityPlaceholder")}
               options={options.priorityOptions}
@@ -240,7 +244,7 @@ export function BulkBar({
           )}
           {can.edit && (
             <BulkDueDatePopover
-              onSelect={(date) => void actions.setDueDate(date)}
+              onSelect={(date) => void actions.setDueDate(date ?? undefined)}
               onDismiss={dismissTemporary}
               returnFocus={focusedTaskElement}
             />

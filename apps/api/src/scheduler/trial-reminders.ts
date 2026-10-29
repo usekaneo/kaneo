@@ -111,6 +111,8 @@ async function getWorkspacesNeedingReminder(
         isNull(workspaceBillingTable.creemSubscriptionId),
         trialWindow,
         eq(userTable.banned, false),
+        // Nobody can upgrade an archived workspace, so do not nag its owners.
+        isNull(workspaceTable.archivedAt),
       ),
     )
     .orderBy(

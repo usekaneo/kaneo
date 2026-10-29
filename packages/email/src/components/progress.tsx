@@ -1,4 +1,4 @@
-import { Column } from "@react-email/components";
+import { Column } from "react-email";
 import React from "react";
 import { Row } from "./row";
 import { colors } from "./tokens";

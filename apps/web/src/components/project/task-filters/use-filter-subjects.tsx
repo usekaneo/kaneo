@@ -1,10 +1,4 @@
-import {
-  CalendarDays,
-  CircleDashed,
-  SignalHigh,
-  Tag,
-  UserRound,
-} from "lucide-react";
+import { CalendarDays, CircleDot, Tag, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getColumnIcon } from "@/lib/column";
 import { getPriorityLabel } from "@/lib/i18n/domain";
@@ -15,11 +9,14 @@ import { customFieldSubjectId } from "@/lib/task-filters/filter-subject-id";
 import {
   groupLabels,
   isLabelGroupSelected,
+  labelGroupKey,
   toggleLabelGroup,
 } from "@/lib/task-filters/label-groups";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import { customFieldIcon } from "@/components/custom-fields/custom-field-icon";
+import { formatCustomFieldValue } from "@/components/custom-fields/format-custom-field-value";
+import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
 import type { FilterSubject, TaskFilterControls } from "./filter-subject";
 import { LabelFilterDot } from "./label-filter-dot";
 import { MemberFilterAvatar } from "./member-filter-avatar";
@@ -78,7 +75,7 @@ export function useFilterSubjects({
 
   const labelGroups = groupLabels(options.labels);
   const groupIdByLabel = new Map(
-    labelGroups.map((group) => [`${group.name}|${group.color}`, group.id]),
+    labelGroups.map((group) => [labelGroupKey(group), group.id]),
   );
   const counts = {
     status: countValues(tasks, (task) => [task.status]),
@@ -86,7 +83,7 @@ export function useFilterSubjects({
     priority: countValues(tasks, (task) => [task.priority]),
     labels: countValues(tasks, (task) =>
       (task.labels ?? []).map((label) =>
-        groupIdByLabel.get(`${label.name}|${label.color}`),
+        groupIdByLabel.get(labelGroupKey(label)),
       ),
     ),
   };
@@ -96,7 +93,7 @@ export function useFilterSubjects({
       ? [
           listSubject("status", {
             label: t("tasks:boardFilters.subjects.status"),
-            icon: <CircleDashed />,
+            icon: <CircleDot />,
             options: columns.map((column) => ({
               value: column.id,
               label: column.name,
@@ -123,7 +120,7 @@ export function useFilterSubjects({
     }),
     listSubject("priority", {
       label: t("tasks:boardFilters.subjects.priority"),
-      icon: <SignalHigh />,
+      icon: <PriorityGlyph priority="high" />,
       options: PRIORITIES.map((priority) => ({
         value: priority,
         label: getPriorityLabel(priority),
@@ -189,7 +186,9 @@ export function useFilterSubjects({
             ? value === "true"
               ? "True"
               : "False"
-            : value,
+            : field.type === "date"
+              ? (formatCustomFieldValue("date", value, "medium")?.text ?? value)
+              : value,
       })),
       selected: filters.customFields?.[field.id] ?? [],
       onToggle: (value) => controls.updateCustomFieldFilter(field.id, value),

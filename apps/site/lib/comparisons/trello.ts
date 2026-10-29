@@ -4,21 +4,21 @@ export const trello: Comparison = {
   slug: "trello",
   competitor: "Trello",
   category: "saas",
-  title: "Open-source Trello alternative: Kaneo vs Trello",
+  title: "Trello alternative for growing teams: Kaneo vs Trello",
   description:
-    "Kaneo is a free, open-source Trello alternative under the MIT license. Keep the simple kanban board, add a backlog and workflows, and host it yourself.",
+    "Kaneo keeps Trello's simple board and adds a backlog, workflows, and time tracking without Power-Ups. Kaneo Cloud runs it for you from $4 a month.",
   summary:
-    "Keeps the simple board, adds a backlog and workflows, and runs on your server.",
-  heading: "The open-source, self-hostable Trello alternative",
+    "Keeps the simple board, adds a backlog and workflows, and Kaneo Cloud runs it for you.",
+  heading: "The Trello alternative that stays simple as you grow",
   subheading:
     "Trello nails simple kanban, but your boards live on someone else's servers and grow into paid Power-Ups. Kaneo keeps the simplicity, adds backlog and workflows, and lets you own the whole thing.",
   verdict:
-    "Kaneo is a self-hostable, MIT-licensed Trello alternative. It keeps the drag-and-drop board Trello is loved for and adds backlog planning, configurable workflows, roles, and time tracking without Power-Ups. Self-hosting is free and unlimited, and the managed cloud starts at $4 a month.",
+    "Kaneo is a Trello alternative for teams that want the same simple board with room to grow, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams. It keeps the drag-and-drop board Trello is loved for and adds backlog planning, configurable workflows, roles, and time tracking without Power-Ups. It is also MIT-licensed open source, so you can self-host it for free any time.",
   facts: {
     license: "MIT, versus a proprietary licence for Trello",
-    hosting: "Self-host anywhere, or EU-hosted cloud",
+    hosting: "EU-hosted Kaneo Cloud, or self-host anywhere",
     sso: "Free on every Kaneo build, Enterprise-tier on Trello",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },

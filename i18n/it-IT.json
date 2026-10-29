@@ -122,7 +122,6 @@
 				"startDate": "Data inizio",
 				"dueDate": "Data scadenza",
 				"clearStartDate": "Cancella data inizio",
-				"clearDueDate": "Cancella data scadenza",
 				"assign": "Assegna",
 				"assignUnassigned": "Non assegnato",
 				"assignUnassignedTitle": "Non assegnato",
@@ -148,7 +147,11 @@
 					"amber": "Ambra",
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
-					"crimson": "Cremisi"
+					"crimson": "Cremisi",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orchidea",
+					"sky": "Cielo"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -257,7 +260,8 @@
 			},
 			"invitation": {
 				"description": "Usa l'email che ha ricevuto l'invito. Subito dopo entrerai nel workspace."
-			}
+			},
+			"verifyEmail": "Check your email to confirm your address, then sign in."
 		},
 		"verifyOtp": {
 			"pageTitle": "Verifica Codice",
@@ -284,7 +288,8 @@
 			"sendFailed": "Invio del codice di verifica fallito"
 		},
 		"signInForm": {
-			"failedSignIn": "Accesso fallito"
+			"failedSignIn": "Accesso fallito",
+			"emailNotVerified": "Confirm your email address first. We sent you a new link."
 		},
 		"invitation": {
 			"pageTitleAccept": "Accetta Invito",
@@ -540,7 +545,8 @@
 				"title": "Accedi per collegare il tuo dispositivo",
 				"description": "Tornerai subito qui per approvarlo.",
 				"submit": "Accedi"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -757,6 +763,10 @@
 			"board": "Board",
 			"list": "Elenco",
 			"gantt": "Gantt",
+			"priorityIcons": "Icone di priorità",
+			"priorityIconsDescription": "Come appare la priorità delle attività su schede, righe e menu.",
+			"priorityIconsMarks": "Segni",
+			"priorityIconsClassic": "Classiche",
 			"sidebarDefault": "Mantieni aperta la barra laterale",
 			"sidebarDefaultDescription": "Inizia con la barra laterale espansa.",
 			"displayOptions": "Dettagli attività",
@@ -769,6 +779,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Mostra l'immagine che un progetto imposta dietro la sua board.",
 			"advancedTitle": "Avanzate"
+		},
+		"managedProfile": {
+			"note": "Gestito dalla tua organizzazione.",
+			"edit": "Modifica in {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "Chiavi API",
@@ -1195,7 +1209,8 @@
 			"statusPaused": "In pausa",
 			"connect": "Connetti",
 			"configure": "Configura",
-			"done": "Fatto"
+			"done": "Fatto",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Visibilità Progetto",
@@ -1577,6 +1592,8 @@
 			"noDefault": "Nessun valore predefinito",
 			"optionsLabel": "Opzioni",
 			"removeOptionAria": "Rimuovi {{option}}",
+			"hideOptionAria": "Nascondi {{option}} dalle nuove selezioni",
+			"showOptionAria": "Offri di nuovo {{option}} per le nuove selezioni",
 			"renameOptionAria": "Rinomina {{option}}",
 			"requiredDescription": "Ogni attività ha sempre un valore.",
 			"save": "Salva",
@@ -1598,7 +1615,11 @@
 				"deactivate": "Disattiva",
 				"edit": "Modifica",
 				"open": "Actions for {{name}}",
-				"reactivate": "Riattiva"
+				"reactivate": "Riattiva",
+				"markEmailVerified": "Mark email as verified",
+				"sendPasswordReset": "Send password reset link",
+				"sendVerification": "Resend verification email",
+				"security": "Sessions & API keys"
 			},
 			"clearSearch": "Clear search",
 			"columns": {
@@ -1606,7 +1627,8 @@
 				"joined": "Joined",
 				"role": "Ruolo",
 				"status": "Status",
-				"user": "User"
+				"user": "User",
+				"lastActive": "Last active"
 			},
 			"confirm": {
 				"deactivate": {
@@ -1624,7 +1646,19 @@
 					"description": "{{name}} will be able to sign in and access their workspaces again.",
 					"title": "Reactivate this account?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"markEmailVerified": {
+					"action": "Mark as verified",
+					"title": "Mark this email as verified?"
+				},
+				"sendPasswordReset": {
+					"action": "Send link",
+					"title": "Send a password reset link?"
+				},
+				"sendVerification": {
+					"action": "Send email",
+					"title": "Resend the verification email?"
+				}
 			},
 			"directoryTitle": "Tutti gli utenti",
 			"edit": {
@@ -1666,9 +1700,78 @@
 				"deleted": "User deleted",
 				"reactivated": "User reactivated",
 				"updated": "User updated",
-				"updateError": "Failed to update user"
+				"updateError": "Failed to update user",
+				"avatarChanged": "Profile picture updated",
+				"avatarError": "Failed to update the profile picture",
+				"avatarRemoved": "Profile picture removed",
+				"createdForSso": "User created for single sign-on.",
+				"createdLinkFailed": "User created. Password email failed; retry “Send password reset link”.",
+				"createdLinkSent": "User created. Password link sent to {{email}}.",
+				"createdNoSmtp": "User created. Set SMTP_HOST to send a password link.",
+				"createError": "Failed to create user",
+				"emailError": "The email could not be sent",
+				"emailVerified": "Email marked as verified",
+				"passwordResetSent": "Password reset link sent to {{email}}",
+				"verificationSent": "Verification email sent to {{email}}"
 			},
-			"you": "Tu"
+			"you": "Tu",
+			"create": {
+				"creating": "Creating…",
+				"open": "Create user",
+				"submit": "Create user",
+				"title": "Create user",
+				"nameRequired": "Enter a name",
+				"hintNoEmail": "Set SMTP_HOST to send password links."
+			},
+			"details": {
+				"emailStatus": "Email",
+				"methods": {
+					"password": "Password"
+				},
+				"noSignInMethods": "No password or linked account yet",
+				"notVerified": "Not verified",
+				"removeAvatar": "Remove",
+				"signInMethods": "Sign-in methods",
+				"uploadAvatar": "Upload",
+				"verified": "Verified"
+			},
+			"filters": {
+				"anyEmail": "Any email",
+				"anyRole": "Any role",
+				"anyStatus": "Any status",
+				"clear": "Clear filters",
+				"email": "Email verification",
+				"label": "Filter users",
+				"role": "Role",
+				"status": "Status",
+				"unverified": "Unverified email",
+				"verified": "Verified email"
+			},
+			"never": "Never",
+			"unverified": "Unverified",
+			"security": {
+				"apiKeysEmpty": "No API keys.",
+				"apiKeysLoadError": "Couldn't load API keys.",
+				"apiKeysTitle": "API keys",
+				"disabled": "Disabled",
+				"lastUsed": "Last used {{time}}",
+				"neverUsed": "Never used",
+				"revokeAll": "Sign out everywhere",
+				"revokeAllConfirmDescription": "They'll be signed out everywhere right away.",
+				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
+				"revokeAllSelfDescription": "Your other sessions will be signed out right away.",
+				"revokeKey": "Revoke",
+				"revokeKeyConfirmDescription": "Requests using this key will fail right away.",
+				"revokeKeyConfirmTitle": "Revoke {{name}}?",
+				"revokeKeyLabel": "Revoke {{name}}",
+				"revokingKey": "Revoking...",
+				"sessionsEmpty": "Not signed in anywhere.",
+				"sessionsTitle": "Sessions",
+				"title": "Sessions & API keys: {{name}}",
+				"toastKeyRevoked": "API key revoked.",
+				"toastKeyRevokeError": "Couldn't revoke the API key.",
+				"toastRevokedAll": "Sessions signed out."
+			}
 		},
 		"security": "Security",
 		"securityPage": {
@@ -1701,7 +1804,14 @@
 			"dialogDescription": "Almeno 8 caratteri, diversa da quella attuale.",
 			"dialogTitle": "Cambia password",
 			"passwordHint": "Usa almeno 8 caratteri e una password che non usi altrove.",
-			"passwordTitle": "Password"
+			"passwordTitle": "Password",
+			"sessions": {
+				"revokeOthers": "Sign out other sessions",
+				"revokeOthersConfirmDescription": "Your other sessions will be signed out right away.",
+				"revokeOthersConfirmTitle": "Sign out all other sessions?",
+				"title": "Active sessions",
+				"toastRevokedOthers": "Other sessions signed out."
+			}
 		},
 		"gitlabIntegration": {
 			"baseUrlLabel": "GitLab URL",
@@ -1989,7 +2099,22 @@
 					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
 					"title": "Make {{name}} the owner?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"archive": {
+					"action": "Archive workspace",
+					"description": "Members will lose access until it's restored.",
+					"title": "Archive {{name}}?"
+				},
+				"delete": {
+					"action": "Delete workspace",
+					"description": "Its projects, tasks, and files will be permanently deleted.",
+					"title": "Delete {{name}}?",
+					"typeName": "Type {{name}} to confirm"
+				},
+				"restore": {
+					"action": "Restore workspace",
+					"title": "Restore {{name}}?"
+				}
 			},
 			"directoryTitle": "Tutti i workspace",
 			"emptyDescription": "Try another name or slug.",
@@ -2033,8 +2158,20 @@
 				"removeError": "Failed to remove member",
 				"roleError": "Failed to update role",
 				"roleUpdated": "Role updated",
-				"transferError": "Failed to transfer ownership"
-			}
+				"transferError": "Failed to transfer ownership",
+				"archived": "Workspace archived",
+				"archiveError": "Could not archive workspace",
+				"deleted": "Workspace deleted",
+				"deleteError": "Could not delete workspace",
+				"restored": "Workspace restored",
+				"restoreError": "Could not restore workspace"
+			},
+			"actions": {
+				"archive": "Archive workspace",
+				"open": "Actions for {{name}}",
+				"restore": "Restore workspace"
+			},
+			"archived": "Archived"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2403,6 +2540,360 @@
 		},
 		"shared": {
 			"autosave": "Le modifiche vengono salvate automaticamente"
+		},
+		"adminAuditLog": {
+			"actions": {
+				"sessionRevoked": "Revoked a session",
+				"sessionRevokedAll": "Revoked all sessions",
+				"userCreated": "Created user",
+				"userDeactivated": "Deactivated user",
+				"userDeleted": "Deleted user",
+				"userImpersonated": "Signed in as user",
+				"userPasswordSet": "Set user password",
+				"userReactivated": "Reactivated user",
+				"userRoleChanged": "Changed instance role",
+				"userUpdated": "Updated user details",
+				"workspaceMemberAdded": "Added workspace member",
+				"workspaceMemberRemoved": "Removed workspace member",
+				"workspaceMemberRoleChanged": "Changed workspace member role",
+				"workspaceOwnerTransferred": "Transferred workspace ownership",
+				"userAvatarChanged": "Changed profile picture",
+				"userAvatarRemoved": "Removed profile picture",
+				"userEmailVerified": "Marked email as verified",
+				"userPasswordResetSent": "Sent password reset link",
+				"userVerificationSent": "Sent verification email",
+				"apiKeyRevoked": "Revoked an API key",
+				"emailTestSent": "Sent test email",
+				"workspaceArchived": "Archived workspace",
+				"workspaceDeleted": "Deleted workspace",
+				"workspaceRestored": "Restored workspace",
+				"roleCreated": "Role created",
+				"roleDeleted": "Role deleted",
+				"roleUpdated": "Role updated",
+				"instanceSettingsUpdated": "Updated instance settings",
+				"webhookCreated": "Created webhook",
+				"webhookDeleted": "Deleted webhook",
+				"webhookSecretRotated": "Rotated webhook secret",
+				"webhookUpdated": "Updated webhook"
+			},
+			"categories": {
+				"all": "All actions",
+				"session": "Sessions",
+				"user": "Users",
+				"workspace": "Workspaces",
+				"apiKey": "API keys",
+				"email": "Email",
+				"role": "Roles",
+				"instance": "Instance settings",
+				"webhook": "Webhooks"
+			},
+			"categoryLabel": "Filter by category",
+			"clearFilter": "Show all actions",
+			"columns": {
+				"action": "Action",
+				"actor": "Administrator",
+				"target": "Target",
+				"time": "Time and IP"
+			},
+			"deletedActor": "Account deleted",
+			"details": {
+				"change": "{{from}} → {{to}}",
+				"fields": "Changed {{fields}}",
+				"memberChange": "{{member}}: {{from}} → {{to}}",
+				"memberWithRole": "{{member}} as {{role}}",
+				"noRole": "No role",
+				"reason": "Reason: {{reason}}",
+				"createdWithRole": "Role: {{role}}",
+				"sessionCount_many": "{{count}} sessions",
+				"sessionCount_one": "{{count}} session",
+				"sessionCount_other": "{{count}} sessions",
+				"workspaceContents": "{{members}} members, {{projects}} projects",
+				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
+			},
+			"directoryTitle": "Recorded actions",
+			"emptyTitle": "No actions recorded",
+			"fields": {
+				"email": "email",
+				"emailVerified": "email verification",
+				"image": "avatar",
+				"name": "name"
+			},
+			"loadError": "The audit log could not be loaded.",
+			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing audit log",
+			"retry": "Retry",
+			"targetTypes": {
+				"user": "User",
+				"workspace": "Workspace",
+				"role": "Role",
+				"instance": "Instance",
+				"webhook": "Webhook"
+			},
+			"title": "Audit log",
+			"unknownActor": "Unknown"
+		},
+		"sessions": {
+			"device": "{{browser}} on {{os}}",
+			"lastActive": "Active {{time}}",
+			"loadError": "Couldn't load sessions.",
+			"revoke": "Sign out",
+			"revokeConfirmDescription": "They'll be signed out right away.",
+			"revokeConfirmTitle": "Sign out {{device}}?",
+			"revokeLabel": "Sign out {{device}}",
+			"revoking": "Signing out...",
+			"signedIn": "Signed in {{date}}",
+			"thisDevice": "This device",
+			"toastRevoked": "Session signed out.",
+			"toastRevokeError": "Couldn't sign out the session.",
+			"unknownDevice": "Unknown device"
+		},
+		"adminSystem": {
+			"checkedAt": "Checked {{time}}",
+			"email": {
+				"down": "Can't connect to the mail server ({{code}})",
+				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
+				"ok": "Connected to the mail server",
+				"send": "Send test email",
+				"sending": "Sending…",
+				"sendTest": "Test email",
+				"smtp": "SMTP",
+				"title": "Email"
+			},
+			"instance": {
+				"api": "API",
+				"apiDescription": "Up {{uptime}} · Node {{node}}",
+				"database": "Database",
+				"databaseDown": "Can't reach PostgreSQL ({{code}})",
+				"databaseVersion": "PostgreSQL {{version}}",
+				"latency": "{{ms}} ms",
+				"migrations_many": "{{count}} migrations applied",
+				"migrations_one": "{{count}} migration applied",
+				"migrations_other": "{{count}} migrations applied",
+				"realtime": "Live updates",
+				"realtimeConnections_many": "{{count}} open connections on this instance",
+				"realtimeConnections_one": "{{count}} open connection on this instance",
+				"realtimeConnections_other": "{{count}} open connections on this instance",
+				"realtimeInMemory": "delivered in memory",
+				"realtimeNotStarted": "WebSockets haven't started",
+				"realtimeRedis": "shared with other instances through Redis",
+				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
+				"redis": "Redis",
+				"redisDown": "Can't reach Redis ({{code}})",
+				"redisModes": {
+					"cluster": "Cluster",
+					"sentinel": "Sentinel",
+					"standalone": "Standalone"
+				},
+				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
+				"redisOk": "{{mode}}, reachable",
+				"storage": "File storage",
+				"storageDown": "Can't reach the bucket ({{code}})",
+				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
+				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
+				"storageOk": "Bucket reachable",
+				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
+				"title": "Instance",
+				"version": "Kaneo version",
+				"versionUnknown": "Unknown"
+			},
+			"integrations": {
+				"available": "Available",
+				"connectedProjects_many": "Connected in {{count}} projects",
+				"connectedProjects_one": "Connected in {{count}} project",
+				"connectedProjects_other": "Connected in {{count}} projects",
+				"connectedUnknown": "Project count unavailable",
+				"instanceSetup": {
+					"down": "GitHub App unavailable",
+					"not_configured": "GitHub App not set up",
+					"ok": "GitHub App set up",
+					"warning": "Some GitHub App settings are missing"
+				},
+				"title": "Integrations"
+			},
+			"loadError": "System status could not be loaded.",
+			"refresh": "Refresh",
+			"refreshing": "Checking…",
+			"retry": "Retry",
+			"setupStatus": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Configured",
+				"warning": "Incomplete"
+			},
+			"signIn": {
+				"emailOtpSignIn": "Email sign-in codes",
+				"guestAccess": "Guest access",
+				"off": "Off",
+				"on": "On",
+				"passwordRegistration": "Sign-up with a password",
+				"passwordSignIn": "Email and password sign-in",
+				"registration": "Registration",
+				"title": "Sign-in",
+				"workspaceCreation": "Workspace creation",
+				"customProvider": "OAuth or OpenID Connect"
+			},
+			"status": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Operational",
+				"warning": "Warning"
+			},
+			"title": "System",
+			"toast": {
+				"testEmailError": "The test email could not be sent.",
+				"testEmailSent": "Test email sent to {{to}}"
+			}
+		},
+		"adminOverview": {
+			"activeUsers": "Active (30 days)",
+			"archivedWorkspaces": "Archived",
+			"configurationWarnings": "Configuration warnings",
+			"disabledUsers": "Disabled users",
+			"loadError": "Could not load the overview.",
+			"noActions": "No administrative actions",
+			"noUsers": "No users",
+			"recentActions": "Recent administrative actions",
+			"recentUsers": "Recent users",
+			"services": "Services",
+			"title": "Overview",
+			"totalUsers": "Total users",
+			"viewAuditLog": "View audit log",
+			"viewSystem": "View system",
+			"viewUsers": "View users",
+			"warnings": {
+				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management.",
+				"redisUnreachable": "Redis is unavailable. Check the connection.",
+				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
+				"smtpNotConfigured": "Email is not configured. Set SMTP_HOST and SMTP_FROM.",
+				"smtpUnreachable": "Email is unavailable. Check SMTP settings.",
+				"storageIncomplete": "Storage setup is incomplete. Check S3 settings.",
+				"storageUnreachable": "Storage needs attention. Check S3 access."
+			},
+			"workspaces": "Workspaces"
+		},
+		"adminRoles": {
+			"actions": "Actions for {{name}}",
+			"allPermissions": "All permissions",
+			"builtIn": "Built-in",
+			"create": "New role",
+			"deleteTitle": "Delete {{name}}?",
+			"dialog": {
+				"create": "Create role",
+				"createTitle": "New role",
+				"editTitle": "Edit role",
+				"name": "Name",
+				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
+				"save": "Save"
+			},
+			"edit": "Edit",
+			"groups": {
+				"instance": "Instance",
+				"users": "Users",
+				"workspaces": "Workspaces"
+			},
+			"listTitle": "All roles",
+			"loadError": "Roles could not be loaded.",
+			"noPermissions": "No permissions",
+			"permissionCount_many": "{{count}} permissions",
+			"permissionCount_one": "{{count}} permission",
+			"permissionCount_other": "{{count}} permissions",
+			"permissions": {
+				"auditRead": "View the audit log",
+				"instanceSettings": "Change instance settings",
+				"systemRead": "View system status",
+				"usersApiKeys": "View and revoke API keys",
+				"usersCreate": "Create users",
+				"usersCredentials": "Send password reset and verification emails",
+				"usersDelete": "Delete users",
+				"usersDisable": "Deactivate and reactivate users",
+				"usersRead": "View users",
+				"usersSessions": "View and end sessions",
+				"usersUpdate": "Edit users and their roles",
+				"workspacesArchive": "Archive and restore workspaces",
+				"workspacesDelete": "Delete workspaces",
+				"workspacesManage": "Manage workspace members",
+				"workspacesRead": "View workspaces and members"
+			},
+			"title": "Roles",
+			"toast": {
+				"created": "Role created",
+				"deleted": "Role deleted",
+				"error": "The role could not be saved.",
+				"updated": "Role updated"
+			},
+			"userCount_many": "{{count}} users",
+			"userCount_one": "{{count}} user",
+			"userCount_other": "{{count}} users",
+			"viewUsers": "View users"
+		},
+		"adminSettings": {
+			"defaultRole": "Default role for new users",
+			"general": "General",
+			"instanceName": "Instance name",
+			"instanceUrl": "Instance URL",
+			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
+			"integrations": "Integrations",
+			"loadError": "Couldn't load instance settings.",
+			"lockedByEnv": "Set by {{name}}",
+			"passwordRegistrationEnabled": "Email and password sign-up",
+			"registration": "Registration",
+			"registrationEnabled": "Open registration",
+			"requireEmailVerification": "Require email verification",
+			"requiresSmtp": "Requires SMTP",
+			"signInProviders": "Sign-in providers",
+			"title": "Settings",
+			"toast": {
+				"error": "Couldn't save settings",
+				"saved": "Settings saved"
+			},
+			"workspaceCreationRestricted": "Only administrators can create workspaces",
+			"workspaces": "Workspaces",
+			"save": "Save"
+		},
+		"adminWebhooks": {
+			"actions": "Actions for {{url}}",
+			"add": "Add webhook",
+			"attempts_many": "{{count}} attempts",
+			"attempts_one": "{{count}} attempt",
+			"attempts_other": "{{count}} attempts",
+			"categories": "Events",
+			"deleteTitle": "Delete webhook?",
+			"deliveries": "Recent deliveries",
+			"disabled": "Disabled",
+			"edit": "Edit webhook",
+			"empty": "No webhooks",
+			"enabled": "Enabled",
+			"errors": {
+				"destination": "Destination blocked",
+				"disabled": "Webhook disabled",
+				"http": "HTTP error",
+				"interrupted": "Delivery interrupted",
+				"network": "Connection failed",
+				"response": "Invalid response",
+				"signing": "Signing failed",
+				"timeout": "Timed out"
+			},
+			"failed": "Failed",
+			"httpStatus": "HTTP {{status}}",
+			"loadError": "Webhooks could not be loaded.",
+			"noDeliveries": "No deliveries",
+			"pending": "Pending",
+			"rotate": "Rotate secret",
+			"rotateTitle": "Rotate signing secret?",
+			"saveError": "The webhook could not be saved.",
+			"secretTitle": "Signing secret — save it now",
+			"sendTest": "Send test",
+			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
+			"signingSecret": "Signing secret",
+			"succeeded": "Delivered",
+			"testEvent": "Test event",
+			"testQueued": "Test event queued.",
+			"title": "Webhooks",
+			"url": "URL",
+			"save": "Save"
 		}
 	},
 	"navigation": {
@@ -2481,7 +2972,6 @@
 			"selectWorkspace": "Seleziona workspace"
 		},
 		"page": {
-			"projectsTitle": "Progetti",
 			"settingsTitle": "Impostazioni",
 			"backToWorkspace": "Torna al Workspace",
 			"settingsWorkspaceTab": "Workspace"
@@ -3055,9 +3545,44 @@
 					"amber": "Ambra",
 					"terracotta": "Terracotta",
 					"rose": "Rosa",
-					"crimson": "Cremisi"
+					"crimson": "Cremisi",
+					"lagoon": "Laguna",
+					"ocean": "Oceano",
+					"orchid": "Orchidea",
+					"sky": "Cielo"
 				},
 				"editLabels": "Modifica etichette"
+			},
+			"recurrence": {
+				"updateError": "Aggiornamento ripetizione attività fallito",
+				"every": "Ogni",
+				"hint": "Quando questa attività è completata, viene creata la successiva.",
+				"interval": "Intervallo",
+				"onDays": "In questi giorni",
+				"pattern": {
+					"daily": "Ogni giorno",
+					"monthly": "Ogni mese",
+					"periodically": "Periodicamente",
+					"weekly": "Ogni settimana",
+					"yearly": "Ogni anno"
+				},
+				"repeats": "Si ripete",
+				"toggle": "Ripeti",
+				"unit": {
+					"days_many": "giorni",
+					"days_one": "giorno",
+					"days_other": "giorni",
+					"label": "Unità",
+					"months_many": "mesi",
+					"months_one": "mese",
+					"months_other": "mesi",
+					"weeks_many": "settimane",
+					"weeks_one": "settimana",
+					"weeks_other": "settimane",
+					"years_many": "anni",
+					"years_one": "anno",
+					"years_other": "anni"
+				}
 			}
 		},
 		"backlog": {
@@ -3117,7 +3642,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Cerca ticket programmati...",
-			"pageTitle": "{{name}} – Gantt",
+			"pageTitle": "{{name}} / Gantt",
 			"title": "Cronologia Gantt",
 			"hideTasks": "Nascondi attività",
 			"showTasks": "Mostra attività",
@@ -3157,7 +3682,11 @@
 		"listView": {
 			"addTask": "Aggiungi attività",
 			"archiveAllTooltip": "Archivia tutte le attività completate",
-			"noTasks": "Nessuna attività"
+			"noTasks": "Nessuna attività",
+			"collapseSubtasks": "Nascondi sotto-attività di {{title}}",
+			"expandSubtasks": "Mostra sotto-attività di {{title}}",
+			"subtaskLevel": "Sotto-attività, livello {{level}}",
+			"subtasksLoadError": "Impossibile caricare le sotto-attività, quindi le attività sono mostrate senza gerarchia."
 		},
 		"kanban": {
 			"addTask": "Aggiungi attività",
@@ -3170,7 +3699,8 @@
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
 			"count_other": "{{count}} PR",
-			"count_many": "{{count}} PR"
+			"count_many": "{{count}} PR",
+			"closed": "Chiusa"
 		},
 		"assignee": {
 			"label": "Assegnatario",
@@ -3257,7 +3787,7 @@
 			"nextMonth": "Mese successivo",
 			"noTasks": "Nessuna attività programmata",
 			"noTasksSubtitle": "Aggiungi una data di inizio, una scadenza o entrambe alle attività per visualizzarle nel calendario.",
-			"pageTitle": "{{name}} – Calendario",
+			"pageTitle": "{{name}} / Calendario",
 			"previousMonth": "Mese precedente",
 			"taskAriaLabel": "{{title}}, {{range}}: apri attività",
 			"title": "Calendario",
@@ -3277,7 +3807,6 @@
 			"required": "Obbligatorio",
 			"enterKey": "Invio",
 			"toSave": "per salvare",
-			"today": "Oggi",
 			"clear": "Cancella",
 			"setValue": "Imposta {{field}}…",
 			"noMatches": "Nessuna opzione corrispondente",
@@ -3293,6 +3822,21 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Premi Spazio per l'anteprima e Invio per aprire questa attività. Usa Alt o Opzione con le frecce per spostarla."
+		},
+		"recurrence": {
+			"daily_many": "Ogni {{count}} giorni",
+			"daily_one": "Ogni giorno",
+			"daily_other": "Ogni {{count}} giorni",
+			"monthly_many": "Ogni {{count}} mesi",
+			"monthly_one": "Ogni mese",
+			"monthly_other": "Ogni {{count}} mesi",
+			"weekly_many": "Ogni {{count}} settimane",
+			"weekly_one": "Ogni settimana",
+			"weekly_other": "Ogni {{count}} settimane",
+			"yearly_many": "Ogni {{count}} anni",
+			"yearly_one": "Ogni anno",
+			"yearly_other": "Ogni {{count}} anni",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"toolbar": {
 			"search": "Cerca attività",
@@ -3316,7 +3860,10 @@
 		"filterBar": {
 			"label": "Filtri attivi",
 			"removeFilter": "Rimuovi filtro {{name}}",
-			"noMatches": "Nessuna attività corrisponde alla tua ricerca o ai tuoi filtri."
+			"noMatches": "Nessuna attività corrisponde alla tua ricerca o ai tuoi filtri.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Aggiungi filtro…",
@@ -3330,11 +3877,36 @@
 			"markdownCopied": "Copiato come Markdown",
 			"copyFailed": "Impossibile copiare negli appunti.",
 			"pageUrlCopied": "URL della pagina copiato"
+		},
+		"due": {
+			"overdueDays_one": "In ritardo di {{count}} g",
+			"overdueDays_many": "In ritardo di {{count}} g",
+			"overdueDays_other": "In ritardo di {{count}} g",
+			"overdueWeeks_one": "In ritardo di {{count}} sett.",
+			"overdueWeeks_many": "In ritardo di {{count}} sett.",
+			"overdueWeeks_other": "In ritardo di {{count}} sett.",
+			"today": "Oggi",
+			"tomorrow": "Domani",
+			"inDays_one": "Tra {{count}} giorno",
+			"inDays_many": "Tra {{count}} giorni",
+			"inDays_other": "Tra {{count}} giorni",
+			"fullDate": "Scade il {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Imposta scadenza…",
+			"startDatePlaceholder": "Imposta data di inizio…",
+			"datePlaceholder": "Imposta data…",
+			"thisWeekend": "Questo fine settimana",
+			"nextWeek": "La prossima settimana",
+			"pickDate": "Scegli una data",
+			"startsOn": "Inizia {{date}}",
+			"beforeStart": "{{date}} è prima della data di inizio",
+			"afterDue": "{{date}} è dopo la scadenza"
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} ti ha invitato a unirti a {{workspaceName}} su Kaneo",
+			"subject": "{{inviterName}} ti ha invitato a unirti a {{workspaceName}} su {{instanceName}}",
 			"preview": "Sei stato invitato a {{workspaceName}} su Kaneo",
 			"title": "Unisciti a {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) ti ha invitato a collaborare su Kaneo.",
@@ -3489,6 +4061,12 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"archived": {
+			"description": "Contact an administrator to restore access.",
+			"manage": "Manage workspaces",
+			"otherWorkspaces": "Go to workspaces",
+			"title": "Workspace archived"
 		}
 	},
 	"team": {
@@ -3663,13 +4241,13 @@
 		},
 		"hero": {
 			"cloudCta": "Try Kaneo Cloud",
-			"selfHostCta": "Self-host Kaneo",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Product",
@@ -3759,10 +4337,6 @@
 			"eyebrow": "Make it your own",
 			"title": "A clear path from trying it to using it.",
 			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
-			"docker": {
-				"title": "Self-host with Docker",
-				"description": "Installation, backups, and updates for a setup you control."
-			},
 			"sso": {
 				"title": "Bring your own identity provider",
 				"description": "Configure OIDC single sign-on in the free self-hosted build."
@@ -3774,6 +4348,10 @@
 			"linear": {
 				"title": "Compare Kaneo and Linear",
 				"description": "See the differences in hosting, licensing, and workflow."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {
@@ -3818,6 +4396,848 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"mobile": {
+		"common": {
+			"save": "Salva",
+			"cancel": "Annulla",
+			"delete": "Elimina",
+			"retry": "Riprova",
+			"somethingWrong": "Qualcosa è andato storto",
+			"close": "Chiudi"
+		},
+		"errors": {
+			"notSignedIn": "Accesso non effettuato",
+			"unreachable": "Impossibile raggiungere il server. Controlla la connessione e l'indirizzo del server.",
+			"sessionExpired": "La sessione è scaduta. Accedi di nuovo.",
+			"forbidden": "Non hai il permesso per farlo.",
+			"notFound": "Non trovato.",
+			"tooManyRequests": "Troppe richieste. Attendi un momento.",
+			"serverProblem": "Il server ha avuto un problema ({{status}}).",
+			"requestFailed": "Richiesta non riuscita ({{status}}).",
+			"notKaneo": "{{url}} non sembra un server Kaneo.",
+			"noInstance": "Nessuna istanza Kaneo trovata su {{url}} (HTTP {{status}}).",
+			"noSession": "Il server non ha restituito una sessione. Prova ad accedere dal browser.",
+			"deviceFailed": "Accesso del dispositivo non riuscito (HTTP {{status}}).",
+			"apiKeyRejected": "La chiave API è stata rifiutata.",
+			"signInRejected": "Il server non ha accettato l'accesso.",
+			"uploadFailed": "Caricamento non riuscito ({{status}})"
+		},
+		"signIn": {
+			"tagline": "Gestione dei progetti semplice. Collegati a Kaneo Cloud o alla tua istanza.",
+			"cloud": "Kaneo Cloud",
+			"selfHosted": "Self-hosted",
+			"captcha": "Questo server richiede una verifica nel browser per questo passaggio. Usa invece “Continua nel browser”.",
+			"invalidClient": "Questo server non consente l'accesso tramite dispositivo. Chiedi all'amministratore di aggiungere “kaneo-cli” a DEVICE_AUTH_CLIENT_IDS, oppure accedi con password o chiave API.",
+			"serverAddress": "Indirizzo del server",
+			"serverAddressHint": "L'indirizzo da cui apri Kaneo. Usa http:// per i server senza TLS. Se l'API è su un altro host, inserisci l'indirizzo dell'API.",
+			"connect": "Collega",
+			"recent": "Recenti",
+			"change": "Cambia",
+			"email": "Email",
+			"password": "Password",
+			"togglePassword": "Mostra o nascondi password",
+			"signIn": "Accedi",
+			"or": "oppure",
+			"continueInBrowser": "Continua nel browser",
+			"browserHint": "GitHub, Google, Discord o SSO",
+			"emailCode": "Inviami un codice di accesso via email",
+			"sendTo": "Invia a {{email}}",
+			"noPassword": "Nessuna password necessaria",
+			"useApiKey": "Usa una chiave API",
+			"newToKaneo": "Nuovo su Kaneo?",
+			"createAccount": "Crea account",
+			"code": {
+				"title": "Accedi con un codice",
+				"message": "Ti invieremo via email un codice di 6 cifre. Nessuna password necessaria.",
+				"send": "Invia codice",
+				"checkEmail": "Controlla la tua email",
+				"sent": "Abbiamo inviato un codice di 6 cifre a {{email}}",
+				"verify": "Verifica",
+				"didntGet": "Non l'hai ricevuto?",
+				"resend": "Invia di nuovo il codice"
+			},
+			"device": {
+				"denied": "L'accesso è stato negato nel browser.",
+				"expired": "Il codice di accesso è scaduto. Ricomincia per ottenerne uno nuovo.",
+				"openFailed": "Impossibile aprire il browser. Copia invece il link.",
+				"message": "Approva questo dispositivo dal sito di Kaneo. Lì funzionano GitHub, Google, Discord e SSO.",
+				"yourCode": "Il tuo codice",
+				"copyCode": "Copia codice",
+				"codeCopied": "Codice copiato",
+				"copyLink": "Copia link",
+				"linkCopied": "Link copiato",
+				"openBrowser": "Apri browser",
+				"tryAgain": "Riprova",
+				"waiting": "In attesa di approvazione…",
+				"gettingCode": "Recupero del codice…"
+			},
+			"apiKey": {
+				"message": "Creane una sul web in Impostazioni > Chiavi API. Funziona anche quando gli altri metodi di accesso sono disattivati.",
+				"label": "Chiave API"
+			},
+			"signUp": {
+				"name": "Nome",
+				"passwordHint": "Almeno 8 caratteri"
+			}
+		},
+		"invitations": {
+			"accepted": "Invito accettato",
+			"declined": "Invito rifiutato",
+			"title": "Inviti",
+			"description": "Workspace a cui sei stato invitato.",
+			"emptyTitle": "Nessun invito in sospeso",
+			"emptyMessage": "Gli inviti compaiono qui dopo la verifica del tuo indirizzo email. Puoi sempre unirti con il link ricevuto via email.",
+			"invitedYou": "{{name}} ti ha invitato",
+			"decline": "Rifiuta",
+			"accept": "Accetta",
+			"joinWithLink": "Unisciti con un link di invito",
+			"linkPlaceholder": "Incolla il link dalla tua email",
+			"join": "Unisciti"
+		},
+		"taskDetail": {
+			"someone": "Qualcuno",
+			"status": {
+				"planned": "Pianificata",
+				"archived": "Archiviata"
+			},
+			"section": {
+				"addTo": "Aggiungi a {{title}}"
+			},
+			"fields": {
+				"title": "Campi",
+				"empty": "Vuoto",
+				"none": "Nessuno"
+			},
+			"subtasks": {
+				"title": "Sottoattività",
+				"add": "Aggiungi sottoattività",
+				"parent": "Attività principale",
+				"empty": "Nessuna sottoattività"
+			},
+			"relations": {
+				"title": "Relazioni",
+				"link": "Collega un'attività",
+				"blocks": "Blocca",
+				"blockedBy": "Bloccata da",
+				"related": "Correlate",
+				"relatedTo": "Correlata a",
+				"remove": "Rimuovi relazione",
+				"empty": "Nessuna attività correlata",
+				"removeTitle": "Rimuovere la relazione?",
+				"removeMessage": "Le attività restano; viene rimosso solo il collegamento tra loro.",
+				"removeConfirm": "Rimuovi",
+				"searchPlaceholder": "Cerca attività per titolo o numero"
+			},
+			"links": {
+				"title": "Link",
+				"add": "Aggiungi link",
+				"remove": "Rimuovi link",
+				"synced": "Sincronizzato",
+				"empty": "Nessun link",
+				"url": "URL",
+				"titleLabel": "Titolo",
+				"optional": "Facoltativo"
+			},
+			"time": {
+				"title": "Tempo",
+				"total": "{{duration}} in totale",
+				"log": "Registra tempo",
+				"editEntry": "Modifica registrazione",
+				"logged": "Tempo registrato",
+				"stop": "Ferma",
+				"start": "Avvia timer",
+				"running": "{{time}} (in corso)",
+				"hoursUnit": "h",
+				"minutesUnit": "min",
+				"chipMinutes": "{{count}} min",
+				"chipHours": "{{count}} h",
+				"logDuration": "Registra {{duration}}",
+				"durationHoursMinutes": "{{hours}} h {{minutes}} min",
+				"durationMinutes": "{{minutes}} min",
+				"date": "Data",
+				"notePlaceholder": "Su cosa hai lavorato?"
+			},
+			"activity": {
+				"title": "Cronologia",
+				"comment": "Commenta",
+				"edit": "Modifica",
+				"editComment": "Modifica commento",
+				"edited": "{{time}}, modificato",
+				"deleteTitle": "Eliminare il commento?",
+				"deleteMessage": "L'operazione non può essere annullata.",
+				"entry": "{{name}} {{action}}"
+			},
+			"menu": {
+				"share": "Condividi",
+				"duplicate": "Duplica",
+				"move": "Sposta in un progetto…",
+				"refresh": "Aggiorna",
+				"delete": "Elimina attività",
+				"moveTitle": "Sposta in un progetto",
+				"duplicated": "Attività duplicata",
+				"moved": "Attività spostata",
+				"deleted": "Attività eliminata",
+				"deleteTitle": "Eliminare l'attività?",
+				"deleteMessage": "“{{title}}” e i suoi commenti verranno eliminati definitivamente."
+			},
+			"screen": {
+				"copyLink": "Copia link",
+				"linkCopied": "Link copiato",
+				"more": "Altro",
+				"editTitle": "Modifica titolo",
+				"editDescription": "Modifica descrizione",
+				"addDescription": "Aggiungi una descrizione…"
+			}
+		},
+		"workspaceNew": {
+			"title": "Nuovo workspace",
+			"description": "Uno spazio per i progetti del tuo team. Subito dopo potrai invitare altre persone.",
+			"name": "Nome",
+			"namePlaceholder": "Studio di design",
+			"descriptionLabel": "Descrizione",
+			"optional": "Facoltativo",
+			"descriptionPlaceholder": "A cosa serve questo workspace?",
+			"create": "Crea workspace"
+		},
+		"taskFields": {
+			"status": "Stato",
+			"planned": "Pianificata",
+			"priority": "Priorità",
+			"assignee": "Assegnatario",
+			"unassigned": "Non assegnata",
+			"startDate": "Data di inizio",
+			"dueDate": "Scadenza",
+			"labels": "Etichette",
+			"none": "Nessuna",
+			"searchPeople": "Cerca persone",
+			"you": "{{name}} (tu)",
+			"addNumber": "Aggiungi un numero",
+			"empty": "Vuoto",
+			"archived": "Archiviata",
+			"doneColumn": "Colonna completate",
+			"starts": "Inizio: {{date}}",
+			"overdue_one": "{{date}}, in ritardo di {{count}} giorno",
+			"overdue_other": "{{date}}, in ritardo di {{count}} giorni",
+			"done": "Completata",
+			"searchOrCreate": "Cerca o crea",
+			"createLabel": "Crea etichetta “{{name}}”",
+			"labelColor": "Colore della nuova etichetta",
+			"noLabels": "Ancora nessuna etichetta. Scrivi un nome per crearne una.",
+			"overdue_many": "{{date}}, in ritardo di {{count}} giorni"
+		},
+		"taskNew": {
+			"newSubtask": "Nuova sottoattività",
+			"project": "Progetto",
+			"create": "Crea",
+			"taskTitle": "Titolo dell'attività",
+			"noLabels": "Ancora nessuna etichetta in questo workspace.",
+			"labelsAndParentFailed": "Attività creata, ma non è stato possibile salvare alcune etichette e il collegamento all'attività principale.",
+			"labelsFailed": "Attività creata, ma non è stato possibile aggiungere alcune etichette.",
+			"parentFailed": "Attività creata, ma non è stato possibile collegarla all'attività principale."
+		},
+		"editor": {
+			"description": "Descrizione",
+			"placeholder": "Aggiungi una descrizione… Supporta Markdown.",
+			"write": "Scrivi",
+			"preview": "Anteprima",
+			"nothingToPreview": "Niente da mostrare",
+			"bold": "Grassetto",
+			"italic": "Corsivo",
+			"heading": "Titolo",
+			"list": "Elenco",
+			"code": "Codice",
+			"link": "Link",
+			"boldPlaceholder": "grassetto",
+			"italicPlaceholder": "corsivo",
+			"codePlaceholder": "codice",
+			"linkPlaceholder": "link",
+			"insertImage": "Inserisci immagine",
+			"attachment": "Allegato"
+		},
+		"composer": {
+			"reply": "Rispondi a {{name}}…",
+			"placeholder": "Aggiungi un commento…",
+			"mentionSomeone": "Menziona qualcuno",
+			"attachImage": "Allega immagine",
+			"sendComment": "Invia commento",
+			"mention": "Menziona",
+			"searchPeople": "Cerca persone"
+		},
+		"board": {
+			"filterTasksActive": "Filtra attività… (filtri attivi: {{count}})",
+			"movedTask": "{{ticket}} spostata in {{status}}",
+			"showTasks_one": "Mostra {{count}} attività",
+			"showTasks_other": "Mostra {{count}} attività",
+			"memberYou": "{{name}} (tu)",
+			"dueDateOverdue_one": "{{date}}, {{count}} g di ritardo",
+			"dueDateOverdue_other": "{{date}}, {{count}} g di ritardo",
+			"projects": "Progetti",
+			"back": "Indietro",
+			"boardView": "Vista board",
+			"listView": "Vista elenco",
+			"more": "Altro",
+			"switchProject": "Cambia progetto",
+			"noTasksMatchTheFilters": "Nessuna attività corrisponde ai filtri",
+			"nothingPlannedYet": "Ancora niente di pianificato",
+			"noTasksHere": "Nessuna attività qui",
+			"addTask": "Aggiungi attività",
+			"noTasksMatch": "Nessuna attività corrispondente",
+			"noTasksYet": "Ancora nessuna attività",
+			"filters": "Filtri",
+			"filterTasks": "Filtra attività…",
+			"me": "Io",
+			"newTask": "Nuova attività",
+			"board": "Board",
+			"projectSettings": "Impostazioni progetto",
+			"hidePlanned": "Nascondi pianificate",
+			"showPlanned": "Mostra pianificate",
+			"hideArchived": "Nascondi archiviate",
+			"showArchived": "Mostra archiviate",
+			"refresh": "Aggiorna",
+			"planned": "Pianificate",
+			"archived": "Archiviate",
+			"reset": "Reimposta",
+			"assignee": "Assegnatario",
+			"unassigned": "Non assegnata",
+			"priority": "Priorità",
+			"labels": "Etichette",
+			"overdueOnly": "Solo in ritardo",
+			"tasksNotOnTheBoardYet": "Attività non ancora sulla board",
+			"moveTo": "Sposta in",
+			"assignToMe": "Assegna a me",
+			"sendToTopOfColumn": "Sposta in cima alla colonna",
+			"sendToBottomOfColumn": "Sposta in fondo alla colonna",
+			"openTask": "Apri attività",
+			"searchPeople": "Cerca persone",
+			"dueDateOverdue_many": "{{date}}, {{count}} g di ritardo",
+			"showTasks_many": "Mostra {{count}} attività"
+		},
+		"projectSettings": {
+			"deleteNamedTitle": "Eliminare “{{name}}”?",
+			"text": "Testo",
+			"number": "Numero",
+			"date": "Data",
+			"checkbox": "Casella di controllo",
+			"dropdown": "Menu a tendina",
+			"multiSelect": "Selezione multipla",
+			"projectUpdated": "Progetto aggiornato",
+			"project": "Progetto",
+			"projectSettings": "Impostazioni progetto",
+			"general": "Generale",
+			"publicBoard": "Board pubblica",
+			"anyoneWithTheLinkCanViewTheBoard": "Chiunque abbia il link può vedere la board",
+			"columns": "Colonne",
+			"addColumn": "Aggiungi colonna",
+			"doneColumn": "Colonna completate",
+			"moveUp": "Sposta su",
+			"moveDown": "Sposta giù",
+			"customFields": "Campi personalizzati",
+			"addField": "Aggiungi campo",
+			"noCustomFields": "Nessun campo personalizzato",
+			"projectRestored": "Progetto ripristinato",
+			"archiveProjectTitle": "Archiviare il progetto?",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "Scompare dall'elenco dei progetti. Potrai ripristinarlo in seguito.",
+			"archive": "Archivia",
+			"projectArchived": "Progetto archiviato",
+			"restoreProject": "Ripristina progetto",
+			"archiveProject": "Archivia progetto",
+			"moveToAnotherWorkspace": "Sposta in un altro workspace",
+			"deleteProjectTitle": "Eliminare il progetto?",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "Tutte le attività, i commenti e le registrazioni di tempo di questo progetto verranno eliminati definitivamente.",
+			"projectDeleted": "Progetto eliminato",
+			"deleteProject": "Elimina progetto",
+			"column": "Colonna",
+			"rename": "Rinomina",
+			"unmarkAsDoneColumn": "Non usare più come colonna completate",
+			"markAsDoneColumn": "Usa come colonna completate",
+			"deleteColumn": "Elimina colonna",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "Potrebbe essere necessario spostare prima le attività di questa colonna.",
+			"columnDeleted": "Colonna eliminata",
+			"renameColumn": "Rinomina colonna",
+			"field": "Campo",
+			"deleteField": "Elimina campo",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "I valori di questo campo vengono eliminati da tutte le attività.",
+			"fieldDeleted": "Campo eliminato",
+			"moveToWorkspace": "Sposta nel workspace",
+			"projectMoved": "Progetto spostato",
+			"ok": "OK",
+			"name": "Nome",
+			"key": "Chiave",
+			"changesFutureAndExistingTaskIDs": "Cambia gli ID delle attività esistenti e future",
+			"saveChanges": "Salva modifiche",
+			"newColumn": "Nuova colonna",
+			"blocked": "Bloccata",
+			"tasksHereCountAsFinished": "Le attività qui sono considerate completate",
+			"newCustomField": "Nuovo campo personalizzato",
+			"platform": "Piattaforma",
+			"type": "Tipo",
+			"options": "Opzioni",
+			"separateWithCommas": "Separa con virgole",
+			"androidIOSWeb": "Android, iOS, Web",
+			"required": "Obbligatorio",
+			"checked": "Selezionata",
+			"chooseDefault": "Scegli un valore predefinito",
+			"defaultValue": "Valore predefinito",
+			"multiselectOptionsRequired": "Aggiungi almeno due opzioni diverse.",
+			"unchecked": "Non selezionata",
+			"validDefaultRequired": "Inserisci un valore predefinito valido per questo campo obbligatorio."
+		},
+		"projectNew": {
+			"newProject": "Nuovo progetto",
+			"name": "Nome",
+			"customerPortal": "Portale clienti",
+			"key": "Chiave",
+			"usedInTaskIDs": "Usata negli ID delle attività",
+			"createProject": "Crea progetto"
+		},
+		"home": {
+			"noWorkspace": {
+				"title": "Ancora nessun workspace",
+				"body": "I workspace contengono i tuoi progetti e il tuo team. Creane uno o accetta un invito.",
+				"create": "Crea workspace",
+				"viewInvitations_one": "Vedi {{count}} invito",
+				"viewInvitations_other": "Vedi {{count}} inviti",
+				"joinWithLink": "Unisciti con un link di invito",
+				"signedInAs": "Accesso effettuato come {{email}}",
+				"viewInvitations_many": "Vedi {{count}} inviti"
+			},
+			"switchWorkspace": "Cambia workspace",
+			"search": "Cerca",
+			"account": "Account",
+			"archived": "Archiviato",
+			"due": "Scadenza: {{date}}",
+			"progress": "{{done}} di {{total}}",
+			"noTasks": "Nessuna attività",
+			"upNext": "Prossime",
+			"viewAll": "Vedi tutte",
+			"projects": "Progetti",
+			"newProject": "Nuovo progetto",
+			"empty": {
+				"title": "Ancora nessun progetto",
+				"message": "I progetti contengono le tue board e attività."
+			},
+			"hideArchived": "Nascondi progetti archiviati",
+			"showArchived": "Mostra progetti archiviati"
+		},
+		"inbox": {
+			"title": "Notifiche",
+			"markAllRead": "Segna tutte come lette",
+			"allCaughtUpToast": "Tutto letto",
+			"more": "Altro",
+			"empty": {
+				"title": "Sei in pari",
+				"message": "Qui compaiono assegnazioni, commenti e menzioni."
+			},
+			"today": "Oggi",
+			"earlier": "Precedenti",
+			"recent": "Recenti",
+			"clearAll": "Cancella tutte le notifiche",
+			"confirmClear": {
+				"title": "Cancellare tutte le notifiche?",
+				"message": "Verranno rimosse tutte le notifiche di questo workspace.",
+				"confirm": "Cancella tutto"
+			}
+		},
+		"activity": {
+			"title": "Cronologia",
+			"subtitle": "Tutto ciò che succede in {{workspace}}",
+			"empty": "Nessun evento recente",
+			"someone": "Qualcuno",
+			"commentedOn": "ha commentato {{target}}"
+		},
+		"myTasks": {
+			"title": "Le mie attività",
+			"by": {
+				"due": "Scadenza",
+				"project": "Progetto",
+				"status": "Stato"
+			},
+			"due": {
+				"overdue": "In ritardo",
+				"today": "Oggi",
+				"thisWeek": "Questa settimana",
+				"later": "Più avanti",
+				"none": "Senza scadenza"
+			},
+			"empty": {
+				"title": "Nulla di assegnato a te",
+				"message": "Qui compaiono le attività assegnate a te in questo workspace."
+			},
+			"showing": "{{shown}} di {{total}} attività",
+			"assigned_one": "{{count}} assegnata",
+			"assigned_other": "{{count}} assegnate",
+			"assigned_many": "{{count}} assegnate"
+		},
+		"nav": {
+			"home": "Home",
+			"tasks": "Le mie attività",
+			"inbox": "Notifiche",
+			"activity": "Cronologia",
+			"inboxUnread": "Notifiche, {{count}} non lette"
+		},
+		"workspaceSwitcher": {
+			"title": "Workspace",
+			"settings": "Impostazioni workspace",
+			"members": "Membri",
+			"labels": "Etichette",
+			"invitations": "Inviti",
+			"create": "Crea workspace"
+		},
+		"search": {
+			"placeholder": "Cerca attività, progetti, commenti",
+			"clear": "Cancella",
+			"kinds": {
+				"all": "Tutto",
+				"tasks": "Attività",
+				"projects": "Progetti",
+				"comments": "Commenti",
+				"activity": "Cronologia"
+			},
+			"empty": {
+				"title": "Cerca in questo workspace",
+				"message": "Trova attività per titolo o numero, progetti e commenti."
+			},
+			"failed": "Ricerca non riuscita",
+			"noResults": "Nessun risultato per “{{query}}”",
+			"commentMeta": "{{name}}, {{when}}"
+		},
+		"notificationText": {
+			"activity": {
+				"created": "ha creato l'attività",
+				"commented": "ha commentato: {{text}}",
+				"statusChanged": "l'ha spostata da {{from}} a {{to}}",
+				"priorityChanged": "ha cambiato la priorità da {{from}} a {{to}}",
+				"assigneeChanged": "ha cambiato l'assegnatario",
+				"selfAssigned": "se l'è assegnata",
+				"assignedTo": "l'ha assegnata a {{assignee}}",
+				"unassigned": "ha rimosso l'assegnatario",
+				"dueDateSet": "ha impostato la scadenza: {{date}}",
+				"dueDateRemoved": "ha rimosso la scadenza",
+				"renamed": "l'ha rinominata in “{{title}}”",
+				"titleChanged": "ha cambiato il titolo",
+				"descriptionChanged": "ha aggiornato la descrizione",
+				"taskUpdated": "ha aggiornato l'attività"
+			},
+			"taskCreated": "Nuova attività assegnata a te",
+			"assignedByActor": "{{actor}} ti ha assegnato un'attività",
+			"assignedToTask": "Ti è stata assegnata “{{title}}”",
+			"assignedToUntitled": "Ti è stata assegnata un'attività",
+			"statusChangedOnTask": "Stato cambiato per “{{title}}”",
+			"statusChangedOnUntitled": "Stato di un'attività cambiato",
+			"statusTransition": "{{from}} → {{to}}",
+			"commentedByActor": "{{actor}} ha commentato",
+			"newComment": "Nuovo commento",
+			"mentionedByActor": "{{actor}} ti ha menzionato",
+			"mentioned": "Sei stato menzionato",
+			"timeLoggedOnTask": "Tempo registrato su “{{title}}”",
+			"timeLoggedOnUntitled": "Tempo registrato su un'attività",
+			"workspaceCreated": "Workspace “{{name}}” creato"
+		},
+		"background": {
+			"summary_one": "Altra {{count}} nuova notifica",
+			"summary_other": "Altre {{count}} nuove notifiche",
+			"channelName": "Attività Kaneo",
+			"channelDescription": "Assegnazioni, commenti e menzioni dai tuoi workspace",
+			"summary_many": "Altre {{count}} nuove notifiche"
+		},
+		"ui": {
+			"back": "Indietro",
+			"loadFailed": "Impossibile caricare",
+			"search": "Cerca",
+			"nothingMatches": "Nessun risultato per “{{query}}”"
+		},
+		"picker": {
+			"clear": "Cancella",
+			"nextWeek": "Settimana prossima",
+			"previousMonth": "Mese precedente",
+			"nextMonth": "Mese successivo"
+		},
+		"time": {
+			"now": "ora",
+			"justNow": "proprio ora",
+			"minutesShort_one": "{{count}} min",
+			"minutesShort_other": "{{count}} min",
+			"hoursShort_one": "{{count}} h",
+			"hoursShort_other": "{{count}} h",
+			"secondsShort_one": "{{count}} s",
+			"secondsShort_other": "{{count}} s",
+			"minutesAgo_one": "{{count}} min fa",
+			"minutesAgo_other": "{{count}} min fa",
+			"hoursAgo_one": "{{count}} ora fa",
+			"hoursAgo_other": "{{count}} ore fa",
+			"durationHoursMinutes": "{{hours}} h {{minutes}} min",
+			"goodEvening": "Buonasera",
+			"goodMorning": "Buongiorno",
+			"goodAfternoon": "Buon pomeriggio",
+			"today": "Oggi",
+			"tomorrow": "Domani",
+			"yesterday": "Ieri",
+			"minutes_one": "{{count}} min",
+			"minutes_other": "{{count}} min",
+			"hours_one": "{{count}} h",
+			"hours_other": "{{count}} h",
+			"hours_many": "{{count}} h",
+			"hoursAgo_many": "{{count}} ore fa",
+			"hoursShort_many": "{{count}} h",
+			"minutes_many": "{{count}} min",
+			"minutesAgo_many": "{{count}} min fa",
+			"minutesShort_many": "{{count}} min",
+			"secondsShort_many": "{{count}} s"
+		},
+		"meta": {
+			"priority": {
+				"noPriority": "Nessuna priorità",
+				"low": "Bassa",
+				"medium": "Media",
+				"high": "Alta",
+				"urgent": "Urgente"
+			},
+			"labelColor": {
+				"stone": "Pietra",
+				"slate": "Ardesia",
+				"lavender": "Lavanda",
+				"sage": "Salvia",
+				"forest": "Foresta",
+				"amber": "Ambra",
+				"terracotta": "Terracotta",
+				"rose": "Rosa",
+				"crimson": "Cremisi",
+				"ocean": "Oceano",
+				"sky": "Cielo",
+				"lagoon": "Laguna",
+				"orchid": "Orchidea"
+			},
+			"role": {
+				"owner": "Proprietario",
+				"admin": "Amministratore",
+				"member": "Membro",
+				"viewer": "Visualizzatore"
+			},
+			"roleHint": {
+				"owner": "Controllo completo, inclusa l'eliminazione del workspace",
+				"admin": "Può anche gestire membri e impostazioni",
+				"member": "Può creare e modificare attività",
+				"viewer": "Può vedere progetti e attività"
+			}
+		},
+		"account": {
+			"title": "Account",
+			"description": "Come ti vedono i colleghi in tutti i workspace.",
+			"profile": {
+				"title": "Profilo",
+				"photo": "Foto profilo",
+				"photoFormats": "PNG, JPG o WebP",
+				"change": "Cambia",
+				"name": "Nome",
+				"changePassword": "Cambia password"
+			},
+			"notifications": {
+				"title": "Notifiche",
+				"phone": "Notifiche sul telefono",
+				"phoneHint": "Controllate circa ogni 15 minuti",
+				"delivery": "Recapito ed eventi",
+				"deliveryHint": "Email, ntfy, Gotify, webhook",
+				"invitations": "Inviti",
+				"permissionDenied": "Prima consenti le notifiche per Kaneo nelle impostazioni di sistema."
+			},
+			"connection": {
+				"title": "Connessione",
+				"server": "Server",
+				"signedInWith": "Accesso con",
+				"apiKey": "Chiave API",
+				"sessionToken": "Token di sessione",
+				"appVersion": "Versione app"
+			},
+			"signOut": {
+				"button": "Esci",
+				"title": "Uscire?",
+				"message": "Puoi accedere di nuovo in qualsiasi momento."
+			},
+			"photoMenu": {
+				"choose": "Scegli foto",
+				"remove": "Rimuovi foto"
+			},
+			"toast": {
+				"photoUpdated": "Foto aggiornata",
+				"photoRemoved": "Foto rimossa",
+				"nameUpdated": "Nome aggiornato",
+				"passwordChanged": "Password cambiata"
+			},
+			"password": {
+				"title": "Cambia password",
+				"current": "Password attuale",
+				"new": "Nuova password",
+				"confirm": "Conferma nuova password",
+				"confirmPlaceholder": "Scrivila di nuovo",
+				"mismatch": "Le password non corrispondono",
+				"signOutOthers": "Esci dagli altri dispositivi"
+			}
+		},
+		"notificationSettings": {
+			"title": "Notifiche",
+			"description": "Dove Kaneo ti raggiunge, e per cosa.",
+			"on": "Attive",
+			"off": "Disattivate",
+			"notSet": "Non configurato",
+			"delivery": {
+				"title": "Recapito",
+				"email": "Email",
+				"emailHint": "Inviate all'email del tuo account",
+				"ntfyHint": "Invia notifiche a un topic ntfy",
+				"gotifyHint": "Invia notifiche a un server Gotify",
+				"webhook": "Webhook",
+				"webhookHint": "Invia notifiche via POST a un URL"
+			},
+			"events": {
+				"title": "Avvisami per",
+				"assignments": "Assegnazioni",
+				"assignmentsHint": "Quando ti viene assegnata un'attività",
+				"comments": "Commenti",
+				"commentsHint": "Nuovi commenti sulle tue attività",
+				"statusChanges": "Cambi di stato",
+				"statusChangesHint": "Quando le tue attività cambiano colonna",
+				"dueDate": "Promemoria scadenze",
+				"dueDateHint": "Prima della scadenza di un'attività assegnata a te",
+				"remindMe": "Ricordamelo",
+				"remindBefore": "{{time}} prima",
+				"remindPickerTitle": "Ricordamelo prima"
+			},
+			"leadTime": {
+				"minutes15": "15 minuti",
+				"hour1": "1 ora",
+				"hours3": "3 ore",
+				"day1": "1 giorno",
+				"days2": "2 giorni",
+				"week1": "1 settimana",
+				"minutes_one": "{{count}} minuto",
+				"minutes_other": "{{count}} minuti",
+				"minutes_many": "{{count}} minuti"
+			},
+			"channel": {
+				"enabled": "Invia notifiche qui",
+				"webhookUrl": "URL del webhook",
+				"serverUrl": "URL del server",
+				"topic": "Topic",
+				"accessToken": "Token di accesso",
+				"appToken": "Token dell'app",
+				"signingSecret": "Segreto di firma",
+				"secretSaved": "Salvato. Inseriscine uno nuovo per sostituirlo",
+				"secretOptional": "Facoltativo"
+			}
+		},
+		"workspaceSettings": {
+			"title": "Workspace",
+			"description": "Impostazioni per tutti in {{name}}.",
+			"thisWorkspace": "questo workspace",
+			"general": {
+				"title": "Generale",
+				"name": "Nome",
+				"description": "Descrizione",
+				"slug": "Slug: <mono>{{slug}}</mono>",
+				"save": "Salva modifiche"
+			},
+			"manage": {
+				"title": "Gestisci",
+				"members": "Membri",
+				"labels": "Etichette"
+			},
+			"danger": {
+				"title": "Zona pericolosa",
+				"leave": "Lascia il workspace",
+				"leaveHint": "Puoi rientrare con un nuovo invito",
+				"leaveButton": "Lascia",
+				"delete": "Elimina workspace",
+				"deleteHint": "Elimina tutti i progetti e le attività al suo interno"
+			},
+			"confirm": {
+				"deleteTitle": "Eliminare il workspace?",
+				"leaveTitle": "Lasciare il workspace?",
+				"deleteMessage": "Tutti i progetti, le attività e i commenti in {{name}} verranno eliminati definitivamente.",
+				"leaveMessage": "Perderai l'accesso finché qualcuno non ti inviterà di nuovo."
+			},
+			"toast": {
+				"updated": "Workspace aggiornato",
+				"deleted": "Workspace eliminato",
+				"left": "Hai lasciato il workspace"
+			}
+		},
+		"members": {
+			"title": "Membri",
+			"description_one": "{{count}} persona in {{name}}",
+			"description_other": "{{count}} persone in {{name}}",
+			"thisWorkspace": "questo workspace",
+			"invite": "Invita",
+			"pending": {
+				"title": "Inviti in sospeso",
+				"expires": "{{role}}, scade: {{date}}",
+				"manage": "Gestisci"
+			},
+			"people": {
+				"title": "Persone",
+				"unknown": "Sconosciuto",
+				"you": "(tu)"
+			},
+			"memberMenu": {
+				"fallbackTitle": "Membro",
+				"changeRole": "Cambia ruolo",
+				"remove": "Rimuovi dal workspace"
+			},
+			"rolePicker": {
+				"title": "Ruolo"
+			},
+			"remove": {
+				"title": "Rimuovere il membro?",
+				"message": "{{name}} perderà l'accesso a {{workspace}}.",
+				"they": "Questa persona",
+				"confirm": "Rimuovi"
+			},
+			"inviteMenu": {
+				"fallbackTitle": "Invito",
+				"resend": "Invia di nuovo l'invito",
+				"cancel": "Annulla invito"
+			},
+			"inviteForm": {
+				"title": "Invita un membro",
+				"intro": "Riceverà un'email con un link per unirsi a {{workspace}}.",
+				"email": "Email",
+				"role": "Ruolo",
+				"send": "Invia invito"
+			},
+			"toast": {
+				"roleUpdated": "Ruolo aggiornato",
+				"removed": "Membro rimosso",
+				"resent": "Invito inviato di nuovo",
+				"canceled": "Invito annullato",
+				"sent": "Invito inviato a {{email}}"
+			},
+			"description_many": "{{count}} persone in {{name}}"
+		},
+		"labels": {
+			"title": "Etichette",
+			"description": "Le etichette ti aiutano a raggruppare e filtrare le attività.",
+			"new": "Nuova etichetta",
+			"edit": "Modifica etichetta",
+			"delete": "Elimina etichetta",
+			"fallbackTitle": "Etichetta",
+			"empty": {
+				"title": "Nessuna etichetta",
+				"message": "Crea etichette per raggruppare e filtrare le attività in tutti i progetti."
+			},
+			"actions": "Azioni per {{name}}",
+			"deleteTitle": "Eliminare “{{name}}”?",
+			"deleteMessage": "L'etichetta viene rimossa da tutte le attività di questo workspace.",
+			"form": {
+				"name": "Nome",
+				"color": "Colore"
+			},
+			"toast": {
+				"deleted": "Etichetta eliminata"
+			}
+		},
+		"permissions": {
+			"photos": "Kaneo usa le tue foto per allegare immagini ad attività e commenti e per la tua foto profilo."
 		}
 	}
 }

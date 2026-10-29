@@ -27,11 +27,14 @@ const getColumnsRoute = createRoute({
   tags: ["Columns"],
   summary: "Get columns",
   description: "Get a project's board columns, ordered by position.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("List of columns ordered by position", columnListSchema),
-    403: errorResponse("No access to the project"),
+    403: errorResponse("No access to the project, or missing read permission"),
     404: errorResponse("Project not found"),
   },
 });
@@ -43,7 +46,7 @@ const createColumnRoute = createRoute({
   tags: ["Columns"],
   summary: "Create column",
   description:
-    "Add a column to the end of a project's board. The slug is derived from the name.",
+    "Add a column to the end of a project's board. The slug is derived from the name, with a numeric suffix such as `-2` when another column in the project already uses it.",
   middleware: [
     workspaceAccess.fromProject("projectId"),
     requireWorkspacePermission({ project: ["update"] }),
@@ -61,7 +64,7 @@ const createColumnRoute = createRoute({
     403: errorResponse(
       "No access to the project, or missing project:update permission",
     ),
-    409: errorResponse("The slug is reserved, or already used in this project"),
+    409: errorResponse("The slug is reserved for a virtual task status"),
     404: errorResponse("Project not found"),
   },
 });

@@ -26,6 +26,12 @@ export function UserDirectoryHead() {
       </div>
       <div
         role="columnheader"
+        className={cn(HEADER_CLASS, USER_DIRECTORY_COLUMNS.lastActive)}
+      >
+        {t("settings:adminUsers.columns.lastActive")}
+      </div>
+      <div
+        role="columnheader"
         className={cn(HEADER_CLASS, USER_DIRECTORY_COLUMNS.joined)}
       >
         {t("settings:adminUsers.columns.joined")}

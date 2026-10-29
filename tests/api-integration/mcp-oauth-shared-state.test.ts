@@ -58,9 +58,17 @@ describe("API integration: shared MCP OAuth state", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+    const sessionId = randomUUID();
+    await db.insert(schema.sessionTable).values({
+      id: sessionId,
+      token: randomUUID(),
+      userId,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
     const code = await secondReplica.createAuthCode({
       clientId: client.clientId,
       userId,
+      sessionId,
       redirectUri,
       codeChallenge,
     });

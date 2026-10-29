@@ -92,6 +92,62 @@ afterEach(() => {
 });
 
 describe("board realtime races", () => {
+  it("clears a completed task's repeat rule and refreshes for its successor", async () => {
+    const recurrence = { frequency: "weekly", interval: 1, timeZone: "UTC" };
+    mocks.board = {
+      id: "p",
+      columns: [
+        { id: "todo", slug: "todo", tasks: [] },
+        {
+          id: "done",
+          slug: "done",
+          tasks: [{ id: "a", projectId: "p", status: "done", recurrence }],
+        },
+      ],
+      plannedTasks: [],
+      archivedTasks: [],
+    };
+    mocks.getTask.mockReset().mockResolvedValue({
+      id: "a",
+      projectId: "p",
+      status: "done",
+      recurrence: null,
+    });
+    renderHook(() => useProjectWebSocket("p"));
+    Socket.current.message("TASK_UPDATED", { taskId: "a" });
+    await vi.waitFor(() => {
+      expect(mocks.board).toMatchObject({
+        columns: [{ tasks: [] }, { tasks: [{ id: "a", recurrence: null }] }],
+      });
+    });
+    mocks.getTask.mockResolvedValue({
+      id: "next-occurrence",
+      projectId: "p",
+      status: "todo",
+      recurrence,
+      startDate: "2026-03-16T00:00:00.000Z",
+      dueDate: "2026-03-17T00:00:00.000Z",
+    });
+    Socket.current.message("TASK_CREATED", { taskId: "next-occurrence" });
+    await vi.waitFor(() =>
+      expect(mocks.board).toMatchObject({
+        columns: [
+          {
+            tasks: [
+              {
+                id: "next-occurrence",
+                recurrence,
+                startDate: "2026-03-16T00:00:00.000Z",
+                dueDate: "2026-03-17T00:00:00.000Z",
+              },
+            ],
+          },
+          { tasks: [{ id: "a", recurrence: null }] },
+        ],
+      }),
+    );
+  });
+
   it.each(["TASKS_REORDERED", "PROJECT_UPDATED", "TASK_RELATION_UPDATED"])(
     "discards a task refresh started before %s",
     async (type) => {
@@ -168,9 +224,13 @@ it("reconciles the initial handshake after active pagination completes", async (
     query: { queryKey: ["tasks", "p"], state: { fetchStatus: "idle" } },
   });
   await Promise.resolve();
-  expect(mocks.client.invalidateQueries).toHaveBeenCalledExactlyOnceWith({
-    queryKey: ["tasks", "p"],
-  });
+  // The board once, plus the subtask hierarchy, which a missed relation
+  // change would otherwise leave stale.
+  const keys = mocks.client.invalidateQueries.mock.calls.map(
+    ([filters]) => (filters as { queryKey?: unknown[] })?.queryKey,
+  );
+  expect(keys.filter((key) => key?.[0] === "tasks")).toEqual([["tasks", "p"]]);
+  expect(keys).toContainEqual(["task-relations", "project", "p"]);
 });
 it("preserves distinct task effects across pagination and a disconnect before replay", async () => {
   vi.useFakeTimers();
@@ -490,6 +550,16 @@ it("refreshes workspace label filters when a remote project event changes labels
       queryKey: ["external-links"],
     });
   });
+});
+
+it("refreshes the project's column list when a remote project event arrives", async () => {
+  renderHook(() => useProjectWebSocket("p"));
+  Socket.current.message("PROJECT_UPDATED", {});
+  await vi.waitFor(() =>
+    expect(mocks.client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["columns", "p"],
+    }),
+  );
 });
 
 it("refreshes task link details when a project event explicitly changes links", async () => {

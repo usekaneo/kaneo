@@ -22,6 +22,7 @@ import {
   taskTable,
 } from "../database/schema";
 import { boundedTaskRead } from "../task/bounded-read";
+import { workspaceIsActive } from "../workspace/archive/active-workspace-sql";
 import { type CalendarTask, streamCalendar } from "./ical";
 
 export const CALENDAR_TASK_BATCH_SIZE = 50;
@@ -158,7 +159,13 @@ export async function getCalendarFeed(token: string) {
     })
     .from(calendarFeedTable)
     .innerJoin(projectTable, eq(projectTable.id, calendarFeedTable.projectId))
-    .where(eq(calendarFeedTable.token, token));
+    .where(
+      and(
+        eq(calendarFeedTable.token, token),
+        // Subscriptions pause while the workspace is archived.
+        workspaceIsActive(projectTable.workspaceId),
+      ),
+    );
   if (!record)
     throw new HTTPException(404, { message: "Calendar feed not found" });
   const { feed, project } = record;

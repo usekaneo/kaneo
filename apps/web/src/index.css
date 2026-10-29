@@ -110,6 +110,44 @@ input:-webkit-autofill:active {
   --color-code-foreground: var(--code-foreground);
   --color-code-highlight: var(--code-highlight);
   --color-code: var(--code);
+  --color-board-lane: var(--board-lane);
+  --color-board-card: var(--board-card);
+  --color-board-card-border: var(--board-card-border);
+  --color-board-card-border-hover: var(--board-card-border-hover);
+  --color-board-card-selected: var(--board-card-selected);
+  --color-board-card-selected-border: var(--board-card-selected-border);
+  --color-board-card-focus: var(--board-card-focus);
+  --color-board-card-ring: var(--board-card-ring);
+  --color-board-card-done: var(--board-card-done);
+  --color-board-card-done-border: var(--board-card-done-border);
+  --color-board-id: var(--board-id);
+  --color-board-id-done: var(--board-id-done);
+  --color-board-title: var(--board-title);
+  --color-board-title-done: var(--board-title-done);
+  --color-chip-border: var(--chip-border);
+  --color-chip-border-hover: var(--chip-border-hover);
+  --color-chip-hover: var(--chip-hover);
+  --color-chip-border-open: var(--chip-border-open);
+  --color-chip-open: var(--chip-open);
+  --color-chip-foreground: var(--chip-foreground);
+  --color-chip-muted: var(--chip-muted);
+  --color-chip-icon: var(--chip-icon);
+  --color-priority-bar: var(--priority-bar);
+  --color-priority-bar-empty: var(--priority-bar-empty);
+  --color-priority-low: var(--priority-low);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-high: var(--priority-high);
+  --color-priority-urgent: var(--priority-urgent);
+  --color-due-overdue: var(--due-overdue);
+  --color-avatar: var(--avatar);
+  --color-avatar-selected: var(--avatar-selected);
+  --color-avatar-done: var(--avatar-done);
+  --color-avatar-border: var(--avatar-border);
+  --color-avatar-foreground: var(--avatar-foreground);
+  --color-avatar-foreground-done: var(--avatar-foreground-done);
+  --color-avatar-unassigned: var(--avatar-unassigned);
+  --color-avatar-unassigned-foreground: var(--avatar-unassigned-foreground);
+  --shadow-board-card: var(--board-card-shadow);
   --color-border: var(--border);
   --color-background: var(--background);
   --color-accent-foreground: var(--accent-foreground);
@@ -196,9 +234,57 @@ input:-webkit-autofill:active {
   --sidebar-accent-foreground: var(--color-neutral-800);
   --sidebar-border: --alpha(var(--color-black) / 6%);
   --sidebar-ring: var(--color-neutral-400);
+  --sidebar-active: linear-gradient(
+    to bottom,
+    var(--color-white),
+    var(--color-neutral-100)
+  );
+  --sidebar-active-shadow:
+    inset 0 1px 0 var(--color-white),
+    0 0 0 1px --alpha(var(--color-black) / 7%),
+    0 1px 2px --alpha(var(--color-black) / 6%),
+    0 2px 6px --alpha(var(--color-black) / 3%);
   --code: var(--color-white);
   --code-foreground: var(--foreground);
   --code-highlight: --alpha(var(--color-black) / 4%);
+  --board-lane: #00000005;
+  --board-card: #ffffff;
+  --board-card-border: #00000014;
+  --board-card-border-hover: #0000002e;
+  --board-card-selected: #f2f2f2;
+  --board-card-selected-border: #00000038;
+  --board-card-focus: #8a8a8a;
+  --board-card-ring: #8a8a8a40;
+  --board-card-shadow: 0 1px 2px #0000000a;
+  --board-card-done: #ffffff99;
+  --board-card-done-border: #0000000f;
+  --board-id: #8a8a8a;
+  --board-id-done: #a3a3a3;
+  --board-title: #171717;
+  --board-title-done: #737373;
+  --chip-border: #00000017;
+  --chip-border-hover: #00000029;
+  --chip-hover: #0000000a;
+  --chip-border-open: #00000033;
+  --chip-open: #0000000f;
+  --chip-foreground: #404040;
+  --chip-muted: #737373;
+  --chip-icon: #8a8a8a;
+  --priority-bar: #525252;
+  --priority-bar-empty: #00000021;
+  --priority-low: #2563eb;
+  --priority-medium: #d97706;
+  --priority-high: #ea580c;
+  --priority-urgent: #dc2626;
+  --due-overdue: #dc2626;
+  --avatar: #e5e5e5;
+  --avatar-selected: #e0e0e0;
+  --avatar-done: #ededed;
+  --avatar-border: #00000017;
+  --avatar-foreground: #404040;
+  --avatar-foreground-done: #737373;
+  --avatar-unassigned: #f5f5f5;
+  --avatar-unassigned-foreground: #8a8a8a;
 }
 
 .dark {
@@ -252,9 +338,56 @@ input:-webkit-autofill:active {
   --sidebar-accent-foreground: var(--color-neutral-100);
   --sidebar-border: --alpha(var(--color-white) / 5%);
   --sidebar-ring: var(--color-neutral-400);
+  --sidebar-active: linear-gradient(
+    to bottom,
+    --alpha(var(--color-white) / 9%),
+    --alpha(var(--color-white) / 4%)
+  );
+  --sidebar-active-shadow:
+    inset 0 1px 0 --alpha(var(--color-white) / 8%),
+    0 0 0 1px --alpha(var(--color-white) / 6%),
+    0 1px 2px --alpha(var(--color-black) / 40%);
   --code: color-mix(in srgb, var(--background) 98%, var(--color-white));
   --code-foreground: var(--foreground);
   --code-highlight: --alpha(var(--color-white) / 4%);
+  --board-lane: #0000001f;
+  --board-card: #1c1c1c;
+  --board-card-border: transparent;
+  --board-card-border-hover: #ffffff2e;
+  --board-card-selected: #262626;
+  --board-card-selected-border: #ffffff3d;
+  --board-card-focus: #a3a3a3;
+  --board-card-ring: #a3a3a333;
+  --board-card-shadow: 0 1px 2px #00000033, 0 4px 12px -4px #00000059;
+  --board-card-done: #ffffff03;
+  --board-card-done-border: #ffffff0a;
+  --board-id: #707070;
+  --board-id-done: #5c5c5c;
+  --board-title: #ededed;
+  --board-title-done: #707070;
+  --chip-border: #ffffff17;
+  --chip-border-hover: #ffffff29;
+  --chip-hover: #ffffff0a;
+  --chip-border-open: #ffffff33;
+  --chip-open: #ffffff0f;
+  --chip-foreground: #cfcfcf;
+  --chip-muted: #8f8f8f;
+  --chip-icon: #8a8a8a;
+  --priority-bar: #a3a3a3;
+  --priority-bar-empty: #ffffff24;
+  --priority-low: #60a5fa;
+  --priority-medium: #fbbf24;
+  --priority-high: #fb923c;
+  --priority-urgent: #e5484d;
+  --due-overdue: #ff6467;
+  --avatar: #2e2e2e;
+  --avatar-selected: #383838;
+  --avatar-done: #222222;
+  --avatar-border: #ffffff17;
+  --avatar-foreground: #d4d4d4;
+  --avatar-foreground-done: #707070;
+  --avatar-unassigned: #262626;
+  --avatar-unassigned-foreground: #8a8a8a;
 }
 
 @layer base {

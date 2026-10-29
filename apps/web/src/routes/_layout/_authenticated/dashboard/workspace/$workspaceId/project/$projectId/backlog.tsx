@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { produce } from "immer";
-import { ArrowRight, Plus, SquareKanbanIcon } from "lucide-react";
+import { SquareKanbanIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BacklogListView from "@/components/backlog-list-view";
+import { BacklogToolbarActions } from "@/components/backlog-list-view/backlog-toolbar-actions";
 import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
 import { TaskDisplayOptions } from "@/components/project/display/task-display-options";
@@ -14,7 +15,6 @@ import { useProjectTaskView } from "@/components/project/toolbar/use-project-tas
 import { ConfirmDialog } from "@/components/settings/confirm-dialog";
 import CreateTaskModal from "@/components/shared/modals/create-task-modal";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
-import { Button } from "@/components/ui/button";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
 import { useBoardSort } from "@/hooks/use-board-sort";
@@ -138,31 +138,10 @@ function RouteComponent() {
         <ProjectToolbar
           view={view}
           actions={
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-label={t("tasks:backlog.plan")}
-                onClick={() => setIsTaskModalOpen(true)}
-              >
-                <Plus />
-                <span className="hidden sm:inline">
-                  {t("tasks:backlog.plan")}
-                </span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-label={t("tasks:backlog.moveAll")}
-                onClick={handleMoveAllPlannedToTodo}
-                title={t("tasks:backlog.moveAllTooltip")}
-              >
-                <ArrowRight />
-                <span className="hidden sm:inline">
-                  {t("tasks:backlog.moveAll")}
-                </span>
-              </Button>
-            </>
+            <BacklogToolbarActions
+              onPlan={() => setIsTaskModalOpen(true)}
+              onMoveAll={handleMoveAllPlannedToTodo}
+            />
           }
           display={
             <TaskDisplayOptions
@@ -184,11 +163,16 @@ function RouteComponent() {
         <ActiveFiltersBar
           subjects={view.subjects}
           onClear={filters.clearFilters}
+          customFieldValues={filters.customFieldValues}
         />
       }
     >
       <PageTitle
-        title={t("tasks:backlog.pageTitle", { name: project?.name })}
+        title={
+          project
+            ? t("tasks:backlog.pageTitle", { name: project.name })
+            : undefined
+        }
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
         <div className="flex-1 overflow-hidden bg-card h-full">

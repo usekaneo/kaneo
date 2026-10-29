@@ -7,6 +7,7 @@ import {
   workspaceUserTable,
 } from "../../database/schema";
 import { instanceAdminRoleSql } from "../../utils/instance-admin-role";
+import { workspaceArchivedError } from "../archive/workspace-archived-error";
 import { workspaceAccessColumns } from "../can-read-workspace";
 import { filterReadableWorkspaces } from "../filter-readable-workspaces";
 import {
@@ -16,7 +17,11 @@ import {
 
 async function getWorkspace(workspaceId: string, userId: string) {
   const rows = await db
-    .select({ ...workspaceColumns, ...workspaceAccessColumns })
+    .select({
+      ...workspaceColumns,
+      ...workspaceAccessColumns,
+      archivedAt: workspaceTable.archivedAt,
+    })
     .from(workspaceTable)
     .innerJoin(userTable, eq(userTable.id, userId))
     .leftJoin(
@@ -41,6 +46,9 @@ async function getWorkspace(workspaceId: string, userId: string) {
   const [row] = await filterReadableWorkspaces(rows);
   if (!row) {
     throw new HTTPException(404, { message: "Workspace not found" });
+  }
+  if (row.archivedAt) {
+    throw workspaceArchivedError();
   }
 
   return toWorkspaceResponse(row);

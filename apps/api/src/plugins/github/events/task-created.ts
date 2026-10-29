@@ -78,6 +78,7 @@ async function createTaskIssue(
         metadata: {
           state: createdIssue.data.state,
           createdFrom: "kaneo",
+          syncFieldLabels: [],
           syncInitializationPending: true,
           syncCreatedText: {
             title: event.title,

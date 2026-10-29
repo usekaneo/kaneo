@@ -10,6 +10,7 @@ import {
 } from "@/constants/onboarding";
 import { getBilling } from "@/fetchers/billing/get-billing";
 import { useCreateCheckout } from "@/hooks/mutations/billing/use-billing-actions";
+import useSignOut from "@/hooks/mutations/use-sign-out";
 import useGetConfig from "@/hooks/queries/config/use-get-config";
 import useCreateWorkspace from "@/hooks/queries/workspace/use-create-workspace";
 import useWorkspaceCreationAccess from "@/hooks/use-workspace-creation-access";
@@ -65,6 +66,7 @@ export function OnboardingFlow() {
   const { isCreationRestricted, isDecided: isAccessDecided } =
     useWorkspaceCreationAccess();
   const { data: config, isPending: isConfigPending } = useGetConfig();
+  const { mutateAsync: signOut } = useSignOut(config?.customOAuthLogoutUrl);
   const isDecided = isAccessDecided && !isConfigPending;
   const isCloud = config?.isCloud === true;
 
@@ -184,9 +186,16 @@ export function OnboardingFlow() {
     setOpening(true);
   };
 
-  const signOut = async () => {
-    await authClient.signOut().catch(() => undefined);
-    navigate({ to: "/auth/sign-in" });
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("navigation:userMenu.signOutFailed"),
+      );
+    }
   };
 
   if (step === "workspace" && !isDecided) {
@@ -324,7 +333,7 @@ export function OnboardingFlow() {
       description={heading.description}
       email={user?.email}
       opening={opening}
-      onSignOut={signOut}
+      onSignOut={handleSignOut}
       preview={
         <WorkspacePreview
           label={

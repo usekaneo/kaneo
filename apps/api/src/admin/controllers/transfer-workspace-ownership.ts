@@ -5,13 +5,18 @@ import { workspaceUserTable } from "../../database/schema";
 import { publishEvent } from "../../events";
 import { clearMemberProjectAccess } from "../../project-access/clear-member-project-access";
 import { isOwnerRole } from "../../project-access/is-owner-role";
+import type { AdminAuditRequest } from "../audit/admin-audit-request";
+import { recordWorkspaceMemberAction } from "../audit/record-workspace-member-action";
 import { lockWorkspace } from "../lock-workspace";
 import listWorkspaceMembers from "./list-workspace-members";
 
-async function transferWorkspaceOwnership(request: {
-  workspaceId: string;
-  userId: string;
-}) {
+async function transferWorkspaceOwnership(
+  request: {
+    workspaceId: string;
+    userId: string;
+  },
+  audit: AdminAuditRequest,
+) {
   const { workspaceId, userId } = request;
 
   await db.transaction(async (tx) => {
@@ -51,6 +56,12 @@ async function transferWorkspaceOwnership(request: {
         ),
       );
     await clearMemberProjectAccess(workspaceId, userId, tx);
+    await recordWorkspaceMemberAction(tx, audit, {
+      action: "workspace.owner_transferred",
+      workspaceId,
+      userId,
+      metadata: { previousRole: target.role, previousOwnerIds: otherOwners },
+    });
   });
 
   await publishEvent("project_access.updated", { workspaceId, userId });

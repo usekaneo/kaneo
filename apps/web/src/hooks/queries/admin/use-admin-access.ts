@@ -1,3 +1,4 @@
+import type { InstancePermission } from "@kaneo/permissions";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import useAuth from "@/components/providers/auth-provider/hooks/use-auth";
 import { getAdminAccess } from "@/fetchers/admin/get-admin-access";
@@ -13,9 +14,19 @@ export function adminAccessQueryOptions(userId: string | null | undefined) {
   });
 }
 
+/**
+ * The signed-in user's instance permissions, for showing admin pages and
+ * actions. The API checks every request itself.
+ */
 function useAdminAccess() {
   const { user } = useAuth();
-  return useQuery(adminAccessQueryOptions(user?.id));
+  const query = useQuery(adminAccessQueryOptions(user?.id));
+  const permissions = query.data ?? [];
+  return {
+    ...query,
+    permissions,
+    can: (permission: InstancePermission) => permissions.includes(permission),
+  };
 }
 
 export default useAdminAccess;

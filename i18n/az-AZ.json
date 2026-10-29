@@ -122,7 +122,6 @@
 				"startDate": "Başlama tarixi",
 				"dueDate": "Son tarix",
 				"clearStartDate": "Başlama tarixini təmizlə",
-				"clearDueDate": "Son tarixi təmizlə",
 				"assign": "Təyin et",
 				"assignUnassigned": "Təyin olunmayıb",
 				"assignUnassignedTitle": "Təyin olunmayıb",
@@ -148,7 +147,11 @@
 					"amber": "Kəhrəba rəngi",
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
-					"crimson": "Tünd qırmızı"
+					"crimson": "Tünd qırmızı",
+					"lagoon": "Laqun rəngi",
+					"ocean": "Okean mavisi",
+					"orchid": "Orxideya rəngi",
+					"sky": "Səma mavisi"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -257,7 +260,8 @@
 			},
 			"invitation": {
 				"description": "Dəvətin göndərildiyi e-poçtdan istifadə edin. Dərhal sonra iş sahəsinə qoşulacaqsınız."
-			}
+			},
+			"verifyEmail": "Check your email to confirm your address, then sign in."
 		},
 		"verifyOtp": {
 			"pageTitle": "Kodu doğrula",
@@ -284,7 +288,8 @@
 			"sendFailed": "Doğrulama kodunu göndərmək alınmadı"
 		},
 		"signInForm": {
-			"failedSignIn": "Daxil olmaq alınmadı"
+			"failedSignIn": "Daxil olmaq alınmadı",
+			"emailNotVerified": "Confirm your email address first. We sent you a new link."
 		},
 		"invitation": {
 			"pageTitleAccept": "Dəvəti qəbul et",
@@ -535,7 +540,8 @@
 				"title": "Cihazınızı qoşmaq üçün daxil olun",
 				"description": "Təsdiqləmək üçün dərhal bura qayıdacaqsınız.",
 				"submit": "Daxil ol"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -749,6 +755,10 @@
 			"board": "Lövhə",
 			"list": "Siyahı",
 			"gantt": "Qant diaqramı",
+			"priorityIcons": "Prioritet ikonları",
+			"priorityIconsDescription": "Tapşırıq prioritetinin kartlarda, sətirlərdə və menyularda necə göründüyü.",
+			"priorityIconsMarks": "İşarələr",
+			"priorityIconsClassic": "Klassik",
 			"sidebarDefault": "Yan paneli açıq saxla",
 			"sidebarDefaultDescription": "Yan panel açıq vəziyyətdə başlasın.",
 			"displayOptions": "Tapşırıq təfərrüatları",
@@ -761,6 +771,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Layihənin öz lövhəsi üçün təyin etdiyi arxa fon şəklini göstər.",
 			"advancedTitle": "Qabaqcıl"
+		},
+		"managedProfile": {
+			"note": "Təşkilatınız tərəfindən idarə olunur.",
+			"edit": "{{provider}} vasitəsilə redaktə et"
 		},
 		"developerPage": {
 			"pageTitle": "API açarları",
@@ -1186,7 +1200,8 @@
 			"statusPaused": "Dayandırılıb",
 			"connect": "Qoş",
 			"configure": "Tənzimlə",
-			"done": "Hazır"
+			"done": "Hazır",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Layihənin görünürlüğü",
@@ -1568,6 +1583,8 @@
 			"noDefault": "Standart dəyər yoxdur",
 			"optionsLabel": "Seçimlər",
 			"removeOptionAria": "{{option}} seçimini çıxar",
+			"hideOptionAria": "{{option}} seçimini yeni seçimlərdən gizlət",
+			"showOptionAria": "{{option}} seçimini yeni seçimlər üçün yenidən göstər",
 			"renameOptionAria": "{{option}} seçiminin adını dəyiş",
 			"requiredDescription": "Hər tapşırığın həmişə dəyəri olur.",
 			"save": "Yadda saxla",
@@ -1589,7 +1606,11 @@
 				"deactivate": "Deaktiv et",
 				"edit": "Redaktə et",
 				"open": "Actions for {{name}}",
-				"reactivate": "Yenidən aktiv et"
+				"reactivate": "Yenidən aktiv et",
+				"markEmailVerified": "Mark email as verified",
+				"sendPasswordReset": "Send password reset link",
+				"sendVerification": "Resend verification email",
+				"security": "Sessions & API keys"
 			},
 			"clearSearch": "Clear search",
 			"columns": {
@@ -1597,7 +1618,8 @@
 				"joined": "Joined",
 				"role": "Rol",
 				"status": "Status",
-				"user": "User"
+				"user": "User",
+				"lastActive": "Last active"
 			},
 			"confirm": {
 				"deactivate": {
@@ -1615,7 +1637,19 @@
 					"description": "{{name}} will be able to sign in and access their workspaces again.",
 					"title": "Reactivate this account?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"markEmailVerified": {
+					"action": "Mark as verified",
+					"title": "Mark this email as verified?"
+				},
+				"sendPasswordReset": {
+					"action": "Send link",
+					"title": "Send a password reset link?"
+				},
+				"sendVerification": {
+					"action": "Send email",
+					"title": "Resend the verification email?"
+				}
 			},
 			"directoryTitle": "Bütün istifadəçilər",
 			"edit": {
@@ -1656,9 +1690,78 @@
 				"deleted": "User deleted",
 				"reactivated": "User reactivated",
 				"updated": "User updated",
-				"updateError": "Failed to update user"
+				"updateError": "Failed to update user",
+				"avatarChanged": "Profile picture updated",
+				"avatarError": "Failed to update the profile picture",
+				"avatarRemoved": "Profile picture removed",
+				"createdForSso": "User created for single sign-on.",
+				"createdLinkFailed": "User created. Password email failed; retry “Send password reset link”.",
+				"createdLinkSent": "User created. Password link sent to {{email}}.",
+				"createdNoSmtp": "User created. Set SMTP_HOST to send a password link.",
+				"createError": "Failed to create user",
+				"emailError": "The email could not be sent",
+				"emailVerified": "Email marked as verified",
+				"passwordResetSent": "Password reset link sent to {{email}}",
+				"verificationSent": "Verification email sent to {{email}}"
 			},
-			"you": "Siz"
+			"you": "Siz",
+			"create": {
+				"creating": "Creating…",
+				"open": "Create user",
+				"submit": "Create user",
+				"title": "Create user",
+				"nameRequired": "Enter a name",
+				"hintNoEmail": "Set SMTP_HOST to send password links."
+			},
+			"details": {
+				"emailStatus": "Email",
+				"methods": {
+					"password": "Password"
+				},
+				"noSignInMethods": "No password or linked account yet",
+				"notVerified": "Not verified",
+				"removeAvatar": "Remove",
+				"signInMethods": "Sign-in methods",
+				"uploadAvatar": "Upload",
+				"verified": "Verified"
+			},
+			"filters": {
+				"anyEmail": "Any email",
+				"anyRole": "Any role",
+				"anyStatus": "Any status",
+				"clear": "Clear filters",
+				"email": "Email verification",
+				"label": "Filter users",
+				"role": "Role",
+				"status": "Status",
+				"unverified": "Unverified email",
+				"verified": "Verified email"
+			},
+			"never": "Never",
+			"unverified": "Unverified",
+			"security": {
+				"apiKeysEmpty": "No API keys.",
+				"apiKeysLoadError": "Couldn't load API keys.",
+				"apiKeysTitle": "API keys",
+				"disabled": "Disabled",
+				"lastUsed": "Last used {{time}}",
+				"neverUsed": "Never used",
+				"revokeAll": "Sign out everywhere",
+				"revokeAllConfirmDescription": "They'll be signed out everywhere right away.",
+				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
+				"revokeAllSelfDescription": "Your other sessions will be signed out right away.",
+				"revokeKey": "Revoke",
+				"revokeKeyConfirmDescription": "Requests using this key will fail right away.",
+				"revokeKeyConfirmTitle": "Revoke {{name}}?",
+				"revokeKeyLabel": "Revoke {{name}}",
+				"revokingKey": "Revoking...",
+				"sessionsEmpty": "Not signed in anywhere.",
+				"sessionsTitle": "Sessions",
+				"title": "Sessions & API keys: {{name}}",
+				"toastKeyRevoked": "API key revoked.",
+				"toastKeyRevokeError": "Couldn't revoke the API key.",
+				"toastRevokedAll": "Sessions signed out."
+			}
 		},
 		"security": "Security",
 		"securityPage": {
@@ -1691,7 +1794,14 @@
 			"dialogDescription": "Ən azı 8 simvol, cari paroldan fərqli.",
 			"dialogTitle": "Parolu dəyiş",
 			"passwordHint": "Başqa heç yerdə istifadə etmədiyiniz ən azı 8 simvol istifadə edin.",
-			"passwordTitle": "Parol"
+			"passwordTitle": "Parol",
+			"sessions": {
+				"revokeOthers": "Sign out other sessions",
+				"revokeOthersConfirmDescription": "Your other sessions will be signed out right away.",
+				"revokeOthersConfirmTitle": "Sign out all other sessions?",
+				"title": "Active sessions",
+				"toastRevokedOthers": "Other sessions signed out."
+			}
 		},
 		"gitlabIntegration": {
 			"baseUrlLabel": "GitLab URL",
@@ -1975,7 +2085,22 @@
 					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
 					"title": "Make {{name}} the owner?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"archive": {
+					"action": "Archive workspace",
+					"description": "Members will lose access until it's restored.",
+					"title": "Archive {{name}}?"
+				},
+				"delete": {
+					"action": "Delete workspace",
+					"description": "Its projects, tasks, and files will be permanently deleted.",
+					"title": "Delete {{name}}?",
+					"typeName": "Type {{name}} to confirm"
+				},
+				"restore": {
+					"action": "Restore workspace",
+					"title": "Restore {{name}}?"
+				}
 			},
 			"directoryTitle": "Bütün iş sahələri",
 			"emptyDescription": "Try another name or slug.",
@@ -2017,8 +2142,20 @@
 				"removeError": "Failed to remove member",
 				"roleError": "Failed to update role",
 				"roleUpdated": "Role updated",
-				"transferError": "Failed to transfer ownership"
-			}
+				"transferError": "Failed to transfer ownership",
+				"archived": "Workspace archived",
+				"archiveError": "Could not archive workspace",
+				"deleted": "Workspace deleted",
+				"deleteError": "Could not delete workspace",
+				"restored": "Workspace restored",
+				"restoreError": "Could not restore workspace"
+			},
+			"actions": {
+				"archive": "Archive workspace",
+				"open": "Actions for {{name}}",
+				"restore": "Restore workspace"
+			},
+			"archived": "Archived"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2361,6 +2498,353 @@
 		},
 		"shared": {
 			"autosave": "Dəyişikliklər avtomatik yadda saxlanılır"
+		},
+		"adminAuditLog": {
+			"actions": {
+				"sessionRevoked": "Revoked a session",
+				"sessionRevokedAll": "Revoked all sessions",
+				"userCreated": "Created user",
+				"userDeactivated": "Deactivated user",
+				"userDeleted": "Deleted user",
+				"userImpersonated": "Signed in as user",
+				"userPasswordSet": "Set user password",
+				"userReactivated": "Reactivated user",
+				"userRoleChanged": "Changed instance role",
+				"userUpdated": "Updated user details",
+				"workspaceMemberAdded": "Added workspace member",
+				"workspaceMemberRemoved": "Removed workspace member",
+				"workspaceMemberRoleChanged": "Changed workspace member role",
+				"workspaceOwnerTransferred": "Transferred workspace ownership",
+				"userAvatarChanged": "Changed profile picture",
+				"userAvatarRemoved": "Removed profile picture",
+				"userEmailVerified": "Marked email as verified",
+				"userPasswordResetSent": "Sent password reset link",
+				"userVerificationSent": "Sent verification email",
+				"apiKeyRevoked": "Revoked an API key",
+				"emailTestSent": "Sent test email",
+				"workspaceArchived": "Archived workspace",
+				"workspaceDeleted": "Deleted workspace",
+				"workspaceRestored": "Restored workspace",
+				"roleCreated": "Role created",
+				"roleDeleted": "Role deleted",
+				"roleUpdated": "Role updated",
+				"instanceSettingsUpdated": "Updated instance settings",
+				"webhookCreated": "Created webhook",
+				"webhookDeleted": "Deleted webhook",
+				"webhookSecretRotated": "Rotated webhook secret",
+				"webhookUpdated": "Updated webhook"
+			},
+			"categories": {
+				"all": "All actions",
+				"session": "Sessions",
+				"user": "Users",
+				"workspace": "Workspaces",
+				"apiKey": "API keys",
+				"email": "Email",
+				"role": "Roles",
+				"instance": "Instance settings",
+				"webhook": "Webhooks"
+			},
+			"categoryLabel": "Filter by category",
+			"clearFilter": "Show all actions",
+			"columns": {
+				"action": "Action",
+				"actor": "Administrator",
+				"target": "Target",
+				"time": "Time and IP"
+			},
+			"deletedActor": "Account deleted",
+			"details": {
+				"change": "{{from}} → {{to}}",
+				"fields": "Changed {{fields}}",
+				"memberChange": "{{member}}: {{from}} → {{to}}",
+				"memberWithRole": "{{member}} as {{role}}",
+				"noRole": "No role",
+				"reason": "Reason: {{reason}}",
+				"createdWithRole": "Role: {{role}}",
+				"sessionCount_one": "{{count}} session",
+				"sessionCount_other": "{{count}} sessions",
+				"workspaceContents": "{{members}} members, {{projects}} projects",
+				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
+			},
+			"directoryTitle": "Recorded actions",
+			"emptyTitle": "No actions recorded",
+			"fields": {
+				"email": "email",
+				"emailVerified": "email verification",
+				"image": "avatar",
+				"name": "name"
+			},
+			"loadError": "The audit log could not be loaded.",
+			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing audit log",
+			"retry": "Retry",
+			"targetTypes": {
+				"user": "User",
+				"workspace": "Workspace",
+				"role": "Role",
+				"instance": "Instance",
+				"webhook": "Webhook"
+			},
+			"title": "Audit log",
+			"unknownActor": "Unknown"
+		},
+		"sessions": {
+			"device": "{{browser}} on {{os}}",
+			"lastActive": "Active {{time}}",
+			"loadError": "Couldn't load sessions.",
+			"revoke": "Sign out",
+			"revokeConfirmDescription": "They'll be signed out right away.",
+			"revokeConfirmTitle": "Sign out {{device}}?",
+			"revokeLabel": "Sign out {{device}}",
+			"revoking": "Signing out...",
+			"signedIn": "Signed in {{date}}",
+			"thisDevice": "This device",
+			"toastRevoked": "Session signed out.",
+			"toastRevokeError": "Couldn't sign out the session.",
+			"unknownDevice": "Unknown device"
+		},
+		"adminSystem": {
+			"checkedAt": "Checked {{time}}",
+			"email": {
+				"down": "Can't connect to the mail server ({{code}})",
+				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
+				"ok": "Connected to the mail server",
+				"send": "Send test email",
+				"sending": "Sending…",
+				"sendTest": "Test email",
+				"smtp": "SMTP",
+				"title": "Email"
+			},
+			"instance": {
+				"api": "API",
+				"apiDescription": "Up {{uptime}} · Node {{node}}",
+				"database": "Database",
+				"databaseDown": "Can't reach PostgreSQL ({{code}})",
+				"databaseVersion": "PostgreSQL {{version}}",
+				"latency": "{{ms}} ms",
+				"migrations_one": "{{count}} migration applied",
+				"migrations_other": "{{count}} migrations applied",
+				"realtime": "Live updates",
+				"realtimeConnections_one": "{{count}} open connection on this instance",
+				"realtimeConnections_other": "{{count}} open connections on this instance",
+				"realtimeInMemory": "delivered in memory",
+				"realtimeNotStarted": "WebSockets haven't started",
+				"realtimeRedis": "shared with other instances through Redis",
+				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
+				"redis": "Redis",
+				"redisDown": "Can't reach Redis ({{code}})",
+				"redisModes": {
+					"cluster": "Cluster",
+					"sentinel": "Sentinel",
+					"standalone": "Standalone"
+				},
+				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
+				"redisOk": "{{mode}}, reachable",
+				"storage": "File storage",
+				"storageDown": "Can't reach the bucket ({{code}})",
+				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
+				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
+				"storageOk": "Bucket reachable",
+				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
+				"title": "Instance",
+				"version": "Kaneo version",
+				"versionUnknown": "Unknown"
+			},
+			"integrations": {
+				"available": "Available",
+				"connectedProjects_one": "Connected in {{count}} project",
+				"connectedProjects_other": "Connected in {{count}} projects",
+				"connectedUnknown": "Project count unavailable",
+				"instanceSetup": {
+					"down": "GitHub App unavailable",
+					"not_configured": "GitHub App not set up",
+					"ok": "GitHub App set up",
+					"warning": "Some GitHub App settings are missing"
+				},
+				"title": "Integrations"
+			},
+			"loadError": "System status could not be loaded.",
+			"refresh": "Refresh",
+			"refreshing": "Checking…",
+			"retry": "Retry",
+			"setupStatus": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Configured",
+				"warning": "Incomplete"
+			},
+			"signIn": {
+				"emailOtpSignIn": "Email sign-in codes",
+				"guestAccess": "Guest access",
+				"off": "Off",
+				"on": "On",
+				"passwordRegistration": "Sign-up with a password",
+				"passwordSignIn": "Email and password sign-in",
+				"registration": "Registration",
+				"title": "Sign-in",
+				"workspaceCreation": "Workspace creation",
+				"customProvider": "OAuth or OpenID Connect"
+			},
+			"status": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Operational",
+				"warning": "Warning"
+			},
+			"title": "System",
+			"toast": {
+				"testEmailError": "The test email could not be sent.",
+				"testEmailSent": "Test email sent to {{to}}"
+			}
+		},
+		"adminOverview": {
+			"activeUsers": "Active (30 days)",
+			"archivedWorkspaces": "Archived",
+			"configurationWarnings": "Configuration warnings",
+			"disabledUsers": "Disabled users",
+			"loadError": "Could not load the overview.",
+			"noActions": "No administrative actions",
+			"noUsers": "No users",
+			"recentActions": "Recent administrative actions",
+			"recentUsers": "Recent users",
+			"services": "Services",
+			"title": "Overview",
+			"totalUsers": "Total users",
+			"viewAuditLog": "View audit log",
+			"viewSystem": "View system",
+			"viewUsers": "View users",
+			"warnings": {
+				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management.",
+				"redisUnreachable": "Redis is unavailable. Check the connection.",
+				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
+				"smtpNotConfigured": "Email is not configured. Set SMTP_HOST and SMTP_FROM.",
+				"smtpUnreachable": "Email is unavailable. Check SMTP settings.",
+				"storageIncomplete": "Storage setup is incomplete. Check S3 settings.",
+				"storageUnreachable": "Storage needs attention. Check S3 access."
+			},
+			"workspaces": "Workspaces"
+		},
+		"adminRoles": {
+			"actions": "Actions for {{name}}",
+			"allPermissions": "All permissions",
+			"builtIn": "Built-in",
+			"create": "New role",
+			"deleteTitle": "Delete {{name}}?",
+			"dialog": {
+				"create": "Create role",
+				"createTitle": "New role",
+				"editTitle": "Edit role",
+				"name": "Name",
+				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
+				"save": "Save"
+			},
+			"edit": "Edit",
+			"groups": {
+				"instance": "Instance",
+				"users": "Users",
+				"workspaces": "Workspaces"
+			},
+			"listTitle": "All roles",
+			"loadError": "Roles could not be loaded.",
+			"noPermissions": "No permissions",
+			"permissionCount_one": "{{count}} permission",
+			"permissionCount_other": "{{count}} permissions",
+			"permissions": {
+				"auditRead": "View the audit log",
+				"instanceSettings": "Change instance settings",
+				"systemRead": "View system status",
+				"usersApiKeys": "View and revoke API keys",
+				"usersCreate": "Create users",
+				"usersCredentials": "Send password reset and verification emails",
+				"usersDelete": "Delete users",
+				"usersDisable": "Deactivate and reactivate users",
+				"usersRead": "View users",
+				"usersSessions": "View and end sessions",
+				"usersUpdate": "Edit users and their roles",
+				"workspacesArchive": "Archive and restore workspaces",
+				"workspacesDelete": "Delete workspaces",
+				"workspacesManage": "Manage workspace members",
+				"workspacesRead": "View workspaces and members"
+			},
+			"title": "Roles",
+			"toast": {
+				"created": "Role created",
+				"deleted": "Role deleted",
+				"error": "The role could not be saved.",
+				"updated": "Role updated"
+			},
+			"userCount_one": "{{count}} user",
+			"userCount_other": "{{count}} users",
+			"viewUsers": "View users"
+		},
+		"adminSettings": {
+			"defaultRole": "Default role for new users",
+			"general": "General",
+			"instanceName": "Instance name",
+			"instanceUrl": "Instance URL",
+			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
+			"integrations": "Integrations",
+			"loadError": "Couldn't load instance settings.",
+			"lockedByEnv": "Set by {{name}}",
+			"passwordRegistrationEnabled": "Email and password sign-up",
+			"registration": "Registration",
+			"registrationEnabled": "Open registration",
+			"requireEmailVerification": "Require email verification",
+			"requiresSmtp": "Requires SMTP",
+			"signInProviders": "Sign-in providers",
+			"title": "Settings",
+			"toast": {
+				"error": "Couldn't save settings",
+				"saved": "Settings saved"
+			},
+			"workspaceCreationRestricted": "Only administrators can create workspaces",
+			"workspaces": "Workspaces",
+			"save": "Save"
+		},
+		"adminWebhooks": {
+			"actions": "Actions for {{url}}",
+			"add": "Add webhook",
+			"attempts_one": "{{count}} attempt",
+			"attempts_other": "{{count}} attempts",
+			"categories": "Events",
+			"deleteTitle": "Delete webhook?",
+			"deliveries": "Recent deliveries",
+			"disabled": "Disabled",
+			"edit": "Edit webhook",
+			"empty": "No webhooks",
+			"enabled": "Enabled",
+			"errors": {
+				"destination": "Destination blocked",
+				"disabled": "Webhook disabled",
+				"http": "HTTP error",
+				"interrupted": "Delivery interrupted",
+				"network": "Connection failed",
+				"response": "Invalid response",
+				"signing": "Signing failed",
+				"timeout": "Timed out"
+			},
+			"failed": "Failed",
+			"httpStatus": "HTTP {{status}}",
+			"loadError": "Webhooks could not be loaded.",
+			"noDeliveries": "No deliveries",
+			"pending": "Pending",
+			"rotate": "Rotate secret",
+			"rotateTitle": "Rotate signing secret?",
+			"saveError": "The webhook could not be saved.",
+			"secretTitle": "Signing secret — save it now",
+			"sendTest": "Send test",
+			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
+			"signingSecret": "Signing secret",
+			"succeeded": "Delivered",
+			"testEvent": "Test event",
+			"testQueued": "Test event queued.",
+			"title": "Webhooks",
+			"url": "URL",
+			"save": "Save"
 		}
 	},
 	"navigation": {
@@ -2439,7 +2923,6 @@
 			"selectWorkspace": "İş sahəsi seç"
 		},
 		"page": {
-			"projectsTitle": "Layihələr",
 			"settingsTitle": "Parametrlər",
 			"backToWorkspace": "İş sahəsinə qayıt",
 			"settingsWorkspaceTab": "İş sahəsi"
@@ -3008,13 +3491,44 @@
 					"amber": "Kəhrəba rəngi",
 					"terracotta": "Bişmiş gil rəngi",
 					"rose": "Çəhrayı",
-					"crimson": "Tünd qırmızı"
+					"crimson": "Tünd qırmızı",
+					"lagoon": "Laqun rəngi",
+					"ocean": "Okean mavisi",
+					"orchid": "Orxideya rəngi",
+					"sky": "Səma mavisi"
 				},
 				"editLabels": "Etiketləri redaktə et"
+			},
+			"recurrence": {
+				"updateError": "Tapşırığın təkrarını yeniləmək alınmadı",
+				"every": "Hər",
+				"hint": "Bu tapşırıq tamamlandıqda növbəti yaradılır.",
+				"interval": "İnterval",
+				"onDays": "Bu günlərdə",
+				"pattern": {
+					"daily": "Hər gün",
+					"monthly": "Hər ay",
+					"periodically": "Dövri",
+					"weekly": "Hər həftə",
+					"yearly": "Hər il"
+				},
+				"repeats": "Təkrar",
+				"toggle": "Təkrarla",
+				"unit": {
+					"days_one": "gündən bir",
+					"days_other": "gündən bir",
+					"label": "Vahid",
+					"months_one": "aydan bir",
+					"months_other": "aydan bir",
+					"weeks_one": "həftədən bir",
+					"weeks_other": "həftədən bir",
+					"years_one": "ildən bir",
+					"years_other": "ildən bir"
+				}
 			}
 		},
 		"backlog": {
-			"pageTitle": "{{name}} — gözləyən tapşırıqlar",
+			"pageTitle": "{{name}} / gözləyən tapşırıqlar",
 			"noTasksToMove": "Köçürüləcək planlaşdırılmış tapşırıq yoxdur",
 			"moveAllConfirm": "Bütün {{count}} planlaşdırılmış tapşırıq «Görüləcək» bölməsinə köçürülsün?",
 			"moveAllSuccess": "{{count}} tapşırıq «Görüləcək» bölməsinə köçürüldü",
@@ -3069,7 +3583,7 @@
 			"noValuesUsedYet": "No values used yet"
 		},
 		"calendar": {
-			"pageTitle": "{{name}} – Təqvim",
+			"pageTitle": "{{name}} / Təqvim",
 			"title": "Təqvim",
 			"previousMonth": "Əvvəlki ay",
 			"nextMonth": "Növbəti ay",
@@ -3084,7 +3598,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Tarixi təyin edilmiş tapşırıqları axtar...",
-			"pageTitle": "{{name}} – Qant diaqramı",
+			"pageTitle": "{{name}} / Qant diaqramı",
 			"title": "Qant zaman xətti",
 			"jumpToToday": "Bu günə keç",
 			"hideTasks": "Tapşırıqları gizlət",
@@ -3118,7 +3632,11 @@
 		"listView": {
 			"addTask": "Tapşırıq əlavə et",
 			"archiveAllTooltip": "Bütün tamamlanmış tapşırıqları arxivlə",
-			"noTasks": "Tapşırıq yoxdur"
+			"noTasks": "Tapşırıq yoxdur",
+			"collapseSubtasks": "{{title}} alt tapşırıqlarını gizlət",
+			"expandSubtasks": "{{title}} alt tapşırıqlarını göstər",
+			"subtaskLevel": "Alt tapşırıq, səviyyə {{level}}",
+			"subtasksLoadError": "Alt tapşırıqlar yüklənə bilmədi, ona görə tapşırıqlar iyerarxiyasız göstərilir."
 		},
 		"kanban": {
 			"addTask": "Tapşırıq əlavə et",
@@ -3130,7 +3648,8 @@
 			"open": "Açıq",
 			"label": "Birləşdirmə sorğusu",
 			"count_one": "{{count}} birləşdirmə sorğusu",
-			"count_other": "{{count}} birləşdirmə sorğusu"
+			"count_other": "{{count}} birləşdirmə sorğusu",
+			"closed": "Bağlı"
 		},
 		"assignee": {
 			"label": "İcraçı",
@@ -3227,7 +3746,6 @@
 			"required": "Məcburi",
 			"enterKey": "Enter",
 			"toSave": "saxlamaq üçün",
-			"today": "Bu gün",
 			"clear": "Təmizlə",
 			"setValue": "{{field}} seçin…",
 			"noMatches": "Uyğun seçim yoxdur",
@@ -3241,6 +3759,17 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Önbaxış üçün Boşluq, bu tapşırığı açmaq üçün Enter düyməsini basın. Köçürmək üçün Alt və ya Option ilə ox düymələrindən istifadə edin."
+		},
+		"recurrence": {
+			"daily_one": "Hər gün",
+			"daily_other": "Hər {{count}} gündən bir",
+			"monthly_one": "Hər ay",
+			"monthly_other": "Hər {{count}} aydan bir",
+			"weekly_one": "Hər həftə",
+			"weekly_other": "Hər {{count}} həftədən bir",
+			"yearly_one": "Hər il",
+			"yearly_other": "Hər {{count}} ildən bir",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"toolbar": {
 			"search": "Tapşırıqları axtar",
@@ -3262,7 +3791,10 @@
 		"filterBar": {
 			"label": "Aktiv süzgəclər",
 			"removeFilter": "{{name}} süzgəcini sil",
-			"noMatches": "Axtarışınıza və ya süzgəclərinizə uyğun tapşırıq yoxdur."
+			"noMatches": "Axtarışınıza və ya süzgəclərinizə uyğun tapşırıq yoxdur.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Süzgəc əlavə et…",
@@ -3276,11 +3808,33 @@
 			"markdownCopied": "Markdown kimi kopyalandı",
 			"copyFailed": "Mübadilə buferinə kopyalamaq alınmadı.",
 			"pageUrlCopied": "Səhifə URL-i kopyalandı"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} g gecikib",
+			"overdueDays_other": "{{count}} g gecikib",
+			"overdueWeeks_one": "{{count}} h gecikib",
+			"overdueWeeks_other": "{{count}} h gecikib",
+			"today": "Bu gün",
+			"tomorrow": "Sabah",
+			"inDays_one": "{{count}} gün sonra",
+			"inDays_other": "{{count}} gün sonra",
+			"fullDate": "Son tarix {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Son tarixi təyin et…",
+			"startDatePlaceholder": "Başlama tarixini təyin et…",
+			"datePlaceholder": "Tarix təyin et…",
+			"thisWeekend": "Bu həftə sonu",
+			"nextWeek": "Gələn həftə",
+			"pickDate": "Tarix seç",
+			"startsOn": "Başlayır: {{date}}",
+			"beforeStart": "{{date}} başlama tarixindən əvvəldir",
+			"afterDue": "{{date}} son tarixdən sonradır"
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} sizi Kaneo-da {{workspaceName}} iş sahəsinə qoşulmağa dəvət etdi",
+			"subject": "{{inviterName}} sizi {{instanceName}}-da {{workspaceName}} iş sahəsinə qoşulmağa dəvət etdi",
 			"preview": "Kaneo-da {{workspaceName}} iş sahəsinə dəvət almısınız",
 			"title": "{{workspaceName}} iş sahəsinə qoşul",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) sizi Kaneo-da əməkdaşlığa dəvət etdi.",
@@ -3431,6 +3985,12 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"archived": {
+			"description": "Contact an administrator to restore access.",
+			"manage": "Manage workspaces",
+			"otherWorkspaces": "Go to workspaces",
+			"title": "Workspace archived"
 		}
 	},
 	"team": {
@@ -3604,13 +4164,13 @@
 		},
 		"hero": {
 			"cloudCta": "Try Kaneo Cloud",
-			"selfHostCta": "Self-host Kaneo",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Product",
@@ -3700,10 +4260,6 @@
 			"eyebrow": "Make it your own",
 			"title": "A clear path from trying it to using it.",
 			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
-			"docker": {
-				"title": "Self-host with Docker",
-				"description": "Installation, backups, and updates for a setup you control."
-			},
 			"sso": {
 				"title": "Bring your own identity provider",
 				"description": "Configure OIDC single sign-on in the free self-hosted build."
@@ -3715,6 +4271,10 @@
 			"linear": {
 				"title": "Compare Kaneo and Linear",
 				"description": "See the differences in hosting, licensing, and workflow."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {
@@ -3759,6 +4319,833 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"mobile": {
+		"account": {
+			"connection": {
+				"apiKey": "API açarı",
+				"appVersion": "Tətbiq versiyası",
+				"server": "Server",
+				"sessionToken": "Sessiya tokeni",
+				"signedInWith": "Giriş üsulu",
+				"title": "Bağlantı"
+			},
+			"description": "Bütün iş sahələrində komanda yoldaşlarınıza necə göründüyünüz.",
+			"notifications": {
+				"delivery": "Çatdırılma və hadisələr",
+				"deliveryHint": "E-poçt, ntfy, Gotify, vebhuklar",
+				"invitations": "Dəvətlər",
+				"permissionDenied": "Əvvəlcə sistem ayarlarında Kaneo bildirişlərinə icazə verin.",
+				"phone": "Telefon bildirişləri",
+				"phoneHint": "Təxminən hər 15 dəqiqədən bir yoxlanılır",
+				"title": "Bildirişlər"
+			},
+			"password": {
+				"confirm": "Yeni parolu təsdiqləyin",
+				"confirmPlaceholder": "Yenidən daxil edin",
+				"current": "Cari parol",
+				"mismatch": "Parollar uyğun gəlmir",
+				"new": "Yeni parol",
+				"signOutOthers": "Digər cihazlardan çıxış et",
+				"title": "Parolu dəyiş"
+			},
+			"photoMenu": {
+				"choose": "Şəkil seç",
+				"remove": "Şəkli sil"
+			},
+			"profile": {
+				"change": "Dəyiş",
+				"changePassword": "Parolu dəyiş",
+				"name": "Ad",
+				"photo": "Profil şəkli",
+				"photoFormats": "PNG, JPG və ya WebP",
+				"title": "Profil"
+			},
+			"signOut": {
+				"button": "Çıxış et",
+				"message": "İstənilən vaxt yenidən daxil ola bilərsiniz.",
+				"title": "Çıxış edilsin?"
+			},
+			"title": "Hesab",
+			"toast": {
+				"nameUpdated": "Ad yeniləndi",
+				"passwordChanged": "Parol dəyişdirildi",
+				"photoRemoved": "Şəkil silindi",
+				"photoUpdated": "Şəkil yeniləndi"
+			}
+		},
+		"activity": {
+			"commentedOn": "{{target}} haqqında şərh yazdı",
+			"empty": "Son fəaliyyət yoxdur",
+			"someone": "Kimsə",
+			"subtitle": "{{workspace}} daxilində baş verənlər",
+			"title": "Fəaliyyət"
+		},
+		"background": {
+			"channelDescription": "İş sahələrinizdəki təyinatlar, şərhlər və adınızın çəkildiyi bildirişlər",
+			"channelName": "Kaneo fəaliyyəti",
+			"summary_one": "Daha {{count}} yeni bildiriş",
+			"summary_other": "Daha {{count}} yeni bildiriş"
+		},
+		"board": {
+			"addTask": "Tapşırıq əlavə et",
+			"archived": "Arxivləşdirilib",
+			"assignee": "İcraçı",
+			"assignToMe": "Mənə təyin et",
+			"back": "Geri",
+			"board": "Lövhə",
+			"boardView": "Lövhə görünüşü",
+			"dueDateOverdue_one": "{{date}}, {{count}} gün gecikib",
+			"dueDateOverdue_other": "{{date}}, {{count}} gün gecikib",
+			"filters": "Filtrlər",
+			"filterTasks": "Tapşırıqları filtrlə…",
+			"filterTasksActive": "Tapşırıqları filtrlə… ({{count}} aktiv)",
+			"hideArchived": "Arxivləşdirilənləri gizlət",
+			"hidePlanned": "Planlaşdırılanları gizlət",
+			"labels": "Etiketlər",
+			"listView": "Siyahı görünüşü",
+			"me": "Mən",
+			"memberYou": "{{name}} (siz)",
+			"more": "Daha çox",
+			"movedTask": "{{ticket}} {{status}} statusuna köçürüldü",
+			"moveTo": "Köçür",
+			"newTask": "Yeni tapşırıq",
+			"noTasksHere": "Burada tapşırıq yoxdur",
+			"noTasksMatch": "Uyğun tapşırıq yoxdur",
+			"noTasksMatchTheFilters": "Filtrlərə uyğun tapşırıq yoxdur",
+			"noTasksYet": "Hələ tapşırıq yoxdur",
+			"nothingPlannedYet": "Hələ heç nə planlaşdırılmayıb",
+			"openTask": "Tapşırığı aç",
+			"overdueOnly": "Yalnız gecikənlər",
+			"planned": "Planlaşdırılıb",
+			"priority": "Prioritet",
+			"projects": "Layihələr",
+			"projectSettings": "Layihə ayarları",
+			"refresh": "Yenilə",
+			"reset": "Sıfırla",
+			"searchPeople": "İnsanları axtar",
+			"sendToBottomOfColumn": "Sütunun sonuna köçür",
+			"sendToTopOfColumn": "Sütunun əvvəlinə köçür",
+			"showArchived": "Arxivləşdirilənləri göstər",
+			"showPlanned": "Planlaşdırılanları göstər",
+			"showTasks_one": "{{count}} tapşırığı göstər",
+			"showTasks_other": "{{count}} tapşırığı göstər",
+			"switchProject": "Layihəni dəyiş",
+			"tasksNotOnTheBoardYet": "Hələ lövhədə olmayan tapşırıqlar",
+			"unassigned": "Təyin olunmayıb"
+		},
+		"common": {
+			"cancel": "Ləğv et",
+			"close": "Bağla",
+			"delete": "Sil",
+			"retry": "Yenidən cəhd et",
+			"save": "Yadda saxla",
+			"somethingWrong": "Xəta baş verdi"
+		},
+		"composer": {
+			"attachImage": "Şəkil əlavə et",
+			"mention": "Qeyd et",
+			"mentionSomeone": "Kiminsə adını qeyd et",
+			"placeholder": "Şərh əlavə et…",
+			"reply": "{{name}} üçün cavab yaz…",
+			"searchPeople": "İnsanları axtar",
+			"sendComment": "Şərhi göndər"
+		},
+		"editor": {
+			"attachment": "Qoşma",
+			"bold": "Qalın",
+			"boldPlaceholder": "qalın",
+			"code": "Kod",
+			"codePlaceholder": "kod",
+			"description": "Təsvir",
+			"heading": "Başlıq",
+			"insertImage": "Şəkil daxil et",
+			"italic": "Kursiv",
+			"italicPlaceholder": "kursiv",
+			"link": "Keçid",
+			"linkPlaceholder": "keçid",
+			"list": "Siyahı",
+			"nothingToPreview": "Önizləmə üçün heç nə yoxdur",
+			"placeholder": "Təsvir əlavə edin… Markdown dəstəklənir.",
+			"preview": "Önizləmə",
+			"write": "Yaz"
+		},
+		"errors": {
+			"apiKeyRejected": "Bu API açarı rədd edildi.",
+			"deviceFailed": "Cihazla giriş alınmadı (HTTP {{status}}).",
+			"forbidden": "Bunu etmək üçün icazəniz yoxdur.",
+			"noInstance": "{{url}} ünvanında Kaneo instansiyası tapılmadı (HTTP {{status}}).",
+			"noSession": "Server sessiya qaytarmadı. Brauzerdən daxil olmağa çalışın.",
+			"notFound": "Tapılmadı.",
+			"notKaneo": "{{url}} Kaneo serverinə bənzəmir.",
+			"notSignedIn": "Daxil olmamısınız",
+			"requestFailed": "Sorğu alınmadı ({{status}}).",
+			"serverProblem": "Serverdə problem yarandı ({{status}}).",
+			"sessionExpired": "Sessiyanızın vaxtı bitib. Yenidən daxil olun.",
+			"signInRejected": "Giriş server tərəfindən qəbul edilmədi.",
+			"tooManyRequests": "Həddindən artıq sorğu. Bir az gözləyin.",
+			"unreachable": "Serverə qoşulmaq olmur. Bağlantınızı və server ünvanını yoxlayın.",
+			"uploadFailed": "Yükləmə alınmadı ({{status}})"
+		},
+		"home": {
+			"account": "Hesab",
+			"archived": "Arxivləşdirilib",
+			"due": "Son tarix: {{date}}",
+			"empty": {
+				"message": "Layihələrdə lövhələriniz və tapşırıqlarınız yerləşir.",
+				"title": "Hələ layihə yoxdur"
+			},
+			"hideArchived": "Arxivləşdirilən layihələri gizlət",
+			"newProject": "Yeni layihə",
+			"noTasks": "Tapşırıq yoxdur",
+			"noWorkspace": {
+				"body": "İş sahələrində layihələriniz və komandanız yerləşir. İş sahəsi yaradın və ya dəvəti qəbul edin.",
+				"create": "İş sahəsi yarat",
+				"joinWithLink": "Dəvət keçidi ilə qoşul",
+				"signedInAs": "{{email}} kimi daxil olmusunuz",
+				"title": "Hələ iş sahəsi yoxdur",
+				"viewInvitations_one": "{{count}} dəvətə bax",
+				"viewInvitations_other": "{{count}} dəvətə bax"
+			},
+			"progress": "{{done}} / {{total}}",
+			"projects": "Layihələr",
+			"search": "Axtar",
+			"showArchived": "Arxivləşdirilən layihələri göstər",
+			"switchWorkspace": "İş sahəsini dəyiş",
+			"upNext": "Növbəti",
+			"viewAll": "Hamısına bax"
+		},
+		"inbox": {
+			"allCaughtUpToast": "Hər şeyə baxmısınız",
+			"clearAll": "Bütün bildirişləri təmizlə",
+			"confirmClear": {
+				"confirm": "Hamısını təmizlə",
+				"message": "Bu iş sahəsindəki bütün bildirişlər silinir.",
+				"title": "Bütün bildirişlər təmizlənsin?"
+			},
+			"earlier": "Əvvəl",
+			"empty": {
+				"message": "Təyinatlar, şərhlər və adınızın çəkildiyi bildirişlər burada görünür.",
+				"title": "Hər şeyə baxmısınız"
+			},
+			"markAllRead": "Hamısını oxunmuş işarələ",
+			"more": "Daha çox",
+			"recent": "Son",
+			"title": "Gələnlər qutusu",
+			"today": "Bu gün"
+		},
+		"invitations": {
+			"accept": "Qəbul et",
+			"accepted": "Dəvət qəbul edildi",
+			"decline": "Rədd et",
+			"declined": "Dəvət rədd edildi",
+			"description": "Qoşulmağa dəvət olunduğunuz iş sahələri.",
+			"emptyMessage": "E-poçt ünvanınız təsdiqləndikdən sonra dəvətlər burada görünür. E-poçtdakı keçidlə hər zaman qoşula bilərsiniz.",
+			"emptyTitle": "Gözləyən dəvət yoxdur",
+			"invitedYou": "{{name}} sizi dəvət etdi",
+			"join": "Qoşul",
+			"joinWithLink": "Dəvət keçidi ilə qoşul",
+			"linkPlaceholder": "E-poçtunuzdakı keçidi yapışdırın",
+			"title": "Dəvətlər"
+		},
+		"labels": {
+			"actions": "{{name}} üçün əməliyyatlar",
+			"delete": "Etiketi sil",
+			"deleteMessage": "Etiket bu iş sahəsindəki bütün tapşırıqlardan silinir.",
+			"deleteTitle": "“{{name}}” silinsin?",
+			"description": "Etiketlər tapşırıqları qruplaşdırmağa və filtrləməyə kömək edir.",
+			"edit": "Etiketi redaktə et",
+			"empty": {
+				"message": "Layihələr üzrə tapşırıqları qruplaşdırmaq və filtrləmək üçün etiketlər yaradın.",
+				"title": "Etiket yoxdur"
+			},
+			"fallbackTitle": "Etiket",
+			"form": {
+				"color": "Rəng",
+				"name": "Ad"
+			},
+			"new": "Yeni etiket",
+			"title": "Etiketlər",
+			"toast": {
+				"deleted": "Etiket silindi"
+			}
+		},
+		"members": {
+			"description_one": "{{name}} daxilində {{count}} nəfər",
+			"description_other": "{{name}} daxilində {{count}} nəfər",
+			"invite": "Dəvət et",
+			"inviteForm": {
+				"email": "E-poçt",
+				"intro": "{{workspace}} iş sahəsinə qoşulmaq üçün keçid olan e-poçt alacaqlar.",
+				"role": "Rol",
+				"send": "Dəvət göndər",
+				"title": "Üzv dəvət et"
+			},
+			"inviteMenu": {
+				"cancel": "Dəvəti ləğv et",
+				"fallbackTitle": "Dəvət",
+				"resend": "Dəvəti yenidən göndər"
+			},
+			"memberMenu": {
+				"changeRole": "Rolu dəyiş",
+				"fallbackTitle": "Üzv",
+				"remove": "İş sahəsindən çıxar"
+			},
+			"pending": {
+				"expires": "{{role}}, {{date}} tarixində bitir",
+				"manage": "İdarə et",
+				"title": "Gözləyən dəvətlər"
+			},
+			"people": {
+				"title": "İnsanlar",
+				"unknown": "Naməlum",
+				"you": "(siz)"
+			},
+			"remove": {
+				"confirm": "Çıxar",
+				"message": "{{name}} {{workspace}} iş sahəsinə girişi itirəcək.",
+				"they": "Bu şəxs",
+				"title": "Üzv çıxarılsın?"
+			},
+			"rolePicker": {
+				"title": "Rol"
+			},
+			"thisWorkspace": "bu iş sahəsi",
+			"title": "Üzvlər",
+			"toast": {
+				"canceled": "Dəvət ləğv edildi",
+				"removed": "Üzv çıxarıldı",
+				"resent": "Dəvət yenidən göndərildi",
+				"roleUpdated": "Rol yeniləndi",
+				"sent": "Dəvət {{email}} ünvanına göndərildi"
+			}
+		},
+		"meta": {
+			"labelColor": {
+				"amber": "Kəhrəba",
+				"crimson": "Al qırmızı",
+				"forest": "Meşə",
+				"lagoon": "Laqun rəngi",
+				"lavender": "Lavanda",
+				"ocean": "Okean mavisi",
+				"orchid": "Orxideya rəngi",
+				"rose": "Çəhrayı",
+				"sage": "Adaçayı",
+				"sky": "Səma mavisi",
+				"slate": "Şifer",
+				"stone": "Daş",
+				"terracotta": "Terrakota"
+			},
+			"priority": {
+				"high": "Yüksək",
+				"low": "Aşağı",
+				"medium": "Orta",
+				"noPriority": "Prioritet yoxdur",
+				"urgent": "Təcili"
+			},
+			"role": {
+				"admin": "İnzibatçı",
+				"member": "Üzv",
+				"owner": "Sahib",
+				"viewer": "İzləyici"
+			},
+			"roleHint": {
+				"admin": "Üzvləri və ayarları da idarə edə bilər",
+				"member": "Tapşırıqlar yarada və redaktə edə bilər",
+				"owner": "İş sahəsini silmək daxil olmaqla tam nəzarət",
+				"viewer": "Layihələrə və tapşırıqlara baxa bilər"
+			}
+		},
+		"myTasks": {
+			"assigned_one": "{{count}} təyin olunub",
+			"assigned_other": "{{count}} təyin olunub",
+			"by": {
+				"due": "Son tarix",
+				"project": "Layihə",
+				"status": "Status"
+			},
+			"due": {
+				"later": "Sonra",
+				"none": "Son tarix yoxdur",
+				"overdue": "Gecikib",
+				"thisWeek": "Bu həftə",
+				"today": "Bu gün"
+			},
+			"empty": {
+				"message": "Bu iş sahəsində sizə təyin edilmiş tapşırıqlar burada görünür.",
+				"title": "Sizə heç nə təyin edilməyib"
+			},
+			"showing": "{{total}} tapşırıqdan {{shown}} göstərilir",
+			"title": "Tapşırıqlarım"
+		},
+		"nav": {
+			"activity": "Fəaliyyət",
+			"home": "Əsas səhifə",
+			"inbox": "Gələnlər qutusu",
+			"inboxUnread": "Gələnlər qutusu, {{count}} oxunmamış",
+			"tasks": "Tapşırıqlarım"
+		},
+		"notificationSettings": {
+			"channel": {
+				"accessToken": "Giriş tokeni",
+				"appToken": "Tətbiq tokeni",
+				"enabled": "Bildirişləri buraya göndər",
+				"secretOptional": "İstəyə bağlı",
+				"secretSaved": "Yadda saxlanılıb. Əvəz etmək üçün yenisini daxil edin",
+				"serverUrl": "Server URL-si",
+				"signingSecret": "İmzalama sirri",
+				"topic": "Mövzu",
+				"webhookUrl": "Vebhuk URL-si"
+			},
+			"delivery": {
+				"email": "E-poçt",
+				"emailHint": "Hesabınızın e-poçt ünvanına göndərilir",
+				"gotifyHint": "Bildirişləri Gotify serverinə göndər",
+				"ntfyHint": "Bildirişləri ntfy mövzusuna göndər",
+				"title": "Çatdırılma",
+				"webhook": "Vebhuk",
+				"webhookHint": "Bildirişləri URL-yə POST ilə göndər"
+			},
+			"description": "Kaneo sizə haradan və nə barədə xəbər versin.",
+			"events": {
+				"assignments": "Təyinatlar",
+				"assignmentsHint": "Sizə tapşırıq təyin ediləndə",
+				"comments": "Şərhlər",
+				"commentsHint": "Tapşırıqlarınızdakı yeni şərhlər",
+				"dueDate": "Son tarix xatırlatmaları",
+				"dueDateHint": "Sizə təyin edilmiş tapşırığın son tarixindən əvvəl",
+				"remindBefore": "{{time}} əvvəl",
+				"remindMe": "Mənə xatırlat",
+				"remindPickerTitle": "Əvvəlcədən xatırlat",
+				"statusChanges": "Status dəyişiklikləri",
+				"statusChangesHint": "Tapşırıqlarınız sütunlar arasında köçürüləndə",
+				"title": "Bunlar barədə bildir"
+			},
+			"leadTime": {
+				"day1": "1 gün",
+				"days2": "2 gün",
+				"hour1": "1 saat",
+				"hours3": "3 saat",
+				"minutes_one": "{{count}} dəqiqə",
+				"minutes_other": "{{count}} dəqiqə",
+				"minutes15": "15 dəqiqə",
+				"week1": "1 həftə"
+			},
+			"notSet": "Təyin edilməyib",
+			"off": "Sönülü",
+			"on": "Aktiv",
+			"title": "Bildirişlər"
+		},
+		"notificationText": {
+			"activity": {
+				"assignedTo": "bunu {{assignee}} üçün təyin etdi",
+				"assigneeChanged": "icraçını dəyişdi",
+				"commented": "şərh yazdı: {{text}}",
+				"created": "tapşırığı yaratdı",
+				"descriptionChanged": "təsviri yenilədi",
+				"dueDateRemoved": "son tarixi sildi",
+				"dueDateSet": "son tarixi {{date}} olaraq təyin etdi",
+				"priorityChanged": "prioriteti {{from}} dəyərindən {{to}} dəyərinə dəyişdi",
+				"renamed": "adını “{{title}}” olaraq dəyişdi",
+				"selfAssigned": "bunu özünə təyin etdi",
+				"statusChanged": "bunu {{from}} statusundan {{to}} statusuna köçürdü",
+				"taskUpdated": "tapşırığı yenilədi",
+				"titleChanged": "başlığı dəyişdi",
+				"unassigned": "icraçını sildi"
+			},
+			"assignedByActor": "{{actor}} sizə tapşırıq təyin etdi",
+			"assignedToTask": "“{{title}}” sizə təyin edildi",
+			"assignedToUntitled": "Sizə tapşırıq təyin edildi",
+			"commentedByActor": "{{actor}} şərh yazdı",
+			"mentioned": "Adınız qeyd edildi",
+			"mentionedByActor": "{{actor}} adınızı qeyd etdi",
+			"newComment": "Yeni şərh",
+			"statusChangedOnTask": "“{{title}}” tapşırığının statusu dəyişdi",
+			"statusChangedOnUntitled": "Tapşırığın statusu dəyişdi",
+			"statusTransition": "{{from}} → {{to}}",
+			"taskCreated": "Sizə yeni tapşırıq təyin edildi",
+			"timeLoggedOnTask": "“{{title}}” üçün vaxt qeydə alındı",
+			"timeLoggedOnUntitled": "Tapşırıq üçün vaxt qeydə alındı",
+			"workspaceCreated": "“{{name}}” iş sahəsi yaradıldı"
+		},
+		"picker": {
+			"clear": "Təmizlə",
+			"nextMonth": "Gələn ay",
+			"nextWeek": "Gələn həftə",
+			"previousMonth": "Əvvəlki ay"
+		},
+		"projectNew": {
+			"createProject": "Layihə yarat",
+			"customerPortal": "Müştəri portalı",
+			"key": "Açar",
+			"name": "Ad",
+			"newProject": "Yeni layihə",
+			"usedInTaskIDs": "Tapşırıq ID-lərində istifadə olunur"
+		},
+		"projectSettings": {
+			"addColumn": "Sütun əlavə et",
+			"addField": "Sahə əlavə et",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "Bu layihədəki bütün tapşırıqlar, şərhlər və vaxt qeydləri həmişəlik silinəcək.",
+			"androidIOSWeb": "Android, iOS, Veb",
+			"anyoneWithTheLinkCanViewTheBoard": "Keçidi olan hər kəs lövhəyə baxa bilər",
+			"archive": "Arxivləşdir",
+			"archiveProject": "Layihəni arxivləşdir",
+			"archiveProjectTitle": "Layihə arxivləşdirilsin?",
+			"blocked": "Bloklanıb",
+			"changesFutureAndExistingTaskIDs": "Gələcək və mövcud tapşırıq ID-lərini dəyişir",
+			"checkbox": "Seçim qutusu",
+			"column": "Sütun",
+			"columnDeleted": "Sütun silindi",
+			"columns": "Sütunlar",
+			"customFields": "Fərdi sahələr",
+			"date": "Tarix",
+			"deleteColumn": "Sütunu sil",
+			"deleteField": "Sahəni sil",
+			"deleteNamedTitle": "“{{name}}” silinsin?",
+			"deleteProject": "Layihəni sil",
+			"deleteProjectTitle": "Layihə silinsin?",
+			"doneColumn": "Tamamlanma sütunu",
+			"dropdown": "Açılan siyahı",
+			"field": "Sahə",
+			"fieldDeleted": "Sahə silindi",
+			"general": "Ümumi",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "Layihə siyahısından yox olur. Sonradan bərpa edə bilərsiniz.",
+			"key": "Açar",
+			"markAsDoneColumn": "Tamamlanma sütunu kimi işarələ",
+			"moveDown": "Aşağı köçür",
+			"moveToAnotherWorkspace": "Başqa iş sahəsinə köçür",
+			"moveToWorkspace": "İş sahəsinə köçür",
+			"moveUp": "Yuxarı köçür",
+			"multiSelect": "Çoxlu seçim",
+			"name": "Ad",
+			"newColumn": "Yeni sütun",
+			"newCustomField": "Yeni fərdi sahə",
+			"noCustomFields": "Fərdi sahə yoxdur",
+			"number": "Ədəd",
+			"ok": "OK",
+			"options": "Seçimlər",
+			"platform": "Platforma",
+			"project": "Layihə",
+			"projectArchived": "Layihə arxivləşdirildi",
+			"projectDeleted": "Layihə silindi",
+			"projectMoved": "Layihə köçürüldü",
+			"projectRestored": "Layihə bərpa edildi",
+			"projectSettings": "Layihə ayarları",
+			"projectUpdated": "Layihə yeniləndi",
+			"publicBoard": "İctimai lövhə",
+			"rename": "Adını dəyiş",
+			"renameColumn": "Sütunun adını dəyiş",
+			"required": "Tələb olunur",
+			"restoreProject": "Layihəni bərpa et",
+			"saveChanges": "Dəyişiklikləri yadda saxla",
+			"separateWithCommas": "Vergüllə ayırın",
+			"tasksHereCountAsFinished": "Buradakı tapşırıqlar tamamlanmış sayılır",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "Əvvəlcə bu sütundakı tapşırıqları köçürmək lazım ola bilər.",
+			"text": "Mətn",
+			"type": "Növ",
+			"unmarkAsDoneColumn": "Tamamlanma sütunu işarəsini sil",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Bu sahədə saxlanılan dəyərlər bütün tapşırıqlardan silinir.",
+			"checked": "İşarələnib",
+			"chooseDefault": "Standart dəyər seçin",
+			"defaultValue": "Standart dəyər",
+			"multiselectOptionsRequired": "Ən azı iki fərqli seçim əlavə edin.",
+			"unchecked": "İşarələnməyib",
+			"validDefaultRequired": "Bu tələb olunan sahə üçün etibarlı standart dəyər daxil edin."
+		},
+		"search": {
+			"clear": "Təmizlə",
+			"commentMeta": "{{name}}, {{when}}",
+			"empty": {
+				"message": "Tapşırıqları başlıq və ya nömrə ilə, layihələri və şərhləri tapın.",
+				"title": "Bu iş sahəsində axtar"
+			},
+			"failed": "Axtarış alınmadı",
+			"kinds": {
+				"all": "Hamısı",
+				"comments": "Şərhlər",
+				"projects": "Layihələr",
+				"tasks": "Tapşırıqlar",
+				"activity": "Fəaliyyət"
+			},
+			"noResults": "“{{query}}” üçün nəticə yoxdur",
+			"placeholder": "Tapşırıq, layihə, şərh axtar"
+		},
+		"signIn": {
+			"apiKey": {
+				"label": "API açarı",
+				"message": "Veb versiyada Ayarlar, sonra API açarları bölməsində yaradın. Digər giriş üsulları söndürüldükdə də işləyir."
+			},
+			"browserHint": "GitHub, Google, Discord və ya SSO",
+			"captcha": "Bu server bu addımda brauzer yoxlaması tələb edir. “Brauzerdə davam et” seçin.",
+			"change": "Dəyiş",
+			"cloud": "Kaneo Cloud",
+			"code": {
+				"checkEmail": "E-poçtunuzu yoxlayın",
+				"didntGet": "Almadınız?",
+				"message": "Sizə e-poçtla 6 rəqəmli kod göndərəcəyik. Parol lazım deyil.",
+				"resend": "Kodu yenidən göndər",
+				"send": "Kod göndər",
+				"sent": "{{email}} ünvanına 6 rəqəmli kod göndərdik",
+				"title": "Kodla daxil ol",
+				"verify": "Təsdiqlə"
+			},
+			"connect": "Qoşul",
+			"continueInBrowser": "Brauzerdə davam et",
+			"createAccount": "Hesab yarat",
+			"device": {
+				"codeCopied": "Kod kopyalandı",
+				"copyCode": "Kodu kopyala",
+				"copyLink": "Keçidi kopyala",
+				"denied": "Giriş brauzerdə rədd edildi.",
+				"expired": "Giriş kodunun vaxtı bitib. Yenisini almaq üçün yenidən başlayın.",
+				"gettingCode": "Kod alınır…",
+				"linkCopied": "Keçid kopyalandı",
+				"message": "Bu cihazı Kaneo saytından təsdiqləyin. GitHub, Google, Discord və SSO orada işləyir.",
+				"openBrowser": "Brauzeri aç",
+				"openFailed": "Brauzeri açmaq alınmadı. Keçidi kopyalayın.",
+				"tryAgain": "Yenidən cəhd et",
+				"waiting": "Təsdiq gözlənilir…",
+				"yourCode": "Kodunuz"
+			},
+			"email": "E-poçt",
+			"emailCode": "E-poçtla giriş kodu göndər",
+			"invalidClient": "Bu server cihazla girişə icazə vermir. İnzibatçıdan DEVICE_AUTH_CLIENT_IDS parametrinə “kaneo-cli” əlavə etməsini istəyin və ya parol və ya API açarı ilə daxil olun.",
+			"newToKaneo": "Kaneo-da yenisiniz?",
+			"noPassword": "Parol lazım deyil",
+			"or": "və ya",
+			"password": "Parol",
+			"recent": "Son",
+			"selfHosted": "Öz serverinizdə",
+			"sendTo": "{{email}} ünvanına göndər",
+			"serverAddress": "Server ünvanı",
+			"serverAddressHint": "Kaneo-nu açdığınız ünvan. TLS olmayan serverlər üçün http:// istifadə edin. API başqa hostda işləyirsə, API ünvanını daxil edin.",
+			"signIn": "Daxil ol",
+			"signUp": {
+				"name": "Ad",
+				"passwordHint": "Ən azı 8 simvol"
+			},
+			"tagline": "Sadə layihə idarəetməsi. Kaneo Cloud-a və ya öz instansiyanıza qoşulun.",
+			"togglePassword": "Parolun görünməsini dəyiş",
+			"useApiKey": "API açarından istifadə et"
+		},
+		"taskDetail": {
+			"activity": {
+				"comment": "Şərh",
+				"deleteMessage": "Bu əməliyyatı geri qaytarmaq olmur.",
+				"deleteTitle": "Şərh silinsin?",
+				"edit": "Redaktə et",
+				"editComment": "Şərhi redaktə et",
+				"edited": "{{time}}, redaktə edilib",
+				"entry": "{{name}} {{action}}",
+				"title": "Fəaliyyət"
+			},
+			"fields": {
+				"empty": "Boş",
+				"none": "Yoxdur",
+				"title": "Sahələr"
+			},
+			"links": {
+				"add": "Keçid əlavə et",
+				"empty": "Keçid yoxdur",
+				"optional": "İstəyə bağlı",
+				"remove": "Keçidi sil",
+				"synced": "Sinxronlaşdırılıb",
+				"title": "Keçidlər",
+				"titleLabel": "Başlıq",
+				"url": "URL"
+			},
+			"menu": {
+				"delete": "Tapşırığı sil",
+				"deleted": "Tapşırıq silindi",
+				"deleteMessage": "“{{title}}” və onun şərhləri həmişəlik silinəcək.",
+				"deleteTitle": "Tapşırıq silinsin?",
+				"duplicate": "Dublikat yarat",
+				"duplicated": "Tapşırığın dublikatı yaradıldı",
+				"move": "Layihəyə köçür…",
+				"moved": "Tapşırıq köçürüldü",
+				"moveTitle": "Layihəyə köçür",
+				"refresh": "Yenilə",
+				"share": "Paylaş"
+			},
+			"relations": {
+				"blockedBy": "Bloklayan",
+				"blocks": "Bloklayır",
+				"empty": "Əlaqəli tapşırıq yoxdur",
+				"link": "Tapşırığı əlaqələndir",
+				"related": "Əlaqəli",
+				"relatedTo": "Əlaqəli olduğu",
+				"remove": "Əlaqəni sil",
+				"removeConfirm": "Çıxar",
+				"removeMessage": "Tapşırıqlar qalır; yalnız aralarındakı əlaqə silinir.",
+				"removeTitle": "Əlaqə silinsin?",
+				"searchPlaceholder": "Tapşırıqları başlıq və ya nömrə ilə axtar",
+				"title": "Əlaqələr"
+			},
+			"screen": {
+				"addDescription": "Təsvir əlavə et…",
+				"copyLink": "Keçidi kopyala",
+				"editDescription": "Təsviri redaktə et",
+				"editTitle": "Başlığı redaktə et",
+				"linkCopied": "Keçid kopyalandı",
+				"more": "Daha çox"
+			},
+			"section": {
+				"addTo": "{{title}} bölməsinə əlavə et"
+			},
+			"someone": "Kimsə",
+			"status": {
+				"archived": "Arxivləşdirilib",
+				"planned": "Planlaşdırılıb"
+			},
+			"subtasks": {
+				"add": "Alt tapşırıq əlavə et",
+				"empty": "Alt tapşırıq yoxdur",
+				"parent": "Əsas tapşırıq",
+				"title": "Alt tapşırıqlar"
+			},
+			"time": {
+				"chipHours": "{{count}} saat",
+				"chipMinutes": "{{count}} dəq",
+				"date": "Tarix",
+				"durationHoursMinutes": "{{hours}} saat {{minutes}} dəq",
+				"durationMinutes": "{{minutes}} dəq",
+				"editEntry": "Vaxt qeydini redaktə et",
+				"hoursUnit": "saat",
+				"log": "Vaxt qeydə al",
+				"logDuration": "{{duration}} qeydə al",
+				"logged": "Vaxt qeydə alındı",
+				"minutesUnit": "dəq",
+				"notePlaceholder": "Nə üzərində işlədiniz?",
+				"running": "{{time}} (işləyir)",
+				"start": "Taymeri başlat",
+				"stop": "Dayandır",
+				"title": "Vaxt",
+				"total": "Cəmi {{duration}}"
+			}
+		},
+		"taskFields": {
+			"addNumber": "Ədəd əlavə et",
+			"archived": "Arxivləşdirilib",
+			"assignee": "İcraçı",
+			"createLabel": "“{{name}}” etiketi yarat",
+			"done": "Tamamlanıb",
+			"doneColumn": "Tamamlanma sütunu",
+			"dueDate": "Son tarix",
+			"empty": "Boş",
+			"labelColor": "Yeni etiketin rəngi",
+			"labels": "Etiketlər",
+			"noLabels": "Hələ etiket yoxdur. Yaratmaq üçün ad daxil edin.",
+			"none": "Yoxdur",
+			"overdue_one": "{{date}}, {{count}} gün gecikib",
+			"overdue_other": "{{date}}, {{count}} gün gecikib",
+			"planned": "Planlaşdırılıb",
+			"priority": "Prioritet",
+			"searchOrCreate": "Axtar və ya yarat",
+			"searchPeople": "İnsanları axtar",
+			"startDate": "Başlama tarixi",
+			"starts": "Başlayır: {{date}}",
+			"status": "Status",
+			"unassigned": "Təyin olunmayıb",
+			"you": "{{name}} (siz)"
+		},
+		"taskNew": {
+			"create": "Yarat",
+			"newSubtask": "Yeni alt tapşırıq",
+			"noLabels": "Bu iş sahəsində hələ etiket yoxdur.",
+			"project": "Layihə",
+			"taskTitle": "Tapşırıq başlığı",
+			"labelsAndParentFailed": "Tapşırıq yaradıldı, lakin bəzi etiketlər və əsas tapşırıqla əlaqə yadda saxlanıla bilmədi.",
+			"labelsFailed": "Tapşırıq yaradıldı, lakin bəzi etiketlər əlavə edilə bilmədi.",
+			"parentFailed": "Tapşırıq yaradıldı, lakin əsas tapşırıqla əlaqələndirilə bilmədi."
+		},
+		"time": {
+			"durationHoursMinutes": "{{hours}} saat {{minutes}} dəq",
+			"goodAfternoon": "Günortanız xeyir",
+			"goodEvening": "Axşamınız xeyir",
+			"goodMorning": "Sabahınız xeyir",
+			"hours_one": "{{count}} saat",
+			"hours_other": "{{count}} saat",
+			"hoursAgo_one": "{{count}} saat əvvəl",
+			"hoursAgo_other": "{{count}} saat əvvəl",
+			"hoursShort_one": "{{count}} saat",
+			"hoursShort_other": "{{count}} saat",
+			"justNow": "indicə",
+			"minutes_one": "{{count}} dəq",
+			"minutes_other": "{{count}} dəq",
+			"minutesAgo_one": "{{count}} dəq əvvəl",
+			"minutesAgo_other": "{{count}} dəq əvvəl",
+			"minutesShort_one": "{{count}} dəq",
+			"minutesShort_other": "{{count}} dəq",
+			"now": "indi",
+			"secondsShort_one": "{{count}} san",
+			"secondsShort_other": "{{count}} san",
+			"today": "Bu gün",
+			"tomorrow": "Sabah",
+			"yesterday": "Dünən"
+		},
+		"ui": {
+			"back": "Geri",
+			"loadFailed": "Yükləmək alınmadı",
+			"nothingMatches": "“{{query}}” ilə uyğun gələn heç nə yoxdur",
+			"search": "Axtar"
+		},
+		"workspaceNew": {
+			"create": "İş sahəsi yarat",
+			"description": "Komandanızın layihələri üçün məkan. Sonra insanları dəvət edə bilərsiniz.",
+			"descriptionLabel": "Təsvir",
+			"descriptionPlaceholder": "Bu iş sahəsi nə üçündür?",
+			"name": "Ad",
+			"namePlaceholder": "Dizayn studiyası",
+			"optional": "İstəyə bağlı",
+			"title": "Yeni iş sahəsi"
+		},
+		"workspaceSettings": {
+			"confirm": {
+				"deleteMessage": "{{name}} daxilindəki bütün layihələr, tapşırıqlar və şərhlər həmişəlik silinəcək.",
+				"deleteTitle": "İş sahəsi silinsin?",
+				"leaveMessage": "Kimsə sizi yenidən dəvət edənədək girişi itirəcəksiniz.",
+				"leaveTitle": "İş sahəsindən çıxılsın?"
+			},
+			"danger": {
+				"delete": "İş sahəsini sil",
+				"deleteHint": "Daxilindəki bütün layihələri və tapşırıqları silir",
+				"leave": "İş sahəsindən çıx",
+				"leaveButton": "Çıx",
+				"leaveHint": "Yeni dəvətlə yenidən qoşula bilərsiniz",
+				"title": "Təhlükəli zona"
+			},
+			"description": "{{name}} daxilindəki hər kəs üçün ayarlar.",
+			"general": {
+				"description": "Təsvir",
+				"name": "Ad",
+				"save": "Dəyişiklikləri yadda saxla",
+				"slug": "Qısa ad: <mono>{{slug}}</mono>",
+				"title": "Ümumi"
+			},
+			"manage": {
+				"labels": "Etiketlər",
+				"members": "Üzvlər",
+				"title": "İdarə et"
+			},
+			"thisWorkspace": "bu iş sahəsi",
+			"title": "İş sahəsi",
+			"toast": {
+				"deleted": "İş sahəsi silindi",
+				"left": "İş sahəsindən çıxdınız",
+				"updated": "İş sahəsi yeniləndi"
+			}
+		},
+		"workspaceSwitcher": {
+			"create": "İş sahəsi yarat",
+			"invitations": "Dəvətlər",
+			"labels": "Etiketlər",
+			"members": "Üzvlər",
+			"settings": "İş sahəsi ayarları",
+			"title": "İş sahələri"
+		},
+		"permissions": {
+			"photos": "Kaneo şəkillərinizdən tapşırıqlara və şərhlərə şəkil əlavə etmək, həmçinin profil şəkliniz üçün istifadə edir."
 		}
 	}
 }

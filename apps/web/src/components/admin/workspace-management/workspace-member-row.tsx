@@ -5,6 +5,7 @@ import { RowActionsMenu } from "@/components/settings/row-actions-menu";
 import type { ProjectAccessValue } from "@/components/team/project-access/project-access-value";
 import { Badge } from "@/components/ui/badge";
 import type { AdminWorkspaceMember } from "@/fetchers/admin/workspace-types";
+import { getWorkspaceRoleLabel } from "./get-workspace-role-label";
 import { isWorkspaceOwnerRole } from "./is-workspace-owner-role";
 import { MemberAccessButton } from "./member-access-button";
 import WorkspaceRoleSelect from "./workspace-role-select";
@@ -14,6 +15,8 @@ type Props = {
   roleOptions: readonly string[];
   access: ProjectAccessValue | undefined;
   isOnlyOwner: boolean;
+  /** Without `workspaces:manage` the row is read-only. */
+  canManage: boolean;
   isUpdatingRole: boolean;
   onRoleChange: (role: string) => void;
   onEditAccess: () => void;
@@ -26,6 +29,7 @@ function WorkspaceMemberRow({
   roleOptions,
   access,
   isOnlyOwner,
+  canManage,
   isUpdatingRole,
   onRoleChange,
   onEditAccess,
@@ -57,6 +61,10 @@ function WorkspaceMemberRow({
               <ShieldIcon aria-hidden="true" />
               {t("team:roles.owner")}
             </Badge>
+          ) : !canManage ? (
+            <Badge variant="secondary" className="px-1.5">
+              {getWorkspaceRoleLabel(member.role, t)}
+            </Badge>
           ) : (
             <WorkspaceRoleSelect
               size="sm"
@@ -80,7 +88,7 @@ function WorkspaceMemberRow({
           />
         </div>
         <div className="flex w-7 shrink-0 justify-end">
-          {isOnlyOwner ? null : (
+          {isOnlyOwner || !canManage ? null : (
             <RowActionsMenu
               label={t("settings:adminWorkspaces.members.actions", { name })}
               actions={[

@@ -171,6 +171,33 @@ describe("API key rate limits", () => {
   });
 
   it.each([
+    ["x-api-key", (key: string) => ({ "x-api-key": key })],
+    ["a Bearer key", (key: string) => ({ Authorization: `Bearer ${key}` })],
+  ])(
+    "answers 429 when quota expires between preflight and the native key boundary via %s",
+    async (_, headersFor) => {
+      const { key, row } = await seedKey({ remaining: 1 });
+      const handler = auth.handler;
+      vi.spyOn(auth, "handler").mockImplementationOnce(async (request) => {
+        await db
+          .update(schema.apikeyTable)
+          .set({ remaining: 0 })
+          .where(eq(schema.apikeyTable.id, row.id));
+        return handler(request);
+      });
+      const { app } = createApp();
+      const response = await app.request("/api/auth/get-session", {
+        headers: headersFor(key),
+      });
+      expect(response.status).toBe(429);
+      expect(await readErrorBody(response)).toEqual(usageExceeded);
+      expect(response.headers.get("retry-after")).toBeNull();
+      expect(response.headers.get("cache-control")).toBe("no-store");
+      expect((await savedKey(row.id)).requestCount).toBe(0);
+    },
+  );
+
+  it.each([
     [
       "x-api-key",
       "/api/auth/get-session",
@@ -269,7 +296,7 @@ describe("API key rate limits", () => {
         message: "Too many requests. Please try again later.",
         code: "RATE_LIMITED",
       });
-      expect(response.headers.get("cache-control")).toBe("private");
+      expect(response.headers.get("cache-control")).toBe("no-store");
       expect((await savedKey(row.id)).requestCount).toBe(0);
     },
   );

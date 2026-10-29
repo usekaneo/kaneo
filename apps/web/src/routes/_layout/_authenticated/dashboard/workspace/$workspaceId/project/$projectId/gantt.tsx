@@ -266,12 +266,16 @@ function RouteComponent() {
         <ActiveFiltersBar
           subjects={view.subjects}
           onClear={view.filters.clearFilters}
+          customFieldValues={view.filters.customFieldValues}
         />
       }
     >
       <PageTitle
-        title={t("tasks:gantt.pageTitle", { name: project?.name })}
-        hideAppName
+        title={
+          project
+            ? t("tasks:gantt.pageTitle", { name: project.name })
+            : undefined
+        }
       />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <div className="border-b border-border/80 px-3 py-2 sm:px-4">

@@ -24,10 +24,12 @@ const { client, auth, navigate, evictProject } = vi.hoisted(() => ({
   evictProject: vi.fn(),
   auth: {
     userId: "user-a" as string | null,
+    sessionId: "session-a",
     workspaceId: "workspace",
     pathname: "",
     notify: vi.fn(),
     signOut: vi.fn().mockResolvedValue(undefined),
+    getSession: vi.fn().mockResolvedValue({ data: null }),
   },
 }));
 vi.mock("@tanstack/react-router", () => ({
@@ -40,11 +42,15 @@ vi.mock("@/lib/auth-client", () => ({
   authClient: {
     $store: { notify: auth.notify },
     signOut: auth.signOut,
+    getSession: auth.getSession,
     useSession: () => ({
       data: auth.userId
         ? {
             user: { id: auth.userId },
-            session: { activeOrganizationId: auth.workspaceId },
+            session: {
+              id: auth.sessionId,
+              activeOrganizationId: auth.workspaceId,
+            },
           }
         : null,
     }),
@@ -74,7 +80,7 @@ class TestSocket {
   static instances: TestSocket[] = [];
   readyState = 0;
   onopen: (() => void) | null = null;
-  onclose: (() => void) | null = null;
+  onclose: ((event?: { code: number }) => void) | null = null;
   onmessage: ((event: { data: string }) => void) | null = null;
   send = vi.fn();
   close = vi.fn(() => {
@@ -95,6 +101,7 @@ describe("user WebSocket lifecycle", () => {
     vi.stubEnv("VITE_API_URL", "http://localhost:1337");
     TestSocket.instances = [];
     auth.userId = "user-a";
+    auth.sessionId = "session-a";
     auth.workspaceId = "workspace";
     auth.pathname = "";
     vi.clearAllMocks();
@@ -104,6 +111,35 @@ describe("user WebSocket lifecycle", () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+  });
+  it("keeps an archived board open to show its archived state and refreshes on restore", () => {
+    renderHook(useUserWebSocket);
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_ACCESS_REVOKED",
+          workspaceId: "workspace",
+          reason: "archived",
+        }),
+      }),
+    );
+    expect(navigate).not.toHaveBeenCalled();
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["workspace-status", "workspace"],
+    });
+    client.invalidateQueries.mockClear();
+    act(() =>
+      TestSocket.instances[0].onmessage?.({
+        data: JSON.stringify({
+          type: "WORKSPACE_RESTORED",
+          workspaceId: "workspace",
+        }),
+      }),
+    );
+    expect(client.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ["workspace-status", "workspace"],
+    });
+    expect(auth.notify).toHaveBeenCalledWith("$listOrg");
   });
   it.each([
     "/dashboard/settings/workspace/general",
@@ -224,6 +260,84 @@ describe("user WebSocket lifecycle", () => {
     expect(vi.getTimerCount()).toBe(0);
   });
 
+  it.each([
+    ["no session", { data: null }],
+    ["an expired session", { data: null, error: { status: 401 } }],
+    [
+      "another account's session",
+      { data: { session: { id: "session-c" }, user: { id: "user-c" } } },
+    ],
+  ])(
+    "goes to sign-in without signing out when the provider ends its session and the cookie holds %s",
+    async (_, result) => {
+      auth.getSession.mockResolvedValueOnce(result);
+      renderHook(useUserWebSocket);
+      const socket = TestSocket.instances[0];
+      act(() => socket.open());
+      await act(async () => socket.onclose?.({ code: 4001 }));
+      act(() => vi.advanceTimersByTime(60_000));
+      expect(client.clear).toHaveBeenCalledOnce();
+      expect(auth.signOut).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+      expect(TestSocket.instances).toHaveLength(1);
+    },
+  );
+
+  it("reconnects when another tab already signed in again", async () => {
+    auth.getSession.mockResolvedValueOnce({
+      data: { session: { id: "session-b" }, user: { id: "user-a" } },
+    });
+    renderHook(useUserWebSocket);
+    const socket = TestSocket.instances[0];
+    act(() => socket.open());
+    await act(async () => socket.onclose?.({ code: 4001 }));
+    expect(auth.signOut).not.toHaveBeenCalled();
+    expect(client.clear).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+    expect(TestSocket.instances).toHaveLength(2);
+  });
+
+  it.each([
+    [
+      "fails",
+      () => auth.getSession.mockRejectedValueOnce(new Error("offline")),
+    ],
+    [
+      "reports a server error",
+      () =>
+        auth.getSession.mockResolvedValueOnce({
+          data: null,
+          error: { status: 503 },
+        }),
+    ],
+  ])(
+    "checks the session again before leaving when the check %s",
+    async (_, failCheck) => {
+      failCheck();
+      renderHook(useUserWebSocket);
+      const socket = TestSocket.instances[0];
+      act(() => socket.open());
+      await act(async () => socket.onclose?.({ code: 4001 }));
+      expect(client.clear).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+      await act(() => vi.advanceTimersByTimeAsync(1000));
+      expect(auth.getSession).toHaveBeenCalledTimes(2);
+      expect(client.clear).toHaveBeenCalledOnce();
+      expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
+      expect(TestSocket.instances).toHaveLength(1);
+    },
+  );
+
+  it("reconnects when the session changes but not on a plain rerender", () => {
+    const { rerender } = renderHook(useUserWebSocket);
+    rerender();
+    expect(TestSocket.instances).toHaveLength(1);
+    auth.sessionId = "session-b";
+    rerender();
+    expect(TestSocket.instances).toHaveLength(2);
+    expect(TestSocket.instances[0].close).toHaveBeenCalledOnce();
+  });
+
   it("keeps users in their current workspace when an inactive membership is revoked", () => {
     auth.workspaceId = "other-workspace";
     renderHook(() => useUserWebSocket());
@@ -335,7 +449,7 @@ describe("user WebSocket lifecycle", () => {
   });
 });
 
-it("clears all private caches and signs out after account-wide revocation", async () => {
+it("clears all private caches without signing out after account-wide revocation", async () => {
   vi.stubGlobal("WebSocket", TestSocket);
   auth.userId = "user-a";
   renderHook(useUserWebSocket);
@@ -344,7 +458,7 @@ it("clears all private caches and signs out after account-wide revocation", asyn
   socket.onclose?.();
   await Promise.resolve();
   expect(client.clear).toHaveBeenCalled();
-  expect(auth.signOut).toHaveBeenCalled();
+  expect(auth.signOut).not.toHaveBeenCalled();
   expect(navigate).toHaveBeenCalledWith({ to: "/auth/sign-in" });
   cleanup();
   vi.unstubAllGlobals();

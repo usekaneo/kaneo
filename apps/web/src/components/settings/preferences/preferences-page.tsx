@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { ThemePicker } from "@/components/account/theme-picker";
+import PageTitle from "@/components/page-title";
 import { AdvancedSettingsSwitch } from "@/components/settings/advanced-settings-switch";
 import { AutosaveNote } from "@/components/settings/autosave-note";
 import { GeneralPreferencesSection } from "@/components/settings/preferences/general-preferences-section";
@@ -20,6 +21,7 @@ export function PreferencesPage() {
       description={t("settings:preferencesPage.subtitle")}
       actions={<AutosaveNote />}
     >
+      <PageTitle title={t("settings:preferencesPage.title")} />
       <SettingsSection title={t("settings:preferencesPage.theme")}>
         <ThemePicker value={theme} onChange={setTheme} />
       </SettingsSection>

@@ -91,9 +91,9 @@ const TrialReminderEmail = ({
       <EmailButton href={billingUrl} icon="credit-card-light">
         Choose a plan
       </EmailButton>
-      <EmailNote title="Rather run it yourself?">
-        Kaneo is free forever when you host it, with every feature included. You
-        can export your data at any time and move it to your own server.
+      <EmailNote title="Every feature, on every plan">
+        Hosting, backups, and updates stay on us, and you can export your data
+        at any time.
       </EmailNote>
       <EmailFooter
         title="Kaneo Cloud billing"

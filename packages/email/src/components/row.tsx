@@ -1,4 +1,4 @@
-import { Row as EmailRow } from "@react-email/components";
+import { Row as EmailRow } from "react-email";
 import React from "react";
 
 void React;

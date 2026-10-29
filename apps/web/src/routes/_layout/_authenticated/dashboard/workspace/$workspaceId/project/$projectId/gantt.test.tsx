@@ -91,6 +91,9 @@ vi.mock("@/components/project/task-filters/use-task-filter-options", () => ({
 }));
 
 const noCustomFieldValues = () => [];
+vi.mock("@/hooks/queries/label/use-get-labels-by-workspace", () => ({
+  default: () => ({ data: undefined }),
+}));
 vi.mock(
   "@/hooks/queries/custom-field/use-get-all-custom-field-values-by-project",
   () => ({
@@ -134,6 +137,7 @@ vi.mock("react-i18next", () => ({
       );
     },
   }),
+  initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
 const GanttRoute = (Route as unknown as { component: ComponentType }).component;

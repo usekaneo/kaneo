@@ -1,6 +1,6 @@
 # Kaneo CLI
 
-The official command-line client for [Kaneo](https://kaneo.app), the open source project manager. It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and ships as a single `kaneo` binary for macOS, Linux and Windows.
+The official command-line client for [Kaneo](https://kaneo.app). It is maintained in the [usekaneo/kaneo](https://github.com/usekaneo/kaneo) monorepo and ships as a single `kaneo` binary for macOS, Linux and Windows.
 
 ```bash
 curl -fsSL https://kaneo.app/cli/install.sh | sh
@@ -82,7 +82,7 @@ Credentials are resolved in this order: `--token`, then `KANEO_API_KEY`, then th
 | `kaneo profile list`, `use`, `rename`, `remove` | Manage stored logins for several servers or accounts |
 | `kaneo task list`, `mine`, `view`, `open` | List a project's tasks or your own, show one, open it in the browser |
 | `kaneo task create`, `edit`, `duplicate`, `delete` | Create, change, copy and delete tasks |
-| `kaneo task status`, `move`, `assign`, `field` | Change a task's column, project, assignee or custom fields |
+| `kaneo task status`, `move`, `assign`, `field`, `repeat` | Change a task's column, project, assignee, custom fields or repeat rule |
 | `kaneo task bulk` | Apply one change to many tasks at once |
 | `kaneo task attach`, `images` | Upload files to a task, show the images in its description |
 | `kaneo task relation`, `link`, `activity` | Subtasks and blockers, links, and the task's history |

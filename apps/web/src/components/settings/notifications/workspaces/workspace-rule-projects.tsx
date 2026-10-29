@@ -14,7 +14,7 @@ type WorkspaceRuleProjectsProps = {
 };
 
 const segmentClassName =
-  "h-7 flex-1 rounded-md px-3 text-[13px] font-normal text-muted-foreground hover:bg-transparent hover:text-foreground data-pressed:bg-background data-pressed:font-medium data-pressed:text-foreground data-pressed:shadow-xs/5 dark:data-pressed:bg-input sm:h-7";
+  "h-7 flex-1 rounded-[calc(var(--radius-lg)-3px)] px-3 text-[13px] font-normal text-muted-foreground hover:bg-transparent hover:text-foreground data-pressed:bg-background data-pressed:font-medium data-pressed:text-foreground data-pressed:shadow-xs/5 dark:data-pressed:bg-input sm:h-7";
 
 export function WorkspaceRuleProjects({
   workspaceId,

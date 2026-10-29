@@ -14,7 +14,7 @@ export function useSettingsNav() {
     workspaceId: workspace?.id ?? "",
   });
   const { data: config } = useGetConfig();
-  const { data: hasAdminAccess } = useAdminAccess();
+  const { permissions: adminPermissions } = useAdminAccess();
   const { canImport } = useCanImport();
 
   return useMemo(
@@ -24,7 +24,7 @@ export function useSettingsNav() {
         workspaceName: workspace?.name,
         billingEnabled: Boolean(config?.billingEnabled),
         canImport,
-        hasAdminAccess: Boolean(hasAdminAccess),
+        adminPermissions,
         projects: projects ?? [],
       }),
     [
@@ -32,7 +32,7 @@ export function useSettingsNav() {
       workspace?.name,
       config?.billingEnabled,
       canImport,
-      hasAdminAccess,
+      adminPermissions,
       projects,
     ],
   );

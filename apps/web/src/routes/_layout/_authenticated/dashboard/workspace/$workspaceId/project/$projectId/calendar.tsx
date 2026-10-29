@@ -126,12 +126,16 @@ function RouteComponent() {
         <ActiveFiltersBar
           subjects={view.subjects}
           onClear={view.filters.clearFilters}
+          customFieldValues={view.filters.customFieldValues}
         />
       }
     >
       <PageTitle
-        title={t("tasks:calendar.pageTitle", { name: project?.name })}
-        hideAppName
+        title={
+          project
+            ? t("tasks:calendar.pageTitle", { name: project.name })
+            : undefined
+        }
       />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <CalendarToolbar

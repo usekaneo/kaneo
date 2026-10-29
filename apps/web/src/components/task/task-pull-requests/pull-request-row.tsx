@@ -18,6 +18,7 @@ export function PullRequestRow({ pullRequest }: PullRequestRowProps) {
     merged: t("tasks:pr.merged"),
     draft: t("tasks:pr.draft"),
     open: t("tasks:pr.open"),
+    closed: t("tasks:pr.closed"),
   }[status];
 
   return (

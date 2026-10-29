@@ -10,7 +10,7 @@ import { withSocialMetadata } from "@/lib/metadata";
 export const metadata: Metadata = withSocialMetadata({
   title: "Pricing",
   description:
-    "Simple pricing for Kaneo Cloud. Self-hosting stays free and open source forever.",
+    "Kaneo Cloud from $4 a month, with no feature tiers. Start a 14-day free trial, no credit card required.",
   alternates: {
     canonical: "/pricing",
   },
@@ -43,12 +43,12 @@ export default function PricingPage() {
               eyebrow="Pricing"
               title={
                 <>
-                  Free to run yourself.
+                  Simple pricing.
                   <br />
-                  Fair when we run it for you.
+                  No feature tiers.
                 </>
               }
-              description="Self-hosting is free forever. Kaneo Cloud starts with a 14-day free trial, no credit card required."
+              description="Kaneo Cloud handles hosting, backups, and updates. Start with a 14-day free trial, no credit card required."
             />
 
             <div className="mt-12">

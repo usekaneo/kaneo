@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => {
     if (cookie.includes("victim_session=1")) {
       return {
         user: { id: "victim-user" },
-        session: { token: "victim-cookie-token" },
+        session: { id: "victim-session", token: "victim-cookie-token" },
       };
     }
     return null;
@@ -20,15 +20,33 @@ const mocks = vi.hoisted(() => {
       return row;
     }),
   }));
-  return { getSession, insert, insertedSessions };
+  const select = vi.fn(() => ({
+    from: () => ({
+      where: () => ({
+        limit: () => ({
+          for: async () => [
+            {
+              id: "victim-session",
+              expiresAt: new Date(Date.now() + 60_000),
+            },
+          ],
+        }),
+      }),
+    }),
+  }));
+  return { getSession, insert, select, insertedSessions };
 });
 
 vi.mock("../../apps/api/src/auth", () => ({
   auth: { api: { getSession: mocks.getSession } },
 }));
 
-vi.mock("../../apps/api/src/database", () => ({
-  default: { insert: mocks.insert },
+vi.mock("../../apps/api/src/database", async () => ({
+  default: {
+    transaction: async (callback: (tx: unknown) => Promise<unknown>) =>
+      callback({ insert: mocks.insert, select: mocks.select }),
+  },
+  schema: await import("../../apps/api/src/database/schema"),
 }));
 
 vi.mock("../../apps/api/src/mcp/tools", () => ({

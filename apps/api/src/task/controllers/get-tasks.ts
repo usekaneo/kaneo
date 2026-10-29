@@ -13,6 +13,7 @@ import {
 } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { HTTPException } from "hono/http-exception";
+import { publicExternalLink } from "../../project/controllers/public-external-link";
 import {
   columnTable,
   externalLinkTable,
@@ -186,6 +187,7 @@ async function getTasksPage(
     priority: taskTable.priority,
     startDate: taskTable.startDate,
     dueDate: taskTable.dueDate,
+    recurrence: taskTable.recurrence,
     position: taskTable.position,
     createdAt: taskTable.createdAt,
     userId: taskTable.userId,
@@ -278,10 +280,13 @@ async function getTasksPage(
     if (!taskExternalLinksMap.has(externalLink.taskId)) {
       taskExternalLinksMap.set(externalLink.taskId, []);
     }
-    taskExternalLinksMap.get(externalLink.taskId)?.push({
+    const link = {
       ...externalLink,
       metadata: parseMetadata(externalLink.metadata),
-    });
+    };
+    taskExternalLinksMap
+      .get(externalLink.taskId)
+      ?.push(options.publicOnly ? publicExternalLink(link) : link);
   }
 
   const projectColumns = await db

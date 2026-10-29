@@ -1,17 +1,97 @@
 ---
-title: "Administer users and workspaces"
-description: "Manage every account and workspace on your instance as an instance administrator."
+title: "Administer your instance"
+description: "Manage accounts and workspaces, review administrative actions, and check your instance’s services."
 ---
 
 Instance administrators manage the whole Kaneo instance, not just the workspaces they belong to. The first account created on a new instance becomes an instance administrator, and an administrator can give the role to others from **User management**.
 
-Both pages live under **Settings → Administration** and are only visible to instance administrators.
+These pages live under **Settings → Administration**. Administrators see all of them. Users with a [custom role](#custom-roles) see only the pages and actions their role allows. The administration landing page opens the first permitted page, with Overview first. Opening a page outside your role redirects there too; accounts with no available page return to account settings.
+
+## Overview
+
+**Settings → Administration → Overview** is the administration landing page. It shows total users, users active in the last 30 days, disabled users, and total and archived workspaces. Active users are counted once if one of their stored sessions was refreshed in the last 30 days; disabled accounts are excluded, and expired bans no longer disable an account. Session refreshes can lag by up to a day; removed or revoked sessions no longer contribute.
+
+The page lists the five newest users and administrative actions, with links to their directories, and checks the same services as **System**. Configuration warnings point out missing email setup, unavailable configured services, incomplete storage settings, open registration without email, or fewer than two enabled instance administrators. Optional Redis and storage do not trigger warnings when switched off. Choose **Refresh** to update the counts and checks.
+
+The page and `GET /api/admin/overview` require all four instance permissions: `users:read`, `workspaces:read`, `audit:read`, and `system:read`. API keys are rejected. It returns service statuses and warning codes without credentials, session tokens, or audit metadata.
 
 ## Manage users
 
-Open **Settings → Administration → User management** to search every account on the instance. From a user's menu you can edit their name, email, and instance role, deactivate or reactivate the account, or delete it.
+Open **Settings → Administration → User management** to search every account on the instance. Filter by status (active or deactivated), role (admin, user, or a custom role), and email verification. Each row shows the user's role, status, when they were last active, and when they joined. **Last active** is the most recent activity of one of their current sessions, so it can lag by up to a day and is empty for someone who has never signed in or has no session left.
+
+From a user's menu you can:
+
+- **Edit.** Change their name, email, and instance role, and upload or remove their profile picture. The dialog also shows whether their email is verified and which sign-in methods are linked (password, GitHub, Google, Discord, or your OIDC provider).
+- **Send password reset link.** Kaneo emails them a single-use link to choose a new password. It expires in 1 hour, like a reset they request themselves. You never see the link.
+- **Resend verification email.** For an unverified address, Kaneo emails a link that confirms it. It expires in 24 hours.
+- **Mark email as verified.** Confirms the address without asking them. Only do this when you know the address is theirs: single sign-on identities with the same verified email can link to the account.
+- **Deactivate, reactivate, or delete** the account.
+
+Guest accounts have generated addresses, so password reset, verification email, and mark-verified actions are unavailable for them.
+
+You can't deactivate, reactivate, or delete yourself through user management. Deleting the last built-in administrator is blocked.
+
+Emails need [SMTP](/core/installation/environment-variables#smtp-configuration) to be configured. Without it, Kaneo tells you nothing was sent.
+
+If [the identity provider manages profile pictures](/core/social-providers/custom-oauth#managed-profile-fields), you can't replace a user's picture, and you can only remove one they uploaded in Kaneo.
+
+### Sessions and API keys
+
+Choose **Sessions & API keys** from a user's menu to see where they're signed in and which API keys they have.
+
+- **Sessions** show the browser and device, IP address, sign-in time, and last activity. **Sign out** ends one session; **Sign out everywhere** ends all of them. Ended sessions stop working immediately, including open realtime connections. If you open your own account, your current session is marked **This device** and stays signed in; sign out normally to end it.
+- **API keys** show the name, the first characters, creation date, last use, expiry, and whether the key is enabled. The key itself is never shown. **Revoke** deletes the key, the same as when its owner deletes it, and requests with it fail right away. Signing a user out doesn't revoke their API keys, and deactivating a user blocks their keys as well.
+
+These actions are recorded in the audit log. The same operations are available to signed-in sessions with the `users:sessions` or `users:api_keys` permission under `/api/admin/users/{userId}/sessions` and `/api/admin/users/{userId}/api-keys`; API keys are rejected, and session tokens are never returned.
 
 Deleting someone who is the only owner of a workspace that still has other members is blocked. Transfer that workspace's ownership first, as described below.
+
+### Create a user
+
+Choose **Create user** and enter their name, email, and instance role. You never choose or see their password:
+
+- **Password sign-in available:** Kaneo emails them a link to set their own password. The link works once and expires in 2 days. If it expires, or SMTP wasn't configured yet, send a new one with **Send password reset link**.
+- **Password sign-up turned off (in [settings](#instance-settings) or with `DISABLE_PASSWORD_REGISTRATION`), or `DISABLE_LOGIN_FORM` set:** the account is created for single sign-on. No email is sent, and the email is marked verified so their first sign-in through GitHub, Google, Discord, or your OIDC provider with that address links to it.
+
+When no role is chosen, the account gets the [default role](#instance-settings). Administrators can create users even when registration is closed. An email that already belongs to an account is rejected. On Kaneo Cloud, disposable email addresses are rejected as they are for sign-up.
+
+## Custom roles
+
+Open **Settings → Administration → Roles** to give people part of the administrator's powers, for example a support team that can reset passwords and end sessions but can't delete accounts or workspaces. Only administrators see this page.
+
+Kaneo has two built-in roles: **Admin** has every permission and **User** has none. Choose **New role**, give it a name (lowercase letters, digits, and hyphens, like `support`), and tick its permissions:
+
+| Permission | Allows |
+| --- | --- |
+| `users:read` | Seeing the user directory and the list of roles |
+| `users:create` | Creating users |
+| `users:update` | Editing a user's name, email, role, and profile picture |
+| `users:disable` | Deactivating and reactivating users |
+| `users:delete` | Deleting users |
+| `users:credentials` | Sending password reset and verification emails, and marking an email verified |
+| `users:sessions` | Seeing and ending a user's sessions |
+| `users:api_keys` | Seeing and revoking a user's API keys |
+| `workspaces:read` | Seeing every workspace and its members |
+| `workspaces:manage` | Adding and removing members, changing their roles, and transferring ownership |
+| `workspaces:archive` | Archiving and restoring workspaces |
+| `workspaces:delete` | Deleting workspaces |
+| `audit:read` | Reading the audit log |
+| `system:read` | Seeing system status and sending yourself a test email |
+| `instance:settings` | Changing instance settings |
+
+Give someone a role from **Edit** in the user directory. Each person has one role. Each row on the Roles page shows how many people have that role; select the count to see them. Renaming a role keeps it on everyone who has it, and permission changes apply to their next request. A role can only be deleted once nobody has it.
+
+Creating or renaming a role to a name already stored on users is blocked. Change those users' roles first so they don't gain permissions without an assignment.
+
+Custom roles only grant these administration permissions. Built-in admins can also open every workspace, and some powers stay with them alone: managing roles, editing project access from the workspace page, and creating workspaces when workspace creation is restricted.
+
+Kaneo keeps custom roles from being used to gain more power:
+
+- Only admins can make someone an admin, and nobody can give a role with permissions they don't have themselves.
+- Someone with a custom role can't edit, deactivate, delete, sign out, or send emails to a user who has permissions they don't have, including every admin.
+- Nobody can change their own role, and the last admin can't be demoted.
+
+Roles are enforced by the API on every request, not only by hiding buttons.
 
 ## Manage workspaces
 
@@ -26,3 +106,99 @@ From the members list you can:
 - **Change project access.** Use the member's **Projects** entry to limit them to selected projects, the same way workspace admins can from **Members**. See [Members and roles](/core/functional/collaborate-with-team#limit-a-member-to-selected-projects).
 
 The only owner can't be removed or given another role. Transfer ownership to someone else first.
+
+### Archive or restore a workspace
+
+Choose **Archive workspace** from the workspace's actions menu to pause it without deleting data. Archived workspaces stay visible in the administration directory with an **Archived** badge. Members cannot access them, and they disappear from the workspace switcher. Open boards close their realtime connections and show an archived state.
+
+Archiving also pauses integrations, notifications, reminders, public project links, calendar feeds, and access through API keys and MCP. Existing memberships, invitations, and data remain. A recurring task completed before archiving still creates its next occurrence; members can access it after restore. Choose **Restore workspace** to make it available again.
+
+### Delete a workspace
+
+Choose **Delete** and type the workspace's exact name to confirm. This permanently removes its projects, tasks, members, invitations, and uploaded files; members' user accounts stay. You can delete active or archived workspaces without being a member. Workspaces with an active paid subscription must have it cancelled in billing settings first.
+
+## Review the audit log
+
+Open **Settings → Administration → Audit log** to see what administrators changed, newest first. Each entry shows the action, the administrator who did it, the affected user or workspace, the time, and the IP address the request came from. Filter by users, sessions, API keys, workspaces, roles, or email to narrow the list.
+
+Kaneo records these actions when they succeed. Rejected or failed attempts aren't recorded.
+
+- **Users:** created, details updated (which fields changed), instance role changed, deactivated, reactivated, deleted, password set by an administrator, password reset link sent, verification email sent, email marked verified, profile picture changed or removed, and signed in as the user (impersonation).
+- **Email:** test email sent to the calling administrator.
+- **Sessions:** one session or all of a user's sessions revoked.
+- **API keys:** a user's API key revoked (its name, never its value).
+- **Workspaces:** member added, member removed, member role changed, ownership transferred, archived, restored, and deleted.
+- **Roles:** custom role created, updated (renamed or permissions changed), and deleted.
+
+The first account becoming an administrator on a new instance isn't an administrative action and isn't recorded.
+
+Entries never contain passwords, session tokens, password reset links, or API key values. Names and emails are copied into each entry, so the history stays readable after an account is deleted. The IP address comes from the same trusted proxy settings Kaneo uses for sign-in (`TRUSTED_PROXIES`).
+
+Kaneo keeps audit log entries until you remove them; there's no automatic retention. To prune old entries, delete rows from the `admin_audit_log` table in PostgreSQL, for example `DELETE FROM admin_audit_log WHERE created_at < (now() AT TIME ZONE 'utc') - interval '1 year';`.
+
+Reading the audit log, in the app or through `GET /api/admin/audit-log`, needs the `audit:read` permission and a signed-in session. API keys are rejected.
+
+## Instance settings
+
+Open **Settings → Administration → Settings** to change how the instance behaves. The page and `GET`/`PATCH /api/admin/settings` require the `instance:settings` permission; API keys are rejected. Changes apply right away on the API instance that saved them and within five seconds on the others, without Redis. Each change is recorded in the audit log as **Updated instance settings**, with the old and new value of every setting that changed.
+
+- **Instance name**: appears alongside page titles and in email headers and branded subjects. Task titles and other user text in subjects stay unchanged. Leave it empty for Kaneo.
+- **Instance URL**: shown read-only. It comes from `KANEO_CLIENT_URL`.
+- **Open registration**: when off, only people with a valid invitation can create an account, the same as `DISABLE_REGISTRATION=true`.
+- **Email and password sign-up**: when off, new accounts must use GitHub, Google, Discord, or your OIDC provider, the same as `DISABLE_PASSWORD_REGISTRATION=true`. Guest access is off while either registration setting is off.
+- **Require email verification**: new password sign-ups are emailed a confirmation link and can't sign in with their password until they confirm. Signing in before then sends a new link. Accounts that existed before you turned it on, administrator-created accounts, and accounts from email codes, magic links, or single sign-on are not affected. Needs SMTP.
+- **Default role for new users**: the instance role every new account gets, whether it signs up with a password, an email code, or single sign-on, or is created by an administrator without a role. It can be **User** or a custom role, never **Admin**, and you can only choose a role whose permissions you have. A role can't be deleted while it is the default. Guests and the first account on a new instance are not affected.
+- **Only administrators can create workspaces**: the same as `DISABLE_WORKSPACE_CREATION=true`.
+- **Integrations**: turning a provider off stops its connected projects from syncing, delivering, and handling webhooks, and stops projects from connecting, changing, or importing through it. Projects still show saved connections with a Disconnect action while the provider is off. Turning it back on resumes the saved connections.
+
+Environment variables win. When `DISABLE_REGISTRATION`, `DISABLE_PASSWORD_REGISTRATION`, or `DISABLE_WORKSPACE_CREATION` is `true`, the matching setting is locked and shows which variable sets it. On a new instance, or one that never saved settings, everything behaves as before this page existed. Sign-in providers are listed on the [System](#check-system-status) page.
+
+## Check system status
+
+Open **Settings → Administration → System** to check this instance and the services it relies on. The page checks again each time you open it or choose **Refresh**.
+
+- **Instance**: the Kaneo version, API uptime, PostgreSQL (version, applied migrations, response time), live updates (open WebSocket connections on this API instance), Redis publisher and subscriber connectivity, and S3-compatible file storage.
+- **Email**: whether SMTP is configured and whether Kaneo can connect and sign in to the mail server. Nothing is sent by this check.
+- **Sign-in**: which sign-in and registration options are on, and whether GitHub, Google, Discord, and your custom OAuth/OIDC provider are configured.
+- **Integrations**: every integration provider, how many projects are connected to it, and whether the GitHub App is set up. Other providers are connected per project and need no instance settings.
+
+Each row shows one of these statuses:
+
+| Status | Meaning |
+| --- | --- |
+| Operational | Working. |
+| Not configured | Optional and switched off. This is fine: a single API instance doesn't need Redis, and Kaneo works without SMTP or file storage. |
+| Warning | Works with a problem, or only some of its settings are present. For example, Redis is down so only people on this API instance get live updates, or a sign-in provider has a client ID but no secret. |
+| Down | Configured but not reachable. The row shows a short error code such as `TIMEOUT`, `ECONNREFUSED`, or `EAUTH`. |
+
+Each check gives up after a few seconds, so one unreachable service doesn't stop the page from loading. The page never shows hosts, passwords, client secrets, or other credentials.
+
+When you run more than one API instance behind a load balancer, the checks and connection counts come from whichever instance answered.
+
+### Send a test email
+
+Choose **Send test email** to send a short test message to your own account's address. Kaneo can't send it to anyone else. If the mail server rejects it, you see the error category (for example `EAUTH 535` for a wrong password), and the API logs the same. You can send 5 test emails every 10 minutes. Test email connections, greetings, and idle sockets time out after 10 seconds.
+
+The button is disabled until `SMTP_HOST` and `SMTP_FROM` are set. See [SMTP configuration](/core/installation/environment-variables#smtp-configuration) for the settings.
+
+## API
+
+Every administration action is available under `/api/admin` to signed-in sessions with the matching permission, for example `POST /api/admin/users` to create a user with `users:create`, or `POST /api/admin/roles` to create a role as an admin. `GET /api/admin/access` lists the caller's own permissions. API keys are rejected. See the API reference for every endpoint.
+
+better-auth's own `/api/auth/admin/*` endpoints remain available to built-in admins only. When they set a role, it must be `admin`, `user`, or an existing custom role.
+
+## Instance webhooks
+
+Open **Settings → Administration → Webhooks** to send administrative events to another system. The page and every `/api/admin/webhooks` endpoint require `instance:settings` and a signed-in session; API keys are rejected.
+
+Set `NOTIFICATION_SECRET_ENCRYPTION_KEY` before creating a webhook. Kaneo uses it to encrypt signing secrets, as it does for notification secrets. Keep the key stable and use the same value on all API instances. Add an HTTPS destination, choose event categories, and save. The generated signing secret appears once; save it in the receiver. **Rotate secret** replaces it and shows the replacement once. Queued deliveries use the current destination and signing secret.
+
+Categories match the audit log: users, sessions, API keys, workspaces, roles, instance settings, email, and webhooks. Webhook creation, updates, deletion, and secret rotation are also audited. Payloads contain the audit entry's `id`, `action`, `actorUserId`, `actorName`, `actorEmail`, `targetType`, `targetId`, `targetLabel`, `metadata`, `ipAddress`, and UTC `createdAt`. They do not include the user agent or signing secret. **Send test** queues a `webhook.test` event regardless of selected categories.
+
+Kaneo queues deliveries in PostgreSQL in the audit transaction and sends them only after commit. For changes already committed by the authentication service, the audit entry is saved first; a queue failure is logged without removing that entry. A receiver being down does not fail the administrative action. Redis is not needed. API instances claim deliveries with database leases, so only one instance sends a queued attempt. Each request times out after five seconds. Connection failures, timeouts, HTTP 408, 429, and 5xx responses get up to three attempts, waiting five seconds and then thirty seconds. Other failures stop immediately. An interrupted attempt is retried after its one-minute lease expires, within the same three-attempt limit.
+
+Receivers should use `X-Kaneo-Delivery` to deduplicate retries. A crash after the receiver accepted a request but before Kaneo saved its result can cause a duplicate; webhook delivery cannot guarantee exactly-once processing across an HTTP connection. Verify `X-Kaneo-Signature`, which is `sha256=` followed by the hex HMAC-SHA256 of `X-Kaneo-Timestamp + "." + rawRequestBody`, using the signing secret. The timestamp is Unix seconds. Reject old timestamps and compare signatures in constant time. A retry keeps its delivery id and audit event id, with a fresh timestamp and signature.
+
+**Recent deliveries** shows the newest twenty deliveries with their attempt count, HTTP status, and error category. Kaneo retains twenty finished deliveries per webhook in addition to queued work. It discards response bodies. Disabling a webhook stops new deliveries and cancels its queued work; an in-flight request may finish. Deleting a webhook removes its queue and delivery history.
+
+Destinations are checked when saved and again at connection time to prevent access to private or loopback addresses and DNS rebinding. Redirects are refused without retrying. Production requires HTTPS. For a deliberately private receiver on a self-hosted network, the existing `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` setting permits private destinations; HTTP is only accepted outside production.

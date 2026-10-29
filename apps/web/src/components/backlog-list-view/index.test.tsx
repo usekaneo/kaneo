@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
   cleanup,
@@ -18,6 +20,16 @@ import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import type { ProjectWithTasks } from "@/types/project";
 import type Task from "@/types/task";
 import BacklogListView from "./index";
+
+const queryClient = new QueryClient();
+
+function Providers({ children }: { children: ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ShortcutTestWrapper>{children}</ShortcutTestWrapper>
+    </QueryClientProvider>
+  );
+}
 
 const { mountRow, unmountRow, renderRow, navigate } = vi.hoisted(() => ({
   mountRow: vi.fn(),
@@ -40,7 +52,10 @@ vi.mock("./backlog-task-row", async () => {
   };
 });
 
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => navigate }));
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => navigate,
+  useRouter: () => ({ preloadRoute: () => Promise.resolve() }),
+}));
 vi.mock("@/hooks/mutations/task/use-update-task", () => ({
   useUpdateTask: () => ({ mutate: vi.fn() }),
 }));
@@ -98,12 +113,15 @@ beforeEach(() => {
   );
   vi.clearAllMocks();
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+});
 
 describe("backlog row lifecycle", () => {
   it("mounts each row once and preserves the other section when collapsing and expanding", () => {
     render(<BacklogListView project={project} />, {
-      wrapper: ShortcutTestWrapper,
+      wrapper: Providers,
     });
     expect(mountRow).toHaveBeenCalledTimes(totalTaskCount);
     expect(unmountRow).not.toHaveBeenCalled();
@@ -135,9 +153,26 @@ describe("backlog row lifecycle", () => {
     ).toHaveLength(totalTaskCount);
   });
 
+  it("keeps collapsed sections after the backlog unmounts", () => {
+    const plannedToggle = () =>
+      screen.getByRole("button", { name: /tasks:backlog.sections.planned/ });
+    const { unmount } = render(<BacklogListView project={project} />, {
+      wrapper: Providers,
+    });
+    fireEvent.click(plannedToggle());
+    // Visiting the board unmounts the backlog.
+    unmount();
+
+    render(<BacklogListView project={project} />, { wrapper: Providers });
+    expect(plannedToggle()).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.getByRole("button", { name: /tasks:backlog.sections.archived/ }),
+    ).toHaveAttribute("aria-expanded", "true");
+  });
+
   it("does not render the list again on selection or keyboard focus changes", () => {
     render(<BacklogListView project={project} />, {
-      wrapper: ShortcutTestWrapper,
+      wrapper: Providers,
     });
     renderRow.mockClear();
     mountRow.mockClear();
@@ -182,7 +217,7 @@ describe("backlog row lifecycle", () => {
 
   it("preserves rows when opening task creation or receiving updated task data", () => {
     const { rerender } = render(<BacklogListView project={project} />, {
-      wrapper: ShortcutTestWrapper,
+      wrapper: Providers,
     });
     const archivedRow = screen.getByLabelText("archived-0");
     mountRow.mockClear();

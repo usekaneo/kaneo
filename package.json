@@ -14,6 +14,7 @@
     "i18n:schema": "node ./scripts/i18n/schema.mjs && vp fmt i18n/schema.json",
     "lint": "vp check",
     "test": "vp run -r test",
+    "test:security:dependencies": "node --test scripts/security/dependency-*.test.mjs",
     "test:integration": "vp run -r test:integration",
     "test:e2e": "pnpm --dir tests/e2e test",
     "test:browserstack": "pnpm --dir tests/e2e test:browserstack",
@@ -23,25 +24,26 @@
     "build:dependencies": "vp run --filter \"@kaneo/*^...\" build"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.3",
-    "@commitlint/config-conventional": "^21.2.3",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^11.0.1",
-    "conventional-changelog-conventionalcommits": "^10.4.0",
+    "conventional-changelog-conventionalcommits": "^10.4.1",
     "esbuild": "0.28.2",
     "husky": "^9.1.7",
-    "linkifyjs": ">=4.3.3",
+    "linkifyjs": ">=4.4.0",
     "semantic-release": "^25.0.9",
     "tar-fs": ">=3.1.3",
     "typescript": "7.0.2",
+    "vite": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {
-    "node": "^24.11.0 || >=26.0.0"
+    "node": "^24.15.0 || >=26.0.0"
   },
-  "packageManager": "pnpm@10.32.1",
-  "version": "2.46.2",
+  "packageManager": "pnpm@12.15.0",
+  "version": "2.48.0",
   "dependencies": {
     "dotenv-mono": "^1.5.1"
   }

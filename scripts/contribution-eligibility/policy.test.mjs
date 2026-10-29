@@ -14,7 +14,7 @@ const policy = {
 };
 const author = { id: 123, login: "trusted", type: "User" };
 
-test("checked-in policy is valid and explicitly exempts only Dependabot initially", async () => {
+test("checked-in policy grants only the approved dependency-bot identities", async () => {
   const current = validatePolicy(
     JSON.parse(
       await readFile(
@@ -23,9 +23,32 @@ test("checked-in policy is valid and explicitly exempts only Dependabot initiall
       ),
     ),
   );
+  for (const bot of [
+    { id: 29139614, login: "renovate[bot]", type: "Bot" },
+    { id: 49699333, login: "dependabot[bot]", type: "Bot" },
+  ]) {
+    assert.equal(authorExemption(bot, null, current), "Approved automation.");
+    assert.equal(authorExemption({ ...bot, id: 999 }, null, current), null);
+    assert.equal(
+      authorExemption({ ...bot, type: "User" }, null, current),
+      null,
+    );
+  }
+  assert.equal(
+    authorExemption(
+      { id: 41898282, login: "github-actions[bot]", type: "Bot" },
+      null,
+      current,
+    ),
+    null,
+  );
   assert.deepEqual(
-    current.exemptBots.map((entry) => entry.id),
-    [49699333],
+    current.exemptBots.map((entry) => entry.id).sort((a, b) => a - b),
+    [29139614, 49699333],
+  );
+  assert.deepEqual(
+    current.vouchedContributors.map((entry) => entry.id),
+    [44305048, 127273550, 176929823, 115077240, 651050],
   );
 });
 

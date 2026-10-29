@@ -98,10 +98,7 @@ type SlashMenuState = {
 };
 
 function formatMarkdown(markdown: string) {
-  return markdown
-    .replace(/\r\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .replace(/\n{2,}$/g, "\n");
+  return markdown.replace(/\r\n/g, "\n");
 }
 
 function resetUndoHistory(editor: Editor) {
@@ -489,7 +486,7 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           }
 
           const plainText = event.clipboardData?.getData("text/plain") || "";
-          if (editor && pasteMarkdown(editor, event)) return true;
+          if (pasteMarkdown(view, event)) return true;
 
           const pastedText = plainText.trim();
           if (!pastedText || /\s/.test(pastedText)) return false;
@@ -539,22 +536,17 @@ export default function TaskDescription({ taskId }: TaskDescriptionProps) {
           setEmbedComposerError("");
           return true;
         },
-        handleDrop: (view, event) => {
+        handleDrop: (_view, event) => {
           const droppedFiles = Array.from(event.dataTransfer?.files || []);
-          const droppedFile = droppedFiles[0];
 
-          if (!droppedFile) return false;
+          if (droppedFiles.length === 0) return false;
 
           event.preventDefault();
-          const coordinates = view.posAtCoords({
-            left: event.clientX,
-            top: event.clientY,
-          });
-          const dropRange = coordinates
-            ? { from: coordinates.pos, to: coordinates.pos }
-            : undefined;
-
-          void handleAssetFileUpload(droppedFile, editor, dropRange);
+          // Each upload inserts after the previous one, the same way pasted
+          // files do, so a multi-file drop keeps every file.
+          for (const droppedFile of droppedFiles) {
+            void handleAssetFileUpload(droppedFile, editor);
+          }
           return true;
         },
         handleTextInput: (view, _from, _to, text) => {

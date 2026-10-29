@@ -19,6 +19,8 @@ const MIN_CODE_LENGTH = 4;
 
 const deviceSearchSchema = z.object({
   user_code: z.string().optional(),
+  // Set by the mobile app so approval can hand control back to it.
+  from: z.literal("app").optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/device/")({
@@ -52,7 +54,10 @@ function DevicePage() {
         setIsPending(false);
         return;
       }
-      void navigate({ to: "/device/approve", search: { user_code: userCode } });
+      void navigate({
+        to: "/device/approve",
+        search: { user_code: userCode, from: search.from },
+      });
     } catch {
       setError(t("auth:device.connect.invalidCode"));
       setIsPending(false);

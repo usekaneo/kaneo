@@ -1,4 +1,4 @@
-import { ArrowRight, Calendar, CalendarDays } from "lucide-react";
+import { Calendar, CalendarDays } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import icons from "@/constants/project-icons";
 import { getColumnIcon } from "@/lib/column";
@@ -12,6 +12,7 @@ import TaskDueDatePopover from "../task-due-date-popover";
 import TaskLabelsPopover from "../task-labels-popover";
 import TaskMovePopover from "../task-move-popover";
 import TaskPriorityPopover from "../task-priority-popover";
+import { TaskRecurrenceBadge } from "../task-recurrence-badge";
 import TaskStartDatePopover from "../task-start-date-popover";
 import TaskStatusPopover from "../task-status-popover";
 import { AssigneeAvatar } from "./assignee-avatar";
@@ -112,13 +113,16 @@ export function PropertiesRail({
           </TaskLabelsPopover>
         </PropertyRow>
 
-        <PropertyRow label={t("tasks:properties.dates")}>
-          <div className="flex min-w-0 items-center gap-0.5">
+        <PropertyRow label={t("tasks:properties.dates")} align="start">
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
             <TaskStartDatePopover task={task}>
               <PropertyValue className="flex-none">
                 <CalendarDays className="text-muted-foreground" />
                 <span
-                  className={cn(!task.startDate && "text-muted-foreground")}
+                  className={cn(
+                    "truncate",
+                    !task.startDate && "text-muted-foreground",
+                  )}
                 >
                   {task.startDate
                     ? formatDateShort(task.startDate)
@@ -126,7 +130,6 @@ export function PropertiesRail({
                 </span>
               </PropertyValue>
             </TaskStartDatePopover>
-            <ArrowRight className="size-3 shrink-0 text-muted-foreground/60" />
             <TaskDueDatePopover task={task}>
               <PropertyValue
                 data-task-action="dueDate"
@@ -135,11 +138,17 @@ export function PropertiesRail({
                 <Calendar
                   className={cn(!task.dueDate && "text-muted-foreground")}
                 />
-                <span className={cn(!task.dueDate && "text-muted-foreground")}>
+                <span
+                  className={cn(
+                    "truncate",
+                    !task.dueDate && "text-muted-foreground",
+                  )}
+                >
                   {task.dueDate
                     ? formatDateShort(task.dueDate)
                     : t("tasks:dueDate.label")}
                 </span>
+                <TaskRecurrenceBadge task={task} asText />
               </PropertyValue>
             </TaskDueDatePopover>
           </div>

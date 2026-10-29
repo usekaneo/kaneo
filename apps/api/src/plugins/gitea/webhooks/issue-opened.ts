@@ -1,3 +1,4 @@
+import { confirmedFieldLabels } from "../../sync/field-labels";
 import { acceptsIssue } from "../../sync/rules";
 import { importIssueLabels } from "../../sync/issue-labels";
 import { canSyncTask } from "../../sync/eligibility";
@@ -151,6 +152,7 @@ export async function handleGiteaIssueOpened(
         state: closed ? "closed" : "open",
         createdFrom: "gitea",
         author: issue.user?.login ?? issue.user?.username,
+        ...confirmedFieldLabels(issue.labels),
       };
       const link = await createExternalLink(
         {

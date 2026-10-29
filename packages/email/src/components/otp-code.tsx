@@ -1,6 +1,5 @@
-import { Column, Text } from "@react-email/components";
+import { Text } from "react-email";
 import React from "react";
-import { Row } from "./row";
 import { Section } from "./section";
 import { colors, shadow } from "./tokens";
 
@@ -12,33 +11,15 @@ type OtpCodeProps = {
   hint: string;
 };
 
-const SLOT_WIDTH = 59;
-const SLOT_GAP = 6;
-
 export function OtpCode({ code, label, hint }: OtpCodeProps) {
-  const slots = Array.from(code, (digit, slot) => ({ digit, slot }));
-  const last = slots.length - 1;
-
   return (
     <Section style={wrapper}>
       <Text className="k-text" style={labelStyle}>
         {label}
       </Text>
-      <Row style={{ maxWidth: `${slots.length * (SLOT_WIDTH + SLOT_GAP)}px` }}>
-        {slots.map(({ digit, slot }) => (
-          <Column
-            key={slot}
-            style={{
-              width: `${100 / slots.length}%`,
-              paddingRight: slot < last ? `${SLOT_GAP}px` : 0,
-            }}
-          >
-            <div className="k-slot" style={slotStyle}>
-              {digit}
-            </div>
-          </Column>
-        ))}
-      </Row>
+      <Text className="k-slot" style={codeStyle}>
+        {code}
+      </Text>
       <Text className="k-muted" style={hintStyle}>
         {hint}
       </Text>
@@ -58,9 +39,17 @@ const labelStyle = {
   fontWeight: "500",
 };
 
-const slotStyle = {
-  lineHeight: "42px",
+const codeStyle = {
+  margin: "0",
+  padding: "14px 16px",
   textAlign: "center" as const,
+  textIndent: "0.35em",
+  letterSpacing: "0.35em",
+  fontFamily:
+    'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
+  fontSize: "28px",
+  lineHeight: "32px",
+  fontWeight: "600",
   borderWidth: "1px",
   borderStyle: "solid",
   borderColor: colors.input,
@@ -68,7 +57,8 @@ const slotStyle = {
   backgroundColor: colors.background,
   boxShadow: shadow,
   color: colors.foreground,
-  fontSize: "14px",
+  userSelect: "all" as const,
+  WebkitUserSelect: "all" as const,
 };
 
 const hintStyle = {

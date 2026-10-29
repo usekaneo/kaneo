@@ -6,6 +6,7 @@ interface BulkSelectionState {
   availableTaskIds: string[];
   selectionAnchorId: string | null;
   focusedTaskId: string | null;
+  focusedTaskRowId: string | null;
 
   selectTask: (taskId: string) => void;
   deselectTask: (taskId: string) => void;
@@ -18,7 +19,7 @@ interface BulkSelectionState {
   setAvailableTasks: (taskIds: string[]) => void;
   getSelectedCount: () => number;
   isSelected: (taskId: string) => boolean;
-  setFocusedTask: (taskId: string | null) => void;
+  setFocusedTask: (taskId: string | null, rowId?: string | null) => void;
   clearFocus: () => void;
 }
 
@@ -28,6 +29,7 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
   availableTaskIds: [],
   selectionAnchorId: null,
   focusedTaskId: null,
+  focusedTaskRowId: null,
 
   selectTask: (taskId: string) =>
     set((state) => ({
@@ -117,14 +119,16 @@ const useBulkSelectionStore = create<BulkSelectionState>((set, get) => ({
     return selectedTaskIds.has(taskId);
   },
 
-  setFocusedTask: (taskId: string | null) =>
+  setFocusedTask: (taskId, rowId = null) =>
     set(() => ({
       focusedTaskId: taskId,
+      focusedTaskRowId: rowId,
     })),
 
   clearFocus: () =>
     set(() => ({
       focusedTaskId: null,
+      focusedTaskRowId: null,
     })),
 }));
 

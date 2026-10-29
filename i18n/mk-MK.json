@@ -122,7 +122,6 @@
 				"startDate": "Почетен датум",
 				"dueDate": "Краен рок",
 				"clearStartDate": "Исчисти почетен датум",
-				"clearDueDate": "Исчисти краен рок",
 				"assign": "Додели",
 				"assignUnassigned": "Недоделен",
 				"assignUnassignedTitle": "Недоделен",
@@ -148,7 +147,11 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
@@ -257,7 +260,8 @@
 			},
 			"invitation": {
 				"description": "Користи ја е-поштата на која ја доби поканата. Веднаш потоа ќе се приклучиш на работниот простор."
-			}
+			},
+			"verifyEmail": "Check your email to confirm your address, then sign in."
 		},
 		"verifyOtp": {
 			"pageTitle": "Потврди код",
@@ -284,7 +288,8 @@
 			"sendFailed": "Неуспешно испраќање на кодот за потврда"
 		},
 		"signInForm": {
-			"failedSignIn": "Неуспешна најава"
+			"failedSignIn": "Неуспешна најава",
+			"emailNotVerified": "Confirm your email address first. We sent you a new link."
 		},
 		"invitation": {
 			"pageTitleAccept": "Прифати покана",
@@ -535,7 +540,8 @@
 				"title": "Најави се за да го поврзеш уредот",
 				"description": "Веднаш потоа ќе се вратиш тука за да го одобриш.",
 				"submit": "Најави се"
-			}
+			},
+			"openApp": "Open Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -749,6 +755,10 @@
 			"board": "Табла",
 			"list": "Листа",
 			"gantt": "Gantt",
+			"priorityIcons": "Икони за приоритет",
+			"priorityIconsDescription": "Како изгледа приоритетот на задачите на картички, редови и во менија.",
+			"priorityIconsMarks": "Ознаки",
+			"priorityIconsClassic": "Класични",
 			"sidebarDefault": "Задржи ја страничната лента отворена",
 			"sidebarDefaultDescription": "Почни со проширена странична лента.",
 			"displayOptions": "Детали за задачите",
@@ -761,6 +771,10 @@
 			"projectBackgrounds": "Project backgrounds",
 			"projectBackgroundsDescription": "Прикажи ја сликата што проектот ја поставува зад својата табла.",
 			"advancedTitle": "Напредно"
+		},
+		"managedProfile": {
+			"note": "Се управува од твојата организација.",
+			"edit": "Уреди во {{provider}}"
 		},
 		"developerPage": {
 			"pageTitle": "API клучеви",
@@ -941,7 +955,8 @@
 			"statusPaused": "Паузирано",
 			"connect": "Поврзи",
 			"configure": "Конфигурирај",
-			"done": "Готово"
+			"done": "Готово",
+			"turnedOffByAdmin": "Turned off by an administrator"
 		},
 		"projectVisibility": {
 			"pageTitle": "Видливост на проект",
@@ -1568,6 +1583,8 @@
 			"noDefault": "Без стандардна вредност",
 			"optionsLabel": "Опции",
 			"removeOptionAria": "Отстрани {{option}}",
+			"hideOptionAria": "Скриј {{option}} од нови избори",
+			"showOptionAria": "Повторно понуди {{option}} за нови избори",
 			"renameOptionAria": "Преименувај {{option}}",
 			"requiredDescription": "Секоја задача секогаш има вредност.",
 			"save": "Зачувај",
@@ -1589,7 +1606,11 @@
 				"deactivate": "Деактивирај",
 				"edit": "Уреди",
 				"open": "Actions for {{name}}",
-				"reactivate": "Повторно активирај"
+				"reactivate": "Повторно активирај",
+				"markEmailVerified": "Mark email as verified",
+				"sendPasswordReset": "Send password reset link",
+				"sendVerification": "Resend verification email",
+				"security": "Sessions & API keys"
 			},
 			"clearSearch": "Clear search",
 			"columns": {
@@ -1597,7 +1618,8 @@
 				"joined": "Joined",
 				"role": "Улога",
 				"status": "Status",
-				"user": "User"
+				"user": "User",
+				"lastActive": "Last active"
 			},
 			"confirm": {
 				"deactivate": {
@@ -1615,7 +1637,19 @@
 					"description": "{{name}} will be able to sign in and access their workspaces again.",
 					"title": "Reactivate this account?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"markEmailVerified": {
+					"action": "Mark as verified",
+					"title": "Mark this email as verified?"
+				},
+				"sendPasswordReset": {
+					"action": "Send link",
+					"title": "Send a password reset link?"
+				},
+				"sendVerification": {
+					"action": "Send email",
+					"title": "Resend the verification email?"
+				}
 			},
 			"directoryTitle": "Сите корисници",
 			"edit": {
@@ -1656,9 +1690,78 @@
 				"deleted": "User deleted",
 				"reactivated": "User reactivated",
 				"updated": "User updated",
-				"updateError": "Failed to update user"
+				"updateError": "Failed to update user",
+				"avatarChanged": "Profile picture updated",
+				"avatarError": "Failed to update the profile picture",
+				"avatarRemoved": "Profile picture removed",
+				"createdForSso": "User created for single sign-on.",
+				"createdLinkFailed": "User created. Password email failed; retry “Send password reset link”.",
+				"createdLinkSent": "User created. Password link sent to {{email}}.",
+				"createdNoSmtp": "User created. Set SMTP_HOST to send a password link.",
+				"createError": "Failed to create user",
+				"emailError": "The email could not be sent",
+				"emailVerified": "Email marked as verified",
+				"passwordResetSent": "Password reset link sent to {{email}}",
+				"verificationSent": "Verification email sent to {{email}}"
 			},
-			"you": "Ти"
+			"you": "Ти",
+			"create": {
+				"creating": "Creating…",
+				"open": "Create user",
+				"submit": "Create user",
+				"title": "Create user",
+				"nameRequired": "Enter a name",
+				"hintNoEmail": "Set SMTP_HOST to send password links."
+			},
+			"details": {
+				"emailStatus": "Email",
+				"methods": {
+					"password": "Password"
+				},
+				"noSignInMethods": "No password or linked account yet",
+				"notVerified": "Not verified",
+				"removeAvatar": "Remove",
+				"signInMethods": "Sign-in methods",
+				"uploadAvatar": "Upload",
+				"verified": "Verified"
+			},
+			"filters": {
+				"anyEmail": "Any email",
+				"anyRole": "Any role",
+				"anyStatus": "Any status",
+				"clear": "Clear filters",
+				"email": "Email verification",
+				"label": "Filter users",
+				"role": "Role",
+				"status": "Status",
+				"unverified": "Unverified email",
+				"verified": "Verified email"
+			},
+			"never": "Never",
+			"unverified": "Unverified",
+			"security": {
+				"apiKeysEmpty": "No API keys.",
+				"apiKeysLoadError": "Couldn't load API keys.",
+				"apiKeysTitle": "API keys",
+				"disabled": "Disabled",
+				"lastUsed": "Last used {{time}}",
+				"neverUsed": "Never used",
+				"revokeAll": "Sign out everywhere",
+				"revokeAllConfirmDescription": "They'll be signed out everywhere right away.",
+				"revokeAllConfirmTitle": "Sign {{name}} out everywhere?",
+				"revokeAllSelfDescription": "Your other sessions will be signed out right away.",
+				"revokeKey": "Revoke",
+				"revokeKeyConfirmDescription": "Requests using this key will fail right away.",
+				"revokeKeyConfirmTitle": "Revoke {{name}}?",
+				"revokeKeyLabel": "Revoke {{name}}",
+				"revokingKey": "Revoking...",
+				"sessionsEmpty": "Not signed in anywhere.",
+				"sessionsTitle": "Sessions",
+				"title": "Sessions & API keys: {{name}}",
+				"toastKeyRevoked": "API key revoked.",
+				"toastKeyRevokeError": "Couldn't revoke the API key.",
+				"toastRevokedAll": "Sessions signed out."
+			}
 		},
 		"security": "Security",
 		"securityPage": {
@@ -1691,7 +1794,14 @@
 			"dialogDescription": "Најмалку 8 знаци, различна од тековната.",
 			"dialogTitle": "Смени лозинка",
 			"passwordHint": "Користи најмалку 8 знаци што не ги користиш никаде на друго место.",
-			"passwordTitle": "Лозинка"
+			"passwordTitle": "Лозинка",
+			"sessions": {
+				"revokeOthers": "Sign out other sessions",
+				"revokeOthersConfirmDescription": "Your other sessions will be signed out right away.",
+				"revokeOthersConfirmTitle": "Sign out all other sessions?",
+				"title": "Active sessions",
+				"toastRevokedOthers": "Other sessions signed out."
+			}
 		},
 		"gitlabIntegration": {
 			"baseUrlLabel": "GitLab URL",
@@ -1975,7 +2085,22 @@
 					"description": "{{name}} becomes the only owner of {{workspace}}. Anyone who owns it now becomes an admin.",
 					"title": "Make {{name}} the owner?"
 				},
-				"working": "Working…"
+				"working": "Working…",
+				"archive": {
+					"action": "Archive workspace",
+					"description": "Members will lose access until it's restored.",
+					"title": "Archive {{name}}?"
+				},
+				"delete": {
+					"action": "Delete workspace",
+					"description": "Its projects, tasks, and files will be permanently deleted.",
+					"title": "Delete {{name}}?",
+					"typeName": "Type {{name}} to confirm"
+				},
+				"restore": {
+					"action": "Restore workspace",
+					"title": "Restore {{name}}?"
+				}
 			},
 			"directoryTitle": "Сите работни простори",
 			"emptyDescription": "Try another name or slug.",
@@ -2017,8 +2142,20 @@
 				"removeError": "Failed to remove member",
 				"roleError": "Failed to update role",
 				"roleUpdated": "Role updated",
-				"transferError": "Failed to transfer ownership"
-			}
+				"transferError": "Failed to transfer ownership",
+				"archived": "Workspace archived",
+				"archiveError": "Could not archive workspace",
+				"deleted": "Workspace deleted",
+				"deleteError": "Could not delete workspace",
+				"restored": "Workspace restored",
+				"restoreError": "Could not restore workspace"
+			},
+			"actions": {
+				"archive": "Archive workspace",
+				"open": "Actions for {{name}}",
+				"restore": "Restore workspace"
+			},
+			"archived": "Archived"
 		},
 		"workspaceImport": {
 			"back": {
@@ -2361,6 +2498,353 @@
 		},
 		"shared": {
 			"autosave": "Промените се зачувуваат автоматски"
+		},
+		"adminAuditLog": {
+			"actions": {
+				"sessionRevoked": "Revoked a session",
+				"sessionRevokedAll": "Revoked all sessions",
+				"userCreated": "Created user",
+				"userDeactivated": "Deactivated user",
+				"userDeleted": "Deleted user",
+				"userImpersonated": "Signed in as user",
+				"userPasswordSet": "Set user password",
+				"userReactivated": "Reactivated user",
+				"userRoleChanged": "Changed instance role",
+				"userUpdated": "Updated user details",
+				"workspaceMemberAdded": "Added workspace member",
+				"workspaceMemberRemoved": "Removed workspace member",
+				"workspaceMemberRoleChanged": "Changed workspace member role",
+				"workspaceOwnerTransferred": "Transferred workspace ownership",
+				"userAvatarChanged": "Changed profile picture",
+				"userAvatarRemoved": "Removed profile picture",
+				"userEmailVerified": "Marked email as verified",
+				"userPasswordResetSent": "Sent password reset link",
+				"userVerificationSent": "Sent verification email",
+				"apiKeyRevoked": "Revoked an API key",
+				"emailTestSent": "Sent test email",
+				"workspaceArchived": "Archived workspace",
+				"workspaceDeleted": "Deleted workspace",
+				"workspaceRestored": "Restored workspace",
+				"roleCreated": "Role created",
+				"roleDeleted": "Role deleted",
+				"roleUpdated": "Role updated",
+				"instanceSettingsUpdated": "Updated instance settings",
+				"webhookCreated": "Created webhook",
+				"webhookDeleted": "Deleted webhook",
+				"webhookSecretRotated": "Rotated webhook secret",
+				"webhookUpdated": "Updated webhook"
+			},
+			"categories": {
+				"all": "All actions",
+				"session": "Sessions",
+				"user": "Users",
+				"workspace": "Workspaces",
+				"apiKey": "API keys",
+				"email": "Email",
+				"role": "Roles",
+				"instance": "Instance settings",
+				"webhook": "Webhooks"
+			},
+			"categoryLabel": "Filter by category",
+			"clearFilter": "Show all actions",
+			"columns": {
+				"action": "Action",
+				"actor": "Administrator",
+				"target": "Target",
+				"time": "Time and IP"
+			},
+			"deletedActor": "Account deleted",
+			"details": {
+				"change": "{{from}} → {{to}}",
+				"fields": "Changed {{fields}}",
+				"memberChange": "{{member}}: {{from}} → {{to}}",
+				"memberWithRole": "{{member}} as {{role}}",
+				"noRole": "No role",
+				"reason": "Reason: {{reason}}",
+				"createdWithRole": "Role: {{role}}",
+				"sessionCount_one": "{{count}} session",
+				"sessionCount_other": "{{count}} sessions",
+				"workspaceContents": "{{members}} members, {{projects}} projects",
+				"permissionsChanged": "{{added}} permissions added, {{removed}} removed"
+			},
+			"directoryTitle": "Recorded actions",
+			"emptyTitle": "No actions recorded",
+			"fields": {
+				"email": "email",
+				"emailVerified": "email verification",
+				"image": "avatar",
+				"name": "name"
+			},
+			"loadError": "The audit log could not be loaded.",
+			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
+			"next": "Next",
+			"pagination": "Page {{current}} of {{total}}",
+			"previous": "Previous",
+			"refreshing": "Refreshing audit log",
+			"retry": "Retry",
+			"targetTypes": {
+				"user": "User",
+				"workspace": "Workspace",
+				"role": "Role",
+				"instance": "Instance",
+				"webhook": "Webhook"
+			},
+			"title": "Audit log",
+			"unknownActor": "Unknown"
+		},
+		"sessions": {
+			"device": "{{browser}} on {{os}}",
+			"lastActive": "Active {{time}}",
+			"loadError": "Couldn't load sessions.",
+			"revoke": "Sign out",
+			"revokeConfirmDescription": "They'll be signed out right away.",
+			"revokeConfirmTitle": "Sign out {{device}}?",
+			"revokeLabel": "Sign out {{device}}",
+			"revoking": "Signing out...",
+			"signedIn": "Signed in {{date}}",
+			"thisDevice": "This device",
+			"toastRevoked": "Session signed out.",
+			"toastRevokeError": "Couldn't sign out the session.",
+			"unknownDevice": "Unknown device"
+		},
+		"adminSystem": {
+			"checkedAt": "Checked {{time}}",
+			"email": {
+				"down": "Can't connect to the mail server ({{code}})",
+				"notConfigured": "Set SMTP_HOST and SMTP_FROM to turn on email.",
+				"ok": "Connected to the mail server",
+				"send": "Send test email",
+				"sending": "Sending…",
+				"sendTest": "Test email",
+				"smtp": "SMTP",
+				"title": "Email"
+			},
+			"instance": {
+				"api": "API",
+				"apiDescription": "Up {{uptime}} · Node {{node}}",
+				"database": "Database",
+				"databaseDown": "Can't reach PostgreSQL ({{code}})",
+				"databaseVersion": "PostgreSQL {{version}}",
+				"latency": "{{ms}} ms",
+				"migrations_one": "{{count}} migration applied",
+				"migrations_other": "{{count}} migrations applied",
+				"realtime": "Live updates",
+				"realtimeConnections_one": "{{count}} open connection on this instance",
+				"realtimeConnections_other": "{{count}} open connections on this instance",
+				"realtimeInMemory": "delivered in memory",
+				"realtimeNotStarted": "WebSockets haven't started",
+				"realtimeRedis": "shared with other instances through Redis",
+				"realtimeRedisDown": "Redis is down, so only people on this instance get live updates",
+				"redis": "Redis",
+				"redisDown": "Can't reach Redis ({{code}})",
+				"redisModes": {
+					"cluster": "Cluster",
+					"sentinel": "Sentinel",
+					"standalone": "Standalone"
+				},
+				"redisNotConfigured": "Set REDIS_URL to share live updates across API instances.",
+				"redisOk": "{{mode}}, reachable",
+				"storage": "File storage",
+				"storageDown": "Can't reach the bucket ({{code}})",
+				"storageIncomplete": "Some S3 settings are missing, so uploads are off.",
+				"storageNotConfigured": "Set S3_ENDPOINT and S3_BUCKET to turn on uploads.",
+				"storageOk": "Bucket reachable",
+				"storageWarning": "Can't check the bucket with these credentials ({{code}}).",
+				"title": "Instance",
+				"version": "Kaneo version",
+				"versionUnknown": "Unknown"
+			},
+			"integrations": {
+				"available": "Available",
+				"connectedProjects_one": "Connected in {{count}} project",
+				"connectedProjects_other": "Connected in {{count}} projects",
+				"connectedUnknown": "Project count unavailable",
+				"instanceSetup": {
+					"down": "GitHub App unavailable",
+					"not_configured": "GitHub App not set up",
+					"ok": "GitHub App set up",
+					"warning": "Some GitHub App settings are missing"
+				},
+				"title": "Integrations"
+			},
+			"loadError": "System status could not be loaded.",
+			"refresh": "Refresh",
+			"refreshing": "Checking…",
+			"retry": "Retry",
+			"setupStatus": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Configured",
+				"warning": "Incomplete"
+			},
+			"signIn": {
+				"emailOtpSignIn": "Email sign-in codes",
+				"guestAccess": "Guest access",
+				"off": "Off",
+				"on": "On",
+				"passwordRegistration": "Sign-up with a password",
+				"passwordSignIn": "Email and password sign-in",
+				"registration": "Registration",
+				"title": "Sign-in",
+				"workspaceCreation": "Workspace creation",
+				"customProvider": "OAuth or OpenID Connect"
+			},
+			"status": {
+				"down": "Down",
+				"not_configured": "Not configured",
+				"ok": "Operational",
+				"warning": "Warning"
+			},
+			"title": "System",
+			"toast": {
+				"testEmailError": "The test email could not be sent.",
+				"testEmailSent": "Test email sent to {{to}}"
+			}
+		},
+		"adminOverview": {
+			"activeUsers": "Active (30 days)",
+			"archivedWorkspaces": "Archived",
+			"configurationWarnings": "Configuration warnings",
+			"disabledUsers": "Disabled users",
+			"loadError": "Could not load the overview.",
+			"noActions": "No administrative actions",
+			"noUsers": "No users",
+			"recentActions": "Recent administrative actions",
+			"recentUsers": "Recent users",
+			"services": "Services",
+			"title": "Overview",
+			"totalUsers": "Total users",
+			"viewAuditLog": "View audit log",
+			"viewSystem": "View system",
+			"viewUsers": "View users",
+			"warnings": {
+				"noSecondAdmin": "Only one administrator has access. Assign a second admin in User management.",
+				"redisUnreachable": "Redis is unavailable. Check the connection.",
+				"registrationWithoutEmail": "Registration is open without email. Configure SMTP or set DISABLE_REGISTRATION=true.",
+				"smtpNotConfigured": "Email is not configured. Set SMTP_HOST and SMTP_FROM.",
+				"smtpUnreachable": "Email is unavailable. Check SMTP settings.",
+				"storageIncomplete": "Storage setup is incomplete. Check S3 settings.",
+				"storageUnreachable": "Storage needs attention. Check S3 access."
+			},
+			"workspaces": "Workspaces"
+		},
+		"adminRoles": {
+			"actions": "Actions for {{name}}",
+			"allPermissions": "All permissions",
+			"builtIn": "Built-in",
+			"create": "New role",
+			"deleteTitle": "Delete {{name}}?",
+			"dialog": {
+				"create": "Create role",
+				"createTitle": "New role",
+				"editTitle": "Edit role",
+				"name": "Name",
+				"nameHint": "Use 2–32 lowercase letters, digits, or hyphens, starting with a letter.",
+				"save": "Save"
+			},
+			"edit": "Edit",
+			"groups": {
+				"instance": "Instance",
+				"users": "Users",
+				"workspaces": "Workspaces"
+			},
+			"listTitle": "All roles",
+			"loadError": "Roles could not be loaded.",
+			"noPermissions": "No permissions",
+			"permissionCount_one": "{{count}} permission",
+			"permissionCount_other": "{{count}} permissions",
+			"permissions": {
+				"auditRead": "View the audit log",
+				"instanceSettings": "Change instance settings",
+				"systemRead": "View system status",
+				"usersApiKeys": "View and revoke API keys",
+				"usersCreate": "Create users",
+				"usersCredentials": "Send password reset and verification emails",
+				"usersDelete": "Delete users",
+				"usersDisable": "Deactivate and reactivate users",
+				"usersRead": "View users",
+				"usersSessions": "View and end sessions",
+				"usersUpdate": "Edit users and their roles",
+				"workspacesArchive": "Archive and restore workspaces",
+				"workspacesDelete": "Delete workspaces",
+				"workspacesManage": "Manage workspace members",
+				"workspacesRead": "View workspaces and members"
+			},
+			"title": "Roles",
+			"toast": {
+				"created": "Role created",
+				"deleted": "Role deleted",
+				"error": "The role could not be saved.",
+				"updated": "Role updated"
+			},
+			"userCount_one": "{{count}} user",
+			"userCount_other": "{{count}} users",
+			"viewUsers": "View users"
+		},
+		"adminSettings": {
+			"defaultRole": "Default role for new users",
+			"general": "General",
+			"instanceName": "Instance name",
+			"instanceUrl": "Instance URL",
+			"instanceUrlMissing": "Set KANEO_CLIENT_URL",
+			"integrations": "Integrations",
+			"loadError": "Couldn't load instance settings.",
+			"lockedByEnv": "Set by {{name}}",
+			"passwordRegistrationEnabled": "Email and password sign-up",
+			"registration": "Registration",
+			"registrationEnabled": "Open registration",
+			"requireEmailVerification": "Require email verification",
+			"requiresSmtp": "Requires SMTP",
+			"signInProviders": "Sign-in providers",
+			"title": "Settings",
+			"toast": {
+				"error": "Couldn't save settings",
+				"saved": "Settings saved"
+			},
+			"workspaceCreationRestricted": "Only administrators can create workspaces",
+			"workspaces": "Workspaces",
+			"save": "Save"
+		},
+		"adminWebhooks": {
+			"actions": "Actions for {{url}}",
+			"add": "Add webhook",
+			"attempts_one": "{{count}} attempt",
+			"attempts_other": "{{count}} attempts",
+			"categories": "Events",
+			"deleteTitle": "Delete webhook?",
+			"deliveries": "Recent deliveries",
+			"disabled": "Disabled",
+			"edit": "Edit webhook",
+			"empty": "No webhooks",
+			"enabled": "Enabled",
+			"errors": {
+				"destination": "Destination blocked",
+				"disabled": "Webhook disabled",
+				"http": "HTTP error",
+				"interrupted": "Delivery interrupted",
+				"network": "Connection failed",
+				"response": "Invalid response",
+				"signing": "Signing failed",
+				"timeout": "Timed out"
+			},
+			"failed": "Failed",
+			"httpStatus": "HTTP {{status}}",
+			"loadError": "Webhooks could not be loaded.",
+			"noDeliveries": "No deliveries",
+			"pending": "Pending",
+			"rotate": "Rotate secret",
+			"rotateTitle": "Rotate signing secret?",
+			"saveError": "The webhook could not be saved.",
+			"secretTitle": "Signing secret — save it now",
+			"sendTest": "Send test",
+			"setup": "Set NOTIFICATION_SECRET_ENCRYPTION_KEY to create webhooks.",
+			"signingSecret": "Signing secret",
+			"succeeded": "Delivered",
+			"testEvent": "Test event",
+			"testQueued": "Test event queued.",
+			"title": "Webhooks",
+			"url": "URL",
+			"save": "Save"
 		}
 	},
 	"navigation": {
@@ -2439,7 +2923,6 @@
 			"selectWorkspace": "Избери работен простор"
 		},
 		"page": {
-			"projectsTitle": "Проекти",
 			"settingsTitle": "Поставки",
 			"backToWorkspace": "Назад кон работен простор",
 			"settingsWorkspaceTab": "Работен простор"
@@ -3008,9 +3491,40 @@
 					"amber": "Килибар",
 					"terracotta": "Теракота",
 					"rose": "Роза",
-					"crimson": "Гримизна"
+					"crimson": "Гримизна",
+					"lagoon": "Лагуна",
+					"ocean": "Океан",
+					"orchid": "Орхидеја",
+					"sky": "Небо"
 				},
 				"editLabels": "Уреди етикети"
+			},
+			"recurrence": {
+				"updateError": "Неуспешно ажурирање на повторувањето на задачата",
+				"every": "На секои",
+				"hint": "Кога оваа задача ќе заврши, ќе се создаде следната.",
+				"interval": "Интервал",
+				"onDays": "Во овие денови",
+				"pattern": {
+					"daily": "Дневно",
+					"monthly": "Месечно",
+					"periodically": "Периодично",
+					"weekly": "Неделно",
+					"yearly": "Годишно"
+				},
+				"repeats": "Повторување",
+				"toggle": "Повторувај",
+				"unit": {
+					"days_one": "ден",
+					"days_other": "дена",
+					"label": "Единица",
+					"months_one": "месец",
+					"months_other": "месеци",
+					"weeks_one": "недела",
+					"weeks_other": "недели",
+					"years_one": "година",
+					"years_other": "години"
+				}
 			}
 		},
 		"backlog": {
@@ -3070,7 +3584,7 @@
 		},
 		"gantt": {
 			"searchPlaceholder": "Пребарај закажани тикети...",
-			"pageTitle": "{{name}} – Gantt",
+			"pageTitle": "{{name}} / Gantt",
 			"title": "Gantt временска линија",
 			"hideTasks": "Сокриј задачи",
 			"showTasks": "Прикажи задачи",
@@ -3109,7 +3623,11 @@
 		"listView": {
 			"addTask": "Додади задача",
 			"archiveAllTooltip": "Архивирај ги сите завршени задачи",
-			"noTasks": "Нема задачи"
+			"noTasks": "Нема задачи",
+			"collapseSubtasks": "Сокриј подзадачи на {{title}}",
+			"expandSubtasks": "Прикажи подзадачи на {{title}}",
+			"subtaskLevel": "Подзадача, ниво {{level}}",
+			"subtasksLoadError": "Подзадачите не можеа да се вчитаат, па задачите се прикажани без хиерархија."
 		},
 		"kanban": {
 			"addTask": "Додади задача",
@@ -3121,7 +3639,8 @@
 			"open": "Отворен",
 			"label": "Pull Request",
 			"count_one": "{{count}} PR",
-			"count_other": "{{count}} PR-а"
+			"count_other": "{{count}} PR-а",
+			"closed": "Затворен"
 		},
 		"assignee": {
 			"label": "Доделен",
@@ -3207,7 +3726,7 @@
 			"nextMonth": "Следен месец",
 			"noTasks": "Нема закажани задачи",
 			"noTasksSubtitle": "Додади почетен датум, краен рок или двете на задачите за да се прикажат во календарот.",
-			"pageTitle": "{{name}} – Календар",
+			"pageTitle": "{{name}} / Календар",
 			"previousMonth": "Претходен месец",
 			"taskAriaLabel": "{{title}}, {{range}}: отвори задача",
 			"title": "Календар",
@@ -3227,7 +3746,6 @@
 			"required": "Задолжително",
 			"enterKey": "Enter",
 			"toSave": "за зачувување",
-			"today": "Денес",
 			"clear": "Исчисти",
 			"setValue": "Постави {{field}}…",
 			"noMatches": "Нема соодветни опции",
@@ -3241,6 +3759,17 @@
 		"board": {
 			"reorderFailed": "Could not move task. Please try again.",
 			"keyboardInstructions": "Притиснете Space за преглед и Enter за да ја отворите оваа задача. Користете Alt или Option со стрелките за да ја преместите."
+		},
+		"recurrence": {
+			"daily_one": "На секој {{count}} ден",
+			"daily_other": "На секои {{count}} дена",
+			"monthly_one": "На секој {{count}} месец",
+			"monthly_other": "На секои {{count}} месеци",
+			"weekly_one": "На секоја {{count}} недела",
+			"weekly_other": "На секои {{count}} недели",
+			"yearly_one": "На секоја {{count}} година",
+			"yearly_other": "На секои {{count}} години",
+			"onDays": "{{rule}}: {{days}}"
 		},
 		"toolbar": {
 			"search": "Пребарај задачи",
@@ -3262,7 +3791,10 @@
 		"filterBar": {
 			"label": "Активни филтри",
 			"removeFilter": "Отстрани го филтерот {{name}}",
-			"noMatches": "Ниту една задача не одговара на пребарувањето или филтрите."
+			"noMatches": "Ниту една задача не одговара на пребарувањето или филтрите.",
+			"customFieldsLoading": "Loading custom-field values. Results are shown without custom-field filters.",
+			"customFieldsRefreshError": "Custom-field values could not be refreshed. Results may be out of date.",
+			"customFieldsUnavailable": "Custom-field values could not be loaded. Results are shown without custom-field filters."
 		},
 		"filterMenu": {
 			"addFilter": "Додај филтер…",
@@ -3276,11 +3808,33 @@
 			"markdownCopied": "Копирано како Markdown",
 			"copyFailed": "Не може да се копира во клипбордот.",
 			"pageUrlCopied": "URL на страницата е копиран"
+		},
+		"due": {
+			"overdueDays_one": "{{count}} д. задоцнето",
+			"overdueDays_other": "{{count}} д. задоцнето",
+			"overdueWeeks_one": "{{count}} нед. задоцнето",
+			"overdueWeeks_other": "{{count}} нед. задоцнето",
+			"today": "Денес",
+			"tomorrow": "Утре",
+			"inDays_one": "За {{count}} ден",
+			"inDays_other": "За {{count}} дена",
+			"fullDate": "Рок {{date}}"
+		},
+		"datePicker": {
+			"dueDatePlaceholder": "Постави рок…",
+			"startDatePlaceholder": "Постави датум на почеток…",
+			"datePlaceholder": "Постави датум…",
+			"thisWeekend": "Овој викенд",
+			"nextWeek": "Следната недела",
+			"pickDate": "Избери датум",
+			"startsOn": "Почнува: {{date}}",
+			"beforeStart": "{{date}} е пред датумот на почеток",
+			"afterDue": "{{date}} е по рокот"
 		}
 	},
 	"invitations": {
 		"email": {
-			"subject": "{{inviterName}} те покани да се приклучиш на {{workspaceName}} на Kaneo",
+			"subject": "{{inviterName}} те покани да се приклучиш на {{workspaceName}} на {{instanceName}}",
 			"preview": "Поканет си во {{workspaceName}} на Kaneo",
 			"title": "Приклучи се на {{workspaceName}}",
 			"subtitle": "{{inviterName}} ({{inviterEmail}}) те покани да соработувате во Kaneo.",
@@ -3431,6 +3985,12 @@
 			},
 			"empty": "Nothing assigned to you",
 			"loadError": "Your tasks couldn't be loaded."
+		},
+		"archived": {
+			"description": "Contact an administrator to restore access.",
+			"manage": "Manage workspaces",
+			"otherWorkspaces": "Go to workspaces",
+			"title": "Workspace archived"
 		}
 	},
 	"team": {
@@ -3604,13 +4164,13 @@
 		},
 		"hero": {
 			"cloudCta": "Try Kaneo Cloud",
-			"selfHostCta": "Self-host Kaneo",
 			"trialNote": "14-day cloud trial. No credit card required.",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "Project management",
 			"titleAccent": "that doesn't become the project.",
-			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting."
+			"description": "Open-source project management with boards, Gantt charts, and GitHub integration. Self-host for free with SSO included, or let Kaneo Cloud handle the hosting.",
+			"pricingCta": "See pricing"
 		},
 		"navigation": {
 			"product": "Product",
@@ -3700,10 +4260,6 @@
 			"eyebrow": "Make it your own",
 			"title": "A clear path from trying it to using it.",
 			"description": "Set up your server, connect your tools, or compare Kaneo with your current tracker.",
-			"docker": {
-				"title": "Self-host with Docker",
-				"description": "Installation, backups, and updates for a setup you control."
-			},
 			"sso": {
 				"title": "Bring your own identity provider",
 				"description": "Configure OIDC single sign-on in the free self-hosted build."
@@ -3715,6 +4271,10 @@
 			"linear": {
 				"title": "Compare Kaneo and Linear",
 				"description": "See the differences in hosting, licensing, and workflow."
+			},
+			"startups": {
+				"description": "What a startup needs from a tracker, and what Kaneo Cloud costs as you hire.",
+				"title": "Project management for startups"
 			}
 		},
 		"product": {
@@ -3759,6 +4319,833 @@
 			"composeLinkDescription": "The maintained compose.yml with persistent storage and health checks.",
 			"startLink": "Start and verify the services",
 			"startLinkDescription": "Start the stack, inspect its status, and check that the application is available."
+		}
+	},
+	"mobile": {
+		"common": {
+			"save": "Зачувај",
+			"cancel": "Откажи",
+			"delete": "Избриши",
+			"retry": "Обиди се повторно",
+			"somethingWrong": "Нешто тргна наопаку",
+			"close": "Затвори"
+		},
+		"errors": {
+			"notSignedIn": "Не си најавен",
+			"unreachable": "Серверот не е достапен. Провери ја врската и адресата на серверот.",
+			"sessionExpired": "Сесијата истече. Најави се повторно.",
+			"forbidden": "Немаш дозвола за тоа.",
+			"notFound": "Не е пронајдено.",
+			"tooManyRequests": "Премногу барања. Почекај малку.",
+			"serverProblem": "Серверот имаше проблем ({{status}}).",
+			"requestFailed": "Барањето не успеа ({{status}}).",
+			"notKaneo": "{{url}} не изгледа како Kaneo сервер.",
+			"noInstance": "Не е пронајдена Kaneo инстанца на {{url}} (HTTP {{status}}).",
+			"noSession": "Серверот не врати сесија. Обиди се да се најавиш преку прелистувач.",
+			"deviceFailed": "Најавата на уредот не успеа (HTTP {{status}}).",
+			"apiKeyRejected": "Тој API клуч е одбиен.",
+			"signInRejected": "Серверот не ја прифати најавата.",
+			"uploadFailed": "Прикачувањето не успеа ({{status}})"
+		},
+		"signIn": {
+			"tagline": "Едноставно управување со проекти. Поврзи се со Kaneo Cloud или со своја инстанца.",
+			"cloud": "Kaneo Cloud",
+			"selfHosted": "Сопствен сервер",
+			"captcha": "Серверот бара проверка во прелистувач за овој чекор. Наместо тоа, користи „Продолжи во прелистувач“.",
+			"invalidClient": "Овој сервер не дозволува најава преку уред. Побарај од администраторот да додаде „kaneo-cli“ во DEVICE_AUTH_CLIENT_IDS или најави се со лозинка или API клуч.",
+			"serverAddress": "Адреса на серверот",
+			"serverAddressHint": "Адресата на која го отвораш Kaneo. Користи http:// за сервери без TLS. Ако API-то работи на друг хост, внеси ја адресата на API-то.",
+			"connect": "Поврзи се",
+			"recent": "Неодамнешни",
+			"change": "Промени",
+			"email": "Е-пошта",
+			"password": "Лозинка",
+			"togglePassword": "Прикажи или скриј ја лозинката",
+			"signIn": "Најави се",
+			"or": "или",
+			"continueInBrowser": "Продолжи во прелистувач",
+			"browserHint": "GitHub, Google, Discord или SSO",
+			"emailCode": "Испрати ми код за најава по е-пошта",
+			"sendTo": "Испрати на {{email}}",
+			"noPassword": "Не треба лозинка",
+			"useApiKey": "Користи API клуч",
+			"newToKaneo": "Нов си во Kaneo?",
+			"createAccount": "Создај сметка",
+			"code": {
+				"title": "Најави се со код",
+				"message": "Ќе ти испратиме 6-цифрен код по е-пошта. Не треба лозинка.",
+				"send": "Испрати код",
+				"checkEmail": "Провери ја е-поштата",
+				"sent": "Испративме 6-цифрен код на {{email}}",
+				"verify": "Потврди",
+				"didntGet": "Не стигна?",
+				"resend": "Испрати повторно"
+			},
+			"device": {
+				"denied": "Најавата е одбиена во прелистувачот.",
+				"expired": "Кодот за најава истече. Почни одново за да добиеш нов.",
+				"openFailed": "Не може да се отвори прелистувач. Копирај ја врската.",
+				"message": "Одобри го овој уред на веб-страницата на Kaneo. Таму работат GitHub, Google, Discord и SSO.",
+				"yourCode": "Твојот код",
+				"copyCode": "Копирај код",
+				"codeCopied": "Кодот е копиран",
+				"copyLink": "Копирај врска",
+				"linkCopied": "Врската е копирана",
+				"openBrowser": "Отвори прелистувач",
+				"tryAgain": "Обиди се повторно",
+				"waiting": "Се чека одобрување…",
+				"gettingCode": "Се добива код…"
+			},
+			"apiKey": {
+				"message": "Создај го на веб во Поставки, па API клучеви. Работи дури и кога другите начини за најава се исклучени.",
+				"label": "API клуч"
+			},
+			"signUp": {
+				"name": "Име",
+				"passwordHint": "Најмалку 8 знаци"
+			}
+		},
+		"invitations": {
+			"accepted": "Поканата е прифатена",
+			"declined": "Поканата е одбиена",
+			"title": "Покани",
+			"description": "Работни простори во кои си поканет.",
+			"emptyTitle": "Нема покани на чекање",
+			"emptyMessage": "Поканите се појавуваат тука откако ќе се потврди твојата е-пошта. Секогаш можеш да се приклучиш преку врската од е-поштата.",
+			"invitedYou": "{{name}} те покани",
+			"decline": "Одбиј",
+			"accept": "Прифати",
+			"joinWithLink": "Приклучи се со врска за покана",
+			"linkPlaceholder": "Залепи ја врската од е-поштата",
+			"join": "Приклучи се"
+		},
+		"taskDetail": {
+			"someone": "Некој",
+			"status": {
+				"planned": "Планирано",
+				"archived": "Архивирано"
+			},
+			"section": {
+				"addTo": "Додај во {{title}}"
+			},
+			"fields": {
+				"title": "Полиња",
+				"empty": "Празно",
+				"none": "Нема"
+			},
+			"subtasks": {
+				"title": "Подзадачи",
+				"add": "Додај подзадача",
+				"parent": "Надредена задача",
+				"empty": "Нема подзадачи"
+			},
+			"relations": {
+				"title": "Релации",
+				"link": "Поврзи задача",
+				"blocks": "Блокира",
+				"blockedBy": "Блокирана од",
+				"related": "Поврзани",
+				"relatedTo": "Поврзана со",
+				"remove": "Отстрани релација",
+				"empty": "Нема поврзани задачи",
+				"removeTitle": "Да се отстрани релацијата?",
+				"removeMessage": "Задачите остануваат; се отстранува само врската меѓу нив.",
+				"removeConfirm": "Отстрани",
+				"searchPlaceholder": "Пребарај задачи по наслов или број"
+			},
+			"links": {
+				"title": "Врски",
+				"add": "Додај врска",
+				"remove": "Отстрани врска",
+				"synced": "Синхронизирано",
+				"empty": "Нема врски",
+				"url": "URL",
+				"titleLabel": "Наслов",
+				"optional": "Опционално"
+			},
+			"time": {
+				"title": "Време",
+				"total": "Вкупно {{duration}}",
+				"log": "Внеси време",
+				"editEntry": "Уреди внес за време",
+				"logged": "Времето е внесено",
+				"stop": "Запри",
+				"start": "Вклучи тајмер",
+				"running": "{{time}} (тече)",
+				"hoursUnit": "ч",
+				"minutesUnit": "мин",
+				"chipMinutes": "{{count}} мин",
+				"chipHours": "{{count}} ч",
+				"logDuration": "Внеси {{duration}}",
+				"durationHoursMinutes": "{{hours}} ч {{minutes}} мин",
+				"durationMinutes": "{{minutes}} мин",
+				"date": "Датум",
+				"notePlaceholder": "На што работеше?"
+			},
+			"activity": {
+				"title": "Активност",
+				"comment": "Коментирај",
+				"edit": "Уреди",
+				"editComment": "Уреди коментар",
+				"edited": "{{time}}, уредено",
+				"deleteTitle": "Да се избрише коментарот?",
+				"deleteMessage": "Ова не може да се врати.",
+				"entry": "{{name}} {{action}}"
+			},
+			"menu": {
+				"share": "Сподели",
+				"duplicate": "Дуплирај",
+				"move": "Премести во проект…",
+				"refresh": "Освежи",
+				"delete": "Избриши задача",
+				"moveTitle": "Премести во проект",
+				"duplicated": "Задачата е дуплирана",
+				"moved": "Задачата е преместена",
+				"deleted": "Задачата е избришана",
+				"deleteTitle": "Да се избрише задачата?",
+				"deleteMessage": "„{{title}}“ и нејзините коментари ќе бидат трајно избришани."
+			},
+			"screen": {
+				"copyLink": "Копирај врска",
+				"linkCopied": "Врската е копирана",
+				"more": "Повеќе",
+				"editTitle": "Уреди наслов",
+				"editDescription": "Уреди опис",
+				"addDescription": "Додај опис…"
+			}
+		},
+		"workspaceNew": {
+			"title": "Нов работен простор",
+			"description": "Дом за проектите на твојот тим. Потоа можеш да поканиш луѓе.",
+			"name": "Име",
+			"namePlaceholder": "Дизајн студио",
+			"descriptionLabel": "Опис",
+			"optional": "Опционално",
+			"descriptionPlaceholder": "За што служи овој работен простор?",
+			"create": "Создај работен простор"
+		},
+		"taskFields": {
+			"status": "Статус",
+			"planned": "Планирано",
+			"priority": "Приоритет",
+			"assignee": "Доделен",
+			"unassigned": "Недоделен",
+			"startDate": "Датум на почеток",
+			"dueDate": "Краен рок",
+			"labels": "Етикети",
+			"none": "Нема",
+			"searchPeople": "Пребарај луѓе",
+			"you": "{{name}} (ти)",
+			"addNumber": "Додај број",
+			"empty": "Празно",
+			"archived": "Архивирано",
+			"doneColumn": "Колона за завршени",
+			"starts": "Почнува {{date}}",
+			"overdue_one": "{{date}}, {{count}} ден задоцнета",
+			"overdue_other": "{{date}}, {{count}} дена задоцнета",
+			"done": "Завршено",
+			"searchOrCreate": "Пребарај или создај",
+			"createLabel": "Создај етикета „{{name}}“",
+			"labelColor": "Боја за новата етикета",
+			"noLabels": "Сè уште нема етикети. Внеси име за да создадеш."
+		},
+		"taskNew": {
+			"newSubtask": "Нова подзадача",
+			"project": "Проект",
+			"create": "Создај",
+			"taskTitle": "Наслов на задачата",
+			"noLabels": "Сè уште нема етикети во овој работен простор.",
+			"labelsAndParentFailed": "Задачата е создадена, но некои етикети и врската со надредената задача не можеа да се зачуваат.",
+			"labelsFailed": "Задачата е создадена, но некои етикети не можеа да се додадат.",
+			"parentFailed": "Задачата е создадена, но не можеше да се поврзе со надредената задача."
+		},
+		"editor": {
+			"description": "Опис",
+			"placeholder": "Додај опис… Работи Markdown.",
+			"write": "Пишувај",
+			"preview": "Преглед",
+			"nothingToPreview": "Нема што да се прегледа",
+			"bold": "Задебелено",
+			"italic": "Курзив",
+			"heading": "Наслов",
+			"list": "Листа",
+			"code": "Код",
+			"link": "Врска",
+			"boldPlaceholder": "задебелено",
+			"italicPlaceholder": "курзив",
+			"codePlaceholder": "код",
+			"linkPlaceholder": "врска",
+			"insertImage": "Вметни слика",
+			"attachment": "Прилог"
+		},
+		"composer": {
+			"reply": "Одговори на {{name}}…",
+			"placeholder": "Додај коментар…",
+			"mentionSomeone": "Спомни некого",
+			"attachImage": "Прикачи слика",
+			"sendComment": "Испрати коментар",
+			"mention": "Спомни",
+			"searchPeople": "Пребарај луѓе"
+		},
+		"board": {
+			"filterTasksActive": "Филтрирај задачи… (активни: {{count}})",
+			"movedTask": "{{ticket}} е преместена во {{status}}",
+			"showTasks_one": "Прикажи {{count}} задача",
+			"showTasks_other": "Прикажи {{count}} задачи",
+			"memberYou": "{{name}} (ти)",
+			"dueDateOverdue_one": "{{date}}, {{count}} д задоцнета",
+			"dueDateOverdue_other": "{{date}}, {{count}} д задоцнета",
+			"projects": "Проекти",
+			"back": "Назад",
+			"boardView": "Приказ како табла",
+			"listView": "Приказ како листа",
+			"more": "Повеќе",
+			"switchProject": "Промени проект",
+			"noTasksMatchTheFilters": "Ниедна задача не одговара на филтрите",
+			"nothingPlannedYet": "Сè уште нема ништо планирано",
+			"noTasksHere": "Тука нема задачи",
+			"addTask": "Додај задача",
+			"noTasksMatch": "Нема соодветни задачи",
+			"noTasksYet": "Сè уште нема задачи",
+			"filters": "Филтри",
+			"filterTasks": "Филтрирај задачи…",
+			"me": "Јас",
+			"newTask": "Нова задача",
+			"board": "Табла",
+			"projectSettings": "Поставки на проектот",
+			"hidePlanned": "Скриј планирани",
+			"showPlanned": "Прикажи планирани",
+			"hideArchived": "Скриј архивирани",
+			"showArchived": "Прикажи архивирани",
+			"refresh": "Освежи",
+			"planned": "Планирано",
+			"archived": "Архивирано",
+			"reset": "Ресетирај",
+			"assignee": "Доделен",
+			"unassigned": "Недоделен",
+			"priority": "Приоритет",
+			"labels": "Етикети",
+			"overdueOnly": "Само задоцнети",
+			"tasksNotOnTheBoardYet": "Задачи што сè уште не се на таблата",
+			"moveTo": "Премести во",
+			"assignToMe": "Додели ми",
+			"sendToTopOfColumn": "На врвот на колоната",
+			"sendToBottomOfColumn": "На дното на колоната",
+			"openTask": "Отвори задача",
+			"searchPeople": "Пребарај луѓе"
+		},
+		"projectSettings": {
+			"deleteNamedTitle": "Да се избрише „{{name}}“?",
+			"text": "Текст",
+			"number": "Број",
+			"date": "Датум",
+			"checkbox": "Поле за штиклирање",
+			"dropdown": "Паѓачко мени",
+			"multiSelect": "Повеќекратен избор",
+			"projectUpdated": "Проектот е ажуриран",
+			"project": "Проект",
+			"projectSettings": "Поставки на проектот",
+			"general": "Општо",
+			"publicBoard": "Јавна табла",
+			"anyoneWithTheLinkCanViewTheBoard": "Секој со врската може да ја гледа таблата",
+			"columns": "Колони",
+			"addColumn": "Додај колона",
+			"doneColumn": "Колона за завршени",
+			"moveUp": "Помести нагоре",
+			"moveDown": "Помести надолу",
+			"customFields": "Прилагодени полиња",
+			"addField": "Додај поле",
+			"noCustomFields": "Нема прилагодени полиња",
+			"projectRestored": "Проектот е вратен",
+			"archiveProjectTitle": "Да се архивира проектот?",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "Ќе исчезне од листата на проекти. Можеш да го вратиш подоцна.",
+			"archive": "Архивирај",
+			"projectArchived": "Проектот е архивиран",
+			"restoreProject": "Врати проект",
+			"archiveProject": "Архивирај проект",
+			"moveToAnotherWorkspace": "Премести во друг работен простор",
+			"deleteProjectTitle": "Да се избрише проектот?",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "Сите задачи, коментари и внесови за време во овој проект ќе бидат трајно избришани.",
+			"projectDeleted": "Проектот е избришан",
+			"deleteProject": "Избриши проект",
+			"column": "Колона",
+			"rename": "Преименувај",
+			"unmarkAsDoneColumn": "Отстрани ознака за завршени",
+			"markAsDoneColumn": "Означи како колона за завршени",
+			"deleteColumn": "Избриши колона",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "Можеби прво ќе треба да ги преместиш задачите од оваа колона.",
+			"columnDeleted": "Колоната е избришана",
+			"renameColumn": "Преименувај колона",
+			"field": "Поле",
+			"deleteField": "Избриши поле",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "Вредностите во ова поле се бришат од секоја задача.",
+			"fieldDeleted": "Полето е избришано",
+			"moveToWorkspace": "Премести во работен простор",
+			"projectMoved": "Проектот е преместен",
+			"ok": "OK",
+			"name": "Име",
+			"key": "Клуч",
+			"changesFutureAndExistingTaskIDs": "Ги менува ID-ата на идните и постојните задачи",
+			"saveChanges": "Зачувај промени",
+			"newColumn": "Нова колона",
+			"blocked": "Блокирано",
+			"tasksHereCountAsFinished": "Задачите тука се сметаат за завршени",
+			"newCustomField": "Ново прилагодено поле",
+			"platform": "Платформа",
+			"type": "Тип",
+			"options": "Опции",
+			"separateWithCommas": "Одвој со запирки",
+			"androidIOSWeb": "Android, iOS, Web",
+			"required": "Задолжително",
+			"checked": "Штиклирано",
+			"chooseDefault": "Избери стандардна вредност",
+			"defaultValue": "Стандардна вредност",
+			"multiselectOptionsRequired": "Додај барем две различни опции.",
+			"unchecked": "Нештиклирано",
+			"validDefaultRequired": "Внеси валидна стандардна вредност за ова задолжително поле."
+		},
+		"projectNew": {
+			"newProject": "Нов проект",
+			"name": "Име",
+			"customerPortal": "Портал за клиенти",
+			"key": "Клуч",
+			"usedInTaskIDs": "Се користи во ID-ата на задачите",
+			"createProject": "Создај проект"
+		},
+		"home": {
+			"noWorkspace": {
+				"title": "Сè уште нема работен простор",
+				"body": "Работните простори ги содржат твоите проекти и тим. Создај еден или прифати покана.",
+				"create": "Создај работен простор",
+				"viewInvitations_one": "Види {{count}} покана",
+				"viewInvitations_other": "Види {{count}} покани",
+				"joinWithLink": "Приклучи се со врска за покана",
+				"signedInAs": "Најавен си како {{email}}"
+			},
+			"switchWorkspace": "Промени работен простор",
+			"search": "Пребарај",
+			"account": "Сметка",
+			"archived": "Архивирано",
+			"due": "Рок {{date}}",
+			"progress": "{{done}} од {{total}}",
+			"noTasks": "Нема задачи",
+			"upNext": "Следно",
+			"viewAll": "Види сè",
+			"projects": "Проекти",
+			"newProject": "Нов проект",
+			"empty": {
+				"title": "Сè уште нема проекти",
+				"message": "Проектите ги содржат твоите табли и задачи."
+			},
+			"hideArchived": "Скриј архивирани проекти",
+			"showArchived": "Прикажи архивирани проекти"
+		},
+		"inbox": {
+			"title": "Сандаче",
+			"markAllRead": "Означи сè како прочитано",
+			"allCaughtUpToast": "Сè е прочитано",
+			"more": "Повеќе",
+			"empty": {
+				"title": "Сè е прочитано",
+				"message": "Доделувањата, коментарите и спомнувањата се појавуваат тука."
+			},
+			"today": "Денес",
+			"earlier": "Порано",
+			"recent": "Неодамнешни",
+			"clearAll": "Исчисти ги сите известувања",
+			"confirmClear": {
+				"title": "Да се исчистат сите известувања?",
+				"message": "Ова ги отстранува сите известувања во овој работен простор.",
+				"confirm": "Исчисти сè"
+			}
+		},
+		"activity": {
+			"title": "Активност",
+			"subtitle": "Сè што се случува во {{workspace}}",
+			"empty": "Нема неодамнешна активност",
+			"someone": "Некој",
+			"commentedOn": "коментираше на {{target}}"
+		},
+		"myTasks": {
+			"title": "Мои задачи",
+			"by": {
+				"due": "Краен рок",
+				"project": "Проект",
+				"status": "Статус"
+			},
+			"due": {
+				"overdue": "Задоцнети",
+				"today": "Денес",
+				"thisWeek": "Оваа недела",
+				"later": "Подоцна",
+				"none": "Без краен рок"
+			},
+			"empty": {
+				"title": "Ништо не ти е доделено",
+				"message": "Задачите што ти се доделени во овој работен простор се појавуваат тука."
+			},
+			"showing": "Прикажани {{shown}} од {{total}} задачи",
+			"assigned_one": "{{count}} доделена",
+			"assigned_other": "{{count}} доделени"
+		},
+		"nav": {
+			"home": "Почетна",
+			"tasks": "Мои задачи",
+			"inbox": "Сандаче",
+			"activity": "Активност",
+			"inboxUnread": "Сандаче, непрочитани: {{count}}"
+		},
+		"workspaceSwitcher": {
+			"title": "Работни простори",
+			"settings": "Поставки на работниот простор",
+			"members": "Членови",
+			"labels": "Етикети",
+			"invitations": "Покани",
+			"create": "Создај работен простор"
+		},
+		"search": {
+			"placeholder": "Пребарај задачи, проекти, коментари",
+			"clear": "Исчисти",
+			"kinds": {
+				"all": "Сè",
+				"tasks": "Задачи",
+				"projects": "Проекти",
+				"comments": "Коментари",
+				"activity": "Активност"
+			},
+			"empty": {
+				"title": "Пребарај го овој работен простор",
+				"message": "Најди задачи по наслов или број, проекти и коментари."
+			},
+			"failed": "Пребарувањето не успеа",
+			"noResults": "Нема резултати за „{{query}}“",
+			"commentMeta": "{{name}}, {{when}}"
+		},
+		"notificationText": {
+			"activity": {
+				"created": "ја создаде задачата",
+				"commented": "коментираше: {{text}}",
+				"statusChanged": "ја премести од {{from}} во {{to}}",
+				"priorityChanged": "го промени приоритетот од {{from}} во {{to}}",
+				"assigneeChanged": "го промени доделениот",
+				"selfAssigned": "си ја додели задачата",
+				"assignedTo": "ја додели на {{assignee}}",
+				"unassigned": "го отстрани доделениот",
+				"dueDateSet": "го постави крајниот рок на {{date}}",
+				"dueDateRemoved": "го отстрани крајниот рок",
+				"renamed": "ја преименува во „{{title}}“",
+				"titleChanged": "го промени насловот",
+				"descriptionChanged": "го ажурираше описот",
+				"taskUpdated": "ја ажурираше задачата"
+			},
+			"taskCreated": "Ти е доделена нова задача",
+			"assignedByActor": "{{actor}} ти додели задача",
+			"assignedToTask": "Ти е доделена „{{title}}“",
+			"assignedToUntitled": "Ти е доделена задача",
+			"statusChangedOnTask": "Променет статус на „{{title}}“",
+			"statusChangedOnUntitled": "Променет статус на задача",
+			"statusTransition": "{{from}} → {{to}}",
+			"commentedByActor": "{{actor}} коментираше",
+			"newComment": "Нов коментар",
+			"mentionedByActor": "{{actor}} те спомна",
+			"mentioned": "Спомнат си",
+			"timeLoggedOnTask": "Внесено време на „{{title}}“",
+			"timeLoggedOnUntitled": "Внесено време на задача",
+			"workspaceCreated": "Работниот простор „{{name}}“ е создаден"
+		},
+		"background": {
+			"summary_one": "Уште {{count}} ново известување",
+			"summary_other": "Уште {{count}} нови известувања",
+			"channelName": "Активност во Kaneo",
+			"channelDescription": "Доделувања, коментари и спомнувања од твоите работни простори"
+		},
+		"ui": {
+			"back": "Назад",
+			"loadFailed": "Не може да се вчита",
+			"search": "Пребарај",
+			"nothingMatches": "Ништо не одговара на „{{query}}“"
+		},
+		"picker": {
+			"clear": "Исчисти",
+			"nextWeek": "Следната недела",
+			"previousMonth": "Претходен месец",
+			"nextMonth": "Следен месец"
+		},
+		"time": {
+			"now": "сега",
+			"justNow": "токму сега",
+			"minutesShort_one": "{{count}} мин",
+			"minutesShort_other": "{{count}} мин",
+			"hoursShort_one": "{{count}} ч",
+			"hoursShort_other": "{{count}} ч",
+			"secondsShort_one": "{{count}} с",
+			"secondsShort_other": "{{count}} с",
+			"minutesAgo_one": "пред {{count}} мин",
+			"minutesAgo_other": "пред {{count}} мин",
+			"hoursAgo_one": "пред {{count}} ч",
+			"hoursAgo_other": "пред {{count}} ч",
+			"durationHoursMinutes": "{{hours}} ч {{minutes}} мин",
+			"goodEvening": "Добра вечер",
+			"goodMorning": "Добро утро",
+			"goodAfternoon": "Добар ден",
+			"today": "Денес",
+			"tomorrow": "Утре",
+			"yesterday": "Вчера",
+			"minutes_one": "{{count}} мин",
+			"minutes_other": "{{count}} мин",
+			"hours_one": "{{count}} ч",
+			"hours_other": "{{count}} ч"
+		},
+		"meta": {
+			"priority": {
+				"noPriority": "Без приоритет",
+				"low": "Низок",
+				"medium": "Среден",
+				"high": "Висок",
+				"urgent": "Итен"
+			},
+			"labelColor": {
+				"stone": "Камен",
+				"slate": "Плочест",
+				"lavender": "Лаванда",
+				"sage": "Жалфија",
+				"forest": "Шума",
+				"amber": "Килибар",
+				"terracotta": "Теракота",
+				"rose": "Роза",
+				"crimson": "Гримизна",
+				"ocean": "Океан",
+				"sky": "Небо",
+				"lagoon": "Лагуна",
+				"orchid": "Орхидеја"
+			},
+			"role": {
+				"owner": "Сопственик",
+				"admin": "Администратор",
+				"member": "Член",
+				"viewer": "Прегледувач"
+			},
+			"roleHint": {
+				"owner": "Целосна контрола, вклучително и бришење на работниот простор",
+				"admin": "Може да управува и со членови и поставки",
+				"member": "Може да создава и уредува задачи",
+				"viewer": "Може да гледа проекти и задачи"
+			}
+		},
+		"account": {
+			"title": "Сметка",
+			"description": "Како те гледаат соработниците во сите работни простори.",
+			"profile": {
+				"title": "Профил",
+				"photo": "Профилна слика",
+				"photoFormats": "PNG, JPG или WebP",
+				"change": "Промени",
+				"name": "Име",
+				"changePassword": "Промени лозинка"
+			},
+			"notifications": {
+				"title": "Известувања",
+				"phone": "Известувања на телефон",
+				"phoneHint": "Проверува приближно на секои 15 минути",
+				"delivery": "Испорака и настани",
+				"deliveryHint": "Е-пошта, ntfy, Gotify, webhooks",
+				"invitations": "Покани",
+				"permissionDenied": "Прво дозволи известувања за Kaneo во системските поставки."
+			},
+			"connection": {
+				"title": "Врска",
+				"server": "Сервер",
+				"signedInWith": "Најавен со",
+				"apiKey": "API клуч",
+				"sessionToken": "Токен за сесија",
+				"appVersion": "Верзија на апликацијата"
+			},
+			"signOut": {
+				"button": "Одјави се",
+				"title": "Да се одјавиш?",
+				"message": "Можеш повторно да се најавиш во секое време."
+			},
+			"photoMenu": {
+				"choose": "Избери слика",
+				"remove": "Отстрани слика"
+			},
+			"toast": {
+				"photoUpdated": "Сликата е ажурирана",
+				"photoRemoved": "Сликата е отстранета",
+				"nameUpdated": "Името е ажурирано",
+				"passwordChanged": "Лозинката е променета"
+			},
+			"password": {
+				"title": "Промени лозинка",
+				"current": "Тековна лозинка",
+				"new": "Нова лозинка",
+				"confirm": "Потврди ја новата лозинка",
+				"confirmPlaceholder": "Внеси ја повторно",
+				"mismatch": "Лозинките не се совпаѓаат",
+				"signOutOthers": "Одјави ги другите уреди"
+			}
+		},
+		"notificationSettings": {
+			"title": "Известувања",
+			"description": "Каде и за што те известува Kaneo.",
+			"on": "Вклучено",
+			"off": "Исклучено",
+			"notSet": "Не е поставено",
+			"delivery": {
+				"title": "Испорака",
+				"email": "Е-пошта",
+				"emailHint": "Се испраќа на е-поштата на твојата сметка",
+				"ntfyHint": "Испраќај известувања до ntfy тема",
+				"gotifyHint": "Испраќај известувања до Gotify сервер",
+				"webhook": "Webhook",
+				"webhookHint": "Испраќај известувања со POST до URL"
+			},
+			"events": {
+				"title": "За што да те известува",
+				"assignments": "Доделувања",
+				"assignmentsHint": "Кога ќе ти биде доделена задача",
+				"comments": "Коментари",
+				"commentsHint": "Нови коментари на твоите задачи",
+				"statusChanges": "Промени на статус",
+				"statusChangesHint": "Кога твоите задачи се преместуваат меѓу колони",
+				"dueDate": "Потсетници за краен рок",
+				"dueDateHint": "Пред крајниот рок на задача што ти е доделена",
+				"remindMe": "Потсети ме",
+				"remindBefore": "{{time}} пред тоа",
+				"remindPickerTitle": "Потсети ме пред"
+			},
+			"leadTime": {
+				"minutes15": "15 минути",
+				"hour1": "1 час",
+				"hours3": "3 часа",
+				"day1": "1 ден",
+				"days2": "2 дена",
+				"week1": "1 недела",
+				"minutes_one": "{{count}} минута",
+				"minutes_other": "{{count}} минути"
+			},
+			"channel": {
+				"enabled": "Испраќај известувања тука",
+				"webhookUrl": "Webhook URL",
+				"serverUrl": "URL на серверот",
+				"topic": "Тема",
+				"accessToken": "Токен за пристап",
+				"appToken": "Токен за апликација",
+				"signingSecret": "Тајна за потпишување",
+				"secretSaved": "Зачувано. Внеси нова за да ја замениш",
+				"secretOptional": "Опционално"
+			}
+		},
+		"workspaceSettings": {
+			"title": "Работен простор",
+			"description": "Поставки за сите во {{name}}.",
+			"thisWorkspace": "овој работен простор",
+			"general": {
+				"title": "Општо",
+				"name": "Име",
+				"description": "Опис",
+				"slug": "Slug: <mono>{{slug}}</mono>",
+				"save": "Зачувај промени"
+			},
+			"manage": {
+				"title": "Управувај",
+				"members": "Членови",
+				"labels": "Етикети"
+			},
+			"danger": {
+				"title": "Опасна зона",
+				"leave": "Напушти го работниот простор",
+				"leaveHint": "Можеш да се вратиш со нова покана",
+				"leaveButton": "Напушти",
+				"delete": "Избриши го работниот простор",
+				"deleteHint": "Ги брише сите проекти и задачи во него"
+			},
+			"confirm": {
+				"deleteTitle": "Да се избрише работниот простор?",
+				"leaveTitle": "Да се напушти работниот простор?",
+				"deleteMessage": "Секој проект, задача и коментар во {{name}} ќе биде трајно избришан.",
+				"leaveMessage": "Ќе изгубиш пристап сè додека некој повторно не те покани."
+			},
+			"toast": {
+				"updated": "Работниот простор е ажуриран",
+				"deleted": "Работниот простор е избришан",
+				"left": "Го напушти работниот простор"
+			}
+		},
+		"members": {
+			"title": "Членови",
+			"description_one": "{{count}} член во {{name}}",
+			"description_other": "{{count}} членови во {{name}}",
+			"thisWorkspace": "овој работен простор",
+			"invite": "Покани",
+			"pending": {
+				"title": "Покани на чекање",
+				"expires": "{{role}}, истекува {{date}}",
+				"manage": "Управувај"
+			},
+			"people": {
+				"title": "Луѓе",
+				"unknown": "Непознат",
+				"you": "(ти)"
+			},
+			"memberMenu": {
+				"fallbackTitle": "Член",
+				"changeRole": "Промени улога",
+				"remove": "Отстрани од работниот простор"
+			},
+			"rolePicker": {
+				"title": "Улога"
+			},
+			"remove": {
+				"title": "Да се отстрани членот?",
+				"message": "{{name}} ќе го изгуби пристапот до {{workspace}}.",
+				"they": "Членот",
+				"confirm": "Отстрани"
+			},
+			"inviteMenu": {
+				"fallbackTitle": "Покана",
+				"resend": "Испрати повторно",
+				"cancel": "Откажи покана"
+			},
+			"inviteForm": {
+				"title": "Покани член",
+				"intro": "Ќе добие е-пошта со врска за да се приклучи на {{workspace}}.",
+				"email": "Е-пошта",
+				"role": "Улога",
+				"send": "Испрати покана"
+			},
+			"toast": {
+				"roleUpdated": "Улогата е ажурирана",
+				"removed": "Членот е отстранет",
+				"resent": "Поканата е повторно испратена",
+				"canceled": "Поканата е откажана",
+				"sent": "Поканата е испратена на {{email}}"
+			}
+		},
+		"labels": {
+			"title": "Етикети",
+			"description": "Етикетите ти помагаат да ги групираш и филтрираш задачите.",
+			"new": "Нова етикета",
+			"edit": "Уреди етикета",
+			"delete": "Избриши етикета",
+			"fallbackTitle": "Етикета",
+			"empty": {
+				"title": "Нема етикети",
+				"message": "Создај етикети за да ги групираш и филтрираш задачите низ проектите."
+			},
+			"actions": "Дејства за {{name}}",
+			"deleteTitle": "Да се избрише „{{name}}“?",
+			"deleteMessage": "Етикетата се отстранува од секоја задача во овој работен простор.",
+			"form": {
+				"name": "Име",
+				"color": "Боја"
+			},
+			"toast": {
+				"deleted": "Етикетата е избришана"
+			}
+		},
+		"permissions": {
+			"photos": "Kaneo ги користи вашите фотографии за прикачување слики на задачи и коментари и за вашата профилна фотографија."
 		}
 	}
 }

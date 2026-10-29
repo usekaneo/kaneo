@@ -1,11 +1,15 @@
-import { hasWorkspaceAccess, syncWorkspaceAccess } from "./workspace-access";
+import { workspaceIsActive } from "../workspace/archive/active-workspace-sql";
+import { syncWorkspaceAccess } from "./workspace-access";
+import { workspaceRevocationIsCurrent } from "./workspace-revocation-is-current";
 import { createRevocationDelivery } from "./revocation-delivery";
 import { randomUUID } from "node:crypto";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
 import db from "../database";
 import {
+  apikeyTable,
   projectTable,
+  sessionTable,
   userTable,
   workspaceUserTable,
 } from "../database/schema";
@@ -31,6 +35,7 @@ import type {
 } from "./broadcast-adapter";
 import { InMemoryBroadcastAdapter } from "./in-memory-broadcast-adapter";
 import { RedisBroadcastAdapter } from "./redis-broadcast-adapter";
+import { getProjectReadAccess } from "./project-read-access";
 
 const INSTANCE_ID = randomUUID();
 let revocationDelivery: ReturnType<typeof createRevocationDelivery> | undefined;
@@ -43,11 +48,18 @@ type ProjectConnection = {
   userId: string;
   initiatorId: string;
   workspaceId: string;
+  sessionId: string | null;
+  apiKeyId?: string;
 };
 
 type UserConnection = {
   ws: WSContext;
+  sessionId: string | null;
+  apiKeyId?: string;
 };
+
+// Only sockets of an ended session get this code, so the web rechecks its cookie.
+export const SESSION_ENDED_CLOSE_CODE = 4001;
 
 /**
  * User-scoped connections: tracks WebSocket connections keyed by userId.
@@ -55,11 +67,20 @@ type UserConnection = {
  */
 const userConnections = new Map<string, Set<UserConnection>>();
 
-export function addUserConnection(userId: string, ws: WSContext) {
+export function addUserConnection(
+  userId: string,
+  ws: WSContext,
+  sessionId: string | null = null,
+  apiKeyId?: string,
+) {
   if (!userConnections.has(userId)) {
     userConnections.set(userId, new Set());
   }
-  const conn: UserConnection = { ws };
+  const conn: UserConnection = {
+    ws,
+    sessionId,
+    ...(apiKeyId ? { apiKeyId } : {}),
+  };
   userConnections.get(userId)?.add(conn);
   return conn;
 }
@@ -88,15 +109,88 @@ export function broadcastToUser(userId: string, message: UserBroadcastMessage) {
     });
 }
 
+type Credential = { sessionId: string | null; apiKeyId?: string };
+
+function closeLocalCredentialConnections(
+  userId: string,
+  ended: (conn: Credential) => boolean,
+  code: number,
+  reason: string,
+) {
+  for (const [projectId, connections] of projectConnections)
+    for (const conn of [...connections]) {
+      if (conn.userId !== userId || !ended(conn)) continue;
+      removeConnection(projectId, conn);
+      try {
+        conn.ws.close(code, reason);
+      } catch {
+        /* Already closed. */
+      }
+    }
+  for (const conn of [...(userConnections.get(userId) ?? [])]) {
+    if (!ended(conn)) continue;
+    removeUserConnection(userId, conn);
+    try {
+      conn.ws.close(code, reason);
+    } catch {
+      /* Already closed. */
+    }
+  }
+}
+
+function closeLocalSessionConnections(
+  userId: string,
+  sessionIds: ReadonlySet<string>,
+) {
+  closeLocalCredentialConnections(
+    userId,
+    ({ sessionId }) => sessionId !== null && sessionIds.has(sessionId),
+    SESSION_ENDED_CLOSE_CODE,
+    "Session ended",
+  );
+}
+
+function closeLocalApiKeyConnections(
+  userId: string,
+  apiKeyIds: ReadonlySet<string>,
+) {
+  closeLocalCredentialConnections(
+    userId,
+    ({ apiKeyId }) => apiKeyId !== undefined && apiKeyIds.has(apiKeyId),
+    1008,
+    "API key revoked",
+  );
+}
+
+const stringIds = (ids: unknown) =>
+  Array.isArray(ids)
+    ? ids.filter((id): id is string => typeof id === "string")
+    : [];
+
 function deliverToLocalUserConnections(
   userId: string,
   message: UserBroadcastMessage,
 ) {
+  if (message.type === "SESSIONS_ENDED") {
+    closeLocalSessionConnections(
+      userId,
+      new Set(stringIds(message.sessionIds)),
+    );
+    return;
+  }
+  if (message.type === "API_KEYS_REVOKED") {
+    closeLocalApiKeyConnections(userId, new Set(stringIds(message.apiKeyIds)));
+    return;
+  }
   if (
     message.type === "WORKSPACE_ACCESS_REVOKED" &&
     typeof message.workspaceId === "string"
   ) {
-    revokeLocalWorkspaceConnections(userId, message.workspaceId);
+    revokeLocalWorkspaceConnections(
+      userId,
+      message.workspaceId,
+      message.reason === "archived" ? "Workspace archived" : undefined,
+    );
   }
   if (
     message.type === "PROJECT_ACCESS_CHANGED" &&
@@ -161,6 +255,33 @@ const projectBroadcastTimeouts = new Map<
 
 let adapter: BroadcastAdapter | null = null;
 
+/** Open sockets on this API instance, for the admin system page. */
+export function getLocalRealtimeStats() {
+  const users = new Set<string>();
+  let connections = 0;
+  for (const [userId, sockets] of userConnections) {
+    if (sockets.size === 0) continue;
+    users.add(userId);
+    connections += sockets.size;
+  }
+  for (const sockets of projectConnections.values()) {
+    for (const socket of sockets) {
+      users.add(socket.userId);
+      connections += 1;
+    }
+  }
+  return {
+    adapter:
+      adapter === null
+        ? null
+        : adapter instanceof RedisBroadcastAdapter
+          ? ("redis" as const)
+          : ("in-memory" as const),
+    connections,
+    connectedUsers: users.size,
+  };
+}
+
 // --- Subscribe to incoming broadcasts and deliver to local connections ---
 export async function initializeWebSocketAdapter() {
   if (adapter) return;
@@ -172,7 +293,11 @@ export async function initializeWebSocketAdapter() {
   const retryReceived = createRevocationDelivery({
     async publishToUser(msg) {
       if (
-        await hasWorkspaceAccess(msg.userId, msg.message.workspaceId as string)
+        !(await workspaceRevocationIsCurrent(
+          msg.userId,
+          msg.message.workspaceId as string,
+          msg.message.reason,
+        ))
       )
         return;
       if (receivedRevocations !== retryReceived) return;
@@ -197,12 +322,17 @@ export async function initializeWebSocketAdapter() {
         if (
           msg.message.type === "WORKSPACE_ACCESS_REVOKED" &&
           typeof msg.message.workspaceId === "string" &&
-          !msg.message.force
+          (!msg.message.force || msg.message.reason === "archived")
         ) {
           try {
-            // Redis can deliver an offline-queued initial publish after this
-            // member has been re-added. Check the recipient's current access.
-            if (await hasWorkspaceAccess(msg.userId, msg.message.workspaceId))
+            // Queued revocations may arrive after access has been restored.
+            if (
+              !(await workspaceRevocationIsCurrent(
+                msg.userId,
+                msg.message.workspaceId,
+                msg.message.reason,
+              ))
+            )
               return;
           } catch (error) {
             console.error(
@@ -221,6 +351,8 @@ export async function initializeWebSocketAdapter() {
             [...connections].map(({ ws }) => syncWorkspaceAccess(userId, ws)),
           ),
           recheckLocalProjectAccess(),
+          recheckLocalSessions(),
+          recheckLocalApiKeys(),
         ]);
       },
     );
@@ -299,13 +431,17 @@ export async function closeProjectConnections(projectId: string) {
   }
 }
 
-function revokeLocalWorkspaceConnections(userId: string, workspaceId: string) {
+function revokeLocalWorkspaceConnections(
+  userId: string,
+  workspaceId: string,
+  reason = "Workspace access revoked",
+) {
   for (const [projectId, connections] of projectConnections) {
     for (const conn of [...connections]) {
       if (conn.userId !== userId || conn.workspaceId !== workspaceId) continue;
       removeConnection(projectId, conn);
       try {
-        conn.ws.close(1008, "Workspace access revoked");
+        conn.ws.close(1008, reason);
       } catch {
         /* Already closed. */
       }
@@ -375,8 +511,91 @@ async function recheckLocalProjectAccess() {
   );
 }
 
+async function recheckLocalSessions() {
+  const sessionsByUser = new Map<string, Set<string>>();
+  const note = (userId: string, sessionId: string | null) => {
+    if (sessionId === null) return;
+    const sessionIds = sessionsByUser.get(userId) ?? new Set<string>();
+    sessionsByUser.set(userId, sessionIds.add(sessionId));
+  };
+  for (const [userId, connections] of userConnections)
+    for (const conn of connections) note(userId, conn.sessionId);
+  for (const connections of projectConnections.values())
+    for (const conn of connections) note(conn.userId, conn.sessionId);
+  const ids = [...sessionsByUser.values()].flatMap((sessionIds) => [
+    ...sessionIds,
+  ]);
+  if (ids.length === 0) return;
+  let existing: Set<string>;
+  try {
+    const rows = await db
+      .select({ id: sessionTable.id })
+      .from(sessionTable)
+      .where(inArray(sessionTable.id, ids));
+    existing = new Set(rows.map((row) => row.id));
+  } catch (error) {
+    console.error("Failed to verify realtime sessions:", error);
+    return;
+  }
+  for (const [userId, sessionIds] of sessionsByUser) {
+    const ended = new Set([...sessionIds].filter((id) => !existing.has(id)));
+    if (ended.size > 0) closeLocalSessionConnections(userId, ended);
+  }
+}
+
+// Redis may have dropped a key revocation while this instance was disconnected.
+async function recheckLocalApiKeys() {
+  const keysByUser = new Map<string, Set<string>>();
+  const note = (userId: string, apiKeyId?: string) => {
+    if (!apiKeyId) return;
+    keysByUser.set(userId, (keysByUser.get(userId) ?? new Set()).add(apiKeyId));
+  };
+  for (const [userId, connections] of userConnections)
+    for (const conn of connections) note(userId, conn.apiKeyId);
+  for (const connections of projectConnections.values())
+    for (const conn of connections) note(conn.userId, conn.apiKeyId);
+  const ids = [...keysByUser.values()].flatMap((keyIds) => [...keyIds]);
+  if (ids.length === 0) return;
+  let existing: Set<string>;
+  try {
+    const rows = await db
+      .select({ id: apikeyTable.id })
+      .from(apikeyTable)
+      .where(inArray(apikeyTable.id, ids));
+    existing = new Set(rows.map((row) => row.id));
+  } catch (error) {
+    console.error("Failed to verify realtime API keys:", error);
+    return;
+  }
+  for (const [userId, keyIds] of keysByUser) {
+    const revoked = new Set([...keyIds].filter((id) => !existing.has(id)));
+    if (revoked.size > 0) closeLocalApiKeyConnections(userId, revoked);
+  }
+}
+
 export async function revokeUserConnections(userId: string) {
   const message = { type: "USER_ACCESS_REVOKED" };
+  deliverToLocalUserConnections(userId, message);
+  await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
+}
+
+export async function revokeSessionConnections(
+  userId: string,
+  sessionIds: string[],
+) {
+  if (sessionIds.length === 0) return;
+  const message = { type: "SESSIONS_ENDED", sessionIds };
+  deliverToLocalUserConnections(userId, message);
+  await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
+}
+
+/** Close sockets opened with deleted API keys, on every API instance. */
+export async function revokeApiKeyConnections(
+  userId: string,
+  apiKeyIds: string[],
+) {
+  if (apiKeyIds.length === 0) return;
+  const message = { type: "API_KEYS_REVOKED", apiKeyIds };
   deliverToLocalUserConnections(userId, message);
   await revocationDelivery?.send({ userId, message, origin: INSTANCE_ID });
 }
@@ -384,8 +603,18 @@ export async function revokeUserConnections(userId: string) {
 export async function revokeWorkspaceConnections(
   userId: string,
   workspaceId: string,
-  options: { force?: boolean; role?: string | null } = {},
+  options: {
+    force?: boolean;
+    role?: string | null;
+    /** Tells clients why, so they can explain it instead of redirecting. */
+    reason?: "archived";
+  } = {},
 ) {
+  if (
+    options.reason === "archived" &&
+    !(await workspaceRevocationIsCurrent(userId, workspaceId, options.reason))
+  )
+    return;
   if (!options.force) {
     try {
       const [user] =
@@ -400,9 +629,11 @@ export async function revokeWorkspaceConnections(
       console.error("Failed to read role after membership removal:", error);
     }
   }
+  const reason = options.reason ? { reason: options.reason } : {};
   deliverToLocalUserConnections(userId, {
     type: "WORKSPACE_ACCESS_REVOKED",
     workspaceId,
+    ...reason,
   });
   await revocationDelivery?.send(
     {
@@ -410,43 +641,55 @@ export async function revokeWorkspaceConnections(
       message: {
         type: "WORKSPACE_ACCESS_REVOKED",
         workspaceId,
+        ...reason,
         ...(options.force ? { force: true } : {}),
       },
       origin: INSTANCE_ID,
     },
-    options.force
-      ? undefined
-      : async () => {
-          const [[user], members] = await Promise.all([
-            db
-              .select({ role: userTable.role })
-              .from(userTable)
-              .where(eq(userTable.id, userId)),
-            db
-              .select({ userId: workspaceUserTable.userId })
-              .from(workspaceUserTable)
-              .where(
-                and(
-                  eq(workspaceUserTable.userId, userId),
-                  eq(workspaceUserTable.workspaceId, workspaceId),
+    options.reason === "archived"
+      ? () => workspaceRevocationIsCurrent(userId, workspaceId, options.reason)
+      : options.force
+        ? undefined
+        : async () => {
+            const [[user], members] = await Promise.all([
+              db
+                .select({ role: userTable.role })
+                .from(userTable)
+                .where(eq(userTable.id, userId)),
+              db
+                .select({ userId: workspaceUserTable.userId })
+                .from(workspaceUserTable)
+                .where(
+                  and(
+                    eq(workspaceUserTable.userId, userId),
+                    eq(workspaceUserTable.workspaceId, workspaceId),
+                  ),
                 ),
-              ),
-          ]);
-          return !hasInstanceAdminRole(user?.role) && members.length === 0;
-        },
+            ]);
+            return !hasInstanceAdminRole(user?.role) && members.length === 0;
+          },
   );
 }
 
-const workspaceLookups = new Map<string, Promise<string | null>>();
+const workspaceLookups = new Map<
+  string,
+  Promise<{ workspaceId: string | null; archived: boolean }>
+>();
 function currentProjectWorkspace(projectId: string) {
   let pending = workspaceLookups.get(projectId);
   if (!pending) {
     pending = db
-      .select({ workspaceId: projectTable.workspaceId })
+      .select({
+        workspaceId: projectTable.workspaceId,
+        archived: sql<boolean>`not ${workspaceIsActive(projectTable.workspaceId)}`,
+      })
       .from(projectTable)
       .where(eq(projectTable.id, projectId))
       .limit(1)
-      .then(([project]) => project?.workspaceId ?? null)
+      .then(([project]) => ({
+        workspaceId: project?.workspaceId ?? null,
+        archived: !!project?.archived,
+      }))
       .finally(() => workspaceLookups.delete(projectId));
     workspaceLookups.set(projectId, pending);
   }
@@ -457,34 +700,55 @@ const authorizationLookups = new Map<
   string,
   Promise<{
     workspaceId: string | null;
+    archived: boolean;
     members: Set<string>;
     restricted: Set<string>;
+    readers: Set<string>;
+    apiKeys: Map<string, string>;
   } | null>
 >();
 function currentBroadcastAccess(
   projectId: string,
-  recipients: Array<{ userId: string }>,
+  recipients: Array<{ userId: string; apiKeyId?: string }>,
   authorizationBatch: string,
 ) {
   const userIds = [...new Set(recipients.map((conn) => conn.userId))].sort();
-  const key = JSON.stringify([projectId, authorizationBatch, userIds]);
+  const apiKeyIds = [
+    ...new Set(
+      recipients.flatMap((conn) => (conn.apiKeyId ? [conn.apiKeyId] : [])),
+    ),
+  ].sort();
+  const key = JSON.stringify([
+    projectId,
+    authorizationBatch,
+    userIds,
+    apiKeyIds,
+  ]);
   let pending = authorizationLookups.get(key);
   if (!pending) {
     pending = (async () => {
       let workspaceId: string | null;
+      let archived: boolean;
       try {
-        workspaceId = await currentProjectWorkspace(projectId);
+        ({ workspaceId, archived } = await currentProjectWorkspace(projectId));
       } catch (error) {
         console.error("Failed to validate project broadcast access:", error);
         return null;
       }
       let members = new Set<string>();
       let restricted = new Set<string>();
-      if (workspaceId) {
+      let readers = new Set<string>();
+      let apiKeys = new Map<string, string>();
+      // An archived workspace has no readers: leaving `members` empty closes
+      // any socket a missed revocation left open.
+      if (workspaceId && !archived) {
         try {
           const [rows, permitted] = await Promise.all([
             db
-              .select({ userId: workspaceUserTable.userId })
+              .select({
+                userId: workspaceUserTable.userId,
+                role: workspaceUserTable.role,
+              })
               .from(workspaceUserTable)
               .where(
                 and(
@@ -498,6 +762,11 @@ function currentBroadcastAccess(
           restricted = new Set(
             userIds.filter((userId) => !permitted.has(userId)),
           );
+          ({ readers, apiKeys } = await getProjectReadAccess(
+            workspaceId,
+            recipients,
+            rows,
+          ));
           const nonmembers = userIds.filter((userId) => !members.has(userId));
           if (nonmembers.length > 0) {
             const admins = await db
@@ -516,7 +785,7 @@ function currentBroadcastAccess(
           return null;
         }
       }
-      return { workspaceId, members, restricted };
+      return { workspaceId, archived, members, restricted, readers, apiKeys };
     })().finally(() => authorizationLookups.delete(key));
     authorizationLookups.set(key, pending);
   }
@@ -542,7 +811,8 @@ async function deliverToLocalConnections(
     authorizationBatch,
   );
   if (!access) return;
-  const { workspaceId, members, restricted } = access;
+  const { workspaceId, archived, members, restricted, readers, apiKeys } =
+    access;
   const payload = JSON.stringify(message);
   for (const conn of recipients) {
     // A move may have closed these connections while the lookup was in flight.
@@ -550,11 +820,16 @@ async function deliverToLocalConnections(
     const revoked =
       conn.workspaceId !== workspaceId
         ? "Project workspace changed"
-        : !members.has(conn.userId)
-          ? "Workspace access revoked"
-          : restricted.has(conn.userId)
-            ? "Project access revoked"
-            : null;
+        : archived
+          ? "Workspace archived"
+          : !members.has(conn.userId)
+            ? "Workspace access revoked"
+            : restricted.has(conn.userId)
+              ? "Project access revoked"
+              : !readers.has(conn.userId) ||
+                  (conn.apiKeyId && apiKeys.get(conn.apiKeyId) !== conn.userId)
+                ? "Read permission revoked"
+                : null;
     if (revoked) {
       removeConnection(projectId, conn);
       try {
@@ -579,11 +854,20 @@ export function addConnection(
   userId: string,
   initiatorId: string,
   workspaceId: string,
+  apiKeyId?: string,
+  sessionId: string | null = null,
 ) {
   if (!projectConnections.has(projectId)) {
     projectConnections.set(projectId, new Set());
   }
-  const conn: ProjectConnection = { ws, userId, initiatorId, workspaceId };
+  const conn: ProjectConnection = {
+    ws,
+    userId,
+    initiatorId,
+    workspaceId,
+    sessionId,
+    ...(apiKeyId ? { apiKeyId } : {}),
+  };
   projectConnections.get(projectId)?.add(conn);
   return conn;
 }

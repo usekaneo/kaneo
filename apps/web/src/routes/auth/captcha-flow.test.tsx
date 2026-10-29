@@ -20,7 +20,6 @@ import {
 const m = vi.hoisted(() => ({
   anonymous: vi.fn(),
   social: vi.fn(),
-  oauth2: vi.fn(),
   email: vi.fn(),
   navigate: vi.fn(),
   getConfig: vi.fn(),
@@ -78,7 +77,7 @@ beforeEach(() => {
     hasCustomOAuth: true,
     customOAuthAutoLogin: true,
   };
-  for (const mock of [m.anonymous, m.social, m.oauth2, m.email])
+  for (const mock of [m.anonymous, m.social, m.email])
     mock.mockResolvedValue({ error: { message: "Retry" } });
 });
 
@@ -112,13 +111,13 @@ describe.each([
   it.each([
     ["auth:signUp.continueAsGuest", "anonymous"],
     ["auth:providers.github", "social"],
-    ["auth:providers.sso", "oauth2"],
+    ["auth:providers.sso", "social"],
   ] as const)(
     "sends the token and requires a fresh one after %s fails",
     async (label, method) => {
       const Page = route.options.component as ComponentType;
       render(<Page />);
-      expect(m.oauth2).not.toHaveBeenCalled(); // Auto-login cannot bypass CAPTCHA.
+      expect(m.social).not.toHaveBeenCalled(); // Auto-login cannot bypass CAPTCHA.
       const button = screen.getByRole("button", { name: label });
       expect(button).toBeDisabled();
       fireEvent.click(screen.getByRole("button", { name: "Solve CAPTCHA" }));

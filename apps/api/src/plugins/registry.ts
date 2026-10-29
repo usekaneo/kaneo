@@ -18,6 +18,7 @@ import type {
   TaskTitleChangedEvent,
   TaskUnassignedEvent,
 } from "./types";
+import { activeIntegrationCondition } from "./active-integration-condition";
 
 const plugins = new Map<string, IntegrationPlugin>();
 let eventSubscriptionsInitialized = false;
@@ -276,7 +277,7 @@ async function getActiveIntegrations(projectId: string) {
   return db.query.integrationTable.findMany({
     where: and(
       eq(integrationTable.projectId, projectId),
-      eq(integrationTable.isActive, true),
+      activeIntegrationCondition(),
     ),
     with: {
       project: true,

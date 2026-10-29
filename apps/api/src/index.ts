@@ -1,3 +1,4 @@
+import { startWebhookWorker } from "./admin/webhooks/start-webhook-worker";
 import integrationSync from "./integration-sync";
 import { syncWorkspaceAccess } from "./ws/workspace-access";
 import { drainPasswordResetDeliveries } from "./utils/password-reset-delivery";
@@ -19,7 +20,13 @@ import { HTTPException } from "hono/http-exception";
 import activity from "./activity";
 import admin from "./admin";
 import { auth } from "./auth";
+import { forwardAuthRequest } from "./utils/forward-auth-request";
 import { organizationRoutes } from "./auth-openapi";
+import {
+  handleBackchannelLogoutRoute,
+  MAX_LOGOUT_REQUEST_BYTES,
+  noStore,
+} from "./backchannel-logout";
 import billing from "./billing";
 import calendarFeed, { publicCalendarFeed } from "./calendar-feed";
 import column from "./column";
@@ -29,10 +36,7 @@ import customField from "./custom-field";
 import db, { getDatabase, schema } from "./database";
 import { apiErrorSchema } from "./errors/api-error-schema";
 import { httpExceptionResponse } from "./errors/http-exception-response";
-import {
-  notFoundResponse,
-  withJsonNotFound,
-} from "./errors/not-found-response";
+import { notFoundResponse } from "./errors/not-found-response";
 import { withJsonRateLimit } from "./errors/rate-limit-response";
 import {
   validationHook,
@@ -63,7 +67,7 @@ import notification from "./notification";
 import notificationPreferences from "./notification-preferences";
 import oauth from "./oauth";
 import { createRoute, errorResponse, jsonResponse, z } from "./openapi";
-import { initializePlugins } from "./plugins";
+import { initializePlugins, integrationPlugins } from "./plugins";
 import { migrateGitHubIntegration } from "./plugins/github/migration";
 import project from "./project";
 import { assertProjectAccess } from "./project-access/assert-project-access";
@@ -87,12 +91,15 @@ import getAvatar from "./user/controllers/get-avatar";
 import { apiKeyRejection } from "./utils/api-key-rejection";
 import { applyApiKeyHeaders } from "./utils/apply-api-key-headers";
 import { authenticateApiRequest } from "./utils/authenticate-api-request";
+import { requireIntegrationProviderEnabled } from "./instance-settings/require-integration-provider-enabled";
 import {
   authorizeAssetAccess,
   isPublicAsset,
 } from "./utils/authorize-asset-access";
+import { boundedRequestBody } from "./utils/bounded-request-body";
 import { getInvitationDetails } from "./utils/check-registration-allowed";
 import { clientIpMiddleware } from "./utils/client-ip";
+import { runCustomOAuthCallback } from "./utils/custom-oauth-sign-in";
 import { migrateApiKeyReferenceId } from "./utils/migrate-apikey-reference-id";
 import { migrateNotificationPreferencesSchema } from "./utils/migrate-notification-preferences-schema";
 import { migrateSessionColumn } from "./utils/migrate-session-column";
@@ -101,6 +108,8 @@ import { normalizeApiServerUrl } from "./utils/openapi-spec";
 import { seedDefaultWorkspaceRoles } from "./utils/seed-default-workspace-roles";
 import { drainSignInEmails } from "./utils/sign-in-email-tasks";
 import { validateWorkspaceAccess } from "./utils/validate-workspace-access";
+import { requireWorkspacePermission } from "./utils/require-workspace-permission";
+import { PROJECT_READ_PERMISSIONS } from "./ws/project-read-permissions";
 import { apiKeyResponseHeaders } from "./utils/rate-limit-headers";
 import { readApiKeyCheck, verifyApiKey } from "./utils/verify-api-key";
 import workflowRule from "./workflow-rule";
@@ -143,6 +152,7 @@ type ApiVariables = {
     userEmail: string;
     apiKey?: ApiKey;
     apiKeyHeaders?: Record<string, string>;
+    workspaceId?: string;
   };
 };
 
@@ -444,6 +454,13 @@ export function createApp() {
     handleGitlabWebhookRoute,
   );
 
+  api.post(
+    "/auth/oauth2/backchannel-logout/custom",
+    noStore,
+    boundedRequestBody(MAX_LOGOUT_REQUEST_BYTES),
+    handleBackchannelLogoutRoute,
+  );
+
   const invitationPublicApi = api.get("/invitation/public/:id", async (c) => {
     const { id } = c.req.param();
     const result = await getInvitationDetails(id);
@@ -466,6 +483,11 @@ export function createApp() {
     );
   });
 
+  // Lets the sign-in refresh in auth.ts read the claims the provider sent.
+  api.use("/auth/oauth2/callback/custom", (_c, next) =>
+    runCustomOAuthCallback(next),
+  );
+
   api.openapi(
     createRoute({
       method: "get",
@@ -483,7 +505,7 @@ export function createApp() {
         429: apiKeyRateLimited.ref,
       },
     }),
-    async (c) => withJsonRateLimit(await auth.handler(c.req.raw)),
+    forwardAuthRequest,
   );
 
   api.openapi(
@@ -523,11 +545,16 @@ export function createApp() {
           workspaceId: schema.assetTable.workspaceId,
           projectId: schema.assetTable.projectId,
           isPublic: schema.projectTable.isPublic,
+          workspaceArchived: sql<boolean>`${schema.workspaceTable.archivedAt} is not null`,
         })
         .from(schema.assetTable)
         .innerJoin(
           schema.projectTable,
           eq(schema.assetTable.projectId, schema.projectTable.id),
+        )
+        .innerJoin(
+          schema.workspaceTable,
+          eq(schema.projectTable.workspaceId, schema.workspaceTable.id),
         )
         .where(eq(schema.assetTable.id, id))
         .limit(1);
@@ -746,51 +773,11 @@ export function createApp() {
     },
   );
 
-  api.on(["POST", "GET", "PUT", "PATCH", "DELETE"], "/auth/*", async (c) => {
-    const authHeader = c.req.header("Authorization");
-    const apiKeyHeader = c.req.header("x-api-key")?.trim();
-    const bearerToken = authHeader?.match(/^Bearer\s+(\S+)$/i)?.[1];
-
-    if (bearerToken && !apiKeyHeader) {
-      const headers = new Headers(c.req.raw.headers);
-      headers.delete("cookie");
-      const session = await auth.api.getSession({ headers });
-
-      // Preserve Better Auth bearer session tokens on auth routes.
-      if (session?.session && session.user) {
-        return withJsonRateLimit(
-          await withJsonNotFound(
-            await auth.handler(new Request(c.req.raw, { headers })),
-          ),
-        );
-      }
-
-      const apiKeyResult = await verifyApiKey(bearerToken, { consume: false });
-      if (apiKeyResult?.status !== "valid") throw apiKeyRejection(apiKeyResult);
-
-      // Better Auth API key plugin validates from x-api-key by default.
-      headers.set("x-api-key", bearerToken);
-
-      const response = await withJsonRateLimit(
-        await withJsonNotFound(
-          await auth.handler(new Request(c.req.raw, { headers })),
-        ),
-      );
-      c.set(
-        "apiKeyHeaders",
-        await apiKeyResponseHeaders(
-          await readApiKeyCheck(bearerToken),
-          response,
-          new Date(),
-        ),
-      );
-      return response;
-    }
-
-    return withJsonRateLimit(
-      await withJsonNotFound(await auth.handler(c.req.raw)),
-    );
-  });
+  api.on(
+    ["POST", "GET", "PUT", "PATCH", "DELETE"],
+    "/auth/*",
+    forwardAuthRequest,
+  );
 
   api.route("/", mcpRoutes);
 
@@ -840,6 +827,18 @@ export function createApp() {
     notificationPreferences,
   );
   const searchApi = api.route("/search", search);
+  // Turned-off providers: registered before their routes so they run first.
+  // Inbound provider webhooks are mounted earlier and answer on their own;
+  // their work is skipped through `activeIntegrationCondition`.
+  for (const { type } of integrationPlugins) {
+    api.use(`/${type}-integration/*`, requireIntegrationProviderEnabled(type));
+  }
+  // Saving sync rules and resuming paused links write through the provider.
+  const syncProvider = requireIntegrationProviderEnabled((c) =>
+    c.req.param("provider"),
+  );
+  api.use("/integration-sync/project/:projectId/:provider", syncProvider);
+  api.use("/integration-sync/project/:projectId/:provider/*", syncProvider);
   const integrationSyncApi = api.route("/integration-sync", integrationSync);
   const githubIntegrationApi = api.route(
     "/github-integration",
@@ -895,12 +894,14 @@ export function createApp() {
       assertWebSocketOrigin(c.req.raw.headers);
 
       const userId = c.get("userId");
+      const sessionId = c.get("session")?.id ?? null;
+      const apiKeyId = c.get("apiKey")?.id;
       let conn: ReturnType<typeof addUserConnection> | null = null;
 
       return {
         onOpen(_evt, ws) {
           if (userId) {
-            conn = addUserConnection(userId, ws);
+            conn = addUserConnection(userId, ws, sessionId, apiKeyId);
             void syncWorkspaceAccess(userId, ws);
           }
         },
@@ -939,10 +940,16 @@ export function createApp() {
         });
         await assertProjectAccess(userId, projectId);
         workspaceId = project.workspaceId;
+        c.set("workspaceId", workspaceId);
+        await requireWorkspacePermission(PROJECT_READ_PERMISSIONS)(
+          c,
+          async () => {},
+        );
       }
 
       const windowId = c.req.query("windowId");
       const initiatorId = windowId ? `${userId}:${windowId}` : userId;
+      const sessionId = c.get("session")?.id ?? null;
       let conn: ReturnType<typeof addConnection> | null = null;
 
       return {
@@ -954,6 +961,8 @@ export function createApp() {
               userId,
               initiatorId,
               workspaceId,
+              c.get("apiKey")?.id,
+              sessionId,
             );
           }
         },
@@ -1073,6 +1082,7 @@ export async function startServer(
   );
 
   injectWebSocket(server);
+  const stopWebhookWorker = startWebhookWorker();
 
   const gracefulShutdown = async () => {
     if (shuttingDown) return;
@@ -1080,6 +1090,7 @@ export async function startServer(
 
     console.log("🛑 Shutting down gracefully...");
     shutdownScheduler();
+    await stopWebhookWorker();
     await shutdownWebSocketAdapter();
     server.close();
     const [, signInEmailsDrained] = await Promise.all([

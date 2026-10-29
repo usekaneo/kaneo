@@ -1,6 +1,6 @@
 ---
 title: Your account
-description: Manage your profile, password, API keys, and account deletion
+description: Manage your profile, password, signed-in sessions, API keys, and account deletion
 ---
 
 Your profile picture and your account itself are both managed from **Settings → Account → Profile**.
@@ -14,6 +14,8 @@ Your profile picture and your account itself are both managed from **Settings �
 
 Select **Remove** to go back to your initials. Pictures are stored in your Kaneo database, so self-hosted instances need no object storage for this and a normal database backup includes them.
 
+If your organization manages profile pictures through single sign-on, the row says **Managed by your organization.** and has no **Upload** button. Change the picture with your sign-in provider, through the **Edit in** link when it is shown. **Remove** still works for a picture you uploaded in Kaneo earlier.
+
 ## Change your password
 
 Open **Settings → Account → Security** and select **Change password**. Enter the current password, choose a new one, and confirm it. The new password must be between 8 and 128 characters.
@@ -24,6 +26,12 @@ Accounts that sign in only through a provider or passwordless email do not have 
   <img className="block dark:hidden" src="/images/product/security-light.png" alt="Accounts with a password can change it under Account → Security." />
   <img className="hidden dark:block" src="/images/product/security-dark.png" alt="Accounts with a password can change it under Account → Security." />
 </Frame>
+
+## Review where you're signed in
+
+**Settings → Account → Security** also lists your active sessions: the browser and device, IP address, when you signed in, and when the session was last active. The session you're using is marked **This device**. Sessions refresh about once a day while in use, so "last active" is approximate.
+
+Select **Sign out** on a session you don't recognize to end it, or **Sign out other sessions** to end every session except this one. Ended sessions stop working at once, including open boards that update live. To end the current session, sign out. API keys aren't sessions; delete them under **Settings → Account → API keys**.
 
 ## API keys
 

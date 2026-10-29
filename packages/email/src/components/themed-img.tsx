@@ -1,4 +1,4 @@
-import { Img } from "@react-email/components";
+import { Img } from "react-email";
 import React from "react";
 import { emailAsset } from "./assets";
 

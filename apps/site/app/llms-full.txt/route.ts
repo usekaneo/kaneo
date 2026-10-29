@@ -113,7 +113,7 @@ ${post.markdown}`,
 export function GET() {
   const body = `# Kaneo, full content
 
-> Kaneo is an open-source, self-hostable project management platform under the MIT license. This file contains the full text of Kaneo's comparison pages, guides, and blog posts. Written by the Kaneo team, who build one of the tools discussed.
+> Kaneo is a project management platform, available as managed Kaneo Cloud or self-hosted under the MIT license. This file contains the full text of Kaneo's comparison pages, guides, and blog posts. Written by the Kaneo team, who build one of the tools discussed.
 
 ## Product facts
 

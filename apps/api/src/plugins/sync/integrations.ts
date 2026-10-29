@@ -2,6 +2,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import db from "../../database";
 import { integrationTable } from "../../database/schema";
 import { readSyncRules, syncProviders } from "./rules";
+import { activeIntegrationCondition } from "../active-integration-condition";
 
 export async function getSyncIntegrations(
   projectId: string,
@@ -10,7 +11,7 @@ export async function getSyncIntegrations(
   const rows = await db.query.integrationTable.findMany({
     where: and(
       eq(integrationTable.projectId, projectId),
-      eq(integrationTable.isActive, true),
+      activeIntegrationCondition(),
       inArray(integrationTable.type, [...syncProviders]),
       integrationId ? eq(integrationTable.id, integrationId) : undefined,
     ),

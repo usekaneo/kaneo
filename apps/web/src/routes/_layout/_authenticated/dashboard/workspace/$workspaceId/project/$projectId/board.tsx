@@ -85,6 +85,7 @@ function RouteComponent() {
     data,
     isError: boardError,
     isFetching: boardFetching,
+    isSuccess: boardLoaded,
     refetch: retryBoard,
   } = useGetTasks(projectId);
   const { project, setProject } = useProjectStore();
@@ -167,12 +168,16 @@ function RouteComponent() {
         <ActiveFiltersBar
           subjects={view.subjects}
           onClear={filters.clearFilters}
+          customFieldValues={filters.customFieldValues}
         />
       }
     >
       <PageTitle
-        title={`${project?.name} · ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`}
-        hideAppName
+        title={
+          project
+            ? `${project.name} / ${viewMode === "board" ? t("tasks:view.board") : t("tasks:view.list")}`
+            : undefined
+        }
       />
       <div className="relative flex flex-col h-full min-h-0 overflow-hidden">
         {descriptionSearch.isLoading && (
@@ -216,7 +221,7 @@ function RouteComponent() {
                 project={sortedProject}
                 disableCollectionActions={boardFetching || boardError}
                 disableDragDrop={
-                  boardFetching ||
+                  (boardFetching && !boardLoaded) ||
                   boardError ||
                   (sort.field !== "position" &&
                     sort.field !== "number" &&

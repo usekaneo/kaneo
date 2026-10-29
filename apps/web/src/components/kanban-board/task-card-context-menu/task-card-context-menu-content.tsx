@@ -1,9 +1,16 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { X, LinkIcon } from "lucide-react";
+import {
+  Archive,
+  CircleDot,
+  Clock,
+  Copy,
+  LinkIcon,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar } from "@/components/ui/calendar";
 import {
   ContextMenuCheckboxItem,
   ContextMenuContent,
@@ -17,7 +24,6 @@ import { useDuplicateTask } from "@/hooks/mutations/task/use-duplicate-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
-import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
@@ -34,6 +40,8 @@ import { getTaskPath } from "@/lib/task-link";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
+import { DueDateSubmenu } from "./due-date-submenu";
 
 type TaskCardContext = {
   worskpaceId: string;
@@ -80,7 +88,6 @@ export default function TaskCardContextMenuContent({
   const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
-  const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
   const { mutate: duplicateTask } = useDuplicateTask();
   const { canCreateTasks, canUpdateTasks, canDeleteTasks, canAssignTasks } =
     useWorkspacePermission();
@@ -162,7 +169,8 @@ export default function TaskCardContextMenuContent({
 
   return (
     <ContextMenuContent className="w-46">
-      <ContextMenuItem onClick={handleCopyTaskLink}>
+      <ContextMenuItem className="[&>svg]:mx-0" onClick={handleCopyTaskLink}>
+        <LinkIcon className="size-3.5 text-muted-foreground" />
         <span>{t("tasks:contextMenu.copyLink")}</span>
       </ContextMenuItem>
 
@@ -170,7 +178,8 @@ export default function TaskCardContextMenuContent({
 
       {canEdit && (
         <ContextMenuSub>
-          <ContextMenuSubTrigger className="gap-2">
+          <ContextMenuSubTrigger>
+            <PriorityGlyph priority="high" />
             <span>{t("tasks:priority.label")}</span>
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
@@ -203,6 +212,7 @@ export default function TaskCardContextMenuContent({
       {canEdit && (
         <ContextMenuSub>
           <ContextMenuSubTrigger>
+            <CircleDot className="size-3.5 text-muted-foreground" />
             <span>{t("tasks:status.label")}</span>
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
@@ -222,65 +232,12 @@ export default function TaskCardContextMenuContent({
         </ContextMenuSub>
       )}
 
-      {canEdit && (
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <span>{t("tasks:dueDate.label")}</span>
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-fit min-w-0 p-0">
-            <div className="p-2">
-              <Calendar
-                mode="single"
-                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                onSelect={async (date) => {
-                  try {
-                    await updateTaskDueDate({
-                      ...task,
-                      dueDate: date?.toISOString() || null,
-                    });
-                  } catch (error) {
-                    toast.error(
-                      error instanceof Error
-                        ? error.message
-                        : t("tasks:dueDate.updateError"),
-                    );
-                  }
-                }}
-                className="w-full bg-popover!"
-              />
-            </div>
-            {task.dueDate && (
-              <>
-                <ContextMenuSeparator />
-                <ContextMenuItem
-                  className="gap-2 text-muted-foreground"
-                  onClick={async () => {
-                    try {
-                      await updateTaskDueDate({
-                        ...task,
-                        dueDate: null,
-                      });
-                    } catch (error) {
-                      toast.error(
-                        error instanceof Error
-                          ? error.message
-                          : t("tasks:dueDate.clearError"),
-                      );
-                    }
-                  }}
-                >
-                  <X className="h-4 w-4" />
-                  <span>{t("tasks:dueDate.clear")}</span>
-                </ContextMenuItem>
-              </>
-            )}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      )}
+      {canEdit && <DueDateSubmenu task={task} />}
 
       {canAssign && usersOptions && (
         <ContextMenuSub>
           <ContextMenuSubTrigger>
+            <UserRound className="size-3.5 text-muted-foreground" />
             <span>{t("tasks:assignee.label")}</span>
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
@@ -327,7 +284,11 @@ export default function TaskCardContextMenuContent({
               <ContextMenuSeparator />
 
               {canCreate && (
-                <ContextMenuItem onClick={handleDuplicateTask}>
+                <ContextMenuItem
+                  className="[&>svg]:mx-0"
+                  onClick={handleDuplicateTask}
+                >
+                  <Copy className="size-3.5 text-muted-foreground" />
                   <span>{t("tasks:actions.duplicate")}</span>
                 </ContextMenuItem>
               )}
@@ -335,14 +296,18 @@ export default function TaskCardContextMenuContent({
               {canEdit && (
                 <>
                   <ContextMenuItem
+                    className="[&>svg]:mx-0"
                     onClick={() => handleChange("status", "archived")}
                   >
+                    <Archive className="size-3.5 text-muted-foreground" />
                     <span>{t("tasks:actions.archive")}</span>
                   </ContextMenuItem>
                   {task.status !== "planned" && (
                     <ContextMenuItem
+                      className="[&>svg]:mx-0"
                       onClick={() => handleChange("status", "planned")}
                     >
+                      <Clock className="size-3.5 text-muted-foreground" />
                       <span>{t("tasks:actions.markAsPlanned")}</span>
                     </ContextMenuItem>
                   )}
@@ -356,7 +321,7 @@ export default function TaskCardContextMenuContent({
               <ContextMenuSeparator />
 
               <ContextMenuItem
-                className="text-destructive"
+                className="text-destructive [&>svg]:mx-0"
                 onClick={(e) => {
                   e.preventDefault();
                   setTimeout(() => {
@@ -364,6 +329,7 @@ export default function TaskCardContextMenuContent({
                   }, 0);
                 }}
               >
+                <Trash2 className="size-3.5" />
                 <span>{t("tasks:actions.delete")}</span>
               </ContextMenuItem>
             </>

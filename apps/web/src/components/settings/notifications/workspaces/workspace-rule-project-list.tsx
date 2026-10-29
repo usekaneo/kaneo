@@ -38,7 +38,7 @@ export function WorkspaceRuleProjectList({
         return (
           <label
             key={project.id}
-            className="flex min-h-8 cursor-pointer items-center gap-2.5 rounded-md px-2 py-1 text-sm hover:bg-accent/50"
+            className="flex min-h-8 cursor-pointer items-center gap-2.5 rounded-[calc(var(--radius-lg)-5px)] px-2 py-1 text-sm hover:bg-accent/50"
             htmlFor={id}
           >
             <Checkbox

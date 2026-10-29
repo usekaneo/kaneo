@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { Trash2Icon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,10 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import CircularProgress from "@/components/ui/circular-progress";
 import { Input } from "@/components/ui/input";
-import getColumns from "@/fetchers/column/get-columns";
 import useCreateTask from "@/hooks/mutations/task/use-create-task";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
-import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import useCreateTaskRelation from "@/hooks/mutations/task-relation/use-create-task-relation";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
 import useGetTaskRelations from "@/hooks/queries/task-relation/use-get-task-relations";
@@ -32,6 +30,7 @@ import { SectionAddButton } from "./sections/section-add-button";
 import { SectionHeader } from "./sections/section-header";
 import { useProjectSlugs } from "./sections/use-project-slugs";
 import SubtaskRow from "./subtask-row";
+import { useToggleTaskCompletion } from "./use-toggle-task-completion";
 
 type TaskSubtasksProps = {
   taskId: string;
@@ -64,7 +63,6 @@ export default function TaskSubtasks({
   const createTask = useCreateTask();
   const createRelation = useCreateTaskRelation();
   const { mutateAsync: deleteTask } = useDeleteTask();
-  const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { data: columns = [], isLoading: isLoadingColumns } =
     useGetColumns(projectId);
   const { canCreateTasks, canUpdateTasks } = useWorkspacePermission();
@@ -133,33 +131,7 @@ export default function TaskSubtasks({
     return [currentTask];
   };
 
-  const handleToggleComplete = async (taskObj: Task) => {
-    try {
-      // Fetch at activation so a cached workflow cannot send a stale status.
-      const taskColumns = await queryClient.fetchQuery({
-        queryKey: ["columns", taskObj.projectId],
-        queryFn: () => getColumns(taskObj.projectId),
-        staleTime: 0,
-      });
-      const completed = taskColumns.some(
-        (column) => column.slug === taskObj.status && column.isFinal,
-      );
-      const nextColumn = taskColumns.find(
-        (column) => column.isFinal !== completed,
-      );
-      if (!nextColumn) {
-        toast.error(t("tasks:subtasks.noCompletionColumn"));
-        return;
-      }
-      await updateTaskStatus({ ...taskObj, status: nextColumn.slug });
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : t("tasks:popover.status.updateError"),
-      );
-    }
-  };
+  const handleToggleComplete = useToggleTaskCompletion();
 
   const getAssignee = (userId: string | null) => {
     if (!userId || !workspaceUsers?.members) return null;

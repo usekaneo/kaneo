@@ -15,11 +15,12 @@ import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import { produce } from "immer";
 import { Archive, Clock, Flag } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
+import { useCollapsedSections } from "@/hooks/use-collapsed-sections";
 import { cn } from "@/lib/cn";
 import useBacklogBulkSelectionStore from "@/store/backlog-bulk-selection";
 import useProjectStore from "@/store/project";
@@ -47,31 +48,29 @@ function BacklogListView({
   const clearFocus = useBacklogBulkSelectionStore((state) => state.clearFocus);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >({
-    planned: true,
-    archived: true,
-  });
+  const { isExpanded, toggleSection, toggleAllSections } = useCollapsedSections(
+    project?.id,
+    "backlog",
+  );
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
 
   useEffect(() => {
     if (project) {
       const visibleTaskIds: string[] = [];
-      if (expandedSections.planned) {
+      if (isExpanded("planned")) {
         visibleTaskIds.push(
           ...(project.plannedTasks || []).map((task) => task.id),
         );
       }
-      if (expandedSections.archived) {
+      if (isExpanded("archived")) {
         visibleTaskIds.push(
           ...(project.archivedTasks || []).map((task) => task.id),
         );
       }
       setAvailableTasks(visibleTaskIds);
     }
-  }, [project, expandedSections, setAvailableTasks]);
+  }, [project, isExpanded, setAvailableTasks]);
 
   useEffect(() => {
     clearFocus();
@@ -237,20 +236,6 @@ function BacklogListView({
     if (over) moveTask(active.id.toString(), over.id.toString());
   };
 
-  const toggleSection = useCallback((sectionId: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionId]: !prev[sectionId],
-    }));
-  }, []);
-
-  const toggleAllSections = useCallback(() => {
-    setExpandedSections((prev) => {
-      const expand = !prev.planned && !prev.archived;
-      return { planned: expand, archived: expand };
-    });
-  }, []);
-
   useTaskViewShortcuts({
     layout: "list",
     selection: useBacklogBulkSelectionStore,
@@ -258,12 +243,12 @@ function BacklogListView({
       {
         id: "planned",
         taskIds: (project?.plannedTasks ?? []).map((task) => task.id),
-        collapsed: !expandedSections.planned,
+        collapsed: !isExpanded("planned"),
       },
       {
         id: "archived",
         taskIds: (project?.archivedTasks ?? []).map((task) => task.id),
-        collapsed: !expandedSections.archived,
+        collapsed: !isExpanded("archived"),
       },
     ],
     project,
@@ -271,7 +256,7 @@ function BacklogListView({
     canMove: !disableDragDrop,
     onMove: moveTask,
     onToggleGroup: toggleSection,
-    onToggleAllGroups: toggleAllSections,
+    onToggleAllGroups: () => toggleAllSections(["planned", "archived"]),
   });
 
   const openPlannedTaskModal = useCallback(() => {
@@ -311,7 +296,7 @@ function BacklogListView({
             title={t("tasks:backlog.sections.planned")}
             icon={Clock}
             tasks={plannedTasks}
-            isExpanded={expandedSections.planned}
+            isExpanded={isExpanded("planned")}
             showDropIndicator={activeId !== null && overColumnId === "planned"}
             onToggle={toggleSection}
             onAddTask={openPlannedTaskModal}
@@ -322,7 +307,7 @@ function BacklogListView({
             title={t("tasks:backlog.sections.archived")}
             icon={Archive}
             tasks={archivedTasks}
-            isExpanded={expandedSections.archived}
+            isExpanded={isExpanded("archived")}
             showDropIndicator={activeId !== null && overColumnId === "archived"}
             onToggle={toggleSection}
           />
