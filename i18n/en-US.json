@@ -5551,6 +5551,16 @@
 			"errors": {
 				"limit": "You already have a coding job running or reached the hourly limit. Try again later.",
 				"committing": "The pull request is already being opened, so the job can't be stopped."
+			},
+			"start": {
+				"action": "Fix with agent",
+				"title": "Fix with agent",
+				"repository": "Repository",
+				"instructions": "Instructions",
+				"submit": "Start",
+				"toast": "Coding agent started",
+				"openRun": "Open run",
+				"noRepository": "No repository available"
 			}
 		}
 	}

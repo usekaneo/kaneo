@@ -23072,6 +23072,46 @@
 								}
 							},
 							"required": ["limit", "committing"]
+						},
+						"start": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"action": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"repository": {
+									"type": "string"
+								},
+								"instructions": {
+									"type": "string"
+								},
+								"submit": {
+									"type": "string"
+								},
+								"toast": {
+									"type": "string"
+								},
+								"openRun": {
+									"type": "string"
+								},
+								"noRepository": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"action",
+								"title",
+								"repository",
+								"instructions",
+								"submit",
+								"toast",
+								"openRun",
+								"noRepository"
+							]
 						}
 					},
 					"required": [
@@ -23081,7 +23121,8 @@
 						"actionsRun",
 						"failure",
 						"cancel",
-						"errors"
+						"errors",
+						"start"
 					]
 				}
 			},

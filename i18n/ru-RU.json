@@ -5803,6 +5803,16 @@
 				"testing": "Running tests",
 				"working": "Editing code"
 			},
+			"start": {
+				"action": "Fix with agent",
+				"instructions": "Instructions",
+				"noRepository": "No repository available",
+				"openRun": "Open run",
+				"repository": "Repository",
+				"submit": "Start",
+				"title": "Fix with agent",
+				"toast": "Coding agent started"
+			},
 			"status": {
 				"cancelled": "Stopped",
 				"committing": "Opening PR",
