@@ -23,11 +23,15 @@ The workflow grants only `contents: read` and `id-token: write`, and disables ch
 
 ## Opt in and start
 
-A workspace administrator with `workspace:manage_settings` can opt a project repository in through `PATCH /api/github-integration/project/{projectId}` with `{"codingAgentEnabled":true}`. Use `false` to disable new jobs and prevent pending changesets from being committed. This backend release provides the API and web data hooks; the visual controls arrive separately.
+A workspace administrator with `workspace:manage_settings` can opt a project repository in through `PATCH /api/github-integration/project/{projectId}` with `{"codingAgentEnabled":true}`. Use `false` to disable new jobs and prevent pending changesets from being committed. The opt-in has no settings control yet.
 
 Starting requires a Kaneo user session, `agent:run_code`, project/task read access, and a linked GitHub account with repository write, maintain, or admin access. Owner and newly seeded admin roles have `agent:run_code` by default; edited/existing stored role permissions remain under your control. An owner can grant the new permission where necessary.
 
 `POST /api/agent/{workspaceId}/jobs` accepts a UUID `requestId`, `taskId`, `integrationId`, `instructions`, and optional `baseRef`. Reusing the request ID with the same input returns the same job. An approved `code.run` proposal starts the same kind of job. Jobs stay private unless their conversation is shared, and project access still applies when reading them.
+
+In the web app, **Fix with agent** in the task header starts a job: pick the repository when the project has several, edit the instructions drafted from the task, and start. The job lands in a new agent conversation. The button appears only when coding jobs are configured, you have `agent:run_code`, and the task's project has an opted-in repository; it stays disabled while none is ready. When the assistant proposes a coding job, it appears with the other proposed changes and starts when you apply it.
+
+The run thread shows the job's state (queued, starting, working, opening PR, then PR opened, no changes, failed, or stopped), links to the GitHub Actions run and the draft PR, and offers **Stop job** until PR creation begins. Recent runs show the same state or the PR number. People the conversation is shared with see job status without the stop or apply controls.
 
 A workspace may have two active jobs, with one per requester and at most ten starts per requester per workspace per hour. `KANEO_CODE_JOB_TIMEOUT_MINUTES` defaults to 30 (5–120). `KANEO_CODE_MODEL` defaults to `OPENROUTER_MODEL`. The default OIDC audience is exactly `KANEO_API_URL`; a custom `KANEO_CODE_OIDC_AUDIENCE` must also be set in the workflow.
 

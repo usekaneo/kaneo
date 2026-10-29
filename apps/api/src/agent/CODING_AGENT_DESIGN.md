@@ -1,6 +1,6 @@
 # Coding agent: design
 
-Status: phase 1 backend and web data layer implemented, 2026-10-28. Visual web UI and later execution backends remain planned. The implementation contract and setup are in [README.md](README.md#phase-1-coding-jobs-github-repo-ci); the remaining sections describe the broader target design.
+Status: phase 1 backend, web data layer, and web UI (task action, run thread job card, recent-runs pill) implemented, 2026-10-28. The composer repository chip, header sandbox status, and later execution backends remain planned. The implementation contract and setup are in [README.md](README.md#phase-1-coding-jobs-github-repo-ci); the remaining sections describe the broader target design.
 
 ## Decisions (maintainer, binding)
 
