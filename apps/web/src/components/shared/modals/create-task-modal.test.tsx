@@ -55,6 +55,9 @@ let storedProject: { id: string; columns: unknown[] } | null = null;
 let uploadAsset: ((file: File) => Promise<unknown>) | undefined;
 const stageUpload = vi.fn();
 let customFieldDefs: unknown[] | undefined;
+let projectMembers:
+  | { id: string; name: string; image: string | null }[]
+  | undefined;
 vi.mock("@/lib/upload-draft-asset", () => ({
   uploadDraftAsset: (...args: unknown[]) => stageUpload(...args),
 }));
@@ -67,6 +70,7 @@ beforeEach(() => {
   ];
   storedProject = null;
   customFieldDefs = undefined;
+  projectMembers = undefined;
   columnsError = false;
   columnsFetching = false;
   refetchColumns.mockImplementation(async () => ({
@@ -153,7 +157,7 @@ vi.mock(
 );
 
 vi.mock("@/hooks/queries/workspace-users/use-get-project-members", () => ({
-  default: () => ({ data: undefined }),
+  default: () => ({ data: projectMembers }),
 }));
 
 vi.mock("@/hooks/use-workspace-permission", () => ({
@@ -340,6 +344,46 @@ describe("CreateTaskModal", () => {
     expect(
       await screen.findByText("common:modals.createTask.discardTitle"),
     ).toBeTruthy();
+  });
+
+  it("closes single-choice pickers after a selection", async () => {
+    projectMembers = [{ id: "user-1", name: "Ada", image: null }];
+
+    render(<CreateTaskModal open onClose={vi.fn()} />, {
+      wrapper: createWrapper(),
+    });
+
+    fireEvent.click(screen.getByText("common:modals.createTask.selectProject"));
+    fireEvent.click(await screen.findByText("Beta"));
+    await vi.waitFor(() => {
+      expect(screen.getAllByText("Beta")).toHaveLength(1);
+    });
+
+    fireEvent.click(screen.getByText("tasks:priority.no-priority"));
+    fireEvent.click(await screen.findByText("tasks:priority.high"));
+    await vi.waitFor(() => {
+      expect(screen.getAllByText("tasks:priority.high")).toHaveLength(1);
+    });
+
+    fireEvent.click(screen.getByText("common:modals.createTask.assign"));
+    fireEvent.click(await screen.findByText("Ada"));
+    await vi.waitFor(() => {
+      expect(screen.getAllByText("Ada")).toHaveLength(1);
+    });
+
+    fireEvent.click(screen.getByText("Ada"));
+    fireEvent.click(
+      await screen.findByText("common:modals.createTask.assignUnassigned"),
+    );
+    await vi.waitFor(() => {
+      expect(
+        screen.queryByText("common:modals.createTask.assignUnassigned"),
+      ).toBeNull();
+    });
+    expect(screen.queryByText("Ada")).toBeNull();
+    expect(
+      screen.getByText("common:modals.createTask.assign"),
+    ).toBeInTheDocument();
   });
 
   it("shows a project picker and creates the task in the chosen project", async () => {
