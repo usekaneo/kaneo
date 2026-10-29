@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vite-plus/test";
-import type { AgentProposal, AgentRun } from "@/types/agent";
+import type { AgentCodeProposal, AgentProposal, AgentRun } from "@/types/agent";
 import { AgentProposalReview } from "./agent-proposal-review";
 
 vi.mock("react-i18next", () => ({
@@ -12,6 +12,19 @@ vi.mock("@/hooks/mutations/agent/use-review-agent-proposals", () => ({
     const mutation = { mutateAsync: vi.fn(), isPending: false };
     return { apply: mutation, discard: mutation, undo: mutation };
   },
+}));
+
+vi.mock("@/hooks/queries/agent/use-agent-code-repositories", () => ({
+  default: (workspaceId: string) => ({
+    data: workspaceId
+      ? [{ integrationId: "integration", fullName: "usekaneo/kaneo" }]
+      : undefined,
+  }),
+}));
+vi.mock("@/components/public-project/markdown-renderer", () => ({
+  MarkdownRenderer: ({ content }: { content: string }) => (
+    <div data-testid="markdown">{content}</div>
+  ),
 }));
 
 vi.mock("./use-agent-value-formatter", () => ({
@@ -51,7 +64,25 @@ const run = {
   id: "run",
   status: "awaiting_review",
   proposals: [proposal("pending", "pending"), proposal("applied", "applied")],
-} as AgentRun;
+  codeProposals: [],
+} as unknown as AgentRun;
+const codeProposal = {
+  ...proposal("code", "pending"),
+  reason: "Requested from chat",
+  action: {
+    type: "code.run",
+    taskId: "task-1",
+    integrationId: "integration",
+    instructions: "Retry with **backoff**",
+    baseRef: "main",
+  },
+} as AgentCodeProposal;
+const codeRun = {
+  id: "run",
+  status: "awaiting_review",
+  proposals: [],
+  codeProposals: [codeProposal],
+} as unknown as AgentRun;
 
 describe("AgentProposalReview", () => {
   it("lets the owner select, apply, discard, and undo", () => {
@@ -68,6 +99,35 @@ describe("AgentProposalReview", () => {
   it("shows proposals without review controls to shared viewers", () => {
     render(<AgentProposalReview workspaceId="ws" run={run} readOnly />);
     expect(screen.getByText("agent:review.title")).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("reviews a coding proposal with its repository and instructions", () => {
+    render(
+      <AgentProposalReview
+        workspaceId="ws"
+        run={codeRun}
+        getTaskKey={() => "WEB-135"}
+      />,
+    );
+    expect(screen.getByText("agent:proposal.action.code")).toBeInTheDocument();
+    expect(screen.getByText("usekaneo/kaneo")).toBeInTheDocument();
+    expect(screen.getByText("main")).toBeInTheDocument();
+    expect(screen.getByTestId("markdown")).toHaveTextContent(
+      "Retry with **backoff**",
+    );
+    expect(
+      screen.getByRole("checkbox", { name: /WEB-135/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "agent:review.apply" }),
+    ).toBeEnabled();
+  });
+
+  it("shows a coding proposal read-only to shared viewers", () => {
+    render(<AgentProposalReview workspaceId="ws" run={codeRun} readOnly />);
+    expect(screen.getByText("agent:proposal.action.code")).toBeInTheDocument();
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });

@@ -5231,7 +5231,8 @@
 				"clearDueDate": "Clear due date",
 				"priority": "Change priority",
 				"rename": "Rename",
-				"comment": "Post comment"
+				"comment": "Post comment",
+				"code": "Run coding agent"
 			},
 			"status": {
 				"pending": "Pending",
@@ -5501,6 +5502,55 @@
 				"title": "Take over {{name}}?",
 				"confirm": "Take over",
 				"toast": "You own this automation now. Turn it on when you're ready."
+			}
+		},
+		"code": {
+			"status": {
+				"queued": "Queued",
+				"dispatched": "Starting",
+				"running": "Working",
+				"committing": "Opening PR",
+				"completed": "Finished",
+				"failed": "Failed",
+				"cancelled": "Stopped",
+				"prOpened": "PR #{{number}} opened",
+				"noChanges": "No changes"
+			},
+			"phase": {
+				"starting": "Starting GitHub Actions",
+				"working": "Editing code",
+				"testing": "Running tests",
+				"collecting": "Collecting changes",
+				"openingPr": "Opening pull request"
+			},
+			"history": "Job history",
+			"actionsRun": "Actions run",
+			"failure": {
+				"generic": "The coding job failed.",
+				"repositoryUnavailable": "The repository is no longer available.",
+				"workflowMissing": "The Kaneo agent workflow is missing from the repository.",
+				"appPermission": "The Kaneo Agent app is missing repository permissions.",
+				"dispatchFailed": "GitHub Actions couldn't start the job.",
+				"claimTimeout": "The workflow never picked up the job.",
+				"ciRunFailed": "The GitHub Actions run failed.",
+				"timedOut": "The job ran out of time.",
+				"accessRevoked": "Access to the repository was revoked.",
+				"changesetRejected": "The changes broke a repository safety rule.",
+				"branchExists": "The job's branch already exists.",
+				"commitFailed": "Kaneo couldn't commit the changes.",
+				"agentFailed": "The coding agent stopped with an error.",
+				"setupFailed": "The job couldn't set up the repository.",
+				"noModelKey": "The repository has no OPENROUTER_API_KEY secret."
+			},
+			"cancel": {
+				"action": "Stop job",
+				"title": "Stop this coding job?",
+				"confirm": "Stop job",
+				"toast": "Coding job stopped"
+			},
+			"errors": {
+				"limit": "You already have a coding job running or reached the hourly limit. Try again later.",
+				"committing": "The pull request is already being opened, so the job can't be stopped."
 			}
 		}
 	}

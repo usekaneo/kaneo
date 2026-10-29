@@ -3,10 +3,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import useReviewAgentProposals from "@/hooks/mutations/agent/use-review-agent-proposals";
+import useAgentCodeRepositories from "@/hooks/queries/agent/use-agent-code-repositories";
 import { HttpError } from "@/lib/http-error";
 import { toast } from "@/lib/toast";
 import type { AgentProposal, AgentRun } from "@/types/agent";
 import { AgentProposalRow } from "./agent-proposal-row";
+import { AgentCodeProposalRow } from "./code/agent-code-proposal-row";
 import { getAgentErrorKey } from "./get-agent-error-key";
 
 type AgentProposalReviewProps = {
@@ -26,21 +28,42 @@ export function AgentProposalReview({
   const { apply, discard, undo } = useReviewAgentProposals(workspaceId, run.id);
   // Track opt-outs so proposals arriving later start selected.
   const [deselected, setDeselected] = useState<ReadonlySet<string>>(new Set());
+  // Repository names come from GitHub, so only look them up for owners of
+  // runs that propose coding jobs.
+  const { data: repositories = [] } = useAgentCodeRepositories(
+    !readOnly && run.codeProposals.length > 0 ? workspaceId : "",
+  );
   const proposals = run.proposals.filter(
     (proposal) => proposal.status !== "discarded",
   );
-  const pending = proposals.filter((proposal) => proposal.status === "pending");
+  const codeProposals = run.codeProposals.filter(
+    (proposal) => proposal.status !== "discarded",
+  );
+  // Coding proposals are applied together with task changes; applying one
+  // starts its job.
+  const pending = [...proposals, ...codeProposals].filter(
+    (proposal) => proposal.status === "pending",
+  );
   const selectedIds = pending
     .filter((proposal) => !deselected.has(proposal.id))
     .map((proposal) => proposal.id);
-  const appliedCount = proposals.filter(
+  const appliedCount = [...proposals, ...codeProposals].filter(
     (proposal) => proposal.status === "applied",
   ).length;
   const busy = apply.isPending || discard.isPending || undo.isPending;
   const canReview =
     !readOnly && run.status === "awaiting_review" && pending.length > 0;
 
-  if (proposals.length === 0) return null;
+  const total = proposals.length + codeProposals.length;
+  if (total === 0) return null;
+
+  const toggle = (proposalId: string, selected: boolean) =>
+    setDeselected((current) => {
+      const next = new Set(current);
+      if (selected) next.delete(proposalId);
+      else next.add(proposalId);
+      return next;
+    });
 
   const handleApply = async () => {
     try {
@@ -51,7 +74,11 @@ export function AgentProposalReview({
         toast.success(t("agent:review.appliedToast", { count: applied }));
       if (failed.length > 0)
         toast.error(t("agent:review.failedToast", { count: failed.length }), {
-          description: t("agent:review.failedDescription"),
+          description: t(
+            failed.some((result) => result.code === 429)
+              ? "agent:code.errors.limit"
+              : "agent:review.failedDescription",
+          ),
         });
     } catch (error) {
       toast.error(t(getAgentErrorKey(error)));
@@ -97,7 +124,7 @@ export function AgentProposalReview({
             />
           )}
           <h3 className="font-semibold text-[13px] text-foreground">
-            {t("agent:review.title", { count: proposals.length })}
+            {t("agent:review.title", { count: total })}
           </h3>
         </div>
         <span className="text-muted-foreground text-xs">
@@ -119,17 +146,27 @@ export function AgentProposalReview({
             selected={!deselected.has(proposal.id)}
             disabled={busy || !canReview}
             onSelectedChange={
-              readOnly
-                ? undefined
-                : (selected) =>
-                    setDeselected((current) => {
-                      const next = new Set(current);
-                      if (selected) next.delete(proposal.id);
-                      else next.add(proposal.id);
-                      return next;
-                    })
+              readOnly ? undefined : (selected) => toggle(proposal.id, selected)
             }
             onUndo={readOnly ? undefined : () => void handleUndo(proposal)}
+          />
+        ))}
+        {codeProposals.map((proposal) => (
+          <AgentCodeProposalRow
+            key={proposal.id}
+            proposal={proposal}
+            taskKey={getTaskKey?.(proposal.action.taskId)}
+            repositoryName={
+              repositories.find(
+                (repository) =>
+                  repository.integrationId === proposal.action.integrationId,
+              )?.fullName
+            }
+            selected={!deselected.has(proposal.id)}
+            disabled={busy || !canReview}
+            onSelectedChange={
+              readOnly ? undefined : (selected) => toggle(proposal.id, selected)
+            }
           />
         ))}
       </ul>

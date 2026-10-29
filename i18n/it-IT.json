@@ -5330,7 +5330,8 @@
 				"setDueDate": "Set due date",
 				"unassign": "Unassign",
 				"update": "Update task",
-				"comment": "Post comment"
+				"comment": "Post comment",
+				"code": "Run coding agent"
 			},
 			"noDueDate": "No due date",
 			"status": {
@@ -5607,6 +5608,55 @@
 			"viewAll": "View all",
 			"you": "You",
 			"openRun": "Open run"
+		},
+		"code": {
+			"actionsRun": "Actions run",
+			"cancel": {
+				"action": "Stop job",
+				"confirm": "Stop job",
+				"title": "Stop this coding job?",
+				"toast": "Coding job stopped"
+			},
+			"errors": {
+				"committing": "The pull request is already being opened, so the job can't be stopped.",
+				"limit": "You already have a coding job running or reached the hourly limit. Try again later."
+			},
+			"failure": {
+				"accessRevoked": "Access to the repository was revoked.",
+				"agentFailed": "The coding agent stopped with an error.",
+				"appPermission": "The Kaneo Agent app is missing repository permissions.",
+				"branchExists": "The job's branch already exists.",
+				"changesetRejected": "The changes broke a repository safety rule.",
+				"ciRunFailed": "The GitHub Actions run failed.",
+				"claimTimeout": "The workflow never picked up the job.",
+				"commitFailed": "Kaneo couldn't commit the changes.",
+				"dispatchFailed": "GitHub Actions couldn't start the job.",
+				"generic": "The coding job failed.",
+				"noModelKey": "The repository has no OPENROUTER_API_KEY secret.",
+				"repositoryUnavailable": "The repository is no longer available.",
+				"setupFailed": "The job couldn't set up the repository.",
+				"timedOut": "The job ran out of time.",
+				"workflowMissing": "The Kaneo agent workflow is missing from the repository."
+			},
+			"history": "Job history",
+			"phase": {
+				"collecting": "Collecting changes",
+				"openingPr": "Opening pull request",
+				"starting": "Starting GitHub Actions",
+				"testing": "Running tests",
+				"working": "Editing code"
+			},
+			"status": {
+				"cancelled": "Stopped",
+				"committing": "Opening PR",
+				"completed": "Finished",
+				"dispatched": "Starting",
+				"failed": "Failed",
+				"noChanges": "No changes",
+				"prOpened": "PR #{{number}} opened",
+				"queued": "Queued",
+				"running": "Working"
+			}
 		}
 	}
 }

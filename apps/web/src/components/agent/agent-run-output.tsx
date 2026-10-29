@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { MarkdownRenderer } from "@/components/public-project/markdown-renderer";
 import { isAgentRunActive } from "@/lib/agent-run-status";
 import type { AgentRun, AgentRunStatus } from "@/types/agent";
+import { AgentCodeJobCard } from "./code/agent-code-job-card";
 import { AgentProposalReview } from "./agent-proposal-review";
 import { AgentRunSteps } from "./agent-run-steps";
 import { getAgentRunErrorKey } from "./get-agent-run-error-key";
@@ -19,7 +20,8 @@ type AgentRunOutputProps = {
   readOnly?: boolean;
 };
 
-// What a run produced: tool steps, the answer, failures, and proposals.
+// What a run produced: tool steps, the answer, failures, proposals, and
+// coding jobs.
 export function AgentRunOutput({
   workspaceId,
   run,
@@ -79,6 +81,14 @@ export function AgentRunOutput({
           readOnly={readOnly}
         />
       )}
+      {run?.jobs.map((job) => (
+        <AgentCodeJobCard
+          key={job.id}
+          workspaceId={workspaceId}
+          job={job}
+          readOnly={readOnly}
+        />
+      ))}
     </>
   );
 }

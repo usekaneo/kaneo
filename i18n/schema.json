@@ -21777,6 +21777,9 @@
 								},
 								"comment": {
 									"type": "string"
+								},
+								"code": {
+									"type": "string"
 								}
 							},
 							"required": [
@@ -21790,7 +21793,8 @@
 								"clearDueDate",
 								"priority",
 								"rename",
-								"comment"
+								"comment",
+								"code"
 							]
 						},
 						"status": {
@@ -22886,6 +22890,199 @@
 						"delete",
 						"takeOver"
 					]
+				},
+				"code": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"status": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"queued": {
+									"type": "string"
+								},
+								"dispatched": {
+									"type": "string"
+								},
+								"running": {
+									"type": "string"
+								},
+								"committing": {
+									"type": "string"
+								},
+								"completed": {
+									"type": "string"
+								},
+								"failed": {
+									"type": "string"
+								},
+								"cancelled": {
+									"type": "string"
+								},
+								"prOpened": {
+									"type": "string"
+								},
+								"noChanges": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"queued",
+								"dispatched",
+								"running",
+								"committing",
+								"completed",
+								"failed",
+								"cancelled",
+								"prOpened",
+								"noChanges"
+							]
+						},
+						"phase": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"starting": {
+									"type": "string"
+								},
+								"working": {
+									"type": "string"
+								},
+								"testing": {
+									"type": "string"
+								},
+								"collecting": {
+									"type": "string"
+								},
+								"openingPr": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"starting",
+								"working",
+								"testing",
+								"collecting",
+								"openingPr"
+							]
+						},
+						"history": {
+							"type": "string"
+						},
+						"actionsRun": {
+							"type": "string"
+						},
+						"failure": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"generic": {
+									"type": "string"
+								},
+								"repositoryUnavailable": {
+									"type": "string"
+								},
+								"workflowMissing": {
+									"type": "string"
+								},
+								"appPermission": {
+									"type": "string"
+								},
+								"dispatchFailed": {
+									"type": "string"
+								},
+								"claimTimeout": {
+									"type": "string"
+								},
+								"ciRunFailed": {
+									"type": "string"
+								},
+								"timedOut": {
+									"type": "string"
+								},
+								"accessRevoked": {
+									"type": "string"
+								},
+								"changesetRejected": {
+									"type": "string"
+								},
+								"branchExists": {
+									"type": "string"
+								},
+								"commitFailed": {
+									"type": "string"
+								},
+								"agentFailed": {
+									"type": "string"
+								},
+								"setupFailed": {
+									"type": "string"
+								},
+								"noModelKey": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"generic",
+								"repositoryUnavailable",
+								"workflowMissing",
+								"appPermission",
+								"dispatchFailed",
+								"claimTimeout",
+								"ciRunFailed",
+								"timedOut",
+								"accessRevoked",
+								"changesetRejected",
+								"branchExists",
+								"commitFailed",
+								"agentFailed",
+								"setupFailed",
+								"noModelKey"
+							]
+						},
+						"cancel": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"action": {
+									"type": "string"
+								},
+								"title": {
+									"type": "string"
+								},
+								"confirm": {
+									"type": "string"
+								},
+								"toast": {
+									"type": "string"
+								}
+							},
+							"required": ["action", "title", "confirm", "toast"]
+						},
+						"errors": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"limit": {
+									"type": "string"
+								},
+								"committing": {
+									"type": "string"
+								}
+							},
+							"required": ["limit", "committing"]
+						}
+					},
+					"required": [
+						"status",
+						"phase",
+						"history",
+						"actionsRun",
+						"failure",
+						"cancel",
+						"errors"
+					]
 				}
 			},
 			"required": [
@@ -22903,7 +23100,8 @@
 				"sharing",
 				"unavailable",
 				"errors",
-				"automations"
+				"automations",
+				"code"
 			]
 		}
 	},

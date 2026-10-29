@@ -32,8 +32,8 @@ export type AgentCodeProposal = Omit<RawProposal, "action"> & {
 export type AgentProposal = Omit<RawProposal, "action"> & {
   action: Exclude<RawProposal["action"], { type: "code.run" }>;
 };
-// Keep existing task proposal renderers compatible until the coding UI lands.
-// Coding proposals remain available separately to the new review surface.
+// Task and comment proposals share one renderer; coding proposals have their
+// own row, so the run keeps them apart.
 export type AgentRun = Omit<AgentRunResponse, "proposals"> & {
   proposals: AgentProposal[];
   codeProposals: AgentCodeProposal[];
