@@ -4552,6 +4552,15 @@
 			"signUp": {
 				"name": "Imię i nazwisko",
 				"passwordHint": "Co najmniej 8 znaków"
+			},
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
 			}
 		},
 		"invitations": {

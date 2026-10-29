@@ -9,7 +9,7 @@
 		"userInterfaceStyle": "automatic",
 		"backgroundColor": "#FAFAFA",
 		"ios": {
-			"bundleIdentifier": "de.usekaneo.kaneo",
+			"bundleIdentifier": "app.kaneo",
 			"supportsTablet": true,
 			"icon": "./assets/images/icon.png",
 			"config": {
@@ -23,7 +23,7 @@
 			}
 		},
 		"android": {
-			"package": "de.usekaneo.kaneo",
+			"package": "app.kaneo",
 			"versionCode": 5,
 			"adaptiveIcon": {
 				"backgroundColor": "#141414",
