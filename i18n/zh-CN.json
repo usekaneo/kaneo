@@ -3182,6 +3182,23 @@
 		"movedFromOtherProject": "将任务从其它项目移动到「{{to}}」"
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "开始日期",
+			"noDate": "无日期",
+			"condition": "日期条件",
+			"exact": "指定日期",
+			"range": "日期范围",
+			"before": "早于",
+			"after": "晚于",
+			"from": "起始日期（含当天）",
+			"to": "结束日期（含当天）",
+			"date": "日期",
+			"apply": "应用日期筛选",
+			"exactValue": "在 {{date}}",
+			"beforeValue": "早于 {{date}}",
+			"afterValue": "晚于 {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "任务",
 		"status": {
 			"label": "状态",

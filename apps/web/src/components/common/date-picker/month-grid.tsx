@@ -58,6 +58,7 @@ type MonthGridProps = {
   marked?: Date;
   highlighted?: Date[];
   autoFocus?: boolean;
+  defaultMonth?: Date;
 };
 
 export function MonthGrid({
@@ -67,6 +68,7 @@ export function MonthGrid({
   marked,
   highlighted,
   autoFocus = true,
+  defaultMonth,
 }: MonthGridProps) {
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const today = startOfDay(new Date());
@@ -78,7 +80,7 @@ export function MonthGrid({
       autoFocus={autoFocus}
       showOutsideDays
       selected={value ?? undefined}
-      defaultMonth={value ?? today}
+      defaultMonth={defaultMonth ?? value ?? today}
       onSelect={onSelect}
       disabled={disabled}
       weekStartsOn={weekStartsOn}

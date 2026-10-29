@@ -3182,6 +3182,23 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "開始日期",
+			"noDate": "無日期",
+			"condition": "日期條件",
+			"exact": "指定日期",
+			"range": "日期範圍",
+			"before": "早於",
+			"after": "晚於",
+			"from": "起始日期（含當天）",
+			"to": "結束日期（含當天）",
+			"date": "日期",
+			"apply": "套用日期篩選",
+			"exactValue": "在 {{date}}",
+			"beforeValue": "早於 {{date}}",
+			"afterValue": "晚於 {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "任務",
 		"status": {
 			"label": "狀態",

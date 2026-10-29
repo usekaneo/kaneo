@@ -3236,6 +3236,23 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Ημερομηνία έναρξης",
+			"noDate": "Χωρίς ημερομηνία",
+			"condition": "Συνθήκη ημερομηνίας",
+			"exact": "Συγκεκριμένη ημερομηνία",
+			"range": "Εύρος ημερομηνιών",
+			"before": "Πριν από",
+			"after": "Μετά από",
+			"from": "Από (συμπεριλαμβάνεται)",
+			"to": "Έως (συμπεριλαμβάνεται)",
+			"date": "Ημερομηνία",
+			"apply": "Εφαρμογή φίλτρου ημερομηνίας",
+			"exactValue": "Στις {{date}}",
+			"beforeValue": "Πριν από τις {{date}}",
+			"afterValue": "Μετά τις {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Εργασίες",
 		"status": {
 			"label": "Κατάσταση",

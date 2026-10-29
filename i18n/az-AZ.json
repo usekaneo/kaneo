@@ -3236,6 +3236,23 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Başlama tarixi",
+			"noDate": "Tarix yoxdur",
+			"condition": "Tarix şərti",
+			"exact": "Dəqiq tarix",
+			"range": "Tarix aralığı",
+			"before": "Əvvəl",
+			"after": "Sonra",
+			"from": "Başlanğıc (daxil olmaqla)",
+			"to": "Son (daxil olmaqla)",
+			"date": "Tarix",
+			"apply": "Tarix filtrini tətbiq et",
+			"exactValue": "{{date}} tarixində",
+			"beforeValue": "{{date}} tarixindən əvvəl",
+			"afterValue": "{{date}} tarixindən sonra",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Tapşırıqlar",
 		"status": {
 			"label": "Vəziyyət",

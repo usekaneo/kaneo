@@ -1,3 +1,4 @@
+import { DateFilterEditor } from "./date-filter-editor";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { subjectFilterEntries } from "./filter-entries";
@@ -6,12 +7,14 @@ import type { FilterSubject } from "./filter-subject";
 
 type FilterSubjectPanelProps = {
   subject: FilterSubject;
+  onApplied?: () => void;
   onBack?: () => void;
 };
 
 export function FilterSubjectPanel({
   subject,
   onBack,
+  onApplied,
 }: FilterSubjectPanelProps) {
   const { t } = useTranslation();
   const [query, setQuery] = useState("");
@@ -44,6 +47,16 @@ export function FilterSubjectPanel({
           }
         }}
       />
+      {subject.onDateApply && (
+        <DateFilterEditor
+          key={subject.selected.join("|")}
+          selected={subject.selected}
+          onApply={(value) => {
+            subject.onDateApply?.(value);
+            onApplied?.();
+          }}
+        />
+      )}
     </div>
   );
 }

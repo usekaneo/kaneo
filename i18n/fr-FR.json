@@ -3290,6 +3290,23 @@
 		"movedFromOtherProject": "a déplacé la tâche depuis un autre projet vers « {{to}} »"
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Date de début",
+			"noDate": "Aucune date",
+			"condition": "Condition de date",
+			"exact": "Date exacte",
+			"range": "Plage de dates",
+			"before": "Avant",
+			"after": "Après",
+			"from": "Du (inclus)",
+			"to": "Au (inclus)",
+			"date": "Date",
+			"apply": "Appliquer le filtre de date",
+			"exactValue": "Le {{date}}",
+			"beforeValue": "Avant le {{date}}",
+			"afterValue": "Après le {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Tâches",
 		"status": {
 			"label": "Statut",

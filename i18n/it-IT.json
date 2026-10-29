@@ -3290,6 +3290,23 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Data di inizio",
+			"noDate": "Nessuna data",
+			"condition": "Condizione sulla data",
+			"exact": "Data esatta",
+			"range": "Intervallo di date",
+			"before": "Prima di",
+			"after": "Dopo",
+			"from": "Da (incluso)",
+			"to": "A (incluso)",
+			"date": "Data",
+			"apply": "Applica filtro per data",
+			"exactValue": "Il {{date}}",
+			"beforeValue": "Prima del {{date}}",
+			"afterValue": "Dopo il {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Attività",
 		"status": {
 			"label": "Stato",

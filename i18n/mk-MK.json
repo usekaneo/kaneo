@@ -3236,6 +3236,23 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Почетен датум",
+			"noDate": "Без датум",
+			"condition": "Услов за датум",
+			"exact": "Точен датум",
+			"range": "Опсег на датуми",
+			"before": "Пред",
+			"after": "По",
+			"from": "Од (вклучително)",
+			"to": "До (вклучително)",
+			"date": "Датум",
+			"apply": "Примени филтер за датум",
+			"exactValue": "На {{date}}",
+			"beforeValue": "Пред {{date}}",
+			"afterValue": "По {{date}}",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Задачи",
 		"status": {
 			"label": "Статус",

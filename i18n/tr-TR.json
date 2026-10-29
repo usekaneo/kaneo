@@ -3236,6 +3236,23 @@
 		"movedFromOtherProject": "moved task from another project to \"{{to}}\""
 	},
 	"tasks": {
+		"dateFilter": {
+			"startDate": "Başlangıç tarihi",
+			"noDate": "Tarih yok",
+			"condition": "Tarih koşulu",
+			"exact": "Belirli tarih",
+			"range": "Tarih aralığı",
+			"before": "Önce",
+			"after": "Sonra",
+			"from": "Başlangıç (dahil)",
+			"to": "Bitiş (dahil)",
+			"date": "Tarih",
+			"apply": "Tarih filtresini uygula",
+			"exactValue": "{{date}} tarihinde",
+			"beforeValue": "{{date}} tarihinden önce",
+			"afterValue": "{{date}} tarihinden sonra",
+			"rangeValue": "{{date}} – {{end}}"
+		},
 		"title": "Görevler",
 		"status": {
 			"label": "Durum",
