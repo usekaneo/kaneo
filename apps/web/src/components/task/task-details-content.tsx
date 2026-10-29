@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { ExternalLinksAccordion } from "@/components/external-links/external-links-accordion";
+import { PluginTaskPanels } from "@/components/plugins/plugin-task-panels";
 import useExternalLinks from "@/hooks/queries/external-link/use-external-links";
 import useGetProject from "@/hooks/queries/project/use-get-project";
 import useGetTask from "@/hooks/queries/task/use-get-task";
@@ -97,6 +98,12 @@ export default function TaskDetailsContent({
           taskId={taskId}
           externalLinks={externalLinks as ExternalLink[]}
           isLoading={isLoadingExternalLinks}
+        />
+        <PluginTaskPanels
+          taskId={taskId}
+          projectId={projectId}
+          workspaceId={workspaceId}
+          taskWorkspaceId={task?.workspaceId}
         />
       </div>
 

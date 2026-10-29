@@ -21,6 +21,10 @@ services:
       - "5173:5173"
     env_file:
       - .env
+    # Plugins: mount a project with kaneo.config.ts and its node_modules.
+    # See https://kaneo.app/docs/core/plugins
+    # volumes:
+    #   - ./my-kaneo:/kaneo:ro
     depends_on:
       postgres:
         condition: service_healthy

@@ -156,6 +156,13 @@
 				}
 			}
 		},
+		"plugins": {
+			"failedToLoad": "This plugin failed to load",
+			"unavailable": "This plugin view is not available",
+			"commandFailed": "The plugin command failed",
+			"openTaskFailed": "Could not open the task",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "Link URL",
@@ -978,6 +985,7 @@
 				"roleUpdated": "Role updated",
 				"roleDeleted": "Role deleted",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Purged plugin data",
 				"webhookCreated": "Created webhook",
 				"webhookUpdated": "Updated webhook",
 				"webhookDeleted": "Deleted webhook",
@@ -1183,7 +1191,6 @@
 			"selectViewMode": "Select a view mode",
 			"board": "Board",
 			"list": "List",
-			"gantt": "Gantt",
 			"priorityIcons": "Priority icons",
 			"priorityIconsDescription": "How task priority looks on cards, rows, and menus.",
 			"priorityIconsMarks": "Marks",
@@ -1546,6 +1553,43 @@
 			"emptyTitle": "No labels yet",
 			"emptyDescription": "Add labels to sort and filter tasks across projects.",
 			"loadError": "Could not load labels. Please try again."
+		},
+		"workspacePlugins": {
+			"pageTitle": "Plugin Settings",
+			"title": "Plugins",
+			"subtitle": "Choose which installed plugins this workspace uses and configure them.",
+			"loadError": "Could not load plugins. Refresh the page to try again.",
+			"enable": "Enable {{name}}",
+			"builtIn": "Built in",
+			"empty": {
+				"title": "No plugins installed",
+				"description": "Plugins are added by the instance operator in kaneo.config.ts. Once a plugin is installed, it appears here for workspace admins to turn on.",
+				"link": "Learn about plugins"
+			},
+			"status": {
+				"loading": "Loading",
+				"loaded": "Active",
+				"failed": "Failed to load"
+			},
+			"form": {
+				"save": "Save settings",
+				"none": "None",
+				"selectPlaceholder": "Select an option",
+				"secretPlaceholder": "Enter a new value",
+				"secretConfigured": "Configured",
+				"secretReplace": "Replace",
+				"secretClear": "Clear",
+				"secretCancel": "Cancel",
+				"secretUndo": "Undo",
+				"secretWillClear": "Will be cleared when you save"
+			},
+			"toast": {
+				"enabled": "{{name}} turned on",
+				"disabled": "{{name}} turned off",
+				"saved": "Plugin settings saved",
+				"invalid": "Some settings need attention",
+				"updateError": "Could not update the plugin"
+			}
 		},
 		"workspaceImport": {
 			"pageTitle": "Import",
@@ -2862,7 +2906,8 @@
 				"navigate": "Navigate",
 				"open": "Open",
 				"close": "Close"
-			}
+			},
+			"plugins": "Plugins"
 		},
 		"sidebar": {
 			"projects": "Projects",

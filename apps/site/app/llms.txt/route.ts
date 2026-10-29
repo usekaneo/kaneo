@@ -46,6 +46,7 @@ Key facts:
 
 - [Kaneo](${SITE}): product overview.
 - [Pricing](${SITE}/pricing): Kaneo Cloud plans and self-hosting.
+- [Plugins](${SITE}/plugins): community plugins for self-hosted Kaneo, and how to build and list one.
 - [Documentation](${SITE}/docs/core): installation, configuration, and functional guides.
 - [Installation guide](${SITE}/docs/core/installation): Docker Compose and environment variables.
 - [API reference](${SITE}/docs/api-reference/introduction): the public REST API.

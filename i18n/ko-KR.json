@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "플러그인 명령이 실패했습니다",
+			"failedToLoad": "이 플러그인을 불러오지 못했습니다",
+			"openTaskFailed": "작업을 열 수 없습니다",
+			"unavailable": "이 플러그인 보기를 사용할 수 없습니다",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "링크 URL",
@@ -746,7 +753,6 @@
 			"selectViewMode": "보기 모드 선택",
 			"board": "보드",
 			"list": "목록",
-			"gantt": "간트",
 			"priorityIcons": "우선순위 아이콘",
 			"priorityIconsDescription": "카드, 행, 메뉴에서 작업 우선순위가 표시되는 방식입니다.",
 			"priorityIconsMarks": "마크",
@@ -1966,6 +1972,43 @@
 				"description": "결제가 접수되었습니다. 확인되는 대로 아래 플랜이 업데이트됩니다."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "플러그인은 인스턴스 관리자가 kaneo.config.ts에서 추가합니다. 플러그인이 설치되면 여기에 표시되며 워크스페이스 관리자가 활성화할 수 있습니다.",
+				"link": "플러그인 자세히 알아보기",
+				"title": "설치된 플러그인이 없습니다"
+			},
+			"enable": "{{name}} 활성화",
+			"form": {
+				"none": "없음",
+				"save": "설정 저장",
+				"secretCancel": "취소",
+				"secretClear": "지우기",
+				"secretConfigured": "구성됨",
+				"secretPlaceholder": "새 값 입력",
+				"secretReplace": "교체",
+				"secretUndo": "실행 취소",
+				"secretWillClear": "저장하면 지워집니다",
+				"selectPlaceholder": "옵션 선택"
+			},
+			"loadError": "플러그인을 불러올 수 없습니다. 페이지를 새로고침한 후 다시 시도하세요.",
+			"pageTitle": "플러그인 설정",
+			"status": {
+				"failed": "불러오기 실패",
+				"loaded": "활성",
+				"loading": "로딩 중"
+			},
+			"subtitle": "이 워크스페이스에서 사용할 설치된 플러그인을 선택하고 구성합니다.",
+			"title": "플러그인",
+			"toast": {
+				"disabled": "{{name}} 비활성화됨",
+				"enabled": "{{name}} 활성화됨",
+				"invalid": "확인이 필요한 설정이 있습니다",
+				"saved": "플러그인 설정이 저장되었습니다",
+				"updateError": "플러그인을 업데이트하지 못했습니다"
+			},
+			"builtIn": "기본 제공"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2482,6 +2525,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "플러그인 데이터 삭제됨",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2813,7 +2857,8 @@
 				"navigate": "이동",
 				"open": "열기",
 				"close": "닫기"
-			}
+			},
+			"plugins": "플러그인"
 		},
 		"sidebar": {
 			"projects": "프로젝트",

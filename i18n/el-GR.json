@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Η εντολή του πρόσθετου απέτυχε",
+			"failedToLoad": "Δεν ήταν δυνατή η φόρτωση αυτού του πρόσθετου",
+			"openTaskFailed": "Δεν ήταν δυνατό το άνοιγμα της εργασίας",
+			"unavailable": "Αυτή η προβολή του πρόσθετου δεν είναι διαθέσιμη",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "URL συνδέσμου",
@@ -754,7 +761,6 @@
 			"selectViewMode": "Επιλέξτε τρόπο προβολής",
 			"board": "Πίνακας",
 			"list": "Λίστα",
-			"gantt": "Gantt",
 			"priorityIcons": "Εικονίδια προτεραιότητας",
 			"priorityIconsDescription": "Πώς εμφανίζεται η προτεραιότητα εργασιών σε κάρτες, γραμμές και μενού.",
 			"priorityIconsMarks": "Σήματα",
@@ -1979,6 +1985,43 @@
 				"description": "Η πληρωμή ελήφθη. Το πρόγραμμα παρακάτω θα ενημερωθεί μόλις επιβεβαιωθεί."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Τα πρόσθετα προστίθενται από τον διαχειριστή της εγκατάστασης στο kaneo.config.ts. Μόλις εγκατασταθεί ένα πρόσθετο, εμφανίζεται εδώ για να το ενεργοποιήσουν οι διαχειριστές του χώρου εργασίας.",
+				"link": "Μάθετε για τα πρόσθετα",
+				"title": "Δεν υπάρχουν εγκατεστημένα πρόσθετα"
+			},
+			"enable": "Ενεργοποίηση {{name}}",
+			"form": {
+				"none": "Κανένα",
+				"save": "Αποθήκευση ρυθμίσεων",
+				"secretCancel": "Ακύρωση",
+				"secretClear": "Εκκαθάριση",
+				"secretConfigured": "Ρυθμισμένο",
+				"secretPlaceholder": "Εισαγάγετε νέα τιμή",
+				"secretReplace": "Αντικατάσταση",
+				"secretUndo": "Αναίρεση",
+				"secretWillClear": "Θα διαγραφεί κατά την αποθήκευση",
+				"selectPlaceholder": "Επιλέξτε τιμή"
+			},
+			"loadError": "Δεν ήταν δυνατή η φόρτωση των πρόσθετων. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά.",
+			"pageTitle": "Ρυθμίσεις πρόσθετων",
+			"status": {
+				"failed": "Αποτυχία φόρτωσης",
+				"loaded": "Ενεργό",
+				"loading": "Φόρτωση"
+			},
+			"subtitle": "Επιλέξτε ποια εγκατεστημένα πρόσθετα χρησιμοποιεί αυτός ο χώρος εργασίας και ρυθμίστε τα.",
+			"title": "Πρόσθετα",
+			"toast": {
+				"disabled": "Το {{name}} απενεργοποιήθηκε",
+				"enabled": "Το {{name}} ενεργοποιήθηκε",
+				"invalid": "Ορισμένες ρυθμίσεις χρειάζονται προσοχή",
+				"saved": "Οι ρυθμίσεις του πρόσθετου αποθηκεύτηκαν",
+				"updateError": "Δεν ήταν δυνατή η ενημέρωση του πρόσθετου"
+			},
+			"builtIn": "Ενσωματωμένο"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2524,6 +2567,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Διαγράφηκαν τα δεδομένα πρόσθετου",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2862,7 +2906,8 @@
 				"navigate": "Πλοήγηση",
 				"open": "Άνοιγμα",
 				"close": "Κλείσιμο"
-			}
+			},
+			"plugins": "Πρόσθετα"
 		},
 		"sidebar": {
 			"projects": "Έργα",

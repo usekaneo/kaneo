@@ -854,6 +854,38 @@ kaneo notification read [<id...>] [--all]
 
 Marks notifications as read. Pass notification IDs or the short IDs from `kaneo notification list`, or `-a`, `--all` for every notification.
 
+## Plugins
+
+These commands manage [plugins](/core/plugins) on a self-hosted instance. `add` and `check` work on the project folder with `kaneo.config.ts` and need no login. They use `--project <dir>`, else `KANEO_PROJECT_DIR`, else `/kaneo` if it exists, else the current folder. They need the Kaneo version the plugins are for: `--kaneo-version`, else the Kaneo installation the CLI runs in, such as Kaneo's Docker image, else the version of `@kaneo/config` installed in the project.
+
+### `kaneo plugin list`
+
+Lists the plugins installed on the server with their ID and version, whether they are built in, and whether they are on in your workspace.
+
+### `kaneo plugin add`
+
+```bash
+kaneo plugin add <package> [--yes] [--project <dir>] [--kaneo-version <version>]
+```
+
+Installs the newest stable release of an npm package whose `engines.kaneo` range includes your Kaneo version, pins it with `npm install --save-exact --ignore-scripts`, and adds it to `kaneo.config.ts`. It also installs `@kaneo/config` the first time. npm does the lookup and the install, so it must be installed, and `.npmrc` and private registries work. A package that is not in the [plugin catalog](https://kaneo.app/plugins) needs confirmation, or `-y`, `--yes` in scripts. `KANEO_PLUGIN_CATALOG_URL` points the check at another catalog index.
+
+### `kaneo plugin check`
+
+```bash
+kaneo plugin check [--project <dir>] [--config <path>] [--kaneo-version <version>]
+```
+
+Runs the startup checks for the plugins in the config, without starting Kaneo or connecting to the database. Built-in plugins are only checked inside a Kaneo installation. `--config` checks another config file. Exits with code 1 when a plugin would stop Kaneo from starting. The JSON output lists each plugin with its `status`, and the `stage` and `message` of each failure.
+
+### `kaneo plugin purge`
+
+```bash
+kaneo plugin purge <id> [--yes]
+```
+
+Deletes the data and settings a removed plugin stored, in every workspace, and prints how many rows it deleted. The server refuses while the plugin is installed. Needs a login, not an API key, with the `instance:settings` permission.
+
 ## Search and API
 
 ### `kaneo search`

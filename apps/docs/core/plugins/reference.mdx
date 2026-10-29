@@ -1,0 +1,435 @@
+---
+title: "Plugin reference"
+description: "Events, server context, settings fields, web extension points, hooks, components, and the REST endpoints for plugins."
+---
+
+This page lists the contract between Kaneo and a plugin, as provided by `@kaneo/plugin-sdk`. For a walkthrough, see [Writing plugins](/core/plugins/writing-plugins).
+
+| Import | Provides |
+| --- | --- |
+| `@kaneo/plugin-sdk` | `definePlugin`, `PLUGIN_EVENT_NAMES`, and shared types |
+| `@kaneo/plugin-sdk/server` | `defineServer` and server types |
+| `@kaneo/plugin-sdk/web` | `defineWeb`, hooks, and web types |
+| `@kaneo/plugin-sdk/ui` | Kaneo's UI components |
+| `@kaneo/plugin-sdk/theme.css` | Tailwind tokens mapped to Kaneo's CSS variables |
+| `@kaneo/config` | `defineConfig` for `kaneo.config.ts` |
+
+## Package fields
+
+| Field | Required | Meaning |
+| --- | --- | --- |
+| `exports["."]` | Yes | The factory operators import in `kaneo.config.ts` |
+| `exports["./server"]` | One of the two entries | Server entry, loaded by the API at startup |
+| `exports["./web"]` | One of the two entries | Web entry, loaded by the browser |
+| `engines.kaneo` | Recommended | Semver range of supported Kaneo versions, checked at startup |
+| `keywords` | Recommended | Include `kaneo-plugin` |
+| `kaneo.name` | No | Display name. Defaults to the package name. |
+| `kaneo.id` | No | Plugin ID override. Must match `^[a-z0-9][a-z0-9-]{0,63}$`. |
+
+Entries must point to files inside the package, starting with `./`. Without `kaneo.id`, the ID is the package name in lowercase, without the leading `@`, with each run of characters other than `a-z` and `0-9` replaced by `-`, trimmed of leading and trailing `-`, and cut to 64 characters. For example, `@acme/kaneo-reports` becomes `acme-kaneo-reports`.
+
+Kaneo serves the folder that holds the `./web` entry, including its subfolders, at `/api/plugins/<id>/assets/` without authentication. That folder must not contain the `./server` or `.` entry, so keep the web entry in a folder of its own, such as `dist/web/`. Kaneo refuses to load a plugin whose web folder contains server code.
+
+## definePlugin
+
+```ts
+definePlugin(url: string): PluginFactory
+definePlugin(url: string, config: { options: StandardSchemaV1 }): PluginFactory
+```
+
+Pass `import.meta.url` as `url`. The schema's input type types the factory argument, and its output type types `kaneo.options`. The factory argument is optional when the schema accepts `undefined` or an empty object.
+
+`PluginOptions<typeof factory>` gives the validated options type.
+
+## Server
+
+### defineServer
+
+```ts
+defineServer(config: { settings?: SettingsSchema; setup(kaneo: ServerContext): void | Promise<void> })
+defineServer(factory, config: { settings?: SettingsSchema; setup(kaneo: ServerContext): void | Promise<void> })
+```
+
+Pass the factory from your `src/index.ts` to type `kaneo.options`. `setup` runs once at startup. If it throws or rejects, the plugin fails at the start stage and Kaneo does not start.
+
+### Server context
+
+```ts
+type ServerContext<Options, Settings> = {
+  plugin: { id: string; version: string };
+  options: Options;
+  log: PluginLogger;
+  routes: Hono<PluginEnv>;
+  webhooks: Hono;
+  guard: PluginGuards;
+  on<E extends PluginEventName>(event: E, handler: (event: PluginEvent<E>) => void | Promise<void>): void;
+  storage(workspaceId: string): PluginStorage;
+  settings(workspaceId: string): Promise<SettingsValues<Settings>>;
+  enabledWorkspaces(): Promise<string[]>;
+  schedule(name: string, cron: string, run: () => void | Promise<void>): void;
+};
+```
+
+#### plugin
+
+`{ id, version }`: the plugin ID and the installed package version.
+
+#### options
+
+The operator's options from `kaneo.config.ts`, after validation by your schema. Typed by the schema's output, so defaults are applied.
+
+#### log
+
+`log.info(...args)`, `log.warn(...args)`, `log.error(...args)`. Writes to Kaneo's log with the plugin ID as a prefix. Do not log secrets or private workspace content.
+
+#### routes
+
+A [Hono](https://hono.dev) app mounted at `/api/plugins/<id>`. A route registered as `/tasks/:taskId/progress` answers at `/api/plugins/<id>/tasks/:taskId/progress`.
+
+Every request goes through Kaneo's session or API key authentication first. In a handler:
+
+- `c.get("userId")` is the signed-in user.
+- `c.get("workspaceId")` is set by a guard to the workspace that owns the checked resource.
+
+The first path segments `assets`, `data`, `workspace`, and `webhooks` are reserved for Kaneo.
+
+#### webhooks
+
+A Hono app mounted at `/api/plugins/<id>/webhooks`. Requests are not authenticated and carry no user or workspace. Verify the sender yourself, and check `enabledWorkspaces()` before acting on a workspace.
+
+#### guard
+
+```ts
+guard.workspace(param?: string, permissions?: PermissionRequirement)
+guard.project(param?: string, permissions?: PermissionRequirement)
+guard.task(param?: string, permissions?: PermissionRequirement)
+```
+
+Hono middleware for `routes`. Each guard reads an ID from a route parameter, resolves the workspace that owns it, and checks that:
+
+1. The signed-in user can access that workspace.
+2. The user has every permission in `permissions`, if given.
+3. The plugin is on in that workspace. If not, the guard responds with `404`.
+
+Then it sets `c.get("workspaceId")`.
+
+| Guard | Default parameter | Resolves |
+| --- | --- | --- |
+| `guard.workspace()` | `workspaceId` | The workspace itself |
+| `guard.project()` | `projectId` | The project's workspace |
+| `guard.task()` | `taskId` | The task's workspace |
+
+`permissions` maps a resource to the actions the user needs, for example `{ task: ["update"] }` or `{ project: ["read"], label: ["create"] }`:
+
+| Resource | Actions |
+| --- | --- |
+| `workspace` | `read`, `update`, `delete`, `manage_settings` |
+| `project` | `create`, `read`, `update`, `delete`, `share` |
+| `task` | `create`, `read`, `update`, `delete`, `assign` |
+| `label` | `create`, `read`, `update`, `delete` |
+
+These are the same permissions that workspace [roles](/core/functional/collaborate-with-team) grant.
+
+#### on
+
+`on(event, handler)` registers a handler for one of the [events](#events). Handlers only receive events from workspaces where the plugin is on; `project.moved` arrives when the plugin is on in either workspace. An error in a handler is logged against the plugin and does not affect Kaneo or other plugins.
+
+#### storage
+
+`storage(workspaceId)` returns a JSON key/value store for this plugin in one workspace. Other workspaces and other plugins cannot see its keys.
+
+| Method | Behavior |
+| --- | --- |
+| `get<T>(key)` | Resolves to the stored value, or `undefined` when the key is not set |
+| `set(key, value)` | Stores a JSON-serializable value, replacing any previous value |
+| `delete(key)` | Removes the key |
+| `list<T>({ prefix?, limit? })` | Resolves to entries `{ key, value, updatedAt }`, optionally filtered by key prefix and limited in number |
+
+Storage is kept when the plugin is turned off or removed from the config, and deleted with the workspace.
+
+Storage stays with the workspace when a project moves, so plugins that store project data should handle [`project.moved`](#events) and move it to the new workspace.
+
+#### settings
+
+`settings(workspaceId)` resolves to that workspace's settings, typed from your [settings fields](#settings-fields). Defaults are applied, secret values are included, and stored values that no longer pass validation fall back to the default.
+
+#### enabledWorkspaces
+
+`enabledWorkspaces()` resolves to the IDs of the workspaces where the plugin is on. Use it in scheduled jobs and webhooks.
+
+#### schedule
+
+`schedule(name, cron, run)` runs `run` on a cron schedule, such as `"0 * * * *"` for the start of every hour. `name` identifies the job within your plugin. When several API instances run, each scheduled run happens on only one of them. Jobs are not tied to a workspace.
+
+## Events
+
+`PLUGIN_EVENT_NAMES` lists every event. Each event has a `type` field with its name, plus these fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `workspaceId` | `string` | Workspace of the task or project |
+| `projectId` | `string` | Project of the task, or the project itself |
+| `taskId` | `string` | The task. Task and comment events only. |
+| `actorId` | `string` or `null` | The user who made the change, or `null` when no user did |
+
+| Event | When | Additional fields |
+| --- | --- | --- |
+| `task.created` | A task is created | `title` and `status` (`string`), `priority` (`string` or `null`), `number` (`number` or `null`) |
+| `task.status_changed` | A task's status changes | `from`, `to` (`string`) |
+| `task.priority_changed` | A task's priority changes | `from`, `to` (`string` or `null`) |
+| `task.title_changed` | A task's title changes | `from`, `to` (`string`) |
+| `task.description_changed` | A task's description changes | None |
+| `task.due_date_changed` | A task's due date changes | `from`, `to` (`string` or `null`) |
+| `task.assignee_changed` | A task's assignee changes | `from`, `to` (user ID or `null`) |
+| `task.moved` | A task moves to another project | `fromProjectId`, `toProjectId` (`string`) |
+| `task.deleted` | A task is deleted | `title` (`string`) |
+| `comment.created` | A comment is added to a task | `commentId`, `content` (`string`) |
+| `project.moved` | A project moves to another workspace | `fromWorkspaceId`, `toWorkspaceId` (`string`). `workspaceId` is the new workspace. |
+
+Events are delivered only to workspaces that turned the plugin on. `project.moved` is delivered once to a plugin that is on in the old workspace, the new one, or both, because its data for the project may be in either. Events report changes that already happened and cannot change or block them. The catalog is mapped from Kaneo's internal events, so it stays stable when Kaneo's internals change.
+
+## Settings fields
+
+Every field has a `type`, a `label`, and an optional `description`.
+
+| Type | Other properties | Value type |
+| --- | --- | --- |
+| `text` | `placeholder`, `multiline`, `required`, `default` | `string` |
+| `secret` | `placeholder`, `required` | `string` |
+| `number` | `min`, `max`, `step`, `required`, `default` | `number` |
+| `boolean` | `default` | `boolean` |
+| `select` | `options`, `required`, `default` | One of the option values |
+| `multiselect` | `options`, `default` | Array of option values |
+
+`options` is an array of `{ value, label }`. `multiline` renders a text area. `step` only sets the input's increment.
+
+### How values are typed
+
+- `boolean` is always present. It defaults to `false`.
+- `multiselect` is always present. It defaults to `[]`.
+- Other fields are always present when they have a `default` or `required: true`. Otherwise their type includes `undefined`.
+- `select` and `multiselect` values are typed as the literal option values when settings are declared inline in `defineServer`.
+
+### How values are validated
+
+When a workspace admin saves the form, or a client calls the [update endpoint](#update-a-plugin-in-a-workspace):
+
+| Type | Accepts |
+| --- | --- |
+| `text`, `secret` | Text. Blank text counts as not set. |
+| `number` | A finite number between `min` and `max`, when set |
+| `boolean` | `true` or `false` |
+| `select` | One of the option values |
+| `multiselect` | A list of option values. Duplicates are removed. |
+
+A `required` field without a `default` must have a value. Keys that are not declared fields are dropped.
+
+### Secrets
+
+- Secret values are never sent to the browser. `usePlugin().settings` omits secret fields, and the settings form only shows whether a secret is set.
+- When saving, omit a secret to keep the stored value, or send `null` to clear it.
+- Secret fields have no default.
+
+## Web
+
+### defineWeb
+
+```ts
+defineWeb({
+  projectViews?: ProjectView[];
+  taskPanels?: TaskPanel[];
+  pages?: WorkspacePage[];
+  commands?: PluginCommand[];
+  settingsPanel?: ComponentType<SettingsPanelProps>;
+  translations?: Translations;
+})
+```
+
+Contributions only appear in workspaces where the plugin is on. Each one renders inside its own error boundary and suspense boundary, so a failing plugin only breaks its own slot.
+
+### Extension points
+
+| Key | Item fields | Appears as |
+| --- | --- | --- |
+| `projectViews` | `id`, `title`, `icon?`, `shortcut?`, `scope?`, `display?`, `countsTask?`, `component` | A layout in the project's **Display** menu, next to Board, List, and Calendar. See [Project views](#project-views). |
+| `taskPanels` | `id`, `title`, `component` | A section in the task detail sheet and on the full task page |
+| `pages` | `id`, `title`, `icon?`, `component` | A sidebar entry and its page |
+| `commands` | `id`, `title`, `run` | An item in the command palette |
+| `settingsPanel` | A component | Custom UI below the generated form in **Settings → Workspace → Plugins** |
+| `translations` | `{ [locale]: { [key]: string } }` | Strings for `useT`, for example under `en-US` and `de-DE` |
+
+`id` must be unique within its list. `icon` is any React component that accepts `className`.
+
+### Project views
+
+A project view is a layout like Board, List, and Calendar. It appears in the layout switch of the project's **Display** menu, and Kaneo renders its search, filters, task count, and active filters above it, as it does for its own layouts. Kaneo remembers the layout each person picked last, so **Tasks** returns to it while the plugin is on in the workspace and falls back to Board otherwise.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `scope` | `"board"` or `"schedule"` | Which tasks the layout shows. `board`, the default, holds the tasks on the board. `schedule` adds the backlog's planned tasks, like Calendar. |
+| `display` | A component | Controls rendered in the **Display** menu below the layout switch. It receives the same props as the view and can use the UI components and `useProjectView()`. |
+| `countsTask` | `(task) => boolean` | Which tasks the toolbar's task count includes, for layouts that cannot show every task, such as a timeline that skips tasks without dates. Kaneo counts every task in scope when it is missing. |
+| `shortcut` | A single letter or digit | Opens the layout when pressed after `v`. Kaneo lists it in the shortcuts panel. A key Kaneo already uses after `v` is ignored, and the first plugin to claim a key keeps it. |
+
+Inside the view and its `display` component, `useProjectView()` returns:
+
+| Field | Type |
+| --- | --- |
+| `tasks` | The tasks in scope after the person's search and filters |
+| `allTasks` | Every task in scope, before search and filters. `allTasks.length` is the unfiltered count. |
+| `isLoading` | `boolean` |
+| `error` | `Error` or `null` |
+
+Both lists use the task fields below and keep the board's order, with planned tasks last.
+
+### Component props
+
+| Component | Props |
+| --- | --- |
+| Project view | `workspaceId: string`, `projectId: string` |
+| Task panel | `workspaceId: string`, `projectId: string`, `taskId: string` |
+| Workspace page | `workspaceId: string` |
+| Settings panel | `workspaceId: string` |
+
+The prop types are exported as `ProjectViewProps`, `TaskPanelProps`, `WorkspacePageProps`, and `SettingsPanelProps`.
+
+A command's `run(context)` may be `async` and receives:
+
+| Field | Type |
+| --- | --- |
+| `workspaceId` | `string` |
+| `projectId` | `string` or `null` outside a project |
+| `navigate` | `(to: string) => void` |
+
+### Hooks
+
+All hooks come from `@kaneo/plugin-sdk/web` and only work inside Kaneo's web app.
+
+| Hook | Returns |
+| --- | --- |
+| `usePlugin<Settings>()` | `{ id, version, workspaceId, settings }`. `settings` holds the current workspace's values, without secret fields. |
+| `usePluginApi()` | An API client for your routes. Paths are relative to `/api/plugins/<id>`. |
+| `useKaneoApi()` | An API client for Kaneo's own API, acting as the signed-in user. Paths are relative to `/api`, as in the endpoint reference. |
+| `useTask(taskId)` | `{ data, isLoading, error }` with one task |
+| `useTasks(projectId)` | `{ data, isLoading, error }` with the project's tasks |
+| `useProject(projectId)` | `{ data, isLoading, error }` with `{ id, workspaceId, name, slug, columns }`. `columns` lists `{ id, name, slug, isFinal }` in board order. |
+| `useProjectView()` | `{ tasks, allTasks, isLoading, error }` for the open project view, with Kaneo's search and filters applied to `tasks`. Only works inside a project view and its `display` component. |
+| `useUpdateTask()` | `updateTask(taskId, changes)`, which updates a task and keeps Kaneo's views in sync. `changes` can hold `title`, `description`, `status`, `priority`, `assigneeId`, `startDate`, and `dueDate` (ISO strings or `null` for dates). |
+| `useToast()` | `{ success, error, info }`, each taking a message |
+| `usePreferences()` | `{ weekStartsOn }`, the user's first day of the week (`0` is Sunday) |
+| `useCurrentUser()` | `{ id, name, email, image }`, or `null` |
+| `useT()` | `t(key, values?)`, which looks up `key` in your `translations` for the user's language |
+| `useNavigate()` | `navigate(to)`, which moves to a path inside Kaneo |
+| `useOpenTask()` | `openTask(taskId)`, which opens a task |
+
+The API clients have `get<T>(path)`, `delete<T>(path)`, `post<T>(path, body?)`, `put<T>(path, body?)`, and `patch<T>(path, body?)`. Each returns a promise for the response body. Bodies are sent as JSON.
+
+`useTask`, `useTasks`, and `useProjectView` return tasks with these fields:
+
+| Field | Type |
+| --- | --- |
+| `id`, `projectId`, `title`, `status` | `string` |
+| `number` | `number` or `null` |
+| `description`, `priority`, `assigneeId`, `assigneeName`, `startDate`, `dueDate` | `string` or `null` |
+
+### Shared modules
+
+Kaneo provides these modules to every web entry. The build does not bundle them, so plugins use Kaneo's instances:
+
+- `react`, `react/jsx-runtime`, and `react/jsx-dev-runtime`
+- `react-dom`
+- `@tanstack/react-query`
+
+Plugins share Kaneo's React tree and query cache. Prefix query keys with your plugin ID.
+
+### UI components
+
+All components come from `@kaneo/plugin-sdk/ui` and render Kaneo's own implementation.
+
+| Component | Props |
+| --- | --- |
+| `Button` | Native `button` props, plus `variant` (`default`, `secondary`, `outline`, `ghost`, `destructive`, `destructive-outline`, `link`) and `size` (`xs`, `sm`, `default`, `lg`, `xl`, `icon`, `icon-xs`, `icon-sm`, `icon-lg`, `icon-xl`) |
+| `Badge` | Native `span` props, plus `variant` (`default`, `secondary`, `outline`, `destructive`, `info`, `success`, `warning`) and `size` (`sm`, `default`, `lg`) |
+| `Input` | Native `input` props |
+| `Textarea` | Native `textarea` props |
+| `Label` | Native `label` props |
+| `Switch` | `checked`, `defaultChecked`, `onCheckedChange(checked)`, `disabled`, `id`, `className`, `aria-label` |
+| `Spinner` | `className` |
+| `Skeleton` | Native `div` props |
+| `Separator` | `orientation` (`horizontal` or `vertical`), `className` |
+| `WeekStartControl` | None. Kaneo's first day of the week picker, which changes the person's preference. Place it in a project view's `display` controls. |
+
+### Theme tokens
+
+`@kaneo/plugin-sdk/theme.css` maps Tailwind's theme to Kaneo's CSS variables. In plain CSS, use the variables directly, for example `var(--muted-foreground)`.
+
+| Group | Variables | Tailwind example |
+| --- | --- | --- |
+| Surfaces | `--background`, `--foreground`, `--card`, `--card-foreground`, `--popover`, `--popover-foreground` | `bg-card` |
+| Actions | `--primary`, `--primary-foreground`, `--secondary`, `--secondary-foreground`, `--accent`, `--accent-foreground` | `bg-primary` |
+| Muted text and fills | `--muted`, `--muted-foreground` | `text-muted-foreground` |
+| Status | `--destructive`, `--info`, `--success`, `--warning`, each with `-foreground` | `text-destructive` |
+| Lines and focus | `--border`, `--input`, `--ring` | `border-border` |
+| Charts | `--chart-1` to `--chart-5` | `fill-chart-1` |
+| Sidebar | `--sidebar`, `--sidebar-foreground`, `--sidebar-primary`, `--sidebar-primary-foreground`, `--sidebar-accent`, `--sidebar-accent-foreground`, `--sidebar-border`, `--sidebar-ring` | `bg-sidebar` |
+| Code | `--code`, `--code-foreground`, `--code-highlight` | `bg-code` |
+| Radius | `--radius` | `rounded-sm`, `rounded-md`, `rounded-lg`, `rounded-xl` |
+| Fonts | `--font-sans`, `--font-heading`, `--font-mono` | `font-mono` |
+
+The variables change with Kaneo's light and dark theme. Tailwind's `dark:` variant applies inside Kaneo's `.dark` theme.
+
+## Build output
+
+`kaneo-plugin build` writes:
+
+| File | From |
+| --- | --- |
+| `dist/index.js` and `dist/index.d.ts` | `src/index.ts` |
+| `dist/server.js` | `src/server.ts` |
+| `dist/web/index.js` | `src/web.tsx` |
+| `dist/web/index.css` | Styles imported by the web entry |
+
+All dependencies are bundled except the [shared modules](#shared-modules). Install scripts and native modules are not supported.
+
+`dist/web/` holds only web code, because Kaneo serves it publicly. If you use your own build, keep web code in a folder of its own, as described in [Package fields](#package-fields).
+
+The build fails when your CSS defines class names that Kaneo's own Tailwind classes also use, such as `.hidden` or `.md\:flex`. Give Tailwind a prefix, for example `@import "tailwindcss/theme.css" layer(theme) prefix(taskprogress);`, or use namespaced class names.
+
+## REST endpoints
+
+Kaneo's API exposes two endpoints for managing plugins in a workspace. They accept a session or an [API key](/api-reference/authentication). The endpoint reference in the Developers tab lists their exact request and response fields.
+
+### List plugins for a workspace
+
+`GET /api/plugins?workspaceId={workspaceId}`
+
+Returns the plugins installed on the instance, with each one's enabled state, settings fields, and current settings in that workspace. Secret values are never returned; the response only says which secret fields are set.
+
+```bash
+curl --fail-with-body 'https://kaneo.example.com/api/plugins?workspaceId=WORKSPACE_ID' \
+  -H "Authorization: Bearer $KANEO_API_KEY"
+```
+
+### Update a plugin in a workspace
+
+`PUT /api/plugins/{pluginId}/workspace/{workspaceId}`
+
+Turns the plugin on or off in the workspace and saves its settings. Requires the `workspace` `manage_settings` permission. Both body fields are optional. Settings are validated as described in [How values are validated](#how-values-are-validated). Omit a secret to keep it, or send `null` to clear it. A plugin with required settings can only be turned on once they are filled in.
+
+```bash
+curl --fail-with-body -X PUT 'https://kaneo.example.com/api/plugins/kaneo-plugin-task-progress/workspace/WORKSPACE_ID' \
+  -H "Authorization: Bearer $KANEO_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"enabled": true, "settings": {"doneStatus": "done"}}'
+```
+
+The response is the workspace state: `{ "enabled": true, "settings": { ... }, "configuredSecrets": [] }`. Invalid settings return `400` with `{ "message": "...", "errors": { "<field>": "<reason>" } }`.
+
+## Paths under a plugin
+
+| Path | Handled by |
+| --- | --- |
+| `/api/plugins/<id>/...` | Your `routes`, behind session or API key authentication |
+| `/api/plugins/<id>/webhooks/...` | Your `webhooks`, without authentication |
+| `/api/plugins/<id>/assets/...` | Kaneo, serving your web entry |
+| `/api/plugins/<id>/workspace/...` | Kaneo, for the [update endpoint](#update-a-plugin-in-a-workspace) |

@@ -56,6 +56,10 @@ const ACTION_LABEL_KEYS = new Map([
     "instance.settings_updated",
     "settings:adminAuditLog.actions.instanceSettingsUpdated",
   ],
+  [
+    "instance.plugin_data_purged",
+    "settings:adminAuditLog.actions.pluginDataPurged",
+  ],
 ]);
 
 /** Human wording for an action; actions this client doesn't know show as-is. */

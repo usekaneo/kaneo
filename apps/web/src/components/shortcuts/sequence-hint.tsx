@@ -10,6 +10,11 @@ const SHOW_AFTER_MS = 400;
 const CATALOG_ORDER = Object.keys(SHORTCUTS);
 const DRAIN_MS = 1600;
 
+const catalogRank = (id: string) => {
+  const index = CATALOG_ORDER.indexOf(id);
+  return index < 0 ? CATALOG_ORDER.length : index;
+};
+
 export function SequenceHint() {
   const { t } = useTranslation();
   const pendingKey = useSyncExternalStore(
@@ -43,7 +48,7 @@ export function SequenceHint() {
   if (!visible || !pendingKey) return null;
   const continuations = shortcutRegistry
     .getContinuations()
-    .sort((a, b) => CATALOG_ORDER.indexOf(a.id) - CATALOG_ORDER.indexOf(b.id));
+    .sort((a, b) => catalogRank(a.id) - catalogRank(b.id));
   if (continuations.length === 0) return null;
   const isMac = isMacPlatform();
 
@@ -58,7 +63,7 @@ export function SequenceHint() {
         {t("navigation:shortcuts.thenEllipsis")}
       </div>
       <ul>
-        {continuations.map(({ id, next }) => (
+        {continuations.map(({ id, next, label }) => (
           <li
             key={id}
             className="flex h-7 items-center gap-2 px-1.5 text-[13px] text-foreground/85"
@@ -70,7 +75,7 @@ export function SequenceHint() {
                 </Kbd>
               ))}
             </span>
-            {t(`navigation:shortcuts.items.${id}`)}
+            {label ?? t(`navigation:shortcuts.items.${id}`)}
           </li>
         ))}
       </ul>

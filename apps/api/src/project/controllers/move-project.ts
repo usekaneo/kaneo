@@ -264,6 +264,12 @@ async function moveProject(
 
   await publishEvent("integration.sync_labels_changed", { projectId: id });
   await publishEvent("project.updated", { projectId: id });
+  await publishEvent("project.moved", {
+    projectId: id,
+    fromWorkspaceId: sourceWorkspaceId,
+    toWorkspaceId: targetWorkspaceId,
+    userId: currentUserId,
+  });
 
   if (unassignedTasks.length > 0) {
     await publishEvent("task.bulk_unassigned", {

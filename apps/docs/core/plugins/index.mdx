@@ -1,0 +1,296 @@
+---
+title: "Plugins"
+description: "Add npm packages that extend Kaneo's API and web app, then turn them on per workspace."
+---
+
+A plugin is an npm package that extends both Kaneo's API and its web app. It can react to task activity, store its own data, add API routes, and add views, task panels, pages, and commands to the app.
+
+You declare the plugins for your whole instance in one file, `kaneo.config.ts`. Kaneo loads them when it starts, without rebuilding anything. Each workspace then decides whether to use them.
+
+Instances without plugins need nothing: no config file, no extra variables, and no build step.
+
+## Built-in plugins
+
+Some of Kaneo's own features are plugins built on the same contract as everyone else's. They ship inside the Kaneo image and are on in every workspace by default.
+
+| Plugin | What it adds |
+| --- | --- |
+| `gantt` | The Gantt view in every project |
+
+Workspace admins can turn a built-in plugin off in **Settings → Workspace → Plugins**. To remove one from the whole instance, turn it off in `kaneo.config.ts`:
+
+```ts
+import { defineConfig } from "@kaneo/config";
+
+export default defineConfig({
+  official: { gantt: false },
+});
+```
+
+Built-in plugins are also good starting points for your own: copy one, change it, and publish it under a new name.
+
+## Add plugins
+
+### 1. Create the project
+
+Plugins live in a small project next to your deployment:
+
+```text
+my-kaneo/
+├── package.json
+├── package-lock.json
+└── kaneo.config.ts
+```
+
+Plugins are self-contained JavaScript, so the folder works on any machine and CPU architecture. You can create it on your laptop and copy it to the server.
+
+#### With `kaneo plugin add`
+
+The [Kaneo CLI](/cli) adds plugins for you, and Kaneo's image ships it, so you need nothing but Docker. Create the folder and add a plugin:
+
+```bash
+mkdir my-kaneo
+cd my-kaneo
+docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<version> kaneo plugin add kaneo-plugin-task-progress
+```
+
+Use the image tag you deploy, because `kaneo plugin add` picks plugin versions for that Kaneo release. It:
+
+1. Asks npm for the plugin's releases and picks the newest stable, non-deprecated one whose `engines.kaneo` range includes your Kaneo version. It stops if no release declares a range or none fits, and shows the newest release's range.
+2. Checks the package against the [plugin catalog](https://kaneo.app/plugins). For a package that is not listed, or when the catalog cannot be reached, it warns and asks before going on. Without a terminal, for example without `docker run -it`, it needs `--yes` to go on.
+3. Creates `package.json` if the folder has none, then runs `npm install --save-exact --ignore-scripts` for the plugin, plus `@kaneo/config` for your Kaneo version the first time. Plugins and their dependencies never run install scripts.
+4. Adds the import and the plugin to `kaneo.config.ts`, and creates the file if needed. If it cannot change your config safely, it leaves it as is and prints the lines to add.
+
+`--user` makes the new files yours instead of the container user's. npm reads `.npmrc` in the folder, so private registries and tokens work. Running `kaneo plugin add` again for an installed plugin moves it to the newest release that supports your Kaneo. Without a terminal, the command prints its result as JSON; add `-it` to `docker run` for the styled output and the prompt.
+
+Run `kaneo plugin add --help` for the options. The command works in the folder mounted at `/kaneo`; pass `--project <dir>` or set `KANEO_PROJECT_DIR` to use another one.
+
+You can also [install the CLI](/cli/install) on your machine and run `kaneo plugin add` in the folder. It needs Node.js with npm for the install. Outside Kaneo's image, the CLI cannot tell which Kaneo you run, so pass it the first time:
+
+```bash
+kaneo plugin add kaneo-plugin-task-progress --kaneo-version <version>
+```
+
+After that, it uses the version of `@kaneo/config` installed in the folder.
+
+#### With npm
+
+You can also set the project up with npm on your machine:
+
+```bash
+mkdir my-kaneo
+cd my-kaneo
+```
+
+Save this as `package.json`:
+
+```json
+{
+  "private": true,
+  "type": "module"
+}
+```
+
+Install the config package and the plugins you want. `@kaneo/config` is released with Kaneo under the same version, so use the version of the image you deploy:
+
+```bash
+npm i @kaneo/config@<version> kaneo-plugin-task-progress
+```
+
+This adds both as dependencies and writes `package-lock.json`, which pins the exact versions. Install plugins as regular dependencies, not with `-D`, so the image install step below keeps them.
+
+### 2. Declare the plugins
+
+`kaneo plugin add` writes this file for you. To write it yourself, save this as `kaneo.config.ts`:
+
+```ts
+import { defineConfig } from "@kaneo/config";
+import taskProgress from "kaneo-plugin-task-progress";
+
+export default defineConfig({
+  plugins: [taskProgress({ autoComplete: true })],
+});
+```
+
+Each plugin's default export is a function that takes the plugin's options. Options apply to the whole instance. Your editor shows the options a plugin accepts and flags a wrong name or value before you deploy, and Kaneo validates them again at startup.
+
+Keep secrets out of this file. Read them from Kaneo's environment instead, for example `reports({ apiToken: process.env.REPORTS_API_TOKEN })`, and set `REPORTS_API_TOKEN` where you set Kaneo's other variables.
+
+There is no build step. Kaneo runs `kaneo.config.ts` with Node's built-in TypeScript support, which removes type annotations without compiling. Stick to plain TypeScript: enums and namespaces are not supported.
+
+### 3. Check the project
+
+`kaneo plugin check` runs the [startup checks](#what-kaneo-checks-at-startup) against the folder without starting Kaneo or connecting to the database:
+
+```bash
+docker run --rm -v "$PWD:/kaneo:ro" ghcr.io/usekaneo/kaneo:<version> kaneo plugin check
+```
+
+In a terminal, for example with `docker run -it`, it prints the ID and version of each plugin that passes, including the built-in ones:
+
+```text
+✓ gantt 0.1.0 · built in
+✓ kaneo-plugin-task-progress 0.1.0
+```
+
+A plugin that would stop the boot prints the same error the startup log would, and the command exits with status 1, so you can run it in CI. Without a terminal, it prints one JSON object that lists each plugin with its `status`, and the `stage` and `message` of each failure. If your config reads environment variables, pass them to the container too, for example with `--env-file .env`. Use `--config <path>` to check a config file outside the project folder; the command does not read `KANEO_CONFIG`.
+
+The same works with the [CLI installed](/cli/install) on your machine: run `kaneo plugin check` in the folder. Built-in plugins are only checked inside a Kaneo installation such as the image, and outside one the CLI needs `--kaneo-version` or `@kaneo/config` installed in the folder.
+
+### 4. Deploy
+
+#### Docker Compose
+
+Put `my-kaneo` beside `compose.yml`, including its `node_modules` folder, and mount it read-only at `/kaneo` on the `kaneo` service:
+
+```yaml
+services:
+  kaneo:
+    volumes:
+      - ./my-kaneo:/kaneo:ro
+```
+
+Recreate the container and check the log:
+
+```bash
+docker compose up -d kaneo
+docker compose logs --tail=100 kaneo
+```
+
+Kaneo reads the config only at startup. After changing `kaneo.config.ts` or installing a plugin, run `docker compose restart kaneo`.
+
+#### Kubernetes, Coolify, and Railway
+
+Build a thin image on top of Kaneo's. Add this `Dockerfile` to `my-kaneo`, replacing `<version>` with the Kaneo release you run:
+
+```dockerfile
+FROM ghcr.io/usekaneo/kaneo:<version>
+COPY --chown=appuser:appuser . /kaneo
+RUN npm ci --prefix /kaneo --omit=dev --ignore-scripts
+```
+
+Add a `.dockerignore` so your local `node_modules` stays out of the image:
+
+```text
+node_modules
+```
+
+The build only copies files and installs packages; nothing is compiled, and `--ignore-scripts` keeps packages from running install scripts. The `--chown` flag matters because Kaneo's image runs as `appuser`, which must be able to write `/kaneo/node_modules`.
+
+Use the resulting image wherever you used `ghcr.io/usekaneo/kaneo`. With the Helm chart, set `kaneo.image.repository` and `kaneo.image.tag`. On [Coolify](/core/deployments/coolify) or [Railway](/core/deployments/railway), deploy it from a repository that contains the `my-kaneo` files. Rebuild and redeploy after each change to the project.
+
+## Environment variables
+
+Name | Description | Default |
+--- | --- | --- |
+| `KANEO_CONFIG` | Path to the config file. Accepts `.ts`, `.js`, or `.mjs`. When unset, Kaneo looks for `kaneo.config.ts`, `kaneo.config.js`, or `kaneo.config.mjs` in `/kaneo`, and starts without plugins if there is none. | `/kaneo/kaneo.config.ts` |
+| `DISABLE_PLUGINS` | Set to `true` to start without loading any plugins, even when a config file exists. Workspace settings and plugin data are kept. | `false` |
+| `KANEO_PROJECT_DIR` | Project folder for `kaneo plugin add` and `kaneo plugin check`. When unset, they use `/kaneo` if that exists, else the current directory. | `/kaneo` |
+| `KANEO_PLUGIN_CATALOG_URL` | Catalog index that `kaneo plugin add` checks packages against. | Kaneo's catalog on GitHub |
+
+`DISABLE_PLUGINS=true` is also the quickest way to get Kaneo running again while you fix a plugin that stops the boot.
+
+## What Kaneo checks at startup
+
+Every plugin goes through these stages, in order:
+
+| Stage | Checks |
+| --- | --- |
+| resolve | The package is installed in the project. |
+| entry | Its `exports` point to files that exist inside the package. |
+| compatibility | The running Kaneo version is inside the plugin's `engines.kaneo` range. |
+| options | The options in `kaneo.config.ts` pass the plugin's schema. |
+| import | The plugin's server code loads, and its settings fields are well formed. |
+| start | The plugin's setup finishes without an error, and its ID is not already taken. |
+
+A failure stops the boot, the same way a broken Compose file would. The log names the plugin, the stage, and the fix:
+
+```text
+Plugin "kaneo-plugin-task-progress" failed at compatibility:
+0.1.0 supports Kaneo >=2.29.0 <3, this is Kaneo 3.0.0.
+Install a version that supports Kaneo 3.0.0, or remove it from kaneo.config.ts.
+```
+
+`kaneo plugin check` runs the same stages up to import, then checks that no two plugins share an ID. It never runs a plugin's setup, so a problem that only shows up in setup still appears at startup.
+
+Once Kaneo is running, errors inside a plugin are isolated. An exception in a plugin's event handler or route is logged with the plugin's ID and does not take Kaneo down. In the web app, a plugin that fails to render only breaks its own view or panel.
+
+## Turn a plugin on in a workspace
+
+Plugins you add are off in every workspace until someone turns them on. Built-in plugins start on.
+
+1. Open **Settings → Workspace → Plugins**. You need permission to manage workspace settings, which the built-in Owner and Admin [roles](/core/functional/collaborate-with-team) include.
+2. Turn on the plugin.
+3. If the plugin has settings, fill in the form and save.
+
+`kaneo plugin list` in the [CLI](/cli) shows the plugins installed on your instance and whether each one is on in your workspace.
+
+Settings belong to one workspace, unlike the options in `kaneo.config.ts`, which apply to the whole instance. Secret fields are write-only: after you save one, Kaneo shows that it is set but never shows the value again. Enter a new value to replace it.
+
+When a plugin is off in a workspace, its views, panels, pages, and commands disappear there, it stops receiving that workspace's activity, and its routes reject requests for that workspace. Turning it back on restores everything, including its data.
+
+## Upgrade Kaneo
+
+Each plugin declares the Kaneo versions it supports. To see the range for a plugin's newest release:
+
+```bash
+npm view kaneo-plugin-task-progress engines.kaneo
+```
+
+To upgrade:
+
+1. Prepare as described in [Upgrade Kaneo](/core/operations/upgrades), including a backup.
+2. Change the image tag and move `@kaneo/config` to the same version: run `npm i @kaneo/config@<new version>` in `my-kaneo`.
+3. Check the project with the new image, before you deploy it:
+
+   ```bash
+   docker run --rm -v "$PWD:/kaneo:ro" ghcr.io/usekaneo/kaneo:<new version> kaneo plugin check
+   ```
+
+4. For each plugin that fails at the compatibility stage, install a release that supports the new version with the new image, then check again:
+
+   ```bash
+   docker run --rm -v "$PWD:/kaneo" --user "$(id -u):$(id -g)" ghcr.io/usekaneo/kaneo:<new version> kaneo plugin add kaneo-plugin-task-progress
+   ```
+
+5. Deploy as usual.
+
+If a plugin has no release that supports the new version yet, remove it from `kaneo.config.ts`, or set `DISABLE_PLUGINS=true` until the plugin catches up. Without the check, Kaneo stops at the compatibility stage with a message like the one above.
+
+## Trust
+
+Plugins run inside Kaneo with full access, like any npm dependency. A plugin can read Kaneo's environment variables, including its secrets, and make network requests. Workspace boundaries protect plugin routes and data from other users, not your instance from the plugin.
+
+- Only add plugins you trust. Check who publishes a package and whether it has [npm provenance](https://docs.npmjs.com/generating-provenance-statements).
+- Commit `package-lock.json`. It pins every version, and npm checks each package against its integrity hash on install.
+- Review changes to the lockfile like code changes.
+
+Plugins can only be added by editing `kaneo.config.ts`. There is no way to install one from the Kaneo interface.
+
+## Data
+
+Plugin data is stored in Kaneo's PostgreSQL database, so your regular [backups](/core/operations/backups) include it.
+
+- Turning a plugin off in a workspace keeps its data.
+- Removing a plugin from `kaneo.config.ts` keeps its data. Adding the same plugin back restores it.
+- Deleting a workspace deletes the data plugins stored for it.
+
+To delete a removed plugin's data for good, [install the CLI](/cli/install), [sign in](/cli/sign-in) to your instance with an account that has the `instance:settings` permission (admins have it), and run `kaneo plugin purge` with the plugin's ID:
+
+```bash
+kaneo login --api-url https://kaneo.example.com
+kaneo plugin purge kaneo-plugin-task-progress
+```
+
+It deletes the plugin's stored data and its settings in every workspace, then prints how many rows it deleted from each table. Kaneo refuses while the plugin is installed: remove it from `kaneo.config.ts` and restart Kaneo first. For a built-in plugin, turn it off with `official: { gantt: false }` instead. It also refuses while `DISABLE_PLUGINS=true`, because Kaneo cannot tell then which plugins are installed. Purging needs the `instance:settings` permission and a login, not an API key. Each purge is recorded in the [audit log](/core/operations/administration#review-the-audit-log) as **Purged plugin data**, with the number of rows deleted. The command asks you to confirm; without a terminal, pass `--yes`. Take a [backup](/core/operations/backups) first, because a purge cannot be undone.
+
+## Build a plugin
+
+<CardGroup cols={2}>
+  <Card title="Writing plugins" icon="code" href="/core/plugins/writing-plugins">
+    Package a plugin with a server entry, a web entry, and settings.
+  </Card>
+  <Card title="Plugin reference" icon="book-open" href="/core/plugins/reference">
+    Events, context members, extension points, hooks, and components.
+  </Card>
+</CardGroup>

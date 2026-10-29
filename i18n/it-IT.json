@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Il comando del plugin non è riuscito",
+			"failedToLoad": "Impossibile caricare questo plugin",
+			"openTaskFailed": "Impossibile aprire l'attività",
+			"unavailable": "Questa vista del plugin non è disponibile",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "URL del link",
@@ -762,7 +769,6 @@
 			"selectViewMode": "Seleziona una modalità di visualizzazione",
 			"board": "Board",
 			"list": "Elenco",
-			"gantt": "Gantt",
 			"priorityIcons": "Icone di priorità",
 			"priorityIconsDescription": "Come appare la priorità delle attività su schede, righe e menu.",
 			"priorityIconsMarks": "Segni",
@@ -1992,6 +1998,43 @@
 				"description": "Pagamento ricevuto. Il piano qui sotto si aggiornerà appena sarà confermato."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "I plugin vengono aggiunti dall'amministratore dell'istanza in kaneo.config.ts. Una volta installato, un plugin compare qui e gli admin del workspace possono attivarlo.",
+				"link": "Scopri di più sui plugin",
+				"title": "Nessun plugin installato"
+			},
+			"enable": "Abilita {{name}}",
+			"form": {
+				"none": "Nessuno",
+				"save": "Salva impostazioni",
+				"secretCancel": "Annulla",
+				"secretClear": "Cancella",
+				"secretConfigured": "Configurato",
+				"secretPlaceholder": "Inserisci un nuovo valore",
+				"secretReplace": "Sostituisci",
+				"secretUndo": "Ripristina",
+				"secretWillClear": "Verrà cancellato al salvataggio",
+				"selectPlaceholder": "Seleziona un'opzione"
+			},
+			"loadError": "Impossibile caricare i plugin. Ricarica la pagina per riprovare.",
+			"pageTitle": "Impostazioni Plugin",
+			"status": {
+				"failed": "Caricamento non riuscito",
+				"loaded": "Attivo",
+				"loading": "Caricamento"
+			},
+			"subtitle": "Scegli quali plugin installati usa questo workspace e configurali.",
+			"title": "Plugin",
+			"toast": {
+				"disabled": "{{name}} disattivato",
+				"enabled": "{{name}} attivato",
+				"invalid": "Alcune impostazioni richiedono attenzione",
+				"saved": "Impostazioni del plugin salvate",
+				"updateError": "Impossibile aggiornare il plugin"
+			},
+			"builtIn": "Integrato"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2566,6 +2609,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Dati del plugin eliminati",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2911,7 +2955,8 @@
 				"navigate": "Naviga",
 				"open": "Apri",
 				"close": "Chiudi"
-			}
+			},
+			"plugins": "Plugin"
 		},
 		"sidebar": {
 			"projects": "Progetti",

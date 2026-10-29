@@ -1,8 +1,7 @@
-import type { ShortcutId } from "@/lib/shortcuts/catalog";
-import { ShortcutKeys } from "./shortcut-keys";
+import { BindingKeys } from "./binding-keys";
 
 type ShortcutRowProps = {
-  id: ShortcutId;
+  bindings: readonly string[];
   label: string;
   query: string;
   isHighlighted: ((cap: string) => boolean) | null;
@@ -24,7 +23,7 @@ function HighlightedLabel({ label, query }: { label: string; query: string }) {
 }
 
 export function ShortcutRow({
-  id,
+  bindings,
   label,
   query,
   isHighlighted,
@@ -34,8 +33,8 @@ export function ShortcutRow({
       <span className="min-w-0 truncate">
         <HighlightedLabel label={label} query={query} />
       </span>
-      <ShortcutKeys
-        id={id}
+      <BindingKeys
+        bindings={bindings}
         size="md"
         isHighlighted={isHighlighted ?? undefined}
       />

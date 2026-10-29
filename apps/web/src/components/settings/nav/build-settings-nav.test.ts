@@ -47,6 +47,7 @@ describe("buildSettingsNav", () => {
       "/dashboard/settings/workspace/general",
       "/dashboard/settings/workspace/roles",
       "/dashboard/settings/workspace/labels",
+      "/dashboard/settings/workspace/plugins",
       "/dashboard/settings/workspace/import",
       "/dashboard/settings/workspace/billing",
     ]);

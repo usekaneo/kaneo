@@ -2,6 +2,7 @@ import { workspaceIsActive } from "../workspace/archive/active-workspace-sql";
 import { syncWorkspaceAccess } from "./workspace-access";
 import { workspaceRevocationIsCurrent } from "./workspace-revocation-is-current";
 import { createRevocationDelivery } from "./revocation-delivery";
+import { listWorkspaceRecipientIds } from "./list-workspace-recipient-ids";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
@@ -1072,6 +1073,21 @@ subscribeToEvent<{ notificationId: string; userId: string }>(
     if (data.userId) {
       broadcastToUser(data.userId, { type: "NOTIFICATION_CREATED" });
     }
+  },
+);
+
+subscribeToEvent<{ workspaceId: string; pluginId: string; enabled: boolean }>(
+  "workspace_plugin.updated",
+  async ({ workspaceId, pluginId, enabled }) => {
+    if (!workspaceId || !pluginId) return;
+    const message = {
+      type: "WORKSPACE_PLUGIN_UPDATED",
+      workspaceId,
+      pluginId,
+      enabled: enabled === true,
+    };
+    for (const userId of await listWorkspaceRecipientIds(workspaceId))
+      broadcastToUser(userId, message);
   },
 );
 

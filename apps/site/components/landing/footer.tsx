@@ -44,6 +44,12 @@ export function Footer() {
               </a>
               <a
                 className="block text-muted-foreground transition-colors hover:text-foreground"
+                href="/plugins"
+              >
+                Plugins
+              </a>
+              <a
+                className="block text-muted-foreground transition-colors hover:text-foreground"
                 href="/alternatives"
               >
                 Comparisons

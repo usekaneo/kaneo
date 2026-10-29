@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "O comando do plug-in falhou",
+			"failedToLoad": "Não foi possível carregar este plug-in",
+			"openTaskFailed": "Não foi possível abrir a tarefa",
+			"unavailable": "Esta visualização do plug-in não está disponível",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "URL do link",
@@ -762,7 +769,6 @@
 			"selectViewMode": "Selecione um modo de visualização",
 			"board": "Quadro",
 			"list": "Lista",
-			"gantt": "Gantt",
 			"priorityIcons": "Ícones de prioridade",
 			"priorityIconsDescription": "Como a prioridade das tarefas aparece em cartões, linhas e menus.",
 			"priorityIconsMarks": "Marcas",
@@ -1992,6 +1998,43 @@
 				"description": "Pagamento recebido. O plano abaixo será atualizado assim que for confirmado."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Os plug-ins são adicionados pelo administrador da instância em kaneo.config.ts. Depois de instalado, o plug-in aparece aqui para que os administradores do espaço de trabalho possam ativá-lo.",
+				"link": "Saiba mais sobre plug-ins",
+				"title": "Nenhum plug-in instalado"
+			},
+			"enable": "Ativar {{name}}",
+			"form": {
+				"none": "Nenhum",
+				"save": "Salvar configurações",
+				"secretCancel": "Cancelar",
+				"secretClear": "Limpar",
+				"secretConfigured": "Configurado",
+				"secretPlaceholder": "Digite um novo valor",
+				"secretReplace": "Substituir",
+				"secretUndo": "Desfazer",
+				"secretWillClear": "Será limpo ao salvar",
+				"selectPlaceholder": "Selecione uma opção"
+			},
+			"loadError": "Não foi possível carregar os plug-ins. Atualize a página para tentar novamente.",
+			"pageTitle": "Configurações de plug-ins",
+			"status": {
+				"failed": "Falha ao carregar",
+				"loaded": "Ativo",
+				"loading": "Carregando"
+			},
+			"subtitle": "Escolha quais plug-ins instalados este espaço de trabalho usa e configure-os.",
+			"title": "Plug-ins",
+			"toast": {
+				"disabled": "{{name}} desativado",
+				"enabled": "{{name}} ativado",
+				"invalid": "Algumas configurações precisam de atenção",
+				"saved": "Configurações do plug-in salvas",
+				"updateError": "Não foi possível atualizar o plug-in"
+			},
+			"builtIn": "Integrado"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2566,6 +2609,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Dados do plug-in excluídos",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2911,7 +2955,8 @@
 				"navigate": "Navegar",
 				"open": "Abrir",
 				"close": "Fechar"
-			}
+			},
+			"plugins": "Plug-ins"
 		},
 		"sidebar": {
 			"projects": "Projetos",

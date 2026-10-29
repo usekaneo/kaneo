@@ -23,6 +23,7 @@ import { unlinkCommand } from "../commands/unlink.js";
 import { contextCommand } from "../commands/context.js";
 import { apiCommand } from "../commands/api.js";
 import { doctorCommand } from "../commands/doctor.js";
+import { plugin } from "../commands/plugin/index.js";
 import { globalFlags } from "./global-flags.js";
 
 export const root = Command.make("kaneo", {}, () => runHome()).pipe(
@@ -48,6 +49,7 @@ export const root = Command.make("kaneo", {}, () => runHome()).pipe(
     field,
     workflow,
     notification,
+    plugin,
     search,
     apiCommand,
     doctorCommand,

@@ -512,6 +512,13 @@
       "when": 1793132486358,
       "tag": "0072_instance_webhooks",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1793216471440,
+      "tag": "0073_plugins",
+      "breakpoints": true
     }
   ]
 }

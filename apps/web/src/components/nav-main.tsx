@@ -1,12 +1,6 @@
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import {
-  CircleCheck,
-  House,
-  Inbox,
-  type LucideIcon,
-  Mail,
-  Users,
-} from "lucide-react";
+import { CircleCheck, House, Inbox, Mail, Puzzle, Users } from "lucide-react";
+import type { ComponentType } from "react";
 import { useTranslation } from "react-i18next";
 import {
   SidebarGroup,
@@ -20,10 +14,13 @@ import useGetNotifications from "@/hooks/queries/notification/use-get-notificati
 import useGetAssignedTasks from "@/hooks/queries/task/use-get-assigned-tasks";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
+import { usePlugins } from "@/lib/plugins/runtime/plugins-context";
+import { selectContributions } from "@/lib/plugins/runtime/select-contributions";
+import { usePluginLabel } from "@/lib/plugins/runtime/use-plugin-label";
 
 type NavItem = {
   title: string;
-  icon: LucideIcon;
+  icon: ComponentType<{ className?: string; "aria-hidden"?: true }>;
   url: string;
   count?: number;
   emphasizeCount?: boolean;
@@ -39,6 +36,9 @@ export function NavMain() {
   const { data: invitations = [] } = usePendingInvitations();
   const { data: notifications = [] } = useGetNotifications(workspace?.id);
   const { data: assignedTasks } = useGetAssignedTasks(workspace?.id, true);
+
+  const { plugins, workspaceId: pluginWorkspaceId } = usePlugins();
+  const pluginLabel = usePluginLabel();
 
   if (!workspace) return null;
 
@@ -67,6 +67,13 @@ export function NavMain() {
       icon: Users,
       url: `${homeUrl}/members`,
     },
+    ...(pluginWorkspaceId === workspace.id
+      ? selectContributions(plugins, "pages").map(({ scope, item }) => ({
+          title: pluginLabel(scope.id, item.title),
+          icon: item.icon ?? Puzzle,
+          url: `/dashboard/workspace/${workspace.id}/plugin/${encodeURIComponent(scope.id)}/${encodeURIComponent(item.id)}`,
+        }))
+      : []),
   ];
 
   // Invitations to other workspaces only matter while one is waiting.
@@ -93,7 +100,7 @@ export function NavMain() {
                 className="h-8 text-sm"
                 onClick={() => navigate({ to: item.url })}
               >
-                <item.icon aria-hidden="true" />
+                <item.icon aria-hidden />
                 <span>{item.title}</span>
                 {item.count ? (
                   <span

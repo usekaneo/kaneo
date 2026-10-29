@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Polecenie wtyczki nie powiodło się",
+			"failedToLoad": "Nie udało się załadować tej wtyczki",
+			"openTaskFailed": "Nie udało się otworzyć zadania",
+			"unavailable": "Ten widok wtyczki jest niedostępny",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "Adres URL linku",
@@ -596,7 +603,8 @@
 				"navigate": "Nawiguj",
 				"open": "Otwórz",
 				"close": "Zamknij"
-			}
+			},
+			"plugins": "Wtyczki"
 		},
 		"sidebar": {
 			"projects": "Projekty",
@@ -1677,7 +1685,6 @@
 			"dueDates": "Terminy",
 			"firstDayOfWeek": "Pierwszy dzień tygodnia",
 			"firstDayOfWeekDescription": "Używany w kalendarzach i selektorach dat.",
-			"gantt": "Wykres Gantta",
 			"priorityIcons": "Ikony priorytetu",
 			"priorityIconsDescription": "Jak priorytet zadania wygląda na kartach, w wierszach i menu.",
 			"priorityIconsMarks": "Znaczniki",
@@ -2696,6 +2703,43 @@
 				"description": "Płatność otrzymana. Plan poniżej zaktualizuje się po jej potwierdzeniu."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Wtyczki dodaje administrator instancji w kaneo.config.ts. Zainstalowana wtyczka pojawi się tutaj, a administratorzy obszaru roboczego będą mogli ją włączyć.",
+				"link": "Dowiedz się więcej o wtyczkach",
+				"title": "Brak zainstalowanych wtyczek"
+			},
+			"enable": "Włącz {{name}}",
+			"form": {
+				"none": "Brak",
+				"save": "Zapisz ustawienia",
+				"secretCancel": "Anuluj",
+				"secretClear": "Wyczyść",
+				"secretConfigured": "Skonfigurowano",
+				"secretPlaceholder": "Wpisz nową wartość",
+				"secretReplace": "Zastąp",
+				"secretUndo": "Cofnij",
+				"secretWillClear": "Zostanie wyczyszczone po zapisaniu",
+				"selectPlaceholder": "Wybierz opcję"
+			},
+			"loadError": "Nie udało się załadować wtyczek. Odśwież stronę, aby spróbować ponownie.",
+			"pageTitle": "Ustawienia wtyczek",
+			"status": {
+				"failed": "Błąd ładowania",
+				"loaded": "Aktywna",
+				"loading": "Ładowanie"
+			},
+			"subtitle": "Wybierz, których zainstalowanych wtyczek używa ten obszar roboczy, i skonfiguruj je.",
+			"title": "Wtyczki",
+			"toast": {
+				"disabled": "Wyłączono {{name}}",
+				"enabled": "Włączono {{name}}",
+				"invalid": "Niektóre ustawienia wymagają uwagi",
+				"saved": "Zapisano ustawienia wtyczki",
+				"updateError": "Nie udało się zaktualizować wtyczki"
+			},
+			"builtIn": "Wbudowana"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -3299,6 +3343,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Usunięto dane wtyczki",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",

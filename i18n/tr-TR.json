@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Eklenti komutu başarısız oldu",
+			"failedToLoad": "Bu eklenti yüklenemedi",
+			"openTaskFailed": "Talep açılamadı",
+			"unavailable": "Bu eklenti görünümü kullanılamıyor",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "Bağlantı URL'si",
@@ -754,7 +761,6 @@
 			"selectViewMode": "Bir görünüm modu seçin",
 			"board": "Pano",
 			"list": "Liste",
-			"gantt": "Gantt",
 			"priorityIcons": "Öncelik simgeleri",
 			"priorityIconsDescription": "Görev önceliğinin kartlarda, satırlarda ve menülerde nasıl göründüğü.",
 			"priorityIconsMarks": "İşaretler",
@@ -1979,6 +1985,43 @@
 				"description": "Ödeme alındı. Aşağıdaki plan onaylandığında güncellenecek."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Eklentiler, örnek yöneticisi tarafından kaneo.config.ts dosyasına eklenir. Yüklenen eklentiler burada görünür ve çalışma alanı yöneticileri bunları etkinleştirebilir.",
+				"link": "Eklentiler hakkında bilgi edinin",
+				"title": "Yüklü eklenti yok"
+			},
+			"enable": "{{name}} eklentisini etkinleştir",
+			"form": {
+				"none": "Hiçbiri",
+				"save": "Ayarları kaydet",
+				"secretCancel": "İptal",
+				"secretClear": "Temizle",
+				"secretConfigured": "Yapılandırıldı",
+				"secretPlaceholder": "Yeni bir değer girin",
+				"secretReplace": "Değiştir",
+				"secretUndo": "Geri al",
+				"secretWillClear": "Kaydettiğinizde temizlenecek",
+				"selectPlaceholder": "Bir seçenek seçin"
+			},
+			"loadError": "Eklentiler yüklenemedi. Tekrar denemek için sayfayı yenileyin.",
+			"pageTitle": "Eklenti Ayarları",
+			"status": {
+				"failed": "Yüklenemedi",
+				"loaded": "Etkin",
+				"loading": "Yükleniyor"
+			},
+			"subtitle": "Bu çalışma alanının hangi yüklü eklentileri kullanacağını seçin ve yapılandırın.",
+			"title": "Eklentiler",
+			"toast": {
+				"disabled": "{{name}} devre dışı bırakıldı",
+				"enabled": "{{name}} etkinleştirildi",
+				"invalid": "Bazı ayarların kontrol edilmesi gerekiyor",
+				"saved": "Eklenti ayarları kaydedildi",
+				"updateError": "Eklenti güncellenemedi"
+			},
+			"builtIn": "Yerleşik"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2524,6 +2567,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Eklenti verileri silindi",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2862,7 +2906,8 @@
 				"navigate": "Gezin",
 				"open": "Aç",
 				"close": "Kapat"
-			}
+			},
+			"plugins": "Eklentiler"
 		},
 		"sidebar": {
 			"projects": "Projeler",

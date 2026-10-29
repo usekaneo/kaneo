@@ -156,6 +156,13 @@
 				"statusLoadError": "Project statuses couldn’t be loaded."
 			}
 		},
+		"plugins": {
+			"commandFailed": "Командата на приклучокот не успеа",
+			"failedToLoad": "Овој приклучок не можеше да се вчита",
+			"openTaskFailed": "Задачата не можеше да се отвори",
+			"unavailable": "Овој приказ на приклучокот не е достапен",
+			"layoutPageTitle": "{{name}} / {{view}}"
+		},
 		"editor": {
 			"link": {
 				"label": "URL на врската",
@@ -754,7 +761,6 @@
 			"selectViewMode": "Избери режим на приказ",
 			"board": "Табла",
 			"list": "Листа",
-			"gantt": "Gantt",
 			"priorityIcons": "Икони за приоритет",
 			"priorityIconsDescription": "Како изгледа приоритетот на задачите на картички, редови и во менија.",
 			"priorityIconsMarks": "Ознаки",
@@ -1979,6 +1985,43 @@
 				"description": "Плаќањето е примено. Планот подолу ќе се ажурира штом биде потврдено."
 			}
 		},
+		"workspacePlugins": {
+			"empty": {
+				"description": "Приклучоците ги додава администраторот на инстанцата во kaneo.config.ts. Откако ќе се инсталира, приклучокот се појавува тука и администраторите на работниот простор можат да го вклучат.",
+				"link": "Дознај повеќе за приклучоците",
+				"title": "Нема инсталирани приклучоци"
+			},
+			"enable": "Вклучи {{name}}",
+			"form": {
+				"none": "Ниедно",
+				"save": "Зачувај поставки",
+				"secretCancel": "Откажи",
+				"secretClear": "Исчисти",
+				"secretConfigured": "Конфигурирано",
+				"secretPlaceholder": "Внеси нова вредност",
+				"secretReplace": "Замени",
+				"secretUndo": "Врати",
+				"secretWillClear": "Ќе се исчисти кога ќе зачуваш",
+				"selectPlaceholder": "Избери опција"
+			},
+			"loadError": "Приклучоците не можеа да се вчитаат. Освежи ја страницата за да пробаш повторно.",
+			"pageTitle": "Поставки за приклучоци",
+			"status": {
+				"failed": "Неуспешно вчитување",
+				"loaded": "Активен",
+				"loading": "Се вчитува"
+			},
+			"subtitle": "Избери кои инсталирани приклучоци ги користи овој работен простор и конфигурирај ги.",
+			"title": "Приклучоци",
+			"toast": {
+				"disabled": "{{name}} е исклучен",
+				"enabled": "{{name}} е вклучен",
+				"invalid": "Некои поставки бараат внимание",
+				"saved": "Поставките за приклучокот се зачувани",
+				"updateError": "Приклучокот не можеше да се ажурира"
+			},
+			"builtIn": "Вграден"
+		},
 		"syncRules": {
 			"addLabel": "Add label",
 			"advancedHint": "Enable Advanced settings in Preferences to edit these rules.",
@@ -2524,6 +2567,7 @@
 				"roleDeleted": "Role deleted",
 				"roleUpdated": "Role updated",
 				"instanceSettingsUpdated": "Updated instance settings",
+				"pluginDataPurged": "Избришани податоци од приклучок",
 				"webhookCreated": "Created webhook",
 				"webhookDeleted": "Deleted webhook",
 				"webhookSecretRotated": "Rotated webhook secret",
@@ -2862,7 +2906,8 @@
 				"navigate": "Навигирај",
 				"open": "Отвори",
 				"close": "Затвори"
-			}
+			},
+			"plugins": "Приклучоци"
 		},
 		"sidebar": {
 			"projects": "Проекти",
