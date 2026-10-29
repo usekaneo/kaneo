@@ -3874,7 +3874,8 @@
 				"empty": "Tidak ada tautan",
 				"url": "URL",
 				"titleLabel": "Judul",
-				"optional": "Opsional"
+				"optional": "Opsional",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Waktu",

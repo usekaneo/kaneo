@@ -4359,7 +4359,8 @@
 				"synced": "동기화됨",
 				"title": "링크",
 				"titleLabel": "제목",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "작업 삭제",

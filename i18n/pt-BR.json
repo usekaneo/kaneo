@@ -4497,7 +4497,8 @@
 				"synced": "Sincronizado",
 				"title": "Links",
 				"titleLabel": "Título",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "Excluir tarefa",

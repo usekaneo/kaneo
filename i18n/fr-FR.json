@@ -3998,7 +3998,8 @@
 				"empty": "Aucun lien",
 				"url": "URL",
 				"titleLabel": "Titre",
-				"optional": "Facultatif"
+				"optional": "Facultatif",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Temps",

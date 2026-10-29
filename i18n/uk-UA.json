@@ -4060,7 +4060,8 @@
 				"empty": "Немає посилань",
 				"url": "URL",
 				"titleLabel": "Назва",
-				"optional": "Необов’язково"
+				"optional": "Необов’язково",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Час",

@@ -4428,7 +4428,8 @@
 				"synced": "Eşitlendi",
 				"title": "Bağlantılar",
 				"titleLabel": "Başlık",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "Talebi sil",

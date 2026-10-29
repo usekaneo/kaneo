@@ -4359,7 +4359,8 @@
 				"synced": "同期済み",
 				"title": "リンク",
 				"titleLabel": "タイトル",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "タスクを削除",
