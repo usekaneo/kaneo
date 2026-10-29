@@ -4465,7 +4465,8 @@
 				"empty": "Δεν υπάρχουν σύνδεσμοι",
 				"url": "URL",
 				"titleLabel": "Τίτλος",
-				"optional": "Προαιρετικό"
+				"optional": "Προαιρετικό",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Χρόνος",

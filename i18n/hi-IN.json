@@ -4465,7 +4465,8 @@
 				"empty": "कोई लिंक नहीं",
 				"url": "URL",
 				"titleLabel": "शीर्षक",
-				"optional": "वैकल्पिक"
+				"optional": "वैकल्पिक",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "समय",

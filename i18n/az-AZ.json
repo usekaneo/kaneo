@@ -4957,7 +4957,8 @@
 				"synced": "Sinxronlaşdırılıb",
 				"title": "Keçidlər",
 				"titleLabel": "Başlıq",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "Tapşırığı sil",

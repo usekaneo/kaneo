@@ -4957,7 +4957,8 @@
 				"synced": "Gesynchroniseerd",
 				"title": "Links",
 				"titleLabel": "Titel",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "Taak verwijderen",

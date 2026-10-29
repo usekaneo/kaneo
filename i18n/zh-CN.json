@@ -4873,7 +4873,8 @@
 				"synced": "已同步",
 				"title": "链接",
 				"titleLabel": "标题",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "删除任务",
