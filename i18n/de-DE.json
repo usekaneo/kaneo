@@ -4503,7 +4503,8 @@
 				"empty": "Keine Links",
 				"url": "URL",
 				"titleLabel": "Titel",
-				"optional": "Optional"
+				"optional": "Optional",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Zeit",

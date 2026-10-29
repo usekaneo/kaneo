@@ -23,6 +23,7 @@ import {
   Sheet,
 } from "@/components/sheet";
 import { Txt } from "@/components/text";
+import { useToast } from "@/components/toast";
 import {
   Button,
   Checkbox,
@@ -622,6 +623,7 @@ export function Links({
 }) {
   const { t } = useTranslation(["mobile"]);
   const c = useColors();
+  const toast = useToast();
   const { run } = useAction();
   const [adding, setAdding] = useState(false);
 
@@ -639,9 +641,12 @@ export function Links({
             <Touch
               key={l.id}
               onPress={() =>
-                isWebUrl(l.url)
+                (isWebUrl(l.url)
                   ? WebBrowser.openBrowserAsync(l.url)
-                  : Linking.openURL(l.url).catch(() => {})
+                  : Linking.openURL(l.url)
+                ).catch(() =>
+                  toast.show(t("mobile:taskDetail.links.openFailed"), "error"),
+                )
               }
               style={{
                 flexDirection: "row",

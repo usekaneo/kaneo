@@ -4580,7 +4580,8 @@
 				"empty": "Nessun link",
 				"url": "URL",
 				"titleLabel": "Titolo",
-				"optional": "Facoltativo"
+				"optional": "Facoltativo",
+				"openFailed": "Couldn’t open this link."
 			},
 			"time": {
 				"title": "Tempo",

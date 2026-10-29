@@ -4925,7 +4925,8 @@
 				"synced": "已同步",
 				"title": "連結",
 				"titleLabel": "標題",
-				"url": "URL"
+				"url": "URL",
+				"openFailed": "Couldn’t open this link."
 			},
 			"menu": {
 				"delete": "刪除任務",
