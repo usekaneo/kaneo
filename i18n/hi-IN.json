@@ -1172,7 +1172,15 @@
 			"moveDialogTitle": "दूसरे वर्कस्पेस में ले जाएँ?",
 			"moveTargetLabel": "वर्कस्पेस",
 			"moving": "ले जाया जा रहा है...",
-			"tasksTitle": "कार्य"
+			"tasksTitle": "कार्य",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "एकीकरण",

@@ -927,7 +927,15 @@
 			"moveDialogTitle": "Да се премести во друг работен простор?",
 			"moveTargetLabel": "Работен простор",
 			"moving": "Се преместува...",
-			"tasksTitle": "Задачи"
+			"tasksTitle": "Задачи",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Интеграции",

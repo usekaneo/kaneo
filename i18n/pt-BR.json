@@ -1181,7 +1181,15 @@
 			"moveDialogTitle": "Mover para outro espaço de trabalho?",
 			"moveTargetLabel": "Espaço de trabalho",
 			"moving": "Movendo...",
-			"tasksTitle": "Tarefas"
+			"tasksTitle": "Tarefas",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrações",

@@ -810,7 +810,15 @@
 			"moveDialogTitle": "¿Mover a otro espacio de trabajo?",
 			"moveTargetLabel": "Espacio de trabajo",
 			"moving": "Moviendo...",
-			"tasksTitle": "Tareas"
+			"tasksTitle": "Tareas",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integraciones",

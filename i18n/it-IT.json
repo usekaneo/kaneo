@@ -1181,7 +1181,15 @@
 			"moveDialogTitle": "Spostare in un altro workspace?",
 			"moveTargetLabel": "Workspace",
 			"moving": "Spostamento in corso...",
-			"tasksTitle": "Attività"
+			"tasksTitle": "Attività",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integrazioni",

@@ -919,7 +919,15 @@
 			"moveDialogTitle": "다른 워크스페이스로 이동할까요?",
 			"moveTargetLabel": "워크스페이스",
 			"moving": "이동 중...",
-			"tasksTitle": "작업"
+			"tasksTitle": "작업",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "연동",

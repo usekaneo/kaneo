@@ -1163,7 +1163,15 @@
 			"moveDialogTitle": "移动到其他工作区？",
 			"moveTargetLabel": "工作区",
 			"moving": "正在移动...",
-			"tasksTitle": "任务"
+			"tasksTitle": "任务",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "集成",

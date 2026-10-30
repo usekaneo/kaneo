@@ -60,11 +60,13 @@ export function ProjectGeneralPage() {
             flushPendingSave={flushPendingSave}
           />
         ) : null}
-        {canDelete ? (
+        {canEdit || canDelete ? (
           <ProjectDangerZone
             project={project}
             isCurrentProject={isCurrentProject}
             workspaceId={workspace?.id}
+            canArchive={canEdit}
+            canDelete={canDelete}
           />
         ) : null}
       </SettingsPage>
