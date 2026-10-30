@@ -38,12 +38,14 @@ import {
 } from "@/lib/api/client";
 import type { DeviceCodeResponse, InstanceConfig } from "@/lib/api/types";
 import * as auth from "@/lib/auth";
+import { SelfHostedUnlock } from "@/features/sign-in/self-hosted-unlock";
 import { reachableDeviceLink } from "@/lib/device-link";
 import { i18n } from "@/lib/i18n";
+import { hasSelfHostedUnlock } from "@/lib/purchases";
 import { usePrefs } from "@/lib/session";
 import { font, useColors } from "@/theme";
 
-type Step = "start" | "otp" | "device" | "apiKey" | "signUp";
+type Step = "start" | "otp" | "device" | "apiKey" | "signUp" | "unlock";
 
 const CODE_SLOTS = [0, 1, 2, 3, 4, 5];
 // The scheme from app.json; the web approval page links back here after approving.
@@ -71,6 +73,10 @@ export default function SignInScreen() {
   const [loading, setLoading] = useState(false);
   const [otpEmail, setOtpEmail] = useState("");
   const [deviceAttempt, setDeviceAttempt] = useState(0);
+  const [locked, setLocked] = useState<{
+    url: string;
+    config: InstanceConfig;
+  } | null>(null);
 
   const run = async (block: () => Promise<void>) => {
     setLoading(true);
@@ -98,6 +104,13 @@ export default function SignInScreen() {
         throw e;
       });
       if (!cfg || stale()) return;
+      const unlocked = url === CLOUD_URL || (await hasSelfHostedUnlock());
+      if (stale()) return;
+      if (!unlocked) {
+        setLocked({ url, config: cfg });
+        setStep("unlock");
+        return;
+      }
       setServerUrl(url);
       setConfig(cfg);
     });
@@ -188,6 +201,17 @@ export default function SignInScreen() {
                 if (config?.isCloud)
                   void WebBrowser.openBrowserAsync(`${serverUrl}/auth/sign-up`);
                 else setStep("signUp");
+              }}
+            />
+          ) : null}
+          {step === "unlock" && locked ? (
+            <SelfHostedUnlock
+              serverUrl={locked.url}
+              onUnlocked={() => {
+                setServerUrl(locked.url);
+                setConfig(locked.config);
+                setLocked(null);
+                setStep("start");
               }}
             />
           ) : null}

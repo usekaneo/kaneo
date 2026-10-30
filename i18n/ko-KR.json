@@ -4838,7 +4838,16 @@
 			},
 			"tagline": "간편한 프로젝트 관리. Kaneo Cloud 또는 직접 호스팅한 인스턴스에 연결하세요.",
 			"togglePassword": "비밀번호 표시 전환",
-			"useApiKey": "API 키 사용"
+			"useApiKey": "API 키 사용",
+			"unlock": {
+				"buy": "Unlock for {{price}}",
+				"buyNoPrice": "Unlock",
+				"message": "Signing in to Kaneo Cloud is always included. Connecting the app to a self-hosted server is a one-time purchase that supports Kaneo's development.",
+				"nothingToRestore": "No earlier purchase was found for this store account.",
+				"restore": "Restore purchase",
+				"title": "Connect your own server",
+				"unavailable": "Purchases aren't available right now. Try again later."
+			}
 		},
 		"taskDetail": {
 			"activity": {

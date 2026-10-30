@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { Check, Mail, Plus, Settings, Tag, Users } from "lucide-react-native";
+import { Mail, Plus, Settings, Tag, Users } from "lucide-react-native";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 
 import { Sheet } from "@/components/sheet";
 import { Txt } from "@/components/text";
-import { CountBadge, Divider, Touch } from "@/components/ui";
+import { CountBadge, Divider, SelectionSlot, Touch } from "@/components/ui";
 import { api } from "@/lib/api/endpoints";
 import type { Workspace } from "@/lib/api/types";
 import { selectWorkspace, useWorkspaces } from "@/lib/hooks";
@@ -96,9 +96,10 @@ export function WorkspaceSheet({
                 minHeight: 56,
                 paddingHorizontal: 12,
                 borderRadius: 10,
-                backgroundColor: active ? c.fill : "transparent",
               }}
+              accessibilityState={{ selected: active }}
             >
+              <SelectionSlot selected={active} />
               <View style={{ flex: 1, gap: 2 }}>
                 <Txt variant="body" weight={active ? "semibold" : "medium"}>
                   {w.name}
@@ -109,9 +110,6 @@ export function WorkspaceSheet({
                   </Txt>
                 ) : null}
               </View>
-              {active ? (
-                <Check size={18} color={c.ink} strokeWidth={2.5} />
-              ) : null}
             </Touch>
           );
         })}
