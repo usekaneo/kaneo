@@ -1,0 +1,28 @@
+name: mellon
+
+on:
+  # zizmor: ignore[dangerous-triggers] Reviews PR metadata only; never checks out
+  # or runs code from the PR.
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: mellon-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    timeout-minutes: 5
+    steps:
+      - name: Flag descriptions for review
+        uses: randoneering/mellon@9052b46ab67f5eb53ceb561122cb03937c4e08b1 # v0.1.1
+        with:
+          token: ${{ github.token }}
+          mode: observe
+          # Keep these logins aligned with .github/contribution-policy.json.
+          allowlist: '["andrejsshell","randoneering","tinsever","MonsPropre","tiran133","renovate[bot]","dependabot[bot]"]'

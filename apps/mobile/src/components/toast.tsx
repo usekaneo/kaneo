@@ -1,4 +1,4 @@
-import { CircleAlert } from "lucide-react-native";
+import { CircleAlert, CircleCheck } from "lucide-react-native";
 import {
   createContext,
   useCallback,
@@ -10,7 +10,6 @@ import {
 } from "react";
 import { Animated, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Circle, Path } from "react-native-svg";
 
 import { useColors } from "@/theme";
 
@@ -88,33 +87,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              gap: 12,
+              gap: 10,
               minHeight: 48,
               paddingHorizontal: 14,
               paddingVertical: 12,
               borderRadius: 12,
               backgroundColor: c.toast,
-              shadowColor: "#000",
-              shadowOpacity: 0.2,
-              shadowRadius: 12,
-              shadowOffset: { width: 0, height: 8 },
-              elevation: 6,
+              borderWidth: 1,
+              borderColor: c.hairline,
+              boxShadow: c.overlay,
             }}
           >
             {toast.kind === "success" ? (
-              <Svg width={16} height={16} viewBox="0 0 24 24">
-                <Circle cx={12} cy={12} r={10} fill="#10B981" />
-                <Path
-                  d="m8 12 3 3 5-6"
-                  fill="none"
-                  stroke="#FFFFFF"
-                  strokeWidth={2.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
+              <CircleCheck size={18} color={c.successFg} strokeWidth={2} />
             ) : toast.kind === "error" ? (
-              <CircleAlert size={16} color="#F87171" strokeWidth={2} />
+              <CircleAlert size={18} color={c.dangerRing} strokeWidth={2} />
             ) : null}
             <Txt variant="bodySm" color={c.onToast} style={{ flex: 1 }}>
               {toast.message}

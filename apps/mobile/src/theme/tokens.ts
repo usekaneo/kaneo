@@ -42,6 +42,16 @@ export type Palette = {
   link: string;
   toast: string;
   onToast: string;
+  ring: string;
+  ringSoft: string;
+  raised: string;
+  raisedPrimary: string;
+  overlay: string;
+  priorityLow: string;
+  priorityMedium: string;
+  priorityHigh: string;
+  priorityUrgent: string;
+  priorityEmpty: string;
 };
 
 export const light: Palette = {
@@ -77,8 +87,18 @@ export const light: Palette = {
   mentionBorder: "#2B7FFF40",
   mentionText: "#1447E6",
   link: "#1447E6",
-  toast: "#262626",
-  onToast: "#FAFAFA",
+  toast: "#FFFFFF",
+  onToast: "#262626",
+  ring: "#A1A1A1",
+  ringSoft: "#A1A1A13D",
+  raised: "0 1px 2px #0000000D, inset 0 -1px 0 #0000000A",
+  raisedPrimary: "0 1px 2px #2626263D, inset 0 1px 0 #FFFFFF29",
+  overlay: "0 8px 24px #0000000F, 0 2px 6px #0000000A",
+  priorityLow: "#2563EB",
+  priorityMedium: "#D97706",
+  priorityHigh: "#EA580C",
+  priorityUrgent: "#DC2626",
+  priorityEmpty: "#00000021",
 };
 
 export const dark: Palette = {
@@ -114,8 +134,18 @@ export const dark: Palette = {
   mentionBorder: "#2B7FFF59",
   mentionText: "#51A2FF",
   link: "#51A2FF",
-  toast: "#F5F5F5",
-  onToast: "#262626",
+  toast: "#1C1C1C",
+  onToast: "#F5F5F5",
+  ring: "#737373",
+  ringSoft: "#7373733D",
+  raised: "inset 0 1px 0 #FFFFFF0A",
+  raisedPrimary: "0 1px 2px #00000066, inset 0 1px 0 #FFFFFF",
+  overlay: "0 8px 24px #00000066",
+  priorityLow: "#60A5FA",
+  priorityMedium: "#FBBF24",
+  priorityHigh: "#FB923C",
+  priorityUrgent: "#E5484D",
+  priorityEmpty: "#FFFFFF24",
 };
 
 export const font = {
@@ -128,9 +158,10 @@ export const font = {
 } as const;
 
 export const radius = {
+  xs: 4,
   sm: 6,
-  md: 10,
-  lg: 12,
+  md: 8,
+  lg: 10,
   xl: 14,
   sheet: 20,
   full: 999,

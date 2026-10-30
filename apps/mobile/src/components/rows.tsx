@@ -10,7 +10,7 @@ import {
 } from "@/lib/format";
 import { useColors } from "@/theme";
 
-import { StatusIcon } from "./icons";
+import { PriorityIcon, StatusIcon } from "./icons";
 import { Txt } from "./text";
 import { LabelTag, Touch } from "./ui";
 
@@ -26,6 +26,7 @@ export function TaskRow({
   dueDate,
   status,
   statusIcon,
+  priority,
   onPress,
   last,
   compact,
@@ -39,6 +40,7 @@ export function TaskRow({
   status?: string;
   /** The column's own icon name, when it has one. */
   statusIcon?: string | null;
+  priority?: string | null;
   onPress?: () => void;
   last?: boolean;
   /** One-line title, used inside grouped cards. */
@@ -84,6 +86,9 @@ export function TaskRow({
             rowGap: 2,
           }}
         >
+          {priority && priority !== "no-priority" ? (
+            <PriorityIcon priority={priority} size={12} />
+          ) : null}
           {ticket ? (
             <Txt variant="mono" tone="muted">
               {ticket}
