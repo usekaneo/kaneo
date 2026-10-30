@@ -14,10 +14,8 @@ import {
 import {
   CalendarDays,
   CalendarRange,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal,
   SearchIcon,
   SquareKanban,
   SquircleDashed,
@@ -33,57 +31,42 @@ import {
 } from "react";
 import BoardToolbar from "@/components/project-board-toolbar";
 import { PrivateListView } from "@/components/project-private-list-view";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsiblePanel,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useTaskFilters } from "@/hooks/use-task-filters";
 import { cn } from "@/lib/utils";
 import type Task from "@/types/task";
 import messages from "../../../../../i18n/en-US.json";
-import { version } from "../../../../../package.json";
+import { getAssignedTasks, indexTasks } from "./assigned-tasks";
 import { PreviewBoard } from "./board-view";
 import { PreviewCalendar } from "./calendar-view";
+import { HomeView } from "./home-view";
+import { InboxView } from "./inbox-view";
 import {
+  CURRENT_USER,
   MOCK_PROJECTS,
   MOCK_TASK_DETAILS,
   MOCK_USERS,
   MOCK_WORKSPACE,
   MOCK_WORKSPACE_LABELS,
 } from "./mock-data";
+import { MOCK_NOTIFICATIONS } from "./mock-inbox";
+import { MyTasksView } from "./my-tasks-view";
+import { type PreviewPage, PreviewSidebar } from "./sidebar";
 import { PreviewTaskDetailsPanel } from "./task-details";
 
 const PREVIEW_W = 1400;
 const PREVIEW_H = 860;
 
-export type PreviewMode = "board" | "list" | "calendar" | "gantt";
+export type PreviewView = "board" | "list" | "calendar" | "gantt";
+export type PreviewMode = PreviewView | PreviewPage;
+
+const PAGES: readonly PreviewMode[] = ["home", "inbox", "my-tasks"];
+
+function isPage(mode: PreviewMode): mode is PreviewPage {
+  return PAGES.includes(mode);
+}
 
 type ScheduledTask = Task & {
   scheduleStart: Date;
@@ -419,184 +402,6 @@ function MockGanttView({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MockSidebar: visually identical to app-sidebar.tsx, driven by mock data
-// ─────────────────────────────────────────────────────────────────────────────
-function MockSidebar({
-  activeProjectId,
-  onProjectSelect,
-}: {
-  activeProjectId: string;
-  onProjectSelect: (id: string) => void;
-}) {
-  return (
-    <Sidebar
-      collapsible="offcanvas"
-      variant="inset"
-      className="border-none pt-1.5"
-    >
-      {/* Header: WorkspaceSwitcher */}
-      <SidebarHeader className="pt-1 pb-1.5">
-        <div className="flex items-center justify-between w-full gap-2">
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <SidebarMenuButton
-                      className="group h-8 w-full rounded-md px-2 text-sidebar-foreground data-[active=true]:bg-sidebar-accent/50"
-                      size="default"
-                    />
-                  }
-                >
-                  <div className="flex items-center min-w-0 w-full">
-                    <span className="truncate text-sm font-medium text-sidebar-foreground">
-                      {MOCK_WORKSPACE.name}
-                    </span>
-                  </div>
-                  <ChevronDown className="ml-1 size-3.5 text-sidebar-foreground/72 opacity-90 transition-all duration-200 ease-out group-hover:opacity-100" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="min-w-40 text-sidebar-foreground"
-                  align="start"
-                  side="bottom"
-                  sideOffset={4}
-                >
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
-                    <DropdownMenuItem className="h-7 text-sm data-highlighted:bg-sidebar-accent">
-                      {MOCK_WORKSPACE.name}
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem className="h-7 text-sm data-highlighted:bg-sidebar-accent">
-                      Add workspace
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
-          <div className="h-7 w-7 shrink-0 flex items-center justify-center">
-            <Avatar className="h-6 w-6">
-              <AvatarFallback className="text-[10px] font-medium">
-                AC
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent className="overflow-hidden gap-1 py-1">
-        {/* Search (visual only) */}
-        <SidebarGroup className="pb-1">
-          <button
-            type="button"
-            className="inline-flex h-8 w-full cursor-pointer rounded-md border border-input bg-background px-2 py-1.5 text-foreground text-sm shadow-xs outline-none transition-[color,box-shadow]"
-          >
-            <span className="flex grow items-center">
-              <SearchIcon
-                aria-hidden="true"
-                className="-ms-1 me-3 text-muted-foreground/80"
-                size={16}
-              />
-              <span className="font-normal text-muted-foreground/70">
-                Search
-              </span>
-            </span>
-            <kbd className="-me-0.5 ms-6 inline-flex h-4 max-h-full items-center rounded border border-border/70 bg-background px-1 font-[inherit] font-medium text-[0.625rem] text-muted-foreground/60">
-              ⌘K
-            </kbd>
-          </button>
-        </SidebarGroup>
-
-        {/* NavMain: Overview */}
-        <Collapsible defaultOpen>
-          <SidebarGroup className="gap-1 p-2">
-            <CollapsibleTrigger
-              nativeButton={false}
-              className="data-panel-open:[&_svg]:rotate-90"
-              render={
-                <SidebarGroupLabel className="h-7 cursor-pointer justify-between px-0 text-sidebar-accent-foreground" />
-              }
-            >
-              <span>Overview</span>
-              <ChevronRight className="h-3.5 w-3.5 text-sidebar-foreground/60 transition-transform duration-200" />
-            </CollapsibleTrigger>
-            <CollapsiblePanel>
-              <SidebarGroupContent>
-                <SidebarMenu className="gap-0.5">
-                  {["Projects", "Members", "Invitations"].map((title) => (
-                    <SidebarMenuItem key={title}>
-                      <SidebarMenuButton
-                        size="default"
-                        className="h-8 ps-3.5 text-sm hover:bg-transparent hover:text-sidebar-accent-foreground active:bg-transparent cursor-default"
-                      >
-                        <span>{title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsiblePanel>
-          </SidebarGroup>
-        </Collapsible>
-
-        {/* NavProjects: Projects */}
-        <Collapsible defaultOpen>
-          <SidebarGroup className="gap-1 p-2 pt-1">
-            <CollapsibleTrigger
-              nativeButton={false}
-              className="data-panel-open:[&_svg]:rotate-90"
-              render={
-                <SidebarGroupLabel className="h-7 cursor-pointer justify-between px-0 text-sidebar-accent-foreground" />
-              }
-            >
-              <span>Projects</span>
-              <ChevronRight className="h-3.5 w-3.5 text-sidebar-foreground/60 transition-transform duration-200" />
-            </CollapsibleTrigger>
-            <CollapsiblePanel>
-              <SidebarGroupContent>
-                <SidebarMenu className="gap-0">
-                  {MOCK_PROJECTS.map((project) => (
-                    <SidebarMenuItem key={project.id}>
-                      <SidebarMenuButton
-                        data-tour-target={
-                          project.id === MOCK_PROJECTS[0].id
-                            ? "project-main"
-                            : "project-other"
-                        }
-                        isActive={project.id === activeProjectId}
-                        size="default"
-                        className="group/proj h-8 text-sm"
-                        onClick={() => onProjectSelect(project.id)}
-                      >
-                        <span className="truncate">{project.name}</span>
-
-                        <span className="ml-1 h-5 w-5 flex items-center justify-center opacity-0 group-hover/proj:opacity-100 rounded-sm">
-                          <MoreHorizontal className="h-3.5 w-3.5" />
-                        </span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </CollapsiblePanel>
-          </SidebarGroup>
-        </Collapsible>
-      </SidebarContent>
-
-      {/* Footer: version only */}
-      <SidebarFooter>
-        <div className="flex items-center justify-center px-2 py-1.5">
-          <span className="text-xs text-muted-foreground">v{version}</span>
-        </div>
-      </SidebarFooter>
-    </Sidebar>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // AppPreview
 // ─────────────────────────────────────────────────────────────────────────────
 export type AppPreviewHandle = {
@@ -648,8 +453,13 @@ export function AppPreview({
     [onModeChange],
   );
   const viewMode = mode ?? selectedViewMode;
+  const page = isPage(viewMode) ? viewMode : null;
+  // The project view to return to after visiting a workspace page.
+  const lastView = useRef<PreviewView>("board");
+  const view = isPage(viewMode) ? lastView.current : viewMode;
   const previousView = useRef(viewMode);
   useEffect(() => {
+    if (!isPage(viewMode)) lastView.current = viewMode;
     if (previousView.current !== viewMode) {
       setSelectedTaskId(null);
       previousView.current = viewMode;
@@ -665,27 +475,38 @@ export function AppPreview({
     }),
     [],
   );
-  const activeProject = useMemo(() => {
-    const project =
-      MOCK_PROJECTS.find((p) => p.id === activeProjectId) ?? MOCK_PROJECTS[0];
-    const tasks = project.columns
-      .flatMap((column) => column.tasks)
-      .map((task) => ({
-        ...task,
-        status: taskStatuses[task.id] ?? task.status,
-      }));
-    return {
-      ...project,
-      columns: project.columns.map((column) => ({
-        ...column,
-        tasks: tasks.filter((task) => task.status === column.id),
-      })),
-    };
-  }, [activeProjectId, taskStatuses]);
+  const projects = useMemo(
+    () =>
+      MOCK_PROJECTS.map((project) => {
+        const tasks = project.columns
+          .flatMap((column) => column.tasks)
+          .map((task) => ({
+            ...task,
+            status: taskStatuses[task.id] ?? task.status,
+          }));
+        return {
+          ...project,
+          columns: project.columns.map((column) => ({
+            ...column,
+            tasks: tasks.filter((task) => task.status === column.id),
+          })),
+        };
+      }),
+    [taskStatuses],
+  );
+  const activeProject =
+    projects.find((project) => project.id === activeProjectId) ?? projects[0];
+  const tasks = useMemo(() => indexTasks(projects), [projects]);
+  const assignedTasks = useMemo(
+    () => getAssignedTasks(projects, CURRENT_USER.id),
+    [projects],
+  );
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const unreadCount = notifications.filter(
+    (notification) => !notification.isRead,
+  ).length;
 
-  const selectedTask = activeProject.columns
-    .flatMap((column) => column.tasks)
-    .find((task) => task.id === selectedTaskId);
+  const selectedTask = selectedTaskId ? tasks.get(selectedTaskId) : undefined;
 
   const {
     filters,
@@ -696,10 +517,14 @@ export function AppPreview({
     hasActiveFilters,
   } = useTaskFilters(activeProject, activeProjectId);
 
-  const handleProjectSelect = useCallback((id: string) => {
-    setSelectedTaskId(null);
-    setActiveProjectId(id);
-  }, []);
+  const handleProjectSelect = useCallback(
+    (id: string) => {
+      setSelectedTaskId(null);
+      setActiveProjectId(id);
+      if (page) setViewMode(lastView.current);
+    },
+    [page, setViewMode],
+  );
 
   const setBoardToolbarMode = useCallback(
     (mode: "board" | "list") => {
@@ -746,144 +571,169 @@ export function AppPreview({
         <SidebarProvider
           defaultOpen
           style={
-            { "--sidebar-width": "14rem", minHeight: 0 } as React.CSSProperties
+            { "--sidebar-width": "15rem", minHeight: 0 } as React.CSSProperties
           }
           className="h-full"
         >
-          <MockSidebar
+          <PreviewSidebar
+            projects={projects}
+            activePage={page}
             activeProjectId={activeProjectId}
+            unreadCount={unreadCount}
+            assignedCount={assignedTasks.length}
+            onPageSelect={setViewMode}
             onProjectSelect={handleProjectSelect}
           />
 
           <SidebarInset className="m-2 flex flex-1 flex-col overflow-hidden rounded-xl border border-border/80 bg-background shadow-sm/5">
-            {/* ── Project header (matches project-layout.tsx) ───────────── */}
-            <header className="h-11 flex shrink-0 items-center gap-2 border-b border-border/80 bg-card px-2">
-              <div className="flex w-full items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2">
-                  {/* Breadcrumb */}
-                  <div className="flex min-w-0 items-center gap-1">
-                    <span className="text-sm text-muted-foreground truncate">
-                      {MOCK_WORKSPACE.name}
-                    </span>
-                    <span className="text-muted-foreground/70 text-xs">/</span>
-                    <span className="text-sm font-medium truncate">
-                      {activeProject.name}
-                    </span>
-                  </div>
-
-                  {/* View switcher */}
-                  <div className="h-8 items-center gap-0.5 rounded-lg border border-border/80 bg-background p-0.5 inline-flex">
-                    <Button
-                      variant={viewMode === "list" ? "secondary" : "ghost"}
-                      size="xs"
-                      data-tour-target="list"
-                      onClick={() => setViewMode("list")}
-                      className={cn(
-                        "h-6 gap-1.5 rounded-md px-2 text-xs",
-                        viewMode !== "list" && "text-muted-foreground",
-                      )}
-                    >
-                      <SquircleDashed className="size-3.5" />
-                      Backlog
-                    </Button>
-                    <Button
-                      variant={viewMode === "board" ? "secondary" : "ghost"}
-                      size="xs"
-                      data-tour-target="board"
-                      onClick={() => setViewMode("board")}
-                      className={cn(
-                        "h-6 gap-1.5 rounded-md px-2 text-xs",
-                        viewMode !== "board" && "text-muted-foreground",
-                      )}
-                    >
-                      <SquareKanban className="size-3.5" />
-                      Board
-                    </Button>
-                    <Button
-                      variant={viewMode === "calendar" ? "secondary" : "ghost"}
-                      size="xs"
-                      data-tour-target="calendar"
-                      onClick={() => setViewMode("calendar")}
-                      className={cn(
-                        "h-6 gap-1.5 rounded-md px-2 text-xs",
-                        viewMode !== "calendar" && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarRange className="size-3.5" />
-                      {messages.tasks.calendar.title}
-                    </Button>
-                    <Button
-                      variant={viewMode === "gantt" ? "secondary" : "ghost"}
-                      size="xs"
-                      data-tour-target="gantt"
-                      onClick={() => setViewMode("gantt")}
-                      className={cn(
-                        "h-6 gap-1.5 rounded-md px-2 text-xs",
-                        viewMode !== "gantt" && "text-muted-foreground",
-                      )}
-                    >
-                      <CalendarDays className="size-3.5" />
-                      Gantt
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </header>
-
-            {/* ── Board Toolbar ─────────────────────────────────────────── */}
-            {viewMode === "board" || viewMode === "list" ? (
-              <BoardToolbar
-                project={activeProject}
-                filters={filters}
-                updateFilter={updateFilter}
-                updateLabelFilter={updateLabelFilter}
-                clearFilters={clearFilters}
-                hasActiveFilters={hasActiveFilters}
-                users={MOCK_USERS}
-                workspaceLabels={MOCK_WORKSPACE_LABELS}
-                viewMode={viewMode}
-                setViewMode={setBoardToolbarMode}
+            {page === "home" ? (
+              <HomeView
+                projects={projects}
+                assignedTasks={assignedTasks}
+                tasks={tasks}
+                onTaskClick={openTask}
+                onProjectSelect={handleProjectSelect}
+                onViewAllTasks={() => setViewMode("my-tasks")}
               />
-            ) : null}
+            ) : page === "inbox" ? (
+              <InboxView
+                notifications={notifications}
+                onNotificationsChange={setNotifications}
+                tasks={tasks}
+                onOpenTask={openTask}
+              />
+            ) : page === "my-tasks" ? (
+              <MyTasksView tasks={assignedTasks} onTaskClick={openTask} />
+            ) : (
+              <>
+                {/* ── Project header (matches project-layout.tsx) ───────────── */}
+                <header className="h-11 flex shrink-0 items-center gap-2 border-b border-border/80 bg-card px-2">
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
+                      {/* Breadcrumb */}
+                      <div className="flex min-w-0 items-center gap-1">
+                        <span className="text-sm text-muted-foreground truncate">
+                          {MOCK_WORKSPACE.name}
+                        </span>
+                        <span className="text-muted-foreground/70 text-xs">
+                          /
+                        </span>
+                        <span className="text-sm font-medium truncate">
+                          {activeProject.name}
+                        </span>
+                      </div>
 
-            {/* ── View content ─────────────────────────────────────────── */}
-            <div className="relative flex-1 overflow-hidden flex flex-col min-h-0 bg-linear-to-b from-muted/20 to-background">
-              {viewMode === "calendar" ? (
-                <PreviewCalendar
-                  project={activeProject}
-                  onTaskClick={openTask}
-                />
-              ) : viewMode === "gantt" ? (
-                <MockGanttView
-                  key={activeProject.id}
-                  project={activeProject}
-                  onTaskClick={openTask}
-                />
-              ) : viewMode === "board" ? (
-                <PreviewBoard
-                  details={taskDetails}
-                  project={filteredProject ?? activeProject}
-                  onTaskClick={openTask}
-                />
-              ) : (
-                <PrivateListView
-                  project={filteredProject ?? activeProject}
-                  onTaskClick={openTask}
-                />
-              )}
-            </div>
+                      {/* View switcher */}
+                      <div className="h-8 items-center gap-0.5 rounded-lg border border-border/80 bg-background p-0.5 inline-flex">
+                        <Button
+                          variant={view === "list" ? "secondary" : "ghost"}
+                          size="xs"
+                          data-tour-target="list"
+                          onClick={() => setViewMode("list")}
+                          className={cn(
+                            "h-6 gap-1.5 rounded-md px-2 text-xs",
+                            view !== "list" && "text-muted-foreground",
+                          )}
+                        >
+                          <SquircleDashed className="size-3.5" />
+                          Backlog
+                        </Button>
+                        <Button
+                          variant={view === "board" ? "secondary" : "ghost"}
+                          size="xs"
+                          data-tour-target="board"
+                          onClick={() => setViewMode("board")}
+                          className={cn(
+                            "h-6 gap-1.5 rounded-md px-2 text-xs",
+                            view !== "board" && "text-muted-foreground",
+                          )}
+                        >
+                          <SquareKanban className="size-3.5" />
+                          Board
+                        </Button>
+                        <Button
+                          variant={view === "calendar" ? "secondary" : "ghost"}
+                          size="xs"
+                          data-tour-target="calendar"
+                          onClick={() => setViewMode("calendar")}
+                          className={cn(
+                            "h-6 gap-1.5 rounded-md px-2 text-xs",
+                            view !== "calendar" && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarRange className="size-3.5" />
+                          {messages.tasks.calendar.title}
+                        </Button>
+                        <Button
+                          variant={view === "gantt" ? "secondary" : "ghost"}
+                          size="xs"
+                          data-tour-target="gantt"
+                          onClick={() => setViewMode("gantt")}
+                          className={cn(
+                            "h-6 gap-1.5 rounded-md px-2 text-xs",
+                            view !== "gantt" && "text-muted-foreground",
+                          )}
+                        >
+                          <CalendarDays className="size-3.5" />
+                          Gantt
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </header>
+
+                {/* ── Board Toolbar ─────────────────────────────────────────── */}
+                {view === "board" || view === "list" ? (
+                  <BoardToolbar
+                    project={activeProject}
+                    filters={filters}
+                    updateFilter={updateFilter}
+                    updateLabelFilter={updateLabelFilter}
+                    clearFilters={clearFilters}
+                    hasActiveFilters={hasActiveFilters}
+                    users={MOCK_USERS}
+                    workspaceLabels={MOCK_WORKSPACE_LABELS}
+                    viewMode={view}
+                    setViewMode={setBoardToolbarMode}
+                  />
+                ) : null}
+
+                {/* ── View content ─────────────────────────────────────────── */}
+                <div className="relative flex-1 overflow-hidden flex flex-col min-h-0 bg-linear-to-b from-muted/20 to-background">
+                  {view === "calendar" ? (
+                    <PreviewCalendar
+                      project={activeProject}
+                      onTaskClick={openTask}
+                    />
+                  ) : view === "gantt" ? (
+                    <MockGanttView
+                      key={activeProject.id}
+                      project={activeProject}
+                      onTaskClick={openTask}
+                    />
+                  ) : view === "board" ? (
+                    <PreviewBoard
+                      details={taskDetails}
+                      project={filteredProject ?? activeProject}
+                      onTaskClick={openTask}
+                    />
+                  ) : (
+                    <PrivateListView
+                      project={filteredProject ?? activeProject}
+                      onTaskClick={openTask}
+                    />
+                  )}
+                </div>
+              </>
+            )}
           </SidebarInset>
         </SidebarProvider>
         {selectedTask && (
           <PreviewTaskDetailsPanel
             key={selectedTask.id}
             task={selectedTask}
-            projectSlug={activeProject.slug}
-            statusName={
-              activeProject.columns.find(
-                (column) => column.id === selectedTask.status,
-              )?.name ?? selectedTask.status
-            }
+            projectSlug={selectedTask.projectSlug}
+            statusName={selectedTask.statusName}
             details={taskDetails[selectedTask.id]}
             onChange={(details) =>
               setTaskDetails((current) => ({

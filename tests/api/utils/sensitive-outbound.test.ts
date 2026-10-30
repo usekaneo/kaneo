@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { gunzipSync } from "node:zlib";
-import { expect, it } from "vitest";
+import { expect, it } from "vite-plus/test";
 import {
   isSensitiveOutboundRequest,
   withoutOutboundTelemetry,
@@ -66,10 +66,14 @@ it("keeps credentials out of actual Sentry events, breadcrumbs and spans while r
       const Sentry = await import('@sentry/node');
       const { sendOutboundRequest } = await import('./src/utils/outbound-request.ts');
       const { withoutOutboundTelemetry } = await import('./src/utils/sensitive-outbound.ts');
+      const { postToDiscord } = await import('./src/plugins/discord/client.ts');
+      const { postToSlack } = await import('./src/plugins/slack/client.ts');
       const http = await import('node:http');
       const base = process.env.TELEMETRY_TEST_BASE;
       await Sentry.startSpan({ name: 'notification-test', op: 'test' }, async () => {
         await sendOutboundRequest(base + '/bot/FETCH_SECRET/sendMessage?token=QUERY_SECRET', { body: 'BODY_SECRET', headers: { Authorization: 'Bearer HEADER_SECRET' } });
+        await postToDiscord(base + '/webhooks/DISCORD_SECRET', { content: 'DISCORD_BODY_SECRET' });
+        await postToSlack(base + '/services/SLACK_SECRET', { text: 'SLACK_BODY_SECRET' });
         try { await sendOutboundRequest(base + '/failure/FAILURE_SECRET', {}); }
         catch (error) { Sentry.captureException(error); }
         await withoutOutboundTelemetry(() => new Promise((resolve, reject) => {
@@ -93,7 +97,7 @@ it("keeps credentials out of actual Sentry events, breadcrumbs and spans while r
         timeout: 20000,
       },
     );
-    expect(paths).toHaveLength(4);
+    expect(paths).toHaveLength(6);
     const telemetry = envelopes.join("\n");
     expect(telemetry).toContain("safe-delivery-probe");
     expect(telemetry).toContain("ordinary-http-marker");
@@ -105,6 +109,10 @@ it("keeps credentials out of actual Sentry events, breadcrumbs and spans while r
       "HEADER_SECRET",
       "FAILURE_SECRET",
       "HTTP_SECRET",
+      "DISCORD_SECRET",
+      "DISCORD_BODY_SECRET",
+      "SLACK_SECRET",
+      "SLACK_BODY_SECRET",
     ])
       expect(telemetry).not.toContain(secret);
   } finally {

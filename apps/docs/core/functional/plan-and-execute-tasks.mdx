@@ -3,7 +3,9 @@ title: "Board, List, and task details"
 description: "Create tasks, keep them moving, and find the work that needs attention."
 ---
 
-Open a project and choose **Tasks**. Use **Board** or **List** at the top right to change how the same work is displayed.
+Open a project and choose **Tasks**. To change how the same work is displayed, open **Display** at the top right and pick a layout: **Board**, **List**, **Calendar**, or **Gantt**.
+
+Most actions have a keyboard shortcut: for example **C** creates a task, **G** then **I** opens your inbox, and **⌘B** switches between Board and List. Press **?** (or **⌘/**, **Ctrl+/** on Windows and Linux) anywhere to see and search every shortcut.
 
 ## Add a task
 
@@ -24,14 +26,26 @@ Your project's [workflow settings](/core/functional/configure-workflows) determi
 
 ## Scan work in List
 
-Switch to **List** when you want to compare task properties without opening every task.
+Switch the layout to **List** when you want to compare task properties without opening every task.
 
 <Frame caption="List view shows the same project tasks in rows for faster scanning.">
   <img className="block dark:hidden" src="/images/product/list-light.png" alt="List view shows the same project tasks in rows for faster scanning." />
   <img className="hidden dark:block" src="/images/product/list-dark.png" alt="List view shows the same project tasks in rows for faster scanning." />
 </Frame>
 
-Use **Filter** to narrow the view by status, priority, assignee, dates, or labels. Use **Sort** to change the order. If a task seems to have disappeared, clear your filters and check the backlog before creating another one.
+## Find and filter work
+
+Use the search icon, or press ⌘F (Ctrl+F on Windows and Linux), to find tasks by title, description, or task number.
+
+Use **Filter** to narrow the view by status, assignee, priority, labels, due date, or custom fields. Hover a property to pick its values, or type in **Add filter…** to search every value at once. Each filter appears as a chip above the tasks:
+
+- Click the operator, such as **is**, to switch it to **is not** and hide matching tasks instead.
+- Click the values to change them.
+- Choose **×** to remove the filter, or **Clear all** to remove every filter.
+
+Filters are saved for each project and apply to every layout. The count next to **Tasks** shows how many tasks match. If a task seems to have disappeared, clear your filters and check the backlog before creating another one.
+
+Open **Display** to sort tasks and choose which details appear on cards and rows. Filled custom fields show as small chips on cards and rows; hover one to see the field name. Under **Fields**, turn off any field you don't want there. These choices are saved in your browser and only affect your view.
 
 ## Add the details people need
 
@@ -45,10 +59,23 @@ Open a task to edit its description and properties. Use **Open in full page** fr
 - **Assignee:** choose the person responsible for the next step. Clear it to leave the task unassigned.
 - **Priority:** show what needs attention first. A task can have no priority.
 - **Dates:** add start and due dates when the work has a schedule.
+- **Repeat:** turn on **Repeat** in the due date picker for recurring work. See [Repeat a task](#repeat-a-task).
 - **Labels:** group related work across projects. Removing a label from one task does not delete the workspace label.
 - **Comments:** ask questions and record decisions where everyone following the task can find them.
 
 Use the attachment button, paste, or drag a file into the editor to add supporting material. Images appear inline; other files appear as attachments. On self-hosted instances, an operator must [configure file storage](/core/installation/object-storage-and-image-uploads) first.
+
+## Repeat a task
+
+For work that comes back on a schedule, such as a weekly report, open the task's due date and choose **Repeat**. You can do this while creating the task or later. Pick **Daily**, **Weekly**, **Monthly**, or **Yearly**, or **Periodically** to repeat every few days, weeks, months, or years. Weekly patterns can repeat on several days, such as Monday and Thursday. Choose **Pick a date** to see the upcoming dates highlighted on the calendar.
+
+When a repeating task moves into a done column, Kaneo creates the next task in the project's first open column. The next task keeps the title, description, assignee, priority, labels, and custom fields. If the assignee has left the workspace, the next task is unassigned. It is due on the next date of the pattern after the completed task's due date, and its start date moves by the same number of days. A task without a due date repeats from the moment it is completed, with no start date.
+
+The completed task stays in the done column as a record, and the repeat setting moves to the new task. Reopening the completed task does not create another one. To stop the series, open the due date of the open task and turn off **Repeat**. Subtasks are not copied.
+
+In a project connected to GitHub, Gitea, or GitLab, each new occurrence is treated like any other new task: it gets its own issue when it matches the integration's sync rules.
+
+From the terminal, set or stop a rule with [`kaneo task repeat`](/cli/reference#kaneo-task-repeat).
 
 ## Break work into subtasks
 
@@ -64,7 +91,9 @@ Use **Remove relation** to unlink the tasks without deleting either task.
 
 ## Fill in custom fields
 
-If your project defines extra fields, open **Custom Fields** in task details. These can hold text, numbers, dates, dropdown choices, or a yes/no value. A project manager defines the fields in [Workflow settings](/core/functional/configure-workflows).
+If your project defines extra fields, they appear under **Fields** in the task's **Properties** sidebar. In the side panel and when you create a task, they show as chips below status and priority. Click a field to set its value; a checkbox field toggles in place. Fields can hold text, numbers, dates, one or several dropdown choices, or a checkbox. A project manager defines the fields in [Custom fields settings](/core/functional/configure-workflows#set-up-custom-fields).
+
+Required fields always keep a value, so they have no **Clear** option. If one is still empty when you create a task, Kaneo highlights it and tells you how many are missing.
 
 ## Delete a task
 

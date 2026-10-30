@@ -1,7 +1,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import queryClient from "@/query-client";
 import useImportGithubIssues from "./use-import-github-issues";
 
@@ -29,6 +36,9 @@ describe("GitHub import cache refresh", () => {
       const keys = [
         ["tasks", "project"],
         ["labels", "workspace"],
+        ["projects", "workspace"],
+        ["assigned-tasks", "workspace"],
+        ["workspace-activity", "workspace"],
         ["github-integration", "project"],
       ];
       for (const key of keys) queryClient.setQueryData(key, {});

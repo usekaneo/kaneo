@@ -1,6 +1,6 @@
 import { CheckCircle2, Circle, CircleDot } from "lucide-react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getColumnIcon } from "./column";
 
 describe("stored column icons", () => {

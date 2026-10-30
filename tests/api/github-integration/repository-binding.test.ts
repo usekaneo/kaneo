@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const m = vi.hoisted(() => ({
   account: vi.fn(),
@@ -50,15 +50,12 @@ vi.mock("../../../apps/api/src/plugins/github/utils/github-app", () => ({
     }),
   }),
 }));
-const { verifyRepositoryOwner } = await import(
-  "../../../apps/api/src/github-integration/controllers/verify-repository-owner"
-);
-const { default: createIntegration } = await import(
-  "../../../apps/api/src/github-integration/controllers/create-github-integration"
-);
-const { findAllIntegrationsByRepo } = await import(
-  "../../../apps/api/src/plugins/github/services/task-service"
-);
+const { verifyRepositoryOwner } =
+  await import("../../../apps/api/src/github-integration/controllers/verify-repository-owner");
+const { default: createIntegration } =
+  await import("../../../apps/api/src/github-integration/controllers/create-github-integration");
+const { findAllIntegrationsByRepo } =
+  await import("../../../apps/api/src/plugins/github/services/task-service");
 const binding = {
   repositoryOwner: "Victim",
   repositoryName: "Private",
@@ -109,7 +106,9 @@ describe("GitHub repository linking", () => {
     m.account.mockResolvedValue(null);
     await expect(
       verifyRepositoryOwner("user", "victim", "private"),
-    ).rejects.toMatchObject({ status: 403 });
+    ).rejects.toMatchObject({
+      status: 403,
+    });
     expect(m.installation).not.toHaveBeenCalled();
   });
   it("does not save a null installation after provider failure", async () => {
@@ -138,7 +137,9 @@ describe("GitHub repository linking", () => {
     m.user.mockResolvedValueOnce({ data: { id: 31, login: "somebody-else" } });
     await expect(
       verifyRepositoryOwner("user", "victim", "private"),
-    ).rejects.toMatchObject({ status: 403 });
+    ).rejects.toMatchObject({
+      status: 403,
+    });
     expect(m.permission).not.toHaveBeenCalled();
   });
 });
@@ -186,9 +187,8 @@ describe("GitHub webhook binding", () => {
   });
 });
 
-const { default: listUserRepositories } = await import(
-  "../../../apps/api/src/github-integration/controllers/list-user-repositories"
-);
+const { default: listUserRepositories } =
+  await import("../../../apps/api/src/github-integration/controllers/list-user-repositories");
 describe("authorized bounded repository listing", () => {
   const candidate = (id: number) => ({
     id,
@@ -258,6 +258,58 @@ describe("authorized bounded repository listing", () => {
     });
     expect(page.nextPage).toBeNull();
     expect(m.listRepos).not.toHaveBeenCalled();
+  });
+  it("searches before checking access and keeps scanning installations", async () => {
+    m.listInstallations
+      .mockResolvedValueOnce({
+        data: [{ id: 10, account: { login: "owner" } }],
+      })
+      .mockResolvedValueOnce({ data: [{ id: 11, account: { login: "org" } }] })
+      .mockResolvedValueOnce({ data: [] });
+    m.listRepos
+      .mockResolvedValueOnce({
+        data: {
+          repositories: [
+            { ...candidate(20), full_name: "owner/website" },
+            { ...candidate(21), description: null },
+          ],
+        },
+      })
+      .mockResolvedValueOnce({
+        data: { repositories: [{ ...candidate(30), full_name: "org/web" }] },
+      });
+    const page = await listUserRepositories(
+      "user",
+      { installationPage: 1, repositoryPage: 1 },
+      "WEB",
+    );
+    expect(page.repositories.map((repo) => repo.id)).toEqual([20, 30]);
+    expect(page.installations.map((item) => item.id)).toEqual([10, 11]);
+    expect(page.nextPage).toBeNull();
+    expect(m.listRepos).toHaveBeenCalledWith(
+      expect.objectContaining({ per_page: 100, page: 1 }),
+    );
+    expect(m.user).toHaveBeenCalledTimes(2);
+    expect(m.permission).toHaveBeenCalledTimes(2);
+    expect(m.permission).not.toHaveBeenCalledWith(
+      expect.objectContaining({ repo: "repo-21" }),
+    );
+  });
+  it("does not return search matches the caller cannot administer", async () => {
+    m.listInstallations
+      .mockResolvedValueOnce({
+        data: [{ id: 10, account: { login: "owner" } }],
+      })
+      .mockResolvedValueOnce({ data: [] });
+    m.permission.mockResolvedValue({ data: { permission: "write" } });
+    const page = await listUserRepositories(
+      "user",
+      { installationPage: 1, repositoryPage: 1 },
+      "private",
+    );
+    expect(page.repositories).toEqual([]);
+    expect(page.installations).toEqual([]);
+    expect(JSON.stringify(page)).not.toContain("owner");
   });
   it("rejects unlinked callers before any provider enumeration", async () => {
     m.account.mockResolvedValue(null);

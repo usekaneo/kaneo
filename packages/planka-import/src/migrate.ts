@@ -1,23 +1,22 @@
-import { labelColorToHex } from "./colors.js";
-import type { KaneoClient } from "./kaneo.js";
-import { toProjectKey, uniqueKey } from "./keys.js";
 import {
   boardProjectName,
   buildDescription,
   DEFAULT_PRIORITY,
   displayName,
   formatComment,
-  planColumns,
-  sortCards,
-  toDueDate,
-} from "./mapping.js";
-import {
+  labelColorToHex,
   MIGRATABLE_LIST_TYPES,
   type PlankaBoard,
   type PlankaClient,
   type PlankaProject,
   type PlankaUser,
-} from "./planka.js";
+  planColumns,
+  sortCards,
+  toDueDate,
+  toProjectKey,
+  uniqueKey,
+} from "@kaneo/importers/planka";
+import type { KaneoClient } from "./kaneo.js";
 
 export type BoardTarget = {
   project: PlankaProject;

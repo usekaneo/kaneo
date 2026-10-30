@@ -4,20 +4,22 @@ export const monday: Comparison = {
   slug: "monday",
   competitor: "monday.com",
   category: "saas",
-  title: "Open-source monday.com alternative",
+  title: "monday.com alternative with no seat minimums",
   description:
-    "Kaneo is an open-source, self-hostable monday.com alternative with no seat minimums, SSO included, and free self-hosting under the MIT license.",
-  summary: "No seat blocks, no three-board free tier, no Enterprise-only SSO.",
-  heading: "The open-source monday.com alternative",
+    "Kaneo is a monday.com alternative with no seat minimums and every feature on every plan. Kaneo Cloud runs it for you from $4 a month, 14-day free trial.",
+  summary:
+    "No seat blocks, no three-board free tier, and every feature on every plan.",
+  heading: "The monday.com alternative with no seat minimums",
   subheading:
-    "monday.com sells seats in blocks, caps its free plan at two people and three boards, and keeps single sign-on for Enterprise. Kaneo is open source and charges nothing to run yourself.",
+    "monday.com sells seats in blocks, caps its free plan at two people and three boards, and keeps single sign-on for Enterprise. Kaneo Cloud has no seat minimums, and self-hosted Kaneo includes single sign-on for free.",
   verdict:
-    "Kaneo is an open-source, self-hostable alternative to monday.com. It is MIT licensed, free to run on your own Docker host with unlimited users and boards, and its cloud starts at $4 a month with no seat minimums. monday.com is a broader work-OS with dashboards, forms, and CRM templates that Kaneo does not try to match.",
+    "Kaneo is a monday.com alternative for teams that want a project tracker without seat blocks, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with no seat minimums. monday.com is a broader work-OS with dashboards, forms, and CRM templates that Kaneo does not try to match. Kaneo is also MIT-licensed open source, so you can self-host it for free with unlimited users and boards.",
   facts: {
     license: "MIT, versus a proprietary licence for monday.com",
-    hosting: "Self-host anywhere, or EU-hosted cloud. monday.com is cloud only",
+    hosting:
+      "EU-hosted Kaneo Cloud, or self-host anywhere. monday.com is cloud only",
     sso: "Free on every Kaneo build, Enterprise tier on monday.com",
-    pricing: "$0 self-hosted, cloud from $4 / month, no seat minimum",
+    pricing: "Cloud from $4 / month with no seat minimum, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },
@@ -72,7 +74,7 @@ export const monday: Comparison = {
     {
       question: "Does Kaneo have automations?",
       answer:
-        "Kaneo has workflow rules per project that map integration events to target columns, plus outgoing webhooks, GitHub and Gitea integrations, and notifications in Slack, Discord, Telegram, and Mattermost. It does not have a general automation recipe builder.",
+        "Kaneo has workflow rules per project that map integration events to target columns, plus outgoing webhooks, GitHub, GitLab, and Gitea integrations, and notifications in Slack, Discord, Telegram, and Mattermost. It does not have a general automation recipe builder.",
     },
   ],
   related: ["clickup", "asana", "wrike", "leantime"],

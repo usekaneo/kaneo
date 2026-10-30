@@ -1,6 +1,13 @@
 import * as email from "@kaneo/email";
 import { eq } from "drizzle-orm";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
@@ -18,7 +25,12 @@ const redirectTo = `${origin}/auth/reset-password`;
 function post(path: string, body: unknown) {
   return createApp().app.request(`/api/auth${path}`, {
     method: "POST",
-    headers: { "content-type": "application/json", Origin: origin },
+    headers: {
+      "content-type": "application/json",
+      Origin: origin,
+      "user-agent":
+        "Mozilla/5.0 (X11; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0",
+    },
     body: JSON.stringify(body),
   });
 }
@@ -53,14 +65,24 @@ async function requestReset() {
   );
   const props = vi.mocked(email.sendPasswordResetEmail).mock.calls.at(-1)?.[2];
   expect(props).toEqual(
-    expect.objectContaining({ locale: "de-DE", userName: "Reset user" }),
+    expect.objectContaining({
+      locale: "de-DE",
+      userName: "Reset user",
+      device: { browser: "Firefox", os: "Linux" },
+      requestedAt: expect.any(Date),
+    }),
   );
   const link = new URL((props as { resetLink: string }).resetLink);
   expect(link.origin).toBe("http://localhost:1337");
   expect(link.searchParams.get("callbackURL")).toBe(redirectTo);
-  expect(vi.mocked(email.sendPasswordResetEmail).mock.calls.at(-1)?.[1]).toBe(
-    "Kaneo-Passwort zurücksetzen",
-  );
+  const subject = vi
+    .mocked(email.sendPasswordResetEmail)
+    .mock.calls.at(-1)?.[1];
+  expect(typeof subject).toBe("function");
+  if (typeof subject !== "function")
+    throw new Error("Missing subject resolver");
+  expect(subject("Kaneo")).toBe("Kaneo-Passwort zurücksetzen");
+  expect(subject("Acme $&")).toBe("Acme $&-Passwort zurücksetzen");
   return { link, token: link.pathname.split("/").at(-1) };
 }
 

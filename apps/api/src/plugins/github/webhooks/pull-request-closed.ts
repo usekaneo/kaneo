@@ -1,3 +1,4 @@
+import { withIntegrationLink } from "../services/with-integration-link";
 import { and, eq } from "drizzle-orm";
 import db from "../../../database";
 import { externalLinkTable } from "../../../database/schema";
@@ -53,67 +54,91 @@ export async function handlePullRequestClosed(payload: PRClosedPayload) {
       continue;
     }
 
-    const task = await findTaskById(externalLink.taskId);
+    await withIntegrationLink(
+      externalLink,
+      integration,
+      async (database, afterCommit, lockedLink) => {
+        const task = await findTaskById(externalLink.taskId, database);
 
-    if (!task) {
-      continue;
-    }
+        if (!task) {
+          return;
+        }
 
-    const existingMetadata = parseLinkMetadata(externalLink.metadata, {
-      externalLinkId: externalLink.id,
-      source: "pull_request_closed",
-    });
-
-    await updateExternalLink(externalLink.id, {
-      metadata: {
-        ...existingMetadata,
-        state: "closed",
-        merged: pull_request.merged,
-        mergedAt: pull_request.merged_at,
-      },
-    });
-
-    if (pull_request.merged) {
-      const allTaskPRs = await db.query.externalLinkTable.findMany({
-        where: and(
-          eq(externalLinkTable.taskId, task.id),
-          eq(externalLinkTable.resourceType, "pull_request"),
-        ),
-      });
-
-      const hasOpenPRs = allTaskPRs.some((pr) => {
-        if (pr.id === externalLink.id) return false;
-        const metadata = parseLinkMetadata(pr.metadata, {
-          externalLinkId: pr.id,
+        const existingMetadata = parseLinkMetadata(lockedLink.metadata, {
+          externalLinkId: externalLink.id,
           source: "pull_request_closed",
         });
-        return metadata.state === "open";
-      });
 
-      if (!hasOpenPRs) {
-        const targetStatus = await resolveTargetStatus(
-          integration.projectId,
-          "pr_merged",
-          config.statusTransitions?.onPRMerge || "done",
+        await updateExternalLink(
+          externalLink.id,
+          {
+            metadata: {
+              ...existingMetadata,
+              state: "closed",
+              merged: pull_request.merged,
+              mergedAt: pull_request.merged_at,
+            },
+          },
+          database,
         );
-        const statusResult = await updateTaskStatus(task.id, targetStatus);
-        if (
-          statusResult.applied &&
-          statusResult.before.status !== statusResult.after.status
-        ) {
-          await publishEvent("task.status_changed", {
-            taskId: statusResult.after.id,
-            projectId: statusResult.after.projectId,
-            userId: null,
-            oldStatus: statusResult.before.status,
-            newStatus: statusResult.after.status,
-            title: statusResult.after.title,
-            assigneeId: statusResult.after.userId,
-            type: "status_changed",
+
+        afterCommit(() =>
+          publishEvent("task.updated", {
+            projectId: integration.projectId,
+            taskId: task.id,
+          }),
+        );
+
+        if (pull_request.merged) {
+          const allTaskPRs = await database.query.externalLinkTable.findMany({
+            where: and(
+              eq(externalLinkTable.taskId, task.id),
+              eq(externalLinkTable.resourceType, "pull_request"),
+            ),
           });
+
+          const hasOpenPRs = allTaskPRs.some((pr) => {
+            if (pr.id === externalLink.id) return false;
+            const metadata = parseLinkMetadata(pr.metadata, {
+              externalLinkId: pr.id,
+              source: "pull_request_closed",
+            });
+            return metadata.state === "open";
+          });
+
+          if (!hasOpenPRs) {
+            const targetStatus = await resolveTargetStatus(
+              integration.projectId,
+              "pr_merged",
+              config.statusTransitions?.onPRMerge || "done",
+              database,
+            );
+            const statusResult = await updateTaskStatus(
+              task.id,
+              targetStatus,
+              database,
+            );
+            if (
+              statusResult.applied &&
+              statusResult.before.status !== statusResult.after.status
+            ) {
+              afterCommit(() =>
+                publishEvent("task.status_changed", {
+                  taskId: statusResult.after.id,
+                  projectId: statusResult.after.projectId,
+                  userId: null,
+                  oldStatus: statusResult.before.status,
+                  newStatus: statusResult.after.status,
+                  title: statusResult.after.title,
+                  assigneeId: statusResult.after.userId,
+                  type: "status_changed",
+                }),
+              );
+            }
+          }
         }
-      }
-    }
+      },
+    );
 
     return;
   }

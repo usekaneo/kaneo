@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { extractIssueReferences } from "../../../../../apps/api/src/plugins/github/utils/issue-references";
 
 const repository = "https://github.com/acme/repo";

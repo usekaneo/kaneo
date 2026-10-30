@@ -44,6 +44,8 @@ async function createWorkspace(page: Page) {
 }
 
 async function createProject(page: Page) {
+  await page.getByRole("link", { name: "All projects", exact: true }).click();
+  await expect(page).toHaveURL(/\/projects$/);
   await page
     .getByRole("button", { name: "Create project", exact: true })
     .first()
@@ -65,6 +67,10 @@ async function createTask(page: Page, title: string) {
   await page.getByTitle("Add task", { exact: true }).first().click();
   await page.getByPlaceholder("Task title", { exact: true }).fill(title);
   await page.getByRole("button", { name: "Create Task", exact: true }).click();
+  // The modal's title field also matches the text until the dialog closes.
+  await expect(
+    page.getByPlaceholder("Task title", { exact: true }),
+  ).toBeHidden();
   await expect(page.getByText(title, { exact: true })).toBeVisible();
 }
 

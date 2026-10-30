@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import getInstanceStatus from "../../apps/api/src/instance/controllers/get-instance-status";
 import { filterAssignableUsers } from "../../apps/api/src/utils/assert-assignable-user";

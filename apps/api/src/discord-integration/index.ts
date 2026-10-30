@@ -56,7 +56,7 @@ function toResponse(integration: {
       : "",
     events: {
       ...defaultDiscordEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     isActive: integration.isActive,
     createdAt: integration.createdAt,
@@ -92,17 +92,20 @@ const getDiscordIntegrationRoute = createRoute({
   summary: "Get Discord integration",
   description:
     "Get the Discord integration for a project, or null when none is configured.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
       "Discord integration details, or null",
       discordIntegrationSchema.nullable(),
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
+    403: errorResponse(
+      "No access to the project, or missing project:read permission",
     ),
-    403: errorResponse("No access to the project's workspace"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -129,8 +132,9 @@ const createDiscordIntegrationRoute = createRoute({
     ),
     400: errorResponse("The webhook URL failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -157,9 +161,9 @@ const updateDiscordIntegrationRoute = createRoute({
     ),
     400: errorResponse("The resulting config failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Discord integration not found"),
+    404: errorResponse("Project or Discord integration not found"),
   },
 });
 
@@ -174,13 +178,10 @@ const deleteDiscordIntegrationRoute = createRoute({
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The integration was removed", deletedSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Discord integration not found"),
+    404: errorResponse("Project or Discord integration not found"),
   },
 });
 
@@ -254,8 +255,8 @@ const discordIntegration = apiRouter<BaseVariables & { workspaceId: string }>()
           ? currentConfig.channelName
           : (body.channelName ?? undefined),
       events: {
-        ...(currentConfig.events ?? {}),
-        ...(body.events ?? {}),
+        ...currentConfig.events,
+        ...body.events,
       },
     });
 

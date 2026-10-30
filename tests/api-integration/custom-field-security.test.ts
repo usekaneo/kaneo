@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
@@ -114,7 +114,7 @@ describe("custom field read authorization", () => {
     const outsider = await createWorkspaceMember({ role: "admin" });
     mockAuthenticatedSession(outsider.user);
     for (const path of paths)
-      expect((await app.request(path)).status).toBe(403);
+      expect((await app.request(path)).status).toBe(404);
   });
 });
 

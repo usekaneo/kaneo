@@ -7,7 +7,7 @@ import {
   expect,
   it,
   vi,
-} from "vitest";
+} from "vite-plus/test";
 
 const { updateSubscriptionSeats } = vi.hoisted(() => ({
   updateSubscriptionSeats: vi.fn(async () => ({ ok: true as const })),

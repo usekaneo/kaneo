@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const { sendDueDateReminder } = vi.hoisted(() => ({
   sendDueDateReminder: vi.fn<
@@ -25,19 +25,15 @@ vi.mock(
 );
 
 const { default: db, schema } = await import("../../apps/api/src/database");
-const { checkDueDateReminders } = await import(
-  "../../apps/api/src/scheduler/due-date-reminders"
-);
-const { checkProjectWebhookReminders } = await import(
-  "../../apps/api/src/scheduler/project-webhook-reminders"
-);
-const { DUE_DATE_DURATION_MS } = await import(
-  "../../apps/api/src/scheduler/reminder-timing"
-);
+const { checkDueDateReminders } =
+  await import("../../apps/api/src/scheduler/due-date-reminders");
+const { checkProjectWebhookReminders } =
+  await import("../../apps/api/src/scheduler/project-webhook-reminders");
+const { DUE_DATE_DURATION_MS } =
+  await import("../../apps/api/src/scheduler/reminder-timing");
 const { resetTestDatabase } = await import("./helpers/database");
-const { createProjectFixture, createWorkspaceMember } = await import(
-  "./helpers/fixtures"
-);
+const { createProjectFixture, createWorkspaceMember } =
+  await import("./helpers/fixtures");
 
 const MINUTE_MS = 60 * 1000;
 const DEFAULT_LEAD_TIME_MINUTES = 1440;
@@ -111,6 +107,13 @@ function remindersSentFor(taskId: string) {
     .where(eq(schema.taskReminderSentTable.taskId, taskId));
 }
 
+function archive(workspaceId: string) {
+  return db
+    .update(schema.workspaceTable)
+    .set({ archivedAt: new Date() })
+    .where(eq(schema.workspaceTable.id, workspaceId));
+}
+
 describe("due date reminders", () => {
   beforeEach(async () => {
     await resetTestDatabase();
@@ -174,6 +177,18 @@ describe("due date reminders", () => {
 
     expect(await notificationsFor(task.id)).toHaveLength(0);
   });
+
+  it("stays silent while the workspace is archived", async () => {
+    const scene = await seedScene();
+    const task = await seedTask(scene, { status: "to-do" });
+    await archive(scene.workspace.id);
+
+    await checkDueDateReminders();
+
+    expect(await notificationsFor(task.id)).toHaveLength(0);
+    // Not claimed either, so nothing is marked as sent while archived.
+    expect(await remindersSentFor(task.id)).toHaveLength(0);
+  });
 });
 
 describe("project webhook due date reminders", () => {
@@ -229,5 +244,16 @@ describe("project webhook due date reminders", () => {
         reminderType: `generic_webhook:${integration.id}`,
       }),
     ]);
+  });
+
+  it("stays silent while the workspace is archived", async () => {
+    const scene = await seedScene();
+    await seedWebhookIntegration(scene.project.id);
+    await seedTask(scene, { status: "to-do" });
+    await archive(scene.workspace.id);
+
+    await checkProjectWebhookReminders();
+
+    expect(remindedTaskIds()).toEqual([]);
   });
 });

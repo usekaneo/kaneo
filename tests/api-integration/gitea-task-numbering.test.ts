@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { eq, sql } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { importGiteaIssues } from "../../apps/api/src/gitea-integration/controllers/import-gitea-issues";
 import createTask from "../../apps/api/src/task/controllers/create-task";

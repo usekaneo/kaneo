@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vite-plus/test";
 import { computeEntitlement } from "../../../apps/api/src/billing/controllers/get-workspace-billing";
 
 type Billing = Parameters<typeof computeEntitlement>[0];

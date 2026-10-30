@@ -1,6 +1,6 @@
 # Local development setup
 
-Use Node.js 24 or newer and pnpm 10.32.1, as declared in the root `package.json`. You also need a local PostgreSQL database. Redis and object storage are optional.
+Use Node.js 24.15 or newer in the 24.x line, or Node.js 26+, and pnpm 12.15.0, as declared in the root `package.json`. You also need a local PostgreSQL database. Redis and object storage are optional.
 
 ## Configure the API
 
@@ -61,7 +61,8 @@ Use the [environment reference](https://kaneo.app/docs/core/installation/environ
 - **Email:** configure SMTP. Email verification codes become the default sign-in method; `DISABLE_EMAIL_OTP_SIGN_IN=true` keeps password sign-in. Invitations and password resets still use SMTP.
 - **Sign-in providers:** configure OAuth credentials on the API and register the local callback URL with the provider.
 - **MCP:** the built-in endpoint uses `KANEO_INTERNAL_API_URL`, defaulting to `http://127.0.0.1:1337`, for internal tool requests. Device authorization allows `kaneo-cli` and `kaneo-mcp` by default.
-- **Private-network connections:** `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` permits internal ntfy, Gotify, webhook, Gitea, and GitLab destinations. Only enable it on a trusted deployment.
+- **Private-network connections:** `KANEO_ALLOW_PRIVATE_WEBHOOK_DESTINATIONS=true` permits internal ntfy, Gotify, webhook, Gitea, GitLab, and import source (PLANKA, Plane, Kaneo) destinations. Only enable it on a trusted deployment.
+- **Trello imports:** `TRELLO_API_KEY` is the API key of a Trello Power-Up. Workspace admins starting a Trello import get a link to Trello's authorize page built from it; without it, they paste their own API key next to the token.
 - **Redis:** only needed to relay live updates between multiple API instances. Leave it unset for one local API process.
 - **CAPTCHA:** set `TURNSTILE_SECRET_KEY` in the root `.env` and the matching `VITE_TURNSTILE_SITE_KEY` in `apps/web/.env.local`. The secret enables verification independently of cloud mode. Configure a widget that accepts your development hostname.
 - **Sentry:** `SENTRY_DSN` enables API reporting. A browser build reads `VITE_SENTRY_DSN`; the current container renderer does not substitute `KANEO_SENTRY_DSN` at runtime. Leave reporting unset if you do not need it.

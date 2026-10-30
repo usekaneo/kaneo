@@ -18,7 +18,7 @@ export async function drainPasswordResetDeliveries(timeoutMs = 10_000) {
     await Promise.race([
       (async () => {
         while (pendingDeliveries.size > 0) {
-          await Promise.all([...pendingDeliveries]);
+          await Promise.all(pendingDeliveries);
         }
       })(),
       new Promise<void>((resolve) => {

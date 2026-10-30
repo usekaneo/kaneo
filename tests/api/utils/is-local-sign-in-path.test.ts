@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { isLocalSignInPath } from "../../../apps/api/src/utils/is-local-sign-in-path";
 
 describe("isLocalSignInPath", () => {

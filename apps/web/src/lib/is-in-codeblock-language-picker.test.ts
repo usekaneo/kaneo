@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { isInCodeBlockLanguagePicker } from "./is-in-codeblock-language-picker";
 
 describe("isInCodeBlockLanguagePicker", () => {

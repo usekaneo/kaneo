@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { handleUnauthorized, isUnauthorizedError } from "@/lib/http-error";
+import { isForbiddenOrNotFound } from "@/lib/is-forbidden-or-not-found";
 
 // TanStack raises these before any fetcher-level message exists; CORS rejections
 // from the browser also surface here. Used both to skip auto-retry and to tag
@@ -79,7 +80,9 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnMount: false,
       retry: (failureCount, error) =>
-        isNetworkError(error) || isUnauthorizedError(error)
+        isNetworkError(error) ||
+        isUnauthorizedError(error) ||
+        isForbiddenOrNotFound(error)
           ? false
           : failureCount < 2,
     },

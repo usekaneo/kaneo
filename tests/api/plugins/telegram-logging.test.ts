@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { handleTaskCreated } from "../../../apps/api/src/plugins/telegram/events";
 
 const m = vi.hoisted(() => ({ select: vi.fn(), send: vi.fn() }));

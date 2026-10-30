@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
@@ -64,7 +64,7 @@ describe("API integration: public project asset visibility", () => {
     expect(readObject).toHaveBeenCalledTimes(1);
 
     mockAuthenticatedSession(outsider.user);
-    expect((await app.request(`/api/asset/${comment?.id}`)).status).toBe(403);
+    expect((await app.request(`/api/asset/${comment?.id}`)).status).toBe(404);
     expect(readObject).toHaveBeenCalledTimes(1);
 
     mockAuthenticatedSession(member.user);

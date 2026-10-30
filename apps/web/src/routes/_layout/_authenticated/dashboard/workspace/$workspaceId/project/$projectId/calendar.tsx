@@ -3,14 +3,20 @@ import { addMonths, startOfMonth, subMonths } from "date-fns";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import CalendarToolbar from "@/components/calendar/calendar-toolbar";
+import MonthAgenda from "@/components/calendar/month-agenda";
 import MonthGrid from "@/components/calendar/month-grid";
 import { buildMonthWeeks } from "@/components/calendar/month-grid-model";
 import ProjectLayout from "@/components/common/project-layout";
 import PageTitle from "@/components/page-title";
+import { DisplaySection } from "@/components/project/display/display-section";
+import { WeekStartControl } from "@/components/project/display/week-start-control";
+import { ActiveFiltersBar } from "@/components/project/task-filters/active-filters-bar";
+import { ProjectToolbar } from "@/components/project/toolbar/project-toolbar";
+import { TaskCount } from "@/components/project/toolbar/task-count";
+import { useProjectTaskView } from "@/components/project/toolbar/use-project-task-view";
+import { LayoutSwitch } from "@/components/project/views/layout-switch";
 import TaskDetailsSheet from "@/components/task/task-details-sheet";
-import { shortcuts } from "@/constants/shortcuts";
 import { useGetTasks } from "@/hooks/queries/task/use-get-tasks";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toScheduledTasks } from "@/lib/task-schedule";
 import { useUserPreferencesStore } from "@/store/user-preferences";
@@ -29,9 +35,9 @@ export const Route = createFileRoute(
 });
 
 // Lanes are capped so a busy week cannot push a row taller than the viewport;
-// anything past the cap surfaces as a per-day overflow hint.
+// anything past the cap surfaces as a per-day overflow hint. Phones use the
+// agenda list instead of the grid.
 const MAX_LANES_DESKTOP = 3;
-const MAX_LANES_MOBILE = 2;
 
 function RouteComponent() {
   const { t } = useTranslation();
@@ -40,13 +46,22 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { data: project, isLoading, isError } = useGetTasks(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
-  const setViewMode = useUserPreferencesStore((state) => state.setViewMode);
   const isMobile = useIsMobile();
+  const view = useProjectTaskView({
+    project,
+    projectId,
+    workspaceId,
+    scope: "schedule",
+  });
   const [visibleMonth, setVisibleMonth] = useState(() =>
     startOfMonth(new Date()),
   );
 
-  const scheduledTasks = useMemo(() => toScheduledTasks(project), [project]);
+  const allScheduledTasks = useMemo(() => toScheduledTasks(project), [project]);
+  const scheduledTasks = useMemo(
+    () => toScheduledTasks(view.filters.filteredProject),
+    [view.filters.filteredProject],
+  );
 
   const weeks = useMemo(
     () => buildMonthWeeks(visibleMonth, weekStartsOn),
@@ -76,49 +91,51 @@ function RouteComponent() {
     navigate({ to: ".", search: {}, replace: true });
   }, [navigate]);
 
-  useRegisterShortcuts({
-    sequentialShortcuts: {
-      [shortcuts.view.prefix]: {
-        [shortcuts.view.board]: () => {
-          setViewMode("board");
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
-            params: { workspaceId, projectId },
-          });
-        },
-        [shortcuts.view.list]: () => {
-          setViewMode("list");
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/board",
-            params: { workspaceId, projectId },
-          });
-        },
-        [shortcuts.view.backlog]: () => {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/backlog",
-            params: { workspaceId, projectId },
-          });
-        },
-        [shortcuts.view.gantt]: () => {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/gantt",
-            params: { workspaceId, projectId },
-          });
-        },
-        [shortcuts.view.calendar]: () => {},
-      },
-    },
-  });
-
   return (
     <ProjectLayout
       projectId={projectId}
       workspaceId={workspaceId}
       activeView="calendar"
+      toolbar={
+        <ProjectToolbar
+          view={view}
+          display={
+            <>
+              <DisplaySection>
+                <LayoutSwitch
+                  workspaceId={workspaceId}
+                  projectId={projectId}
+                  currentRoute="calendar"
+                  currentView="calendar"
+                />
+              </DisplaySection>
+              <DisplaySection>
+                <WeekStartControl />
+              </DisplaySection>
+            </>
+          }
+        />
+      }
+      summary={
+        <TaskCount
+          shown={scheduledTasks.length}
+          total={allScheduledTasks.length}
+        />
+      }
+      filterBar={
+        <ActiveFiltersBar
+          subjects={view.subjects}
+          onClear={view.filters.clearFilters}
+          customFieldValues={view.filters.customFieldValues}
+        />
+      }
     >
       <PageTitle
-        title={t("tasks:calendar.pageTitle", { name: project?.name })}
-        hideAppName
+        title={
+          project
+            ? t("tasks:calendar.pageTitle", { name: project.name })
+            : undefined
+        }
       />
       <div className="flex h-full min-h-0 flex-col bg-background">
         <CalendarToolbar
@@ -140,7 +157,7 @@ function RouteComponent() {
               {t("tasks:calendar.loadError")}
             </p>
           </div>
-        ) : scheduledTasks.length === 0 ? (
+        ) : allScheduledTasks.length === 0 ? (
           <div className="border-b border-border/80 px-4 py-3 text-center">
             <p className="text-sm font-semibold text-foreground">
               {t("tasks:calendar.noTasks")}
@@ -149,16 +166,33 @@ function RouteComponent() {
               {t("tasks:calendar.noTasksSubtitle")}
             </p>
           </div>
+        ) : scheduledTasks.length === 0 ? (
+          <div className="border-b border-border/80 px-4 py-3 text-center">
+            <p className="text-sm text-muted-foreground">
+              {t("tasks:filterBar.noMatches")}
+            </p>
+          </div>
         ) : null}
 
-        <MonthGrid
-          weeks={weeks}
-          tasks={scheduledTasks}
-          visibleMonth={visibleMonth}
-          maxLanes={isMobile ? MAX_LANES_MOBILE : MAX_LANES_DESKTOP}
-          projectSlug={project?.slug}
-          onOpenTask={handleOpenTask}
-        />
+        {isMobile ? (
+          scheduledTasks.length > 0 && (
+            <MonthAgenda
+              tasks={scheduledTasks}
+              visibleMonth={visibleMonth}
+              projectSlug={project?.slug}
+              onOpenTask={handleOpenTask}
+            />
+          )
+        ) : (
+          <MonthGrid
+            weeks={weeks}
+            tasks={scheduledTasks}
+            visibleMonth={visibleMonth}
+            maxLanes={MAX_LANES_DESKTOP}
+            projectSlug={project?.slug}
+            onOpenTask={handleOpenTask}
+          />
+        )}
 
         <TaskDetailsSheet
           taskId={taskId}

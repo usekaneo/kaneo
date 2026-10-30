@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-import { McpServer as LegacyMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import {
   isJsonContentType,
@@ -18,7 +16,11 @@ import {
 } from "./controllers/oauth-consent";
 import { createModernMcpHandler } from "./modern";
 import { exchangeCode } from "./oauth";
-import { oauthRequestBounds } from "./request-bounds";
+import {
+  MCP_BODY_BYTES,
+  mcpRequestBounds,
+  oauthRequestBounds,
+} from "./request-bounds";
 import {
   authorizationDecisionResponseSchema,
   authorizationDecisionSchema,
@@ -29,7 +31,7 @@ import {
   clientRegistrationSchema,
   oauthErrorSchema,
 } from "./schemas";
-import { registerMcpTools, toMcpToolRegistrar } from "./tools";
+import { createMcpServerForUser } from "./legacy-server";
 
 const publicApiUrl = (process.env.KANEO_API_URL || "http://localhost:1337")
   .replace(/\/api\/?$/, "")
@@ -39,22 +41,6 @@ const internalApiUrl = (
 )
   .replace(/\/api\/?$/, "")
   .replace(/\/+$/, "");
-
-type McpSession = {
-  transport: WebStandardStreamableHTTPServerTransport;
-  userId: string;
-};
-
-const sessions = new Map<string, McpSession>();
-
-function createMcpServerForUser(token: string): LegacyMcpServer {
-  const server = new LegacyMcpServer({
-    name: "kaneo-mcp",
-    version: "1.0.0",
-  });
-  registerMcpTools(toMcpToolRegistrar(server), internalApiUrl, token);
-  return server;
-}
 
 async function validateBearerToken(
   req: Request,
@@ -235,69 +221,6 @@ mcp
     oauthValidationHook("invalid_request"),
   );
 
-mcp.all("/mcp", async (c) => {
-  const authResult = await validateBearerToken(c.req.raw);
-  if (!authResult) {
-    const prmUrl = `${publicApiUrl}/api/.well-known/oauth-protected-resource/api/mcp`;
-    c.header("WWW-Authenticate", `Bearer resource_metadata="${prmUrl}"`);
-    return c.json(
-      {
-        error: "invalid_token",
-        error_description: "Missing or invalid token",
-      },
-      401,
-    );
-  }
-
-  const sessionId = c.req.header("mcp-session-id");
-
-  if (sessionId) {
-    const existing = sessions.get(sessionId);
-    // A mismatched owner is reported as missing rather than forbidden so the
-    // response cannot confirm that someone else's session id is valid.
-    if (existing && existing.userId === authResult.userId) {
-      return existing.transport.handleRequest(c.req.raw);
-    }
-    return c.json({ error: "Session not found" }, 404);
-  }
-
-  if (c.req.method !== "POST") {
-    return c.json({ error: "Method not allowed" }, 405);
-  }
-
-  if (!isJsonContentType(c.req.header("content-type"))) {
-    return c.json({ error: "Unsupported Media Type" }, 415);
-  }
-
-  if (!(await isLegacyRequest(c.req.raw.clone()))) {
-    const modern = createModernMcpHandler(authResult.token, internalApiUrl);
-    return modern.fetch(c.req.raw);
-  }
-
-  const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: () => randomUUID(),
-  });
-
-  transport.onclose = () => {
-    if (transport.sessionId) {
-      sessions.delete(transport.sessionId);
-    }
-  };
-
-  const server = createMcpServerForUser(authResult.token);
-  await server.connect(transport);
-  const response = await transport.handleRequest(c.req.raw);
-
-  if (transport.sessionId) {
-    sessions.set(transport.sessionId, {
-      transport,
-      userId: authResult.userId,
-    });
-  }
-
-  return response;
-});
-
 mcp.post("/mcp/token", async (c) => {
   const contentType = c.req.header("content-type") || "";
   let params: Record<string, unknown>;
@@ -377,7 +300,11 @@ mcp.get("/.well-known/oauth-authorization-server/api", (c) =>
 mcp.all("/mcp", async (c) => {
   const authResult = await validateBearerToken(c.req.raw);
   if (!authResult) {
-    const prmUrl = `${publicApiUrl}/api/.well-known/oauth-protected-resource/api/mcp`;
+    // Canonical RFC 9728 URL: the well-known path goes before the resource
+    // path. MCP clients discover from this header, so it must be the URL
+    // auditors accept; the /api/.well-known alias below stays for clients
+    // that cached the previously advertised URL.
+    const prmUrl = `${publicApiUrl}/.well-known/oauth-protected-resource/api/mcp`;
     c.header("WWW-Authenticate", `Bearer resource_metadata="${prmUrl}"`);
     return c.json(
       {
@@ -388,18 +315,6 @@ mcp.all("/mcp", async (c) => {
     );
   }
 
-  const sessionId = c.req.header("mcp-session-id");
-
-  if (sessionId) {
-    const existing = sessions.get(sessionId);
-    // A mismatched owner is reported as missing rather than forbidden so the
-    // response cannot confirm that someone else's session id is valid.
-    if (existing && existing.userId === authResult.userId) {
-      return existing.transport.handleRequest(c.req.raw);
-    }
-    return c.json({ error: "Session not found" }, 404);
-  }
-
   if (c.req.method !== "POST") {
     return c.json({ error: "Method not allowed" }, 405);
   }
@@ -408,33 +323,26 @@ mcp.all("/mcp", async (c) => {
     return c.json({ error: "Unsupported Media Type" }, 415);
   }
 
-  if (!(await isLegacyRequest(c.req.raw.clone()))) {
+  await mcpRequestBounds(c, async () => {});
+
+  if (
+    !(await isLegacyRequest(c.req.raw.clone(), undefined, {
+      maxRequestBodySize: MCP_BODY_BYTES,
+    }))
+  ) {
     const modern = createModernMcpHandler(authResult.token, internalApiUrl);
     return modern.fetch(c.req.raw);
   }
 
+  // A fresh stateless transport lets legacy POSTs reach any replica. It also
+  // accepts session IDs issued before this change after their owner is gone.
   const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: () => randomUUID(),
+    sessionIdGenerator: undefined,
+    maxRequestBodySize: MCP_BODY_BYTES,
   });
-
-  transport.onclose = () => {
-    if (transport.sessionId) {
-      sessions.delete(transport.sessionId);
-    }
-  };
-
-  const server = createMcpServerForUser(authResult.token);
+  const server = createMcpServerForUser(authResult.token, internalApiUrl);
   await server.connect(transport);
-  const response = await transport.handleRequest(c.req.raw);
-
-  if (transport.sessionId) {
-    sessions.set(transport.sessionId, {
-      transport,
-      userId: authResult.userId,
-    });
-  }
-
-  return response;
+  return transport.handleRequest(c.req.raw);
 });
 
 export default mcp;

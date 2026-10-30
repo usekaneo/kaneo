@@ -28,7 +28,7 @@ export async function generateMetadata({
   if (!category) return {};
 
   return withSocialMetadata({
-    title: `${category.name} — Kaneo blog`,
+    title: `${category.name} articles on the Kaneo blog`,
     description: category.description,
     alternates: { canonical: blogCategoryPath(category.slug) },
   });

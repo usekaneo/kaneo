@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { verifyApiKey } from "../../apps/api/src/utils/verify-api-key";
@@ -51,6 +51,29 @@ describe("API integration: API keys of banned users", () => {
     const result = await verifyApiKey(key);
 
     expect(result?.key.userId).toBe(userId);
+  });
+
+  it("does not consume the window counter while rate limits are disabled", async () => {
+    const { userId, key } = await createUserWithKey({ banned: false });
+    await db
+      .update(schema.apikeyTable)
+      .set({ rateLimitEnabled: false, rateLimitMax: 1, requestCount: 0 })
+      .where(eq(schema.apikeyTable.userId, userId));
+    for (let i = 0; i < 3; i++)
+      expect(await verifyApiKey(key)).toMatchObject({ status: "valid" });
+    expect(
+      (
+        await db.query.apikeyTable.findFirst({
+          where: eq(schema.apikeyTable.userId, userId),
+        })
+      )?.requestCount,
+    ).toBe(0);
+    await db
+      .update(schema.apikeyTable)
+      .set({ rateLimitEnabled: true })
+      .where(eq(schema.apikeyTable.userId, userId));
+    expect(await verifyApiKey(key)).toMatchObject({ status: "valid" });
+    expect(await verifyApiKey(key)).toMatchObject({ status: "rate_limited" });
   });
 
   it("rejects the key of a banned user", async () => {
@@ -134,16 +157,20 @@ describe("API integration: API keys of banned users", () => {
       expect(response.status).toBe(401);
     });
 
-    it("applies the same rule to a bearer key on other auth routes", async () => {
+    it("applies the same rule to a bearer key on native organization routes", async () => {
       const { app, userId, key } = await mintKey();
       const headers = { authorization: `Bearer ${key}` };
 
-      const active = await app.request("/api/auth/api-key/list", { headers });
+      const active = await app.request("/api/auth/organization/list", {
+        headers,
+      });
       expect(active.status).toBe(200);
 
       await ban(userId);
 
-      const banned = await app.request("/api/auth/api-key/list", { headers });
+      const banned = await app.request("/api/auth/organization/list", {
+        headers,
+      });
       expect(banned.status).toBe(401);
     });
   });

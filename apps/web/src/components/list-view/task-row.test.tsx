@@ -1,29 +1,69 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { DndContext, KeyboardSensor } from "@dnd-kit/core";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render as renderWithoutClient,
+  screen,
+} from "@testing-library/react";
+import type { ReactElement, ReactNode } from "react";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import type Task from "@/types/task";
+import useBulkSelectionStore from "@/store/bulk-selection";
 import BacklogTaskRow from "../backlog-list-view/backlog-task-row";
+import TaskCard from "../kanban-board/task-card";
 import { PublicTaskCard } from "../public-project/task-card";
 import { PublicTaskRow } from "../public-project/task-row";
 import TaskRow from "./task-row";
 
+const testQueryClient = new QueryClient();
+const render = (ui: ReactElement) =>
+  renderWithoutClient(ui, {
+    wrapper: ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={testQueryClient}>
+        {children}
+      </QueryClientProvider>
+    ),
+  });
+
 const useExternalLinks = vi.fn((_taskId: string) => ({ data: [] }));
 const useGetLabelsByTask = vi.fn((_taskId: string) => ({ data: [] }));
+const { navigate } = vi.hoisted(() => ({
+  navigate: vi.fn(),
+}));
+
+beforeEach(() => {
+  useBulkSelectionStore.setState(useBulkSelectionStore.getInitialState());
+});
 
 afterEach(() => {
   cleanup();
+  interpolations.length = 0;
   vi.clearAllMocks();
 });
 
 vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => vi.fn(),
+  useNavigate: () => navigate,
 }));
 
 vi.mock("@/hooks/queries/external-link/use-external-links", () => ({
-  default: (taskId: string) => useExternalLinks(taskId),
+  default: function useMockExternalLinks(taskId: string) {
+    return useExternalLinks(taskId);
+  },
 }));
 
 vi.mock("@/hooks/queries/label/use-get-labels-by-task", () => ({
-  default: (taskId: string) => useGetLabelsByTask(taskId),
+  default: function useMockTaskLabels(taskId: string) {
+    return useGetLabelsByTask(taskId);
+  },
 }));
 
 vi.mock("@/hooks/mutations/task/use-delete-task", () => ({
@@ -43,16 +83,10 @@ vi.mock(
 
 vi.mock(
   "../kanban-board/task-card-context-menu/task-card-context-menu-content",
-  () => ({ default: () => null }),
-);
-
-vi.mock("@/store/bulk-selection", () => ({
-  default: () => ({
-    toggleSelection: vi.fn(),
-    isSelected: () => false,
-    isFocused: () => false,
+  () => ({
+    default: () => null,
   }),
-}));
+);
 
 vi.mock("@/store/project", () => ({
   default: (
@@ -74,8 +108,16 @@ vi.mock("@/store/user-preferences", () => ({
   }),
 }));
 
+const interpolations: Record<string, unknown>[] = [];
+
 vi.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) => {
+      if (options) interpolations.push(options);
+      return key;
+    },
+    i18n: { language: "en-US", resolvedLanguage: "en-US" },
+  }),
   initReactI18next: { type: "3rdParty", init: vi.fn() },
 }));
 
@@ -111,6 +153,167 @@ const task: Task = {
 };
 
 describe("TaskRow", () => {
+  it.each(["board", "list"])(
+    "selects a range with Shift+Enter in the %s view",
+    (view) => {
+      useBulkSelectionStore.getState().setAvailableTasks(["anchor", task.id]);
+      useBulkSelectionStore.getState().setSelectionAnchor("anchor");
+      const onDragStart = vi.fn();
+      render(
+        <DndContext
+          sensors={[{ sensor: KeyboardSensor, options: {} }]}
+          onDragStart={onDragStart}
+        >
+          {view === "board" ? (
+            <TaskCard task={task} />
+          ) : (
+            <TaskRow task={task} projectSlug="kan" />
+          )}
+        </DndContext>,
+      );
+
+      fireEvent.keyDown(
+        screen.getByRole("button", { name: /Row from payload/ }),
+        {
+          key: "Enter",
+          shiftKey: true,
+        },
+      );
+
+      expect(useBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set(["anchor", task.id]),
+      );
+      expect(navigate).not.toHaveBeenCalled();
+      expect(onDragStart).not.toHaveBeenCalled();
+
+      fireEvent.keyDown(
+        screen.getByRole("button", { name: /Row from payload/ }),
+        { key: "Enter" },
+      );
+      fireEvent.keyDown(
+        screen.getByRole("button", { name: /Row from payload/ }),
+        { key: " ", code: "Space" },
+      );
+      expect(navigate).not.toHaveBeenCalled();
+      expect(onDragStart).not.toHaveBeenCalled();
+    },
+  );
+
+  it("shows the focus ring only on the focused occurrence of a repeated task", () => {
+    const { container } = render(
+      <>
+        <TaskRow
+          task={task}
+          projectSlug="kan"
+          rowId="parent/task-1"
+          depth={1}
+        />
+        <TaskRow task={task} projectSlug="kan" rowId="task-1" />
+      </>,
+    );
+    act(() =>
+      useBulkSelectionStore.getState().setFocusedTask(task.id, "task-1"),
+    );
+    const rows = container.querySelectorAll<HTMLElement>("[data-task-row-id]");
+    expect(rows[0].parentElement).not.toHaveClass("ring-board-card-focus");
+    expect(rows[1].parentElement).toHaveClass("ring-board-card-focus");
+  });
+
+  it("restores the focused occurrence when repeated rows remount", () => {
+    useBulkSelectionStore.getState().setFocusedTask(task.id, "task-1");
+    const { container } = render(
+      <>
+        <TaskRow
+          task={task}
+          projectSlug="kan"
+          rowId="parent/task-1"
+          depth={1}
+        />
+        <TaskRow task={task} projectSlug="kan" rowId="task-1" />
+      </>,
+    );
+    expect(
+      container.querySelector('[data-task-row-id="task-1"]'),
+    ).toHaveFocus();
+  });
+
+  it.each(["board", "list"])(
+    "takes keyboard focus and marks itself as a shortcut surface in the %s view",
+    (view) => {
+      render(
+        view === "board" ? (
+          <TaskCard task={task} />
+        ) : (
+          <TaskRow task={task} projectSlug="kan" />
+        ),
+      );
+      const row = screen.getByRole("button", { name: /Row from payload/ });
+
+      fireEvent.keyDown(document, { key: "Tab" });
+      act(() => row.focus());
+
+      expect(useBulkSelectionStore.getState().focusedTaskId).toBe(task.id);
+      expect(row).toHaveAttribute("data-task-id", task.id);
+      expect(row).toHaveAttribute("data-shortcut-surface");
+    },
+  );
+
+  it.each(["board", "list"])(
+    "leaves keyboard focus off on pointer focus in the %s view",
+    (view) => {
+      useBulkSelectionStore.getState().setFocusedTask("other-task");
+      render(
+        view === "board" ? (
+          <TaskCard task={task} />
+        ) : (
+          <TaskRow task={task} projectSlug="kan" />
+        ),
+      );
+
+      fireEvent.focus(screen.getByRole("button", { name: /Row from payload/ }));
+
+      expect(useBulkSelectionStore.getState().focusedTaskId).toBeNull();
+    },
+  );
+
+  it.each(["board", "list"])(
+    "selects a visible range with Shift+click and preserves Ctrl/Cmd toggling in the %s view",
+    (view) => {
+      const otherTask = { ...task, id: "task-2", title: "Second task" };
+      useBulkSelectionStore
+        .getState()
+        .setAvailableTasks([task.id, "middle", otherTask.id]);
+      render(
+        <>
+          {view === "board" ? (
+            <TaskCard task={task} />
+          ) : (
+            <TaskRow task={task} projectSlug="kan" />
+          )}
+          {view === "board" ? (
+            <TaskCard task={otherTask} />
+          ) : (
+            <TaskRow task={otherTask} projectSlug="kan" />
+          )}
+        </>,
+      );
+      fireEvent.click(screen.getByText(task.title));
+      expect(navigate).toHaveBeenCalled();
+      navigate.mockClear();
+      fireEvent.click(screen.getByText(otherTask.title), { shiftKey: true });
+      expect(useBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set([task.id, "middle", otherTask.id]),
+      );
+      expect(navigate).not.toHaveBeenCalled();
+      fireEvent.click(screen.getByText(task.title), { ctrlKey: true });
+      fireEvent.click(screen.getByText(otherTask.title), { metaKey: true });
+      expect(useBulkSelectionStore.getState().selectedTaskIds).toEqual(
+        new Set(["middle"]),
+      );
+      expect(navigate).not.toHaveBeenCalled();
+    },
+  );
+
   it.each([PublicTaskCard, PublicTaskRow])(
     "renders public progress without nesting interactive controls",
     (Component) => {
@@ -156,9 +359,150 @@ describe("TaskRow", () => {
     expect(useExternalLinks).not.toHaveBeenCalled();
     expect(useGetLabelsByTask).not.toHaveBeenCalled();
   });
+
+  it("shows no subtask toggle when the task has no children", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    expect(
+      screen.queryByLabelText("tasks:listView.expandSubtasks"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the subtask toggle outside the drag activator", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        rowId="parent/task-1"
+        depth={1}
+        childCount={2}
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByLabelText("tasks:listView.expandSubtasks");
+    const activator = document.querySelector('[role="button"]');
+
+    // dnd-kit gives its activator role="button". A button nested inside one is
+    // an ambiguous control for assistive technology, so the toggle has to be a
+    // sibling of the draggable region rather than a descendant.
+    expect(activator).not.toBeNull();
+    expect(activator?.contains(toggle)).toBe(false);
+    expect(toggle.closest('[role="button"]')).toBeNull();
+  });
+
+  it("reserves the toggle column so titles stay aligned in a group", () => {
+    const { container: withToggle } = render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        reserveToggleSpace
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+    const { container: withoutToggle } = render(
+      <TaskRow task={task} projectSlug="kan" reserveToggleSpace />,
+    );
+
+    const gutter = (root: HTMLElement) =>
+      root.firstElementChild?.firstElementChild;
+
+    // A row with no children still renders the column, so its number and title
+    // start at the same offset as a sibling that does have one.
+    expect(gutter(withToggle)).not.toBeNull();
+    expect(gutter(withoutToggle)).not.toBeNull();
+    expect(gutter(withoutToggle)?.className).toEqual(
+      gutter(withToggle)?.className,
+    );
+  });
+
+  it("keeps the original left edge when a group has no subtasks", () => {
+    const { container } = render(<TaskRow task={task} projectSlug="kan" />);
+    const draggable = container.querySelector('[role="button"]');
+
+    expect(draggable?.className).toContain("pl-3.5");
+  });
+
+  it("announces the nesting level, which the indent cannot", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="a/b/task-1" depth={2} />,
+    );
+
+    // A nested repeat and its top-level row otherwise expose identical
+    // content, so the hierarchy would be inaudible.
+    expect(screen.getByText("tasks:listView.subtaskLevel")).toBeInTheDocument();
+  });
+
+  it("adds no level announcement to a top-level row", () => {
+    render(<TaskRow task={task} projectSlug="kan" />);
+
+    expect(
+      screen.queryByText("tasks:listView.subtaskLevel"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("names the toggle by its task, not the action alone", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    // Several rows each offering "Show subtasks" would be indistinguishable,
+    // so the label interpolates the title.
+    expect(interpolations).toContainEqual({ title: "Row from payload" });
+  });
+
+  it("does not announce a repeated row as disabled", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="parent/task-1" depth={1} />,
+    );
+
+    // The repeat is not a drag source, but it still opens its task, so the
+    // aria-disabled dnd-kit puts on a disabled sortable must not reach it.
+    const row = screen.getByRole("button", { name: /Row from payload/ });
+    expect(row).not.toHaveAttribute("aria-disabled", "true");
+    expect(row).toHaveAttribute("tabindex", "0");
+  });
+
+  // Enter is the view's shortcut for the focused row, so it reaches a repeat
+  // the same way it reaches a top-level row.
+  it("opens a repeated row with Space", () => {
+    render(
+      <TaskRow task={task} projectSlug="kan" rowId="parent/task-1" depth={1} />,
+    );
+
+    const row = screen.getByRole("button", { name: /Row from payload/ });
+
+    // The repeat carries button semantics but none of dnd-kit's keyboard
+    // listeners, so Space has to be handled for it to activate like one.
+    fireEvent.keyDown(row, { key: " " });
+    expect(navigate).toHaveBeenCalled();
+  });
+
+  it("labels the toggle by its resulting state", () => {
+    render(
+      <TaskRow
+        task={task}
+        projectSlug="kan"
+        childCount={1}
+        isExpanded
+        onToggleExpanded={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByLabelText("tasks:listView.collapseSubtasks");
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+  });
 });
 
 vi.mock(
   "@/hooks/queries/custom-field/use-get-custom-field-values-by-project",
-  () => ({ default: () => ({ data: [] }) }),
+  () => ({
+    default: () => ({ data: [] }),
+  }),
 );

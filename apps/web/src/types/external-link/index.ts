@@ -1,4 +1,5 @@
 export type ExternalLinkMetadata = {
+  syncFilterPaused?: boolean;
   state?: string;
   merged?: boolean;
   mergedAt?: string;

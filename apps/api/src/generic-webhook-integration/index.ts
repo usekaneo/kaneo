@@ -47,7 +47,7 @@ function toResponse(integration: {
     maskedSecret: maskValue(config.secret),
     events: {
       ...defaultGenericWebhookEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     dueDateReminderLeadTimeMinutes:
       config.dueDateReminderLeadTimeMinutes ?? 1440,
@@ -85,17 +85,20 @@ const getGenericWebhookIntegrationRoute = createRoute({
   summary: "Get webhook integration",
   description:
     "Get the outgoing webhook integration for a project, or null when none is configured.",
-  middleware: [workspaceAccess.fromProject("projectId")] as const,
+  middleware: [
+    workspaceAccess.fromProject("projectId"),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse(
       "Webhook integration details, or null",
       genericWebhookIntegrationSchema.nullable(),
     ),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
+    403: errorResponse(
+      "No access to the project, or missing project:read permission",
     ),
-    403: errorResponse("No access to the project's workspace"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -122,8 +125,9 @@ const createGenericWebhookIntegrationRoute = createRoute({
     ),
     400: errorResponse("The webhook URL failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -150,9 +154,9 @@ const updateGenericWebhookIntegrationRoute = createRoute({
     ),
     400: errorResponse("The resulting config failed validation"),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Webhook integration not found"),
+    404: errorResponse("Project or webhook integration not found"),
   },
 });
 
@@ -167,13 +171,10 @@ const deleteGenericWebhookIntegrationRoute = createRoute({
   request: { params: projectIdParam },
   responses: {
     200: jsonResponse("The integration was removed", deletedSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing workspace:manage_settings",
+      "No access to the project, or missing workspace:manage_settings",
     ),
-    404: errorResponse("Webhook integration not found"),
+    404: errorResponse("Project or webhook integration not found"),
   },
 });
 
@@ -256,8 +257,8 @@ const genericWebhookIntegration = apiRouter<
           ? currentConfig.secret
           : (body.secret ?? undefined),
       events: {
-        ...(currentConfig.events ?? {}),
-        ...(body.events ?? {}),
+        ...currentConfig.events,
+        ...body.events,
       },
       dueDateReminderLeadTimeMinutes:
         body.dueDateReminderLeadTimeMinutes ??

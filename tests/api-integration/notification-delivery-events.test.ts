@@ -1,5 +1,12 @@
 import * as email from "@kaneo/email";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import "../../apps/api/src/notification";
 import createComment from "../../apps/api/src/activity/controllers/create-comment";
 import db, { schema } from "../../apps/api/src/database";
@@ -113,6 +120,18 @@ describe("status, comment and mention delivery", () => {
       }
       await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
       expect(send.mock.calls[0][0]).toBe(recipient.user.email);
+      expect(send.mock.calls[0][2]).toEqual(
+        expect.objectContaining({
+          breadcrumb: expect.stringContaining(" / "),
+          settingsUrl: expect.stringContaining(
+            "/dashboard/settings/account/notifications",
+          ),
+          task: expect.objectContaining({
+            title: task.title,
+            ticket: expect.stringMatching(/-\d+$/),
+          }),
+        }),
+      );
       await vi.waitFor(() =>
         expect(sendOutboundRequest).toHaveBeenCalledTimes(1),
       );

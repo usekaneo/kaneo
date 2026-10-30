@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import {
   type McpToolRegistrar,
   registerMcpTools,
@@ -91,6 +98,40 @@ describe("MCP tool catalog", () => {
     expect(lastRequest().url).toBe("http://api.test/api/column/p1");
   });
 
+  it("reads custom field definitions and task values", async () => {
+    await call("list_project_custom_fields", { projectId: "p1" });
+    expect(lastRequest().url).toBe(
+      "http://api.test/api/custom-field/project/p1",
+    );
+
+    await call("get_task_custom_field_values", { taskId: "t1" });
+    expect(lastRequest().url).toBe("http://api.test/api/custom-field/task/t1");
+  });
+
+  it("sets a multiselect custom field value and clears it", async () => {
+    await call("set_task_custom_field_value", {
+      taskId: "t1",
+      fieldId: "f1",
+      value: ["Frontend", "API"],
+    });
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/custom-field/value",
+      method: "PUT",
+      body: { taskId: "t1", fieldId: "f1", value: '["Frontend","API"]' },
+    });
+
+    await call("set_task_custom_field_value", {
+      taskId: "t1",
+      fieldId: "f1",
+      value: null,
+    });
+    expect(lastRequest().body).toEqual({
+      taskId: "t1",
+      fieldId: "f1",
+      value: "",
+    });
+  });
+
   it("deletes a task", async () => {
     await call("delete_task", { taskId: "t1" });
 
@@ -158,6 +199,48 @@ describe("MCP tool catalog", () => {
 
     expect(result.isError).toBe(true);
     expect(apiFetch).not.toHaveBeenCalled();
+  });
+
+  it("sets and stops a task's recurrence", async () => {
+    await call("update_task_recurrence", {
+      taskId: "t1",
+      frequency: "weekly",
+      interval: 2,
+      weekdays: [1, 5],
+      timeZone: "Europe/Madrid",
+    });
+    expect(lastRequest()).toMatchObject({
+      url: "http://api.test/api/task/recurrence/t1",
+      method: "PUT",
+      body: {
+        recurrence: {
+          frequency: "weekly",
+          interval: 2,
+          weekdays: [1, 5],
+          timeZone: "Europe/Madrid",
+        },
+      },
+    });
+
+    await call("update_task_recurrence", {
+      taskId: "t1",
+      frequency: "daily",
+      timeZone: "Asia/Tokyo",
+    });
+    expect(lastRequest().body).toEqual({
+      recurrence: { frequency: "daily", interval: 1, timeZone: "Asia/Tokyo" },
+    });
+
+    const requests = apiFetch.mock.calls.length;
+    const missingZone = await call("update_task_recurrence", {
+      taskId: "t1",
+      frequency: "daily",
+    });
+    expect(missingZone.isError).toBe(true);
+    expect(apiFetch.mock.calls.length).toBe(requests);
+
+    await call("update_task_recurrence", { taskId: "t1" });
+    expect(lastRequest().body).toEqual({ recurrence: null });
   });
 
   it("reads time entries for a task and by id", async () => {

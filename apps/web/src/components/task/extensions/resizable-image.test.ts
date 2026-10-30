@@ -1,7 +1,7 @@
 import { Editor } from "@tiptap/core";
 import { Markdown } from "@tiptap/markdown";
 import StarterKit from "@tiptap/starter-kit";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import { ResizableImage } from "./resizable-image";
 
 const SRC = "https://kaneo.app/diagram.png";

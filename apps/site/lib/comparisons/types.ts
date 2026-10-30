@@ -24,6 +24,7 @@ export type Comparison = {
   migration?: { body: string; href: string; linkText: string };
   faq: { question: string; answer: string }[];
   related: string[];
+  guides?: { label: string; href: string }[];
   verifiedOn: string;
   sources: { label: string; href: string }[];
 };

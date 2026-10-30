@@ -1,5 +1,12 @@
 import { z } from "../openapi";
 
+export const notificationWorkspaceQuery = z.object({
+  workspaceId: z.string().min(1).optional().openapi({
+    description:
+      "Limit notifications to resources currently in this workspace, plus user-wide notifications with no resource. Omit to include all workspaces.",
+  }),
+});
+
 export const notificationParam = z.object({ id: z.string() });
 
 export const createNotificationBody = z.object({

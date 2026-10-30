@@ -96,3 +96,10 @@ export async function requireTaskAssigneePermission(c: Context, next: Next) {
 
   return next();
 }
+
+export async function requireTaskRecurrencePermission(c: Context, next: Next) {
+  const { recurrence } = await readJsonBody(c);
+  return requireWorkspacePermission({
+    task: recurrence == null ? ["update"] : ["update", "create"],
+  })(c, next);
+}

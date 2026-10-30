@@ -3,6 +3,7 @@ import db from "../../../database";
 import { integrationTable } from "../../../database/schema";
 import type { GiteaConfig } from "../config";
 import { normalizeGiteaBaseUrl } from "../config";
+import { activeIntegrationCondition } from "../../active-integration-condition";
 
 export async function findAllIntegrationsByGiteaRepo(
   baseUrl: string,
@@ -13,7 +14,7 @@ export async function findAllIntegrationsByGiteaRepo(
   const normalized = normalizeGiteaBaseUrl(baseUrl);
   const conditions = [
     eq(integrationTable.type, "gitea"),
-    eq(integrationTable.isActive, true),
+    activeIntegrationCondition(),
   ];
   if (integrationId) {
     conditions.push(eq(integrationTable.id, integrationId));

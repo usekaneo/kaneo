@@ -1,6 +1,13 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import type { ComponentType, ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { Route } from "./invitations";
 
 const config = vi.fn();

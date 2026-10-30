@@ -1,4 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { verifyTurnstile } from "../../../apps/api/src/utils/verify-turnstile";
 
 beforeEach(() => {
@@ -48,7 +55,7 @@ describe("Turnstile verification contract", () => {
     expect(fetchMock).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        redirect: "error",
+        redirect: "manual",
         signal: expect.any(AbortSignal),
       }),
     );

@@ -6,7 +6,14 @@ import {
   waitFor,
 } from "@testing-library/react";
 import type { ComponentProps } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import type SubtaskRow from "./subtask-row";
 import { TaskProgressBadges } from "./task-progress-badges";
 import TaskSubtasks from "./task-subtasks";
@@ -27,7 +34,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mocks.navigate,
 }));
-vi.mock("framer-motion", () => ({
+vi.mock("motion/react", () => ({
   AnimatePresence: ({ children }: { children: unknown }) => children,
 }));
 vi.mock("react-i18next", () => ({
@@ -60,6 +67,9 @@ vi.mock(
     useGetActiveWorkspaceUsers: () => ({ data: { members: [] } }),
   }),
 );
+vi.mock("@/hooks/queries/project/use-get-projects", () => ({
+  default: () => ({ data: [] }),
+}));
 vi.mock("@/hooks/use-workspace-permission", () => ({
   useWorkspacePermission: () => ({
     canCreateTasks: mocks.canCreateTasks,
@@ -109,7 +119,9 @@ describe("TaskSubtasks", () => {
     );
     fireEvent.change(
       screen.getByPlaceholderText("tasks:subtasks.inputPlaceholder"),
-      { target: { value: "Design login form" } },
+      {
+        target: { value: "Design login form" },
+      },
     );
     fireEvent.click(
       screen.getByRole("button", { name: "tasks:subtasks.addAction" }),
@@ -141,7 +153,9 @@ describe("TaskSubtasks", () => {
     );
     fireEvent.change(
       screen.getByPlaceholderText("tasks:subtasks.inputPlaceholder"),
-      { target: { value: "Implement login form" } },
+      {
+        target: { value: "Implement login form" },
+      },
     );
     fireEvent.click(
       screen.getByRole("button", { name: "tasks:subtasks.addAction" }),

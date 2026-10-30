@@ -1,9 +1,9 @@
 apiVersion: v2
 name: kaneo
-description: Kaneo - All you need. Nothing you don't. Open source project management that works for you.
+description: "Kaneo: Project management that doesn't become the project."
 type: application
-version: 2.28.3
-appVersion: "2.28.3"
+version: 2.48.0
+appVersion: "2.48.0"
 keywords:
   - project-management
   - kanban
@@ -23,8 +23,8 @@ annotations:
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/prerelease: "false"
   artifacthub.io/features: |
-    - Simple & Fast: Minimalist interface with powerful features
+    - Fast boards: Board, list, backlog, Gantt, and calendar views
+    - GitHub integration: Issues and pull requests linked to tasks
     - Self-hosted: Full control over your data
-    - Customizable: Make it yours with extensive customization options
     - Open Source: MIT licensed
 kubeVersion: ">=1.23.0-0"

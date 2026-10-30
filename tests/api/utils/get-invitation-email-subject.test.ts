@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { getInvitationEmailSubject } from "../../../apps/api/src/utils/get-invitation-email-subject";
 
 describe("getInvitationEmailSubject", () => {
@@ -63,6 +63,12 @@ describe("getInvitationEmailSubject", () => {
 
     expect(subject).toBe(
       "Alice さんが Kaneo の「プロダクト」にあなたを招待しました",
+    );
+  });
+
+  it("uses Traditional Chinese copy for zh-TW", () => {
+    expect(getInvitationEmailSubject("zh-TW", "Alice", "產品團隊")).toBe(
+      "Alice 邀請你加入 Kaneo 上的 產品團隊",
     );
   });
 

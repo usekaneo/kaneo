@@ -1,17 +1,10 @@
+import { useRestoreTaskFocus } from "@/components/project/task-view-keys/use-restore-task-focus";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useNavigate } from "@tanstack/react-router";
-import { format } from "date-fns";
-import {
-  Calendar,
-  CalendarClock,
-  CalendarX,
-  GitMerge,
-  GitPullRequest,
-} from "lucide-react";
-import { type CSSProperties, useMemo, useState } from "react";
+import { ChevronRight, Trash2Icon } from "lucide-react";
+import { type CSSProperties, useMemo, useState, memo } from "react";
 import { useTranslation } from "react-i18next";
-import { TaskProgressBadges } from "@/components/task/task-progress-badges";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -21,42 +14,70 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/preview-card";
 import { useDeleteTask } from "@/hooks/mutations/task/use-delete-task";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import { useTaskHoverPrefetch } from "@/hooks/use-task-hover-prefetch";
 import { cn } from "@/lib/cn";
-import {
-  dueDateStatusColors,
-  getDueDateStatus,
-  isTaskCompleted,
-} from "@/lib/due-date-status";
-import { getExternalWebUrl, openExternalWebUrl } from "@/lib/external-url";
-import { getInitials } from "@/lib/get-initials";
-import { getPriorityIcon } from "@/lib/priority";
+import { isKeyboardFocus } from "@/lib/is-keyboard-focus";
+import { isOwnDomEvent } from "@/lib/is-own-dom-event";
+import { isTaskCompleted } from "@/lib/due-date-status";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
-import { useUserPreferencesStore } from "@/store/user-preferences";
 import type Task from "@/types/task";
 import TaskCardContextMenuContent from "../kanban-board/task-card-context-menu/task-card-context-menu-content";
-import { TaskLabels } from "../kanban-board/task-labels";
 import { ContextMenu, ContextMenuTrigger } from "../ui/context-menu";
+import { TaskRowBody } from "./task-row-body";
+import { EASE_OUT_CSS } from "@/lib/motion";
 
 type TaskRowProps = {
   task: Task;
   projectSlug: string;
+  // A subtask keeps its own top-level row and is repeated, indented, under
+  // each expanded parent.
+  /** Nesting level; 0 for a task shown in its own status group. */
+  depth?: number;
+  /**
+   * Identifies the row rather than the task. The task id is not unique when a
+   * subtask is repeated, so it cannot be used as a drag identity.
+   */
+  rowId?: string;
+  childCount?: number;
+  isExpanded?: boolean;
+  onToggleExpanded?: (rowId: string) => void;
+  /**
+   * Keeps the toggle column present on rows that have no toggle, so titles in
+   * a group containing subtasks stay on one vertical line.
+   */
+  reserveToggleSpace?: boolean;
+  /**
+   * True while this task is being dragged from another of its rows. Only the
+   * top-level row is the drag source, so the repeats would otherwise sit at
+   * full opacity beside it.
+   */
+  isTaskDragging?: boolean;
 };
 
-function TaskRow({ task, projectSlug }: TaskRowProps) {
+function TaskRow({
+  task,
+  projectSlug,
+  depth = 0,
+  rowId = task.id,
+  childCount = 0,
+  isExpanded = false,
+  onToggleExpanded,
+  reserveToggleSpace = false,
+  isTaskDragging = false,
+}: TaskRowProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const showToggleColumn = depth > 0 || childCount > 0 || reserveToggleSpace;
+  // Only the top-level row is a drag source. A nested repeat shares its task
+  // id with that row, so making it sortable would register the same id twice
+  // and move the wrong row.
+  const isNestedRepeat = depth > 0;
   const {
     attributes,
     listeners,
@@ -64,24 +85,41 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({
+    id: rowId ?? task.id,
+    disabled: isNestedRepeat,
+    transition: { duration: 200, easing: EASE_OUT_CSS },
+  });
 
   const { project } = useProjectStore();
   const taskIsCompleted = isTaskCompleted(task.status, project?.columns);
   const { data: workspace } = useActiveWorkspace();
-  const {
-    showAssignees,
-    showPriority,
-    showDueDates,
-    showLabels,
-    showTaskNumbers,
-  } = useUserPreferencesStore();
-  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState(false);
+  const [isDeleteTaskModalOpen, setIsDeleteTaskModalOpen] = useState<
+    boolean | null
+  >(null);
+  const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
   const { mutateAsync: deleteTask } = useDeleteTask();
-  const { toggleSelection, isSelected, isFocused } = useBulkSelectionStore();
-  const isTaskSelected = isSelected(task.id);
-  const isTaskFocused = isFocused(task.id);
+  const toggleSelection = useBulkSelectionStore(
+    (state) => state.toggleSelection,
+  );
+  const selectRange = useBulkSelectionStore((state) => state.selectRange);
+  const setFocusedTask = useBulkSelectionStore((state) => state.setFocusedTask);
+  useRestoreTaskFocus(task.id, useBulkSelectionStore, rowId);
+  const setSelectionAnchor = useBulkSelectionStore(
+    (state) => state.setSelectionAnchor,
+  );
+  const isTaskSelected = useBulkSelectionStore((state) =>
+    state.selectedTaskIds.has(task.id),
+  );
+  const isTaskFocused = useBulkSelectionStore(
+    (state) =>
+      state.focusedTaskId === task.id &&
+      (state.focusedTaskRowId
+        ? state.focusedTaskRowId === rowId
+        : rowId === task.id),
+  );
 
+  const hoverPrefetch = useTaskHoverPrefetch(task.id);
   const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
     workspace?.id ?? "",
   );
@@ -92,57 +130,13 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     );
   }, [workspaceUsers, task.userId]);
 
-  const pullRequests = useMemo(() => {
-    return (task.externalLinks ?? []).filter(
-      (link) =>
-        link.resourceType === "pull_request" &&
-        getExternalWebUrl(link.url) !== null,
-    );
-  }, [task.externalLinks]);
-
-  const getPRInfo = (pr: (typeof pullRequests)[number]) => {
-    const isMerged = pr.metadata?.merged === true;
-    const isDraft = pr.metadata?.draft === true;
-
-    if (isMerged) {
-      return {
-        icon: <GitMerge className="h-3 w-3 text-info-foreground" />,
-        status: t("tasks:pr.merged"),
-        statusClass: "text-info-foreground",
-      };
-    }
-
-    if (isDraft) {
-      return {
-        icon: <GitPullRequest className="h-3 w-3 text-muted-foreground" />,
-        status: t("tasks:pr.draft"),
-        statusClass: "text-muted-foreground",
-      };
-    }
-
-    return {
-      icon: <GitPullRequest className="h-3 w-3 text-success-foreground" />,
-      status: t("tasks:pr.open"),
-      statusClass: "text-success-foreground",
-    };
-  };
-
   const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || "transform 200ms cubic-bezier(0.23, 1, 0.32, 1)",
+    transition: transition || `transform 200ms ${EASE_OUT_CSS}`,
     touchAction: isDragging ? "none" : "auto",
   };
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (!project || !task) return;
-    if (e.defaultPrevented) return;
-
-    if (e.metaKey || e.ctrlKey) {
-      e.preventDefault();
-      toggleSelection(task.id);
-      return;
-    }
-
+  const openTask = () => {
     const currentParams = new URLSearchParams(window.location.search);
     const currentTaskId = currentParams.get("taskId");
 
@@ -159,16 +153,47 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleClick(e as unknown as React.MouseEvent);
+  const handleClick = (e: React.MouseEvent) => {
+    if (!project || !task || !isOwnDomEvent(e)) return;
+    if (e.defaultPrevented) return;
+
+    if (e.shiftKey) {
+      e.preventDefault();
+      selectRange(task.id);
+      return;
+    }
+
+    if (e.metaKey || e.ctrlKey) {
+      e.preventDefault();
+      toggleSelection(task.id);
+      return;
+    }
+
+    setSelectionAnchor(task.id);
+    setFocusedTask(null, rowId);
+    openTask();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.defaultPrevented || e.target !== e.currentTarget) return;
+    if (e.key === "Enter" && e.shiftKey) {
+      e.preventDefault();
+      selectRange(task.id);
+      return;
+    }
+    // Space activates the non-sortable repeat. Top-level rows leave Space to
+    // the view's peekTask shortcut; this view has no keyboard drag sensor.
+    if (isNestedRepeat && e.key === " ") {
+      e.preventDefault();
+      setSelectionAnchor(task.id);
+      openTask();
     }
   };
 
   const handleDeleteTask = async () => {
     try {
       await deleteTask(task.id);
-      toast.success(t("tasks:delete.success"));
+      toast.success(t("tasks:delete.success"), { icon: Trash2Icon });
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : t("tasks:delete.error"),
@@ -180,245 +205,157 @@ function TaskRow({ task, projectSlug }: TaskRowProps) {
     <div
       ref={setNodeRef}
       style={style}
+      data-kaneo-sortable={isNestedRepeat ? undefined : true}
       className={cn(
-        "border-b border-border/50 transition-colors duration-150",
-        isDragging && "opacity-50",
+        // The indent and the toggle sit beside the draggable region rather
+        // than inside it: dnd-kit gives its activator role="button", and a
+        // button nested in one is an ambiguous control for assistive tech.
+        "group/row flex items-stretch border-b border-border/50 transition-colors duration-150",
+        (isDragging || isTaskDragging) && "opacity-50",
         isTaskSelected &&
           "bg-accent/60 shadow-sm ring-1 ring-inset ring-ring/30",
-        isTaskFocused && "ring-2 ring-inset ring-ring/50",
+        isTaskFocused && "ring-1 ring-board-card-focus ring-inset",
       )}
     >
-      <ContextMenu>
+      {showToggleColumn && (
+        <div
+          className={cn(
+            "flex shrink-0 items-center pl-3.5",
+            isTaskSelected ? "bg-accent/45" : "group-hover/row:bg-accent/60",
+          )}
+        >
+          {depth > 0 && (
+            <span
+              aria-hidden="true"
+              className="shrink-0"
+              // Capped so a deep chain cannot push the title off the row; the
+              // chevrons still convey the nesting.
+              style={{ width: `${Math.min(depth, 6) * 1.25}rem` }}
+            />
+          )}
+
+          {childCount > 0 ? (
+            <button
+              type="button"
+              onClick={() => onToggleExpanded?.(rowId ?? task.id)}
+              aria-expanded={isExpanded}
+              // Named with the task, not just the action: several identical
+              // "Show subtasks" buttons would be indistinguishable in a rotor.
+              aria-label={
+                isExpanded
+                  ? t("tasks:listView.collapseSubtasks", { title: task.title })
+                  : t("tasks:listView.expandSubtasks", { title: task.title })
+              }
+              className="touch-hitbox relative shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ChevronRight
+                className={cn(
+                  "size-3 transition-transform duration-150 ease-out",
+                  isExpanded && "rotate-90",
+                )}
+              />
+            </button>
+          ) : (
+            <span aria-hidden="true" className="w-5 shrink-0" />
+          )}
+        </div>
+      )}
+
+      <ContextMenu
+        onOpenChange={(open) => {
+          if (open) setHasOpenedMenu(true);
+        }}
+      >
         <ContextMenuTrigger asChild>
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: false positive for onClick and onKeyDown */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- false positive for onClick and onKeyDown */}
           <div
             onClick={handleClick}
-            onKeyDown={handleKeyDown}
             className={cn(
-              "group relative flex items-center gap-3 px-4 py-1.5 transition-colors cursor-pointer",
-              isTaskSelected ? "bg-accent/45" : "hover:bg-accent/60",
+              "group relative flex h-10 min-w-0 flex-1 cursor-pointer items-center gap-3 pr-3.5 outline-none transition-colors",
+              showToggleColumn ? "pl-2" : "pl-3.5",
+              isTaskSelected ? "bg-accent/45" : "group-hover/row:bg-accent/60",
             )}
-            {...attributes}
-            {...listeners}
+            data-task-id={task.id}
+            data-task-row-id={rowId}
+            data-shortcut-surface
+            // A repeated row opens its task like any other, so it keeps the
+            // button semantics but takes none of dnd-kit's attributes: those
+            // carry aria-disabled for a disabled sortable, which would tell
+            // assistive technology the row cannot be used.
+            {...(isNestedRepeat
+              ? { role: "button" as const, tabIndex: 0 }
+              : { ...attributes, ...listeners })}
+            {...hoverPrefetch}
+            onKeyDown={handleKeyDown}
+            onFocus={(event) => {
+              if (event.target !== event.currentTarget) return;
+              setFocusedTask(isKeyboardFocus(event) ? task.id : null, rowId);
+            }}
           >
-            {showPriority && (
-              <div className="flex-shrink-0 first:[&_svg]:h-4 first:[&_svg]:w-4">
-                {getPriorityIcon(task.priority ?? "")}
-              </div>
+            {depth > 0 && (
+              // The indent is decorative, so nesting is otherwise inaudible: a
+              // repeat and its top-level row expose identical content.
+              <span className="sr-only">
+                {t("tasks:listView.subtaskLevel", { level: depth })}
+              </span>
             )}
-            {showTaskNumbers && (
-              <div className="text-xs font-mono text-muted-foreground flex-shrink-0">
-                {projectSlug}-{task.number}
-              </div>
-            )}
-
-            <div className="flex-1 min-w-0 flex items-center gap-2">
-              <div className="flex items-center gap-2 justify-between w-full">
-                <span className="text-sm text-foreground truncate">
-                  {task.title}
-                </span>
-                <div className="flex items-center gap-1">
-                  <TaskProgressBadges task={task} />
-                  {showLabels && <TaskLabels labels={task.labels ?? []} />}
-
-                  {pullRequests.length === 1 && (
-                    <HoverCard openDelay={200} closeDelay={100}>
-                      <HoverCardTrigger asChild>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openExternalWebUrl(pullRequests[0].url);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
-                        >
-                          {getPRInfo(pullRequests[0]).icon}
-                          <span>#{pullRequests[0].externalId}</span>
-                        </button>
-                      </HoverCardTrigger>
-                      <HoverCardContent
-                        className="w-72 p-3"
-                        side="bottom"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            {getPRInfo(pullRequests[0]).icon}
-                            <span>{getPRInfo(pullRequests[0]).status}</span>
-                            <span className="text-muted-foreground/50">•</span>
-                            <span>#{pullRequests[0].externalId}</span>
-                          </div>
-                          <p className="text-sm font-medium leading-snug">
-                            {pullRequests[0].title || t("tasks:pr.label")}
-                          </p>
-                        </div>
-                      </HoverCardContent>
-                    </HoverCard>
-                  )}
-
-                  {pullRequests.length > 1 &&
-                    (() => {
-                      const hasOpen = pullRequests.some(
-                        (pr) => !pr.metadata?.merged && !pr.metadata?.draft,
-                      );
-                      const allMerged = pullRequests.every(
-                        (pr) => pr.metadata?.merged,
-                      );
-                      const iconColor = allMerged
-                        ? "text-info-foreground"
-                        : hasOpen
-                          ? "text-success-foreground"
-                          : "text-muted-foreground";
-
-                      return (
-                        <HoverCard openDelay={200} closeDelay={100}>
-                          <HoverCardTrigger asChild>
-                            <button
-                              type="button"
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-border bg-sidebar text-[10px] font-medium text-muted-foreground"
-                            >
-                              <GitPullRequest
-                                className={`h-3 w-3 ${iconColor}`}
-                              />
-                              <span>
-                                {t("tasks:pr.count", {
-                                  count: pullRequests.length,
-                                })}
-                              </span>
-                            </button>
-                          </HoverCardTrigger>
-                          <HoverCardContent
-                            className="w-auto min-w-56 max-w-96 p-1"
-                            side="bottom"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {pullRequests.map((pr, index) => {
-                              const prInfo = getPRInfo(pr);
-                              const repoMatch = pr.url.match(
-                                /github\.com\/([^/]+\/[^/]+)\/pull/,
-                              );
-                              const repoName = repoMatch ? repoMatch[1] : null;
-                              return (
-                                <div key={pr.id}>
-                                  {index > 0 && (
-                                    <hr className="border-border my-1" />
-                                  )}
-                                  <button
-                                    type="button"
-                                    onClick={() => openExternalWebUrl(pr.url)}
-                                    className="w-full px-2 py-1.5 text-left hover:bg-muted/50 rounded transition-colors"
-                                  >
-                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                      {prInfo.icon}
-                                      <span>
-                                        {repoName}#{pr.externalId}
-                                      </span>
-                                    </div>
-                                    <p className="text-xs leading-tight line-clamp-2 mt-0.5">
-                                      {pr.title || t("tasks:pr.label")}
-                                    </p>
-                                    <span className="text-[10px] text-muted-foreground">
-                                      {prInfo.status}
-                                    </span>
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </HoverCardContent>
-                        </HoverCard>
-                      );
-                    })()}
-                </div>
-              </div>
-            </div>
-
-            {showDueDates && task.dueDate && (
-              <div
-                className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded flex-shrink-0 ${dueDateStatusColors[getDueDateStatus(task.dueDate, taskIsCompleted)]}`}
-              >
-                {getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                  "overdue" && <CalendarX className="w-3 h-3" />}
-                {getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                  "due-soon" && <CalendarClock className="w-3 h-3" />}
-                {(getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                  "far-future" ||
-                  getDueDateStatus(task.dueDate, taskIsCompleted) ===
-                    "no-due-date") && <Calendar className="w-3 h-3" />}
-                <span>{format(new Date(task.dueDate), "MMM d")}</span>
-              </div>
-            )}
-
-            {showAssignees && (
-              <div className="flex-shrink-0">
-                {task.userId ? (
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage
-                      src={assignee?.user?.image ?? ""}
-                      alt={assignee?.user?.name || ""}
-                    />
-                    <AvatarFallback className="text-xs font-medium border border-border/30">
-                      {getInitials(assignee?.user?.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                ) : (
-                  <div
-                    className="w-6 h-6 rounded-full bg-muted border border-border flex items-center justify-center"
-                    title={t("tasks:assignee.unassigned")}
-                  >
-                    <span className="text-[10px] font-medium text-muted-foreground">
-                      ?
-                    </span>
-                  </div>
-                )}
-              </div>
-            )}
+            <TaskRowBody
+              task={task}
+              projectSlug={projectSlug}
+              workspaceId={workspace?.id ?? ""}
+              isCompleted={taskIsCompleted}
+              assigneeName={assignee?.user?.name ?? task.assigneeName}
+              assigneeImage={assignee?.user?.image}
+            />
           </div>
         </ContextMenuTrigger>
 
-        {project && workspace && (
+        {hasOpenedMenu && project && workspace && (
           <TaskCardContextMenuContent
             task={task}
             taskCardContext={{
               projectId: project.id,
               worskpaceId: workspace.id,
+              workspaceSlug: workspace.slug,
             }}
             onDeleteClick={() => setIsDeleteTaskModalOpen(true)}
           />
         )}
       </ContextMenu>
 
-      <AlertDialog
-        open={isDeleteTaskModalOpen}
-        onOpenChange={setIsDeleteTaskModalOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t("tasks:delete.description")}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogClose render={<Button variant="outline" size="sm" />}>
-              {t("common:actions.cancel")}
-            </AlertDialogClose>
-            <AlertDialogClose
-              render={
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleDeleteTask}
-                />
-              }
-            >
-              {t("tasks:delete.action")}
-            </AlertDialogClose>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {isDeleteTaskModalOpen !== null && (
+        <AlertDialog
+          open={isDeleteTaskModalOpen}
+          onOpenChange={setIsDeleteTaskModalOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("tasks:delete.title")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("tasks:delete.description")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogClose render={<Button variant="outline" size="sm" />}>
+                {t("common:actions.cancel")}
+              </AlertDialogClose>
+              <AlertDialogClose
+                render={
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDeleteTask}
+                  />
+                }
+              >
+                {t("tasks:delete.action")}
+              </AlertDialogClose>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 }
 
-export default TaskRow;
+export default memo(TaskRow);

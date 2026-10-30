@@ -44,8 +44,8 @@ export function buildNextTelegramConfigFromPatch(
         : (body.chatLabel ?? undefined),
     events: {
       ...defaultTelegramEvents,
-      ...(currentConfig.events ?? {}),
-      ...(body.events ?? {}),
+      ...currentConfig.events,
+      ...body.events,
     },
   };
 }
@@ -124,7 +124,7 @@ export function toResponse(integration: TelegramIntegrationRecord) {
     maskedBotToken: config.botToken ? maskBotToken(config.botToken) : "",
     events: {
       ...defaultTelegramEvents,
-      ...(config.events ?? {}),
+      ...config.events,
     },
     isActive: integration.isActive,
     createdAt: integration.createdAt,

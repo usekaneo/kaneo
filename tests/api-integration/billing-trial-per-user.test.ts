@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { getOrCreateWorkspaceBilling } from "../../apps/api/src/billing/controllers/get-workspace-billing";
 import db, { schema } from "../../apps/api/src/database";
 import deleteAccountData from "../../apps/api/src/user/controllers/delete-account-data";

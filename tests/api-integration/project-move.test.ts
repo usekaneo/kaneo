@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { eq, sql } from "drizzle-orm";
 import type { WSContext } from "hono/ws";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import createTaskRelation from "../../apps/api/src/task-relation/controllers/create-task-relation";
@@ -82,7 +82,8 @@ describe("API integration: moving a project between workspaces", () => {
       moveRequest(target.id),
     );
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
+    expect(await response.text()).toContain("Destination workspace not found");
 
     const [unchanged] = await db
       .select()

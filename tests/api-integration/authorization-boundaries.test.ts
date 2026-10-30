@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
@@ -67,7 +67,8 @@ describe("github integration routes are workspace scoped", () => {
       `/api/github-integration/repositories/${project.id}`,
     );
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
+    expect(await response.text()).toContain("Project not found");
   });
 });
 

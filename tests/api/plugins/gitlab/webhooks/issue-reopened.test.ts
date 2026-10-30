@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   updateTaskStatus: vi.fn(),
@@ -56,9 +56,8 @@ vi.mock("../../../../../apps/api/src/events", () => ({
   publishEvent: (...args: unknown[]) => mocks.publishEvent(...args),
 }));
 
-const { handleGitlabIssueReopened } = await import(
-  "../../../../../apps/api/src/plugins/gitlab/webhooks/issue-reopened"
-);
+const { handleGitlabIssueReopened } =
+  await import("../../../../../apps/api/src/plugins/gitlab/webhooks/issue-reopened");
 
 const payload = {
   object_attributes: {
@@ -104,9 +103,13 @@ describe("handleGitlabIssueReopened failures", () => {
 
     await handleGitlabIssueReopened(payload, "integration-1");
 
-    expect(mocks.updateExternalLink).toHaveBeenCalledWith("link-1", {
-      metadata: { state: "opened" },
-    });
+    expect(mocks.updateExternalLink).toHaveBeenCalledWith(
+      "link-1",
+      {
+        metadata: { state: "opened" },
+      },
+      expect.anything(),
+    );
     expect(mocks.publishEvent).toHaveBeenCalledWith(
       "task.status_changed",
       expect.objectContaining({
@@ -116,3 +119,56 @@ describe("handleGitlabIssueReopened failures", () => {
     );
   });
 });
+
+// Ownership locking is covered by integration-task-scope.test.ts. These cases
+// exercise provider behavior with the transaction's existing database mock.
+vi.mock(
+  "../../../../../apps/api/src/plugins/github/services/integration-task-scope",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../../../../apps/api/src/plugins/github/services/integration-task-scope")
+      >();
+    return {
+      ...actual,
+      withIntegrationTask: async (
+        _taskId: string,
+        _integration: unknown,
+        apply: (
+          database: unknown,
+          afterCommit: (effect: () => Promise<void>) => void,
+        ) => Promise<unknown>,
+      ) => {
+        const database = (await import("../../../../../apps/api/src/database"))
+          .default;
+        const effects: Array<() => Promise<void>> = [];
+        const result = await apply(database, (effect) => effects.push(effect));
+        for (const effect of effects) await effect();
+        return result;
+      },
+    };
+  },
+);
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/github/services/with-integration-link",
+  async () => ({
+    withIntegrationLink: async (
+      link: unknown,
+      integration: unknown,
+      apply: (
+        database: unknown,
+        afterCommit: (effect: () => Promise<void>) => void,
+        link: unknown,
+      ) => Promise<unknown>,
+    ) => {
+      const { withIntegrationTask } =
+        await import("../../../../../apps/api/src/plugins/github/services/integration-task-scope");
+      return withIntegrationTask(
+        (link as { taskId: string }).taskId,
+        integration as Parameters<typeof withIntegrationTask>[1],
+        (database, afterCommit) => apply(database, afterCommit, link),
+      );
+    },
+  }),
+);

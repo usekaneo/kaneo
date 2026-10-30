@@ -17,6 +17,8 @@ async function createTask(
   dueDate: Date | undefined,
   priority: CreateTaskRequest["priority"],
   customFields?: { fieldId: string; value: string }[],
+  draftAssetIds?: string[],
+  recurrence?: CreateTaskRequest["recurrence"],
 ) {
   if (!projectId) {
     throw new Error("No project selected for task creation");
@@ -31,13 +33,15 @@ async function createTask(
       startDate: startDate?.toISOString() || undefined,
       dueDate: dueDate?.toISOString() || undefined,
       priority,
+      recurrence,
       customFields,
+      draftAssetIds,
     },
     param: { projectId },
   });
 
   if (!response.ok) {
-    throw new HttpError(response.status, await response.text());
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();

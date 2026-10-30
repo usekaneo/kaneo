@@ -5,30 +5,30 @@ import {
   type DragOverEvent,
   DragOverlay,
   type DragStartEvent,
-  KeyboardSensor,
   MouseSensor,
   TouchSensor,
   type UniqueIdentifier,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
 import { produce } from "immer";
-import { Archive, ChevronRight, Flag, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Flag, ArchiveIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { priorityColorsTaskCard } from "@/constants/priority-colors";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
-import { useRegisterShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import useGetProjectTaskRelations from "@/hooks/queries/task-relation/use-get-project-task-relations";
+import { useTaskViewShortcuts } from "@/components/project/task-view-keys/use-task-view-shortcuts";
+import { useCollapsedSections } from "@/hooks/use-collapsed-sections";
 import { cn } from "@/lib/cn";
-import { getColumnIcon } from "@/lib/column";
+import {
+  readExpandedRows,
+  writeExpandedRows,
+} from "@/lib/expanded-rows-storage";
+import { buildSubtaskChildren, flattenSubtaskRows } from "@/lib/subtask-tree";
 import { toast } from "@/lib/toast";
 import useBulkSelectionStore from "@/store/bulk-selection";
 import useProjectStore from "@/store/project";
@@ -36,88 +36,140 @@ import type { ProjectWithTasks } from "@/types/project";
 import BulkToolbar from "../bulk-selection/bulk-toolbar";
 import { ArchiveTasksModal } from "../shared/modals/archive-tasks-modal";
 import CreateTaskModal from "../shared/modals/create-task-modal";
-import TaskRow from "./task-row";
+import ListColumnSection from "./list-column-section";
 
 type ListViewProps = {
   project: ProjectWithTasks;
   disableDragDrop?: boolean;
+  disableCollectionActions?: boolean;
 };
 
-function ListView({ project, disableDragDrop = false }: ListViewProps) {
+function ListView({
+  project,
+  disableDragDrop = false,
+  disableCollectionActions = false,
+}: ListViewProps) {
   const { t } = useTranslation();
+  const reduceMotion = useReducedMotion();
   const { setProject } = useProjectStore();
-  const {
-    setAvailableTasks,
-    focusNext,
-    focusPrevious,
-    focusedTaskId,
-    clearFocus,
-  } = useBulkSelectionStore();
+  const setAvailableTasks = useBulkSelectionStore(
+    (state) => state.setAvailableTasks,
+  );
+  const clearFocus = useBulkSelectionStore((state) => state.clearFocus);
   const { mutate: updateTask } = useUpdateTask();
-  const navigate = useNavigate();
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<
-    Record<string, boolean>
-  >(() => {
-    const sections: Record<string, boolean> = {};
-    if (project?.columns) {
-      for (const col of project.columns) {
-        sections[col.id] = true;
-      }
-    }
-    return sections;
-  });
+  const { isExpanded, toggleSection, toggleAllSections } = useCollapsedSections(
+    project.id,
+    "list",
+  );
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [activeColumn, setActiveColumn] = useState<string | null>(null);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
-  const [columnToArchive, setColumnToArchive] = useState<
-    ProjectWithTasks["columns"][number] | null
-  >(null);
+  const [columnToArchive, setColumnToArchive] = useState<string | null>(null);
+  const archiveColumn = project.columns.find(
+    (column) => column.id === columnToArchive,
+  );
+
+  // isLoading rather than isPending: a disabled query is also pending, and an
+  // empty project should not look like it is still fetching.
+  const {
+    data: relations,
+    isLoading: relationsLoading,
+    isError: relationsFailed,
+    refetch: refetchRelations,
+  } = useGetProjectTaskRelations(project?.id ?? "");
+
+  const subtaskChildren = useMemo(
+    () => buildSubtaskChildren(relations ?? []),
+    [relations],
+  );
+
+  const tasksById = useMemo(() => {
+    const index = new Map<
+      string,
+      ProjectWithTasks["columns"][number]["tasks"][number]
+    >();
+    for (const column of project?.columns ?? []) {
+      for (const task of column.tasks) {
+        index.set(task.id, task);
+      }
+    }
+    return index;
+  }, [project?.columns]);
+
+  // Per browser and per project, and only a convenience: a row that cannot be
+  // restored simply starts collapsed.
+  const projectId = project?.id ?? "";
+  const [expanded, setExpanded] = useState(() => ({
+    projectId,
+    rows: readExpandedRows(projectId),
+  }));
+
+  // The board route swaps this component's project rather than remounting it,
+  // so a lazy initializer would keep the previous project's map and then save
+  // it under the new project's key.
+  if (expanded.projectId !== projectId) {
+    setExpanded({ projectId, rows: readExpandedRows(projectId) });
+  }
+
+  const expandedTasks = expanded.rows;
+
+  useEffect(() => {
+    writeExpandedRows(projectId, expandedTasks);
+  }, [projectId, expandedTasks]);
+
+  // Collapsing removes the row rather than recording false, so the stored map
+  // holds only expanded rows and does not grow with every row ever touched.
+  const toggleTaskExpanded = useCallback((rowId: string) => {
+    setExpanded((previous) => {
+      const rows = { ...previous.rows };
+      if (rows[rowId]) delete rows[rowId];
+      else rows[rowId] = true;
+      return { ...previous, rows };
+    });
+  }, []);
+
+  // Each section's rows, in the order they are shown, expanded subtasks
+  // included. Built once per change and shared with the sections, so their
+  // memoization holds. Nothing stays expanded while a drag is in flight.
+  const rowsByColumn = useMemo(
+    () =>
+      new Map(
+        (project?.columns ?? []).map((column) => [
+          column.id,
+          flattenSubtaskRows({
+            tasks: column.tasks,
+            children: subtaskChildren,
+            tasksById,
+            isExpanded: (rowId) => !activeId && Boolean(expandedTasks[rowId]),
+          }),
+        ]),
+      ),
+    [project?.columns, subtaskChildren, tasksById, expandedTasks, activeId],
+  );
+
+  // Bulk actions stay per task, even when the list renders several rows for
+  // it. Shift-click ranges use the first appearance in display order.
+  const shownTaskIds = useCallback(
+    (column: ProjectWithTasks["columns"][number]) => [
+      ...new Set((rowsByColumn.get(column.id) ?? []).map((row) => row.task.id)),
+    ],
+    [rowsByColumn],
+  );
 
   useEffect(() => {
     if (project?.columns) {
       const visibleTaskIds = project.columns
-        .filter((column) => expandedSections[column.id])
-        .flatMap((column) => column.tasks.map((task) => task.id));
-      setAvailableTasks(visibleTaskIds);
+        .filter((column) => isExpanded(column.id))
+        .flatMap(shownTaskIds);
+      setAvailableTasks([...new Set(visibleTaskIds)]);
     }
-  }, [project, expandedSections, setAvailableTasks]);
+  }, [project, isExpanded, setAvailableTasks, shownTaskIds]);
 
   useEffect(() => {
     clearFocus();
   }, [clearFocus]);
-
-  useRegisterShortcuts({
-    shortcuts: {
-      j: () => {
-        focusNext();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      k: () => {
-        focusPrevious();
-        const state = useBulkSelectionStore.getState();
-        if (state.focusedTaskId) {
-          navigate({ to: ".", search: { taskId: state.focusedTaskId } });
-        }
-      },
-      Enter: () => {
-        if (focusedTaskId && project) {
-          navigate({
-            to: "/dashboard/workspace/$workspaceId/project/$projectId/task/$taskId",
-            params: {
-              workspaceId: project.workspaceId,
-              projectId: project.id,
-              taskId: focusedTaskId,
-            },
-          });
-        }
-      },
-    },
-  });
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -129,10 +181,10 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
         tolerance: 8,
       },
     }),
-    useSensor(KeyboardSensor),
   );
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (disableDragDrop) return;
     setActiveId(event.active.id);
   };
 
@@ -160,15 +212,8 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-    setOverColumnId(null);
-
-    if (!over || !project?.columns) return;
-
-    const activeTaskId = active.id.toString();
-    const overId = over.id.toString();
+  const moveTask = (activeTaskId: string, overId: string) => {
+    if (disableDragDrop || !project?.columns) return;
 
     const updatedProject = produce(project, (draft) => {
       const sourceColumn = draft?.columns?.find((col) =>
@@ -238,25 +283,73 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
     setProject(updatedProject);
   };
 
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections((prev) => ({
-      ...prev,
-      [sectionId]: !prev[sectionId],
-    }));
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    setActiveId(null);
+    setOverColumnId(null);
+    if (over) moveTask(active.id.toString(), over.id.toString());
   };
 
-  const handleArchiveClick = (column: ProjectWithTasks["columns"][number]) => {
-    if (!column.isFinal || column.tasks.length === 0) return;
-    setColumnToArchive(column);
-    setIsArchiveModalOpen(true);
+  // Escape ends a drag without onDragEnd, so without this the dragged row
+  // stays active: its children remain collapsed and the overlay lingers.
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setOverColumnId(null);
   };
+
+  useTaskViewShortcuts({
+    layout: "list",
+    selection: useBulkSelectionStore,
+    getGroups: () =>
+      project.columns.map((column) => ({
+        id: column.id,
+        taskIds: shownTaskIds(column),
+        rows: (rowsByColumn.get(column.id) ?? []).map((row) => ({
+          taskId: row.task.id,
+          rowId: row.rowId,
+        })),
+        collapsed: !isExpanded(column.id),
+      })),
+    // Repeated children follow their parent for navigation, but reordering
+    // must use their actual status and position rather than their nested row.
+    getMoveGroups: () =>
+      project.columns.map((column) => ({
+        id: column.id,
+        taskIds: column.tasks.map((task) => task.id),
+      })),
+    project,
+    enabled: activeId === null,
+    canMove: !disableDragDrop,
+    onMove: moveTask,
+    onToggleGroup: toggleSection,
+    onToggleAllGroups: () =>
+      toggleAllSections(project.columns.map((column) => column.id)),
+  });
+
+  const handleAddTask = useCallback((columnId: string) => {
+    setIsTaskModalOpen(true);
+    setActiveColumn(columnId);
+  }, []);
+
+  const handleArchiveClick = useCallback(
+    (column: ProjectWithTasks["columns"][number]) => {
+      if (
+        disableCollectionActions ||
+        !column.isFinal ||
+        column.tasks.length === 0
+      )
+        return;
+      setColumnToArchive(column.id);
+      setIsArchiveModalOpen(true);
+    },
+    [disableCollectionActions],
+  );
 
   const handleConfirmArchive = () => {
-    if (!columnToArchive) return;
+    if (disableCollectionActions || !archiveColumn?.isFinal) return;
 
     const updatedProject = produce(project, (draft) => {
       const archivedColumn = draft?.columns?.find(
-        (col) => col.id === columnToArchive.id,
+        (col) => col.id === columnToArchive,
       );
       if (!archivedColumn) return;
 
@@ -272,118 +365,13 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
     setProject(updatedProject);
     toast.success(
-      t("tasks:archive.success", { count: columnToArchive.tasks.length }),
+      t("tasks:archive.success", { count: archiveColumn.tasks.length }),
+      { icon: ArchiveIcon },
     );
 
     setIsArchiveModalOpen(false);
     setColumnToArchive(null);
   };
-
-  function ColumnSection({
-    column,
-  }: {
-    column: ProjectWithTasks["columns"][number];
-  }) {
-    const { setNodeRef } = useDroppable({
-      id: column.id,
-      data: {
-        type: "column",
-        column,
-      },
-    });
-
-    const showDropIndicator = activeId && overColumnId === column.id;
-
-    return (
-      <div
-        className={cn(
-          "border-b border-border/50 transition-colors duration-150 overflow-auto",
-          showDropIndicator && "border-l-4 border-l-ring bg-accent/35",
-        )}
-      >
-        <div className="flex items-center justify-between py-2 px-4 bg-muted/60 border-b border-border/50">
-          <button
-            type="button"
-            onClick={() => toggleSection(column.id)}
-            className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronRight
-              className={cn(
-                "w-3 h-3 transition-transform",
-                expandedSections[column.id] && "rotate-90",
-              )}
-            />
-            <div className="flex items-center gap-2 h-4">
-              {getColumnIcon(column.id, column.isFinal, column.icon)}
-              <div className="flex items-center gap-1">
-                <span className="mt-1 mr-1">{column.name}</span>
-                <span className="text-xs text-muted-foreground mt-0.5">
-                  {column.tasks.length}
-                </span>
-              </div>
-            </div>
-          </button>
-
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                setIsTaskModalOpen(true);
-                setActiveColumn(column.id);
-              }}
-              className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-              title={t("tasks:listView.addTask")}
-            >
-              <Plus className="w-3 h-3" />
-            </button>
-
-            {column.isFinal && column.tasks.length > 0 && (
-              <button
-                type="button"
-                onClick={() => handleArchiveClick(column)}
-                className="p-1 hover:bg-accent rounded text-muted-foreground hover:text-foreground transition-colors"
-                title={t("tasks:listView.archiveAllTooltip")}
-              >
-                <Archive className="w-3 h-3" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {expandedSections[column.id] && (
-          <div
-            ref={setNodeRef}
-            className="bg-card transition-[translate,opacity] duration-150 ease-out starting:-translate-y-1 starting:opacity-0 motion-reduce:starting:translate-y-0"
-          >
-            <SortableContext
-              items={column.tasks}
-              strategy={verticalListSortingStrategy}
-            >
-              <AnimatePresence initial={false} mode="popLayout">
-                {column.tasks.map((task) => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
-                  >
-                    <TaskRow task={task} projectSlug={project?.slug ?? ""} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </SortableContext>
-
-            {column.tasks.length === 0 && (
-              <div className="py-6 px-4 text-center text-xs text-muted-foreground">
-                {t("tasks:listView.noTasks")}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  }
 
   if (!project?.columns) {
     return null;
@@ -397,22 +385,61 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
 
   return (
     <DndContext
-      sensors={sensors}
+      sensors={disableDragDrop ? [] : sensors}
+      accessibility={{
+        screenReaderInstructions: {
+          draggable: t("tasks:board.keyboardInstructions"),
+        },
+      }}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
       modifiers={[snapCenterToCursor]}
     >
       <div className="w-full h-full overflow-auto bg-muted/20">
-        <div className="divide-y divide-border/50">
+        {relationsFailed && (
+          // Without relations every task renders as a top-level row, which
+          // reads exactly like a project with no subtasks; this says it isn't.
+          <div
+            role="alert"
+            className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-2 text-sm text-muted-foreground"
+          >
+            <span>{t("tasks:listView.subtasksLoadError")}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => void refetchRelations()}
+            >
+              {t("common:error.tryAgain")}
+            </Button>
+          </div>
+        )}
+        <div aria-busy={relationsLoading} className="divide-y divide-border/50">
           {project.columns.map((column) => (
-            <ColumnSection key={column.id} column={column} />
+            <ListColumnSection
+              key={column.id}
+              column={column}
+              projectSlug={project.slug ?? ""}
+              isExpanded={isExpanded(column.id)}
+              showDropIndicator={
+                Boolean(activeId) && overColumnId === column.id
+              }
+              disableCollectionActions={disableCollectionActions}
+              onToggle={toggleSection}
+              onAddTask={handleAddTask}
+              onArchive={handleArchiveClick}
+              rows={rowsByColumn.get(column.id) ?? []}
+              onToggleTaskExpanded={toggleTaskExpanded}
+              relationsLoading={relationsLoading}
+              draggingTaskId={activeId === null ? null : String(activeId)}
+            />
           ))}
         </div>
       </div>
 
-      <DragOverlay>
+      <DragOverlay dropAnimation={reduceMotion ? null : undefined}>
         {activeTask && (
           <div className="bg-card border border-border rounded-lg shadow-lg p-2 max-w-[200px] cursor-grabbing">
             <div className="flex items-center gap-2">
@@ -454,8 +481,9 @@ function ListView({ project, disableDragDrop = false }: ListViewProps) {
           setIsArchiveModalOpen(false);
           setColumnToArchive(null);
         }}
+        disabled={disableCollectionActions}
         onConfirm={handleConfirmArchive}
-        taskCount={columnToArchive?.tasks.length ?? 0}
+        taskCount={archiveColumn?.tasks.length ?? 0}
       />
 
       <BulkToolbar />

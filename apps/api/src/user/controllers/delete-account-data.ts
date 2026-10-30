@@ -6,7 +6,14 @@ import {
 } from "../../billing/controllers/find-billable-workspaces";
 import { syncWorkspaceSeats } from "../../billing/controllers/sync-seats";
 import db from "../../database";
-import { workspaceTable, workspaceUserTable } from "../../database/schema";
+import { revokeWorkspaceConnections } from "../../ws";
+import {
+  userTable,
+  workspaceTable,
+  workspaceUserTable,
+} from "../../database/schema";
+import type { DbOrTx } from "../../project-access/db-or-tx";
+import { instanceAdminRoleSql } from "../../utils/instance-admin-role";
 import {
   formatBlockedWorkspacesMessage,
   hasOwnerRole,
@@ -16,8 +23,9 @@ import {
 
 async function collectMemberships(
   userId: string,
+  database: DbOrTx,
 ): Promise<WorkspaceMembershipSummary[]> {
-  const memberships = await db
+  const memberships = await database
     .select({
       workspaceId: workspaceUserTable.workspaceId,
       role: workspaceUserTable.role,
@@ -31,7 +39,7 @@ async function collectMemberships(
 
   const workspaceIds = memberships.map((membership) => membership.workspaceId);
 
-  const members = await db
+  const members = await database
     .select({
       workspaceId: workspaceUserTable.workspaceId,
       workspaceName: workspaceTable.name,
@@ -60,18 +68,23 @@ async function collectMemberships(
   });
 }
 
-export async function deleteAccountData(userId: string) {
-  const plan = planAccountDeletion(await collectMemberships(userId));
+export async function deleteAccountData(userId: string, database: DbOrTx = db) {
+  const plan = planAccountDeletion(await collectMemberships(userId, database));
 
   if (plan.blockedWorkspaceNames.length > 0) {
     throw new APIError("CONFLICT", {
+      code: "SOLE_WORKSPACE_OWNER",
       message: formatBlockedWorkspacesMessage(plan.blockedWorkspaceNames),
     });
   }
 
-  const billable = await findBillableWorkspaces(plan.workspaceIdsToDelete);
+  const billable = await findBillableWorkspaces(
+    plan.workspaceIdsToDelete,
+    database,
+  );
   if (billable.length > 0) {
     throw new APIError("CONFLICT", {
+      code: "WORKSPACE_HAS_ACTIVE_SUBSCRIPTION",
       message: formatBillableWorkspacesMessage(
         billable.map((workspace) => workspace.name),
       ),
@@ -79,13 +92,28 @@ export async function deleteAccountData(userId: string) {
   }
 
   if (plan.workspaceIdsToDelete.length > 0) {
-    await db
+    const admins = await database
+      .select({ userId: userTable.id })
+      .from(userTable)
+      .where(instanceAdminRoleSql(userTable.role));
+    const recipients = new Set([
+      userId,
+      ...admins.map((admin) => admin.userId),
+    ]);
+    await database
       .delete(workspaceTable)
       .where(inArray(workspaceTable.id, plan.workspaceIdsToDelete));
+    for (const workspaceId of plan.workspaceIdsToDelete) {
+      await Promise.all(
+        [...recipients].map((recipient) =>
+          revokeWorkspaceConnections(recipient, workspaceId, { force: true }),
+        ),
+      );
+    }
   }
 
   if (plan.workspaceIdsToLeave.length > 0) {
-    await db
+    await database
       .delete(workspaceUserTable)
       .where(
         and(
@@ -95,7 +123,7 @@ export async function deleteAccountData(userId: string) {
       );
 
     for (const workspaceId of plan.workspaceIdsToLeave) {
-      await syncWorkspaceSeats(workspaceId).catch((error) => {
+      await syncWorkspaceSeats(workspaceId, database).catch((error) => {
         console.error(
           "Seat sync after account deletion failed:",
           workspaceId,
@@ -103,6 +131,10 @@ export async function deleteAccountData(userId: string) {
         );
       });
     }
+  }
+
+  for (const workspaceId of plan.workspaceIdsToLeave) {
+    await revokeWorkspaceConnections(userId, workspaceId, { force: true });
   }
 
   return plan;

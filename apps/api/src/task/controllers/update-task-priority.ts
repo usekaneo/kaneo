@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
-import db from "../../database";
+import { withLockedTask } from "./with-locked-task";
 import { taskTable } from "../../database/schema";
-import { publishEvent } from "../../events";
+import { publishTaskMutation } from "./task-mutation-effects";
 
 async function updateTaskPriority({
   id,
@@ -13,36 +13,27 @@ async function updateTaskPriority({
   priority: string;
   currentUserId: string;
 }) {
-  const existingTask = await db.query.taskTable.findFirst({
-    where: eq(taskTable.id, id),
-  });
+  const { before: existingTask, after: updatedTask } = await withLockedTask(
+    id,
+    async (tx) => {
+      const [updatedTask] = await tx
+        .update(taskTable)
+        .set({ priority })
+        .where(eq(taskTable.id, id))
+        .returning();
 
-  if (!existingTask) {
-    throw new HTTPException(404, {
-      message: "Task not found",
-    });
-  }
+      if (!updatedTask) {
+        throw new HTTPException(500, {
+          message: "Failed to update task priority",
+        });
+      }
 
-  const [updatedTask] = await db
-    .update(taskTable)
-    .set({ priority })
-    .where(eq(taskTable.id, id))
-    .returning();
+      return updatedTask;
+    },
+  );
 
-  if (!updatedTask) {
-    throw new HTTPException(500, {
-      message: "Failed to update task priority",
-    });
-  }
-
-  await publishEvent("task.priority_changed", {
-    taskId: updatedTask.id,
-    projectId: updatedTask.projectId,
-    userId: currentUserId,
-    oldPriority: existingTask.priority,
-    newPriority: priority,
-    title: updatedTask.title,
-    type: "priority_changed",
+  await publishTaskMutation(existingTask, updatedTask, currentUserId, {
+    fields: ["priority"],
   });
 
   return updatedTask;

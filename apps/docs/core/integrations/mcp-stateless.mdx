@@ -23,14 +23,16 @@ The API also serves these under `/api/.well-known/`. Preserve discovery routes a
 | Client flow | Kaneo behavior |
 | --- | --- |
 | MCP 2026-07-28 | A fresh server handles each request. No protocol session is retained between requests. |
-| Legacy session flow | The client initializes a session, then sends the returned `Mcp-Session-Id` on later requests. |
+| Legacy HTTP flow | The client sends `initialize`, but Kaneo returns no `Mcp-Session-Id`. A fresh server handles each POST. |
 | Local stdio | The separate `@kaneo/mcp` package uses device authorization and communicates with the Kaneo API. |
 
 Let your client negotiate its supported protocol. No Kaneo environment switch is needed to choose between HTTP protocol versions.
 
-Legacy sessions live in the API process. A restart loses them, and requests for an unknown session return HTTP 404. The client must initialize again. If you run multiple API replicas, route a legacy session back to the same replica. Redis distributes realtime application events; it does not share MCP protocol sessions.
-
-Modern requests do not need session affinity. OAuth registration and pending authorization state are stored in PostgreSQL and shared between API replicas.
+Neither HTTP flow needs session affinity. A request can reach any API replica,
+including after a replica restarts. Kaneo accepts `Mcp-Session-Id` headers issued
+by older versions on authenticated POSTs, but does not retain their session
+state. OAuth registration and pending authorization state are stored in
+PostgreSQL and shared between API replicas.
 
 ## Reverse proxy and internal requests
 
@@ -43,12 +45,21 @@ HTTP MCP tools reach Kaneo’s API through `KANEO_INTERNAL_API_URL`, which defau
 | Response | What to check |
 | --- | --- |
 | 401 | Complete OAuth sign-in again and check that the proxy forwards the bearer token. |
-| 404 with “Session not found” | Reconnect the client. For multiple replicas, check legacy session affinity. |
-| 405 | A request without a session must use POST. |
+| 405 | The HTTP MCP endpoint accepts POST requests; standalone GET streams and DELETE requests are unsupported. |
+| 408 | Send the complete request body within five seconds. |
+| 413 | Reduce the request body. MCP HTTP accepts at most 1 MiB. |
 | 415 | Send JSON with the correct content type. |
 | 429 | Wait for `Retry-After` before retrying. |
 
 A tool can also fail because the user lacks permission or its arguments do not match the project. Call `list_project_columns` before assigning a status and `list_workspace_members` before assigning a user.
+
+### MCP request limits
+
+Both HTTP protocol flows accept request bodies up to 1 MiB (1,048,576 bytes), measured from the received bytes rather than trusting `Content-Length`.
+The body must arrive within five seconds.
+Each tool call accepts up to 10,000 combined object keys and array elements across its arguments, including nested values.
+Calls above that budget return a tool result with `isError: true` without calling the Kaneo API.
+These limits apply to the HTTP endpoint, not the separate stdio package.
 
 ### OAuth request limits
 

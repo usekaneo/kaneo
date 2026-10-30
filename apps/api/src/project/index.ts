@@ -81,8 +81,10 @@ const moveProjectRoute = createRoute({
     400: errorResponse("Invalid destination or same workspace"),
     401: errorResponse("Unauthorized"),
     402: errorResponse("Destination workspace plan has expired"),
-    403: errorResponse("Missing workspace access or permission"),
-    404: errorResponse("Project not found in the source workspace"),
+    403: errorResponse(
+      "No access to the project, or missing permission in the source or destination workspace",
+    ),
+    404: errorResponse("Project or destination workspace not found"),
     409: errorResponse(
       "Project key conflict or cross-project task relationships",
     ),
@@ -97,12 +99,16 @@ const listProjectsRoute = createRoute({
   summary: "List projects",
   description:
     "List a workspace's projects in sidebar order, each with rollup task statistics. Archived projects are excluded unless includeArchived is set.",
-  middleware: [workspaceAccess.fromQuery()] as const,
+  middleware: [
+    workspaceAccess.fromQuery(),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { query: listProjectsQuery },
   responses: {
     200: jsonResponse("List of projects", projectListSchema),
     400: errorResponse("Workspace ID could not be determined"),
-    403: errorResponse("No access to the workspace"),
+    403: errorResponse("Missing read permission"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -128,9 +134,9 @@ const createProjectRoute = createRoute({
   responses: {
     200: jsonResponse("The created project", projectSchema),
     400: errorResponse("Invalid body, or workspace ID could not be determined"),
-    403: errorResponse(
-      "No workspace access, or missing project:create permission",
-    ),
+    403: errorResponse("Missing project:create permission"),
+    409: errorResponse("Another project in the workspace uses this key"),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -141,14 +147,15 @@ const getProjectRoute = createRoute({
   tags: ["Projects"],
   summary: "Get project",
   description: "Get a single project by ID.",
-  middleware: [workspaceAccess.fromProject()] as const,
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectParam },
   responses: {
     200: jsonResponse("Project details", projectSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -177,8 +184,9 @@ const reorderProjectsRoute = createRoute({
     200: jsonResponse("The reordered projects", z.array(projectSchema)),
     400: errorResponse("Invalid body, or workspace ID could not be determined"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "Missing project:update permission, or no access to a listed project",
     ),
+    404: errorResponse("Workspace not found"),
   },
 });
 
@@ -203,10 +211,12 @@ const updateProjectRoute = createRoute({
   },
   responses: {
     200: jsonResponse("The updated project", projectSchema),
-    400: errorResponse("Invalid body, or unknown project"),
+    400: errorResponse("Invalid body"),
     403: errorResponse(
-      "No workspace access, missing project:update, or missing project:share when visibility changes",
+      "No access to the project, missing project:update, or missing project:share when visibility changes",
     ),
+    409: errorResponse("Another project in the workspace uses the new key"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -225,12 +235,10 @@ const deleteProjectRoute = createRoute({
   request: { params: projectParam },
   responses: {
     200: jsonResponse("The deleted project", projectSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing project:delete permission",
+      "No access to the project, or missing project:delete permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -249,12 +257,10 @@ const archiveProjectRoute = createRoute({
   request: { params: projectParam },
   responses: {
     200: jsonResponse("The archived project", projectSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -272,12 +278,11 @@ const unarchiveProjectRoute = createRoute({
   request: { params: projectParam },
   responses: {
     200: jsonResponse("The restored project", projectSchema),
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    409: errorResponse("Another project in the workspace uses this key"),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -288,7 +293,10 @@ const getProjectBackgroundRoute = createRoute({
   tags: ["Projects"],
   summary: "Download project background",
   description: "Download the current project board background image.",
-  middleware: [workspaceAccess.fromProject()] as const,
+  middleware: [
+    workspaceAccess.fromProject(),
+    requireWorkspacePermission({ project: ["read"] }),
+  ] as const,
   request: { params: projectParam },
   responses: {
     200: {
@@ -298,11 +306,8 @@ const getProjectBackgroundRoute = createRoute({
       },
     },
     304: { description: "Not modified" },
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
-    403: errorResponse("No access to the project's workspace"),
-    404: errorResponse("Project background not found"),
+    403: errorResponse("No access to the project, or missing read permission"),
+    404: errorResponse("Project or project background not found"),
   },
 });
 
@@ -332,9 +337,9 @@ const uploadProjectBackgroundRoute = createRoute({
       "Background image upload URL",
       projectBackgroundUploadSchema,
     ),
-    400: errorResponse("Invalid image upload request, or unknown project"),
+    400: errorResponse("Invalid image upload request"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
     404: errorResponse("Project not found"),
     503: errorResponse("Image uploads are not configured"),
@@ -367,9 +372,9 @@ const finalizeProjectBackgroundRoute = createRoute({
       "Finalized project background",
       projectBackgroundFinalizeSchema,
     ),
-    400: errorResponse("Invalid image upload request, or unknown project"),
+    400: errorResponse("Invalid image upload request"),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
     404: errorResponse("Project not found"),
     500: errorResponse("Failed to save the project background"),
@@ -390,12 +395,10 @@ const deleteProjectBackgroundRoute = createRoute({
   request: { params: projectParam },
   responses: {
     204: { description: "Project background removed" },
-    400: errorResponse(
-      "Unknown project, or its workspace could not be determined",
-    ),
     403: errorResponse(
-      "No workspace access, or missing project:update permission",
+      "No access to the project, or missing project:update permission",
     ),
+    404: errorResponse("Project not found"),
   },
 });
 
@@ -409,6 +412,7 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
       userId,
       targetWorkspaceId,
       c.get("apiKey")?.id,
+      { notFoundMessage: "Destination workspace not found" },
     );
     if (
       !(await hasWorkspacePermission(
@@ -433,6 +437,7 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
     const { includeArchived } = c.req.valid("query");
     const projects = await getProjectsCtrl(
       workspaceId,
+      c.get("userId"),
       includeArchived === "true",
     );
     return c.json(projects.map(toPublicProject), 200);
@@ -440,7 +445,13 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(createProjectRoute, async (c) => {
     const { name, icon, slug } = c.req.valid("json");
     const workspaceId = c.get("workspaceId");
-    const newProject = await createProjectCtrl(workspaceId, name, icon, slug);
+    const newProject = await createProjectCtrl(
+      workspaceId,
+      name,
+      icon,
+      slug,
+      c.get("userId"),
+    );
     return c.json(toPublicProject(newProject), 200);
   })
   .openapi(getProjectRoute, async (c) => {
@@ -517,7 +528,11 @@ const project = apiRouter<BaseVariables & { workspaceId: string }>()
   .openapi(reorderProjectsRoute, async (c) => {
     const workspaceId = c.get("workspaceId");
     const { projects } = c.req.valid("json");
-    const reordered = await reorderProjectsCtrl(workspaceId, projects);
+    const reordered = await reorderProjectsCtrl(
+      workspaceId,
+      c.get("userId"),
+      projects,
+    );
     return c.json(reordered.map(toPublicProject), 200);
   })
   .openapi(updateProjectRoute, async (c) => {

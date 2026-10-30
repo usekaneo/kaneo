@@ -1,5 +1,6 @@
 import { client } from "@kaneo/libs";
 import type { InferRequestType } from "hono/client";
+import { HttpError } from "@/lib/http-error";
 
 export type MoveProjectRequest = InferRequestType<
   (typeof client)["project"][":id"]["move"]["$put"]
@@ -13,8 +14,7 @@ async function moveProject({ id, workspaceId }: MoveProjectRequest) {
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(error);
+    throw await HttpError.fromResponse(response);
   }
 
   const data = await response.json();

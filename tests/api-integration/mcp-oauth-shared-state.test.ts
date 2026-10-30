@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { resetTestDatabase } from "./helpers/database";
 
@@ -35,10 +35,16 @@ describe("API integration: shared MCP OAuth state", () => {
     });
     await expect(
       secondReplica.getAuthorizationRequest(requestId),
-    ).resolves.toMatchObject({ clientId: client.clientId, redirectUri });
+    ).resolves.toMatchObject({
+      clientId: client.clientId,
+      redirectUri,
+    });
     await expect(
       secondReplica.consumeAuthorizationRequest(requestId),
-    ).resolves.toMatchObject({ clientId: client.clientId, redirectUri });
+    ).resolves.toMatchObject({
+      clientId: client.clientId,
+      redirectUri,
+    });
     await expect(
       firstReplica.getAuthorizationRequest(requestId),
     ).resolves.toBeNull();
@@ -52,9 +58,17 @@ describe("API integration: shared MCP OAuth state", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+    const sessionId = randomUUID();
+    await db.insert(schema.sessionTable).values({
+      id: sessionId,
+      token: randomUUID(),
+      userId,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    });
     const code = await secondReplica.createAuthCode({
       clientId: client.clientId,
       userId,
+      sessionId,
       redirectUri,
       codeChallenge,
     });

@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vite-plus/test";
 import {
   buildAvatarUrl,
   decodeAvatarUpload,
+  isUploadedAvatarUrl,
   MAX_AVATAR_BYTES,
   MAX_AVATAR_INPUT_CHARS,
   normalizeAvatarMimeType,
@@ -156,5 +157,23 @@ describe("decodeAvatarUpload", () => {
 describe("buildAvatarUrl", () => {
   it("builds an API-relative URL", () => {
     expect(buildAvatarUrl("abc123")).toBe("/api/user/avatar/abc123");
+  });
+});
+
+describe("isUploadedAvatarUrl", () => {
+  it("recognizes an avatar uploaded to Kaneo", () => {
+    expect(isUploadedAvatarUrl(buildAvatarUrl("abc123"))).toBe(true);
+  });
+
+  it.each([
+    null,
+    undefined,
+    "",
+    "/api/user/avatar/",
+    "/api/user/avatar/abc/def",
+    "/api/user/avatar/abc?size=64",
+    "https://cdn.example.com/api/user/avatar/abc123",
+  ])("does not treat %p as an upload", (image) => {
+    expect(isUploadedAvatarUrl(image)).toBe(false);
   });
 });

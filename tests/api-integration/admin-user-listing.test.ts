@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
@@ -186,5 +186,133 @@ describe("API integration: admin user listing", () => {
     expect((await listUsers(app, { page: "0" })).status).toBe(400);
     expect((await listUsers(app, { limit: "101" })).status).toBe(400);
     expect((await listUsers(app, { limit: "abc" })).status).toBe(400);
+  });
+
+  it("filters by status, role, and email verification", async () => {
+    const admin = await createUser({
+      name: "Instance Admin",
+      email: "admin@example.com",
+      role: "user,admin",
+    });
+    const banned = await createUser({
+      name: "Banned",
+      email: "banned@example.com",
+      banned: true,
+    });
+    const unverified = await createUser({
+      name: "Unverified",
+      email: "unverified@example.com",
+      emailVerified: false,
+      role: null,
+    });
+    mockAuthenticatedSession(admin);
+    const { app } = createApp();
+    const ids = async (query: Record<string, string>) => {
+      const response = await listUsers(app, query);
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as AdminUserList;
+      expect(body.total).toBe(body.users.length);
+      return body.users.map((user) => user.id).sort();
+    };
+
+    expect(await ids({ status: "deactivated" })).toEqual([banned.id]);
+    expect(await ids({ status: "active" })).toEqual(
+      [admin.id, unverified.id].sort(),
+    );
+    expect(await ids({ role: "admin" })).toEqual([admin.id]);
+    expect(await ids({ role: "user" })).toEqual(
+      [banned.id, unverified.id].sort(),
+    );
+    expect(await ids({ emailVerified: "false" })).toEqual([unverified.id]);
+    expect(
+      await ids({ emailVerified: "true", status: "active", role: "user" }),
+    ).toEqual([]);
+    expect((await listUsers(app, { status: "gone" })).status).toBe(400);
+    expect((await listUsers(app, { emailVerified: "yes" })).status).toBe(400);
+  });
+
+  it("treats expired timed bans as active in filtered results and totals", async () => {
+    const admin = await createUser({
+      name: "Admin",
+      email: "admin@example.com",
+      role: "admin",
+    });
+    const expired = await createUser({
+      name: "Expired",
+      email: "expired@example.com",
+      banned: true,
+      banExpires: new Date(Date.now() - 60_000),
+    });
+    const future = await createUser({
+      name: "Future",
+      email: "future@example.com",
+      banned: true,
+      banExpires: new Date(Date.now() + 60_000),
+    });
+    mockAuthenticatedSession(admin);
+    const { app } = createApp();
+    const active = (await (
+      await listUsers(app, { status: "active" })
+    ).json()) as AdminUserList;
+    expect(active.total).toBe(2);
+    expect(active.users.map((user) => user.id).sort()).toEqual(
+      [admin.id, expired.id].sort(),
+    );
+    expect(active.users.find((user) => user.id === expired.id)?.banned).toBe(
+      false,
+    );
+    const deactivated = (await (
+      await listUsers(app, { status: "deactivated" })
+    ).json()) as AdminUserList;
+    expect(deactivated.total).toBe(1);
+    expect(deactivated.users.map((user) => user.id)).toEqual([future.id]);
+    expect(deactivated.users[0]?.banned).toBe(true);
+  });
+
+  it("reports last session activity and linked sign-in methods", async () => {
+    const admin = await createUser({
+      name: "Instance Admin",
+      email: "admin@example.com",
+      role: "admin",
+    });
+    const member = await createUser({
+      name: "Member",
+      email: "member@example.com",
+    });
+    const now = Date.now();
+    for (const [index, updatedAt] of [
+      new Date(now - 3_600_000),
+      new Date(now - 60_000),
+    ].entries()) {
+      await db.insert(schema.sessionTable).values({
+        id: `session-${index}`,
+        token: `token-${index}`,
+        userId: member.id,
+        expiresAt: new Date(now + 3_600_000),
+        updatedAt,
+      });
+    }
+    for (const providerId of ["github", "credential", "github"]) {
+      await db.insert(schema.accountTable).values({
+        accountId: randomUUID(),
+        providerId,
+        userId: member.id,
+      });
+    }
+    mockAuthenticatedSession(admin);
+    const { app } = createApp();
+
+    const body = (await (await listUsers(app)).json()) as {
+      users: {
+        id: string;
+        lastActiveAt: string | null;
+        signInMethods: string[];
+      }[];
+    };
+    const listed = body.users.find((user) => user.id === member.id);
+    expect(listed?.signInMethods).toEqual(["credential", "github"]);
+    expect(listed?.lastActiveAt).toBe(new Date(now - 60_000).toISOString());
+    const self = body.users.find((user) => user.id === admin.id);
+    expect(self).toMatchObject({ lastActiveAt: null, signInMethods: [] });
   });
 });

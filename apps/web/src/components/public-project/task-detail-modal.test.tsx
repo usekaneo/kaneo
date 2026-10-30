@@ -7,7 +7,14 @@ import {
   waitFor,
 } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vite-plus/test";
 import { getPublicTaskDescription } from "@/fetchers/task/get-description-pages";
 import type Task from "@/types/task";
 import { PublicTaskDetailModal } from "./task-detail-modal";

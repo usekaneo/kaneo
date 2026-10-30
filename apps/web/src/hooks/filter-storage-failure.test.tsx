@@ -1,9 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { useTaskFilters } from "./use-task-filters";
 import { useTaskFiltersWithLabelsSupport } from "./use-task-filters-with-labels-support";
+
+vi.mock("./queries/label/use-get-labels-by-workspace", () => ({
+  default: () => ({ data: undefined }),
+}));
 
 afterEach(() => {
   cleanup();

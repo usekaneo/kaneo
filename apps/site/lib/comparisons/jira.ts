@@ -4,21 +4,21 @@ export const jira: Comparison = {
   slug: "jira",
   competitor: "Jira",
   category: "saas",
-  title: "Open-source Jira alternative",
+  title: "Lighter Jira alternative: Kaneo vs Jira",
   description:
-    "Kaneo is an open-source, self-hostable project management tool and a simple Jira alternative you can run yourself or use as a managed cloud. Free to self-host, fair cloud pricing.",
+    "Kaneo gives you Jira's boards, backlog, and Gantt views without the admin console. Kaneo Cloud runs it for you from $4 a month, with a 14-day free trial.",
   summary:
-    "Same planning, none of the admin console. MIT licensed and free to self-host.",
-  heading: "The open-source Jira alternative",
+    "Same planning, none of the admin console, and Kaneo Cloud runs it for you.",
+  heading: "The lighter Jira alternative for teams that just want to ship",
   subheading:
     "Jira can run a 500-person org, but most teams just want to plan and ship work without the weight. Kaneo is a simple, open-source project manager you can self-host or let us run for you.",
   verdict:
-    "Kaneo is an open-source Jira alternative under the MIT license. You can self-host it for free with Docker and PostgreSQL, with every feature included, or use Kaneo Cloud from $4 a month. It covers boards, backlog, workflows, roles, time tracking, and a public API, and it deliberately leaves out the configuration layer that makes Jira heavy.",
+    "Kaneo is a Jira alternative for teams that want to plan and ship without the weight, and Kaneo Cloud runs it for you from $4 a month, or $5 per user for teams, with every feature included. It covers boards, backlog, workflows, roles, time tracking, and a public API, and it deliberately leaves out the configuration layer that makes Jira heavy. It is also MIT-licensed open source, so you can self-host it for free with Docker and PostgreSQL.",
   facts: {
     license: "MIT, versus a proprietary licence for Jira",
-    hosting: "Self-host anywhere, or EU-hosted cloud",
+    hosting: "EU-hosted Kaneo Cloud, or self-host anywhere",
     sso: "Free on every Kaneo build. Jira needs Atlassian Guard or Enterprise",
-    pricing: "$0 self-hosted, cloud from $4 / month",
+    pricing: "Cloud from $4 / month, or $0 self-hosted",
   },
   rows: [
     { feature: "Open source (MIT)", kaneo: true, them: false },
@@ -48,6 +48,11 @@ export const jira: Comparison = {
       body: "Free forever to self-host, including SSO. Managed cloud starts at $4/month with no per-feature paywalls.",
     },
   ],
+  migration: {
+    body: "Kaneo imports Jira Cloud and Jira Data Center projects from the app with an API token: board columns, issues with their keys, priorities, labels, assignees, sub-tasks, issue links, and comments. Jira is only read, never changed.",
+    href: "https://kaneo.app/docs/core/migrations/from-jira",
+    linkText: "Read the import guide",
+  },
   honestNote:
     "If you're a large organization that needs deep enterprise workflows, advanced permission schemes, and a big marketplace of add-ons, and you have the time to configure it, Jira is built for exactly that. Kaneo is for teams who want to manage work, not administer a tool.",
   faq: [
@@ -73,6 +78,16 @@ export const jira: Comparison = {
     },
   ],
   related: ["linear", "asana", "clickup", "openproject"],
+  guides: [
+    {
+      label: "Free, open-source Jira alternatives compared",
+      href: "/guides/open-source-jira-alternatives",
+    },
+    {
+      label: "Best Jira alternatives, free and paid",
+      href: "/blog/best-jira-alternatives",
+    },
+  ],
   verifiedOn: "2026-08-19",
   sources: [
     {

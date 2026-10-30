@@ -22,19 +22,6 @@ type Plan = {
 
 const plans: Plan[] = [
   {
-    name: "Self-hosted",
-    tagline: "Run it on your own servers",
-    monthly: { price: 0, suffix: "forever", note: "MIT licensed" },
-    annual: { price: 0, suffix: "forever", note: "MIT licensed" },
-    features: [
-      "Unlimited users and projects",
-      "Every feature, including SSO",
-      "Your data on your servers",
-      "Community support on Discord",
-    ],
-    cta: { href: "/docs/core/installation", label: "Read installation guide" },
-  },
-  {
     name: "Cloud Personal",
     tagline: "Managed hosting for one",
     checkout: "personal",
@@ -71,6 +58,19 @@ const plans: Plan[] = [
     ],
     cta: { href: APP_URL, label: "Start 14-day free trial" },
     highlighted: true,
+  },
+  {
+    name: "Self-hosted",
+    tagline: "Run it on your own servers",
+    monthly: { price: 0, suffix: "forever", note: "MIT licensed" },
+    annual: { price: 0, suffix: "forever", note: "MIT licensed" },
+    features: [
+      "Unlimited users and projects",
+      "Every feature, including SSO",
+      "Your data on your servers",
+      "Community support on Discord",
+    ],
+    cta: { href: "/docs/core/installation", label: "Read installation guide" },
   },
 ];
 

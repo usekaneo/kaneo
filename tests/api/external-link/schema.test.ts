@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { createExternalLinkBody } from "../../../apps/api/src/external-link/schema";
 
 describe("manual resource URL validation", () => {

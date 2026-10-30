@@ -1,0 +1,57 @@
+---
+title: Import from Linear
+description: Move Linear teams into Kaneo, including workflow states, issues, priorities, labels, assignees, comments, and relations.
+---
+
+Each Linear team becomes a Kaneo project. Read [Import from other tools](/core/migrations) first for the rules that apply to every import.
+
+## Before you start
+
+You need:
+
+- To be an admin of the Kaneo workspace you are importing into.
+- A Linear personal API key. In Linear, open **Settings → Account → Security & access**, and create a key under **Personal API keys**. Read access is enough.
+
+Invite your team to the Kaneo workspace first. Assignees are matched by email, so anyone who isn't a member yet will have their issues imported unassigned.
+
+## Connect
+
+1. In Kaneo, open **Settings → Workspace → Import** and choose **Linear**.
+2. Paste your Linear API key.
+3. Select the teams to import. Leave comments on, or turn them off.
+4. Start the import. You can leave the page while it runs and check **Recent imports** later.
+
+## What carries over
+
+| Linear | Kaneo |
+| --- | --- |
+| Team | Project |
+| Team key, for example `ENG` | Project key. If another project in the workspace uses it, Kaneo adds a suffix, for example `ENG-2` |
+| Workflow states | Columns, in Linear's order. **Completed**, **Canceled**, and **Duplicate** states become final columns. A **Duplicate** state only becomes a column when an issue is in it. Issues in **Backlog** and **Triage** states go to the project's **Backlog** instead of the board |
+| Issue | Task |
+| Issue number, for example `ENG-123` | Task number, so `ENG-123` stays `ENG-123` |
+| Description | Task description, in Markdown |
+| Priority (Urgent, High, Medium, Low) | The same priority |
+| Due date | Due date |
+| Assignee | Assignee, matched by email |
+| Labels | Labels, with their colors |
+| Comments | Comments, with the original author's name and date |
+| Sub-issues | Subtask relations |
+| Blocks, related, similar, and duplicate relations | Blocks relations stay blocks relations. The others become related relations |
+
+## What doesn't
+
+- **Archived issues.** They are skipped.
+- **Attachments.** Download anything you need from Linear before you stop using it.
+- **Cycles.**
+- **Linear projects and milestones.** Issues from all of a team's projects land in the one Kaneo project for that team, without their Linear project or milestone.
+- **Estimates.**
+- **Sub-issue and relation links to issues in other teams.**
+
+## Troubleshooting
+
+**The key is rejected**: check that you copied the whole key. Linear only shows it once, so create a new one if you lost it.
+
+**A team is missing from the list**: the key only sees teams your Linear account can see.
+
+**Tasks are unassigned**: the assignee's Linear email must match a member of the Kaneo workspace. Invite them, delete the imported project, and import it again, or assign the tasks by hand.

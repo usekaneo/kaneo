@@ -1,11 +1,12 @@
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { auth } from "../../apps/api/src/auth";
 import db, { schema } from "../../apps/api/src/database";
 import { createApp } from "../../apps/api/src/index";
 import { mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
 import { createWorkspaceMember } from "./helpers/fixtures";
+import { readErrorBody } from "./helpers/error-body";
 
 describe("GET /api/user/me", () => {
   beforeEach(async () => {
@@ -35,6 +36,7 @@ describe("GET /api/user/me", () => {
         email: user.email,
         image: user.image,
         role: user.role,
+        managedProfileFields: [],
       });
     },
   );
@@ -44,7 +46,10 @@ describe("GET /api/user/me", () => {
     const response = await app.request("/api/user/me");
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe("Unauthorized");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Unauthorized",
+      code: "UNAUTHORIZED",
+    });
   });
 
   it.each(["Authorization", "x-api-key"])(
@@ -59,7 +64,10 @@ describe("GET /api/user/me", () => {
       });
 
       expect(response.status).toBe(401);
-      expect(await response.text()).toBe("Unauthorized");
+      expect(await readErrorBody(response)).toMatchObject({
+        message: "Unauthorized",
+        code: "UNAUTHORIZED",
+      });
     },
   );
 
@@ -81,7 +89,10 @@ describe("GET /api/user/me", () => {
     });
 
     expect(response.status).toBe(401);
-    expect(await response.text()).toBe("Unauthorized");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "Unauthorized",
+      code: "UNAUTHORIZED",
+    });
   });
 
   it("returns 404 when the authenticated user no longer exists", async () => {
@@ -94,6 +105,9 @@ describe("GET /api/user/me", () => {
     const response = await app.request("/api/user/me");
 
     expect(response.status).toBe(404);
-    expect(await response.text()).toBe("User not found");
+    expect(await readErrorBody(response)).toMatchObject({
+      message: "User not found",
+      code: "NOT_FOUND",
+    });
   });
 });

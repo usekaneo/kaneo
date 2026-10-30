@@ -7,7 +7,8 @@ import { withSocialMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = withSocialMetadata({
   title: "Privacy Policy",
-  description: "How Kaneo Cloud collects, uses, and protects your data.",
+  description:
+    "How Kaneo Cloud collects, uses, stores, and protects your data, how long we keep it, and the rights you have over it.",
   alternates: {
     canonical: "/privacy",
   },
@@ -33,7 +34,7 @@ export default function PrivacyPage() {
           <div className="mx-auto w-full max-w-6xl">
             <PageIntro eyebrow="Legal" title="Privacy Policy" className="pb-12">
               <p className="mt-4 text-foreground/60 text-sm">
-                Last updated: July 28, 2026
+                Last updated: October 11, 2026
               </p>
               <p className="mt-5 max-w-2xl text-muted-foreground text-base leading-relaxed">
                 This policy describes how the Kaneo website (kaneo.app) and the
@@ -116,7 +117,10 @@ export default function PrivacyPage() {
                 <li>Hetzner Online GmbH: hosting (EU)</li>
                 <li>Cloudflare, Inc.: content delivery and backup storage</li>
                 <li>Creem: payment processing (merchant of record)</li>
-                <li>Resend: transactional email delivery</li>
+                <li>
+                  Amazon Web Services EMEA SARL (Amazon SES): transactional
+                  email delivery (EU region)
+                </li>
                 <li>
                   Functional Software, Inc. (Sentry): error monitoring (EU
                   region)

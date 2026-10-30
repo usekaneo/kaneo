@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { expect } from "vitest";
+import { expect } from "vite-plus/test";
 import db, { schema } from "../../../apps/api/src/database";
 import type { createApp } from "../../../apps/api/src/index";
 
@@ -18,10 +18,14 @@ function collectCookies(response: Response) {
   return [...jar].map(([name, value]) => `${name}=${value}`).join("; ");
 }
 
-async function signIn(app: App, email: string) {
+export async function signIn(
+  app: App,
+  email: string,
+  headers: Record<string, string> = {},
+) {
   const response = await app.request("/api/auth/sign-in/email", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", ...headers },
     body: JSON.stringify({ email, password: PASSWORD }),
   });
   expect(response.status).toBe(200);
@@ -30,11 +34,7 @@ async function signIn(app: App, email: string) {
 
 export async function signUpWithSession(
   app: App,
-  {
-    email,
-    name,
-    role,
-  }: { email: string; name: string; role?: "admin" | "user" },
+  { email, name, role }: { email: string; name: string; role?: string },
 ) {
   const response = await app.request("/api/auth/sign-up/email", {
     method: "POST",

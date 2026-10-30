@@ -1,0 +1,127 @@
+import { INSTANCE_PERMISSIONS } from "@kaneo/permissions";
+import { describe, expect, it } from "vite-plus/test";
+import { buildSettingsNav } from "@/components/settings/nav/build-settings-nav";
+
+const t = (key: string) => key;
+
+function build(
+  overrides: Partial<Parameters<typeof buildSettingsNav>[0]> = {},
+) {
+  return buildSettingsNav({
+    t,
+    workspaceName: "Acme",
+    billingEnabled: false,
+    canImport: false,
+    adminPermissions: [],
+    projects: [],
+    ...overrides,
+  });
+}
+
+describe("buildSettingsNav", () => {
+  it("labels the workspace group with the workspace name", () => {
+    expect(build().workspace.label).toBe("Acme");
+    expect(build({ workspaceName: undefined }).workspace.label).toBe(
+      "navigation:page.settingsWorkspaceTab",
+    );
+  });
+
+  it("only offers billing when billing is enabled", () => {
+    const linkIds = (nav: ReturnType<typeof build>) =>
+      nav.workspace.links.map((link) => link.id);
+
+    expect(linkIds(build())).not.toContain("workspace-billing");
+    expect(linkIds(build({ billingEnabled: true }))).toContain(
+      "workspace-billing",
+    );
+  });
+
+  it("only offers import to people who can import", () => {
+    const links = (nav: ReturnType<typeof build>) =>
+      nav.workspace.links.map((link) => link.to);
+
+    expect(links(build())).not.toContain(
+      "/dashboard/settings/workspace/import",
+    );
+    expect(links(build({ canImport: true, billingEnabled: true }))).toEqual([
+      "/dashboard/settings/workspace/general",
+      "/dashboard/settings/workspace/roles",
+      "/dashboard/settings/workspace/labels",
+      "/dashboard/settings/workspace/import",
+      "/dashboard/settings/workspace/billing",
+    ]);
+  });
+
+  it("shows each administration page only with its permission", () => {
+    expect(build().admin).toBeNull();
+    expect(
+      build({
+        adminPermissions: [
+          "users:read",
+          "roles:manage",
+          "workspaces:read",
+          "audit:read",
+          "system:read",
+        ],
+      }).admin?.links.map((link) => link.to),
+    ).toEqual([
+      "/dashboard/settings/admin/overview",
+      "/dashboard/settings/admin/users",
+      "/dashboard/settings/admin/roles",
+      "/dashboard/settings/admin/workspaces",
+      "/dashboard/settings/admin/audit-log",
+      "/dashboard/settings/admin/system",
+    ]);
+    expect(
+      build({
+        adminPermissions: ["audit:read", "users:delete"],
+      }).admin?.links.map((link) => link.to),
+    ).toEqual(["/dashboard/settings/admin/audit-log"]);
+  });
+
+  it("shows webhooks alongside instance settings", () => {
+    expect(
+      build({ adminPermissions: ["instance:settings"] }).admin?.links.map(
+        (link) => link.to,
+      ),
+    ).toEqual([
+      "/dashboard/settings/admin/settings",
+      "/dashboard/settings/admin/webhooks",
+    ]);
+  });
+
+  it.each([
+    "users:read",
+    "workspaces:read",
+    "audit:read",
+    "system:read",
+  ] as const)("hides Overview without %s", (missing) => {
+    expect(
+      build({
+        adminPermissions: INSTANCE_PERMISSIONS.filter(
+          (permission) => permission !== missing,
+        ),
+      }).admin?.links.map((link) => link.id),
+    ).not.toContain("admin-overview");
+  });
+
+  it("gives every project its own settings pages", () => {
+    const nav = build({
+      projects: [{ id: "p1", name: "Kaneo Web", icon: "Unknown" }],
+    });
+
+    expect(nav.projects).toHaveLength(1);
+    expect(nav.projects[0]?.links.map((link) => link.to)).toEqual([
+      "/dashboard/settings/projects/p1/general",
+      "/dashboard/settings/projects/p1/workflow",
+      "/dashboard/settings/projects/p1/custom-fields",
+      "/dashboard/settings/projects/p1/visibility",
+      "/dashboard/settings/projects/p1/integrations",
+      "/dashboard/settings/projects/p1/calendar",
+    ]);
+    expect(nav.projects[0]?.links[2]?.label).toBe(
+      "settings:projectCustomFields.title",
+    );
+    expect(nav.projects[0]?.icon).toBeDefined();
+  });
+});

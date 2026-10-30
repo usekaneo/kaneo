@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { defineConfig } from "vitest/config";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   test: {
@@ -15,7 +15,7 @@ export default defineConfig({
       enabled: false,
     },
   },
-  esbuild: {
+  oxc: {
     target: "node18",
   },
   resolve: {

@@ -1,8 +1,16 @@
-import { X } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  Archive,
+  CircleDot,
+  Clock,
+  Copy,
+  LinkIcon,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar } from "@/components/ui/calendar";
 import {
   ContextMenuCheckboxItem,
   ContextMenuContent,
@@ -16,24 +24,28 @@ import { useDuplicateTask } from "@/hooks/mutations/task/use-duplicate-task";
 import { useUpdateTask } from "@/hooks/mutations/task/use-update-task";
 import { useUpdateTaskAssignee } from "@/hooks/mutations/task/use-update-task-assignee";
 import { useUpdateTaskDescription } from "@/hooks/mutations/task/use-update-task-description";
-import { useUpdateTaskDueDate } from "@/hooks/mutations/task/use-update-task-due-date";
 import { useUpdateTaskStatus } from "@/hooks/mutations/task/use-update-task-status";
 import { useUpdateTaskPriority } from "@/hooks/mutations/task/use-update-task-status-priority";
 import { useUpdateTaskTitle } from "@/hooks/mutations/task/use-update-task-title";
+import type getProjects from "@/fetchers/project/get-projects";
 import { useGetColumns } from "@/hooks/queries/column/use-get-columns";
-import { useGetActiveWorkspaceUsers } from "@/hooks/queries/workspace-users/use-get-active-workspace-users";
+import useGetProjectMembers from "@/hooks/queries/workspace-users/use-get-project-members";
 import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { generateLink } from "@/lib/generate-link";
 import { getInitials } from "@/lib/get-initials";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { getTaskPath } from "@/lib/task-link";
 import { toast } from "@/lib/toast";
 import useProjectStore from "@/store/project";
 import type Task from "@/types/task";
+import { PriorityGlyph } from "@/components/task-chips/priority-glyph";
+import { DueDateSubmenu } from "./due-date-submenu";
 
 type TaskCardContext = {
   worskpaceId: string;
+  workspaceSlug?: string | null;
   projectId: string;
 };
 
@@ -50,6 +62,7 @@ export default function TaskCardContextMenuContent({
 }: TaskCardContextMenuContentProps) {
   const { t } = useTranslation();
   const { project } = useProjectStore();
+  const queryClient = useQueryClient();
   const { data: columnsData = [] } = useGetColumns(taskCardContext.projectId);
   const columns =
     project?.columns && project.columns.length > 0
@@ -65,16 +78,16 @@ export default function TaskCardContextMenuContent({
           icon: col.icon,
           isFinal: col.isFinal,
         }));
-  const { data: workspaceUsers } = useGetActiveWorkspaceUsers(
-    taskCardContext.worskpaceId,
-  );
+  const { data: projectMembers } = useGetProjectMembers({
+    workspaceId: taskCardContext.worskpaceId,
+    projectId: taskCardContext.projectId,
+  });
   const { mutateAsync: updateTask } = useUpdateTask();
   const { mutateAsync: updateTaskPriority } = useUpdateTaskPriority();
   const { mutateAsync: updateTaskStatus } = useUpdateTaskStatus();
   const { mutateAsync: updateTaskAssignee } = useUpdateTaskAssignee();
   const { mutateAsync: updateTaskTitle } = useUpdateTaskTitle();
   const { mutateAsync: updateTaskDescription } = useUpdateTaskDescription();
-  const { mutateAsync: updateTaskDueDate } = useUpdateTaskDueDate();
   const { mutate: duplicateTask } = useDuplicateTask();
   const { canCreateTasks, canUpdateTasks, canDeleteTasks, canAssignTasks } =
     useWorkspacePermission();
@@ -84,20 +97,33 @@ export default function TaskCardContextMenuContent({
   const canAssign = canAssignTasks();
 
   const usersOptions = useMemo(() => {
-    return workspaceUsers?.members?.map((member) => ({
-      label: member?.user?.name ?? member.userId,
-      value: member.userId,
-      image: member?.user?.image ?? "",
-      name: member?.user?.name ?? "",
+    return projectMembers?.map((member) => ({
+      label: member.name || member.email,
+      value: member.id,
+      image: member.image ?? "",
+      name: member.name,
     }));
-  }, [workspaceUsers]);
+  }, [projectMembers]);
 
   const handleCopyTaskLink = () => {
-    const path = `/dashboard/workspace/${taskCardContext.worskpaceId}/project/${taskCardContext.projectId}/task/${task.id}`;
+    const path = getTaskPath({
+      workspaceId: taskCardContext.worskpaceId,
+      workspace: {
+        id: taskCardContext.worskpaceId,
+        slug: taskCardContext.workspaceSlug,
+      },
+      projectId: taskCardContext.projectId,
+      workspaceProjects: queryClient.getQueryData<
+        Awaited<ReturnType<typeof getProjects>>
+      >(["projects", taskCardContext.worskpaceId]),
+      taskId: task.id,
+      taskNumber: task.number,
+      title: task.title,
+    });
     const taskLink = generateLink(path);
 
     navigator.clipboard.writeText(taskLink);
-    toast.success(t("tasks:contextMenu.copyLinkSuccess"));
+    toast.success(t("tasks:contextMenu.copyLinkSuccess"), { icon: LinkIcon });
   };
 
   const handleDuplicateTask = () => {
@@ -138,14 +164,13 @@ export default function TaskCardContextMenuContent({
       toast.error(
         error instanceof Error ? error.message : t("tasks:update.error"),
       );
-    } finally {
-      toast.success(t("tasks:update.success"));
     }
   };
 
   return (
     <ContextMenuContent className="w-46">
-      <ContextMenuItem onClick={handleCopyTaskLink}>
+      <ContextMenuItem className="[&>svg]:mx-0" onClick={handleCopyTaskLink}>
+        <LinkIcon className="size-3.5 text-muted-foreground" />
         <span>{t("tasks:contextMenu.copyLink")}</span>
       </ContextMenuItem>
 
@@ -153,7 +178,8 @@ export default function TaskCardContextMenuContent({
 
       {canEdit && (
         <ContextMenuSub>
-          <ContextMenuSubTrigger className="gap-2">
+          <ContextMenuSubTrigger>
+            <PriorityGlyph priority="high" />
             <span>{t("tasks:priority.label")}</span>
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
@@ -186,6 +212,7 @@ export default function TaskCardContextMenuContent({
       {canEdit && (
         <ContextMenuSub>
           <ContextMenuSubTrigger>
+            <CircleDot className="size-3.5 text-muted-foreground" />
             <span>{t("tasks:status.label")}</span>
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
@@ -205,67 +232,12 @@ export default function TaskCardContextMenuContent({
         </ContextMenuSub>
       )}
 
-      {canEdit && (
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>
-            <span>{t("tasks:dueDate.label")}</span>
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="w-fit min-w-0 p-0">
-            <div className="p-2">
-              <Calendar
-                mode="single"
-                selected={task.dueDate ? new Date(task.dueDate) : undefined}
-                onSelect={async (date) => {
-                  try {
-                    await updateTaskDueDate({
-                      ...task,
-                      dueDate: date?.toISOString() || null,
-                    });
-                    toast.success(t("tasks:dueDate.updateSuccess"));
-                  } catch (error) {
-                    toast.error(
-                      error instanceof Error
-                        ? error.message
-                        : t("tasks:dueDate.updateError"),
-                    );
-                  }
-                }}
-                className="w-full bg-popover!"
-              />
-            </div>
-            {task.dueDate && (
-              <>
-                <ContextMenuSeparator />
-                <ContextMenuItem
-                  className="gap-2 text-muted-foreground"
-                  onClick={async () => {
-                    try {
-                      await updateTaskDueDate({
-                        ...task,
-                        dueDate: null,
-                      });
-                      toast.success(t("tasks:dueDate.clearSuccess"));
-                    } catch (error) {
-                      toast.error(
-                        error instanceof Error
-                          ? error.message
-                          : t("tasks:dueDate.clearError"),
-                      );
-                    }
-                  }}
-                >
-                  <X className="h-4 w-4" />
-                  <span>{t("tasks:dueDate.clear")}</span>
-                </ContextMenuItem>
-              </>
-            )}
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      )}
+      {canEdit && <DueDateSubmenu task={task} />}
 
       {canAssign && usersOptions && (
         <ContextMenuSub>
           <ContextMenuSubTrigger>
+            <UserRound className="size-3.5 text-muted-foreground" />
             <span>{t("tasks:assignee.label")}</span>
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
@@ -312,7 +284,11 @@ export default function TaskCardContextMenuContent({
               <ContextMenuSeparator />
 
               {canCreate && (
-                <ContextMenuItem onClick={handleDuplicateTask}>
+                <ContextMenuItem
+                  className="[&>svg]:mx-0"
+                  onClick={handleDuplicateTask}
+                >
+                  <Copy className="size-3.5 text-muted-foreground" />
                   <span>{t("tasks:actions.duplicate")}</span>
                 </ContextMenuItem>
               )}
@@ -320,14 +296,18 @@ export default function TaskCardContextMenuContent({
               {canEdit && (
                 <>
                   <ContextMenuItem
+                    className="[&>svg]:mx-0"
                     onClick={() => handleChange("status", "archived")}
                   >
+                    <Archive className="size-3.5 text-muted-foreground" />
                     <span>{t("tasks:actions.archive")}</span>
                   </ContextMenuItem>
                   {task.status !== "planned" && (
                     <ContextMenuItem
+                      className="[&>svg]:mx-0"
                       onClick={() => handleChange("status", "planned")}
                     >
+                      <Clock className="size-3.5 text-muted-foreground" />
                       <span>{t("tasks:actions.markAsPlanned")}</span>
                     </ContextMenuItem>
                   )}
@@ -341,7 +321,7 @@ export default function TaskCardContextMenuContent({
               <ContextMenuSeparator />
 
               <ContextMenuItem
-                className="text-destructive"
+                className="text-destructive [&>svg]:mx-0"
                 onClick={(e) => {
                   e.preventDefault();
                   setTimeout(() => {
@@ -349,6 +329,7 @@ export default function TaskCardContextMenuContent({
                   }, 0);
                 }}
               >
+                <Trash2 className="size-3.5" />
                 <span>{t("tasks:actions.delete")}</span>
               </ContextMenuItem>
             </>

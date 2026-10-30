@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vite-plus/test";
 
 const mocks = vi.hoisted(() => ({
   issueLink: vi.fn(),
@@ -26,9 +26,8 @@ vi.mock("../../../../../apps/api/src/plugins/gitlab/utils/labels", () => ({
   updateIssueLabelsGitlab: (...args: unknown[]) => mocks.updateLabels(...args),
 }));
 
-const { handleTaskStatusChanged } = await import(
-  "../../../../../apps/api/src/plugins/gitlab/events/task-status-changed"
-);
+const { handleTaskStatusChanged } =
+  await import("../../../../../apps/api/src/plugins/gitlab/events/task-status-changed");
 
 const context = {
   integrationId: "integration-1",
@@ -129,3 +128,48 @@ describe("GitLab status webhook feedback", () => {
     });
   });
 });
+
+// Policy enforcement is covered by the PostgreSQL sync-rules integration tests.
+vi.mock(
+  "../../../../../apps/api/src/plugins/github/services/task-service",
+  () => ({
+    isTaskInFinalState: async (task: { status: string }) =>
+      task.status === "done",
+  }),
+);
+
+vi.mock("../../../../../apps/api/src/plugins/sync/eligibility", () => ({
+  canSyncTask: async () => true,
+}));
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/sync/dispatch-issue-write",
+  () => ({
+    createIssueWrite: () => (send: () => Promise<unknown>) => send(),
+    dispatchIssueWrite: async (
+      _link: unknown,
+      _config: unknown,
+      send: () => Promise<unknown>,
+    ) => ({ value: await send() }),
+  }),
+);
+
+vi.mock(
+  "../../../../../apps/api/src/plugins/sync/sync-task-field-labels",
+  () => ({
+    syncTaskFieldLabels: async (
+      _taskId: string,
+      _context: unknown,
+      _link: unknown,
+      _provider: string,
+      _field: string,
+      send: (changes: unknown, write: unknown) => Promise<void>,
+    ) => {
+      await send(
+        { add: ["status:done"], remove: ["status:in-review"] },
+        (run: () => Promise<unknown>) => run(),
+      );
+      return "done";
+    },
+  }),
+);

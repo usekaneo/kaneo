@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vite-plus/test";
 import { createApp } from "../../apps/api/src/index";
 
 const originalNodeEnv = process.env.NODE_ENV;
@@ -55,6 +55,30 @@ describe("API integration: CORS origin policy", () => {
       "https://kaneo.example",
     );
     expect(await originHeaderFor("https://attacker.example")).toBeNull();
+  });
+
+  it("lets browser clients read the rate limit headers", async () => {
+    process.env.NODE_ENV = "production";
+    process.env.KANEO_CLIENT_URL = "https://kaneo.example";
+    delete process.env.CORS_ORIGINS;
+    const { app } = createApp();
+
+    const response = await app.request("/api/health", {
+      headers: { origin: "https://kaneo.example" },
+    });
+
+    const exposed = response.headers
+      .get("access-control-expose-headers")
+      ?.split(",")
+      .map((name) => name.trim().toLowerCase());
+    expect(exposed).toEqual(
+      expect.arrayContaining([
+        "retry-after",
+        "x-ratelimit-limit",
+        "x-ratelimit-remaining",
+        "x-ratelimit-reset",
+      ]),
+    );
   });
 
   it("honours a comma-separated CORS_ORIGINS allowlist", async () => {
