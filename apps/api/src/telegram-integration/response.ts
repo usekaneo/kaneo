@@ -6,6 +6,10 @@ export const telegramIntegrationSchema = z
   .object({
     id: z.string(),
     projectId: z.string(),
+    serverUrl: z.string().nullable().openapi({
+      description:
+        "The self-hosted Bot API server, or null for https://api.telegram.org.",
+    }),
     chatId: z.string().openapi({
       description: "The Telegram chat, group, or channel messages are sent to.",
     }),

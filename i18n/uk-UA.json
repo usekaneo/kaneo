@@ -1183,7 +1183,9 @@
 			"validation": {
 				"botTokenInvalid": "Введіть дійсний токен бота Telegram",
 				"chatIdRequired": "ID чату є обов'язковим",
-				"threadIdInvalid": "Введіть дійсний ID теми"
+				"threadIdInvalid": "Введіть дійсний ID теми",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Інтеґрацію з Telegram успішно збережено",
@@ -1198,6 +1200,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Створіть бота через BotFather та вставте його токен сюди.",
 			"botTokenHintConfigured": "Поточний токен: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "ID чату",
 			"chatIdPlaceholder": "-1001234567890 або @team_updates",
 			"threadIdLabel": "ID теми",

@@ -1420,7 +1420,9 @@
 			"validation": {
 				"botTokenInvalid": "請輸入有效的 Telegram 機器人 Token",
 				"chatIdRequired": "必須提供聊天 ID",
-				"threadIdInvalid": "請輸入有效的主題 ID"
+				"threadIdInvalid": "請輸入有效的主題 ID",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server"
 			},
 			"toast": {
 				"saved": "Telegram 整合已儲存",
@@ -1435,6 +1437,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "請透過 BotFather 建立機器人，並將其 Token 貼到這裡。",
 			"botTokenHintConfigured": "目前的 Token：{{token}}",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
 			"chatIdLabel": "聊天 ID",
 			"chatIdPlaceholder": "-1001234567890 或 @team_updates",
 			"threadIdLabel": "主題 ID",

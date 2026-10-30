@@ -1167,7 +1167,9 @@
 			"validation": {
 				"botTokenInvalid": "Εισαγάγετε έγκυρο token bot Telegram",
 				"chatIdRequired": "Το αναγνωριστικό συνομιλίας είναι υποχρεωτικό",
-				"threadIdInvalid": "Εισαγάγετε έγκυρο αναγνωριστικό θέματος"
+				"threadIdInvalid": "Εισαγάγετε έγκυρο αναγνωριστικό θέματος",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Η ενσωμάτωση Telegram αποθηκεύτηκε με επιτυχία",
@@ -1182,6 +1184,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Δημιουργήστε bot με το BotFather και επικολλήστε εδώ το token του.",
 			"botTokenHintConfigured": "Τρέχον token: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Αναγνωριστικό συνομιλίας",
 			"chatIdPlaceholder": "-1001234567890 ή @team_updates",
 			"threadIdLabel": "Αναγνωριστικό θέματος",

@@ -1403,7 +1403,9 @@
 			"validation": {
 				"botTokenInvalid": "有効な Telegram ボットトークンを入力してください",
 				"chatIdRequired": "チャット ID は必須です",
-				"threadIdInvalid": "有効なトピック ID を入力してください"
+				"threadIdInvalid": "有効なトピック ID を入力してください",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram 連携を保存しました",
@@ -1418,6 +1420,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "BotFather でボットを作成し、そのトークンをここに貼り付けます。",
 			"botTokenHintConfigured": "現在のトークン: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "チャット ID",
 			"chatIdPlaceholder": "-1001234567890 または @team_updates",
 			"threadIdLabel": "トピック ID",

@@ -1159,7 +1159,9 @@
 			"validation": {
 				"botTokenInvalid": "유효한 Telegram 봇 토큰을 입력하세요",
 				"chatIdRequired": "채팅 ID는 필수입니다",
-				"threadIdInvalid": "유효한 토픽 ID를 입력하세요"
+				"threadIdInvalid": "유효한 토픽 ID를 입력하세요",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram 연동이 저장되었습니다",
@@ -1174,6 +1176,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "BotFather로 봇을 만들고 해당 토큰을 여기에 붙여넣으세요.",
 			"botTokenHintConfigured": "현재 토큰: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "채팅 ID",
 			"chatIdPlaceholder": "-1001234567890 또는 @team_updates",
 			"threadIdLabel": "토픽 ID",

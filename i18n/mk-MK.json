@@ -1167,7 +1167,9 @@
 			"validation": {
 				"botTokenInvalid": "Внеси валиден Telegram bot token",
 				"chatIdRequired": "Chat ID е задолжително",
-				"threadIdInvalid": "Внеси валиден ID на тема"
+				"threadIdInvalid": "Внеси валиден ID на тема",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram интеграцијата е успешно зачувана",
@@ -1182,6 +1184,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "Креирај бот со BotFather и залепи го неговиот token тука.",
 			"botTokenHintConfigured": "Тековен токен: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "Chat ID",
 			"chatIdPlaceholder": "-1001234567890 или @team_updates",
 			"threadIdLabel": "ID на тема",

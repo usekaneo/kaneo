@@ -1412,7 +1412,9 @@
 			"validation": {
 				"botTokenInvalid": "वैध Telegram बॉट टोकन दर्ज करें",
 				"chatIdRequired": "चैट ID आवश्यक है",
-				"threadIdInvalid": "वैध टॉपिक ID दर्ज करें"
+				"threadIdInvalid": "वैध टॉपिक ID दर्ज करें",
+				"botTokenRequiredForServer": "Enter the bot token again to use a different server",
+				"serverUrlInvalid": "Enter a valid server URL, for example https://tg.example.com"
 			},
 			"toast": {
 				"saved": "Telegram एकीकरण सफलतापूर्वक सहेजा गया",
@@ -1427,6 +1429,9 @@
 			"botTokenPlaceholder": "123456789:AAExampleBotToken",
 			"botTokenHint": "BotFather के साथ बॉट बनाएँ और इसका टोकन यहाँ चिपकाएँ।",
 			"botTokenHintConfigured": "मौजूदा टोकन: {{token}}",
+			"serverUrlHint": "Optional. Set this if you run your own Bot API server. Leave empty to use api.telegram.org.",
+			"serverUrlLabel": "Bot API server URL",
+			"serverUrlPlaceholder": "https://api.telegram.org",
 			"chatIdLabel": "चैट ID",
 			"chatIdPlaceholder": "-1001234567890 या @team_updates",
 			"threadIdLabel": "टॉपिक ID",
