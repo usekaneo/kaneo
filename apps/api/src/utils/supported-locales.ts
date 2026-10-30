@@ -7,6 +7,7 @@ export const SUPPORTED_LOCALES = [
   "el-GR",
   "en-US",
   "es-ES",
+  "fa-IR",
   "fr-FR",
   "hi-IN",
   "id-ID",
