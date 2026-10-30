@@ -805,7 +805,15 @@
 			"moveDialogTitle": "Naar een andere werkruimte verplaatsen?",
 			"moveTargetLabel": "Werkruimte",
 			"moving": "Verplaatsen...",
-			"tasksTitle": "Taken"
+			"tasksTitle": "Taken",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integraties",

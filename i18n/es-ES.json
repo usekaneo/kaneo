@@ -810,7 +810,15 @@
 			"moveDialogTitle": "¿Mover a otro espacio de trabajo?",
 			"moveTargetLabel": "Espacio de trabajo",
 			"moving": "Moviendo...",
-			"tasksTitle": "Tareas"
+			"tasksTitle": "Tareas",
+			"archiveModalConfirm": "Archivar proyecto",
+			"archiveModalDescription": "{{name}} desaparece de la lista de proyectos. Sus tareas se conservan.",
+			"archiveModalTitle": "¿Archivar el proyecto?",
+			"archiveProject": "Archivar proyecto",
+			"archiveProjectDescription": "Oculta {{name}} de la lista de proyectos. Sus tareas se conservan.",
+			"archiving": "Archivando...",
+			"toastArchived": "Proyecto archivado",
+			"toastArchiveError": "No se pudo archivar el proyecto"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Integraciones",

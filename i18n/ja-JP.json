@@ -1163,7 +1163,15 @@
 			"moveDialogTitle": "別のワークスペースに移動しますか？",
 			"moveTargetLabel": "ワークスペース",
 			"moving": "移動しています...",
-			"tasksTitle": "タスク"
+			"tasksTitle": "タスク",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "連携",

@@ -943,7 +943,15 @@
 			"moveDialogTitle": "Перемістити до іншого робочого простору?",
 			"moveTargetLabel": "Робочий простір",
 			"moving": "Переміщення...",
-			"tasksTitle": "Завдання"
+			"tasksTitle": "Завдання",
+			"archiveModalConfirm": "Archive project",
+			"archiveModalDescription": "{{name}} disappears from the project list. Its tasks are kept.",
+			"archiveModalTitle": "Archive project?",
+			"archiveProject": "Archive project",
+			"archiveProjectDescription": "Hides {{name}} from the project list. Its tasks are kept.",
+			"archiving": "Archiving...",
+			"toastArchived": "Project archived",
+			"toastArchiveError": "Failed to archive project"
 		},
 		"projectIntegrations": {
 			"pageTitle": "Інтеґрації",
