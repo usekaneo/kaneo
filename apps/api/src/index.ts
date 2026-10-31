@@ -49,6 +49,7 @@ import { eventContext } from "./events";
 import externalLink from "./external-link";
 import genericWebhookIntegration from "./generic-webhook-integration";
 import giteaIntegration, { handleGiteaWebhookRoute } from "./gitea-integration";
+import tangledIntegration from "./tangled-integration";
 import githubIntegration, {
   handleGithubWebhookRoute,
 } from "./github-integration";
@@ -845,6 +846,10 @@ export function createApp() {
     githubIntegration,
   );
   const giteaIntegrationApi = api.route("/gitea-integration", giteaIntegration);
+  const tangledIntegrationApi = api.route(
+    "/tangled-integration",
+    tangledIntegration,
+  );
   const gitlabIntegrationApi = api.route(
     "/gitlab-integration",
     gitlabIntegration,
@@ -993,6 +998,7 @@ export function createApp() {
     integrationSyncApi,
     githubIntegrationApi,
     giteaIntegrationApi,
+    tangledIntegrationApi,
     gitlabIntegrationApi,
     invitationApi,
     invitationPublicApi,
@@ -1128,6 +1134,7 @@ const {
   integrationSyncApi,
   githubIntegrationApi,
   giteaIntegrationApi,
+  tangledIntegrationApi,
   gitlabIntegrationApi,
   invitationApi,
   invitationPublicApi,
@@ -1180,6 +1187,7 @@ export type AppType =
   | typeof integrationSyncApi
   | typeof githubIntegrationApi
   | typeof giteaIntegrationApi
+  | typeof tangledIntegrationApi
   | typeof gitlabIntegrationApi
   | typeof genericWebhookIntegrationApi
   | typeof discordIntegrationApi
