@@ -39,10 +39,12 @@ export function ContactTimelineList({ entries }: ContactTimelineListProps) {
               <Avatar className="size-5">
                 <AvatarImage src={entry.user.image ?? undefined} />
                 <AvatarFallback className="text-[9px]">
-                  {getInitials(entry.user.name)}
+                  {getInitials(entry.user.name ?? "")}
                 </AvatarFallback>
               </Avatar>
-              <span className="font-medium">{entry.user.name}</span>
+              <span className="font-medium">
+                {entry.user.name ?? t("workspace:contacts.unknownAuthor")}
+              </span>
               <time
                 dateTime={entry.createdAt}
                 className="text-muted-foreground"

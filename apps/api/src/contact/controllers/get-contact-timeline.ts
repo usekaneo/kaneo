@@ -69,11 +69,14 @@ async function getContactTimeline(
       createdAt: activityTable.createdAt,
       userName: userTable.name,
       userImage: userTable.image,
+      externalUserName: activityTable.externalUserName,
+      externalUserAvatar: activityTable.externalUserAvatar,
     })
     .from(activityTable)
     .innerJoin(taskTable, eq(activityTable.taskId, taskTable.id))
     .innerJoin(projectTable, eq(taskTable.projectId, projectTable.id))
-    .innerJoin(userTable, eq(activityTable.userId, userTable.id))
+    // Left join: comments synced from integrations, or by a deleted user, have no user.
+    .leftJoin(userTable, eq(activityTable.userId, userTable.id))
     .where(
       and(
         visibleLead,
@@ -86,11 +89,23 @@ async function getContactTimeline(
 
   return {
     leads,
-    entries: entries.map(({ userName, userImage, content, ...entry }) => ({
-      ...entry,
-      content: content as string,
-      user: { name: userName, image: userImage },
-    })),
+    entries: entries.map(
+      ({
+        userName,
+        userImage,
+        externalUserName,
+        externalUserAvatar,
+        content,
+        ...entry
+      }) => ({
+        ...entry,
+        content: content as string,
+        user: {
+          name: userName ?? externalUserName,
+          image: userImage ?? externalUserAvatar,
+        },
+      }),
+    ),
   };
 }
 

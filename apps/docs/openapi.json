@@ -4479,7 +4479,11 @@
                   "type": "object",
                   "properties": {
                     "name": {
-                      "type": "string"
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "description": "Null when the author was deleted and left no external name."
                     },
                     "image": {
                       "type": [

@@ -23,6 +23,7 @@ vi.mock("../../apps/api/src/events", async (original) => ({
 }));
 
 import db, { schema } from "../../apps/api/src/database";
+import { contactTable } from "../../apps/api/src/database/schema";
 import { createApp } from "../../apps/api/src/index";
 import { mockAnonymousSession, mockAuthenticatedSession } from "./helpers/auth";
 import { resetTestDatabase } from "./helpers/database";
@@ -185,6 +186,30 @@ describe("API integration: task duplication", () => {
     });
 
     expect(tasks).toHaveLength(1);
+  });
+
+  it("keeps the contact when a lead is duplicated", async () => {
+    const member = await createWorkspaceMember();
+    const { project, columns } = await createProjectFixture({
+      workspaceId: member.workspace.id,
+    });
+    const [contact] = await db
+      .insert(contactTable)
+      .values({ workspaceId: member.workspace.id, name: "Ali Stores" })
+      .returning();
+    const task = await seedTask({
+      projectId: project.id,
+      columnId: columns.todo.id,
+      overrides: { contactId: contact.id },
+    });
+
+    mockAuthenticatedSession(member.user);
+    const { app } = createApp();
+
+    const response = await requestDuplicate(app, task.id);
+
+    expect(response.status).toBe(200);
+    expect((await response.json()).contactId).toBe(contact.id);
   });
 
   it("copies the task fields and labels into a new task at the end of the column", async () => {

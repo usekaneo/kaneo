@@ -3651,7 +3651,8 @@
 			"interactionLogged": "Interaction logged",
 			"interactionError": "Failed to log the interaction.",
 			"timelineError": "The timeline couldn't be loaded.",
-			"showMore": "Show older"
+			"showMore": "Show older",
+			"unknownAuthor": "Unknown"
 		}
 	},
 	"team": {

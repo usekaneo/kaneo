@@ -382,6 +382,7 @@ async function duplicateTask({
           id: duplicatedTaskId,
           projectId: sourceTask.projectId,
           userId,
+          contactId: sourceTask.contactId,
           title: title?.trim() || sourceTask.title,
           status,
           columnId: column?.id ?? null,

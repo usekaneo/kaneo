@@ -30,7 +30,13 @@ async function call(user: User, method: string, path: string, body?: unknown) {
 async function createLead(projectId: string) {
   const [task] = await db
     .insert(schema.taskTable)
-    .values({ projectId, title: "Follow up", number: 1, status: "to-do" })
+    .values({
+      projectId,
+      title: "Follow up",
+      description: "",
+      number: 1,
+      status: "to-do",
+    })
     .returning();
   return task;
 }
@@ -197,6 +203,16 @@ describe("contacts", () => {
     await note(privateLead.id, "Secret terms", "2030-01-04T10:00:00Z");
     await db.insert(schema.activityTable).values({
       taskId: visibleLead.id,
+      type: "comment",
+      userId: null,
+      content: "Replied on WhatsApp",
+      externalUserName: "WhatsApp bot",
+      externalSource: "whatsapp",
+      externalUrl: "https://example.com/msg/1",
+      createdAt: new Date("2030-01-02T12:00:00Z"),
+    });
+    await db.insert(schema.activityTable).values({
+      taskId: visibleLead.id,
       type: "title_changed",
       userId: owner.id,
       content: null,
@@ -211,7 +227,16 @@ describe("contacts", () => {
     ]);
     expect(
       asOwner.body.entries.map((e: { content: string }) => e.content),
-    ).toEqual(["Secret terms", "Sent the quote", "Called, wants a quote"]);
+    ).toEqual([
+      "Secret terms",
+      "Sent the quote",
+      "Replied on WhatsApp",
+      "Called, wants a quote",
+    ]);
+    const external = asOwner.body.entries.find(
+      (e: { content: string }) => e.content === "Replied on WhatsApp",
+    );
+    expect(external.user.name).toBe("WhatsApp bot");
 
     const asRep = await call(rep, "GET", path);
     expect(asRep.status).toBe(200);
@@ -220,8 +245,19 @@ describe("contacts", () => {
     ]);
     expect(
       asRep.body.entries.map((e: { content: string }) => e.content),
-    ).toEqual(["Sent the quote", "Called, wants a quote"]);
+    ).toEqual([
+      "Sent the quote",
+      "Replied on WhatsApp",
+      "Called, wants a quote",
+    ]);
     expect(JSON.stringify(asRep.body)).not.toContain("Secret");
+
+    // The list must not reveal how many leads sit in a project the rep cannot open.
+    const listPath = `/contact/workspace/${workspace.id}`;
+    const ownerList = await call(owner, "GET", listPath);
+    const repList = await call(rep, "GET", listPath);
+    expect(ownerList.body[0].leadCount).toBe(2);
+    expect(repList.body[0].leadCount).toBe(1);
 
     const missing = await call(
       owner,

@@ -1,17 +1,21 @@
 import { and, asc, count, eq, ilike, or } from "drizzle-orm";
 import db from "../../database";
-import { contactTable, taskTable } from "../../database/schema";
+import { contactTable, projectTable, taskTable } from "../../database/schema";
+import { projectAccessCondition } from "../../project-access/project-access-condition";
 
 type ListContactsInput = {
   workspaceId: string;
+  userId: string;
   search?: string;
   type?: string;
   region?: string;
 };
 
-// leadCount covers every linked task; completed statuses vary per project.
+// leadCount counts linked tasks in projects the caller can open, so a private
+// project's leads are not revealed; completed statuses vary per project.
 async function listContacts({
   workspaceId,
+  userId,
   search,
   type,
   region,
@@ -41,10 +45,17 @@ async function listContacts({
       notes: contactTable.notes,
       createdAt: contactTable.createdAt,
       updatedAt: contactTable.updatedAt,
-      leadCount: count(taskTable.id),
+      leadCount: count(projectTable.id),
     })
     .from(contactTable)
     .leftJoin(taskTable, eq(taskTable.contactId, contactTable.id))
+    .leftJoin(
+      projectTable,
+      and(
+        eq(projectTable.id, taskTable.projectId),
+        projectAccessCondition(userId, projectTable.id),
+      ),
+    )
     .where(and(...conditions))
     .groupBy(contactTable.id)
     .orderBy(asc(contactTable.name), asc(contactTable.id))

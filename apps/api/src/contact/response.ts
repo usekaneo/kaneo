@@ -46,7 +46,10 @@ export const contactTimelineSchema = z
           content: z.string(),
           createdAt: responseTimestamp,
           user: z.object({
-            name: z.string(),
+            name: z.string().nullable().openapi({
+              description:
+                "Null when the author was deleted and left no external name.",
+            }),
             image: z.string().nullable(),
           }),
         }),

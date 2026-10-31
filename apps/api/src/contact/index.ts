@@ -55,6 +55,7 @@ const contact = apiRouter<BaseVariables & { workspaceId: string }>()
       c.json(
         await listContacts({
           workspaceId: c.get("workspaceId"),
+          userId: c.get("userId"),
           ...c.req.valid("query"),
         }),
         200,
