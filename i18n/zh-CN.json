@@ -110,7 +110,6 @@
 				"selectProject": "选择项目",
 				"title": "新建任务",
 				"description": "通过提供标题、描述等详细信息来创建新任务。",
-				"statusLoadError": "项目状态加载失败。",
 				"taskTitlePlaceholder": "任务标题",
 				"descriptionPlaceholder": "为任务添加描述…",
 				"chooseProjectForImages": "上传图片前请先选择项目。",
@@ -149,11 +148,12 @@
 					"terracotta": "赤陶",
 					"rose": "玫红",
 					"crimson": "深红",
-					"ocean": "海洋蓝",
-					"sky": "天空蓝",
 					"lagoon": "泻湖青",
-					"orchid": "兰花紫"
-				}
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
+				},
+				"statusLoadError": "项目状态加载失败。"
 			}
 		},
 		"editor": {
@@ -332,9 +332,6 @@
 			"pageTitle": "欢迎使用 Kaneo",
 			"workspaceName": "工作区名称",
 			"workspaceNamePlaceholder": "例如：某某公司、我的团队",
-			"restrictedTitle": "你需要一份邀请",
-			"restrictedSubtitle": "在此实例中只有管理员可以创建工作区。请联系管理员邀请你，然后刷新此页面。",
-			"restrictedCheckInvitations": "查看邀请",
 			"toast": {
 				"createFailed": "工作区创建失败"
 			},
@@ -342,28 +339,31 @@
 				"workspaceNameRequired": "工作区名称不能为空",
 				"projectNameRequired": "请为你的第一个项目命名"
 			},
+			"restrictedSubtitle": "在此实例中只有管理员可以创建工作区。请联系管理员邀请你，然后刷新此页面。",
+			"restrictedCheckInvitations": "查看邀请",
+			"restrictedTitle": "你需要一份邀请",
 			"cloud": {
+				"invite": {
+					"addAnother": "再添加一个",
+					"emailLabel": "成员邮箱 {{index}}",
+					"emailPlaceholder": "teammate@company.com",
+					"failed": "无法邀请 {{email}}：{{message}}",
+					"invalidEmail": "请输入有效的邮箱地址",
+					"remove": "移除邮箱 {{index}}",
+					"sent_other": "已发送 {{count}} 个邀请",
+					"skip": "暂时跳过",
+					"sent_one": "Invitation sent"
+				},
+				"plan": {
+					"continueTrial": "开始免费试用",
+					"recommended": "推荐",
+					"trialUsed": "你的免费试用已经用过了。选择一个套餐，即可开始创建项目和任务。"
+				},
 				"usageLabel": "这个工作区主要由谁使用？",
 				"usageSolo": "只有我",
 				"usageSoloDescription": "打理好自己的任务和进度",
 				"usageTeam": "我的团队",
-				"usageTeamDescription": "一起规划，一起交付",
-				"invite": {
-					"emailLabel": "成员邮箱 {{index}}",
-					"emailPlaceholder": "teammate@company.com",
-					"addAnother": "再添加一个",
-					"remove": "移除邮箱 {{index}}",
-					"skip": "暂时跳过",
-					"invalidEmail": "请输入有效的邮箱地址",
-					"sent_one": "邀请已发送",
-					"sent_other": "已发送 {{count}} 个邀请",
-					"failed": "无法邀请 {{email}}：{{message}}"
-				},
-				"plan": {
-					"trialUsed": "你的免费试用已经用过了。选择一个套餐，即可开始创建项目和任务。",
-					"recommended": "推荐",
-					"continueTrial": "开始免费试用"
-				}
+				"usageTeamDescription": "一起规划，一起交付"
 			},
 			"projectNameDefault": "我的第一个项目",
 			"starterTasks": {
@@ -412,13 +412,12 @@
 				"title": "邀请你的团队",
 				"description": "他们会收到加入 {{name}} 的邮件。如果想先四处看看，可以跳过这一步。",
 				"label": "队友邮箱",
-				"send_one": "发送 {{count}} 个邀请",
 				"send_other": "发送 {{count}} 份邀请",
-				"sendNone": "发送邀请"
+				"sendNone": "发送邀请",
+				"send_one": "Send {{count}} invite"
 			},
 			"plan": {
 				"title": "你想如何开始？",
-				"descriptionTrial_one": "所有套餐均包含无限项目和任务。免费试用 {{name}} {{count}} 天，或立即订阅。",
 				"descriptionTrial_other": "所有套餐都包含无限项目和任务。免费试用 {{name}} {{count}} 天，或立即订阅。",
 				"choose": "选择套餐",
 				"description": {
@@ -430,7 +429,8 @@
 				"subscribe": "订阅 {{plan}}",
 				"checkout": "前往结账",
 				"trialNote": "试用无需绑定银行卡。付款由 Creem 处理。",
-				"paymentNote": "付款由 Creem 处理。"
+				"paymentNote": "付款由 Creem 处理。",
+				"descriptionTrial_one": "Every plan includes unlimited projects and tasks. Try {{name}} free for {{count}} day, or subscribe now."
 			},
 			"ready": {
 				"eyebrow": "一切就绪",
@@ -438,12 +438,12 @@
 				"description": "以下是我们为你设置的内容，之后都可以修改。",
 				"workspace": "工作区",
 				"project": "第一个项目",
-				"projectValue_one": "{{name}}，含 {{count}} 个初始任务",
 				"projectValue_other": "{{name}}，含 {{count}} 个入门任务",
 				"invitations": "邀请",
-				"invitationsValue_one": "已发送给 {{count}} 人",
 				"invitationsValue_other": "已发送给 {{count}} 人",
-				"open": "打开 {{name}}"
+				"open": "打开 {{name}}",
+				"projectValue_one": "{{name}}, with {{count}} starter task",
+				"invitationsValue_one": "Sent to {{count}} person"
 			},
 			"preview": {
 				"live": "{{name}} 实时预览",
@@ -531,7 +531,6 @@
 				"title": "请求已拒绝",
 				"description": "未连接任何设备。你可以关闭此标签页。"
 			},
-			"openApp": "打开 Kaneo",
 			"missing": {
 				"title": "没有设备代码",
 				"description": "请从设备上打开此页面，或手动输入代码。",
@@ -541,7 +540,8 @@
 				"title": "登录以连接你的设备",
 				"description": "登录后会立即返回此处进行批准。",
 				"submit": "登录"
-			}
+			},
+			"openApp": "打开 Kaneo"
 		},
 		"mcp": {
 			"authorize": {
@@ -568,441 +568,12 @@
 	},
 	"settings": {
 		"advancedSettings": "高级设置",
-		"advancedSettingsDescription": "显示更多控件，例如集成同步规则。仅对当前浏览器生效。",
-		"syncRules": {
-			"title": "同步内容",
-			"sharedHint": "这些规则对该项目的所有成员都生效。关闭高级设置并不会让规则失效。",
-			"outgoing": "Kaneo → 仓库",
-			"incoming": "仓库 → Kaneo",
-			"outgoingHint": "选择允许同步的 Kaneo 任务。已有任务一旦不再带匹配标签，两个方向的同步都会暂停。",
-			"incomingHint": "选择允许导入或用来创建任务的 Issue。请填写仓库中标签的准确名称。已有任务关联按 Kaneo 一侧的任务规则处理。",
-			"all": "全部任务和 Issue",
-			"filtered": "按标签筛选",
-			"any": "任一标签",
-			"every": "全部标签",
-			"matchLabels": "标签匹配方式",
-			"repositoryLabel": "仓库标签名称",
-			"addLabel": "添加标签",
-			"removeLabel": "移除 {{name}}",
-			"noLabels": "请先在工作区里创建标签，再配置任务筛选条件。",
-			"selectLabel": "至少选择一个标签，才能预览这条规则。",
-			"unavailableLabel": "不可用的标签",
-			"impactTitle": "将会发生什么变化",
-			"impact": "匹配任务：{{matching}} / {{total}} · 新导出：{{create}} · 将暂停关联：{{pause}} · 待确认关联：{{review}}",
-			"preserveHint": "暂停只是停下同步：Kaneo 任务、仓库 Issue 以及两者的关联都会保留。恢复前需要对比一次；历史评论不会被重复同步。",
-			"previewing": "正在检查同步影响…",
-			"saveError": "这些规则未能应用。集成配置或任务范围可能已经变化，请刷新预览后重试。",
-			"refreshPreview": "刷新预览",
-			"rulesChanged": "你编辑期间，已保存的规则发生了变化。你的草稿已保留，可以先检查上面的当前规则再决定是否应用，也可以直接载入已保存的规则。",
-			"loadSavedRules": "载入已保存的规则",
-			"missingLabels": "所选的工作区标签已不可用。修复规则之前，同步会保持暂停。",
-			"removeMissingLabels": "移除不可用的标签",
-			"apply": "应用同步规则",
-			"saved": "同步规则已保存",
-			"loading": "正在加载同步规则…",
-			"loadError": "无法加载同步规则。",
-			"advancedHint": "开启「偏好设置」里的高级设置后，才能编辑这些规则。",
-			"paused": "同步已暂停",
-			"pausedHint": "记录和关联都会保留。重新匹配上的任务需要确认一次，才会恢复同步。",
-			"reviewRequired": "符合规则 · 需要确认",
-			"excluded": "不符合当前规则",
-			"review": "确认并恢复",
-			"previous": "上一页",
-			"next": "下一页",
-			"reviewTitle": "恢复同步前先确认",
-			"reviewHint": "对比双方当前的标题、描述和打开/关闭状态，并选择以哪一侧为准。标签和历史评论不受影响。",
-			"resumeError": "无法恢复同步。任务、Issue 或规则可能已经变化，也可能是对方服务暂时不可用。同步仍保持暂停，请刷新对比后重试。",
-			"refreshComparison": "刷新对比",
-			"repository": "仓库",
-			"open": "打开",
-			"closed": "已关闭",
-			"noDescription": "暂无描述",
-			"useRepository": "以仓库为准",
-			"useKaneo": "以 Kaneo 为准",
-			"exportPending": "导出匹配的任务",
-			"inactiveHint": "该集成已暂停。重新启用之前，不会有任务被导出。",
-			"allIssues": "所有 Issue",
-			"allTasks": "所有任务",
-			"edit": "编辑",
-			"hidePaused": "隐藏",
-			"issuesLabelled": "带有标签的 Issue：",
-			"joinAnd": "且",
-			"joinOr": "或",
-			"kaneoToProvider": "Kaneo → {{provider}}",
-			"pausedSummary_one": "{{count}} 个任务因不再符合同步规则而停止同步。",
-			"pausedSummary_other": "有 {{count}} 个任务不再符合同步规则，已停止同步。",
-			"providerToKaneo": "{{provider}} → Kaneo",
-			"reviewPaused": "查看",
-			"tasksLabelled": "带有标签的任务："
-		},
 		"account": "账户",
-		"administration": "管理后台",
 		"developer": "开发者",
 		"information": "个人资料",
 		"notifications": "通知",
 		"preferences": "偏好设置",
 		"apiKeys": "API 密钥",
-		"adminUsers": {
-			"title": "用户",
-			"subtitle": "在这个 Kaneo 实例上拥有账号的所有人。",
-			"directoryTitle": "所有用户",
-			"searchCount_one": "{{count}} 个匹配用户",
-			"searchCount_other": "{{count}} 个匹配用户",
-			"refreshing": "正在刷新用户",
-			"searchPlaceholder": "按姓名或邮箱搜索",
-			"searchLabel": "搜索用户",
-			"loadError": "用户加载失败。",
-			"retry": "重试",
-			"emptyTitle": "没有找到用户",
-			"emptyDescription": "换一个姓名或邮箱试试。",
-			"clearSearch": "清除搜索",
-			"you": "你",
-			"previous": "上一页",
-			"next": "下一页",
-			"pagination": "第 {{current}} 页，共 {{total}} 页",
-			"columns": {
-				"user": "用户",
-				"role": "角色",
-				"status": "状态",
-				"joined": "加入时间",
-				"actions": "操作",
-				"lastActive": "最近活跃"
-			},
-			"roles": {
-				"admin": "管理员",
-				"user": "用户"
-			},
-			"status": {
-				"active": "正常",
-				"deactivated": "已停用"
-			},
-			"actions": {
-				"open": "{{name}} 的操作",
-				"edit": "编辑",
-				"deactivate": "停用",
-				"reactivate": "恢复",
-				"sendPasswordReset": "发送密码重置链接",
-				"sendVerification": "重新发送验证邮件",
-				"markEmailVerified": "将邮箱标记为已验证",
-				"security": "会话与 API 密钥"
-			},
-			"edit": {
-				"title": "编辑用户",
-				"description": "修改该账号的身份信息和实例级访问权限。",
-				"name": "姓名",
-				"email": "邮箱地址",
-				"role": "全局角色",
-				"selfRoleHint": "不能修改你自己的全局角色。",
-				"save": "保存更改",
-				"saving": "正在保存…"
-			},
-			"confirm": {
-				"working": "处理中…",
-				"deactivate": {
-					"title": "停用这个账号？",
-					"description": "{{name}} 会被登出，并且在管理员恢复账号之前无法登录。",
-					"action": "停用账号"
-				},
-				"reactivate": {
-					"title": "恢复这个账号？",
-					"description": "{{name}} 将可以重新登录并访问其工作区。",
-					"action": "恢复账号"
-				},
-				"delete": {
-					"title": "永久删除这个账号？",
-					"description": "这会永久删除 {{name}}，以及其会话、成员关系和关联数据。此操作不可撤销。",
-					"action": "永久删除"
-				},
-				"sendPasswordReset": {
-					"title": "发送密码重置链接？",
-					"action": "发送链接"
-				},
-				"sendVerification": {
-					"title": "重新发送验证邮件？",
-					"action": "发送邮件"
-				},
-				"markEmailVerified": {
-					"title": "将此邮箱标记为已验证？",
-					"action": "标记为已验证"
-				}
-			},
-			"toast": {
-				"updated": "用户已更新",
-				"updateError": "更新用户失败",
-				"deactivated": "用户已停用",
-				"reactivated": "用户已恢复",
-				"deleted": "用户已删除",
-				"actionError": "更新用户状态失败",
-				"createdLinkSent": "用户已创建。密码链接已发送至 {{email}}。",
-				"createdForSso": "已为单点登录创建用户。",
-				"createdNoSmtp": "用户已创建。请设置 SMTP_HOST 以发送密码链接。",
-				"createdLinkFailed": "用户已创建。密码邮件发送失败；请重试“发送密码重置链接”。",
-				"createError": "创建用户失败",
-				"passwordResetSent": "密码重置链接已发送至 {{email}}",
-				"verificationSent": "验证邮件已发送至 {{email}}",
-				"emailVerified": "邮箱已标记为已验证",
-				"emailError": "邮件无法发送",
-				"avatarChanged": "头像已更新",
-				"avatarRemoved": "头像已移除",
-				"avatarError": "更新头像失败"
-			},
-			"never": "从不",
-			"unverified": "未验证",
-			"filters": {
-				"label": "筛选用户",
-				"status": "状态",
-				"role": "角色",
-				"email": "邮箱验证",
-				"anyStatus": "任意状态",
-				"anyRole": "任意角色",
-				"anyEmail": "任意邮箱",
-				"verified": "已验证邮箱",
-				"unverified": "未验证邮箱",
-				"clear": "清除筛选"
-			},
-			"create": {
-				"open": "创建用户",
-				"title": "创建用户",
-				"nameRequired": "请输入名称",
-				"submit": "创建用户",
-				"creating": "创建中…",
-				"hintNoEmail": "设置 SMTP_HOST 以发送密码链接。"
-			},
-			"details": {
-				"emailStatus": "邮箱",
-				"verified": "已验证",
-				"notVerified": "未验证",
-				"signInMethods": "登录方式",
-				"noSignInMethods": "尚无密码或关联账号",
-				"methods": {
-					"password": "密码"
-				},
-				"uploadAvatar": "上传",
-				"removeAvatar": "移除"
-			},
-			"security": {
-				"title": "会话与 API 密钥：{{name}}",
-				"sessionsTitle": "会话",
-				"sessionsEmpty": "未在任何地方登录。",
-				"revokeAll": "退出所有设备",
-				"revokeAllConfirmTitle": "让 {{name}} 退出所有设备？",
-				"revokeAllConfirmDescription": "对方将立即在所有设备上退出登录。",
-				"revokeAllSelfDescription": "你的其他会话将立即退出登录。",
-				"toastRevokedAll": "已退出所有会话。",
-				"apiKeysTitle": "API 密钥",
-				"apiKeysEmpty": "暂无 API 密钥。",
-				"apiKeysLoadError": "无法加载 API 密钥。",
-				"lastUsed": "上次使用于 {{time}}",
-				"neverUsed": "从未使用",
-				"disabled": "已禁用",
-				"revokeKey": "撤销",
-				"revokingKey": "正在撤销...",
-				"revokeKeyLabel": "撤销 {{name}}",
-				"revokeKeyConfirmTitle": "撤销 {{name}}？",
-				"revokeKeyConfirmDescription": "使用此密钥的请求将立即失败。",
-				"toastKeyRevoked": "API 密钥已撤销。",
-				"toastKeyRevokeError": "无法撤销 API 密钥。"
-			}
-		},
-		"adminWorkspaces": {
-			"title": "工作区",
-			"subtitle": "这个 Kaneo 实例上的所有工作区，包括你未加入的工作区。",
-			"directoryTitle": "所有工作区",
-			"searchCount_one": "{{count}} 个匹配的工作区",
-			"searchCount_other": "{{count}} 个匹配的工作区",
-			"refreshing": "正在刷新工作区",
-			"searchPlaceholder": "按名称或 slug 搜索",
-			"searchLabel": "搜索工作区",
-			"loadError": "无法加载工作区。",
-			"retry": "重试",
-			"emptyTitle": "没有找到工作区",
-			"emptyDescription": "换个名称或 slug 试试。",
-			"clearSearch": "清除搜索",
-			"previous": "上一页",
-			"next": "下一页",
-			"pagination": "第 {{current}} 页，共 {{total}} 页",
-			"noOwner": "无所有者",
-			"manage": "管理",
-			"manageLabel": "管理 {{name}}",
-			"columns": {
-				"workspace": "工作区",
-				"owners": "所有者",
-				"members": "成员",
-				"projects": "项目",
-				"created": "创建时间",
-				"actions": "操作"
-			},
-			"members": {
-				"title": "{{name}} 的成员",
-				"description": "即使你不是该工作区的成员，也可以调整角色、项目访问权限和所有者。",
-				"count_one": "{{count}} 名成员",
-				"count_other": "{{count}} 名成员",
-				"add": "添加成员",
-				"loadError": "无法加载成员。",
-				"empty": "该工作区还没有成员。",
-				"roleLabel": "{{name}} 的角色",
-				"editAccess": "更改 {{name}} 的项目访问权限（{{access}}）",
-				"actions": "{{name}} 的操作",
-				"makeOwner": "设为所有者",
-				"remove": "移出工作区"
-			},
-			"addMember": {
-				"title": "添加成员",
-				"description": "把已有用户添加到 {{name}}。未加限制前，该用户可以访问所有项目。",
-				"user": "用户",
-				"userPlaceholder": "搜索姓名或邮箱…",
-				"searching": "正在搜索用户…",
-				"usersError": "无法加载用户。",
-				"noUsers": "没有找到用户",
-				"alreadyMember": "已是成员",
-				"role": "角色",
-				"submit": "添加成员",
-				"adding": "正在添加…"
-			},
-			"confirm": {
-				"working": "处理中…",
-				"transfer": {
-					"title": "让 {{name}} 成为所有者？",
-					"description": "{{name}} 将成为 {{workspace}} 唯一的所有者，当前的所有者将变为管理员。",
-					"action": "设为所有者"
-				},
-				"remove": {
-					"title": "移除 {{name}}？",
-					"description": "{{name}} 将失去对 {{workspace}} 及其项目的访问权限，账号仍保留在本实例上。",
-					"action": "移除成员"
-				},
-				"archive": {
-					"title": "归档 {{name}}？",
-					"description": "在恢复之前，成员将无法访问。",
-					"action": "归档工作区"
-				},
-				"restore": {
-					"title": "恢复 {{name}}？",
-					"action": "恢复工作区"
-				},
-				"delete": {
-					"title": "删除 {{name}}？",
-					"description": "其项目、任务和文件将被永久删除。",
-					"typeName": "输入 {{name}} 以确认",
-					"action": "删除工作区"
-				}
-			},
-			"toast": {
-				"added": "成员已添加",
-				"addError": "添加成员失败",
-				"roleUpdated": "角色已更新",
-				"roleError": "更新角色失败",
-				"removed": "成员已移除",
-				"removeError": "移除成员失败",
-				"ownershipTransferred": "已转移所有权",
-				"transferError": "转移所有权失败",
-				"archived": "工作区已归档",
-				"restored": "工作区已恢复",
-				"deleted": "工作区已删除",
-				"archiveError": "无法归档工作区",
-				"restoreError": "无法恢复工作区",
-				"deleteError": "无法删除工作区"
-			},
-			"archived": "已归档",
-			"actions": {
-				"open": "{{name}} 的操作",
-				"archive": "归档工作区",
-				"restore": "恢复工作区"
-			}
-		},
-		"adminAuditLog": {
-			"title": "审计日志",
-			"directoryTitle": "已记录的操作",
-			"refreshing": "正在刷新审计日志",
-			"categoryLabel": "按类别筛选",
-			"categories": {
-				"all": "所有操作",
-				"email": "邮件",
-				"user": "用户",
-				"session": "会话",
-				"workspace": "工作区",
-				"apiKey": "API 密钥",
-				"role": "角色",
-				"instance": "实例设置",
-				"webhook": "Webhook"
-			},
-			"loadError": "无法加载审计日志。",
-			"retry": "重试",
-			"emptyTitle": "暂无操作记录",
-			"clearFilter": "显示全部操作",
-			"previous": "上一页",
-			"next": "下一页",
-			"pagination": "第 {{current}} 页，共 {{total}} 页",
-			"unknownActor": "未知",
-			"deletedActor": "账号已删除",
-			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
-			"columns": {
-				"action": "操作",
-				"actor": "管理员",
-				"target": "对象",
-				"time": "时间与 IP"
-			},
-			"targetTypes": {
-				"user": "用户",
-				"workspace": "工作区",
-				"role": "角色",
-				"instance": "实例",
-				"webhook": "Webhook"
-			},
-			"actions": {
-				"emailTestSent": "发送测试邮件",
-				"userCreated": "创建用户",
-				"userUpdated": "更新用户信息",
-				"userRoleChanged": "变更实例角色",
-				"userDeactivated": "停用用户",
-				"userReactivated": "重新启用用户",
-				"userDeleted": "删除用户",
-				"userPasswordSet": "设置用户密码",
-				"userImpersonated": "以用户身份登录",
-				"sessionRevoked": "撤销会话",
-				"sessionRevokedAll": "撤销全部会话",
-				"workspaceMemberAdded": "添加工作区成员",
-				"workspaceMemberRemoved": "移除工作区成员",
-				"workspaceMemberRoleChanged": "变更工作区成员角色",
-				"workspaceOwnerTransferred": "转移工作区所有权",
-				"userPasswordResetSent": "发送密码重置链接",
-				"userVerificationSent": "发送验证邮件",
-				"userEmailVerified": "将邮箱标记为已验证",
-				"userAvatarChanged": "更换头像",
-				"userAvatarRemoved": "移除头像",
-				"apiKeyRevoked": "撤销了 API 密钥",
-				"workspaceArchived": "归档了工作区",
-				"workspaceRestored": "恢复了工作区",
-				"workspaceDeleted": "删除了工作区",
-				"roleCreated": "创建了角色",
-				"roleUpdated": "更新了角色",
-				"roleDeleted": "删除了角色",
-				"instanceSettingsUpdated": "更新了实例设置",
-				"webhookCreated": "创建了 Webhook",
-				"webhookUpdated": "更新了 Webhook",
-				"webhookDeleted": "删除了 Webhook",
-				"webhookSecretRotated": "轮换了 Webhook 密钥"
-			},
-			"fields": {
-				"name": "名称",
-				"email": "邮箱",
-				"emailVerified": "邮箱验证",
-				"image": "头像"
-			},
-			"details": {
-				"change": "{{from}} → {{to}}",
-				"fields": "更改了 {{fields}}",
-				"reason": "原因：{{reason}}",
-				"noRole": "无角色",
-				"memberWithRole": "{{member}}（{{role}}）",
-				"memberChange": "{{member}}：{{from}} → {{to}}",
-				"createdWithRole": "角色：{{role}}",
-				"sessionCount_one": "{{count}} 个会话",
-				"sessionCount_other": "{{count}} 个会话",
-				"workspaceContents": "{{members}} 名成员，{{projects}} 个项目",
-				"permissionsChanged": "新增 {{added}} 项权限，移除 {{removed}} 项"
-			}
-		},
 		"informationPage": {
 			"pageTitle": "个人资料",
 			"title": "个人资料",
@@ -1112,54 +683,54 @@
 			"toastPreferencesSaveFailed": "保存通知偏好失败",
 			"toastRuleSavedGeneric": "工作区通知规则已保存",
 			"toastRuleRemovedGeneric": "工作区通知规则已移除",
-			"loadFailed": "无法加载通知设置。",
-			"eventTaskAssignmentsHint": "有人将任务指派给你时。",
-			"eventStatusChangesHint": "你的某个任务移动到其他列时。",
-			"eventDueDateRemindersHint": "在你的任务到期前提醒。逾期任务会另行通知。",
-			"reminderLeadTimeUnitLabel": "提醒单位",
-			"reminderLeadTimeUnitHoursBefore_one": "小时前",
-			"reminderLeadTimeUnitHoursBefore_other": "小时前",
-			"reminderLeadTimeUnitDaysBefore_one": "天前",
-			"reminderLeadTimeUnitDaysBefore_other": "天前",
-			"channelsTitle": "渠道",
-			"channelsDescription": "通知始终会显示在 Kaneo 中。连接渠道后，也可以在其他地方收到通知。",
-			"statusOn": "已开启",
-			"emailToggleLabel": "通过邮件发送通知",
-			"connect": "连接",
-			"configure": "配置",
-			"done": "完成",
-			"connectChannel": "连接 {{channel}}",
-			"configureChannel": "配置 {{channel}}",
-			"optional": "可选",
-			"sendingLabel": "发送中",
-			"sendingDescription": "关闭后会暂停此渠道，但保留其设置。",
-			"disconnectTitle": "断开与 {{channel}} 的连接？",
-			"disconnectDescription": "通知将不再发送到 {{channel}}，其已保存的设置也会被移除。",
-			"disconnecting": "正在断开连接...",
-			"workspacesTitle": "工作区",
-			"workspacesDescription": "选择哪些工作区和项目可以使用你的渠道。",
-			"statusSending": "发送中",
-			"onlyInKaneo": "仅在 Kaneo 中",
-			"projectCount_one": "{{count}} 个项目",
-			"projectCount_other": "{{count}} 个项目",
-			"ruleSummary": "{{channels}} · {{projects}}",
-			"setUp": "设置",
-			"configureWorkspace": "配置 {{workspaceName}} 的通知",
-			"setUpWorkspace": "设置 {{workspaceName}} 的通知",
-			"ruleDialogTitle": "{{workspaceName}} 通知",
-			"ruleDialogDescription": "此工作区的通知可以发送到哪里。",
-			"ruleActiveLabel": "发送中",
-			"ruleActiveDescription": "关闭后会暂停此工作区，但保留其设置。",
-			"ruleChannels": "渠道",
 			"channelNotConnected": "未连接",
 			"channelOff": "已关闭",
+			"channelsDescription": "通知始终会显示在 Kaneo 中。连接渠道后，也可以在其他地方收到通知。",
+			"channelsTitle": "渠道",
+			"configure": "配置",
+			"configureChannel": "配置 {{channel}}",
+			"configureWorkspace": "配置 {{workspaceName}} 的通知",
+			"connect": "连接",
+			"connectChannel": "连接 {{channel}}",
+			"disconnectDescription": "通知将不再发送到 {{channel}}，其已保存的设置也会被移除。",
+			"disconnecting": "正在断开连接...",
+			"disconnectTitle": "断开与 {{channel}} 的连接？",
+			"done": "完成",
+			"emailToggleLabel": "通过邮件发送通知",
+			"eventDueDateRemindersHint": "在你的任务到期前提醒。逾期任务会另行通知。",
+			"eventStatusChangesHint": "你的某个任务移动到其他列时。",
+			"eventTaskAssignmentsHint": "有人将任务指派给你时。",
+			"loadFailed": "无法加载通知设置。",
+			"onlyInKaneo": "仅在 Kaneo 中",
+			"optional": "可选",
+			"projectCount_other": "{{count}} 个项目",
+			"reminderLeadTimeUnitDaysBefore_other": "天前",
+			"reminderLeadTimeUnitHoursBefore_other": "小时前",
+			"reminderLeadTimeUnitLabel": "提醒单位",
+			"ruleActiveDescription": "关闭后会暂停此工作区，但保留其设置。",
+			"ruleActiveLabel": "发送中",
+			"ruleChannels": "渠道",
+			"ruleDialogDescription": "此工作区的通知可以发送到哪里。",
+			"ruleDialogTitle": "{{workspaceName}} 通知",
 			"ruleProjects": "项目",
-			"someProjects": "仅部分",
+			"ruleSummary": "{{channels}} · {{projects}}",
 			"save": "保存",
+			"sendingDescription": "关闭后会暂停此渠道，但保留其设置。",
+			"sendingLabel": "发送中",
+			"setUp": "设置",
+			"setUpWorkspace": "设置 {{workspaceName}} 的通知",
+			"someProjects": "仅部分",
+			"statusOn": "已开启",
+			"statusSending": "发送中",
+			"stopping": "正在停止...",
 			"stopSending": "停止发送",
-			"stopSendingTitle": "停止从 {{workspaceName}} 发送通知？",
 			"stopSendingDescription": "此工作区的通知将只显示在 Kaneo 中。",
-			"stopping": "正在停止..."
+			"stopSendingTitle": "停止从 {{workspaceName}} 发送通知？",
+			"workspacesDescription": "选择哪些工作区和项目可以使用你的渠道。",
+			"workspacesTitle": "工作区",
+			"reminderLeadTimeUnitHoursBefore_one": "hour before",
+			"reminderLeadTimeUnitDaysBefore_one": "day before",
+			"projectCount_one": "{{count}} project"
 		},
 		"preferencesPage": {
 			"title": "偏好设置",
@@ -1210,12 +781,12 @@
 			"title": "API 密钥",
 			"subtitle": "让脚本、CLI 和 MCP 客户端以你的身份使用 Kaneo。",
 			"unnamedKey": "未命名",
-			"newKey": "新建密钥",
-			"keysTitle": "密钥",
-			"keysNote": "密钥拥有和你相同的全部权限。请删除不再使用的密钥。",
-			"emptyTitle": "还没有 API 密钥",
 			"emptyDescription": "创建密钥后，即可在 CLI、MCP 客户端或你自己的脚本中使用。",
-			"loadError": "无法加载 API 密钥，请重试。"
+			"emptyTitle": "还没有 API 密钥",
+			"keysNote": "密钥拥有和你相同的全部权限。请删除不再使用的密钥。",
+			"keysTitle": "密钥",
+			"loadError": "无法加载 API 密钥，请重试。",
+			"newKey": "新建密钥"
 		},
 		"apiKey": {
 			"createdModal": {
@@ -1255,12 +826,12 @@
 				}
 			},
 			"row": {
+				"actions": "{{name}} 的操作",
 				"created": "创建于 {{date}}",
-				"expires": "{{date}} 到期",
 				"expired": "已于 {{date}} 过期",
-				"neverExpires": "永不过期",
 				"expiredBadge": "已过期",
-				"actions": "{{name}} 的操作"
+				"expires": "{{date}} 到期",
+				"neverExpires": "永不过期"
 			}
 		},
 		"workspaceGeneral": {
@@ -1299,8 +870,8 @@
 				"transferring": "正在转移…",
 				"confirm": "转移所有权"
 			},
-			"ownershipTitle": "所有权",
-			"ownershipSubtitle": "只有所有者能看到此部分。"
+			"ownershipSubtitle": "只有所有者能看到此部分。",
+			"ownershipTitle": "所有权"
 		},
 		"workspaceRoles": {
 			"pageTitle": "角色",
@@ -1316,7 +887,6 @@
 			"emptyTitle": "暂无角色",
 			"emptyDescription": "默认角色在为该工作区初始化后显示在这里。",
 			"defaultBadge": "默认",
-			"permissionCount_one": "{{count}} 项权限",
 			"permissionCount_other": "{{count}} 个权限",
 			"nameLabel": "姓名",
 			"nameHint": "小写，保存后不可更改。",
@@ -1508,7 +1078,8 @@
 			"deleteDialog": {
 				"title": "删除角色",
 				"description": "这将永久删除角色 \"{{role}}\"，分配给该角色的成员将失去其权限。"
-			}
+			},
+			"permissionCount_one": "{{count}} permission"
 		},
 		"workspaceLabels": {
 			"pageTitle": "标签",
@@ -1534,282 +1105,18 @@
 			"nameRequired": "标签名称不能为空",
 			"deletionPending": "正在从任务中移除…",
 			"resumeDeletion": "继续删除",
-			"subtitleWithWorkspace": "标签由 {{workspaceName}} 中的所有项目共享。",
-			"newLabel": "新建标签",
-			"sectionTitle": "工作区标签",
-			"sectionDescription": "重命名标签或更改颜色，会同步更新所有使用该标签的任务。",
 			"editNamed": "编辑 {{name}}",
-			"rowActions": "{{name}} 的操作",
+			"emptyDescription": "添加标签，在各个项目中对任务进行分类和筛选。",
+			"emptyTitle": "还没有标签",
+			"loadError": "无法加载标签，请重试。",
+			"newLabel": "新建标签",
 			"preview": "在任务上的效果",
 			"previewPlaceholder": "标签",
 			"resume": "继续",
-			"emptyTitle": "还没有标签",
-			"emptyDescription": "添加标签，在各个项目中对任务进行分类和筛选。",
-			"loadError": "无法加载标签，请重试。"
-		},
-		"workspaceImport": {
-			"pageTitle": "导入",
-			"title": "导入",
-			"subtitle": "把其它工具里的项目导入 {{workspace}}。Kaneo 只从来源读取数据。",
-			"opensInNewTab": "（在新标签页打开）",
-			"retry": "重试",
-			"notAllowed": {
-				"title": "只有工作区管理员可以导入",
-				"description": "导入会创建项目，因此需要管理空间设置和创建项目的权限。请联系工作区管理员来执行。"
-			},
-			"sources": {
-				"title": "选择来源",
-				"description": "选择你要迁出的工具。你挑中的每个项目都会在这里新建为一个项目。",
-				"connect": "连接",
-				"connectTo": "连接 {{source}}",
-				"linear": {
-					"description": "团队、议题、标签、子议题和评论。粘贴个人 API 密钥即可。",
-					"intro": "每个 Linear 团队会变成一个项目，其工作流状态成为看板列。"
-				},
-				"jira": {
-					"description": "项目、议题、子任务、链接和评论。支持云端和 Data Center。",
-					"intro": "每个 Jira 项目会变成这里的一个项目，其工作流状态成为看板列。"
-				},
-				"trello": {
-					"description": "看板、列表、卡片、检查清单和评论。一键授权即可。",
-					"intro": "每个 Trello 看板会变成一个项目，其列表成为看板列。"
-				},
-				"plane": {
-					"description": "项目、工作项、子议题和评论。支持云端和自托管。",
-					"intro": "每个 Plane 项目会变成这里的一个项目，其状态成为看板列。"
-				},
-				"planka": {
-					"description": "从你的 PLANKA 实例导入看板、列表、卡片、检查清单和评论。",
-					"intro": "每个 PLANKA 看板会变成一个项目，其列表成为看板列。"
-				},
-				"kaneo": {
-					"pickerName": "另一个 Kaneo",
-					"description": "在 Kaneo 云端和自托管实例之间迁移项目。",
-					"intro": "该密钥能看到的所有工作区里的项目。你挑中的会复制到这里。"
-				}
-			},
-			"history": {
-				"title": "最近的导入",
-				"description": "离开此页面后，导入仍会在服务器上继续运行。",
-				"started": "开始于 {{time}}",
-				"empty": "还没有导入记录。你发起的导入会显示在这里。",
-				"loadError": "无法加载最近的导入记录。"
-			},
-			"status": {
-				"importing": "正在导入第 {{current}} 个，共 {{total}} 个",
-				"warnings_one": "完成，但有 {{count}} 条警告",
-				"warnings_other": "已完成，有 {{count}} 条警告",
-				"partial": "已导入 {{done}}/{{total}}",
-				"failed": "失败",
-				"imported": "已导入"
-			},
-			"steps": {
-				"label": "导入步骤",
-				"connect": "连接",
-				"import": "导入",
-				"done": "（已完成）"
-			},
-			"back": {
-				"allSources": "全部来源",
-				"changeKey": "更换密钥",
-				"overview": "导入概览"
-			},
-			"connect": {
-				"title": "从 {{source}} 导入",
-				"sectionTitle": "连接",
-				"sectionDescription": "Kaneo 只从 {{source}} 读取数据。密钥仅用于本次导入，不会保存。",
-				"cancel": "取消",
-				"continue": "继续",
-				"whereToFind": "在哪里获取",
-				"showSecret": "显示 {{field}}",
-				"hideSecret": "隐藏 {{field}}"
-			},
-			"linear": {
-				"apiKeyLabel": "个人 API 密钥",
-				"apiKeyDescription": "只读权限就够，导入完成后可以撤销。",
-				"openSettings": "打开 Linear 设置",
-				"stepOpen": "在 Linear 里依次打开设置 → 安全与访问。",
-				"stepCreate": "在「个人 API 密钥」下创建一个只读密钥。",
-				"stepPaste": "复制后粘贴到上方。"
-			},
-			"jira": {
-				"urlLabel": "Jira 站点地址",
-				"urlDescription": "从浏览器地址栏复制即可，Data Center 也可以。",
-				"urlPlaceholder": "https://your-site.atlassian.net",
-				"emailLabel": "邮箱",
-				"emailDescription": "你的 Atlassian 账号邮箱。Jira Data Center 可以留空。",
-				"tokenLabel": "API 令牌",
-				"tokenDescription": "云端版：在 id.atlassian.com 创建。Data Center：使用个人访问令牌。",
-				"tokenPlaceholder": "粘贴令牌",
-				"openSettings": "打开 Atlassian API 令牌页",
-				"stepOpen": "打开 id.atlassian.com，依次进入安全 → API 令牌。",
-				"stepCreate": "创建一个 API 令牌并复制。",
-				"stepPaste": "和登录 Jira 用的邮箱一起粘贴到上面。",
-				"nameMatchTip": "Jira 常常隐藏邮箱地址，所以负责人可能按姓名与这里的用户对应。"
-			},
-			"trello": {
-				"apiKeyLabel": "API 密钥",
-				"apiKeyDescription": "在你拥有的 Power-Up 里打开 Trello 的 Auth 标签页生成 API 密钥（不是 OAuth 2.0 那个标签页），地址：",
-				"apiKeyPlaceholder": "粘贴 API 密钥",
-				"authorizeLabel": "授权 Kaneo",
-				"authorizeDescription": "会在新标签页打开 Trello。只读权限，一天后失效。",
-				"authorizeNeedsKey": "请先填写 API 密钥。只读权限，一天后失效。",
-				"authorizeButton": "在 Trello 上授权",
-				"tokenLabel": "令牌",
-				"tokenDescription": "在 Trello 上点「允许」，然后粘贴它给出的令牌。",
-				"tokenPlaceholder": "粘贴令牌"
-			},
-			"plane": {
-				"urlLabel": "工作区地址",
-				"urlDescription": "在 Plane 里从浏览器地址栏复制即可，自托管实例也可以。",
-				"urlPlaceholder": "https://app.plane.so/your-workspace",
-				"tokenLabel": "个人访问令牌",
-				"tokenDescription": "个人资料设置 → 开发者 → 个人访问令牌。"
-			},
-			"planka": {
-				"urlLabel": "PLANKA 地址",
-				"urlDescription": "你打开 PLANKA 的地址。",
-				"signInLabel": "登录方式",
-				"signInDescription": "如果你的账号是通过 SSO 登录的，请用 API 密钥。",
-				"signInApiKey": "API 密钥",
-				"signInPassword": "邮箱和密码",
-				"apiKeyLabel": "API 密钥",
-				"apiKeyDescription": "在 PLANKA 的账号设置里创建。",
-				"apiKeyPlaceholder": "粘贴 API 密钥",
-				"usernameLabel": "邮箱或用户名",
-				"usernameDescription": "你登录 PLANKA 所用的账号。",
-				"passwordLabel": "密码",
-				"passwordDescription": "仅用于本次导入时登录。",
-				"adminTip": "建议用 PLANKA 管理员账号：PLANKA 只向管理员显示邮箱地址，而卡片成员是按邮箱与这里的用户对应的。"
-			},
-			"kaneo": {
-				"urlLabel": "Kaneo 地址",
-				"urlDescription": "你要迁出的那个实例。",
-				"apiKeyLabel": "API 密钥",
-				"apiKeyDescription": "在那个 Kaneo 里依次打开设置 → API 密钥。",
-				"apiKeyPlaceholder": "粘贴 API 密钥"
-			},
-			"select": {
-				"selectAll": "全选",
-				"clear": "清除",
-				"back": "返回",
-				"commentsLabel": "导入评论",
-				"commentsDescription": "保留每条评论的原作者和时间。",
-				"membersNote": "负责人按邮箱与 {{workspace}} 的成员对应。建议先邀请团队成员，这样任务能保留负责人。",
-				"membersNoteTrello": "负责人按邮箱与 {{workspace}} 的成员对应，Trello 也可以按姓名匹配。建议先邀请团队成员，这样任务能保留负责人。",
-				"membersNoteJira": "负责人按邮箱与 {{workspace}} 的成员对应，Jira 隐藏邮箱时按姓名匹配。建议先邀请团队成员，这样任务能保留负责人。",
-				"inviteMembers": "邀请成员"
-			},
-			"units": {
-				"team": {
-					"step": "选择团队",
-					"section": "团队",
-					"pick": "选择要导入的团队。",
-					"found_one": "找到 {{count}} 个团队。选中后，它将在 {{workspace}} 中成为新项目。",
-					"found_other": "找到 {{count}} 个团队。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
-					"empty": "没有找到团队。请确认该密钥能看到你要导入的团队。",
-					"limit": "每次导入最多选择 {{max}} 个团队。",
-					"importButton_one": "导入 {{count}} 个团队",
-					"importButton_other": "导入 {{count}} 个团队",
-					"progress_one": "已导入 {{done}}/{{count}} 个团队",
-					"progress_other": "已导入 {{done}}/{{count}} 个团队",
-					"runTitle_one": "{{source}}，{{count}} 个团队",
-					"runTitle_other": "{{source}}，{{count}} 个团队",
-					"allImported_one": "已导入 {{count}} 个团队。",
-					"allImported_other": "已导入全部 {{count}} 个团队。",
-					"someImported_one": "已导入 {{done}}/{{count}} 个团队。",
-					"someImported_other": "已导入 {{done}}/{{count}} 个团队。"
-				},
-				"board": {
-					"step": "选择看板",
-					"section": "看板",
-					"pick": "选择要导入的看板。",
-					"found_one": "找到 {{count}} 个看板。选中后，它将在 {{workspace}} 中成为新项目。",
-					"found_other": "找到 {{count}} 个看板。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
-					"empty": "没有找到看板。请确认该密钥能看到你要导入的看板。",
-					"limit": "每次导入最多选择 {{max}} 个看板。",
-					"importButton_one": "导入 {{count}} 个看板",
-					"importButton_other": "导入 {{count}} 个看板",
-					"progress_one": "已导入 {{done}}/{{count}} 个看板",
-					"progress_other": "已导入 {{done}}/{{count}} 个看板",
-					"runTitle_one": "{{source}}，{{count}} 个看板",
-					"runTitle_other": "{{source}}，{{count}} 个看板",
-					"allImported_one": "已导入 {{count}} 个看板。",
-					"allImported_other": "已导入全部 {{count}} 个看板。",
-					"someImported_one": "已导入 {{done}}/{{count}} 个看板。",
-					"someImported_other": "已导入 {{done}}/{{count}} 个看板。"
-				},
-				"project": {
-					"step": "选择项目",
-					"section": "项目",
-					"pick": "选择要导入的项目。",
-					"found_one": "找到 {{count}} 个项目。选中后，它将在 {{workspace}} 中成为新项目。",
-					"found_other": "找到 {{count}} 个项目。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
-					"empty": "没有找到项目。请确认该密钥能看到你要导入的项目。",
-					"limit": "每次导入最多选择 {{max}} 个项目。",
-					"importButton_one": "导入 {{count}} 个项目",
-					"importButton_other": "导入 {{count}} 个项目",
-					"progress_one": "已导入 {{done}}/{{count}} 个项目",
-					"progress_other": "已导入 {{done}}/{{count}} 个项目",
-					"runTitle_one": "{{source}}，{{count}} 个项目",
-					"runTitle_other": "{{source}}，{{count}} 个项目",
-					"allImported_one": "已导入 {{count}} 个项目。",
-					"allImported_other": "已导入全部 {{count}} 个项目。",
-					"someImported_one": "已导入 {{done}}/{{count}} 个项目。",
-					"someImported_other": "已导入 {{done}}/{{count}} 个项目。"
-				}
-			},
-			"counts": {
-				"tasks_one": "{{count, number}} 个任务",
-				"tasks_other": "{{count, number}} 个任务",
-				"columns_one": "{{count, number}} 个列",
-				"columns_other": "{{count, number}} 列",
-				"labels_one": "{{count, number}} 个标签",
-				"labels_other": "{{count, number}} 个标签",
-				"comments_one": "{{count, number}} 条评论",
-				"comments_other": "{{count, number}} 条评论"
-			},
-			"run": {
-				"importingTitle": "正在从 {{source}} 导入",
-				"finishedTitle": "导入完成",
-				"failedTitle": "导入失败",
-				"leavePage": "可以离开此页面，导入会在服务器上继续运行。",
-				"started": "开始于 {{time}}",
-				"took_one": "耗时 {{count}} 分钟",
-				"took_other": "耗时 {{count}} 分钟",
-				"tookUnderMinute": "不到一分钟",
-				"totals": "已导入 {{parts, list}}",
-				"nothingImported": "没有导入任何内容",
-				"keyInMemory": "你的 {{source}} 密钥只在本次导入结束前保存在内存中。",
-				"finishedNote": "导入的任务不会发送通知。评论会保留原作者和原时间。",
-				"finishedNoteNoComments": "导入的任务不会发送通知。",
-				"importMore": "继续导入",
-				"goToProjects": "前往项目",
-				"open": "打开",
-				"openProject": "打开 {{name}}",
-				"waiting": "等待中",
-				"queued": "排队中",
-				"starting": "正在启动",
-				"importingBadge": "导入中",
-				"failedBadge": "失败",
-				"warnings_one": "{{count}} 条警告",
-				"warnings_other": "{{count}} 条警告",
-				"noTasks": "没有任务",
-				"notImported": "未导入",
-				"failedNames_one": "{{names, list}} 失败，因此未为其创建任何内容。",
-				"failedNames_other": "{{names, list}} 失败，因此没有为它们创建任何内容。",
-				"loadError": "无法加载这次导入"
-			},
-			"toast": {
-				"finished": "从 {{source}} 导入完成",
-				"partial": "从 {{source}} 导入完成，但有错误",
-				"failed": "从 {{source}} 导入失败"
-			},
-			"entry": {
-				"projectsEmpty": "从其它工具导入",
-				"createProjectPrompt": "从 Jira、Linear、Trello 或 Plane 迁移过来？",
-				"createProjectLink": "导入你的项目"
-			}
+			"rowActions": "{{name}} 的操作",
+			"sectionDescription": "重命名标签或更改颜色，会同步更新所有使用该标签的任务。",
+			"sectionTitle": "工作区标签",
+			"subtitleWithWorkspace": "标签由 {{workspaceName}} 中的所有项目共享。"
 		},
 		"projectGeneral": {
 			"pageTitle": "项目设置",
@@ -1827,16 +1134,6 @@
 			"keyPlaceholder": "PRO",
 			"descriptionLabel": "描述",
 			"descriptionPlaceholder": "这个项目是做什么的？",
-			"backgroundLabel": "看板背景",
-			"backgroundHint": "显示在看板后面的图片。每个人都可以关闭。",
-			"backgroundUnavailable": "此实例未配置图片上传。",
-			"backgroundUpload": "上传",
-			"backgroundReplace": "替换",
-			"backgroundRemove": "移除图片",
-			"backgroundUploadSuccess": "项目背景已更新",
-			"backgroundUploadError": "更新项目背景失败",
-			"backgroundRemoveSuccess": "项目背景已移除",
-			"backgroundRemoveError": "移除项目背景失败",
 			"dangerZone": "危险操作",
 			"deleteProject": "删除项目",
 			"deleteProjectDescription": "永久删除 {{name}} 及其所有任务。",
@@ -1852,23 +1149,32 @@
 				"keyMax": "标识最多 8 个字符",
 				"iconRequired": "图标不能为空"
 			},
+			"backgroundHint": "显示在看板后面的图片。每个人都可以关闭。",
+			"backgroundUnavailable": "此实例未配置图片上传。",
+			"backgroundLabel": "看板背景",
+			"backgroundRemove": "移除图片",
+			"backgroundRemoveError": "移除项目背景失败",
+			"backgroundRemoveSuccess": "项目背景已移除",
+			"backgroundReplace": "替换",
+			"backgroundUpload": "上传",
+			"backgroundUploadError": "更新项目背景失败",
+			"backgroundUploadSuccess": "项目背景已更新",
+			"moveModalConfirm": "移动项目",
 			"moveProject": "移动到其他工作区",
+			"moveProjectAction": "移动",
 			"moveProjectDescription": "任务、列和标签会一起移动。",
 			"moveProjectPlaceholder": "选择工作区",
-			"moveTargetsError": "无法检查你可以将此项目移动到哪些工作区。请重新加载页面后重试。",
-			"moveProjectAction": "移动",
-			"moveModalConfirm": "移动项目",
 			"toastMoved": "项目移动成功",
 			"toastMovedWithUnassigned": "项目移动成功。已取消分配 {{taskCount}} 个任务。",
 			"toastMoveError": "移动项目失败",
-			"tasksTitle": "任务",
-			"moveTargetLabel": "工作区",
-			"moveDialogTitle": "移动到其他工作区？",
+			"moveTargetsError": "无法检查你可以将此项目移动到哪些工作区。请重新加载页面后重试。",
 			"moveDialogDescription": "分配给新工作区以外成员的任务将取消分配，此项目的通知订阅也会被清除。",
-			"moving": "正在移动..."
+			"moveDialogTitle": "移动到其他工作区？",
+			"moveTargetLabel": "工作区",
+			"moving": "正在移动...",
+			"tasksTitle": "任务"
 		},
 		"projectIntegrations": {
-			"turnedOffByAdmin": "已被管理员关闭",
 			"pageTitle": "集成",
 			"title": "集成",
 			"subtitle": "将此项目连接到你的代码托管平台和团队聊天工具。",
@@ -1876,8 +1182,6 @@
 			"githubSectionSubtitle": "与 GitHub Issues 同步任务并启用双向同步。",
 			"giteaSectionTitle": "Gitea 集成",
 			"giteaSectionSubtitle": "与自托管的 Gitea 实例同步任务（Issues、PR、Webhook）。",
-			"gitlabSectionTitle": "GitLab 集成",
-			"gitlabSectionSubtitle": "与 GitLab.com 或自建实例同步任务。",
 			"discordSectionTitle": "Discord 集成",
 			"discordSectionSubtitle": "通过 Webhook 将项目任务更新发送到 Discord 频道。",
 			"genericWebhookSectionTitle": "Webhook",
@@ -1888,13 +1192,16 @@
 			"mattermostSectionSubtitle": "借助 Incoming Webhook，把项目任务动态推送到 Mattermost 频道。",
 			"telegramSectionTitle": "Telegram 集成",
 			"telegramSectionSubtitle": "通过 Bot 将项目任务更新发送到 Telegram 聊天或话题。",
+			"gitlabSectionSubtitle": "与 GitLab.com 或自建实例同步任务。",
+			"gitlabSectionTitle": "GitLab 集成",
 			"codeHostingTitle": "代码托管",
 			"chatTitle": "聊天与 Webhook",
 			"statusConnected": "已连接",
 			"statusPaused": "已暂停",
 			"connect": "连接",
 			"configure": "配置",
-			"done": "完成"
+			"done": "完成",
+			"turnedOffByAdmin": "已被管理员关闭"
 		},
 		"projectVisibility": {
 			"pageTitle": "项目可见性",
@@ -1907,15 +1214,15 @@
 			"copy": "复制链接",
 			"toastUpdated": "可见性已更新",
 			"toastUpdateError": "更新可见性失败",
-			"thisWorkspace": "此工作区",
-			"membersTitle": "{{workspace}} 成员",
-			"membersDescription": "工作区内的所有人，按其角色允许的范围访问。",
 			"always": "始终",
-			"on": "已开启",
 			"copied": "已复制",
 			"copyError": "无法复制链接",
+			"membersDescription": "工作区内的所有人，按其角色允许的范围访问。",
+			"membersTitle": "{{workspace}} 成员",
+			"offNote": "关闭公开链接后，链接会立即失效。",
+			"on": "已开启",
 			"openPublicPage": "打开公开页面",
-			"offNote": "关闭公开链接后，链接会立即失效。"
+			"thisWorkspace": "此工作区"
 		},
 		"projectWorkflow": {
 			"pageTitle": "工作流设置",
@@ -1941,81 +1248,14 @@
 			"newColumnPlaceholder": "列名称",
 			"deleteAria": "删除 {{name}} 列",
 			"renameAria": "重命名 {{name}} 列",
-			"columnHeader": "列",
-			"doneHeader": "完成",
 			"addColumn": "添加列",
-			"dragAria": "重新排序 {{name}}",
-			"deleteTitle": "删除“{{name}}”？",
-			"deleteDescription": "仍有任务的列无法删除。请先移走这些任务。",
+			"columnHeader": "列",
 			"deleteConfirm": "删除列",
-			"reorderError": "重新排序列失败"
-		},
-		"customFields": {
-			"namePlaceholder": "字段名称",
-			"selectPlaceholder": "选择选项",
-			"required": "必填",
-			"creating": "正在创建…",
-			"defaultLabel": "默认",
-			"createSuccess": "自定义字段已创建。",
-			"createError": "创建自定义字段失败。",
-			"deleting": "正在删除…",
-			"deleteSuccess": "自定义字段已删除。",
-			"deleteError": "删除自定义字段失败。",
-			"reorderError": "字段排序失败",
-			"moreOptions": "还有 {{hiddenCount}} 项",
-			"clearDefault": "清除默认值",
-			"types": {
-				"text": "文本",
-				"number": "数字",
-				"date": "日期",
-				"dropdown": "下拉选择",
-				"boolean": "复选框",
-				"multiselect": "下拉选择（多选）"
-			},
-			"startsAs": "默认为“{{value}}”",
-			"startsAt": "默认为 {{value}}",
-			"startsOn": "默认为 {{date}}",
-			"startsChecked": "默认勾选",
-			"startsUnchecked": "默认不勾选",
-			"dragAria": "重新排序 {{name}}",
-			"actionsAria": "{{name}} 的操作",
-			"edit": "编辑",
-			"emptyTitle": "还没有自定义字段",
-			"emptyDescription": "在每个任务上记录规模、客户或上线日期等信息。",
+			"deleteDescription": "仍有任务的列无法删除。请先移走这些任务。",
 			"deleteTitle": "删除“{{name}}”？",
-			"deleteDescription": "该字段及其在所有任务上的值都会被移除，此操作无法撤销。",
-			"deleteConfirm": "删除字段",
-			"newTitle": "新建字段",
-			"editTitle": "编辑字段",
-			"dialogDescription": "{{project}} 中的每个任务都会获得此字段。",
-			"dialogDescriptionFallback": "此项目中的每个任务都会获得此字段。",
-			"typeLabel": "类型",
-			"typeLocked": "字段创建后无法更改类型。",
-			"nameLabel": "名称",
-			"optionsLabel": "选项",
-			"addOption": "添加选项",
-			"dragOptionAria": "重新排序 {{option}}",
-			"renameOptionAria": "重命名 {{option}}",
-			"removeOptionAria": "移除 {{option}}",
-			"hideOptionAria": "在新选择中隐藏 {{option}}",
-			"showOptionAria": "在新选择中重新提供 {{option}}",
-			"allowSeveral": "允许多选",
-			"allowSeveralDescription": "任务可以选择多个选项。",
-			"requiredDescription": "每个任务始终都有值。",
-			"defaultDescription": "新任务默认使用此值。",
-			"noDefault": "无默认值",
-			"checked": "已勾选",
-			"unchecked": "未勾选",
-			"issues": {
-				"optionsRequired": "请至少添加一个选项。",
-				"moreOptionsRequired": "要允许多选，请至少添加两个选项。",
-				"defaultRequired": "必填字段需要设置默认值。"
-			},
-			"createField": "创建字段",
-			"save": "保存",
-			"saving": "正在保存...",
-			"updateSuccess": "自定义字段已保存。",
-			"updateError": "保存自定义字段失败。"
+			"doneHeader": "完成",
+			"dragAria": "重新排序 {{name}}",
+			"reorderError": "重新排序列失败"
 		},
 		"githubIntegration": {
 			"toast": {
@@ -2047,8 +1287,8 @@
 			"chooseRepositoryDescription": "该仓库的 Issue 和 PR 会关联到这里的任务。",
 			"linkAccountDescription": "用于证明你有权管理该仓库。",
 			"linkAccountTitle": "关联你的 GitHub 账号",
-			"linkGithub": "关联 GitHub",
 			"linked": "已关联",
+			"linkGithub": "关联 GitHub",
 			"verifyMissingPermissions": "Kaneo GitHub App 缺少以下权限：{{list}}。",
 			"verifyNotInstalled": "Kaneo GitHub App 尚未安装到此仓库。",
 			"verifyReady": "Kaneo GitHub App 已安装，并具备所需权限。",
@@ -2087,49 +1327,6 @@
 			"browseEmpty": "此令牌看不到任何仓库。",
 			"chooseRepositoryDescription": "输入 owner/name，或从列表中选择。",
 			"webhookEvents": "启用 push、pull request、issue、issue comment 和 create 事件。"
-		},
-		"gitlabIntegration": {
-			"validation": {
-				"baseUrlRequired": "GitLab 基础 URL 不能为空",
-				"baseUrlInvalid": "请输入有效的 URL（例如 https://gitlab.com）",
-				"pathInvalid": "请输入完整路径，例如 group/project"
-			},
-			"toast": {
-				"verifyError": "验证 GitLab 访问失败",
-				"verifyFirst": "访问验证失败，请检查 URL、令牌和项目路径",
-				"updated": "GitLab 集成已保存",
-				"updateError": "保存 GitLab 集成失败",
-				"removed": "GitLab 集成已移除",
-				"removeError": "移除 GitLab 集成失败",
-				"issuesImported": "Issues 导入成功",
-				"importError": "导入 Issues 失败",
-				"commentOnEnabled": "Kaneo 将在新 Issue 上评论任务链接",
-				"commentOnDisabled": "新 Issue 的任务链接评论已关闭",
-				"settingsUpdateError": "更新 GitLab 集成失败"
-			},
-			"commentTaskLinkTitle": "在新 Issue 上评论 Kaneo 链接",
-			"commentTaskLinkHint": "方便 GitLab 上的人跳转到对应任务。",
-			"webhookHint": "在项目设置中添加此 Webhook，以便将变更同步回 Kaneo。",
-			"baseUrlLabel": "GitLab 地址",
-			"tokenTypeLabel": "令牌类型",
-			"tokenTypePrivate": "个人、项目或群组访问令牌",
-			"tokenTypeBearer": "OAuth2 令牌",
-			"tokenLabel": "访问令牌",
-			"tokenPlaceholder": "粘贴令牌",
-			"tokenPlaceholderUpdate": "粘贴新令牌以轮换",
-			"projectPathLabel": "项目路径",
-			"importSectionHint": "将未关闭的 Issue 和合并请求导入为任务。",
-			"browseModalHint": "你的令牌所属的项目。",
-			"searchProjects": "搜索项目",
-			"browseNeedsCredentials": "输入 GitLab URL 和令牌即可浏览。",
-			"loadProjectsError": "无法加载项目。",
-			"openInGitlab": "在 GitLab 中打开 {{project}}",
-			"importPermissionHint": "导入需要创建和更新任务的权限。",
-			"browseEmpty": "此令牌不是任何项目的成员。",
-			"chooseProjectDescription": "输入路径，或从列表中选择。",
-			"noSearchMatchTitle": "没有匹配的项目",
-			"useProject": "使用此项目",
-			"webhookEvents": "启用 push、issue、comment 和 merge request 事件。"
 		},
 		"slackIntegration": {
 			"validation": {
@@ -2224,10 +1421,10 @@
 			"reminderLeadTimeLabel": "任务截止前的小时数",
 			"connect": "连接 Webhook",
 			"activeTitle": "正在发送事件",
-			"reminderLeadTimeBefore": "在任务截止前",
-			"reminderLeadTimeAfter": "小时发送提醒",
+			"disconnectDescription": "Kaneo 将停止发送事件，并移除已保存的端点和密钥。",
 			"disconnectTitle": "断开 Webhook 连接？",
-			"disconnectDescription": "Kaneo 将停止发送事件，并移除已保存的端点和密钥。"
+			"reminderLeadTimeAfter": "小时发送提醒",
+			"reminderLeadTimeBefore": "在任务截止前"
 		},
 		"telegramIntegration": {
 			"validation": {
@@ -2255,8 +1452,8 @@
 			"chatLabelLabel": "聊天名称",
 			"chatLabelPlaceholder": "工程更新",
 			"connect": "连接 Telegram",
-			"loadError": "无法加载 Telegram 设置。",
-			"botTokenSavedPlaceholder": "已保存。粘贴新的令牌即可替换。"
+			"botTokenSavedPlaceholder": "已保存。粘贴新的令牌即可替换。",
+			"loadError": "无法加载 Telegram 设置。"
 		},
 		"repositoryBrowser": {
 			"title": "选择仓库",
@@ -2295,10 +1492,10 @@
 			"invalidFormat": "导入文件格式无效",
 			"noFileDropped": "未拖入文件",
 			"notJsonFile": "请上传 JSON 文件",
-			"exportDescription": "将此项目中的所有任务下载为文件。",
 			"export": "导出",
-			"importDescription": "从之前导出的文件中添加任务。",
-			"import": "导入"
+			"exportDescription": "将此项目中的所有任务下载为文件。",
+			"import": "导入",
+			"importDescription": "从之前导出的文件中添加任务。"
 		},
 		"workflowEditor": {
 			"toastError": "更新规则失败",
@@ -2309,11 +1506,11 @@
 				"issue_opened": "Issue 已开启",
 				"issue_closed": "Issue 已关闭"
 			},
+			"connectMore": "在<link>集成</link>中连接 {{providers}}，也可以为它们设置自动化。",
 			"dontMove": "不移动",
-			"emptyTitle": "没有已连接的仓库",
 			"emptyDescription": "自动化需要先连接 GitHub、Gitea 或 GitLab 仓库。",
-			"openIntegrations": "打开集成",
-			"connectMore": "在<link>集成</link>中连接 {{providers}}，也可以为它们设置自动化。"
+			"emptyTitle": "没有已连接的仓库",
+			"openIntegrations": "打开集成"
 		},
 		"externalLinks": {
 			"resources": "资源",
@@ -2322,54 +1519,327 @@
 			"merged": "已合并",
 			"draft": "草稿",
 			"open": "打开",
-			"addResource": "添加资源",
-			"url": "URL",
-			"titleOptional": "标题（可选）",
-			"cancel": "取消",
 			"adding": "正在添加…",
+			"addResource": "添加资源",
+			"cancel": "取消",
 			"empty": "此任务还没有关联任何资源。",
+			"titleOptional": "标题（可选）",
+			"url": "URL",
 			"remove": "移除 {{title}}",
 			"removeError": "移除资源链接失败。"
 		},
+		"customFields": {
+			"createError": "创建自定义字段失败。",
+			"createSuccess": "自定义字段已创建。",
+			"creating": "正在创建…",
+			"defaultLabel": "默认",
+			"deleteError": "删除自定义字段失败。",
+			"deleteSuccess": "自定义字段已删除。",
+			"deleting": "正在删除…",
+			"namePlaceholder": "字段名称",
+			"required": "必填",
+			"types": {
+				"boolean": "复选框",
+				"date": "日期",
+				"dropdown": "下拉选择",
+				"number": "数字",
+				"text": "文本",
+				"multiselect": "下拉选择（多选）"
+			},
+			"clearDefault": "清除默认值",
+			"moreOptions": "还有 {{hiddenCount}} 项",
+			"reorderError": "字段排序失败",
+			"selectPlaceholder": "选择选项",
+			"actionsAria": "{{name}} 的操作",
+			"addOption": "添加选项",
+			"allowSeveral": "允许多选",
+			"allowSeveralDescription": "任务可以选择多个选项。",
+			"checked": "已勾选",
+			"createField": "创建字段",
+			"defaultDescription": "新任务默认使用此值。",
+			"deleteConfirm": "删除字段",
+			"deleteDescription": "该字段及其在所有任务上的值都会被移除，此操作无法撤销。",
+			"deleteTitle": "删除“{{name}}”？",
+			"dialogDescription": "{{project}} 中的每个任务都会获得此字段。",
+			"dialogDescriptionFallback": "此项目中的每个任务都会获得此字段。",
+			"dragAria": "重新排序 {{name}}",
+			"dragOptionAria": "重新排序 {{option}}",
+			"edit": "编辑",
+			"editTitle": "编辑字段",
+			"emptyDescription": "在每个任务上记录规模、客户或上线日期等信息。",
+			"emptyTitle": "还没有自定义字段",
+			"issues": {
+				"defaultRequired": "必填字段需要设置默认值。",
+				"moreOptionsRequired": "要允许多选，请至少添加两个选项。",
+				"optionsRequired": "请至少添加一个选项。"
+			},
+			"nameLabel": "名称",
+			"newTitle": "新建字段",
+			"noDefault": "无默认值",
+			"optionsLabel": "选项",
+			"removeOptionAria": "移除 {{option}}",
+			"hideOptionAria": "在新选择中隐藏 {{option}}",
+			"showOptionAria": "在新选择中重新提供 {{option}}",
+			"renameOptionAria": "重命名 {{option}}",
+			"requiredDescription": "每个任务始终都有值。",
+			"save": "保存",
+			"saving": "正在保存...",
+			"startsAs": "默认为“{{value}}”",
+			"startsAt": "默认为 {{value}}",
+			"startsChecked": "默认勾选",
+			"startsOn": "默认为 {{date}}",
+			"startsUnchecked": "默认不勾选",
+			"typeLabel": "类型",
+			"typeLocked": "字段创建后无法更改类型。",
+			"unchecked": "未勾选",
+			"updateError": "保存自定义字段失败。",
+			"updateSuccess": "自定义字段已保存。"
+		},
+		"administration": "管理后台",
+		"adminUsers": {
+			"actions": {
+				"deactivate": "停用",
+				"edit": "编辑",
+				"open": "{{name}} 的操作",
+				"reactivate": "恢复",
+				"markEmailVerified": "将邮箱标记为已验证",
+				"sendPasswordReset": "发送密码重置链接",
+				"sendVerification": "重新发送验证邮件",
+				"security": "会话与 API 密钥"
+			},
+			"clearSearch": "清除搜索",
+			"columns": {
+				"actions": "操作",
+				"joined": "加入时间",
+				"role": "角色",
+				"status": "状态",
+				"user": "用户",
+				"lastActive": "最近活跃"
+			},
+			"confirm": {
+				"deactivate": {
+					"action": "停用账号",
+					"description": "{{name}} 会被登出，并且在管理员恢复账号之前无法登录。",
+					"title": "停用这个账号？"
+				},
+				"delete": {
+					"action": "永久删除",
+					"description": "这会永久删除 {{name}}，以及其会话、成员关系和关联数据。此操作不可撤销。",
+					"title": "永久删除这个账号？"
+				},
+				"reactivate": {
+					"action": "恢复账号",
+					"description": "{{name}} 将可以重新登录并访问其工作区。",
+					"title": "恢复这个账号？"
+				},
+				"working": "处理中…",
+				"markEmailVerified": {
+					"action": "标记为已验证",
+					"title": "将此邮箱标记为已验证？"
+				},
+				"sendPasswordReset": {
+					"action": "发送链接",
+					"title": "发送密码重置链接？"
+				},
+				"sendVerification": {
+					"action": "发送邮件",
+					"title": "重新发送验证邮件？"
+				}
+			},
+			"directoryTitle": "所有用户",
+			"edit": {
+				"description": "修改该账号的身份信息和实例级访问权限。",
+				"email": "邮箱地址",
+				"name": "姓名",
+				"role": "全局角色",
+				"save": "保存更改",
+				"saving": "正在保存…",
+				"selfRoleHint": "不能修改你自己的全局角色。",
+				"title": "编辑用户"
+			},
+			"emptyDescription": "换一个姓名或邮箱试试。",
+			"emptyTitle": "没有找到用户",
+			"loadError": "用户加载失败。",
+			"next": "下一页",
+			"pagination": "第 {{current}} 页，共 {{total}} 页",
+			"previous": "上一页",
+			"refreshing": "正在刷新用户",
+			"retry": "重试",
+			"roles": {
+				"admin": "管理员",
+				"user": "用户"
+			},
+			"searchCount_other": "{{count}} 个匹配用户",
+			"searchLabel": "搜索用户",
+			"searchPlaceholder": "按姓名或邮箱搜索",
+			"status": {
+				"active": "正常",
+				"deactivated": "已停用"
+			},
+			"subtitle": "在这个 Kaneo 实例上拥有账号的所有人。",
+			"title": "用户",
+			"toast": {
+				"actionError": "更新用户状态失败",
+				"deactivated": "用户已停用",
+				"deleted": "用户已删除",
+				"reactivated": "用户已恢复",
+				"updated": "用户已更新",
+				"updateError": "更新用户失败",
+				"avatarChanged": "头像已更新",
+				"avatarError": "更新头像失败",
+				"avatarRemoved": "头像已移除",
+				"createdForSso": "已为单点登录创建用户。",
+				"createdLinkFailed": "用户已创建。密码邮件发送失败；请重试“发送密码重置链接”。",
+				"createdLinkSent": "用户已创建。密码链接已发送至 {{email}}。",
+				"createdNoSmtp": "用户已创建。请设置 SMTP_HOST 以发送密码链接。",
+				"createError": "创建用户失败",
+				"emailError": "邮件无法发送",
+				"emailVerified": "邮箱已标记为已验证",
+				"passwordResetSent": "密码重置链接已发送至 {{email}}",
+				"verificationSent": "验证邮件已发送至 {{email}}"
+			},
+			"you": "你",
+			"create": {
+				"creating": "创建中…",
+				"open": "创建用户",
+				"submit": "创建用户",
+				"title": "创建用户",
+				"nameRequired": "请输入名称",
+				"hintNoEmail": "设置 SMTP_HOST 以发送密码链接。"
+			},
+			"details": {
+				"emailStatus": "邮箱",
+				"methods": {
+					"password": "密码"
+				},
+				"noSignInMethods": "尚无密码或关联账号",
+				"notVerified": "未验证",
+				"removeAvatar": "移除",
+				"signInMethods": "登录方式",
+				"uploadAvatar": "上传",
+				"verified": "已验证"
+			},
+			"filters": {
+				"anyEmail": "任意邮箱",
+				"anyRole": "任意角色",
+				"anyStatus": "任意状态",
+				"clear": "清除筛选",
+				"email": "邮箱验证",
+				"label": "筛选用户",
+				"role": "角色",
+				"status": "状态",
+				"unverified": "未验证邮箱",
+				"verified": "已验证邮箱"
+			},
+			"never": "从不",
+			"unverified": "未验证",
+			"security": {
+				"apiKeysEmpty": "暂无 API 密钥。",
+				"apiKeysLoadError": "无法加载 API 密钥。",
+				"apiKeysTitle": "API 密钥",
+				"disabled": "已禁用",
+				"lastUsed": "上次使用于 {{time}}",
+				"neverUsed": "从未使用",
+				"revokeAll": "退出所有设备",
+				"revokeAllConfirmDescription": "对方将立即在所有设备上退出登录。",
+				"revokeAllConfirmTitle": "让 {{name}} 退出所有设备？",
+				"revokeAllSelfDescription": "你的其他会话将立即退出登录。",
+				"revokeKey": "撤销",
+				"revokeKeyConfirmDescription": "使用此密钥的请求将立即失败。",
+				"revokeKeyConfirmTitle": "撤销 {{name}}？",
+				"revokeKeyLabel": "撤销 {{name}}",
+				"revokingKey": "正在撤销...",
+				"sessionsEmpty": "未在任何地方登录。",
+				"sessionsTitle": "会话",
+				"title": "会话与 API 密钥：{{name}}",
+				"toastKeyRevoked": "API 密钥已撤销。",
+				"toastKeyRevokeError": "无法撤销 API 密钥。",
+				"toastRevokedAll": "已退出所有会话。"
+			},
+			"searchCount_one": "{{count}} matching user"
+		},
 		"security": "安全",
 		"securityPage": {
-			"pageTitle": "安全",
-			"title": "安全",
-			"subtitle": "你登录 Kaneo 的方式。",
-			"sectionTitle": "登录",
-			"currentPassword": "当前密码",
-			"newPassword": "新密码",
 			"confirmPassword": "确认新密码",
-			"currentPasswordPlaceholder": "输入当前密码",
-			"newPasswordPlaceholder": "输入新密码",
 			"confirmPasswordPlaceholder": "再次输入新密码",
+			"currentPassword": "当前密码",
+			"currentPasswordPlaceholder": "输入当前密码",
+			"newPassword": "新密码",
+			"newPasswordPlaceholder": "输入新密码",
+			"noPassword": {
+				"description": "你的账号使用其他方式登录，因此没有可修改的密码。",
+				"title": "无法修改密码"
+			},
+			"pageTitle": "安全",
+			"sectionTitle": "登录",
 			"submit": "修改密码",
 			"submitting": "正在修改...",
-			"updateSuccess": "密码已更新。",
+			"subtitle": "你登录 Kaneo 的方式。",
+			"title": "安全",
 			"updateError": "更新密码失败。",
-			"noPassword": {
-				"title": "无法修改密码",
-				"description": "你的账号使用其他方式登录，因此没有可修改的密码。"
-			},
+			"updateSuccess": "密码已更新。",
 			"validation": {
-				"currentRequired": "请输入当前密码。",
-				"tooShort": "新密码至少需要 8 个字符。",
 				"confirmRequired": "请确认新密码。",
+				"currentRequired": "请输入当前密码。",
 				"mismatch": "两次输入的密码不一致。",
+				"tooShort": "新密码至少需要 8 个字符。",
 				"sameAsCurrent": "新密码不能与当前密码相同。"
 			},
-			"passwordTitle": "密码",
-			"passwordHint": "请使用至少 8 个字符、且未在其他地方使用过的密码。",
 			"changePassword": "修改密码",
-			"dialogTitle": "修改密码",
 			"dialogDescription": "至少 8 个字符，且不能与当前密码相同。",
+			"dialogTitle": "修改密码",
+			"passwordHint": "请使用至少 8 个字符、且未在其他地方使用过的密码。",
+			"passwordTitle": "密码",
 			"sessions": {
-				"title": "活跃会话",
 				"revokeOthers": "退出其他会话",
-				"revokeOthersConfirmTitle": "退出所有其他会话？",
 				"revokeOthersConfirmDescription": "你的其他会话将立即退出。",
+				"revokeOthersConfirmTitle": "退出所有其他会话？",
+				"title": "活跃会话",
 				"toastRevokedOthers": "其他会话已退出。"
 			}
+		},
+		"gitlabIntegration": {
+			"baseUrlLabel": "GitLab 地址",
+			"browseModalHint": "你的令牌所属的项目。",
+			"browseNeedsCredentials": "输入 GitLab URL 和令牌即可浏览。",
+			"commentTaskLinkHint": "方便 GitLab 上的人跳转到对应任务。",
+			"commentTaskLinkTitle": "在新 Issue 上评论 Kaneo 链接",
+			"importSectionHint": "将未关闭的 Issue 和合并请求导入为任务。",
+			"openInGitlab": "在 GitLab 中打开 {{project}}",
+			"projectPathLabel": "项目路径",
+			"searchProjects": "搜索项目",
+			"toast": {
+				"commentOnDisabled": "新 Issue 的任务链接评论已关闭",
+				"commentOnEnabled": "Kaneo 将在新 Issue 上评论任务链接",
+				"importError": "导入 Issues 失败",
+				"issuesImported": "Issues 导入成功",
+				"removed": "GitLab 集成已移除",
+				"removeError": "移除 GitLab 集成失败",
+				"settingsUpdateError": "更新 GitLab 集成失败",
+				"updated": "GitLab 集成已保存",
+				"updateError": "保存 GitLab 集成失败",
+				"verifyError": "验证 GitLab 访问失败",
+				"verifyFirst": "访问验证失败，请检查 URL、令牌和项目路径"
+			},
+			"tokenLabel": "访问令牌",
+			"tokenPlaceholder": "粘贴令牌",
+			"tokenPlaceholderUpdate": "粘贴新令牌以轮换",
+			"tokenTypeBearer": "OAuth2 令牌",
+			"tokenTypeLabel": "令牌类型",
+			"tokenTypePrivate": "个人、项目或群组访问令牌",
+			"validation": {
+				"baseUrlInvalid": "请输入有效的 URL（例如 https://gitlab.com）",
+				"baseUrlRequired": "GitLab 基础 URL 不能为空",
+				"pathInvalid": "请输入完整路径，例如 group/project"
+			},
+			"webhookHint": "在项目设置中添加此 Webhook，以便将变更同步回 Kaneo。",
+			"loadProjectsError": "无法加载项目。",
+			"importPermissionHint": "导入需要创建和更新任务的权限。",
+			"browseEmpty": "此令牌不是任何项目的成员。",
+			"chooseProjectDescription": "输入路径，或从列表中选择。",
+			"noSearchMatchTitle": "没有匹配的项目",
+			"useProject": "使用此项目",
+			"webhookEvents": "启用 push、issue、comment 和 merge request 事件。"
 		},
 		"calendarFeeds": {
 			"title": "日历订阅",
@@ -2394,70 +1864,61 @@
 			"loadError": "无法加载日历订阅或标签，请重试。",
 			"deletedLabel": "已删除的标签",
 			"permissionRequired": "管理日历订阅需要项目分享权限。",
-			"newFeed": "新建订阅",
-			"dialogTitle": "新建日历订阅",
-			"dialogDescription": "有开始日期或截止日期的任务会显示在订阅中。",
-			"labelsHint": "留空则包含所有已排期的任务。",
 			"copiedLabel": "已复制",
-			"feedActions": "订阅操作",
-			"revokeConfirmTitle": "撤销此订阅？",
-			"revokeConfirmDescription": "使用此链接的日历应用将不再收到更新，此操作无法撤销。",
-			"revokeConfirm": "撤销订阅",
-			"revoking": "正在撤销…",
+			"dialogDescription": "有开始日期或截止日期的任务会显示在订阅中。",
+			"dialogTitle": "新建日历订阅",
+			"emptyDescription": "创建订阅后，即可在日历应用中查看已排期的任务。",
 			"emptyTitle": "还没有日历订阅",
-			"emptyDescription": "创建订阅后，即可在日历应用中查看已排期的任务。"
+			"feedActions": "订阅操作",
+			"labelsHint": "留空则包含所有已排期的任务。",
+			"newFeed": "新建订阅",
+			"revokeConfirm": "撤销订阅",
+			"revokeConfirmDescription": "使用此链接的日历应用将不再收到更新，此操作无法撤销。",
+			"revokeConfirmTitle": "撤销此订阅？",
+			"revoking": "正在撤销…"
 		},
 		"invitationEmailFailed": "邀请已保存，但邮件发送失败。请检查 SMTP 设置并重新发送邀请。",
 		"billing": {
-			"pageTitle": "账单",
-			"subtitle": "{{workspace}} 的套餐。",
-			"disabled": "当前实例未启用账单功能。自托管的 Kaneo 包含全部功能，永久免费。",
+			"accessEnds": "访问权限到期",
+			"adminsOnly": "只有工作区所有者和管理员可以管理账单。",
+			"choose": "选择 {{plan}}",
+			"choosePlan": {
+				"subtitle": "随时切换，也随时可以取消。",
+				"title": "选择套餐"
+			},
 			"currentPlan": {
 				"title": "当前套餐"
 			},
+			"disabled": "当前实例未启用账单功能。自托管的 Kaneo 包含全部功能，永久免费。",
+			"expiredCallout": {
+				"action": "选择套餐",
+				"adminDescription": "你仍然可以查看所有内容，但在选择套餐之前，创建和编辑会暂停。数据不会被删除。",
+				"memberDescription": "你仍然可以查看所有内容，但在工作区所有者或管理员选择套餐之前，创建和编辑会暂停。",
+				"title": "免费试用已结束"
+			},
+			"features": {
+				"backups": "自动备份与更新",
+				"emailSupport": "邮件支持",
+				"prioritySupport": "优先邮件支持",
+				"roles": "工作区角色与权限",
+				"singleUser": "单用户",
+				"unlimitedMembers": "不限团队成员数",
+				"unlimitedProjects": "不限项目和任务数"
+			},
 			"foundingFree": {
-				"title": "创始免费版",
 				"badge": "免费",
-				"description": "作为早期支持者，此工作区可以免费使用 Kaneo Cloud。感谢你从一开始就支持我们。"
-			},
-			"seats_one": "{{count}} 个席位",
-			"seats_other": "{{count}} 个席位",
-			"accessEnds": "访问权限到期",
-			"renews": "续费时间",
-			"portalHint": "发票、支付方式和取消订阅均在 Creem 中处理。",
-			"manage": "管理账单",
-			"opening": "正在打开…",
-			"trial": {
-				"activeTitle": "免费试用",
-				"expiredTitle": "试用已结束",
-				"expiredDescription": "订阅下方任意套餐就能继续创建和编辑。在此之前，你的数据都安全保存，随时可以导出。",
-				"noDate": "选择下方套餐，试用结束后即可继续使用。",
-				"badgeDaysLeft_one": "剩余 {{count}} 天",
-				"badgeDaysLeft_other": "剩余 {{count}} 天"
-			},
-			"choosePlan": {
-				"title": "选择套餐",
-				"subtitle": "随时切换，也随时可以取消。"
+				"description": "作为早期支持者，此工作区可以免费使用 Kaneo Cloud。感谢你从一开始就支持我们。",
+				"title": "创始免费版"
 			},
 			"interval": {
-				"monthly": "按月",
 				"annual": "按年",
-				"annualBadge": "省 2 个月"
+				"annualBadge": "省 2 个月",
+				"monthly": "按月"
 			},
+			"manage": "管理账单",
 			"mostPopular": "最受欢迎",
-			"choose": "选择 {{plan}}",
-			"starting": "正在开始…",
-			"processedBy": "支付由 Creem 安全处理。价格不含适用税费。",
-			"adminsOnly": "只有工作区所有者和管理员可以管理账单。",
-			"price": {
-				"perMonth": "/ 月",
-				"perYear": "/ 年",
-				"perUserMonth": "/ 人 / 月",
-				"perUserYear": "/ 人 / 年",
-				"billedMonthly": "按月计费",
-				"billedYearly": "{{price}} / 月，按年计费",
-				"billedYearlyPerUser": "{{price}} / 人 / 月，按年计费"
-			},
+			"opening": "正在打开…",
+			"pageTitle": "账单",
 			"plans": {
 				"personal": {
 					"name": "个人版",
@@ -2468,71 +1929,517 @@
 					"tagline": "适合协作的团队"
 				}
 			},
-			"features": {
-				"singleUser": "单用户",
-				"unlimitedMembers": "不限团队成员数",
-				"unlimitedProjects": "不限项目和任务数",
-				"roles": "工作区角色与权限",
-				"backups": "自动备份与更新",
-				"emailSupport": "邮件支持",
-				"prioritySupport": "优先邮件支持"
+			"portalHint": "发票、支付方式和取消订阅均在 Creem 中处理。",
+			"price": {
+				"billedMonthly": "按月计费",
+				"billedYearly": "{{price}} / 月，按年计费",
+				"billedYearlyPerUser": "{{price}} / 人 / 月，按年计费",
+				"perMonth": "/ 月",
+				"perUserMonth": "/ 人 / 月",
+				"perUserYear": "/ 人 / 年",
+				"perYear": "/ 年"
 			},
+			"processedBy": "支付由 Creem 安全处理。价格不含适用税费。",
+			"renews": "续费时间",
+			"seats_other": "{{count}} 个席位",
+			"starting": "正在开始…",
 			"status": {
 				"active": "生效中",
-				"trialing": "试用中",
-				"past_due": "逾期未付",
-				"scheduled_cancel": "即将取消",
 				"canceled": "已取消",
 				"expired": "已过期",
-				"paused": "已暂停"
+				"past_due": "逾期未付",
+				"paused": "已暂停",
+				"scheduled_cancel": "即将取消",
+				"trialing": "试用中"
+			},
+			"subtitle": "{{workspace}} 的套餐。",
+			"trial": {
+				"activeTitle": "免费试用",
+				"expiredDescription": "订阅下方任意套餐就能继续创建和编辑。在此之前，你的数据都安全保存，随时可以导出。",
+				"expiredTitle": "试用已结束",
+				"noDate": "选择下方套餐，试用结束后即可继续使用。",
+				"badgeDaysLeft_other": "剩余 {{count}} 天",
+				"badgeDaysLeft_one": "{{count}} day left"
 			},
 			"trialCard": {
-				"daysLeft_one": "试用期剩余 {{count}} 天",
-				"daysLeft_other": "试用还剩 {{count}} 天",
-				"ended": "试用已结束",
 				"activeDescription": "随时升级，试用结束后仍可保留你的工作区。",
+				"choosePlan": "选择套餐",
+				"daysLeft_other": "试用还剩 {{count}} 天",
+				"dismiss": "忽略",
+				"ended": "试用已结束",
 				"endingDescription": "现在就选一个套餐，别让团队的工作被打断。",
 				"expiredDescription": "订阅后即可继续创建和编辑。",
 				"viewPlans": "查看套餐",
-				"choosePlan": "选择套餐",
-				"dismiss": "忽略"
-			},
-			"expiredCallout": {
-				"title": "免费试用已结束",
-				"adminDescription": "你仍然可以查看所有内容，但在选择套餐之前，创建和编辑会暂停。数据不会被删除。",
-				"memberDescription": "你仍然可以查看所有内容，但在工作区所有者或管理员选择套餐之前，创建和编辑会暂停。",
-				"action": "选择套餐"
+				"daysLeft_one": "{{count}} day left in trial"
 			},
 			"openFailed": "无法打开此工作区的账单页面",
 			"checkoutSuccess": {
 				"title": "感谢订阅",
 				"description": "已收到付款。确认后，下方的方案会随即更新。"
+			},
+			"seats_one": "{{count}} seat"
+		},
+		"syncRules": {
+			"addLabel": "添加标签",
+			"advancedHint": "开启「偏好设置」里的高级设置后，才能编辑这些规则。",
+			"all": "全部任务和 Issue",
+			"any": "任一标签",
+			"apply": "应用同步规则",
+			"closed": "已关闭",
+			"every": "全部标签",
+			"excluded": "不符合当前规则",
+			"filtered": "按标签筛选",
+			"impact": "匹配任务：{{matching}} / {{total}} · 新导出：{{create}} · 将暂停关联：{{pause}} · 待确认关联：{{review}}",
+			"impactTitle": "将会发生什么变化",
+			"incoming": "仓库 → Kaneo",
+			"incomingHint": "选择允许导入或用来创建任务的 Issue。请填写仓库中标签的准确名称。已有任务关联按 Kaneo 一侧的任务规则处理。",
+			"loadError": "无法加载同步规则。",
+			"loading": "正在加载同步规则…",
+			"matchLabels": "标签匹配方式",
+			"missingLabels": "所选的工作区标签已不可用。修复规则之前，同步会保持暂停。",
+			"removeMissingLabels": "移除不可用的标签",
+			"next": "下一页",
+			"noDescription": "暂无描述",
+			"noLabels": "请先在工作区里创建标签，再配置任务筛选条件。",
+			"open": "打开",
+			"outgoing": "Kaneo → 仓库",
+			"outgoingHint": "选择允许同步的 Kaneo 任务。已有任务一旦不再带匹配标签，两个方向的同步都会暂停。",
+			"paused": "同步已暂停",
+			"pausedHint": "记录和关联都会保留。重新匹配上的任务需要确认一次，才会恢复同步。",
+			"preserveHint": "暂停只是停下同步：Kaneo 任务、仓库 Issue 以及两者的关联都会保留。恢复前需要对比一次；历史评论不会被重复同步。",
+			"previewing": "正在检查同步影响…",
+			"previous": "上一页",
+			"refreshComparison": "刷新对比",
+			"refreshPreview": "刷新预览",
+			"removeLabel": "移除 {{name}}",
+			"repository": "仓库",
+			"repositoryLabel": "仓库标签名称",
+			"resumeError": "无法恢复同步。任务、Issue 或规则可能已经变化，也可能是对方服务暂时不可用。同步仍保持暂停，请刷新对比后重试。",
+			"review": "确认并恢复",
+			"reviewHint": "对比双方当前的标题、描述和打开/关闭状态，并选择以哪一侧为准。标签和历史评论不受影响。",
+			"reviewRequired": "符合规则 · 需要确认",
+			"reviewTitle": "恢复同步前先确认",
+			"saved": "同步规则已保存",
+			"saveError": "这些规则未能应用。集成配置或任务范围可能已经变化，请刷新预览后重试。",
+			"selectLabel": "至少选择一个标签，才能预览这条规则。",
+			"sharedHint": "这些规则对该项目的所有成员都生效。关闭高级设置并不会让规则失效。",
+			"title": "同步内容",
+			"unavailableLabel": "不可用的标签",
+			"useKaneo": "以 Kaneo 为准",
+			"useRepository": "以仓库为准",
+			"exportPending": "导出匹配的任务",
+			"inactiveHint": "该集成已暂停。重新启用之前，不会有任务被导出。",
+			"loadSavedRules": "载入已保存的规则",
+			"rulesChanged": "你编辑期间，已保存的规则发生了变化。你的草稿已保留，可以先检查上面的当前规则再决定是否应用，也可以直接载入已保存的规则。",
+			"allIssues": "所有 Issue",
+			"allTasks": "所有任务",
+			"edit": "编辑",
+			"hidePaused": "隐藏",
+			"issuesLabelled": "带有标签的 Issue：",
+			"joinAnd": "且",
+			"joinOr": "或",
+			"kaneoToProvider": "Kaneo → {{provider}}",
+			"pausedSummary_other": "有 {{count}} 个任务不再符合同步规则，已停止同步。",
+			"providerToKaneo": "{{provider}} → Kaneo",
+			"reviewPaused": "查看",
+			"tasksLabelled": "带有标签的任务：",
+			"pausedSummary_one": "{{count}} task stopped syncing because it no longer matched the sync rules."
+		},
+		"advancedSettingsDescription": "显示更多控件，例如集成同步规则。仅对当前浏览器生效。",
+		"adminWorkspaces": {
+			"addMember": {
+				"adding": "正在添加…",
+				"alreadyMember": "已是成员",
+				"description": "把已有用户添加到 {{name}}。未加限制前，该用户可以访问所有项目。",
+				"noUsers": "没有找到用户",
+				"role": "角色",
+				"searching": "正在搜索用户…",
+				"submit": "添加成员",
+				"title": "添加成员",
+				"user": "用户",
+				"userPlaceholder": "搜索姓名或邮箱…",
+				"usersError": "无法加载用户。"
+			},
+			"clearSearch": "清除搜索",
+			"columns": {
+				"actions": "操作",
+				"created": "创建时间",
+				"members": "成员",
+				"owners": "所有者",
+				"projects": "项目",
+				"workspace": "工作区"
+			},
+			"confirm": {
+				"remove": {
+					"action": "移除成员",
+					"description": "{{name}} 将失去对 {{workspace}} 及其项目的访问权限，账号仍保留在本实例上。",
+					"title": "移除 {{name}}？"
+				},
+				"transfer": {
+					"action": "设为所有者",
+					"description": "{{name}} 将成为 {{workspace}} 唯一的所有者，当前的所有者将变为管理员。",
+					"title": "让 {{name}} 成为所有者？"
+				},
+				"working": "处理中…",
+				"archive": {
+					"action": "归档工作区",
+					"description": "在恢复之前，成员将无法访问。",
+					"title": "归档 {{name}}？"
+				},
+				"delete": {
+					"action": "删除工作区",
+					"description": "其项目、任务和文件将被永久删除。",
+					"title": "删除 {{name}}？",
+					"typeName": "输入 {{name}} 以确认"
+				},
+				"restore": {
+					"action": "恢复工作区",
+					"title": "恢复 {{name}}？"
+				}
+			},
+			"directoryTitle": "所有工作区",
+			"emptyDescription": "换个名称或 slug 试试。",
+			"emptyTitle": "没有找到工作区",
+			"loadError": "无法加载工作区。",
+			"manage": "管理",
+			"manageLabel": "管理 {{name}}",
+			"members": {
+				"actions": "{{name}} 的操作",
+				"add": "添加成员",
+				"count_other": "{{count}} 名成员",
+				"description": "即使你不是该工作区的成员，也可以调整角色、项目访问权限和所有者。",
+				"editAccess": "更改 {{name}} 的项目访问权限（{{access}}）",
+				"empty": "该工作区还没有成员。",
+				"loadError": "无法加载成员。",
+				"makeOwner": "设为所有者",
+				"remove": "移出工作区",
+				"roleLabel": "{{name}} 的角色",
+				"title": "{{name}} 的成员",
+				"count_one": "{{count}} member"
+			},
+			"next": "下一页",
+			"noOwner": "无所有者",
+			"pagination": "第 {{current}} 页，共 {{total}} 页",
+			"previous": "上一页",
+			"refreshing": "正在刷新工作区",
+			"retry": "重试",
+			"searchCount_other": "{{count}} 个匹配的工作区",
+			"searchLabel": "搜索工作区",
+			"searchPlaceholder": "按名称或 slug 搜索",
+			"subtitle": "这个 Kaneo 实例上的所有工作区，包括你未加入的工作区。",
+			"title": "工作区",
+			"toast": {
+				"added": "成员已添加",
+				"addError": "添加成员失败",
+				"ownershipTransferred": "已转移所有权",
+				"removed": "成员已移除",
+				"removeError": "移除成员失败",
+				"roleError": "更新角色失败",
+				"roleUpdated": "角色已更新",
+				"transferError": "转移所有权失败",
+				"archived": "工作区已归档",
+				"archiveError": "无法归档工作区",
+				"deleted": "工作区已删除",
+				"deleteError": "无法删除工作区",
+				"restored": "工作区已恢复",
+				"restoreError": "无法恢复工作区"
+			},
+			"actions": {
+				"archive": "归档工作区",
+				"open": "{{name}} 的操作",
+				"restore": "恢复工作区"
+			},
+			"archived": "已归档",
+			"searchCount_one": "{{count}} matching workspace"
+		},
+		"workspaceImport": {
+			"back": {
+				"allSources": "全部来源",
+				"changeKey": "更换密钥",
+				"overview": "导入概览"
+			},
+			"connect": {
+				"cancel": "取消",
+				"continue": "继续",
+				"hideSecret": "隐藏 {{field}}",
+				"sectionDescription": "Kaneo 只从 {{source}} 读取数据。密钥仅用于本次导入，不会保存。",
+				"sectionTitle": "连接",
+				"showSecret": "显示 {{field}}",
+				"title": "从 {{source}} 导入",
+				"whereToFind": "在哪里获取"
+			},
+			"counts": {
+				"columns_other": "{{count, number}} 列",
+				"comments_other": "{{count, number}} 条评论",
+				"labels_other": "{{count, number}} 个标签",
+				"tasks_other": "{{count, number}} 个任务",
+				"tasks_one": "{{count, number}} task",
+				"columns_one": "{{count, number}} column",
+				"labels_one": "{{count, number}} label",
+				"comments_one": "{{count, number}} comment"
+			},
+			"entry": {
+				"createProjectLink": "导入你的项目",
+				"createProjectPrompt": "从 Jira、Linear、Trello 或 Plane 迁移过来？",
+				"projectsEmpty": "从其它工具导入"
+			},
+			"history": {
+				"description": "离开此页面后，导入仍会在服务器上继续运行。",
+				"empty": "还没有导入记录。你发起的导入会显示在这里。",
+				"loadError": "无法加载最近的导入记录。",
+				"started": "开始于 {{time}}",
+				"title": "最近的导入"
+			},
+			"kaneo": {
+				"apiKeyDescription": "在那个 Kaneo 里依次打开设置 → API 密钥。",
+				"apiKeyLabel": "API 密钥",
+				"apiKeyPlaceholder": "粘贴 API 密钥",
+				"urlDescription": "你要迁出的那个实例。",
+				"urlLabel": "Kaneo 地址"
+			},
+			"linear": {
+				"apiKeyDescription": "只读权限就够，导入完成后可以撤销。",
+				"apiKeyLabel": "个人 API 密钥",
+				"openSettings": "打开 Linear 设置",
+				"stepCreate": "在「个人 API 密钥」下创建一个只读密钥。",
+				"stepOpen": "在 Linear 里依次打开设置 → 安全与访问。",
+				"stepPaste": "复制后粘贴到上方。"
+			},
+			"notAllowed": {
+				"description": "导入会创建项目，因此需要管理空间设置和创建项目的权限。请联系工作区管理员来执行。",
+				"title": "只有工作区管理员可以导入"
+			},
+			"opensInNewTab": "（在新标签页打开）",
+			"pageTitle": "导入",
+			"plane": {
+				"tokenDescription": "个人资料设置 → 开发者 → 个人访问令牌。",
+				"tokenLabel": "个人访问令牌",
+				"urlDescription": "在 Plane 里从浏览器地址栏复制即可，自托管实例也可以。",
+				"urlLabel": "工作区地址",
+				"urlPlaceholder": "https://app.plane.so/your-workspace"
+			},
+			"planka": {
+				"adminTip": "建议用 PLANKA 管理员账号：PLANKA 只向管理员显示邮箱地址，而卡片成员是按邮箱与这里的用户对应的。",
+				"apiKeyDescription": "在 PLANKA 的账号设置里创建。",
+				"apiKeyLabel": "API 密钥",
+				"apiKeyPlaceholder": "粘贴 API 密钥",
+				"passwordDescription": "仅用于本次导入时登录。",
+				"passwordLabel": "密码",
+				"signInApiKey": "API 密钥",
+				"signInDescription": "如果你的账号是通过 SSO 登录的，请用 API 密钥。",
+				"signInLabel": "登录方式",
+				"signInPassword": "邮箱和密码",
+				"urlDescription": "你打开 PLANKA 的地址。",
+				"urlLabel": "PLANKA 地址",
+				"usernameDescription": "你登录 PLANKA 所用的账号。",
+				"usernameLabel": "邮箱或用户名"
+			},
+			"retry": "重试",
+			"run": {
+				"failedBadge": "失败",
+				"failedNames_other": "{{names, list}} 失败，因此没有为它们创建任何内容。",
+				"failedTitle": "导入失败",
+				"finishedNote": "导入的任务不会发送通知。评论会保留原作者和原时间。",
+				"finishedNoteNoComments": "导入的任务不会发送通知。",
+				"finishedTitle": "导入完成",
+				"goToProjects": "前往项目",
+				"importingBadge": "导入中",
+				"importingTitle": "正在从 {{source}} 导入",
+				"importMore": "继续导入",
+				"keyInMemory": "你的 {{source}} 密钥只在本次导入结束前保存在内存中。",
+				"leavePage": "可以离开此页面，导入会在服务器上继续运行。",
+				"loadError": "无法加载这次导入",
+				"noTasks": "没有任务",
+				"nothingImported": "没有导入任何内容",
+				"notImported": "未导入",
+				"open": "打开",
+				"openProject": "打开 {{name}}",
+				"queued": "排队中",
+				"started": "开始于 {{time}}",
+				"starting": "正在启动",
+				"took_other": "耗时 {{count}} 分钟",
+				"tookUnderMinute": "不到一分钟",
+				"totals": "已导入 {{parts, list}}",
+				"waiting": "等待中",
+				"warnings_other": "{{count}} 条警告",
+				"took_one": "Took {{count}} minute",
+				"warnings_one": "{{count}} warning",
+				"failedNames_one": "{{names, list}} failed, so nothing was created for it."
+			},
+			"select": {
+				"back": "返回",
+				"clear": "清除",
+				"commentsDescription": "保留每条评论的原作者和时间。",
+				"commentsLabel": "导入评论",
+				"inviteMembers": "邀请成员",
+				"membersNote": "负责人按邮箱与 {{workspace}} 的成员对应。建议先邀请团队成员，这样任务能保留负责人。",
+				"membersNoteTrello": "负责人按邮箱与 {{workspace}} 的成员对应，Trello 也可以按姓名匹配。建议先邀请团队成员，这样任务能保留负责人。",
+				"selectAll": "全选",
+				"membersNoteJira": "负责人按邮箱与 {{workspace}} 的成员对应，Jira 隐藏邮箱时按姓名匹配。建议先邀请团队成员，这样任务能保留负责人。"
+			},
+			"sources": {
+				"connect": "连接",
+				"connectTo": "连接 {{source}}",
+				"description": "选择你要迁出的工具。你挑中的每个项目都会在这里新建为一个项目。",
+				"kaneo": {
+					"description": "在 Kaneo 云端和自托管实例之间迁移项目。",
+					"intro": "该密钥能看到的所有工作区里的项目。你挑中的会复制到这里。",
+					"pickerName": "另一个 Kaneo"
+				},
+				"linear": {
+					"description": "团队、议题、标签、子议题和评论。粘贴个人 API 密钥即可。",
+					"intro": "每个 Linear 团队会变成一个项目，其工作流状态成为看板列。"
+				},
+				"plane": {
+					"description": "项目、工作项、子议题和评论。支持云端和自托管。",
+					"intro": "每个 Plane 项目会变成这里的一个项目，其状态成为看板列。"
+				},
+				"planka": {
+					"description": "从你的 PLANKA 实例导入看板、列表、卡片、检查清单和评论。",
+					"intro": "每个 PLANKA 看板会变成一个项目，其列表成为看板列。"
+				},
+				"title": "选择来源",
+				"trello": {
+					"description": "看板、列表、卡片、检查清单和评论。一键授权即可。",
+					"intro": "每个 Trello 看板会变成一个项目，其列表成为看板列。"
+				},
+				"jira": {
+					"description": "项目、议题、子任务、链接和评论。支持云端和 Data Center。",
+					"intro": "每个 Jira 项目会变成这里的一个项目，其工作流状态成为看板列。"
+				}
+			},
+			"status": {
+				"failed": "失败",
+				"imported": "已导入",
+				"importing": "正在导入第 {{current}} 个，共 {{total}} 个",
+				"partial": "已导入 {{done}}/{{total}}",
+				"warnings_other": "已完成，有 {{count}} 条警告",
+				"warnings_one": "Done with {{count}} warning"
+			},
+			"steps": {
+				"connect": "连接",
+				"done": "（已完成）",
+				"import": "导入",
+				"label": "导入步骤"
+			},
+			"subtitle": "把其它工具里的项目导入 {{workspace}}。Kaneo 只从来源读取数据。",
+			"title": "导入",
+			"toast": {
+				"failed": "从 {{source}} 导入失败",
+				"finished": "从 {{source}} 导入完成",
+				"partial": "从 {{source}} 导入完成，但有错误"
+			},
+			"trello": {
+				"apiKeyDescription": "在你拥有的 Power-Up 里打开 Trello 的 Auth 标签页生成 API 密钥（不是 OAuth 2.0 那个标签页），地址：",
+				"apiKeyLabel": "API 密钥",
+				"apiKeyPlaceholder": "粘贴 API 密钥",
+				"authorizeButton": "在 Trello 上授权",
+				"authorizeDescription": "会在新标签页打开 Trello。只读权限，一天后失效。",
+				"authorizeLabel": "授权 Kaneo",
+				"authorizeNeedsKey": "请先填写 API 密钥。只读权限，一天后失效。",
+				"tokenDescription": "在 Trello 上点「允许」，然后粘贴它给出的令牌。",
+				"tokenLabel": "令牌",
+				"tokenPlaceholder": "粘贴令牌"
+			},
+			"units": {
+				"board": {
+					"allImported_other": "已导入全部 {{count}} 个看板。",
+					"empty": "没有找到看板。请确认该密钥能看到你要导入的看板。",
+					"found_other": "找到 {{count}} 个看板。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
+					"importButton_other": "导入 {{count}} 个看板",
+					"limit": "每次导入最多选择 {{max}} 个看板。",
+					"pick": "选择要导入的看板。",
+					"progress_other": "已导入 {{done}}/{{count}} 个看板",
+					"runTitle_other": "{{source}}，{{count}} 个看板",
+					"section": "看板",
+					"someImported_other": "已导入 {{done}}/{{count}} 个看板。",
+					"step": "选择看板",
+					"found_one": "{{count}} board found. If you pick it, it becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} board",
+					"progress_one": "{{done}} of {{count}} board imported",
+					"runTitle_one": "{{source}}, {{count}} board",
+					"allImported_one": "{{count}} board imported.",
+					"someImported_one": "{{done}} of {{count}} board imported."
+				},
+				"project": {
+					"allImported_other": "已导入全部 {{count}} 个项目。",
+					"empty": "没有找到项目。请确认该密钥能看到你要导入的项目。",
+					"found_other": "找到 {{count}} 个项目。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
+					"importButton_other": "导入 {{count}} 个项目",
+					"limit": "每次导入最多选择 {{max}} 个项目。",
+					"pick": "选择要导入的项目。",
+					"progress_other": "已导入 {{done}}/{{count}} 个项目",
+					"runTitle_other": "{{source}}，{{count}} 个项目",
+					"section": "项目",
+					"someImported_other": "已导入 {{done}}/{{count}} 个项目。",
+					"step": "选择项目",
+					"found_one": "{{count}} project found. If you pick it, it becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} project",
+					"progress_one": "{{done}} of {{count}} project imported",
+					"runTitle_one": "{{source}}, {{count}} project",
+					"allImported_one": "{{count}} project imported.",
+					"someImported_one": "{{done}} of {{count}} project imported."
+				},
+				"team": {
+					"allImported_other": "已导入全部 {{count}} 个团队。",
+					"empty": "没有找到团队。请确认该密钥能看到你要导入的团队。",
+					"found_other": "找到 {{count}} 个团队。你挑中的每个都会在 {{workspace}} 里新建为一个项目。",
+					"importButton_other": "导入 {{count}} 个团队",
+					"limit": "每次导入最多选择 {{max}} 个团队。",
+					"pick": "选择要导入的团队。",
+					"progress_other": "已导入 {{done}}/{{count}} 个团队",
+					"runTitle_other": "{{source}}，{{count}} 个团队",
+					"section": "团队",
+					"someImported_other": "已导入 {{done}}/{{count}} 个团队。",
+					"step": "选择团队",
+					"found_one": "{{count}} team found. If you pick it, it becomes a new project in {{workspace}}.",
+					"importButton_one": "Import {{count}} team",
+					"progress_one": "{{done}} of {{count}} team imported",
+					"runTitle_one": "{{source}}, {{count}} team",
+					"allImported_one": "{{count}} team imported.",
+					"someImported_one": "{{done}} of {{count}} team imported."
+				}
+			},
+			"jira": {
+				"emailDescription": "你的 Atlassian 账号邮箱。Jira Data Center 可以留空。",
+				"emailLabel": "邮箱",
+				"nameMatchTip": "Jira 常常隐藏邮箱地址，所以负责人可能按姓名与这里的用户对应。",
+				"openSettings": "打开 Atlassian API 令牌页",
+				"stepCreate": "创建一个 API 令牌并复制。",
+				"stepOpen": "打开 id.atlassian.com，依次进入安全 → API 令牌。",
+				"stepPaste": "和登录 Jira 用的邮箱一起粘贴到上面。",
+				"tokenDescription": "云端版：在 id.atlassian.com 创建。Data Center：使用个人访问令牌。",
+				"tokenLabel": "API 令牌",
+				"tokenPlaceholder": "粘贴令牌",
+				"urlDescription": "从浏览器地址栏复制即可，Data Center 也可以。",
+				"urlLabel": "Jira 站点地址",
+				"urlPlaceholder": "https://your-site.atlassian.net"
 			}
 		},
 		"chatIntegrations": {
-			"optional": "可选",
-			"webhookUrlLabel": "Webhook 地址",
-			"savedUrlPlaceholder": "已保存。粘贴新的 URL 即可替换。",
+			"activeDescription": "关闭后会暂停发布，但保留设置。",
+			"activeTitle": "正在发布到 {{provider}}",
+			"channelHint": "仅用于在此列表中显示。",
 			"channelLabel": "频道",
 			"channelPlaceholder": "#team-updates",
-			"channelHint": "仅用于在此列表中显示。",
-			"postWhen": "发布时机",
-			"events": {
-				"taskCreated": "创建任务时",
-				"taskStatusChanged": "状态变更时",
-				"taskPriorityChanged": "优先级变更时",
-				"taskTitleChanged": "标题变更时",
-				"taskDescriptionChanged": "描述变更时",
-				"taskCommentCreated": "有人评论时"
-			},
-			"activeTitle": "正在发布到 {{provider}}",
-			"activeDescription": "关闭后会暂停发布，但保留设置。",
-			"saveChanges": "保存更改",
 			"disconnect": "断开连接",
+			"disconnectDescription": "Kaneo 将停止向 {{provider}} 发布消息，并移除已保存的设置。",
 			"disconnecting": "正在断开连接…",
 			"disconnectTitle": "断开与 {{provider}} 的连接？",
-			"disconnectDescription": "Kaneo 将停止向 {{provider}} 发布消息，并移除已保存的设置。",
-			"retry": "重试"
+			"events": {
+				"taskCommentCreated": "有人评论时",
+				"taskCreated": "创建任务时",
+				"taskDescriptionChanged": "描述变更时",
+				"taskPriorityChanged": "优先级变更时",
+				"taskStatusChanged": "状态变更时",
+				"taskTitleChanged": "标题变更时"
+			},
+			"optional": "可选",
+			"postWhen": "发布时机",
+			"retry": "重试",
+			"saveChanges": "保存更改",
+			"savedUrlPlaceholder": "已保存。粘贴新的 URL 即可替换。",
+			"webhookUrlLabel": "Webhook 地址"
 		},
 		"codeHosting": {
 			"browse": "浏览",
@@ -2548,13 +2455,13 @@
 			"copyUrl": "复制 Webhook URL",
 			"disconnect": "断开连接",
 			"disconnectDescription": "任务将停止与 {{target}} 同步。你之后可以重新连接。",
-			"disconnectTitle": "断开与 {{provider}} 的连接？",
 			"disconnecting": "正在断开连接…",
+			"disconnectTitle": "断开与 {{provider}} 的连接？",
 			"hideSecret": "隐藏密钥",
+			"importing": "正在导入…",
 			"importIssues": "导入 Issue",
 			"importNeedsReconnect": "重新连接后即可导入。",
 			"importTitle": "导入未关闭的 Issue",
-			"importing": "正在导入…",
 			"issuesSection": "Issue",
 			"lastImport": "上次导入：创建 {{imported}} 个，更新 {{updated}} 个，跳过 {{skipped}} 个。",
 			"loadError": "无法加载此集成。",
@@ -2575,271 +2482,364 @@
 			"webhookSection": "Webhook",
 			"webhookUrl": "URL"
 		},
+		"projectCustomFields": {
+			"fieldsDescription": "拖动以调整它们在任务中的显示顺序。",
+			"fieldsTitle": "字段",
+			"newField": "新建字段",
+			"pageTitle": "自定义字段",
+			"subtitle": "{{project}} 中每个任务都可以记录的额外信息，例如规模或客户。",
+			"subtitleFallback": "此项目中每个任务都可以记录的额外信息，例如规模或客户。",
+			"title": "自定义字段"
+		},
 		"shared": {
 			"autosave": "更改会自动保存"
 		},
-		"projectCustomFields": {
-			"pageTitle": "自定义字段",
-			"title": "自定义字段",
-			"subtitle": "{{project}} 中每个任务都可以记录的额外信息，例如规模或客户。",
-			"subtitleFallback": "此项目中每个任务都可以记录的额外信息，例如规模或客户。",
-			"newField": "新建字段",
-			"fieldsTitle": "字段",
-			"fieldsDescription": "拖动以调整它们在任务中的显示顺序。"
+		"adminAuditLog": {
+			"actions": {
+				"sessionRevoked": "撤销会话",
+				"sessionRevokedAll": "撤销全部会话",
+				"userCreated": "创建用户",
+				"userDeactivated": "停用用户",
+				"userDeleted": "删除用户",
+				"userImpersonated": "以用户身份登录",
+				"userPasswordSet": "设置用户密码",
+				"userReactivated": "重新启用用户",
+				"userRoleChanged": "变更实例角色",
+				"userUpdated": "更新用户信息",
+				"workspaceMemberAdded": "添加工作区成员",
+				"workspaceMemberRemoved": "移除工作区成员",
+				"workspaceMemberRoleChanged": "变更工作区成员角色",
+				"workspaceOwnerTransferred": "转移工作区所有权",
+				"userAvatarChanged": "更换头像",
+				"userAvatarRemoved": "移除头像",
+				"userEmailVerified": "将邮箱标记为已验证",
+				"userPasswordResetSent": "发送密码重置链接",
+				"userVerificationSent": "发送验证邮件",
+				"apiKeyRevoked": "撤销了 API 密钥",
+				"emailTestSent": "发送测试邮件",
+				"workspaceArchived": "归档了工作区",
+				"workspaceDeleted": "删除了工作区",
+				"workspaceRestored": "恢复了工作区",
+				"roleCreated": "创建了角色",
+				"roleDeleted": "删除了角色",
+				"roleUpdated": "更新了角色",
+				"instanceSettingsUpdated": "更新了实例设置",
+				"webhookCreated": "创建了 Webhook",
+				"webhookDeleted": "删除了 Webhook",
+				"webhookSecretRotated": "轮换了 Webhook 密钥",
+				"webhookUpdated": "更新了 Webhook"
+			},
+			"categories": {
+				"all": "所有操作",
+				"session": "会话",
+				"user": "用户",
+				"workspace": "工作区",
+				"apiKey": "API 密钥",
+				"email": "邮件",
+				"role": "角色",
+				"instance": "实例设置",
+				"webhook": "Webhook"
+			},
+			"categoryLabel": "按类别筛选",
+			"clearFilter": "显示全部操作",
+			"columns": {
+				"action": "操作",
+				"actor": "管理员",
+				"target": "对象",
+				"time": "时间与 IP"
+			},
+			"deletedActor": "账号已删除",
+			"details": {
+				"change": "{{from}} → {{to}}",
+				"fields": "更改了 {{fields}}",
+				"memberChange": "{{member}}：{{from}} → {{to}}",
+				"memberWithRole": "{{member}}（{{role}}）",
+				"noRole": "无角色",
+				"reason": "原因：{{reason}}",
+				"createdWithRole": "角色：{{role}}",
+				"sessionCount_other": "{{count}} 个会话",
+				"workspaceContents": "{{members}} 名成员，{{projects}} 个项目",
+				"permissionsChanged": "新增 {{added}} 项权限，移除 {{removed}} 项",
+				"sessionCount_one": "{{count}} session"
+			},
+			"directoryTitle": "已记录的操作",
+			"emptyTitle": "暂无操作记录",
+			"fields": {
+				"email": "邮箱",
+				"emailVerified": "邮箱验证",
+				"image": "头像",
+				"name": "名称"
+			},
+			"loadError": "无法加载审计日志。",
+			"mobileSummary": "{{actor}} · {{target}} · {{time}}",
+			"next": "下一页",
+			"pagination": "第 {{current}} 页，共 {{total}} 页",
+			"previous": "上一页",
+			"refreshing": "正在刷新审计日志",
+			"retry": "重试",
+			"targetTypes": {
+				"user": "用户",
+				"workspace": "工作区",
+				"role": "角色",
+				"instance": "实例",
+				"webhook": "Webhook"
+			},
+			"title": "审计日志",
+			"unknownActor": "未知"
 		},
 		"sessions": {
 			"device": "{{os}} 上的 {{browser}}",
-			"unknownDevice": "未知设备",
-			"thisDevice": "此设备",
 			"lastActive": "{{time}}活跃",
-			"signedIn": "{{date}}登录",
-			"revoke": "退出登录",
-			"revoking": "正在退出登录...",
-			"revokeLabel": "退出 {{device}}",
-			"revokeConfirmTitle": "退出 {{device}}？",
-			"revokeConfirmDescription": "该设备将立即退出登录。",
 			"loadError": "无法加载会话。",
+			"revoke": "退出登录",
+			"revokeConfirmDescription": "该设备将立即退出登录。",
+			"revokeConfirmTitle": "退出 {{device}}？",
+			"revokeLabel": "退出 {{device}}",
+			"revoking": "正在退出登录...",
+			"signedIn": "{{date}}登录",
+			"thisDevice": "此设备",
 			"toastRevoked": "会话已退出登录。",
-			"toastRevokeError": "无法退出该会话。"
+			"toastRevokeError": "无法退出该会话。",
+			"unknownDevice": "未知设备"
 		},
 		"adminSystem": {
-			"title": "系统",
-			"refresh": "刷新",
-			"refreshing": "检查中…",
 			"checkedAt": "检查于 {{time}}",
-			"loadError": "无法加载系统状态。",
-			"retry": "重试",
-			"status": {
-				"ok": "运行正常",
-				"warning": "警告",
-				"not_configured": "未配置",
-				"down": "不可用"
-			},
-			"setupStatus": {
-				"ok": "已配置",
-				"warning": "不完整",
-				"not_configured": "未配置",
-				"down": "不可用"
+			"email": {
+				"down": "无法连接邮件服务器（{{code}}）",
+				"notConfigured": "设置 SMTP_HOST 和 SMTP_FROM 以启用电子邮件。",
+				"ok": "已连接到邮件服务器",
+				"send": "发送测试邮件",
+				"sending": "发送中…",
+				"sendTest": "测试邮件",
+				"smtp": "SMTP",
+				"title": "电子邮件"
 			},
 			"instance": {
-				"title": "实例",
-				"version": "Kaneo 版本",
-				"versionUnknown": "未知",
 				"api": "API",
 				"apiDescription": "已运行 {{uptime}} · Node {{node}}",
 				"database": "数据库",
-				"databaseVersion": "PostgreSQL {{version}}",
-				"migrations_one": "已应用 {{count}} 个迁移",
-				"migrations_other": "已应用 {{count}} 个迁移",
-				"latency": "{{ms}} 毫秒",
 				"databaseDown": "无法连接 PostgreSQL（{{code}}）",
+				"databaseVersion": "PostgreSQL {{version}}",
+				"latency": "{{ms}} 毫秒",
+				"migrations_other": "已应用 {{count}} 个迁移",
 				"realtime": "实时更新",
-				"realtimeConnections_one": "此实例上有 {{count}} 个打开的连接",
 				"realtimeConnections_other": "此实例上有 {{count}} 个打开的连接",
 				"realtimeInMemory": "在内存中传递",
+				"realtimeNotStarted": "WebSocket 尚未启动",
 				"realtimeRedis": "通过 Redis 与其他实例共享",
 				"realtimeRedisDown": "Redis 已宕机，因此只有此实例上的用户能收到实时更新",
-				"realtimeNotStarted": "WebSocket 尚未启动",
 				"redis": "Redis",
-				"redisNotConfigured": "设置 REDIS_URL 以在各 API 实例间共享实时更新。",
-				"redisOk": "{{mode}}，可访问",
 				"redisDown": "无法连接 Redis（{{code}}）",
 				"redisModes": {
-					"standalone": "单机",
+					"cluster": "集群",
 					"sentinel": "哨兵",
-					"cluster": "集群"
+					"standalone": "单机"
 				},
+				"redisNotConfigured": "设置 REDIS_URL 以在各 API 实例间共享实时更新。",
+				"redisOk": "{{mode}}，可访问",
 				"storage": "文件存储",
+				"storageDown": "无法连接存储桶（{{code}}）",
+				"storageIncomplete": "部分 S3 设置缺失，上传功能已关闭。",
 				"storageNotConfigured": "设置 S3_ENDPOINT 和 S3_BUCKET 以启用上传。",
 				"storageOk": "存储桶可访问",
-				"storageIncomplete": "部分 S3 设置缺失，上传功能已关闭。",
 				"storageWarning": "无法使用这些凭据检查存储桶（{{code}}）。",
-				"storageDown": "无法连接存储桶（{{code}}）"
-			},
-			"email": {
-				"title": "电子邮件",
-				"smtp": "SMTP",
-				"notConfigured": "设置 SMTP_HOST 和 SMTP_FROM 以启用电子邮件。",
-				"ok": "已连接到邮件服务器",
-				"down": "无法连接邮件服务器（{{code}}）",
-				"sendTest": "测试邮件",
-				"send": "发送测试邮件",
-				"sending": "发送中…"
-			},
-			"signIn": {
-				"title": "登录",
-				"on": "On",
-				"off": "Off",
-				"passwordSignIn": "邮箱和密码登录",
-				"emailOtpSignIn": "邮箱登录验证码",
-				"registration": "注册",
-				"passwordRegistration": "使用密码注册",
-				"guestAccess": "访客访问",
-				"workspaceCreation": "创建工作区",
-				"customProvider": "OAuth 或 OpenID Connect"
+				"title": "实例",
+				"version": "Kaneo 版本",
+				"versionUnknown": "未知",
+				"migrations_one": "{{count}} migration applied",
+				"realtimeConnections_one": "{{count}} open connection on this instance"
 			},
 			"integrations": {
-				"title": "集成",
 				"available": "可用",
-				"connectedProjects_one": "已在 {{count}} 个项目中连接",
 				"connectedProjects_other": "已在 {{count}} 个项目中连接",
 				"connectedUnknown": "项目数量不可用",
 				"instanceSetup": {
-					"ok": "GitHub App 已设置",
-					"warning": "部分 GitHub App 设置缺失",
+					"down": "GitHub App 不可用",
 					"not_configured": "GitHub App 未设置",
-					"down": "GitHub App 不可用"
-				}
+					"ok": "GitHub App 已设置",
+					"warning": "部分 GitHub App 设置缺失"
+				},
+				"title": "集成",
+				"connectedProjects_one": "Connected in {{count}} project"
 			},
+			"loadError": "无法加载系统状态。",
+			"refresh": "刷新",
+			"refreshing": "检查中…",
+			"retry": "重试",
+			"setupStatus": {
+				"down": "不可用",
+				"not_configured": "未配置",
+				"ok": "已配置",
+				"warning": "不完整"
+			},
+			"signIn": {
+				"emailOtpSignIn": "邮箱登录验证码",
+				"guestAccess": "访客访问",
+				"off": "Off",
+				"on": "On",
+				"passwordRegistration": "使用密码注册",
+				"passwordSignIn": "邮箱和密码登录",
+				"registration": "注册",
+				"title": "登录",
+				"workspaceCreation": "创建工作区",
+				"customProvider": "OAuth 或 OpenID Connect"
+			},
+			"status": {
+				"down": "不可用",
+				"not_configured": "未配置",
+				"ok": "运行正常",
+				"warning": "警告"
+			},
+			"title": "系统",
 			"toast": {
-				"testEmailSent": "测试邮件已发送至 {{to}}",
-				"testEmailError": "测试邮件发送失败。"
+				"testEmailError": "测试邮件发送失败。",
+				"testEmailSent": "测试邮件已发送至 {{to}}"
 			}
 		},
 		"adminOverview": {
+			"activeUsers": "活跃（30 天）",
+			"archivedWorkspaces": "已归档",
+			"configurationWarnings": "配置警告",
+			"disabledUsers": "已禁用用户",
+			"loadError": "无法加载概览。",
+			"noActions": "暂无管理操作",
+			"noUsers": "暂无用户",
+			"recentActions": "最近管理操作",
+			"recentUsers": "最近用户",
+			"services": "服务",
 			"title": "概览",
 			"totalUsers": "用户总数",
-			"activeUsers": "活跃（30 天）",
-			"disabledUsers": "已禁用用户",
-			"workspaces": "工作区",
-			"archivedWorkspaces": "已归档",
-			"recentUsers": "最近用户",
-			"recentActions": "最近管理操作",
-			"services": "服务",
-			"configurationWarnings": "配置警告",
-			"viewUsers": "查看用户",
 			"viewAuditLog": "查看审计日志",
 			"viewSystem": "查看系统",
-			"noUsers": "暂无用户",
-			"noActions": "暂无管理操作",
-			"loadError": "无法加载概览。",
+			"viewUsers": "查看用户",
 			"warnings": {
+				"noSecondAdmin": "仅有一位管理员可访问。请在用户管理中指定第二位管理员。",
+				"redisUnreachable": "Redis 不可用。请检查连接。",
+				"registrationWithoutEmail": "注册已开放但未配置邮件。请配置 SMTP 或设置 DISABLE_REGISTRATION=true。",
 				"smtpNotConfigured": "邮件未配置。请设置 SMTP_HOST 和 SMTP_FROM。",
 				"smtpUnreachable": "邮件服务不可用。请检查 SMTP 设置。",
-				"redisUnreachable": "Redis 不可用。请检查连接。",
 				"storageIncomplete": "存储设置不完整。请检查 S3 设置。",
-				"storageUnreachable": "存储需要处理。请检查 S3 访问权限。",
-				"registrationWithoutEmail": "注册已开放但未配置邮件。请配置 SMTP 或设置 DISABLE_REGISTRATION=true。",
-				"noSecondAdmin": "仅有一位管理员可访问。请在用户管理中指定第二位管理员。"
-			}
+				"storageUnreachable": "存储需要处理。请检查 S3 访问权限。"
+			},
+			"workspaces": "工作区"
 		},
 		"adminRoles": {
-			"title": "角色",
-			"create": "新建角色",
-			"listTitle": "所有角色",
-			"loadError": "无法加载角色。",
-			"builtIn": "内置",
-			"viewUsers": "查看用户",
-			"userCount_one": "{{count}} 位用户",
-			"userCount_other": "{{count}} 位用户",
-			"allPermissions": "所有权限",
-			"noPermissions": "无权限",
-			"permissionCount_one": "{{count}} 项权限",
-			"permissionCount_other": "{{count}} 项权限",
 			"actions": "{{name}} 的操作",
-			"edit": "编辑",
+			"allPermissions": "所有权限",
+			"builtIn": "内置",
+			"create": "新建角色",
 			"deleteTitle": "删除 {{name}}？",
 			"dialog": {
+				"create": "创建角色",
 				"createTitle": "新建角色",
 				"editTitle": "编辑角色",
 				"name": "名称",
 				"nameHint": "使用 2–32 个小写字母、数字或连字符，并以字母开头。",
-				"create": "创建角色",
 				"save": "保存"
 			},
-			"toast": {
-				"created": "角色已创建",
-				"updated": "角色已更新",
-				"deleted": "角色已删除",
-				"error": "无法保存该角色。"
-			},
+			"edit": "编辑",
 			"groups": {
+				"instance": "实例",
 				"users": "用户",
-				"workspaces": "工作区",
-				"instance": "实例"
+				"workspaces": "工作区"
 			},
+			"listTitle": "所有角色",
+			"loadError": "无法加载角色。",
+			"noPermissions": "无权限",
+			"permissionCount_other": "{{count}} 项权限",
 			"permissions": {
-				"usersRead": "查看用户",
-				"usersCreate": "创建用户",
-				"usersUpdate": "编辑用户及其角色",
-				"usersDisable": "停用和重新启用用户",
-				"usersDelete": "删除用户",
-				"usersCredentials": "发送密码重置和验证邮件",
-				"usersSessions": "查看和结束会话",
+				"auditRead": "查看审计日志",
+				"instanceSettings": "更改实例设置",
+				"systemRead": "查看系统状态",
 				"usersApiKeys": "查看和撤销 API 密钥",
-				"workspacesRead": "查看工作区和成员",
-				"workspacesManage": "管理工作区成员",
+				"usersCreate": "创建用户",
+				"usersCredentials": "发送密码重置和验证邮件",
+				"usersDelete": "删除用户",
+				"usersDisable": "停用和重新启用用户",
+				"usersRead": "查看用户",
+				"usersSessions": "查看和结束会话",
+				"usersUpdate": "编辑用户及其角色",
 				"workspacesArchive": "归档和恢复工作区",
 				"workspacesDelete": "删除工作区",
-				"auditRead": "查看审计日志",
-				"systemRead": "查看系统状态",
-				"instanceSettings": "更改实例设置"
-			}
+				"workspacesManage": "管理工作区成员",
+				"workspacesRead": "查看工作区和成员"
+			},
+			"title": "角色",
+			"toast": {
+				"created": "角色已创建",
+				"deleted": "角色已删除",
+				"error": "无法保存该角色。",
+				"updated": "角色已更新"
+			},
+			"userCount_other": "{{count}} 位用户",
+			"viewUsers": "查看用户",
+			"userCount_one": "{{count}} user",
+			"permissionCount_one": "{{count}} permission"
 		},
 		"adminSettings": {
-			"title": "设置",
-			"loadError": "无法加载实例设置。",
+			"defaultRole": "新用户默认角色",
 			"general": "常规",
 			"instanceName": "实例名称",
-			"save": "保存",
 			"instanceUrl": "实例 URL",
 			"instanceUrlMissing": "设置 KANEO_CLIENT_URL",
-			"registration": "注册",
-			"signInProviders": "登录方式",
-			"registrationEnabled": "开放注册",
+			"integrations": "集成",
+			"loadError": "无法加载实例设置。",
+			"lockedByEnv": "由 {{name}} 设置",
 			"passwordRegistrationEnabled": "邮箱和密码注册",
+			"registration": "注册",
+			"registrationEnabled": "开放注册",
 			"requireEmailVerification": "要求邮箱验证",
 			"requiresSmtp": "需要 SMTP",
-			"defaultRole": "新用户默认角色",
-			"workspaces": "工作区",
-			"workspaceCreationRestricted": "仅管理员可创建工作区",
-			"integrations": "集成",
-			"lockedByEnv": "由 {{name}} 设置",
+			"signInProviders": "登录方式",
+			"title": "设置",
 			"toast": {
-				"saved": "设置已保存",
-				"error": "无法保存设置"
-			}
+				"error": "无法保存设置",
+				"saved": "设置已保存"
+			},
+			"workspaceCreationRestricted": "仅管理员可创建工作区",
+			"workspaces": "工作区",
+			"save": "保存"
 		},
 		"adminWebhooks": {
-			"title": "Webhook",
-			"add": "添加 Webhook",
-			"edit": "编辑 Webhook",
-			"url": "URL",
-			"categories": "事件",
-			"enabled": "已启用",
-			"disabled": "已禁用",
 			"actions": "{{url}} 的操作",
+			"add": "添加 Webhook",
+			"attempts_other": "{{count}} 次尝试",
+			"categories": "事件",
+			"deleteTitle": "删除 Webhook？",
 			"deliveries": "最近投递",
-			"sendTest": "发送测试",
+			"disabled": "已禁用",
+			"edit": "编辑 Webhook",
+			"empty": "暂无 Webhook",
+			"enabled": "已启用",
+			"errors": {
+				"destination": "目标地址被阻止",
+				"disabled": "Webhook 已禁用",
+				"http": "HTTP 错误",
+				"interrupted": "投递中断",
+				"network": "连接失败",
+				"response": "响应无效",
+				"signing": "签名失败",
+				"timeout": "超时"
+			},
+			"failed": "失败",
+			"httpStatus": "HTTP {{status}}",
+			"loadError": "无法加载 Webhook。",
+			"noDeliveries": "暂无投递",
+			"pending": "待处理",
 			"rotate": "轮换密钥",
 			"rotateTitle": "轮换签名密钥？",
-			"deleteTitle": "删除 Webhook？",
-			"secretTitle": "签名密钥 — 请立即保存",
-			"signingSecret": "签名密钥",
-			"setup": "设置 NOTIFICATION_SECRET_ENCRYPTION_KEY 以创建 Webhook。",
-			"loadError": "无法加载 Webhook。",
 			"saveError": "无法保存 Webhook。",
-			"empty": "暂无 Webhook",
-			"noDeliveries": "暂无投递",
-			"testQueued": "测试事件已加入队列。",
-			"testEvent": "测试事件",
-			"pending": "待处理",
+			"secretTitle": "签名密钥 — 请立即保存",
+			"sendTest": "发送测试",
+			"setup": "设置 NOTIFICATION_SECRET_ENCRYPTION_KEY 以创建 Webhook。",
+			"signingSecret": "签名密钥",
 			"succeeded": "已投递",
-			"failed": "失败",
-			"attempts_one": "{{count}} 次尝试",
-			"attempts_other": "{{count}} 次尝试",
-			"httpStatus": "HTTP {{status}}",
-			"errors": {
-				"network": "连接失败",
-				"timeout": "超时",
-				"http": "HTTP 错误",
-				"destination": "目标地址被阻止",
-				"signing": "签名失败",
-				"disabled": "Webhook 已禁用",
-				"interrupted": "投递中断",
-				"response": "响应无效"
-			},
-			"save": "保存"
+			"testEvent": "测试事件",
+			"testQueued": "测试事件已加入队列。",
+			"title": "Webhook",
+			"url": "URL",
+			"save": "保存",
+			"attempts_one": "{{count}} attempt"
 		}
 	},
 	"navigation": {
@@ -2872,8 +2872,8 @@
 			"backToBoard": "返回看板",
 			"home": "首页",
 			"inbox": "收件箱",
-			"myTasks": "我的任务",
-			"invitePeople": "邀请成员"
+			"invitePeople": "邀请成员",
+			"myTasks": "我的任务"
 		},
 		"projectList": {
 			"viewProject": "查看项目",
@@ -3035,16 +3035,15 @@
 			},
 			"title": "键盘快捷键",
 			"searchPlaceholder": "按操作或按键搜索",
-			"results_one": "{{count}} 个结果",
 			"results_other": "{{count}} 个结果",
 			"noResults": "没有匹配的快捷键",
 			"then": "然后",
 			"or": "或",
-			"thenEllipsis": "然后…"
+			"thenEllipsis": "然后…",
+			"results_one": "{{count}} result"
 		}
 	},
 	"notifications": {
-		"newCount_one": "{{count}} 条新通知",
 		"newCount_other": "{{count}} 条新通知",
 		"emptyTitle": "暂无通知",
 		"emptySubtitle": "更新和活动将显示在这里。",
@@ -3052,12 +3051,12 @@
 		"clearDialogTitle": "清空所有通知？",
 		"clearDialogDescription": "这将永久删除所有通知，此操作不可撤销。",
 		"reminderLeadTime": {
-			"minutes_one": "{{count}} 分钟",
 			"minutes_other": "{{count}} 分钟",
-			"hours_one": "{{count}} 小时",
 			"hours_other": "{{count}} 小时",
-			"days_one": "{{count}} 天",
-			"days_other": "{{count}} 天"
+			"days_other": "{{count}} 天",
+			"minutes_one": "{{count}} minute",
+			"hours_one": "{{count}} hour",
+			"days_one": "{{count}} day"
 		},
 		"events": {
 			"task_created": {
@@ -3099,27 +3098,28 @@
 			}
 		},
 		"inbox": {
-			"pageTitle": "收件箱",
-			"unread": "未读",
-			"today": "今天",
-			"earlier": "更早",
-			"filters": {
-				"label": "筛选通知",
-				"all": "全部",
-				"unread": "未读",
-				"mentions": "提及"
-			},
-			"emptyFilter": "这里什么都没有",
-			"loadError": "通知加载失败。",
-			"selectPrompt": "选择一条通知查看内容",
 			"back": "收件箱",
+			"earlier": "更早",
+			"emptyFilter": "这里什么都没有",
+			"filters": {
+				"all": "全部",
+				"label": "筛选通知",
+				"mentions": "提及",
+				"unread": "未读"
+			},
 			"openTask": "打开任务",
+			"pageTitle": "收件箱",
 			"recentActivity": "最近动态",
+			"selectPrompt": "选择一条通知查看内容",
 			"taskUnavailable": "该任务已不存在。",
+			"today": "今天",
+			"unread": "未读",
+			"loadError": "通知加载失败。",
 			"taskLoadError": "该任务加载失败。",
 			"actionError": "无法更新收件箱，请重试。",
 			"readCleared": "已删除已读通知"
-		}
+		},
+		"newCount_one": "{{count}} new"
 	},
 	"activity": {
 		"assignedToSelf": "将任务指派给了自己",
@@ -3132,12 +3132,10 @@
 		"changedDueDate": "将截止日期从 {{from}} 改为 {{to}}",
 		"changedTitle": "将标题从 \"{{from}}\" 改为 \"{{to}}\"",
 		"moved": "将任务从 \"{{from}}\" 移动到 \"{{to}}\"",
-		"movedFromOtherProject": "将任务从其它项目移动到「{{to}}」",
 		"created": "创建了此任务",
 		"githubUser": "GitHub 用户",
 		"comment": {
 			"viewGithubProfile": "查看 GitHub 主页",
-			"commentedOnForge": "在 {{forge}} 上评论",
 			"cannotBeEmpty": "评论不能为空",
 			"mustBeLoggedInToEdit": "你需要登录后才能编辑评论",
 			"updated": "评论已更新",
@@ -3232,11 +3230,12 @@
 				}
 			},
 			"importedFrom": "从 {{source}} 导入",
-			"importedBy": "由 {{name}} 导入"
-		}
+			"importedBy": "由 {{name}} 导入",
+			"commentedOnForge": "在 {{forge}} 上评论"
+		},
+		"movedFromOtherProject": "将任务从其它项目移动到「{{to}}」"
 	},
 	"tasks": {
-		"checklistProgress": "已完成 {{completed}}/{{total}} 个清单项",
 		"title": "任务",
 		"status": {
 			"label": "状态",
@@ -3412,8 +3411,6 @@
 			"parentPlaceholder": "设置父任务…"
 		},
 		"subtasks": {
-			"progress": "已完成 {{completed}}/{{total}} 个子任务",
-			"noCompletionColumn": "此项目没有可用于完成或重新打开该子任务的列。",
 			"title": "子任务",
 			"inputPlaceholder": "子任务标题…",
 			"addAction": "添加",
@@ -3424,7 +3421,9 @@
 			"deleteDialogTitle": "删除任务？",
 			"deleteDialogDescription": "这将永久删除任务及其所有数据，此操作不可撤销。",
 			"deleteAction": "删除任务",
-			"completeAria": "将子任务标记为完成"
+			"completeAria": "将子任务标记为完成",
+			"progress": "已完成 {{completed}}/{{total}} 个子任务",
+			"noCompletionColumn": "此项目没有可用于完成或重新打开该子任务的列。"
 		},
 		"properties": {
 			"title": "属性",
@@ -3466,33 +3465,6 @@
 				"updateError": "更新任务截止日期失败",
 				"clear": "清除日期"
 			},
-			"recurrence": {
-				"toggle": "重复",
-				"repeats": "重复",
-				"pattern": {
-					"daily": "每天",
-					"weekly": "每周",
-					"monthly": "每月",
-					"yearly": "每年",
-					"periodically": "定期"
-				},
-				"every": "每",
-				"interval": "间隔",
-				"unit": {
-					"label": "单位",
-					"days_one": "天",
-					"days_other": "天",
-					"weeks_one": "周",
-					"weeks_other": "周",
-					"months_one": "个月",
-					"months_other": "个月",
-					"years_one": "年",
-					"years_other": "年"
-				},
-				"onDays": "重复日",
-				"hint": "完成此任务后，将创建下一个任务。",
-				"updateError": "更新任务重复设置失败"
-			},
 			"startDate": {
 				"updateError": "更新任务开始日期失败",
 				"clear": "清除开始日期"
@@ -3515,12 +3487,39 @@
 					"terracotta": "赤陶",
 					"rose": "玫红",
 					"crimson": "深红",
-					"ocean": "海洋蓝",
-					"sky": "天空蓝",
 					"lagoon": "泻湖青",
-					"orchid": "兰花紫"
+					"ocean": "海洋蓝",
+					"orchid": "兰花紫",
+					"sky": "天空蓝"
 				},
 				"editLabels": "编辑标签"
+			},
+			"recurrence": {
+				"updateError": "更新任务重复设置失败",
+				"every": "每",
+				"hint": "完成此任务后，将创建下一个任务。",
+				"interval": "间隔",
+				"onDays": "重复日",
+				"pattern": {
+					"daily": "每天",
+					"monthly": "每月",
+					"periodically": "定期",
+					"weekly": "每周",
+					"yearly": "每年"
+				},
+				"repeats": "重复",
+				"toggle": "重复",
+				"unit": {
+					"days_other": "天",
+					"label": "单位",
+					"months_other": "个月",
+					"weeks_other": "周",
+					"years_other": "年",
+					"days_one": "day",
+					"weeks_one": "week",
+					"months_one": "month",
+					"years_one": "year"
+				}
 			}
 		},
 		"backlog": {
@@ -3557,9 +3556,6 @@
 			}
 		},
 		"boardFilters": {
-			"noValuesUsedYet": "还没有使用过任何值",
-			"noCustomFieldValues": "没有自定义字段的值",
-			"allCustomFieldValues": "所有值",
 			"selectedCount": "已选 {{count}} 个",
 			"subjects": {
 				"status": "状态",
@@ -3576,7 +3572,10 @@
 				"isNoneOf": "不为以下任一",
 				"include": "包含",
 				"exclude": "不包含"
-			}
+			},
+			"allCustomFieldValues": "所有值",
+			"noCustomFieldValues": "没有自定义字段的值",
+			"noValuesUsedYet": "还没有使用过任何值"
 		},
 		"calendar": {
 			"pageTitle": "{{name}} / 日历",
@@ -3626,16 +3625,16 @@
 		},
 		"archive": {
 			"success": "已归档 {{count}} 个任务",
-			"confirmTitle_one": "归档 {{count}} 个已完成任务？",
 			"confirmTitle_other": "归档 {{count}} 个已完成的任务？",
-			"confirmDescription": "这些任务将离开看板，移至待办中的“已归档”分区。"
+			"confirmDescription": "这些任务将离开看板，移至待办中的“已归档”分区。",
+			"confirmTitle_one": "Archive {{count}} completed task?"
 		},
 		"listView": {
 			"addTask": "添加任务",
 			"archiveAllTooltip": "归档所有已完成任务",
 			"noTasks": "无任务",
-			"expandSubtasks": "显示 {{title}} 的子任务",
 			"collapseSubtasks": "隐藏 {{title}} 的子任务",
+			"expandSubtasks": "显示 {{title}} 的子任务",
 			"subtaskLevel": "子任务，第 {{level}} 层",
 			"subtasksLoadError": "无法加载子任务，因此任务以无层级的方式显示。"
 		},
@@ -3648,9 +3647,9 @@
 			"draft": "草稿",
 			"open": "打开",
 			"label": "合并请求",
-			"count_one": "{{count}} 个 PR",
 			"count_other": "{{count}} 个 PR",
-			"closed": "已关闭"
+			"closed": "已关闭",
+			"count_one": "{{count}} PR"
 		},
 		"assignee": {
 			"label": "负责人",
@@ -3661,17 +3660,6 @@
 			"clear": "清除日期",
 			"updateError": "更新任务截止日期失败",
 			"clearError": "清除截止日期失败"
-		},
-		"recurrence": {
-			"daily_one": "每天",
-			"daily_other": "每 {{count}} 天",
-			"weekly_one": "每周",
-			"weekly_other": "每 {{count}} 周",
-			"monthly_one": "每月",
-			"monthly_other": "每 {{count}} 个月",
-			"yearly_one": "每年",
-			"yearly_other": "每 {{count}} 年",
-			"onDays": "{{rule}}的{{days}}"
 		},
 		"labels": {
 			"empty": "无可用标签"
@@ -3698,7 +3686,6 @@
 			"moveToBoardSuccess": "{{count}} 个任务已移至看板",
 			"moveToBoardError": "将任务移至看板失败",
 			"delete": "删除任务",
-			"deleteConfirmTitle_one": "删除 {{count}} 个任务？",
 			"deleteConfirmTitle_other": "删除 {{count}} 个任务？",
 			"deleteConfirmDescription": "这将永久删除所选任务及其所有数据，此操作不可撤销。",
 			"deleteSuccess": "已删除 {{count}} 个任务",
@@ -3728,7 +3715,8 @@
 			"priorityPlaceholder": "设置优先级…",
 			"assigneePlaceholder": "分配给…",
 			"labelPlaceholder": "添加标签…",
-			"columnPlaceholder": "移至列…"
+			"columnPlaceholder": "移至列…",
+			"deleteConfirmTitle_one": "Delete {{count}} task?"
 		},
 		"editor": {
 			"table": {
@@ -3741,6 +3729,12 @@
 				"deleteTable": "删除表格"
 			}
 		},
+		"descriptionSearchLoading": "正在搜索完整描述…",
+		"descriptionSearchError": "描述搜索失败，结果可能不完整。",
+		"descriptionRetry": "重试",
+		"descriptionLoading": "正在加载描述…",
+		"descriptionLoadError": "描述加载失败，请重试载入当前版本。",
+		"checklistProgress": "已完成 {{completed}}/{{total}} 个清单项",
 		"customFields": {
 			"fields": "字段",
 			"empty": "空",
@@ -3750,29 +3744,35 @@
 			"clear": "清除",
 			"setValue": "设置{{field}}…",
 			"noMatches": "没有匹配的选项",
-			"missingRequired_one": "{{count}} 个必填字段为空",
 			"missingRequired_other": "有 {{count}} 个必填字段为空",
 			"saveError": "无法保存{{field}}",
-			"moreFields_one": "还有 {{count}} 个字段",
 			"moreFields_other": "另外 {{count}} 个字段",
-			"manage": "管理字段"
+			"manage": "管理字段",
+			"missingRequired_one": "{{count}} required field is empty",
+			"moreFields_one": "{{count}} more field"
 		},
-		"descriptionSearchLoading": "正在搜索完整描述…",
-		"descriptionSearchError": "描述搜索失败，结果可能不完整。",
-		"descriptionRetry": "重试",
-		"descriptionLoading": "正在加载描述…",
-		"descriptionLoadError": "描述加载失败，请重试载入当前版本。",
 		"board": {
 			"reorderFailed": "无法移动任务，请重试。",
 			"keyboardInstructions": "按空格键预览，按 Enter 打开此任务。按住 Alt 或 Option 并使用方向键移动任务。"
 		},
+		"recurrence": {
+			"daily_other": "每 {{count}} 天",
+			"monthly_other": "每 {{count}} 个月",
+			"weekly_other": "每 {{count}} 周",
+			"yearly_other": "每 {{count}} 年",
+			"onDays": "{{rule}}的{{days}}",
+			"daily_one": "Every day",
+			"weekly_one": "Every week",
+			"monthly_one": "Every month",
+			"yearly_one": "Every year"
+		},
 		"toolbar": {
 			"search": "搜索任务",
 			"clearSearch": "清除搜索",
-			"taskCount_one": "{{count}} 个任务",
 			"taskCount_other": "{{count}} 个任务",
-			"shownCount_one": "显示 {{count}} 个任务中的 {{shown}} 个",
-			"shownCount_other": "{{shown}} / {{count}} 个任务"
+			"shownCount_other": "{{shown}} / {{count}} 个任务",
+			"taskCount_one": "{{count}} task",
+			"shownCount_one": "{{shown}} of {{count}} task"
 		},
 		"display": {
 			"title": "显示",
@@ -3785,11 +3785,11 @@
 		},
 		"filterBar": {
 			"label": "已应用的筛选",
-			"customFieldsLoading": "正在加载自定义字段值。结果未应用自定义字段筛选。",
-			"customFieldsUnavailable": "无法加载自定义字段值。结果未应用自定义字段筛选。",
-			"customFieldsRefreshError": "无法刷新自定义字段值。结果可能已过期。",
 			"removeFilter": "移除“{{name}}”筛选",
-			"noMatches": "没有任务符合你的搜索或筛选条件。"
+			"noMatches": "没有任务符合你的搜索或筛选条件。",
+			"customFieldsLoading": "正在加载自定义字段值。结果未应用自定义字段筛选。",
+			"customFieldsRefreshError": "无法刷新自定义字段值。结果可能已过期。",
+			"customFieldsUnavailable": "无法加载自定义字段值。结果未应用自定义字段筛选。"
 		},
 		"filterMenu": {
 			"addFilter": "添加筛选…",
@@ -3805,15 +3805,15 @@
 			"pageUrlCopied": "已复制页面 URL"
 		},
 		"due": {
-			"overdueDays_one": "逾期 {{count}} 天",
 			"overdueDays_other": "逾期 {{count}} 天",
-			"overdueWeeks_one": "逾期 {{count}} 周",
 			"overdueWeeks_other": "逾期 {{count}} 周",
 			"today": "今天",
 			"tomorrow": "明天",
-			"inDays_one": "{{count}} 天后",
 			"inDays_other": "{{count}} 天后",
-			"fullDate": "截止 {{date}}"
+			"fullDate": "截止 {{date}}",
+			"overdueDays_one": "{{count}}d overdue",
+			"overdueWeeks_one": "{{count}}w overdue",
+			"inDays_one": "In {{count}} day"
 		},
 		"datePicker": {
 			"dueDatePlaceholder": "设置截止日期…",
@@ -3885,11 +3885,11 @@
 			"reorderHandle": "重新排序项目",
 			"reorderError": "重新排序项目失败",
 			"unavailable": {
-				"noAccessTitle": "你没有访问此项目的权限",
+				"backToWorkspace": "返回工作区",
 				"noAccessDescription": "请联系工作区管理员为你开通访问权限。",
-				"notFoundTitle": "没有找到项目",
+				"noAccessTitle": "你没有访问此项目的权限",
 				"notFoundDescription": "此项目不存在或已被删除。",
-				"backToWorkspace": "返回工作区"
+				"notFoundTitle": "没有找到项目"
 			}
 		},
 		"search": {
@@ -3898,7 +3898,6 @@
 			"placeholder": "按任务标题或短 ID 搜索（例如 DEP-23）…",
 			"hint": "在此工作区的所有项目中搜索。使用类似 DEP-23 的短 ID 来定位任务。",
 			"searching": "搜索中…",
-			"resultsFound_one": "找到 {{count}} 个结果",
 			"resultsFound_other": "找到 {{count}} 条结果",
 			"noResultsTitle": "未找到结果",
 			"noResultsDescription": "请调整搜索条件或搜索其他内容",
@@ -3909,7 +3908,8 @@
 			"suggestionBug": "缺陷",
 			"suggestionFeature": "新功能",
 			"suggestionInProgress": "进行中",
-			"suggestionCompleted": "已完成"
+			"suggestionCompleted": "已完成",
+			"resultsFound_one": "{{count}} result found"
 		},
 		"create": {
 			"pageTitle": "创建工作区",
@@ -3926,66 +3926,66 @@
 			"error": "工作区创建失败"
 		},
 		"home": {
-			"pageTitle": "首页",
+			"activity": {
+				"commented": "评论了",
+				"empty": "最近 30 天没有任何动态。",
+				"loadError": "动态加载失败。",
+				"title": "动态",
+				"updated": "更新了任务"
+			},
 			"greeting": {
-				"morning": "早上好",
 				"afternoon": "下午好",
-				"evening": "晚上好"
+				"evening": "晚上好",
+				"morning": "早上好"
 			},
 			"newTask": "新建任务",
-			"week": {
-				"truncated": "本周预览只显示前 {{shown}} 个指派给你的任务（共 {{total}} 个）。",
-				"more_one": "+{{count}} 项",
-				"more_other": "还有 {{count}} 个"
+			"pageTitle": "首页",
+			"projects": {
+				"all": "所有项目",
+				"tasks_other": "{{count}} 个任务",
+				"title": "你的项目",
+				"loadError": "项目加载失败。",
+				"tasks_one": "{{count}} task"
 			},
 			"upNext": {
-				"title": "接下来",
-				"assigned_one": "{{count}} 项分配给你",
 				"assigned_other": "{{count}} 个指派给你",
-				"viewAll": "查看全部"
+				"title": "接下来",
+				"viewAll": "查看全部",
+				"assigned_one": "{{count}} assigned to you"
 			},
-			"projects": {
-				"title": "你的项目",
-				"all": "所有项目",
-				"loadError": "项目加载失败。",
-				"tasks_one": "{{count}} 个任务",
-				"tasks_other": "{{count}} 个任务"
-			},
-			"activity": {
-				"title": "动态",
-				"commented": "评论了",
-				"updated": "更新了任务",
-				"empty": "最近 30 天没有任何动态。",
-				"loadError": "动态加载失败。"
-			}
-		},
-		"myWork": {
-			"empty": "暂时没有指派给你的任务",
-			"loadError": "你的任务加载失败。",
-			"due": {
-				"overdue": "已逾期",
-				"today": "今天",
-				"tomorrow": "明天",
-				"thisWeek": "本周",
-				"later": "以后",
-				"noDueDate": "无截止日期"
+			"week": {
+				"more_other": "还有 {{count}} 个",
+				"truncated": "本周预览只显示前 {{shown}} 个指派给你的任务（共 {{total}} 个）。",
+				"more_one": "+{{count}} more"
 			}
 		},
 		"myTasks": {
-			"pageTitle": "我的任务",
 			"emptyDescription": "指派给你的任务都会汇总在这里。",
 			"groupBy": {
-				"label": "分组方式",
 				"dueDate": "截止日期",
+				"label": "分组方式",
 				"project": "项目"
 			},
+			"pageTitle": "我的任务",
 			"truncated": "共 {{total}} 个任务，只显示前 {{shown}} 个。"
 		},
+		"myWork": {
+			"due": {
+				"later": "以后",
+				"noDueDate": "无截止日期",
+				"overdue": "已逾期",
+				"thisWeek": "本周",
+				"today": "今天",
+				"tomorrow": "明天"
+			},
+			"empty": "暂时没有指派给你的任务",
+			"loadError": "你的任务加载失败。"
+		},
 		"archived": {
-			"title": "工作区已归档",
 			"description": "请联系管理员恢复访问权限。",
+			"manage": "管理工作区",
 			"otherWorkspaces": "前往工作区",
-			"manage": "管理工作区"
+			"title": "工作区已归档"
 		}
 	},
 	"team": {
@@ -4047,25 +4047,25 @@
 			"roleUpdateError": "更新角色失败"
 		},
 		"projectAccess": {
-			"label": "项目访问权限",
-			"description": "选择此人可以看到哪些项目。",
 			"allProjects": "所有项目",
 			"allProjectsDescription": "可以访问此工作区中的所有项目，包括以后新建的。",
-			"allProjectsUnavailable": "你自己的访问权限有限，所以只能授予指定项目。",
+			"description": "选择此人可以看到哪些项目。",
+			"dialogDescription": "选择 {{name}} 可以访问哪些项目。",
+			"dialogTitle": "项目访问权限",
+			"editAria": "更改 {{name}} 的项目访问权限（{{access}}）",
+			"label": "项目访问权限",
+			"noProjects": "此工作区还没有项目。",
+			"projectCount_other": "{{count}} 个项目",
+			"projectsLabel": "项目",
+			"save": "保存",
+			"selectAtLeastOne": "请至少选择一个项目。",
 			"selectedProjects": "指定项目",
 			"selectedProjectsDescription": "只能访问你指定的项目。",
-			"projectsLabel": "项目",
-			"noProjects": "此工作区还没有项目。",
-			"archived": "已归档",
-			"selectAtLeastOne": "请至少选择一个项目。",
-			"projectCount_one": "{{count}} 个项目",
-			"projectCount_other": "{{count}} 个项目",
-			"editAria": "更改 {{name}} 的项目访问权限（{{access}}）",
-			"dialogTitle": "项目访问权限",
-			"dialogDescription": "选择 {{name}} 可以访问哪些项目。",
-			"save": "保存",
+			"updateError": "更新项目访问权限失败",
 			"updateSuccess": "项目访问权限已更新",
-			"updateError": "更新项目访问权限失败"
+			"archived": "已归档",
+			"allProjectsUnavailable": "你自己的访问权限有限，所以只能授予指定项目。",
+			"projectCount_one": "{{count}} project"
 		}
 	},
 	"publicProject": {
@@ -4129,23 +4129,23 @@
 		"lightScreenshotAlt": "浅色主题下的 Kaneo 看板，任务卡片按状态排列",
 		"darkScreenshot": "看板（深色）",
 		"darkScreenshotAlt": "深色主题下的 Kaneo 看板，任务卡片按状态排列",
-		"lightListScreenshot": "列表（浅色）",
-		"lightListScreenshotAlt": "浅色主题下的 Kaneo 任务列表，按状态分组，显示负责人、优先级、标签和截止日期",
-		"darkListScreenshot": "列表（深色）",
-		"darkListScreenshotAlt": "深色主题下的 Kaneo 任务列表，按状态分组，显示负责人、优先级、标签和截止日期",
-		"lightTimelineScreenshot": "时间线（浅色）",
-		"lightTimelineScreenshotAlt": "浅色主题下的 Kaneo 甘特时间线，展示已排期任务及其时长",
-		"darkTimelineScreenshot": "时间线（深色）",
-		"darkTimelineScreenshotAlt": "深色主题下的 Kaneo 甘特时间线，展示已排期任务及其时长",
-		"lightTaskScreenshot": "任务详情（浅色）",
-		"lightTaskScreenshotAlt": "浅色主题下的 Kaneo 任务详情，包含描述、清单、团队评论和任务属性",
-		"darkTaskScreenshot": "任务详情（深色）",
-		"darkTaskScreenshotAlt": "深色主题下的 Kaneo 任务详情，包含描述、清单、团队评论和任务属性",
 		"contactTitle": "媒体联络",
 		"contactBody": "产品咨询、采访邀约或索取更多素材，请联系 Kaneo 团队。",
 		"usageContrast": "深色背景用浅色字标，浅色背景用深色字标。",
 		"usageProportions": "保持标志原有的比例和配色，不要拉伸或叠加特效。",
-		"usageSpace": "标志周围留出足够空间，保证清晰易读。"
+		"usageSpace": "标志周围留出足够空间，保证清晰易读。",
+		"darkListScreenshot": "列表（深色）",
+		"darkListScreenshotAlt": "深色主题下的 Kaneo 任务列表，按状态分组，显示负责人、优先级、标签和截止日期",
+		"darkTaskScreenshot": "任务详情（深色）",
+		"darkTaskScreenshotAlt": "深色主题下的 Kaneo 任务详情，包含描述、清单、团队评论和任务属性",
+		"darkTimelineScreenshot": "时间线（深色）",
+		"darkTimelineScreenshotAlt": "深色主题下的 Kaneo 甘特时间线，展示已排期任务及其时长",
+		"lightListScreenshot": "列表（浅色）",
+		"lightListScreenshotAlt": "浅色主题下的 Kaneo 任务列表，按状态分组，显示负责人、优先级、标签和截止日期",
+		"lightTaskScreenshot": "任务详情（浅色）",
+		"lightTaskScreenshotAlt": "浅色主题下的 Kaneo 任务详情，包含描述、清单、团队评论和任务属性",
+		"lightTimelineScreenshot": "时间线（浅色）",
+		"lightTimelineScreenshotAlt": "浅色主题下的 Kaneo 甘特时间线，展示已排期任务及其时长"
 	},
 	"landing": {
 		"sponsors": {
@@ -4159,13 +4159,13 @@
 		},
 		"hero": {
 			"cloudCta": "试用 Kaneo Cloud",
-			"pricingCta": "查看价格",
 			"trialNote": "云端试用 14 天，无需信用卡。",
 			"github": "GitHub",
 			"productHunt": "Product Hunt",
 			"title": "项目管理",
 			"titleAccent": "不该变成另一个项目。",
-			"description": "开源项目管理工具，带看板、甘特图和 GitHub 集成。免费自托管，内置 SSO；也可以交给 Kaneo Cloud 托管。"
+			"description": "开源项目管理工具，带看板、甘特图和 GitHub 集成。免费自托管，内置 SSO；也可以交给 Kaneo Cloud 托管。",
+			"pricingCta": "查看价格"
 		},
 		"navigation": {
 			"product": "产品",
@@ -4255,10 +4255,6 @@
 			"eyebrow": "按你的方式来",
 			"title": "从试用到上手，路径清清楚楚。",
 			"description": "搭好服务器、接上你的工具，或者把 Kaneo 和现在用的工具做个对比。",
-			"startups": {
-				"title": "面向初创公司的项目管理",
-				"description": "初创公司对任务追踪工具的需求，以及随着团队扩张 Kaneo Cloud 的费用。"
-			},
 			"sso": {
 				"title": "接入你自己的身份提供商",
 				"description": "在免费的自托管版本里配置 OIDC 单点登录。"
@@ -4270,6 +4266,10 @@
 			"linear": {
 				"title": "Kaneo 与 Linear 对比",
 				"description": "看看在托管方式、授权许可和工作流上的差别。"
+			},
+			"startups": {
+				"description": "初创公司对任务追踪工具的需求，以及随着团队扩张 Kaneo Cloud 的费用。",
+				"title": "面向初创公司的项目管理"
 			}
 		},
 		"product": {
@@ -4317,836 +4317,836 @@
 		}
 	},
 	"mobile": {
-		"common": {
-			"save": "保存",
-			"cancel": "取消",
-			"delete": "删除",
-			"retry": "重试",
-			"somethingWrong": "出错了",
-			"close": "关闭"
-		},
-		"errors": {
-			"notSignedIn": "尚未登录",
-			"unreachable": "无法连接服务器。请检查网络连接和服务器地址。",
-			"sessionExpired": "会话已过期，请重新登录。",
-			"forbidden": "你没有执行此操作的权限。",
-			"notFound": "未找到。",
-			"tooManyRequests": "请求过多，请稍候。",
-			"serverProblem": "服务器出现问题（{{status}}）。",
-			"requestFailed": "请求失败（{{status}}）。",
-			"notKaneo": "{{url}} 似乎不是 Kaneo 服务器。",
-			"noInstance": "在 {{url}} 未找到 Kaneo 实例（HTTP {{status}}）。",
-			"noSession": "服务器未返回会话，请尝试通过浏览器登录。",
-			"deviceFailed": "设备登录失败（HTTP {{status}}）。",
-			"apiKeyRejected": "此 API 密钥被拒绝。",
-			"signInRejected": "服务器拒绝了登录。",
-			"uploadFailed": "上传失败（{{status}}）"
-		},
-		"signIn": {
-			"tagline": "简单的项目管理。连接 Kaneo Cloud 或你自己的实例。",
-			"cloud": "Kaneo Cloud",
-			"selfHosted": "自托管",
-			"captcha": "此步骤需要浏览器验证，请使用“在浏览器中继续”。",
-			"invalidClient": "此服务器不允许设备登录。请让管理员在 DEVICE_AUTH_CLIENT_IDS 中添加“kaneo-cli”，或使用密码或 API 密钥登录。",
-			"serverAddress": "服务器地址",
-			"serverAddressHint": "打开 Kaneo 时使用的地址。未启用 TLS 的服务器请使用 http://。如果 API 运行在其他主机上，请输入 API 地址。",
-			"connect": "连接",
-			"recent": "最近",
-			"change": "更改",
-			"email": "邮箱",
-			"password": "密码",
-			"togglePassword": "切换密码显示",
-			"signIn": "登录",
-			"or": "或",
-			"continueInBrowser": "在浏览器中继续",
-			"browserHint": "GitHub、Google、Discord 或 SSO",
-			"emailCode": "通过邮件获取登录验证码",
-			"sendTo": "发送至 {{email}}",
-			"noPassword": "无需密码",
-			"useApiKey": "使用 API 密钥",
-			"newToKaneo": "初次使用 Kaneo？",
-			"createAccount": "创建账户",
-			"code": {
-				"title": "使用验证码登录",
-				"message": "我们会向你发送包含 6 位验证码的邮件，无需密码。",
-				"send": "发送验证码",
-				"checkEmail": "请检查你的邮箱",
-				"sent": "已向 {{email}} 发送 6 位验证码",
-				"verify": "验证",
-				"didntGet": "没收到？",
-				"resend": "重新发送验证码"
-			},
-			"device": {
-				"denied": "登录在浏览器中被拒绝。",
-				"expired": "登录验证码已过期，请重新开始以获取新验证码。",
-				"openFailed": "无法打开浏览器，请复制链接。",
-				"message": "请在 Kaneo 网站上批准此设备。你可以使用 GitHub、Google、Discord 或 SSO。",
-				"yourCode": "你的验证码",
-				"copyCode": "复制验证码",
-				"codeCopied": "验证码已复制",
-				"copyLink": "复制链接",
-				"linkCopied": "链接已复制",
-				"openBrowser": "打开浏览器",
-				"tryAgain": "重试",
-				"waiting": "等待批准…",
-				"gettingCode": "正在获取验证码…"
-			},
-			"apiKey": {
-				"message": "请在网页版的“设置”→“API 密钥”中创建。即使其他登录方式已关闭，仍可使用。",
-				"label": "API 密钥"
-			},
-			"signUp": {
-				"name": "姓名",
-				"passwordHint": "至少 8 个字符"
-			},
-			"unlock": {
-				"title": "连接你自己的服务器",
-				"message": "登录 Kaneo Cloud 始终免费。将应用连接到自托管服务器需一次性购买，以支持 Kaneo 的开发。",
-				"buy": "解锁（{{price}}）",
-				"buyNoPrice": "解锁",
-				"restore": "恢复购买",
-				"nothingToRestore": "未在此商店账户中找到之前的购买记录。",
-				"unavailable": "当前无法购买，请稍后再试。"
-			}
-		},
-		"invitations": {
-			"accepted": "已接受邀请",
-			"declined": "已拒绝邀请",
-			"title": "邀请",
-			"description": "你受邀加入的工作区。",
-			"emptyTitle": "无待处理邀请",
-			"emptyMessage": "验证邮箱地址后，邀请将显示在这里。你也随时可以通过邮件中的链接加入。",
-			"invitedYou": "{{name}} 邀请了你",
-			"decline": "拒绝",
-			"accept": "接受",
-			"joinWithLink": "通过邀请链接加入",
-			"linkPlaceholder": "粘贴邮件中的链接",
-			"join": "加入"
-		},
-		"taskDetail": {
-			"someone": "某人",
-			"status": {
-				"planned": "已计划",
-				"archived": "已归档"
-			},
-			"section": {
-				"addTo": "添加到 {{title}}"
-			},
-			"fields": {
-				"title": "字段",
-				"empty": "空",
-				"none": "无"
-			},
-			"subtasks": {
-				"title": "子任务",
-				"add": "添加子任务",
-				"parent": "父任务",
-				"empty": "无子任务"
-			},
-			"relations": {
-				"title": "关联",
-				"link": "关联任务",
-				"blocks": "阻塞",
-				"blockedBy": "被阻塞",
-				"related": "关联",
-				"relatedTo": "关联到",
-				"remove": "移除关联",
-				"empty": "无关联任务",
-				"removeTitle": "移除关联？",
-				"removeMessage": "任务将保留，仅移除它们之间的关联。",
-				"removeConfirm": "移除",
-				"searchPlaceholder": "按标题或编号搜索任务"
-			},
-			"links": {
-				"title": "链接",
-				"add": "添加链接",
-				"remove": "移除链接",
-				"synced": "已同步",
-				"empty": "无链接",
-				"url": "URL",
-				"titleLabel": "标题",
-				"optional": "可选"
-			},
-			"time": {
-				"title": "工时",
-				"total": "共 {{duration}}",
-				"log": "记录工时",
-				"editEntry": "编辑工时记录",
-				"logged": "工时已记录",
-				"stop": "停止",
-				"start": "启动计时器",
-				"running": "{{time}}（计时中）",
-				"hoursUnit": "小时",
-				"minutesUnit": "分",
-				"chipMinutes": "{{count}}分",
-				"chipHours": "{{count}}小时",
-				"logDuration": "记录 {{duration}}",
-				"durationHoursMinutes": "{{hours}}小时 {{minutes}}分",
-				"durationMinutes": "{{minutes}}分",
-				"date": "日期",
-				"notePlaceholder": "你做了什么工作？"
-			},
-			"activity": {
-				"title": "活动",
-				"comment": "评论",
-				"edit": "编辑",
-				"editComment": "编辑评论",
-				"edited": "{{time}}，已编辑",
-				"deleteTitle": "删除评论？",
-				"deleteMessage": "此操作无法撤销。",
-				"entry": "{{name}} {{action}}"
-			},
-			"menu": {
-				"share": "分享",
-				"duplicate": "创建副本",
-				"move": "移至项目…",
-				"refresh": "刷新",
-				"delete": "删除任务",
-				"moveTitle": "移至项目",
-				"duplicated": "任务副本已创建",
-				"moved": "任务已移动",
-				"deleted": "任务已删除",
-				"deleteTitle": "删除任务？",
-				"deleteMessage": "“{{title}}”及其评论将被永久删除。"
-			},
-			"screen": {
-				"copyLink": "复制链接",
-				"linkCopied": "链接已复制",
-				"more": "更多",
-				"editTitle": "编辑标题",
-				"editDescription": "编辑描述",
-				"addDescription": "添加描述…"
-			}
-		},
-		"workspaceNew": {
-			"title": "新建工作区",
-			"description": "集中管理团队项目的地方。接下来可以邀请成员。",
-			"name": "名称",
-			"namePlaceholder": "设计工作室",
-			"descriptionLabel": "描述",
-			"optional": "可选",
-			"descriptionPlaceholder": "这个工作区用来做什么？",
-			"create": "创建工作区"
-		},
-		"taskFields": {
-			"status": "状态",
-			"planned": "已计划",
-			"priority": "优先级",
-			"assignee": "负责人",
-			"unassigned": "未指派",
-			"startDate": "开始日期",
-			"dueDate": "截止日期",
-			"labels": "标签",
-			"none": "无",
-			"searchPeople": "搜索成员",
-			"you": "{{name}}（你）",
-			"addNumber": "添加数字",
-			"empty": "空",
-			"archived": "已归档",
-			"doneColumn": "完成列",
-			"starts": "开始于 {{date}}",
-			"overdue_one": "{{date}}，已逾期 {{count}} 天",
-			"overdue_other": "{{date}}，已逾期 {{count}} 天",
-			"done": "完成",
-			"searchOrCreate": "搜索或创建",
-			"createLabel": "创建标签“{{name}}”",
-			"labelColor": "新标签的颜色",
-			"noLabels": "暂无标签，输入名称即可创建。"
-		},
-		"taskNew": {
-			"newSubtask": "新建子任务",
-			"project": "项目",
-			"create": "创建",
-			"taskTitle": "任务标题",
-			"noLabels": "此工作区暂无标签。",
-			"labelsFailed": "任务已创建，但部分标签未能添加。",
-			"parentFailed": "任务已创建，但未能关联到父任务。",
-			"labelsAndParentFailed": "任务已创建，但部分标签和父任务关联未能保存。"
-		},
-		"editor": {
-			"description": "描述",
-			"placeholder": "添加描述…支持 Markdown。",
-			"write": "编写",
-			"preview": "预览",
-			"nothingToPreview": "没有可预览的内容",
-			"bold": "粗体",
-			"italic": "斜体",
-			"heading": "标题",
-			"list": "列表",
-			"code": "代码",
-			"link": "链接",
-			"boldPlaceholder": "粗体",
-			"italicPlaceholder": "斜体",
-			"codePlaceholder": "代码",
-			"linkPlaceholder": "链接",
-			"insertImage": "插入图片",
-			"attachment": "附件"
-		},
-		"composer": {
-			"reply": "回复 {{name}}…",
-			"placeholder": "添加评论…",
-			"mentionSomeone": "提及成员",
-			"attachImage": "添加图片附件",
-			"sendComment": "发送评论",
-			"mention": "提及",
-			"searchPeople": "搜索成员"
-		},
-		"board": {
-			"filterTasksActive": "筛选任务…（已启用 {{count}} 项）",
-			"movedTask": "已将 {{ticket}} 移至 {{status}}",
-			"showTasks_one": "显示 {{count}} 个任务",
-			"showTasks_other": "显示 {{count}} 个任务",
-			"memberYou": "{{name}}（你）",
-			"dueDateOverdue_one": "{{date}}，已逾期 {{count}} 天",
-			"dueDateOverdue_other": "{{date}}，已逾期 {{count}} 天",
-			"projects": "项目",
-			"back": "返回",
-			"boardView": "看板视图",
-			"listView": "列表视图",
-			"more": "更多",
-			"switchProject": "切换项目",
-			"noTasksMatchTheFilters": "没有符合筛选条件的任务",
-			"nothingPlannedYet": "暂无已计划的任务",
-			"noTasksHere": "这里没有任务",
-			"addTask": "添加任务",
-			"noTasksMatch": "没有匹配的任务",
-			"noTasksYet": "暂无任务",
-			"filters": "筛选",
-			"filterTasks": "筛选任务…",
-			"me": "我",
-			"newTask": "新建任务",
-			"board": "看板",
-			"projectSettings": "项目设置",
-			"hidePlanned": "隐藏已计划",
-			"showPlanned": "显示已计划",
-			"hideArchived": "隐藏已归档",
-			"showArchived": "显示已归档",
-			"refresh": "刷新",
-			"planned": "已计划",
-			"archived": "已归档",
-			"reset": "重置",
-			"assignee": "负责人",
-			"unassigned": "未指派",
-			"priority": "优先级",
-			"labels": "标签",
-			"overdueOnly": "仅逾期任务",
-			"tasksNotOnTheBoardYet": "尚未加入看板的任务",
-			"moveTo": "移动到",
-			"assignToMe": "分配给我",
-			"sendToTopOfColumn": "移至列顶部",
-			"sendToBottomOfColumn": "移至列底部",
-			"openTask": "打开任务",
-			"searchPeople": "搜索成员"
-		},
-		"projectSettings": {
-			"deleteNamedTitle": "删除“{{name}}”？",
-			"text": "文本",
-			"number": "数字",
-			"date": "日期",
-			"checkbox": "复选框",
-			"dropdown": "下拉选择",
-			"multiSelect": "多选",
-			"projectUpdated": "项目已更新",
-			"project": "项目",
-			"projectSettings": "项目设置",
-			"general": "常规",
-			"publicBoard": "公开看板",
-			"anyoneWithTheLinkCanViewTheBoard": "任何拥有链接的人都可以查看看板",
-			"columns": "列",
-			"addColumn": "添加列",
-			"doneColumn": "完成列",
-			"moveUp": "上移",
-			"moveDown": "下移",
-			"customFields": "自定义字段",
-			"addField": "添加字段",
-			"noCustomFields": "无自定义字段",
-			"projectRestored": "项目已恢复",
-			"archiveProjectTitle": "归档项目？",
-			"itDisappearsFromTheProjectListYouCanRestoreItLater": "项目将从列表中隐藏，你可以稍后恢复。",
-			"archive": "归档",
-			"projectArchived": "项目已归档",
-			"restoreProject": "恢复项目",
-			"archiveProject": "归档项目",
-			"moveToAnotherWorkspace": "移动到其他工作区",
-			"deleteProjectTitle": "删除项目？",
-			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "此项目中的所有任务、评论和工时记录将被永久删除。",
-			"projectDeleted": "项目已删除",
-			"deleteProject": "删除项目",
-			"column": "列",
-			"rename": "重命名",
-			"unmarkAsDoneColumn": "取消设为完成列",
-			"markAsDoneColumn": "设为完成列",
-			"deleteColumn": "删除列",
-			"tasksInThisColumnMayNeedToBeMovedFirst": "可能需要先移动此列中的任务。",
-			"columnDeleted": "列已删除",
-			"renameColumn": "重命名列",
-			"field": "字段",
-			"deleteField": "删除字段",
-			"valuesStoredInThisFieldAreDeletedFromEveryTask": "所有任务中此字段存储的值都将被删除。",
-			"fieldDeleted": "字段已删除",
-			"moveToWorkspace": "移至工作区",
-			"projectMoved": "项目已移动",
-			"ok": "确定",
-			"name": "名称",
-			"key": "标识",
-			"changesFutureAndExistingTaskIDs": "将更改现有及今后的任务 ID",
-			"saveChanges": "保存更改",
-			"newColumn": "新建列",
-			"blocked": "受阻",
-			"tasksHereCountAsFinished": "此列中的任务视为已完成",
-			"newCustomField": "新建自定义字段",
-			"platform": "平台",
-			"type": "类型",
-			"options": "选项",
-			"separateWithCommas": "用逗号分隔",
-			"androidIOSWeb": "Android、iOS、网页",
-			"required": "必填",
-			"defaultValue": "默认值",
-			"chooseDefault": "选择默认值",
-			"checked": "已勾选",
-			"unchecked": "未勾选",
-			"validDefaultRequired": "请为此必填字段输入有效的默认值。",
-			"multiselectOptionsRequired": "请添加至少两个不同的选项。"
-		},
-		"projectNew": {
-			"newProject": "新建项目",
-			"name": "名称",
-			"customerPortal": "客户门户",
-			"key": "标识",
-			"usedInTaskIDs": "用于任务 ID",
-			"createProject": "创建项目"
-		},
-		"home": {
-			"noWorkspace": {
-				"title": "暂无工作区",
-				"body": "工作区集中管理项目和团队。创建一个，或接受邀请。",
-				"create": "创建工作区",
-				"viewInvitations_one": "查看 {{count}} 个邀请",
-				"viewInvitations_other": "查看 {{count}} 个邀请",
-				"joinWithLink": "通过邀请链接加入",
-				"signedInAs": "已登录为 {{email}}"
-			},
-			"switchWorkspace": "切换工作区",
-			"search": "搜索",
-			"account": "账户",
-			"archived": "已归档",
-			"due": "截止 {{date}}",
-			"progress": "{{done}} / {{total}}",
-			"noTasks": "没有任务",
-			"upNext": "接下来",
-			"viewAll": "查看全部",
-			"projects": "项目",
-			"newProject": "新建项目",
-			"empty": {
-				"title": "暂无项目",
-				"message": "项目中包含看板和任务。"
-			},
-			"hideArchived": "隐藏已归档项目",
-			"showArchived": "显示已归档项目"
-		},
-		"inbox": {
-			"title": "收件箱",
-			"markAllRead": "全部标为已读",
-			"allCaughtUpToast": "已全部查看",
-			"more": "更多",
-			"empty": {
-				"title": "你已查看所有通知",
-				"message": "指派、评论和提及会显示在这里。"
-			},
-			"today": "今天",
-			"earlier": "更早",
-			"recent": "最近",
-			"clearAll": "清空所有通知",
-			"confirmClear": {
-				"title": "清空所有通知？",
-				"message": "这将移除此工作区中的所有通知。",
-				"confirm": "全部清除"
-			}
-		},
-		"activity": {
-			"title": "活动",
-			"subtitle": "{{workspace}} 中的所有动态",
-			"empty": "暂无近期活动",
-			"someone": "某人",
-			"commentedOn": "评论了 {{target}}"
-		},
-		"myTasks": {
-			"title": "我的任务",
-			"by": {
-				"due": "截止日期",
-				"project": "项目",
-				"status": "状态"
-			},
-			"due": {
-				"overdue": "已逾期",
-				"today": "今天",
-				"thisWeek": "本周",
-				"later": "以后",
-				"none": "无截止日期"
-			},
-			"empty": {
-				"title": "暂时没有指派给你的任务",
-				"message": "此工作区中指派给你的任务会显示在这里。"
-			},
-			"showing": "显示 {{total}} 个任务中的 {{shown}} 个",
-			"assigned_one": "{{count}} 项已分配",
-			"assigned_other": "已指派 {{count}} 个"
-		},
-		"nav": {
-			"home": "首页",
-			"tasks": "我的任务",
-			"inbox": "收件箱",
-			"activity": "活动",
-			"inboxUnread": "收件箱，{{count}} 条未读"
-		},
-		"workspaceSwitcher": {
-			"title": "工作区",
-			"settings": "工作区设置",
-			"members": "成员",
-			"labels": "标签",
-			"invitations": "邀请",
-			"create": "创建工作区"
-		},
-		"search": {
-			"placeholder": "搜索任务、项目和评论",
-			"clear": "清除",
-			"kinds": {
-				"all": "全部",
-				"tasks": "任务",
-				"projects": "项目",
-				"comments": "评论",
-				"activity": "活动"
-			},
-			"empty": {
-				"title": "搜索此工作区",
-				"message": "按标题或编号查找任务，也可搜索项目和评论。"
-			},
-			"failed": "搜索失败",
-			"noResults": "没有“{{query}}”的搜索结果",
-			"commentMeta": "{{name}}，{{when}}"
-		},
-		"notificationText": {
-			"activity": {
-				"created": "创建了任务",
-				"commented": "评论了：{{text}}",
-				"statusChanged": "将任务从 {{from}} 移至 {{to}}",
-				"priorityChanged": "将优先级从 {{from}} 改为 {{to}}",
-				"assigneeChanged": "更改了负责人",
-				"selfAssigned": "将任务指派给自己",
-				"assignedTo": "将任务指派给 {{assignee}}",
-				"unassigned": "移除了负责人",
-				"dueDateSet": "将截止日期设为 {{date}}",
-				"dueDateRemoved": "移除了截止日期",
-				"renamed": "将名称改为“{{title}}”",
-				"titleChanged": "更改了标题",
-				"descriptionChanged": "更新了描述",
-				"taskUpdated": "更新了任务"
-			},
-			"taskCreated": "有新任务指派给你",
-			"assignedByActor": "{{actor}} 向你指派了任务",
-			"assignedToTask": "你被指派了“{{title}}”",
-			"assignedToUntitled": "你被指派了一个任务",
-			"statusChangedOnTask": "“{{title}}”的状态已变更",
-			"statusChangedOnUntitled": "任务状态已变更",
-			"statusTransition": "{{from}} → {{to}}",
-			"commentedByActor": "{{actor}} 发表了评论",
-			"newComment": "新评论",
-			"mentionedByActor": "{{actor}} 提及了你",
-			"mentioned": "有人提及了你",
-			"timeLoggedOnTask": "“{{title}}”的工时已记录",
-			"timeLoggedOnUntitled": "任务工时已记录",
-			"workspaceCreated": "工作区“{{name}}”已创建"
-		},
-		"background": {
-			"summary_one": "另有 {{count}} 条新通知",
-			"summary_other": "另有 {{count}} 条新通知",
-			"channelName": "Kaneo 活动",
-			"channelDescription": "来自工作区的指派、评论和提及"
-		},
-		"ui": {
-			"back": "返回",
-			"loadFailed": "无法加载",
-			"search": "搜索",
-			"nothingMatches": "没有与“{{query}}”匹配的内容"
-		},
-		"picker": {
-			"clear": "清除",
-			"nextWeek": "下周",
-			"previousMonth": "上个月",
-			"nextMonth": "下个月"
-		},
-		"time": {
-			"now": "现在",
-			"justNow": "刚刚",
-			"minutesShort_one": "{{count}}分钟",
-			"minutesShort_other": "{{count}}分",
-			"hoursShort_one": "{{count}}小时",
-			"hoursShort_other": "{{count}}小时",
-			"secondsShort_one": "{{count}}秒",
-			"secondsShort_other": "{{count}}秒",
-			"minutesAgo_one": "{{count}} 分钟前",
-			"minutesAgo_other": "{{count}} 分钟前",
-			"hoursAgo_one": "{{count}} 小时前",
-			"hoursAgo_other": "{{count}} 小时前",
-			"durationHoursMinutes": "{{hours}}小时 {{minutes}}分",
-			"goodEvening": "晚上好",
-			"goodMorning": "早上好",
-			"goodAfternoon": "下午好",
-			"today": "今天",
-			"tomorrow": "明天",
-			"yesterday": "昨天",
-			"minutes_one": "{{count}} 分钟",
-			"minutes_other": "{{count}} 分钟",
-			"hours_one": "{{count}} 小时",
-			"hours_other": "{{count}} 小时"
-		},
-		"meta": {
-			"priority": {
-				"noPriority": "无优先级",
-				"low": "低",
-				"medium": "中",
-				"high": "高",
-				"urgent": "紧急"
-			},
-			"labelColor": {
-				"stone": "石板灰",
-				"slate": "石板蓝",
-				"lavender": "薰衣草",
-				"sage": "鼠尾草绿",
-				"forest": "森林绿",
-				"amber": "琥珀",
-				"terracotta": "赤陶",
-				"rose": "玫红",
-				"crimson": "深红",
-				"ocean": "海洋蓝",
-				"sky": "天空蓝",
-				"lagoon": "泻湖青",
-				"orchid": "兰花紫"
-			},
-			"role": {
-				"owner": "所有者",
-				"admin": "管理员",
-				"member": "成员",
-				"viewer": "访客"
-			},
-			"roleHint": {
-				"owner": "拥有全部权限，包括删除工作区",
-				"admin": "还可以管理成员和设置",
-				"member": "可以创建和编辑任务",
-				"viewer": "可以查看项目和任务"
-			}
-		},
 		"account": {
-			"title": "账户",
-			"description": "你在所有工作区中向团队成员展示的个人信息。",
-			"profile": {
-				"title": "个人资料",
-				"photo": "头像",
-				"photoFormats": "PNG、JPG 或 WebP",
-				"change": "更改",
-				"name": "姓名",
-				"changePassword": "修改密码"
+			"connection": {
+				"apiKey": "API 密钥",
+				"appVersion": "应用版本",
+				"server": "服务器",
+				"sessionToken": "会话令牌",
+				"signedInWith": "登录方式",
+				"title": "连接"
 			},
+			"description": "你在所有工作区中向团队成员展示的个人信息。",
 			"notifications": {
-				"title": "通知",
-				"phone": "手机通知",
-				"phoneHint": "大约每 15 分钟检查一次",
 				"delivery": "通知渠道和事件",
 				"deliveryHint": "邮件、ntfy、Gotify、Webhook",
 				"invitations": "邀请",
-				"permissionDenied": "请先在系统设置中允许 Kaneo 发送通知。"
+				"permissionDenied": "请先在系统设置中允许 Kaneo 发送通知。",
+				"phone": "手机通知",
+				"phoneHint": "大约每 15 分钟检查一次",
+				"title": "通知"
 			},
-			"connection": {
-				"title": "连接",
-				"server": "服务器",
-				"signedInWith": "登录方式",
-				"apiKey": "API 密钥",
-				"sessionToken": "会话令牌",
-				"appVersion": "应用版本"
-			},
-			"signOut": {
-				"button": "退出登录",
-				"title": "退出登录？",
-				"message": "你随时可以重新登录。"
+			"password": {
+				"confirm": "确认新密码",
+				"confirmPlaceholder": "再次输入",
+				"current": "当前密码",
+				"mismatch": "密码不一致",
+				"new": "新密码",
+				"signOutOthers": "退出其他设备",
+				"title": "修改密码"
 			},
 			"photoMenu": {
 				"choose": "选择照片",
 				"remove": "移除照片"
 			},
+			"profile": {
+				"change": "更改",
+				"changePassword": "修改密码",
+				"name": "姓名",
+				"photo": "头像",
+				"photoFormats": "PNG、JPG 或 WebP",
+				"title": "个人资料"
+			},
+			"signOut": {
+				"button": "退出登录",
+				"message": "你随时可以重新登录。",
+				"title": "退出登录？"
+			},
+			"title": "账户",
 			"toast": {
-				"photoUpdated": "照片已更新",
-				"photoRemoved": "照片已移除",
 				"nameUpdated": "名称已更新",
-				"passwordChanged": "密码已修改"
-			},
-			"password": {
-				"title": "修改密码",
-				"current": "当前密码",
-				"new": "新密码",
-				"confirm": "确认新密码",
-				"confirmPlaceholder": "再次输入",
-				"mismatch": "密码不一致",
-				"signOutOthers": "退出其他设备"
+				"passwordChanged": "密码已修改",
+				"photoRemoved": "照片已移除",
+				"photoUpdated": "照片已更新"
 			}
 		},
-		"notificationSettings": {
-			"title": "通知",
-			"description": "设置 Kaneo 通知你的方式和内容。",
-			"on": "已开启",
-			"off": "已关闭",
-			"notSet": "未设置",
-			"delivery": {
-				"title": "通知渠道",
-				"email": "邮箱",
-				"emailHint": "发送至账户邮箱",
-				"ntfyHint": "向 ntfy 主题发送通知",
-				"gotifyHint": "向 Gotify 服务器发送通知",
-				"webhook": "Webhook",
-				"webhookHint": "通过 POST 向 URL 发送通知"
-			},
-			"events": {
-				"title": "通知我关于",
-				"assignments": "指派",
-				"assignmentsHint": "任务指派给你时",
-				"comments": "评论",
-				"commentsHint": "你的任务有新评论时",
-				"statusChanges": "状态变更",
-				"statusChangesHint": "你的任务在列之间移动时",
-				"dueDate": "截止日期提醒",
-				"dueDateHint": "指派给你的任务截止前",
-				"remindMe": "提醒我",
-				"remindBefore": "提前 {{time}}",
-				"remindPickerTitle": "提前提醒我"
-			},
-			"leadTime": {
-				"minutes15": "15 分钟",
-				"hour1": "1 小时",
-				"hours3": "3 小时",
-				"day1": "1 天",
-				"days2": "2 天",
-				"week1": "1 周",
-				"minutes_one": "{{count}} 分钟",
-				"minutes_other": "{{count}} 分钟"
-			},
-			"channel": {
-				"enabled": "向此处发送通知",
-				"webhookUrl": "Webhook 地址",
-				"serverUrl": "服务器地址",
-				"topic": "主题",
-				"accessToken": "访问令牌",
-				"appToken": "应用令牌",
-				"signingSecret": "签名密钥",
-				"secretSaved": "已保存，输入新值即可替换",
-				"secretOptional": "可选"
-			}
+		"activity": {
+			"commentedOn": "评论了 {{target}}",
+			"empty": "暂无近期活动",
+			"someone": "某人",
+			"subtitle": "{{workspace}} 中的所有动态",
+			"title": "活动"
 		},
-		"workspaceSettings": {
-			"title": "工作区",
-			"description": "适用于 {{name}} 所有成员的设置。",
-			"thisWorkspace": "此工作区",
-			"general": {
-				"title": "常规",
-				"name": "名称",
-				"description": "描述",
-				"slug": "短标识：<mono>{{slug}}</mono>",
-				"save": "保存更改"
+		"background": {
+			"channelDescription": "来自工作区的指派、评论和提及",
+			"channelName": "Kaneo 活动",
+			"summary_other": "另有 {{count}} 条新通知",
+			"summary_one": "{{count}} more new notification"
+		},
+		"board": {
+			"addTask": "添加任务",
+			"archived": "已归档",
+			"assignee": "负责人",
+			"assignToMe": "分配给我",
+			"back": "返回",
+			"board": "看板",
+			"boardView": "看板视图",
+			"dueDateOverdue_other": "{{date}}，已逾期 {{count}} 天",
+			"filters": "筛选",
+			"filterTasks": "筛选任务…",
+			"filterTasksActive": "筛选任务…（已启用 {{count}} 项）",
+			"hideArchived": "隐藏已归档",
+			"hidePlanned": "隐藏已计划",
+			"labels": "标签",
+			"listView": "列表视图",
+			"me": "我",
+			"memberYou": "{{name}}（你）",
+			"more": "更多",
+			"movedTask": "已将 {{ticket}} 移至 {{status}}",
+			"moveTo": "移动到",
+			"newTask": "新建任务",
+			"noTasksHere": "这里没有任务",
+			"noTasksMatch": "没有匹配的任务",
+			"noTasksMatchTheFilters": "没有符合筛选条件的任务",
+			"noTasksYet": "暂无任务",
+			"nothingPlannedYet": "暂无已计划的任务",
+			"openTask": "打开任务",
+			"overdueOnly": "仅逾期任务",
+			"planned": "已计划",
+			"priority": "优先级",
+			"projects": "项目",
+			"projectSettings": "项目设置",
+			"refresh": "刷新",
+			"reset": "重置",
+			"searchPeople": "搜索成员",
+			"sendToBottomOfColumn": "移至列底部",
+			"sendToTopOfColumn": "移至列顶部",
+			"showArchived": "显示已归档",
+			"showPlanned": "显示已计划",
+			"showTasks_other": "显示 {{count}} 个任务",
+			"switchProject": "切换项目",
+			"tasksNotOnTheBoardYet": "尚未加入看板的任务",
+			"unassigned": "未指派",
+			"showTasks_one": "Show {{count}} task",
+			"dueDateOverdue_one": "{{date}}, {{count}}d overdue"
+		},
+		"common": {
+			"cancel": "取消",
+			"close": "关闭",
+			"delete": "删除",
+			"retry": "重试",
+			"save": "保存",
+			"somethingWrong": "出错了"
+		},
+		"composer": {
+			"attachImage": "添加图片附件",
+			"mention": "提及",
+			"mentionSomeone": "提及成员",
+			"placeholder": "添加评论…",
+			"reply": "回复 {{name}}…",
+			"searchPeople": "搜索成员",
+			"sendComment": "发送评论"
+		},
+		"editor": {
+			"attachment": "附件",
+			"bold": "粗体",
+			"boldPlaceholder": "粗体",
+			"code": "代码",
+			"codePlaceholder": "代码",
+			"description": "描述",
+			"heading": "标题",
+			"insertImage": "插入图片",
+			"italic": "斜体",
+			"italicPlaceholder": "斜体",
+			"link": "链接",
+			"linkPlaceholder": "链接",
+			"list": "列表",
+			"nothingToPreview": "没有可预览的内容",
+			"placeholder": "添加描述…支持 Markdown。",
+			"preview": "预览",
+			"write": "编写"
+		},
+		"errors": {
+			"apiKeyRejected": "此 API 密钥被拒绝。",
+			"deviceFailed": "设备登录失败（HTTP {{status}}）。",
+			"forbidden": "你没有执行此操作的权限。",
+			"noInstance": "在 {{url}} 未找到 Kaneo 实例（HTTP {{status}}）。",
+			"noSession": "服务器未返回会话，请尝试通过浏览器登录。",
+			"notFound": "未找到。",
+			"notKaneo": "{{url}} 似乎不是 Kaneo 服务器。",
+			"notSignedIn": "尚未登录",
+			"requestFailed": "请求失败（{{status}}）。",
+			"serverProblem": "服务器出现问题（{{status}}）。",
+			"sessionExpired": "会话已过期，请重新登录。",
+			"signInRejected": "服务器拒绝了登录。",
+			"tooManyRequests": "请求过多，请稍候。",
+			"unreachable": "无法连接服务器。请检查网络连接和服务器地址。",
+			"uploadFailed": "上传失败（{{status}}）"
+		},
+		"home": {
+			"account": "账户",
+			"archived": "已归档",
+			"due": "截止 {{date}}",
+			"empty": {
+				"message": "项目中包含看板和任务。",
+				"title": "暂无项目"
 			},
-			"manage": {
-				"title": "管理",
-				"members": "成员",
-				"labels": "标签"
+			"hideArchived": "隐藏已归档项目",
+			"newProject": "新建项目",
+			"noTasks": "没有任务",
+			"noWorkspace": {
+				"body": "工作区集中管理项目和团队。创建一个，或接受邀请。",
+				"create": "创建工作区",
+				"joinWithLink": "通过邀请链接加入",
+				"signedInAs": "已登录为 {{email}}",
+				"title": "暂无工作区",
+				"viewInvitations_other": "查看 {{count}} 个邀请",
+				"viewInvitations_one": "View {{count}} invitation"
 			},
-			"danger": {
-				"title": "危险区域",
-				"leave": "退出工作区",
-				"leaveHint": "你可以通过新邀请重新加入",
-				"leaveButton": "退出",
-				"delete": "删除工作区",
-				"deleteHint": "删除其中所有项目和任务"
+			"progress": "{{done}} / {{total}}",
+			"projects": "项目",
+			"search": "搜索",
+			"showArchived": "显示已归档项目",
+			"switchWorkspace": "切换工作区",
+			"upNext": "接下来",
+			"viewAll": "查看全部"
+		},
+		"inbox": {
+			"allCaughtUpToast": "已全部查看",
+			"clearAll": "清空所有通知",
+			"confirmClear": {
+				"confirm": "全部清除",
+				"message": "这将移除此工作区中的所有通知。",
+				"title": "清空所有通知？"
 			},
-			"confirm": {
-				"deleteTitle": "删除工作区？",
-				"leaveTitle": "退出工作区？",
-				"deleteMessage": "{{name}} 中的所有项目、任务和评论将被永久删除。",
-				"leaveMessage": "在收到新邀请之前，你将无法访问此工作区。"
+			"earlier": "更早",
+			"empty": {
+				"message": "指派、评论和提及会显示在这里。",
+				"title": "你已查看所有通知"
 			},
+			"markAllRead": "全部标为已读",
+			"more": "更多",
+			"recent": "最近",
+			"title": "收件箱",
+			"today": "今天"
+		},
+		"invitations": {
+			"accept": "接受",
+			"accepted": "已接受邀请",
+			"decline": "拒绝",
+			"declined": "已拒绝邀请",
+			"description": "你受邀加入的工作区。",
+			"emptyMessage": "验证邮箱地址后，邀请将显示在这里。你也随时可以通过邮件中的链接加入。",
+			"emptyTitle": "无待处理邀请",
+			"invitedYou": "{{name}} 邀请了你",
+			"join": "加入",
+			"joinWithLink": "通过邀请链接加入",
+			"linkPlaceholder": "粘贴邮件中的链接",
+			"title": "邀请"
+		},
+		"labels": {
+			"actions": "{{name}} 的操作",
+			"delete": "删除标签",
+			"deleteMessage": "此标签将从此工作区的所有任务中移除。",
+			"deleteTitle": "删除“{{name}}”？",
+			"description": "标签可帮助你分组和筛选任务。",
+			"edit": "编辑标签",
+			"empty": {
+				"message": "创建标签，在不同项目中分组和筛选任务。",
+				"title": "无标签"
+			},
+			"fallbackTitle": "标签",
+			"form": {
+				"color": "颜色",
+				"name": "名称"
+			},
+			"new": "新建标签",
+			"title": "标签",
 			"toast": {
-				"updated": "工作区已更新",
-				"deleted": "工作区已删除",
-				"left": "你已退出工作区"
+				"deleted": "标签已删除"
 			}
 		},
 		"members": {
-			"title": "成员",
-			"description_one": "{{name}} 中有 {{count}} 人",
 			"description_other": "{{name}} 中有 {{count}} 人",
-			"thisWorkspace": "此工作区",
 			"invite": "邀请",
+			"inviteForm": {
+				"email": "邮箱",
+				"intro": "对方会收到包含 {{workspace}} 加入链接的邮件。",
+				"role": "角色",
+				"send": "发送邀请",
+				"title": "邀请成员"
+			},
+			"inviteMenu": {
+				"cancel": "取消邀请",
+				"fallbackTitle": "邀请",
+				"resend": "重新发送邀请"
+			},
+			"memberMenu": {
+				"changeRole": "更改角色",
+				"fallbackTitle": "成员",
+				"remove": "移出工作区"
+			},
 			"pending": {
-				"title": "待处理邀请",
 				"expires": "{{role}}，{{date}} 到期",
-				"manage": "管理"
+				"manage": "管理",
+				"title": "待处理邀请"
 			},
 			"people": {
 				"title": "成员",
 				"unknown": "未知",
 				"you": "（你）"
 			},
-			"memberMenu": {
-				"fallbackTitle": "成员",
-				"changeRole": "更改角色",
-				"remove": "移出工作区"
+			"remove": {
+				"confirm": "移除",
+				"message": "{{name}} 将失去 {{workspace}} 的访问权限。",
+				"they": "该成员",
+				"title": "移除成员？"
 			},
 			"rolePicker": {
 				"title": "角色"
 			},
-			"remove": {
-				"title": "移除成员？",
-				"message": "{{name}} 将失去 {{workspace}} 的访问权限。",
-				"they": "该成员",
-				"confirm": "移除"
-			},
-			"inviteMenu": {
-				"fallbackTitle": "邀请",
-				"resend": "重新发送邀请",
-				"cancel": "取消邀请"
-			},
-			"inviteForm": {
-				"title": "邀请成员",
-				"intro": "对方会收到包含 {{workspace}} 加入链接的邮件。",
-				"email": "邮箱",
-				"role": "角色",
-				"send": "发送邀请"
-			},
+			"thisWorkspace": "此工作区",
+			"title": "成员",
 			"toast": {
-				"roleUpdated": "角色已更新",
+				"canceled": "邀请已取消",
 				"removed": "成员已移除",
 				"resent": "邀请已重新发送",
-				"canceled": "邀请已取消",
+				"roleUpdated": "角色已更新",
 				"sent": "已向 {{email}} 发送邀请"
+			},
+			"description_one": "{{count}} person in {{name}}"
+		},
+		"meta": {
+			"labelColor": {
+				"amber": "琥珀",
+				"crimson": "深红",
+				"forest": "森林绿",
+				"lagoon": "泻湖青",
+				"lavender": "薰衣草",
+				"ocean": "海洋蓝",
+				"orchid": "兰花紫",
+				"rose": "玫红",
+				"sage": "鼠尾草绿",
+				"sky": "天空蓝",
+				"slate": "石板蓝",
+				"stone": "石板灰",
+				"terracotta": "赤陶"
+			},
+			"priority": {
+				"high": "高",
+				"low": "低",
+				"medium": "中",
+				"noPriority": "无优先级",
+				"urgent": "紧急"
+			},
+			"role": {
+				"admin": "管理员",
+				"member": "成员",
+				"owner": "所有者",
+				"viewer": "访客"
+			},
+			"roleHint": {
+				"admin": "还可以管理成员和设置",
+				"member": "可以创建和编辑任务",
+				"owner": "拥有全部权限，包括删除工作区",
+				"viewer": "可以查看项目和任务"
 			}
 		},
-		"labels": {
-			"title": "标签",
-			"description": "标签可帮助你分组和筛选任务。",
-			"new": "新建标签",
-			"edit": "编辑标签",
-			"delete": "删除标签",
-			"fallbackTitle": "标签",
+		"myTasks": {
+			"assigned_other": "已指派 {{count}} 个",
+			"by": {
+				"due": "截止日期",
+				"project": "项目",
+				"status": "状态"
+			},
+			"due": {
+				"later": "以后",
+				"none": "无截止日期",
+				"overdue": "已逾期",
+				"thisWeek": "本周",
+				"today": "今天"
+			},
 			"empty": {
-				"title": "无标签",
-				"message": "创建标签，在不同项目中分组和筛选任务。"
+				"message": "此工作区中指派给你的任务会显示在这里。",
+				"title": "暂时没有指派给你的任务"
 			},
-			"actions": "{{name}} 的操作",
-			"deleteTitle": "删除“{{name}}”？",
-			"deleteMessage": "此标签将从此工作区的所有任务中移除。",
-			"form": {
-				"name": "名称",
-				"color": "颜色"
+			"showing": "显示 {{total}} 个任务中的 {{shown}} 个",
+			"title": "我的任务",
+			"assigned_one": "{{count}} assigned"
+		},
+		"nav": {
+			"activity": "活动",
+			"home": "首页",
+			"inbox": "收件箱",
+			"inboxUnread": "收件箱，{{count}} 条未读",
+			"tasks": "我的任务"
+		},
+		"notificationSettings": {
+			"channel": {
+				"accessToken": "访问令牌",
+				"appToken": "应用令牌",
+				"enabled": "向此处发送通知",
+				"secretOptional": "可选",
+				"secretSaved": "已保存，输入新值即可替换",
+				"serverUrl": "服务器地址",
+				"signingSecret": "签名密钥",
+				"topic": "主题",
+				"webhookUrl": "Webhook 地址"
 			},
-			"toast": {
-				"deleted": "标签已删除"
+			"delivery": {
+				"email": "邮箱",
+				"emailHint": "发送至账户邮箱",
+				"gotifyHint": "向 Gotify 服务器发送通知",
+				"ntfyHint": "向 ntfy 主题发送通知",
+				"title": "通知渠道",
+				"webhook": "Webhook",
+				"webhookHint": "通过 POST 向 URL 发送通知"
+			},
+			"description": "设置 Kaneo 通知你的方式和内容。",
+			"events": {
+				"assignments": "指派",
+				"assignmentsHint": "任务指派给你时",
+				"comments": "评论",
+				"commentsHint": "你的任务有新评论时",
+				"dueDate": "截止日期提醒",
+				"dueDateHint": "指派给你的任务截止前",
+				"remindBefore": "提前 {{time}}",
+				"remindMe": "提醒我",
+				"remindPickerTitle": "提前提醒我",
+				"statusChanges": "状态变更",
+				"statusChangesHint": "你的任务在列之间移动时",
+				"title": "通知我关于"
+			},
+			"leadTime": {
+				"day1": "1 天",
+				"days2": "2 天",
+				"hour1": "1 小时",
+				"hours3": "3 小时",
+				"minutes_other": "{{count}} 分钟",
+				"minutes15": "15 分钟",
+				"week1": "1 周",
+				"minutes_one": "{{count}} minute"
+			},
+			"notSet": "未设置",
+			"off": "已关闭",
+			"on": "已开启",
+			"title": "通知"
+		},
+		"notificationText": {
+			"activity": {
+				"assignedTo": "将任务指派给 {{assignee}}",
+				"assigneeChanged": "更改了负责人",
+				"commented": "评论了：{{text}}",
+				"created": "创建了任务",
+				"descriptionChanged": "更新了描述",
+				"dueDateRemoved": "移除了截止日期",
+				"dueDateSet": "将截止日期设为 {{date}}",
+				"priorityChanged": "将优先级从 {{from}} 改为 {{to}}",
+				"renamed": "将名称改为“{{title}}”",
+				"selfAssigned": "将任务指派给自己",
+				"statusChanged": "将任务从 {{from}} 移至 {{to}}",
+				"taskUpdated": "更新了任务",
+				"titleChanged": "更改了标题",
+				"unassigned": "移除了负责人"
+			},
+			"assignedByActor": "{{actor}} 向你指派了任务",
+			"assignedToTask": "你被指派了“{{title}}”",
+			"assignedToUntitled": "你被指派了一个任务",
+			"commentedByActor": "{{actor}} 发表了评论",
+			"mentioned": "有人提及了你",
+			"mentionedByActor": "{{actor}} 提及了你",
+			"newComment": "新评论",
+			"statusChangedOnTask": "“{{title}}”的状态已变更",
+			"statusChangedOnUntitled": "任务状态已变更",
+			"statusTransition": "{{from}} → {{to}}",
+			"taskCreated": "有新任务指派给你",
+			"timeLoggedOnTask": "“{{title}}”的工时已记录",
+			"timeLoggedOnUntitled": "任务工时已记录",
+			"workspaceCreated": "工作区“{{name}}”已创建"
+		},
+		"picker": {
+			"clear": "清除",
+			"nextMonth": "下个月",
+			"nextWeek": "下周",
+			"previousMonth": "上个月"
+		},
+		"projectNew": {
+			"createProject": "创建项目",
+			"customerPortal": "客户门户",
+			"key": "标识",
+			"name": "名称",
+			"newProject": "新建项目",
+			"usedInTaskIDs": "用于任务 ID"
+		},
+		"projectSettings": {
+			"addColumn": "添加列",
+			"addField": "添加字段",
+			"allTasksCommentsAndTimeEntriesInThisProjectWillBePermanentlyDeleted": "此项目中的所有任务、评论和工时记录将被永久删除。",
+			"androidIOSWeb": "Android、iOS、网页",
+			"anyoneWithTheLinkCanViewTheBoard": "任何拥有链接的人都可以查看看板",
+			"archive": "归档",
+			"archiveProject": "归档项目",
+			"archiveProjectTitle": "归档项目？",
+			"blocked": "受阻",
+			"changesFutureAndExistingTaskIDs": "将更改现有及今后的任务 ID",
+			"checkbox": "复选框",
+			"column": "列",
+			"columnDeleted": "列已删除",
+			"columns": "列",
+			"customFields": "自定义字段",
+			"date": "日期",
+			"deleteColumn": "删除列",
+			"deleteField": "删除字段",
+			"deleteNamedTitle": "删除“{{name}}”？",
+			"deleteProject": "删除项目",
+			"deleteProjectTitle": "删除项目？",
+			"doneColumn": "完成列",
+			"dropdown": "下拉选择",
+			"field": "字段",
+			"fieldDeleted": "字段已删除",
+			"general": "常规",
+			"itDisappearsFromTheProjectListYouCanRestoreItLater": "项目将从列表中隐藏，你可以稍后恢复。",
+			"key": "标识",
+			"markAsDoneColumn": "设为完成列",
+			"moveDown": "下移",
+			"moveToAnotherWorkspace": "移动到其他工作区",
+			"moveToWorkspace": "移至工作区",
+			"moveUp": "上移",
+			"multiSelect": "多选",
+			"name": "名称",
+			"newColumn": "新建列",
+			"newCustomField": "新建自定义字段",
+			"noCustomFields": "无自定义字段",
+			"number": "数字",
+			"ok": "确定",
+			"options": "选项",
+			"platform": "平台",
+			"project": "项目",
+			"projectArchived": "项目已归档",
+			"projectDeleted": "项目已删除",
+			"projectMoved": "项目已移动",
+			"projectRestored": "项目已恢复",
+			"projectSettings": "项目设置",
+			"projectUpdated": "项目已更新",
+			"publicBoard": "公开看板",
+			"rename": "重命名",
+			"renameColumn": "重命名列",
+			"required": "必填",
+			"restoreProject": "恢复项目",
+			"saveChanges": "保存更改",
+			"separateWithCommas": "用逗号分隔",
+			"tasksHereCountAsFinished": "此列中的任务视为已完成",
+			"tasksInThisColumnMayNeedToBeMovedFirst": "可能需要先移动此列中的任务。",
+			"text": "文本",
+			"type": "类型",
+			"unmarkAsDoneColumn": "取消设为完成列",
+			"valuesStoredInThisFieldAreDeletedFromEveryTask": "所有任务中此字段存储的值都将被删除。",
+			"checked": "已勾选",
+			"chooseDefault": "选择默认值",
+			"defaultValue": "默认值",
+			"multiselectOptionsRequired": "请添加至少两个不同的选项。",
+			"unchecked": "未勾选",
+			"validDefaultRequired": "请为此必填字段输入有效的默认值。"
+		},
+		"search": {
+			"clear": "清除",
+			"commentMeta": "{{name}}，{{when}}",
+			"empty": {
+				"message": "按标题或编号查找任务，也可搜索项目和评论。",
+				"title": "搜索此工作区"
+			},
+			"failed": "搜索失败",
+			"kinds": {
+				"all": "全部",
+				"comments": "评论",
+				"projects": "项目",
+				"tasks": "任务",
+				"activity": "活动"
+			},
+			"noResults": "没有“{{query}}”的搜索结果",
+			"placeholder": "搜索任务、项目和评论"
+		},
+		"signIn": {
+			"apiKey": {
+				"label": "API 密钥",
+				"message": "请在网页版的“设置”→“API 密钥”中创建。即使其他登录方式已关闭，仍可使用。"
+			},
+			"browserHint": "GitHub、Google、Discord 或 SSO",
+			"captcha": "此步骤需要浏览器验证，请使用“在浏览器中继续”。",
+			"change": "更改",
+			"cloud": "Kaneo Cloud",
+			"code": {
+				"checkEmail": "请检查你的邮箱",
+				"didntGet": "没收到？",
+				"message": "我们会向你发送包含 6 位验证码的邮件，无需密码。",
+				"resend": "重新发送验证码",
+				"send": "发送验证码",
+				"sent": "已向 {{email}} 发送 6 位验证码",
+				"title": "使用验证码登录",
+				"verify": "验证"
+			},
+			"connect": "连接",
+			"continueInBrowser": "在浏览器中继续",
+			"createAccount": "创建账户",
+			"device": {
+				"codeCopied": "验证码已复制",
+				"copyCode": "复制验证码",
+				"copyLink": "复制链接",
+				"denied": "登录在浏览器中被拒绝。",
+				"expired": "登录验证码已过期，请重新开始以获取新验证码。",
+				"gettingCode": "正在获取验证码…",
+				"linkCopied": "链接已复制",
+				"message": "请在 Kaneo 网站上批准此设备。你可以使用 GitHub、Google、Discord 或 SSO。",
+				"openBrowser": "打开浏览器",
+				"openFailed": "无法打开浏览器，请复制链接。",
+				"tryAgain": "重试",
+				"waiting": "等待批准…",
+				"yourCode": "你的验证码"
+			},
+			"email": "邮箱",
+			"emailCode": "通过邮件获取登录验证码",
+			"invalidClient": "此服务器不允许设备登录。请让管理员在 DEVICE_AUTH_CLIENT_IDS 中添加“kaneo-cli”，或使用密码或 API 密钥登录。",
+			"newToKaneo": "初次使用 Kaneo？",
+			"noPassword": "无需密码",
+			"or": "或",
+			"password": "密码",
+			"recent": "最近",
+			"selfHosted": "自托管",
+			"sendTo": "发送至 {{email}}",
+			"serverAddress": "服务器地址",
+			"serverAddressHint": "打开 Kaneo 时使用的地址。未启用 TLS 的服务器请使用 http://。如果 API 运行在其他主机上，请输入 API 地址。",
+			"signIn": "登录",
+			"signUp": {
+				"name": "姓名",
+				"passwordHint": "至少 8 个字符"
+			},
+			"tagline": "简单的项目管理。连接 Kaneo Cloud 或你自己的实例。",
+			"togglePassword": "切换密码显示",
+			"useApiKey": "使用 API 密钥",
+			"unlock": {
+				"buy": "解锁（{{price}}）",
+				"buyNoPrice": "解锁",
+				"message": "登录 Kaneo Cloud 始终免费。将应用连接到自托管服务器需一次性购买，以支持 Kaneo 的开发。",
+				"nothingToRestore": "未在此商店账户中找到之前的购买记录。",
+				"restore": "恢复购买",
+				"title": "连接你自己的服务器",
+				"unavailable": "当前无法购买，请稍后再试。"
 			}
+		},
+		"taskDetail": {
+			"activity": {
+				"comment": "评论",
+				"deleteMessage": "此操作无法撤销。",
+				"deleteTitle": "删除评论？",
+				"edit": "编辑",
+				"editComment": "编辑评论",
+				"edited": "{{time}}，已编辑",
+				"entry": "{{name}} {{action}}",
+				"title": "活动"
+			},
+			"fields": {
+				"empty": "空",
+				"none": "无",
+				"title": "字段"
+			},
+			"links": {
+				"add": "添加链接",
+				"empty": "无链接",
+				"optional": "可选",
+				"remove": "移除链接",
+				"synced": "已同步",
+				"title": "链接",
+				"titleLabel": "标题",
+				"url": "URL"
+			},
+			"menu": {
+				"delete": "删除任务",
+				"deleted": "任务已删除",
+				"deleteMessage": "“{{title}}”及其评论将被永久删除。",
+				"deleteTitle": "删除任务？",
+				"duplicate": "创建副本",
+				"duplicated": "任务副本已创建",
+				"move": "移至项目…",
+				"moved": "任务已移动",
+				"moveTitle": "移至项目",
+				"refresh": "刷新",
+				"share": "分享"
+			},
+			"relations": {
+				"blockedBy": "被阻塞",
+				"blocks": "阻塞",
+				"empty": "无关联任务",
+				"link": "关联任务",
+				"related": "关联",
+				"relatedTo": "关联到",
+				"remove": "移除关联",
+				"removeConfirm": "移除",
+				"removeMessage": "任务将保留，仅移除它们之间的关联。",
+				"removeTitle": "移除关联？",
+				"searchPlaceholder": "按标题或编号搜索任务",
+				"title": "关联"
+			},
+			"screen": {
+				"addDescription": "添加描述…",
+				"copyLink": "复制链接",
+				"editDescription": "编辑描述",
+				"editTitle": "编辑标题",
+				"linkCopied": "链接已复制",
+				"more": "更多"
+			},
+			"section": {
+				"addTo": "添加到 {{title}}"
+			},
+			"someone": "某人",
+			"status": {
+				"archived": "已归档",
+				"planned": "已计划"
+			},
+			"subtasks": {
+				"add": "添加子任务",
+				"empty": "无子任务",
+				"parent": "父任务",
+				"title": "子任务"
+			},
+			"time": {
+				"chipHours": "{{count}}小时",
+				"chipMinutes": "{{count}}分",
+				"date": "日期",
+				"durationHoursMinutes": "{{hours}}小时 {{minutes}}分",
+				"durationMinutes": "{{minutes}}分",
+				"editEntry": "编辑工时记录",
+				"hoursUnit": "小时",
+				"log": "记录工时",
+				"logDuration": "记录 {{duration}}",
+				"logged": "工时已记录",
+				"minutesUnit": "分",
+				"notePlaceholder": "你做了什么工作？",
+				"running": "{{time}}（计时中）",
+				"start": "启动计时器",
+				"stop": "停止",
+				"title": "工时",
+				"total": "共 {{duration}}"
+			}
+		},
+		"taskFields": {
+			"addNumber": "添加数字",
+			"archived": "已归档",
+			"assignee": "负责人",
+			"createLabel": "创建标签“{{name}}”",
+			"done": "完成",
+			"doneColumn": "完成列",
+			"dueDate": "截止日期",
+			"empty": "空",
+			"labelColor": "新标签的颜色",
+			"labels": "标签",
+			"noLabels": "暂无标签，输入名称即可创建。",
+			"none": "无",
+			"overdue_other": "{{date}}，已逾期 {{count}} 天",
+			"planned": "已计划",
+			"priority": "优先级",
+			"searchOrCreate": "搜索或创建",
+			"searchPeople": "搜索成员",
+			"startDate": "开始日期",
+			"starts": "开始于 {{date}}",
+			"status": "状态",
+			"unassigned": "未指派",
+			"you": "{{name}}（你）",
+			"overdue_one": "{{date}}, {{count}} day overdue"
+		},
+		"taskNew": {
+			"create": "创建",
+			"newSubtask": "新建子任务",
+			"noLabels": "此工作区暂无标签。",
+			"project": "项目",
+			"taskTitle": "任务标题",
+			"labelsAndParentFailed": "任务已创建，但部分标签和父任务关联未能保存。",
+			"labelsFailed": "任务已创建，但部分标签未能添加。",
+			"parentFailed": "任务已创建，但未能关联到父任务。"
+		},
+		"time": {
+			"durationHoursMinutes": "{{hours}}小时 {{minutes}}分",
+			"goodAfternoon": "下午好",
+			"goodEvening": "晚上好",
+			"goodMorning": "早上好",
+			"hours_other": "{{count}} 小时",
+			"hoursAgo_other": "{{count}} 小时前",
+			"hoursShort_other": "{{count}}小时",
+			"justNow": "刚刚",
+			"minutes_other": "{{count}} 分钟",
+			"minutesAgo_other": "{{count}} 分钟前",
+			"minutesShort_other": "{{count}}分",
+			"now": "现在",
+			"secondsShort_other": "{{count}}秒",
+			"today": "今天",
+			"tomorrow": "明天",
+			"yesterday": "昨天",
+			"minutesShort_one": "{{count}}m",
+			"hoursShort_one": "{{count}}h",
+			"secondsShort_one": "{{count}}s",
+			"minutesAgo_one": "{{count}} min ago",
+			"hoursAgo_one": "{{count}} hr ago",
+			"minutes_one": "{{count}} min",
+			"hours_one": "{{count}} hr"
+		},
+		"ui": {
+			"back": "返回",
+			"loadFailed": "无法加载",
+			"nothingMatches": "没有与“{{query}}”匹配的内容",
+			"search": "搜索"
+		},
+		"workspaceNew": {
+			"create": "创建工作区",
+			"description": "集中管理团队项目的地方。接下来可以邀请成员。",
+			"descriptionLabel": "描述",
+			"descriptionPlaceholder": "这个工作区用来做什么？",
+			"name": "名称",
+			"namePlaceholder": "设计工作室",
+			"optional": "可选",
+			"title": "新建工作区"
+		},
+		"workspaceSettings": {
+			"confirm": {
+				"deleteMessage": "{{name}} 中的所有项目、任务和评论将被永久删除。",
+				"deleteTitle": "删除工作区？",
+				"leaveMessage": "在收到新邀请之前，你将无法访问此工作区。",
+				"leaveTitle": "退出工作区？"
+			},
+			"danger": {
+				"delete": "删除工作区",
+				"deleteHint": "删除其中所有项目和任务",
+				"leave": "退出工作区",
+				"leaveButton": "退出",
+				"leaveHint": "你可以通过新邀请重新加入",
+				"title": "危险区域"
+			},
+			"description": "适用于 {{name}} 所有成员的设置。",
+			"general": {
+				"description": "描述",
+				"name": "名称",
+				"save": "保存更改",
+				"slug": "短标识：<mono>{{slug}}</mono>",
+				"title": "常规"
+			},
+			"manage": {
+				"labels": "标签",
+				"members": "成员",
+				"title": "管理"
+			},
+			"thisWorkspace": "此工作区",
+			"title": "工作区",
+			"toast": {
+				"deleted": "工作区已删除",
+				"left": "你已退出工作区",
+				"updated": "工作区已更新"
+			}
+		},
+		"workspaceSwitcher": {
+			"create": "创建工作区",
+			"invitations": "邀请",
+			"labels": "标签",
+			"members": "成员",
+			"settings": "工作区设置",
+			"title": "工作区"
 		},
 		"permissions": {
 			"photos": "Kaneo 使用你的照片为任务和评论添加图片，以及设置你的头像。"
