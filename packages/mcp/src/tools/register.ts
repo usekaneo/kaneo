@@ -25,6 +25,23 @@ const prioritySchema = z.enum([
   "urgent",
 ]);
 
+// Keep in step with apps/api/src/contact/options.ts.
+const contactTypeSchema = z.enum([
+  "retailer",
+  "distributor",
+  "end-user",
+  "partner",
+  "other",
+]);
+const contactRegionSchema = z.enum([
+  "male",
+  "hulhumale",
+  "north-atolls",
+  "central-atolls",
+  "south-atolls",
+  "other",
+]);
+
 const nonEmptyString = z.string().trim().min(1);
 const optionalNonEmptyString = nonEmptyString.optional();
 const nullableOptionalNonEmptyString = nonEmptyString.nullable().optional();
@@ -297,6 +314,12 @@ export function registerTools(
         startDate: optionalIsoDateTimeSchema,
         dueDate: optionalIsoDateTimeSchema,
         userId: optionalNonEmptyString,
+        contactId: z
+          .string()
+          .trim()
+          .min(1)
+          .optional()
+          .describe("Contact this task is a lead for; see list_contacts."),
       }),
     },
     async (args) => {
@@ -314,6 +337,9 @@ export function registerTools(
       }
       if (args.userId !== undefined) {
         body.userId = args.userId;
+      }
+      if (args.contactId !== undefined) {
+        body.contactId = args.contactId;
       }
       return run(() =>
         client.json(`/api/task/${encodeURIComponent(args.projectId)}`, {
@@ -664,6 +690,78 @@ export function registerTools(
         client.json(
           `/api/workspace/${encodeURIComponent(args.workspaceId)}/members`,
         ),
+      ),
+  );
+
+  registerTool(
+    "list_contacts",
+    {
+      description:
+        "List the workspace's shared sales contacts, optionally filtered by search text (name, phone, email), type, or region. Each has a leadCount of linked tasks.",
+      inputSchema: z.object({
+        workspaceId: nonEmptyString,
+        search: optionalNonEmptyString,
+        type: contactTypeSchema.optional(),
+        region: contactRegionSchema.optional(),
+      }),
+    },
+    async (args) => {
+      const query = new URLSearchParams();
+      if (args.search) query.set("search", args.search);
+      if (args.type) query.set("type", args.type);
+      if (args.region) query.set("region", args.region);
+      const suffix = query.size > 0 ? `?${query}` : "";
+      return run(() =>
+        client.json(
+          `/api/contact/workspace/${encodeURIComponent(args.workspaceId)}${suffix}`,
+        ),
+      );
+    },
+  );
+
+  registerTool(
+    "create_contact",
+    {
+      description:
+        "Add a shared sales contact to a workspace. Type and region default to 'other'. Link leads to it with create_task (contactId) or set_task_contact.",
+      inputSchema: z.object({
+        workspaceId: nonEmptyString,
+        name: nonEmptyString,
+        phone: optionalNonEmptyString,
+        email: optionalNonEmptyString,
+        type: contactTypeSchema.optional(),
+        region: contactRegionSchema.optional(),
+        notes: optionalNonEmptyString,
+      }),
+    },
+    async ({ workspaceId, ...body }) =>
+      run(() =>
+        client.json(
+          `/api/contact/workspace/${encodeURIComponent(workspaceId)}`,
+          {
+            method: "POST",
+            body: JSON.stringify(body),
+          },
+        ),
+      ),
+  );
+
+  registerTool(
+    "set_task_contact",
+    {
+      description:
+        "Link a task (lead) to a contact, or pass contactId null to remove the link.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        contactId: nonEmptyString.nullable(),
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(`/api/task/contact/${encodeURIComponent(args.taskId)}`, {
+          method: "PUT",
+          body: JSON.stringify({ contactId: args.contactId }),
+        }),
       ),
   );
 

@@ -536,6 +536,38 @@ export const calendarFeedTable = pgTable(
   (table) => [index("calendar_feed_project_id_idx").on(table.projectId)],
 );
 
+// Shared sales contacts for a workspace; leads are tasks that point at one.
+export const contactTable = pgTable(
+  "contact",
+  {
+    id: text("id")
+      .$defaultFn(() => createId())
+      .primaryKey(),
+    workspaceId: text("workspace_id")
+      .notNull()
+      .references(() => workspaceTable.id, {
+        onDelete: "cascade",
+        onUpdate: "cascade",
+      }),
+    name: text("name").notNull(),
+    phone: text("phone"),
+    email: text("email"),
+    type: text("type").notNull().default("other"),
+    region: text("region").notNull().default("other"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { mode: "date" })
+      .default(utcNow)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" })
+      .default(utcNow)
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("contact_workspace_name_idx").on(table.workspaceId, table.name),
+  ],
+);
+
 export const taskTable = pgTable(
   "task",
   {
@@ -564,6 +596,10 @@ export const taskTable = pgTable(
     priority: text("priority").default("low").notNull(),
     startDate: timestamp("start_date", { mode: "date" }),
     dueDate: timestamp("due_date", { mode: "date" }),
+    contactId: text("contact_id").references(() => contactTable.id, {
+      onDelete: "set null",
+      onUpdate: "cascade",
+    }),
     recurrence: jsonb("recurrence").$type<TaskRecurrence>(),
     createdAt: timestamp("created_at", { mode: "date" })
       .default(utcNow)
@@ -583,6 +619,7 @@ export const taskTable = pgTable(
     index("task_dueDate_idx").on(table.dueDate),
     index("task_assigneeId_idx").on(table.userId),
     index("task_columnId_idx").on(table.columnId),
+    index("task_contactId_idx").on(table.contactId),
     unique("task_project_number_unique").on(table.projectId, table.number),
   ],
 );

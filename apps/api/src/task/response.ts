@@ -29,6 +29,9 @@ export const taskSchema = z
     priority: z.string().openapi({ description: priorityDescription }),
     startDate: nullableResponseTimestamp,
     dueDate: nullableResponseTimestamp,
+    contactId: z.string().nullable().optional().openapi({
+      description: "The linked workspace contact, if any.",
+    }),
     recurrence: z.union([taskRecurrenceSchema, z.null()]).optional(),
     createdAt: responseTimestamp,
     customFields: z

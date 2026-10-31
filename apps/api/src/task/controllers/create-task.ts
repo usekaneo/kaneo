@@ -1,3 +1,4 @@
+import { assertContactInWorkspace } from "../assert-contact-in-workspace";
 import { extractAssetIds } from "../../storage/cleanup-assets";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { HTTPException } from "hono/http-exception";
@@ -56,6 +57,7 @@ async function createTask({
   projectId,
   currentUserId,
   userId,
+  contactId,
   title,
   status,
   startDate,
@@ -69,6 +71,7 @@ async function createTask({
   projectId: string;
   currentUserId: string;
   userId?: string;
+  contactId?: string;
   title: string;
   status: string;
   startDate?: Date;
@@ -133,6 +136,13 @@ async function createTask({
 
   await assertRequiredCustomFields(projectId, mergedCustomFields);
 
+  if (contactId) {
+    await assertContactInWorkspace(
+      contactId,
+      await getProjectWorkspaceId(projectId),
+    );
+  }
+
   let assignee: { name: string } | undefined;
 
   if (normalizedUserId) {
@@ -174,6 +184,7 @@ async function createTask({
       .values({
         projectId,
         userId: normalizedUserId ?? null,
+        contactId: contactId || null,
         title: title || "",
         status: resolvedStatus,
         columnId: column?.id ?? null,

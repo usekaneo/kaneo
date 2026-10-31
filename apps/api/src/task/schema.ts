@@ -82,6 +82,9 @@ export const createTaskBody = z.object({
   priority,
   status: z.string().openapi({ description: "The target column's slug." }),
   userId: z.string().optional().openapi({ description: "Assignee, if any." }),
+  contactId: z.string().optional().openapi({
+    description: "Shared workspace contact this task is a lead for, if any.",
+  }),
   recurrence: taskRecurrenceSchema
     .optional()
     .openapi({ description: "Omit to create a task that does not repeat." }),
@@ -137,6 +140,12 @@ export const updateStatusBody = z.object({ status: z.string() });
 export const updatePriorityBody = z.object({ priority });
 export const updateAssigneeBody = z.object({
   userId: z.string().nullable().openapi({ description: "Null unassigns." }),
+});
+export const updateTaskContactBody = z.object({
+  contactId: z
+    .string()
+    .nullable()
+    .openapi({ description: "Contact to link; null removes the link." }),
 });
 export const updateDueDateBody = z.object({ dueDate: z.string().optional() });
 export const updateRecurrenceBody = z.object({

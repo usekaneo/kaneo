@@ -2425,7 +2425,8 @@
 			"inbox": "Inbox",
 			"myTasks": "My tasks",
 			"resources": "Resources",
-			"invitePeople": "Invite people"
+			"invitePeople": "Invite people",
+			"contacts": "Contacts"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -3586,6 +3587,58 @@
 			"deleteConfirm": "Remove link",
 			"deleteSuccess": "Link removed",
 			"deleteError": "The link couldn't be removed."
+		},
+		"contacts": {
+			"pageTitle": "Contacts",
+			"description": "Shared sales contacts. Link a task to a contact to track a lead.",
+			"add": "Add contact",
+			"newTitle": "Add a contact",
+			"editTitle": "Edit contact",
+			"name": "Name",
+			"phone": "Phone",
+			"email": "Email",
+			"type": "Type",
+			"region": "Region",
+			"notes": "Notes",
+			"leads": "Leads",
+			"taskLabel": "Contact",
+			"noContact": "No contact",
+			"searchPlaceholder": "Search name, phone or email",
+			"allTypes": "All types",
+			"allRegions": "All regions",
+			"emptyTitle": "No contacts yet",
+			"emptyDescription": "Add the people and businesses your sales team follows up with.",
+			"noMatches": "No contacts match your filters",
+			"loadError": "Contacts couldn't be loaded.",
+			"retry": "Try again",
+			"save": "Save",
+			"create": "Add contact",
+			"createSuccess": "Contact added",
+			"updateSuccess": "Contact updated",
+			"saveError": "Failed to save the contact.",
+			"deleteTitle": "Delete {{name}}?",
+			"deleteDescription": "Linked tasks are kept, but they will no longer point at this contact.",
+			"delete": "Delete",
+			"deleteSuccess": "Contact deleted",
+			"deleteError": "Failed to delete the contact.",
+			"linkError": "Failed to link the contact.",
+			"editAria": "Edit {{name}}",
+			"deleteAria": "Delete {{name}}",
+			"types": {
+				"retailer": "Retailer",
+				"distributor": "Distributor",
+				"end-user": "End user",
+				"partner": "Partner",
+				"other": "Other"
+			},
+			"regions": {
+				"male": "Malé",
+				"hulhumale": "Hulhumalé",
+				"north-atolls": "North atolls",
+				"central-atolls": "Central atolls",
+				"south-atolls": "South atolls",
+				"other": "Other"
+			}
 		}
 	},
 	"team": {

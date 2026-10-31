@@ -491,6 +491,13 @@
       "when": 1793287988897,
       "tag": "0069_unusual_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 70,
+      "version": "7",
+      "when": 1793483702777,
+      "tag": "0070_lovely_wind_dancer",
+      "breakpoints": true
     }
   ]
 }

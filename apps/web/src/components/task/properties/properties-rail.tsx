@@ -1,11 +1,13 @@
 import { Calendar, CalendarDays } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import icons from "@/constants/project-icons";
+import { useWorkspacePermission } from "@/hooks/use-workspace-permission";
 import { getColumnIcon } from "@/lib/column";
 import { cn } from "@/lib/cn";
 import { formatDateShort } from "@/lib/format";
 import { getPriorityLabel } from "@/lib/i18n/domain";
 import { getPriorityIcon } from "@/lib/priority";
+import { TaskContactRow } from "@/components/contacts/task-contact-row";
 import { TaskCustomFieldRows } from "../custom-fields/task-custom-field-rows";
 import TaskAssigneePopover from "../task-assignee-popover";
 import TaskDueDatePopover from "../task-due-date-popover";
@@ -36,6 +38,7 @@ export function PropertiesRail({
   className,
 }: PropertiesRailProps) {
   const { t } = useTranslation();
+  const { canUpdateTasks } = useWorkspacePermission();
   const { task, project, labels, status, assignee, dueStatus, canMoveTask } =
     useTaskProperties(taskId, projectId, workspaceId);
 
@@ -100,6 +103,13 @@ export function PropertiesRail({
             </PropertyValue>
           </TaskAssigneePopover>
         </PropertyRow>
+
+        <TaskContactRow
+          taskId={taskId}
+          workspaceId={workspaceId}
+          contactId={task.contactId}
+          canEdit={canUpdateTasks()}
+        />
 
         <PropertyRow label={t("tasks:properties.labels")} align="start">
           <TaskLabelsPopover task={task} workspaceId={workspaceId}>

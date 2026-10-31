@@ -1310,6 +1310,13 @@
             ],
             "format": "date-time"
           },
+          "contactId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The linked workspace contact, if any."
+          },
           "recurrence": {
             "anyOf": [
               {
@@ -4323,6 +4330,68 @@
           "description",
           "emoji",
           "position",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "workspaceId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "email": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "leadCount": {
+            "type": "integer",
+            "description": "Number of tasks (leads) linked to this contact."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "workspaceId",
+          "name",
+          "phone",
+          "email",
+          "type",
+          "region",
+          "notes",
           "createdAt",
           "updatedAt"
         ]
@@ -11560,6 +11629,10 @@
                     "type": "string",
                     "description": "Assignee, if any."
                   },
+                  "contactId": {
+                    "type": "string",
+                    "description": "Shared workspace contact this task is a lead for, if any."
+                  },
                   "recurrence": {
                     "allOf": [
                       {
@@ -12746,6 +12819,103 @@
           },
           "404": {
             "description": "Task not found, or assignee is not a member of the workspace",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/task/contact/{id}": {
+      "put": {
+        "operationId": "updateTaskContact",
+        "tags": [
+          "Tasks"
+        ],
+        "summary": "Link a task to a contact",
+        "description": "Mark a task as a lead for a shared workspace contact, or send null to remove the link.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contactId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Contact to link; null removes the link."
+                  }
+                },
+                "required": [
+                  "contactId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "No access to the project, or missing task:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found, or contact is not in the task's workspace",
             "content": {
               "application/json": {
                 "schema": {
@@ -23228,6 +23398,486 @@
           },
           "404": {
             "description": "Project or resource link not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/contact/workspace/{workspaceId}": {
+      "get": {
+        "operationId": "listContacts",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "List contacts",
+        "description": "List the workspace's shared sales contacts by name, optionally filtered by search text, type, or region. Returns at most 500.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Match against name, phone, or email (case-insensitive)."
+            },
+            "required": false,
+            "description": "Match against name, phone, or email (case-insensitive).",
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "retailer",
+                "distributor",
+                "end-user",
+                "partner",
+                "other"
+              ]
+            },
+            "required": false,
+            "name": "type",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "male",
+                "hulhumale",
+                "north-atolls",
+                "central-atolls",
+                "south-atolls",
+                "other"
+              ]
+            },
+            "required": false,
+            "name": "region",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contacts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createContact",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Create a contact",
+        "description": "Add a shared contact. Type and region default to `other` and must come from the fixed lists.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120,
+                    "description": "Person or company name"
+                  },
+                  "phone": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 40,
+                    "description": "Phone number; empty clears it"
+                  },
+                  "email": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 254,
+                    "description": "Email address; empty clears it"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "retailer",
+                      "distributor",
+                      "end-user",
+                      "partner",
+                      "other"
+                    ],
+                    "default": "other",
+                    "description": "What kind of contact this is"
+                  },
+                  "region": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "hulhumale",
+                      "north-atolls",
+                      "central-atolls",
+                      "south-atolls",
+                      "other"
+                    ],
+                    "default": "other",
+                    "description": "Where the contact operates"
+                  },
+                  "notes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2000,
+                    "description": "Free-form notes; empty clears it"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Contact created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing task:create permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/contact/workspace/{workspaceId}/{id}": {
+      "patch": {
+        "operationId": "updateContact",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Update a contact",
+        "description": "Change a contact. Send null to clear phone, email, or notes.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120,
+                    "description": "Person or company name"
+                  },
+                  "phone": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 40,
+                    "description": "Phone number; empty clears it"
+                  },
+                  "email": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 254,
+                    "description": "Email address; empty clears it"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "retailer",
+                      "distributor",
+                      "end-user",
+                      "partner",
+                      "other"
+                    ],
+                    "description": "What kind of contact this is"
+                  },
+                  "region": {
+                    "type": "string",
+                    "enum": [
+                      "male",
+                      "hulhumale",
+                      "north-atolls",
+                      "central-atolls",
+                      "south-atolls",
+                      "other"
+                    ],
+                    "description": "Where the contact operates"
+                  },
+                  "notes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2000,
+                    "description": "Free-form notes; empty clears it"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contact updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing task:update permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or contact not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteContact",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Delete a contact",
+        "description": "Delete a contact. Tasks linked to it are kept and simply lose the link.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing task:delete permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or contact not found",
             "content": {
               "application/json": {
                 "schema": {
