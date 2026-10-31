@@ -53,6 +53,7 @@ async function listContacts({
       projectTable,
       and(
         eq(projectTable.id, taskTable.projectId),
+        eq(projectTable.workspaceId, contactTable.workspaceId),
         projectAccessCondition(userId, projectTable.id),
       ),
     )

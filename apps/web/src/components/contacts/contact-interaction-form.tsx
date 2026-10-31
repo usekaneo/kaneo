@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { ContactTimeline } from "@/fetchers/contact";
-import { useLogInteraction } from "@/hooks/mutations/contact/use-log-interaction";
+import {
+  FollowUpNotSavedError,
+  useLogInteraction,
+} from "@/hooks/mutations/contact/use-log-interaction";
 import { toast } from "@/lib/toast";
 import { followUpIso } from "./follow-up-label";
 
@@ -58,6 +61,12 @@ export function ContactInteractionForm({
       setDate("");
       toast.success(t("workspace:contacts.interactionLogged"));
     } catch (error) {
+      if (error instanceof FollowUpNotSavedError) {
+        // The note is already saved; clearing it avoids a duplicate on retry.
+        setNote("");
+        toast.error(t("workspace:contacts.followUpError"));
+        return;
+      }
       toast.error(
         errorMessage(error, t("workspace:contacts.interactionError")),
       );

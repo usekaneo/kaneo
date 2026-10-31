@@ -3652,7 +3652,9 @@
 			"interactionError": "Failed to log the interaction.",
 			"timelineError": "The timeline couldn't be loaded.",
 			"showMore": "Show older",
-			"unknownAuthor": "Unknown"
+			"unknownAuthor": "Unknown",
+			"followUpError": "Interaction logged, but the follow-up date couldn't be set.",
+			"close": "Close"
 		}
 	},
 	"team": {

@@ -10,6 +10,10 @@ type LogInteractionInput = {
   nextFollowUp?: string;
 };
 
+// Thrown when the note was saved but the follow-up date was not, so the form can
+// clear the note instead of inviting a duplicate on retry.
+export class FollowUpNotSavedError extends Error {}
+
 // An interaction is a comment on the lead, so it also shows in the task itself.
 export function useLogInteraction(workspaceId: string, contactId: string) {
   const queryClient = useQueryClient();
@@ -19,11 +23,17 @@ export function useLogInteraction(workspaceId: string, contactId: string) {
     mutationFn: async ({ lead, note, nextFollowUp }: LogInteractionInput) => {
       await createActivity({ taskId: lead.id, comment: note });
       if (nextFollowUp) {
-        await updateDueDate({
-          id: lead.id,
-          projectId: lead.projectId,
-          dueDate: nextFollowUp,
-        } as Task);
+        try {
+          await updateDueDate({
+            id: lead.id,
+            projectId: lead.projectId,
+            dueDate: nextFollowUp,
+          } as Task);
+        } catch (error) {
+          throw new FollowUpNotSavedError(
+            error instanceof Error ? error.message : undefined,
+          );
+        }
       }
     },
     onSettled: (_data, _error, { lead }) => {

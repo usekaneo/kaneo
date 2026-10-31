@@ -7,6 +7,7 @@ import {
   SheetPopup,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Contact } from "@/fetchers/contact";
 import { useContactTimeline } from "@/hooks/queries/contact/use-contact-timeline";
@@ -58,9 +59,19 @@ export function ContactTimelineSheet({
               <Skeleton className="h-24" />
             </div>
           ) : isError || !data || !contact ? (
-            <p role="alert" className="text-destructive-foreground text-sm">
-              {t("workspace:contacts.timelineError")}
-            </p>
+            <div role="alert" className="space-y-3">
+              <p className="text-destructive-foreground text-sm">
+                {t("workspace:contacts.timelineError")}
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onOpenChange(false)}
+              >
+                {t("workspace:contacts.close")}
+              </Button>
+            </div>
           ) : (
             <>
               <section className="space-y-2">

@@ -238,6 +238,14 @@ async function moveProject(
           ),
         );
 
+      // Contacts are workspace-wide, so leads leaving the workspace lose the link.
+      await tx
+        .update(taskTable)
+        .set({ contactId: null })
+        .where(
+          and(eq(taskTable.projectId, id), isNotNull(taskTable.contactId)),
+        );
+
       // Assets, resource links and task labels denormalize the project's workspace.
       await tx
         .update(assetTable)
