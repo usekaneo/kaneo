@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kaneo 3 — Project management that doesn’t become the project</title>
+<meta name="description" content="Kaneo 3 brings a cleaner interface and an agent that works alongside your team. Open source, and free to self-host." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy: #0e1c44;
+    --navy-2: #1b2d5e;
+    --body: #4b5672;
+    --muted: #7a8299;
+    --tint: #f1f6fd;
+    --line: #e3e8f2;
+    --max: 1200px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; font-family: "Geist", system-ui, sans-serif; color: var(--navy); background: #fff; -webkit-font-smoothing: antialiased; }
+  img { display: block; max-width: 100%; height: auto; }
+  .bento > *, .int > div, .split > *, .caps > *, .faq > div > * { min-width: 0; }
+  .chip-row .grow { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  html, body { overflow-x: clip; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, p { margin: 0; }
+  .wrap { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
+  .mono { font-family: "Geist Mono", ui-monospace, monospace; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 26px; border-radius: 999px; font-weight: 600; font-size: 16px; transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .2s; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: scale(.98); }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-white { background: #fff; color: var(--navy); }
+  .btn .arrow { transition: transform .2s; }
+  .btn:hover .arrow { transform: translateX(3px); }
+  .btn:focus-visible, a:focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; }
+
+  /* Hero */
+  .hero { position: relative; overflow: hidden; padding-bottom: 40px; }
+  .sky { position: absolute; inset: 0 0 auto 0; height: 1120px; background: #fff url("assets/sky.jpg") center top / cover no-repeat; animation: drift 60s ease-in-out infinite alternate; }
+  .sky::after { content: ""; position: absolute; inset: auto 0 -2px 0; height: 262px; background: linear-gradient(180deg, rgba(255,255,255,0), #fff 92%); }
+  @keyframes drift { from { background-position: 48% top; } to { background-position: 52% top; } }
+  nav { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 28px 56px; }
+  nav .links { display: flex; gap: 36px; font-size: 15px; font-weight: 500; color: rgba(255,255,255,.9); }
+  nav .links a:hover { color: #fff; }
+  nav .actions { display: flex; align-items: center; gap: 8px; }
+  nav .signin { padding: 10px 16px; font-size: 15px; font-weight: 500; color: #fff; }
+  nav .cta { padding: 11px 18px; border-radius: 999px; background: #fff; color: #1f3576; font-size: 15px; font-weight: 600; }
+  .hero-copy { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 120px 24px 64px; }
+  .hero h1 { font-weight: 600; font-size: clamp(44px, 6.4vw, 84px); line-height: 1.05; letter-spacing: -0.05em; color: var(--navy); }
+  .hero .lead { max-width: 640px; padding-top: 28px; font-size: 19px; line-height: 29px; font-weight: 500; color: var(--navy-2); }
+  .hero .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; padding-top: 36px; }
+  .works { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px; padding-top: 28px; }
+  .works span { font-size: 15px; font-weight: 600; color: var(--navy); }
+  .works .icons { display: flex; gap: 8px; }
+  .works .icons div { width: 40px; height: 40px; border-radius: 999px; background: #fff; display: grid; place-items: center; box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+  .works .icons img { width: 20px; height: 20px; }
+  .preview { position: relative; z-index: 2; width: min(1200px, calc(100% - 48px)); margin: 0 auto; padding: 12px; border-radius: 28px; background: rgba(255,255,255,.38); border: 1px solid rgba(255,255,255,.7); box-shadow: 0 40px 80px -30px rgba(0,0,0,.25); }
+  .preview img { width: 100%; border-radius: 18px; }
+
+  .reveal-up { animation: up .9s cubic-bezier(.2,.8,.2,1) both; }
+  .d1 { animation-delay: .08s; } .d2 { animation-delay: .16s; } .d3 { animation-delay: .24s; } .d4 { animation-delay: .32s; }
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  /* Sections */
+  section { padding-top: 160px; }
+  .head { display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; margin-bottom: 56px; }
+  .head h2 { font-weight: 600; font-size: clamp(36px, 4.4vw, 56px); line-height: 1.08; letter-spacing: -0.045em; max-width: 1100px; }
+  .head p { max-width: 620px; font-size: 18px; line-height: 28px; color: var(--body); }
+
+  .bento { display: grid; gap: 20px; grid-template-columns: repeat(12, 1fr); }
+  .card { border-radius: 24px; background: var(--tint); padding: 40px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
+  .card h3 { font-weight: 600; font-size: 26px; line-height: 32px; letter-spacing: -0.03em; }
+  .card p { margin-top: 10px; font-size: 16px; line-height: 25px; color: var(--body); max-width: 520px; }
+  .c7 { grid-column: span 7; } .c5 { grid-column: span 5; }
+  .dark { background: var(--navy); color: #fff; }
+  .dark p { color: #b7c3e0; }
+  .ui { border-radius: 16px; background: #fff; box-shadow: 0 0 0 1px rgba(14,28,68,.07); }
+  .task { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .spread { justify-content: space-between; }
+  .id { font-family: "Geist Mono", monospace; font-size: 12px; color: var(--muted); }
+  .pill { padding: 3px 9px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+  .badge { padding: 3px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .t-title { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+  .t-desc { font-size: 14px; line-height: 21px; color: var(--body); }
+  .bar { width: 120px; height: 6px; border-radius: 99px; background: #eef0f4; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 50%; background: var(--navy); border-radius: 99px; }
+  .chip-row { padding: 14px 16px; border-radius: 14px; font-size: 14px; font-weight: 500; }
+  .chip-row .grow { flex: 1; }
+  .gantt-head { display: flex; padding: 12px 20px; border-bottom: 1px solid #eef0f4; }
+  .gantt-head span { flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); }
+  .gantt-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .g { padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; background: #dce6f8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .agent-shot { padding: 10px; border-radius: 28px; background: var(--tint); }
+  .agent-shot img { width: 100%; border-radius: 18px; box-shadow: 0 0 0 1px rgba(14,28,68,.07); }
+  .caps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 48px; margin-top: 56px; }
+  .caps h3 { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 14px 0; }
+  .caps p { font-size: 15px; line-height: 23px; color: var(--body); }
+
+  .group-label { font-size: 15px; font-weight: 600; margin: 0 0 16px; }
+  .int { display: grid; gap: 16px; margin-bottom: 40px; }
+  .int.three { grid-template-columns: repeat(3, 1fr); }
+  .int.four { grid-template-columns: repeat(4, 1fr); }
+  .int > div { padding: 28px; border-radius: 20px; border: 1px solid var(--line); display: flex; flex-direction: column; gap: 20px; transition: border-color .2s, transform .2s; }
+  .int > div:hover { border-color: #c9d3e8; transform: translateY(-2px); }
+  .int .ico { width: 48px; height: 48px; border-radius: 14px; background: var(--tint); display: grid; place-items: center; }
+  .int .ico img { width: 24px; height: 24px; }
+  .int strong { display: block; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 6px; }
+  .int span { font-size: 15px; line-height: 23px; color: var(--body); }
+
+  .split { display: grid; grid-template-columns: 690fr 490fr; gap: 20px; }
+  .split .card { border-radius: 28px; padding: 48px; gap: 36px; justify-content: flex-start; }
+  .split h3 { font-size: 40px; line-height: 44px; letter-spacing: -0.04em; }
+  .split p { font-size: 17px; line-height: 27px; }
+  .terminal { padding: 22px 24px; border-radius: 16px; background: #08112b; border: 1px solid rgba(255,255,255,.08); font-family: "Geist Mono", monospace; font-size: 15px; line-height: 26px; color: #fff; }
+  .terminal .p { color: #6f80ae; margin-right: 12px; }
+  .terminal .c { color: #9fb0d8; }
+  .more { font-size: 16px; font-weight: 600; margin-top: auto; }
+  .more:hover .arrow { transform: translateX(3px); }
+  .more .arrow { display: inline-block; transition: transform .2s; }
+
+  .faq { max-width: 1000px; margin: 0 auto; border-top: 1px solid var(--line); }
+  .faq > div { display: grid; grid-template-columns: 340px 1fr; gap: 64px; padding: 36px 0; border-bottom: 1px solid var(--line); }
+  .faq h3 { font-size: 20px; line-height: 28px; font-weight: 600; letter-spacing: -0.02em; }
+  .faq p { font-size: 16px; line-height: 26px; color: var(--body); }
+
+  .quote { padding: 180px 24px 120px; text-align: center; }
+  .quote blockquote { margin: 0 auto 32px; max-width: 920px; font-weight: 500; font-size: clamp(26px, 3vw, 36px); line-height: 1.33; letter-spacing: -0.03em; }
+  .quote .who { font-weight: 600; }
+  .quote .role { color: var(--body); font-size: 15px; margin-top: 4px; }
+
+  .closing { position: relative; height: 820px; overflow: hidden; background: url("assets/sky.jpg") center / cover no-repeat; animation: drift 60s ease-in-out infinite alternate; }
+  .closing::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 260px; background: linear-gradient(180deg, #fff, rgba(255,255,255,0)); }
+  .closing::after { content: ""; position: absolute; inset: auto 0 -2px 0; height: 182px; background: linear-gradient(180deg, rgba(255,255,255,0), #fff); }
+  .closing .inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 36px; padding: 230px 24px 0; text-align: center; }
+  .closing h2 { font-weight: 600; font-size: clamp(40px, 5vw, 72px); line-height: 1.05; letter-spacing: -0.05em; }
+  .closing .note { font-size: 14px; font-weight: 500; color: var(--navy-2); }
+
+  footer { padding: 48px 0; }
+  footer .top { display: flex; justify-content: space-between; gap: 48px; }
+  footer .brand { max-width: 300px; display: flex; flex-direction: column; gap: 16px; font-size: 15px; line-height: 23px; color: var(--body); }
+  footer .cols { display: flex; gap: 72px; }
+  footer .cols div { display: flex; flex-direction: column; gap: 14px; min-width: 110px; font-size: 14px; color: var(--body); }
+  footer .cols strong { color: var(--navy); font-weight: 600; }
+  footer .cols a:hover { color: var(--navy); }
+  footer .bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+  footer .social { display: flex; gap: 16px; opacity: .6; }
+  footer .social img { width: 18px; height: 18px; filter: grayscale(1) brightness(.3); }
+
+  /* Scroll reveal */
+  .js .rv { opacity: 0; transform: translateY(18px); transition: opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1); }
+  .js .rv.in { opacity: 1; transform: none; }
+
+  @media (max-width: 1000px) {
+    nav { padding: 20px 24px; }
+    nav .links { display: none; }
+    .c7, .c5 { grid-column: span 12; }
+    .caps { grid-template-columns: repeat(2, 1fr); }
+    .int.three, .int.four { grid-template-columns: repeat(2, 1fr); }
+    .split { grid-template-columns: 1fr; }
+    .faq > div { grid-template-columns: 1fr; gap: 12px; }
+    footer .top { flex-direction: column; }
+    footer .cols { flex-wrap: wrap; gap: 40px; }
+    section { padding-top: 112px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { width: calc(100% - 32px); }
+    .chip-row .id { display: none; }
+    .head h2 br { display: none; }
+    .hero-copy { padding-top: 64px; }
+    nav .signin { display: none; }
+    .card, .split .card { padding: 28px; }
+    .split h3 { font-size: 32px; line-height: 36px; }
+    .caps, .int.three, .int.four { grid-template-columns: 1fr; }
+    .gantt-head span:nth-child(n+5) { display: none; }
+    .closing { height: 640px; }
+    .closing .inner { padding-top: 160px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .js .rv { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add("js");</script>
+
+<header class="hero">
+  <div class="sky" aria-hidden="true"></div>
+  <nav>
+    <a href="https://kaneo.app" aria-label="Kaneo home"><img src="assets/logo-light.svg" alt="Kaneo" width="108" height="25" /></a>
+    <div class="links">
+      <a href="#features">Product</a>
+      <a href="https://kaneo.app/pricing">Pricing</a>
+      <a href="https://kaneo.app/docs/core">Docs</a>
+      <a href="https://kaneo.app/blog">Blog</a>
+      <a href="https://kaneo.app/community">Community</a>
+    </div>
+    <div class="actions">
+      <a class="signin" href="https://cloud.kaneo.app/auth/sign-in">Sign in</a>
+      <a class="cta" href="https://cloud.kaneo.app/auth/sign-up">Get started</a>
+    </div>
+  </nav>
+
+  <div class="hero-copy">
+    <h1 class="reveal-up">Project management<br />that doesn’t become the project.</h1>
+    <p class="lead reveal-up d1">Kaneo 3 brings a cleaner interface and an agent that works alongside your team. Open source, and free to self-host.</p>
+    <div class="buttons reveal-up d2">
+      <a class="btn btn-navy" href="https://cloud.kaneo.app/auth/sign-up">Try Kaneo Cloud <span class="arrow">→</span></a>
+      <a class="btn btn-white" href="https://kaneo.app/docs/core/installation">Self-host Kaneo</a>
+    </div>
+    <div class="works reveal-up d3">
+      <span>Works with</span>
+      <div class="icons">
+        <div><img src="assets/github.svg" alt="GitHub" /></div>
+        <div><img src="assets/slack.svg" alt="Slack" /></div>
+        <div><img src="assets/gitlab.svg" alt="GitLab" /></div>
+        <div><img src="assets/discord.svg" alt="Discord" /></div>
+        <div><img src="assets/telegram.svg" alt="Telegram" /></div>
+        <div><img src="assets/gitea.svg" alt="Gitea" /></div>
+        <div><img src="assets/mattermost.svg" alt="Mattermost" /></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview reveal-up d4">
+    <img src="assets/board.webp" alt="A Kaneo project board with To Do, In Progress, In Review and Done columns." width="2352" height="1200" />
+  </div>
+</header>
+
+<main>
+  <section id="features" class="wrap">
+    <div class="head rv">
+      <h2>Every detail stays with the work.</h2>
+      <p>Boards, backlog, Gantt and calendar views, custom fields and time tracking. Only what a team actually uses.</p>
+    </div>
+    <div class="bento">
+      <div class="card c7 rv">
+        <div>
+          <h3>Big tasks. Clear next steps.</h3>
+          <p>Break work into subtasks, assign each one, and track progress without losing the original brief.</p>
+        </div>
+        <div class="ui task">
+          <div class="row spread">
+            <span class="id">WEB-160</span>
+            <div class="row" style="gap:6px"><span class="pill" style="background:#fff1e6;color:#b4530a">High</span><span class="pill" style="background:#f1f2f5;color:var(--body)">Oct 12</span></div>
+          </div>
+          <div><div class="t-title">Publish the new homepage</div><div class="t-desc" style="margin-top:6px">Update the copy and check the layout before the next release.</div></div>
+          <div style="border-top:1px solid #eef0f4;padding-top:14px;display:flex;flex-direction:column;gap:10px">
+            <div class="row spread"><span style="font-size:13px;font-weight:500;color:var(--body)">1 of 2 subtasks complete</span><div class="bar"><i></i></div></div>
+            <div class="row"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="8" fill="#0E1C44"/><path d="M5.5 9.2l2.3 2.3 4.7-4.8" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:14px;color:var(--muted);text-decoration:line-through">Review the copy</span></div>
+            <div class="row"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.5" fill="none" stroke="#C3C8D4" stroke-width="1.5"/></svg><span style="font-size:14px">Check the mobile layout</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card c5 dark rv">
+        <div>
+          <h3>From pull request to done.</h3>
+          <p>Issues and labels sync both ways. Linked pull requests move tasks through review to done as your code is opened and merged.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="row chip-row" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)">
+            <img src="assets/github.svg" alt="" style="width:20px;height:20px;filter:invert(1)" />
+            <span class="grow">Update homepage copy</span><span class="id" style="color:#8e9bbe">#482</span><span class="badge" style="background:#8250df;color:#fff">Merged</span>
+          </div>
+          <div class="row chip-row" style="background:#fff;color:var(--navy)">
+            <span class="id">WEB-160</span><span class="grow">Publish the new homepage</span><span style="font-size:12px;color:var(--muted);text-decoration:line-through">In Review</span><span class="badge" style="background:#e3f6ea;color:#127a3d">Done</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card c5 rv">
+        <div>
+          <h3>See what’s holding things up.</h3>
+          <p>Connect blockers, follow dependencies, and keep related work close.</p>
+        </div>
+        <div>
+          <div class="row chip-row ui"><span class="id">WEB-161</span><span class="grow">Check the mobile layout</span><span class="badge" style="background:#fff4d6;color:#8a5a00">In Progress</span></div>
+          <div class="row" style="padding:6px 0 6px 28px"><div style="width:2px;height:28px;background:#c9d3e8"></div><span style="font-size:12px;font-weight:500;color:var(--muted)">blocks</span></div>
+          <div class="row chip-row ui"><span class="id">WEB-160</span><span class="grow">Publish the new homepage</span><span class="badge" style="background:#f1f2f5;color:var(--body)">To Do</span></div>
+        </div>
+      </div>
+
+      <div class="card c7 rv">
+        <div>
+          <h3>Plan on a board, a list or a timeline.</h3>
+          <p>Gantt and calendar views use the same tasks as your board. Set start and due dates to see the plan over time.</p>
+        </div>
+        <div class="ui" style="overflow:hidden">
+          <div class="gantt-head"><span>Oct 6</span><span>Oct 9</span><span>Oct 12</span><span>Oct 15</span><span>Oct 18</span><span>Oct 21</span></div>
+          <div class="gantt-body">
+            <div class="g" style="width:40%">Review the copy</div>
+            <div class="g" style="margin-left:27%;width:36%">Check the mobile layout</div>
+            <div class="g" style="margin-left:55%;width:40%;background:var(--navy);color:#fff">Publish the new homepage</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="agent" class="wrap">
+    <div class="head rv">
+      <h2>Ask for the change. Review it. Apply it.</h2>
+      <p>Kaneo’s agent plans work, rebalances the week and drafts updates. Every change waits for your review, and you can undo it anytime.</p>
+    </div>
+    <div class="agent-shot rv">
+      <img src="assets/agent.webp" alt="The Kaneo agent panel next to a board, proposing to reassign one task and move another task's due date, waiting for review." loading="lazy" width="2360" height="1640" />
+    </div>
+    <div class="caps">
+      <div class="rv">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E1C44" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>
+        <h3>Plan</h3><p>Turn meeting notes, images or a PDF into tasks with subtasks and dates. Mention any task or project with @.</p>
+      </div>
+      <div class="rv">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E1C44" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+        <h3>Code</h3><p>Hand a task to the agent. It works in your repository’s GitHub Actions and opens a pull request.</p>
+      </div>
+      <div class="rv">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E1C44" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+        <h3>Automate</h3><p>Write rules in plain language that run on a schedule or when something happens, like a pull request merging.</p>
+      </div>
+      <div class="rv">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E1C44" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <h3>Your models, your key</h3><p>Off by default when you self-host. Turn it on with your own OpenRouter key and choose which models your team can use.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="integrations" class="wrap">
+    <div class="head rv">
+      <h2>Connect the tools your team already uses.</h2>
+      <p>Sync issues with your repository and post updates where your team already talks.</p>
+    </div>
+    <p class="group-label rv">Repositories</p>
+    <div class="int three">
+      <div class="rv"><div class="ico"><img src="assets/github.svg" alt="" /></div><div><strong>GitHub</strong><span>Sync issues and comments, link pull requests, and automate task status.</span></div></div>
+      <div class="rv"><div class="ico"><img src="assets/gitlab.svg" alt="" /></div><div><strong>GitLab</strong><span>Connect GitLab.com or your own instance to sync issues and track merge requests.</span></div></div>
+      <div class="rv"><div class="ico"><img src="assets/gitea.svg" alt="" /></div><div><strong>Gitea</strong><span>Connect your Gitea server for issue sync and workflow automation.</span></div></div>
+    </div>
+    <p class="group-label rv">Team notifications</p>
+    <div class="int four" style="margin-bottom:0">
+      <div class="rv"><div class="ico"><img src="assets/slack.svg" alt="" style="width:22px;height:22px" /></div><div><strong>Slack</strong><span>Post task updates to a channel through an incoming webhook.</span></div></div>
+      <div class="rv"><div class="ico"><img src="assets/discord.svg" alt="" /></div><div><strong>Discord</strong><span>Send task activity to a Discord channel.</span></div></div>
+      <div class="rv"><div class="ico"><img src="assets/mattermost.svg" alt="" /></div><div><strong>Mattermost</strong><span>Connect an incoming webhook on your Mattermost instance.</span></div></div>
+      <div class="rv"><div class="ico"><img src="assets/telegram.svg" alt="" /></div><div><strong>Telegram</strong><span>Send updates through a bot to a chat, group, channel, or topic.</span></div></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="split">
+      <div class="card dark rv">
+        <div>
+          <h3>Run it on your own server.</h3>
+          <p style="margin-top:12px">Deploy with Docker Compose or the official Helm chart and keep your workspace on infrastructure you control. Single sign-on is included for free.</p>
+        </div>
+        <div class="terminal"><div><span class="p">$</span>docker compose up -d</div><div class="c"><span class="p">#</span>then open http://localhost:5173</div></div>
+        <a class="more" href="https://kaneo.app/docs/core/installation">Read the installation guide <span class="arrow">→</span></a>
+      </div>
+      <div class="card rv">
+        <div>
+          <h3>The code is open, too.</h3>
+          <p style="margin-top:12px">Read the source, report an issue, or contribute a change. Kaneo is MIT licensed and developed in the open on GitHub.</p>
+        </div>
+        <div class="ui row" style="padding:18px 20px;gap:14px"><img src="assets/github.svg" alt="" style="width:24px;height:24px" /><span class="mono" style="flex:1;font-size:15px">usekaneo/kaneo</span><span class="badge" style="background:#f1f2f5;color:var(--body);font-weight:500">MIT</span></div>
+        <a class="more" href="https://github.com/usekaneo/kaneo">View the source <span class="arrow">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="wrap">
+    <div class="head rv"><h2>Before you get started</h2></div>
+    <div class="faq">
+      <div class="rv"><h3>Is Kaneo free to self-host?</h3><p>Yes. Kaneo is MIT licensed and free to self-host, with single sign-on included. Run it alongside PostgreSQL with Docker Compose, or deploy with the official Helm chart. You manage infrastructure, updates, and backups.</p></div>
+      <div class="rv"><h3>Does Kaneo have Gantt charts?</h3><p>Yes. Gantt and calendar views sit alongside boards, lists, and backlog planning. Use start and due dates to plan work on a timeline.</p></div>
+      <div class="rv"><h3>Is single sign-on included?</h3><p>Yes. The free self-hosted build supports Google, GitHub, Discord, and custom OAuth/OIDC providers, without a separate paid edition.</p></div>
+      <div class="rv"><h3>Can AI clients work with Kaneo?</h3><p>Yes. Kaneo provides an MCP server through the @kaneo/mcp package and an HTTP endpoint. Compatible clients can read and update tasks with an API key, subject to workspace permissions.</p></div>
+    </div>
+  </section>
+
+  <div class="quote rv">
+    <blockquote>“I believe the best tools are invisible. They should amplify your team’s natural workflow, not force you to adapt to theirs.”</blockquote>
+    <div class="who">Andrej Acevski</div>
+    <div class="role">Creator of Kaneo</div>
+  </div>
+
+  <div class="closing">
+    <div class="inner">
+      <h2 class="rv">Get your team back to the work.</h2>
+      <div class="rv" style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px">
+        <a class="btn btn-navy" href="https://cloud.kaneo.app/auth/sign-up">Try Kaneo Cloud <span class="arrow">→</span></a>
+        <a class="btn btn-white" href="https://kaneo.app/docs/core/installation">Self-host Kaneo</a>
+      </div>
+      <span class="note rv">14-day cloud trial, no credit card required.</span>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">
+  <div class="top">
+    <div class="brand">
+      <img src="assets/logo-dark.svg" alt="Kaneo" width="108" height="25" />
+      <span>Open-source project management that doesn’t become the project.</span>
+    </div>
+    <div class="cols">
+      <div><strong>Product</strong><a href="https://cloud.kaneo.app">Kaneo Cloud</a><a href="#features">Features</a><a href="https://kaneo.app/pricing">Pricing</a><a href="https://kaneo.app/alternatives">Compare tools</a><a href="https://kaneo.app/guides">Guides</a><a href="https://kaneo.app/blog">Blog</a></div>
+      <div><strong>Resources</strong><a href="https://kaneo.app/docs/core">Documentation</a><a href="https://kaneo.app/press">Press</a><a href="https://github.com/usekaneo/kaneo">GitHub</a><a href="https://github.com/usekaneo/kaneo/blob/main/LICENSE">License</a><a href="https://github.com/usekaneo/kaneo/blob/main/CONTRIBUTING.md">Contributing</a></div>
+      <div><strong>Community</strong><a href="https://kaneo.app/community">Community</a><a href="https://discord.com/invite/rU4tSyhXXU">Discord</a><a href="https://github.com/sponsors/andrejsshell">Sponsor</a></div>
+      <div><strong>Legal</strong><a href="https://kaneo.app/privacy">Privacy</a><a href="https://kaneo.app/terms">Terms</a><a href="mailto:support@kaneo.app">Support</a></div>
+    </div>
+  </div>
+  <div class="bottom">
+    <span>© 2026 Kaneo</span>
+    <div class="social">
+      <a href="https://github.com/usekaneo/kaneo" aria-label="GitHub"><img src="assets/github.svg" alt="" /></a>
+      <a href="https://discord.com/invite/rU4tSyhXXU" aria-label="Discord"><img src="assets/discord.svg" alt="" /></a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }, { rootMargin: "0px 0px -8% 0px" });
+  document.querySelectorAll(".rv").forEach((el, i) => {
+    el.style.transitionDelay = (i % 4) * 60 + "ms";
+    io.observe(el);
+  });
+</script>
+</body>
+</html>
