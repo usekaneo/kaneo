@@ -9,6 +9,7 @@ import {
   createWorkspaceMember,
 } from "./helpers/fixtures";
 import { addWorkspaceMember } from "./helpers/project-access/add-workspace-member";
+import { restrictToProjects } from "./helpers/project-access/restrict-to-projects";
 
 type User = Parameters<typeof mockAuthenticatedSession>[0];
 
@@ -146,5 +147,87 @@ describe("contacts", () => {
       contactId: foreign.body.id,
     });
     expect(created.status).toBe(404);
+  });
+
+  it("merges comments on a contact's leads into a timeline and hides restricted projects", async () => {
+    const { user: owner, workspace } = await createWorkspaceMember({
+      role: "owner",
+    });
+    const open = await createProjectFixture({ workspaceId: workspace.id });
+    const hidden = await createProjectFixture({ workspaceId: workspace.id });
+    const rep = await addWorkspaceMember(workspace.id, "member");
+    await restrictToProjects(workspace.id, rep.id, [open.project.id]);
+
+    const contact = await call(
+      owner,
+      "POST",
+      `/contact/workspace/${workspace.id}`,
+      { name: "Ali Stores" },
+    );
+    const visibleLead = await createLead(open.project.id);
+    const [privateLead] = await db
+      .insert(schema.taskTable)
+      .values({
+        projectId: hidden.project.id,
+        title: "Private lead",
+        number: 1,
+        status: "to-do",
+        contactId: contact.body.id,
+        dueDate: new Date("2030-01-01"),
+      })
+      .returning();
+    await db
+      .update(schema.taskTable)
+      .set({
+        contactId: contact.body.id,
+        dueDate: new Date("2030-02-01"),
+      })
+      .where(eq(schema.taskTable.id, visibleLead.id));
+
+    const note = (taskId: string, content: string, at: string) =>
+      db.insert(schema.activityTable).values({
+        taskId,
+        type: "comment",
+        userId: owner.id,
+        content,
+        createdAt: new Date(at),
+      });
+    await note(visibleLead.id, "Called, wants a quote", "2030-01-02T10:00:00Z");
+    await note(visibleLead.id, "Sent the quote", "2030-01-03T10:00:00Z");
+    await note(privateLead.id, "Secret terms", "2030-01-04T10:00:00Z");
+    await db.insert(schema.activityTable).values({
+      taskId: visibleLead.id,
+      type: "title_changed",
+      userId: owner.id,
+      content: null,
+    });
+
+    const path = `/contact/workspace/${workspace.id}/${contact.body.id}/timeline`;
+    const asOwner = await call(owner, "GET", path);
+    expect(asOwner.status).toBe(200);
+    expect(asOwner.body.leads.map((l: { title: string }) => l.title)).toEqual([
+      "Private lead",
+      "Follow up",
+    ]);
+    expect(
+      asOwner.body.entries.map((e: { content: string }) => e.content),
+    ).toEqual(["Secret terms", "Sent the quote", "Called, wants a quote"]);
+
+    const asRep = await call(rep, "GET", path);
+    expect(asRep.status).toBe(200);
+    expect(asRep.body.leads.map((l: { title: string }) => l.title)).toEqual([
+      "Follow up",
+    ]);
+    expect(
+      asRep.body.entries.map((e: { content: string }) => e.content),
+    ).toEqual(["Sent the quote", "Called, wants a quote"]);
+    expect(JSON.stringify(asRep.body)).not.toContain("Secret");
+
+    const missing = await call(
+      owner,
+      "GET",
+      `/contact/workspace/${workspace.id}/nope/timeline`,
+    );
+    expect(missing.status).toBe(404);
   });
 });

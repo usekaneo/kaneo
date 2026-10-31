@@ -10,9 +10,14 @@ import { requireWorkspacePermission } from "../utils/require-workspace-permissio
 import { workspaceAccess } from "../utils/workspace-access-middleware";
 import createContact from "./controllers/create-contact";
 import deleteContact from "./controllers/delete-contact";
+import getContactTimeline from "./controllers/get-contact-timeline";
 import listContacts from "./controllers/list-contacts";
 import updateContact from "./controllers/update-contact";
-import { contactListSchema, contactSchema } from "./response";
+import {
+  contactListSchema,
+  contactSchema,
+  contactTimelineSchema,
+} from "./response";
 import {
   contactParam,
   createContactBody,
@@ -86,6 +91,33 @@ const contact = apiRouter<BaseVariables & { workspaceId: string }>()
           ...c.req.valid("json"),
         }),
         201,
+      ),
+  )
+  .openapi(
+    createRoute({
+      method: "get",
+      operationId: "getContactTimeline",
+      path: "/workspace/{workspaceId}/{id}/timeline",
+      tags: ["Contacts"],
+      summary: "Get a contact's follow-up timeline",
+      description:
+        "The contact's leads (tasks linked to it, next follow-up first) and the comments on those leads, newest first. Log an interaction by commenting on a lead. Leads in projects the caller cannot open are left out.",
+      middleware: access({ workspace: ["read"] }),
+      request: { params: idParam },
+      responses: {
+        200: jsonResponse("Leads and interactions", contactTimelineSchema),
+        403: errorResponse("Missing workspace:read permission"),
+        404: errorResponse("Workspace or contact not found"),
+      },
+    }),
+    async (c) =>
+      c.json(
+        await getContactTimeline(
+          c.get("workspaceId"),
+          c.req.valid("param").id,
+          c.get("userId"),
+        ),
+        200,
       ),
   )
   .openapi(

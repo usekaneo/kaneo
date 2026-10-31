@@ -4396,6 +4396,123 @@
           "updatedAt"
         ]
       },
+      "ContactTimeline": {
+        "type": "object",
+        "properties": {
+          "leads": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "number": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "title": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "dueDate": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "format": "date-time",
+                  "description": "The next follow-up for this lead, if scheduled."
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "projectName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "number",
+                "title",
+                "status",
+                "dueDate",
+                "projectId",
+                "projectName"
+              ]
+            }
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "taskId": {
+                  "type": "string"
+                },
+                "taskNumber": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "taskTitle": {
+                  "type": "string"
+                },
+                "projectId": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "user": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "image": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "image"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "taskId",
+                "taskNumber",
+                "taskTitle",
+                "projectId",
+                "content",
+                "createdAt",
+                "user"
+              ]
+            },
+            "description": "Comments on the contact's leads, newest first. Each comment is one logged interaction."
+          }
+        },
+        "required": [
+          "leads",
+          "entries"
+        ]
+      },
       "WorkflowRule": {
         "type": "object",
         "properties": {
@@ -23651,6 +23768,79 @@
           },
           "404": {
             "description": "Workspace not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "429": {
+            "$ref": "#/components/responses/ApiKeyRateLimited"
+          }
+        }
+      }
+    },
+    "/contact/workspace/{workspaceId}/{id}/timeline": {
+      "get": {
+        "operationId": "getContactTimeline",
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Get a contact's follow-up timeline",
+        "description": "The contact's leads (tasks linked to it, next follow-up first) and the comments on those leads, newest first. Log an interaction by commenting on a lead. Leads in projects the caller cannot open are left out.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "workspaceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Leads and interactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactTimeline"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing workspace:read permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Workspace or contact not found",
             "content": {
               "application/json": {
                 "schema": {

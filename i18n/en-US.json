@@ -3638,7 +3638,20 @@
 				"central-atolls": "Central atolls",
 				"south-atolls": "South atolls",
 				"other": "Other"
-			}
+			},
+			"timeline": "Follow-up timeline",
+			"noLeads": "No leads yet. Open a task and set its Contact to make it a lead.",
+			"noFollowUp": "No follow-up",
+			"noInteractions": "No interactions logged yet.",
+			"interactionLabel": "Interaction note",
+			"interactionPlaceholder": "What happened? Call, visit, quote sent…",
+			"forLead": "Lead",
+			"nextFollowUp": "Next follow-up",
+			"logInteraction": "Log interaction",
+			"interactionLogged": "Interaction logged",
+			"interactionError": "Failed to log the interaction.",
+			"timelineError": "The timeline couldn't be loaded.",
+			"showMore": "Show older"
 		}
 	},
 	"team": {

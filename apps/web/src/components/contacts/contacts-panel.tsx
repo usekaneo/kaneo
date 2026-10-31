@@ -18,6 +18,7 @@ import type { Contact } from "@/fetchers/contact";
 import { useContacts } from "@/hooks/queries/contact/use-contacts";
 import { ContactDeleteDialog } from "./contact-delete-dialog";
 import { ContactDialog } from "./contact-dialog";
+import { ContactTimelineSheet } from "./contact-timeline-sheet";
 import { ContactOptionSelect } from "./contact-option-select";
 import {
   CONTACT_REGIONS,
@@ -53,6 +54,7 @@ export function ContactsPanel({
     key: 0,
   });
   const [toDelete, setToDelete] = useState<Contact | null>(null);
+  const [selected, setSelected] = useState<Contact | null>(null);
 
   const {
     data: contacts,
@@ -190,7 +192,15 @@ export function ContactsPanel({
             <TableBody>
               {contacts.map((contact) => (
                 <TableRow key={contact.id}>
-                  <TableCell className="font-medium">{contact.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <button
+                      type="button"
+                      className="text-left hover:underline"
+                      onClick={() => setSelected(contact)}
+                    >
+                      {contact.name}
+                    </button>
+                  </TableCell>
                   <TableCell>{t(contactTypeKey(contact.type))}</TableCell>
                   <TableCell>{t(contactRegionKey(contact.region))}</TableCell>
                   <TableCell>
@@ -255,6 +265,14 @@ export function ContactsPanel({
           }
         />
       ) : null}
+      <ContactTimelineSheet
+        workspaceId={workspaceId}
+        contact={selected}
+        canLog={canUpdate}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+      />
       <ContactDeleteDialog
         workspaceId={workspaceId}
         contact={toDelete}

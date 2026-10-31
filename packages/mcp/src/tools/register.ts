@@ -747,6 +747,24 @@ export function registerTools(
   );
 
   registerTool(
+    "get_contact_timeline",
+    {
+      description:
+        "Get a contact's leads (next follow-up first) and the comments logged on them, newest first. Log a new interaction with create_task_comment on one of the leads.",
+      inputSchema: z.object({
+        workspaceId: nonEmptyString,
+        contactId: nonEmptyString,
+      }),
+    },
+    async (args) =>
+      run(() =>
+        client.json(
+          `/api/contact/workspace/${encodeURIComponent(args.workspaceId)}/${encodeURIComponent(args.contactId)}/timeline`,
+        ),
+      ),
+  );
+
+  registerTool(
     "set_task_contact",
     {
       description:

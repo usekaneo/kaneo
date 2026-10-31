@@ -447,6 +447,13 @@ describe("registerTools", () => {
     });
 
     await tools
+      .get("get_contact_timeline")
+      ?.handler({ workspaceId: "ws-1", contactId: "c-1" });
+    expect(client.json).toHaveBeenCalledWith(
+      "/api/contact/workspace/ws-1/c-1/timeline",
+    );
+
+    await tools
       .get("set_task_contact")
       ?.handler({ taskId: "t-1", contactId: null });
     expect(client.json).toHaveBeenCalledWith("/api/task/contact/t-1", {

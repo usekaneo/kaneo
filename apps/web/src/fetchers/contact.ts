@@ -78,3 +78,16 @@ export async function setTaskContact(taskId: string, contactId: string | null) {
   if (!response.ok) throw await HttpError.fromResponse(response);
   return response.json();
 }
+
+export type ContactTimeline = InferResponseType<
+  (typeof contacts)[":id"]["timeline"]["$get"],
+  200
+>;
+
+export async function getContactTimeline(workspaceId: string, id: string) {
+  const response = await contacts[":id"].timeline.$get({
+    param: { workspaceId, id },
+  });
+  if (!response.ok) throw await HttpError.fromResponse(response);
+  return response.json();
+}
